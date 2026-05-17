@@ -9,7 +9,7 @@ Documento de referência para a implementação do MVP 1. Foi escrito para ser l
 ### Restrições de execução
 - **Plataforma**: navegador web. UI básica é suficiente para o MVP 1, mas deve ser funcional e clara.
 - **Quem implementa**: Claude Sonnet. A arquitetura, a stack e as convenções foram escolhidas para maximizar a previsibilidade da execução por modelo e minimizar tokens gastos em retrabalho.
-- **Escopo**: MVP 1 conforme seção 23 do documento de jornada — modo solo, 1 herói, 1 chefe, loop completo de exploração até vitória ou derrota.
+- **Escopo**: MVP 1 conforme seção 23 do documento de jornada, atualizado pelo Patch 1 — modo solo, **1 a 8 heróis selecionáveis pelo jogador**, 1 chefe (Azhakar), loop completo de exploração até vitória ou derrota.
 
 ### Restrições derivadas da execução por modelo
 Estas não são preferências de estilo, são requisitos:
@@ -76,7 +76,8 @@ Onde o manual diz "regra da mesa" ou onde o negócio ainda não decidiu, o códi
 | Ordem de efeitos simultâneos | `effectOrderStrategy` | sala → artefato → item → herói → criatura → roxo → chefe |
 | Resolução de empate em "menor vida" | `tiebreakStrategy` | menor % de vida; se empatar, primeiro do array |
 | Escolha do boss | `bossSelectionStrategy` | "fixo Azhakar" no MVP 1 |
-| Distribuição de itens | `itemDistributionStrategy` | "jogador escolhe equipar/mochila/descartar" |
+| Distribuição de itens | `itemDistributionStrategy` | "jogador escolhe herói destinatário → equipar/mochila/descartar" |
+| Ordem de ação dos heróis em combate | `heroOrderStrategy` | "jogador escolhe qual herói age na rodada" |
 
 Cada strategy é uma função pura que recebe o estado e retorna a decisão. Trocar uma strategy é trocar um import. Nenhuma delas pode estar inlined no fluxo principal.
 
@@ -193,25 +194,47 @@ src/
 - Heróis indexam pelo Ímpeto Heroico individual. Criaturas indexam pelo Despertar da Masmorra global.
 
 ### 5.3 Economia de XP
-- Custos: 5 (recuperar carta de dungeon), 10 (subir nível), 15 (comprar item), 30 (baixar Despertar), 35 (comprar artefato).
+- Custos: 5 (recuperar carta de dungeon), 10 (subir nível de 1 herói escolhido), 15 (comprar item), 30 (baixar Despertar), 35 (comprar artefato).
 - XP é coletivo do grupo.
 - Janela de gasto acontece após resolver sala, antes de abrir caminhos.
+- Subir nível custa 10 XP coletivos mas beneficia 1 herói específico (escolhido pelo jogador) — sobe Ímpeto, sobe Despertar (efeito colateral global), cura totalmente o herói escolhido, remove condições negativas temporárias.
 - Exceção: gastar 5 XP para evitar derrota por deck de dungeon vazio é permitido como interrupção.
 
-### 5.4 Combate
+### 5.4 Dificuldades (regra unificada: "+N níveis")
+Cada dificuldade aplica dois deslocamentos: um sobre o Ímpeto inicial de cada herói, outro sobre o Despertar inicial da masmorra. Nível 0 = Branco; +N sobe N posições.
+
+| Modo | Ímpeto +N | Despertar +N | Cor Ímpeto | Cor Despertar |
+|---|---|---|---|---|
+| Muito fácil | +2 | 0 | Laranja | Branco |
+| Fácil | +1 | 0 | Amarelo | Branco |
+| Padrão | 0 | 0 | Branco | Branco |
+| Difícil | 0 | +1 | Branco | Amarelo |
+| Pesadelo | 0 | +2 | Branco | Laranja |
+
+> **Correção do Patch 1**: a documentação anterior listava o Pesadelo como "Ímpeto Amarelo + Despertar Laranja". Está errado. Vale a regra "+N níveis": no Pesadelo, Ímpeto inicial é Branco (0), Despertar é Laranja (+2).
+
+### 5.5 Combate
+- Heróis ativos agem **um por vez** em cada rodada (ordem definida por `heroOrderStrategy`; default = jogador escolhe).
 - Cada herói enfrenta 1 criatura por rodada.
 - Uma criatura não pode ser alvo de mais de 1 herói na mesma rodada.
 - Empate na rolagem: ambos sofrem 1 de dano.
-- Criaturas sem oponente causam dano direto (strategy define o alvo).
+- Após todos os heróis ativos agirem: criaturas sem oponente causam dano direto (strategy define o alvo).
 - Escudo: ignora até 2 do primeiro dano de cada turno. Se for 1 ou 2, ignora tudo. Se for >2, reduz 2.
 - Fuga: disponível para carta com 1 de vida. Precisa vencer o próximo confronto para fugir.
+- **Derrota só acontece quando todos os heróis estão derrotados**, não quando o primeiro morre.
 
-### 5.5 Esgotamento de deck de dungeon
+### 5.6 Esgotamento de deck de dungeon
 - Quando precisar revelar nova sala e o deck estiver vazio:
   - Se grupo tem ≥5 XP e descarte ≥1 carta: oferece gastar 5 XP para recuperar.
   - Caso contrário: derrota.
 
-### 5.6 Condição do chefe
+### 5.7 Recompensas: item vs artefato
+- **Item**: jogador escolhe qual herói recebe. Em seguida, herói escolhe equipar / mochila / descartar. Se equipar com slot ocupado, item anterior vai para mochila ou é descartado.
+- **Artefato comum**: vai direto para área de "Artefatos do grupo". Sem escolha de herói.
+- **Artefato com "o portador"**: jogador escolhe 1 herói como portador. Vai para área do grupo com a marcação.
+- Tesouro sem deck = 1 XP. Artefato sem deck = 3 XP.
+
+### 5.8 Condição do chefe
 - Verificada após cada sala resolvida.
 - Quando cumprida: interrompe exploração, inicia combate final.
 - No MVP 1 com Azhakar: `o grupo possui ≥2 Artefatos`.
@@ -322,8 +345,9 @@ Estes pontos não bloqueiam o MVP 1. Cada um já está mapeado para o módulo ce
 | Ponto | Default no MVP 1 | Local de mudança |
 |---|---|---|
 | Plataforma | Web (Vite + React) | Camada `ui/` inteira é trocável |
-| Quantos heróis | 1 fixo | `core/state/gameState.ts` já trata como array |
+| Quantos heróis | **1 a 8 selecionáveis pelo jogador** | `core/state/gameState.ts` (array de heróis) |
 | Alvo de dano direto | Herói com menor vida | `core/strategies/targetSelection.ts` |
+| Ordem dos heróis em combate | Jogador escolhe | `core/strategies/heroOrder.ts` |
 | Ordem de efeitos simultâneos | Sala → artefato → item → herói → criatura → roxo → chefe | `core/strategies/effectOrder.ts` |
 | Salvar partida no meio | Não disponível na UI, mas serialização pronta | `ui/store/gameStore.ts` |
 | Mochila ilimitada | Sim | `core/config/defaults.ts` |
@@ -402,16 +426,18 @@ A ordem importa porque algumas peças dependem de outras. Esta sequência minimi
 O MVP 1 está pronto quando:
 
 - [ ] Jogador abre o jogo no navegador.
-- [ ] Inicia nova partida em modo solo, dificuldade padrão.
-- [ ] Escolhe 1 herói entre os 8 disponíveis (UI pode ser simplificada para MVP).
+- [ ] Inicia nova partida em modo solo, dificuldade selecionável (Muito fácil até Pesadelo).
+- [ ] **Escolhe de 1 a 8 heróis** entre os 8 disponíveis.
 - [ ] Encara Azhakar como boss fixo, condição "≥2 Artefatos".
 - [ ] Sistema embaralha decks e revela primeira sala.
-- [ ] Loop completo funciona: sala → criaturas → combate → rolagem → dano → recompensa → XP → janela de XP → abertura de caminhos → próxima sala.
+- [ ] Loop completo funciona: sala → criaturas → combate (cada herói age em sequência) → rolagem → dano → recompensa → XP → janela de XP → abertura de caminhos → próxima sala.
+- [ ] Em combate, jogador escolhe ordem em que cada herói age.
+- [ ] Criaturas sem oponente causam dano direto após todos heróis agirem.
 - [ ] Esgotamento de deck oferece opção de gastar 5 XP.
 - [ ] Condição do boss é verificada após cada sala.
 - [ ] Combate final contra Azhakar acontece quando condição é cumprida.
 - [ ] Tela de vitória aparece ao derrotar Azhakar.
-- [ ] Tela de derrota aparece ao perder por morte do herói, deck esgotado ou derrota no boss.
+- [ ] Tela de derrota aparece quando **todos** os heróis morrem, deck esgotado, ou Azhakar derrota o grupo.
 - [ ] Testes do core passam.
 
 Tudo que está em "MVP 2/3/4" da jornada original fica fora.
@@ -423,7 +449,6 @@ Tudo que está em "MVP 2/3/4" da jornada original fica fora.
 - Animações complexas (use transições CSS simples se for necessário).
 - Sons.
 - Subchefes (a feature flag fica desligada, mas o código já prevê).
-- Múltiplos heróis na mesma partida.
 - Modos cooperativo ou competitivo.
 - Salvar partida em localStorage (mesmo a infraestrutura estando pronta).
 - Biblioteca de cartas.

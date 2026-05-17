@@ -318,15 +318,16 @@ Este marco é o maior. Divida em 3 sessões.
 
 #### Sessão 5B — Combate
 
-6. **`src/core/reducer/combat.ts`** — handlers de combate:
-   - `COMBAT_START`: muda status, prepara CombatState.
-   - `CHOOSE_HERO`: registra herói ativo da rodada (no MVP 1, auto-seleciona se houver só 1).
-   - `CHOOSE_TARGET`: valida e registra par herói-criatura.
+6. **`src/core/reducer/combat.ts`** — handlers de combate (com suporte a 1 a 8 heróis):
+   - `COMBAT_START`: muda status, prepara CombatState com `heroesActed: []` e `enemiesEngaged: []`.
+   - `CHOOSE_HERO`: jogador escolhe qual herói age agora. Valida que o herói está ativo, vivo e não agiu nesta rodada. Se sobrar apenas 1 herói disponível, auto-seleciona.
+   - `CHOOSE_TARGET`: valida que inimigo não foi engajado nesta rodada por outro herói. Registra par `{ heroId, enemyId }`.
    - `ROLL_DICE`: chama `rollDice` com a quantidade certa de dados (lookup no JSON da carta com `getDiceCount`), guarda em `combatState.lastRoll`.
    - `RESOLVE_ATTACK`: calcula totais com bônus discriminados, aplica `resolveAttack`, atualiza vidas.
    - `APPLY_DAMAGE`: aplica dano considerando escudo.
-   - `CHECK_COMBAT_END`: verifica se todos os inimigos morreram ou se herói morreu.
-   - `DIRECT_DAMAGE`: criaturas sem oponente causam dano direto (usa strategy `targetSelection`).
+   - `END_HERO_ACTION`: marca herói como tendo agido na rodada. Se ainda houver heróis disponíveis, volta para `CHOOSE_HERO`. Se todos agiram, transita para `DIRECT_DAMAGE`.
+   - `DIRECT_DAMAGE`: para cada criatura ainda viva sem oponente nesta rodada, causa dano direto a 1 herói válido (usa strategy `targetSelection`).
+   - `CHECK_COMBAT_END`: verifica se todos os inimigos morreram OU se todos os heróis morreram. Se nenhum dos dois, inicia nova rodada (limpa `heroesActed` e `enemiesEngaged`).
 
 7. **Itens e poderes do MVP 1** — implementação direta por nome:
    - Adaga Enferrujada: bônus +1 já entra automaticamente no cálculo de `RESOLVE_ATTACK` quando equipada.
@@ -338,14 +339,20 @@ Este marco é o maior. Divida em 3 sessões.
 #### Sessão 5C — Recompensa, XP, progressão, boss
 
 8. **`src/core/reducer/reward.ts`**:
-   - `REWARD_PHASE`: calcula recompensas usando `calculateRewards`, abre janela de equipar/mochila/descartar.
-   - `GRANT_REWARDS`: compra cartas do deck de tesouros, jogador escolhe destino (no MVP 1, simplificar: se slot do tipo está livre, equipa automaticamente; se ocupado, vai pra mochila).
+   - `REWARD_PHASE`: calcula recompensas usando `calculateRewards`, abre fila de modais (um por carta).
+   - `GRANT_REWARDS`: compra cartas dos decks (tesouros e artefatos) e enfileira em `state.pendingRewards`.
+   - `CHOOSE_HERO_FOR_ITEM`: jogador escolhe qual herói recebe o item da fila.
+   - `CHOOSE_ITEM_DESTINATION`: herói escolhido decide entre "equipar" / "mochila" / "descartar". Se equipar com slot ocupado, item anterior vai para mochila.
+   - `CHOOSE_ARTIFACT_BEARER`: se o artefato menciona "o portador", jogador escolhe um herói. Caso contrário, vai direto para área coletiva.
    - `GAIN_XP`: soma ao `groupXp`.
+   - Lembrete: tesouro sem deck = 1 XP; artefato sem deck = 3 XP (automático).
 
 9. **`src/core/reducer/progression.ts`**:
-   - `SPEND_XP`: handler genérico que recebe payload `{ option: "recover_dungeon" | "level_up" | "buy_item" | "lower_despertar" | "buy_artifact", heroId? }` e aplica a ação correta.
-   - Cada opção valida XP disponível e executa.
-   - Atualiza Ímpeto e Despertar conforme regra (subir nível também sobe Despertar).
+   - `SPEND_XP`: handler genérico que recebe payload `{ option: "recover_dungeon" | "level_up" | "buy_item" | "lower_despertar" | "buy_artifact", heroId? }`.
+   - **"level_up" requer `heroId`**: o herói escolhido sobe Ímpeto, Despertar global sobe junto, herói escolhido é curado e perde condições temporárias.
+   - **"buy_item"**: dispara o fluxo de recompensa de item (escolher herói destinatário + destino).
+   - Cada opção valida XP disponível e condição (deck cheio, despertar > Branco, etc).
+   - **Dificuldades**: usar `DIFFICULTY_PRESETS` em `core/config/defaults.ts` com formato `{ heroOffset: number, despertarOffset: number }`. Aplicar em `START_GAME` para cada herói (Ímpeto inicial = heroOffset) e para o estado global (Despertar inicial = despertarOffset).
 
 10. **`src/core/reducer/boss.ts`**:
     - `CHECK_BOSS_CONDITION`: roda `checkBossCondition`; se true, transita para BOSS_REVEAL.
@@ -355,10 +362,13 @@ Este marco é o maior. Divida em 3 sessões.
     - `VICTORY` / `DEFEAT`: terminal states.
 
 11. **Testes de integração** em `src/core/reducer/reducer.test.ts`:
-    - "Partida feliz": começa partida, joga uma sala, derrota inimigo, recebe recompensa, escolhe caminho.
-    - "Derrota por herói": herói morre, jogo termina.
+    - "Partida feliz solo": começa partida com 1 herói, joga uma sala, derrota inimigo, recebe recompensa, escolhe caminho.
+    - "Partida com 3 heróis": cada herói age em sua vez na rodada; criatura sem oponente causa dano direto.
+    - "Derrota total": todos os heróis morrem, jogo termina em DEFEAT.
+    - "Herói cai mas partida segue": com 3 heróis, 1 morre — partida continua com 2.
     - "Derrota por deck esgotado": consome deck inteiro, recusa pagar 5 XP, jogo termina.
     - "Vitória contra boss": força obtenção de 2 artefatos, dispara verificação, vence o boss, jogo entra em VICTORY.
+    - "Dificuldade Pesadelo": Ímpeto inicial dos heróis = Branco, Despertar inicial = Laranja.
 
 ### Critério de pronto
 
@@ -521,23 +531,27 @@ Verificar critérios do MVP 1, ajustar bugs encontrados, gerar build de produç�
 
 ### O que fazer
 
-1. **Smoke test manual** — jogar 3 partidas completas:
-   - Uma partida ganha (forçar obtenção de artefatos e vencer boss).
-   - Uma partida perdida por morte do herói.
+1. **Smoke test manual** — jogar 4 partidas completas:
+   - Uma partida solo (1 herói) ganha.
+   - Uma partida com 3 heróis ganha — testar ordem de ação e dano direto.
+   - Uma partida perdida por todos os heróis morrerem.
    - Uma partida perdida por deck esgotado (recusar pagar 5 XP).
+   - Testar pelo menos uma partida em cada dificuldade (Muito fácil, Padrão, Pesadelo).
 
 2. **Checklist de critérios do MVP 1** (do documento de arquitetura, seção 10):
    - [ ] Abre no navegador.
-   - [ ] Nova partida solo, dificuldade padrão.
-   - [ ] Escolhe 1 herói entre 8.
+   - [ ] Nova partida solo, dificuldade selecionável (Muito fácil até Pesadelo).
+   - [ ] Escolhe **1 a 8 heróis** entre os 8 disponíveis.
    - [ ] Azhakar como boss, condição "≥2 Artefatos".
    - [ ] Decks embaralhados, primeira sala revelada.
-   - [ ] Loop completo: sala → criaturas → combate → rolagem → dano → recompensa → XP → gasto → caminhos → próxima sala.
+   - [ ] Loop completo: sala → criaturas → combate (com cada herói agindo em sequência) → rolagem → dano → recompensa → XP → gasto → caminhos → próxima sala.
+   - [ ] Em combate, jogador escolhe ordem dos heróis; criaturas sem oponente causam dano direto.
+   - [ ] Recompensa de item pede escolha de herói; recompensa de artefato vai direto para o grupo.
    - [ ] Esgotamento de deck oferece 5 XP.
    - [ ] Condição verificada após cada sala.
    - [ ] Combate final.
    - [ ] Vitória ao derrotar Azhakar.
-   - [ ] Derrota nos três cenários.
+   - [ ] Derrota nos cenários: todos os heróis mortos, deck esgotado, boss venceu.
    - [ ] Testes do core passam.
 
 3. **Limpeza**:

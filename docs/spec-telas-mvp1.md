@@ -55,6 +55,36 @@ A tela **Combate contra Boss** é uma variação da tela de Exploração (mesmos
 
 ---
 
+## Anatomia da carta (herói e criatura)
+
+As cartas de **herói** e **criatura** seguem este layout fixo (em tamanho médio/grande):
+
+```
+┌──────────────────────────────────┐
+│                                  │
+│          [ARTE DA CARTA]         │
+│                                  │
+├──────────────────────────────────┤
+│              NOME                │
+├────────────┬───────────┬─────────┤
+│  ESQUERDA  │  CENTRO   │ DIREITA │
+│   Vida     │   ...     │  Bônus  │
+│  atual/max │           │ acerto  │
+├────────────┴───────────┴─────────┤
+│       EMBAIXO: Nd6 (dados)       │
+└──────────────────────────────────┘
+```
+
+**Criatura** adiciona no lado **direito**, abaixo do bônus de acerto:
+- XP que concede ao ser derrotada.
+- Quantas cartas de tesouro dropa.
+
+**No tamanho mini** (slots do campo de batalha), o layout comprime mas mantém a hierarquia: vida visível à esquerda, acerto à direita, dados embaixo.
+
+**Demais tipos de carta** (sala, item, artefato, chefe): anatomia será definida no **Patch 2**. No MVP 1, layout livre — apenas nome e texto descritivo.
+
+---
+
 ## Tela 1 — Menu Principal
 
 ### Layout
@@ -79,28 +109,30 @@ Estrutura em fluxo vertical, contidas em um painel central de ~640px de largura.
 
 **Cabeçalho**
 - Título "Configurar exploração", 20-24px, peso 500.
-- Subtítulo "Modo Solo · 1 herói", em texto secundário.
+- Subtítulo "Modo Solo · 1 a 8 heróis selecionáveis", em texto secundário.
 - Botão "Voltar" discreto no canto superior esquerdo.
 
 **Seção: Dificuldade**
 - Label "Dificuldade".
-- 5 botões em linha (chips), com nome e tooltip explicando os níveis iniciais de Ímpeto e Despertar:
-  - Muito fácil (Ímpeto Laranja, Despertar Branco)
-  - Fácil (Ímpeto Amarelo, Despertar Branco)
-  - Padrão (Ímpeto Branco, Despertar Branco) — **selecionado por padrão**
-  - Difícil (Ímpeto Branco, Despertar Amarelo)
-  - Pesadelo (Ímpeto Amarelo, Despertar Laranja)
+- 5 botões em linha (chips), cada um mostrando os deslocamentos de nível e as cores resultantes:
+  - Muito fácil — Herói +2 (Laranja) · Masmorra 0 (Branco)
+  - Fácil — Herói +1 (Amarelo) · Masmorra 0 (Branco)
+  - Padrão — Herói 0 (Branco) · Masmorra 0 (Branco) — **selecionado por padrão**
+  - Difícil — Herói 0 (Branco) · Masmorra +1 (Amarelo)
+  - Pesadelo — Herói 0 (Branco) · Masmorra +2 (Laranja)
 - Chip selecionado tem borda mais escura e fundo levemente destacado.
 
-**Seção: Escolha do herói**
-- Label "Escolha o herói".
+**Seção: Escolha dos heróis (seleção múltipla)**
+- Label "Escolha os heróis" + contador "{n} de 8 selecionados".
 - Grid 4 colunas × 2 linhas com os 8 heróis.
 - Cada card do herói (~140px largura):
   - Placeholder de arte (aspect-ratio 3:4) com nome do herói abaixo.
-  - Stats no Branco em linha: "Vida 12 · +3 · Dano 4".
+  - Stats no nível inicial em linha: "Vida {v} · +{a} · Dano {d}".
   - Estilo de jogo em texto pequeno (ex: "agressivo, alto dano").
   - Tooltip ou expansão ao hover/clique mostrando habilidade e poder completos.
-- Card selecionado tem borda destacada e leve background colorido.
+  - **Clique toggle**: clicar adiciona/remove o herói da seleção.
+- Cards selecionados têm borda destacada, leve background colorido e um indicador de "✓ selecionado" no canto.
+- Comportamento: jogador pode escolher de 1 a 8 heróis (impossível selecionar 0 — botão de iniciar fica desabilitado).
 
 **Seção: Chefe final**
 - Label "Chefe final".
@@ -115,8 +147,10 @@ Estrutura em fluxo vertical, contidas em um painel central de ~640px de largura.
 
 ### Comportamento
 - Clicar em dificuldade marca seleção e mantém visível.
-- Clicar em herói marca seleção; cliques subsequentes em outros heróis substituem a seleção.
-- "Iniciar partida" dispara `START_GAME` e navega para Exploração.
+- Clicar em herói marca/desmarca seleção (toggle); jogador pode escolher 1 a 8 heróis.
+- "Iniciar partida" só habilita quando pelo menos 1 herói está selecionado.
+- Ao iniciar: cada herói selecionado começa com Ímpeto = `heroOffset` da dificuldade escolhida; Despertar global = `despertarOffset`.
+- Dispara `START_GAME` e navega para Exploração.
 
 ---
 
@@ -223,52 +257,48 @@ Grid 2 colunas: conteúdo principal (1fr) | painel Despertar (130px).
 
 Botões desabilitados têm opacidade 50% e cursor padrão.
 
-### Bloco 6 — Painel do Herói
+### Bloco 6 — Painel dos Heróis (1 a 8)
 
-**Layout**: grid 2 colunas: card do herói (130px) | painel direito (1fr).
+O painel inferior precisa caber qualquer quantidade de heróis entre 1 e 8. Use os layouts conforme contagem:
 
-**Card do herói** (esquerda):
-- Label "Herói" no topo.
-- Painel com:
-  - Arte placeholder (aspect-ratio 3:4) no topo.
-  - Nome em peso 500.
-  - Stats em texto pequeno:
-    - "Vida **{atual}/{max}**"
-    - "Acerto +{n} · Dano {n}"
-    - "Dados {Nd6}"
-  - Label "Ímpeto".
-  - Barra de 5 traços horizontais (mesmo padrão do Despertar). Traços coloridos conforme cor atual do Ímpeto.
-  - Texto da cor atual abaixo da barra.
-  - Separador.
-  - Label "Estados", chips em linha mostrando condições ativas (Ferido, Prender, tokens, etc.).
+**Layout A — 1 herói** (idêntico ao wireframe original):
+- Grid 2 colunas: card do herói (130px) | painel direito (1fr) com Habilidade, Poder, Mochila, Equipamentos.
 
-**Painel direito** (4 sub-blocos empilhados):
+**Layout B — 2 a 4 heróis**:
+- Grid horizontal com cards de herói lado a lado, cada um com ~200-240px de largura.
+- Cada card mostra: arte placeholder, nome, stats compactos, barra de Ímpeto, estados.
+- Painel de Habilidade/Poder/Mochila/Equipamentos do **herói ativo** aparece abaixo dos cards, em largura cheia.
 
-**Habilidade**:
-- Label "Habilidade (passiva, sempre ativa)".
-- Texto da habilidade completo.
-- Badge de status: "✓ ativa" em verde se condição da habilidade for atendida, "inativa" em cinza caso contrário.
+**Layout C — 5 a 8 heróis**:
+- Lista compacta horizontal de cards mini (~130px cada), scrollável se necessário.
+- Cada card mostra: arte placeholder mini, nome, vida atual/máxima, indicador de Ímpeto.
+- Painel detalhado do **herói ativo** aparece abaixo, em largura cheia.
 
-**Poder**:
-- Label "Poder (ativável)".
-- Badge à direita: "disponível", "usado neste combate", "usado nesta sala", etc.
-- Texto do poder completo.
+**Herói ativo**:
+- "Herói ativo" = o herói cuja vez é agir agora durante combate. Fora de combate, o jogador pode clicar em qualquer card de herói para ver os detalhes.
+- Card do herói ativo tem borda destacada e/ou leve elevação visual.
+- Clicar em um card de herói (fora de combate) muda o herói cujos detalhes aparecem.
 
-**Mochila**:
-- Label "Mochila · {n} {itens}".
-- Container com chips horizontais, cada chip = 1 item guardado, mostrando nome e tipo entre parênteses.
-- Se vazia, mostra "vazia" em texto terciário.
+**Card individual do herói** (qualquer layout):
+- Arte placeholder (aspect-ratio 3:4) no topo.
+- Nome em peso 500.
+- Stats: "Vida {atual}/{max}", "Acerto +{n} · Dano {n}", "Dados {Nd6}".
+- Label "Ímpeto" e barra de 5 traços com cor preenchida conforme nível atual.
+- Texto da cor atual abaixo da barra.
+- Linha de "Estados" com chips (Ferido, Prender, etc.).
+- Status do herói: "ativo", "derrotado" (com visual atenuado, cinza), "fugiu" (visual diferente).
 
-**Equipamentos ativos**:
-- Label "Equipamentos ativos".
-- Grid 4 colunas com os tipos fixos: Equipável, Utilitário, Consumível, Especial.
-- Cada slot:
-  - Label do tipo em texto terciário.
-  - Se equipado: arte placeholder + nome do item.
-  - Se vazio: borda tracejada, texto "vazio".
+**Painel de detalhes do herói ativo** (sempre presente, atualiza ao trocar herói):
+- **Habilidade**: texto + badge "ativa"/"inativa".
+- **Poder**: texto + badge "disponível" / "usado neste combate" / "usado nesta sala" / "usado neste jogo".
+- **Mochila**: chips com itens guardados.
+- **Equipamentos ativos**: grid de 4 slots (Equipável, Utilitário, Consumível, Especial).
 
 ### Comportamentos da tela de Exploração
 
+- **Em combate, o sistema indica o herói ativo** (cuja vez é agir). O painel de detalhes mostra esse herói. O jogador pode clicar nos botões de ação (Atacar, etc.) para esse herói.
+- **Antes de cada herói agir**, se houver mais de 1 disponível na rodada, jogador escolhe clicando no card do herói que quer mover.
+- **Inimigos já engajados** nesta rodada aparecem com borda atenuada ou label "engajado por: {herói}". Não podem ser alvo de outro herói na mesma rodada.
 - **Clicar em qualquer carta** (herói, inimigo, sala, item equipado, artefato, item da mochila) abre o **modal de Detalhes de carta**.
 - **Clicar em pilha** abre modal listando cartas da pilha.
 - **Botão Regras** abre modal com referência rápida das regras principais.
@@ -375,10 +405,10 @@ Todos os modais seguem o mesmo padrão visual:
   - Botão "Gastar" à direita, habilitado se XP suficiente E condição atendida.
 - Opções:
   - 5 XP — Recuperar carta de dungeon (habilitado se há ≥1 no descarte)
-  - 10 XP — Subir nível do herói (habilitado se herói não está em Roxo)
-  - 15 XP — Comprar item (habilitado se deck de itens tem cartas)
+  - 10 XP — Subir nível de um herói (habilitado se algum herói ativo não está em Roxo). **Ao clicar, abre seleção de qual herói sobe.**
+  - 15 XP — Comprar item (habilitado se deck de itens tem cartas; dispara fluxo de recompensa de item)
   - 30 XP — Baixar Despertar (habilitado se Despertar > Branco)
-  - 35 XP — Comprar artefato (habilitado se deck de artefatos tem cartas)
+  - 35 XP — Comprar artefato (habilitado se deck de artefatos tem cartas; vai para área do grupo)
 - Botão "Continuar sem gastar" no rodapé.
 
 ### Modal — Abertura de caminhos
@@ -394,17 +424,28 @@ Todos os modais seguem o mesmo padrão visual:
 - Card selecionado fica com borda destacada.
 - Botão "Confirmar escolha" no rodapé, habilitado após seleção.
 
-### Modal — Recompensa (item recebido)
+### Modal — Recompensa (item ou artefato recebido)
 
-**Disparado por**: sistema, quando uma sala/inimigo concede item.
+**Disparado por**: sistema, quando uma sala/inimigo concede item ou artefato. Cada recompensa abre um modal próprio em fila.
 
-**Conteúdo**:
-- Título "Você encontrou um item!"
-- Card do item recebido em tamanho médio (arte + nome + tipo + efeito).
-- 3 botões:
-  - "Equipar" (se slot livre OU substituindo item atual — mostra qual item será deslocado para mochila)
+**Caso A — Item**:
+- Etapa 1 (pular se só 1 herói ativo): título "Escolha o herói que recebe", lista os heróis ativos com nome + arte placeholder. Clicar escolhe.
+- Etapa 2: card do item recebido (arte + nome + tipo + efeito). 3 botões:
+  - "Equipar" — se slot do tipo está livre, equipa direto. Se ocupado, item anterior vai para mochila e mostra aviso "{item anterior} foi para a mochila".
   - "Guardar na mochila"
   - "Descartar"
+
+**Caso B — Artefato comum** (sem texto "o portador"):
+- Modal simples mostrando o artefato (arte + nome + efeito).
+- Texto: "Adicionado aos Artefatos do grupo."
+- Botão "OK".
+
+**Caso C — Artefato com "o portador"**:
+- Etapa 1: título "Escolha o portador deste artefato", lista heróis ativos. Clicar escolhe.
+- Etapa 2: confirmação mostrando artefato + portador escolhido. Botão "OK".
+
+**Caso D — Recompensa convertida em XP** (deck vazio):
+- Modal informativo: "Deck de {tesouros|artefatos} vazio — você recebe {1|3} XP no lugar." Botão "OK".
 
 ### Modal — Deck de dungeon esgotado
 
@@ -476,9 +517,9 @@ Estes são os componentes a serem construídos como peças isoladas, listados aq
 - Tela de Créditos.
 - Telas de seleção de modo (Solo é fixo).
 - Telas de partida cooperativa ou competitiva.
-- Telas de múltiplos heróis na mesma partida.
 - Tela de salvamento/carregamento de partida.
 - Tela de conquistas, ranking, desafios diários.
 - Animações além de transições simples (hover, fade-in de modais).
 - Sons.
 - Tela responsiva para mobile.
+- Anatomia visual de sala, item, artefato, chefe (será fechada no Patch 2).
