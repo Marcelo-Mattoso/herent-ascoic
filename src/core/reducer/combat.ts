@@ -29,22 +29,25 @@ export function handleChooseTarget(
 ): GameState {
 	if (!state.combat) return state;
 
-	// Validações multi-herói: herói não agiu e inimigo não foi engajado na rodada
+	// Validação: herói não pode agir duas vezes na mesma rodada
 	if (state.combat.heroesActed.includes(heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
-	if (state.combat.enemiesEngaged.includes(enemyId)) {
-		return log(state, `[AVISO] Inimigo ${enemyId} já está engajado nesta rodada.`);
-	}
+	// Nota: múltiplos heróis PODEM atacar o mesmo inimigo.
+	// enemiesEngaged rastreia quais inimigos não aplicarão dano direto.
 
 	const pair = { heroId, enemyId };
+	// Marcar inimigo como engajado (só uma vez basta para suprimir dano direto)
+	const alreadyEngaged = state.combat.enemiesEngaged.includes(enemyId);
 	return {
 		...state,
 		status: "ROLL_DICE",
 		combat: {
 			...state.combat,
 			pairs: [...state.combat.pairs, pair],
-			enemiesEngaged: [...state.combat.enemiesEngaged, enemyId],
+			enemiesEngaged: alreadyEngaged
+				? state.combat.enemiesEngaged
+				: [...state.combat.enemiesEngaged, enemyId],
 		},
 	};
 }
