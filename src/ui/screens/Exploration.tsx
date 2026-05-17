@@ -12,6 +12,7 @@ import { DiceDisplay } from "@/ui/components/DiceDisplay";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
 import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
+import { RewardModal } from "@/ui/components/modals/RewardModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { StackPreview } from "@/ui/components/StackPreview";
 import { StatusBadge } from "@/ui/components/StatusBadge";
@@ -30,6 +31,7 @@ type ModalType =
 	| "xp_spend"
 	| "open_paths"
 	| "dungeon_exhausted"
+	| "reward"
 	| "card_detail"
 	| null;
 
@@ -40,14 +42,28 @@ interface CardDetailState {
 
 export function Exploration() {
 	const { state, dispatch } = useGameStore();
-	const [modal, setModal] = useState<ModalType>(null);
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 
 	const status = state.status;
-	const hero =
-		state.heroes.find((h) => h.status === "active") ?? state.heroes[0];
+	// Herói que vai agir agora: o primeiro ativo que ainda não agiu nesta rodada
+	const heroesActed = state.combat?.heroesActed ?? [];
+	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+	const currentHero =
+		activeHeroes.find((h) => !heroesActed.includes(h.id)) ??
+		activeHeroes[0] ??
+		state.heroes[0];
 	const enemies = state.activeEnemies.filter((e) => e.status === "active");
 	const roll = state.combat?.lastRoll;
+
+	// Modal derivado do estado do jogo (sem useState para evitar cascata de renders)
+	const modal: ModalType = (() => {
+		if (detailCard) return "card_detail";
+		if (state.pendingRewards.length > 0) return "reward";
+		if (status === "XP_SPEND_PHASE") return "xp_spend";
+		if (status === "CHOOSE_PATH") return "open_paths";
+		if (status === "DUNGEON_EXHAUSTED") return "dungeon_exhausted";
+		return null;
+	})();
 
 	// Auto-avança estados mecânicos com pequeno atraso para mostrar feedback visual
 	useEffect(() => {
@@ -57,12 +73,13 @@ export function Exploration() {
 		return () => clearTimeout(t);
 	}, [status, dispatch]);
 
-	// Abre modais automaticamente nos estados de decisão
+	// Auto-coleta recompensas quando entra em REWARD_PHASE sem pendências
 	useEffect(() => {
-		if (status === "XP_SPEND_PHASE") setModal("xp_spend");
-		else if (status === "CHOOSE_PATH") setModal("open_paths");
-		else if (status === "DUNGEON_EXHAUSTED") setModal("dungeon_exhausted");
-	}, [status]);
+		if (status === "REWARD_PHASE" && state.pendingRewards.length === 0) {
+			const t = setTimeout(() => dispatch({ type: "GRANT_REWARDS" }), 300);
+			return () => clearTimeout(t);
+		}
+	}, [status, state.pendingRewards.length, dispatch]);
 
 	// Quando OPEN_PATHS ainda precisa de um segundo dispatch
 	useEffect(() => {
@@ -74,16 +91,17 @@ export function Exploration() {
 
 	function openCardDetail(name: string, cardType: CardType) {
 		setDetailCard({ name, cardType });
-		setModal("card_detail");
 	}
 
 	function handleAttack() {
-		if (!hero) return;
-		const enemy = enemies[0];
-		if (!enemy) return;
+		if (!currentHero) return;
+		// Selecionar o primeiro inimigo ativo ainda não engajado nesta rodada
+		const engaged = new Set(state.combat?.enemiesEngaged ?? []);
+		const target = enemies.find((e) => !engaged.has(e.id)) ?? enemies[0];
+		if (!target) return;
 		dispatch({
 			type: "CHOOSE_TARGET",
-			payload: { heroId: hero.id, enemyId: enemy.id },
+			payload: { heroId: currentHero.id, enemyId: target.id },
 		});
 	}
 
@@ -96,8 +114,8 @@ export function Exploration() {
 	}
 
 	function handleUsePower() {
-		if (!hero) return;
-		dispatch({ type: "USE_POWER", payload: { heroId: hero.id } });
+		if (!currentHero) return;
+		dispatch({ type: "USE_POWER", payload: { heroId: currentHero.id } });
 	}
 
 	const isCombat = [
@@ -397,12 +415,11 @@ export function Exploration() {
 					onPower={handleUsePower}
 					onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
 					onStartCombat={() => dispatch({ type: "START_COMBAT" })}
-					onGrantRewards={() => dispatch({ type: "GRANT_REWARDS" })}
 					onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
 				/>
 
-				{/* Painel do herói */}
-				{hero && (
+				{/* Painel de heróis — 1 herói: layout largo; 2+ heróis: grid compacto */}
+				{activeHeroes.length === 1 && currentHero && (
 					<div
 						className="grid gap-4 p-4 rounded-xl"
 						style={{
@@ -418,7 +435,7 @@ export function Exploration() {
 							<button
 								type="button"
 								className="w-full text-left"
-								onClick={() => openCardDetail(hero.cardName, "hero")}
+								onClick={() => openCardDetail(currentHero.cardName, "hero")}
 							>
 								<div
 									className="h-20 rounded mb-1 flex items-center justify-center"
@@ -431,45 +448,123 @@ export function Exploration() {
 								className="text-xs font-medium"
 								style={{ color: UI.textPrimary }}
 							>
-								{hero.cardName}
+								{currentHero.cardName}
 							</p>
 							<p className="text-xs" style={{ color: UI.textSecondary }}>
-								Vida {hero.currentLife}/{hero.maxLife}
+								Vida {currentHero.currentLife}/{currentHero.maxLife}
 							</p>
 							<p className="text-xs" style={{ color: UI.textSecondary }}>
-								+{hero.hitBonus} · D{hero.damage}
+								+{currentHero.hitBonus} · D{currentHero.damage}
 							</p>
 							<div className="mt-2">
-								<ColorBar current={hero.impeto} label="Ímpeto" />
+								<ColorBar current={currentHero.impeto} label="Ímpeto" />
 							</div>
-							{hero.conditions.length > 0 && (
+							{currentHero.conditions.length > 0 && (
 								<div className="mt-2 flex flex-wrap gap-1">
-									{hero.conditions.map((c) => (
+									{currentHero.conditions.map((c) => (
 										<StatusBadge key={c} label={c} variant="danger" />
 									))}
 								</div>
 							)}
 						</div>
 						<HeroRightPanel
-							hero={hero}
+							hero={currentHero}
 							state={state}
 							onCardClick={openCardDetail}
 						/>
 					</div>
 				)}
+
+				{/* Layout compacto para 2+ heróis */}
+				{activeHeroes.length > 1 && (
+					<div
+						className="p-3 rounded-xl"
+						style={{ background: UI.panelBg, border: `1px solid ${UI.border}` }}
+					>
+						<p className="text-xs mb-2" style={{ color: UI.textTertiary }}>
+							HERÓIS ({activeHeroes.length})
+						</p>
+						<div className="flex gap-2 overflow-x-auto pb-1">
+							{activeHeroes.map((h) => {
+								const isActive =
+									!heroesActed.includes(h.id) &&
+									(status === "HERO_ACTION" || status === "BOSS_COMBAT");
+								const acted = heroesActed.includes(h.id);
+								return (
+									<button
+										key={h.id}
+										type="button"
+										className="flex-shrink-0 p-2 rounded-lg text-left w-32 transition-all"
+										style={{
+											background: isActive ? UI.info.bg : UI.subpanelBg,
+											border: `1.5px solid ${isActive ? "#185FA5" : acted ? UI.border : UI.border}`,
+											opacity: acted ? 0.6 : 1,
+										}}
+										onClick={() => openCardDetail(h.cardName, "hero")}
+									>
+										<div className="flex items-center gap-1 mb-1">
+											<span className="text-base">🧙</span>
+											{isActive && (
+												<span
+													className="text-xs px-1 rounded"
+													style={{
+														background: UI.info.bg,
+														color: UI.info.text,
+													}}
+												>
+													vez
+												</span>
+											)}
+											{acted && (
+												<span
+													className="text-xs"
+													style={{ color: UI.textTertiary }}
+												>
+													✓
+												</span>
+											)}
+										</div>
+										<p
+											className="text-xs font-medium leading-tight truncate"
+											style={{ color: UI.textPrimary }}
+										>
+											{h.cardName}
+										</p>
+										<p className="text-xs" style={{ color: UI.textSecondary }}>
+											{h.currentLife}/{h.maxLife} vida
+										</p>
+										<ColorBar current={h.impeto} />
+									</button>
+								);
+							})}
+						</div>
+						{/* Detalhe do herói ativo */}
+						{currentHero && (
+							<div
+								className="mt-2 pt-2"
+								style={{ borderTop: `1px solid ${UI.border}` }}
+							>
+								<HeroRightPanel
+									hero={currentHero}
+									state={state}
+									onCardClick={openCardDetail}
+								/>
+							</div>
+						)}
+					</div>
+				)}
 			</div>
 
 			{/* Modais */}
-			{modal === "xp_spend" && <XpSpendModal onClose={() => setModal(null)} />}
-			{modal === "open_paths" && (
-				<OpenPathsModal onClose={() => setModal(null)} />
-			)}
+			{modal === "reward" && <RewardModal onClose={() => {}} />}
+			{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
+			{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
 			{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
 			{modal === "card_detail" && detailCard && (
 				<CardDetailModal
 					cardName={detailCard.name}
 					cardType={detailCard.cardType}
-					onClose={() => setModal(null)}
+					onClose={() => setDetailCard(null)}
 				/>
 			)}
 		</div>
@@ -485,7 +580,6 @@ function ActionButtons({
 	onPower,
 	onReveal,
 	onStartCombat,
-	onGrantRewards,
 	onRevealBoss,
 }: {
 	state: GameState;
@@ -495,7 +589,6 @@ function ActionButtons({
 	onPower: () => void;
 	onReveal: () => void;
 	onStartCombat: () => void;
-	onGrantRewards: () => void;
 	onRevealBoss: () => void;
 }) {
 	const { status } = state;
@@ -571,13 +664,12 @@ function ActionButtons({
 
 	if (status === "REWARD_PHASE")
 		return (
-			<ActionButton
-				label="Receber recompensas"
-				icon="🏆"
-				variant="primary"
-				onClick={onGrantRewards}
-				fullWidth
-			/>
+			<div
+				className="h-10 flex items-center justify-center text-xs"
+				style={{ color: UI.textTertiary }}
+			>
+				Distribuindo recompensas...
+			</div>
 		);
 
 	if (

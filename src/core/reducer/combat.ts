@@ -9,7 +9,7 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
-import { getActiveHero, log, mapEnemy, mapHero } from "./utils";
+import { log, mapEnemy, mapHero } from "./utils";
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
 
@@ -28,11 +28,24 @@ export function handleChooseTarget(
 	enemyId: string,
 ): GameState {
 	if (!state.combat) return state;
+
+	// Validações multi-herói: herói não agiu e inimigo não foi engajado na rodada
+	if (state.combat.heroesActed.includes(heroId)) {
+		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
+	}
+	if (state.combat.enemiesEngaged.includes(enemyId)) {
+		return log(state, `[AVISO] Inimigo ${enemyId} já está engajado nesta rodada.`);
+	}
+
 	const pair = { heroId, enemyId };
 	return {
 		...state,
 		status: "ROLL_DICE",
-		combat: { ...state.combat, pairs: [pair], enemiesEngaged: [enemyId] },
+		combat: {
+			...state.combat,
+			pairs: [...state.combat.pairs, pair],
+			enemiesEngaged: [...state.combat.enemiesEngaged, enemyId],
+		},
 	};
 }
 
@@ -62,7 +75,8 @@ function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 
 export function handleRollDice(state: GameState): GameState {
 	if (!state.combat || state.combat.pairs.length === 0) return state;
-	const pair = state.combat.pairs[0];
+	// Rola para o par mais recente (último adicionado nesta rodada)
+	const pair = state.combat.pairs[state.combat.pairs.length - 1];
 	if (!pair) return state;
 
 	const hero = state.heroes.find((h) => h.id === pair.heroId);
@@ -163,6 +177,28 @@ export function handleResolveAttack(state: GameState): GameState {
 		next = log(next, `${hero.cardName} sofreu ${dmg} de dano.`);
 	}
 
+	// Registrar herói como tendo agido nesta rodada
+	const updatedActed = [...(next.combat?.heroesActed ?? []), roll.heroId];
+	next = {
+		...next,
+		combat: next.combat ? { ...next.combat, heroesActed: updatedActed } : null,
+	};
+
+	// Verificar se ainda há heróis ativos que não agiram
+	const activeHeroes = next.heroes.filter((h) => h.status === "active");
+	const pendingHeroes = activeHeroes.filter(
+		(h) => !updatedActed.includes(h.id),
+	);
+
+	if (pendingHeroes.length > 0) {
+		// Há heróis que ainda não agiram — voltar para HERO_ACTION
+		return log(
+			{ ...next, status: "HERO_ACTION" },
+			`Aguardando ação de ${pendingHeroes.length} herói(s).`,
+		);
+	}
+
+	// Todos os heróis ativos agiram — passar para dano direto
 	return { ...next, status: "DIRECT_DAMAGE" };
 }
 
@@ -309,10 +345,29 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 	}
 }
 
-// ─── auto-select hero (solo) ──────────────────────────────────────────────────
+// ─── CHOOSE_HERO ──────────────────────────────────────────────────────────────
+// Com 1 herói: auto-seleciona sem precisar de payload.
+// Com múltiplos: valida que o herói está ativo e ainda não agiu nesta rodada.
 
-export function handleChooseHero(state: GameState): GameState {
-	const hero = getActiveHero(state);
-	if (!hero) return log({ ...state, status: "DEFEAT" }, "Sem heróis ativos.");
+export function handleChooseHero(
+	state: GameState,
+	heroId?: string,
+): GameState {
+	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+	if (activeHeroes.length === 0) {
+		return log({ ...state, status: "DEFEAT" }, "Sem heróis ativos.");
+	}
+
+	// Validar herói específico, se informado
+	if (heroId) {
+		const hero = activeHeroes.find((h) => h.id === heroId);
+		if (!hero) {
+			return log(state, `[AVISO] Herói ${heroId} não está ativo.`);
+		}
+		if (state.combat?.heroesActed.includes(heroId)) {
+			return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
+		}
+	}
+
 	return { ...state, status: "HERO_ACTION" };
 }

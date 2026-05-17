@@ -29,6 +29,8 @@ import {
 	handleSpawnEnemies,
 } from "./exploration";
 import {
+	handleChooseArtifactBearer,
+	handleChooseItemDestination,
 	handleGainXp,
 	handleGrantRewards,
 	handleOpenPathsFromXpPhase,
@@ -54,7 +56,7 @@ export function reducer(state: GameState, action: Action): GameState {
 			return handleStartCombat(state);
 
 		case "CHOOSE_HERO":
-			return handleChooseHero(state);
+			return handleChooseHero(state, action.payload?.heroId);
 
 		case "CHOOSE_TARGET":
 			return handleChooseTarget(
@@ -110,6 +112,19 @@ export function reducer(state: GameState, action: Action): GameState {
 
 		case "GRANT_REWARDS":
 			return handleGrantRewards(state);
+
+		case "CHOOSE_ITEM_DESTINATION":
+			return handleChooseItemDestination(
+				state,
+				action.payload.heroId,
+				action.payload.destination,
+			);
+
+		case "CHOOSE_ARTIFACT_BEARER":
+			return handleChooseArtifactBearer(state, action.payload.heroId);
+
+		case "DUNGEON_EXHAUSTED":
+			return { ...state, status: "DUNGEON_EXHAUSTED" };
 
 		case "GAIN_XP":
 			return handleGainXp(state, action.payload.amount);

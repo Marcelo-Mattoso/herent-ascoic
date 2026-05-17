@@ -13,10 +13,10 @@ const BOSS_NAME = "Azhakar, Dragão da Fornalha Sombria";
 
 // Constrói um estado com sala e inimigo pré-definidos para evitar aleatoriedade
 function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
-	const base = createInitialGameState({ heroCardName: HERO });
+	const base = createInitialGameState({ heroCardNames: [HERO] });
 	const s = reducer(base, {
 		type: "START_GAME",
-		payload: { heroCardName: HERO },
+		payload: { heroCardNames: [HERO] },
 	});
 
 	const hero = s.heroes[0];
@@ -69,10 +69,10 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 
 describe("START_GAME", () => {
 	it("cria herói e embaralha decks", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		const s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 		expect(s.heroes).toHaveLength(1);
 		expect(s.heroes[0]?.cardName).toBe(HERO);
@@ -81,10 +81,10 @@ describe("START_GAME", () => {
 	});
 
 	it("define o boss corretamente", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		const s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 		expect(s.bossCardName).toBe(BOSS_NAME);
 	});
@@ -94,10 +94,10 @@ describe("START_GAME", () => {
 
 describe("REVEAL_ROOM", () => {
 	it("remove carta do deck e cria sala atual", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 		const deckSizeBefore = s.decks.dungeonDeck.available.length;
 		s = reducer(s, { type: "REVEAL_ROOM" });
@@ -107,10 +107,10 @@ describe("REVEAL_ROOM", () => {
 	});
 
 	it("transita para DUNGEON_EXHAUSTED quando deck vazio e XP suficiente", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 		s = {
 			...s,
@@ -129,10 +129,10 @@ describe("REVEAL_ROOM", () => {
 	});
 
 	it("transita para DEFEAT quando deck vazio sem XP", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 		s = {
 			...s,
@@ -243,10 +243,10 @@ describe("derrota por herói", () => {
 
 describe("derrota por deck esgotado", () => {
 	it("sem XP e sem cartas → derrota direta", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 		s = {
 			...s,
@@ -261,10 +261,10 @@ describe("derrota por deck esgotado", () => {
 	});
 
 	it("com XP → DUNGEON_EXHAUSTED; gastar 5 XP → reembaralha", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 		s = {
 			...s,
@@ -295,10 +295,10 @@ describe("derrota por deck esgotado", () => {
 
 describe("vitória contra boss", () => {
 	it("boss com 1 de vida é derrotado na primeira rodada", () => {
-		const base = createInitialGameState({ heroCardName: HERO });
+		const base = createInitialGameState({ heroCardNames: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardName: HERO },
+			payload: { heroCardNames: [HERO] },
 		});
 
 		// Força 2 artefatos (condição do Azhakar)

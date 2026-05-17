@@ -10,15 +10,27 @@ const DIFFICULTIES: { value: Difficulty; label: string; hint: string }[] = [
 	{
 		value: "very_easy",
 		label: "Muito fácil",
-		hint: "Ímpeto Laranja, Despertar Branco",
+		hint: "Herói +2, Masmorra +0 (Ímpeto Laranja)",
 	},
-	{ value: "easy", label: "Fácil", hint: "Ímpeto Amarelo, Despertar Branco" },
-	{ value: "normal", label: "Padrão", hint: "Ímpeto Branco, Despertar Branco" },
-	{ value: "hard", label: "Difícil", hint: "Ímpeto Branco, Despertar Amarelo" },
+	{
+		value: "easy",
+		label: "Fácil",
+		hint: "Herói +1, Masmorra +0 (Ímpeto Amarelo)",
+	},
+	{
+		value: "normal",
+		label: "Padrão",
+		hint: "Herói +0, Masmorra +0 (ambos Branco)",
+	},
+	{
+		value: "hard",
+		label: "Difícil",
+		hint: "Herói +0, Masmorra +1 (Despertar Amarelo)",
+	},
 	{
 		value: "nightmare",
 		label: "Pesadelo",
-		hint: "Ímpeto Amarelo, Despertar Laranja",
+		hint: "Herói +0, Masmorra +2 (Despertar Laranja)",
 	},
 ];
 
@@ -29,16 +41,22 @@ interface SetupProps {
 export function Setup({ onBack }: SetupProps) {
 	const dispatch = useGameStore((s) => s.dispatch);
 	const [difficulty, setDifficulty] = useState<Difficulty>("normal");
-	const [selectedHero, setSelectedHero] = useState<string | null>(null);
+	const [selectedHeroes, setSelectedHeroes] = useState<string[]>([]);
 
 	const heroes = getHeroes();
 	const boss = getBoss();
 
+	function toggleHero(name: string) {
+		setSelectedHeroes((prev) =>
+			prev.includes(name) ? prev.filter((h) => h !== name) : [...prev, name],
+		);
+	}
+
 	function startGame() {
-		if (!selectedHero) return;
+		if (selectedHeroes.length === 0) return;
 		dispatch({
 			type: "START_GAME",
-			payload: { heroCardName: selectedHero, difficulty },
+			payload: { heroCardNames: selectedHeroes, difficulty },
 		});
 	}
 
@@ -62,7 +80,10 @@ export function Setup({ onBack }: SetupProps) {
 							Configurar exploração
 						</h1>
 						<p className="text-sm" style={{ color: UI.textSecondary }}>
-							Modo Solo · 1 herói
+							Modo Solo ·{" "}
+							{selectedHeroes.length === 0
+								? "Selecione 1 a 8 heróis"
+								: `${selectedHeroes.length} de 8 herói(s) selecionado(s)`}
 						</p>
 					</div>
 				</div>
@@ -95,6 +116,9 @@ export function Setup({ onBack }: SetupProps) {
 							</button>
 						))}
 					</div>
+					<p className="text-xs mt-1.5" style={{ color: UI.textTertiary }}>
+						{DIFFICULTIES.find((d) => d.value === difficulty)?.hint}
+					</p>
 				</section>
 
 				{/* Heróis */}
@@ -103,38 +127,41 @@ export function Setup({ onBack }: SetupProps) {
 						className="text-sm font-medium mb-2"
 						style={{ color: UI.textSecondary }}
 					>
-						Escolha o herói
+						Escolha o(s) herói(s)
 					</p>
 					<div className="grid grid-cols-4 gap-3">
-						{heroes.map((h) => (
-							<button
-								key={h.name}
-								type="button"
-								onClick={() => setSelectedHero(h.name)}
-								className="rounded-lg p-2 text-left transition-all"
-								style={{
-									background: selectedHero === h.name ? UI.info.bg : UI.panelBg,
-									border: `1.5px solid ${selectedHero === h.name ? "#185FA5" : UI.border}`,
-								}}
-							>
-								<PlaceholderArt cardType="hero" size="sm" />
-								<p
-									className="text-xs font-medium mt-1 leading-tight"
-									style={{ color: UI.textPrimary }}
+						{heroes.map((h) => {
+							const selected = selectedHeroes.includes(h.name);
+							return (
+								<button
+									key={h.name}
+									type="button"
+									onClick={() => toggleHero(h.name)}
+									className="rounded-lg p-2 text-left transition-all"
+									style={{
+										background: selected ? UI.info.bg : UI.panelBg,
+										border: `1.5px solid ${selected ? "#185FA5" : UI.border}`,
+									}}
 								>
-									{h.name}
-								</p>
-								<p className="text-xs" style={{ color: UI.textTertiary }}>
-									Vida {h.life[0]} · +{h.hitBonus[0]} · Dano {h.damage}
-								</p>
-								<p
-									className="text-xs italic mt-0.5"
-									style={{ color: UI.textTertiary }}
-								>
-									{h.style}
-								</p>
-							</button>
-						))}
+									<PlaceholderArt cardType="hero" size="sm" />
+									<p
+										className="text-xs font-medium mt-1 leading-tight"
+										style={{ color: UI.textPrimary }}
+									>
+										{h.name}
+									</p>
+									<p className="text-xs" style={{ color: UI.textTertiary }}>
+										Vida {h.life[0]} · +{h.hitBonus[0]} · Dano {h.damage}
+									</p>
+									<p
+										className="text-xs italic mt-0.5"
+										style={{ color: UI.textTertiary }}
+									>
+										{h.style}
+									</p>
+								</button>
+							);
+						})}
 					</div>
 				</section>
 
@@ -177,7 +204,7 @@ export function Setup({ onBack }: SetupProps) {
 						label="Iniciar partida"
 						variant="primary"
 						onClick={startGame}
-						disabled={!selectedHero}
+						disabled={selectedHeroes.length === 0}
 					/>
 				</div>
 			</div>

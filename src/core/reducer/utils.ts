@@ -19,6 +19,9 @@ export function shuffle<T>(arr: readonly T[], rng = Math.random): T[] {
 export function createHeroFromCard(
 	card: HeroCard,
 	colorIndex: ColorIndex,
+	// positionIndex reservado para ordenação futura de IDs determinísticos
+	// eslint-disable-next-line @typescript-eslint/no-unused-vars
+	_positionIndex = 0,
 ): HeroState {
 	return {
 		id: crypto.randomUUID(),

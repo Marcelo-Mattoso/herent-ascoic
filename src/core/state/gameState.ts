@@ -67,12 +67,24 @@ export interface GameState {
 	// Estado de combate corrente (null fora de combate)
 	combat: CombatState | null;
 
+	// Fila de recompensas aguardando resolução (itens e artefatos pendentes)
+	readonly pendingRewards: readonly PendingReward[];
+
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
 }
 
+// Recompensa pendente aguardando resolução pelo jogador.
+export interface PendingReward {
+	readonly type: "item" | "artifact";
+	readonly cardName: string;
+	// Verdadeiro quando o artefato possui campo "portador" e precisa de escolha.
+	readonly requiresBearer: boolean;
+}
+
 export interface GameConfig {
-	heroCardName: string;
+	// Suporta 1 a 8 heróis. Mantido como array; UI garante pelo menos 1 elemento.
+	heroCardNames: string[];
 	difficulty?: Difficulty;
 	bossCardName?: string;
 }
@@ -112,6 +124,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 		creaturesDefeated: 0,
 
 		combat: createEmptyCombatState(),
+
+		pendingRewards: [],
 
 		eventLog: [],
 	};

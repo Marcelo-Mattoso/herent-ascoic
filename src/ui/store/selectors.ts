@@ -1,6 +1,7 @@
 import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
 import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
+import type { EnemyState } from "@/core/state/enemyState";
 
 // Herói que está atualmente em ação (ou o primeiro ativo)
 export function selectActiveHero(state: GameState): HeroState | null {
@@ -115,4 +116,20 @@ export function selectXpSpendOptions(state: GameState): XpSpendChoice[] {
 
 		return { option, cost, available, label: XP_LABELS[option] };
 	});
+}
+
+// Heróis ativos que ainda não agiram na rodada atual
+export function selectHeroesAvailableForRound(state: GameState): HeroState[] {
+	const heroesActed = state.combat?.heroesActed ?? [];
+	return state.heroes.filter(
+		(h) => h.status === "active" && !heroesActed.includes(h.id),
+	);
+}
+
+// Inimigos ativos que ainda não foram engajados nesta rodada
+export function selectEnemiesAvailableAsTargets(state: GameState): EnemyState[] {
+	const engaged = new Set(state.combat?.enemiesEngaged ?? []);
+	return state.enemies.filter(
+		(e) => e.status === "active" && !engaged.has(e.id),
+	);
 }
