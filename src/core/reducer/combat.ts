@@ -266,6 +266,17 @@ export function handleResolveAttack(state: GameState): GameState {
 	);
 
 	if (pendingHeroes.length > 0) {
+		const livingEnemies = next.activeEnemies.filter((e) => e.status === "active");
+		if (livingEnemies.length === 0) {
+			// Inimigos todos derrotados — pula heróis restantes e vai para dano direto
+			return {
+				...next,
+				status: "DIRECT_DAMAGE" as const,
+				combat: next.combat
+					? { ...next.combat, phase: "direct_damage" as const, selectedHeroId: null }
+					: null,
+			};
+		}
 		// Há heróis que ainda não agiram — voltar para seleção de herói
 		const withPhase = {
 			...next,
