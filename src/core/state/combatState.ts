@@ -31,12 +31,12 @@ export interface TemporaryEffect {
 }
 
 export type CombatPhase =
-	| "selecting_hero"    // aguardando o jogador escolher qual herói age
-	| "selecting_target"  // herói selecionado, aguardando escolha de monstro
-	| "resolving"         // par herói↔monstro formado, aguardando rolar/resolver
-	| "between_heroes"    // resolução concluída, transição para próximo herói
-	| "direct_damage"     // monstros sem oponente causam dano direto
-	| "round_end";        // fim de rodada, limpeza antes da próxima
+	| "selecting_hero" // aguardando o jogador escolher qual herói age
+	| "selecting_target" // herói selecionado, aguardando escolha de monstro
+	| "resolving" // par herói↔monstro formado, aguardando rolar/resolver
+	| "between_heroes" // resolução concluída, transição para próximo herói
+	| "direct_damage" // monstros sem oponente causam dano direto
+	| "round_end"; // fim de rodada, limpeza antes da próxima
 
 export interface CombatState {
 	round: number;

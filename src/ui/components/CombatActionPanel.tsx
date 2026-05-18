@@ -5,8 +5,8 @@
 //   resolving         → Rolar dados / Resolver ataque
 //   outros            → nada (auto-avance cuida)
 
-import { ActionButton } from "@/ui/components/ActionButton";
 import type { GameState } from "@/core/state/gameState";
+import { ActionButton } from "@/ui/components/ActionButton";
 import { UI } from "@/ui/theme";
 
 interface CombatActionPanelProps {
@@ -55,15 +55,14 @@ export function CombatActionPanel({
 		const hasPower = hero && !state.combat?.powersUsedThisRoom[hero.id];
 		const availableEnemies = state.activeEnemies.filter(
 			(e) =>
-				e.status === "active" &&
-				!state.combat?.enemiesEngaged.includes(e.id),
+				e.status === "active" && !state.combat?.enemiesEngaged.includes(e.id),
 		);
 
 		return (
 			<div className="space-y-2">
 				<p className="text-xs text-center" style={{ color: UI.textSecondary }}>
-					<strong style={{ color: UI.textPrimary }}>{hero?.cardName}</strong>{" "}
-					— clique num inimigo ou escolha uma ação
+					<strong style={{ color: UI.textPrimary }}>{hero?.cardName}</strong> —
+					clique num inimigo ou escolha uma ação
 				</p>
 				<div className="flex gap-2 flex-wrap">
 					<ActionButton
@@ -94,8 +93,12 @@ export function CombatActionPanel({
 					/>
 				</div>
 				{availableEnemies.length === 0 && (
-					<p className="text-xs" style={{ color: UI.warning ?? UI.textTertiary }}>
-						Todos os inimigos já foram engajados. Passe a rodada ou use um item/poder.
+					<p
+						className="text-xs"
+						style={{ color: UI.warning ?? UI.textTertiary }}
+					>
+						Todos os inimigos já foram engajados. Passe a rodada ou use um
+						item/poder.
 					</p>
 				)}
 			</div>

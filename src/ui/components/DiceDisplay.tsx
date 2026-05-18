@@ -6,6 +6,7 @@ interface DiceDisplayProps {
 	bonuses: readonly { source: string; value: number }[];
 	side: "hero" | "enemy";
 	label?: string;
+	horizontal?: boolean;
 }
 
 export function DiceDisplay({
@@ -14,6 +15,7 @@ export function DiceDisplay({
 	bonuses,
 	side,
 	label,
+	horizontal,
 }: DiceDisplayProps) {
 	const isHero = side === "hero";
 	const dieColor = isHero ? UI.info : UI.danger;
@@ -21,6 +23,39 @@ export function DiceDisplay({
 		.filter((b) => b.value !== 0)
 		.map((b) => `${b.source} ${b.value >= 0 ? "+" : ""}${b.value}`)
 		.join(" · ");
+
+	if (horizontal) {
+		return (
+			<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+				{label && (
+					<span style={{ fontSize: 10, color: UI.textSecondary, fontWeight: 500 }}>
+						{label}
+					</span>
+				)}
+				<div style={{ display: "flex", gap: 3 }}>
+					{results.map((val, i) => (
+						<div
+							key={`die-${i}`}
+							className="w-6 h-6 flex items-center justify-center rounded text-xs font-bold"
+							style={{
+								background: dieColor.bg,
+								color: dieColor.text,
+								border: `1px solid ${UI.border}`,
+							}}
+						>
+							{val}
+						</div>
+					))}
+				</div>
+				{bonusStr && (
+					<span style={{ fontSize: 10, color: UI.textTertiary }}>{bonusStr}</span>
+				)}
+				<span style={{ fontSize: 11, fontWeight: 600, color: isHero ? UI.info.text : UI.danger.text }}>
+					total {total}
+				</span>
+			</div>
+		);
+	}
 
 	return (
 		<div className="flex-1">

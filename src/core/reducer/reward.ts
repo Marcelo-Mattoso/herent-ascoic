@@ -40,7 +40,11 @@ export function handleGrantRewards(state: GameState): GameState {
 				itemDeck: { ...next.decks.itemDeck, available: rest },
 			},
 		};
-		queue.push({ type: "item", cardName: itemName as string, requiresBearer: false });
+		queue.push({
+			type: "item",
+			cardName: itemName as string,
+			requiresBearer: false,
+		});
 	}
 
 	// Enfileirar artefatos
@@ -61,7 +65,11 @@ export function handleGrantRewards(state: GameState): GameState {
 			artCard?.type === "artifact" &&
 			typeof artCard.effect === "string" &&
 			artCard.effect.toLowerCase().includes("portador");
-		queue.push({ type: "artifact", cardName: artName as string, requiresBearer });
+		queue.push({
+			type: "artifact",
+			cardName: artName as string,
+			requiresBearer,
+		});
 	}
 
 	next = {
@@ -118,9 +126,7 @@ export function handleChooseItemDestination(
 					return {
 						...h,
 						activeItems: { ...h.activeItems, [slot]: itemName },
-						backpack: displaced
-							? [...h.backpack, displaced]
-							: h.backpack,
+						backpack: displaced ? [...h.backpack, displaced] : h.backpack,
 					};
 				});
 				next = log(next, `${itemName} equipado por ${heroId}.`);
@@ -274,7 +280,10 @@ export function handleOpenPathsFromXpPhase(state: GameState): GameState {
 // ─── Distribuição automática de item (fallback para 1 herói) ─────────────────
 // Mantido para compatibilidade com testes que usam distribuição direta.
 
-export function distributeItemAuto(state: GameState, itemName: string): GameState {
+export function distributeItemAuto(
+	state: GameState,
+	itemName: string,
+): GameState {
 	const hero = getActiveHero(state);
 	if (!hero) return state;
 

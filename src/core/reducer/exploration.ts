@@ -81,7 +81,9 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	if (!state.currentRoom) return state;
 	// Buscar a carta da sala para obter enemiesByPlayers e calcular contagem dinamicamente
 	const roomCard = getCardByName(state.currentRoom.cardName);
-	const activeHeroesCount = state.heroes.filter((h) => h.status === "active").length;
+	const activeHeroesCount = state.heroes.filter(
+		(h) => h.status === "active",
+	).length;
 	const count =
 		roomCard?.type === "room"
 			? getEnemyCount(roomCard.enemiesByPlayers, activeHeroesCount)

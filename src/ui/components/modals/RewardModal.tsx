@@ -40,11 +40,15 @@ export function RewardModal({ onClose }: RewardModalProps) {
 						<div className="flex gap-3 items-start">
 							<PlaceholderArt cardType="artifact" size="sm" />
 							<div>
-								<p className="text-sm font-medium" style={{ color: UI.textPrimary }}>
+								<p
+									className="text-sm font-medium"
+									style={{ color: UI.textPrimary }}
+								>
 									{reward.cardName}
 								</p>
 								<p className="text-xs mt-1" style={{ color: UI.textSecondary }}>
-									Este artefato requer um portador. Escolha o herói que o carregará.
+									Este artefato requer um portador. Escolha o herói que o
+									carregará.
 								</p>
 							</div>
 						</div>
@@ -94,7 +98,10 @@ export function RewardModal({ onClose }: RewardModalProps) {
 				<div className="space-y-4">
 					<div className="flex gap-3 items-center">
 						<PlaceholderArt cardType="artifact" size="sm" />
-						<p className="text-sm font-medium" style={{ color: UI.textPrimary }}>
+						<p
+							className="text-sm font-medium"
+							style={{ color: UI.textPrimary }}
+						>
 							{reward.cardName}
 						</p>
 					</div>
@@ -126,7 +133,10 @@ export function RewardModal({ onClose }: RewardModalProps) {
 					<div className="flex gap-3 items-start">
 						<PlaceholderArt cardType="item" size="sm" />
 						<div>
-							<p className="text-sm font-medium" style={{ color: UI.textPrimary }}>
+							<p
+								className="text-sm font-medium"
+								style={{ color: UI.textPrimary }}
+							>
 								{reward.cardName}
 							</p>
 							<p className="text-xs mt-1" style={{ color: UI.textSecondary }}>
@@ -170,7 +180,8 @@ export function RewardModal({ onClose }: RewardModalProps) {
 	}
 
 	// Etapa 2: destino do item
-	const hero = activeHeroes.find((h) => h.id === selectedHeroId) ?? activeHeroes[0];
+	const hero =
+		activeHeroes.find((h) => h.id === selectedHeroId) ?? activeHeroes[0];
 
 	return (
 		<Modal title={`Item: ${reward.cardName}`} maxWidth={380}>
@@ -178,7 +189,10 @@ export function RewardModal({ onClose }: RewardModalProps) {
 				<div className="flex gap-3 items-center">
 					<PlaceholderArt cardType="item" size="sm" />
 					<div>
-						<p className="text-sm font-medium" style={{ color: UI.textPrimary }}>
+						<p
+							className="text-sm font-medium"
+							style={{ color: UI.textPrimary }}
+						>
 							{reward.cardName}
 						</p>
 						{hero && (

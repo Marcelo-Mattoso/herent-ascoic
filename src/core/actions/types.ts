@@ -33,7 +33,10 @@ export type Action =
 	| { type: "GRANT_REWARDS" }
 	| {
 			type: "CHOOSE_ITEM_DESTINATION";
-			payload: { heroId: string; destination: "equip" | "backpack" | "discard" };
+			payload: {
+				heroId: string;
+				destination: "equip" | "backpack" | "discard";
+			};
 	  }
 	| {
 			type: "CHOOSE_ARTIFACT_BEARER";

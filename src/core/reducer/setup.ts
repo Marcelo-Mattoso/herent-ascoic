@@ -9,8 +9,8 @@ import {
 	getRooms,
 } from "../../data/cards";
 import { DIFFICULTY_PRESETS } from "../config/defaults";
-import { createEmptyCombatState } from "../state/combatState";
 import type { ColorIndex } from "../state/color";
+import { createEmptyCombatState } from "../state/combatState";
 import type { GameConfig, GameState } from "../state/gameState";
 import { selectBoss } from "../strategies/bossSelection";
 import { createHeroFromCard, log, shuffle } from "./utils";

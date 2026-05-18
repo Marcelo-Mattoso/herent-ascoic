@@ -38,8 +38,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 		set({ state: nextState, ui: { focusedHeroId } });
 	},
 
-	setFocusedHero: (heroId) => set((s) => ({ ui: { ...s.ui, focusedHeroId: heroId } })),
+	setFocusedHero: (heroId) =>
+		set((s) => ({ ui: { ...s.ui, focusedHeroId: heroId } })),
 
 	reset: () =>
-		set({ state: createInitialGameState(EMPTY_CONFIG), ui: { focusedHeroId: null } }),
+		set({
+			state: createInitialGameState(EMPTY_CONFIG),
+			ui: { focusedHeroId: null },
+		}),
 }));

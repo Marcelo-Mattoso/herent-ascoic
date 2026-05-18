@@ -1,0 +1,322 @@
+// Tabuleiro coletivo da partida (Patch 3).
+// Layout: pilha-esq | arena-central | pilha-dir, com footer do grupo embaixo.
+
+import { useState } from "react";
+import type { CombatRollResult, CombatState } from "@/core/state/combatState";
+import type { EnemyState } from "@/core/state/enemyState";
+import type { GameState } from "@/core/state/gameState";
+import type { HeroState } from "@/core/state/heroState";
+import type { CardType } from "@/ui/components/Card";
+import { UI } from "@/ui/theme";
+import { ActionButton } from "./ActionButton";
+import { DiceDisplay } from "./DiceDisplay";
+import { BoardFooter } from "./BoardFooter";
+import { EnemyCard } from "./EnemyCard";
+import { HeroCard } from "./HeroCard";
+import { RoomCard } from "./RoomCard";
+import { Stack } from "./Stack";
+
+interface BoardProps {
+	state: GameState;
+	focusedHeroId: string | null;
+	onHeroClick: (hero: HeroState) => void;
+	onHeroDragStart: (heroId: string) => void;
+	onEnemyDrop: (heroId: string, enemyId: string) => void;
+	onEnemyClick: (enemy: EnemyState) => void;
+	onRoomClick: () => void;
+	onCardDetail: (name: string, type: CardType) => void;
+	// Ações de grupo
+	onReveal: () => void;
+	onStartCombat: () => void;
+	onRevealBoss: () => void;
+	onRoll: () => void;
+	onResolve: () => void;
+	roll: CombatRollResult | null;
+}
+
+export function Board({
+	state,
+	focusedHeroId,
+	onHeroClick,
+	onHeroDragStart,
+	onEnemyDrop,
+	onEnemyClick,
+	onRoomClick,
+	onCardDetail,
+	onReveal,
+	onStartCombat,
+	onRevealBoss,
+	onRoll,
+	onResolve,
+	roll,
+}: BoardProps) {
+	const [draggingHeroId, setDraggingHeroId] = useState<string | null>(null);
+
+	const combat: CombatState | null = state.combat;
+	const heroesActed = combat?.heroesActed ?? [];
+	const selectedHeroId = combat?.selectedHeroId ?? null;
+	const enemiesEngaged = new Set(combat?.enemiesEngaged ?? []);
+	const phase = combat?.phase ?? null;
+	const status = state.status;
+
+	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
+	const isSelectingTarget =
+		isInCombat && phase === "selecting_target" && !!selectedHeroId;
+
+	const heroes = state.heroes;
+	const enemies = state.activeEnemies.filter((e) => e.status === "active");
+
+	function handleDragStart(heroId: string) {
+		setDraggingHeroId(heroId);
+		onHeroDragStart(heroId);
+	}
+
+	function handleDragEnd() {
+		setDraggingHeroId(null);
+	}
+
+	function handleEnemyDrop(enemyId: string) {
+		const heroId = draggingHeroId ?? selectedHeroId;
+		if (heroId) onEnemyDrop(heroId, enemyId);
+		setDraggingHeroId(null);
+	}
+
+	return (
+		<div
+			style={{
+				background: UI.panelBg,
+				border: `1.5px solid ${UI.borderStrong}`,
+				borderRadius: 12,
+				overflow: "hidden",
+			}}
+		>
+			{/* Área principal: 3 colunas */}
+			<div
+				style={{
+					display: "grid",
+					gridTemplateColumns: "52px 1fr 52px",
+					gap: 0,
+					padding: "12px 8px 8px",
+				}}
+			>
+				{/* Pilhas esquerda: Masmorra + Monstros */}
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						gap: 12,
+						alignItems: "center",
+						paddingTop: 8,
+					}}
+				>
+					<Stack
+						name="Masmorra"
+						count={state.decks.dungeonDeck.available.length}
+						discardCount={state.decks.dungeonDeck.discarded.length}
+					/>
+					<Stack
+						name="Monstros"
+						count={state.decks.enemyDeck.available.length}
+						discardCount={state.decks.enemyDeck.discarded.length}
+					/>
+				</div>
+
+				{/* Arena central */}
+				<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
+					{/* Sala no topo */}
+					<div style={{ display: "flex", justifyContent: "center" }}>
+						{state.currentRoom ? (
+							<RoomCard
+								room={state.currentRoom}
+								despertar={state.despertar}
+								onClick={onRoomClick}
+							/>
+						) : (
+							<div
+								style={{
+									width: 200,
+									height: 56,
+									background: UI.subpanelBg,
+									border: `1px dashed ${UI.border}`,
+									borderRadius: 8,
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+								}}
+							>
+								<span style={{ color: UI.textTertiary, fontSize: 11 }}>sem sala</span>
+							</div>
+						)}
+					</div>
+
+					{/* Criaturas */}
+					<div>
+						{enemies.length === 0 ? (
+							<div
+								style={{
+									height: 70,
+									border: `1px dashed ${UI.border}`,
+									borderRadius: 8,
+									display: "flex",
+									alignItems: "center",
+									justifyContent: "center",
+								}}
+							>
+								<span style={{ color: UI.textTertiary, fontSize: 11 }}>
+									sem inimigos
+								</span>
+							</div>
+						) : (
+							<div
+								style={{
+									display: "flex",
+									gap: 6,
+									flexWrap: "wrap",
+									justifyContent: "center",
+								}}
+								onDragEnd={handleDragEnd}
+							>
+								{enemies.map((e) => {
+									const isEngaged = enemiesEngaged.has(e.id);
+									const isSelectable = isSelectingTarget && !isEngaged;
+									const isDragOver = draggingHeroId !== null && isSelectable;
+									return (
+										<EnemyCard
+											key={e.id}
+											enemy={e}
+											isSelectable={isSelectable}
+											isEngaged={isEngaged}
+											isDragOver={isDragOver}
+											onDrop={handleEnemyDrop}
+											onClick={() => onEnemyClick(e)}
+										/>
+									);
+								})}
+							</div>
+						)}
+					</div>
+
+					{/* Linha de combate — dock para todas as ações de grupo */}
+					{status === "RESOLVE_ATTACK" && roll ? (
+						<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
+							<DiceDisplay
+								results={roll.enemyResults}
+								total={roll.enemyTotal}
+								bonuses={roll.enemyBreakdown}
+								side="enemy"
+								horizontal
+							/>
+							<div style={{ display: "flex", alignItems: "center", margin: "2px 0" }}>
+								<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+								<ActionButton label="Resolver ataque" icon="💥" variant="primary" onClick={onResolve} />
+								<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+							</div>
+							<DiceDisplay
+								results={roll.heroResults}
+								total={roll.heroTotal}
+								bonuses={roll.heroBreakdown}
+								side="hero"
+								horizontal
+							/>
+						</div>
+					) : (
+						<div
+							style={{
+								position: "relative",
+								display: "flex",
+								alignItems: "center",
+								margin: "2px 0",
+							}}
+						>
+							<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+							{status === "REVEAL_ROOM" || status === "ROOM_EFFECT" || status === "SPAWN_ENEMIES" ? (
+								<ActionButton label="Revelar sala" icon="🚪" variant="primary" onClick={onReveal} />
+							) : status === "COMBAT_START" ? (
+								<ActionButton label="Iniciar combate" icon="⚔" variant="primary" onClick={onStartCombat} />
+							) : status === "ROLL_DICE" ? (
+								<ActionButton label="Rolar dados" icon="🎲" variant="primary" onClick={onRoll} />
+							) : status === "BOSS_REVEAL" ? (
+								<ActionButton label="Revelar chefe" icon="🐲" variant="danger" onClick={onRevealBoss} />
+							) : (
+								<span
+									style={{
+										fontSize: 9,
+										color: UI.textTertiary,
+										background: UI.panelBg,
+										padding: "0 6px",
+										whiteSpace: "nowrap",
+									}}
+								>
+									Linha de combate
+								</span>
+							)}
+							<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+						</div>
+					)}
+
+					{/* Heróis */}
+					<div
+						style={{
+							display: "flex",
+							gap: 6,
+							flexWrap: "wrap",
+							justifyContent: "center",
+						}}
+					>
+						{heroes.map((h) => {
+							const isFocused = h.id === focusedHeroId;
+							const hasActed = heroesActed.includes(h.id);
+							const isSelected = h.id === selectedHeroId;
+							const canAct =
+								h.status === "active" &&
+								!hasActed &&
+								phase === "selecting_hero" &&
+								isInCombat;
+
+							return (
+								<HeroCard
+									key={h.id}
+									hero={h}
+									isFocused={isFocused}
+									hasActed={hasActed}
+									isSelected={isSelected}
+									canAct={canAct}
+									onDragStart={canAct ? handleDragStart : undefined}
+									onClick={() => onHeroClick(h)}
+								/>
+							);
+						})}
+					</div>
+				</div>
+
+				{/* Pilhas direita: Tesouros + Artefatos */}
+				<div
+					style={{
+						display: "flex",
+						flexDirection: "column",
+						gap: 12,
+						alignItems: "center",
+						paddingTop: 8,
+					}}
+				>
+					<Stack
+						name="Itens"
+						count={state.decks.itemDeck.available.length}
+						discardCount={state.decks.itemDeck.discarded.length}
+					/>
+					<Stack
+						name="Artefatos"
+						count={state.decks.artifactDeck.available.length}
+						discardCount={state.decks.artifactDeck.discarded.length}
+					/>
+				</div>
+			</div>
+
+			{/* Footer do grupo */}
+			<BoardFooter
+				state={state}
+				onArtifactClick={onCardDetail}
+			/>
+		</div>
+	);
+}
