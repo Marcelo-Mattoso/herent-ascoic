@@ -36,13 +36,19 @@ export function handleChooseHeroForRound(
 	if (state.combat.heroesActed.includes(heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
-	const hero = state.heroes.find((h) => h.id === heroId && h.status === "active");
+	const hero = state.heroes.find(
+		(h) => h.id === heroId && h.status === "active",
+	);
 	if (!hero) return log(state, `[AVISO] Herói ${heroId} inválido ou inativo.`);
 
 	return log(
 		{
 			...state,
-			combat: { ...state.combat, phase: "selecting_target", selectedHeroId: heroId },
+			combat: {
+				...state.combat,
+				phase: "selecting_target",
+				selectedHeroId: heroId,
+			},
 		},
 		`${hero.cardName} selecionado para agir.`,
 	);
@@ -58,7 +64,9 @@ export function handlePassHeroAction(
 	const hero = state.heroes.find((h) => h.id === heroId);
 	const updatedActed = [...state.combat.heroesActed, heroId];
 	const activeHeroes = state.heroes.filter((h) => h.status === "active");
-	const pendingHeroes = activeHeroes.filter((h) => !updatedActed.includes(h.id));
+	const pendingHeroes = activeHeroes.filter(
+		(h) => !updatedActed.includes(h.id),
+	);
 
 	const nextCombat = {
 		...state.combat,
@@ -73,7 +81,10 @@ export function handlePassHeroAction(
 	if (pendingHeroes.length > 0) {
 		return log(next, `${hero?.cardName ?? heroId} passou a rodada.`);
 	}
-	return log({ ...next, status: "DIRECT_DAMAGE" }, "Todos os heróis agiram. Dano direto.");
+	return log(
+		{ ...next, status: "DIRECT_DAMAGE" },
+		"Todos os heróis agiram. Dano direto.",
+	);
 }
 
 // ─── CHOOSE_TARGET ───────────────────────────────────────────────────────────
@@ -91,7 +102,10 @@ export function handleChooseTarget(
 	}
 	// Patch 2: engajamento 1-para-1 — um monstro só pode ser alvo de 1 herói por rodada
 	if (state.combat.enemiesEngaged.includes(enemyId)) {
-		return log(state, `[AVISO] Inimigo ${enemyId} já está engajado nesta rodada.`);
+		return log(
+			state,
+			`[AVISO] Inimigo ${enemyId} já está engajado nesta rodada.`,
+		);
 	}
 
 	const pair = { heroId, enemyId };
@@ -214,7 +228,9 @@ export function handleResolveAttack(state: GameState): GameState {
 	}
 
 	if (result.heroDamageTaken > 0) {
-		const hasShield = hero.activeItems.armor === "Escudo Rachado";
+		const hasShield =
+			hero.activeItems.weapon === "Escudo Rachado" ||
+			hero.activeItems.armor === "Escudo Rachado";
 		const shieldUsed = state.combat.shieldsUsedThisCombat[hero.id] ?? false;
 		const dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
 		const newShields =
@@ -255,10 +271,17 @@ export function handleResolveAttack(state: GameState): GameState {
 			...next,
 			status: "HERO_ACTION" as const,
 			combat: next.combat
-				? { ...next.combat, phase: "selecting_hero" as const, selectedHeroId: null }
+				? {
+						...next.combat,
+						phase: "selecting_hero" as const,
+						selectedHeroId: null,
+					}
 				: null,
 		};
-		return log(withPhase, `Aguardando ação de ${pendingHeroes.length} herói(s).`);
+		return log(
+			withPhase,
+			`Aguardando ação de ${pendingHeroes.length} herói(s).`,
+		);
 	}
 
 	// Todos os heróis ativos agiram — passar para dano direto
@@ -266,7 +289,11 @@ export function handleResolveAttack(state: GameState): GameState {
 		...next,
 		status: "DIRECT_DAMAGE" as const,
 		combat: next.combat
-			? { ...next.combat, phase: "direct_damage" as const, selectedHeroId: null }
+			? {
+					...next.combat,
+					phase: "direct_damage" as const,
+					selectedHeroId: null,
+				}
 			: null,
 	};
 	return withPhase;
@@ -424,7 +451,11 @@ export function handleCancelHeroSelection(state: GameState): GameState {
 	return log(
 		{
 			...state,
-			combat: { ...state.combat, phase: "selecting_hero", selectedHeroId: null },
+			combat: {
+				...state.combat,
+				phase: "selecting_hero",
+				selectedHeroId: null,
+			},
 		},
 		"Seleção de herói cancelada.",
 	);
@@ -434,10 +465,7 @@ export function handleCancelHeroSelection(state: GameState): GameState {
 // Com 1 herói: auto-seleciona sem precisar de payload.
 // Com múltiplos: valida que o herói está ativo e ainda não agiu nesta rodada.
 
-export function handleChooseHero(
-	state: GameState,
-	heroId?: string,
-): GameState {
+export function handleChooseHero(state: GameState, heroId?: string): GameState {
 	const activeHeroes = state.heroes.filter((h) => h.status === "active");
 	if (activeHeroes.length === 0) {
 		return log({ ...state, status: "DEFEAT" }, "Sem heróis ativos.");

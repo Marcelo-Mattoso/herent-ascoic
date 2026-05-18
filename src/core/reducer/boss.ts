@@ -106,7 +106,9 @@ export function handleBossResolveAttack(state: GameState): GameState {
 	}
 
 	if (result.heroDamageTaken > 0) {
-		const hasShield = hero.activeItems.armor === "Escudo Rachado";
+		const hasShield =
+			hero.activeItems.weapon === "Escudo Rachado" ||
+			hero.activeItems.armor === "Escudo Rachado";
 		const shieldUsed = state.combat.shieldsUsedThisCombat[hero.id] ?? false;
 		const dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
 		next = mapHero(next, hero.id, (h) => ({

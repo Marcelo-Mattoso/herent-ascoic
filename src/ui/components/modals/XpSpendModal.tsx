@@ -50,6 +50,11 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 							<p className="text-xs" style={{ color: UI.textTertiary }}>
 								{opt.cost} XP
 							</p>
+							{!opt.available && opt.reason && (
+								<p className="text-xs mt-0.5" style={{ color: "#B45309" }}>
+									{opt.reason}
+								</p>
+							)}
 						</div>
 						<ActionButton
 							label="Gastar"

@@ -7,9 +7,9 @@ import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
 import { getCardByName } from "@/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
-import { CombatActionPanel } from "@/ui/components/CombatActionPanel";
 import type { CardType } from "@/ui/components/Card";
 import { ColorBar } from "@/ui/components/ColorBar";
+import { CombatActionPanel } from "@/ui/components/CombatActionPanel";
 import { DiceDisplay } from "@/ui/components/DiceDisplay";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
@@ -170,7 +170,11 @@ export function Exploration() {
 	}
 
 	// CombatActionPanel cobre HERO_ACTION, ROLL_DICE, RESOLVE_ATTACK
-	const useCombatPanel = ["HERO_ACTION", "ROLL_DICE", "RESOLVE_ATTACK"].includes(status);
+	const useCombatPanel = [
+		"HERO_ACTION",
+		"ROLL_DICE",
+		"RESOLVE_ATTACK",
+	].includes(status);
 	const despertar = COLORS_MAP[state.despertar];
 
 	return (
@@ -712,7 +716,12 @@ function MultiHeroPanel({
 							style={{
 								background: bgColor,
 								border: `${borderWidth} ${borderStyle} ${borderColor}`,
-								opacity: isDefeated || hasFled ? 0.45 : hasActed && !isFocused ? 0.65 : 1,
+								opacity:
+									isDefeated || hasFled
+										? 0.45
+										: hasActed && !isFocused
+											? 0.65
+											: 1,
 								cursor: canClick ? "pointer" : "default",
 							}}
 							onClick={() => canClick && onHeroCardClick(h)}
@@ -728,10 +737,7 @@ function MultiHeroPanel({
 									</span>
 								)}
 								{!isSelected && isActive && isInCombat && !hasActed && (
-									<span
-										className="text-xs"
-										style={{ color: UI.success.text }}
-									>
+									<span className="text-xs" style={{ color: UI.success.text }}>
 										◦
 									</span>
 								)}
@@ -767,7 +773,10 @@ function MultiHeroPanel({
 								</p>
 							)}
 							{hasFled && (
-								<p className="text-xs mt-0.5" style={{ color: UI.textTertiary }}>
+								<p
+									className="text-xs mt-0.5"
+									style={{ color: UI.textTertiary }}
+								>
 									fugiu
 								</p>
 							)}
@@ -863,7 +872,12 @@ function ActionButtons({
 		const hasPower = hero && !state.combat?.powersUsedThisRoom[hero.id];
 		return (
 			<div className="flex gap-2">
-				<ActionButton label="Atacar" icon="⚔" variant="primary" onClick={onAttack} />
+				<ActionButton
+					label="Atacar"
+					icon="⚔"
+					variant="primary"
+					onClick={onAttack}
+				/>
 				<ActionButton
 					label="Usar poder"
 					icon="⚡"
@@ -1006,6 +1020,12 @@ function HeroRightPanel({
 				<div className="grid grid-cols-4 gap-1">
 					{(["weapon", "armor", "utility", "special"] as const).map((slot) => {
 						const item = hero.activeItems[slot];
+						const slotLabel: Record<string, string> = {
+							weapon: "Equipável",
+							armor: "Armadura",
+							utility: "Utilitário",
+							special: "Especial",
+						};
 						return (
 							<div
 								key={slot}
@@ -1015,7 +1035,7 @@ function HeroRightPanel({
 									border: `1px dashed ${UI.border}`,
 								}}
 							>
-								<p style={{ color: UI.textTertiary }}>{slot}</p>
+								<p style={{ color: UI.textTertiary }}>{slotLabel[slot]}</p>
 								{item ? (
 									<button
 										type="button"

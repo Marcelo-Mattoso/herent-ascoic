@@ -1,7 +1,7 @@
 import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
+import type { EnemyState } from "@/core/state/enemyState";
 import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
-import type { EnemyState } from "@/core/state/enemyState";
 
 // Herói que está atualmente em ação (ou o primeiro ativo)
 export function selectActiveHero(state: GameState): HeroState | null {
@@ -75,6 +75,7 @@ export interface XpSpendChoice {
 	cost: number;
 	available: boolean;
 	label: string;
+	reason?: string; // Motivo quando desabilitado por condição além do XP
 }
 
 const XP_LABELS: Record<XpSpendOption, string> = {
@@ -90,31 +91,66 @@ export function selectXpSpendOptions(state: GameState): XpSpendChoice[] {
 	const xp = state.groupXp;
 	return (Object.keys(XP_COSTS) as XpSpendOption[]).map((option) => {
 		const cost = XP_COSTS[option];
-		let available = xp >= cost;
+		const canAfford = xp >= cost;
+		let available = canAfford;
+		let reason: string | undefined;
 
 		// Só oferece recover_dungeon se o deck de dungeon tiver descartes
 		if (option === "recover_dungeon") {
-			available = available && state.decks.dungeonDeck.discarded.length > 0;
+			const hasDiscards = state.decks.dungeonDeck.discarded.length > 0;
+			if (!hasDiscards) {
+				available = false;
+				reason = "Descarte da masmorra está vazio";
+			} else {
+				available = canAfford;
+			}
 		}
-		// Só oferece level_up se herói não está no nível máximo (purple = 4)
+		// Só oferece level_up se ALGUM herói ativo não está no nível máximo (impeto 4)
 		if (option === "level_up") {
-			const hero = state.heroes.find((h) => h.status === "active");
-			available = available && (hero?.impeto ?? 4) < 4;
+			const heroToLevel = state.heroes.find(
+				(h) => h.status === "active" && h.impeto < 4,
+			);
+			if (!heroToLevel) {
+				available = false;
+				reason = "Todos os heróis já estão no nível máximo";
+			} else {
+				available = canAfford;
+			}
 		}
 		// Só oferece lower_despertar se despertar > 0
 		if (option === "lower_despertar") {
-			available = available && state.despertar > 0;
+			if (state.despertar === 0) {
+				available = false;
+				reason = "Despertar já está no mínimo";
+			} else {
+				available = canAfford;
+			}
 		}
 		// Só oferece buy_artifact se há artefatos disponíveis
 		if (option === "buy_artifact") {
-			available = available && state.decks.artifactDeck.available.length > 0;
+			if (state.decks.artifactDeck.available.length === 0) {
+				available = false;
+				reason = "Deck de artefatos vazio";
+			} else {
+				available = canAfford;
+			}
 		}
 		// Só oferece buy_item se há itens disponíveis
 		if (option === "buy_item") {
-			available = available && state.decks.itemDeck.available.length > 0;
+			if (state.decks.itemDeck.available.length === 0) {
+				available = false;
+				reason = "Deck de itens vazio";
+			} else {
+				available = canAfford;
+			}
 		}
 
-		return { option, cost, available, label: XP_LABELS[option] };
+		// Razão genérica por XP insuficiente (sobrepõe razão de condição se XP também falta)
+		if (!canAfford && !reason) {
+			reason = `XP insuficiente (faltam ${cost - xp})`;
+		}
+
+		return { option, cost, available, label: XP_LABELS[option], reason };
 	});
 }
 
@@ -127,7 +163,9 @@ export function selectHeroesAvailableForRound(state: GameState): HeroState[] {
 }
 
 // Inimigos ativos que ainda não foram engajados nesta rodada
-export function selectEnemiesAvailableAsTargets(state: GameState): EnemyState[] {
+export function selectEnemiesAvailableAsTargets(
+	state: GameState,
+): EnemyState[] {
 	const engaged = new Set(state.combat?.enemiesEngaged ?? []);
 	return state.enemies.filter(
 		(e) => e.status === "active" && !engaged.has(e.id),
