@@ -69,54 +69,66 @@ src/
 
 ## Testando fluxos em desenvolvimento
 
-Em modo dev (`npm run dev`) o store Zustand é exposto em `window.__store`. Isso permite testar e inspecionar o estado diretamente pelo console do navegador — sem precisar navegar pela UI.
+Em modo dev (`npm run dev`) o store Zustand é exposto em `window.__store`. A vantagem é poder **verificar o resultado de cada action lendo o estado em seguida** — sem tirar screenshot, sem clicar na UI, sem inspecionar o DOM.
 
-### Exemplos rápidos
+O padrão é: despacha → lê o que mudou → confirma.
 
 ```js
-// Estado atual
-window.__store.getState().state.status
-window.__store.getState().state.heroes
+// Helpers rápidos
+const d = () => window.__store.getState().dispatch;
+const g = () => window.__store.getState().state;
+const ui = () => window.__store.getState().ui;
 
-// Despachar actions manualmente
-const d = window.__store.getState().dispatch;
-d({ type: "REVEAL_ROOM" });
-d({ type: "RESOLVE_ROOM_EFFECT" });
-d({ type: "SPAWN_ENEMIES" });
-d({ type: "START_COMBAT" });
+// Após qualquer dispatch, o estado já está atualizado na próxima linha:
+d()({ type: "START_COMBAT" });
+g().combat?.phase;          // "selecting_hero"
+g().combat?.selectedHeroId; // null
 
-// Selecionar herói e alvo em combate
-const heroId = window.__store.getState().state.heroes[0].id;
-const enemyId = window.__store.getState().state.activeEnemies[0].id;
-d({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
-d({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
-d({ type: "ROLL_DICE" });
-d({ type: "RESOLVE_ATTACK" });
+// Escolhe herói, lê confirmação imediata:
+const heroId = g().heroes[0].id;
+d()({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
+g().combat?.phase;          // "selecting_target"
+g().combat?.selectedHeroId; // "<id do herói>"
 
-// Passar ou cancelar a rodada de um herói
-d({ type: "PASS_HERO_ACTION", payload: { heroId } });
-d({ type: "CANCEL_HERO_SELECTION" });
+// Engaja inimigo, lê resultado:
+const enemyId = g().activeEnemies[0].id;
+d()({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+g().status;                 // "ROLL_DICE"
+g().combat?.pairs.length;   // 1
 
-// Herói em foco (painel de inventário)
-window.__store.getState().ui.focusedHeroId;
-window.__store.getState().setFocusedHero(heroId);
+// Rola e resolve, lê danos:
+d()({ type: "ROLL_DICE" });
+g().combat?.lastRoll;       // { heroTotal, enemyTotal, ... }
+d()({ type: "RESOLVE_ATTACK" });
+g().status;                 // "HERO_ACTION" (próximo herói) ou "DIRECT_DAMAGE"
+g().combat?.heroesActed;    // [heroId]
 
-// Resetar para a tela inicial
-window.__store.getState().reset();
+// EventLog: feedback textual de tudo que aconteceu
+g().eventLog.slice(-5);
+// ["Partida iniciada...", "Sala revelada: ...", "2 inimigo(s) aparecem: ...", ...]
 ```
 
-### Script de partida rápida
+### Script de partida rápida até o combate
 
 ```js
-// Inicia partida com 3 heróis e avança até o combate em uma linha
+// Cola no console, retorna um resumo sem screenshot nenhuma
 (() => {
-  const d = window.__store.getState().dispatch;
-  d({ type: "START_GAME", payload: { heroCardNames: ["Clérigo do Descanso Eterno", "Guerreiro do Bastião Partido", "Bárbaro Rubro"] } });
-  d({ type: "REVEAL_ROOM" });
-  d({ type: "RESOLVE_ROOM_EFFECT" });
-  d({ type: "SPAWN_ENEMIES" });
-  d({ type: "START_COMBAT" });
-  const st = window.__store.getState().state;
-  console.log(`status=${st.status} | phase=${st.combat?.phase} | inimigos=${st.activeEnemies.length}`);
+  const s = window.__store;
+  s.getState().reset();
+  s.getState().dispatch({ type: "START_GAME", payload: {
+    heroCardNames: ["Clérigo do Descanso Eterno", "Guerreiro do Bastião Partido", "Bárbaro Rubro"]
+  }});
+  ["REVEAL_ROOM", "RESOLVE_ROOM_EFFECT", "SPAWN_ENEMIES", "START_COMBAT"]
+    .forEach(type => s.getState().dispatch({ type }));
+
+  const st = s.getState().state;
+  return {
+    status:   st.status,
+    phase:    st.combat?.phase,
+    sala:     st.currentRoom?.cardName,
+    inimigos: st.activeEnemies.map(e => `${e.cardName} (${e.currentLife}hp)`),
+    herois:   st.heroes.map(h => `${h.cardName.split(' ')[0]} (${h.currentLife}hp)`),
+    log:      st.eventLog.slice(-3),
+  };
 })();
 ```
