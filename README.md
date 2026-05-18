@@ -66,3 +66,57 @@ src/
 
 - O herói chega a 0 de vida.
 - O deck de dungeon esgota e você recusa pagar 5 XP para continuar.
+
+## Testando fluxos em desenvolvimento
+
+Em modo dev (`npm run dev`) o store Zustand é exposto em `window.__store`. Isso permite testar e inspecionar o estado diretamente pelo console do navegador — sem precisar navegar pela UI.
+
+### Exemplos rápidos
+
+```js
+// Estado atual
+window.__store.getState().state.status
+window.__store.getState().state.heroes
+
+// Despachar actions manualmente
+const d = window.__store.getState().dispatch;
+d({ type: "REVEAL_ROOM" });
+d({ type: "RESOLVE_ROOM_EFFECT" });
+d({ type: "SPAWN_ENEMIES" });
+d({ type: "START_COMBAT" });
+
+// Selecionar herói e alvo em combate
+const heroId = window.__store.getState().state.heroes[0].id;
+const enemyId = window.__store.getState().state.activeEnemies[0].id;
+d({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
+d({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+d({ type: "ROLL_DICE" });
+d({ type: "RESOLVE_ATTACK" });
+
+// Passar ou cancelar a rodada de um herói
+d({ type: "PASS_HERO_ACTION", payload: { heroId } });
+d({ type: "CANCEL_HERO_SELECTION" });
+
+// Herói em foco (painel de inventário)
+window.__store.getState().ui.focusedHeroId;
+window.__store.getState().setFocusedHero(heroId);
+
+// Resetar para a tela inicial
+window.__store.getState().reset();
+```
+
+### Script de partida rápida
+
+```js
+// Inicia partida com 3 heróis e avança até o combate em uma linha
+(() => {
+  const d = window.__store.getState().dispatch;
+  d({ type: "START_GAME", payload: { heroCardNames: ["Clérigo do Descanso Eterno", "Guerreiro do Bastião Partido", "Bárbaro Rubro"] } });
+  d({ type: "REVEAL_ROOM" });
+  d({ type: "RESOLVE_ROOM_EFFECT" });
+  d({ type: "SPAWN_ENEMIES" });
+  d({ type: "START_COMBAT" });
+  const st = window.__store.getState().state;
+  console.log(`status=${st.status} | phase=${st.combat?.phase} | inimigos=${st.activeEnemies.length}`);
+})();
+```
