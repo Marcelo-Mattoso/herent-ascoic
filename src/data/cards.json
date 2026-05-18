@@ -1,494 +1,758 @@
 [
-	{
-		"type": "hero",
-		"name": "Clérigo do Descanso Eterno",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [9, 11, 13, 15, 17],
-		"hitBonus": [2, 3, 5, 7, 10],
-		"damage": 2,
-		"skill": "ao fim de cada combate, cure 1 de vida de um herói.",
-		"power": "uma vez por sala, pode trocar sua ação de ataque por cura 2 em si ou em um aliado.",
-		"style": "suporte e sobrevivência."
-	},
-	{
-		"type": "hero",
-		"name": "Guerreiro do Bastião Partido",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [11, 13, 15, 17, 19],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 3,
-		"skill": "recebe +2 no bônus de acerto contra criaturas em Laranja, Vermelho ou Roxo.",
-		"power": "se derrotar uma criatura, pode imediatamente causar 1 dano a outra criatura da sala.",
-		"style": "frente de combate."
-	},
-	{
-		"type": "hero",
-		"name": "Ladino das Fendas",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [8, 10, 12, 14, 16],
-		"hitBonus": [2, 3, 5, 7, 10],
-		"damage": 2,
-		"skill": "ao revelar novos caminhos da dungeon, pode olhar 1 carta extra antes do descarte.",
-		"power": "uma vez por combate, pode rerrolar 1 dado azul.",
-		"style": "exploração e controle da dungeon."
-	},
-	{
-		"type": "hero",
-		"name": "Mago das Runas Rubras",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [8, 9, 11, 13, 15],
-		"hitBonus": [2, 3, 5, 7, 10],
-		"damage": 2,
-		"skill": "uma vez por sala, pode impedir que 1 carta de dungeon seja descartada.",
-		"power": "depois de rolar, pode mudar 1 dado azul para 6.",
-		"style": "manipulação e controle."
-	},
-	{
-		"type": "hero",
-		"name": "Bárbaro Rubro",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [12, 14, 16, 18, 20],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 4,
-		"skill": "se estiver com metade da vida ou menos, recebe +3 de bônus de acerto.",
-		"power": "pode sofrer 1 dano em si para rolar +1 dado azul extra neste combate.",
-		"style": "risco e explosão de dano."
-	},
-	{
-		"type": "hero",
-		"name": "Paladino da Última Luz",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [10, 12, 14, 16, 18],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 3,
-		"skill": "contra criaturas corrompidas, chefes ou efeitos roxos, recebe +2 no total.",
-		"power": "uma vez por sala, escolha: curar 2 de vida; ou causar +2 de dano sagrado ao acertar.",
-		"style": "equilíbrio entre dano e cura."
-	},
-	{
-		"type": "hero",
-		"name": "Necromante do Véu Profundo",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [8, 10, 12, 14, 16],
-		"hitBonus": [2, 3, 5, 7, 10],
-		"damage": 2,
-		"skill": "uma vez por sala, pode pagar 0 XP e recuperar 1 carta de dungeon descartada, embaralhando-a no deck.",
-		"power": "ao derrotar uma criatura, guarde 1 Eco sob sua carta. Gaste 1 Eco para: receber +2 no total; ou reduzir em 1 o dano sofrido; ou olhar o topo do deck de inimigos.",
-		"style": "controle tardio e recuperação."
-	},
-	{
-		"type": "hero",
-		"name": "Caçador do Véu Partido",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [9, 10, 12, 14, 16],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 3,
-		"skill": "no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +2 no acerto.",
-		"power": "uma vez por sala, depois de rolar, você pode trocar 1 dado azul por 4. Se o alvo for sua Presa, em vez disso troque por 6.",
-		"style": "foco, precisão e eliminação de alvo prioritário."
-	},
-	{
-		"type": "creature",
-		"name": "Rato das Fendas Profundas",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [1, 2, 3, 4, 6],
-		"hitBonus": [2, 3, 5, 7, 10],
-		"damage": 1,
-		"xp": 1,
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "se estiver sozinho na sala, recebe +1 no total.",
-		"purpleEffect": "ao entrar em jogo, causa 1 dano no herói com menos vida."
-	},
-	{
-		"type": "creature",
-		"name": "Goblin das Cavernas Escuras",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [1, 2, 3, 5, 7],
-		"hitBonus": [2, 3, 5, 7, 10],
-		"damage": 2,
-		"xp": 1,
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "se fugir ou sair de jogo, não concede recompensa.",
-		"purpleEffect": "antes do combate, o grupo deve descartar 1 Item ou sofrer +1 descarte de dungeon."
-	},
-	{
-		"type": "creature",
-		"name": "Limo das Pedras Úmidas",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [2, 3, 4, 6, 8],
-		"hitBonus": [2, 3, 5, 7, 10],
-		"damage": 2,
-		"xp": 1,
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "sofre -1 dano de ataques corpo a corpo.",
-		"purpleEffect": "o primeiro herói que o acertar sofre 1 dano."
-	},
-	{
-		"type": "creature",
-		"name": "Morcego do Teto Negro",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [2, 3, 4, 6, 8],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 3,
-		"xp": 2,
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "ignora o primeiro efeito de item usado contra ele.",
-		"purpleEffect": "ao aparecer, anula a cura do próximo efeito usado pelos heróis na sala."
-	},
-	{
-		"type": "creature",
-		"name": "Aranha dos Pilares Antigos",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [3, 4, 5, 7, 9],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 4,
-		"xp": 2,
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "ao acertar, o alvo perde o próximo uso de item [Equipável].",
-		"purpleEffect": "o primeiro herói alvo dela recebe -2 no total da próxima rolagem."
-	},
-	{
-		"type": "creature",
-		"name": "Vigia das Portas Quebradas",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [4, 5, 6, 8, 10],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 4,
-		"xp": 2,
-		"reward": 2,
-		"rewardType": "item",
-		"effect": "reduz em 1 o primeiro dano que sofre em cada combate.",
-		"purpleEffect": "começa a sala com escudo 2."
-	},
-	{
-		"type": "creature",
-		"name": "Cultista da Chama Oculta",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [2, 3, 4, 6, 8],
-		"hitBonus": [3, 5, 7, 10, 14],
-		"damage": 3,
-		"xp": 2,
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "se houver outra criatura na sala, recebe +2 no total.",
-		"purpleEffect": "ao morrer, sobe o Despertar da Masmorra em 1 nível."
-	},
-	{
-		"type": "creature",
-		"name": "Esqueleto das Catacumbas",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [5, 6, 7, 9, 11],
-		"hitBonus": [5, 7, 10, 14, 18],
-		"damage": 5,
-		"xp": 3,
-		"reward": 2,
-		"rewardType": "item",
-		"effect": "se vencer o combate, empurra o grupo e descarta +1 carta de dungeon.",
-		"purpleEffect": "recebe +1 Dano."
-	},
-	{
-		"type": "creature",
-		"name": "Ladrão das Passagens Mortas",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [6, 7, 8, 10, 12],
-		"hitBonus": [5, 7, 10, 14, 18],
-		"damage": 5,
-		"xp": 3,
-		"reward": 2,
-		"rewardType": "item",
-		"effect": "sempre que sofrer dano, recebe +1 no total da próxima rolagem.",
-		"purpleEffect": "ao entrar em jogo, cure 2 de vida de todas as outras criaturas da sala."
-	},
-	{
-		"type": "creature",
-		"name": "Cavaleiro das Correntes Velhas",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [7, 8, 9, 11, 13],
-		"hitBonus": [6, 9, 12, 16, 20],
-		"damage": 6,
-		"xp": 3,
-		"reward": 2,
-		"rewardType": "item",
-		"effect": "se destruir um herói, sobe o Despertar da Masmorra em 1 nível.",
-		"purpleEffect": "enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra."
-	},
-	{
-		"type": "creature",
-		"name": "Salamandra do Fogo Baixo",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [4, 5, 6, 8, 10],
-		"hitBonus": [5, 7, 10, 14, 18],
-		"damage": 5,
-		"xp": 3,
-		"reward": 2,
-		"rewardType": "item",
-		"effect": "ao acertar, causa 1 dano adicional no herói com menos vida.",
-		"purpleEffect": "recebe +1 Dano."
-	},
-	{
-		"type": "creature",
-		"name": "Ogro do Salão Arruinado",
-		"diceByColor": [1, 1, 2, 2, 3],
-		"life": [5, 6, 7, 9, 11],
-		"hitBonus": [5, 7, 10, 14, 18],
-		"damage": 5,
-		"xp": 3,
-		"reward": 2,
-		"rewardType": "item",
-		"effect": "se vencer o combate, descarte 1 carta de dungeon.",
-		"purpleEffect": "recebe +1 Dano."
-	},
-	{
-		"type": "subboss",
-		"name": "Carcereiro da Masmorra Rubra",
-		"diceByColor": [1, 2, 2, 3, 3],
-		"life": [6, 7, 8, 10, 12],
-		"hitBonus": [5, 7, 10, 14, 18],
-		"damage": 5,
-		"xp": 4,
-		"reward": 1,
-		"rewardType": "artifact",
-		"effect": "enquanto estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item.",
-		"purpleEffect": "ao acertar, prenda o herói atingido. Na próxima rodada, esse herói recebe -2 no total da rolagem."
-	},
-	{
-		"type": "subboss",
-		"name": "Guardião do Abismo Rachado",
-		"diceByColor": [1, 2, 2, 3, 3],
-		"life": [8, 9, 10, 12, 14],
-		"hitBonus": [6, 9, 12, 16, 20],
-		"damage": 6,
-		"xp": 4,
-		"reward": 1,
-		"rewardType": "artifact",
-		"effect": "reduz em 1 todo dano que sofre.",
-		"purpleEffect": "após a rodada do Guardião, descarte 1 carta de dungeon."
-	},
-	{
-		"type": "item",
-		"name": "Tocha de Breu",
-		"itemClass": "utility",
-		"tags": ["Utilitário"],
-		"effect": "ao revelar novos caminhos, olhe 1 carta extra de dungeon antes de escolher o caminho. Depois, descarte normalmente. Se a próxima sala for Passagem das Tochas Mortas, ignore o efeito negativo da sala."
-	},
-	{
-		"type": "item",
-		"name": "Corda Gasta de Explorador",
-		"itemClass": "consumable",
-		"tags": ["Consumível"],
-		"effect": "quando o grupo fosse descartar +1 carta de dungeon por efeito de sala ou criatura, descarte este item para ignorar esse descarte extra."
-	},
-	{
-		"type": "item",
-		"name": "Adaga Enferrujada",
-		"itemClass": "equipment",
-		"tags": ["Equipável"],
-		"effect": "receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano."
-	},
-	{
-		"type": "item",
-		"name": "Escudo Rachado",
-		"itemClass": "equipment",
-		"tags": ["Equipável"],
-		"effect": "uma vez por combate, reduza em 2 o dano sofrido por este herói. Depois de usar esse efeito duas vezes durante a partida, descarte este item."
-	},
-	{
-		"type": "item",
-		"name": "Poção de Vigor Menor",
-		"itemClass": "consumable",
-		"tags": ["Consumível"],
-		"effect": "cure 2 de vida de um herói."
-	},
-	{
-		"type": "item",
-		"name": "Frasco de Óleo Incendiário",
-		"itemClass": "consumable",
-		"tags": ["Consumível"],
-		"effect": "antes de uma rolagem de combate, escolha 1 criatura. Ela sofre 2 de dano. Se a criatura for Limo das Pedras Úmidas, ela sofre 3 de dano em vez de 2."
-	},
-	{
-		"type": "item",
-		"name": "Chave de Ferro Antiga",
-		"itemClass": "special",
-		"tags": ["Especial", "Artefato"],
-		"effect": "saque 1 carta de Artefato."
-	},
-	{
-		"type": "item",
-		"name": "Capuz do Túnel",
-		"itemClass": "equipment",
-		"tags": ["Equipável"],
-		"effect": "uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total da próxima rolagem de defesa ou reação."
-	},
-	{
-		"type": "item",
-		"name": "Botas de Pedra Leve",
-		"itemClass": "equipment",
-		"tags": ["Equipável"],
-		"effect": "uma vez por sala, ignore o primeiro efeito que faria este herói perder sua ação, receber penalidade de movimento ou sofrer descarte adicional por terreno."
-	},
-	{
-		"type": "item",
-		"name": "Mapa Rasgado das Profundezas",
-		"itemClass": "special",
-		"tags": ["Especial", "Artefato"],
-		"effect": "saque 1 carta de Artefato."
-	},
-	{
-		"type": "item",
-		"name": "Baú Oculto da Fornalha",
-		"itemClass": "special",
-		"tags": ["Especial", "Artefato"],
-		"effect": "saque 1 carta de Artefato. Depois disso, suba o Despertar da Masmorra em 1 nível."
-	},
-	{
-		"type": "artifact",
-		"name": "Corrente do Carcereiro Rubro",
-		"countsAs": "artifact",
-		"effect": "uma vez por sala, quando novos caminhos forem revelados, você pode devolver 1 das cartas que seria descartada ao deck e embaralhar."
-	},
-	{
-		"type": "artifact",
-		"name": "Coração de Brasa Antiga",
-		"countsAs": "artifact",
-		"effect": "o portador recebe +2 no total e +1 de dano contra o chefe final."
-	},
-	{
-		"type": "artifact",
-		"name": "Martelo da Forja Perdida",
-		"countsAs": "artifact",
-		"effect": "uma vez por jogo, após qualquer rolagem, escolha 1: mude 1 dado azul para 6; ou mude 1 dado vermelho para 1."
-	},
-	{
-		"type": "room",
-		"name": "Corredor Estreito",
-		"exits": 1,
-		"enemiesByPlayers": [1, 1, 2, 2],
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "sem efeito adicional. Sala de início ideal."
-	},
-	{
-		"type": "room",
-		"name": "Sala da Masmorra",
-		"exits": 3,
-		"enemiesByPlayers": [1, 2, 2, 3],
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "sem efeito adicional.",
-		"xp": 1
-	},
-	{
-		"type": "room",
-		"name": "Câmara das Correntes",
-		"exits": 3,
-		"enemiesByPlayers": [1, 2, 3, 4],
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "criaturas desta sala não podem fugir nem sair de jogo por efeito, a menos que o texto diga “destruída”.",
-		"xp": 2
-	},
-	{
-		"type": "room",
-		"name": "Passagem das Tochas Mortas",
-		"exits": 2,
-		"enemiesByPlayers": [1, 2, 2, 3],
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "antes do primeiro combate nesta sala, o grupo deve escolher: descartar 1 Item; ou sofrer -1 no total da primeira rolagem de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
-		"xp": 2
-	},
-	{
-		"type": "room",
-		"name": "Salão das Colunas Quebradas",
-		"exits": 4,
-		"enemiesByPlayers": [1, 2, 3, 4],
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante. Ela sofre 1 de dano.",
-		"xp": 1
-	},
-	{
-		"type": "room",
-		"name": "Escadaria para as Profundezas",
-		"exits": 2,
-		"enemiesByPlayers": [2, 2, 3, 4],
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "se algum herói perder um combate nesta sala, descarte +1 carta de dungeon.",
-		"xp": 2
-	},
-	{
-		"type": "room",
-		"name": "Cela Abandonada",
-		"exits": 3,
-		"enemiesByPlayers": [0, 1, 2, 2],
-		"reward": 1,
-		"rewardType": "item",
-		"effect": "após vencer a sala, olhe as 2 cartas do topo do deck de Itens e fique com 1. Descarte a outra.",
-		"xp": 1
-	},
-	{
-		"type": "room",
-		"name": "Forja em Ruínas",
-		"exits": 3,
-		"enemiesByPlayers": [1, 1, 2, 3],
-		"reward": 2,
-		"rewardType": "item",
-		"effect": "ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói. Caso não haja mais nenhum equipamento, some 3 pontos de XP.",
-		"xp": 2
-	},
-	{
-		"type": "room",
-		"name": "Sala do Carcereiro",
-		"exits": 2,
-		"enemiesByPlayers": [1, 2, 3, 4],
-		"reward": 1,
-		"rewardType": "artifact",
-		"effect": "revele o Carcereiro da Masmorra Rubra junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o Carcereiro da Masmorra Rubra seja derrotado, remova esta carta do jogo.",
-		"xp": 3,
-		"specialCreature": "Carcereiro da Masmorra Rubra"
-	},
-	{
-		"type": "room",
-		"name": "Abismo Rachado",
-		"exits": 4,
-		"enemiesByPlayers": [2, 3, 4, 5],
-		"reward": 1,
-		"rewardType": "artifact",
-		"effect": "revele o Guardião do Abismo Rachado junto com os inimigos da sala. Depois de limpar esta sala, se o grupo possuir 2 Artefatos, pode enfrentar o chefe final imediatamente. Caso o Guardião do Abismo Rachado seja derrotado, remova esta carta do jogo.",
-		"xp": 3,
-		"specialCreature": "Guardião do Abismo Rachado"
-	},
-	{
-		"type": "boss",
-		"name": "Azhakar, Dragão da Fornalha Sombria",
-		"dice": "3 dados vermelhos",
-		"lifeBase": 20,
-		"hitBonusBase": 12,
-		"damage": 6,
-		"condition": "o grupo precisa possuir ao menos 2 Artefatos.",
-		"artifactBonus": "se o grupo possuir os 3 Artefatos, Azhakar começa a luta com 16 de Vida em vez de 20.",
-		"dungeonScaling": "Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.",
-		"abilities": [
-			{
-				"name": "Trono Vivo",
-				"effect": "o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."
-			},
-			{
-				"name": "Pressão Arcana",
-				"effect": "após cada rodada de Azhakar, se o despertar da masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon."
-			},
-			{
-				"name": "Ascensão Final",
-				"effect": "quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto."
-			}
-		],
-		"victory": "ao derrotar Azhakar, os jogadores vencem a partida."
-	}
+  {
+    "type": "hero",
+    "name": "Clérigo do Descanso Eterno",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [9, 11, 13, 15, 17],
+    "hitBonus": [4, 5, 7, 10, 14],
+    "damage": 2,
+    "skill": "ao fim de cada combate, cure 1 de vida de um herói.",
+    "power": "uma vez por sala, pode trocar sua ação de ataque por cura 2 em si ou em um aliado.",
+    "style": "suporte e sobrevivência."
+  },
+  {
+    "type": "hero",
+    "name": "Guerreiro do Bastião Partido",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [11, 13, 15, 17, 19],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 3,
+    "skill": "recebe +2 no bônus de acerto contra criaturas em Laranja, Vermelho ou Roxo.",
+    "power": "se derrotar uma criatura, pode imediatamente causar 1 dano a outra criatura da sala.",
+    "style": "frente de combate."
+  },
+  {
+    "type": "hero",
+    "name": "Ladino das Fendas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [8, 10, 12, 14, 16],
+    "hitBonus": [4, 5, 7, 10, 14],
+    "damage": 2,
+    "skill": "ao revelar novos caminhos da dungeon, pode olhar 1 carta extra antes do descarte.",
+    "power": "uma vez por combate, pode rerrolar 1 dado azul.",
+    "style": "exploração e controle da dungeon."
+  },
+  {
+    "type": "hero",
+    "name": "Mago das Runas Rubras",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [8, 9, 11, 13, 15],
+    "hitBonus": [4, 5, 7, 10, 14],
+    "damage": 2,
+    "skill": "uma vez por sala, pode impedir que 1 carta de dungeon seja descartada.",
+    "power": "depois de rolar, pode mudar 1 dado azul para 6.",
+    "style": "manipulação e controle."
+  },
+  {
+    "type": "hero",
+    "name": "Bárbaro Rubro",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [12, 14, 16, 18, 20],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 4,
+    "skill": "se estiver com metade da vida ou menos, recebe +3 de bônus de acerto.",
+    "power": "pode sofrer 1 dano em si para rolar +1 dado azul extra neste combate.",
+    "style": "risco e explosão de dano."
+  },
+  {
+    "type": "hero",
+    "name": "Paladino da Última Luz",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [10, 12, 14, 16, 18],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 3,
+    "skill": "contra criaturas corrompidas, chefes ou efeitos roxos, recebe +2 no total.",
+    "power": "uma vez por sala, escolha: curar 2 de vida; ou causar +2 de dano sagrado ao acertar.",
+    "style": "equilíbrio entre dano e cura."
+  },
+  {
+    "type": "hero",
+    "name": "Necromante do Véu Profundo",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [8, 10, 12, 14, 16],
+    "hitBonus": [4, 5, 7, 10, 14],
+    "damage": 2,
+    "skill": "uma vez por sala, pode pagar 0 XP e recuperar 1 carta de dungeon descartada, embaralhando-a no deck.",
+    "power": "ao derrotar uma criatura, guarde 1 Eco sob sua carta. Gaste 1 Eco para: receber +2 no total; ou reduzir em 1 o dano sofrido; ou olhar o topo do deck de inimigos.",
+    "style": "controle tardio e recuperação."
+  },
+  {
+    "type": "hero",
+    "name": "Caçador do Véu Partido",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [9, 10, 12, 14, 16],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 3,
+    "skill": "no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +2 no acerto.",
+    "power": "uma vez por sala, depois de rolar, você pode trocar 1 dado azul por 4. Se o alvo for sua Presa, em vez disso troque por 6.",
+    "style": "foco, precisão e eliminação de alvo prioritário."
+  },
+  {
+    "type": "creature",
+    "name": "Rato das Fendas Profundas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [1, 2, 3, 4, 6],
+    "hitBonus": [2, 3, 5, 7, 10],
+    "damage": 1,
+    "xp": 1,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "se estiver sozinho na sala, recebe +1 no total.",
+    "purpleEffect": "ao entrar em jogo, causa 1 dano no herói com menos vida."
+  },
+  {
+    "type": "creature",
+    "name": "Goblin das Cavernas Escuras",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [1, 2, 3, 5, 7],
+    "hitBonus": [2, 3, 5, 7, 10],
+    "damage": 2,
+    "xp": 1,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "se fugir ou sair de jogo, não concede recompensa.",
+    "purpleEffect": "antes do combate, o grupo deve descartar 1 Item ou sofrer +1 descarte de dungeon."
+  },
+  {
+    "type": "creature",
+    "name": "Limo das Pedras Úmidas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [2, 3, 4, 6, 8],
+    "hitBonus": [2, 3, 5, 7, 10],
+    "damage": 2,
+    "xp": 1,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "sofre -1 dano de ataques.",
+    "purpleEffect": "o primeiro herói que o acertar sofre 1 dano."
+  },
+  {
+    "type": "creature",
+    "name": "Morcego do Teto Negro",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [2, 3, 4, 6, 8],
+    "hitBonus": [3, 5, 7, 10, 14],
+    "damage": 3,
+    "xp": 2,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "ignora o primeiro efeito de item usado contra ele.",
+    "purpleEffect": "ao aparecer, anula a cura do próximo efeito usado pelos heróis na sala."
+  },
+  {
+    "type": "creature",
+    "name": "Aranha dos Pilares Antigos",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [3, 4, 5, 7, 9],
+    "hitBonus": [3, 5, 7, 10, 14],
+    "damage": 4,
+    "xp": 2,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "ao acertar, o alvo perde o próximo uso de item [Equipável].",
+    "purpleEffect": "o primeiro herói alvo dela recebe -2 no total da próxima rolagem."
+  },
+  {
+    "type": "creature",
+    "name": "Vigia das Portas Quebradas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [4, 5, 6, 8, 10],
+    "hitBonus": [3, 5, 7, 10, 14],
+    "damage": 4,
+    "xp": 2,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "reduz em 1 o primeiro dano que sofre em cada combate.",
+    "purpleEffect": "começa a sala com escudo 2."
+  },
+  {
+    "type": "creature",
+    "name": "Cultista da Chama Oculta",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [2, 3, 4, 6, 8],
+    "hitBonus": [3, 5, 7, 10, 14],
+    "damage": 3,
+    "xp": 2,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "se houver outra criatura na sala, recebe +2 no total.",
+    "purpleEffect": "ao morrer, sobe o Despertar da Masmorra em 1 nível."
+  },
+  {
+    "type": "creature",
+    "name": "Esqueleto das Catacumbas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [5, 6, 7, 9, 11],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 5,
+    "xp": 3,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "se vencer o combate, empurra o grupo e descarta +1 carta de dungeon.",
+    "purpleEffect": "recebe +1 Dano."
+  },
+  {
+    "type": "creature",
+    "name": "Ladrão das Passagens Mortas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [6, 7, 8, 10, 12],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 5,
+    "xp": 3,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "sempre que sofrer dano, recebe +1 no total da próxima rolagem.",
+    "purpleEffect": "ao entrar em jogo, cure 2 de vida de todas as outras criaturas da sala."
+  },
+  {
+    "type": "creature",
+    "name": "Cavaleiro das Correntes Velhas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [7, 8, 9, 11, 13],
+    "hitBonus": [6, 9, 12, 16, 20],
+    "damage": 6,
+    "xp": 3,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "se destruir um herói, sobe o Despertar da Masmorra em 1 nível.",
+    "purpleEffect": "enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra."
+  },
+  {
+    "type": "creature",
+    "name": "Salamandra do Fogo Baixo",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [4, 5, 6, 8, 10],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 5,
+    "xp": 3,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "ao acertar, causa 1 dano adicional no herói com menos vida.",
+    "purpleEffect": "recebe +1 Dano."
+  },
+  {
+    "type": "creature",
+    "name": "Ogro do Salão Arruinado",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [5, 6, 7, 9, 11],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 5,
+    "xp": 3,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "se vencer o combate, descarte 1 carta de dungeon.",
+    "purpleEffect": "recebe +1 Dano."
+  },
+  {
+    "type": "creature",
+    "name": "Kobold das Brasas Baixas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [1, 2, 3, 5, 7],
+    "hitBonus": [2, 3, 5, 7, 10],
+    "damage": 2,
+    "xp": 1,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "se houver outra criatura na sala, recebe +1 no total.",
+    "purpleEffect": "antes do combate, o grupo deve descartar 1 Item ou sofrer 1 dano em um herói à escolha."
+  },
+  {
+    "type": "creature",
+    "name": "Verme das Cinzas Quentes",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [2, 3, 4, 6, 8],
+    "hitBonus": [2, 3, 5, 7, 10],
+    "damage": 2,
+    "xp": 1,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "sofre -1 dano do primeiro ataque que receber em cada combate.",
+    "purpleEffect": "o primeiro herói que o acertar sofre 1 dano."
+  },
+  {
+    "type": "creature",
+    "name": "Crânio Flamejante",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [2, 3, 4, 6, 8],
+    "hitBonus": [3, 5, 7, 10, 14],
+    "damage": 3,
+    "xp": 2,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "ignora o primeiro efeito de item usado contra ele.",
+    "purpleEffect": "ao aparecer, anula a próxima cura usada pelos heróis nesta sala."
+  },
+  {
+    "type": "creature",
+    "name": "Sentinela das Tochas Mortas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [4, 5, 6, 8, 10],
+    "hitBonus": [3, 5, 7, 10, 14],
+    "damage": 4,
+    "xp": 2,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "reduz em 1 o primeiro dano que sofre em cada combate.",
+    "purpleEffect": "começa a sala com escudo 2."
+  },
+  {
+    "type": "creature",
+    "name": "Acólito da Fornalha",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [2, 3, 4, 6, 8],
+    "hitBonus": [3, 5, 7, 10, 14],
+    "damage": 3,
+    "xp": 2,
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "se houver outra criatura na sala, recebe +2 no total.",
+    "purpleEffect": "ao morrer, sobe o Despertar da Masmorra em 1 nível."
+  },
+  {
+    "type": "creature",
+    "name": "Bruto das Correntes Partidas",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [5, 6, 7, 9, 11],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 5,
+    "xp": 3,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "se vencer o combate, descarte 1 carta de dungeon.",
+    "purpleEffect": "recebe +1 Dano."
+  },
+  {
+    "type": "creature",
+    "name": "0",
+    "diceByColor": [1, 1, 2, 2, 3],
+    "life": [7, 8, 9, 11, 13],
+    "hitBonus": [6, 9, 12, 16, 20],
+    "damage": 6,
+    "xp": 3,
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "se destruir um herói, sobe o Despertar da Masmorra em 1 nível.",
+    "purpleEffect": "enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra."
+  },
+  {
+    "type": "subboss",
+    "name": "Carcereiro da Masmorra Rubra",
+    "diceByColor": [1, 2, 2, 3, 3],
+    "life": [6, 7, 8, 10, 12],
+    "hitBonus": [5, 7, 10, 14, 18],
+    "damage": 5,
+    "xp": 4,
+    "reward": 1,
+    "rewardType": "artifact",
+    "effect": "enquanto estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item.",
+    "purpleEffect": "ao acertar, prenda o herói atingido. Na próxima rodada, esse herói recebe -2 no total da rolagem."
+  },
+  {
+    "type": "subboss",
+    "name": "Guardião do Abismo Rachado",
+    "diceByColor": [1, 2, 2, 3, 3],
+    "life": [8, 9, 10, 12, 14],
+    "hitBonus": [6, 9, 12, 16, 20],
+    "damage": 6,
+    "xp": 4,
+    "reward": 1,
+    "rewardType": "artifact",
+    "effect": "reduz em 1 todo dano que sofre.",
+    "purpleEffect": "após a rodada do Guardião, descarte 1 carta de dungeon."
+  },
+  {
+    "type": "item",
+    "name": "Tocha de Breu",
+    "itemClass": "utility",
+    "tags": ["Utilitário"],
+    "effect": "ao revelar novos caminhos, olhe 1 carta extra de dungeon antes de escolher o caminho. Depois, descarte normalmente. Se a próxima sala for Passagem das Tochas Mortas, ignore o efeito negativo da sala."
+  },
+  {
+    "type": "item",
+    "name": "Corda Gasta de Explorador",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "quando o grupo fosse descartar +1 carta de dungeon por efeito de sala ou criatura, descarte este item para ignorar esse descarte extra."
+  },
+  {
+    "type": "item",
+    "name": "Adaga Enferrujada",
+    "itemClass": "equipment",
+    "tags": ["Equipável"],
+    "effect": "receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano."
+  },
+  {
+    "type": "item",
+    "name": "Escudo Rachado",
+    "itemClass": "equipment",
+    "tags": ["Equipável"],
+    "effect": "uma vez por combate, reduza em 2 o dano sofrido por este herói. Depois de usar esse efeito duas vezes durante a partida, descarte este item."
+  },
+  {
+    "type": "item",
+    "name": "Poção de Vigor Menor",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "cure 2 de vida de um herói."
+  },
+  {
+    "type": "item",
+    "name": "Frasco de Óleo Incendiário",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "antes de uma rolagem de combate, escolha 1 criatura. Ela sofre 2 de dano. Se a criatura for Limo das Pedras Úmidas, ela sofre 3 de dano em vez de 2."
+  },
+  {
+    "type": "item",
+    "name": "Chave de Ferro Antiga",
+    "itemClass": "special",
+    "tags": ["Especial", "Artefato"],
+    "effect": "saque 1 carta de Artefato."
+  },
+  {
+    "type": "item",
+    "name": "Capuz do Túnel",
+    "itemClass": "equipment",
+    "tags": ["Equipável"],
+    "effect": "uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total da próxima rolagem de defesa ou reação."
+  },
+  {
+    "type": "item",
+    "name": "Botas de Pedra Leve",
+    "itemClass": "equipment",
+    "tags": ["Equipável"],
+    "effect": "uma vez por sala, ignore o primeiro efeito que faria este herói perder sua ação ou sofrer descarte adicional de dungeon."
+  },
+     {
+    "type": "item",
+    "name": "Cajado das Runas Rubras",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Arma"],
+    "effect": "receba +1 no total da rolagem. Uma vez por sala, depois de rolar, você pode transformar 1 dado azul em 4."
+  },
+  {
+    "type": "item",
+    "name": "Espada da Última Luz",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Arma"],
+    "effect": "receba +2 no total da rolagem. Contra chefes e subchefes, cause +1 de dano ao acertar."
+  },
+  {
+    "type": "item",
+    "name": "Foice do Véu Profundo",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Arma"],
+    "effect": "receba +1 no total da rolagem. Sempre que derrotar uma criatura, cure 1 de vida deste herói."
+  },
+  {
+    "type": "item",
+    "name": "Machado do Salão Arruinado",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Arma"],
+    "effect": "receba +1 de dano. Se vencer a rolagem por 5 ou mais, cause +1 de dano adicional. Contra criaturas com 5 ou mais de vida, receba +1 no total da rolagem."
+  },
+  {
+    "type": "item",
+    "name": "Martelo de Pedra Quebrada",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Arma"],
+    "effect": "receba +1 de dano. Se vencer a rolagem por 5 ou mais, cause +1 de dano adicional."
+  },
+  {
+    "type": "item",
+    "name": "Arco das Fendas",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Arma"],
+    "effect": "uma vez por combate, você pode atacar uma criatura que não esteja mirando você. Se acertar, cause dano normalmente."
+  },
+  {
+    "type": "item",
+    "name": "Armadura de Couro Reforçado",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Armadura"],
+    "effect": "reduza em 1 todo dano sofrido por este herói."
+  },
+  {
+    "type": "item",
+    "name": "Armadura de Metal Antigo",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Armadura"],
+    "effect": "reduza em 2 o primeiro dano sofrido por este herói em cada combate."
+  },
+  {
+    "type": "item",
+    "name": "Armadura Mágica da Fornalha",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Armadura"],
+    "effect": "reduza em 1 todo dano sofrido por este herói. Contra efeitos Roxos, reduza 1 dano adicional."
+  },
+  {
+    "type": "item",
+    "name": "Manto do Véu Partido",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Armadura"],
+    "effect": "uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo."
+  },
+  {
+    "type": "item",
+    "name": "Poção de Fúria",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "antes de atacar, descarte esta poção. Neste ataque, receba +2 de dano."
+  },
+  {
+    "type": "item",
+    "name": "Poção de Precisão",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "depois de rolar, descarte esta poção. Receba +4 no total da rolagem."
+  },
+  {
+    "type": "item",
+    "name": "Poção de Pele de Pedra",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "quando sofrer dano, descarte esta poção. Reduza esse dano em 3."
+  },
+  {
+    "type": "item",
+    "name": "Poção de Retorno",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "descarte esta poção para recuperar 1 carta de dungeon descartada e embaralhá-la no deck de dungeon."
+  },
+  {
+    "type": "item",
+    "name": "Poção de Brasa Viva",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "escolha 1 criatura em jogo. Ela sofre 3 de dano."
+  },
+  {
+    "type": "item",
+    "name": "Poção de Vigor Maior",
+    "itemClass": "consumable",
+    "tags": ["Consumível"],
+    "effect": "cure 4 de vida de um herói."
+  },
+  {
+    "type": "item",
+    "name": "Encanto da Masmorra Calada",
+    "itemClass": "charm",
+    "tags": ["Encanto"],
+    "effect": "uma vez por sala, ignore 1 descarte adicional de carta de dungeon. Depois de usar este efeito 2 vezes, descarte este encanto."
+  },
+  {
+    "type": "item",
+    "name": "Encanto da Chama Baixa",
+    "itemClass": "charm",
+    "tags": ["Encanto"],
+    "effect": "uma vez por combate, receba +2 no total da rolagem."
+  },
+  {
+    "type": "item",
+    "name": "Encanto do Sangue Quente",
+    "itemClass": "charm",
+    "tags": ["Encanto"],
+    "effect": "quando este herói ficar com metade da vida ou menos, receba +1 de dano até o fim da sala."
+  },
+  {
+    "type": "item",
+    "name": "Encanto do Caminho Seguro",
+    "itemClass": "charm",
+    "tags": ["Encanto"],
+    "effect": "ao revelar novos caminhos, você pode olhar 1 carta extra de dungeon antes de escolher. Depois de usar este efeito, descarte este encanto."
+  },
+  {
+    "type": "item",
+    "name": "Encanto da Última Defesa",
+    "itemClass": "charm",
+    "tags": ["Encanto"],
+    "effect": "quando este herói fosse destruído, descarte este encanto. Ele fica com 1 de vida em vez disso."
+  },
+  {
+    "type": "item",
+    "name": "Alaúde do Último Acorde",
+    "itemClass": "equipment",
+    "tags": ["Equipável", "Encanto"],
+    "effect": "uma vez por sala, quando este herói tentar fugir, considere que ele tem 5 de vida para calcular a fuga, mesmo que sua vida atual seja menor. Se a vida atual do herói já for 5 ou mais, receba +2 no total da rolagem de fuga."
+  },
+  {
+    "type": "item",
+    "name": "Manto da Saída Estreita",
+    "itemClass": "equipment",
+    "tags": ["Equipável"],
+    "effect": "quando este herói tentar fugir, ele consegue fugir também em caso de empate. Uma vez por combate, se conseguir fugir com empate, ignore o primeiro dano que sofreria por causa da fuga."
+  },
+  {
+    "type": "item",
+    "name": "Mapa Rasgado das Profundezas",
+    "itemClass": "special",
+    "tags": ["Especial", "Artefato"],
+    "effect": "saque 1 carta de Artefato."
+  },
+  {
+    "type": "item",
+    "name": "Baú Oculto da Fornalha",
+    "itemClass": "special",
+    "tags": ["Especial", "Artefato"],
+    "effect": "saque 1 carta de Artefato. Depois disso, suba o Despertar da Masmorra em 1 nível."
+  },
+  {
+    "type": "artifact",
+    "name": "Corrente do Carcereiro Rubro",
+    "countsAs": "artifact",
+    "effect": "uma vez por sala, quando novos caminhos forem revelados, você pode devolver 1 das cartas que seria descartada ao deck e embaralhar."
+  },
+  {
+    "type": "artifact",
+    "name": "Coração de Brasa Antiga",
+    "countsAs": "artifact",
+    "effect": "o portador recebe +2 no total e +1 de dano contra o chefe final."
+  },
+  {
+    "type": "artifact",
+    "name": "Martelo da Forja Perdida",
+    "countsAs": "artifact",
+    "effect": "uma vez por rodada, após qualquer rolagem, escolha 1: mude 1 dado azul para 6; ou mude 1 dado vermelho para 1."
+  },
+  {
+    "type": "artifact",
+    "name": "Braseiro da Última Vigília",
+    "countsAs": "artifact",
+    "effect": "uma vez por sala, quando um herói fosse sofrer dano suficiente para ser destruído, reduza esse dano até que ele fique com 1 de vida. Depois de usar este efeito, suba o Despertar da Masmorra em 1 nível."
+  },
+  {
+    "type": "artifact",
+    "name": "Lâmina do Primeiro Incêndio",
+    "countsAs": "artifact",
+    "effect": "uma vez por combate, depois que um herói acertar uma criatura, cause +2 de dano. Se esse dano destruir a criatura, o grupo ganha +1 XP adicional. Contra o chefe final, este bônus causa apenas +1 de dano."
+  },
+  {
+    "type": "room",
+    "name": "Corredor Estreito",
+    "exits": 1,
+    "enemiesByPlayers": [1, 1, 2, 2],
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "sem efeito adicional. Sala de início ideal."
+  },
+  {
+    "type": "room",
+    "name": "Sala da Masmorra",
+    "exits": 3,
+    "enemiesByPlayers": [1, 2, 2, 3],
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "sem efeito adicional.",
+    "xp": 1
+  },
+  {
+    "type": "room",
+    "name": "Câmara das Correntes",
+    "exits": 3,
+    "enemiesByPlayers": [1, 2, 3, 4],
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "criaturas desta sala não podem fugir nem sair de jogo por efeito, a menos que o texto diga “destruída”.",
+    "xp": 2
+  },
+  {
+    "type": "room",
+    "name": "Passagem das Tochas Mortas",
+    "exits": 2,
+    "enemiesByPlayers": [1, 2, 2, 3],
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "antes do primeiro combate nesta sala, o grupo deve escolher: descartar 1 Item; ou sofrer -1 no total da primeira rolagem de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
+    "xp": 2
+  },
+  {
+    "type": "room",
+    "name": "Salão das Colunas Quebradas",
+    "exits": 4,
+    "enemiesByPlayers": [1, 2, 3, 4],
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante. Ela sofre 1 de dano.",
+    "xp": 1
+  },
+  {
+    "type": "room",
+    "name": "Escadaria para as Profundezas",
+    "exits": 2,
+    "enemiesByPlayers": [2, 2, 3, 4],
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "se algum herói perder um combate nesta sala, descarte +1 carta de dungeon.",
+    "xp": 2
+  },
+  {
+    "type": "room",
+    "name": "Cela Abandonada",
+    "exits": 3,
+    "enemiesByPlayers": [0, 1, 2, 2],
+    "reward": 1,
+    "rewardType": "item",
+    "effect": "após vencer a sala, olhe as 2 cartas do topo do deck de Itens e fique com 1. Descarte a outra.",
+    "xp": 1
+  },
+  {
+    "type": "room",
+    "name": "Forja em Ruínas",
+    "exits": 3,
+    "enemiesByPlayers": [1, 1, 2, 3],
+    "reward": 2,
+    "rewardType": "item",
+    "effect": "ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói. Caso não haja mais nenhum equipamento, some 3 pontos de XP.",
+    "xp": 2
+  },
+  {
+    "type": "room",
+    "name": "Sala do Carcereiro",
+    "exits": 2,
+    "enemiesByPlayers": [1, 2, 3, 4],
+    "reward": 1,
+    "rewardType": "artifact",
+    "effect": "revele o Carcereiro da Masmorra Rubra junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o Carcereiro da Masmorra Rubra seja derrotado, remova esta carta do jogo.",
+    "xp": 3,
+    "specialCreature": "Carcereiro da Masmorra Rubra"
+  },
+  {
+    "type": "room",
+    "name": "Abismo Rachado",
+    "exits": 4,
+    "enemiesByPlayers": [2, 3, 4, 5],
+    "reward": 1,
+    "rewardType": "artifact",
+    "effect": "revele o Guardião do Abismo Rachado junto com os inimigos da sala. Depois de limpar esta sala, se o grupo possuir 2 Artefatos, pode enfrentar o chefe final imediatamente. Caso o Guardião do Abismo Rachado seja derrotado, remova esta carta do jogo.",
+    "xp": 3,
+    "specialCreature": "Guardião do Abismo Rachado"
+  },
+  {
+    "type": "boss",
+    "name": "Azhakar, Dragão da Fornalha Sombria",
+    "dice": "3 dados vermelhos",
+    "lifeBase": 20,
+    "hitBonusBase": 12,
+    "damage": 6,
+    "condition": "o grupo precisa possuir ao menos 3 Artefatos.",
+    "artifactBonus": "se o grupo possuir os seguintes artefatos: correntes do carcereiro rubro, coração de brasa antiga e martelo da forja perdida, Azhakar começa a luta com 16 de Vida em vez de 20.",
+    "dungeonScaling": "Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.",
+    "abilities": [
+      {
+        "name": "Trono Vivo",
+        "effect": "o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."
+      },
+      {
+        "name": "Pressão Arcana",
+        "effect": "após cada rodada de combate, se o despertar da masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon."
+      },
+      {
+        "name": "Ascensão Final",
+        "effect": "quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto."
+      }
+    ],
+    "victory": "ao derrotar Azhakar, os jogadores vencem a partida."
+  }
 ]

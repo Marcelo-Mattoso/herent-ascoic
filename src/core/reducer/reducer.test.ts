@@ -80,6 +80,17 @@ describe("START_GAME", () => {
 		expect(s.decks.dungeonDeck.available.length).toBeGreaterThan(0);
 	});
 
+	it("inicia Guerreiro do Bastião Partido com bônus de acerto base 5 no normal", () => {
+		const warrior = "Guerreiro do Bastião Partido";
+		const base = createInitialGameState({ heroCardNames: [warrior] });
+		const s = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardNames: [warrior], difficulty: "normal" },
+		});
+		expect(s.heroes[0]?.cardName).toBe(warrior);
+		expect(s.heroes[0]?.hitBonus).toBe(5);
+	});
+
 	it("define o boss corretamente", () => {
 		const base = createInitialGameState({ heroCardNames: [HERO] });
 		const s = reducer(base, {

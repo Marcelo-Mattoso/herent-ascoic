@@ -32,11 +32,11 @@ export function HeroCard({
 	const isActive = hero.status === "active";
 	const isCritical = hero.maxLife > 0 && hero.currentLife / hero.maxLife <= 0.25;
 
-	let borderColor = UI.border;
+	let borderColor: string = UI.border;
 	let borderWidth = "0.5px";
 
 	if (isSelected || isFocused) {
-		borderColor = "#185FA5";
+		borderColor = UI.info.text;
 		borderWidth = "1.5px";
 	}
 

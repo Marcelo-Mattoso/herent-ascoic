@@ -57,6 +57,7 @@ export const UI = {
 	info: { bg: "#E6F1FB", text: "#185FA5" },
 	danger: { bg: "#FCEBEB", text: "#501313" },
 	success: { bg: "#EAF3DE", text: "#3B6D11" },
+	warning: { bg: "#FDF3E6", text: "#A67D00" },
 	artifactBg: "#FDF8EF",
 	artifactBorder: "#F0D9A8",
 } as const;

@@ -3,7 +3,7 @@
 
 import type { ColorIndex } from "@/core/state/color";
 import type { RoomState } from "@/core/state/roomState";
-import { COLORS_MAP, UI } from "@/ui/theme";
+import { UI } from "@/ui/theme";
 import { ColorBar } from "./ColorBar";
 
 interface RoomCardProps {
@@ -31,8 +31,6 @@ export function RoomCard({ room, despertar, onClick }: RoomCardProps) {
 			</div>
 		);
 	}
-
-	const despColor = COLORS_MAP[despertar];
 
 	return (
 		<button

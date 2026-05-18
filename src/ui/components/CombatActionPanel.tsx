@@ -95,7 +95,7 @@ export function CombatActionPanel({
 				{availableEnemies.length === 0 && (
 					<p
 						className="text-xs"
-						style={{ color: UI.warning ?? UI.textTertiary }}
+						style={{ color: UI.textTertiary }}
 					>
 						Todos os inimigos já foram engajados. Passe a rodada ou use um
 						item/poder.

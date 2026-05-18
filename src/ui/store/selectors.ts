@@ -167,8 +167,8 @@ export function selectEnemiesAvailableAsTargets(
 	state: GameState,
 ): EnemyState[] {
 	const engaged = new Set(state.combat?.enemiesEngaged ?? []);
-	return state.enemies.filter(
-		(e) => e.status === "active" && !engaged.has(e.id),
+	return state.activeEnemies.filter(
+		(e: EnemyState) => e.status === "active" && !engaged.has(e.id),
 	);
 }
 

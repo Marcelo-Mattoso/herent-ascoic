@@ -22,14 +22,14 @@ export function EnemyCard({
 	onDrop,
 	onClick,
 }: EnemyCardProps) {
-	let borderColor = UI.border;
+	let borderColor: string = UI.border;
 	let borderWidth = "0.5px";
 
 	if (isDragOver && isSelectable) {
-		borderColor = "#185FA5";
+		borderColor = UI.info.text;
 		borderWidth = "2px";
 	} else if (isSelectable) {
-		borderColor = "#185FA5";
+		borderColor = UI.info.text;
 		borderWidth = "1.5px";
 	}
 
