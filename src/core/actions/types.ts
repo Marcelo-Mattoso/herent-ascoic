@@ -13,6 +13,9 @@ export type Action =
 	| { type: "SPAWN_ENEMIES" }
 	| { type: "START_COMBAT" }
 	| { type: "CHOOSE_HERO"; payload?: { heroId: string } }
+	| { type: "CHOOSE_HERO_FOR_ROUND"; payload: { heroId: string } }
+	| { type: "PASS_HERO_ACTION"; payload: { heroId: string } }
+	| { type: "CANCEL_HERO_SELECTION" }
 	| { type: "CHOOSE_TARGET"; payload: { heroId: string; enemyId: string } }
 	| { type: "ROLL_DICE" }
 	| { type: "RESOLVE_ATTACK" }

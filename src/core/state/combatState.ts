@@ -1,5 +1,6 @@
 // Estado do combate em andamento dentro de uma sala.
 // Criado em COMBAT_START e descartado ao sair da sala.
+// Patch 2: phase controla o micro-estado do turno; selectedHeroId é o herói aguardando alvo.
 
 export interface BonusEntry {
 	readonly source: string;
@@ -29,8 +30,18 @@ export interface TemporaryEffect {
 	readonly roundsLeft: number;
 }
 
+export type CombatPhase =
+	| "selecting_hero"    // aguardando o jogador escolher qual herói age
+	| "selecting_target"  // herói selecionado, aguardando escolha de monstro
+	| "resolving"         // par herói↔monstro formado, aguardando rolar/resolver
+	| "between_heroes"    // resolução concluída, transição para próximo herói
+	| "direct_damage"     // monstros sem oponente causam dano direto
+	| "round_end";        // fim de rodada, limpeza antes da próxima
+
 export interface CombatState {
 	round: number;
+	phase: CombatPhase;
+	selectedHeroId: string | null;
 	readonly heroesActed: readonly string[];
 	readonly enemiesEngaged: readonly string[];
 	readonly pairs: readonly CombatPair[];
@@ -49,6 +60,8 @@ export interface CombatState {
 export function createEmptyCombatState(): CombatState {
 	return {
 		round: 0,
+		phase: "selecting_hero",
+		selectedHeroId: null,
 		heroesActed: [],
 		enemiesEngaged: [],
 		pairs: [],

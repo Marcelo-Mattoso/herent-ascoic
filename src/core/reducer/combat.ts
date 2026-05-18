@@ -1,4 +1,6 @@
-// Handlers do loop de combate: START_COMBAT → CHOOSE_TARGET → ROLL_DICE → RESOLVE_ATTACK → DIRECT_DAMAGE → CHECK_COMBAT_END.
+// Handlers do loop de combate.
+// Patch 2: fluxo sequencial — CHOOSE_HERO_FOR_ROUND → CHOOSE_TARGET → ROLL_DICE → RESOLVE_ATTACK → DIRECT_DAMAGE → CHECK_COMBAT_END.
+// Engajamento é 1-para-1 por rodada: um monstro só pode ser alvo de 1 herói.
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
 import { calculateTotal, resolveAttack } from "../rules/combat";
@@ -15,9 +17,63 @@ import { log, mapEnemy, mapHero } from "./utils";
 
 export function handleStartCombat(state: GameState): GameState {
 	return log(
-		{ ...state, status: "HERO_ACTION", combat: createEmptyCombatState() },
+		{
+			...state,
+			status: "HERO_ACTION",
+			combat: { ...createEmptyCombatState(), phase: "selecting_hero" },
+		},
 		"Combate iniciado.",
 	);
+}
+
+// ─── CHOOSE_HERO_FOR_ROUND ────────────────────────────────────────────────────
+
+export function handleChooseHeroForRound(
+	state: GameState,
+	heroId: string,
+): GameState {
+	if (!state.combat) return state;
+	if (state.combat.heroesActed.includes(heroId)) {
+		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
+	}
+	const hero = state.heroes.find((h) => h.id === heroId && h.status === "active");
+	if (!hero) return log(state, `[AVISO] Herói ${heroId} inválido ou inativo.`);
+
+	return log(
+		{
+			...state,
+			combat: { ...state.combat, phase: "selecting_target", selectedHeroId: heroId },
+		},
+		`${hero.cardName} selecionado para agir.`,
+	);
+}
+
+// ─── PASS_HERO_ACTION ─────────────────────────────────────────────────────────
+
+export function handlePassHeroAction(
+	state: GameState,
+	heroId: string,
+): GameState {
+	if (!state.combat) return state;
+	const hero = state.heroes.find((h) => h.id === heroId);
+	const updatedActed = [...state.combat.heroesActed, heroId];
+	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+	const pendingHeroes = activeHeroes.filter((h) => !updatedActed.includes(h.id));
+
+	const nextCombat = {
+		...state.combat,
+		heroesActed: updatedActed,
+		selectedHeroId: null,
+		phase: (pendingHeroes.length > 0 ? "selecting_hero" : "direct_damage") as
+			| "selecting_hero"
+			| "direct_damage",
+	};
+	const next = { ...state, combat: nextCombat };
+
+	if (pendingHeroes.length > 0) {
+		return log(next, `${hero?.cardName ?? heroId} passou a rodada.`);
+	}
+	return log({ ...next, status: "DIRECT_DAMAGE" }, "Todos os heróis agiram. Dano direto.");
 }
 
 // ─── CHOOSE_TARGET ───────────────────────────────────────────────────────────
@@ -33,21 +89,21 @@ export function handleChooseTarget(
 	if (state.combat.heroesActed.includes(heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
-	// Nota: múltiplos heróis PODEM atacar o mesmo inimigo.
-	// enemiesEngaged rastreia quais inimigos não aplicarão dano direto.
+	// Patch 2: engajamento 1-para-1 — um monstro só pode ser alvo de 1 herói por rodada
+	if (state.combat.enemiesEngaged.includes(enemyId)) {
+		return log(state, `[AVISO] Inimigo ${enemyId} já está engajado nesta rodada.`);
+	}
 
 	const pair = { heroId, enemyId };
-	// Marcar inimigo como engajado (só uma vez basta para suprimir dano direto)
-	const alreadyEngaged = state.combat.enemiesEngaged.includes(enemyId);
 	return {
 		...state,
 		status: "ROLL_DICE",
 		combat: {
 			...state.combat,
+			phase: "resolving",
+			selectedHeroId: heroId,
 			pairs: [...state.combat.pairs, pair],
-			enemiesEngaged: alreadyEngaged
-				? state.combat.enemiesEngaged
-				: [...state.combat.enemiesEngaged, enemyId],
+			enemiesEngaged: [...state.combat.enemiesEngaged, enemyId],
 		},
 	};
 }
@@ -194,15 +250,26 @@ export function handleResolveAttack(state: GameState): GameState {
 	);
 
 	if (pendingHeroes.length > 0) {
-		// Há heróis que ainda não agiram — voltar para HERO_ACTION
-		return log(
-			{ ...next, status: "HERO_ACTION" },
-			`Aguardando ação de ${pendingHeroes.length} herói(s).`,
-		);
+		// Há heróis que ainda não agiram — voltar para seleção de herói
+		const withPhase = {
+			...next,
+			status: "HERO_ACTION" as const,
+			combat: next.combat
+				? { ...next.combat, phase: "selecting_hero" as const, selectedHeroId: null }
+				: null,
+		};
+		return log(withPhase, `Aguardando ação de ${pendingHeroes.length} herói(s).`);
 	}
 
 	// Todos os heróis ativos agiram — passar para dano direto
-	return { ...next, status: "DIRECT_DAMAGE" };
+	const withPhase = {
+		...next,
+		status: "DIRECT_DAMAGE" as const,
+		combat: next.combat
+			? { ...next.combat, phase: "direct_damage" as const, selectedHeroId: null }
+			: null,
+	};
+	return withPhase;
 }
 
 // ─── DIRECT_DAMAGE ───────────────────────────────────────────────────────────
@@ -269,11 +336,13 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 		);
 	}
 
-	// Próxima rodada
+	// Próxima rodada — reset completo com phase="selecting_hero"
 	const nextCombat = state.combat
 		? {
 				...state.combat,
 				round: state.combat.round + 1,
+				phase: "selecting_hero" as const,
+				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
 				enemiesEngaged: [],
@@ -346,6 +415,19 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 		default:
 			return log(state, `[TODO] Poder não implementado para: ${hero.cardName}`);
 	}
+}
+
+// ─── CANCEL_HERO_SELECTION ───────────────────────────────────────────────────
+
+export function handleCancelHeroSelection(state: GameState): GameState {
+	if (!state.combat) return state;
+	return log(
+		{
+			...state,
+			combat: { ...state.combat, phase: "selecting_hero", selectedHeroId: null },
+		},
+		"Seleção de herói cancelada.",
+	);
 }
 
 // ─── CHOOSE_HERO ──────────────────────────────────────────────────────────────

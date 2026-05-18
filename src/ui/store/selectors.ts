@@ -133,3 +133,15 @@ export function selectEnemiesAvailableAsTargets(state: GameState): EnemyState[] 
 		(e) => e.status === "active" && !engaged.has(e.id),
 	);
 }
+
+// Herói em foco — usa focusedHeroId da UI; fallback para primeiro ativo
+export function selectFocusedHero(
+	state: GameState,
+	focusedHeroId: string | null,
+): HeroState | null {
+	if (focusedHeroId) {
+		const hero = state.heroes.find((h) => h.id === focusedHeroId);
+		if (hero) return hero;
+	}
+	return state.heroes.find((h) => h.status === "active") ?? null;
+}

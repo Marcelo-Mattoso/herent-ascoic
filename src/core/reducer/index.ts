@@ -9,10 +9,13 @@ import {
 	handleRevealBoss,
 } from "./boss";
 import {
+	handleCancelHeroSelection,
 	handleCheckCombatEnd,
 	handleChooseHero,
+	handleChooseHeroForRound,
 	handleChooseTarget,
 	handleDirectDamage,
+	handlePassHeroAction,
 	handleResolveAttack,
 	handleRollDice,
 	handleStartCombat,
@@ -57,6 +60,15 @@ export function reducer(state: GameState, action: Action): GameState {
 
 		case "CHOOSE_HERO":
 			return handleChooseHero(state, action.payload?.heroId);
+
+		case "CHOOSE_HERO_FOR_ROUND":
+			return handleChooseHeroForRound(state, action.payload.heroId);
+
+		case "PASS_HERO_ACTION":
+			return handlePassHeroAction(state, action.payload.heroId);
+
+		case "CANCEL_HERO_SELECTION":
+			return handleCancelHeroSelection(state);
 
 		case "CHOOSE_TARGET":
 			return handleChooseTarget(

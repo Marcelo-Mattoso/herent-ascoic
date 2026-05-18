@@ -66,9 +66,26 @@ export function handleResolveRoomEffect(state: GameState): GameState {
 	return { ...state, status: "SPAWN_ENEMIES" };
 }
 
+// Patch 2: contagem dinâmica de inimigos baseada no número de heróis ativos.
+function getEnemyCount(
+	enemiesByPlayers: readonly [number, number, number, number],
+	activeHeroesCount: number,
+): number {
+	if (activeHeroesCount <= 2) return enemiesByPlayers[0];
+	if (activeHeroesCount <= 4) return enemiesByPlayers[1];
+	if (activeHeroesCount <= 6) return enemiesByPlayers[2];
+	return enemiesByPlayers[3];
+}
+
 export function handleSpawnEnemies(state: GameState): GameState {
 	if (!state.currentRoom) return state;
-	const count = state.currentRoom.currentEnemies;
+	// Buscar a carta da sala para obter enemiesByPlayers e calcular contagem dinamicamente
+	const roomCard = getCardByName(state.currentRoom.cardName);
+	const activeHeroesCount = state.heroes.filter((h) => h.status === "active").length;
+	const count =
+		roomCard?.type === "room"
+			? getEnemyCount(roomCard.enemiesByPlayers, activeHeroesCount)
+			: state.currentRoom.currentEnemies;
 
 	if (count === 0) {
 		return log(
