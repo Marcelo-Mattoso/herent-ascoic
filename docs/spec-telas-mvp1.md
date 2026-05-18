@@ -57,31 +57,67 @@ A tela **Combate contra Boss** é uma variação da tela de Exploração (mesmos
 
 ## Anatomia da carta (herói e criatura)
 
-As cartas de **herói** e **criatura** seguem este layout fixo (em tamanho médio/grande):
+As cartas de **herói** e **criatura** seguem este layout fixo (em tamanho médio/grande). Referência visual: arquivo `Bárbaro_Rubro.png`.
 
 ```
-┌──────────────────────────────────┐
-│                                  │
-│          [ARTE DA CARTA]         │
-│                                  │
-├──────────────────────────────────┤
-│              NOME                │
-├────────────┬───────────┬─────────┤
-│  ESQUERDA  │  CENTRO   │ DIREITA │
-│   Vida     │   ...     │  Bônus  │
-│  atual/max │           │ acerto  │
-├────────────┴───────────┴─────────┤
-│       EMBAIXO: Nd6 (dados)       │
-└──────────────────────────────────┘
+┌─────────────────────────────────────────┐
+│                  NOME                   │
+├──────┬───────────────────────────┬──────┤
+│  ❤   │                           │  🎯  │
+│  12  │                           │   3  │
+│  14  │      [ARTE DA CARTA]      │   5  │
+│  16  │                           │   7  │
+│  18  │                           │  10  │
+│  20  │                           │  14  │
+├──────┴───────────────────────────┴──────┤
+│  🎲  ⚪🟡🟠🔴🟣              [💥 4]    │
+├─────────────────────────────────────────┤
+│  📖 {habilidade passiva — campo skill}  │
+├─────────────────────────────────────────┤
+│  ⚡ {poder ativo — campo power}         │
+└─────────────────────────────────────────┘
 ```
 
-**Criatura** adiciona no lado **direito**, abaixo do bônus de acerto:
-- XP que concede ao ser derrotada.
-- Quantas cartas de tesouro dropa.
+### Mapeamento ícone → campo do JSON
 
-**No tamanho mini** (slots do campo de batalha), o layout comprime mas mantém a hierarquia: vida visível à esquerda, acerto à direita, dados embaixo.
+| Posição | Ícone | Significado | Campo no JSON |
+|---|---|---|---|
+| Coluna esquerda (5 valores) | ❤ Coração | Vida por cor (Branco→Roxo) | `life: number[5]` |
+| Coluna direita (5 valores) | 🎯 Alvo | Bônus de acerto por cor | `hitBonus: number[5]` |
+| Linha inferior — esquerda | 🎲 Dado d6 + 5 esferas coloridas | Quantidade de dados por cor | `diceByColor: number[5]` |
+| Linha inferior — direita | 🔴 Círculo vermelho com número | Dano fixo (não varia por cor) | `damage: number` |
+| Painel inferior (livro) | 📖 Livro | Habilidade passiva, sempre ativa | `skill: string` |
+| Painel inferior (raio) | ⚡ Raio | Poder ativo (limitado por uso) | `power: string` |
 
-**Demais tipos de carta** (sala, item, artefato, chefe): anatomia será definida no **Patch 2**. No MVP 1, layout livre — apenas nome e texto descritivo.
+### Observações importantes
+
+- **Vida e bônus de acerto são arrays de 5** — um valor por cor (Branco, Amarelo, Laranja, Vermelho, Roxo). O motor lê o valor pela cor atual (Ímpeto do herói ou Despertar da criatura).
+- **Quantidade de dados varia por cor** — confirmado pelo Bárbaro Rubro: 1, 1, 2, 2, 3. Não é 3d6 fixo. O sistema é escala por cor desde o início.
+- **Dano é fixo** — único valor que não varia entre cores no caso do herói.
+- **Habilidade (skill)** sempre vale, sem custo. **Poder (power)** precisa ser ativado e tem limite de uso.
+- Os diamantes azuis nos cantos do quadro são decorativos, sem função mecânica.
+
+### Adicional para cartas de criatura
+
+Criaturas têm o mesmo layout, com duas informações extras no canto **direito inferior** (próximas ao dano):
+- **XP** que concede ao ser derrotada (campo `xp`).
+- **Quantidade de cartas de tesouro** que dropa (campo `reward`).
+
+Cartas de criatura também podem ter:
+- Um **purpleEffect** — efeito especial que só se aplica quando o Despertar da Masmorra está em Roxo. Renderizar em painel separado ou com indicador visual roxo.
+
+### No tamanho mini
+
+Em slots do campo de batalha, o layout comprime mas mantém a hierarquia mínima:
+- Vida visível (atual/max para a cor atual).
+- Bônus de acerto visível (valor para a cor atual).
+- Quantidade de dados visível (valor para a cor atual).
+- Dano visível.
+- Habilidade e poder podem ficar como tooltip ou abrir modal de detalhes ao clicar.
+
+### Demais tipos de carta
+
+Sala, item, artefato, chefe: anatomia será definida no **Patch 2**. No MVP 1, layout livre — apenas nome, tipo e texto descritivo dos campos relevantes.
 
 ---
 
@@ -267,42 +303,102 @@ O painel inferior precisa caber qualquer quantidade de heróis entre 1 e 8. Use 
 **Layout B — 2 a 4 heróis**:
 - Grid horizontal com cards de herói lado a lado, cada um com ~200-240px de largura.
 - Cada card mostra: arte placeholder, nome, stats compactos, barra de Ímpeto, estados.
-- Painel de Habilidade/Poder/Mochila/Equipamentos do **herói ativo** aparece abaixo dos cards, em largura cheia.
+- Painel de Habilidade/Poder/Mochila/Equipamentos do **herói em foco** aparece abaixo dos cards, em largura cheia.
 
 **Layout C — 5 a 8 heróis**:
 - Lista compacta horizontal de cards mini (~130px cada), scrollável se necessário.
 - Cada card mostra: arte placeholder mini, nome, vida atual/máxima, indicador de Ímpeto.
-- Painel detalhado do **herói ativo** aparece abaixo, em largura cheia.
+- Painel detalhado do **herói em foco** aparece abaixo, em largura cheia.
 
-**Herói ativo**:
-- "Herói ativo" = o herói cuja vez é agir agora durante combate. Fora de combate, o jogador pode clicar em qualquer card de herói para ver os detalhes.
-- Card do herói ativo tem borda destacada e/ou leve elevação visual.
-- Clicar em um card de herói (fora de combate) muda o herói cujos detalhes aparecem.
+### Conceito de "herói em foco" vs "herói ativo"
 
-**Card individual do herói** (qualquer layout):
+Esses dois conceitos são distintos e podem se sobrepor ou não:
+
+- **Herói em foco** (`focusedHeroId`): herói cujo inventário e detalhes aparecem no painel inferior agora. É controlado **pelo clique do jogador**. Default no início da partida = primeiro herói ativo.
+- **Herói ativo** (`selectedHeroId` no CombatState): herói cuja vez é agir durante o combate (só existe durante o pareamento). Controlado pela lógica de combate + escolha do jogador.
+
+**Regras de interação**:
+- Clicar em um card de herói (fora de combate) muda o foco.
+- Durante combate, quando um herói é selecionado pra agir, o foco **acompanha automaticamente** para esse herói.
+- Mas o jogador pode clicar em outro herói durante o combate para consultar inventário sem mudar quem está agindo.
+
+**Distinção visual**:
+- Card do **herói em foco**: borda destacada (mais grossa, cor de destaque).
+- Card do **herói ativo em combate**: indicador adicional (ex: label "▶ agindo agora" ou ícone).
+- Cards de heróis **derrotados**: visual atenuado, cinza, opacidade ~50%, não clicáveis.
+- Cards de heróis que **fugiram**: borda tracejada, label "fugiu", não clicáveis na exploração corrente.
+
+### Card individual do herói
+
+Conteúdo mínimo em qualquer layout:
 - Arte placeholder (aspect-ratio 3:4) no topo.
 - Nome em peso 500.
 - Stats: "Vida {atual}/{max}", "Acerto +{n} · Dano {n}", "Dados {Nd6}".
-- Label "Ímpeto" e barra de 5 traços com cor preenchida conforme nível atual.
-- Texto da cor atual abaixo da barra.
+- Label "Ímpeto" + barra de 5 traços coloridos.
+- Texto da cor atual.
 - Linha de "Estados" com chips (Ferido, Prender, etc.).
-- Status do herói: "ativo", "derrotado" (com visual atenuado, cinza), "fugiu" (visual diferente).
 
-**Painel de detalhes do herói ativo** (sempre presente, atualiza ao trocar herói):
+**Comportamento ao clicar**:
+- Clicar no card (área geral) → muda foco para esse herói.
+- Clicar especificamente na arte ou no nome → abre modal de detalhes completos da carta.
+
+### Painel de detalhes do herói em foco
+
+Sempre presente abaixo da lista de cards, atualiza ao trocar o foco:
 - **Habilidade**: texto + badge "ativa"/"inativa".
 - **Poder**: texto + badge "disponível" / "usado neste combate" / "usado nesta sala" / "usado neste jogo".
-- **Mochila**: chips com itens guardados.
-- **Equipamentos ativos**: grid de 4 slots (Equipável, Utilitário, Consumível, Especial).
+- **Mochila**: chips com itens guardados do herói em foco. Clicar em um chip abre modal com opções (equipar, descartar, transferir para outro herói).
+- **Equipamentos ativos**: grid de 4 slots (Equipável, Utilitário, Consumível, Especial) do herói em foco. Clicar em equipamento abre modal de detalhes + opções (mover para mochila, descartar).
 
 ### Comportamentos da tela de Exploração
 
-- **Em combate, o sistema indica o herói ativo** (cuja vez é agir). O painel de detalhes mostra esse herói. O jogador pode clicar nos botões de ação (Atacar, etc.) para esse herói.
-- **Antes de cada herói agir**, se houver mais de 1 disponível na rodada, jogador escolhe clicando no card do herói que quer mover.
-- **Inimigos já engajados** nesta rodada aparecem com borda atenuada ou label "engajado por: {herói}". Não podem ser alvo de outro herói na mesma rodada.
+**Fluxo de combate em micro-estados (`combatPhase`)**:
+
+O combate passa por 6 fases bem definidas, cada uma com UI específica:
+
+**Fase 1 — Escolhendo herói** (`selecting_hero`):
+- Heróis disponíveis na rodada: borda destacada, cursor pointer, clicáveis.
+- Heróis que já agiram: visual atenuado, label "já agiu", não clicáveis.
+- Monstros: visíveis mas não clicáveis (cursor default).
+- Painel de rolagem: oculto ou mostra "Aguardando seleção de herói".
+- Botões de ação: ocultos.
+
+**Fase 2 — Escolhendo monstro** (`selecting_target`):
+- Herói selecionado: borda mais grossa + label "selecionado".
+- Outros heróis disponíveis: ainda clicáveis (permite trocar a seleção).
+- Monstros disponíveis: borda destacada, clicáveis.
+- Monstros já engajados nesta rodada: visual atenuado, label "engajado por: {herói}", não clicáveis.
+- Painel de rolagem: oculto.
+- Botões: aparecem "Atacar" (destaque, requer alvo selecionado), "Passar a rodada", "Usar item" e "Usar poder" (se aplicáveis ao herói selecionado), "Cancelar seleção".
+
+**Fase 3 — Resolvendo combate** (`resolving`):
+- Herói e monstro pareados: destacados, com linha/seta conectando.
+- Painel de rolagem: **ativo**, mostra os dados rolados, bônus discriminados (base, item, artefato, sala, etc.), total final.
+- Botões: "Continuar" (após o jogador ler o resultado).
+
+**Fase 4 — Entre heróis** (`between_heroes`):
+- Volta para fase 1 se há mais heróis disponíveis.
+- Vai para fase 5 se não há mais.
+
+**Fase 5 — Dano direto** (`direct_damage`):
+- Monstros sem oponente nesta rodada: destacados.
+- Cada herói atingido por dano direto: destacado, com a vida atualizando.
+- Mensagem: "{monstro} atacou {herói} causando {n} de dano."
+- Botão "Continuar" avança para fase 6.
+
+**Fase 6 — Fim da rodada** (`round_end`):
+- Limpa estados temporários (`heroesActed`, `enemiesEngaged`).
+- Volta para fase 1 se ainda há heróis e monstros vivos.
+- Vai para fase de recompensa se todos os monstros foram derrotados.
+- Vai para tela de derrota se todos os heróis foram derrotados.
+
+**Comportamentos fora de combate**:
 - **Clicar em qualquer carta** (herói, inimigo, sala, item equipado, artefato, item da mochila) abre o **modal de Detalhes de carta**.
 - **Clicar em pilha** abre modal listando cartas da pilha.
-- **Botão Regras** abre modal com referência rápida das regras principais.
-- **Botão Log** abre modal com histórico de eventos da partida.
+- **Clicar em card de herói** muda o **foco** (painel inferior atualiza com o inventário daquele herói).
+- **Clicar em item da mochila ou equipamento ativo** abre modal com opções de manipulação.
+- **Botão Regras** abre modal com referência rápida.
+- **Botão Log** abre modal com histórico de eventos.
 
 ---
 

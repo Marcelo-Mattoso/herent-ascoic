@@ -311,23 +311,25 @@ Este marco é o maior. Divida em 3 sessões.
 5. **`src/core/reducer/exploration.ts`** — handlers de exploração:
    - `REVEAL_ROOM`: compra carta do deck de dungeon, define como sala atual.
    - `ROOM_EFFECT`: aplica efeitos iniciais conhecidos da sala (no MVP 1, suportar pelo menos "sem efeito adicional"; outros efeitos viram TODO documentado).
-   - `SPAWN_ENEMIES`: compra criaturas do deck conforme `enemiesByPlayers[0]` (1-2 jogadores).
+   - `SPAWN_ENEMIES`: calcula a faixa correta de `enemiesByPlayers` com base na contagem de heróis ativos no momento do saque. Usa helper `getEnemyCount(room, activeHeroesCount)` onde a faixa é: 1-2 heróis → índice 0; 3-4 → 1; 5-6 → 2; 7-8 → 3. Compra criaturas do deck conforme essa quantidade. Se quantidade for 0, sala não tem combate.
    - `OPEN_PATHS`: revela cartas de caminho.
    - `CHOOSE_PATH`: define próxima sala.
    - `DISCARD_PATHS`: descarta cartas não escolhidas e embaralha resto.
 
 #### Sessão 5B — Combate
 
-6. **`src/core/reducer/combat.ts`** — handlers de combate (com suporte a 1 a 8 heróis):
-   - `COMBAT_START`: muda status, prepara CombatState com `heroesActed: []` e `enemiesEngaged: []`.
-   - `CHOOSE_HERO`: jogador escolhe qual herói age agora. Valida que o herói está ativo, vivo e não agiu nesta rodada. Se sobrar apenas 1 herói disponível, auto-seleciona.
-   - `CHOOSE_TARGET`: valida que inimigo não foi engajado nesta rodada por outro herói. Registra par `{ heroId, enemyId }`.
-   - `ROLL_DICE`: chama `rollDice` com a quantidade certa de dados (lookup no JSON da carta com `getDiceCount`), guarda em `combatState.lastRoll`.
+6. **`src/core/reducer/combat.ts`** — handlers de combate (com suporte a 1 a 8 heróis e pareamento sequencial):
+   - `COMBAT_START`: muda status, prepara CombatState com `phase: "selecting_hero"`, `heroesActed: []`, `enemiesEngaged: []`, `selectedHeroId: null`.
+   - `CHOOSE_HERO_FOR_ROUND`: jogador seleciona herói para agir agora. Validações: herói está ativo, vivo, não agiu nesta rodada. Atualiza `selectedHeroId` e muda `phase` para `"selecting_target"`. Se sobrar apenas 1 herói disponível, pode auto-selecionar (opcional).
+   - `CHOOSE_TARGET`: jogador seleciona monstro alvo. Validações: monstro está vivo, não foi engajado nesta rodada por outro herói. Cria par `{ heroId, enemyId }`. Muda `phase` para `"resolving"`.
+   - `PASS_HERO_ACTION`: herói selecionado passa a rodada sem combate. Marca herói em `heroesActed` e dispara `END_HERO_ACTION`.
+   - `ROLL_DICE`: chama `rollDice` com a quantidade certa de dados, guarda em `combatState.lastRoll`.
    - `RESOLVE_ATTACK`: calcula totais com bônus discriminados, aplica `resolveAttack`, atualiza vidas.
-   - `APPLY_DAMAGE`: aplica dano considerando escudo.
-   - `END_HERO_ACTION`: marca herói como tendo agido na rodada. Se ainda houver heróis disponíveis, volta para `CHOOSE_HERO`. Se todos agiram, transita para `DIRECT_DAMAGE`.
-   - `DIRECT_DAMAGE`: para cada criatura ainda viva sem oponente nesta rodada, causa dano direto a 1 herói válido (usa strategy `targetSelection`).
-   - `CHECK_COMBAT_END`: verifica se todos os inimigos morreram OU se todos os heróis morreram. Se nenhum dos dois, inicia nova rodada (limpa `heroesActed` e `enemiesEngaged`).
+   - `APPLY_DAMAGE`: aplica dano considerando escudo. Verifica morte do herói e/ou monstro.
+   - `END_HERO_ACTION`: marca herói em `heroesActed`, limpa `selectedHeroId`. Se houver mais heróis disponíveis e monstros vivos, muda `phase` para `"selecting_hero"`. Se não, muda para `"direct_damage"`.
+   - `DIRECT_DAMAGE`: para cada monstro vivo sem oponente nesta rodada, causa dano direto a 1 herói válido (usa strategy `targetSelection`). Muda `phase` para `"round_end"`.
+   - `END_ROUND`: limpa `heroesActed`, `enemiesEngaged`. Verifica fim de combate (todos heróis mortos OU todos monstros mortos). Se nenhum, inicia nova rodada (volta para `"selecting_hero"`).
+   - `CHECK_COMBAT_END`: chamada após cada `APPLY_DAMAGE`. Se todos os heróis ativos estão derrotados → derrota. Se todos os monstros estão derrotados → recompensa.
 
 7. **Itens e poderes do MVP 1** — implementação direta por nome:
    - Adaga Enferrujada: bônus +1 já entra automaticamente no cálculo de `RESOLVE_ATTACK` quando equipada.
@@ -401,18 +403,29 @@ Conectar o motor de regras puro à camada React usando Zustand. UI ainda não fo
 
    export const useGameStore = create<{
      state: GameState
+     ui: {
+       focusedHeroId: string | null
+     }
      dispatch: (action: Action) => void
+     setFocusedHero: (heroId: string) => void
    }>((set, get) => ({
      state: createInitialGameState(),
+     ui: { focusedHeroId: null },
      dispatch: (action) => set({ state: reducer(get().state, action) }),
+     setFocusedHero: (heroId) => set({ ui: { ...get().ui, focusedHeroId: heroId } }),
    }))
    ```
+   - `state` = game state, **serializável**, save/load aplicável.
+   - `ui` = UI state, **não serializado** (não vai pro save).
+   - Quando `START_GAME` é despachado, `focusedHeroId` é setado para o primeiro herói ativo (caso esteja `null`).
 
 2. **Seletores derivados** — funções fora do store que lêem o estado para a UI:
-   - `selectActiveHero(state)`: herói atual em ação.
-   - `selectAvailableActions(state)`: quais botões devem aparecer (Atacar, Usar item, Usar poder, Fugir).
+   - `selectFocusedHero(state, ui)`: herói atualmente em foco no painel inferior.
+   - `selectActiveHeroInRound(state)`: herói que está agindo agora durante combate (lendo `combatState.selectedHeroId`).
+   - `selectAvailableHeroesForRound(state)`: heróis ativos que ainda não agiram na rodada atual.
+   - `selectAvailableEnemiesForTargeting(state)`: monstros ainda não engajados na rodada atual.
+   - `selectAvailableActions(state)`: quais botões devem aparecer (Atacar, Passar, Usar item, Usar poder, Fugir).
    - `selectXpSpendOptions(state)`: quais opções de gasto de XP estão disponíveis.
-   - Outros conforme necessidade.
 
 3. **`src/ui/store/persistence.ts`** — funcionalidade pronta mas desabilitada por padrão (feature flag): serializa `state` em localStorage. Para MVP 1 fica off, mas o código está lá.
 
@@ -444,7 +457,14 @@ Dividir em 3 sessões.
 
 Em `src/ui/components/`:
 
-1. **`Card.tsx`** — componente genérico de carta. Props: `type` (hero, enemy, room, item, artifact), `name`, `imageUrl` (opcional, usa placeholder se ausente), `children` (conteúdo customizado).
+1. **`Card.tsx`** — componente genérico de carta. Props: `type` (hero, enemy, room, item, artifact, boss), `card` (dados do JSON), `currentColor` (Branco→Roxo, opcional), `size` ("mini" | "medium" | "large"), `onClick` (opcional). Para `type === "hero" | "creature"` em tamanho `medium` ou `large`, renderizar conforme anatomia oficial:
+   - Coluna esquerda: 5 valores de `life` empilhados com ícone ❤, valor da `currentColor` destacado.
+   - Coluna direita: 5 valores de `hitBonus` empilhados com ícone 🎯, valor da `currentColor` destacado.
+   - Linha inferior esquerda: 5 valores de `diceByColor` em esferas coloridas com ícone 🎲, valor da `currentColor` destacado.
+   - Linha inferior direita: `damage` em círculo vermelho.
+   - Painel inferior: `skill` com ícone 📖, `power` com ícone ⚡.
+   - Para criatura: adicionar `xp` e `reward` próximos ao dano. Renderizar `purpleEffect` em painel separado com tom roxo.
+   - Para `type === "room" | "item" | "artifact" | "boss"`: layout livre no MVP 1 (apenas nome + texto). Será refinado no Patch 2.
 2. **`PlaceholderArt.tsx`** — componente de imagem placeholder, varia conforme o tipo de carta (silhueta diferente).
 3. **`ColorBar.tsx`** — barra de 5 traços indicando cor atual (usada pra Ímpeto e Despertar).
 4. **`StackPreview.tsx`** — visual de pilha (3 retângulos sobrepostos) + nome + contagem.

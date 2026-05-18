@@ -214,27 +214,34 @@ Cada dificuldade aplica dois deslocamentos: um sobre o Ímpeto inicial de cada h
 > **Correção do Patch 1**: a documentação anterior listava o Pesadelo como "Ímpeto Amarelo + Despertar Laranja". Está errado. Vale a regra "+N níveis": no Pesadelo, Ímpeto inicial é Branco (0), Despertar é Laranja (+2).
 
 ### 5.5 Combate
-- Heróis ativos agem **um por vez** em cada rodada (ordem definida por `heroOrderStrategy`; default = jogador escolhe).
-- Cada herói enfrenta 1 criatura por rodada.
+- Heróis ativos agem **um por vez** em fluxo sequencial: jogador escolhe um herói → escolhe alvo → combate é resolvido imediatamente → próximo herói.
+- Em cada rodada, cada herói pode enfrentar 1 criatura **ou passar a rodada** sem combater.
 - Uma criatura não pode ser alvo de mais de 1 herói na mesma rodada.
 - Empate na rolagem: ambos sofrem 1 de dano.
-- Após todos os heróis ativos agirem: criaturas sem oponente causam dano direto (strategy define o alvo).
+- Após todos os heróis ativos agirem (ou passarem): criaturas sem oponente causam dano direto (strategy define o alvo).
 - Escudo: ignora até 2 do primeiro dano de cada turno. Se for 1 ou 2, ignora tudo. Se for >2, reduz 2.
 - Fuga: disponível para carta com 1 de vida. Precisa vencer o próximo confronto para fugir.
 - **Derrota só acontece quando todos os heróis estão derrotados**, não quando o primeiro morre.
+- O combate tem 6 fases internas (`selecting_hero`, `selecting_target`, `resolving`, `between_heroes`, `direct_damage`, `round_end`) que controlam o que a UI mostra e quais actions são válidas em cada momento.
 
-### 5.6 Esgotamento de deck de dungeon
+### 5.6 Spawn de monstros
+- A quantidade de criaturas em uma sala é calculada **no momento do saque da carta de dungeon**, baseada no número de heróis ativos naquele instante.
+- Faixas: 1-2 heróis ativos → `enemiesByPlayers[0]`; 3-4 → `[1]`; 5-6 → `[2]`; 7-8 → `[3]`.
+- Heróis derrotados ou fugidos saem do jogo permanentemente — reduzem o grupo e podem reduzir a quantidade de monstros das próximas salas.
+- Se a faixa indica 0 criaturas, a sala não tem combate (resolve efeito, recompensa e XP, e segue).
+
+### 5.7 Esgotamento de deck de dungeon
 - Quando precisar revelar nova sala e o deck estiver vazio:
   - Se grupo tem ≥5 XP e descarte ≥1 carta: oferece gastar 5 XP para recuperar.
   - Caso contrário: derrota.
 
-### 5.7 Recompensas: item vs artefato
+### 5.8 Recompensas: item vs artefato
 - **Item**: jogador escolhe qual herói recebe. Em seguida, herói escolhe equipar / mochila / descartar. Se equipar com slot ocupado, item anterior vai para mochila ou é descartado.
 - **Artefato comum**: vai direto para área de "Artefatos do grupo". Sem escolha de herói.
 - **Artefato com "o portador"**: jogador escolhe 1 herói como portador. Vai para área do grupo com a marcação.
 - Tesouro sem deck = 1 XP. Artefato sem deck = 3 XP.
 
-### 5.8 Condição do chefe
+### 5.9 Condição do chefe
 - Verificada após cada sala resolvida.
 - Quando cumprida: interrompe exploração, inicia combate final.
 - No MVP 1 com Azhakar: `o grupo possui ≥2 Artefatos`.
