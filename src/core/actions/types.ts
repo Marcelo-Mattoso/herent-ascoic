@@ -52,4 +52,22 @@ export type Action =
 	| { type: "START_BOSS_COMBAT" }
 	| { type: "DUNGEON_EXHAUSTED" }
 	| { type: "VICTORY" }
-	| { type: "DEFEAT"; payload: { reason: string } };
+	| { type: "DEFEAT"; payload: { reason: string } }
+	// ── Inventário do grupo (Patch 4) ─────────────────────────────────────────
+	| {
+			type: "INV_ASSIGN_ITEM";
+			payload: {
+				itemName: string;
+				heroId: string;
+				destination: "equip" | "backpack";
+			};
+	  }
+	| {
+			type: "INV_ASSIGN_ARTIFACT";
+			payload: { artifactName: string; vagaIndex: 0 | 1; heroId: string | null };
+	  }
+	| {
+			type: "INV_SET_BEARER";
+			payload: { vagaIndex: number; heroId: string | null };
+	  }
+	| { type: "INV_DISCARD_MESA" };

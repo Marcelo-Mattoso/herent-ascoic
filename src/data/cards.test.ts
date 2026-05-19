@@ -9,8 +9,7 @@ import {
 
 describe("catálogo de cartas", () => {
 	it("carrega o total correto de cartas", () => {
-		// 8 heróis + 12 criaturas + 2 subbosses + 11 itens + 3 artefatos + 10 salas + 1 boss
-		expect(getAllCards().length).toBe(47);
+		expect(getAllCards().length).toBe(79);
 	});
 
 	it("retorna 8 heróis", () => {

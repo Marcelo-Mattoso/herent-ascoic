@@ -277,6 +277,132 @@ export function handleOpenPathsFromXpPhase(state: GameState): GameState {
 	return { ...state, status: "OPEN_PATHS" };
 }
 
+// ─── INV_ASSIGN_ITEM ──────────────────────────────────────────────────────────
+// Move um item específico da mesa (pendingRewards) para o herói (equip ou mochila).
+// Se o slot de equip já está ocupado, o item deslocado volta para a mesa.
+
+export function handleInvAssignItem(
+	state: GameState,
+	itemName: string,
+	heroId: string,
+	destination: "equip" | "backpack",
+): GameState {
+	const reward = state.pendingRewards.find(
+		(r) => r.cardName === itemName && r.type === "item",
+	);
+	if (!reward) return state;
+
+	const remaining = state.pendingRewards.filter((r) => r !== reward);
+	let next: GameState = { ...state, pendingRewards: remaining };
+
+	if (destination === "equip") {
+		const card = getCardByName(itemName);
+		if (card && card.type === "item") {
+			const slot =
+				card.itemClass === "equipment"
+					? "weapon"
+					: card.itemClass === "utility"
+						? "utility"
+						: "special";
+			next = mapHero(next, heroId, (h) => {
+				const displaced = h.activeItems[slot];
+				return {
+					...h,
+					activeItems: { ...h.activeItems, [slot]: itemName },
+					backpack: h.backpack,
+				};
+			});
+			// Se o slot estava ocupado, item deslocado volta para a mesa
+			const hero = state.heroes.find((h) => h.id === heroId);
+			const displaced = hero?.activeItems[
+				card.itemClass === "equipment"
+					? "weapon"
+					: card.itemClass === "utility"
+						? "utility"
+						: "special"
+			];
+			if (displaced) {
+				next = {
+					...next,
+					pendingRewards: [
+						...next.pendingRewards,
+						{ type: "item", cardName: displaced, requiresBearer: false },
+					],
+				};
+			}
+			next = log(next, `${itemName} equipado por ${heroId}.`);
+		}
+	} else {
+		// backpack — falha silenciosa se cheia (máx 8)
+		const hero = state.heroes.find((h) => h.id === heroId);
+		if ((hero?.backpack.length ?? 8) >= 8) return state;
+		next = mapHero(next, heroId, (h) => ({
+			...h,
+			backpack: [...h.backpack, itemName],
+		}));
+		next = log(next, `${itemName} na mochila de ${heroId}.`);
+	}
+
+	return next;
+}
+
+// ─── INV_ASSIGN_ARTIFACT ─────────────────────────────────────────────────────
+// Move artefato da mesa para a vaga do grupo. Máx 2 artefatos ativos.
+
+export function handleInvAssignArtifact(
+	state: GameState,
+	artifactName: string,
+	vagaIndex: 0 | 1,
+	heroId: string | null,
+): GameState {
+	const reward = state.pendingRewards.find(
+		(r) => r.cardName === artifactName && r.type === "artifact",
+	);
+	if (!reward) return state;
+	if (state.groupArtifacts.length >= 2) return state;
+
+	const remaining = state.pendingRewards.filter((r) => r !== reward);
+	return log(
+		{
+			...state,
+			pendingRewards: remaining,
+			groupArtifacts: [
+				...state.groupArtifacts,
+				{ cardName: artifactName, carriedBy: heroId },
+			],
+		},
+		`Artefato ${artifactName} ativo no grupo.`,
+	);
+}
+
+// ─── INV_SET_BEARER ───────────────────────────────────────────────────────────
+// Atualiza o portador de um artefato ativo no grupo.
+
+export function handleInvSetBearer(
+	state: GameState,
+	vagaIndex: number,
+	heroId: string | null,
+): GameState {
+	if (!state.groupArtifacts[vagaIndex]) return state;
+	const artifacts = state.groupArtifacts.map((a, i) =>
+		i === vagaIndex ? { ...a, carriedBy: heroId } : a,
+	);
+	return { ...state, groupArtifacts: artifacts };
+}
+
+// ─── INV_DISCARD_MESA ─────────────────────────────────────────────────────────
+// Descarta tudo que restou na mesa e avança para XP_SPEND_PHASE.
+
+export function handleInvDescartarMesa(state: GameState): GameState {
+	const count = state.pendingRewards.length;
+	return log(
+		{ ...state, pendingRewards: [], status: "XP_SPEND_PHASE" },
+		count > 0
+			? `Mesa descartada: ${count} item(ns) perdido(s).`
+			: "Inventário fechado.",
+	);
+}
+
 // ─── Distribuição automática de item (fallback para 1 herói) ─────────────────
 // Mantido para compatibilidade com testes que usam distribuição direta.
 

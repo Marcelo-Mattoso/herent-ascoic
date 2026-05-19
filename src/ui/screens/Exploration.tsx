@@ -8,10 +8,10 @@ import type { HeroState } from "@/core/state/heroState";
 import type { CardType } from "@/ui/components/Card";
 import { Board } from "@/ui/components/Board";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
+import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
 import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
-import { RewardModal } from "@/ui/components/modals/RewardModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { useGameStore } from "@/ui/store/gameStore";
 import { selectFocusedHero } from "@/ui/store/selectors";
@@ -29,7 +29,6 @@ type ModalType =
 	| "xp_spend"
 	| "open_paths"
 	| "dungeon_exhausted"
-	| "reward"
 	| "card_detail"
 	| null;
 
@@ -48,7 +47,6 @@ export function Exploration() {
 
 	const modal: ModalType = (() => {
 		if (detailCard) return "card_detail";
-		if (state.pendingRewards.length > 0) return "reward";
 		if (status === "XP_SPEND_PHASE") return "xp_spend";
 		if (status === "CHOOSE_PATH") return "open_paths";
 		if (status === "DUNGEON_EXHAUSTED") return "dungeon_exhausted";
@@ -62,14 +60,6 @@ export function Exploration() {
 		const t = setTimeout(() => dispatch(action), 400);
 		return () => clearTimeout(t);
 	}, [status, dispatch]);
-
-	// Auto-coleta recompensas quando entra em REWARD_PHASE sem pendências
-	useEffect(() => {
-		if (status === "REWARD_PHASE" && state.pendingRewards.length === 0) {
-			const t = setTimeout(() => dispatch({ type: "GRANT_REWARDS" }), 300);
-			return () => clearTimeout(t);
-		}
-	}, [status, state.pendingRewards.length, dispatch]);
 
 	// Segundo dispatch do OPEN_PATHS
 	useEffect(() => {
@@ -176,6 +166,7 @@ export function Exploration() {
 	const roll = combat?.lastRoll;
 
 	return (
+		<>
 		<div className="min-h-screen py-4 px-4" style={{ background: UI.pageBg }}>
 			<div className="max-w-4xl mx-auto space-y-3">
 
@@ -249,7 +240,6 @@ export function Exploration() {
 			</div>
 
 			{/* Modais */}
-			{modal === "reward" && <RewardModal onClose={() => {}} />}
 			{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
 			{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
 			{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
@@ -261,5 +251,9 @@ export function Exploration() {
 				/>
 			)}
 		</div>
+
+		{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}
+		{status === "REWARD_PHASE" && <InventarioGrupo />}
+		</>
 	);
 }

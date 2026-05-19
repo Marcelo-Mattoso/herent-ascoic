@@ -36,6 +36,10 @@ import {
 	handleChooseItemDestination,
 	handleGainXp,
 	handleGrantRewards,
+	handleInvAssignArtifact,
+	handleInvAssignItem,
+	handleInvDescartarMesa,
+	handleInvSetBearer,
 	handleOpenPathsFromXpPhase,
 	handleSpendXp,
 } from "./reward";
@@ -134,6 +138,33 @@ export function reducer(state: GameState, action: Action): GameState {
 
 		case "CHOOSE_ARTIFACT_BEARER":
 			return handleChooseArtifactBearer(state, action.payload.heroId);
+
+		// ── Inventário do grupo (Patch 4) ─────────────────────────────────────
+		case "INV_ASSIGN_ITEM":
+			return handleInvAssignItem(
+				state,
+				action.payload.itemName,
+				action.payload.heroId,
+				action.payload.destination,
+			);
+
+		case "INV_ASSIGN_ARTIFACT":
+			return handleInvAssignArtifact(
+				state,
+				action.payload.artifactName,
+				action.payload.vagaIndex,
+				action.payload.heroId,
+			);
+
+		case "INV_SET_BEARER":
+			return handleInvSetBearer(
+				state,
+				action.payload.vagaIndex,
+				action.payload.heroId,
+			);
+
+		case "INV_DISCARD_MESA":
+			return handleInvDescartarMesa(state);
 
 		case "DUNGEON_EXHAUSTED":
 			return { ...state, status: "DUNGEON_EXHAUSTED" };
