@@ -70,12 +70,15 @@ interface SlotProps {
 	draggable?: boolean;
 	isValidDrop?: boolean;
 	isHover?: boolean;
-	isDragging?: boolean; // este slot é o item sendo arrastado
+	isDragging?: boolean;
 	onDragStart?: (e: React.DragEvent) => void;
 	onDragEnd?: () => void;
 	onDragOver?: (e: React.DragEvent) => void;
 	onDragLeave?: () => void;
 	onDrop?: (e: React.DragEvent) => void;
+	onMouseEnter?: (e: React.MouseEvent) => void;
+	onMouseMove?: (e: React.MouseEvent) => void;
+	onMouseLeave?: () => void;
 }
 
 function Slot({
@@ -93,6 +96,9 @@ function Slot({
 	onDragOver,
 	onDragLeave,
 	onDrop,
+	onMouseEnter,
+	onMouseMove,
+	onMouseLeave,
 }: SlotProps) {
 	// Cor base: prioridade color > amber > default
 	const baseBg = color ? color.bg : amber ? AMBER.bg : "transparent";
@@ -126,13 +132,16 @@ function Slot({
 	return (
 		<div
 			draggable={draggable}
-			title={title}
+			title={undefined}
 			data-item={draggable ? "true" : undefined}
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
 			onDragLeave={onDragLeave}
 			onDrop={onDrop}
+			onMouseEnter={onMouseEnter}
+			onMouseMove={onMouseMove}
+			onMouseLeave={onMouseLeave}
 			style={{
 				width: 36,
 				height: 36,
@@ -159,6 +168,8 @@ function Slot({
 
 // ── Componente de herói ───────────────────────────────────────────────────────
 
+type TooltipTarget = { name: string; kind: "item" | "artifact"; x: number; y: number };
+
 interface HeroColumnProps {
 	hero: HeroState;
 	dragging: DragItem | null;
@@ -168,6 +179,8 @@ interface HeroColumnProps {
 	onSetHover: (zone: string | null) => void;
 	onDragItemStart: (name: string, from: InvFromZone) => void;
 	onDragEnd: () => void;
+	onShowTooltip: (t: TooltipTarget) => void;
+	onHideTooltip: () => void;
 }
 
 function HeroColumn({
@@ -179,6 +192,8 @@ function HeroColumn({
 	onSetHover,
 	onDragItemStart,
 	onDragEnd,
+	onShowTooltip,
+	onHideTooltip,
 }: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
@@ -269,7 +284,6 @@ function HeroColumn({
 						<Slot
 							key={slotType}
 							label={shortLabel(name)}
-							title={name}
 							color={col}
 							filled
 							draggable
@@ -283,12 +297,14 @@ function HeroColumn({
 								});
 							}}
 							onDragEnd={onDragEnd}
+							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
+							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
+							onMouseLeave={onHideTooltip}
 						/>
 					) : (
 						<Slot
 							key={slotType}
 							label={SLOT_LABELS[slotType]}
-							title={slotType}
 						/>
 					);
 				})}
@@ -369,7 +385,6 @@ function HeroColumn({
 						<Slot
 							key={i}
 							label={shortLabel(name)}
-							title={name}
 							color={col}
 							filled
 							draggable
@@ -383,6 +398,9 @@ function HeroColumn({
 								});
 							}}
 							onDragEnd={onDragEnd}
+							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
+							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
+							onMouseLeave={onHideTooltip}
 						/>
 					) : (
 						<Slot key={i} />
@@ -425,6 +443,7 @@ export function InventarioGrupo() {
 	const [dragging, setDragging] = useState<DragItem | null>(null);
 	const [hoverZone, setHoverZone] = useState<string | null>(null);
 	const [confirmDiscard, setConfirmDiscard] = useState(false);
+	const [tooltip, setTooltip] = useState<TooltipTarget | null>(null);
 
 	// Scroll horizontal com mouse
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -484,9 +503,21 @@ export function InventarioGrupo() {
 		return false;
 	}
 
+	// ── Tooltip ───────────────────────────────────────────────────────────────
+
+	function showTooltip(t: TooltipTarget) {
+		// Não mostra tooltip enquanto arrasta
+		if (!dragging) setTooltip(t);
+	}
+
+	function hideTooltip() {
+		setTooltip(null);
+	}
+
 	// ── Drag handlers ─────────────────────────────────────────────────────────
 
 	function handleItemDragStart(name: string, from: InvFromZone) {
+		setTooltip(null);
 		setDragging({ name, kind: "item", from });
 	}
 
@@ -586,6 +617,7 @@ export function InventarioGrupo() {
 	// ── Render ────────────────────────────────────────────────────────────────
 
 	return (
+		<>
 		<div
 			className="fixed inset-0 z-50 flex items-center justify-center p-4"
 			style={{ background: "rgba(0,0,0,0.45)" }}
@@ -675,7 +707,6 @@ export function InventarioGrupo() {
 									<Slot
 										key={r.cardName}
 										label={shortLabel(r.cardName)}
-										title={r.cardName}
 										color={col}
 										filled
 										draggable
@@ -685,6 +716,9 @@ export function InventarioGrupo() {
 											handleItemDragStart(r.cardName, { kind: "mesa" });
 										}}
 										onDragEnd={handleDragEnd}
+										onMouseEnter={(e) => showTooltip({ name: r.cardName, kind: "item", x: e.clientX, y: e.clientY })}
+										onMouseMove={(e) => showTooltip({ name: r.cardName, kind: "item", x: e.clientX, y: e.clientY })}
+										onMouseLeave={hideTooltip}
 									/>
 								);
 							})}
@@ -727,12 +761,12 @@ export function InventarioGrupo() {
 										key={r.cardName}
 										amber
 										label={shortLabel(r.cardName)}
-										title={r.cardName}
 										filled
 										draggable
 										isDragging={isMe}
 										onDragStart={(e) => {
 											e.dataTransfer.setData("text/plain", r.cardName);
+											setTooltip(null);
 											setDragging({
 												name: r.cardName,
 												kind: "artefato",
@@ -740,6 +774,9 @@ export function InventarioGrupo() {
 											});
 										}}
 										onDragEnd={handleDragEnd}
+										onMouseEnter={(e) => showTooltip({ name: r.cardName, kind: "artifact", x: e.clientX, y: e.clientY })}
+										onMouseMove={(e) => showTooltip({ name: r.cardName, kind: "artifact", x: e.clientX, y: e.clientY })}
+										onMouseLeave={hideTooltip}
 									/>
 								);
 							})}
@@ -923,6 +960,8 @@ export function InventarioGrupo() {
 								onSetHover={setHoverZone}
 								onDragItemStart={handleItemDragStart}
 								onDragEnd={handleDragEnd}
+								onShowTooltip={showTooltip}
+								onHideTooltip={hideTooltip}
 							/>
 						))}
 						{heroes.length === 0 && (
@@ -997,6 +1036,71 @@ export function InventarioGrupo() {
 					</button>
 				</div>
 			</div>
+		</div>
+
+		{/* ── TOOLTIP ──────────────────────────────────────────────── */}
+		{tooltip && <ItemTooltipPanel target={tooltip} />}
+		</>
+	);
+}
+
+// ── Painel de tooltip ─────────────────────────────────────────────────────────
+
+function ItemTooltipPanel({ target }: { target: TooltipTarget }) {
+	const card = getCardByName(target.name);
+	if (!card || (card.type !== "item" && card.type !== "artifact")) return null;
+
+	// Posição: acima e à direita do cursor; ajusta se sair da viewport
+	const TOOLTIP_W = 240;
+	const left = Math.min(target.x + 14, window.innerWidth - TOOLTIP_W - 8);
+	const top = target.y - 12;
+
+	const isItem = card.type === "item";
+	const tagLine = isItem ? card.tags.join(" · ") : "Artefato de grupo";
+	const effect = card.effect;
+
+	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
+
+	return (
+		<div
+			style={{
+				position: "fixed",
+				left,
+				top,
+				transform: "translateY(-100%)",
+				zIndex: 300,
+				width: TOOLTIP_W,
+				background: "#1C1C1A",
+				color: "#F5F4F0",
+				borderRadius: 8,
+				padding: "10px 12px",
+				boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
+				pointerEvents: "none",
+				fontSize: 11,
+				lineHeight: 1.45,
+			}}
+		>
+			{/* Nome */}
+			<p style={{ fontWeight: 600, fontSize: 12, margin: "0 0 2px 0", color: "#FFFFFF" }}>
+				{card.name}
+			</p>
+			{/* Tag / tipo */}
+			<p
+				style={{
+					margin: "0 0 6px 0",
+					fontSize: 10,
+					fontWeight: 500,
+					color: accentColor ? accentColor.border : "#BA7517",
+					textTransform: "uppercase",
+					letterSpacing: "0.04em",
+				}}
+			>
+				{tagLine}
+			</p>
+			{/* Divisor */}
+			<div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", marginBottom: 6 }} />
+			{/* Efeito */}
+			<p style={{ margin: 0, color: "#CCCAC4" }}>{effect}</p>
 		</div>
 	);
 }
