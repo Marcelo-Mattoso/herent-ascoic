@@ -173,7 +173,6 @@ export function Board({
 									flexWrap: "wrap",
 									justifyContent: "center",
 								}}
-								onDragEnd={handleDragEnd}
 							>
 								{enemies.map((e) => {
 									const isSelectable = isSelectingTarget;
@@ -260,6 +259,7 @@ export function Board({
 							flexWrap: "wrap",
 							justifyContent: "center",
 						}}
+						onDragEnd={handleDragEnd}
 					>
 						{heroes.map((h) => {
 							const isFocused = h.id === focusedHeroId;
