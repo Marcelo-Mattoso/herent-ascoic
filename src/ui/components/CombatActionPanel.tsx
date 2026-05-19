@@ -53,10 +53,7 @@ export function CombatActionPanel({
 		const selectedId = state.combat?.selectedHeroId;
 		const hero = state.heroes.find((h) => h.id === selectedId);
 		const hasPower = hero && !state.combat?.powersUsedThisRoom[hero.id];
-		const availableEnemies = state.activeEnemies.filter(
-			(e) =>
-				e.status === "active" && !state.combat?.enemiesEngaged.includes(e.id),
-		);
+		const hasActiveEnemies = state.activeEnemies.some((e) => e.status === "active");
 
 		return (
 			<div className="space-y-2">
@@ -70,7 +67,7 @@ export function CombatActionPanel({
 						icon="⚔"
 						variant="primary"
 						onClick={onAttack}
-						disabled={availableEnemies.length === 0}
+						disabled={!hasActiveEnemies}
 					/>
 					<ActionButton
 						label="Usar poder"
@@ -92,15 +89,6 @@ export function CombatActionPanel({
 						onClick={onCancelSelection}
 					/>
 				</div>
-				{availableEnemies.length === 0 && (
-					<p
-						className="text-xs"
-						style={{ color: UI.textTertiary }}
-					>
-						Todos os inimigos já foram engajados. Passe a rodada ou use um
-						item/poder.
-					</p>
-				)}
 			</div>
 		);
 	}

@@ -108,11 +108,9 @@ export function Exploration() {
 
 	// Clique em inimigo: seleciona alvo em selecting_target, ou abre detalhe
 	function handleEnemyClick(e: EnemyState) {
-		const enemiesEngaged = new Set(combat?.enemiesEngaged ?? []);
 		if (
 			status === "HERO_ACTION" &&
 			combat?.phase === "selecting_target" &&
-			!enemiesEngaged.has(e.id) &&
 			combat.selectedHeroId
 		) {
 			dispatch({
@@ -124,14 +122,11 @@ export function Exploration() {
 		openCardDetail(e.cardName, e.id === "boss" ? "boss" : "enemy");
 	}
 
-	// Botão "Atacar" no painel: usa selectedHeroId + primeiro inimigo livre
+	// Botão "Atacar" no painel: usa selectedHeroId + primeiro inimigo ativo
 	function handleAttack() {
 		const selectedHeroId = combat?.selectedHeroId;
 		if (!selectedHeroId) return;
-		const enemiesEngaged = new Set(combat?.enemiesEngaged ?? []);
-		const target = state.activeEnemies.find(
-			(e) => e.status === "active" && !enemiesEngaged.has(e.id),
-		);
+		const target = state.activeEnemies.find((e) => e.status === "active");
 		if (!target) return;
 		dispatch({
 			type: "CHOOSE_TARGET",

@@ -147,7 +147,6 @@ function checkBossEnd(state: GameState): GameState {
 				round: state.combat.round + 1,
 				pairs: [],
 				heroesActed: [],
-				enemiesEngaged: [],
 				lastRoll: null,
 				bossFirstDamageReduced: false,
 			}

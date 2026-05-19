@@ -1,6 +1,7 @@
 // Estado do combate em andamento dentro de uma sala.
 // Criado em COMBAT_START e descartado ao sair da sala.
 // Patch 2: phase controla o micro-estado do turno; selectedHeroId é o herói aguardando alvo.
+// Patch 5: engajamento 1-para-1 removido (v2 §8.8); múltiplos heróis podem atacar o mesmo inimigo.
 
 export interface BonusEntry {
 	readonly source: string;
@@ -43,7 +44,6 @@ export interface CombatState {
 	phase: CombatPhase;
 	selectedHeroId: string | null;
 	readonly heroesActed: readonly string[];
-	readonly enemiesEngaged: readonly string[];
 	readonly pairs: readonly CombatPair[];
 	lastRoll: CombatRollResult | null;
 	// Heróis que já usaram o Escudo Rachado neste combate
@@ -63,7 +63,6 @@ export function createEmptyCombatState(): CombatState {
 		phase: "selecting_hero",
 		selectedHeroId: null,
 		heroesActed: [],
-		enemiesEngaged: [],
 		pairs: [],
 		lastRoll: null,
 		shieldsUsedThisCombat: {},

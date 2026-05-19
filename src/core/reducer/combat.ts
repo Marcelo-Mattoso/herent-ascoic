@@ -100,13 +100,6 @@ export function handleChooseTarget(
 	if (state.combat.heroesActed.includes(heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
-	// Patch 2: engajamento 1-para-1 — um monstro só pode ser alvo de 1 herói por rodada
-	if (state.combat.enemiesEngaged.includes(enemyId)) {
-		return log(
-			state,
-			`[AVISO] Inimigo ${enemyId} já está engajado nesta rodada.`,
-		);
-	}
 
 	const pair = { heroId, enemyId };
 	return {
@@ -117,7 +110,6 @@ export function handleChooseTarget(
 			phase: "resolving",
 			selectedHeroId: heroId,
 			pairs: [...state.combat.pairs, pair],
-			enemiesEngaged: [...state.combat.enemiesEngaged, enemyId],
 		},
 	};
 }
@@ -314,9 +306,9 @@ export function handleResolveAttack(state: GameState): GameState {
 
 export function handleDirectDamage(state: GameState): GameState {
 	if (!state.combat) return state;
-	const engaged = new Set(state.combat.enemiesEngaged);
+	const attacked = new Set(state.combat.pairs.map((p) => p.enemyId));
 	const unengaged = state.activeEnemies.filter(
-		(e) => e.status === "active" && !engaged.has(e.id),
+		(e) => e.status === "active" && !attacked.has(e.id),
 	);
 	if (unengaged.length === 0) return { ...state, status: "CHECK_COMBAT_END" };
 
@@ -366,7 +358,6 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 							round: state.combat.round + 1,
 							pairs: [],
 							heroesActed: [],
-							enemiesEngaged: [],
 						}
 					: null,
 			},
@@ -383,7 +374,6 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
-				enemiesEngaged: [],
 				lastRoll: null,
 			}
 		: createEmptyCombatState();

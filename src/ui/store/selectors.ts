@@ -162,14 +162,11 @@ export function selectHeroesAvailableForRound(state: GameState): HeroState[] {
 	);
 }
 
-// Inimigos ativos que ainda não foram engajados nesta rodada
+// Inimigos ativos disponíveis como alvo (v2: sem restrição de engajamento)
 export function selectEnemiesAvailableAsTargets(
 	state: GameState,
 ): EnemyState[] {
-	const engaged = new Set(state.combat?.enemiesEngaged ?? []);
-	return state.activeEnemies.filter(
-		(e: EnemyState) => e.status === "active" && !engaged.has(e.id),
-	);
+	return state.activeEnemies.filter((e: EnemyState) => e.status === "active");
 }
 
 // Herói em foco — usa focusedHeroId da UI; fallback para primeiro ativo

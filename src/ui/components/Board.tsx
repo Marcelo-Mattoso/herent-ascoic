@@ -55,7 +55,6 @@ export function Board({
 	const combat: CombatState | null = state.combat;
 	const heroesActed = combat?.heroesActed ?? [];
 	const selectedHeroId = combat?.selectedHeroId ?? null;
-	const enemiesEngaged = new Set(combat?.enemiesEngaged ?? []);
 	const phase = combat?.phase ?? null;
 	const status = state.status;
 
@@ -177,15 +176,14 @@ export function Board({
 								onDragEnd={handleDragEnd}
 							>
 								{enemies.map((e) => {
-									const isEngaged = enemiesEngaged.has(e.id);
-									const isSelectable = isSelectingTarget && !isEngaged;
+									const isSelectable = isSelectingTarget;
 									const isDragOver = draggingHeroId !== null && isSelectable;
 									return (
 										<EnemyCard
 											key={e.id}
 											enemy={e}
 											isSelectable={isSelectable}
-											isEngaged={isEngaged}
+											isEngaged={false}
 											isDragOver={isDragOver}
 											onDrop={handleEnemyDrop}
 											onClick={() => onEnemyClick(e)}

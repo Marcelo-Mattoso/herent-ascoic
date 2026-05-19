@@ -302,6 +302,126 @@ describe("derrota por deck esgotado", () => {
 	});
 });
 
+// ─── Regras v2 §8.8 — combate múltiplo ───────────────────────────────────────
+
+describe("combate múltiplo v2 (§8.8)", () => {
+	function stateWithTwoHeroesOneEnemy(): GameState {
+		const HERO2 = "Guerreiro do Bastião Partido";
+		const base = createInitialGameState({ heroCardNames: [HERO, HERO2] });
+		let s = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO, HERO2] },
+		});
+
+		const enemy: EnemyState = {
+			id: "e1",
+			cardName: "Rato das Fendas Profundas",
+			maxLife: 99,
+			currentLife: 99,
+			damage: 1,
+			hitBonus: 0,
+			dice: 1,
+			tokens: { xp: 1, reward_item: 1, reward_artifact: 0 },
+			conditions: [],
+			firstDamageTakenThisTurn: false,
+			status: "active",
+		};
+
+		const room: RoomState = {
+			cardName: "Sala da Masmorra",
+			exits: 2,
+			currentEnemies: 1,
+			reward: 0,
+			rewardType: "item",
+			effect: "",
+			xp: 1,
+			status: "active",
+		};
+
+		return {
+			...s,
+			heroes: s.heroes.map((h) => ({ ...h, hitBonus: 100 })),
+			currentRoom: room,
+			activeEnemies: [enemy],
+			status: "COMBAT_START",
+		};
+	}
+
+	it("dois heróis podem atacar o mesmo inimigo (antes era rejeitado)", () => {
+		let s = stateWithTwoHeroesOneEnemy();
+		s = reducer(s, { type: "START_COMBAT" });
+
+		const [hero1, hero2] = s.heroes;
+		const enemyId = s.activeEnemies[0]?.id ?? "";
+
+		// Herói 1 seleciona o inimigo
+		s = reducer(s, {
+			type: "CHOOSE_TARGET",
+			payload: { heroId: hero1!.id, enemyId },
+		});
+		expect(s.status).toBe("ROLL_DICE");
+
+		// Rola e resolve o combate do herói 1
+		s = reducer(s, { type: "ROLL_DICE" });
+		s = reducer(s, { type: "RESOLVE_ATTACK" });
+
+		// Agora herói 2 deve poder selecionar o MESMO inimigo — v2 permite
+		expect(s.status).toBe("HERO_ACTION");
+		s = reducer(s, {
+			type: "CHOOSE_TARGET",
+			payload: { heroId: hero2!.id, enemyId },
+		});
+		expect(s.status).toBe("ROLL_DICE");
+	});
+
+	it("criatura sem atacante aplica dano completo num único herói", () => {
+		let s = stateWithTwoHeroesOneEnemy();
+
+		// Segundo inimigo que não será atacado
+		const unattacked: EnemyState = {
+			id: "e2",
+			cardName: "Rato das Fendas Profundas",
+			maxLife: 5,
+			currentLife: 5,
+			damage: 3,
+			hitBonus: 0,
+			dice: 1,
+			tokens: { xp: 1, reward_item: 0, reward_artifact: 0 },
+			conditions: [],
+			firstDamageTakenThisTurn: false,
+			status: "active",
+		};
+		s = { ...s, activeEnemies: [...s.activeEnemies, unattacked] };
+
+		s = reducer(s, { type: "START_COMBAT" });
+		const [hero1, hero2] = s.heroes;
+		const attackedId = "e1";
+
+		// Ambos heróis atacam o mesmo inimigo (e1), deixando e2 sem atacante
+		s = reducer(s, {
+			type: "CHOOSE_TARGET",
+			payload: { heroId: hero1!.id, enemyId: attackedId },
+		});
+		s = reducer(s, { type: "ROLL_DICE" });
+		s = reducer(s, { type: "RESOLVE_ATTACK" });
+
+		s = reducer(s, {
+			type: "CHOOSE_TARGET",
+			payload: { heroId: hero2!.id, enemyId: attackedId },
+		});
+		s = reducer(s, { type: "ROLL_DICE" });
+		s = reducer(s, { type: "RESOLVE_ATTACK" });
+
+		// Fase de dano direto: e2 não foi atacado → aplica 3 de dano num herói
+		const totalLifeBefore = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
+		s = reducer(s, { type: "DIRECT_DAMAGE" });
+		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
+
+		// Dano de 3 deve ter sido aplicado (inteiro, num herói só)
+		expect(totalLifeBefore - totalLifeAfter).toBe(3);
+	});
+});
+
 // ─── Vitória contra boss ──────────────────────────────────────────────────────
 
 describe("vitória contra boss", () => {
