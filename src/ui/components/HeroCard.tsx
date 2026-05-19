@@ -56,9 +56,12 @@ export function HeroCard({
 		<div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 64 }}>
 			<button
 				type="button"
-				draggable={isActive && canAct && !!onDragStart}
+				draggable={isActive}
 				onDragStart={(e) => {
-					if (!isActive || !canAct) return;
+					if (!isActive || !canAct) {
+						e.preventDefault();
+						return;
+					}
 					e.dataTransfer.effectAllowed = "move";
 					e.dataTransfer.setData("heroId", hero.id);
 					onDragStart?.(hero.id);

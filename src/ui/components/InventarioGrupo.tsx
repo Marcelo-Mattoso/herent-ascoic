@@ -13,11 +13,20 @@ import { UI } from "@/ui/theme";
 
 const AMBER = { bg: "#FAEEDA", border: "#BA7517", ink: "#633806" } as const;
 
+// Mesma paleta do ItemTile (board): weapon=ouro, armor=azul, utility=verde, special=rosa
+const SLOT_COLORS_INV: Record<string, { bg: string; border: string; text: string }> = {
+	weapon:  { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
+	armor:   { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" },
+	utility: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" },
+	special: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" },
+};
+
+// itemClass → cor mais próxima da paleta de slots
 const ITEM_COLORS: Record<string, { bg: string; border: string; text: string }> = {
-	equipment: { bg: "#FCE3D1", border: "#E8A878", text: "#8C3D0B" }, // laranja
-	consumable: { bg: "#E8F5DE", border: "#90C860", text: "#3B6D11" }, // verde
-	utility: { bg: "#DFF0FB", border: "#80B8E8", text: "#185FA5" }, // azul
-	special: { bg: "#EEE4FA", border: "#B8A0E8", text: "#5B2E9E" }, // roxo
+	equipment: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" }, // ouro (weapon)
+	consumable: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" }, // verde (utility)
+	utility:   { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" }, // azul (armor)
+	special:   { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" }, // rosa (special)
 };
 
 function itemColor(itemName: string) {
@@ -167,7 +176,7 @@ function Slot({
 
 // ── Componente de herói ───────────────────────────────────────────────────────
 
-type TooltipTarget = { name: string; kind: "item" | "artifact"; x: number; y: number };
+type TooltipTarget = { name: string; kind: "item" | "artifact"; x: number; y: number; heroId?: string };
 
 interface HeroColumnProps {
 	hero: HeroState;
@@ -180,6 +189,7 @@ interface HeroColumnProps {
 	onDragEnd: () => void;
 	onShowTooltip: (t: TooltipTarget) => void;
 	onHideTooltip: () => void;
+	onUseItem: (itemName: string, heroId: string) => void;
 }
 
 function HeroColumn({
@@ -193,6 +203,7 @@ function HeroColumn({
 	onDragEnd,
 	onShowTooltip,
 	onHideTooltip,
+	onUseItem,
 }: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
@@ -273,7 +284,7 @@ function HeroColumn({
 			>
 				{SLOT_TYPES.map((slotType) => {
 					const name = hero.activeItems[slotType];
-					const col = name ? itemColor(name) : null;
+					const col = name ? (SLOT_COLORS_INV[slotType] ?? itemColor(name)) : null;
 					const isThisItemDragging =
 						dragging?.from.kind === "hero_slot" &&
 						dragging.from.heroId === hero.id &&
@@ -296,8 +307,8 @@ function HeroColumn({
 								});
 							}}
 							onDragEnd={onDragEnd}
-							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
-							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
+							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
+							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
 							onMouseLeave={onHideTooltip}
 						/>
 					) : (
@@ -397,8 +408,8 @@ function HeroColumn({
 								});
 							}}
 							onDragEnd={onDragEnd}
-							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
-							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY })}
+							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
+							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
 							onMouseLeave={onHideTooltip}
 						/>
 					) : (
@@ -447,6 +458,7 @@ export function InventarioGrupo() {
 	// Scroll horizontal com mouse
 	const scrollRef = useRef<HTMLDivElement>(null);
 	const scrollDown = useRef({ active: false, startX: 0, scrollLeft: 0 });
+	const hideTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
 	// Ao montar: se não há rewards pendentes, chamar GRANT_REWARDS
 	// biome-ignore lint/correctness/useExhaustiveDependencies: só no mount
@@ -505,11 +517,26 @@ export function InventarioGrupo() {
 	// ── Tooltip ───────────────────────────────────────────────────────────────
 
 	function showTooltip(t: TooltipTarget) {
-		// Não mostra tooltip enquanto arrasta
+		if (hideTimeoutRef.current) {
+			clearTimeout(hideTimeoutRef.current);
+			hideTimeoutRef.current = null;
+		}
 		if (!dragging) setTooltip(t);
 	}
 
 	function hideTooltip() {
+		hideTimeoutRef.current = setTimeout(() => setTooltip(null), 150);
+	}
+
+	function cancelHideTooltip() {
+		if (hideTimeoutRef.current) {
+			clearTimeout(hideTimeoutRef.current);
+			hideTimeoutRef.current = null;
+		}
+	}
+
+	function handleUseItemFromTooltip(itemName: string, heroId: string) {
+		dispatch({ type: "USE_ITEM", payload: { itemName, heroId } });
 		setTooltip(null);
 	}
 
@@ -961,6 +988,7 @@ export function InventarioGrupo() {
 								onDragEnd={handleDragEnd}
 								onShowTooltip={showTooltip}
 								onHideTooltip={hideTooltip}
+								onUseItem={handleUseItemFromTooltip}
 							/>
 						))}
 						{heroes.length === 0 && (
@@ -1038,14 +1066,31 @@ export function InventarioGrupo() {
 		</div>
 
 		{/* ── TOOLTIP ──────────────────────────────────────────────── */}
-		{tooltip && <ItemTooltipPanel target={tooltip} />}
+		{tooltip && (
+			<ItemTooltipPanel
+				target={tooltip}
+				onUseItem={handleUseItemFromTooltip}
+				onMouseEnter={cancelHideTooltip}
+				onMouseLeave={hideTooltip}
+			/>
+		)}
 		</>
 	);
 }
 
 // ── Painel de tooltip ─────────────────────────────────────────────────────────
 
-function ItemTooltipPanel({ target }: { target: TooltipTarget }) {
+function ItemTooltipPanel({
+	target,
+	onUseItem,
+	onMouseEnter,
+	onMouseLeave,
+}: {
+	target: TooltipTarget;
+	onUseItem: (itemName: string, heroId: string) => void;
+	onMouseEnter: () => void;
+	onMouseLeave: () => void;
+}) {
 	const card = getCardByName(target.name);
 	if (!card || (card.type !== "item" && card.type !== "artifact")) return null;
 
@@ -1059,9 +1104,12 @@ function ItemTooltipPanel({ target }: { target: TooltipTarget }) {
 	const effect = card.effect.label;
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
+	const isConsumable = isItem && card.itemClass === "consumable" && !!target.heroId;
 
 	return (
 		<div
+			onMouseEnter={onMouseEnter}
+			onMouseLeave={onMouseLeave}
 			style={{
 				position: "fixed",
 				left,
@@ -1074,7 +1122,7 @@ function ItemTooltipPanel({ target }: { target: TooltipTarget }) {
 				borderRadius: 8,
 				padding: "10px 12px",
 				boxShadow: "0 8px 32px rgba(0,0,0,0.5)",
-				pointerEvents: "none",
+				pointerEvents: "auto",
 				fontSize: 11,
 				lineHeight: 1.45,
 			}}
@@ -1099,7 +1147,28 @@ function ItemTooltipPanel({ target }: { target: TooltipTarget }) {
 			{/* Divisor */}
 			<div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", marginBottom: 6 }} />
 			{/* Efeito */}
-			<p style={{ margin: 0, color: "#CCCAC4" }}>{effect}</p>
+			<p style={{ margin: "0 0 0 0", color: "#CCCAC4" }}>{effect}</p>
+			{/* Botão Usar — só consumíveis na mochila de um herói */}
+			{isConsumable && (
+				<button
+					type="button"
+					onClick={() => onUseItem(target.name, target.heroId!)}
+					style={{
+						marginTop: 8,
+						width: "100%",
+						padding: "5px 0",
+						background: "#3B6D11",
+						color: "#E8F5DE",
+						border: "none",
+						borderRadius: 4,
+						fontSize: 11,
+						fontWeight: 600,
+						cursor: "pointer",
+					}}
+				>
+					Usar
+				</button>
+			)}
 		</div>
 	);
 }

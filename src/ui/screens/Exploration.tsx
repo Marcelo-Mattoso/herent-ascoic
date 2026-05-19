@@ -35,6 +35,7 @@ type ModalType =
 interface CardDetailState {
 	name: string;
 	cardType: CardType;
+	heroId?: string;
 }
 
 export function Exploration() {
@@ -231,6 +232,9 @@ export function Exploration() {
 					onCancelSelection={handleCancelSelection}
 					onPower={handleUsePower}
 					onCardDetail={openCardDetail}
+					onItemDetail={(itemName, heroId) =>
+						setDetailCard({ name: itemName, cardType: "item", heroId })
+					}
 				/>
 			</div>
 
@@ -243,6 +247,14 @@ export function Exploration() {
 					cardName={detailCard.name}
 					cardType={detailCard.cardType}
 					onClose={() => setDetailCard(null)}
+					onUseItem={
+						detailCard.heroId
+							? () => {
+									dispatch({ type: "USE_ITEM", payload: { itemName: detailCard.name, heroId: detailCard.heroId! } });
+									setDetailCard(null);
+								}
+							: undefined
+					}
 				/>
 			)}
 		</div>

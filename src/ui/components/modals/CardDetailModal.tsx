@@ -8,12 +8,14 @@ interface CardDetailModalProps {
 	cardName: string;
 	cardType: CardType;
 	onClose: () => void;
+	onUseItem?: () => void;
 }
 
 export function CardDetailModal({
 	cardName,
 	cardType,
 	onClose,
+	onUseItem,
 }: CardDetailModalProps) {
 	const card = getCardByName(cardName);
 
@@ -104,6 +106,26 @@ export function CardDetailModal({
 								<p className="text-xs" style={{ color: UI.textPrimary }}>
 									{card.effect.label}
 								</p>
+							)}
+							{onUseItem && card.itemClass === "consumable" && (
+								<button
+									type="button"
+									onClick={onUseItem}
+									style={{
+										marginTop: 8,
+										width: "100%",
+										padding: "6px 0",
+										background: "#3B6D11",
+										color: "#E8F5DE",
+										border: "none",
+										borderRadius: 6,
+										fontSize: 12,
+										fontWeight: 600,
+										cursor: "pointer",
+									}}
+								>
+									Usar
+								</button>
 							)}
 						</>
 					)}

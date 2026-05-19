@@ -279,7 +279,7 @@ export function Board({
 									hasActed={hasActed}
 									isSelected={isSelected}
 									canAct={canAct}
-									onDragStart={canAct ? handleDragStart : undefined}
+									onDragStart={handleDragStart}
 									onClick={() => onHeroClick(h)}
 								/>
 							);

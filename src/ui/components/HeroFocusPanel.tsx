@@ -22,6 +22,7 @@ interface HeroFocusPanelProps {
 	onCancelSelection: () => void;
 	onPower: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
+	onItemDetail: (itemName: string, heroId: string) => void;
 }
 
 export function HeroFocusPanel({
@@ -32,6 +33,7 @@ export function HeroFocusPanel({
 	onCancelSelection,
 	onPower,
 	onCardDetail,
+	onItemDetail,
 }: HeroFocusPanelProps) {
 	const { status } = state;
 	const combat: CombatState | null = state.combat;
@@ -244,7 +246,7 @@ export function HeroFocusPanel({
 									<ItemChip
 										key={item}
 										item={item}
-										onClick={() => onCardDetail(item, "item")}
+										onClick={() => onItemDetail(item, hero.id)}
 									/>
 								))}
 							</div>
