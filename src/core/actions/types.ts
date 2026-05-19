@@ -3,6 +3,19 @@
 
 import type { XpSpendOption } from "../config/defaults";
 import type { GameConfig } from "../state/gameState";
+import type { ItemSlotType } from "../state/heroState";
+
+// ── Zonas de inventário (Patch 4) ─────────────────────────────────────────────
+// "from" = onde o item está agora; "to" = destino.
+export type InvFromZone =
+	| { kind: "mesa" }
+	| { kind: "hero_slot"; heroId: string; slotType: ItemSlotType }
+	| { kind: "hero_backpack"; heroId: string; index: number };
+
+export type InvToZone =
+	| { kind: "mesa" }
+	| { kind: "hero_equip"; heroId: string } // auto-slot pelo itemClass
+	| { kind: "hero_backpack"; heroId: string };
 
 export type { XpSpendOption };
 
@@ -55,7 +68,12 @@ export type Action =
 	| { type: "DEFEAT"; payload: { reason: string } }
 	// ── Inventário do grupo (Patch 4) ─────────────────────────────────────────
 	| {
-			type: "INV_ASSIGN_ITEM";
+			// Move geral entre qualquer zona — substitui INV_ASSIGN_ITEM
+			type: "INV_MOVE";
+			payload: { itemName: string; from: InvFromZone; to: InvToZone };
+	  }
+	| {
+			type: "INV_ASSIGN_ITEM"; // mantido por compatibilidade
 			payload: {
 				itemName: string;
 				heroId: string;

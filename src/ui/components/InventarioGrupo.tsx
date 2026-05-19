@@ -1,20 +1,32 @@
 // Tela de gerenciamento de inventário do grupo — Patch 4.
 // Substitui o modal de recompensa por uma tela completa de organização.
-// Layout: Mesa (topo) → Artefatos ativos (meio) → Heróis com scroll (base) → Rodapé.
+// Drag & drop livre entre todas as zonas: mesa ↔ herói-slot ↔ herói-mochila.
 
 import { useEffect, useRef, useState } from "react";
 import { getCardByName } from "@/data/cards";
+import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
 
-// ── Constantes ────────────────────────────────────────────────────────────────
+// ── Constantes de cor ─────────────────────────────────────────────────────────
 
-const AMBER = {
-	bg: "#FAEEDA",
-	border: "#BA7517",
-	ink: "#633806",
-} as const;
+const AMBER = { bg: "#FAEEDA", border: "#BA7517", ink: "#633806" } as const;
+
+const ITEM_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+	equipment: { bg: "#FCE3D1", border: "#E8A878", text: "#8C3D0B" }, // laranja
+	consumable: { bg: "#E8F5DE", border: "#90C860", text: "#3B6D11" }, // verde
+	utility: { bg: "#DFF0FB", border: "#80B8E8", text: "#185FA5" }, // azul
+	special: { bg: "#EEE4FA", border: "#B8A0E8", text: "#5B2E9E" }, // roxo
+};
+
+function itemColor(itemName: string) {
+	const card = getCardByName(itemName);
+	if (!card || card.type !== "item") return null;
+	return ITEM_COLORS[card.itemClass] ?? null;
+}
+
+// ── Outros helpers ────────────────────────────────────────────────────────────
 
 const SLOT_TYPES: ItemSlotType[] = ["weapon", "armor", "utility", "special"];
 const SLOT_LABELS: Record<ItemSlotType, string> = {
@@ -25,15 +37,9 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 };
 const MAX_BACKPACK = 8;
 
-// ── Tipos internos ────────────────────────────────────────────────────────────
-
-type DragItem = { name: string; kind: "item" | "artefato" };
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
-
 function shortLabel(name: string): string {
 	const word = name.split(" ")[0] ?? name;
-	return word.length <= 6 ? word : word.slice(0, 5) + "…";
+	return word.length <= 6 ? word : `${word.slice(0, 5)}…`;
 }
 
 function artifactRequiresBearer(cardName: string): boolean {
@@ -45,17 +51,26 @@ function artifactRequiresBearer(cardName: string): boolean {
 	);
 }
 
-// ── Componente de slot visual ─────────────────────────────────────────────────
+// ── Tipo do item em voo ───────────────────────────────────────────────────────
+
+type DragItem = {
+	name: string;
+	kind: "item" | "artefato";
+	from: InvFromZone;
+};
+
+// ── Slot visual ───────────────────────────────────────────────────────────────
 
 interface SlotProps {
 	label?: string;
 	title?: string;
 	amber?: boolean;
+	color?: { bg: string; border: string; text: string } | null;
 	filled?: boolean;
 	draggable?: boolean;
-	dragValid?: boolean; // zona pode receber o item sendo arrastado
-	dragActive?: boolean; // drag está ativo (algum item em voo)
+	isValidDrop?: boolean;
 	isHover?: boolean;
+	isDragging?: boolean; // este slot é o item sendo arrastado
 	onDragStart?: (e: React.DragEvent) => void;
 	onDragEnd?: () => void;
 	onDragOver?: (e: React.DragEvent) => void;
@@ -67,34 +82,44 @@ function Slot({
 	label,
 	title,
 	amber,
+	color,
 	filled,
 	draggable,
-	dragValid,
-	dragActive,
+	isValidDrop,
 	isHover,
+	isDragging,
 	onDragStart,
 	onDragEnd,
 	onDragOver,
 	onDragLeave,
 	onDrop,
 }: SlotProps) {
-	const baseBg = amber ? AMBER.bg : "transparent";
-	const baseBorder = amber
-		? AMBER.border
-		: `rgba(0,0,0,${filled ? 0.25 : 0.15})`;
+	// Cor base: prioridade color > amber > default
+	const baseBg = color ? color.bg : amber ? AMBER.bg : "transparent";
+	const baseBorder = color
+		? color.border
+		: amber
+			? AMBER.border
+			: `rgba(0,0,0,${filled ? 0.2 : 0.12})`;
+	const baseText = color ? color.text : amber ? AMBER.ink : UI.textTertiary;
 
 	let bg = baseBg;
 	let border = baseBorder;
-	let opacity = 1;
+	let opacity = isDragging ? 0.35 : 1;
 	let borderStyle: "solid" | "dashed" = "solid";
 
-	if (dragActive) {
-		if (dragValid) {
+	if (isValidDrop !== undefined) {
+		// Drag ativo no ar
+		if (isValidDrop) {
 			borderStyle = "dashed";
-			border = isHover ? "#0066CC" : "#3B82F6";
-			bg = isHover ? "#DBEAFE" : "#EFF6FF";
-		} else {
+			border = isHover ? "#0044AA" : "#3B82F6";
+			bg = isHover ? "#BFDBFE" : "#EFF6FF";
+			opacity = 1;
+		} else if (!filled) {
 			opacity = 0.25;
+		} else {
+			// Slots preenchidos inválidos ficam com 60%
+			opacity = isDragging ? 0.35 : 0.6;
 		}
 	}
 
@@ -102,6 +127,7 @@ function Slot({
 		<div
 			draggable={draggable}
 			title={title}
+			data-item={draggable ? "true" : undefined}
 			onDragStart={onDragStart}
 			onDragEnd={onDragEnd}
 			onDragOver={onDragOver}
@@ -118,11 +144,12 @@ function Slot({
 				alignItems: "center",
 				justifyContent: "center",
 				fontSize: 9,
-				color: amber ? AMBER.ink : UI.textTertiary,
+				fontWeight: 500,
+				color: baseText,
 				cursor: draggable ? "grab" : "default",
 				userSelect: "none",
 				flexShrink: 0,
-				transition: "background 0.1s, border-color 0.1s, opacity 0.1s",
+				transition: "background 0.1s, border-color 0.1s, opacity 0.12s",
 			}}
 		>
 			{label}
@@ -130,15 +157,17 @@ function Slot({
 	);
 }
 
-// ── Card de herói ─────────────────────────────────────────────────────────────
+// ── Componente de herói ───────────────────────────────────────────────────────
 
-interface HeroCardProps {
+interface HeroColumnProps {
 	hero: HeroState;
 	dragging: DragItem | null;
 	hoverZone: string | null;
 	groupArtifacts: ReadonlyArray<{ cardName: string; carriedBy: string | null }>;
 	onDrop: (zone: string) => void;
 	onSetHover: (zone: string | null) => void;
+	onDragItemStart: (name: string, from: InvFromZone) => void;
+	onDragEnd: () => void;
 }
 
 function HeroColumn({
@@ -148,23 +177,34 @@ function HeroColumn({
 	groupArtifacts,
 	onDrop,
 	onSetHover,
-}: HeroCardProps) {
+	onDragItemStart,
+	onDragEnd,
+}: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
 
-	const canEquip =
-		dragging?.kind === "item" &&
-		(() => {
-			const card = getCardByName(dragging.name);
-			return card?.type === "item" && card.itemClass !== "consumable";
-		})();
+	function canEquipDrag(): boolean {
+		if (!dragging || dragging.kind !== "item") return false;
+		const card = getCardByName(dragging.name);
+		return card?.type === "item" && card.itemClass !== "consumable";
+	}
 
-	const canMochila =
-		dragging?.kind === "item" && hero.backpack.length < MAX_BACKPACK;
+	function canMochilaDrag(): boolean {
+		if (!dragging || dragging.kind !== "item") return false;
+		// Se o drag vem da mochila deste herói, libera espaço ao remover
+		const isFromSameBackpack =
+			dragging.from.kind === "hero_backpack" &&
+			dragging.from.heroId === hero.id;
+		const effectiveCount = isFromSameBackpack
+			? hero.backpack.length - 1
+			: hero.backpack.length;
+		return effectiveCount < MAX_BACKPACK;
+	}
 
 	const posseArt = groupArtifacts.find((a) => a.carriedBy === hero.id);
+	const isDragging = !!dragging;
 
-	function dropHandlers(zone: string, valid: boolean) {
+	function areaDropHandlers(zone: string, valid: boolean) {
 		return {
 			onDragOver: (e: React.DragEvent) => {
 				if (valid) {
@@ -181,6 +221,9 @@ function HeroColumn({
 		};
 	}
 
+	const canEquip = canEquipDrag();
+	const canMochila = canMochilaDrag();
+
 	return (
 		<div
 			style={{
@@ -192,11 +235,11 @@ function HeroColumn({
 				background: UI.panelBg,
 				display: "flex",
 				flexDirection: "column",
-				gap: 0,
 			}}
 		>
-			{/* 4 slots de equipamento */}
+			{/* 4 slots de equipamento — zona de drop inteira */}
 			<div
+				{...areaDropHandlers(equipZone, canEquip)}
 				style={{
 					display: "grid",
 					gridTemplateColumns: "repeat(4, 36px)",
@@ -204,41 +247,64 @@ function HeroColumn({
 					marginBottom: 6,
 					borderRadius: 4,
 					padding: 2,
-					border: canEquip
-						? `1px dashed ${hoverZone === equipZone ? "#0066CC" : "#3B82F6"}`
+					border: isDragging
+						? canEquip
+							? `1px dashed ${hoverZone === equipZone ? "#0044AA" : "#3B82F6"}`
+							: "1px dashed transparent"
 						: "1px solid transparent",
 					background:
-						canEquip && hoverZone === equipZone ? "#DBEAFE" : "transparent",
-					transition: "background 0.1s, border-color 0.1s",
+						canEquip && hoverZone === equipZone ? "#BFDBFE" : "transparent",
+					transition: "background 0.1s",
 				}}
-				{...dropHandlers(equipZone, !!canEquip)}
 			>
 				{SLOT_TYPES.map((slotType) => {
-					const itemName = hero.activeItems[slotType];
-					return (
+					const name = hero.activeItems[slotType];
+					const col = name ? itemColor(name) : null;
+					const isThisItemDragging =
+						dragging?.from.kind === "hero_slot" &&
+						dragging.from.heroId === hero.id &&
+						dragging.from.slotType === slotType;
+
+					return name ? (
 						<Slot
 							key={slotType}
-							label={itemName ? shortLabel(itemName) : SLOT_LABELS[slotType]}
-							title={itemName ?? slotType}
-							filled={!!itemName}
-							dragActive={!!dragging}
-							dragValid={false}
+							label={shortLabel(name)}
+							title={name}
+							color={col}
+							filled
+							draggable
+							isDragging={isThisItemDragging}
+							onDragStart={(e) => {
+								e.dataTransfer.setData("text/plain", name);
+								onDragItemStart(name, {
+									kind: "hero_slot",
+									heroId: hero.id,
+									slotType,
+								});
+							}}
+							onDragEnd={onDragEnd}
+						/>
+					) : (
+						<Slot
+							key={slotType}
+							label={SLOT_LABELS[slotType]}
+							title={slotType}
 						/>
 					);
 				})}
 			</div>
 
-			{/* Slot de posse (artefato carregado) */}
+			{/* Slot âmbar de posse (artefato carregado) */}
 			<div style={{ marginBottom: 8 }}>
 				<Slot
 					amber
 					label={posseArt ? shortLabel(posseArt.cardName) : ""}
-					title={posseArt ? posseArt.cardName : "sem artefato em posse"}
+					title={posseArt?.cardName ?? "sem artefato em posse"}
 					filled={!!posseArt}
 				/>
 			</div>
 
-			{/* Carta placeholder */}
+			{/* Arte placeholder */}
 			<div
 				style={{
 					border: `1px solid ${UI.border}`,
@@ -249,14 +315,13 @@ function HeroColumn({
 					alignItems: "center",
 					justifyContent: "center",
 					background: UI.subpanelBg,
-					color: UI.textTertiary,
-					fontSize: 11,
+					fontSize: 22,
 				}}
 			>
 				🧙
 			</div>
 
-			{/* Status do herói */}
+			{/* Status */}
 			<div
 				style={{
 					border: `1px dashed ${UI.border}`,
@@ -268,14 +333,13 @@ function HeroColumn({
 					minHeight: 36,
 				}}
 			>
-				<div>
-					❤ {hero.currentLife}/{hero.maxLife}
-				</div>
+				<div>❤ {hero.currentLife}/{hero.maxLife}</div>
 				<div>⚔ {hero.damage} dmg</div>
 			</div>
 
-			{/* Mochila 4×2 */}
+			{/* Mochila 4×2 — zona de drop inteira */}
 			<div
+				{...areaDropHandlers(mochilaZone, canMochila)}
 				style={{
 					display: "grid",
 					gridTemplateColumns: "repeat(4, 36px)",
@@ -283,26 +347,45 @@ function HeroColumn({
 					marginBottom: 6,
 					borderRadius: 4,
 					padding: 2,
-					border: canMochila
-						? `1px dashed ${hoverZone === mochilaZone ? "#0066CC" : "#3B82F6"}`
+					border: isDragging
+						? canMochila
+							? `1px dashed ${hoverZone === mochilaZone ? "#0044AA" : "#3B82F6"}`
+							: "1px dashed transparent"
 						: "1px solid transparent",
 					background:
-						canMochila && hoverZone === mochilaZone ? "#DBEAFE" : "transparent",
-					transition: "background 0.1s, border-color 0.1s",
+						canMochila && hoverZone === mochilaZone ? "#BFDBFE" : "transparent",
+					transition: "background 0.1s",
 				}}
-				{...dropHandlers(mochilaZone, !!canMochila)}
 			>
 				{Array.from({ length: MAX_BACKPACK }, (_, i) => {
-					const itemName = hero.backpack[i];
-					return (
+					const name = hero.backpack[i];
+					const col = name ? itemColor(name) : null;
+					const isThisItemDragging =
+						dragging?.from.kind === "hero_backpack" &&
+						dragging.from.heroId === hero.id &&
+						dragging.from.index === i;
+
+					return name ? (
 						<Slot
 							key={i}
-							label={itemName ? shortLabel(itemName) : ""}
-							title={itemName}
-							filled={!!itemName}
-							dragActive={!!dragging}
-							dragValid={false}
+							label={shortLabel(name)}
+							title={name}
+							color={col}
+							filled
+							draggable
+							isDragging={isThisItemDragging}
+							onDragStart={(e) => {
+								e.dataTransfer.setData("text/plain", name);
+								onDragItemStart(name, {
+									kind: "hero_backpack",
+									heroId: hero.id,
+									index: i,
+								});
+							}}
+							onDragEnd={onDragEnd}
 						/>
+					) : (
+						<Slot key={i} />
 					);
 				})}
 			</div>
@@ -339,87 +422,107 @@ export function InventarioGrupo() {
 	const heroes = state.heroes.filter((h) => h.status === "active");
 	const grupoArtefatos = state.groupArtifacts;
 
-	// Drag state
 	const [dragging, setDragging] = useState<DragItem | null>(null);
 	const [hoverZone, setHoverZone] = useState<string | null>(null);
-
-	// Footer
 	const [confirmDiscard, setConfirmDiscard] = useState(false);
 
 	// Scroll horizontal com mouse
 	const scrollRef = useRef<HTMLDivElement>(null);
-	const scrollState = useRef({ isDown: false, startX: 0, scrollLeft: 0 });
+	const scrollDown = useRef({ active: false, startX: 0, scrollLeft: 0 });
 
 	// Ao montar: se não há rewards pendentes, chamar GRANT_REWARDS
-	// biome-ignore lint/correctness/useExhaustiveDependencies: only on mount
+	// biome-ignore lint/correctness/useExhaustiveDependencies: só no mount
 	useEffect(() => {
 		if (state.pendingRewards.length === 0) {
 			dispatch({ type: "GRANT_REWARDS" });
 		}
 	}, []);
 
-	// Resetar confirmação sempre que a mesa mudar
+	// Resetar checkbox quando mesa muda
 	const totalMesa = mesaItens.length + mesaArtefatos.length;
 	useEffect(() => {
 		setConfirmDiscard(false);
 	}, [totalMesa]);
 
-	// ── Drag handlers ────────────────────────────────────────────────────────
+	// ── Validação de zona ────────────────────────────────────────────────────
 
 	function isValidZone(zone: string): boolean {
 		if (!dragging) return false;
 
-		if (
-			dragging.kind === "artefato" &&
-			(zone === "grupo_vaga_0" || zone === "grupo_vaga_1")
-		) {
-			const vagaIndex = zone === "grupo_vaga_0" ? 0 : 1;
-			// Só a próxima vaga disponível aceita
-			return vagaIndex === grupoArtefatos.length;
+		// Artefatos só vão para vagas do grupo
+		if (dragging.kind === "artefato") {
+			if (zone === "grupo_vaga_0") return grupoArtefatos.length === 0;
+			if (zone === "grupo_vaga_1") return grupoArtefatos.length === 1;
+			return false;
 		}
 
+		// Itens
 		if (dragging.kind === "item") {
+			// Mesa: aceita itens que vêm de heróis
+			if (zone === "mesa") {
+				return dragging.from.kind !== "mesa";
+			}
+			// Equip: aceita qualquer item não-consumível
 			if (zone.startsWith("hero_equip_")) {
 				const card = getCardByName(dragging.name);
 				return card?.type === "item" && card.itemClass !== "consumable";
 			}
+			// Mochila: aceita se tiver espaço
 			if (zone.startsWith("hero_mochila_")) {
 				const heroId = zone.replace("hero_mochila_", "");
 				const hero = heroes.find((h) => h.id === heroId);
-				return (hero?.backpack.length ?? MAX_BACKPACK) < MAX_BACKPACK;
+				if (!hero) return false;
+				const isFromSameBackpack =
+					dragging.from.kind === "hero_backpack" &&
+					dragging.from.heroId === heroId;
+				const effective = isFromSameBackpack
+					? hero.backpack.length - 1
+					: hero.backpack.length;
+				return effective < MAX_BACKPACK;
 			}
 		}
-
 		return false;
 	}
+
+	// ── Drag handlers ─────────────────────────────────────────────────────────
+
+	function handleItemDragStart(name: string, from: InvFromZone) {
+		setDragging({ name, kind: "item", from });
+	}
+
+	function handleDragEnd() {
+		setDragging(null);
+		setHoverZone(null);
+	}
+
+	// ── Drop ─────────────────────────────────────────────────────────────────
 
 	function handleZoneDrop(zone: string) {
 		if (!dragging || !isValidZone(zone)) return;
 
-		if (zone.startsWith("hero_equip_") && dragging.kind === "item") {
-			const heroId = zone.replace("hero_equip_", "");
+		if (dragging.kind === "item") {
+			let to: InvToZone;
+			if (zone === "mesa") {
+				to = { kind: "mesa" };
+			} else if (zone.startsWith("hero_equip_")) {
+				to = { kind: "hero_equip", heroId: zone.replace("hero_equip_", "") };
+			} else if (zone.startsWith("hero_mochila_")) {
+				to = {
+					kind: "hero_backpack",
+					heroId: zone.replace("hero_mochila_", ""),
+				};
+			} else {
+				return;
+			}
 			dispatch({
-				type: "INV_ASSIGN_ITEM",
-				payload: { itemName: dragging.name, heroId, destination: "equip" },
+				type: "INV_MOVE",
+				payload: { itemName: dragging.name, from: dragging.from, to },
 			});
-		} else if (zone.startsWith("hero_mochila_") && dragging.kind === "item") {
-			const heroId = zone.replace("hero_mochila_", "");
-			dispatch({
-				type: "INV_ASSIGN_ITEM",
-				payload: { itemName: dragging.name, heroId, destination: "backpack" },
-			});
-		} else if (
-			(zone === "grupo_vaga_0" || zone === "grupo_vaga_1") &&
-			dragging.kind === "artefato"
-		) {
+		} else if (dragging.kind === "artefato") {
 			const vagaIndex = zone === "grupo_vaga_0" ? 0 : (1 as 0 | 1);
 			dispatch({
 				type: "INV_ASSIGN_ARTIFACT",
-				payload: {
-					artifactName: dragging.name,
-					vagaIndex,
-					heroId: null,
-				},
+				payload: { artifactName: dragging.name, vagaIndex, heroId: null },
 			});
 		}
 
@@ -427,38 +530,60 @@ export function InventarioGrupo() {
 		setHoverZone(null);
 	}
 
-	// ── Scroll mãozinha ──────────────────────────────────────────────────────
+	function dropHandlers(zone: string) {
+		const valid = isValidZone(zone);
+		return {
+			onDragOver: (e: React.DragEvent) => {
+				if (valid) {
+					e.preventDefault();
+					setHoverZone(zone);
+				}
+			},
+			onDragLeave: () => setHoverZone(null),
+			onDrop: (e: React.DragEvent) => {
+				e.preventDefault();
+				setHoverZone(null);
+				if (valid) handleZoneDrop(zone);
+			},
+		};
+	}
+
+	// ── Scroll mãozinha ───────────────────────────────────────────────────────
 
 	function onScrollMouseDown(e: React.MouseEvent<HTMLDivElement>) {
 		if ((e.target as HTMLElement).closest("[data-item]")) return;
 		const el = scrollRef.current;
 		if (!el) return;
-		scrollState.current = {
-			isDown: true,
+		scrollDown.current = {
+			active: true,
 			startX: e.pageX - el.offsetLeft,
 			scrollLeft: el.scrollLeft,
 		};
 	}
 
 	function onScrollMouseMove(e: React.MouseEvent<HTMLDivElement>) {
-		const s = scrollState.current;
-		if (!s.isDown || !scrollRef.current) return;
+		const s = scrollDown.current;
+		if (!s.active || !scrollRef.current) return;
 		e.preventDefault();
 		const x = e.pageX - scrollRef.current.offsetLeft;
 		scrollRef.current.scrollLeft = s.scrollLeft - (x - s.startX) * 1.5;
 	}
 
 	function onScrollMouseUp() {
-		scrollState.current.isDown = false;
+		scrollDown.current.active = false;
 	}
 
-	// ── Ação de saída ────────────────────────────────────────────────────────
+	// ── Saída ─────────────────────────────────────────────────────────────────
 
 	function handleSair() {
 		dispatch({ type: "INV_DISCARD_MESA" });
 	}
 
-	// ── Render ───────────────────────────────────────────────────────────────
+	// ── Mesa — zona de drop (itens voltando de heróis) ────────────────────────
+
+	const mesaDropValid = isValidZone("mesa");
+
+	// ── Render ────────────────────────────────────────────────────────────────
 
 	return (
 		<div
@@ -471,7 +596,7 @@ export function InventarioGrupo() {
 			}}
 		>
 			<div style={{ maxWidth: 920, margin: "0 auto", padding: 24 }}>
-				{/* Barra de título */}
+				{/* Título */}
 				<div
 					style={{
 						display: "flex",
@@ -493,38 +618,36 @@ export function InventarioGrupo() {
 						Inventário do grupo
 					</h1>
 					<span style={{ fontSize: 12, color: UI.textTertiary }}>
-						{state.status}
+						arraste itens entre as zonas
 					</span>
 				</div>
 
-				{/* ── MESA ─────────────────────────────────────────────────────── */}
-				<p
-					style={{
-						fontSize: 12,
-						color: UI.textSecondary,
-						margin: "0 0 8px 0",
-					}}
-				>
+				{/* ── MESA ──────────────────────────────────────────────────── */}
+				<p style={{ fontSize: 12, color: UI.textSecondary, margin: "0 0 8px 0" }}>
 					Mesa · o que ficar aqui será descartado
 				</p>
 
 				<div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
 					{/* Mesa — itens */}
 					<div
+						{...dropHandlers("mesa")}
 						style={{
 							flex: 1,
-							border: `1px dashed ${UI.border}`,
+							border: `1px ${mesaDropValid ? "dashed" : "dashed"} ${
+								mesaDropValid
+									? hoverZone === "mesa"
+										? "#0044AA"
+										: "#3B82F6"
+									: UI.border
+							}`,
 							borderRadius: 8,
 							padding: 10,
+							background:
+								mesaDropValid && hoverZone === "mesa" ? "#EFF6FF" : "transparent",
+							transition: "background 0.1s, border-color 0.1s",
 						}}
 					>
-						<p
-							style={{
-								fontSize: 11,
-								color: UI.textSecondary,
-								margin: "0 0 6px 0",
-							}}
-						>
+						<p style={{ fontSize: 11, color: UI.textSecondary, margin: "0 0 6px 0" }}>
 							Itens
 						</p>
 						<div
@@ -535,32 +658,31 @@ export function InventarioGrupo() {
 								minHeight: 36,
 							}}
 						>
-							{mesaItens.map((r) => (
-								<Slot
-									key={r.cardName}
-									label={shortLabel(r.cardName)}
-									title={r.cardName}
-									filled
-									draggable
-									dragActive={!!dragging}
-									dragValid={false}
-									onDragStart={(e) => {
-										e.dataTransfer.setData("text/plain", r.cardName);
-										setDragging({ name: r.cardName, kind: "item" });
-									}}
-									onDragEnd={() => {
-										setDragging(null);
-										setHoverZone(null);
-									}}
-								/>
-							))}
+							{mesaItens.map((r) => {
+								const col = itemColor(r.cardName);
+								const isMe =
+									dragging?.from.kind === "mesa" &&
+									dragging.name === r.cardName;
+								return (
+									<Slot
+										key={r.cardName}
+										label={shortLabel(r.cardName)}
+										title={r.cardName}
+										color={col}
+										filled
+										draggable
+										isDragging={isMe}
+										onDragStart={(e) => {
+											e.dataTransfer.setData("text/plain", r.cardName);
+											handleItemDragStart(r.cardName, { kind: "mesa" });
+										}}
+										onDragEnd={handleDragEnd}
+									/>
+								);
+							})}
 							{mesaItens.length === 0 && (
 								<span
-									style={{
-										fontSize: 11,
-										color: UI.textTertiary,
-										alignSelf: "center",
-									}}
+									style={{ fontSize: 11, color: UI.textTertiary, alignSelf: "center" }}
 								>
 									vazio
 								</span>
@@ -578,13 +700,7 @@ export function InventarioGrupo() {
 							padding: 10,
 						}}
 					>
-						<p
-							style={{
-								fontSize: 11,
-								color: AMBER.ink,
-								margin: "0 0 6px 0",
-							}}
-						>
+						<p style={{ fontSize: 11, color: AMBER.ink, margin: "0 0 6px 0" }}>
 							Artefatos de grupo
 						</p>
 						<div
@@ -595,34 +711,33 @@ export function InventarioGrupo() {
 								minHeight: 36,
 							}}
 						>
-							{mesaArtefatos.map((r) => (
-								<Slot
-									key={r.cardName}
-									amber
-									label={shortLabel(r.cardName)}
-									title={r.cardName}
-									filled
-									draggable
-									dragActive={!!dragging}
-									dragValid={false}
-									onDragStart={(e) => {
-										e.dataTransfer.setData("text/plain", r.cardName);
-										setDragging({ name: r.cardName, kind: "artefato" });
-									}}
-									onDragEnd={() => {
-										setDragging(null);
-										setHoverZone(null);
-									}}
-								/>
-							))}
+							{mesaArtefatos.map((r) => {
+								const isMe =
+									dragging?.from.kind === "mesa" && dragging.name === r.cardName;
+								return (
+									<Slot
+										key={r.cardName}
+										amber
+										label={shortLabel(r.cardName)}
+										title={r.cardName}
+										filled
+										draggable
+										isDragging={isMe}
+										onDragStart={(e) => {
+											e.dataTransfer.setData("text/plain", r.cardName);
+											setDragging({
+												name: r.cardName,
+												kind: "artefato",
+												from: { kind: "mesa" },
+											});
+										}}
+										onDragEnd={handleDragEnd}
+									/>
+								);
+							})}
 							{mesaArtefatos.length === 0 && (
 								<span
-									style={{
-										fontSize: 11,
-										color: AMBER.ink,
-										opacity: 0.6,
-										alignSelf: "center",
-									}}
+									style={{ fontSize: 11, color: AMBER.ink, opacity: 0.6, alignSelf: "center" }}
 								>
 									vazio
 								</span>
@@ -631,22 +746,10 @@ export function InventarioGrupo() {
 					</div>
 				</div>
 
-				<hr
-					style={{
-						border: "none",
-						borderTop: `1px solid ${UI.border}`,
-						margin: "0 0 16px 0",
-					}}
-				/>
+				<hr style={{ border: "none", borderTop: `1px solid ${UI.border}`, margin: "0 0 16px 0" }} />
 
-				{/* ── ARTEFATOS DO GRUPO ───────────────────────────────────────── */}
-				<p
-					style={{
-						fontSize: 12,
-						color: UI.textSecondary,
-						margin: "0 0 8px 0",
-					}}
-				>
+				{/* ── ARTEFATOS ATIVOS DO GRUPO ─────────────────────────── */}
+				<p style={{ fontSize: 12, color: UI.textSecondary, margin: "0 0 8px 0" }}>
 					Grupo · artefatos ativos ({grupoArtefatos.length}/2)
 				</p>
 
@@ -668,20 +771,10 @@ export function InventarioGrupo() {
 							return (
 								<div
 									key={vagaIndex}
-									onDragOver={(e) => {
-										if (valid) {
-											e.preventDefault();
-											setHoverZone(zone);
-										}
-									}}
-									onDragLeave={() => setHoverZone(null)}
-									onDrop={(e) => {
-										e.preventDefault();
-										handleZoneDrop(zone);
-									}}
+									{...dropHandlers(zone)}
 									style={{
 										background: isHov ? "#FFF3CD" : AMBER.bg,
-										border: `1px ${valid ? "dashed" : "dashed"} ${valid ? (isHov ? "#996600" : AMBER.border) : AMBER.border}`,
+										border: `1px dashed ${isHov ? "#996600" : AMBER.border}`,
 										borderRadius: 8,
 										padding: 12,
 										display: "flex",
@@ -700,7 +793,6 @@ export function InventarioGrupo() {
 						}
 
 						const requiresBearer = artifactRequiresBearer(art.cardName);
-
 						return (
 							<div
 								key={vagaIndex}
@@ -725,7 +817,7 @@ export function InventarioGrupo() {
 										display: "flex",
 										alignItems: "center",
 										justifyContent: "center",
-										fontSize: 20,
+										fontSize: 22,
 									}}
 								>
 									💎
@@ -744,7 +836,7 @@ export function InventarioGrupo() {
 									>
 										{art.cardName}
 									</p>
-									{requiresBearer && (
+									{requiresBearer ? (
 										<div
 											style={{
 												display: "flex",
@@ -757,15 +849,12 @@ export function InventarioGrupo() {
 											<span>Portador:</span>
 											<select
 												value={art.carriedBy ?? ""}
-												onChange={(e) => {
+												onChange={(e) =>
 													dispatch({
 														type: "INV_SET_BEARER",
-														payload: {
-															vagaIndex,
-															heroId: e.target.value || null,
-														},
-													});
-												}}
+														payload: { vagaIndex, heroId: e.target.value || null },
+													})
+												}
 												style={{
 													flex: 1,
 													fontSize: 11,
@@ -784,15 +873,8 @@ export function InventarioGrupo() {
 												))}
 											</select>
 										</div>
-									)}
-									{!requiresBearer && (
-										<p
-											style={{
-												fontSize: 11,
-												margin: "4px 0 0 0",
-												opacity: 0.7,
-											}}
-										>
+									) : (
+										<p style={{ fontSize: 11, margin: "4px 0 0 0", opacity: 0.7 }}>
 											Artefato passivo do grupo
 										</p>
 									)}
@@ -802,23 +884,11 @@ export function InventarioGrupo() {
 					})}
 				</div>
 
-				<hr
-					style={{
-						border: "none",
-						borderTop: `1px solid ${UI.border}`,
-						margin: "0 0 16px 0",
-					}}
-				/>
+				<hr style={{ border: "none", borderTop: `1px solid ${UI.border}`, margin: "0 0 16px 0" }} />
 
-				{/* ── HERÓIS ──────────────────────────────────────────────────── */}
-				<p
-					style={{
-						fontSize: 12,
-						color: UI.textSecondary,
-						margin: "0 0 8px 0",
-					}}
-				>
-					Heróis · arraste lateral para ver todos ({heroes.length})
+				{/* ── HERÓIS ────────────────────────────────────────────── */}
+				<p style={{ fontSize: 12, color: UI.textSecondary, margin: "0 0 8px 0" }}>
+					Heróis · {heroes.length} ativo{heroes.length !== 1 ? "s" : ""} · arraste lateral para ver todos
 				</p>
 
 				<div
@@ -830,16 +900,10 @@ export function InventarioGrupo() {
 					style={{
 						overflowX: "auto",
 						paddingBottom: 8,
-						cursor: scrollState.current.isDown ? "grabbing" : "grab",
+						cursor: scrollDown.current.active ? "grabbing" : "grab",
 					}}
 				>
-					<div
-						style={{
-							display: "flex",
-							gap: 12,
-							width: "max-content",
-						}}
-					>
+					<div style={{ display: "flex", gap: 12, width: "max-content" }}>
 						{heroes.map((hero) => (
 							<HeroColumn
 								key={hero.id}
@@ -849,6 +913,8 @@ export function InventarioGrupo() {
 								groupArtifacts={grupoArtefatos}
 								onDrop={handleZoneDrop}
 								onSetHover={setHoverZone}
+								onDragItemStart={handleItemDragStart}
+								onDragEnd={handleDragEnd}
 							/>
 						))}
 						{heroes.length === 0 && (
@@ -859,7 +925,7 @@ export function InventarioGrupo() {
 					</div>
 				</div>
 
-				{/* ── RODAPÉ ──────────────────────────────────────────────────── */}
+				{/* ── RODAPÉ ────────────────────────────────────────────── */}
 				<div
 					style={{
 						borderTop: `1px solid ${UI.border}`,
@@ -907,9 +973,7 @@ export function InventarioGrupo() {
 							border: `1px solid ${UI.border}`,
 							borderRadius: 6,
 							background:
-								totalMesa > 0 && !confirmDiscard
-									? UI.subpanelBg
-									: UI.panelBg,
+								totalMesa > 0 && !confirmDiscard ? UI.subpanelBg : UI.panelBg,
 							fontSize: 13,
 							cursor:
 								totalMesa > 0 && !confirmDiscard ? "not-allowed" : "pointer",

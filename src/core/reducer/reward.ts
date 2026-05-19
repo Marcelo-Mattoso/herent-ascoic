@@ -4,6 +4,7 @@
 
 import { getCardByName } from "../../data/cards";
 import type { XpSpendOption } from "../config/defaults";
+import type { InvFromZone, InvToZone } from "../actions/types";
 import { XP_COSTS } from "../config/defaults";
 import { calculateRewards } from "../rules/reward";
 import type { GameState, PendingReward } from "../state/gameState";
@@ -275,6 +276,156 @@ export function handleSpendXp(
 
 export function handleOpenPathsFromXpPhase(state: GameState): GameState {
 	return { ...state, status: "OPEN_PATHS" };
+}
+
+// ─── INV_MOVE ────────────────────────────────────────────────────────────────
+// Move um item entre qualquer zona: mesa ↔ herói-slot ↔ herói-mochila.
+// Se o destino já está ocupado, o item deslocado vai para a zona de origem.
+
+export function handleInvMove(
+	state: GameState,
+	itemName: string,
+	from: InvFromZone,
+	to: InvToZone,
+): GameState {
+	if (!verifyAtSource(state, itemName, from)) return state;
+
+	// 1. Remove da origem
+	let next = removeFromZone(state, itemName, from);
+
+	// 2. Coloca no destino; captura deslocado, se houver
+	let displaced: string | null = null;
+
+	if (to.kind === "mesa") {
+		next = {
+			...next,
+			pendingRewards: [
+				...next.pendingRewards,
+				{ type: "item", cardName: itemName, requiresBearer: false },
+			],
+		};
+	} else if (to.kind === "hero_equip") {
+		const card = getCardByName(itemName);
+		if (!card || card.type !== "item" || card.itemClass === "consumable")
+			return state;
+		const slot =
+			card.itemClass === "equipment"
+				? "weapon"
+				: card.itemClass === "utility"
+					? "utility"
+					: "special";
+		const hero = next.heroes.find((h) => h.id === to.heroId);
+		displaced = hero?.activeItems[slot] ?? null;
+		next = mapHero(next, to.heroId, (h) => ({
+			...h,
+			activeItems: { ...h.activeItems, [slot]: itemName },
+		}));
+	} else if (to.kind === "hero_backpack") {
+		const hero = next.heroes.find((h) => h.id === to.heroId);
+		if ((hero?.backpack.length ?? 8) >= 8) return state;
+		next = mapHero(next, to.heroId, (h) => ({
+			...h,
+			backpack: [...h.backpack, itemName],
+		}));
+	}
+
+	// 3. Devolver deslocado para a origem (swap)
+	if (displaced) {
+		next = returnToZone(next, displaced, from);
+	}
+
+	return log(next, `${itemName}: ${zoneLabel(from)} → ${zoneLabel(to)}`);
+}
+
+function verifyAtSource(
+	state: GameState,
+	itemName: string,
+	from: InvFromZone,
+): boolean {
+	if (from.kind === "mesa")
+		return state.pendingRewards.some(
+			(r) => r.cardName === itemName && r.type === "item",
+		);
+	if (from.kind === "hero_slot") {
+		const h = state.heroes.find((h) => h.id === from.heroId);
+		return h?.activeItems[from.slotType] === itemName;
+	}
+	if (from.kind === "hero_backpack") {
+		const h = state.heroes.find((h) => h.id === from.heroId);
+		return h?.backpack[from.index] === itemName;
+	}
+	return false;
+}
+
+function removeFromZone(
+	state: GameState,
+	itemName: string,
+	from: InvFromZone,
+): GameState {
+	if (from.kind === "mesa") {
+		let removed = false;
+		return {
+			...state,
+			pendingRewards: state.pendingRewards.filter((r) => {
+				if (!removed && r.cardName === itemName && r.type === "item") {
+					removed = true;
+					return false;
+				}
+				return true;
+			}),
+		};
+	}
+	if (from.kind === "hero_slot") {
+		return mapHero(state, from.heroId, (h) => {
+			const { [from.slotType]: _removed, ...rest } = h.activeItems;
+			return { ...h, activeItems: rest };
+		});
+	}
+	if (from.kind === "hero_backpack") {
+		return mapHero(state, from.heroId, (h) => ({
+			...h,
+			backpack: h.backpack.filter((_, i) => i !== from.index),
+		}));
+	}
+	return state;
+}
+
+function returnToZone(
+	state: GameState,
+	itemName: string,
+	zone: InvFromZone,
+): GameState {
+	if (zone.kind === "mesa") {
+		return {
+			...state,
+			pendingRewards: [
+				...state.pendingRewards,
+				{ type: "item", cardName: itemName, requiresBearer: false },
+			],
+		};
+	}
+	if (zone.kind === "hero_slot") {
+		return mapHero(state, zone.heroId, (h) => ({
+			...h,
+			activeItems: { ...h.activeItems, [zone.slotType]: itemName },
+		}));
+	}
+	if (zone.kind === "hero_backpack") {
+		return mapHero(state, zone.heroId, (h) => {
+			const bp = [...h.backpack];
+			bp.splice(zone.index, 0, itemName);
+			return { ...h, backpack: bp };
+		});
+	}
+	return state;
+}
+
+function zoneLabel(zone: InvFromZone | InvToZone): string {
+	if (zone.kind === "mesa") return "mesa";
+	if (zone.kind === "hero_slot") return `slot(${zone.heroId})`;
+	if (zone.kind === "hero_backpack") return `mochila(${zone.heroId})`;
+	if (zone.kind === "hero_equip") return `equip(${zone.heroId})`;
+	return "?";
 }
 
 // ─── INV_ASSIGN_ITEM ──────────────────────────────────────────────────────────

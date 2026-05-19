@@ -39,6 +39,7 @@ import {
 	handleInvAssignArtifact,
 	handleInvAssignItem,
 	handleInvDescartarMesa,
+	handleInvMove,
 	handleInvSetBearer,
 	handleOpenPathsFromXpPhase,
 	handleSpendXp,
@@ -140,6 +141,14 @@ export function reducer(state: GameState, action: Action): GameState {
 			return handleChooseArtifactBearer(state, action.payload.heroId);
 
 		// ── Inventário do grupo (Patch 4) ─────────────────────────────────────
+		case "INV_MOVE":
+			return handleInvMove(
+				state,
+				action.payload.itemName,
+				action.payload.from,
+				action.payload.to,
+			);
+
 		case "INV_ASSIGN_ITEM":
 			return handleInvAssignItem(
 				state,
