@@ -587,15 +587,25 @@ export function InventarioGrupo() {
 
 	return (
 		<div
-			style={{
-				position: "fixed",
-				inset: 0,
-				background: UI.pageBg,
-				zIndex: 100,
-				overflowY: "auto",
-			}}
+			className="fixed inset-0 z-50 flex items-center justify-center p-4"
+			style={{ background: "rgba(0,0,0,0.45)" }}
 		>
-			<div style={{ maxWidth: 920, margin: "0 auto", padding: 24 }}>
+			<div
+				role="dialog"
+				aria-modal="true"
+				aria-label="Inventário do grupo"
+				style={{
+					background: UI.panelBg,
+					width: "100%",
+					maxWidth: 920,
+					maxHeight: "90vh",
+					overflowY: "auto",
+					borderRadius: 12,
+					padding: 24,
+					boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+					color: UI.textPrimary,
+				}}
+			>
 				{/* Título */}
 				<div
 					style={{
