@@ -598,8 +598,6 @@ export function InventarioGrupo() {
 					background: UI.panelBg,
 					width: "100%",
 					maxWidth: 920,
-					maxHeight: "90vh",
-					overflowY: "auto",
 					borderRadius: 12,
 					padding: 24,
 					boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
