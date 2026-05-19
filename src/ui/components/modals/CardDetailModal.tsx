@@ -42,7 +42,7 @@ export function CardDetailModal({
 									Habilidade
 								</p>
 								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{card.skill}
+									{card.skill.label}
 								</p>
 							</div>
 							<div>
@@ -53,7 +53,7 @@ export function CardDetailModal({
 									Poder
 								</p>
 								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{card.power}
+									{card.power.label}
 								</p>
 							</div>
 							<p className="text-xs italic" style={{ color: UI.textTertiary }}>
@@ -66,17 +66,17 @@ export function CardDetailModal({
 						<>
 							<Row label="Dano" value={String(card.damage)} />
 							<Row label="XP" value={String(card.xp)} />
-							{card.effect && (
+							{card.effect.label && (
 								<p
 									className="text-xs italic"
 									style={{ color: UI.textSecondary }}
 								>
-									{card.effect}
+									{card.effect.label}
 								</p>
 							)}
-							{card.purpleEffect && (
+							{card.purpleEffect.label && (
 								<p className="text-xs italic" style={{ color: "#3D1A6E" }}>
-									Roxo: {card.purpleEffect}
+									Roxo: {card.purpleEffect.label}
 								</p>
 							)}
 						</>
@@ -86,12 +86,12 @@ export function CardDetailModal({
 						<>
 							<Row label="Saídas" value={String(card.exits)} />
 							<Row label="XP" value={String(card.xp ?? 0)} />
-							{card.effect && (
+							{card.effect.label && (
 								<p
 									className="text-xs italic"
 									style={{ color: UI.textSecondary }}
 								>
-									{card.effect}
+									{card.effect.label}
 								</p>
 							)}
 						</>
@@ -100,17 +100,17 @@ export function CardDetailModal({
 					{card?.type === "item" && (
 						<>
 							<Row label="Tipo" value={card.itemClass} />
-							{card.effect && (
+							{card.effect.label && (
 								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{card.effect}
+									{card.effect.label}
 								</p>
 							)}
 						</>
 					)}
 
-					{card?.type === "artifact" && card.effect && (
+					{card?.type === "artifact" && card.effect.label && (
 						<p className="text-xs" style={{ color: UI.textPrimary }}>
-							{card.effect}
+							{card.effect.label}
 						</p>
 					)}
 
@@ -126,7 +126,7 @@ export function CardDetailModal({
 										{a.name}
 									</p>
 									<p className="text-xs" style={{ color: UI.textPrimary }}>
-										{a.effect}
+										{a.effect.label}
 									</p>
 								</div>
 							))}

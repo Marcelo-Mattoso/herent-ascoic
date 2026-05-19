@@ -9,7 +9,7 @@ import {
 
 describe("catálogo de cartas", () => {
 	it("carrega o total correto de cartas", () => {
-		expect(getAllCards().length).toBe(79);
+		expect(getAllCards().length).toBe(78);
 	});
 
 	it("retorna 8 heróis", () => {
@@ -62,6 +62,26 @@ describe("catálogo de cartas", () => {
 		expect(card?.type).toBe("room");
 		if (card?.type === "room") {
 			expect(card.xp ?? 0).toBe(0);
+		}
+	});
+
+	it("skill e power do herói são objetos Ability com label", () => {
+		const card = getCardByName("Clérigo do Descanso Eterno");
+		expect(card?.type).toBe("hero");
+		if (card?.type === "hero") {
+			expect(typeof card.skill.label).toBe("string");
+			expect(card.skill.label.length).toBeGreaterThan(0);
+			expect(typeof card.power.label).toBe("string");
+			expect(card.power.label.length).toBeGreaterThan(0);
+		}
+	});
+
+	it("effect de criatura é objeto Ability com label", () => {
+		const cards = getAllCards();
+		const creature = cards.find((c) => c.type === "creature");
+		expect(creature).toBeDefined();
+		if (creature?.type === "creature") {
+			expect(typeof creature.effect.label).toBe("string");
 		}
 	});
 });

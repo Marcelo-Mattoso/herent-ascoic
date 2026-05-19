@@ -8,6 +8,18 @@ export type CardRewardType = "item" | "artifact";
 // Dados de dado por cor: [branco, amarelo, laranja, vermelho, roxo]
 export type DiceByColor = readonly [number, number, number, number, number];
 
+// --- Ability (v2) ---
+
+export interface Ability {
+	readonly name: string;
+	readonly value: number | string | null;
+	readonly type: string;
+	readonly trigger: string;
+	readonly target: string;
+	readonly text: string;
+	readonly label: string;
+}
+
 // --- Hero ---
 
 export interface HeroCard {
@@ -17,8 +29,8 @@ export interface HeroCard {
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
 	readonly damage: number;
-	readonly skill: string;
-	readonly power: string;
+	readonly skill: Ability;
+	readonly power: Ability;
 	readonly style: string;
 }
 
@@ -34,8 +46,8 @@ export interface CreatureCard {
 	readonly xp: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
-	readonly effect: string;
-	readonly purpleEffect: string;
+	readonly effect: Ability;
+	readonly purpleEffect: Ability;
 }
 
 // --- Subboss ---
@@ -50,8 +62,8 @@ export interface SubbossCard {
 	readonly xp: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
-	readonly effect: string;
-	readonly purpleEffect: string;
+	readonly effect: Ability;
+	readonly purpleEffect: Ability;
 }
 
 // --- Room ---
@@ -64,7 +76,7 @@ export interface RoomCard {
 	readonly enemiesByPlayers: readonly [number, number, number, number];
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
-	readonly effect: string;
+	readonly effect: Ability;
 	readonly xp?: number;
 	readonly specialCreature?: string;
 }
@@ -78,7 +90,7 @@ export interface ItemCard {
 	readonly name: string;
 	readonly itemClass: ItemClass;
 	readonly tags: readonly string[];
-	readonly effect: string;
+	readonly effect: Ability;
 }
 
 // --- Artifact ---
@@ -87,14 +99,14 @@ export interface ArtifactCard {
 	readonly type: "artifact";
 	readonly name: string;
 	readonly countsAs: "artifact";
-	readonly effect: string;
+	readonly effect: Ability;
 }
 
 // --- Boss ---
 
 export interface BossAbility {
 	readonly name: string;
-	readonly effect: string;
+	readonly effect: Ability;
 }
 
 export interface BossCard {

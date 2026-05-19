@@ -46,8 +46,7 @@ function artifactRequiresBearer(cardName: string): boolean {
 	const card = getCardByName(cardName);
 	return (
 		card?.type === "artifact" &&
-		typeof card.effect === "string" &&
-		card.effect.toLowerCase().includes("portador")
+		card.effect.label.toLowerCase().includes("portador")
 	);
 }
 
@@ -1057,7 +1056,7 @@ function ItemTooltipPanel({ target }: { target: TooltipTarget }) {
 
 	const isItem = card.type === "item";
 	const tagLine = isItem ? card.tags.join(" · ") : "Artefato de grupo";
-	const effect = card.effect;
+	const effect = card.effect.label;
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
 

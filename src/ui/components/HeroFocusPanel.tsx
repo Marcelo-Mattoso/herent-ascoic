@@ -46,8 +46,7 @@ export function HeroFocusPanel({
 	const isFocusedHeroSelected = !!hero && combat?.selectedHeroId === hero.id;
 
 	const availableEnemies = state.activeEnemies.filter(
-		(e) =>
-			e.status === "active" && !combat?.enemiesEngaged.includes(e.id),
+		(e) => e.status === "active",
 	);
 
 	return (
@@ -183,7 +182,7 @@ export function HeroFocusPanel({
 									</span>
 								</p>
 								<p style={{ color: UI.textPrimary, fontSize: 10, lineHeight: 1.4 }}>
-									{heroCard.skill}
+									{heroCard.skill.label}
 								</p>
 							</div>
 
@@ -218,7 +217,7 @@ export function HeroFocusPanel({
 									</span>
 								</p>
 								<p style={{ color: UI.textPrimary, fontSize: 10, lineHeight: 1.4 }}>
-									{heroCard.power}
+									{heroCard.power.label}
 								</p>
 							</div>
 						</div>

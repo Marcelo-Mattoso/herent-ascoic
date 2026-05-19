@@ -34,7 +34,7 @@ export function handleRevealRoom(state: GameState): GameState {
 		currentEnemies: card.enemiesByPlayers[0], // solo = índice 0
 		reward: card.reward,
 		rewardType: card.rewardType,
-		effect: card.effect,
+		effect: card.effect.label,
 		xp: card.xp ?? 0,
 		specialCreature: card.specialCreature,
 		status: "active",
