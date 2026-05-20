@@ -11,6 +11,7 @@ import type {
 	ItemCard,
 	RoomCard,
 	SubbossCard,
+	SubbossRoomCard,
 } from "./cardTypes";
 
 // Valida que cada entrada tem pelo menos `type` e `name`
@@ -64,6 +65,10 @@ export function getSubbosses(): SubbossCard[] {
 
 export function getRooms(): RoomCard[] {
 	return getCardsByType("room");
+}
+
+export function getSubbossRooms(): SubbossRoomCard[] {
+	return getCardsByType("subboss_room");
 }
 
 export function getItems(): ItemCard[] {

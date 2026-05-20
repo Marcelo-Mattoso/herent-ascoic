@@ -69,9 +69,28 @@ export function EnemyCard({
 					alignItems: "center",
 					justifyContent: "center",
 					marginBottom: 3,
+					position: "relative",
 				}}
 			>
-				<span style={{ fontSize: 22 }}>👹</span>
+				<span style={{ fontSize: 22 }}>{enemy.isSubboss ? "💀" : "👹"}</span>
+				{enemy.isSubboss && (
+					<span
+						style={{
+							position: "absolute",
+							top: 2,
+							right: 2,
+							background: "#7C3AED",
+							color: "#fff",
+							fontSize: 7,
+							fontWeight: 700,
+							padding: "1px 3px",
+							borderRadius: 3,
+							lineHeight: 1.3,
+						}}
+					>
+						Subchefe
+					</span>
+				)}
 			</div>
 			{/* Nome */}
 			<p

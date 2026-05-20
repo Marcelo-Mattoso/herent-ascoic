@@ -19,4 +19,6 @@ export interface EnemyState {
 	status: EnemyStatus;
 	// Impede que esta criatura conceda recompensas ao ser derrotada (ex: Fuga Covarde)
 	noReward?: boolean;
+	// Marca que este inimigo é um subchefe (para tracking e UI)
+	isSubboss?: boolean;
 }

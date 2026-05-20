@@ -1,10 +1,11 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
-import { getArtifacts, getCardByName, getCreatures, getItems, getRooms } from "../../data/cards";
+import { getArtifacts, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../../data/cards";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
 import { checkBossCondition } from "../rules/conditions";
 import { fireTrigger } from "../skills/dispatch";
 import { createEmptyCombatState } from "../state/combatState";
+import type { SubbossRoomCard } from "../../data/cardTypes";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
 import { createEnemyFromCard, log, shuffle } from "./utils";
@@ -27,7 +28,12 @@ export function handleRevealRoom(state: GameState): GameState {
 
 	const [roomName, ...remaining] = available;
 	const card = getCardByName(roomName as string);
-	if (!card || card.type !== "room") return state;
+	if (!card || (card.type !== "room" && card.type !== "subboss_room")) return state;
+
+	// Sala de subchefe: spawna diretamente o subchefe vinculado
+	if (card.type === "subboss_room") {
+		return handleRevealSubbossRoom(state, card, remaining);
+	}
 
 	const room: RoomState = {
 		cardName: card.name,
@@ -52,6 +58,44 @@ export function handleRevealRoom(state: GameState): GameState {
 	};
 	next = fireTrigger(next, "on_room_reveal", { triggeredBy: "on_room_reveal" });
 	return log(next, `Sala revelada: ${room.cardName}.`);
+}
+
+function handleRevealSubbossRoom(
+	state: GameState,
+	card: SubbossRoomCard,
+	remainingDeck: readonly string[],
+): GameState {
+	const subbossCard = getSubbosses().find((s) => s.name === card.linkedSubbossName);
+	if (!subbossCard) return log(state, `[AVISO] Subchefe não encontrado: ${card.linkedSubbossName}`);
+
+	const room: RoomState = {
+		cardName: card.name,
+		exits: card.exits,
+		currentEnemies: 1,
+		reward: card.reward,
+		rewardType: card.rewardType,
+		effect: card.effect.label,
+		xp: card.xp ?? 0,
+		specialCreature: card.linkedSubbossName,
+		status: "active",
+	};
+
+	const enemy = createEnemyFromCard(subbossCard, state.despertar);
+
+	let next: GameState = {
+		...state,
+		currentRoom: room,
+		status: "COMBAT_START",
+		activeEnemies: [enemy],
+		combat: createEmptyCombatState(),
+		decks: {
+			...state.decks,
+			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
+		},
+	};
+	next = fireTrigger(next, "before_combat", { triggeredBy: "before_combat" });
+	next = fireTrigger(next, "before_first_combat_in_room", { triggeredBy: "before_first_combat_in_room" });
+	return log(next, `Sala de subchefe revelada: ${card.name}. ${subbossCard.name} aparece!`);
 }
 
 export function handleResolveRoomEffect(state: GameState): GameState {
@@ -261,6 +305,7 @@ export function handleRestartDungeon(
 			pendingRewards: [],
 			flags: {},
 			tokens: {},
+			subbosses: { available: [], defeated: [] },
 			oncePer: { game: state.oncePer.game },
 			decks: {
 				dungeonDeck: { available: shuffle(roomNames), discarded: [], removed: [] },

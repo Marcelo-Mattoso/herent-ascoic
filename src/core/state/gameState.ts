@@ -52,6 +52,12 @@ export interface GameState {
 	readonly bossCardName: string;
 	bossDefeated: boolean;
 
+	// Subchefes (injetados quando Despertar atinge 3)
+	readonly subbosses: {
+		readonly available: readonly string[];
+		readonly defeated: readonly string[];
+	};
+
 	// Artefatos do grupo
 	readonly groupArtifacts: readonly GroupArtifact[];
 
@@ -129,6 +135,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 
 		bossCardName: config.bossCardName ?? "Azhakar, Dragão da Fornalha Sombria",
 		bossDefeated: false,
+
+		subbosses: { available: [], defeated: [] },
 
 		groupArtifacts: [],
 

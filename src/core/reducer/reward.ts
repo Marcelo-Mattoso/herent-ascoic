@@ -27,6 +27,22 @@ export function handleGrantRewards(state: GameState): GameState {
 	const eligibleGraveyard = next.enemyGraveyard.filter((e) => !e.noReward);
 	const summary = calculateRewards(next.currentRoom!, eligibleGraveyard);
 
+	// Registrar subchefes derrotados
+	const newlyDefeatedSubbosses = next.enemyGraveyard
+		.filter((e) => e.isSubboss && !next.subbosses.defeated.includes(e.cardName))
+		.map((e) => e.cardName);
+	if (newlyDefeatedSubbosses.length > 0) {
+		next = {
+			...next,
+			subbosses: {
+				available: next.subbosses.available.filter(
+					(name) => !newlyDefeatedSubbosses.includes(name),
+				),
+				defeated: [...next.subbosses.defeated, ...newlyDefeatedSubbosses],
+			},
+		};
+	}
+
 	// XP da sala é concedido imediatamente
 	next = { ...next, groupXp: next.groupXp + summary.xp };
 

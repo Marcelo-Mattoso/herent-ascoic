@@ -2008,6 +2008,42 @@
     }
   },
   {
+    "type": "subboss_room",
+    "name": "Câmara do Carcereiro",
+    "exits": 1,
+    "reward": 1,
+    "rewardType": "artifact",
+    "xp": 4,
+    "linkedSubbossName": "Carcereiro da Masmorra Rubra",
+    "effect": {
+      "name": "Sala do Subchefe",
+      "value": null,
+      "type": "noop",
+      "trigger": "room_passive",
+      "target": "room",
+      "text": "sala especial: o Carcereiro da Masmorra Rubra guarda esta câmara.",
+      "label": "Sala do Subchefe: o Carcereiro da Masmorra Rubra guarda esta câmara."
+    }
+  },
+  {
+    "type": "subboss_room",
+    "name": "Abismo Rachado",
+    "exits": 2,
+    "reward": 1,
+    "rewardType": "artifact",
+    "xp": 4,
+    "linkedSubbossName": "Guardião do Abismo Rachado",
+    "effect": {
+      "name": "Sala do Subchefe",
+      "value": null,
+      "type": "noop",
+      "trigger": "room_passive",
+      "target": "room",
+      "text": "sala especial: o Guardião do Abismo Rachado patrulha este abismo.",
+      "label": "Sala do Subchefe: o Guardião do Abismo Rachado patrulha este abismo."
+    }
+  },
+  {
     "type": "room",
     "name": "Corredor Estreito",
     "exits": 1,

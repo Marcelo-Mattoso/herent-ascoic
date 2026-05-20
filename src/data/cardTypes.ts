@@ -81,6 +81,18 @@ export interface RoomCard {
 	readonly specialCreature?: string;
 }
 
+// Sala especial que spawna um subchefe específico (injetada quando Despertar = 3).
+export interface SubbossRoomCard {
+	readonly type: "subboss_room";
+	readonly name: string;
+	readonly exits: number;
+	readonly reward: number;
+	readonly rewardType: CardRewardType;
+	readonly effect: Ability;
+	readonly xp?: number;
+	readonly linkedSubbossName: string;
+}
+
 // --- Item ---
 
 export type ItemClass = "equipment" | "consumable" | "utility" | "special";
@@ -131,6 +143,7 @@ export type AnyCard =
 	| CreatureCard
 	| SubbossCard
 	| RoomCard
+	| SubbossRoomCard
 	| ItemCard
 	| ArtifactCard
 	| BossCard;

@@ -1,11 +1,11 @@
 // Lógica de progressão: subir nível (Ímpeto), mudar Despertar da Masmorra.
 // Usada pelos handlers de SPEND_XP.
 
-import { getCardByName } from "../../data/cards";
+import { getCardByName, getSubbossRooms } from "../../data/cards";
 import { nextColor, previousColor, valueAtColor } from "../rules/colorScale";
 import type { ColorIndex } from "../state/color";
 import type { GameState } from "../state/gameState";
-import { log, mapHero } from "./utils";
+import { log, mapHero, shuffle } from "./utils";
 
 // Sobe o Ímpeto de um herói e atualiza seus stats. Também avança o Despertar.
 export function levelUpHero(state: GameState, heroId: string): GameState {
@@ -35,9 +35,38 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 
 	// Subir nível também avança o Despertar
 	next = { ...next, despertar: nextColor(next.despertar) };
+
+	// Ao atingir Vermelho (3), injetar salas de subchefe no deck de dungeon
+	if (next.despertar === 3 && next.subbosses.available.length === 0) {
+		next = injectSubbossRooms(next);
+	}
+
 	return log(
 		next,
 		`${hero.cardName} subiu para nível ${newImpeto}. Despertar avança.`,
+	);
+}
+
+// Embaralha as 2 salas de subchefe no deck de dungeon remanescente.
+function injectSubbossRooms(state: GameState): GameState {
+	const subbossRoomNames = getSubbossRooms().map((r) => r.name);
+	if (subbossRoomNames.length === 0) return state;
+
+	const { available, discarded, removed } = state.decks.dungeonDeck;
+	const combined = shuffle([...available, ...subbossRoomNames]);
+	return log(
+		{
+			...state,
+			subbosses: {
+				available: subbossRoomNames,
+				defeated: state.subbosses.defeated,
+			},
+			decks: {
+				...state.decks,
+				dungeonDeck: { available: combined, discarded, removed },
+			},
+		},
+		`Despertar Vermelho! Salas de subchefe injetadas no deck (${subbossRoomNames.join(", ")}).`,
 	);
 }
 

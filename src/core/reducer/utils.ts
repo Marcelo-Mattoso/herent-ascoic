@@ -60,6 +60,7 @@ export function createEnemyFromCard(
 		conditions: [],
 		firstDamageTakenThisTurn: false,
 		status: "active",
+		isSubboss: card.type === "subboss",
 	};
 }
 
