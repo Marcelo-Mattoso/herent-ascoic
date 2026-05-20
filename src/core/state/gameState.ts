@@ -13,7 +13,7 @@ import type { GameStatus } from "./status";
 
 export type Difficulty = "very_easy" | "easy" | "normal" | "hard" | "nightmare";
 
-export type GameMode = "solo";
+export type GameMode = "cooperative" | "competitive";
 
 export interface GroupArtifact {
 	readonly cardName: string;
@@ -51,6 +51,9 @@ export interface GameState {
 	// Boss
 	readonly bossCardName: string;
 	bossDefeated: boolean;
+
+	// Em modo competitivo, nome do herói/jogador vencedor (definido ao atingir VICTORY)
+	readonly winner?: string;
 
 	// Subchefes (injetados quando Despertar atinge 3)
 	readonly subbosses: {
@@ -113,12 +116,13 @@ export interface GameConfig {
 	heroCardNames: string[];
 	difficulty?: Difficulty;
 	bossCardName?: string;
+	mode?: GameMode;
 }
 
 export function createInitialGameState(config: GameConfig): GameState {
 	return {
 		gameId: crypto.randomUUID(),
-		mode: "solo",
+		mode: "cooperative",
 		difficulty: config.difficulty ?? "normal",
 		status: "MAIN_MENU",
 

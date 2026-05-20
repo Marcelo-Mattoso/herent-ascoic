@@ -26,10 +26,25 @@ export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
 		>
 			{/* XP */}
 			<div style={{ textAlign: "center" }}>
-				<p style={{ color: UI.textSecondary, fontSize: 10 }}>XP do grupo</p>
-				<p style={{ color: UI.textPrimary, fontSize: 18, fontWeight: 500, lineHeight: 1.2 }}>
-					{state.groupXp}
-				</p>
+				{state.mode === "competitive" ? (
+					<>
+						<p style={{ color: UI.textSecondary, fontSize: 10 }}>XP por jogador</p>
+						<div style={{ display: "flex", flexWrap: "wrap", justifyContent: "center", gap: 4 }}>
+							{state.heroes.filter((h) => h.status === "active").map((h) => (
+								<span key={h.id} style={{ color: UI.textPrimary, fontSize: 11, fontWeight: 500 }}>
+									J{h.playerIndex + 1}:{h.xp}
+								</span>
+							))}
+						</div>
+					</>
+				) : (
+					<>
+						<p style={{ color: UI.textSecondary, fontSize: 10 }}>XP do grupo</p>
+						<p style={{ color: UI.textPrimary, fontSize: 18, fontWeight: 500, lineHeight: 1.2 }}>
+							{state.groupXp}
+						</p>
+					</>
+				)}
 			</div>
 
 			{/* Despertar */}

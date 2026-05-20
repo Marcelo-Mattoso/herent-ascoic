@@ -5,6 +5,8 @@ import { COLORS_MAP, UI } from "@/ui/theme";
 export function Victory() {
 	const { state, reset } = useGameStore();
 	const hero = state.heroes[0];
+	const isCompetitive = state.mode === "competitive";
+	const winner = state.winner;
 
 	return (
 		<div
@@ -16,10 +18,12 @@ export function Victory() {
 					className="text-4xl font-medium mb-2"
 					style={{ color: UI.textPrimary }}
 				>
-					Vitória
+					{isCompetitive && winner ? `Vitória: ${winner}!` : "Vitória"}
 				</h1>
 				<p className="text-sm mb-6" style={{ color: UI.textSecondary }}>
-					Você derrotou o chefe final e sobreviveu à masmorra.
+					{isCompetitive && winner
+						? `${winner} derrotou o chefe final e vence a partida.`
+						: "Você derrotou o chefe final e sobreviveu à masmorra."}
 				</p>
 
 				<div
@@ -31,14 +35,24 @@ export function Victory() {
 						["Salas exploradas", state.roomsCleared],
 						["Criaturas derrotadas", state.creaturesDefeated],
 						["Artefatos obtidos", state.groupArtifacts.length],
-						["XP total", state.groupXp],
+						isCompetitive ? null : ["XP total", state.groupXp],
 						["Nível do herói", hero ? COLORS_MAP[hero.impeto].name : "—"],
 						["Despertar final", COLORS_MAP[state.despertar].name],
-					].map(([label, value]) => (
+					].filter(Boolean).map(([label, value]) => (
 						<div key={String(label)} className="flex justify-between text-sm">
 							<span style={{ color: UI.textSecondary }}>{label}</span>
 							<span className="font-medium" style={{ color: UI.textPrimary }}>
 								{value}
+							</span>
+						</div>
+					))}
+					{isCompetitive && state.heroes.map((h) => (
+						<div key={h.id} className="flex justify-between text-sm">
+							<span style={{ color: UI.textSecondary }}>
+								XP — {h.cardName} (J{h.playerIndex + 1})
+							</span>
+							<span className="font-medium" style={{ color: UI.textPrimary }}>
+								{h.xp}
 							</span>
 						</div>
 					))}

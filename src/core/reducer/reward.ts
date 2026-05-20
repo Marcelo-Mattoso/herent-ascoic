@@ -46,6 +46,27 @@ export function handleGrantRewards(state: GameState): GameState {
 	// XP da sala é concedido imediatamente
 	next = { ...next, groupXp: next.groupXp + summary.xp };
 
+	// Em modo competitivo, distribuir XP individualmente para heróis ativos
+	if (next.mode === "competitive" && summary.xp > 0) {
+		const activeHeroIds = new Set(
+			(next.combat?.pairs ?? []).map((p) => p.heroId),
+		);
+		const recipients = next.heroes.filter(
+			(h) => activeHeroIds.has(h.id) || activeHeroIds.size === 0,
+		);
+		const share = Math.floor(summary.xp / Math.max(1, recipients.length));
+		if (share > 0) {
+			next = {
+				...next,
+				heroes: next.heroes.map((h) =>
+					recipients.some((r) => r.id === h.id)
+						? { ...h, xp: h.xp + share }
+						: h,
+				),
+			};
+		}
+	}
+
 	const queue: PendingReward[] = [];
 
 	// Enfileirar itens

@@ -1,5 +1,5 @@
 import { useState } from "react";
-import type { Difficulty } from "@/core/state/gameState";
+import type { Difficulty, GameMode } from "@/core/state/gameState";
 import { getBoss, getHeroes } from "@/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -41,6 +41,7 @@ interface SetupProps {
 export function Setup({ onBack }: SetupProps) {
 	const dispatch = useGameStore((s) => s.dispatch);
 	const [difficulty, setDifficulty] = useState<Difficulty>("normal");
+	const [mode, setMode] = useState<GameMode>("cooperative");
 	const [selectedHeroes, setSelectedHeroes] = useState<string[]>([]);
 
 	const heroes = getHeroes();
@@ -54,9 +55,10 @@ export function Setup({ onBack }: SetupProps) {
 
 	function startGame() {
 		if (selectedHeroes.length === 0) return;
+		if (mode === "competitive" && selectedHeroes.length < 2) return;
 		dispatch({
 			type: "START_GAME",
-			payload: { heroCardNames: selectedHeroes, difficulty },
+			payload: { heroCardNames: selectedHeroes, difficulty, mode },
 		});
 	}
 
@@ -80,13 +82,42 @@ export function Setup({ onBack }: SetupProps) {
 							Configurar exploração
 						</h1>
 						<p className="text-sm" style={{ color: UI.textSecondary }}>
-							Modo Solo ·{" "}
+							{mode === "competitive" ? "Competitivo" : "Cooperativo"} ·{" "}
 							{selectedHeroes.length === 0
-								? "Selecione 1 a 8 heróis"
-								: `${selectedHeroes.length} de 8 herói(s) selecionado(s)`}
+								? mode === "competitive" ? "Selecione 2 a 8 heróis" : "Selecione 1 a 8 heróis"
+								: `${selectedHeroes.length} herói(s) selecionado(s)`}
 						</p>
 					</div>
 				</div>
+
+				{/* Modo */}
+				<section className="mb-6">
+					<p className="text-sm font-medium mb-2" style={{ color: UI.textSecondary }}>
+						Modo de jogo
+					</p>
+					<div className="flex gap-2">
+						{(["cooperative", "competitive"] as GameMode[]).map((m) => (
+							<button
+								key={m}
+								type="button"
+								onClick={() => setMode(m)}
+								className="px-3 py-1.5 rounded-lg text-sm transition-all"
+								style={{
+									background: mode === m ? UI.info.bg : UI.subpanelBg,
+									color: mode === m ? UI.info.text : UI.textSecondary,
+									border: `1px solid ${mode === m ? "#B3D4F0" : UI.border}`,
+								}}
+							>
+								{m === "cooperative" ? "Cooperativo" : "Competitivo"}
+							</button>
+						))}
+					</div>
+					<p className="text-xs mt-1.5" style={{ color: UI.textTertiary }}>
+						{mode === "competitive"
+							? "Cada jogador controla 1 herói. Vence quem derrotar o chefe."
+							: "Todos os jogadores colaboram para derrotar o chefe."}
+					</p>
+				</section>
 
 				{/* Dificuldade */}
 				<section className="mb-6">
@@ -204,7 +235,10 @@ export function Setup({ onBack }: SetupProps) {
 						label="Iniciar partida"
 						variant="primary"
 						onClick={startGame}
-						disabled={selectedHeroes.length === 0}
+						disabled={
+							selectedHeroes.length === 0 ||
+							(mode === "competitive" && selectedHeroes.length < 2)
+						}
 					/>
 				</div>
 			</div>

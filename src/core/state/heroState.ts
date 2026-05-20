@@ -26,4 +26,8 @@ export interface HeroState {
 	status: HeroStatus;
 	// Bloqueia cura deste herói enquanto ativo (ex: Fumaça da Fornalha)
 	healBlocked?: boolean;
+	// Índice do jogador que controla este herói (0-based; em cooperativo todos são 0)
+	readonly playerIndex: number;
+	// XP individual acumulado por este herói (relevante no modo competitivo)
+	xp: number;
 }

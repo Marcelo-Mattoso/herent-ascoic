@@ -33,13 +33,14 @@ export function handleStartGame(
 	const heroColorIndex = Math.min(4, preset.heroOffset) as ColorIndex;
 	const despertarIndex = Math.min(4, preset.despertarOffset) as ColorIndex;
 
-	// Criar estados de herói
+	// Criar estados de herói (em competitivo cada herói tem playerIndex único)
 	const heroes = heroNames.map((name, idx) => {
 		const card = getCardByName(name);
 		if (!card || card.type !== "hero") {
 			throw new Error(`Carta de herói não encontrada: ${name}`);
 		}
-		return createHeroFromCard(card, heroColorIndex, idx);
+		const playerIdx = (payload.mode ?? "cooperative") === "competitive" ? idx : 0;
+		return createHeroFromCard(card, heroColorIndex, playerIdx);
 	});
 
 	const bossName = payload.bossCardName ?? selectBoss();
@@ -49,9 +50,12 @@ export function handleStartGame(
 	const itemNames = getItems().map((c) => c.name);
 	const artifactNames = getArtifacts().map((c) => c.name);
 
+	const mode = payload.mode ?? "cooperative";
+
 	const next: GameState = {
 		...state,
 		difficulty,
+		mode,
 		status: "REVEAL_ROOM",
 		groupXp: 0,
 		despertar: despertarIndex,

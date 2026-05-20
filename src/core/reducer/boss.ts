@@ -127,8 +127,15 @@ function checkBossEnd(state: GameState): GameState {
 	const heroDefeated = state.heroes.every((h) => h.status !== "active");
 
 	if (boss?.status === "defeated" || (boss && boss.currentLife <= 0)) {
+		// Em modo competitivo, o vencedor é o herói ativo com mais XP individual
+		const winner =
+			state.mode === "competitive"
+				? state.heroes
+						.filter((h) => h.status === "active")
+						.sort((a, b) => b.xp - a.xp)[0]?.cardName
+				: undefined;
 		return log(
-			{ ...state, status: "VICTORY", bossDefeated: true },
+			{ ...state, status: "VICTORY", bossDefeated: true, winner },
 			"Boss derrotado! Vitória!",
 		);
 	}
