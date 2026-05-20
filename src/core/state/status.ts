@@ -29,6 +29,8 @@ export type GameStatus =
 	| "CHECK_BOSS_CONDITION"
 	// Deck esgotado — aguarda jogador pagar 5 XP ou aceitar derrota
 	| "DUNGEON_EXHAUSTED"
+	// Todos os heróis fugiram — aguarda decisão de reiniciar a masmorra
+	| "DUNGEON_RESTART_PROMPT"
 	// Boss
 	| "BOSS_REVEAL"
 	| "BOSS_COMBAT"

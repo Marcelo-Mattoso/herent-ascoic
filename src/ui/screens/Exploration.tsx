@@ -11,6 +11,7 @@ import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
 import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
+import { FleeReconfigureModal } from "@/ui/components/modals/FleeReconfigureModal";
 import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
 import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
@@ -30,6 +31,7 @@ type ModalType =
 	| "xp_spend"
 	| "open_paths"
 	| "dungeon_exhausted"
+	| "flee_restart"
 	| "card_detail"
 	| null;
 
@@ -52,6 +54,7 @@ export function Exploration() {
 		if (status === "XP_SPEND_PHASE") return "xp_spend";
 		if (status === "CHOOSE_PATH") return "open_paths";
 		if (status === "DUNGEON_EXHAUSTED") return "dungeon_exhausted";
+		if (status === "DUNGEON_RESTART_PROMPT") return "flee_restart";
 		return null;
 	})();
 
@@ -160,6 +163,12 @@ export function Exploration() {
 		dispatch({ type: "USE_POWER", payload: { heroId } });
 	}
 
+	function handleFlee() {
+		const heroId = combat?.selectedHeroId ?? focusedHero?.id;
+		if (!heroId) return;
+		dispatch({ type: "DECLARE_FLEE", payload: { heroId } });
+	}
+
 	function handleUseSkill(skillId: string, sourceId: string) {
 		// Por ora auto-alvo: o herói usa a habilidade em si mesmo.
 		// Habilidades que exigem seleção de alvo serão tratadas numa camada de targeting futura.
@@ -241,6 +250,7 @@ export function Exploration() {
 					onPass={handlePass}
 					onCancelSelection={handleCancelSelection}
 					onPower={handleUsePower}
+					onFlee={handleFlee}
 					onUseSkill={handleUseSkill}
 					onCardDetail={openCardDetail}
 					onItemDetail={(itemName, heroId) =>
@@ -253,6 +263,7 @@ export function Exploration() {
 			{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
 			{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
 			{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
+			{modal === "flee_restart" && <FleeReconfigureModal />}
 			{state.pendingSkillChoice && <SkillChoiceModal />}
 			{modal === "card_detail" && detailCard && (
 				<CardDetailModal

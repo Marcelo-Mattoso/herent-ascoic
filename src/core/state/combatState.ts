@@ -63,6 +63,8 @@ export interface CombatState {
 	prey: string | null;
 	// Token do Necromante (Eco): 0 = sem eco, 1 = eco disponível
 	readonly ecoTokens: Readonly<Record<string, number>>;
+	// Herói declarou tentativa de fuga — o próximo confronto resolve a fuga
+	readonly fleeAttemptByHero: Readonly<Record<string, boolean>>;
 	// Penalidade de acerto por herói (ex: Calor Escaldante, Corpo Gelatinoso)
 	readonly tohitPenaltyByHero: Readonly<Record<string, number>>;
 	// Inimigo ignora 1º efeito de item (Evasão das Fendas)
@@ -95,6 +97,7 @@ export function createEmptyCombatState(): CombatState {
 		damageReduction: {},
 		prey: null,
 		ecoTokens: {},
+		fleeAttemptByHero: {},
 		tohitPenaltyByHero: {},
 		itemControlByEnemy: {},
 		targetProtectionByHero: {},

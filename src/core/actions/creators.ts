@@ -82,3 +82,13 @@ export const skillChoice = (skillId: string, choice: string): Action => ({
 	type: "SKILL_CHOICE",
 	payload: { skillId, choice },
 });
+
+export const declareFlee = (heroId: string): Action => ({
+	type: "DECLARE_FLEE",
+	payload: { heroId },
+});
+
+export const restartDungeon = (keepEquipment: boolean): Action => ({
+	type: "RESTART_DUNGEON",
+	payload: { keepEquipment },
+});

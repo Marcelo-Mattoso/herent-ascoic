@@ -14,6 +14,7 @@ import {
 	handleChooseHero,
 	handleChooseHeroForRound,
 	handleChooseTarget,
+	handleDeclareFlee,
 	handleDirectDamage,
 	handlePassHeroAction,
 	handleResolveAttack,
@@ -27,6 +28,7 @@ import {
 	handleChoosePath,
 	handleDiscardPaths,
 	handleOpenPaths,
+	handleRestartDungeon,
 	handleResolveRoomEffect,
 	handleRevealRoom,
 	handleSpawnEnemies,
@@ -224,6 +226,12 @@ export function reducer(state: GameState, action: Action): GameState {
 
 		case "START_BOSS_COMBAT":
 			return { ...state, status: "BOSS_COMBAT" };
+
+		case "DECLARE_FLEE":
+			return handleDeclareFlee(state, action.payload.heroId);
+
+		case "RESTART_DUNGEON":
+			return handleRestartDungeon(state, action.payload.keepEquipment);
 
 		case "VICTORY":
 			return { ...state, status: "VICTORY", bossDefeated: true };

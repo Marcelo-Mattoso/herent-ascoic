@@ -22,6 +22,7 @@ interface HeroFocusPanelProps {
 	onPass: () => void;
 	onCancelSelection: () => void;
 	onPower: () => void;
+	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	onItemDetail: (itemName: string, heroId: string) => void;
@@ -34,6 +35,7 @@ export function HeroFocusPanel({
 	onPass,
 	onCancelSelection,
 	onPower,
+	onFlee,
 	onUseSkill,
 	onCardDetail,
 	onItemDetail,
@@ -302,6 +304,7 @@ export function HeroFocusPanel({
 						onPass={onPass}
 						onCancelSelection={onCancelSelection}
 						onPower={onPower}
+						onFlee={onFlee}
 						onUseSkill={onUseSkill}
 					/>
 				</div>
@@ -338,6 +341,7 @@ function ActionSection({
 	onPass,
 	onCancelSelection,
 	onPower,
+	onFlee,
 	onUseSkill,
 }: {
 	state: GameState;
@@ -352,6 +356,7 @@ function ActionSection({
 	onPass: () => void;
 	onCancelSelection: () => void;
 	onPower: () => void;
+	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
 }) {
 	// Verificar se a skill do herói tem trigger on_use e pode ser ativada agora
@@ -372,6 +377,8 @@ function ActionSection({
 		const canPass = isSelectingTarget && isFocusedHeroSelected;
 		const canCancel = isSelectingTarget && isFocusedHeroSelected;
 		const canPower = isSelectingTarget && isFocusedHeroSelected && !powerUsed;
+		const canFlee = isInCombat && hero.currentLife === 1 && !state.flags?.fleeBlocked;
+		const fleeAlreadyDeclared = !!(state.combat?.fleeAttemptByHero?.[hero.id]);
 
 		// hint durante selecting_hero
 		if (isSelectingHero) {
@@ -385,7 +392,7 @@ function ActionSection({
 					<p style={{ color: UI.textTertiary, fontSize: 11, marginBottom: 6 }}>
 						{hint}
 					</p>
-					<div style={{ display: "flex", gap: 6 }}>
+					<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 						<ActionButton
 							label="Atacar (arraste)"
 							icon="⚔"
@@ -413,6 +420,13 @@ function ActionSection({
 							variant="secondary"
 							disabled
 							onClick={onPass}
+						/>
+						<ActionButton
+							label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
+							icon="🏃"
+							variant="danger"
+							disabled={!canFlee || fleeAlreadyDeclared}
+							onClick={onFlee}
 						/>
 					</div>
 				</div>
@@ -457,6 +471,13 @@ function ActionSection({
 					variant="secondary"
 					disabled={!canPass}
 					onClick={onPass}
+				/>
+				<ActionButton
+					label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
+					icon="🏃"
+					variant="danger"
+					disabled={!canFlee || fleeAlreadyDeclared}
+					onClick={onFlee}
 				/>
 				{canCancel && (
 					<ActionButton

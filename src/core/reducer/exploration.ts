@@ -1,6 +1,6 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
-import { getCardByName } from "../../data/cards";
+import { getArtifacts, getCardByName, getCreatures, getItems, getRooms } from "../../data/cards";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
 import { checkBossCondition } from "../rules/conditions";
 import { fireTrigger } from "../skills/dispatch";
@@ -224,6 +224,53 @@ export function discardFromDungeonDeck(state: GameState, n: number): GameState {
 
 // Re-exporta log para uso em handlers que importam este módulo.
 export { log } from "./utils";
+
+export function handleRestartDungeon(
+	state: GameState,
+	keepEquipment: boolean,
+): GameState {
+	const roomNames = getRooms().map((c) => c.name);
+	const creatureNames = getCreatures().map((c) => c.name);
+	const itemNames = getItems().map((c) => c.name);
+	const artifactNames = getArtifacts().map((c) => c.name);
+
+	// Restaurar heróis fugidos com vida máxima (opcionalmente mantendo equipamentos)
+	const restoredHeroes = state.fledHeroes.map((h) => ({
+		...h,
+		status: "active" as const,
+		currentLife: h.maxLife,
+		healBlocked: undefined,
+		activeItems: keepEquipment ? h.activeItems : {},
+		backpack: keepEquipment ? h.backpack : [],
+	}));
+
+	return log(
+		{
+			...state,
+			status: "REVEAL_ROOM",
+			heroes: restoredHeroes,
+			defeatedHeroes: [],
+			fledHeroes: [],
+			activeEnemies: [],
+			enemyGraveyard: [],
+			currentRoom: null,
+			paths: [],
+			roomsCleared: 0,
+			creaturesDefeated: 0,
+			combat: createEmptyCombatState(),
+			pendingRewards: [],
+			flags: {},
+			oncePer: { game: state.oncePer.game },
+			decks: {
+				dungeonDeck: { available: shuffle(roomNames), discarded: [], removed: [] },
+				enemyDeck: { available: shuffle(creatureNames), discarded: [], removed: [] },
+				itemDeck: { available: keepEquipment ? shuffle(itemNames) : shuffle(itemNames), discarded: [], removed: [] },
+				artifactDeck: { available: shuffle(artifactNames), discarded: [], removed: [] },
+			},
+		},
+		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,
+	);
+}
 
 export function handleDungeonExhaustedSpend(state: GameState): GameState {
 	// Chamado via SPEND_XP com option "recover_dungeon" quando status é DUNGEON_EXHAUSTED

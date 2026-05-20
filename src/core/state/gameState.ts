@@ -41,6 +41,7 @@ export interface GameState {
 	// Heróis
 	readonly heroes: readonly HeroState[];
 	readonly defeatedHeroes: readonly HeroState[];
+	readonly fledHeroes: readonly HeroState[];
 
 	// Sala atual e inimigos
 	currentRoom: RoomState | null;
@@ -117,6 +118,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 
 		heroes: [],
 		defeatedHeroes: [],
+		fledHeroes: [],
 
 		currentRoom: null,
 		activeEnemies: [],

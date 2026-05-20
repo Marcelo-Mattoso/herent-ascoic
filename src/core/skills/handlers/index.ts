@@ -14,6 +14,7 @@ import { handleDiscardDungeonLock } from "./discardDungeonLock";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDungeon } from "./dungeon";
 import { handleDungeonLevel } from "./dungeonLevel";
+import { handleFleeBlock } from "./flee_block";
 import { handleItemControl } from "./itemControl";
 import { handleItemOrDiscardDungeon } from "./item_or_discardDungeon";
 import { handleTargetProtection } from "./targetProtection";
@@ -68,9 +69,12 @@ register("itemControl", handleItemControl);
 register("targetProtection", handleTargetProtection);
 register("dungeon", handleDungeon);
 
+// Fuga (Onda C — patch-8 fase 3)
+register("flee_block", handleFleeBlock);
+
 // Tipos não implementados (noop com log)
 const noopTypes = [
-	"reroll", "drawItem", "recover_item", "flee_block",
+	"reroll", "drawItem", "recover_item",
 	"targetRedirect_or_tohit",
 	"purple_damage_reduction",
 ];

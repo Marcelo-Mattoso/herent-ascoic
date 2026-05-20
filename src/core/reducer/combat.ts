@@ -14,7 +14,7 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
-import { log, mapEnemy, mapHero } from "./utils";
+import { log, mapEnemy, mapHero, shuffle } from "./utils";
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
 
@@ -27,6 +27,34 @@ export function handleStartCombat(state: GameState): GameState {
 	next = fireTrigger(next, "start_of_combat", { triggeredBy: "start_of_combat" });
 	next = fireTrigger(next, "on_enter_combat", { triggeredBy: "on_enter_combat" });
 	return log(next, "Combate iniciado.");
+}
+
+// ─── DECLARE_FLEE ────────────────────────────────────────────────────────────
+
+export function handleDeclareFlee(state: GameState, heroId: string): GameState {
+	if (!state.combat) {
+		return log(state, "[AVISO] Fuga só possível durante combate.");
+	}
+	if (state.flags?.fleeBlocked) {
+		return log(state, "[AVISO] Fuga bloqueada nesta sala.");
+	}
+	const hero = state.heroes.find((h) => h.id === heroId && h.status === "active");
+	if (!hero) {
+		return log(state, "[AVISO] Herói inválido ou inativo.");
+	}
+	if (hero.currentLife !== 1) {
+		return log(state, "[AVISO] Fuga só permitida com 1 de vida.");
+	}
+	return log(
+		{
+			...state,
+			combat: {
+				...state.combat,
+				fleeAttemptByHero: { ...state.combat.fleeAttemptByHero, [heroId]: true },
+			},
+		},
+		`${hero.cardName} declara fuga! O próximo confronto será uma tentativa de fuga.`,
+	);
 }
 
 // ─── CHOOSE_HERO_FOR_ROUND ────────────────────────────────────────────────────
@@ -212,7 +240,50 @@ export function handleResolveAttack(state: GameState): GameState {
 		enemy.damage,
 	);
 
+	const isFleeAttempt = !!(state.combat.fleeAttemptByHero?.[hero.id]);
 	let next = state;
+
+	// Limpar flag de fuga independente do resultado
+	if (isFleeAttempt && next.combat) {
+		next = {
+			...next,
+			combat: {
+				...next.combat,
+				fleeAttemptByHero: { ...next.combat.fleeAttemptByHero, [hero.id]: false },
+			},
+		};
+	}
+
+	// Fuga bem-sucedida: herói venceu o confronto de fuga
+	if (isFleeAttempt && result.enemyDamageTaken > 0) {
+		const fledHero: HeroState = { ...hero, status: "fled" };
+		next = {
+			...next,
+			heroes: next.heroes.filter((h) => h.id !== hero.id),
+			fledHeroes: [...next.fledHeroes, fledHero],
+		};
+		next = log(next, `${hero.cardName} fugiu do combate com sucesso!`);
+		// Registrar herói como tendo agido e checar heróis restantes
+		const updatedActed = [...(next.combat?.heroesActed ?? []), roll.heroId];
+		next = { ...next, combat: next.combat ? { ...next.combat, heroesActed: updatedActed } : null };
+		const activeHeroes = next.heroes.filter((h) => h.status === "active");
+		const pendingHeroes = activeHeroes.filter((h) => !updatedActed.includes(h.id));
+		if (pendingHeroes.length > 0) {
+			return log(
+				{
+					...next,
+					status: "HERO_ACTION" as const,
+					combat: next.combat ? { ...next.combat, phase: "selecting_hero" as const, selectedHeroId: null } : null,
+				},
+				`Aguardando ação de ${pendingHeroes.length} herói(s).`,
+			);
+		}
+		return {
+			...next,
+			status: "DIRECT_DAMAGE" as const,
+			combat: next.combat ? { ...next.combat, phase: "direct_damage" as const, selectedHeroId: null } : null,
+		};
+	}
 
 	// on_deal_damage: antes de aplicar dano ao inimigo
 	if (result.enemyDamageTaken > 0) {
@@ -388,25 +459,51 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 	const allEnemiesDone = state.activeEnemies.every(
 		(e) => e.status !== "active",
 	);
+	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+
+	// Todos os heróis fugiram enquanto há inimigos → reiniciar masmorra
+	if (activeHeroes.length === 0 && state.fledHeroes.length > 0 && !allEnemiesDone) {
+		return log(
+			{ ...state, status: "DUNGEON_RESTART_PROMPT" },
+			"Todos os heróis fugiram. Reiniciar masmorra?",
+		);
+	}
+
 	const heroDefeated = state.heroes.every((h) => h.status !== "active");
 
-	if (heroDefeated) {
+	if (heroDefeated && state.fledHeroes.length === 0) {
 		return log({ ...state, status: "DEFEAT" }, "Derrota: herói eliminado.");
 	}
 
 	if (allEnemiesDone) {
 		const defeated = state.activeEnemies.filter((e) => e.status === "defeated");
+		// Inimigos que fugiram voltam ao deck
+		const fled = state.activeEnemies.filter((e) => e.status === "fled");
+		let next = state;
+		if (fled.length > 0) {
+			const fleeNames = fled.map((e) => e.cardName);
+			next = {
+				...next,
+				decks: {
+					...next.decks,
+					enemyDeck: {
+						...next.decks.enemyDeck,
+						available: shuffle([...next.decks.enemyDeck.available, ...fleeNames]),
+					},
+				},
+			};
+		}
 		return log(
 			{
-				...state,
+				...next,
 				status: "REWARD_PHASE",
-				creaturesDefeated: state.creaturesDefeated + defeated.length,
-				enemyGraveyard: [...state.enemyGraveyard, ...state.activeEnemies],
+				creaturesDefeated: next.creaturesDefeated + defeated.length,
+				enemyGraveyard: [...next.enemyGraveyard, ...defeated],
 				activeEnemies: [],
-				combat: state.combat
+				combat: next.combat
 					? {
-							...state.combat,
-							round: state.combat.round + 1,
+							...next.combat,
+							round: next.combat.round + 1,
 							pairs: [],
 							heroesActed: [],
 						}

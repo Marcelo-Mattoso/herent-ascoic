@@ -100,4 +100,7 @@ export type Action =
 			};
 	  }
 	// ── Escolha de habilidade (Patch 8) ──────────────────────────────────────────
-	| { type: "SKILL_CHOICE"; payload: { skillId: string; choice: string } };
+	| { type: "SKILL_CHOICE"; payload: { skillId: string; choice: string } }
+	// ── Fuga (Patch 8 F3) ────────────────────────────────────────────────────────
+	| { type: "DECLARE_FLEE"; payload: { heroId: string } }
+	| { type: "RESTART_DUNGEON"; payload: { keepEquipment: boolean } };
