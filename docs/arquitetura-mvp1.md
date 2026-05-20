@@ -474,6 +474,52 @@ Tudo que está em "MVP 2/3/4" da jornada original fica fora.
 
 ---
 
+## 13. Engine de habilidades (Patch 7)
+
+### Catálogo
+
+`src/data/skills.json` (cópia de `docs/spec/v3/habilidades_1.json`) é a **fonte única de verdade** para todas as habilidades. Em divergência entre `cards.json` e `skills.json`, **o catálogo vence** — o engine executa o `type` do catálogo silenciosamente.
+
+### Tipos
+
+- `src/data/skillTypes.ts` — `SkillDefinition`, `SkillUsage`, `SkillCatalog`, `SkillContext`, `TriggerName`, `TargetSpec`.
+- `src/data/skills.ts` — exporta `SKILLS: SkillCatalog`.
+
+### Componentes do engine
+
+| Arquivo | Responsabilidade |
+|---|---|
+| `src/core/skills/registry.ts` | `register(type, handler)`, `getHandler(type)` |
+| `src/core/skills/lookup.ts` | `resolveSkillFor(card, field)` → `SkillDefinition` (memoizado) |
+| `src/core/skills/targeting.ts` | `resolveTarget(state, target, ctx)` → `TargetResolution` |
+| `src/core/skills/dispatch.ts` | `fireTrigger(state, trigger, ctx)` → state |
+| `src/core/skills/useSkill.ts` | `fireOnUseSkill(state, payload)` para habilidades ativas |
+| `src/core/skills/valueParsers.ts` | `parseNumber`, `parseSlashPair`, `parseSlashQuad`, `parseFullOr` |
+| `src/core/skills/handlers/` | Um arquivo por `type`, todos registrados em `index.ts` |
+
+### Dispatch
+
+`fireTrigger` coleta habilidades "em jogo" na seguinte ordem:
+1. Heróis ativos (skill + power)
+2. Itens equipados por heróis
+3. Inimigos ativos (effect + purpleEffect)
+4. Sala atual
+5. Artefatos do grupo
+
+Triggers compostos (`once_per_X_...`) são parseados por `parseTrigger()` — separa guard e base trigger. Guards são persistidos em `state.oncePer.game` e `state.combat.oncePer.{room,combat,round}`.
+
+### Pontos de dispatch no reducer
+
+`before_attack`, `after_roll`, `on_deal_damage`, `on_damage_taken`, `on_take_damage`, `on_take_attack_damage`, `on_destroy_creature_with_attack`, `start_of_combat`, `on_enter_combat`, `before_combat`, `on_room_reveal`, `on_enter_room`, `first_round_in_room`, `on_win_room`.
+
+### Handlers implementados (MVP1)
+
+`damage_bonus`, `heal`, `armor`, `dice_modification`, `discardDungeon_prevention`, `mark_and_tohit`, `recoverDungeon`, `tohit_damage`, `heal_or_survive`, `diceFix`, `damage_bonus_duration`, `heal_or_damage_bonus`, `token`, `diceFix_damage`, `direct_damage`, `tohit`, `prevent_damage`, `dungeonLevel`.
+
+Pendências: `docs/patch-7-pendencias.md`.
+
+---
+
 ## 12. Resumo executivo
 
 Stack: **Vite + React + TypeScript + Zustand + Tailwind + Vitest + Biome.**
