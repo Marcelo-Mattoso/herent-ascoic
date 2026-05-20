@@ -79,6 +79,9 @@ export interface GameState {
 	// Flags globais de mecânicas (ex: discardDungeonLocked)
 	readonly flags: Readonly<Record<string, boolean>>;
 
+	// Tokens persistentes fora do combate (chave: `${ownerId}::${type}`)
+	readonly tokens: Readonly<Record<string, { readonly count: number; readonly ownerId: string; readonly type: string }>>;
+
 	// Escolha pendente de skill aguardando input do jogador
 	pendingSkillChoice?: {
 		readonly skillId: string;
@@ -148,6 +151,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 		oncePer: { game: {} },
 
 		flags: {},
+
+		tokens: {},
 
 		eventLog: [],
 	};

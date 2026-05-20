@@ -132,15 +132,22 @@ export function handleChooseTarget(
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
 
+	// on_targeted: Capuz do Túnel pode redirecionar antes de fechar o par
+	const afterTrigger = fireTrigger(state, "on_targeted", {
+		triggeredBy: "on_targeted",
+		sourceHeroId: heroId,
+		sourceEnemyId: enemyId,
+	});
+
 	const pair = { heroId, enemyId };
 	return {
-		...state,
+		...afterTrigger,
 		status: "ROLL_DICE",
 		combat: {
-			...state.combat,
+			...afterTrigger.combat!,
 			phase: "resolving",
 			selectedHeroId: heroId,
-			pairs: [...state.combat.pairs, pair],
+			pairs: [...(afterTrigger.combat?.pairs ?? []), pair],
 		},
 	};
 }

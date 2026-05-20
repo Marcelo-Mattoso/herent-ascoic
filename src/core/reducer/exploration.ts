@@ -260,6 +260,7 @@ export function handleRestartDungeon(
 			combat: createEmptyCombatState(),
 			pendingRewards: [],
 			flags: {},
+			tokens: {},
 			oncePer: { game: state.oncePer.game },
 			decks: {
 				dungeonDeck: { available: shuffle(roomNames), discarded: [], removed: [] },

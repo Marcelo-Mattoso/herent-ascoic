@@ -12,6 +12,7 @@ import { handleDirectDamage } from "./direct_damage";
 import { handleDiscardDungeon } from "./discardDungeon";
 import { handleDiscardDungeonLock } from "./discardDungeonLock";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
+import { handleDrawItem } from "./drawItem";
 import { handleDungeon } from "./dungeon";
 import { handleDungeonLevel } from "./dungeonLevel";
 import { handleFleeBlock } from "./flee_block";
@@ -32,6 +33,7 @@ import { handleReward } from "./reward";
 import { handleTohit } from "./tohit";
 import { handleTohitDamage } from "./tohit_damage";
 import { handleTohitPenalty } from "./tohit_penalty";
+import { handleTargetRedirectOrTohit } from "./targetRedirect_or_tohit";
 import { handleToken } from "./token";
 
 // Heróis
@@ -80,10 +82,15 @@ register("splash_damage", handleSplashDamage);
 // Reroll interativo (patch-8 fase 8)
 register("reroll", handleReroll);
 
+// Redirecionamento de alvo (patch-8 fase 9)
+register("targetRedirect_or_tohit", handleTargetRedirectOrTohit);
+
+// DrawItem — Espólios da Fornalha (patch-8 fase 12)
+register("drawItem", handleDrawItem);
+
 // Tipos não implementados (noop com log)
 const noopTypes = [
-	"drawItem", "recover_item",
-	"targetRedirect_or_tohit",
+	"recover_item",
 	"purple_damage_reduction",
 ];
 for (const t of noopTypes) {
