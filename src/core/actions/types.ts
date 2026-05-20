@@ -88,4 +88,14 @@ export type Action =
 			type: "INV_SET_BEARER";
 			payload: { vagaIndex: number; heroId: string | null };
 	  }
-	| { type: "INV_DISCARD_MESA" };
+	| { type: "INV_DISCARD_MESA" }
+	// ── Engine de habilidades (Patch 7) ──────────────────────────────────────────
+	| {
+			type: "USE_SKILL";
+			payload: {
+				skillId: string;
+				sourceId: string;
+				targetIds?: string[];
+				value?: number | string | null;
+			};
+	  };

@@ -6,6 +6,7 @@ import type { CombatState } from "@/core/state/combatState";
 import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
 import { getCardByName } from "@/data/cards";
+import { resolveSkillFor } from "@/core/skills/lookup";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
@@ -21,6 +22,7 @@ interface HeroFocusPanelProps {
 	onPass: () => void;
 	onCancelSelection: () => void;
 	onPower: () => void;
+	onUseSkill?: (skillId: string, sourceId: string) => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	onItemDetail: (itemName: string, heroId: string) => void;
 }
@@ -32,6 +34,7 @@ export function HeroFocusPanel({
 	onPass,
 	onCancelSelection,
 	onPower,
+	onUseSkill,
 	onCardDetail,
 	onItemDetail,
 }: HeroFocusPanelProps) {
@@ -299,6 +302,7 @@ export function HeroFocusPanel({
 						onPass={onPass}
 						onCancelSelection={onCancelSelection}
 						onPower={onPower}
+						onUseSkill={onUseSkill}
 					/>
 				</div>
 			) : (
@@ -334,6 +338,7 @@ function ActionSection({
 	onPass,
 	onCancelSelection,
 	onPower,
+	onUseSkill,
 }: {
 	state: GameState;
 	hero: HeroState;
@@ -347,7 +352,16 @@ function ActionSection({
 	onPass: () => void;
 	onCancelSelection: () => void;
 	onPower: () => void;
+	onUseSkill?: (skillId: string, sourceId: string) => void;
 }) {
+	// Verificar se a skill do herói tem trigger on_use e pode ser ativada agora
+	const skillDef = resolveSkillFor(hero.cardName, "skill");
+	const skillIsActivatable =
+		skillDef !== null &&
+		(skillDef.trigger === "on_use" || skillDef.trigger.startsWith("once_per_"));
+	const skillAlreadyUsed =
+		skillDef !== null && !!state.combat?.oncePer?.room?.[`${skillDef.id}::${hero.id}`];
+
 	// Só mostra botões individuais durante combate
 	if (!isInCombat) return null;
 
@@ -421,6 +435,15 @@ function ActionSection({
 					disabled
 					onClick={() => {}}
 				/>
+				{skillIsActivatable && skillDef && (
+					<ActionButton
+						label="Usar habilidade"
+						icon="✨"
+						variant="secondary"
+						disabled={!isFocusedHeroSelected || skillAlreadyUsed}
+						onClick={() => onUseSkill?.(skillDef.id, hero.id)}
+					/>
+				)}
 				<ActionButton
 					label="Usar poder"
 					icon="⚡"

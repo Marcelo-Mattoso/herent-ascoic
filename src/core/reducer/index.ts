@@ -44,6 +44,8 @@ import {
 	handleOpenPathsFromXpPhase,
 	handleSpendXp,
 } from "./reward";
+import "../skills/handlers/index"; // registra todos os handlers no boot
+import { fireOnUseSkill } from "../skills/useSkill";
 import { handleStartGame } from "./setup";
 
 export function reducer(state: GameState, action: Action): GameState {
@@ -174,6 +176,9 @@ export function reducer(state: GameState, action: Action): GameState {
 
 		case "INV_DISCARD_MESA":
 			return handleInvDescartarMesa(state);
+
+		case "USE_SKILL":
+			return fireOnUseSkill(state, action.payload);
 
 		case "DUNGEON_EXHAUSTED":
 			return { ...state, status: "DUNGEON_EXHAUSTED" };
