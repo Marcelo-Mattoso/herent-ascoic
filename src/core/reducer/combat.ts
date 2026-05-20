@@ -7,6 +7,8 @@ import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDice } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import { fireTrigger } from "../skills/dispatch";
+import { resolveSkillFor } from "../skills/lookup";
+import { fireOnUseSkill } from "../skills/useSkill";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
@@ -120,22 +122,12 @@ export function handleChooseTarget(
 function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
 
-	// Adaga Enferrujada: +1 no total
-	if (hero.activeItems.weapon === "Adaga Enferrujada") {
-		bonuses.push({ source: "Adaga Enferrujada", value: 1 });
+	// Bônus de dano acumulado via engine de habilidades (ex: Fúria Rubra, Juramento)
+	const skillBonus = state.combat?.bonusNextAttack?.[hero.id] ?? 0;
+	if (skillBonus > 0) {
+		bonuses.push({ source: "habilidade", value: skillBonus });
 	}
-	// Bárbaro Rubro: +3 quando em metade da vida ou menos
-	if (
-		hero.cardName === "Bárbaro Rubro" &&
-		hero.currentLife <= Math.floor(hero.maxLife / 2)
-	) {
-		bonuses.push({ source: "Bárbaro Rubro — habilidade", value: 3 });
-	}
-	// Dados extras do poder do Bárbaro
-	const extraDice = state.combat?.extraDice[hero.id] ?? 0;
-	if (extraDice > 0) {
-		bonuses.push({ source: "Bárbaro Rubro — poder", value: 0 }); // valor 0: dado extra é contado abaixo
-	}
+
 	return bonuses;
 }
 
@@ -227,15 +219,7 @@ export function handleResolveAttack(state: GameState): GameState {
 	}
 
 	if (result.enemyDamageTaken > 0) {
-		let dmg = result.enemyDamageTaken;
-		// Adaga: +1 dano se vencer por 4 ou mais
-		if (
-			hero.activeItems.weapon === "Adaga Enferrujada" &&
-			roll.heroTotal - roll.enemyTotal >= 4
-		) {
-			dmg += 1;
-			next = log(next, "Adaga Enferrujada: +1 dano bônus.");
-		}
+		const dmg = result.enemyDamageTaken;
 		next = mapEnemy(next, enemy.id, (e) => ({
 			...e,
 			currentLife: Math.max(0, e.currentLife - dmg),
@@ -281,12 +265,15 @@ export function handleResolveAttack(state: GameState): GameState {
 		const hasShield =
 			hero.activeItems.weapon === "Escudo Rachado" ||
 			hero.activeItems.armor === "Escudo Rachado";
-		const shieldUsed = state.combat.shieldsUsedThisCombat[hero.id] ?? false;
-		const dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
+		const shieldUsed = next.combat?.shieldsUsedThisCombat[hero.id] ?? false;
+		// Redução via engine de habilidades (ex: Guarda Inquebrável do Guerreiro)
+		const engineReduction = next.combat?.damageReduction?.[hero.id] ?? 0;
+		let dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
+		dmg = Math.max(0, dmg - engineReduction);
 		const newShields =
 			hasShield && !shieldUsed
-				? { ...state.combat.shieldsUsedThisCombat, [hero.id]: true }
-				: state.combat.shieldsUsedThisCombat;
+				? { ...next.combat!.shieldsUsedThisCombat, [hero.id]: true }
+				: next.combat!.shieldsUsedThisCombat;
 
 		next = mapHero(next, hero.id, (h) => ({
 			...h,
@@ -460,25 +447,24 @@ export function handleUseItem(
 	heroId: string,
 	targetHeroId?: string,
 ): GameState {
-	switch (itemName) {
-		case "Poção de Vigor Menor": {
-			const targetId = targetHeroId ?? heroId;
-			const target = state.heroes.find((h) => h.id === targetId);
-			if (!target) return state;
-			const healed = Math.min(target.maxLife, target.currentLife + 2);
-			const next = mapHero(state, targetId, (h) => ({
-				...h,
-				currentLife: healed,
-				backpack: h.backpack.filter((i) => i !== "Poção de Vigor Menor"),
-			}));
-			return log(
-				next,
-				`${target.cardName} curou 2 de vida com Poção de Vigor Menor.`,
-			);
-		}
-		default:
-			return log(state, `[TODO] Efeito de item não implementado: ${itemName}`);
+	// Resolve a skill do item via catálogo
+	const skillDef = resolveSkillFor(itemName, "effect");
+	if (!skillDef) {
+		return log(state, `[TODO] Efeito de item não catalogado: ${itemName}`);
 	}
+
+	// Consumir o item da mochila antes de executar o efeito
+	const withItemRemoved: GameState = mapHero(state, heroId, (h) => ({
+		...h,
+		backpack: h.backpack.filter((i) => i !== itemName),
+	}));
+
+	const targetIds = targetHeroId ? [targetHeroId] : [heroId];
+	return fireOnUseSkill(withItemRemoved, {
+		skillId: skillDef.id,
+		sourceId: heroId,
+		targetIds,
+	});
 }
 
 // ─── USE_POWER ────────────────────────────────────────────────────────────────
@@ -487,31 +473,25 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 	const hero = state.heroes.find((h) => h.id === heroId);
 	if (!hero || !state.combat) return state;
 
-	switch (hero.cardName) {
-		case "Bárbaro Rubro": {
-			if (state.combat.powersUsedThisRoom[heroId]) {
-				return log(state, "Poder do Bárbaro Rubro já foi usado nesta sala.");
-			}
-			const nextCombat = {
-				...state.combat,
-				extraDice: {
-					...state.combat.extraDice,
-					[heroId]: (state.combat.extraDice[heroId] ?? 0) + 1,
-				},
-				powersUsedThisRoom: {
-					...state.combat.powersUsedThisRoom,
-					[heroId]: true,
-				},
-			};
-			const next = mapHero({ ...state, combat: nextCombat }, heroId, (h) => ({
-				...h,
-				currentLife: Math.max(0, h.currentLife - 1),
-			}));
-			return log(next, "Bárbaro Rubro: -1 vida, +1 dado extra neste combate.");
-		}
-		default:
-			return log(state, `[TODO] Poder não implementado para: ${hero.cardName}`);
+	if (state.combat.powersUsedThisRoom[heroId]) {
+		return log(state, `Poder de ${hero.cardName} já foi usado nesta sala.`);
 	}
+
+	const powerDef = resolveSkillFor(hero.cardName, "power");
+	if (!powerDef) {
+		return log(state, `[TODO] Poder não catalogado para: ${hero.cardName}`);
+	}
+
+	// Marcar como usado nesta sala
+	const withMark: GameState = {
+		...state,
+		combat: {
+			...state.combat,
+			powersUsedThisRoom: { ...state.combat.powersUsedThisRoom, [heroId]: true },
+		},
+	};
+
+	return fireOnUseSkill(withMark, { skillId: powerDef.id, sourceId: heroId });
 }
 
 // ─── CANCEL_HERO_SELECTION ───────────────────────────────────────────────────
