@@ -55,6 +55,14 @@ export interface CombatState {
 	// Controle Azhakar: primeiro dano do turno já sofreu redução de Trono Vivo
 	bossFirstDamageReduced: boolean;
 	readonly temporaryEffects: readonly TemporaryEffect[];
+	// Bônus de dano para o próximo ataque de cada herói (consumido após uso)
+	readonly bonusNextAttack: Readonly<Record<string, number>>;
+	// Redução de dano recebido ativa por herói (ex: Guerreiro power até fim da rodada)
+	readonly damageReduction: Readonly<Record<string, number>>;
+	// Presa do Caçador: id do inimigo marcado como alvo preferencial
+	prey: string | null;
+	// Token do Necromante (Eco): 0 = sem eco, 1 = eco disponível
+	readonly ecoTokens: Readonly<Record<string, number>>;
 	// Flags de uso por escopo (guards once_per_*)
 	readonly oncePer: {
 		readonly room: Readonly<Record<string, boolean>>;
@@ -77,5 +85,9 @@ export function createEmptyCombatState(): CombatState {
 		bossFirstDamageReduced: false,
 		temporaryEffects: [],
 		oncePer: { room: {}, combat: {}, round: {} },
+		bonusNextAttack: {},
+		damageReduction: {},
+		prey: null,
+		ecoTokens: {},
 	};
 }
