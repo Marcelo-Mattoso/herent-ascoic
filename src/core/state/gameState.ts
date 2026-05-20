@@ -70,6 +70,11 @@ export interface GameState {
 	// Fila de recompensas aguardando resolução (itens e artefatos pendentes)
 	readonly pendingRewards: readonly PendingReward[];
 
+	// Flags de uso por escopo "once_per_game" (key = skillId ou "skillId::heroId")
+	readonly oncePer: {
+		readonly game: Readonly<Record<string, boolean>>;
+	};
+
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
 }
@@ -126,6 +131,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 		combat: createEmptyCombatState(),
 
 		pendingRewards: [],
+
+		oncePer: { game: {} },
 
 		eventLog: [],
 	};

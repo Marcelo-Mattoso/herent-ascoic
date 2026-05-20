@@ -55,6 +55,12 @@ export interface CombatState {
 	// Controle Azhakar: primeiro dano do turno já sofreu redução de Trono Vivo
 	bossFirstDamageReduced: boolean;
 	readonly temporaryEffects: readonly TemporaryEffect[];
+	// Flags de uso por escopo (guards once_per_*)
+	readonly oncePer: {
+		readonly room: Readonly<Record<string, boolean>>;
+		readonly combat: Readonly<Record<string, boolean>>;
+		readonly round: Readonly<Record<string, boolean>>;
+	};
 }
 
 export function createEmptyCombatState(): CombatState {
@@ -70,5 +76,6 @@ export function createEmptyCombatState(): CombatState {
 		extraDice: {},
 		bossFirstDamageReduced: false,
 		temporaryEffects: [],
+		oncePer: { room: {}, combat: {}, round: {} },
 	};
 }
