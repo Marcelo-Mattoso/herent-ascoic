@@ -91,7 +91,7 @@ interface SlotProps {
 
 function Slot({
 	label,
-	title,
+	title: _title,
 	amber,
 	color,
 	filled,
@@ -203,7 +203,7 @@ function HeroColumn({
 	onDragEnd,
 	onShowTooltip,
 	onHideTooltip,
-	onUseItem,
+	onUseItem: _onUseItem,
 }: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;

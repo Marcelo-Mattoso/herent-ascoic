@@ -175,6 +175,12 @@ src/
 
 **Regra:** nada em `ui/` importa de outro lugar que não seja `core/` ou `data/`. Nada em `core/` importa de `ui/` ou `data/`. Nada em `data/` importa de `core/` ou `ui/`.
 
+### Fonte de verdade dos dados de cartas (patch-6, spec v3)
+
+- Os dados de cartas seguem `docs/spec/v3`. O runtime lê de `src/data/cards.json` (espelhado em `docs/dungeon-1.json`).
+- `docs/habilidades.json` é catálogo editorial (schema com `textTemplate`/`labelTemplate`/{value}). Não é importado em `src/` — serve de referência até que habilidades passem a ser executadas por engine baseada em `type`+`trigger`.
+- Em caso de divergência de `type` entre `dungeon-1.json` e `habilidades.json`, a dungeon vence (é a fonte de verdade para o runtime).
+
 ---
 
 ## 5. Regras de jogo consolidadas (o que o código precisa saber)

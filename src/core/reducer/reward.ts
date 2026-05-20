@@ -64,8 +64,8 @@ export function handleGrantRewards(state: GameState): GameState {
 		const artCard = getCardByName(artName as string);
 		const requiresBearer =
 			artCard?.type === "artifact" &&
-			typeof artCard.effect === "string" &&
-			artCard.effect.toLowerCase().includes("portador");
+			(artCard.effect.label.toLowerCase().includes("portador") ||
+				artCard.effect.text.toLowerCase().includes("portador"));
 		queue.push({
 			type: "artifact",
 			cardName: artName as string,
@@ -455,14 +455,11 @@ export function handleInvAssignItem(
 					: card.itemClass === "utility"
 						? "utility"
 						: "special";
-			next = mapHero(next, heroId, (h) => {
-				const displaced = h.activeItems[slot];
-				return {
-					...h,
-					activeItems: { ...h.activeItems, [slot]: itemName },
-					backpack: h.backpack,
-				};
-			});
+			next = mapHero(next, heroId, (h) => ({
+				...h,
+				activeItems: { ...h.activeItems, [slot]: itemName },
+				backpack: h.backpack,
+			}));
 			// Se o slot estava ocupado, item deslocado volta para a mesa
 			const hero = state.heroes.find((h) => h.id === heroId);
 			const displaced = hero?.activeItems[
@@ -503,7 +500,7 @@ export function handleInvAssignItem(
 export function handleInvAssignArtifact(
 	state: GameState,
 	artifactName: string,
-	vagaIndex: 0 | 1,
+	_vagaIndex: 0 | 1,
 	heroId: string | null,
 ): GameState {
 	const reward = state.pendingRewards.find(
