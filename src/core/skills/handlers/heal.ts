@@ -27,6 +27,10 @@ export function handleHeal(
 	for (const heroId of targets) {
 		const hero = next.heroes.find((h) => h.id === heroId);
 		if (!hero || hero.status !== "active") continue;
+		if (hero.healBlocked) {
+			next = log(next, `${hero.cardName}: cura bloqueada (Fumaça da Fornalha).`);
+			continue;
+		}
 		const healed = Math.min(hero.maxLife, hero.currentLife + amount);
 		next = mapHero(next, heroId, (h) => ({ ...h, currentLife: healed }));
 		next = log(next, `${hero.cardName} recuperou ${healed - hero.currentLife} de vida.`);

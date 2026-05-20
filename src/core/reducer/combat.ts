@@ -128,6 +128,12 @@ function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 		bonuses.push({ source: "habilidade", value: skillBonus });
 	}
 
+	// Penalidade de acerto (ex: Calor Escaldante, Corpo Gelatinoso)
+	const penalty = state.combat?.tohitPenaltyByHero?.[hero.id] ?? 0;
+	if (penalty > 0) {
+		bonuses.push({ source: "penalidade", value: -penalty });
+	}
+
 	return bonuses;
 }
 

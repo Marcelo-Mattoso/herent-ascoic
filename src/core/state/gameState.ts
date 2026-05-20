@@ -75,6 +75,9 @@ export interface GameState {
 		readonly game: Readonly<Record<string, boolean>>;
 	};
 
+	// Flags globais de mecânicas (ex: discardDungeonLocked)
+	readonly flags: Readonly<Record<string, boolean>>;
+
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
 }
@@ -133,6 +136,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 		pendingRewards: [],
 
 		oncePer: { game: {} },
+
+		flags: {},
 
 		eventLog: [],
 	};

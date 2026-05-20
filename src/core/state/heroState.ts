@@ -24,4 +24,6 @@ export interface HeroState {
 	readonly usedPowers: Readonly<Record<string, boolean>>;
 	readonly conditions: readonly string[];
 	status: HeroStatus;
+	// Bloqueia cura deste herói enquanto ativo (ex: Fumaça da Fornalha)
+	healBlocked?: boolean;
 }

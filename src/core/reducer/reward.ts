@@ -24,7 +24,8 @@ export function handleGrantRewards(state: GameState): GameState {
 
 	let next = fireTrigger(state, "on_win_room", { triggeredBy: "on_win_room" });
 
-	const summary = calculateRewards(next.currentRoom!, next.enemyGraveyard);
+	const eligibleGraveyard = next.enemyGraveyard.filter((e) => !e.noReward);
+	const summary = calculateRewards(next.currentRoom!, eligibleGraveyard);
 
 	// XP da sala é concedido imediatamente
 	next = { ...next, groupXp: next.groupXp + summary.xp };

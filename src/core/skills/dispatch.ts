@@ -146,7 +146,8 @@ function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkil
 	// Inimigos ativos — effect e purpleEffect
 	for (const enemy of state.activeEnemies.filter((e) => e.status === "active")) {
 		for (const field of ["effect", "purpleEffect"] as const) {
-			const def = resolveSkillFor(enemy.cardName, field);
+				if (field === "purpleEffect" && state.despertar !== 4) continue;
+				const def = resolveSkillFor(enemy.cardName, field);
 			if (!def) continue;
 			const { base } = parseTrigger(def.trigger);
 			if (base !== trigger) continue;

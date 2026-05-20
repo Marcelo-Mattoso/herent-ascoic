@@ -17,4 +17,6 @@ export interface EnemyState {
 	// Controle para a regra de escudo: só se aplica ao primeiro dano do turno
 	firstDamageTakenThisTurn: boolean;
 	status: EnemyStatus;
+	// Impede que esta criatura conceda recompensas ao ser derrotada (ex: Fuga Covarde)
+	noReward?: boolean;
 }

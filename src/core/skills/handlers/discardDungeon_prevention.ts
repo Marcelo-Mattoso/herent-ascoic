@@ -16,5 +16,8 @@ export function handleDiscardDungeonPrevention(
 	if (!ctx.sourceHeroId) return state;
 	const hero = state.heroes.find((h) => h.id === ctx.sourceHeroId);
 	if (!hero) return state;
+	if (state.flags?.discardDungeonLocked) {
+		return log(state, `${hero.cardName}: Caminho Preservado bloqueado pela Corrupção de Caminho.`);
+	}
 	return log(state, `${hero.cardName}: Caminho Preservado — próximo descarte de dungeon cancelado.`);
 }

@@ -63,6 +63,8 @@ export interface CombatState {
 	prey: string | null;
 	// Token do Necromante (Eco): 0 = sem eco, 1 = eco disponível
 	readonly ecoTokens: Readonly<Record<string, number>>;
+	// Penalidade de acerto por herói (ex: Calor Escaldante, Corpo Gelatinoso)
+	readonly tohitPenaltyByHero: Readonly<Record<string, number>>;
 	// Flags de uso por escopo (guards once_per_*)
 	readonly oncePer: {
 		readonly room: Readonly<Record<string, boolean>>;
@@ -89,5 +91,6 @@ export function createEmptyCombatState(): CombatState {
 		damageReduction: {},
 		prey: null,
 		ecoTokens: {},
+		tohitPenaltyByHero: {},
 	};
 }

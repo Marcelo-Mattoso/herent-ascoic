@@ -35,9 +35,13 @@ export function handleHealOrDamageBonus(
 		);
 	}
 
-	// Padrão: cura todos os heróis
+	// Padrão: cura todos os heróis (exceto os com healBlocked)
 	let next = state;
 	for (const hero of state.heroes.filter((h) => h.status === "active")) {
+		if (hero.healBlocked) {
+			next = log(next, `${hero.cardName}: cura bloqueada (Fumaça da Fornalha).`);
+			continue;
+		}
 		const healed = Math.min(hero.maxLife, hero.currentLife + healAmount);
 		next = mapHero(next, hero.id, (h) => ({ ...h, currentLife: healed }));
 	}

@@ -204,6 +204,24 @@ export function handleCheckBossCondition(state: GameState): GameState {
 	);
 }
 
+// Descarta N cartas do topo do deck de dungeon. Utilitário compartilhado com handlers de skill.
+export function discardFromDungeonDeck(state: GameState, n: number): GameState {
+	const { available, discarded, removed } = state.decks.dungeonDeck;
+	const toDiscard = available.slice(0, n);
+	const remaining = available.slice(n);
+	if (toDiscard.length === 0) return state;
+	return {
+		...state,
+		decks: {
+			...state.decks,
+			dungeonDeck: { available: remaining, discarded: [...discarded, ...toDiscard], removed },
+		},
+	};
+}
+
+// Re-exporta log para uso em handlers que importam este módulo.
+export { log } from "./utils";
+
 export function handleDungeonExhaustedSpend(state: GameState): GameState {
 	// Chamado via SPEND_XP com option "recover_dungeon" quando status é DUNGEON_EXHAUSTED
 	const { discarded } = state.decks.dungeonDeck;

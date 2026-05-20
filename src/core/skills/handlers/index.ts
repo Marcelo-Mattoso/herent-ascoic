@@ -9,17 +9,22 @@ import { handleDiceFix } from "./diceFix";
 import { handleDiceFixDamage } from "./diceFix_damage";
 import { handleDiceModification } from "./dice_modification";
 import { handleDirectDamage } from "./direct_damage";
+import { handleDiscardDungeon } from "./discardDungeon";
+import { handleDiscardDungeonLock } from "./discardDungeonLock";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDungeonLevel } from "./dungeonLevel";
 import { handleHeal } from "./heal";
+import { handleHealBlock } from "./heal_block";
 import { handleHealOrDamageBonus } from "./heal_or_damage_bonus";
 import { handleHealOrSurvive } from "./heal_or_survive";
 import { handleMarkAndTohit } from "./mark_and_tohit";
 import { handleNoop } from "./noop";
 import { handlePreventDamage } from "./prevent_damage";
 import { handleRecoverDungeon } from "./recoverDungeon";
+import { handleReward } from "./reward";
 import { handleTohit } from "./tohit";
 import { handleTohitDamage } from "./tohit_damage";
+import { handleTohitPenalty } from "./tohit_penalty";
 import { handleToken } from "./token";
 
 // Heróis
@@ -45,12 +50,19 @@ register("tohit", handleTohit);
 register("prevent_damage", handlePreventDamage);
 register("dungeonLevel", handleDungeonLevel);
 
+// Onda A (patch-8 fase 2)
+register("tohit_penalty", handleTohitPenalty);
+register("healBlock", handleHealBlock);
+register("discardDungeonLock", handleDiscardDungeonLock);
+register("discardDungeon", handleDiscardDungeon);
+register("reward", handleReward);
+
 // Tipos não implementados (noop com log)
 const noopTypes = [
-	"reroll", "drawItem", "recover_item", "reward", "flee_block",
-	"discardDungeon", "healBlock", "item_or_discardDungeon", "itemControl",
+	"reroll", "drawItem", "recover_item", "flee_block",
+	"item_or_discardDungeon", "itemControl",
 	"targetProtection", "targetRedirect_or_tohit", "dungeon",
-	"discardDungeonLock", "purple_damage_reduction", "tohit_penalty",
+	"purple_damage_reduction",
 ];
 for (const t of noopTypes) {
 	register(t, handleNoop);

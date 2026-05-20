@@ -20,6 +20,10 @@ export function handleHealOrSurvive(
 
 	const choice = typeof ctx.value === "string" ? ctx.value : "full";
 
+	if (hero.healBlocked && choice !== "survive") {
+		return log(state, `${hero.cardName}: cura bloqueada (Fumaça da Fornalha).`);
+	}
+
 	if (choice === "survive") {
 		// Impede destruição: deixa com 1 de vida
 		return log(
