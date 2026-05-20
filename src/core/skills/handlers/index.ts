@@ -13,6 +13,7 @@ import { handleDiscardDungeon } from "./discardDungeon";
 import { handleDiscardDungeonLock } from "./discardDungeonLock";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDrawItem } from "./drawItem";
+import { handlePurpleDamageReduction } from "./purple_damage_reduction";
 import { handleDungeon } from "./dungeon";
 import { handleDungeonLevel } from "./dungeonLevel";
 import { handleFleeBlock } from "./flee_block";
@@ -88,10 +89,12 @@ register("targetRedirect_or_tohit", handleTargetRedirectOrTohit);
 // DrawItem — Espólios da Fornalha (patch-8 fase 12)
 register("drawItem", handleDrawItem);
 
+// Redução de dano roxo (patch-8 fase 10)
+register("purple_damage_reduction", handlePurpleDamageReduction);
+
 // Tipos não implementados (noop com log)
 const noopTypes = [
 	"recover_item",
-	"purple_damage_reduction",
 ];
 for (const t of noopTypes) {
 	register(t, handleNoop);
