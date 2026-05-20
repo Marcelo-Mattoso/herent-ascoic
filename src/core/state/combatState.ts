@@ -65,6 +65,15 @@ export interface CombatState {
 	readonly ecoTokens: Readonly<Record<string, number>>;
 	// Herói declarou tentativa de fuga — o próximo confronto resolve a fuga
 	readonly fleeAttemptByHero: Readonly<Record<string, boolean>>;
+	// Seleção interativa de dado pendente (reroll, diceFix)
+	pendingDiceSelection?: {
+		readonly skillId: string;
+		readonly heroId: string;
+		readonly side: "hero" | "enemy" | "any";
+		readonly filter?: { readonly value?: number; readonly minValue?: number };
+		readonly action: "reroll" | "set_to";
+		readonly setToValue?: number;
+	};
 	// Penalidade de acerto por herói (ex: Calor Escaldante, Corpo Gelatinoso)
 	readonly tohitPenaltyByHero: Readonly<Record<string, number>>;
 	// Inimigo ignora 1º efeito de item (Evasão das Fendas)

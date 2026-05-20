@@ -92,3 +92,8 @@ export const restartDungeon = (keepEquipment: boolean): Action => ({
 	type: "RESTART_DUNGEON",
 	payload: { keepEquipment },
 });
+
+export const selectDie = (side: "hero" | "enemy", index: number): Action => ({
+	type: "SELECT_DIE",
+	payload: { side, index },
+});

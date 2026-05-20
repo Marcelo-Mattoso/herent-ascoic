@@ -7,6 +7,9 @@ interface DiceDisplayProps {
 	side: "hero" | "enemy";
 	label?: string;
 	horizontal?: boolean;
+	// Seleção interativa — índices clicáveis + callback
+	eligibleIndices?: ReadonlySet<number>;
+	onDieClick?: (index: number) => void;
 }
 
 export function DiceDisplay({
@@ -16,6 +19,8 @@ export function DiceDisplay({
 	side,
 	label,
 	horizontal,
+	eligibleIndices,
+	onDieClick,
 }: DiceDisplayProps) {
 	const isHero = side === "hero";
 	const dieColor = isHero ? UI.info : UI.danger;
@@ -33,19 +38,24 @@ export function DiceDisplay({
 					</span>
 				)}
 				<div style={{ display: "flex", gap: 3 }}>
-					{results.map((val, i) => (
+					{results.map((val, i) => {
+						const eligible = eligibleIndices?.has(i) ?? false;
+						return (
 						<div
 							key={`die-${i}`}
 							className="w-6 h-6 flex items-center justify-center rounded text-xs font-bold"
+							onClick={eligible ? () => onDieClick?.(i) : undefined}
 							style={{
-								background: dieColor.bg,
-								color: dieColor.text,
-								border: `1px solid ${UI.border}`,
+								background: eligible ? UI.warning?.bg ?? "#FEF3C7" : dieColor.bg,
+								color: eligible ? "#92400E" : dieColor.text,
+								border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
+								cursor: eligible ? "pointer" : "default",
 							}}
 						>
 							{val}
 						</div>
-					))}
+						);
+					})}
 				</div>
 				{bonusStr && (
 					<span style={{ fontSize: 10, color: UI.textTertiary }}>{bonusStr}</span>
@@ -68,19 +78,24 @@ export function DiceDisplay({
 				</p>
 			)}
 			<div className="flex gap-1 flex-wrap mb-1">
-				{results.map((val, i) => (
+				{results.map((val, i) => {
+					const eligible = eligibleIndices?.has(i) ?? false;
+					return (
 					<div
 						key={`die-${i}`}
 						className="w-7 h-7 flex items-center justify-center rounded text-sm font-bold"
+						onClick={eligible ? () => onDieClick?.(i) : undefined}
 						style={{
-							background: dieColor.bg,
-							color: dieColor.text,
-							border: `1px solid ${UI.border}`,
+							background: eligible ? UI.warning?.bg ?? "#FEF3C7" : dieColor.bg,
+							color: eligible ? "#92400E" : dieColor.text,
+							border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
+							cursor: eligible ? "pointer" : "default",
 						}}
 					>
 						{val}
 					</div>
-				))}
+					);
+				})}
 			</div>
 			{bonusStr && (
 				<p className="text-xs" style={{ color: UI.textTertiary }}>

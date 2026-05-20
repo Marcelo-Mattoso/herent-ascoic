@@ -27,6 +27,7 @@ import { handleMarkAndTohit } from "./mark_and_tohit";
 import { handleNoop } from "./noop";
 import { handlePreventDamage } from "./prevent_damage";
 import { handleRecoverDungeon } from "./recoverDungeon";
+import { handleReroll } from "./reroll";
 import { handleReward } from "./reward";
 import { handleTohit } from "./tohit";
 import { handleTohitDamage } from "./tohit_damage";
@@ -76,9 +77,12 @@ register("flee_block", handleFleeBlock);
 // Dano em área + alternativo (patch-8 fases 6/7)
 register("splash_damage", handleSplashDamage);
 
+// Reroll interativo (patch-8 fase 8)
+register("reroll", handleReroll);
+
 // Tipos não implementados (noop com log)
 const noopTypes = [
-	"reroll", "drawItem", "recover_item",
+	"drawItem", "recover_item",
 	"targetRedirect_or_tohit",
 	"purple_damage_reduction",
 ];

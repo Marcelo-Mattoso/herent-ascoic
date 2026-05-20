@@ -19,6 +19,7 @@ import {
 	handlePassHeroAction,
 	handleResolveAttack,
 	handleRollDice,
+	handleSelectDie,
 	handleStartCombat,
 	handleUseItem,
 	handleUsePower,
@@ -226,6 +227,9 @@ export function reducer(state: GameState, action: Action): GameState {
 
 		case "START_BOSS_COMBAT":
 			return { ...state, status: "BOSS_COMBAT" };
+
+		case "SELECT_DIE":
+			return handleSelectDie(state, action.payload.side, action.payload.index);
 
 		case "DECLARE_FLEE":
 			return handleDeclareFlee(state, action.payload.heroId);

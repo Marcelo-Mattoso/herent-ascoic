@@ -240,6 +240,7 @@ export function Exploration() {
 					onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
 					onRoll={handleRollDice}
 					onResolve={handleResolveAttack}
+					onSelectDie={(side, index) => dispatch({ type: "SELECT_DIE", payload: { side, index } })}
 				/>
 
 				{/* PAINEL DO HERÓI EM FOCO */}

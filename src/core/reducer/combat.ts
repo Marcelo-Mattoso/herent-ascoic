@@ -671,6 +671,55 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 	return fireOnUseSkill(withMark, { skillId: powerDef.id, sourceId: heroId });
 }
 
+// ─── SELECT_DIE ──────────────────────────────────────────────────────────────
+
+export function handleSelectDie(
+	state: GameState,
+	side: "hero" | "enemy",
+	index: number,
+): GameState {
+	const sel = state.combat?.pendingDiceSelection;
+	if (!sel || !state.combat?.lastRoll) return state;
+	const roll = state.combat.lastRoll;
+
+	// Verificar filtro
+	const results = side === "hero" ? [...roll.heroResults] : [...roll.enemyResults];
+	const dieValue = results[index];
+	if (dieValue === undefined) return log(state, "[AVISO] Índice de dado inválido.");
+	if (sel.filter?.value !== undefined && dieValue !== sel.filter.value) {
+		return log(state, "[AVISO] Este dado não é elegível para a ação.");
+	}
+
+	// Aplicar ação
+	let newValue: number;
+	if (sel.action === "reroll") {
+		newValue = rollDice(1).results[0] ?? 1;
+	} else {
+		newValue = sel.setToValue ?? 6;
+	}
+	results[index] = newValue;
+
+	// Recalcular total
+	const breakdownToUse = side === "hero" ? roll.heroBreakdown : roll.enemyBreakdown;
+	const newCalc = calculateTotal(results, [...breakdownToUse]);
+
+	const newRoll = side === "hero"
+		? { ...roll, heroResults: results, heroTotal: newCalc.total }
+		: { ...roll, enemyResults: results, enemyTotal: newCalc.total };
+
+	return log(
+		{
+			...state,
+			combat: {
+				...state.combat,
+				lastRoll: newRoll,
+				pendingDiceSelection: undefined,
+			},
+		},
+		`Dado ${side === "hero" ? "aliado" : "inimigo"} [${index}] alterado de ${dieValue} para ${newValue}.`,
+	);
+}
+
 // ─── CANCEL_HERO_SELECTION ───────────────────────────────────────────────────
 
 export function handleCancelHeroSelection(state: GameState): GameState {

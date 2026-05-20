@@ -31,6 +31,7 @@ interface BoardProps {
 	onRevealBoss: () => void;
 	onRoll: () => void;
 	onResolve: () => void;
+	onSelectDie?: (side: "hero" | "enemy", index: number) => void;
 	roll: CombatRollResult | null;
 }
 
@@ -48,6 +49,7 @@ export function Board({
 	onRevealBoss,
 	onRoll,
 	onResolve,
+	onSelectDie,
 	roll,
 }: BoardProps) {
 	const [draggingHeroId, setDraggingHeroId] = useState<string | null>(null);
@@ -196,25 +198,48 @@ export function Board({
 					{/* Linha de combate — dock para todas as ações de grupo */}
 					{status === "RESOLVE_ATTACK" && roll ? (
 						<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-							<DiceDisplay
-								results={roll.enemyResults}
-								total={roll.enemyTotal}
-								bonuses={roll.enemyBreakdown}
-								side="enemy"
-								horizontal
-							/>
-							<div style={{ display: "flex", alignItems: "center", margin: "2px 0" }}>
-								<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
-								<ActionButton label="Resolver ataque" icon="💥" variant="primary" onClick={onResolve} />
-								<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
-							</div>
-							<DiceDisplay
-								results={roll.heroResults}
-								total={roll.heroTotal}
-								bonuses={roll.heroBreakdown}
-								side="hero"
-								horizontal
-							/>
+							{(() => {
+								const sel = state.combat?.pendingDiceSelection;
+								const heroEligible = sel?.side === "hero" || sel?.side === "any"
+									? new Set(roll.heroResults.reduce<number[]>((acc, v, i) => {
+											if (sel.filter?.value === undefined || v === sel.filter.value) acc.push(i);
+											return acc;
+										}, []))
+									: undefined;
+								const enemyEligible = sel?.side === "enemy" || sel?.side === "any"
+									? new Set(roll.enemyResults.reduce<number[]>((acc, v, i) => {
+											if (sel.filter?.value === undefined || v === sel.filter.value) acc.push(i);
+											return acc;
+										}, []))
+									: undefined;
+								return (
+									<>
+										<DiceDisplay
+											results={roll.enemyResults}
+											total={roll.enemyTotal}
+											bonuses={roll.enemyBreakdown}
+											side="enemy"
+											horizontal
+											eligibleIndices={enemyEligible}
+											onDieClick={(i) => onSelectDie?.("enemy", i)}
+										/>
+										<div style={{ display: "flex", alignItems: "center", margin: "2px 0" }}>
+											<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+											<ActionButton label="Resolver ataque" icon="💥" variant="primary" onClick={onResolve} disabled={!!sel} />
+											<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+										</div>
+										<DiceDisplay
+											results={roll.heroResults}
+											total={roll.heroTotal}
+											bonuses={roll.heroBreakdown}
+											side="hero"
+											horizontal
+											eligibleIndices={heroEligible}
+											onDieClick={(i) => onSelectDie?.("hero", i)}
+										/>
+									</>
+								);
+							})()}
 						</div>
 					) : (
 						<div
