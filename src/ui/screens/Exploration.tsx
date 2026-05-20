@@ -159,6 +159,15 @@ export function Exploration() {
 		dispatch({ type: "USE_POWER", payload: { heroId } });
 	}
 
+	function handleUseSkill(skillId: string, sourceId: string) {
+		// Por ora auto-alvo: o herói usa a habilidade em si mesmo.
+		// Habilidades que exigem seleção de alvo serão tratadas numa camada de targeting futura.
+		dispatch({
+			type: "USE_SKILL",
+			payload: { skillId, sourceId, targetIds: [sourceId] },
+		});
+	}
+
 	const roll = combat?.lastRoll;
 
 	return (
@@ -231,6 +240,7 @@ export function Exploration() {
 					onPass={handlePass}
 					onCancelSelection={handleCancelSelection}
 					onPower={handleUsePower}
+					onUseSkill={handleUseSkill}
 					onCardDetail={openCardDetail}
 					onItemDetail={(itemName, heroId) =>
 						setDetailCard({ name: itemName, cardType: "item", heroId })
