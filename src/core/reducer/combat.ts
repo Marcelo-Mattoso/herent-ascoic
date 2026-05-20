@@ -6,6 +6,7 @@
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDice } from "../rules/dice";
 import { applyShield } from "../rules/shield";
+import { fireTrigger } from "../skills/dispatch";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
@@ -16,14 +17,14 @@ import { log, mapEnemy, mapHero } from "./utils";
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
 
 export function handleStartCombat(state: GameState): GameState {
-	return log(
-		{
-			...state,
-			status: "HERO_ACTION",
-			combat: { ...createEmptyCombatState(), phase: "selecting_hero" },
-		},
-		"Combate iniciado.",
-	);
+	let next: GameState = {
+		...state,
+		status: "HERO_ACTION",
+		combat: { ...createEmptyCombatState(), phase: "selecting_hero" },
+	};
+	next = fireTrigger(next, "start_of_combat", { triggeredBy: "start_of_combat" });
+	next = fireTrigger(next, "on_enter_combat", { triggeredBy: "on_enter_combat" });
+	return log(next, "Combate iniciado.");
 }
 
 // ─── CHOOSE_HERO_FOR_ROUND ────────────────────────────────────────────────────
@@ -148,12 +149,19 @@ export function handleRollDice(state: GameState): GameState {
 	const enemy = state.activeEnemies.find((e) => e.id === pair.enemyId);
 	if (!hero || !enemy) return state;
 
-	const extraDice = state.combat.extraDice[hero.id] ?? 0;
+	// before_attack: modificadores antes de rolar
+	let preRoll = fireTrigger(state, "before_attack", {
+		triggeredBy: "before_attack",
+		sourceHeroId: hero.id,
+		sourceEnemyId: enemy.id,
+	});
+
+	const extraDice = preRoll.combat?.extraDice[hero.id] ?? 0;
 	const heroDiceCount = hero.dice + extraDice;
 	const heroRoll = rollDice(heroDiceCount);
 	const enemyRoll = rollDice(enemy.dice);
 
-	const heroBonuses = collectHeroBonuses(hero, state);
+	const heroBonuses = collectHeroBonuses(hero, preRoll);
 	const enemyBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: enemy.hitBonus },
 	];
@@ -172,11 +180,18 @@ export function handleRollDice(state: GameState): GameState {
 		enemyBreakdown: enemyBonuses,
 	};
 
+	// after_roll: modificações pós-rolagem (ex: Mago ajusta dado)
+	let postRoll = fireTrigger(preRoll, "after_roll", {
+		triggeredBy: "after_roll",
+		sourceHeroId: hero.id,
+		sourceEnemyId: enemy.id,
+	});
+
 	return log(
 		{
-			...state,
+			...postRoll,
 			status: "RESOLVE_ATTACK",
-			combat: { ...state.combat, lastRoll: roll },
+			combat: postRoll.combat ? { ...postRoll.combat, lastRoll: roll } : null,
 		},
 		`Herói rolou ${heroCalc.total} | Inimigo rolou ${enemyCalc.total}.`,
 	);
@@ -201,6 +216,16 @@ export function handleResolveAttack(state: GameState): GameState {
 
 	let next = state;
 
+	// on_deal_damage: antes de aplicar dano ao inimigo
+	if (result.enemyDamageTaken > 0) {
+		next = fireTrigger(next, "on_deal_damage", {
+			triggeredBy: "on_deal_damage",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+			damageAmount: result.enemyDamageTaken,
+		});
+	}
+
 	if (result.enemyDamageTaken > 0) {
 		let dmg = result.enemyDamageTaken;
 		// Adaga: +1 dano se vencer por 4 ou mais
@@ -217,6 +242,39 @@ export function handleResolveAttack(state: GameState): GameState {
 			status: e.currentLife - dmg <= 0 ? "defeated" : e.status,
 		}));
 		next = log(next, `${enemy.cardName} sofreu ${dmg} de dano.`);
+
+		// on_destroy_creature_with_attack: inimigo derrotado por ataque
+		const updatedEnemy = next.activeEnemies.find((e) => e.id === enemy.id);
+		if (updatedEnemy?.status === "defeated") {
+			next = fireTrigger(next, "on_destroy_creature_with_attack", {
+				triggeredBy: "on_destroy_creature_with_attack",
+				sourceHeroId: hero.id,
+				sourceEnemyId: enemy.id,
+				isFirstKillInRoom: next.creaturesDefeated === 0,
+			});
+		}
+	}
+
+	// on_damage_taken: antes de aplicar escudo
+	if (result.heroDamageTaken > 0) {
+		next = fireTrigger(next, "on_damage_taken", {
+			triggeredBy: "on_damage_taken",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+			damageAmount: result.heroDamageTaken,
+		});
+		next = fireTrigger(next, "on_take_damage", {
+			triggeredBy: "on_take_damage",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+			damageAmount: result.heroDamageTaken,
+		});
+		next = fireTrigger(next, "on_take_attack_damage", {
+			triggeredBy: "on_take_attack_damage",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+			damageAmount: result.heroDamageTaken,
+		});
 	}
 
 	if (result.heroDamageTaken > 0) {
@@ -366,21 +424,32 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 	}
 
 	// Próxima rodada — reset completo com phase="selecting_hero"
+	const nextRound = (state.combat?.round ?? 0) + 1;
 	const nextCombat = state.combat
 		? {
 				...state.combat,
-				round: state.combat.round + 1,
+				round: nextRound,
 				phase: "selecting_hero" as const,
 				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
 				lastRoll: null,
+				oncePer: {
+					...state.combat.oncePer,
+					round: {}, // reset por rodada
+				},
 			}
 		: createEmptyCombatState();
-	return log(
-		{ ...state, status: "HERO_ACTION", combat: nextCombat },
-		`Rodada ${nextCombat.round + 1} de combate.`,
-	);
+	let nextState: GameState = { ...state, status: "HERO_ACTION", combat: nextCombat };
+
+	// first_round_in_room: disparar na rodada 1 (round começa em 0, então nextRound === 1)
+	if (nextRound === 1) {
+		nextState = fireTrigger(nextState, "first_round_in_room", {
+			triggeredBy: "first_round_in_room",
+		});
+	}
+
+	return log(nextState, `Rodada ${nextRound + 1} de combate.`);
 }
 
 // ─── USE_ITEM ─────────────────────────────────────────────────────────────────

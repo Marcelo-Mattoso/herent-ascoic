@@ -7,6 +7,7 @@ import type { XpSpendOption } from "../config/defaults";
 import type { InvFromZone, InvToZone } from "../actions/types";
 import { XP_COSTS } from "../config/defaults";
 import { calculateRewards } from "../rules/reward";
+import { fireTrigger } from "../skills/dispatch";
 import type { GameState, PendingReward } from "../state/gameState";
 import { defaultItemDestination } from "../strategies/itemDistribution";
 import { handleDungeonExhaustedSpend } from "./exploration";
@@ -21,8 +22,9 @@ export function handleGrantRewards(state: GameState): GameState {
 	// Evitar processar duas vezes (fila já preenchida)
 	if (state.pendingRewards.length > 0) return state;
 
-	const summary = calculateRewards(state.currentRoom, state.enemyGraveyard);
-	let next = state;
+	let next = fireTrigger(state, "on_win_room", { triggeredBy: "on_win_room" });
+
+	const summary = calculateRewards(next.currentRoom!, next.enemyGraveyard);
 
 	// XP da sala é concedido imediatamente
 	next = { ...next, groupXp: next.groupXp + summary.xp };

@@ -3,6 +3,7 @@
 import { getCardByName } from "../../data/cards";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
 import { checkBossCondition } from "../rules/conditions";
+import { fireTrigger } from "../skills/dispatch";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
@@ -40,18 +41,17 @@ export function handleRevealRoom(state: GameState): GameState {
 		status: "active",
 	};
 
-	return log(
-		{
-			...state,
-			currentRoom: room,
-			status: "ROOM_EFFECT",
-			decks: {
-				...state.decks,
-				dungeonDeck: { ...state.decks.dungeonDeck, available: remaining },
-			},
+	let next: GameState = {
+		...state,
+		currentRoom: room,
+		status: "ROOM_EFFECT",
+		decks: {
+			...state.decks,
+			dungeonDeck: { ...state.decks.dungeonDeck, available: remaining },
 		},
-		`Sala revelada: ${room.cardName}.`,
-	);
+	};
+	next = fireTrigger(next, "on_room_reveal", { triggeredBy: "on_room_reveal" });
+	return log(next, `Sala revelada: ${room.cardName}.`);
 }
 
 export function handleResolveRoomEffect(state: GameState): GameState {
@@ -63,7 +63,8 @@ export function handleResolveRoomEffect(state: GameState): GameState {
 	if (!noEffect.includes(name)) {
 		log(state, `[TODO] Efeito de sala não implementado: ${name}`);
 	}
-	return { ...state, status: "SPAWN_ENEMIES" };
+	const withSpawn: GameState = { ...state, status: "SPAWN_ENEMIES" };
+	return fireTrigger(withSpawn, "on_enter_room", { triggeredBy: "on_enter_room" });
 }
 
 // Patch 2: contagem dinâmica de inimigos baseada no número de heróis ativos.
@@ -111,23 +112,22 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		return [createEnemyFromCard(card, state.despertar)];
 	});
 
-	return log(
-		{
-			...state,
-			activeEnemies: enemies,
-			status: "COMBAT_START",
-			combat: createEmptyCombatState(),
-			decks: {
-				...state.decks,
-				enemyDeck: {
-					available: remaining,
-					discarded,
-					removed: state.decks.enemyDeck.removed,
-				},
+	let next: GameState = {
+		...state,
+		activeEnemies: enemies,
+		status: "COMBAT_START",
+		combat: createEmptyCombatState(),
+		decks: {
+			...state.decks,
+			enemyDeck: {
+				available: remaining,
+				discarded,
+				removed: state.decks.enemyDeck.removed,
 			},
 		},
-		`${enemies.length} inimigo(s) aparecem: ${enemies.map((e) => e.cardName).join(", ")}.`,
-	);
+	};
+	next = fireTrigger(next, "before_combat", { triggeredBy: "before_combat" });
+	return log(next, `${enemies.length} inimigo(s) aparecem: ${enemies.map((e) => e.cardName).join(", ")}.`);
 }
 
 export function handleOpenPaths(state: GameState): GameState {
