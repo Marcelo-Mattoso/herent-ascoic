@@ -8,15 +8,21 @@ import { handleDamageBonusDuration } from "./damage_bonus_duration";
 import { handleDiceFix } from "./diceFix";
 import { handleDiceFixDamage } from "./diceFix_damage";
 import { handleDiceModification } from "./dice_modification";
+import { handleDirectDamage } from "./direct_damage";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
+import { handleDungeonLevel } from "./dungeonLevel";
 import { handleHeal } from "./heal";
 import { handleHealOrDamageBonus } from "./heal_or_damage_bonus";
 import { handleHealOrSurvive } from "./heal_or_survive";
 import { handleMarkAndTohit } from "./mark_and_tohit";
+import { handleNoop } from "./noop";
+import { handlePreventDamage } from "./prevent_damage";
 import { handleRecoverDungeon } from "./recoverDungeon";
+import { handleTohit } from "./tohit";
 import { handleTohitDamage } from "./tohit_damage";
 import { handleToken } from "./token";
 
+// Heróis
 register("damage_bonus", handleDamageBonus);
 register("heal", handleHeal);
 register("armor", handleArmor);
@@ -31,3 +37,21 @@ register("damage_bonus_duration", handleDamageBonusDuration);
 register("heal_or_damage_bonus", handleHealOrDamageBonus);
 register("token", handleToken);
 register("diceFix_damage", handleDiceFixDamage);
+
+// Itens / criaturas / salas
+register("direct_damage", handleDirectDamage);
+register("directDamage", handleDirectDamage); // alias com camelCase do catálogo
+register("tohit", handleTohit);
+register("prevent_damage", handlePreventDamage);
+register("dungeonLevel", handleDungeonLevel);
+
+// Tipos não implementados (noop com log)
+const noopTypes = [
+	"reroll", "drawItem", "recover_item", "reward", "flee_block",
+	"discardDungeon", "healBlock", "item_or_discardDungeon", "itemControl",
+	"targetProtection", "targetRedirect_or_tohit", "dungeon",
+	"discardDungeonLock", "purple_damage_reduction", "tohit_penalty",
+];
+for (const t of noopTypes) {
+	register(t, handleNoop);
+}
