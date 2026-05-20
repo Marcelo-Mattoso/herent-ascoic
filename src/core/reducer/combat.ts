@@ -439,6 +439,12 @@ export function handleDirectDamage(state: GameState): GameState {
 
 	let next = state;
 	for (const enemy of unengaged) {
+		next = fireTrigger(next, "on_deal_damage", {
+			triggeredBy: "on_deal_damage",
+			sourceEnemyId: enemy.id,
+			targetHeroIds: [target.id],
+			damageAmount: enemy.damage,
+		});
 		next = mapHero(next, target.id, (h) => ({
 			...h,
 			currentLife: Math.max(0, h.currentLife - enemy.damage),
@@ -599,6 +605,50 @@ export function handleUseItem(
 export function handleUsePower(state: GameState, heroId: string): GameState {
 	const hero = state.heroes.find((h) => h.id === heroId);
 	if (!hero || !state.combat) return state;
+
+	// Verificar se algum item equipado tem trigger once_per_combat_instead_of_attack
+	const equippedItems = Object.values(hero.activeItems).filter(Boolean) as string[];
+	for (const itemName of equippedItems) {
+		const itemSkill = resolveSkillFor(itemName, "effect");
+		if (itemSkill?.trigger === "once_per_combat_instead_of_attack") {
+			const guardKey = `${itemSkill.id}::${heroId}`;
+			if (state.combat.oncePer.combat[guardKey]) {
+				return log(state, `${itemName}: Tiro de Oportunidade já usado neste combate.`);
+			}
+			// Aplicar dano direto ao inimigo do par atual (ou primeiro inimigo ativo)
+			const targetEnemyId =
+				state.combat.pairs.find((p) => p.heroId === heroId)?.enemyId ??
+				state.activeEnemies.find((e) => e.status === "active")?.id;
+			if (!targetEnemyId) return log(state, "Nenhum inimigo disponível para Tiro de Oportunidade.");
+
+			const enemy = state.activeEnemies.find((e) => e.id === targetEnemyId);
+			if (!enemy || enemy.status !== "active") return state;
+
+			const dmg = hero.damage;
+			let next: GameState = {
+				...state,
+				combat: {
+					...state.combat,
+					oncePer: { ...state.combat.oncePer, combat: { ...state.combat.oncePer.combat, [guardKey]: true } },
+				},
+			};
+			next = mapEnemy(next, targetEnemyId, (e) => ({
+				...e,
+				currentLife: Math.max(0, e.currentLife - dmg),
+				status: e.currentLife - dmg <= 0 ? "defeated" : e.status,
+			}));
+			next = log(next, `${hero.cardName} — Tiro de Oportunidade: ${enemy.cardName} sofreu ${dmg} de dano direto.`);
+			// Marcar herói como tendo agido nesta rodada
+			const updatedActed = [...next.combat!.heroesActed, heroId];
+			next = { ...next, combat: { ...next.combat!, heroesActed: updatedActed, selectedHeroId: null, phase: "selecting_hero" as const } };
+			const activeHeroes = next.heroes.filter((h) => h.status === "active");
+			const pendingHeroes = activeHeroes.filter((h) => !updatedActed.includes(h.id));
+			if (pendingHeroes.length === 0) {
+				return { ...next, status: "DIRECT_DAMAGE" as const, combat: { ...next.combat!, phase: "direct_damage" as const } };
+			}
+			return { ...next, status: "HERO_ACTION" as const };
+		}
+	}
 
 	if (state.combat.powersUsedThisRoom[heroId]) {
 		return log(state, `Poder de ${hero.cardName} já foi usado nesta sala.`);

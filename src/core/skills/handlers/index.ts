@@ -15,6 +15,7 @@ import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDungeon } from "./dungeon";
 import { handleDungeonLevel } from "./dungeonLevel";
 import { handleFleeBlock } from "./flee_block";
+import { handleSplashDamage } from "./splash_damage";
 import { handleItemControl } from "./itemControl";
 import { handleItemOrDiscardDungeon } from "./item_or_discardDungeon";
 import { handleTargetProtection } from "./targetProtection";
@@ -71,6 +72,9 @@ register("dungeon", handleDungeon);
 
 // Fuga (Onda C — patch-8 fase 3)
 register("flee_block", handleFleeBlock);
+
+// Dano em área + alternativo (patch-8 fases 6/7)
+register("splash_damage", handleSplashDamage);
 
 // Tipos não implementados (noop com log)
 const noopTypes = [
