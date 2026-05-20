@@ -1,0 +1,598 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<title>Wireframes — Patch 8 (UI nova)</title>
+<style>
+  :root {
+    --bg-page: #FAFAF7;
+    --bg-primary: #FFFFFF;
+    --bg-secondary: #F1EFE8;
+    --bg-tertiary: #E8E6DD;
+    --text-primary: #2C2C2A;
+    --text-secondary: #5F5E5A;
+    --text-tertiary: #888780;
+    --border-tertiary: rgba(0,0,0,0.15);
+    --border-secondary: rgba(0,0,0,0.3);
+    --border-strong: rgba(0,0,0,0.5);
+    --color-info-bg: #E6F1FB;
+    --color-info-border: rgba(55,138,221,0.3);
+    --color-info-text: #185FA5;
+    --color-warn-bg: #FFF4E0;
+    --color-warn-border: rgba(200,140,30,0.3);
+    --color-warn-text: #8A5A10;
+    --color-danger-bg: #FBE6E6;
+    --color-danger-border: rgba(180,55,55,0.3);
+    --color-danger-text: #8A1010;
+    --color-purple-bg: #ECE3F5;
+    --color-purple-border: rgba(105,55,170,0.4);
+    --color-purple-text: #5A2A8A;
+    --color-success-bg: #E6F5E8;
+    --color-success-border: rgba(55,140,75,0.3);
+    --color-success-text: #1F6A30;
+    --radius-md: 8px;
+    --radius-lg: 12px;
+  }
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    background: var(--bg-page);
+    color: var(--text-primary);
+    padding: 24px;
+    min-height: 100vh;
+    font-size: 13px;
+  }
+  h1 {
+    margin: 0 0 4px 0;
+    font-size: 22px;
+    color: var(--text-primary);
+  }
+  h2 {
+    margin: 32px 0 8px 0;
+    font-size: 16px;
+    color: var(--text-primary);
+    border-bottom: 1px solid var(--border-tertiary);
+    padding-bottom: 6px;
+  }
+  h3 {
+    margin: 16px 0 6px 0;
+    font-size: 13px;
+    color: var(--text-secondary);
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+  }
+  .lede {
+    color: var(--text-secondary);
+    margin: 0 0 24px 0;
+    font-size: 13px;
+  }
+  .container {
+    max-width: 1100px;
+    margin: 0 auto;
+  }
+  .scene {
+    background: var(--bg-secondary);
+    border-radius: var(--radius-lg);
+    padding: 16px;
+    margin-bottom: 16px;
+  }
+  .panel {
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-md);
+    padding: 12px;
+  }
+  button {
+    background: transparent;
+    border: 0.5px solid var(--border-secondary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+    font-family: inherit;
+    color: inherit;
+    padding: 8px 12px;
+    font-size: 13px;
+  }
+  button.primary { background: var(--color-info-bg); border-color: var(--color-info-border); color: var(--color-info-text); }
+  button.danger  { background: var(--color-danger-bg); border-color: var(--color-danger-border); color: var(--color-danger-text); }
+  button.warn    { background: var(--color-warn-bg); border-color: var(--color-warn-border); color: var(--color-warn-text); }
+  button:disabled { opacity: 0.5; cursor: default; }
+  .note {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    font-style: italic;
+    margin-top: 6px;
+  }
+  .annotation {
+    background: var(--color-warn-bg);
+    border-left: 3px solid var(--color-warn-border);
+    padding: 8px 10px;
+    margin: 8px 0;
+    font-size: 12px;
+    color: var(--color-warn-text);
+    border-radius: 3px;
+  }
+  .modal-backdrop {
+    background: rgba(40,40,38,0.55);
+    padding: 32px;
+    border-radius: var(--radius-md);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+  .modal {
+    background: var(--bg-primary);
+    border-radius: var(--radius-lg);
+    padding: 20px;
+    max-width: 480px;
+    width: 100%;
+    box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+  }
+  .modal-title {
+    font-size: 16px;
+    font-weight: 600;
+    margin: 0 0 4px 0;
+  }
+  .modal-source {
+    font-size: 11px;
+    color: var(--text-tertiary);
+    margin: 0 0 12px 0;
+  }
+  .modal-prompt {
+    font-size: 13px;
+    color: var(--text-secondary);
+    margin: 0 0 16px 0;
+    line-height: 1.4;
+  }
+  .choice-list {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    margin-bottom: 12px;
+  }
+  .choice {
+    display: flex;
+    flex-direction: column;
+    text-align: left;
+    padding: 10px 12px;
+    background: var(--bg-secondary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-md);
+    cursor: pointer;
+  }
+  .choice:hover { background: var(--bg-tertiary); border-color: var(--border-secondary); }
+  .choice-label { font-weight: 500; font-size: 13px; }
+  .choice-desc  { font-size: 11px; color: var(--text-tertiary); margin-top: 2px; }
+  .hero-card {
+    width: 140px;
+    background: var(--bg-primary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: var(--radius-md);
+    padding: 8px;
+    flex-shrink: 0;
+  }
+  .hero-art {
+    aspect-ratio: 3/4;
+    background: var(--bg-tertiary);
+    border-radius: 4px;
+    margin-bottom: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-tertiary);
+    font-size: 10px;
+  }
+  .hero-name { font-weight: 500; font-size: 12px; }
+  .hero-stats { font-size: 10px; color: var(--text-tertiary); margin-top: 2px; }
+  .hero-card.focused { border: 2px solid var(--color-info-text); }
+  .hero-card.fled {
+    border: 1.5px dashed var(--text-tertiary);
+    opacity: 0.7;
+  }
+  .hero-card.fled .hero-art { background: var(--bg-secondary); }
+  .hero-card.defeated {
+    opacity: 0.45;
+    filter: grayscale(1);
+  }
+  .badge {
+    display: inline-block;
+    padding: 2px 6px;
+    border-radius: 3px;
+    font-size: 10px;
+    font-weight: 500;
+    text-transform: uppercase;
+    letter-spacing: 0.5px;
+    margin-top: 4px;
+  }
+  .badge.fled    { background: var(--bg-tertiary); color: var(--text-secondary); }
+  .badge.subboss { background: var(--color-purple-bg); color: var(--color-purple-text); border: 0.5px solid var(--color-purple-border); }
+  .badge.boss    { background: var(--color-danger-bg); color: var(--color-danger-text); }
+  .badge.purple  { background: var(--color-purple-bg); color: var(--color-purple-text); }
+  .die {
+    width: 38px;
+    height: 38px;
+    border-radius: 6px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-weight: 600;
+    font-size: 16px;
+    color: white;
+  }
+  .die.blue { background: #3D6FAD; }
+  .die.red  { background: #B23E3E; }
+  .die.selectable {
+    cursor: pointer;
+    outline: 2px solid #E4B23E;
+    outline-offset: 3px;
+    box-shadow: 0 0 12px rgba(228,178,62,0.6);
+    animation: pulse 1.5s infinite;
+  }
+  .die.disabled { opacity: 0.4; }
+  @keyframes pulse {
+    0%, 100% { outline-color: #E4B23E; }
+    50%      { outline-color: #FFD966; }
+  }
+  .dice-row { display: flex; gap: 6px; align-items: center; }
+  .key {
+    display: inline-block;
+    padding: 1px 6px;
+    background: var(--bg-tertiary);
+    border: 0.5px solid var(--border-tertiary);
+    border-radius: 3px;
+    font-size: 10px;
+    color: var(--text-secondary);
+  }
+  table { border-collapse: collapse; width: 100%; font-size: 12px; }
+  th, td { text-align: left; padding: 4px 8px; border-bottom: 0.5px solid var(--border-tertiary); }
+  th { color: var(--text-secondary); font-weight: 500; }
+</style>
+</head>
+<body>
+<div class="container">
+  <h1>Wireframes — Patch 8</h1>
+  <p class="lede">Referência visual para as peças de UI novas. Reusa o sistema visual do <code>wireframe-exploracao.html</code>. Cada seção indica a fase do <a href="patch-8.md">patch-8.md</a> e os arquivos envolvidos.</p>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>1. Botão Fugir + estado "fugiu" no card do herói — Fase 3</h2>
+  <p class="lede">
+    Arquivos: <code>src/ui/components/HeroFocusPanel.tsx</code>, layout de cards do painel inferior.<br>
+    Regra: botão "🏃 Fugir" só habilita quando <code>hero.currentLife === 1</code> e há combate em andamento. Após DECLARE_FLEE, a próxima rolagem é a "rolagem de fuga": vitória = card fica em estado <em>fled</em>; derrota = morre.
+  </p>
+
+  <div class="scene">
+    <h3>Estado A: botão desabilitado (vida > 1)</h3>
+    <div class="panel" style="display: flex; gap: 8px;">
+      <button class="primary">⚔ Atacar</button>
+      <button>🧪 Usar item</button>
+      <button>⚡ Usar poder</button>
+      <button disabled title="Disponível com 1 de vida">🏃 Fugir</button>
+    </div>
+    <div class="annotation">Tooltip no botão desabilitado: "Disponível apenas com 1 de vida (manual §8.9)"</div>
+  </div>
+
+  <div class="scene">
+    <h3>Estado B: botão habilitado (vida = 1, despachando DECLARE_FLEE)</h3>
+    <div class="panel" style="display: flex; gap: 8px;">
+      <button>⚔ Atacar</button>
+      <button>🧪 Usar item</button>
+      <button>⚡ Usar poder</button>
+      <button class="warn">🏃 Fugir</button>
+    </div>
+    <div class="annotation">Após click: <code>DECLARE_FLEE { heroId }</code>. UI mostra "rolagem de fuga" no badge do combate.</div>
+  </div>
+
+  <div class="scene">
+    <h3>Estado C: cards do painel — ativo / fugido / derrotado</h3>
+    <div class="panel" style="display: flex; gap: 12px;">
+      <div class="hero-card focused">
+        <div class="hero-art">arte</div>
+        <div class="hero-name">Bárbaro</div>
+        <div class="hero-stats">Vida 4/5 · 🎯+2</div>
+      </div>
+      <div class="hero-card fled">
+        <div class="hero-art">arte</div>
+        <div class="hero-name">Arqueira</div>
+        <div class="hero-stats" style="text-decoration: line-through;">Vida 1/4</div>
+        <span class="badge fled">fugiu</span>
+      </div>
+      <div class="hero-card defeated">
+        <div class="hero-art">arte</div>
+        <div class="hero-name">Clériga</div>
+        <div class="hero-stats" style="text-decoration: line-through;">Vida 0/4</div>
+        <span class="badge fled">derrotada</span>
+      </div>
+    </div>
+    <div class="note">Card fugido: borda tracejada, opacidade 0.7, não clicável (<code>pointer-events: none</code>).</div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>2. FleeReconfigureModal — todos os heróis fugiram — Fase 3</h2>
+  <p class="lede">
+    Arquivo: <code>src/ui/components/modals/FleeReconfigureModal.tsx</code>.<br>
+    Aparece quando <code>state.status === "DUNGEON_RESTART_PROMPT"</code>. Manual §8.9: o grupo escolhe reiniciar do zero ou mantendo os equipamentos (mais fácil).
+  </p>
+  <div class="modal-backdrop">
+    <div class="modal">
+      <p class="modal-title">🏃 O grupo escapou da masmorra</p>
+      <p class="modal-source">Manual §8.9 — Fuga total</p>
+      <p class="modal-prompt">Todos os heróis fugiram. A exploração foi interrompida. Como reiniciar a aventura?</p>
+      <div class="choice-list">
+        <button class="choice">
+          <span class="choice-label">🔄 Reiniciar do zero</span>
+          <span class="choice-desc">Decks reembaralhados, heróis com equipamento inicial, dificuldade preservada.</span>
+        </button>
+        <button class="choice">
+          <span class="choice-label">🛡 Reiniciar mantendo equipamentos</span>
+          <span class="choice-desc">Decks reembaralhados; itens e artefatos coletados ficam com o grupo e podem ser redistribuídos. <strong>Aventura fica mais fácil.</strong></span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>3. SkillChoiceModal — modal genérico de escolha — Fase 4</h2>
+  <p class="lede">
+    Arquivo: <code>src/ui/components/modals/SkillChoiceModal.tsx</code>.<br>
+    Modal único, reusado por Tributo Sombrio, Espólios da Fornalha, Forja Reacesa, Iluminar o Caminho, Milagre da Última Luz, Desvio de Foco. Lê <code>state.pendingSkillChoice</code>; click despacha <code>SKILL_CHOICE { skillId, choice }</code>.
+  </p>
+
+  <h3>Variante A: 2 opções textuais (Tributo Sombrio)</h3>
+  <div class="modal-backdrop">
+    <div class="modal">
+      <p class="modal-title">Tributo Sombrio</p>
+      <p class="modal-source">Esqueleto Saqueador entrou em jogo</p>
+      <p class="modal-prompt">Escolha o tributo a pagar antes da rolagem:</p>
+      <div class="choice-list">
+        <button class="choice">
+          <span class="choice-label">Descartar 1 item</span>
+          <span class="choice-desc">Você possui: Adaga Enferrujada, Poção de Vigor Menor</span>
+        </button>
+        <button class="choice">
+          <span class="choice-label">Descartar 1 carta de dungeon</span>
+          <span class="choice-desc">Topo do deck: ?? — escolha cega</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <h3>Variante B: lista revelada (Iluminar o Caminho)</h3>
+  <div class="modal-backdrop">
+    <div class="modal">
+      <p class="modal-title">Iluminar o Caminho</p>
+      <p class="modal-source">Tocha de Breu</p>
+      <p class="modal-prompt">Veja as próximas 3 cartas do deck de dungeon. Escolha a ordem em que aparecem (a primeira escolhida fica no topo):</p>
+      <div class="choice-list">
+        <button class="choice">
+          <span class="choice-label">1. Câmara do Eco</span>
+          <span class="choice-desc">3 saídas · 2 XP · "criaturas têm +1 de acerto nesta sala"</span>
+        </button>
+        <button class="choice">
+          <span class="choice-label">2. Fosso das Brasas</span>
+          <span class="choice-desc">2 saídas · 3 XP · efeito de armadilha</span>
+        </button>
+        <button class="choice">
+          <span class="choice-label">3. Galeria Calada</span>
+          <span class="choice-desc">4 saídas · 1 XP</span>
+        </button>
+      </div>
+      <div class="note">Após cada click, a opção sai da lista e vai para "ordem definida" abaixo. Quando vazia: confirma e fecha.</div>
+    </div>
+  </div>
+
+  <h3>Variante C: lista de itens do descarte (Forja Reacesa)</h3>
+  <div class="modal-backdrop">
+    <div class="modal">
+      <p class="modal-title">Forja Reacesa</p>
+      <p class="modal-source">Poder do Ferreiro Andarilho</p>
+      <p class="modal-prompt">Recupere 1 item do descarte e equipe imediatamente:</p>
+      <div class="choice-list">
+        <button class="choice">
+          <span class="choice-label">⚔ Adaga Enferrujada</span>
+          <span class="choice-desc">Arma · +1 dano</span>
+        </button>
+        <button class="choice">
+          <span class="choice-label">🛡 Escudo Rachado</span>
+          <span class="choice-desc">Armadura · ignora 2 do 1º dano</span>
+        </button>
+        <button class="choice">
+          <span class="choice-label">🧪 Poção de Vigor Menor</span>
+          <span class="choice-desc">Consumível · cura 2 de vida</span>
+        </button>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>4. Dados clicáveis — reroll interativo — Fase 8</h2>
+  <p class="lede">
+    Arquivo: <code>src/ui/components/CombatDiceArea.tsx</code>.<br>
+    Quando <code>combat.pendingDiceSelection</code> existe, dados elegíveis ganham contorno dourado pulsante e cursor pointer. Click despacha <code>SELECT_DIE { side, index }</code>.
+  </p>
+
+  <h3>Estado A: rolagem normal (dados não interativos)</h3>
+  <div class="scene">
+    <div class="panel">
+      <div style="margin-bottom: 8px; color: var(--text-secondary);">Herói (Bárbaro) — 3d6</div>
+      <div class="dice-row">
+        <div class="die blue">5</div>
+        <div class="die blue">3</div>
+        <div class="die blue">1</div>
+        <span style="margin-left: 10px;">= 9 + bônus</span>
+      </div>
+    </div>
+  </div>
+
+  <h3>Estado B: Runa Menor disparou — "escolha 1 dado com valor 1 para rerrolar"</h3>
+  <div class="scene">
+    <div class="panel" style="position: relative;">
+      <div style="background: var(--color-info-bg); border: 0.5px solid var(--color-info-border); color: var(--color-info-text); padding: 6px 10px; border-radius: 4px; margin-bottom: 10px; font-size: 12px;">
+        ✨ <strong>Runa Menor</strong> — clique em um dado com valor 1 para rerrolar
+        <button style="float: right; padding: 2px 8px; font-size: 11px;">Cancelar</button>
+      </div>
+      <div style="margin-bottom: 8px; color: var(--text-secondary);">Herói (Bárbaro) — 3d6</div>
+      <div class="dice-row">
+        <div class="die blue disabled">5</div>
+        <div class="die blue disabled">3</div>
+        <div class="die blue selectable">1</div>
+        <span style="margin-left: 10px; color: var(--text-tertiary);">aguardando escolha…</span>
+      </div>
+      <div class="note">Apenas dados que passam no filtro (<code>value === 1</code>) ficam clicáveis. Os outros perdem opacidade.</div>
+    </div>
+  </div>
+
+  <h3>Estado C: dois dados elegíveis (Segunda Chance das Fendas)</h3>
+  <div class="scene">
+    <div class="panel">
+      <div style="background: var(--color-info-bg); border: 0.5px solid var(--color-info-border); color: var(--color-info-text); padding: 6px 10px; border-radius: 4px; margin-bottom: 10px; font-size: 12px;">
+        ✨ <strong>Segunda Chance das Fendas</strong> — rerrole 1 dado qualquer
+      </div>
+      <div class="dice-row">
+        <div class="die blue selectable">5</div>
+        <div class="die blue selectable">3</div>
+        <div class="die blue selectable">1</div>
+        <div class="die red selectable">4</div>
+        <div class="die red selectable">6</div>
+        <div class="die red selectable">2</div>
+      </div>
+      <div class="note">Quando <code>side: "any"</code> e sem filtro, todos os dados (heróis e inimigos) são clicáveis.</div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>5. Subchefe + sala especial — Fase 13</h2>
+  <p class="lede">
+    Arquivos: card de inimigo + card de sala.<br>
+    Quando Despertar atinge nível 3 (Vermelho), 2 salas especiais entram no deck. Ao revelar uma delas, o subchefe vinculado spawna em vez das criaturas normais.
+  </p>
+
+  <h3>Sala especial revelada</h3>
+  <div class="scene">
+    <div class="panel" style="display: flex; gap: 12px;">
+      <div style="width: 180px; background: var(--color-purple-bg); border: 1px solid var(--color-purple-border); padding: 8px; border-radius: 6px;">
+        <div style="font-size: 10px; color: var(--color-purple-text); text-transform: uppercase; letter-spacing: 0.5px; margin-bottom: 4px;">Sala Especial</div>
+        <div style="font-weight: 600;">Câmara do Forjador</div>
+        <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">2 saídas · 5 XP</div>
+        <div style="font-size: 11px; color: var(--color-purple-text); margin-top: 6px; font-style: italic;">O subchefe Mestre da Forja aparece.</div>
+      </div>
+      <div style="width: 160px; background: var(--bg-primary); border: 1px solid var(--color-purple-border); padding: 8px; border-radius: 6px;">
+        <span class="badge subboss">Subchefe</span>
+        <div style="font-weight: 600; margin-top: 4px;">Mestre da Forja</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">Vida 8/8 · Dano 3 · 🎯+2</div>
+        <div style="font-size: 11px; color: var(--text-tertiary); margin-top: 6px;">Recompensa: Artefato <strong>Bigorna Rubra</strong> + 4 XP</div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>6. Modo competitivo — Fase 14</h2>
+  <p class="lede">
+    Toggle na tela de setup + painel renderizado com XP por jogador + tela de vitória com nome.<br>
+    Arquivos: <code>SetupScreen.tsx</code>, <code>HeroPanelFooter.tsx</code>, <code>VictoryScreen.tsx</code>.
+  </p>
+
+  <h3>Tela de setup — toggle de modo</h3>
+  <div class="scene">
+    <div class="panel" style="max-width: 480px;">
+      <h3 style="margin-top: 0;">Modo de jogo</h3>
+      <div style="display: flex; gap: 8px;">
+        <button class="primary" style="flex: 1;">🤝 Cooperativo</button>
+        <button style="flex: 1;">⚔ Competitivo</button>
+      </div>
+      <p class="note">Cooperativo: 1 grupo, 1-8 heróis, XP coletivo. Competitivo: 2-8 jogadores, cada um controla 1 herói, XP individual, vence quem cumprir a condição primeiro.</p>
+    </div>
+  </div>
+
+  <h3>Painel competitivo — XP por jogador</h3>
+  <div class="scene">
+    <div class="panel" style="display: flex; gap: 8px;">
+      <div class="hero-card focused" style="width: 180px;">
+        <div style="font-size: 10px; color: var(--color-info-text); font-weight: 600;">JOGADOR 1 · Felipe</div>
+        <div class="hero-art">arte</div>
+        <div class="hero-name">Bárbaro</div>
+        <div class="hero-stats">Vida 4/5 · 🎯+2</div>
+        <div style="margin-top: 4px; padding: 3px 6px; background: var(--color-warn-bg); border-radius: 3px; font-size: 11px; color: var(--color-warn-text);">XP: 8 · Artefatos: 1/2</div>
+      </div>
+      <div class="hero-card" style="width: 180px;">
+        <div style="font-size: 10px; color: var(--text-tertiary); font-weight: 600;">JOGADOR 2 · Ana</div>
+        <div class="hero-art">arte</div>
+        <div class="hero-name">Arqueira</div>
+        <div class="hero-stats">Vida 3/4 · 🎯+1</div>
+        <div style="margin-top: 4px; padding: 3px 6px; background: var(--color-warn-bg); border-radius: 3px; font-size: 11px; color: var(--color-warn-text);">XP: 12 · Artefatos: 2/2 ⚠</div>
+      </div>
+    </div>
+    <div class="annotation">Quando um jogador cumpre a condição: badge "Condição cumprida — combate solo iminente" + interromper exploração coletiva.</div>
+  </div>
+
+  <h3>Tela de vitória — nome do vencedor</h3>
+  <div class="scene">
+    <div class="panel" style="text-align: center; padding: 40px;">
+      <div style="font-size: 32px;">🏆</div>
+      <h3 style="margin: 12px 0 4px 0;">Vitória!</h3>
+      <div style="font-size: 18px; font-weight: 600;">Ana</div>
+      <div style="color: var(--text-secondary); margin-top: 4px;">derrotou Azhakar primeiro</div>
+      <div style="margin-top: 16px; font-size: 12px; color: var(--text-tertiary);">
+        Demais jogadores: Felipe (eliminado), Beto (continua explorando — partida encerrada)
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>7. Indicador visual de Efeito Roxo ativo — Fases 1 e 10</h2>
+  <p class="lede">
+    Não exige modal, mas vale destacar no card de criatura quando o Despertar = Roxo (efeito roxo ativo).<br>
+    Arquivo: <code>EnemyCard.tsx</code>, <code>CardDetailModal.tsx</code>.
+  </p>
+
+  <div class="scene">
+    <h3>Estado A: Despertar = Vermelho (efeito roxo presente mas inativo)</h3>
+    <div class="panel" style="display: flex; gap: 8px;">
+      <div style="width: 200px; background: var(--bg-primary); border: 0.5px solid var(--border-tertiary); padding: 8px; border-radius: 6px;">
+        <div style="font-weight: 600;">Acólito da Chama</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">Vida 3/3 · Dano 2</div>
+        <div style="margin-top: 6px; padding: 4px 6px; background: var(--bg-secondary); border-radius: 3px; font-size: 11px; color: var(--text-tertiary);">
+          <span style="opacity: 0.5;">🟣 Despertar Mortal (inativo — Despertar ≠ Roxo)</span>
+        </div>
+      </div>
+    </div>
+
+    <h3 style="margin-top: 16px;">Estado B: Despertar = Roxo (efeito roxo ativo)</h3>
+    <div class="panel" style="display: flex; gap: 8px;">
+      <div style="width: 200px; background: var(--bg-primary); border: 1px solid var(--color-purple-border); padding: 8px; border-radius: 6px; box-shadow: 0 0 8px rgba(105,55,170,0.2);">
+        <div style="font-weight: 600;">Acólito da Chama</div>
+        <div style="font-size: 11px; color: var(--text-secondary);">Vida 3/3 · Dano 2</div>
+        <div style="margin-top: 6px; padding: 4px 6px; background: var(--color-purple-bg); border: 0.5px solid var(--color-purple-border); border-radius: 3px; font-size: 11px; color: var(--color-purple-text);">
+          <span class="badge purple">🟣 ATIVO</span><br>
+          <strong>Despertar Mortal:</strong> ao ser destruído, sobe Despertar em 1.
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <!-- ─────────────────────────────────────────────── -->
+  <h2>Resumo de UI por fase</h2>
+  <div class="scene">
+    <table>
+      <thead><tr><th>Fase</th><th>Arquivo / componente</th><th>Tipo</th></tr></thead>
+      <tbody>
+        <tr><td>1</td><td>EnemyCard / CardDetailModal — pintar badge "Roxo ativo"</td><td>Visual</td></tr>
+        <tr><td>2</td><td>—</td><td>Sem UI</td></tr>
+        <tr><td>3</td><td>HeroFocusPanel (botão), card "fugiu", FleeReconfigureModal</td><td>Botão + modal + estado visual</td></tr>
+        <tr><td>4</td><td>SkillChoiceModal (modal genérico)</td><td>Modal novo</td></tr>
+        <tr><td>5</td><td>reusa SkillChoiceModal</td><td>Sem UI nova</td></tr>
+        <tr><td>6</td><td>—</td><td>Sem UI</td></tr>
+        <tr><td>7</td><td>—</td><td>Sem UI</td></tr>
+        <tr><td>8</td><td>CombatDiceArea — dados clicáveis com glow dourado</td><td>Interação nova</td></tr>
+        <tr><td>9</td><td>reusa SkillChoiceModal</td><td>Sem UI nova</td></tr>
+        <tr><td>10</td><td>(opcional) badge "Roxo ativo" cobre Fase 1</td><td>Sem UI nova</td></tr>
+        <tr><td>11</td><td>(opcional) renderizar tokens em cards</td><td>Visual leve</td></tr>
+        <tr><td>12</td><td>reusa SkillChoiceModal</td><td>Sem UI nova</td></tr>
+        <tr><td>13</td><td>Badge "Subchefe", card de sala especial</td><td>Visual</td></tr>
+        <tr><td>14</td><td>SetupScreen toggle, painel competitivo, VictoryScreen com nome</td><td>3 telas tocadas</td></tr>
+      </tbody>
+    </table>
+  </div>
+
+</div>
+</body>
+</html>

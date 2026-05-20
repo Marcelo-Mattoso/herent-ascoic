@@ -12,6 +12,7 @@ import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
 import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
+import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { useGameStore } from "@/ui/store/gameStore";
 import { selectFocusedHero } from "@/ui/store/selectors";
@@ -252,6 +253,7 @@ export function Exploration() {
 			{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
 			{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
 			{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
+			{state.pendingSkillChoice && <SkillChoiceModal />}
 			{modal === "card_detail" && detailCard && (
 				<CardDetailModal
 					cardName={detailCard.name}

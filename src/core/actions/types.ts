@@ -98,4 +98,6 @@ export type Action =
 				targetIds?: string[];
 				value?: number | string | null;
 			};
-	  };
+	  }
+	// ── Escolha de habilidade (Patch 8) ──────────────────────────────────────────
+	| { type: "SKILL_CHOICE"; payload: { skillId: string; choice: string } };

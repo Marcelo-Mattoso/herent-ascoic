@@ -10,11 +10,23 @@ export type SkillHandler = (
 	value: number | string | null,
 ) => GameState;
 
+// Continuação de skill após SKILL_CHOICE: recebe o estado limpo (sem pendingSkillChoice) e a escolha.
+export type SkillContinuation = (
+	state: GameState,
+	ctx: SkillContext,
+	choice: string,
+) => GameState;
+
 const _registry = new Map<string, SkillHandler>();
+const _continuations = new Map<string, SkillContinuation>();
 const _warnedMissing = new Set<string>();
 
 export function register(type: string, handler: SkillHandler): void {
 	_registry.set(type, handler);
+}
+
+export function registerContinuation(type: string, fn: SkillContinuation): void {
+	_continuations.set(type, fn);
 }
 
 export function getHandler(type: string): SkillHandler | null {
@@ -27,4 +39,8 @@ export function getHandler(type: string): SkillHandler | null {
 		return null;
 	}
 	return h;
+}
+
+export function getContinuation(type: string): SkillContinuation | undefined {
+	return _continuations.get(type);
 }

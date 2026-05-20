@@ -15,6 +15,7 @@ interface GameStore {
 	ui: UiState;
 	dispatch: (action: Action) => void;
 	setFocusedHero: (heroId: string | null) => void;
+	resolveSkillChoice: (choice: string) => void;
 	reset: () => void;
 }
 
@@ -40,6 +41,12 @@ export const useGameStore = create<GameStore>((set, get) => ({
 
 	setFocusedHero: (heroId) =>
 		set((s) => ({ ui: { ...s.ui, focusedHeroId: heroId } })),
+
+	resolveSkillChoice: (choice) => {
+		const pending = get().state.pendingSkillChoice;
+		if (!pending) return;
+		get().dispatch({ type: "SKILL_CHOICE", payload: { skillId: pending.skillId, choice } });
+	},
 
 	reset: () =>
 		set({

@@ -127,6 +127,7 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		},
 	};
 	next = fireTrigger(next, "before_combat", { triggeredBy: "before_combat" });
+	next = fireTrigger(next, "before_first_combat_in_room", { triggeredBy: "before_first_combat_in_room" });
 	return log(next, `${enemies.length} inimigo(s) aparecem: ${enemies.map((e) => e.cardName).join(", ")}.`);
 }
 
@@ -137,7 +138,7 @@ export function handleOpenPaths(state: GameState): GameState {
 	const drawn = available.slice(0, exits);
 	const remaining = available.slice(exits);
 
-	return log(
+	let next: GameState = log(
 		{
 			...state,
 			paths: drawn,
@@ -149,6 +150,8 @@ export function handleOpenPaths(state: GameState): GameState {
 		},
 		`${drawn.length} caminho(s) revelado(s).`,
 	);
+	next = fireTrigger(next, "on_reveal_paths", { triggeredBy: "on_reveal_paths" });
+	return next;
 }
 
 export function handleChoosePath(

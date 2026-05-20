@@ -29,6 +29,11 @@ export function resolveSkillFor(
 	return null;
 }
 
+// Busca uma SkillDefinition pelo id único da skill.
+export function lookupSkillById(id: string): SkillDefinition | null {
+	return SKILLS.abilities.find((a) => a.id === id) ?? null;
+}
+
 // Retorna o `value` declarado em usedBy para o par (cardName, field).
 export function resolveSkillValue(
 	cardName: string,

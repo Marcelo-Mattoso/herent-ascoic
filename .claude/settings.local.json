@@ -39,7 +39,10 @@
       "Bash(node -e \"const j=require\\('./docs/spec/v3/habilidades_1.json'\\); const byCat={}; const byType={}; const byTrig={}; for\\(const a of j.abilities\\){byCat[a.category]=\\(byCat[a.category]||0\\)+1; byType[a.type]=\\(byType[a.type]||0\\)+1; byTrig[a.trigger]=\\(byTrig[a.trigger]||0\\)+1;} console.log\\('total:',j.abilities.length\\); console.log\\('categorias:',byCat\\); console.log\\('types:',byType\\); console.log\\('triggers:',byTrig\\);\")",
       "Bash(Get-ChildItem -Path \"F:\\\\temp\\\\jogo-cartas-mvp1\\\\src\\\\data\" -Force)",
       "Bash(Select-Object Name)",
-      "Bash(Format-Table -HideTableHeaders)"
+      "Bash(Format-Table -HideTableHeaders)",
+      "Bash(pdfinfo \"docs/spec/v2/Ascensão Heróica - ajustado com FAQ-v2.pdf\")",
+      "Bash(pdfinfo \"docs/spec/v1/Jornada do Usuário — Ascensão Heróica Digital.pdf\")",
+      "Bash(pdfinfo \"docs/spec/v1/cartas.pdf\")"
     ]
   }
 }

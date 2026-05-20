@@ -78,6 +78,14 @@ export interface GameState {
 	// Flags globais de mecânicas (ex: discardDungeonLocked)
 	readonly flags: Readonly<Record<string, boolean>>;
 
+	// Escolha pendente de skill aguardando input do jogador
+	pendingSkillChoice?: {
+		readonly skillId: string;
+		readonly prompt: string;
+		readonly options: readonly { readonly id: string; readonly label: string }[];
+		readonly sourceHeroId?: string;
+	};
+
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
 }

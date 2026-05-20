@@ -465,6 +465,30 @@ export function handleUseItem(
 		backpack: h.backpack.filter((i) => i !== itemName),
 	}));
 
+	// itemControl: inimigo do par atual pode ignorar o 1º efeito de item
+	const currentPairEnemyId = state.combat?.pairs.find((p) => p.heroId === heroId)?.enemyId;
+	if (currentPairEnemyId) {
+		const afterTrigger = fireTrigger(withItemRemoved, "first_item_effect_received", {
+			triggeredBy: "first_item_effect_received",
+			sourceHeroId: heroId,
+			sourceEnemyId: currentPairEnemyId,
+		});
+		if (afterTrigger.combat?.itemControlByEnemy[currentPairEnemyId]) {
+			return log(
+				{
+					...afterTrigger,
+					combat: {
+						...afterTrigger.combat!,
+						itemControlByEnemy: { ...afterTrigger.combat!.itemControlByEnemy, [currentPairEnemyId]: false },
+					},
+				},
+				`${currentPairEnemyId}: Evasão das Fendas — efeito de item bloqueado.`,
+			);
+		}
+		const targetIds = targetHeroId ? [targetHeroId] : [heroId];
+		return fireOnUseSkill(afterTrigger, { skillId: skillDef.id, sourceId: heroId, targetIds });
+	}
+
 	const targetIds = targetHeroId ? [targetHeroId] : [heroId];
 	return fireOnUseSkill(withItemRemoved, {
 		skillId: skillDef.id,

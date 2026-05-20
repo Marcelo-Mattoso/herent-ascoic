@@ -65,6 +65,10 @@ export interface CombatState {
 	readonly ecoTokens: Readonly<Record<string, number>>;
 	// Penalidade de acerto por herói (ex: Calor Escaldante, Corpo Gelatinoso)
 	readonly tohitPenaltyByHero: Readonly<Record<string, number>>;
+	// Inimigo ignora 1º efeito de item (Evasão das Fendas)
+	readonly itemControlByEnemy: Readonly<Record<string, boolean>>;
+	// Herói ignora 1º efeito que o escolha como alvo (Véu Protetor)
+	readonly targetProtectionByHero: Readonly<Record<string, boolean>>;
 	// Flags de uso por escopo (guards once_per_*)
 	readonly oncePer: {
 		readonly room: Readonly<Record<string, boolean>>;
@@ -92,5 +96,7 @@ export function createEmptyCombatState(): CombatState {
 		prey: null,
 		ecoTokens: {},
 		tohitPenaltyByHero: {},
+		itemControlByEnemy: {},
+		targetProtectionByHero: {},
 	};
 }

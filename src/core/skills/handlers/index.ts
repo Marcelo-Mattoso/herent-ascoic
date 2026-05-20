@@ -12,7 +12,11 @@ import { handleDirectDamage } from "./direct_damage";
 import { handleDiscardDungeon } from "./discardDungeon";
 import { handleDiscardDungeonLock } from "./discardDungeonLock";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
+import { handleDungeon } from "./dungeon";
 import { handleDungeonLevel } from "./dungeonLevel";
+import { handleItemControl } from "./itemControl";
+import { handleItemOrDiscardDungeon } from "./item_or_discardDungeon";
+import { handleTargetProtection } from "./targetProtection";
 import { handleHeal } from "./heal";
 import { handleHealBlock } from "./heal_block";
 import { handleHealOrDamageBonus } from "./heal_or_damage_bonus";
@@ -57,11 +61,17 @@ register("discardDungeonLock", handleDiscardDungeonLock);
 register("discardDungeon", handleDiscardDungeon);
 register("reward", handleReward);
 
+// Onda B (patch-8 fase 5) — handlers com SKILL_CHOICE
+// Imports com side-effect de registerContinuation já ocorrem acima
+register("item_or_discardDungeon", handleItemOrDiscardDungeon);
+register("itemControl", handleItemControl);
+register("targetProtection", handleTargetProtection);
+register("dungeon", handleDungeon);
+
 // Tipos não implementados (noop com log)
 const noopTypes = [
 	"reroll", "drawItem", "recover_item", "flee_block",
-	"item_or_discardDungeon", "itemControl",
-	"targetProtection", "targetRedirect_or_tohit", "dungeon",
+	"targetRedirect_or_tohit",
 	"purple_damage_reduction",
 ];
 for (const t of noopTypes) {

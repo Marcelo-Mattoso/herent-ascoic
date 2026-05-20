@@ -77,3 +77,8 @@ export const defeat = (reason: string): Action => ({
 	type: "DEFEAT",
 	payload: { reason },
 });
+
+export const skillChoice = (skillId: string, choice: string): Action => ({
+	type: "SKILL_CHOICE",
+	payload: { skillId, choice },
+});

@@ -46,6 +46,8 @@ import {
 } from "./reward";
 import "../skills/handlers/index"; // registra todos os handlers no boot
 import { fireOnUseSkill } from "../skills/useSkill";
+import { getContinuation } from "../skills/registry";
+import { lookupSkillById } from "../skills/lookup";
 import { handleStartGame } from "./setup";
 
 export function reducer(state: GameState, action: Action): GameState {
@@ -179,6 +181,20 @@ export function reducer(state: GameState, action: Action): GameState {
 
 		case "USE_SKILL":
 			return fireOnUseSkill(state, action.payload);
+
+		case "SKILL_CHOICE": {
+			const pending = state.pendingSkillChoice;
+			if (!pending) return state;
+			const def = lookupSkillById(pending.skillId);
+			const cont = getContinuation(def?.type ?? "");
+			const cleared = { ...state, pendingSkillChoice: undefined };
+			if (!cont) return cleared;
+			return cont(
+				cleared,
+				{ triggeredBy: "on_use", skillId: pending.skillId, sourceHeroId: pending.sourceHeroId },
+				action.payload.choice,
+			);
+		}
 
 		case "DUNGEON_EXHAUSTED":
 			return { ...state, status: "DUNGEON_EXHAUSTED" };
