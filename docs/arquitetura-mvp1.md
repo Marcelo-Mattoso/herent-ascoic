@@ -252,6 +252,44 @@ Cada dificuldade aplica dois deslocamentos: um sobre o Ímpeto inicial de cada h
 - Quando cumprida: interrompe exploração, inicia combate final.
 - No MVP 1 com Azhakar: `o grupo possui ≥2 Artefatos`.
 
+### 5.10 Fuga (Patch 8 — F3)
+- Disponível apenas para herói com `currentLife === 1` e sem `state.flags.fleeBlocked`.
+- Jogador despacha `DECLARE_FLEE { heroId }`. Marca `combat.fleeAttemptByHero[heroId] = true`.
+- Na resolução do próximo combate desse herói, se **vencer** o roll: herói move para `state.fledHeroes`, criatura volta ao `enemyDeck` (não vai para o graveyard, não gera recompensa).
+- Se **perder/empatar**: herói sofre dano normalmente (com vida 1, morre).
+- Se todos os heróis fugiram e não há mais heróis ativos: status vai para `DUNGEON_RESTART_PROMPT`.
+- `RESTART_DUNGEON { keepEquipment }`: reembaralha todos os decks, restaura heróis fugidos com vida máxima.
+- Implementação: `src/core/rules/flee.ts`, `src/core/reducer/combat.ts` (`handleDeclareFlee`, `handleResolveAttack`), `src/core/reducer/exploration.ts` (`handleRestartDungeon`).
+- UI: botão "🏃 Fugir" em `HeroFocusPanel.tsx`; `FleeReconfigureModal.tsx`.
+
+### 5.11 Efeito Roxo (Patch 8 — F1)
+- Efeitos `purpleEffect` de criaturas **só disparam** quando `state.dungeonAwakening === 4` (índice Roxo).
+- Filtro em `src/core/skills/dispatch.ts`: `if (field === "purpleEffect" && state.dungeonAwakening !== 4) continue;`
+- Trigger `on_purple_effect_damage_taken` pode ser disparado por handlers de efeito roxo que causam dano, permitindo que `purple_damage_reduction` reduza o dano sofrido.
+- A redução fica em `state.flags["purpleDmgReduction::${heroId}"]` e é consultada pelo handler de dano roxo antes de aplicar.
+
+### 5.12 Tokens (Patch 8 — F11)
+- `state.tokens: Record<string, { count, ownerId, type }>` — chave `"${ownerId}::${tokenType}"`.
+- Utilitários: `hasToken(state, ownerId, type)`, `countTokens(state, ownerId, type)` em `src/core/state/tokens.ts`.
+- Actions: `ADD_TOKEN { ownerId, type, amount }`, `REMOVE_TOKEN { ownerId, type, amount }`.
+- Tokens são limpos quando o dono sai do jogo (`handleCheckCombatEnd`, `handleRestartDungeon`).
+
+### 5.13 Subchefes (Patch 8 — F13)
+- Dois subchefes existem no catálogo: "Carcereiro da Masmorra Rubra" e "Guardião do Abismo Rachado" (`type: "subboss"`).
+- Quando o Despertar atinge nível 3 (Vermelho), `injectSubbossRooms` em `progression.ts` embaralha 2 salas especiais (`type: "subboss_room"`) no deck de dungeon remanescente.
+- Ao revelar uma sala de subchefe: `handleRevealSubbossRoom` em `exploration.ts` spawna o subchefe vinculado (`linkedSubbossName`) diretamente em `activeEnemies`, sem consumir do `enemyDeck`. Vai direto para `COMBAT_START`.
+- Ao derrotar um subchefe: o inimigo tem `isSubboss: true` no `EnemyState`; `handleGrantRewards` em `reward.ts` registra o nome em `state.subbosses.defeated`.
+- `state.subbosses: { available: string[]; defeated: string[] }` — rastreamento de quais subchefes foram injetados e derrotados.
+- UI: `EnemyCard.tsx` exibe badge roxo "Subchefe" e emoji 💀.
+
+### 5.14 Modo Competitivo (Patch 8 — F14)
+- `GameState.mode: "cooperative" | "competitive"` — padrão `"cooperative"`.
+- Configurado em `GameConfig.mode` e armazenado pelo `handleStartGame`.
+- Em modo competitivo: cada herói tem `playerIndex` único (0-based) e `xp` individual acumulado.
+- `handleGrantRewards` distribui XP proporcional entre heróis que participaram do combate (via `combat.pairs`).
+- Ao atingir vitória em competitivo: `state.winner` recebe o nome do herói ativo com mais XP individual.
+- UI: `Setup.tsx` exibe toggle cooperativo/competitivo (mínimo 2 heróis em competitivo); `BoardFooter.tsx` mostra XP por jogador; `Victory.tsx` nomeia o vencedor.
+
 ---
 
 ## 6. Schema do JSON de cartas
@@ -366,7 +404,8 @@ Estes pontos não bloqueiam o MVP 1. Cada um já está mapeado para o módulo ce
 | Mochila ilimitada | Sim | `core/config/defaults.ts` |
 | Trocar itens em janela de XP | Não | Fases de ação em `core/state/gameState.ts` |
 | Boss fixo vs sorteado | Fixo (Azhakar) | `core/strategies/bossSelection.ts` |
-| Subchefes | Desligado por flag | `core/config/defaults.ts` |
+| Subchefes | ✅ Implementado (Patch 8 — F13) | `src/core/reducer/progression.ts`, `exploration.ts` |
+| Modo competitivo | ✅ Implementado (Patch 8 — F14) | `GameState.mode`, `Setup.tsx`, `Victory.tsx` |
 
 ---
 
@@ -461,8 +500,6 @@ Tudo que está em "MVP 2/3/4" da jornada original fica fora.
 
 - Animações complexas (use transições CSS simples se for necessário).
 - Sons.
-- Subchefes (a feature flag fica desligada, mas o código já prevê).
-- Modos cooperativo ou competitivo.
 - Salvar partida em localStorage (mesmo a infraestrutura estando pronta).
 - Biblioteca de cartas.
 - Tutorial.
@@ -512,11 +549,23 @@ Triggers compostos (`once_per_X_...`) são parseados por `parseTrigger()` — se
 
 `before_attack`, `after_roll`, `on_deal_damage`, `on_damage_taken`, `on_take_damage`, `on_take_attack_damage`, `on_destroy_creature_with_attack`, `start_of_combat`, `on_enter_combat`, `before_combat`, `on_room_reveal`, `on_enter_room`, `first_round_in_room`, `on_win_room`.
 
-### Handlers implementados (MVP1)
+### Handlers implementados (Patch 8 — completo)
 
-`damage_bonus`, `heal`, `armor`, `dice_modification`, `discardDungeon_prevention`, `mark_and_tohit`, `recoverDungeon`, `tohit_damage`, `heal_or_survive`, `diceFix`, `damage_bonus_duration`, `heal_or_damage_bonus`, `token`, `diceFix_damage`, `direct_damage`, `tohit`, `prevent_damage`, `dungeonLevel`.
+**Heróis:** `damage_bonus`, `heal`, `armor`, `dice_modification`, `discardDungeon_prevention`, `mark_and_tohit`, `recoverDungeon`, `tohit_damage`, `heal_or_survive`, `diceFix`, `damage_bonus_duration`, `heal_or_damage_bonus`, `token`, `diceFix_damage`.
 
-Pendências: `docs/patch-7-pendencias.md`.
+**Itens / criaturas / salas:** `direct_damage`, `directDamage` (alias), `tohit`, `prevent_damage`, `dungeonLevel`.
+
+**Patch 8 — Onda A:** `tohit_penalty`, `healBlock`, `discardDungeonLock`, `discardDungeon`, `reward`.
+
+**Patch 8 — Onda B (SKILL_CHOICE):** `item_or_discardDungeon`, `itemControl`, `targetProtection`, `dungeon`.
+
+**Patch 8 — fases 6–12:** `splash_damage`, `reroll`, `targetRedirect_or_tohit`, `drawItem`, `purple_damage_reduction`.
+
+**Noop documentado:** `recover_item` (sem carta com `usedBy` no catálogo — ver `docs/patch-7-pendencias.md`).
+
+### Triggers de dispatch (completo após Patch 8)
+
+`before_attack`, `after_roll`, `on_deal_damage`, `on_damage_taken`, `on_take_damage`, `on_take_attack_damage`, `on_destroy_creature_with_attack`, `start_of_combat`, `on_enter_combat`, `before_combat`, `before_first_combat_in_room`, `on_room_reveal`, `on_enter_room`, `on_enter_play`, `first_round_in_room`, `on_win_room`, `on_targeted`, `on_purple_effect_damage_taken`.
 
 ---
 
