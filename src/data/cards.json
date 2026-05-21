@@ -2027,7 +2027,7 @@
   },
   {
     "type": "subboss_room",
-    "name": "Abismo Rachado",
+    "name": "Câmara do Abismo Rachado",
     "exits": 2,
     "reward": 1,
     "rewardType": "artifact",

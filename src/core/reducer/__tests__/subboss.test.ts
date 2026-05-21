@@ -75,7 +75,7 @@ describe("F13 — Subchefes", () => {
 		state = {
 			...state,
 			despertar: 3 as import("../../state/color").ColorIndex,
-			subbosses: { available: ["Câmara do Carcereiro", "Abismo Rachado"], defeated: [] },
+			subbosses: { available: ["Câmara do Carcereiro", "Câmara do Abismo Rachado"], defeated: [] },
 			decks: {
 				...state.decks,
 				dungeonDeck: {
