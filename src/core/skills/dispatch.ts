@@ -48,6 +48,15 @@ export function parseTrigger(trigger: TriggerName): { guard: string | null; base
 			return { guard: g, base: suffixMap[rest] ?? rest };
 		}
 	}
+	// Aliases: triggers do JSON que disparam via um trigger base já existente
+	const triggerAliases: Record<string, string> = {
+		combat: "before_attack", // Fio Mortal — item sempre ativo em combate
+		combat_against_self: "before_attack", // Corpo Gelatinoso — penalidade ao atacar esta criatura
+		combat_if_dungeon_red_or_purple: "combat_if_dungeon_red_or_purple", // disparado condicionalmente em combat.ts
+		while_in_play: "while_in_play", // disparado em handleStartCombat
+		on_destroyed: "on_destroyed", // disparado em handleResolveAttack ao matar inimigo
+	};
+	if (triggerAliases[trigger]) return { guard: null, base: triggerAliases[trigger] };
 	return { guard: null, base: trigger };
 }
 
@@ -202,6 +211,14 @@ export function fireTrigger(
 			skill.sourceHeroId &&
 			ctx.sourceHeroId &&
 			skill.sourceHeroId !== ctx.sourceHeroId
+		)
+			continue;
+		// Enemy skills with combat_against_self only fire when the hero is attacking THAT enemy.
+		if (
+			trigger === "before_attack" &&
+			skill.sourceEnemyId &&
+			ctx.sourceEnemyId &&
+			skill.sourceEnemyId !== ctx.sourceEnemyId
 		)
 			continue;
 

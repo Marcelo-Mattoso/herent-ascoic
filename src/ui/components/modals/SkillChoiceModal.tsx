@@ -27,11 +27,11 @@ export function SkillChoiceModal() {
 				{pending.options.map((opt) => (
 					<ActionButton
 						key={opt.id}
+						label={opt.label}
 						onClick={() => choose(opt.id)}
 						variant="secondary"
-					>
-						{opt.label}
-					</ActionButton>
+						fullWidth
+					/>
 				))}
 			</div>
 		</Modal>

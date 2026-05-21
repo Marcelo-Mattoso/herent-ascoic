@@ -26,6 +26,8 @@ export function handleStartCombat(state: GameState): GameState {
 	};
 	next = fireTrigger(next, "start_of_combat", { triggeredBy: "start_of_combat" });
 	next = fireTrigger(next, "on_enter_combat", { triggeredBy: "on_enter_combat" });
+	// while_in_play: efeitos passivos enquanto inimigo está em jogo (ex: Corrupção de Caminho)
+	next = fireTrigger(next, "while_in_play", { triggeredBy: "while_in_play" });
 	return log(next, "Combate iniciado.");
 }
 
@@ -182,12 +184,20 @@ export function handleRollDice(state: GameState): GameState {
 	const enemy = state.activeEnemies.find((e) => e.id === pair.enemyId);
 	if (!hero || !enemy) return state;
 
-	// before_attack: modificadores antes de rolar
+	// before_attack: modificadores antes de rolar (inclui aliases: combat, combat_against_self)
 	let preRoll = fireTrigger(state, "before_attack", {
 		triggeredBy: "before_attack",
 		sourceHeroId: hero.id,
 		sourceEnemyId: enemy.id,
 	});
+	// combat_if_dungeon_red_or_purple: habilidades condicionadas ao nível de Despertar
+	if (preRoll.despertar >= 3) {
+		preRoll = fireTrigger(preRoll, "combat_if_dungeon_red_or_purple", {
+			triggeredBy: "combat_if_dungeon_red_or_purple",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+		});
+	}
 
 	const extraDice = preRoll.combat?.extraDice[hero.id] ?? 0;
 	const heroDiceCount = hero.dice + extraDice;
@@ -319,6 +329,12 @@ export function handleResolveAttack(state: GameState): GameState {
 				sourceHeroId: hero.id,
 				sourceEnemyId: enemy.id,
 				isFirstKillInRoom: next.creaturesDefeated === 0,
+			});
+			// on_destroyed: efeitos ao ser destruído (ex: efeitos roxos de morte)
+			next = fireTrigger(next, "on_destroyed", {
+				triggeredBy: "on_destroyed",
+				sourceHeroId: hero.id,
+				sourceEnemyId: enemy.id,
 			});
 		}
 	}

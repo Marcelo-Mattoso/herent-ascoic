@@ -1,6 +1,9 @@
-// tohit_damage: Luz da Aurora Final (Paladino skill).
-// No Despertar Vermelho (3) ou Roxo (4): +value no acerto e +value de dano.
-// Registra bônus no bonusNextAttack do herói.
+// tohit_damage: bônus de acerto+dano em combate.
+// Cobre múltiplas skills:
+//   - Fio Mortal (Adaga, Machado, Martelo, Coração de Brasa): trigger "combat", sempre ativo
+//   - Luz da Aurora Final (Paladino): trigger "combat_if_dungeon_red_or_purple", só a Despertar 3+
+//   - Fera Solitária (Rato, Cavaleiro, Ogro): trigger "combat_if_alone_in_room" (enemy skill)
+// O trigger controla QUANDO dispara; o handler aplica o bônus ao herói atacante.
 
 import type { SkillContext } from "../../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
@@ -14,15 +17,16 @@ export function handleTohitDamage(
 ): GameState {
 	const parsed = parseSlashPair(value);
 	if (!parsed) return state;
-	const { a: tohit, b: damage } = parsed;
+	const { a: _tohit, b: damage } = parsed;
 
 	if (!ctx.sourceHeroId || !state.combat) return state;
 
-	// Verificar nível do despertar (3=vermelho, 4=roxo)
-	if (state.despertar < 3) return state;
-
 	const hero = state.heroes.find((h) => h.id === ctx.sourceHeroId);
 	if (!hero || hero.status !== "active") return state;
+
+	const label = ctx.triggeredBy === "combat_if_dungeon_red_or_purple"
+		? `Despertar ${state.despertar}: +${_tohit} acerto, +${damage} dano.`
+		: `+${_tohit} acerto, +${damage} dano neste ataque.`;
 
 	return log(
 		{
@@ -35,6 +39,6 @@ export function handleTohitDamage(
 				},
 			},
 		},
-		`Paladino: Despertar ${state.despertar} — +${tohit} acerto, +${damage} dano no próximo ataque.`,
+		label,
 	);
 }
