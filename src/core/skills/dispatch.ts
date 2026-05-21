@@ -196,6 +196,15 @@ export function fireTrigger(
 	let current = state;
 
 	for (const skill of skills) {
+		// Hero-owned skills on before_attack are self-only: only fire for the attacking hero.
+		if (
+			trigger === "before_attack" &&
+			skill.sourceHeroId &&
+			ctx.sourceHeroId &&
+			skill.sourceHeroId !== ctx.sourceHeroId
+		)
+			continue;
+
 		if (!guardPassed(current, skill.definition, skill.sourceHeroId)) continue;
 
 		const handler = getHandler(skill.definition.type);
