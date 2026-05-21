@@ -153,7 +153,11 @@ function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkil
 	}
 
 	// Inimigos ativos — effect e purpleEffect
-	for (const enemy of state.activeEnemies.filter((e) => e.status === "active")) {
+	// on_destroyed também inclui inimigos recém-derrotados (status "defeated")
+	const enemyFilter = trigger === "on_destroyed"
+		? (e: { status: string }) => e.status === "active" || e.status === "defeated"
+		: (e: { status: string }) => e.status === "active";
+	for (const enemy of state.activeEnemies.filter(enemyFilter)) {
 		for (const field of ["effect", "purpleEffect"] as const) {
 				if (field === "purpleEffect" && state.despertar !== 4) continue;
 				const def = resolveSkillFor(enemy.cardName, field);

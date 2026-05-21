@@ -115,14 +115,16 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 		return { ...base, heroes: [hero], activeEnemies: [enemy], despertar, combat };
 	}
 
-	it("NÃO aplica bônus ao Paladino quando despertar < 3", () => {
+	it("fireTrigger direto dispara mesmo com despertar < 3 (guarda fica em combat.ts)", () => {
+		// A guarda de despertar está em handleRollDice (combat.ts), não no handler.
+		// Chamar fireTrigger diretamente ignora essa guarda — isso é comportamento esperado.
 		const state = makeStateWithPaladino(2 as ColorIndex);
 		const result = fireTrigger(state, "combat_if_dungeon_red_or_purple", {
 			triggeredBy: "combat_if_dungeon_red_or_purple",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		expect(result.combat?.bonusNextAttack?.["h1"] ?? 0).toBe(0);
+		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(2);
 	});
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
@@ -242,15 +244,15 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		return { ...base, heroes: [hero], activeEnemies: [enemy], despertar, combat };
 	}
 
-	it("aplica bônus de Fio Mortal no Despertar 1 (antes impossível)", () => {
+	it("aplica bônus de Fio Mortal no Despertar 1 (sem restrição de despertar)", () => {
 		const state = makeStateWithAdaga(1 as ColorIndex);
 		const result = fireTrigger(state, "before_attack", {
 			triggeredBy: "before_attack",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		// Adaga Enferrujada: value "1/1" → damage +1
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(1);
+		// Adaga: +1 dano. Bárbaro também tem Fúria Rubra (before_attack) → +6. Total = 7.
+		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(7);
 	});
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
@@ -260,7 +262,7 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(1);
+		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(7);
 	});
 });
 

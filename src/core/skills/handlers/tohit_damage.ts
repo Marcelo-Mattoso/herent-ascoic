@@ -15,7 +15,8 @@ export function handleTohitDamage(
 	ctx: SkillContext,
 	value: number | string | null,
 ): GameState {
-	const parsed = parseSlashPair(value);
+	// Aceita "X/Y" (tohit/damage distintos) ou número simples (ambos iguais)
+	const parsed = parseSlashPair(value) ?? (typeof value === "number" ? { a: value, b: value } : null);
 	if (!parsed) return state;
 	const { a: _tohit, b: damage } = parsed;
 

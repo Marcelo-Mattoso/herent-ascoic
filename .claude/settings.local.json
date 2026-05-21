@@ -56,7 +56,8 @@
       "Bash(python -c \"import json; s=json.load\\(open\\('src/data/skills.json'\\)\\); print\\(type\\(s\\)\\); print\\(list\\(s.keys\\(\\)\\)[:5] if isinstance\\(s,dict\\) else 'list of '+str\\(len\\(s\\)\\)\\)\")",
       "Bash(python -c ' *)",
       "Bash(node -e \"const s = require\\('./src/data/skills.json'\\); console.log\\(Object.keys\\(s\\).slice\\(0,5\\)\\);\")",
-      "Bash(xargs grep -l \"self_damage\")"
+      "Bash(xargs grep -l \"self_damage\")",
+      "Bash(node -e \"const c = require\\('./src/data/cards.json'\\); const adaga = Object.values\\(c\\).find\\(v=>v.name&&v.name.includes\\('Adaga'\\)\\); console.log\\(JSON.stringify\\(adaga\\)\\);\")"
     ]
   }
 }
