@@ -69,7 +69,6 @@ describe("F13 — Subchefes", () => {
 
 	it("revelar sala de subchefe spawna o subchefe correto (sem desenhar do enemyDeck)", () => {
 		let state = makeState();
-		const heroId = state.heroes[0]!.id;
 
 		// Injetar salas de subchefe manualmente no topo do deck
 		state = {

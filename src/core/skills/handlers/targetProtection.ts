@@ -5,7 +5,7 @@
 
 import type { SkillContext } from "../../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
-import { log, mapEnemy } from "../../reducer/utils";
+import { log } from "../../reducer/utils";
 
 export function handleTargetProtection(
 	state: GameState,

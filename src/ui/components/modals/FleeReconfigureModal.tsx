@@ -18,17 +18,15 @@ export function FleeReconfigureModal() {
 
 			<div className="flex flex-col gap-3">
 				<ActionButton
+					label="Reiniciar mantendo equipamentos"
 					onClick={() => dispatch({ type: "RESTART_DUNGEON", payload: { keepEquipment: true } })}
 					variant="primary"
-				>
-					Reiniciar mantendo equipamentos
-				</ActionButton>
+				/>
 				<ActionButton
+					label="Reiniciar do zero"
 					onClick={() => dispatch({ type: "RESTART_DUNGEON", payload: { keepEquipment: false } })}
 					variant="secondary"
-				>
-					Reiniciar do zero
-				</ActionButton>
+				/>
 			</div>
 		</Modal>
 	);

@@ -63,6 +63,7 @@ describe("purpleEffect filter", () => {
 					id: "h1", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
 					damage: 3, hitBonus: 1, dice: 2, impeto: 0 as const,
 					activeItems: {}, backpack: [], usedPowers: {}, conditions: [], status: "active" as const,
+					playerIndex: 0, xp: 0,
 				},
 			],
 		};
@@ -80,6 +81,7 @@ describe("purpleEffect filter", () => {
 					id: "h1", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
 					damage: 3, hitBonus: 1, dice: 2, impeto: 0 as const,
 					activeItems: {}, backpack: [], usedPowers: {}, conditions: [], status: "active" as const,
+					playerIndex: 0, xp: 0,
 				},
 			],
 		};

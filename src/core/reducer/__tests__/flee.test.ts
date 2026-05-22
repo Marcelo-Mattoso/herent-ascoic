@@ -1,6 +1,6 @@
 // Testes da mecânica de fuga (Patch-8 F3).
 
-import { describe, expect, it, vi } from "vitest";
+import { describe, expect, it } from "vitest";
 import "../../skills/handlers/index"; // registra handlers
 import { reducer } from "../index";
 import { createInitialGameState } from "../../state/gameState";
@@ -26,6 +26,8 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		usedPowers: {},
 		conditions: [],
 		status: "active",
+		playerIndex: 0,
+		xp: 0,
 		...overrides,
 	};
 }

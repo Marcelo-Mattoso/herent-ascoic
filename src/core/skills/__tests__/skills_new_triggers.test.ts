@@ -3,7 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import { fireTrigger } from "../dispatch";
-import { handleStartCombat, handleRollDice, handleResolveAttack } from "../../reducer/combat";
+import { handleStartCombat } from "../../reducer/combat";
 import { createInitialGameState } from "../../state/gameState";
 import { createEmptyCombatState } from "../../state/combatState";
 import "../handlers/index"; // popula registry
@@ -27,6 +27,8 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		usedPowers: {},
 		conditions: [],
 		status: "active",
+		playerIndex: 0,
+		xp: 0,
 		...overrides,
 	};
 }
@@ -105,11 +107,13 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			usedPowers: {},
 			conditions: [],
 			status: "active",
+			playerIndex: 0,
+			xp: 0,
 		};
 		const enemy = makeEnemy();
 		const combat = {
 			...createEmptyCombatState(),
-			phase: "rolling" as const,
+			phase: "resolving" as const,
 			currentPair: { heroId: "h1", enemyId: "e1" },
 		};
 		return { ...base, heroes: [hero], activeEnemies: [enemy], despertar, combat };
@@ -234,11 +238,13 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			usedPowers: {},
 			conditions: [],
 			status: "active",
+			playerIndex: 0,
+			xp: 0,
 		};
 		const enemy = makeEnemy();
 		const combat = {
 			...createEmptyCombatState(),
-			phase: "rolling" as const,
+			phase: "resolving" as const,
 			currentPair: { heroId: "h1", enemyId: "e1" },
 		};
 		return { ...base, heroes: [hero], activeEnemies: [enemy], despertar, combat };

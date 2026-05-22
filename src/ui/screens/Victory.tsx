@@ -38,7 +38,7 @@ export function Victory() {
 						isCompetitive ? null : ["XP total", state.groupXp],
 						["Nível do herói", hero ? COLORS_MAP[hero.impeto].name : "—"],
 						["Despertar final", COLORS_MAP[state.despertar].name],
-					].filter(Boolean).map(([label, value]) => (
+					].filter((x): x is [string, string | number] => x !== null).map(([label, value]) => (
 						<div key={String(label)} className="flex justify-between text-sm">
 							<span style={{ color: UI.textSecondary }}>{label}</span>
 							<span className="font-medium" style={{ color: UI.textPrimary }}>

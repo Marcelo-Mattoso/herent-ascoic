@@ -30,6 +30,8 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		usedPowers: {},
 		conditions: [],
 		status: "active",
+		playerIndex: 0,
+		xp: 0,
 		...overrides,
 	};
 }
