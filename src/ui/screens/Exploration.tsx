@@ -83,7 +83,7 @@ export function Exploration() {
 		if (h.status !== "active") return;
 		setFocusedHero(h.id);
 		if (
-			status === "HERO_ACTION" &&
+			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
 			combat?.phase === "selecting_hero" &&
 			!combat.heroesActed.includes(h.id)
 		) {
@@ -95,7 +95,7 @@ export function Exploration() {
 	function handleHeroDragStart(heroId: string) {
 		setFocusedHero(heroId);
 		if (
-			status === "HERO_ACTION" &&
+			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
 			combat?.phase === "selecting_hero" &&
 			!combat.heroesActed.includes(heroId)
 		) {

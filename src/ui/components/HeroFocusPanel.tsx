@@ -277,12 +277,18 @@ export function HeroFocusPanel({
 								).map((slot) => {
 									const item = hero.activeItems[slot];
 									if (!item) return null;
+									const slotCard = getCardByName(item);
+									const isConsumable = slotCard?.type === "item" && slotCard.itemClass === "consumable";
 									return (
 										<ItemChip
 											key={slot}
 											item={item}
 											slot={slot}
-											onClick={() => onCardDetail(item, "item")}
+											onClick={() =>
+												isConsumable
+													? onItemDetail(item, hero.id)
+													: onCardDetail(item, "item")
+											}
 										/>
 									);
 								})}

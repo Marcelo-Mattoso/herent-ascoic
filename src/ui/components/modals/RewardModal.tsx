@@ -8,6 +8,7 @@ import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
+import { getCardByName } from "@/data/cards";
 
 interface RewardModalProps {
 	onClose: () => void;
@@ -182,6 +183,8 @@ export function RewardModal({ onClose }: RewardModalProps) {
 	// Etapa 2: destino do item
 	const hero =
 		activeHeroes.find((h) => h.id === selectedHeroId) ?? activeHeroes[0];
+	const itemCard = getCardByName(reward.cardName);
+	const isConsumable = itemCard?.type === "item" && itemCard.itemClass === "consumable";
 
 	return (
 		<Modal title={`Item: ${reward.cardName}`} maxWidth={380}>
@@ -204,6 +207,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 				</div>
 
 				<div className="flex flex-col gap-2">
+					{!isConsumable && (
 					<ActionButton
 						label="Equipar"
 						variant="primary"
@@ -219,9 +223,10 @@ export function RewardModal({ onClose }: RewardModalProps) {
 							onClose();
 						}}
 					/>
+					)}
 					<ActionButton
 						label="Guardar na mochila"
-						variant="secondary"
+						variant={isConsumable ? "primary" : "secondary"}
 						fullWidth
 						onClick={() => {
 							dispatch({

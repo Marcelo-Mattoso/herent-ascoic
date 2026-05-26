@@ -155,6 +155,14 @@ export function handleChooseItemDestination(
 		const card = getCardByName(itemName);
 		if (card && card.type === "item") {
 			if (destination === "equip") {
+				if (card.itemClass === "consumable") {
+					// Consumíveis não ocupam slot de equipamento — vão para a mochila
+					next = mapHero(next, heroId, (h) => ({
+						...h,
+						backpack: [...h.backpack, itemName],
+					}));
+					next = log(next, `${itemName} guardado na mochila de ${heroId}.`);
+				} else {
 				const slot =
 					card.itemClass === "equipment"
 						? "weapon"
@@ -171,6 +179,7 @@ export function handleChooseItemDestination(
 					};
 				});
 				next = log(next, `${itemName} equipado por ${heroId}.`);
+				}
 			} else {
 				// backpack
 				next = mapHero(next, heroId, (h) => ({
@@ -489,6 +498,16 @@ export function handleInvAssignItem(
 	if (destination === "equip") {
 		const card = getCardByName(itemName);
 		if (card && card.type === "item") {
+			if (card.itemClass === "consumable") {
+				// Consumíveis não ocupam slot de equipamento — vão para a mochila
+				const hero = state.heroes.find((h) => h.id === heroId);
+				if ((hero?.backpack.length ?? 8) >= 8) return state;
+				next = mapHero(next, heroId, (h) => ({
+					...h,
+					backpack: [...h.backpack, itemName],
+				}));
+				next = log(next, `${itemName} na mochila de ${heroId}.`);
+			} else {
 			const slot =
 				card.itemClass === "equipment"
 					? "weapon"
@@ -519,6 +538,7 @@ export function handleInvAssignItem(
 				};
 			}
 			next = log(next, `${itemName} equipado por ${heroId}.`);
+			}
 		}
 	} else {
 		// backpack — falha silenciosa se cheia (máx 8)

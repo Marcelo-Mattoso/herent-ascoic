@@ -156,6 +156,14 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		return [createEnemyFromCard(card, state.despertar)];
 	});
 
+	// Spawn da criatura especial da sala (ex.: Carcereiro, Guardião do Abismo)
+	if (state.currentRoom.specialCreature) {
+		const specialCard = getCardByName(state.currentRoom.specialCreature);
+		if (specialCard && (specialCard.type === "creature" || specialCard.type === "subboss")) {
+			enemies.push(createEnemyFromCard(specialCard, state.despertar));
+		}
+	}
+
 	let next: GameState = {
 		...state,
 		activeEnemies: enemies,

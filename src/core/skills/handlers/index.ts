@@ -95,6 +95,7 @@ register("purple_damage_reduction", handlePurpleDamageReduction);
 // Tipos não implementados (noop com log)
 const noopTypes = [
 	"recover_item",
+	"roomSpecial", // criatura especial é spawnada via handleSpawnEnemies
 ];
 for (const t of noopTypes) {
 	register(t, handleNoop);
