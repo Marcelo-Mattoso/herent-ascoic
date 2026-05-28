@@ -52,8 +52,18 @@ import { fireOnUseSkill } from "../skills/useSkill";
 import { getContinuation } from "../skills/registry";
 import { lookupSkillById } from "../skills/lookup";
 import { handleStartGame } from "./setup";
+import { assertTransition } from "../rules/stateMachine";
 
-function reducerCore(state: GameState, action: Action): GameState {
+function applyAndValidate(prev: GameState, action: Action, next: GameState): GameState {
+	// START_GAME é uma ação de reset — pode transitar de qualquer estado.
+	if (action.type === "START_GAME") return next;
+	if (prev.status !== next.status) {
+		assertTransition(prev.status, next.status);
+	}
+	return next;
+}
+
+function dispatch(state: GameState, action: Action): GameState {
 	switch (action.type) {
 		case "START_GAME":
 			return handleStartGame(state, action.payload);
@@ -249,6 +259,12 @@ function reducerCore(state: GameState, action: Action): GameState {
 	}
 }
 
+// reducerCore: executa dispatch + valida transição de status.
+export function reducerCore(state: GameState, action: Action): GameState {
+	const next = dispatch(state, action);
+	return applyAndValidate(state, action, next);
+}
+
 export function reducer(state: GameState, action: Action): GameState {
 	const next = reducerCore(state, action);
 	const newEntry = { seq: 0, action };
@@ -261,5 +277,3 @@ export function reducer(state: GameState, action: Action): GameState {
 		actionLog: [...next.actionLog, { seq, action }],
 	};
 }
-
-export { reducerCore };

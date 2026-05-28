@@ -432,13 +432,14 @@ describe("vitória contra boss", () => {
 			payload: { heroCardNames: [HERO] },
 		});
 
-		// Força 2 artefatos (condição do Azhakar)
+		// Força 2 artefatos (condição do Azhakar) e vai pelo fluxo correto
 		s = {
 			...s,
 			groupArtifacts: [
 				{ cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
 				{ cardName: "Coração de Brasa Antiga", carriedBy: null },
 			],
+			status: "BOSS_REVEAL" as const,
 		};
 
 		s = reducer(s, { type: "REVEAL_BOSS" });
@@ -574,6 +575,8 @@ describe("determinismo via seed", () => {
 		const c0 = s.rng.counter;
 		s = reducer(s, { type: "REVEAL_ROOM" });
 		const c1 = s.rng.counter;
+		// Segue o fluxo correto: ROOM_EFFECT → SPAWN_ENEMIES → COMBAT_START
+		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
 		s = reducer(s, { type: "SPAWN_ENEMIES" });
 		const c2 = s.rng.counter;
 		expect(c1).toBeGreaterThanOrEqual(c0);

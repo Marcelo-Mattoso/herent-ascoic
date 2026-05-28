@@ -1,38 +1,38 @@
-// Valores configuráveis do jogo. Nenhum destes deve aparecer hardcoded em outro arquivo.
+// Configuração de build e feature flags. Valores de balanceamento vivem em src/data/balance.json.
 
-export const XP_COSTS = {
-	recover_dungeon: 5,
-	level_up: 10,
-	buy_item: 15,
-	lower_despertar: 30,
-	buy_artifact: 35,
-} as const;
+import BALANCE from "../../data/balance.json";
+
+// Re-exporta os valores de balanceamento do JSON como constantes tipadas.
+export const XP_COSTS = BALANCE.xpCosts as {
+	recover_dungeon: number;
+	level_up: number;
+	buy_item: number;
+	lower_despertar: number;
+	buy_artifact: number;
+};
 
 export type XpSpendOption = keyof typeof XP_COSTS;
 
-// Custo em XP para evitar derrota quando o deck de dungeon esgota
-export const DUNGEON_EXHAUSTION_COST = 5;
+export const DUNGEON_EXHAUSTION_COST: number = BALANCE.dungeonExhaustionCost;
 
-// Presets de dificuldade: deslocamento de cor aplicado ao Ímpeto inicial e ao Despertar inicial.
-// heroOffset: quantas posições subir o Ímpeto de cada herói (0 = Branco).
-// despertarOffset: quantas posições subir o Despertar da masmorra (0 = Branco).
-export const DIFFICULTY_PRESETS = {
-	very_easy: { heroOffset: 2, despertarOffset: 0 },
-	easy: { heroOffset: 1, despertarOffset: 0 },
-	normal: { heroOffset: 0, despertarOffset: 0 },
-	hard: { heroOffset: 0, despertarOffset: 1 },
-	nightmare: { heroOffset: 0, despertarOffset: 2 },
-} as const;
+export const DIFFICULTY_PRESETS = BALANCE.difficultyPresets as {
+	very_easy: { heroOffset: number; despertarOffset: number };
+	easy: { heroOffset: number; despertarOffset: number };
+	normal: { heroOffset: number; despertarOffset: number };
+	hard: { heroOffset: number; despertarOffset: number };
+	nightmare: { heroOffset: number; despertarOffset: number };
+};
 
+export const BACKPACK_LIMIT: number | null = BALANCE.backpackLimit;
+
+// Feature flags e config de build — estes não vão para JSON.
 export const FEATURE_FLAGS = {
 	enableSubBosses: false,
 	enableSave: false,
 } as const;
 
-// Limite de cartas na mochila (null = ilimitada)
-export const BACKPACK_LIMIT: number | null = null;
-
-// Mapeamento de itemClass → slot de equipamento no HeroState
+// Mapeamento de itemClass → slot de equipamento no HeroState.
+// É um mapeamento estrutural (não é dado de balanceamento), fica aqui.
 export const ITEM_CLASS_TO_SLOT = {
 	equipment: "weapon",
 	utility: "utility",
