@@ -5,14 +5,14 @@ describe("resolveSkillFor", () => {
 	it("resolve habilidade do Bárbaro Rubro (skill)", () => {
 		const def = resolveSkillFor("Bárbaro Rubro", "skill");
 		expect(def).not.toBeNull();
-		expect(def?.id).toBe("habilidade-furia-rubra");
+		expect(def?.id).toBe("skill_crimson_fury");
 		expect(def?.type).toBe("damage_bonus");
 	});
 
 	it("resolve poder do Mago das Runas Rubras (power)", () => {
 		const def = resolveSkillFor("Mago das Runas Rubras", "power");
 		expect(def).not.toBeNull();
-		expect(def?.id).toBe("poder_heroi-runa-suprema-das-fendas");
+		expect(def?.id).toBe("power_supreme_rift_rune");
 	});
 
 	it("retorna null para carta inexistente", () => {
