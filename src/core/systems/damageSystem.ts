@@ -1,14 +1,23 @@
 // Sistema de dano — ponto único para toda aplicação de dano no jogo.
 // Atualiza tanto os arrays legados (heroes/enemies) quanto o ECS world.
-// Passo 7 adicionará emissão de eventos pré/pós dano aqui.
+// Passo 7: applyDamage emite DamageAboutToBeDealt (pré) e DamageDealt (pós).
+// applyDamageMin1 é custo de vida (sem janela de bus — não é dano recebido de inimigo).
 
+import { emit } from "../events/bus";
+import type { DamageType } from "../events/types";
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 
-function applyDamageToTarget(
+export interface DamageOptions {
+	readonly sourceId?: EntityId;
+	readonly damageType?: DamageType;
+}
+
+// Aplica dano bruto sem passar pelo bus (usado internamente após o bus resolver o amount).
+function applyDamageRaw(
 	state: GameState,
 	targetId: EntityId,
 	amount: number,
@@ -51,18 +60,41 @@ function applyDamageToTarget(
 	return state;
 }
 
+// Aplica dano com janela de pré-evento (bus): ouvintes podem modificar o amount.
 export function applyDamage(
 	state: GameState,
 	targetId: EntityId,
 	amount: number,
+	opts?: DamageOptions,
 ): GameState {
-	return applyDamageToTarget(state, targetId, amount, 0);
+	const sourceId = opts?.sourceId ?? "system";
+	const damageType = opts?.damageType ?? "physical";
+
+	// Janela pré: listeners podem reduzir/aumentar o dano.
+	const { state: s1, event: modified } = emit(state, {
+		type: "DamageAboutToBeDealt",
+		payload: { sourceId, targetId, damageType, amount },
+	});
+	const finalAmount = (modified.payload as { amount: number }).amount;
+
+	// Aplicar o dano com o valor modificado.
+	const s2 = applyDamageRaw(s1, targetId, finalAmount, 0);
+
+	// Janela pós: listeners reagem ao dano já aplicado.
+	const { state: s3 } = emit(s2, {
+		type: "DamageDealt",
+		payload: { sourceId, targetId, damageType, amount: finalAmount },
+	});
+
+	return s3;
 }
 
+// Aplica custo de vida mínimo 1 (skill cost / self-damage).
+// NÃO passa pelo bus — custos de skill não ativam redutores de dano de inimigos.
 export function applyDamageMin1(
 	state: GameState,
 	targetId: EntityId,
 	amount: number,
 ): GameState {
-	return applyDamageToTarget(state, targetId, amount, 1);
+	return applyDamageRaw(state, targetId, amount, 1);
 }
