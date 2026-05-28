@@ -1,9 +1,10 @@
 // Resolvedor de efeitos declarativos para o event bus.
 // Interpreta EffectDescriptor e aplica o efeito correspondente.
-// Passo 7: cobre os efeitos básicos necessários para pré-janelas de dano e cura.
-// Passo 8 expande isso com o effect stack completo.
+// Passo 7: accumulator effects (modify_damage_amount, modify_heal_amount).
+// Passo 8: push_to_stack — adia efeito para drenagem posterior (sem recursão direta).
 
 import type { EffectDescriptor, EntityId } from "../ecs/types";
+import { addPending } from "../effects/stack";
 import type { GameState } from "../state/gameState";
 import type { GameEvent } from "./types";
 
@@ -49,9 +50,29 @@ export function applyEffect(
 			};
 		}
 
+		case "push_to_stack": {
+			// Adia um efeito interno para a stack — não aplicado imediatamente.
+			// Permite cadeias sem recursão direta: listener define O QUÊ, drainStack resolve QUANDO.
+			//
+			// targetFilter: "self" → só empurra se o evento é direcionado a esta entidade.
+			// Sem targetFilter → empurra sempre (para eventos sem targetId).
+			const targetFilter = effect["targetFilter"] as string | undefined;
+			if (targetFilter === "self") {
+				const payload = event.payload as { targetId?: string };
+				if (payload.targetId !== entityId) return { state, event };
+			}
+			const cause = (effect["cause"] as string | undefined) ?? event.type;
+			const innerEffect = effect["innerEffect"] as EffectDescriptor;
+			const newStack = addPending(state.effectStack, {
+				cause,
+				effect: innerEffect,
+				source: entityId,
+			});
+			return { state: { ...state, effectStack: newStack }, event };
+		}
+
 		default:
-			// Efeitos não reconhecidos são ignorados silenciosamente no Passo 7.
-			// O stack completo do Passo 8 adicionará tratamento de erros adequado.
+			// Efeitos não reconhecidos: ignorados. drainStack os capturaria e ignoraria também.
 			return { state, event };
 	}
 }

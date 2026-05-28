@@ -2,6 +2,7 @@
 
 import { getArtifacts, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../../data/cards";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
+import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
 import { fireTrigger } from "../skills/dispatch";
 import { createEmptyCombatState } from "../state/combatState";
@@ -325,6 +326,8 @@ export function handleRestartDungeon(
 			roomsCleared: 0,
 			creaturesDefeated: 0,
 			combat: createEmptyCombatState(),
+			effectStack: createEmptyEffectStack(),
+			paused: null,
 			pendingRewards: [],
 			flags: {},
 			tokens: {},

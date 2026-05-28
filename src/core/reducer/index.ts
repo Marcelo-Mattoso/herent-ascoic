@@ -2,6 +2,7 @@
 // Nunca muta o estado — sempre retorna novo objeto.
 
 import type { Action } from "../actions/types";
+import { drainStack } from "../effects/resolver";
 import type { GameState } from "../state/gameState";
 import {
 	buildBossRoll,
@@ -259,10 +260,12 @@ function dispatch(state: GameState, action: Action): GameState {
 	}
 }
 
-// reducerCore: executa dispatch + valida transição de status.
+// reducerCore: executa dispatch + valida transição + drena effect stack.
 export function reducerCore(state: GameState, action: Action): GameState {
-	const next = dispatch(state, action);
-	return applyAndValidate(state, action, next);
+	const dispatched = dispatch(state, action);
+	const validated = applyAndValidate(state, action, dispatched);
+	// Drenar a stack ao fim de cada action — toda cadeia de efeitos resolve aqui.
+	return drainStack(validated);
 }
 
 export function reducer(state: GameState, action: Action): GameState {

@@ -9,6 +9,11 @@ import type { Component } from "./types";
 import { createEntity, upsertEntity } from "./world";
 import type { World } from "./world";
 
+// Tipos de componentes gerenciados dinamicamente (adicionados por skills/efeitos).
+// Esses componentes NÃO são derivados do shape legado — devem ser preservados
+// quando o sync reconstrói a entidade a partir de HeroState/EnemyState.
+const DYNAMIC_COMPONENT_TYPES = new Set<string>(["trigger", "modifier"]);
+
 export function syncEntityFromHero(world: World, hero: HeroState): World {
 	const components: Component[] = [
 		{
@@ -44,6 +49,14 @@ export function syncEntityFromHero(world: World, hero: HeroState): World {
 		});
 	}
 
+	// Preservar componentes dinâmicos já presentes (TriggerComponents, Modifiers).
+	const existing = world.entities[hero.id];
+	if (existing) {
+		for (const c of existing.components) {
+			if (DYNAMIC_COMPONENT_TYPES.has(c.type)) components.push(c);
+		}
+	}
+
 	return upsertEntity(world, createEntity(hero.id, "hero", components));
 }
 
@@ -70,6 +83,14 @@ export function syncEntityFromEnemy(world: World, enemy: EnemyState): World {
 	for (const [tokenType, count] of Object.entries(enemy.tokens)) {
 		if (count > 0) {
 			components.push({ type: "token", tokenType, count });
+		}
+	}
+
+	// Preservar componentes dinâmicos já presentes (TriggerComponents, Modifiers).
+	const existing = world.entities[enemy.id];
+	if (existing) {
+		for (const c of existing.components) {
+			if (DYNAMIC_COMPONENT_TYPES.has(c.type)) components.push(c);
 		}
 	}
 

@@ -2,6 +2,8 @@
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
 import type { LoggedAction } from "../actions/types";
+import type { EffectStack, PausedState } from "../effects/stack";
+import { createEmptyEffectStack } from "../effects/stack";
 import type { World } from "../ecs/world";
 import { createEmptyWorld } from "../ecs/world";
 import { createRng } from "../ports/random";
@@ -43,6 +45,13 @@ export interface GameState {
 	// ECS world — espelha heroes/enemies durante a transição (Passos 5-6).
 	// Fonte primária a partir do Passo 6; heroes/enemies tornam-se campos derivados.
 	readonly world: World;
+
+	// Effect stack — fila de efeitos pendentes (Passo 8).
+	// Drenada pelo reducer ao fim de cada action.
+	readonly effectStack: EffectStack;
+
+	// Pausa para input do jogador durante resolução de efeitos (Passo 8).
+	readonly paused: PausedState | null;
 
 	// Progressão
 	groupXp: number;
@@ -140,6 +149,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 		rng: createRng(0),
 		status: "MAIN_MENU",
 		world: createEmptyWorld(),
+		effectStack: createEmptyEffectStack(),
+		paused: null,
 
 		groupXp: 0,
 		despertar: 0,
