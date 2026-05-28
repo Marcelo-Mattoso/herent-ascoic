@@ -38,15 +38,13 @@ export function fireOnUseSkill(state: GameState, payload: UseSkillPayload): Game
 	}
 
 	// Resolve value: payload.value tem prioridade, fallback para usedBy[].value.
-	// usedBy[].card é o nome da carta (cardName), não o id do herói.
-	const sourceCardName =
-		state.heroes.find((h) => h.id === sourceId)?.cardName ??
-		state.activeEnemies.find((e) => e.id === sourceId)?.cardName ??
-		sourceId;
+	const sourceCardId =
+		state.heroes.find((h) => h.id === sourceId)?.cardId ??
+		state.activeEnemies.find((e) => e.id === sourceId)?.cardId;
 	const resolvedValue =
 		value !== undefined
 			? value
-			: def.usedBy.find((u) => u.card === sourceCardName)?.value ?? def.defaultValue;
+			: def.usedBy.find((u) => u.cardId === sourceCardId)?.value ?? def.defaultValue;
 
 	return handler(state, {
 		triggeredBy: "on_use",

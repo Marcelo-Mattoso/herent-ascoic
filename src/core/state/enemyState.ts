@@ -5,6 +5,7 @@ export type EnemyStatus = "active" | "defeated" | "fled" | "removed";
 
 export interface EnemyState {
 	readonly id: string;
+	readonly cardId: string;
 	readonly cardName: string;
 	readonly maxLife: number;
 	currentLife: number;

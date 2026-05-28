@@ -76,7 +76,7 @@ describe("handleItemOrDiscardDungeon", () => {
 		});
 		const result = handleItemOrDiscardDungeon(
 			state,
-			{ triggeredBy: "before_first_combat_in_room", skillId: "habilidade-tributo-sombrio" },
+			{ triggeredBy: "before_first_combat_in_room", skillId: "skill_dark_tribute" },
 			null,
 		);
 		expect(result.pendingSkillChoice).toBeDefined();
@@ -91,12 +91,12 @@ describe("handleItemOrDiscardDungeon", () => {
 				dungeonDeck: { available: ["Sala A", "Sala B"], discarded: [], removed: [] },
 			},
 			pendingSkillChoice: {
-				skillId: "habilidade-tributo-sombrio",
+				skillId: "skill_dark_tribute",
 				prompt: "test",
 				options: [{ id: "dungeon", label: "Descartar" }],
 			},
 		});
-		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "habilidade-tributo-sombrio", choice: "dungeon" } });
+		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "skill_dark_tribute", choice: "dungeon" } });
 		expect(result.decks.dungeonDeck.available).toHaveLength(1);
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
@@ -105,12 +105,12 @@ describe("handleItemOrDiscardDungeon", () => {
 		const state = makeState({
 			heroes: [makeHero({ backpack: ["Poção de Vigor Menor"] })],
 			pendingSkillChoice: {
-				skillId: "habilidade-tributo-sombrio",
+				skillId: "skill_dark_tribute",
 				prompt: "test",
 				options: [{ id: "item", label: "Descartar" }],
 			},
 		});
-		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "habilidade-tributo-sombrio", choice: "item" } });
+		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "skill_dark_tribute", choice: "item" } });
 		expect(result.heroes[0].backpack).toHaveLength(0);
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
@@ -172,7 +172,7 @@ describe("handleDungeon", () => {
 		});
 		const result = handleDungeon(
 			state,
-			{ triggeredBy: "on_reveal_paths", skillId: "habilidade-iluminar-o-caminho" },
+			{ triggeredBy: "on_reveal_paths", skillId: "skill_illuminate_path" },
 			1,
 		);
 		expect(result.pendingSkillChoice).toBeDefined();
@@ -186,12 +186,12 @@ describe("handleDungeon", () => {
 				dungeonDeck: { available: ["Sala A"], discarded: [], removed: [] },
 			},
 			pendingSkillChoice: {
-				skillId: "habilidade-iluminar-o-caminho",
+				skillId: "skill_illuminate_path",
 				prompt: "test",
 				options: [{ id: "ok", label: "Confirmar" }],
 			},
 		});
-		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "habilidade-iluminar-o-caminho", choice: "ok" } });
+		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "skill_illuminate_path", choice: "ok" } });
 		expect(result.pendingSkillChoice).toBeUndefined();
 		expect(result.decks.dungeonDeck.available).toHaveLength(1);
 	});

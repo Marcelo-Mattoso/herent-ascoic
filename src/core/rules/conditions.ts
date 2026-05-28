@@ -1,7 +1,7 @@
 // Verificação de condição de acesso ao boss.
 // A condição é declarada no campo accessCondition da carta do boss em cards.json.
 
-import { getCardByName } from "../data/cards";
+import { getCardById } from "../data/cards";
 import type { GameState } from "../state/gameState";
 
 type AccessCondition =
@@ -21,12 +21,12 @@ function evaluateCondition(condition: AccessCondition, state: GameState): boolea
 
 export function checkBossCondition(
 	state: GameState,
-	bossCardName: string,
+	bossCardId: string,
 ): boolean {
-	const card = getCardByName(bossCardName);
+	const card = getCardById(bossCardId);
 	if (!card || card.type !== "boss") return false;
 
-	const raw = (card as Record<string, unknown>).accessCondition;
+	const raw = (card as unknown as Record<string, unknown>).accessCondition;
 	if (!raw || typeof raw !== "object") return false;
 
 	return evaluateCondition(raw as AccessCondition, state);

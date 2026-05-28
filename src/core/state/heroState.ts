@@ -9,6 +9,7 @@ export type HeroStatus = "active" | "defeated" | "fled";
 
 export interface HeroState {
 	readonly id: string;
+	readonly cardId: string;
 	readonly cardName: string;
 	readonly maxLife: number;
 	currentLife: number;

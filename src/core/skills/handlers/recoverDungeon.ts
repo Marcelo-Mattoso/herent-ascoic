@@ -39,7 +39,7 @@ export function handleRecoverDungeon(
 	// O custo é cobrado quando o field é "skill" (habilidade ativa), não "power".
 	// Para distinguir: se a source é um herói e o skillId pertence à categoria "habilidade",
 	// cobramos o custo definido implicitamente na spec (3 de vida).
-	if (ctx.sourceHeroId && ctx.skillId === "habilidade-rito-de-retorno") {
+	if (ctx.sourceHeroId && ctx.skillId === "skill_return_rite") {
 		next = applyDamageMin1(next, ctx.sourceHeroId, 3);
 	}
 

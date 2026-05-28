@@ -31,7 +31,7 @@ export function handleItemOrDiscardDungeon(
 	return {
 		...state,
 		pendingSkillChoice: {
-			skillId: ctx.skillId ?? "habilidade-tributo-sombrio",
+			skillId: ctx.skillId ?? "skill_dark_tribute",
 			prompt: "Tributo Sombrio: o grupo deve escolher o tributo.",
 			options,
 			sourceHeroId: ctx.sourceHeroId,

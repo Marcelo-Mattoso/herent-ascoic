@@ -41,6 +41,7 @@ export function createHeroFromCard(
 	const { value: id, next } = nextId(rng, "h");
 	const hero: HeroState = {
 		id,
+		cardId: card.id,
 		cardName: card.name,
 		maxLife: card.life[colorIndex],
 		currentLife: card.life[colorIndex],
@@ -67,6 +68,7 @@ export function createEnemyFromCard(
 	const { value: id, next } = nextId(rng, "e");
 	const enemy: EnemyState = {
 		id,
+		cardId: card.id,
 		cardName: card.name,
 		maxLife: card.life[despertar],
 		currentLife: card.life[despertar],

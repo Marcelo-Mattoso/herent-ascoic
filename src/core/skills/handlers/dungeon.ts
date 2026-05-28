@@ -30,7 +30,7 @@ export function handleDungeon(
 	return {
 		...state,
 		pendingSkillChoice: {
-			skillId: ctx.skillId ?? "habilidade-iluminar-o-caminho",
+			skillId: ctx.skillId ?? "skill_illuminate_path",
 			prompt: `Iluminar o Caminho: próxima(s) ${topCards.length} carta(s) do deck de dungeon.`,
 			options,
 			sourceHeroId: ctx.sourceHeroId,
