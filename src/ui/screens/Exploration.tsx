@@ -7,6 +7,7 @@ import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
 import type { CardType } from "@/ui/components/Card";
 import { Board } from "@/ui/components/Board";
+import { EventLogPanel } from "@/ui/components/EventLogPanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
 import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
@@ -44,6 +45,7 @@ interface CardDetailState {
 export function Exploration() {
 	const { state, ui, dispatch, setFocusedHero } = useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
+	const [showLog, setShowLog] = useState(false);
 
 	const status = state.status;
 	const combat = state.combat;
@@ -213,12 +215,30 @@ export function Exploration() {
 							</span>
 						) : null}
 					</div>
-					<span
-						className="text-xs px-2 py-0.5 rounded"
-						style={{ background: UI.panelBg, color: UI.textTertiary }}
-					>
-						{status}
-					</span>
+					<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+						<button
+							type="button"
+							onClick={() => setShowLog((v) => !v)}
+							style={{
+								fontSize: 11,
+								padding: "2px 8px",
+								borderRadius: 6,
+								border: `1px solid ${showLog ? UI.borderStrong : UI.border}`,
+								background: showLog ? UI.textPrimary : UI.panelBg,
+								color: showLog ? UI.panelBg : UI.textSecondary,
+								cursor: "pointer",
+								fontWeight: 500,
+							}}
+						>
+							📋 Log
+						</button>
+						<span
+							className="text-xs px-2 py-0.5 rounded"
+							style={{ background: UI.panelBg, color: UI.textTertiary }}
+						>
+							{status}
+						</span>
+					</div>
 				</div>
 
 				{/* TABULEIRO */}
@@ -242,6 +262,14 @@ export function Exploration() {
 					onResolve={handleResolveAttack}
 					onSelectDie={(side, index) => dispatch({ type: "SELECT_DIE", payload: { side, index } })}
 				/>
+
+				{/* LOG DE EVENTOS (toggle) */}
+				{showLog && (
+					<EventLogPanel
+						entries={state.eventLog}
+						onClose={() => setShowLog(false)}
+					/>
+				)}
 
 				{/* PAINEL DO HERÓI EM FOCO */}
 				<HeroFocusPanel
