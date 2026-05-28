@@ -28,7 +28,7 @@ export function handleHealOrDamageBonus(
 					...state.combat,
 					bonusNextAttack: {
 						...state.combat.bonusNextAttack,
-						[ctx.sourceHeroId]: (state.combat.bonusNextAttack?.[ctx.sourceHeroId] ?? 0) + damageAmount,
+						[ctx.sourceHeroId]: [...(state.combat.bonusNextAttack?.[ctx.sourceHeroId] ?? []), { label: "Juramento", value: damageAmount }],
 					},
 				},
 			},

@@ -161,9 +161,10 @@ function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
 
 	// Bônus de dano acumulado via engine de habilidades (ex: Fúria Rubra, Juramento)
-	const skillBonus = state.combat?.bonusNextAttack?.[hero.id] ?? 0;
-	if (skillBonus > 0) {
-		bonuses.push({ source: "habilidade", value: skillBonus });
+	// Cada entrada do array representa uma skill distinta com seu label e valor individual.
+	const skillEntries = state.combat?.bonusNextAttack?.[hero.id] ?? [];
+	for (const entry of skillEntries) {
+		bonuses.push({ source: entry.label, value: entry.value });
 	}
 
 	// Penalidade de acerto (ex: Calor Escaldante, Corpo Gelatinoso)

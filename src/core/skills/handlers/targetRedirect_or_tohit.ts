@@ -65,13 +65,13 @@ registerContinuation(
 
 		// "tohit": adicionar bônus ao próximo ataque
 		const bonus = 2; // valor padrão; o ctx pode não ter value aqui
-		const current = state.combat.bonusNextAttack[ctx.sourceHeroId] ?? 0;
+		const current = state.combat.bonusNextAttack[ctx.sourceHeroId] ?? [];
 		return log(
 			{
 				...state,
 				combat: {
 					...state.combat,
-					bonusNextAttack: { ...state.combat.bonusNextAttack, [ctx.sourceHeroId]: current + bonus },
+					bonusNextAttack: { ...state.combat.bonusNextAttack, [ctx.sourceHeroId]: [...current, { label: "Desvio de Foco", value: bonus }] },
 				},
 			},
 			`Desvio de Foco: +${bonus} de acerto neste ataque.`,

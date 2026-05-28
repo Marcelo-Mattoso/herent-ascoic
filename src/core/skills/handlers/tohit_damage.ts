@@ -25,7 +25,14 @@ export function handleTohitDamage(
 	const hero = state.heroes.find((h) => h.id === ctx.sourceHeroId);
 	if (!hero || hero.status !== "active") return state;
 
-	const label = ctx.triggeredBy === "combat_if_dungeon_red_or_purple"
+	const skillLabel =
+		ctx.triggeredBy === "combat_if_dungeon_red_or_purple"
+			? "Luz da Aurora Final"
+			: ctx.triggeredBy === "combat_if_alone_in_room"
+			? "Fera Solitária"
+			: "Fio Mortal";
+
+	const logLabel = ctx.triggeredBy === "combat_if_dungeon_red_or_purple"
 		? `Despertar ${state.despertar}: +${_tohit} acerto, +${damage} dano.`
 		: `+${_tohit} acerto, +${damage} dano neste ataque.`;
 
@@ -36,10 +43,10 @@ export function handleTohitDamage(
 				...state.combat,
 				bonusNextAttack: {
 					...state.combat.bonusNextAttack,
-					[hero.id]: (state.combat.bonusNextAttack?.[hero.id] ?? 0) + damage,
+					[hero.id]: [...(state.combat.bonusNextAttack?.[hero.id] ?? []), { label: skillLabel, value: damage }],
 				},
 			},
 		},
-		label,
+		logLabel,
 	);
 }

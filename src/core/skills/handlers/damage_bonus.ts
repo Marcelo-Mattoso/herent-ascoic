@@ -33,7 +33,7 @@ export function handleDamageBonus(
 					...next.combat,
 					bonusNextAttack: {
 						...(next.combat.bonusNextAttack ?? {}),
-						[hero.id]: (next.combat.bonusNextAttack?.[hero.id] ?? 0) + bonus,
+						[hero.id]: [...(next.combat.bonusNextAttack?.[hero.id] ?? []), { label: "Fúria Rubra", value: bonus }],
 					},
 				}
 			: null,
