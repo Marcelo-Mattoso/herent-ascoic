@@ -26,15 +26,15 @@ describe("catálogo de skills (skills.json)", () => {
 		}
 	});
 
-	it("todos os usedBy[].card existem em cards.json", () => {
+	it("todos os usedBy[].cardId existem em cards.json", () => {
 		const allCards = getAllCards();
-		const cardNames = new Set(allCards.map((c) => c.name));
+		const cardIds = new Set(allCards.map((c) => c.id));
 		const missing: string[] = [];
 
 		for (const ability of SKILLS.abilities) {
 			for (const usage of ability.usedBy) {
-				if (!cardNames.has(usage.card)) {
-					missing.push(`${ability.id}: usedBy card "${usage.card}" não encontrado`);
+				if (!cardIds.has(usage.cardId)) {
+					missing.push(`${ability.id}: usedBy cardId "${usage.cardId}" não encontrado`);
 				}
 			}
 		}
@@ -46,13 +46,14 @@ describe("catálogo de skills (skills.json)", () => {
 
 	it("todos os usedBy[].field são válidos para o tipo de carta", () => {
 		const allCards = getAllCards();
-		const cardMap = new Map(allCards.map((c) => [c.name, c]));
+		const cardMap = new Map(allCards.map((c) => [c.id, c]));
 		const errors: string[] = [];
 
 		const validFieldsByType: Record<string, string[]> = {
 			hero: ["skill", "power"],
 			creature: ["effect", "purpleEffect"],
 			subboss: ["effect", "purpleEffect"],
+			subboss_room: ["effect"],
 			item: ["effect"],
 			artifact: ["effect"],
 			room: ["effect"],
@@ -61,12 +62,12 @@ describe("catálogo de skills (skills.json)", () => {
 
 		for (const ability of SKILLS.abilities) {
 			for (const usage of ability.usedBy) {
-				const card = cardMap.get(usage.card);
+				const card = cardMap.get(usage.cardId);
 				if (!card) continue; // já verificado no teste anterior
 				const allowed = validFieldsByType[card.type] ?? [];
 				if (!allowed.includes(usage.field)) {
 					errors.push(
-						`${ability.id}: campo "${usage.field}" inválido para tipo "${card.type}" (carta: ${usage.card})`,
+						`${ability.id}: campo "${usage.field}" inválido para tipo "${card.type}" (carta: ${usage.cardId})`,
 					);
 				}
 			}

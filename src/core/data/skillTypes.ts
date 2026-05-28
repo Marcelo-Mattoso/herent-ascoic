@@ -106,7 +106,7 @@ export type TargetSpec =
 	| string; // fallback
 
 export interface SkillUsage {
-	readonly card: string;
+	readonly cardId: string;
 	readonly cardType: SkillCardType;
 	readonly field: SkillField;
 	readonly value: number | string | null;
