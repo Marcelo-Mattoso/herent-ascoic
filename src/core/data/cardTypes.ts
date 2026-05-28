@@ -24,6 +24,7 @@ export interface Ability {
 
 export interface HeroCard {
 	readonly type: "hero";
+	readonly id: string;
 	readonly name: string;
 	readonly diceByColor: DiceByColor;
 	readonly life: readonly [number, number, number, number, number];
@@ -38,6 +39,7 @@ export interface HeroCard {
 
 export interface CreatureCard {
 	readonly type: "creature";
+	readonly id: string;
 	readonly name: string;
 	readonly diceByColor: DiceByColor;
 	readonly life: readonly [number, number, number, number, number];
@@ -54,6 +56,7 @@ export interface CreatureCard {
 
 export interface SubbossCard {
 	readonly type: "subboss";
+	readonly id: string;
 	readonly name: string;
 	readonly diceByColor: DiceByColor;
 	readonly life: readonly [number, number, number, number, number];
@@ -70,6 +73,7 @@ export interface SubbossCard {
 
 export interface RoomCard {
 	readonly type: "room";
+	readonly id: string;
 	readonly name: string;
 	readonly exits: number;
 	// Número de inimigos por quantidade de jogadores: [1p, 2p, 3p, 4p]
@@ -84,6 +88,7 @@ export interface RoomCard {
 // Sala especial que spawna um subchefe específico (injetada quando Despertar = 3).
 export interface SubbossRoomCard {
 	readonly type: "subboss_room";
+	readonly id: string;
 	readonly name: string;
 	readonly exits: number;
 	readonly reward: number;
@@ -99,6 +104,7 @@ export type ItemClass = "equipment" | "consumable" | "utility" | "special";
 
 export interface ItemCard {
 	readonly type: "item";
+	readonly id: string;
 	readonly name: string;
 	readonly itemClass: ItemClass;
 	readonly tags: readonly string[];
@@ -109,6 +115,7 @@ export interface ItemCard {
 
 export interface ArtifactCard {
 	readonly type: "artifact";
+	readonly id: string;
 	readonly name: string;
 	readonly countsAs: "artifact";
 	readonly effect: Ability;
@@ -123,6 +130,7 @@ export interface BossAbility {
 
 export interface BossCard {
 	readonly type: "boss";
+	readonly id: string;
 	readonly name: string;
 	// Boss usa string descritiva em vez de diceByColor
 	readonly dice: string;

@@ -1,5 +1,6 @@
 [
   {
+    "id": "hero_eternal_rest_cleric",
     "type": "hero",
     "name": "Clérigo do Descanso Eterno",
     "diceByColor": [
@@ -25,6 +26,7 @@
     ],
     "damage": 2,
     "skill": {
+      "skillId": "skill_last_light_healing",
       "name": "Cura da Última Luz",
       "value": 3,
       "type": "heal",
@@ -34,6 +36,7 @@
       "label": "Cura da Última Luz (3): cure 3 de vida de um herói ou criatura aliada."
     },
     "power": {
+      "skillId": "power_greater_last_light_miracle",
       "name": "Milagre Maior da Última Luz",
       "value": "full/1",
       "type": "heal_or_survive",
@@ -45,6 +48,7 @@
     "style": "suporte, cura, sobrevivência, Última Luz."
   },
   {
+    "id": "hero_broken_bastion_warrior",
     "type": "hero",
     "name": "Guerreiro do Bastião Partido",
     "diceByColor": [
@@ -70,6 +74,7 @@
     ],
     "damage": 3,
     "skill": {
+      "skillId": "skill_bastion_guard",
       "name": "Guarda do Bastião",
       "value": 3,
       "type": "armor",
@@ -79,6 +84,7 @@
       "label": "Guarda do Bastião (3): reduza em 3 o dano que um herói ou aliado sofreria."
     },
     "power": {
+      "skillId": "power_unbreakable_bastion_guard",
       "name": "Guarda Inquebrável do Bastião",
       "value": 1,
       "type": "armor",
@@ -90,6 +96,7 @@
     "style": "combate, linha de frente, Bastião Partido, dano."
   },
   {
+    "id": "hero_rift_rogue",
     "type": "hero",
     "name": "Ladino das Fendas",
     "diceByColor": [
@@ -115,6 +122,7 @@
     ],
     "damage": 2,
     "skill": {
+      "skillId": "skill_preserved_path",
       "name": "Caminho Preservado",
       "value": null,
       "type": "discardDungeon",
@@ -124,6 +132,7 @@
       "label": "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
     },
     "power": {
+      "skillId": "power_restored_path",
       "name": "Caminho Restaurado",
       "value": 1,
       "type": "recoverDungeon",
@@ -135,6 +144,7 @@
     "style": "exploração, controle da dungeon, Fendas, mobilidade."
   },
   {
+    "id": "hero_crimson_rune_mage",
     "type": "hero",
     "name": "Mago das Runas Rubras",
     "diceByColor": [
@@ -160,6 +170,7 @@
     ],
     "damage": 2,
     "skill": {
+      "skillId": "skill_rift_rune",
       "name": "Runa das Fendas",
       "value": 1,
       "type": "dice_adjust",
@@ -169,6 +180,7 @@
       "label": "Runa das Fendas (1): depois de rolar, altere o resultado de 1 dado aliado em até 1, sem passar de 6 nem ficar abaixo de 1."
     },
     "power": {
+      "skillId": "power_supreme_rift_rune",
       "name": "Runa Suprema das Fendas",
       "value": "6/1",
       "type": "diceFix",
@@ -180,6 +192,7 @@
     "style": "magia, manipulação de dado, controle, Fendas."
   },
   {
+    "id": "hero_crimson_barbarian",
     "type": "hero",
     "name": "Bárbaro Rubro",
     "diceByColor": [
@@ -205,6 +218,7 @@
     ],
     "damage": 4,
     "skill": {
+      "skillId": "skill_crimson_fury",
       "name": "Fúria Rubra",
       "value": 2,
       "type": "self_damage_for_damage",
@@ -214,6 +228,7 @@
       "label": "Fúria Rubra (2): este personagem sofre 2 de dano para causar dano adicional igual a 6 no próximo ataque."
     },
     "power": {
+      "skillId": "power_mighty_crimson_fury",
       "name": "Fúria Rubra Poderosa",
       "value": null,
       "type": "skillEnhancement",
@@ -225,6 +240,7 @@
     "style": "dano, risco, Deserto Rubro, sacrifício."
   },
   {
+    "id": "hero_last_light_paladin",
     "type": "hero",
     "name": "Paladino da Última Luz",
     "diceByColor": [
@@ -250,6 +266,7 @@
     ],
     "damage": 3,
     "skill": {
+      "skillId": "skill_final_dawn_light",
       "name": "Luz da Aurora Final",
       "value": "2/2",
       "type": "tohit_damage",
@@ -259,6 +276,7 @@
       "label": "Luz da Aurora Final (2/2): contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +2 no ataque e +2 de dano."
     },
     "power": {
+      "skillId": "power_last_light_oath",
       "name": "Juramento da Última Luz",
       "value": "5/5",
       "type": "heal_or_damage",
@@ -270,6 +288,7 @@
     "style": "equilíbrio, cura, dano, Última Luz."
   },
   {
+    "id": "hero_deep_veil_necromancer",
     "type": "hero",
     "name": "Necromante do Véu Profundo",
     "diceByColor": [
@@ -295,6 +314,7 @@
     ],
     "damage": 2,
     "skill": {
+      "skillId": "skill_return_rite",
       "name": "Rito de Retorno",
       "value": 1,
       "type": "recoverDungeon",
@@ -304,6 +324,7 @@
       "label": "Rito de Retorno (1): uma vez por sala, pode pagar 3 de vida e recuperar 1 carta de dungeon descartada, embaralhando-a no deck."
     },
     "power": {
+      "skillId": "power_deep_veil_echo",
       "name": "Eco Profundo do Véu",
       "value": "1/3/2/2",
       "type": "token",
@@ -315,6 +336,7 @@
     "style": "Véu, recuperação, controle tardio, necromancia."
   },
   {
+    "id": "hero_broken_veil_hunter",
     "type": "hero",
     "name": "Caçador do Véu Partido",
     "diceByColor": [
@@ -340,6 +362,7 @@
     ],
     "damage": 3,
     "skill": {
+      "skillId": "skill_prey_mark",
       "name": "Marca da Presa",
       "value": 1,
       "type": "mark",
@@ -349,6 +372,7 @@
       "label": "Marca da Presa (1): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +1 no acerto."
     },
     "power": {
+      "skillId": "power_hunter_execution",
       "name": "Execução do Caçador",
       "value": "6/1",
       "type": "diceFix_damage",
@@ -360,6 +384,7 @@
     "style": "foco, precisão, eliminação, Véu."
   },
   {
+    "id": "creature_deep_rift_rat",
     "type": "creature",
     "name": "Rato das Fendas Profundas",
     "diceByColor": [
@@ -388,6 +413,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_lone_beast",
       "name": "Fera Solitária",
       "value": "1/1",
       "type": "tohit_damage",
@@ -407,6 +433,7 @@
     }
   },
   {
+    "id": "creature_dark_cave_goblin",
     "type": "creature",
     "name": "Goblin das Cavernas Escuras",
     "diceByColor": [
@@ -435,6 +462,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_cowardly_flee",
       "name": "Fuga Covarde",
       "value": null,
       "type": "reward",
@@ -454,6 +482,7 @@
     }
   },
   {
+    "id": "creature_wet_stone_slime",
     "type": "creature",
     "name": "Limo das Pedras Úmidas",
     "diceByColor": [
@@ -482,6 +511,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_gelatinous_body",
       "name": "Corpo Gelatinoso",
       "value": -1,
       "type": "tohit_penalty",
@@ -501,6 +531,7 @@
     }
   },
   {
+    "id": "creature_black_ceiling_bat",
     "type": "creature",
     "name": "Morcego do Teto Negro",
     "diceByColor": [
@@ -529,6 +560,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_rift_evasion",
       "name": "Evasão das Fendas",
       "value": null,
       "type": "itemControl",
@@ -548,6 +580,7 @@
     }
   },
   {
+    "id": "creature_ancient_pillar_spider",
     "type": "creature",
     "name": "Aranha dos Pilares Antigos",
     "diceByColor": [
@@ -576,6 +609,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_treacherous_attack",
       "name": "Ataque Traiçoeiro",
       "value": 2,
       "type": "damage",
@@ -595,6 +629,7 @@
     }
   },
   {
+    "id": "creature_broken_gates_watcher",
     "type": "creature",
     "name": "Vigia das Portas Quebradas",
     "diceByColor": [
@@ -623,6 +658,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_charred_plate",
       "name": "Couraça Carbonizada",
       "value": 1,
       "type": "armor",
@@ -642,6 +678,7 @@
     }
   },
   {
+    "id": "creature_hidden_flame_cultist",
     "type": "creature",
     "name": "Cultista da Chama Oculta",
     "diceByColor": [
@@ -670,6 +707,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_hidden_flame_presence",
       "name": "Presença da Chama Oculta",
       "value": 2,
       "type": "tohit",
@@ -689,6 +727,7 @@
     }
   },
   {
+    "id": "creature_catacomb_skeleton",
     "type": "creature",
     "name": "Esqueleto das Catacumbas",
     "diceByColor": [
@@ -717,6 +756,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "purple_dark_tribute",
       "name": "Tributo Sombrio",
       "value": 1,
       "type": "item_or_discardDungeon",
@@ -736,6 +776,7 @@
     }
   },
   {
+    "id": "creature_dead_passage_thief",
     "type": "creature",
     "name": "Ladrão das Passagens Mortas",
     "diceByColor": [
@@ -764,6 +805,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "purple_dark_tribute",
       "name": "Tributo Sombrio",
       "value": 1,
       "type": "item_or_discardDungeon",
@@ -783,6 +825,7 @@
     }
   },
   {
+    "id": "creature_old_chains_knight",
     "type": "creature",
     "name": "Cavaleiro das Correntes Velhas",
     "diceByColor": [
@@ -811,6 +854,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_lone_beast",
       "name": "Fera Solitária",
       "value": "2/2",
       "type": "tohit_damage",
@@ -830,6 +874,7 @@
     }
   },
   {
+    "id": "creature_low_fire_salamander",
     "type": "creature",
     "name": "Salamandra do Fogo Baixo",
     "diceByColor": [
@@ -858,6 +903,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_treacherous_attack",
       "name": "Ataque Traiçoeiro",
       "value": 1,
       "type": "damage",
@@ -877,6 +923,7 @@
     }
   },
   {
+    "id": "creature_ruined_hall_ogre",
     "type": "creature",
     "name": "Ogro do Salão Arruinado",
     "diceByColor": [
@@ -905,6 +952,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_lone_beast",
       "name": "Fera Solitária",
       "value": "2/2",
       "type": "tohit_damage",
@@ -924,6 +972,7 @@
     }
   },
   {
+    "id": "creature_low_ember_kobold",
     "type": "creature",
     "name": "Kobold das Brasas Baixas",
     "diceByColor": [
@@ -952,6 +1001,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_pack_courage",
       "name": "Coragem de Bando",
       "value": 1,
       "type": "tohit",
@@ -971,6 +1021,7 @@
     }
   },
   {
+    "id": "creature_hot_ash_worm",
     "type": "creature",
     "name": "Verme das Cinzas Quentes",
     "diceByColor": [
@@ -999,6 +1050,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_charred_plate",
       "name": "Couraça Carbonizada",
       "value": 1,
       "type": "armor",
@@ -1018,6 +1070,7 @@
     }
   },
   {
+    "id": "creature_blazing_skull",
     "type": "creature",
     "name": "Crânio Flamejante",
     "diceByColor": [
@@ -1046,6 +1099,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_rift_evasion",
       "name": "Evasão das Fendas",
       "value": null,
       "type": "itemControl",
@@ -1065,6 +1119,7 @@
     }
   },
   {
+    "id": "creature_dead_torch_sentinel",
     "type": "creature",
     "name": "Sentinela das Tochas Mortas",
     "diceByColor": [
@@ -1093,6 +1148,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_charred_plate",
       "name": "Couraça Carbonizada",
       "value": 1,
       "type": "armor",
@@ -1112,6 +1168,7 @@
     }
   },
   {
+    "id": "creature_forge_acolyte",
     "type": "creature",
     "name": "Acólito da Fornalha",
     "diceByColor": [
@@ -1140,6 +1197,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_hidden_flame_presence",
       "name": "Presença da Chama Oculta",
       "value": 2,
       "type": "tohit",
@@ -1159,6 +1217,7 @@
     }
   },
   {
+    "id": "creature_broken_chains_brute",
     "type": "creature",
     "name": "Bruto das Correntes Partidas",
     "diceByColor": [
@@ -1187,6 +1246,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "skill_path_corruption",
       "name": "Corrupção de Caminho",
       "value": null,
       "type": "discardDungeonLock",
@@ -1206,6 +1266,7 @@
     }
   },
   {
+    "id": "subboss_crimson_dungeon_jailer",
     "type": "subboss",
     "name": "Carcereiro da Masmorra Rubra",
     "diceByColor": [
@@ -1234,6 +1295,7 @@
     "reward": 1,
     "rewardType": "artifact",
     "effect": {
+      "skillId": "skill_path_corruption",
       "name": "Corrupção de Caminho",
       "value": null,
       "type": "discardDungeonLock",
@@ -1253,6 +1315,7 @@
     }
   },
   {
+    "id": "subboss_cracked_abyss_guardian",
     "type": "subboss",
     "name": "Guardião do Abismo Rachado",
     "diceByColor": [
@@ -1281,6 +1344,7 @@
     "reward": 1,
     "rewardType": "artifact",
     "effect": {
+      "skillId": "purple_dark_tribute",
       "name": "Tributo Sombrio",
       "value": 1,
       "type": "item_or_discardDungeon",
@@ -1300,6 +1364,7 @@
     }
   },
   {
+    "id": "item_pitch_torch",
     "type": "item",
     "name": "Tocha de Breu",
     "itemClass": "utility",
@@ -1307,6 +1372,7 @@
       "Utilitário"
     ],
     "effect": {
+      "skillId": "skill_illuminate_path",
       "name": "Iluminar o Caminho",
       "value": 1,
       "type": "dungeon",
@@ -1317,6 +1383,7 @@
     }
   },
   {
+    "id": "item_worn_explorer_rope",
     "type": "item",
     "name": "Corda Gasta de Explorador",
     "itemClass": "consumable",
@@ -1325,6 +1392,7 @@
       "Exploração"
     ],
     "effect": {
+      "skillId": "skill_preserved_path",
       "name": "Caminho Preservado",
       "value": null,
       "type": "discardDungeon",
@@ -1335,6 +1403,7 @@
     }
   },
   {
+    "id": "item_rusty_dagger",
     "type": "item",
     "name": "Adaga Enferrujada",
     "itemClass": "equipment",
@@ -1343,6 +1412,7 @@
       "Arma"
     ],
     "effect": {
+      "skillId": "item_skill_deadly_edge",
       "name": "Fio Mortal",
       "value": 1,
       "type": "tohit_damage",
@@ -1353,6 +1423,7 @@
     }
   },
   {
+    "id": "item_cracked_shield",
     "type": "item",
     "name": "Escudo Rachado",
     "itemClass": "equipment",
@@ -1362,6 +1433,7 @@
       "Defesa"
     ],
     "effect": {
+      "skillId": "item_skill_block",
       "name": "Bloqueio",
       "value": 2,
       "type": "armor",
@@ -1372,6 +1444,7 @@
     }
   },
   {
+    "id": "item_lesser_vigor_potion",
     "type": "item",
     "name": "Poção de Vigor Menor",
     "itemClass": "consumable",
@@ -1380,6 +1453,7 @@
       "Cura"
     ],
     "effect": {
+      "skillId": "skill_last_light_healing",
       "name": "Cura da Última Luz",
       "value": 2,
       "type": "heal",
@@ -1390,6 +1464,7 @@
     }
   },
   {
+    "id": "item_incendiary_oil_flask",
     "type": "item",
     "name": "Frasco de Óleo Incendiário",
     "itemClass": "consumable",
@@ -1398,6 +1473,7 @@
       "Fogo"
     ],
     "effect": {
+      "skillId": "skill_living_ember",
       "name": "Brasa Viva",
       "value": "2/3",
       "type": "damage",
@@ -1408,6 +1484,7 @@
     }
   },
   {
+    "id": "item_ancient_iron_key",
     "type": "item",
     "name": "Chave de Ferro Antiga",
     "itemClass": "special",
@@ -1416,6 +1493,7 @@
       "Artefato"
     ],
     "effect": {
+      "skillId": "item_skill_mystic_draw",
       "name": "Saque Místico",
       "value": 1,
       "type": "drawArtifact",
@@ -1426,6 +1504,7 @@
     }
   },
   {
+    "id": "item_tunnel_hood",
     "type": "item",
     "name": "Capuz do Túnel",
     "itemClass": "equipment",
@@ -1435,6 +1514,7 @@
       "Exploração"
     ],
     "effect": {
+      "skillId": "skill_focus_deflection",
       "name": "Desvio de Foco",
       "value": 2,
       "type": "targetRedirect",
@@ -1445,6 +1525,7 @@
     }
   },
   {
+    "id": "item_light_stone_boots",
     "type": "item",
     "name": "Botas de Pedra Leve",
     "itemClass": "equipment",
@@ -1453,6 +1534,7 @@
       "Mobilidade"
     ],
     "effect": {
+      "skillId": "skill_rift_light_step",
       "name": "Passo Leve das Fendas",
       "value": null,
       "type": "controlProtection",
@@ -1463,6 +1545,7 @@
     }
   },
   {
+    "id": "item_crimson_rune_staff",
     "type": "item",
     "name": "Cajado das Runas Rubras",
     "itemClass": "equipment",
@@ -1472,6 +1555,7 @@
       "Runas"
     ],
     "effect": {
+      "skillId": "skill_minor_rune",
       "name": "Runa Menor",
       "value": 1,
       "type": "reroll",
@@ -1482,6 +1566,7 @@
     }
   },
   {
+    "id": "item_last_light_sword",
     "type": "item",
     "name": "Espada da Última Luz",
     "itemClass": "equipment",
@@ -1491,6 +1576,7 @@
       "Última Luz"
     ],
     "effect": {
+      "skillId": "item_skill_last_light_blade",
       "name": "Lâmina da Última Luz",
       "value": "2/2",
       "type": "tohit_damage",
@@ -1501,6 +1587,7 @@
     }
   },
   {
+    "id": "item_deep_veil_scythe",
     "type": "item",
     "name": "Foice do Véu Profundo",
     "itemClass": "equipment",
@@ -1510,6 +1597,7 @@
       "Véu"
     ],
     "effect": {
+      "skillId": "item_skill_drain_life_and_deadly_edge",
       "name": "Drenar Vida e Fio Mortal",
       "value": "1/1",
       "type": "tohit_damage_heal",
@@ -1520,6 +1608,7 @@
     }
   },
   {
+    "id": "item_ruined_hall_axe",
     "type": "item",
     "name": "Machado do Salão Arruinado",
     "itemClass": "equipment",
@@ -1529,6 +1618,7 @@
       "Dano"
     ],
     "effect": {
+      "skillId": "item_skill_deadly_edge",
       "name": "Fio Mortal",
       "value": 3,
       "type": "tohit_damage",
@@ -1539,6 +1629,7 @@
     }
   },
   {
+    "id": "item_broken_stone_hammer",
     "type": "item",
     "name": "Martelo de Pedra Quebrada",
     "itemClass": "equipment",
@@ -1548,6 +1639,7 @@
       "Força"
     ],
     "effect": {
+      "skillId": "item_skill_deadly_edge",
       "name": "Fio Mortal",
       "value": 2,
       "type": "tohit_damage",
@@ -1558,6 +1650,7 @@
     }
   },
   {
+    "id": "item_rift_bow",
     "type": "item",
     "name": "Arco das Fendas",
     "itemClass": "equipment",
@@ -1568,6 +1661,7 @@
       "Fendas"
     ],
     "effect": {
+      "skillId": "skill_opportunity_shot",
       "name": "Tiro de Oportunidade",
       "value": null,
       "type": "directDamage",
@@ -1578,6 +1672,7 @@
     }
   },
   {
+    "id": "item_reinforced_leather_armor",
     "type": "item",
     "name": "Armadura de Couro Reforçado",
     "itemClass": "equipment",
@@ -1587,6 +1682,7 @@
       "Defesa"
     ],
     "effect": {
+      "skillId": "item_skill_block",
       "name": "Bloqueio",
       "value": 1,
       "type": "armor",
@@ -1597,6 +1693,7 @@
     }
   },
   {
+    "id": "item_ancient_metal_armor",
     "type": "item",
     "name": "Armadura de Metal Antigo",
     "itemClass": "equipment",
@@ -1606,6 +1703,7 @@
       "Metal"
     ],
     "effect": {
+      "skillId": "item_skill_block",
       "name": "Bloqueio",
       "value": 2,
       "type": "armor",
@@ -1616,6 +1714,7 @@
     }
   },
   {
+    "id": "item_forge_magic_armor",
     "type": "item",
     "name": "Armadura Mágica da Fornalha",
     "itemClass": "equipment",
@@ -1626,6 +1725,7 @@
       "Arcano"
     ],
     "effect": {
+      "skillId": "item_skill_block_and_last_light_ward",
       "name": "Bloqueio e Resguardo da Última Luz",
       "value": "3/2",
       "type": "armor_purple_damage_reduction",
@@ -1636,6 +1736,7 @@
     }
   },
   {
+    "id": "item_broken_veil_cloak",
     "type": "item",
     "name": "Manto do Véu Partido",
     "itemClass": "equipment",
@@ -1645,6 +1746,7 @@
       "Véu"
     ],
     "effect": {
+      "skillId": "skill_protective_veil",
       "name": "Véu Protetor",
       "value": null,
       "type": "targetProtection",
@@ -1655,6 +1757,7 @@
     }
   },
   {
+    "id": "item_fury_potion",
     "type": "item",
     "name": "Poção de Fúria",
     "itemClass": "consumable",
@@ -1664,6 +1767,7 @@
       "Dano"
     ],
     "effect": {
+      "skillId": "skill_crimson_fury",
       "name": "Fúria Rubra",
       "value": 2,
       "type": "self_damage_for_damage",
@@ -1674,6 +1778,7 @@
     }
   },
   {
+    "id": "item_precision_potion",
     "type": "item",
     "name": "Poção de Precisão",
     "itemClass": "consumable",
@@ -1682,6 +1787,7 @@
       "Precisão"
     ],
     "effect": {
+      "skillId": "skill_hunter_focus",
       "name": "Foco do Caçador",
       "value": 4,
       "type": "tohit",
@@ -1692,6 +1798,7 @@
     }
   },
   {
+    "id": "item_stoneskin_potion",
     "type": "item",
     "name": "Poção de Pele de Pedra",
     "itemClass": "consumable",
@@ -1701,6 +1808,7 @@
       "Pedra"
     ],
     "effect": {
+      "skillId": "item_skill_block",
       "name": "Bloqueio",
       "value": 3,
       "type": "armor",
@@ -1711,6 +1819,7 @@
     }
   },
   {
+    "id": "item_return_potion",
     "type": "item",
     "name": "Poção de Retorno",
     "itemClass": "consumable",
@@ -1720,6 +1829,7 @@
       "Fendas"
     ],
     "effect": {
+      "skillId": "power_restored_path",
       "name": "Caminho Restaurado",
       "value": 1,
       "type": "recoverDungeon",
@@ -1730,6 +1840,7 @@
     }
   },
   {
+    "id": "item_living_ember_potion",
     "type": "item",
     "name": "Poção de Brasa Viva",
     "itemClass": "consumable",
@@ -1739,6 +1850,7 @@
       "Dano Direto"
     ],
     "effect": {
+      "skillId": "skill_living_ember",
       "name": "Brasa Viva",
       "value": 3,
       "type": "damage",
@@ -1749,6 +1861,7 @@
     }
   },
   {
+    "id": "item_greater_vigor_potion",
     "type": "item",
     "name": "Poção de Vigor Maior",
     "itemClass": "consumable",
@@ -1757,6 +1870,7 @@
       "Cura"
     ],
     "effect": {
+      "skillId": "skill_last_light_healing",
       "name": "Cura da Última Luz",
       "value": 4,
       "type": "heal",
@@ -1767,6 +1881,7 @@
     }
   },
   {
+    "id": "item_silent_dungeon_charm",
     "type": "item",
     "name": "Encanto da Masmorra Calada",
     "itemClass": "charm",
@@ -1776,6 +1891,7 @@
       "Proteção"
     ],
     "effect": {
+      "skillId": "skill_path_safeguard",
       "name": "Salvaguarda de Caminho",
       "value": null,
       "type": "discardDungeon",
@@ -1786,6 +1902,7 @@
     }
   },
   {
+    "id": "item_low_flame_charm",
     "type": "item",
     "name": "Encanto da Chama Baixa",
     "itemClass": "charm",
@@ -1795,6 +1912,7 @@
       "Acerto"
     ],
     "effect": {
+      "skillId": "skill_hunter_focus",
       "name": "Foco do Caçador",
       "value": 2,
       "type": "tohit",
@@ -1805,6 +1923,7 @@
     }
   },
   {
+    "id": "item_warm_blood_charm",
     "type": "item",
     "name": "Encanto do Sangue Quente",
     "itemClass": "charm",
@@ -1814,6 +1933,7 @@
       "Sobrevivência"
     ],
     "effect": {
+      "skillId": "item_skill_block",
       "name": "Bloqueio",
       "value": 10,
       "type": "armor",
@@ -1824,6 +1944,7 @@
     }
   },
   {
+    "id": "item_safe_path_charm",
     "type": "item",
     "name": "Encanto do Caminho Seguro",
     "itemClass": "charm",
@@ -1833,6 +1954,7 @@
       "Dungeon"
     ],
     "effect": {
+      "skillId": "skill_illuminate_path",
       "name": "Iluminar o Caminho",
       "value": null,
       "type": "dungeon",
@@ -1843,6 +1965,7 @@
     }
   },
   {
+    "id": "item_last_defense_charm",
     "type": "item",
     "name": "Encanto da Última Defesa",
     "itemClass": "charm",
@@ -1852,6 +1975,7 @@
       "Sobrevivência"
     ],
     "effect": {
+      "skillId": "power_greater_last_light_miracle",
       "name": "Milagre Maior da Última Luz",
       "value": "full/1",
       "type": "heal_or_survive",
@@ -1862,6 +1986,7 @@
     }
   },
   {
+    "id": "item_last_chord_lute",
     "type": "item",
     "name": "Alaúde do Último Acorde",
     "itemClass": "equipment",
@@ -1871,6 +1996,7 @@
       "Fuga"
     ],
     "effect": {
+      "skillId": "skill_protective_veil",
       "name": "Véu Protetor",
       "value": null,
       "type": "targetProtection",
@@ -1881,6 +2007,7 @@
     }
   },
   {
+    "id": "item_narrow_exit_cloak",
     "type": "item",
     "name": "Manto da Saída Estreita",
     "itemClass": "equipment",
@@ -1890,6 +2017,7 @@
       "Mobilidade"
     ],
     "effect": {
+      "skillId": "skill_illuminate_path",
       "name": "Iluminar o Caminho",
       "value": null,
       "type": "dungeon",
@@ -1900,6 +2028,7 @@
     }
   },
   {
+    "id": "item_torn_depths_map",
     "type": "item",
     "name": "Mapa Rasgado das Profundezas",
     "itemClass": "special",
@@ -1909,6 +2038,7 @@
       "Exploração"
     ],
     "effect": {
+      "skillId": "item_skill_mystic_draw",
       "name": "Saque Místico",
       "value": 1,
       "type": "drawArtifact",
@@ -1919,6 +2049,7 @@
     }
   },
   {
+    "id": "item_hidden_forge_chest",
     "type": "item",
     "name": "Baú Oculto da Fornalha",
     "itemClass": "special",
@@ -1928,6 +2059,7 @@
       "Fornalha"
     ],
     "effect": {
+      "skillId": "item_skill_mystic_draw",
       "name": "Saque Místico",
       "value": 1,
       "type": "drawArtifact",
@@ -1938,10 +2070,12 @@
     }
   },
   {
+    "id": "artifact_crimson_jailer_chain",
     "type": "artifact",
     "name": "Corrente do Carcereiro Rubro",
     "countsAs": "artifact",
     "effect": {
+      "skillId": "skill_preserved_path",
       "name": "Caminho Preservado",
       "value": null,
       "type": "discardDungeon",
@@ -1952,10 +2086,12 @@
     }
   },
   {
+    "id": "artifact_ancient_ember_heart",
     "type": "artifact",
     "name": "Coração de Brasa Antiga",
     "countsAs": "artifact",
     "effect": {
+      "skillId": "item_skill_deadly_edge",
       "name": "Fio Mortal",
       "value": 1,
       "type": "tohit_damage",
@@ -1966,10 +2102,12 @@
     }
   },
   {
+    "id": "artifact_lost_forge_hammer",
     "type": "artifact",
     "name": "Martelo da Forja Perdida",
     "countsAs": "artifact",
     "effect": {
+      "skillId": "power_supreme_rift_rune",
       "name": "Runa Suprema das Fendas",
       "value": "6/1",
       "type": "diceFix",
@@ -1980,10 +2118,12 @@
     }
   },
   {
+    "id": "artifact_last_vigil_brazier",
     "type": "artifact",
     "name": "Braseiro da Última Vigília",
     "countsAs": "artifact",
     "effect": {
+      "skillId": "power_greater_last_light_miracle",
       "name": "Milagre Maior da Última Luz",
       "value": "full/1",
       "type": "heal_or_survive",
@@ -1994,10 +2134,12 @@
     }
   },
   {
+    "id": "artifact_first_fire_blade",
     "type": "artifact",
     "name": "Lâmina do Primeiro Incêndio",
     "countsAs": "artifact",
     "effect": {
+      "skillId": "item_skill_crimson_fury_mighty",
       "name": "Fúria Rubra e Fúria Rubra Poderosa",
       "value": "2/poderosa",
       "type": "self_damage_for_damage_until_end_of_combat",
@@ -2008,6 +2150,7 @@
     }
   },
   {
+    "id": "subboss_room_jailer_chamber",
     "type": "subboss_room",
     "name": "Câmara do Carcereiro",
     "exits": 1,
@@ -2016,6 +2159,7 @@
     "xp": 4,
     "linkedSubbossName": "Carcereiro da Masmorra Rubra",
     "effect": {
+      "skillId": "dungeon_skill_subboss_room",
       "name": "Sala do Subchefe",
       "value": null,
       "type": "noop",
@@ -2026,6 +2170,7 @@
     }
   },
   {
+    "id": "subboss_room_cracked_abyss_chamber",
     "type": "subboss_room",
     "name": "Câmara do Abismo Rachado",
     "exits": 2,
@@ -2034,6 +2179,7 @@
     "xp": 4,
     "linkedSubbossName": "Guardião do Abismo Rachado",
     "effect": {
+      "skillId": "dungeon_skill_subboss_room",
       "name": "Sala do Subchefe",
       "value": null,
       "type": "noop",
@@ -2044,6 +2190,7 @@
     }
   },
   {
+    "id": "room_narrow_corridor",
     "type": "room",
     "name": "Corredor Estreito",
     "exits": 1,
@@ -2056,6 +2203,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_empty_room",
       "name": "Sala Vazia",
       "value": null,
       "type": "room",
@@ -2066,6 +2214,7 @@
     }
   },
   {
+    "id": "room_dungeon_room",
     "type": "room",
     "name": "Sala da Masmorra",
     "exits": 3,
@@ -2078,6 +2227,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_empty_room",
       "name": "Sala Vazia",
       "value": null,
       "type": "room",
@@ -2089,6 +2239,7 @@
     "xp": 1
   },
   {
+    "id": "room_crimson_chains_chamber",
     "type": "room",
     "name": "Câmara das Correntes Rubras",
     "exits": 3,
@@ -2101,6 +2252,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_confinement",
       "name": "Confinamento",
       "value": null,
       "type": "fleeLock",
@@ -2112,6 +2264,7 @@
     "xp": 2
   },
   {
+    "id": "room_dead_torches_passage",
     "type": "room",
     "name": "Passagem das Tochas Mortas",
     "exits": 2,
@@ -2124,6 +2277,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_dead_torches",
       "name": "Tochas Mortas",
       "value": "-1/1",
       "type": "item_or_tohit_penalty",
@@ -2135,6 +2289,7 @@
     "xp": 2
   },
   {
+    "id": "room_broken_columns_hall",
     "type": "room",
     "name": "Salão das Colunas Quebradas",
     "exits": 4,
@@ -2147,6 +2302,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_column_fall",
       "name": "Queda de Coluna",
       "value": 1,
       "type": "damage",
@@ -2158,6 +2314,7 @@
     "xp": 1
   },
   {
+    "id": "room_depths_stairway",
     "type": "room",
     "name": "Escadaria para as Profundezas",
     "exits": 2,
@@ -2170,6 +2327,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_uneven_floor",
       "name": "Piso Irregular",
       "value": 1,
       "type": "discardDungeon",
@@ -2181,6 +2339,7 @@
     "xp": 2
   },
   {
+    "id": "room_abandoned_cell",
     "type": "room",
     "name": "Cela Abandonada",
     "exits": 3,
@@ -2193,6 +2352,7 @@
     "reward": 1,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_forge_spoils",
       "name": "Espólios da Fornalha",
       "value": "2/1",
       "type": "drawItem",
@@ -2204,6 +2364,7 @@
     "xp": 1
   },
   {
+    "id": "room_ruined_forge",
     "type": "room",
     "name": "Forja em Ruínas",
     "exits": 3,
@@ -2216,6 +2377,7 @@
     "reward": 2,
     "rewardType": "item",
     "effect": {
+      "skillId": "dungeon_skill_rekindled_forge",
       "name": "Forja Reacesa",
       "value": null,
       "type": "recoverItem",
@@ -2227,6 +2389,7 @@
     "xp": 2
   },
   {
+    "id": "room_jailer_room",
     "type": "room",
     "name": "Sala do Carcereiro",
     "exits": 2,
@@ -2239,6 +2402,7 @@
     "reward": 1,
     "rewardType": "artifact",
     "effect": {
+      "skillId": "dungeon_skill_summon_guardian",
       "name": "Invocar Guardião",
       "value": "Carcereiro da Masmorra Rubra",
       "type": "roomSpecial",
@@ -2251,6 +2415,7 @@
     "specialCreature": "Carcereiro da Masmorra Rubra"
   },
   {
+    "id": "room_cracked_abyss",
     "type": "room",
     "name": "Abismo Rachado",
     "exits": 4,
@@ -2263,6 +2428,7 @@
     "reward": 1,
     "rewardType": "artifact",
     "effect": {
+      "skillId": "dungeon_skill_summon_guardian",
       "name": "Invocar Guardião",
       "value": "Guardião do Abismo Rachado",
       "type": "roomSpecial",
@@ -2275,6 +2441,7 @@
     "specialCreature": "Guardião do Abismo Rachado"
   },
   {
+    "id": "boss_azhakar",
     "type": "boss",
     "name": "Azhakar, Dragão da Fornalha Sombria",
     "dice": "3 dados vermelhos",
@@ -2288,6 +2455,7 @@
       {
         "name": "Trono de Cinzas Vivas",
         "effect": {
+          "skillId": "boss_skill_living_ash_throne",
           "name": "Trono de Cinzas Vivas",
           "value": 1,
           "type": "armor",
@@ -2300,6 +2468,7 @@
       {
         "name": "Pressão da Fornalha Sombria",
         "effect": {
+          "skillId": "boss_skill_dark_forge_pressure",
           "name": "Pressão da Fornalha Sombria",
           "value": 1,
           "type": "discardDungeon",
@@ -2312,6 +2481,7 @@
       {
         "name": "Ascensão de Azhakar",
         "effect": {
+          "skillId": "boss_skill_azhakar_ascension",
           "name": "Ascensão de Azhakar",
           "value": 2,
           "type": "tohit",

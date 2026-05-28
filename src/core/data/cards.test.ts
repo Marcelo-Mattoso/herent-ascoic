@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import {
 	getAllCards,
 	getBoss,
+	getCardById,
 	getCardByName,
 	getDiceCount,
 	getHeroes,
@@ -23,8 +24,8 @@ describe("catálogo de cartas", () => {
 		expect(boss?.type).toBe("boss");
 	});
 
-	it("getCardByName encontra o Bárbaro Rubro", () => {
-		const card = getCardByName("Bárbaro Rubro");
+	it("getCardById encontra o Bárbaro Rubro", () => {
+		const card = getCardById("hero_crimson_barbarian");
 		expect(card).toBeDefined();
 		expect(card?.type).toBe("hero");
 		if (card?.type === "hero") {
@@ -32,8 +33,14 @@ describe("catálogo de cartas", () => {
 		}
 	});
 
-	it("getDiceCount retorna 1 para Branco no Bárbaro Rubro", () => {
+	it("getCardByName ainda funciona para compat (deprecated)", () => {
 		const card = getCardByName("Bárbaro Rubro");
+		expect(card).toBeDefined();
+		expect(card?.id).toBe("hero_crimson_barbarian");
+	});
+
+	it("getDiceCount retorna 1 para Branco no Bárbaro Rubro", () => {
+		const card = getCardById("hero_crimson_barbarian");
 		expect(card?.type).toBe("hero");
 		if (card?.type === "hero") {
 			expect(getDiceCount(card, 0)).toBe(1);
@@ -41,7 +48,7 @@ describe("catálogo de cartas", () => {
 	});
 
 	it("getDiceCount retorna 3 para Roxo no Bárbaro Rubro", () => {
-		const card = getCardByName("Bárbaro Rubro");
+		const card = getCardById("hero_crimson_barbarian");
 		expect(card?.type).toBe("hero");
 		if (card?.type === "hero") {
 			expect(getDiceCount(card, 4)).toBe(3);
@@ -58,7 +65,7 @@ describe("catálogo de cartas", () => {
 	});
 
 	it("Corredor Estreito tem xp tratado como 0 quando ausente", () => {
-		const card = getCardByName("Corredor Estreito");
+		const card = getCardById("room_narrow_corridor");
 		expect(card?.type).toBe("room");
 		if (card?.type === "room") {
 			expect(card.xp ?? 0).toBe(0);
@@ -66,7 +73,7 @@ describe("catálogo de cartas", () => {
 	});
 
 	it("skill e power do herói são objetos Ability com label", () => {
-		const card = getCardByName("Clérigo do Descanso Eterno");
+		const card = getCardById("hero_eternal_rest_cleric");
 		expect(card?.type).toBe("hero");
 		if (card?.type === "hero") {
 			expect(typeof card.skill.label).toBe("string");
