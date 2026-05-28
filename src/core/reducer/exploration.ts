@@ -1,6 +1,6 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
-import { getArtifacts, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../data/cards";
+import { getArtifacts, getCardById, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../data/cards";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
 import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
@@ -38,6 +38,7 @@ export function handleRevealRoom(state: GameState): GameState {
 	}
 
 	const room: RoomState = {
+		cardId: card.id,
 		cardName: card.name,
 		exits: card.exits,
 		currentEnemies: card.enemiesByPlayers[0], // solo = índice 0
@@ -71,6 +72,7 @@ function handleRevealSubbossRoom(
 	if (!subbossCard) return log(state, `[AVISO] Subchefe não encontrado: ${card.linkedSubbossName}`);
 
 	const room: RoomState = {
+		cardId: card.id,
 		cardName: card.name,
 		exits: card.exits,
 		currentEnemies: 1,
@@ -128,7 +130,7 @@ function getEnemyCount(
 export function handleSpawnEnemies(state: GameState): GameState {
 	if (!state.currentRoom) return state;
 	// Buscar a carta da sala para obter enemiesByPlayers e calcular contagem dinamicamente
-	const roomCard = getCardByName(state.currentRoom.cardName);
+	const roomCard = getCardById(state.currentRoom.cardId);
 	const activeHeroesCount = state.heroes.filter(
 		(h) => h.status === "active",
 	).length;
@@ -256,7 +258,7 @@ export function handleDiscardPaths(state: GameState): GameState {
 }
 
 export function handleCheckBossCondition(state: GameState): GameState {
-	if (checkBossCondition(state, state.bossCardName)) {
+	if (checkBossCondition(state, state.bossCardId)) {
 		return log(
 			{ ...state, status: "BOSS_REVEAL" },
 			"Condição do boss atendida! Boss revelado.",

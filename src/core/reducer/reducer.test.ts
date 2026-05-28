@@ -37,6 +37,7 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 	};
 
 	const room: RoomState = {
+		cardId: "room_dungeon_room",
 		cardName: "Sala da Masmorra",
 		exits: 2,
 		currentEnemies: 1,
@@ -328,6 +329,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		};
 
 		const room: RoomState = {
+			cardId: "room_dungeon_room",
 			cardName: "Sala da Masmorra",
 			exits: 2,
 			currentEnemies: 1,
@@ -436,8 +438,8 @@ describe("vitória contra boss", () => {
 		s = {
 			...s,
 			groupArtifacts: [
-				{ cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
-				{ cardName: "Coração de Brasa Antiga", carriedBy: null },
+				{ cardId: "artifact_crimson_jailer_chain", cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
+				{ cardId: "artifact_ancient_ember_heart", cardName: "Coração de Brasa Antiga", carriedBy: null },
 			],
 			status: "BOSS_REVEAL" as const,
 		};

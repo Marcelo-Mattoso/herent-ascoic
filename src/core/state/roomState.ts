@@ -6,6 +6,7 @@ export type RewardType = "item" | "artifact";
 export type RoomStatus = "active" | "cleared";
 
 export interface RoomState {
+	readonly cardId: string;
 	readonly cardName: string;
 	readonly exits: number;
 	readonly currentEnemies: number;

@@ -5,6 +5,7 @@ import { calculateRewards } from "./reward";
 
 function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 	return {
+		cardId: "room_dungeon_room",
 		cardName: "Sala da Masmorra",
 		exits: 3,
 		currentEnemies: 1,

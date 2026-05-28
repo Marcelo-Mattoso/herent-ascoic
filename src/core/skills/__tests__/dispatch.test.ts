@@ -41,6 +41,7 @@ describe("purpleEffect filter", () => {
 	// Morcego do Teto Negro: purpleEffect = Ruptura da Cura (healBlock, on_enter_room, heroes)
 	const morcego: EnemyState = {
 		id: "e1",
+		cardId: "creature_black_ceiling_bat",
 		cardName: "Morcego do Teto Negro",
 		maxLife: 3,
 		currentLife: 3,
@@ -60,7 +61,7 @@ describe("purpleEffect filter", () => {
 			activeEnemies: [morcego],
 			heroes: [
 				{
-					id: "h1", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
+					id: "h1", cardId: "hero_crimson_barbarian", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
 					damage: 3, hitBonus: 1, dice: 2, impeto: 0 as const,
 					activeItems: {}, backpack: [], usedPowers: {}, conditions: [], status: "active" as const,
 					playerIndex: 0, xp: 0,
@@ -78,7 +79,7 @@ describe("purpleEffect filter", () => {
 			activeEnemies: [morcego],
 			heroes: [
 				{
-					id: "h1", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
+					id: "h1", cardId: "hero_crimson_barbarian", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
 					damage: 3, hitBonus: 1, dice: 2, impeto: 0 as const,
 					activeItems: {}, backpack: [], usedPowers: {}, conditions: [], status: "active" as const,
 					playerIndex: 0, xp: 0,

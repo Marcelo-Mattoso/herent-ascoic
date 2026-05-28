@@ -58,6 +58,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 
 function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 	return {
+		cardId: "room_narrow_corridor",
 		cardName: "Corredor Estreito",
 		exits: 2,
 		currentEnemies: 1,

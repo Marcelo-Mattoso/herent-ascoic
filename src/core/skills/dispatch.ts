@@ -14,7 +14,7 @@
 import type { SkillDefinition, SkillContext, TriggerName } from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
 import { getHandler } from "./registry";
-import { resolveSkillFor, resolveSkillValue } from "./lookup";
+import { resolveSkillForById, resolveSkillValueById, resolveSkillFor, resolveSkillValue } from "./lookup";
 
 interface ActiveSkill {
 	definition: SkillDefinition;
@@ -127,13 +127,13 @@ function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkil
 	// Heróis ativos — skill e power
 	for (const hero of state.heroes.filter((h) => h.status === "active")) {
 		for (const field of ["skill", "power"] as const) {
-			const def = resolveSkillFor(hero.cardName, field);
+			const def = resolveSkillForById(hero.cardId, field);
 			if (!def) continue;
 			const { base } = parseTrigger(def.trigger);
 			if (base !== trigger) continue;
 			active.push({
 				definition: def,
-				value: resolveSkillValue(hero.cardName, field),
+				value: resolveSkillValueById(hero.cardId, field),
 				sourceHeroId: hero.id,
 			});
 		}
@@ -160,13 +160,13 @@ function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkil
 	for (const enemy of state.activeEnemies.filter(enemyFilter)) {
 		for (const field of ["effect", "purpleEffect"] as const) {
 				if (field === "purpleEffect" && state.despertar !== 4) continue;
-				const def = resolveSkillFor(enemy.cardName, field);
+				const def = resolveSkillForById(enemy.cardId, field);
 			if (!def) continue;
 			const { base } = parseTrigger(def.trigger);
 			if (base !== trigger) continue;
 			active.push({
 				definition: def,
-				value: resolveSkillValue(enemy.cardName, field),
+				value: resolveSkillValueById(enemy.cardId, field),
 				sourceEnemyId: enemy.id,
 			});
 		}
@@ -174,25 +174,25 @@ function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkil
 
 	// Sala atual
 	if (state.currentRoom) {
-		const def = resolveSkillFor(state.currentRoom.cardName, "effect");
+		const def = resolveSkillForById(state.currentRoom.cardId, "effect");
 		if (def) {
 			const { base } = parseTrigger(def.trigger);
 			if (base === trigger) {
-				active.push({ definition: def, value: resolveSkillValue(state.currentRoom.cardName, "effect") });
+				active.push({ definition: def, value: resolveSkillValueById(state.currentRoom.cardId, "effect") });
 			}
 		}
 	}
 
 	// Artefatos do grupo
 	for (const artifact of state.groupArtifacts) {
-		const def = resolveSkillFor(artifact.cardName, "effect");
+		const def = resolveSkillForById(artifact.cardId, "effect");
 		if (!def) continue;
 		const { base } = parseTrigger(def.trigger);
 		if (base !== trigger) continue;
 		const bearerHeroId = artifact.carriedBy ?? undefined;
 		active.push({
 			definition: def,
-			value: resolveSkillValue(artifact.cardName, "effect"),
+			value: resolveSkillValueById(artifact.cardId, "effect"),
 			sourceHeroId: bearerHeroId,
 		});
 	}

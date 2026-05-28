@@ -23,6 +23,7 @@ export type Difficulty = "very_easy" | "easy" | "normal" | "hard" | "nightmare";
 export type GameMode = "cooperative" | "competitive";
 
 export interface GroupArtifact {
+	readonly cardId: string;
 	readonly cardName: string;
 	// Herói que carrega o artefato (null = artefato do grupo sem portador definido)
 	readonly carriedBy: string | null;
@@ -68,6 +69,7 @@ export interface GameState {
 	readonly enemyGraveyard: readonly EnemyState[];
 
 	// Boss
+	readonly bossCardId: string;
 	readonly bossCardName: string;
 	bossDefeated: boolean;
 
@@ -163,6 +165,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 		activeEnemies: [],
 		enemyGraveyard: [],
 
+		bossCardId: "",
 		bossCardName: config.bossCardName ?? "Azhakar, Dragão da Fornalha Sombria",
 		bossDefeated: false,
 

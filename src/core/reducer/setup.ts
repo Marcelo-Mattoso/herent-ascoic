@@ -57,6 +57,7 @@ export function handleStartGame(
 	}
 
 	const bossName = payload.bossCardName ?? selectBoss();
+	const bossId = getCardByName(bossName)?.id ?? "";
 
 	const roomNames = getRooms().map((c) => c.name);
 	const creatureNames = getCreatures().map((c) => c.name);
@@ -93,6 +94,7 @@ export function handleStartGame(
 		fledHeroes: [],
 		activeEnemies: [],
 		enemyGraveyard: [],
+		bossCardId: bossId,
 		bossCardName: bossName,
 		bossDefeated: false,
 		subbosses: { available: [], defeated: [] },

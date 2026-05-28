@@ -15,6 +15,7 @@ import type { ColorIndex } from "../../state/color";
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Bárbaro Rubro",
 		maxLife: 10,
 		currentLife: 10,
@@ -36,6 +37,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
+		cardId: "",
 		cardName: "Goblin",
 		maxLife: 5,
 		currentLife: 5,
@@ -95,6 +97,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 		const base = createInitialGameState({ heroCardNames: ["Paladino da Última Luz"] });
 		const hero: HeroState = {
 			id: "h1",
+			cardId: "hero_last_light_paladin",
 			cardName: "Paladino da Última Luz",
 			maxLife: 8,
 			currentLife: 8,
@@ -160,6 +163,7 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 	it("aumenta despertar ao destruir Cultista da Chama Oculta (Despertar 4)", () => {
 		const cultista: EnemyState = {
 			id: "e1",
+			cardId: "creature_hidden_flame_cultist",
 			cardName: "Cultista da Chama Oculta",
 			maxLife: 3,
 			currentLife: 3,
@@ -189,6 +193,7 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 	it("aumenta despertar ao destruir Cultista (Despertar 3 → 4)", () => {
 		const cultista: EnemyState = {
 			id: "e1",
+			cardId: "creature_hidden_flame_cultist",
 			cardName: "Cultista da Chama Oculta",
 			maxLife: 3,
 			currentLife: 3,
@@ -226,6 +231,7 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
 		const hero: HeroState = {
 			id: "h1",
+			cardId: "hero_crimson_barbarian",
 			cardName: "Bárbaro Rubro",
 			maxLife: 10,
 			currentLife: 10,

@@ -211,7 +211,7 @@ export function handleChooseArtifactBearer(
 		pendingRewards: state.pendingRewards.slice(1),
 		groupArtifacts: [
 			...state.groupArtifacts,
-			{ cardName: reward.cardName, carriedBy: heroId },
+			{ cardId: getCardByName(reward.cardName)?.id ?? "", cardName: reward.cardName, carriedBy: heroId },
 		],
 	};
 
@@ -310,7 +310,7 @@ export function handleSpendXp(
 					...next,
 					groupArtifacts: [
 						...next.groupArtifacts,
-						{ cardName: artName as string, carriedBy: null },
+						{ cardId: getCardByName(artName as string)?.id ?? "", cardName: artName as string, carriedBy: null },
 					],
 					decks: {
 						...next.decks,
@@ -578,7 +578,7 @@ export function handleInvAssignArtifact(
 			pendingRewards: remaining,
 			groupArtifacts: [
 				...state.groupArtifacts,
-				{ cardName: artifactName, carriedBy: heroId },
+				{ cardId: getCardByName(artifactName)?.id ?? "", cardName: artifactName, carriedBy: heroId },
 			],
 		},
 		`Artefato ${artifactName} ativo no grupo.`,
