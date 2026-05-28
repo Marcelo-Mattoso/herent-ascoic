@@ -39,6 +39,12 @@ export type CombatPhase =
 	| "direct_damage" // monstros sem oponente causam dano direto
 	| "round_end"; // fim de rodada, limpeza antes da próxima
 
+// Bônus de skill individual para o próximo ataque (label = nome da skill, value = valor)
+export interface SkillBonusEntry {
+	readonly label: string;
+	readonly value: number;
+}
+
 export interface CombatState {
 	round: number;
 	phase: CombatPhase;
@@ -55,8 +61,8 @@ export interface CombatState {
 	// Controle Azhakar: primeiro dano do turno já sofreu redução de Trono Vivo
 	bossFirstDamageReduced: boolean;
 	readonly temporaryEffects: readonly TemporaryEffect[];
-	// Bônus de dano para o próximo ataque de cada herói (consumido após uso)
-	readonly bonusNextAttack: Readonly<Record<string, number>>;
+	// Bônus de dano para o próximo ataque de cada herói — array de entradas por skill (consumido após uso)
+	readonly bonusNextAttack: Readonly<Record<string, readonly SkillBonusEntry[]>>;
 	// Redução de dano recebido ativa por herói (ex: Guerreiro power até fim da rodada)
 	readonly damageReduction: Readonly<Record<string, number>>;
 	// Presa do Caçador: id do inimigo marcado como alvo preferencial

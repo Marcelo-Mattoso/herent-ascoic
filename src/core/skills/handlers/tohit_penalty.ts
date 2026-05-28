@@ -1,8 +1,8 @@
-// tohit_penalty: aplica penalidade de acerto ao herói que ataca a criatura-fonte.
+﻿// tohit_penalty: aplica penalidade de acerto ao herói que ataca a criatura-fonte.
 // Disparado em before_attack. Consumido em collectHeroBonuses (combat.ts).
 // Cobre: habilidade-calor-escaldante, habilidade-corpo-gelatinoso, habilidade-prisao-das-correntes.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";

@@ -1,22 +1,30 @@
 // Rolagem de dados. Sem side effects — rng é injetável para testes determinísticos.
 
+import { nextFloat } from "../ports/random";
+import type { RngState } from "../ports/random";
+
 export interface DiceResult {
 	readonly results: readonly number[];
 	readonly total: number;
 }
 
-// rng deve retornar valor em [0, 1) — default é Math.random
-export function rollDice(
+// Versão determinística — usa RngState do GameState.
+export function rollDiceRng(
 	count: number,
+	rng: RngState,
 	faces = 6,
-	rng: () => number = Math.random,
-): DiceResult {
+): { result: DiceResult; next: RngState } {
 	const results: number[] = [];
+	let currentRng = rng;
 	for (let i = 0; i < count; i++) {
-		results.push(Math.floor(rng() * faces) + 1);
+		const { value: f, next } = nextFloat(currentRng);
+		results.push(Math.floor(f * faces) + 1);
+		currentRng = next;
 	}
-	return {
+	const result: DiceResult = {
 		results,
 		total: results.reduce((sum, n) => sum + n, 0),
 	};
+	return { result, next: currentRng };
 }
+

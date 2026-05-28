@@ -1,7 +1,7 @@
-// noop: handler para tipos ainda não implementados.
+﻿// noop: handler para tipos ainda não implementados.
 // Loga uma mensagem mas não altera o estado.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

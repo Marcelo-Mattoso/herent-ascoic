@@ -1,8 +1,8 @@
-// discardDungeon: descarta N cartas do deck de dungeon ao destruir a criatura-fonte.
+﻿// discardDungeon: descarta N cartas do deck de dungeon ao destruir a criatura-fonte.
 // Trigger: on_destroyed.
 // Cobre: efeito_roxo_monstro-cinzas-da-ruina, habilidade-chao-em-ruina.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { discardFromDungeonDeck, log } from "../../reducer/exploration";

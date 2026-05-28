@@ -1,0 +1,14 @@
+{
+  "DamageAboutToBeDealt": "lifo",
+  "DamageDealt": "lifo",
+  "HealAboutToBeApplied": "lifo",
+  "HealApplied": "fifo",
+  "EntityDefeated": "lifo",
+  "CombatStarted": "fifo",
+  "CombatEnded": "fifo",
+  "TurnStarted": "fifo",
+  "TurnEnded": "fifo",
+  "RoomEntered": "fifo",
+  "CardDrawn": "fifo",
+  "SkillUsed": "fifo"
+}

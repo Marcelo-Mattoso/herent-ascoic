@@ -1,6 +1,13 @@
 // Estado raiz da partida. Contém tudo que o reducer precisa para processar qualquer action.
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
+import type { LoggedAction } from "../actions/types";
+import type { EffectStack, PausedState } from "../effects/stack";
+import { createEmptyEffectStack } from "../effects/stack";
+import type { World } from "../ecs/world";
+import { createEmptyWorld } from "../ecs/world";
+import { createRng } from "../ports/random";
+import type { RngState } from "../ports/random";
 import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
 import { createEmptyCombatState } from "./combatState";
@@ -32,7 +39,19 @@ export interface GameState {
 	readonly gameId: string;
 	readonly mode: GameMode;
 	readonly difficulty: Difficulty;
+	readonly rng: RngState;
 	status: GameStatus;
+
+	// ECS world — espelha heroes/enemies durante a transição (Passos 5-6).
+	// Fonte primária a partir do Passo 6; heroes/enemies tornam-se campos derivados.
+	readonly world: World;
+
+	// Effect stack — fila de efeitos pendentes (Passo 8).
+	// Drenada pelo reducer ao fim de cada action.
+	readonly effectStack: EffectStack;
+
+	// Pausa para input do jogador durante resolução de efeitos (Passo 8).
+	readonly paused: PausedState | null;
 
 	// Progressão
 	groupXp: number;
@@ -101,6 +120,9 @@ export interface GameState {
 
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
+
+	// Log autoritativo de todas as actions despachadas (passo 1)
+	readonly actionLog: readonly LoggedAction[];
 }
 
 // Recompensa pendente aguardando resolução pelo jogador.
@@ -121,10 +143,14 @@ export interface GameConfig {
 
 export function createInitialGameState(config: GameConfig): GameState {
 	return {
-		gameId: crypto.randomUUID(),
+		gameId: "__PREGAME__",
 		mode: "cooperative",
 		difficulty: config.difficulty ?? "normal",
+		rng: createRng(0),
 		status: "MAIN_MENU",
+		world: createEmptyWorld(),
+		effectStack: createEmptyEffectStack(),
+		paused: null,
 
 		groupXp: 0,
 		despertar: 0,
@@ -167,5 +193,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 		tokens: {},
 
 		eventLog: [],
+
+		actionLog: [],
 	};
 }

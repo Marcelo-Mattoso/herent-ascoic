@@ -1,11 +1,12 @@
-// heal_or_survive: Milagre Maior da Última Luz (Clérigo power).
+﻿// heal_or_survive: Milagre Maior da Última Luz (Clérigo power).
 // Escolha: cura totalmente 1 herói OU impede que ele seja destruído (deixa com 1 de vida).
 // value = "full/1" — "full" = cura total, "1" = sobrevivência mínima.
 // Escolha do jogador: via ctx.targetHeroIds + ctx.value === "full" ou "survive".
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
-import { log, mapHero } from "../../reducer/utils";
+import { applyFullHeal, applySurvive } from "../../systems/healSystem";
+import { log } from "../../reducer/utils";
 
 export function handleHealOrSurvive(
 	state: GameState,
@@ -27,18 +28,14 @@ export function handleHealOrSurvive(
 	if (choice === "survive") {
 		// Impede destruição: deixa com 1 de vida
 		return log(
-			mapHero(state, targetId, (h) => ({
-				...h,
-				currentLife: Math.max(1, h.currentLife),
-				status: "active" as const,
-			})),
+			applySurvive(state, targetId),
 			`Clérigo: Milagre — ${hero.cardName} sobrevive com 1 de vida.`,
 		);
 	}
 
 	// Cura total
 	return log(
-		mapHero(state, targetId, (h) => ({ ...h, currentLife: h.maxLife })),
+		applyFullHeal(state, targetId),
 		`Clérigo: Milagre — ${hero.cardName} curado totalmente.`,
 	);
 }

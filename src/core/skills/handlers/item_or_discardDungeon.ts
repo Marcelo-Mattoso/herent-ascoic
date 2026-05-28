@@ -1,8 +1,8 @@
-// item_or_discardDungeon: Tributo Sombrio.
+﻿// item_or_discardDungeon: Tributo Sombrio.
 // Antes do primeiro combate, o grupo escolhe: descartar 1 item ou 1 carta de dungeon.
 // Cobre: Esqueleto das Catacumbas, Ladrão, Guardião.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { discardFromDungeonDeck, log } from "../../reducer/exploration";
 import { registerContinuation } from "../registry";

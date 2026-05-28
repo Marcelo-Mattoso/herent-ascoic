@@ -1,11 +1,12 @@
-// damage_bonus: Fúria Rubra do Bárbaro Rubro.
+﻿// damage_bonus: Fúria Rubra do Bárbaro Rubro.
 // O herói paga `value` de vida para adicionar `value * 3` de dano ao próximo ataque.
 // A engine resolve isso adicionando um bônus temporário no combat.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
+import { applyDamageMin1 } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";
-import { log, mapHero } from "../../reducer/utils";
+import { log } from "../../reducer/utils";
 
 export function handleDamageBonus(
 	state: GameState,
@@ -22,10 +23,7 @@ export function handleDamageBonus(
 	const bonus = cost * 3;
 
 	// Pagar custo em vida
-	let next = mapHero(state, hero.id, (h) => ({
-		...h,
-		currentLife: Math.max(1, h.currentLife - cost),
-	}));
+	let next = applyDamageMin1(state, hero.id, cost);
 
 	// Registrar bônus de dano no extraDice temporário (usamos bonusNextAttack no combat)
 	next = {
@@ -35,7 +33,7 @@ export function handleDamageBonus(
 					...next.combat,
 					bonusNextAttack: {
 						...(next.combat.bonusNextAttack ?? {}),
-						[hero.id]: (next.combat.bonusNextAttack?.[hero.id] ?? 0) + bonus,
+						[hero.id]: [...(next.combat.bonusNextAttack?.[hero.id] ?? []), { label: "Fúria Rubra", value: bonus }],
 					},
 				}
 			: null,

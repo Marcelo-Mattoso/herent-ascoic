@@ -5,7 +5,7 @@
 import type { CombatState } from "@/core/state/combatState";
 import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
-import { getCardByName } from "@/data/cards";
+import { getCardByName } from "@/core/data/cards";
 import { resolveSkillFor } from "@/core/skills/lookup";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";

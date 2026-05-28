@@ -1,7 +1,7 @@
 {
 	"name": "ascensao-heroica",
 	"private": true,
-	"version": "0.9.4",
+	"version": "0.9.22",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -10,12 +10,14 @@
 		"test": "vitest run",
 		"test:ui": "vitest --ui",
 		"format": "biome format --write .",
-		"lint": "biome check --write ."
+		"lint": "biome check --write .",
+		"script": "npx vite-node"
 	},
 	"dependencies": {
+		"@ngneat/elf": "^2.5.1",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",
-		"zustand": "^5.0.13"
+		"rxjs": "^7.8.2"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",

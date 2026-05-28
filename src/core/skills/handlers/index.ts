@@ -92,11 +92,6 @@ register("drawItem", handleDrawItem);
 // Redução de dano roxo (patch-8 fase 10)
 register("purple_damage_reduction", handlePurpleDamageReduction);
 
-// Tipos não implementados (noop com log)
-const noopTypes = [
-	"recover_item",
-	"roomSpecial", // criatura especial é spawnada via handleSpawnEnemies
-];
-for (const t of noopTypes) {
-	register(t, handleNoop);
-}
+// Tipos "recover_item" e "roomSpecial" não são registrados — ausência no registry
+// é sinal de "não implementado" e é tratada pelo getHandler com log de aviso.
+// "roomSpecial" é tratado via handleSpawnEnemies (spawn implícito da carta da sala).

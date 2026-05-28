@@ -1,7 +1,7 @@
 // Handler da action USE_SKILL.
 // Valida que a habilidade tem trigger "on_use" (ou variante), resolve e executa o handler.
 
-import { SKILLS } from "../../data/skills";
+import { SKILLS } from "../data/skills";
 import { getHandler } from "./registry";
 import type { GameState } from "../state/gameState";
 import { log } from "../reducer/utils";

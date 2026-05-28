@@ -1,8 +1,8 @@
-// reward: impede que a criatura-fonte conceda recompensas ao ser derrotada.
+﻿// reward: impede que a criatura-fonte conceda recompensas ao ser derrotada.
 // Marca enemy.noReward = true. Verificado em handleGrantRewards (reducer/reward.ts).
 // Cobre: habilidade-fuga-covarde (Goblin das Cavernas Escuras).
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log, mapEnemy } from "../../reducer/utils";
 

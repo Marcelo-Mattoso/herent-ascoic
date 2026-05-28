@@ -75,7 +75,7 @@ describe("handleDamageBonus", () => {
 		const result = handleDamageBonus(state, { triggeredBy: "before_attack", sourceHeroId: "h1" }, 2);
 		const hero = result.heroes.find((h) => h.id === "h1")!;
 		expect(hero.currentLife).toBe(6);
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(6); // 2 * 3
+		expect(result.combat?.bonusNextAttack?.["h1"]).toEqual([{ label: "Fúria Rubra", value: 6 }]); // 2 * 3
 	});
 
 	it("retorna estado inalterado sem sourceHeroId", () => {

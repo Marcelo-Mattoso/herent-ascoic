@@ -1,12 +1,12 @@
-// recoverDungeon: Rito de Retorno (Necromante skill) e Caminho Restaurado (Ladino power).
+﻿// recoverDungeon: Rito de Retorno (Necromante skill) e Caminho Restaurado (Ladino power).
 // Uma vez por sala: paga 3 de vida (Necromante) e recupera `value` carta do descarte,
 // embaralhando no deck. O Ladino power não tem custo.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
+import { applyDamageMin1 } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";
-import { log, mapHero } from "../../reducer/utils";
-import { shuffle } from "../../reducer/utils";
+import { log, shuffleRng } from "../../reducer/utils";
 
 export function handleRecoverDungeon(
 	state: GameState,
@@ -20,10 +20,11 @@ export function handleRecoverDungeon(
 	const toRecover = discarded.slice(0, count);
 	const remaining = discarded.slice(count);
 
-	const reshuffled = shuffle([...state.decks.dungeonDeck.available, ...toRecover]);
+	const { value: reshuffled, next: rng } = shuffleRng([...state.decks.dungeonDeck.available, ...toRecover], state.rng);
 
 	let next: GameState = {
 		...state,
+		rng,
 		decks: {
 			...state.decks,
 			dungeonDeck: {
@@ -39,10 +40,7 @@ export function handleRecoverDungeon(
 	// Para distinguir: se a source é um herói e o skillId pertence à categoria "habilidade",
 	// cobramos o custo definido implicitamente na spec (3 de vida).
 	if (ctx.sourceHeroId && ctx.skillId === "habilidade-rito-de-retorno") {
-		next = mapHero(next, ctx.sourceHeroId, (h) => ({
-			...h,
-			currentLife: Math.max(1, h.currentLife - 3),
-		}));
+		next = applyDamageMin1(next, ctx.sourceHeroId, 3);
 	}
 
 	return log(next, `${count} carta(s) de dungeon recuperada(s) do descarte.`);

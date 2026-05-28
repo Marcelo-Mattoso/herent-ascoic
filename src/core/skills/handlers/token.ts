@@ -1,9 +1,9 @@
-// token: Eco Profundo do Véu (Necromante power).
+﻿// token: Eco Profundo do Véu (Necromante power).
 // Uma vez por jogo, ao derrotar uma criatura: guarda 1 Eco maior.
 // Gaste o Eco: +3 no total de acerto, reduz 2 de dano sofrido ou olha 2 cartas do deck inimigo.
 // value = "1/3/2/2" → [ecoCost, tohit, damageReduction, deckLook].
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

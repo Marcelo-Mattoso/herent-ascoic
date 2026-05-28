@@ -6,7 +6,7 @@ import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
-import { reducer } from "./index";
+import { reducer, reducerCore } from "./index";
 
 const HERO = "Bárbaro Rubro";
 const BOSS_NAME = "Azhakar, Dragão da Fornalha Sombria";
@@ -432,13 +432,14 @@ describe("vitória contra boss", () => {
 			payload: { heroCardNames: [HERO] },
 		});
 
-		// Força 2 artefatos (condição do Azhakar)
+		// Força 2 artefatos (condição do Azhakar) e vai pelo fluxo correto
 		s = {
 			...s,
 			groupArtifacts: [
 				{ cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
 				{ cardName: "Coração de Brasa Antiga", carriedBy: null },
 			],
+			status: "BOSS_REVEAL" as const,
 		};
 
 		s = reducer(s, { type: "REVEAL_BOSS" });
@@ -466,5 +467,119 @@ describe("vitória contra boss", () => {
 
 		expect(s.status).toBe("VICTORY");
 		expect(s.bossDefeated).toBe(true);
+	});
+});
+
+// ─── Testes de actionLog (Passo 1) ───────────────────────────────────────────
+
+describe("actionLog", () => {
+	const base = () => createInitialGameState({ heroCardNames: [HERO] });
+
+	it("actionLog.length === N após N dispatches", () => {
+		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		// START_GAME reinicia o log com exatamente 1 entrada
+		expect(s.actionLog).toHaveLength(1);
+
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		expect(s.actionLog).toHaveLength(2);
+
+		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
+		expect(s.actionLog).toHaveLength(3);
+	});
+
+	it("actionLog[i].seq === i para todo i", () => {
+		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
+
+		for (let i = 0; i < s.actionLog.length; i++) {
+			expect(s.actionLog[i]?.seq).toBe(i);
+		}
+	});
+
+	it("actionLog[i].action é exatamente a action passada (deep equal)", () => {
+		const startAction = { type: "START_GAME" as const, payload: { heroCardNames: [HERO] } };
+		const revealAction = { type: "REVEAL_ROOM" as const };
+
+		let s = reducer(base(), startAction);
+		s = reducer(s, revealAction);
+
+		expect(s.actionLog[0]?.action).toEqual(startAction);
+		expect(s.actionLog[1]?.action).toEqual(revealAction);
+	});
+
+	it("START_GAME reinicia o actionLog com exatamente uma entrada", () => {
+		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		expect(s.actionLog).toHaveLength(2);
+
+		// Segunda partida: log deve recomeçar do zero
+		s = reducer(s, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		expect(s.actionLog).toHaveLength(1);
+		expect(s.actionLog[0]?.action.type).toBe("START_GAME");
+	});
+});
+
+// ─── Testes de determinismo (Passo 2) ────────────────────────────────────────
+
+describe("determinismo via seed", () => {
+	const startAction = { type: "START_GAME" as const, payload: { heroCardNames: [HERO], seed: 42, gameId: "test-game" } };
+	const init = () => createInitialGameState({ heroCardNames: [HERO] });
+
+	it("mesma seed + mesma sequência → mesmo GameState final (executando 2× separadamente)", () => {
+		let s1 = reducer(init(), startAction);
+		s1 = reducer(s1, { type: "REVEAL_ROOM" });
+		s1 = reducer(s1, { type: "RESOLVE_ROOM_EFFECT" });
+		s1 = reducer(s1, { type: "SPAWN_ENEMIES" });
+
+		let s2 = reducer(init(), startAction);
+		s2 = reducer(s2, { type: "REVEAL_ROOM" });
+		s2 = reducer(s2, { type: "RESOLVE_ROOM_EFFECT" });
+		s2 = reducer(s2, { type: "SPAWN_ENEMIES" });
+
+		// Estados finais são idênticos
+		expect(s1.decks.dungeonDeck.available).toEqual(s2.decks.dungeonDeck.available);
+		expect(s1.heroes[0]?.id).toBe(s2.heroes[0]?.id);
+		expect(s1.rng).toEqual(s2.rng);
+	});
+
+	it("replay determinístico: aplicar actionLog produz o mesmo GameState final", () => {
+		// Constrói uma sequência de actions
+		let s = reducer(init(), startAction);
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
+		s = reducer(s, { type: "SPAWN_ENEMIES" });
+		const finalState = s;
+		const log = s.actionLog;
+
+		// Replay: aplica o log sobre estado inicial via reducerCore
+		const replayed = log.reduce(
+			(acc, entry) => reducerCore(acc, entry.action),
+			init(),
+		);
+
+		expect(replayed.decks.dungeonDeck.available).toEqual(finalState.decks.dungeonDeck.available);
+		expect(replayed.heroes[0]?.id).toBe(finalState.heroes[0]?.id);
+		expect(replayed.rng).toEqual(finalState.rng);
+	});
+
+	it("seeds diferentes → ao menos um resultado de deck diferente", () => {
+		const s1 = reducer(init(), { ...startAction, payload: { ...startAction.payload, seed: 1 } });
+		const s2 = reducer(init(), { ...startAction, payload: { ...startAction.payload, seed: 999 } });
+		const same = s1.decks.dungeonDeck.available.join(",") === s2.decks.dungeonDeck.available.join(",");
+		expect(same).toBe(false);
+	});
+
+	it("counter do RNG cresce monotonicamente entre actions (sem reset em meio de partida)", () => {
+		let s = reducer(init(), startAction);
+		const c0 = s.rng.counter;
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		const c1 = s.rng.counter;
+		// Segue o fluxo correto: ROOM_EFFECT → SPAWN_ENEMIES → COMBAT_START
+		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
+		s = reducer(s, { type: "SPAWN_ENEMIES" });
+		const c2 = s.rng.counter;
+		expect(c1).toBeGreaterThanOrEqual(c0);
+		expect(c2).toBeGreaterThanOrEqual(c1);
 	});
 });

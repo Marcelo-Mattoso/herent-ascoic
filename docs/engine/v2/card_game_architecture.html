@@ -1,0 +1,347 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquitetura — Motor de Card Game</title>
+<style>
+  :root {
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #5a5a55;
+    --border: rgba(0, 0, 0, 0.12);
+    --accent: #5C49C9;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --surface: #242422;
+      --text-primary: #f1efe8;
+      --text-secondary: #b4b2a9;
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #AFA9EC;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 2rem 1rem;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .diagram-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .diagram-card svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .legend {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .legend h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0 1rem;
+  }
+
+  .legend-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .legend-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .legend-section h3 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 0.4rem;
+    color: var(--text-primary);
+  }
+
+  .legend-section p {
+    margin: 0;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  /* SVG color ramps */
+  .c-gray rect { fill: #F1EFE8; stroke: #5F5E5A; }
+  .c-gray .th { fill: #2C2C2A; }
+  .c-gray .ts { fill: #5F5E5A; }
+
+  .c-purple rect { fill: #EEEDFE; stroke: #534AB7; }
+  .c-purple .th { fill: #26215C; }
+  .c-purple .ts { fill: #534AB7; }
+
+  .c-teal rect { fill: #E1F5EE; stroke: #0F6E56; }
+  .c-teal .th { fill: #04342C; }
+  .c-teal .ts { fill: #0F6E56; }
+
+  .c-amber rect { fill: #FAEEDA; stroke: #854F0B; }
+  .c-amber .th { fill: #412402; }
+  .c-amber .ts { fill: #854F0B; }
+
+  .c-coral rect { fill: #FAECE7; stroke: #993C1D; }
+  .c-coral .th { fill: #4A1B0C; }
+  .c-coral .ts { fill: #993C1D; }
+
+  .c-blue rect { fill: #E6F1FB; stroke: #185FA5; }
+  .c-blue .th { fill: #042C53; }
+  .c-blue .ts { fill: #185FA5; }
+
+  .c-pink rect { fill: #FBEAF0; stroke: #993556; }
+  .c-pink .th { fill: #4B1528; }
+  .c-pink .ts { fill: #993556; }
+
+  @media (prefers-color-scheme: dark) {
+    .c-gray rect { fill: #2C2C2A; stroke: #B4B2A9; }
+    .c-gray .th { fill: #D3D1C7; }
+    .c-gray .ts { fill: #B4B2A9; }
+
+    .c-purple rect { fill: #3C3489; stroke: #AFA9EC; }
+    .c-purple .th { fill: #CECBF6; }
+    .c-purple .ts { fill: #AFA9EC; }
+
+    .c-teal rect { fill: #085041; stroke: #5DCAA5; }
+    .c-teal .th { fill: #9FE1CB; }
+    .c-teal .ts { fill: #5DCAA5; }
+
+    .c-amber rect { fill: #633806; stroke: #EF9F27; }
+    .c-amber .th { fill: #FAC775; }
+    .c-amber .ts { fill: #EF9F27; }
+
+    .c-coral rect { fill: #712B13; stroke: #F0997B; }
+    .c-coral .th { fill: #F5C4B3; }
+    .c-coral .ts { fill: #F0997B; }
+
+    .c-blue rect { fill: #0C447C; stroke: #85B7EB; }
+    .c-blue .th { fill: #B5D4F4; }
+    .c-blue .ts { fill: #85B7EB; }
+
+    .c-pink rect { fill: #72243E; stroke: #ED93B1; }
+    .c-pink .th { fill: #F4C0D1; }
+    .c-pink .ts { fill: #ED93B1; }
+  }
+
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; }
+  .label { font-size: 12px; fill: var(--text-secondary); }
+
+  .arr { stroke: var(--text-secondary); stroke-width: 1.5; fill: none; }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Arquitetura — Motor de Card Game</h1>
+  <p class="subtitle">Engine headless com multi-front e canal de IA</p>
+</header>
+
+<div class="diagram-card">
+<svg viewBox="0 0 680 700" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">Arquitetura de motor de card game com multi-front e canal de IA</title>
+<desc id="diagram-desc">Diagrama em camadas mostrando o engine core no centro, projeções por perspectiva, transport layer e os clientes externos incluindo fronts humanos e canais de IA.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+
+<text class="label" x="40" y="30">Camada de dados</text>
+<g class="c-gray">
+<rect x="40" y="40" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="62" text-anchor="middle" dominant-baseline="central">Content / Data layer</text>
+<text class="ts" x="340" y="80" text-anchor="middle" dominant-baseline="central">cards.json · skills.json · keywords.json · scripts/</text>
+</g>
+
+<line x1="340" y1="96" x2="340" y2="120" class="arr" marker-end="url(#arrow)"/>
+
+<text class="label" x="40" y="138">Núcleo autoritativo</text>
+<g class="c-purple">
+<rect x="40" y="148" width="600" height="180" rx="12" stroke-width="0.5"/>
+<text class="th" x="340" y="172" text-anchor="middle" dominant-baseline="central">Engine core (headless)</text>
+</g>
+
+<g class="c-teal">
+<rect x="60" y="192" width="170" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="145" y="210" text-anchor="middle" dominant-baseline="central">Rules engine</text>
+<text class="ts" x="145" y="230" text-anchor="middle" dominant-baseline="central">Valida ações legais</text>
+</g>
+
+<g class="c-teal">
+<rect x="255" y="192" width="170" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="210" text-anchor="middle" dominant-baseline="central">Effect resolver</text>
+<text class="ts" x="340" y="230" text-anchor="middle" dominant-baseline="central">Triggers · stack · ECS</text>
+</g>
+
+<g class="c-teal">
+<rect x="450" y="192" width="170" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="535" y="210" text-anchor="middle" dominant-baseline="central">Game state</text>
+<text class="ts" x="535" y="230" text-anchor="middle" dominant-baseline="central">Determinístico + seed</text>
+</g>
+
+<g class="c-amber">
+<rect x="60" y="262" width="265" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="192" y="280" text-anchor="middle" dominant-baseline="central">Event bus</text>
+<text class="ts" x="192" y="298" text-anchor="middle" dominant-baseline="central">Pub-sub interno entre sistemas</text>
+</g>
+
+<g class="c-amber">
+<rect x="355" y="262" width="265" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="487" y="280" text-anchor="middle" dominant-baseline="central">Event log</text>
+<text class="ts" x="487" y="298" text-anchor="middle" dominant-baseline="central">Append-only · replay · snapshot</text>
+</g>
+
+<line x1="340" y1="328" x2="340" y2="352" class="arr" marker-end="url(#arrow)"/>
+
+<text class="label" x="40" y="370">Projeção por perspectiva (Fog of War)</text>
+<g class="c-coral">
+<rect x="40" y="380" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="398" text-anchor="middle" dominant-baseline="central">Projection layer</text>
+<text class="ts" x="340" y="418" text-anchor="middle" dominant-baseline="central">Filtra estado e eventos por permissão de visão</text>
+</g>
+
+<line x1="340" y1="436" x2="340" y2="460" class="arr" marker-end="url(#arrow)"/>
+
+<text class="label" x="40" y="478">Transporte e contratos</text>
+<g class="c-blue">
+<rect x="40" y="488" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="506" text-anchor="middle" dominant-baseline="central">Transport layer</text>
+<text class="ts" x="340" y="526" text-anchor="middle" dominant-baseline="central">WebSocket (humanos) · MCP (IA) · DAP-like (debug)</text>
+</g>
+
+<line x1="140" y1="544" x2="140" y2="572" class="arr" marker-end="url(#arrow)"/>
+<line x1="340" y1="544" x2="340" y2="572" class="arr" marker-end="url(#arrow)"/>
+<line x1="540" y1="544" x2="540" y2="572" class="arr" marker-end="url(#arrow)"/>
+
+<text class="label" x="40" y="590">Consumidores</text>
+
+<g class="c-pink">
+<rect x="40" y="600" width="195" height="70" rx="8" stroke-width="0.5"/>
+<text class="th" x="137" y="620" text-anchor="middle" dominant-baseline="central">Fronts humanos</text>
+<text class="ts" x="137" y="640" text-anchor="middle" dominant-baseline="central">Web · mobile · desktop</text>
+<text class="ts" x="137" y="656" text-anchor="middle" dominant-baseline="central">Espectadores</text>
+</g>
+
+<g class="c-pink">
+<rect x="242" y="600" width="195" height="70" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="620" text-anchor="middle" dominant-baseline="central">Canal de IA</text>
+<text class="ts" x="340" y="640" text-anchor="middle" dominant-baseline="central">LLMs via MCP</text>
+<text class="ts" x="340" y="656" text-anchor="middle" dominant-baseline="central">Bots · coach · análise</text>
+</g>
+
+<g class="c-pink">
+<rect x="444" y="600" width="195" height="70" rx="8" stroke-width="0.5"/>
+<text class="th" x="541" y="620" text-anchor="middle" dominant-baseline="central">Ferramentas de dev</text>
+<text class="ts" x="541" y="640" text-anchor="middle" dominant-baseline="central">Inspector · balancer</text>
+<text class="ts" x="541" y="656" text-anchor="middle" dominant-baseline="central">Replay viewer</text>
+</g>
+</svg>
+</div>
+
+<div class="legend">
+  <h2>Camadas</h2>
+
+  <div class="legend-section">
+    <h3>Camada de dados</h3>
+    <p>Definição estática do conteúdo do jogo. Cartas, skills e keywords vivem em JSON; cartas com efeitos complexos referenciam scripts externos. O engine só interpreta — nada de lógica hardcoded.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Engine core (headless)</h3>
+    <p>Núcleo autoritativo do jogo, sem nenhuma dependência de UI. Reúne o rules engine (valida ações legais), o effect resolver (executa efeitos com triggers, stack e ECS), o game state (verdade autoritativa com RNG determinístico baseado em seed), o event bus interno (pub-sub entre sistemas) e o event log append-only (fonte da verdade pra replay, snapshot e reconexão).</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Projection layer (Fog of War)</h3>
+    <p>Filtra o estado e os eventos por perspectiva antes de sair do engine. Jogador A vê só a própria mão, espectador vê tudo aberto, IA recebe a view do jogador que assiste ou view completa se for analista. Toda regra de visibilidade vive aqui.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Transport layer</h3>
+    <p>Abstrai o protocolo de comunicação. Mesma mensagem com encoders diferentes: WebSocket pros fronts humanos, MCP pra IA, canal estilo DAP pra ferramentas de debug. Trocar ou adicionar protocolo não toca o engine.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Consumidores</h3>
+    <p>Clientes externos do engine. Fronts humanos (web, mobile, desktop, espectadores), canal de IA (LLMs via MCP pra jogar, analisar ou treinar bots) e ferramentas de dev (inspector, balanceador, replay viewer). Todos consomem o mesmo event stream — só diferem em projeção e permissão.</p>
+  </div>
+</div>
+
+<div class="legend" style="margin-top: 2rem;">
+  <h2>Princípios que amarram tudo</h2>
+
+  <div class="legend-section">
+    <h3>Direção única de fluxo</h3>
+    <p>Comandos sobem (cliente → transporte → rules → engine), eventos descem (engine → log → projeção → transporte → cliente). Nunca o contrário.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>O event log é a verdade</h3>
+    <p>Estado atual é projeção dos eventos, não o contrário. Replay, time-travel, reconexão e simulação what-if pela IA saem de graça.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Projeção é onde mora a segurança</h3>
+    <p>Toda regra de quem pode ver o quê vive numa camada só. Adicionar modos novos (deck público, espectador delayed) muda só a projeção.</p>
+  </div>
+</div>
+
+<footer>
+  Arquitetura de motor de card game · documento de referência
+</footer>
+
+</div>
+</body>
+</html>

@@ -1,7 +1,7 @@
 // Loader do catálogo de cartas. Importa o JSON estático, valida minimamente e expõe helpers tipados.
 // Nenhuma lógica de jogo aqui — apenas acesso e filtragem do catálogo.
 
-import rawCards from "./cards.json";
+import rawCards from "../../data/cards.json";
 import type {
 	AnyCard,
 	ArtifactCard,

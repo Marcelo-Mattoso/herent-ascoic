@@ -1,8 +1,8 @@
-// prevent_damage: Antídoto e itens de proteção.
+﻿// prevent_damage: Antídoto e itens de proteção.
 // Impede todo o dano de um golpe específico.
 // Registrado como modificador passivo verificado no on_damage_taken.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

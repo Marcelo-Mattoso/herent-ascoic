@@ -2322,6 +2322,10 @@
         }
       }
     ],
-    "victory": "ao derrotar Azhakar, os jogadores vencem a partida."
+    "victory": "ao derrotar Azhakar, os jogadores vencem a partida.",
+    "accessCondition": {
+      "type": "group_artifacts_gte",
+      "value": 2
+    }
   }
 ]

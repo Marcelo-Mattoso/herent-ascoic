@@ -1,28 +1,46 @@
 // Utilitários internos do reducer: shuffle, fábricas de HeroState/EnemyState, log.
 // Não exportar para fora do módulo reducer.
 
-import type { CreatureCard, HeroCard, SubbossCard } from "../../data/cardTypes";
+import type { CreatureCard, HeroCard, SubbossCard } from "../data/cardTypes";
+import { nextFloat, nextId } from "../ports/random";
+import type { RngState } from "../ports/random";
 import type { ColorIndex } from "../state/color";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 
-export function shuffle<T>(arr: readonly T[], rng = Math.random): T[] {
+// Helper de threading: extrai RNG do state, executa fn, devolve state com RNG avançado.
+export function withRng<T>(
+	state: GameState,
+	fn: (rng: RngState) => { value: T; next: RngState },
+): { state: GameState; value: T } {
+	const { value, next } = fn(state.rng);
+	return { state: { ...state, rng: next }, value };
+}
+
+// Fisher-Yates determinístico usando RngState.
+export function shuffleRng<T>(arr: readonly T[], rng: RngState): { value: T[]; next: RngState } {
 	const copy = [...arr];
+	let currentRng = rng;
 	for (let i = copy.length - 1; i > 0; i--) {
-		const j = Math.floor(rng() * (i + 1));
+		const { value: f, next } = nextFloat(currentRng);
+		const j = Math.floor(f * (i + 1));
+		currentRng = next;
 		[copy[i], copy[j]] = [copy[j] as T, copy[i] as T];
 	}
-	return copy;
+	return { value: copy, next: currentRng };
 }
+
 
 export function createHeroFromCard(
 	card: HeroCard,
 	colorIndex: ColorIndex,
+	rng: RngState,
 	playerIndex = 0,
-): HeroState {
-	return {
-		id: crypto.randomUUID(),
+): { hero: HeroState; next: RngState } {
+	const { value: id, next } = nextId(rng, "h");
+	const hero: HeroState = {
+		id,
 		cardName: card.name,
 		maxLife: card.life[colorIndex],
 		currentLife: card.life[colorIndex],
@@ -38,14 +56,17 @@ export function createHeroFromCard(
 		playerIndex,
 		xp: 0,
 	};
+	return { hero, next };
 }
 
 export function createEnemyFromCard(
 	card: CreatureCard | SubbossCard,
 	despertar: ColorIndex,
-): EnemyState {
-	return {
-		id: crypto.randomUUID(),
+	rng: RngState,
+): { enemy: EnemyState; next: RngState } {
+	const { value: id, next } = nextId(rng, "e");
+	const enemy: EnemyState = {
+		id,
 		cardName: card.name,
 		maxLife: card.life[despertar],
 		currentLife: card.life[despertar],
@@ -62,6 +83,7 @@ export function createEnemyFromCard(
 		status: "active",
 		isSubboss: card.type === "subboss",
 	};
+	return { enemy, next };
 }
 
 export function log(state: GameState, message: string): GameState {

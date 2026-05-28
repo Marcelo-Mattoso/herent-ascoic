@@ -2,6 +2,7 @@
 // Nunca muta o estado — sempre retorna novo objeto.
 
 import type { Action } from "../actions/types";
+import { drainStack } from "../effects/resolver";
 import type { GameState } from "../state/gameState";
 import {
 	buildBossRoll,
@@ -52,8 +53,18 @@ import { fireOnUseSkill } from "../skills/useSkill";
 import { getContinuation } from "../skills/registry";
 import { lookupSkillById } from "../skills/lookup";
 import { handleStartGame } from "./setup";
+import { assertTransition } from "../rules/stateMachine";
 
-export function reducer(state: GameState, action: Action): GameState {
+function applyAndValidate(prev: GameState, action: Action, next: GameState): GameState {
+	// START_GAME é uma ação de reset — pode transitar de qualquer estado.
+	if (action.type === "START_GAME") return next;
+	if (prev.status !== next.status) {
+		assertTransition(prev.status, next.status);
+	}
+	return next;
+}
+
+function dispatch(state: GameState, action: Action): GameState {
 	switch (action.type) {
 		case "START_GAME":
 			return handleStartGame(state, action.payload);
@@ -92,12 +103,13 @@ export function reducer(state: GameState, action: Action): GameState {
 		case "ROLL_DICE": {
 			if (state.status === "BOSS_COMBAT") {
 				// Boss: usa buildBossRoll e vai direto para RESOLVE_ATTACK
-				const roll = buildBossRoll(state);
-				if (!roll) return state;
+				const bossResult = buildBossRoll(state);
+				if (!bossResult) return state;
+				const { roll, nextState } = bossResult;
 				return {
-					...state,
+					...nextState,
 					status: "RESOLVE_ATTACK",
-					combat: state.combat ? { ...state.combat, lastRoll: roll } : null,
+					combat: nextState.combat ? { ...nextState.combat, lastRoll: roll } : null,
 				};
 			}
 			return handleRollDice(state);
@@ -246,4 +258,25 @@ export function reducer(state: GameState, action: Action): GameState {
 		default:
 			return state;
 	}
+}
+
+// reducerCore: executa dispatch + valida transição + drena effect stack.
+export function reducerCore(state: GameState, action: Action): GameState {
+	const dispatched = dispatch(state, action);
+	const validated = applyAndValidate(state, action, dispatched);
+	// Drenar a stack ao fim de cada action — toda cadeia de efeitos resolve aqui.
+	return drainStack(validated);
+}
+
+export function reducer(state: GameState, action: Action): GameState {
+	const next = reducerCore(state, action);
+	const newEntry = { seq: 0, action };
+	if (action.type === "START_GAME") {
+		return { ...next, actionLog: [newEntry] };
+	}
+	const seq = next.actionLog.length;
+	return {
+		...next,
+		actionLog: [...next.actionLog, { seq, action }],
+	};
 }

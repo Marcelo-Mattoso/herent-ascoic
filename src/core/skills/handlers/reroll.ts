@@ -1,8 +1,8 @@
-// Reroll interativo: configura pendingDiceSelection para o jogador escolher um dado.
+﻿// Reroll interativo: configura pendingDiceSelection para o jogador escolher um dado.
 // O jogador clica no dado → SELECT_DIE → reducer rerrola e recalcula total.
 // Cobre: habilidade-runa-menor (Cajado das Runas Rubras) — rerrola dado com valor 1.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

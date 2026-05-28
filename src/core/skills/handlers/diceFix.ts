@@ -1,9 +1,9 @@
-// diceFix: Runa Suprema das Fendas (Mago power) e Runa Perfeita.
+﻿// diceFix: Runa Suprema das Fendas (Mago power) e Runa Perfeita.
 // Depois de qualquer rolagem: transforma 1 dado aliado em 6 (ou inimigo em 1).
 // value = "6/1" → set_to: 6 para dado aliado.
 // Abre pendingDiceSelection para o jogador escolher qual dado transformar.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

@@ -17,12 +17,15 @@ function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 	};
 }
 
+// Contador simples para IDs determinísticos nos fixtures de teste (sem crypto).
+let _enemyCounter = 0;
+
 function makeEnemy(
 	status: EnemyState["status"],
 	tokens: EnemyState["tokens"] = {},
 ): EnemyState {
 	return {
-		id: crypto.randomUUID(),
+		id: `enemy-${++_enemyCounter}`,
 		cardName: "Rato das Fendas Profundas",
 		maxLife: 2,
 		currentLife: 0,

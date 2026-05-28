@@ -1,9 +1,9 @@
-// diceFix_damage: Execução do Caçador (Caçador power).
+﻿// diceFix_damage: Execução do Caçador (Caçador power).
 // Uma vez por jogo, depois de rolar contra sua Presa: transforma 1 dado azul em 6 e +1 de dano se acertar.
 // value = "6/1".
 // Por ser interativo (jogador ativa após ver a rolagem), o handler apenas loga e registra disponibilidade.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 
@@ -33,7 +33,7 @@ export function handleDiceFixDamage(
 				...state.combat,
 				bonusNextAttack: {
 					...state.combat.bonusNextAttack,
-					[hero.id]: (state.combat.bonusNextAttack?.[hero.id] ?? 0) + 1,
+					[hero.id]: [...(state.combat.bonusNextAttack?.[hero.id] ?? []), { label: "Execução do Caçador", value: 1 }],
 				},
 			},
 		},

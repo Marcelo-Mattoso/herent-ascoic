@@ -1,8 +1,8 @@
 // Resolve qual SkillDefinition corresponde a (cardName, field).
 // O catálogo skills.json é a fonte única de verdade — catálogo vence em caso de divergência.
 
-import { SKILLS } from "../../data/skills";
-import type { SkillDefinition, SkillField } from "../../data/skillTypes";
+import { SKILLS } from "../data/skills";
+import type { SkillDefinition, SkillField } from "../data/skillTypes";
 
 // Cache memoizado: "cardName::field" → SkillDefinition | null
 const _cache = new Map<string, SkillDefinition | null>();

@@ -1,14 +1,16 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
-import { getArtifacts, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../../data/cards";
+import { getArtifacts, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../data/cards";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
+import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
 import { fireTrigger } from "../skills/dispatch";
 import { createEmptyCombatState } from "../state/combatState";
-import type { SubbossRoomCard } from "../../data/cardTypes";
+import type { SubbossRoomCard } from "../data/cardTypes";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
-import { createEnemyFromCard, log, shuffle } from "./utils";
+import { applyFullHeal } from "../systems/healSystem";
+import { createEnemyFromCard, log, shuffleRng } from "./utils";
 
 export function handleRevealRoom(state: GameState): GameState {
 	const { available, discarded } = state.decks.dungeonDeck;
@@ -80,10 +82,11 @@ function handleRevealSubbossRoom(
 		status: "active",
 	};
 
-	const enemy = createEnemyFromCard(subbossCard, state.despertar);
+	const { enemy, next: rng } = createEnemyFromCard(subbossCard, state.despertar, state.rng);
 
 	let next: GameState = {
 		...state,
+		rng,
 		currentRoom: room,
 		status: "COMBAT_START",
 		activeEnemies: [enemy],
@@ -149,20 +152,26 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		drawn.push(remaining.shift() as string);
 	}
 
-	const enemies = drawn.flatMap((name) => {
+	let rng = state.rng;
+	const enemies: ReturnType<typeof createEnemyFromCard>["enemy"][] = [];
+	for (const name of drawn) {
 		const card = getCardByName(name);
-		if (!card || (card.type !== "creature" && card.type !== "subboss"))
-			return [];
-		return [createEnemyFromCard(card, state.despertar)];
-	});
+		if (!card || (card.type !== "creature" && card.type !== "subboss")) continue;
+		const { enemy, next } = createEnemyFromCard(card, state.despertar, rng);
+		enemies.push(enemy);
+		rng = next;
+	}
 
 	// Spawn da criatura especial da sala (ex.: Carcereiro, Guardião do Abismo)
 	if (state.currentRoom.specialCreature) {
 		const specialCard = getCardByName(state.currentRoom.specialCreature);
 		if (specialCard && (specialCard.type === "creature" || specialCard.type === "subboss")) {
-			enemies.push(createEnemyFromCard(specialCard, state.despertar));
+			const { enemy, next } = createEnemyFromCard(specialCard, state.despertar, rng);
+			enemies.push(enemy);
+			rng = next;
 		}
 	}
+	state = { ...state, rng };
 
 	let next: GameState = {
 		...state,
@@ -286,19 +295,26 @@ export function handleRestartDungeon(
 	const itemNames = getItems().map((c) => c.name);
 	const artifactNames = getArtifacts().map((c) => c.name);
 
-	// Restaurar heróis fugidos com vida máxima (opcionalmente mantendo equipamentos)
+	// Embaralhar encadeando o RNG
+	let rng = state.rng;
+	let shuffledRooms: string[], shuffledCreatures: string[], shuffledItems: string[], shuffledArtifacts: string[];
+	({ value: shuffledRooms, next: rng } = shuffleRng(roomNames, rng));
+	({ value: shuffledCreatures, next: rng } = shuffleRng(creatureNames, rng));
+	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
+	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
+
+	// Restaurar heróis fugidos: status e equipamentos (vida restaurada via healSystem depois)
 	const restoredHeroes = state.fledHeroes.map((h) => ({
 		...h,
 		status: "active" as const,
-		currentLife: h.maxLife,
-		healBlocked: undefined,
-		activeItems: keepEquipment ? h.activeItems : {},
-		backpack: keepEquipment ? h.backpack : [],
+		activeItems: keepEquipment ? h.activeItems : ({} as typeof h.activeItems),
+		backpack: keepEquipment ? h.backpack : ([] as readonly string[]),
 	}));
 
-	return log(
+	let next = log(
 		{
 			...state,
+			rng,
 			status: "REVEAL_ROOM",
 			heroes: restoredHeroes,
 			defeatedHeroes: [],
@@ -310,29 +326,38 @@ export function handleRestartDungeon(
 			roomsCleared: 0,
 			creaturesDefeated: 0,
 			combat: createEmptyCombatState(),
+			effectStack: createEmptyEffectStack(),
+			paused: null,
 			pendingRewards: [],
 			flags: {},
 			tokens: {},
 			subbosses: { available: [], defeated: [] },
 			oncePer: { game: state.oncePer.game },
 			decks: {
-				dungeonDeck: { available: shuffle(roomNames), discarded: [], removed: [] },
-				enemyDeck: { available: shuffle(creatureNames), discarded: [], removed: [] },
-				itemDeck: { available: keepEquipment ? shuffle(itemNames) : shuffle(itemNames), discarded: [], removed: [] },
-				artifactDeck: { available: shuffle(artifactNames), discarded: [], removed: [] },
+				dungeonDeck: { available: shuffledRooms, discarded: [], removed: [] },
+				enemyDeck: { available: shuffledCreatures, discarded: [], removed: [] },
+				itemDeck: { available: shuffledItems, discarded: [], removed: [] },
+				artifactDeck: { available: shuffledArtifacts, discarded: [], removed: [] },
 			},
 		},
 		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,
 	);
+
+	// Restaurar vida ao máximo via healSystem (sincroniza o world ECS)
+	for (const h of restoredHeroes) {
+		next = applyFullHeal(next, h.id);
+	}
+	return next;
 }
 
 export function handleDungeonExhaustedSpend(state: GameState): GameState {
 	// Chamado via SPEND_XP com option "recover_dungeon" quando status é DUNGEON_EXHAUSTED
 	const { discarded } = state.decks.dungeonDeck;
-	const reshuffled = shuffle(discarded);
+	const { value: reshuffled, next: rng } = shuffleRng(discarded, state.rng);
 	return log(
 		{
 			...state,
+			rng,
 			groupXp: state.groupXp - DUNGEON_EXHAUSTION_COST,
 			status: "REVEAL_ROOM",
 			decks: {

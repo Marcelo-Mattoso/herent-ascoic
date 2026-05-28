@@ -1,12 +1,13 @@
-// heal_or_damage_bonus: Juramento da Última Luz (Paladino power).
+﻿// heal_or_damage_bonus: Juramento da Última Luz (Paladino power).
 // Uma vez por jogo: cura 5 de vida de todos os heróis OU +5 de dano no próximo ataque.
 // value = "5/5".
 // Escolha do jogador via ctx.value === "heal" ou "damage".
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
+import { applyHeal } from "../../systems/healSystem";
 import { parseSlashPair } from "../valueParsers";
-import { log, mapHero } from "../../reducer/utils";
+import { log } from "../../reducer/utils";
 
 export function handleHealOrDamageBonus(
 	state: GameState,
@@ -27,7 +28,7 @@ export function handleHealOrDamageBonus(
 					...state.combat,
 					bonusNextAttack: {
 						...state.combat.bonusNextAttack,
-						[ctx.sourceHeroId]: (state.combat.bonusNextAttack?.[ctx.sourceHeroId] ?? 0) + damageAmount,
+						[ctx.sourceHeroId]: [...(state.combat.bonusNextAttack?.[ctx.sourceHeroId] ?? []), { label: "Juramento", value: damageAmount }],
 					},
 				},
 			},
@@ -42,8 +43,7 @@ export function handleHealOrDamageBonus(
 			next = log(next, `${hero.cardName}: cura bloqueada (Fumaça da Fornalha).`);
 			continue;
 		}
-		const healed = Math.min(hero.maxLife, hero.currentLife + healAmount);
-		next = mapHero(next, hero.id, (h) => ({ ...h, currentLife: healed }));
+		next = applyHeal(next, hero.id, healAmount);
 	}
 	return log(next, `Paladino: Juramento — todos os heróis curam ${healAmount} de vida.`);
 }

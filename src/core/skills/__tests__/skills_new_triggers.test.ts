@@ -128,7 +128,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(2);
+		expect(result.combat?.bonusNextAttack?.["h1"]).toEqual([{ label: "Luz da Aurora Final", value: 2 }]);
 	});
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
@@ -139,7 +139,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			sourceEnemyId: "e1",
 		});
 		// Paladino tem skill value "2/2" → damage bonus = 2
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(2);
+		expect(result.combat?.bonusNextAttack?.["h1"]).toEqual([{ label: "Luz da Aurora Final", value: 2 }]);
 	});
 
 	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
@@ -149,7 +149,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(2);
+		expect(result.combat?.bonusNextAttack?.["h1"]).toEqual([{ label: "Luz da Aurora Final", value: 2 }]);
 	});
 });
 
@@ -257,8 +257,12 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		// Adaga: +1 dano. Bárbaro também tem Fúria Rubra (before_attack) → +6. Total = 7.
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(7);
+		// Adaga: +1 dano (Fio Mortal). Bárbaro também tem Fúria Rubra (before_attack) → +6. Total = 7.
+		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
+		const total = entries.reduce((s, e) => s + e.value, 0);
+		expect(total).toBe(7);
+		expect(entries.some((e) => e.label === "Fúria Rubra" && e.value === 6)).toBe(true);
+		expect(entries.some((e) => e.label === "Fio Mortal" && e.value === 1)).toBe(true);
 	});
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
@@ -268,7 +272,11 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		expect(result.combat?.bonusNextAttack?.["h1"]).toBe(7);
+		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
+		const total = entries.reduce((s, e) => s + e.value, 0);
+		expect(total).toBe(7);
+		expect(entries.some((e) => e.label === "Fúria Rubra" && e.value === 6)).toBe(true);
+		expect(entries.some((e) => e.label === "Fio Mortal" && e.value === 1)).toBe(true);
 	});
 });
 

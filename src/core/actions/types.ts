@@ -5,6 +5,11 @@ import type { XpSpendOption } from "../config/defaults";
 import type { GameConfig } from "../state/gameState";
 import type { ItemSlotType } from "../state/heroState";
 
+export interface LoggedAction {
+	readonly seq: number;
+	readonly action: Action;
+}
+
 // ── Zonas de inventário (Patch 4) ─────────────────────────────────────────────
 // "from" = onde o item está agora; "to" = destino.
 export type InvFromZone =
@@ -20,7 +25,7 @@ export type InvToZone =
 export type { XpSpendOption };
 
 export type Action =
-	| { type: "START_GAME"; payload: GameConfig }
+	| { type: "START_GAME"; payload: GameConfig & { seed?: number; gameId?: string } }
 	| { type: "REVEAL_ROOM" }
 	| { type: "RESOLVE_ROOM_EFFECT" }
 	| { type: "SPAWN_ENEMIES" }

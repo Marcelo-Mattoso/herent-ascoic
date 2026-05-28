@@ -1,11 +1,12 @@
 // Lógica de progressão: subir nível (Ímpeto), mudar Despertar da Masmorra.
 // Usada pelos handlers de SPEND_XP.
 
-import { getCardByName, getSubbossRooms } from "../../data/cards";
+import { getCardByName, getSubbossRooms } from "../data/cards";
 import { nextColor, previousColor, valueAtColor } from "../rules/colorScale";
 import type { ColorIndex } from "../state/color";
 import type { GameState } from "../state/gameState";
-import { log, mapHero, shuffle } from "./utils";
+import { applyLifeGain } from "../systems/healSystem";
+import { log, mapHero, shuffleRng } from "./utils";
 
 // Sobe o Ímpeto de um herói e atualiza seus stats. Também avança o Despertar.
 export function levelUpHero(state: GameState, heroId: string): GameState {
@@ -28,10 +29,10 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 		...h,
 		impeto: newImpeto,
 		maxLife: newMaxLife,
-		currentLife: Math.min(h.currentLife + lifeGain, newMaxLife),
 		hitBonus: valueAtColor(card.hitBonus, ci),
 		dice: card.diceByColor[ci],
 	}));
+	next = applyLifeGain(next, heroId, lifeGain);
 
 	// Subir nível também avança o Despertar
 	next = { ...next, despertar: nextColor(next.despertar) };
@@ -53,10 +54,11 @@ function injectSubbossRooms(state: GameState): GameState {
 	if (subbossRoomNames.length === 0) return state;
 
 	const { available, discarded, removed } = state.decks.dungeonDeck;
-	const combined = shuffle([...available, ...subbossRoomNames]);
+	const { value: combined, next: rng } = shuffleRng([...available, ...subbossRoomNames], state.rng);
 	return log(
 		{
 			...state,
+			rng,
 			subbosses: {
 				available: subbossRoomNames,
 				defeated: state.subbosses.defeated,

@@ -4,7 +4,7 @@
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
 import { calculateTotal, resolveAttack } from "../rules/combat";
-import { rollDice } from "../rules/dice";
+import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import { fireTrigger } from "../skills/dispatch";
 import { resolveSkillFor } from "../skills/lookup";
@@ -14,7 +14,8 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
-import { log, mapEnemy, mapHero, shuffle } from "./utils";
+import { applyDamage } from "../systems/damageSystem";
+import { log, mapEnemy, mapHero, shuffleRng } from "./utils";
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
 
@@ -160,9 +161,10 @@ function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
 
 	// Bônus de dano acumulado via engine de habilidades (ex: Fúria Rubra, Juramento)
-	const skillBonus = state.combat?.bonusNextAttack?.[hero.id] ?? 0;
-	if (skillBonus > 0) {
-		bonuses.push({ source: "habilidade", value: skillBonus });
+	// Cada entrada do array representa uma skill distinta com seu label e valor individual.
+	const skillEntries = state.combat?.bonusNextAttack?.[hero.id] ?? [];
+	for (const entry of skillEntries) {
+		bonuses.push({ source: entry.label, value: entry.value });
 	}
 
 	// Penalidade de acerto (ex: Calor Escaldante, Corpo Gelatinoso)
@@ -201,24 +203,25 @@ export function handleRollDice(state: GameState): GameState {
 
 	const extraDice = preRoll.combat?.extraDice[hero.id] ?? 0;
 	const heroDiceCount = hero.dice + extraDice;
-	const heroRoll = rollDice(heroDiceCount);
-	const enemyRoll = rollDice(enemy.dice);
+	const { result: heroRollResult, next: rng1 } = rollDiceRng(heroDiceCount, preRoll.rng);
+	const { result: enemyRollResult, next: rng2 } = rollDiceRng(enemy.dice, rng1);
+	preRoll = { ...preRoll, rng: rng2 };
 
 	const heroBonuses = collectHeroBonuses(hero, preRoll);
 	const enemyBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: enemy.hitBonus },
 	];
 
-	const heroCalc = calculateTotal(heroRoll.results, heroBonuses);
-	const enemyCalc = calculateTotal(enemyRoll.results, enemyBonuses);
+	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);
+	const enemyCalc = calculateTotal(enemyRollResult.results, enemyBonuses);
 
 	const roll: CombatRollResult = {
 		heroId: hero.id,
 		enemyId: enemy.id,
-		heroResults: heroRoll.results,
+		heroResults: heroRollResult.results,
 		heroTotal: heroCalc.total,
 		heroBreakdown: heroBonuses,
-		enemyResults: enemyRoll.results,
+		enemyResults: enemyRollResult.results,
 		enemyTotal: enemyCalc.total,
 		enemyBreakdown: enemyBonuses,
 	};
@@ -238,6 +241,26 @@ export function handleRollDice(state: GameState): GameState {
 		},
 		`Herói rolou ${heroCalc.total} | Inimigo rolou ${enemyCalc.total}.`,
 	);
+}
+
+// ─── Helpers de log ──────────────────────────────────────────────────────────
+
+// Rótulos legíveis para as fontes de bônus
+const BONUS_LABELS: Record<string, string> = {
+	hitBonus: "acerto",
+	habilidade: "skill",
+	penalidade: "penalidade",
+};
+
+function fmtBonus(entry: BonusEntry): string {
+	const label = BONUS_LABELS[entry.source] ?? entry.source;
+	return `${label} ${entry.value >= 0 ? "+" : ""}${entry.value}`;
+}
+
+function fmtRoll(dice: readonly number[], bonuses: readonly BonusEntry[], total: number): string {
+	const diceStr = `dado(s) [${dice.join("+")}]=${dice.reduce((a, b) => a + b, 0)}`;
+	const bonusStr = bonuses.map(fmtBonus).join(", ");
+	return bonusStr ? `${diceStr}, ${bonusStr} → ${total}` : `${diceStr} → ${total}`;
 }
 
 // ─── RESOLVE_ATTACK ───────────────────────────────────────────────────────────
@@ -314,12 +337,13 @@ export function handleResolveAttack(state: GameState): GameState {
 
 	if (result.enemyDamageTaken > 0) {
 		const dmg = result.enemyDamageTaken;
-		next = mapEnemy(next, enemy.id, (e) => ({
-			...e,
-			currentLife: Math.max(0, e.currentLife - dmg),
-			status: e.currentLife - dmg <= 0 ? "defeated" : e.status,
-		}));
-		next = log(next, `${enemy.cardName} sofreu ${dmg} de dano.`);
+		next = applyDamage(next, enemy.id, dmg);
+		const heroRollStr = fmtRoll(roll.heroResults, roll.heroBreakdown, roll.heroTotal);
+		const tieNote = result.outcome === "tie" ? " (empate)" : "";
+		next = log(
+			next,
+			`${enemy.cardName} sofreu ${dmg} de dano${tieNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
+		);
 
 		// on_destroy_creature_with_attack: inimigo derrotado por ataque
 		const updatedEnemy = next.activeEnemies.find((e) => e.id === enemy.id);
@@ -375,18 +399,23 @@ export function handleResolveAttack(state: GameState): GameState {
 				? { ...next.combat!.shieldsUsedThisCombat, [hero.id]: true }
 				: next.combat!.shieldsUsedThisCombat;
 
-		next = mapHero(next, hero.id, (h) => ({
-			...h,
-			currentLife: Math.max(0, h.currentLife - dmg),
-			status: h.currentLife - dmg <= 0 ? "defeated" : h.status,
-		}));
+		next = applyDamage(next, hero.id, dmg);
 		next = {
 			...next,
 			combat: next.combat
 				? { ...next.combat, shieldsUsedThisCombat: newShields }
 				: null,
 		};
-		next = log(next, `${hero.cardName} sofreu ${dmg} de dano.`);
+		const enemyRollStr = fmtRoll(roll.enemyResults, roll.enemyBreakdown, roll.enemyTotal);
+		const tieNoteHero = result.outcome === "tie" ? " (empate)" : "";
+		const reductionParts: string[] = [];
+		if (hasShield && !shieldUsed) reductionParts.push("escudo −1");
+		if (engineReduction > 0) reductionParts.push(`redução −${engineReduction}`);
+		const reductionStr = reductionParts.length ? ` [${reductionParts.join(", ")}]` : "";
+		next = log(
+			next,
+			`${hero.cardName} sofreu ${dmg} de dano${tieNoteHero}${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${roll.heroTotal}.`,
+		);
 	}
 
 	// Registrar herói como tendo agido nesta rodada
@@ -468,11 +497,7 @@ export function handleDirectDamage(state: GameState): GameState {
 			targetHeroIds: [target.id],
 			damageAmount: enemy.damage,
 		});
-		next = mapHero(next, target.id, (h) => ({
-			...h,
-			currentLife: Math.max(0, h.currentLife - enemy.damage),
-			status: h.currentLife - enemy.damage <= 0 ? "defeated" : h.status,
-		}));
+		next = applyDamage(next, target.id, enemy.damage);
 		next = log(
 			next,
 			`${enemy.cardName} causa ${enemy.damage} de dano direto em ${target.cardName}.`,
@@ -511,13 +536,15 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 		let next = state;
 		if (fled.length > 0) {
 			const fleeNames = fled.map((e) => e.cardName);
+			const { value: shuffled, next: rngAfterShuffle } = shuffleRng([...next.decks.enemyDeck.available, ...fleeNames], next.rng);
 			next = {
 				...next,
+				rng: rngAfterShuffle,
 				decks: {
 					...next.decks,
 					enemyDeck: {
 						...next.decks.enemyDeck,
-						available: shuffle([...next.decks.enemyDeck.available, ...fleeNames]),
+						available: shuffled,
 					},
 				},
 			};
@@ -655,11 +682,7 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 					oncePer: { ...state.combat.oncePer, combat: { ...state.combat.oncePer.combat, [guardKey]: true } },
 				},
 			};
-			next = mapEnemy(next, targetEnemyId, (e) => ({
-				...e,
-				currentLife: Math.max(0, e.currentLife - dmg),
-				status: e.currentLife - dmg <= 0 ? "defeated" : e.status,
-			}));
+			next = applyDamage(next, targetEnemyId, dmg);
 			next = log(next, `${hero.cardName} — Tiro de Oportunidade: ${enemy.cardName} sofreu ${dmg} de dano direto.`);
 			// Marcar herói como tendo agido nesta rodada
 			const updatedActed = [...next.combat!.heroesActed, heroId];
@@ -715,8 +738,11 @@ export function handleSelectDie(
 
 	// Aplicar ação
 	let newValue: number;
+	let stateAfterRng = state;
 	if (sel.action === "reroll") {
-		newValue = rollDice(1).results[0] ?? 1;
+		const { result, next: rngNext } = rollDiceRng(1, state.rng);
+		newValue = result.results[0] ?? 1;
+		stateAfterRng = { ...state, rng: rngNext };
 	} else {
 		newValue = sel.setToValue ?? 6;
 	}
@@ -732,9 +758,9 @@ export function handleSelectDie(
 
 	return log(
 		{
-			...state,
+			...stateAfterRng,
 			combat: {
-				...state.combat,
+				...stateAfterRng.combat!,
 				lastRoll: newRoll,
 				pendingDiceSelection: undefined,
 			},

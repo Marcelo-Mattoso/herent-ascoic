@@ -1,8 +1,8 @@
-// Desvio de Foco: Capuz do Túnel — ao ser escolhido como alvo, o portador pode
+﻿// Desvio de Foco: Capuz do Túnel — ao ser escolhido como alvo, o portador pode
 // redirecionar o ataque para outra criatura ou aceitar e ganhar +N de acerto.
 // Trigger: once_per_room_on_targeted.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";
@@ -65,13 +65,13 @@ registerContinuation(
 
 		// "tohit": adicionar bônus ao próximo ataque
 		const bonus = 2; // valor padrão; o ctx pode não ter value aqui
-		const current = state.combat.bonusNextAttack[ctx.sourceHeroId] ?? 0;
+		const current = state.combat.bonusNextAttack[ctx.sourceHeroId] ?? [];
 		return log(
 			{
 				...state,
 				combat: {
 					...state.combat,
-					bonusNextAttack: { ...state.combat.bonusNextAttack, [ctx.sourceHeroId]: current + bonus },
+					bonusNextAttack: { ...state.combat.bonusNextAttack, [ctx.sourceHeroId]: [...current, { label: "Desvio de Foco", value: bonus }] },
 				},
 			},
 			`Desvio de Foco: +${bonus} de acerto neste ataque.`,

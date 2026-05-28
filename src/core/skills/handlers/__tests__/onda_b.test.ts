@@ -200,10 +200,13 @@ describe("handleDungeon", () => {
 // ── SKILL_CHOICE reducer ──────────────────────────────────────────────────────
 
 describe("reducer SKILL_CHOICE", () => {
-	it("sem pendingSkillChoice, retorna estado inalterado", () => {
+	it("sem pendingSkillChoice, retorna estado inalterado (exceto actionLog)", () => {
 		const state = makeState();
 		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "x", choice: "y" } });
-		expect(result).toEqual(state);
+		// actionLog sempre acumula — compara o resto do estado
+		const { actionLog: _a, ...restResult } = result;
+		const { actionLog: _b, ...restState } = state;
+		expect(restResult).toEqual(restState);
 	});
 
 	it("com pendingSkillChoice mas sem continuação registrada, limpa o campo", () => {
