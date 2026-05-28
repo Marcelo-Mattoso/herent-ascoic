@@ -2,11 +2,12 @@ import { describe, expect, it } from "vitest";
 import { createInitialGameState } from "../state/gameState";
 import { checkBossCondition } from "./conditions";
 
-const BOSS = "Azhakar, Dragão da Fornalha Sombria";
+const BOSS = "boss_azhakar";
 
 function stateWithArtifacts(count: number) {
 	const state = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
 	const artifacts = Array.from({ length: count }, (_, i) => ({
+		cardId: `artifact_test_${i + 1}`,
 		cardName: `Artefato ${i + 1}`,
 		carriedBy: null,
 	}));
@@ -31,7 +32,7 @@ describe("checkBossCondition — Azhakar", () => {
 	});
 
 	it("boss desconhecido retorna false", () => {
-		expect(checkBossCondition(stateWithArtifacts(3), "Boss Desconhecido")).toBe(
+		expect(checkBossCondition(stateWithArtifacts(3), "boss_unknown")).toBe(
 			false,
 		);
 	});

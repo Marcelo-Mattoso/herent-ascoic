@@ -1,7 +1,7 @@
 // Lógica de progressão: subir nível (Ímpeto), mudar Despertar da Masmorra.
 // Usada pelos handlers de SPEND_XP.
 
-import { getCardByName, getSubbossRooms } from "../data/cards";
+import { getCardById, getSubbossRooms } from "../data/cards";
 import { nextColor, previousColor, valueAtColor } from "../rules/colorScale";
 import type { ColorIndex } from "../state/color";
 import type { GameState } from "../state/gameState";
@@ -18,7 +18,7 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 		return log(state, `${hero.cardName} já está no nível máximo.`);
 	}
 
-	const card = getCardByName(hero.cardName);
+	const card = getCardById(hero.cardId);
 	if (!card || card.type !== "hero") return state;
 
 	const ci = newImpeto as ColorIndex;

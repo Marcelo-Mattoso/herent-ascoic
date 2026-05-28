@@ -50,16 +50,16 @@ describe("checkBossCondition via dados", () => {
 		let s = reducer(base, { type: "START_GAME", payload: { heroCardNames: ["Bárbaro Rubro"] } });
 
 		// Sem artefatos → false
-		expect(checkBossCondition(s, s.bossCardName)).toBe(false);
+		expect(checkBossCondition(s, s.bossCardId)).toBe(false);
 
 		// Com 2 artefatos → true (accessCondition: group_artifacts_gte: 2)
 		s = {
 			...s,
 			groupArtifacts: [
-				{ cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
-				{ cardName: "Coração de Brasa Antiga", carriedBy: null },
+				{ cardId: "artifact_crimson_jailer_chain", cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
+				{ cardId: "artifact_ancient_ember_heart", cardName: "Coração de Brasa Antiga", carriedBy: null },
 			],
 		};
-		expect(checkBossCondition(s, s.bossCardName)).toBe(true);
+		expect(checkBossCondition(s, s.bossCardId)).toBe(true);
 	});
 });
