@@ -1,5 +1,5 @@
 // Exemplo de script customizado.
-// Execução: npm run script src/data/scripts/example.ts
+// Execução: npm run script tools/dev-scripts/example.ts
 //
 // Tem acesso a todo o core via alias @/ — mesmo ambiente que os testes.
 

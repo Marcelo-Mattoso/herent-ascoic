@@ -25,7 +25,7 @@ Acesse `http://localhost:5173` no navegador.
 | `npm run preview` | Servir o build de produção localmente |
 | `npm test` | Rodar todos os testes (Vitest) |
 | `npm run lint` | Lint + format check (Biome) |
-| `npm run script src/data/scripts/<arquivo>.ts` | Executar script avulso com acesso ao core via `@/` |
+| `npm run script tools/dev-scripts/<arquivo>.ts` | Executar script avulso com acesso ao core via `@/` |
 
 ## Stack
 
@@ -60,7 +60,7 @@ src/
 │   ├── strategies/     # Estratégias plugáveis (targetSelection, etc.)
 │   └── systems/        # Sistemas com queries (damageSystem, healSystem, conditionSystem)
 ├── data/               # Dados estáticos JSON (cards, skills, balance, transitions…)
-│   └── scripts/        # Scripts avulsos de desenvolvimento (executados com npm run script)
+│   └── scripts/        # Scripts de carta (módulos TS do designer, carregados pelo engine)
 ├── ui/
 │   ├── components/     # Componentes reutilizáveis (Board, HeroFocusPanel, EventLogPanel…)
 │   │   └── modals/     # Modais (XpSpend, OpenPaths, CardDetail, SkillChoice…)
@@ -162,12 +162,12 @@ g().eventLog.slice(-5);
 })();
 ```
 
-### Scripts avulsos (`src/data/scripts/`)
+### Scripts avulsos (`tools/dev-scripts/`)
 
-Para automatizar fluxos mais longos, crie um arquivo `.ts` em `src/data/scripts/` e rode:
+Para automatizar fluxos mais longos, crie um arquivo `.ts` em `tools/dev-scripts/` e rode:
 
 ```bash
-npm run script src/data/scripts/meu-script.ts
+npm run script tools/dev-scripts/meu-script.ts
 ```
 
-Os scripts têm acesso completo ao core via alias `@/`, igual ao ambiente de testes. Veja `src/data/scripts/example.ts` como referência.
+Os scripts têm acesso completo ao core via alias `@/`, igual ao ambiente de testes. Veja `tools/dev-scripts/example.ts` como referência.
