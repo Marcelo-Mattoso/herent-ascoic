@@ -76,7 +76,9 @@
       "Bash(npx tsx *)",
       "Bash(node -e \"const s = JSON.parse\\(require\\('fs'\\).readFileSync\\('src/core/config/defaults.ts', 'utf8'\\).replace\\(/.*export.*FEATURE_FLAGS.*=\\\\s*/,''\\).replace\\(/;.*/s,''\\)\\); console.log\\(JSON.stringify\\(s\\)\\)\")",
       "Bash(mkdir \"src\\\\data\\\\scripts\")",
-      "Bash(git mv *)"
+      "Bash(git mv *)",
+      "Bash(Get-ChildItem \"F:\\\\temp\\\\jogo-cartas-mvp1\\\\docs\\\\patches\")",
+      "Bash(tsc -b --noEmit)"
     ]
   }
 }
