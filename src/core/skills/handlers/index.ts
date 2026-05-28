@@ -14,6 +14,7 @@ import { handleDiscardDungeonLock } from "./discardDungeonLock";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDrawItem } from "./drawItem";
 import { handlePurpleDamageReduction } from "./purple_damage_reduction";
+import { handleScript } from "./script";
 import { handleDungeon } from "./dungeon";
 import { handleDungeonLevel } from "./dungeonLevel";
 import { handleFleeBlock } from "./flee_block";
@@ -91,6 +92,9 @@ register("drawItem", handleDrawItem);
 
 // Redução de dano roxo (patch-8 fase 10)
 register("purple_damage_reduction", handlePurpleDamageReduction);
+
+// Scripts de carta (patch-10)
+register("script", handleScript);
 
 // Tipos "recover_item" e "roomSpecial" não são registrados — ausência no registry
 // é sinal de "não implementado" e é tratada pelo getHandler com log de aviso.
