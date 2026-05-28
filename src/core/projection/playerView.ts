@@ -1,8 +1,11 @@
 // Projeção do estado de jogo para a UI.
 // Camada de tradução entre GameState (shape interno) e PlayerView (contrato estável da UI).
-// Quando o shape interno mudar (Fase 2 ECS), a UI continua lendo a mesma forma.
+// Quando o shape interno mudar (ECS, effect stack), a UI continua lendo a mesma forma.
+//
+// Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
 import type { EnemyState } from "../state/enemyState";
+import type { PausedState } from "../effects/stack";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import type { RoomState } from "../state/roomState";
@@ -10,7 +13,7 @@ import type { ColorIndex } from "../state/color";
 import type { GameStatus } from "../state/status";
 
 // Aliases estruturais — iguais ao shape interno por enquanto.
-// Mudam na Fase 2 quando ECS entra: a projeção reconstruirá HeroView a partir de componentes.
+// Mudam quando ECS entra plenamente: a projeção reconstruirá HeroView a partir de componentes.
 export type HeroView = HeroState;
 export type EnemyView = EnemyState;
 export type RoomView = RoomState;
@@ -31,6 +34,15 @@ export interface PlayerView {
 		readonly artifactDeck: { readonly available: readonly string[] };
 		readonly itemDeck: { readonly available: readonly string[] };
 	};
+	// Passo 8: estado de pausa para input do jogador durante resolução de efeitos.
+	readonly paused: PausedState | null;
+	// Escolha de skill pendente (integrada ao paused no futuro; mantida para compatibilidade).
+	readonly pendingSkillChoice: {
+		readonly skillId: string;
+		readonly prompt: string;
+		readonly options: readonly { readonly id: string; readonly label: string }[];
+		readonly sourceHeroId?: string;
+	} | null;
 }
 
 export function playerView(state: GameState): PlayerView {
@@ -52,5 +64,7 @@ export function playerView(state: GameState): PlayerView {
 			artifactDeck: { available: state.decks.artifactDeck.available },
 			itemDeck: { available: state.decks.itemDeck.available },
 		},
+		paused: state.paused,
+		pendingSkillChoice: state.pendingSkillChoice ?? null,
 	};
 }
