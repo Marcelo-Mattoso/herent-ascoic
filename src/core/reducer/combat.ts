@@ -242,6 +242,26 @@ export function handleRollDice(state: GameState): GameState {
 	);
 }
 
+// ─── Helpers de log ──────────────────────────────────────────────────────────
+
+// Rótulos legíveis para as fontes de bônus
+const BONUS_LABELS: Record<string, string> = {
+	hitBonus: "acerto",
+	habilidade: "skill",
+	penalidade: "penalidade",
+};
+
+function fmtBonus(entry: BonusEntry): string {
+	const label = BONUS_LABELS[entry.source] ?? entry.source;
+	return `${label} ${entry.value >= 0 ? "+" : ""}${entry.value}`;
+}
+
+function fmtRoll(dice: readonly number[], bonuses: readonly BonusEntry[], total: number): string {
+	const diceStr = `dado(s) [${dice.join("+")}]=${dice.reduce((a, b) => a + b, 0)}`;
+	const bonusStr = bonuses.map(fmtBonus).join(", ");
+	return bonusStr ? `${diceStr}, ${bonusStr} → ${total}` : `${diceStr} → ${total}`;
+}
+
 // ─── RESOLVE_ATTACK ───────────────────────────────────────────────────────────
 
 export function handleResolveAttack(state: GameState): GameState {
@@ -317,7 +337,12 @@ export function handleResolveAttack(state: GameState): GameState {
 	if (result.enemyDamageTaken > 0) {
 		const dmg = result.enemyDamageTaken;
 		next = applyDamage(next, enemy.id, dmg);
-		next = log(next, `${enemy.cardName} sofreu ${dmg} de dano.`);
+		const heroRollStr = fmtRoll(roll.heroResults, roll.heroBreakdown, roll.heroTotal);
+		const tieNote = result.outcome === "tie" ? " (empate)" : "";
+		next = log(
+			next,
+			`${enemy.cardName} sofreu ${dmg} de dano${tieNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
+		);
 
 		// on_destroy_creature_with_attack: inimigo derrotado por ataque
 		const updatedEnemy = next.activeEnemies.find((e) => e.id === enemy.id);
@@ -380,7 +405,16 @@ export function handleResolveAttack(state: GameState): GameState {
 				? { ...next.combat, shieldsUsedThisCombat: newShields }
 				: null,
 		};
-		next = log(next, `${hero.cardName} sofreu ${dmg} de dano.`);
+		const enemyRollStr = fmtRoll(roll.enemyResults, roll.enemyBreakdown, roll.enemyTotal);
+		const tieNoteHero = result.outcome === "tie" ? " (empate)" : "";
+		const reductionParts: string[] = [];
+		if (hasShield && !shieldUsed) reductionParts.push("escudo −1");
+		if (engineReduction > 0) reductionParts.push(`redução −${engineReduction}`);
+		const reductionStr = reductionParts.length ? ` [${reductionParts.join(", ")}]` : "";
+		next = log(
+			next,
+			`${hero.cardName} sofreu ${dmg} de dano${tieNoteHero}${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${roll.heroTotal}.`,
+		);
 	}
 
 	// Registrar herói como tendo agido nesta rodada
