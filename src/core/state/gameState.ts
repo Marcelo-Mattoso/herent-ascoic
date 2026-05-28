@@ -2,6 +2,8 @@
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
 import type { LoggedAction } from "../actions/types";
+import type { World } from "../ecs/world";
+import { createEmptyWorld } from "../ecs/world";
 import { createRng } from "../ports/random";
 import type { RngState } from "../ports/random";
 import type { ColorIndex } from "./color";
@@ -37,6 +39,10 @@ export interface GameState {
 	readonly difficulty: Difficulty;
 	readonly rng: RngState;
 	status: GameStatus;
+
+	// ECS world — espelha heroes/enemies durante a transição (Passos 5-6).
+	// Fonte primária a partir do Passo 6; heroes/enemies tornam-se campos derivados.
+	readonly world: World;
 
 	// Progressão
 	groupXp: number;
@@ -133,6 +139,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 		difficulty: config.difficulty ?? "normal",
 		rng: createRng(0),
 		status: "MAIN_MENU",
+		world: createEmptyWorld(),
 
 		groupXp: 0,
 		despertar: 0,

@@ -8,6 +8,8 @@ import {
 	getItems,
 	getRooms,
 } from "../../data/cards";
+import { syncHeroesAndEnemies } from "../ecs/sync";
+import { createEmptyWorld } from "../ecs/world";
 import { DIFFICULTY_PRESETS } from "../config/defaults";
 import { createRng } from "../ports/random";
 import type { ColorIndex } from "../state/color";
@@ -15,8 +17,7 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { GameConfig, GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
-import { createHeroFromCard, log, shuffleRng, withRng } from "./utils";
-import type { RngState } from "../ports/random";
+import { createHeroFromCard, log, shuffleRng } from "./utils";
 
 export function handleStartGame(
 	state: GameState,
@@ -75,6 +76,8 @@ export function handleStartGame(
 	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
 	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
 
+	const world = syncHeroesAndEnemies(createEmptyWorld(), heroes, []);
+
 	const next: GameState = {
 		...state,
 		gameId,
@@ -82,6 +85,7 @@ export function handleStartGame(
 		difficulty,
 		mode,
 		status: "REVEAL_ROOM",
+		world,
 		groupXp: 0,
 		despertar: despertarIndex,
 		heroes,
