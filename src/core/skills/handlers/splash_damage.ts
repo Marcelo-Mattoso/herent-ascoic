@@ -4,8 +4,9 @@
 
 import type { SkillContext } from "../../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
+import { applyDamage } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";
-import { log, mapEnemy } from "../../reducer/utils";
+import { log } from "../../reducer/utils";
 
 export function handleSplashDamage(
 	state: GameState,
@@ -24,10 +25,6 @@ export function handleSplashDamage(
 	// Alvo: criatura com menor vida dentre as restantes
 	const target = others.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b));
 
-	const next = mapEnemy(state, target.id, (e) => ({
-		...e,
-		currentLife: Math.max(0, e.currentLife - amount),
-		status: e.currentLife - amount <= 0 ? "defeated" : e.status,
-	}));
+	const next = applyDamage(state, target.id, amount);
 	return log(next, `Golpe Trespassante: ${target.cardName} sofreu ${amount} de dano.`);
 }

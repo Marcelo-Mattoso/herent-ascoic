@@ -14,6 +14,7 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
+import { applyDamage } from "../systems/damageSystem";
 import { log, mapEnemy, mapHero, shuffleRng } from "./utils";
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
@@ -315,11 +316,7 @@ export function handleResolveAttack(state: GameState): GameState {
 
 	if (result.enemyDamageTaken > 0) {
 		const dmg = result.enemyDamageTaken;
-		next = mapEnemy(next, enemy.id, (e) => ({
-			...e,
-			currentLife: Math.max(0, e.currentLife - dmg),
-			status: e.currentLife - dmg <= 0 ? "defeated" : e.status,
-		}));
+		next = applyDamage(next, enemy.id, dmg);
 		next = log(next, `${enemy.cardName} sofreu ${dmg} de dano.`);
 
 		// on_destroy_creature_with_attack: inimigo derrotado por ataque
@@ -376,11 +373,7 @@ export function handleResolveAttack(state: GameState): GameState {
 				? { ...next.combat!.shieldsUsedThisCombat, [hero.id]: true }
 				: next.combat!.shieldsUsedThisCombat;
 
-		next = mapHero(next, hero.id, (h) => ({
-			...h,
-			currentLife: Math.max(0, h.currentLife - dmg),
-			status: h.currentLife - dmg <= 0 ? "defeated" : h.status,
-		}));
+		next = applyDamage(next, hero.id, dmg);
 		next = {
 			...next,
 			combat: next.combat
@@ -469,11 +462,7 @@ export function handleDirectDamage(state: GameState): GameState {
 			targetHeroIds: [target.id],
 			damageAmount: enemy.damage,
 		});
-		next = mapHero(next, target.id, (h) => ({
-			...h,
-			currentLife: Math.max(0, h.currentLife - enemy.damage),
-			status: h.currentLife - enemy.damage <= 0 ? "defeated" : h.status,
-		}));
+		next = applyDamage(next, target.id, enemy.damage);
 		next = log(
 			next,
 			`${enemy.cardName} causa ${enemy.damage} de dano direto em ${target.cardName}.`,
@@ -658,11 +647,7 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 					oncePer: { ...state.combat.oncePer, combat: { ...state.combat.oncePer.combat, [guardKey]: true } },
 				},
 			};
-			next = mapEnemy(next, targetEnemyId, (e) => ({
-				...e,
-				currentLife: Math.max(0, e.currentLife - dmg),
-				status: e.currentLife - dmg <= 0 ? "defeated" : e.status,
-			}));
+			next = applyDamage(next, targetEnemyId, dmg);
 			next = log(next, `${hero.cardName} — Tiro de Oportunidade: ${enemy.cardName} sofreu ${dmg} de dano direto.`);
 			// Marcar herói como tendo agido nesta rodada
 			const updatedActed = [...next.combat!.heroesActed, heroId];

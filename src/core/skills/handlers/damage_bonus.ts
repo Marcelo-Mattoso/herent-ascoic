@@ -4,8 +4,9 @@
 
 import type { SkillContext } from "../../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
+import { applyDamageMin1 } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";
-import { log, mapHero } from "../../reducer/utils";
+import { log } from "../../reducer/utils";
 
 export function handleDamageBonus(
 	state: GameState,
@@ -22,10 +23,7 @@ export function handleDamageBonus(
 	const bonus = cost * 3;
 
 	// Pagar custo em vida
-	let next = mapHero(state, hero.id, (h) => ({
-		...h,
-		currentLife: Math.max(1, h.currentLife - cost),
-	}));
+	let next = applyDamageMin1(state, hero.id, cost);
 
 	// Registrar bônus de dano no extraDice temporário (usamos bonusNextAttack no combat)
 	next = {

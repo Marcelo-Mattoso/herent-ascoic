@@ -8,6 +8,7 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { SubbossRoomCard } from "../../data/cardTypes";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
+import { applyFullHeal } from "../systems/healSystem";
 import { createEnemyFromCard, log, shuffleRng } from "./utils";
 
 export function handleRevealRoom(state: GameState): GameState {
@@ -301,17 +302,15 @@ export function handleRestartDungeon(
 	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
 	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
 
-	// Restaurar heróis fugidos com vida máxima (opcionalmente mantendo equipamentos)
+	// Restaurar heróis fugidos: status e equipamentos (vida restaurada via healSystem depois)
 	const restoredHeroes = state.fledHeroes.map((h) => ({
 		...h,
 		status: "active" as const,
-		currentLife: h.maxLife,
-		healBlocked: undefined,
-		activeItems: keepEquipment ? h.activeItems : {},
-		backpack: keepEquipment ? h.backpack : [],
+		activeItems: keepEquipment ? h.activeItems : ({} as typeof h.activeItems),
+		backpack: keepEquipment ? h.backpack : ([] as readonly string[]),
 	}));
 
-	return log(
+	let next = log(
 		{
 			...state,
 			rng,
@@ -340,6 +339,12 @@ export function handleRestartDungeon(
 		},
 		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,
 	);
+
+	// Restaurar vida ao máximo via healSystem (sincroniza o world ECS)
+	for (const h of restoredHeroes) {
+		next = applyFullHeal(next, h.id);
+	}
+	return next;
 }
 
 export function handleDungeonExhaustedSpend(state: GameState): GameState {

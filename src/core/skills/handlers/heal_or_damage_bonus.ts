@@ -5,8 +5,9 @@
 
 import type { SkillContext } from "../../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
+import { applyHeal } from "../../systems/healSystem";
 import { parseSlashPair } from "../valueParsers";
-import { log, mapHero } from "../../reducer/utils";
+import { log } from "../../reducer/utils";
 
 export function handleHealOrDamageBonus(
 	state: GameState,
@@ -42,8 +43,7 @@ export function handleHealOrDamageBonus(
 			next = log(next, `${hero.cardName}: cura bloqueada (Fumaça da Fornalha).`);
 			continue;
 		}
-		const healed = Math.min(hero.maxLife, hero.currentLife + healAmount);
-		next = mapHero(next, hero.id, (h) => ({ ...h, currentLife: healed }));
+		next = applyHeal(next, hero.id, healAmount);
 	}
 	return log(next, `Paladino: Juramento — todos os heróis curam ${healAmount} de vida.`);
 }

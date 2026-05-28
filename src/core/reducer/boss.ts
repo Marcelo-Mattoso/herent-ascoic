@@ -9,7 +9,8 @@ import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
-import { log, mapHero } from "./utils";
+import { applyDamage } from "../systems/damageSystem";
+import { log } from "./utils";
 
 // ─── REVEAL_BOSS ─────────────────────────────────────────────────────────────
 
@@ -90,18 +91,7 @@ export function handleBossResolveAttack(state: GameState): GameState {
 			next = log(next, "Trono Vivo: dano ao boss reduzido em 1.");
 		}
 		const newLife = Math.max(0, boss.currentLife - dmg);
-		next = {
-			...next,
-			activeEnemies: next.activeEnemies.map((e) =>
-				e.id === "boss"
-					? {
-							...e,
-							currentLife: newLife,
-							status: newLife <= 0 ? "defeated" : e.status,
-						}
-					: e,
-			),
-		};
+		next = applyDamage(next, "boss", dmg);
 		next = log(next, `Boss sofreu ${dmg} de dano. Vida restante: ${newLife}.`);
 	}
 
@@ -111,11 +101,7 @@ export function handleBossResolveAttack(state: GameState): GameState {
 			hero.activeItems.armor === "Escudo Rachado";
 		const shieldUsed = state.combat.shieldsUsedThisCombat[hero.id] ?? false;
 		const dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
-		next = mapHero(next, hero.id, (h) => ({
-			...h,
-			currentLife: Math.max(0, h.currentLife - dmg),
-			status: h.currentLife - dmg <= 0 ? "defeated" : h.status,
-		}));
+		next = applyDamage(next, hero.id, dmg);
 		next = log(next, `${hero.cardName} sofreu ${dmg} de dano do boss.`);
 	}
 
