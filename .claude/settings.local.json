@@ -71,7 +71,12 @@
       "Bash(git -C F:/temp/jogo-cartas-mvp1 add src/core/systems/ src/core/skills/handlers/damage_bonus.ts src/core/skills/handlers/heal_or_survive.ts src/core/skills/handlers/heal_or_damage_bonus.ts src/core/skills/handlers/recoverDungeon.ts src/core/skills/handlers/direct_damage.ts src/core/skills/handlers/heal.ts src/core/skills/handlers/splash_damage.ts src/core/reducer/combat.ts src/core/reducer/boss.ts src/core/reducer/exploration.ts src/core/reducer/progression.ts)",
       "Bash(git -C F:/temp/jogo-cartas-mvp1 add src/core/effects/ src/data/event_rules.json src/core/events/effectResolver.ts src/core/events/bus.ts src/core/state/gameState.ts src/core/reducer/exploration.ts src/core/reducer/index.ts src/core/ecs/sync.ts)",
       "Bash(git -C F:/temp/jogo-cartas-mvp1 diff --cached --stat)",
-      "Bash(grep -v \"//.*crypto\\\\|//.*Math\")"
+      "Bash(grep -v \"//.*crypto\\\\|//.*Math\")",
+      "Bash(npx vite-node *)",
+      "Bash(npx tsx *)",
+      "Bash(node -e \"const s = JSON.parse\\(require\\('fs'\\).readFileSync\\('src/core/config/defaults.ts', 'utf8'\\).replace\\(/.*export.*FEATURE_FLAGS.*=\\\\s*/,''\\).replace\\(/;.*/s,''\\)\\); console.log\\(JSON.stringify\\(s\\)\\)\")",
+      "Bash(mkdir \"src\\\\data\\\\scripts\")",
+      "Bash(git mv *)"
     ]
   }
 }
