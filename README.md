@@ -25,12 +25,13 @@ Acesse `http://localhost:5173` no navegador.
 | `npm run preview` | Servir o build de produção localmente |
 | `npm test` | Rodar todos os testes (Vitest) |
 | `npm run lint` | Lint + format check (Biome) |
+| `npm run script src/data/scripts/<arquivo>.ts` | Executar script avulso com acesso ao core via `@/` |
 
 ## Stack
 
 - **React 19** + **TypeScript 6** — UI
 - **Vite 8** — bundler
-- **Zustand 5** — estado global
+- **@ngneat/elf** — estado global (store reativo + Redux DevTools)
 - **Tailwind CSS v4** — estilos
 - **Biome 2** — lint e formatação
 - **Vitest 4** — testes unitários e de integração
@@ -39,17 +40,32 @@ Acesse `http://localhost:5173` no navegador.
 
 ```
 src/
-├── core/           # Motor de jogo puro (sem React)
-│   ├── actions/    # Tipos e criadores de actions
-│   ├── reducer/    # Reducer por domínio (setup, combat, reward…)
-│   ├── rules/      # Funções puras (dice, combat, shield, colorScale…)
-│   ├── state/      # Tipos do GameState e factory inicial
-│   └── strategies/ # Estratégias plugáveis (targetSelection, etc.)
-├── data/           # Loader e tipos do cards.json
+├── core/               # Motor de jogo puro (sem React)
+│   ├── actions/        # Tipos e criadores de actions
+│   ├── adapter/        # EngineAdapter + inProcessAdapter (ponte core ↔ UI)
+│   ├── config/         # Constantes e configurações globais
+│   ├── data/           # Loaders e tipos (cards.ts, skills.ts, cardTypes.ts, skillTypes.ts)
+│   ├── ecs/            # ECS world — entities, components e world API
+│   ├── effects/        # Effect stack — resolução ordenada de cadeias de efeitos
+│   ├── events/         # Event bus síncrono (DamageAboutToBeDealt, HealAboutToBeApplied…)
+│   ├── persistence/    # Porta de persistência (localStorage / no-op)
+│   ├── ports/          # Interfaces abstratas (PersistencePort, etc.)
+│   ├── projection/     # Projeções de estado (playerView, aiView, replayView)
+│   ├── reducer/        # Reducer por domínio (setup, combat, reward…)
+│   ├── replay/         # Replay viewer — navega pelo actionLog passo a passo
+│   ├── rules/          # Funções puras (dice, combat, shield, colorScale…)
+│   ├── skills/         # Catálogo de habilidades e handlers por tipo
+│   │   └── handlers/   # Um arquivo por handler (damage_bonus, heal, reroll…)
+│   ├── state/          # Tipos do GameState, CombatState e factories iniciais
+│   ├── strategies/     # Estratégias plugáveis (targetSelection, etc.)
+│   └── systems/        # Sistemas com queries (damageSystem, healSystem, conditionSystem)
+├── data/               # Dados estáticos JSON (cards, skills, balance, transitions…)
+│   └── scripts/        # Scripts avulsos de desenvolvimento (executados com npm run script)
 ├── ui/
-│   ├── components/ # Componentes reutilizáveis e modais
-│   ├── screens/    # Telas (MainMenu, Setup, Exploration, Victory, Defeat)
-│   └── store/      # Zustand store, seletores, persistência
+│   ├── components/     # Componentes reutilizáveis (Board, HeroFocusPanel, EventLogPanel…)
+│   │   └── modals/     # Modais (XpSpend, OpenPaths, CardDetail, SkillChoice…)
+│   ├── screens/        # Telas (MainMenu, Setup, Exploration, Victory, Defeat)
+│   └── store/          # Elf store, seletores, persistência e adaptador
 └── main.tsx
 ```
 
@@ -67,51 +83,64 @@ src/
 - O herói chega a 0 de vida.
 - O deck de dungeon esgota e você recusa pagar 5 XP para continuar.
 
-## Testando fluxos em desenvolvimento
+## Ferramentas de desenvolvimento em jogo
 
-Em modo dev (`npm run dev`) o store Zustand é exposto em `window.__store`. A vantagem é poder **verificar o resultado de cada action lendo o estado em seguida** — sem tirar screenshot, sem clicar na UI, sem inspecionar o DOM.
+### Log de eventos (in-game)
 
-O padrão é: despacha → lê o que mudou → confirma.
+Clique no botão **📋 Log** na barra de status superior para abrir/fechar o painel de eventos. O log exibe com código de cores cada evento da partida:
+
+| Cor | Tipo |
+|---|---|
+| Vermelho | Dano sofrido / derrota |
+| Verde | Cura / sobrevivência |
+| Azul | Habilidades / poderes |
+| Amarelo | Avisos |
+| Cinza | Info geral |
+
+As mensagens de combate incluem **breakdown completo**: dados rolados, bônus por habilidade (com nome da skill) e total final. Exemplo:
+```
+Vigia das Portas Quebradas sofreu 7 de dano.
+  Herói: [4,3] | Fúria Rubra +6, Fio Mortal +1 | total 14
+  Inimigo: [2,1] | total 3
+```
+
+### Replay Viewer
+
+Pressione **Ctrl+Shift+R** para abrir o Replay Viewer. Ele permite navegar passo a passo pelo `actionLog` da partida atual — útil para depurar o efeito de cada action sobre o estado.
+
+### Console do navegador
+
+Em modo dev (`npm run dev`) o store é exposto em `window.__store`. O padrão é: despacha → lê o que mudou → confirma.
 
 ```js
 // Helpers rápidos
 const d = () => window.__store.getState().dispatch;
 const g = () => window.__store.getState().state;
-const ui = () => window.__store.getState().ui;
 
 // Após qualquer dispatch, o estado já está atualizado na próxima linha:
 d()({ type: "START_COMBAT" });
 g().combat?.phase;          // "selecting_hero"
-g().combat?.selectedHeroId; // null
 
-// Escolhe herói, lê confirmação imediata:
+// Escolhe herói e inimigo:
 const heroId = g().heroes[0].id;
 d()({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
-g().combat?.phase;          // "selecting_target"
-g().combat?.selectedHeroId; // "<id do herói>"
 
-// Engaja inimigo, lê resultado:
 const enemyId = g().activeEnemies[0].id;
 d()({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
-g().status;                 // "ROLL_DICE"
-g().combat?.pairs.length;   // 1
 
-// Rola e resolve, lê danos:
+// Rola e resolve:
 d()({ type: "ROLL_DICE" });
-g().combat?.lastRoll;       // { heroTotal, enemyTotal, ... }
+g().combat?.lastRoll;       // { heroTotal, enemyTotal, heroBreakdown, ... }
 d()({ type: "RESOLVE_ATTACK" });
-g().status;                 // "HERO_ACTION" (próximo herói) ou "DIRECT_DAMAGE"
-g().combat?.heroesActed;    // [heroId]
 
 // EventLog: feedback textual de tudo que aconteceu
 g().eventLog.slice(-5);
-// ["Partida iniciada...", "Sala revelada: ...", "2 inimigo(s) aparecem: ...", ...]
 ```
 
 ### Script de partida rápida até o combate
 
 ```js
-// Cola no console, retorna um resumo sem screenshot nenhuma
+// Cola no console, retorna um resumo sem nenhum screenshot
 (() => {
   const s = window.__store;
   s.getState().reset();
@@ -132,3 +161,13 @@ g().eventLog.slice(-5);
   };
 })();
 ```
+
+### Scripts avulsos (`src/data/scripts/`)
+
+Para automatizar fluxos mais longos, crie um arquivo `.ts` em `src/data/scripts/` e rode:
+
+```bash
+npm run script src/data/scripts/meu-script.ts
+```
+
+Os scripts têm acesso completo ao core via alias `@/`, igual ao ambiente de testes. Veja `src/data/scripts/example.ts` como referência.
