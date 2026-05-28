@@ -1,0 +1,537 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Arquitetura Web — Motor de Card Game</title>
+<style>
+  :root {
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #5a5a55;
+    --border: rgba(0, 0, 0, 0.12);
+    --accent: #5C49C9;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --surface: #242422;
+      --text-primary: #f1efe8;
+      --text-secondary: #b4b2a9;
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #AFA9EC;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 2rem 1rem;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .callout {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-left: 3px solid var(--accent);
+    border-radius: 8px;
+    padding: 1rem 1.25rem;
+    margin-bottom: 2rem;
+    font-size: 0.95rem;
+    color: var(--text-secondary);
+  }
+
+  .callout strong { color: var(--text-primary); font-weight: 500; }
+
+  .diagram-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 2rem;
+  }
+
+  .diagram-card svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .legend {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+  }
+
+  .legend h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0 1rem;
+  }
+
+  .legend-section {
+    margin-bottom: 1.25rem;
+  }
+
+  .legend-section:last-child {
+    margin-bottom: 0;
+  }
+
+  .legend-section h3 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 0 0 0.4rem;
+    color: var(--text-primary);
+  }
+
+  .legend-section p {
+    margin: 0 0 0.5rem;
+    color: var(--text-secondary);
+    font-size: 0.9rem;
+  }
+
+  /* SVG color ramps */
+  .c-gray rect { fill: #F1EFE8; stroke: #5F5E5A; }
+  .c-gray .th { fill: #2C2C2A; }
+  .c-gray .ts { fill: #5F5E5A; }
+
+  .c-purple rect { fill: #EEEDFE; stroke: #534AB7; }
+  .c-purple .th { fill: #26215C; }
+  .c-purple .ts { fill: #534AB7; }
+
+  .c-teal rect { fill: #E1F5EE; stroke: #0F6E56; }
+  .c-teal .th { fill: #04342C; }
+  .c-teal .ts { fill: #0F6E56; }
+
+  .c-amber rect { fill: #FAEEDA; stroke: #854F0B; }
+  .c-amber .th { fill: #412402; }
+  .c-amber .ts { fill: #854F0B; }
+
+  .c-coral rect { fill: #FAECE7; stroke: #993C1D; }
+  .c-coral .th { fill: #4A1B0C; }
+  .c-coral .ts { fill: #993C1D; }
+
+  .c-blue rect { fill: #E6F1FB; stroke: #185FA5; }
+  .c-blue .th { fill: #042C53; }
+  .c-blue .ts { fill: #185FA5; }
+
+  .c-pink rect { fill: #FBEAF0; stroke: #993556; }
+  .c-pink .th { fill: #4B1528; }
+  .c-pink .ts { fill: #993556; }
+
+  .c-olive rect { fill: #F1F3DC; stroke: #5F6B12; }
+  .c-olive .th { fill: #2A2F05; }
+  .c-olive .ts { fill: #5F6B12; }
+
+  @media (prefers-color-scheme: dark) {
+    .c-gray rect { fill: #2C2C2A; stroke: #B4B2A9; }
+    .c-gray .th { fill: #D3D1C7; }
+    .c-gray .ts { fill: #B4B2A9; }
+
+    .c-purple rect { fill: #3C3489; stroke: #AFA9EC; }
+    .c-purple .th { fill: #CECBF6; }
+    .c-purple .ts { fill: #AFA9EC; }
+
+    .c-teal rect { fill: #085041; stroke: #5DCAA5; }
+    .c-teal .th { fill: #9FE1CB; }
+    .c-teal .ts { fill: #5DCAA5; }
+
+    .c-amber rect { fill: #633806; stroke: #EF9F27; }
+    .c-amber .th { fill: #FAC775; }
+    .c-amber .ts { fill: #EF9F27; }
+
+    .c-coral rect { fill: #712B13; stroke: #F0997B; }
+    .c-coral .th { fill: #F5C4B3; }
+    .c-coral .ts { fill: #F0997B; }
+
+    .c-blue rect { fill: #0C447C; stroke: #85B7EB; }
+    .c-blue .th { fill: #B5D4F4; }
+    .c-blue .ts { fill: #85B7EB; }
+
+    .c-pink rect { fill: #72243E; stroke: #ED93B1; }
+    .c-pink .th { fill: #F4C0D1; }
+    .c-pink .ts { fill: #ED93B1; }
+
+    .c-olive rect { fill: #4A5310; stroke: #C9D75A; }
+    .c-olive .th { fill: #E2EC9D; }
+    .c-olive .ts { fill: #C9D75A; }
+  }
+
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; }
+  .label { font-size: 12px; fill: var(--text-secondary); }
+
+  .arr { stroke: var(--text-secondary); stroke-width: 1.5; fill: none; }
+  .arr-dashed { stroke: var(--text-secondary); stroke-width: 1.2; fill: none; stroke-dasharray: 4 3; opacity: 0.7; }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Arquitetura Web — Motor de Card Game</h1>
+  <p class="subtitle">Motor autoritativo no navegador · single-player standalone · data-driven, event-driven, component-based</p>
+</header>
+
+<div class="callout">
+  Adaptação da <strong>arquitetura abstrata</strong> (motor headless multi-front com canal de IA) para o ambiente <strong>navegador standalone</strong>: tudo roda numa única página, sem servidor. O propósito desta arquitetura é direto — <strong>garantir que a contabilidade do jogo feche</strong>. Skills, items, conditions, tokens e modificadores se combinam em centenas de configurações; uma contabilidade correta sai de três escolhas estruturais que andam juntas: <strong>data-driven</strong> (toda regra é dado, não código espalhado), <strong>event-driven</strong> (efeitos reagem a eventos pelo barramento, não por chamadas diretas) e <strong>component-based</strong> (entidades são compostas por componentes plugáveis; sistemas processam queries sobre eles). As fronteiras que no documento abstrato separavam servidor e cliente viram aqui fronteiras de <em>módulo</em>, de <em>thread</em> e de <em>aba</em>.
+</div>
+
+<div class="diagram-card">
+<svg viewBox="0 0 680 860" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="diagram-title diagram-desc">
+<title id="diagram-title">Arquitetura web do motor de card game</title>
+<desc id="diagram-desc">Diagrama em camadas mostrando o engine core no centro com rules engine, state machine, effect resolver, ECS world, event bus, game state e action log; projection layer, engine adapter como fronteira de processo, consumidores no navegador (UI, IA local, dev tools) e persistência local lateral.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse"><path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></marker>
+</defs>
+
+<!-- Content / Data layer -->
+<text class="label" x="40" y="30">Camada de dados (data-driven — toda regra é dado)</text>
+<g class="c-gray">
+<rect x="40" y="40" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="62" text-anchor="middle" dominant-baseline="central">Content / Data layer</text>
+<text class="ts" x="340" y="80" text-anchor="middle" dominant-baseline="central">cartas · skills · keywords · conditions · components atômicos · transições de estado</text>
+</g>
+
+<line x1="340" y1="96" x2="340" y2="128" class="arr" marker-end="url(#arrow)"/>
+
+<!-- Engine core -->
+<text class="label" x="40" y="146">Núcleo autoritativo · puro · sem dependência de navegador</text>
+<g class="c-purple">
+<rect x="40" y="156" width="600" height="280" rx="12" stroke-width="0.5"/>
+<text class="th" x="340" y="178" text-anchor="middle" dominant-baseline="central">Engine core</text>
+</g>
+
+<!-- Linha 1: Rules, State machine, Effect resolver -->
+<g class="c-teal">
+<rect x="60" y="198" width="175" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="147" y="216" text-anchor="middle" dominant-baseline="central">Rules engine</text>
+<text class="ts" x="147" y="234" text-anchor="middle" dominant-baseline="central">valida legalidade</text>
+</g>
+
+<g class="c-teal">
+<rect x="252" y="198" width="175" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="339" y="216" text-anchor="middle" dominant-baseline="central">State machine</text>
+<text class="ts" x="339" y="234" text-anchor="middle" dominant-baseline="central">fases · transições</text>
+</g>
+
+<g class="c-teal">
+<rect x="444" y="198" width="175" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="531" y="216" text-anchor="middle" dominant-baseline="central">Effect resolver</text>
+<text class="ts" x="531" y="234" text-anchor="middle" dominant-baseline="central">triggers · stack · sistemas</text>
+</g>
+
+<!-- Linha 2: ECS, Event bus -->
+<g class="c-teal">
+<rect x="60" y="268" width="272" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="196" y="286" text-anchor="middle" dominant-baseline="central">ECS world</text>
+<text class="ts" x="196" y="304" text-anchor="middle" dominant-baseline="central">entities · components · systems</text>
+</g>
+
+<g class="c-teal">
+<rect x="348" y="268" width="272" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="484" y="286" text-anchor="middle" dominant-baseline="central">Event bus interno</text>
+<text class="ts" x="484" y="304" text-anchor="middle" dominant-baseline="central">pub-sub síncrono entre sistemas</text>
+</g>
+
+<!-- Linha 3: Game state, Action log -->
+<g class="c-amber">
+<rect x="60" y="338" width="272" height="76" rx="8" stroke-width="0.5"/>
+<text class="th" x="196" y="358" text-anchor="middle" dominant-baseline="central">Game state</text>
+<text class="ts" x="196" y="378" text-anchor="middle" dominant-baseline="central">RNG seedado · serializável</text>
+<text class="ts" x="196" y="394" text-anchor="middle" dominant-baseline="central">fase atual da máquina</text>
+</g>
+
+<g class="c-amber">
+<rect x="348" y="338" width="272" height="76" rx="8" stroke-width="0.5"/>
+<text class="th" x="484" y="358" text-anchor="middle" dominant-baseline="central">Action log (append-only)</text>
+<text class="ts" x="484" y="378" text-anchor="middle" dominant-baseline="central">comandos do jogador</text>
+<text class="ts" x="484" y="394" text-anchor="middle" dominant-baseline="central">Command Pattern · replay · what-if</text>
+</g>
+
+<line x1="340" y1="436" x2="340" y2="468" class="arr" marker-end="url(#arrow)"/>
+
+<!-- Projection -->
+<text class="label" x="40" y="486">Projeção por consumidor</text>
+<g class="c-coral">
+<rect x="40" y="496" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="514" text-anchor="middle" dominant-baseline="central">Projection layer</text>
+<text class="ts" x="340" y="534" text-anchor="middle" dominant-baseline="central">filtra estado e eventos: view do jogador · view limitada da IA · view completa de replay</text>
+</g>
+
+<line x1="340" y1="552" x2="340" y2="584" class="arr" marker-end="url(#arrow)"/>
+
+<!-- Adapter -->
+<text class="label" x="40" y="602">Adapter · fronteira de processo</text>
+<g class="c-blue">
+<rect x="40" y="612" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="630" text-anchor="middle" dominant-baseline="central">Engine adapter</text>
+<text class="ts" x="340" y="650" text-anchor="middle" dominant-baseline="central">contrato uniforme: comandos entram, eventos saem — mesma thread, outra thread ou entre abas</text>
+</g>
+
+<line x1="140" y1="668" x2="140" y2="704" class="arr" marker-end="url(#arrow)"/>
+<line x1="340" y1="668" x2="340" y2="704" class="arr" marker-end="url(#arrow)"/>
+<line x1="540" y1="668" x2="540" y2="704" class="arr" marker-end="url(#arrow)"/>
+
+<!-- Consumidores -->
+<text class="label" x="40" y="722">Consumidores no navegador</text>
+
+<g class="c-pink">
+<rect x="40" y="732" width="195" height="80" rx="8" stroke-width="0.5"/>
+<text class="th" x="137" y="754" text-anchor="middle" dominant-baseline="central">Interface do jogador</text>
+<text class="ts" x="137" y="774" text-anchor="middle" dominant-baseline="central">renderiza projeção</text>
+<text class="ts" x="137" y="790" text-anchor="middle" dominant-baseline="central">emite comandos do humano</text>
+</g>
+
+<g class="c-pink">
+<rect x="242" y="732" width="195" height="80" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="754" text-anchor="middle" dominant-baseline="central">IA local</text>
+<text class="ts" x="340" y="774" text-anchor="middle" dominant-baseline="central">oponente · assistente · dica</text>
+<text class="ts" x="340" y="790" text-anchor="middle" dominant-baseline="central">consome view limitada</text>
+</g>
+
+<g class="c-pink">
+<rect x="444" y="732" width="195" height="80" rx="8" stroke-width="0.5"/>
+<text class="th" x="541" y="754" text-anchor="middle" dominant-baseline="central">Ferramentas de dev</text>
+<text class="ts" x="541" y="774" text-anchor="middle" dominant-baseline="central">inspector · replay viewer</text>
+<text class="ts" x="541" y="790" text-anchor="middle" dominant-baseline="central">balancer · seed fixa</text>
+</g>
+
+<!-- Persistência local (lateral) -->
+<text class="label" x="40" y="842">Persistência local (lateral)</text>
+<g class="c-olive">
+<rect x="40" y="820" width="600" height="32" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="838" text-anchor="middle" dominant-baseline="central">snapshot (retomada rápida) · action log persistido (replay · histórico · what-if)</text>
+</g>
+
+<!-- Setas tracejadas pra persistência (do core e do adapter) -->
+<path d="M 620 405 C 660 405, 660 836, 640 836" class="arr-dashed"/>
+<path d="M 60 405 C 30 405, 30 836, 40 836" class="arr-dashed"/>
+
+</svg>
+</div>
+
+<div class="legend">
+  <h2>Camadas</h2>
+
+  <div class="legend-section">
+    <h3>Content / Data layer</h3>
+    <p>Definição estática do conteúdo: cartas, skills, keywords, conditions, components atômicos, transições de fase. <strong>Toda regra é dado.</strong> Uma carta nova é uma entrada de JSON com seus componentes e triggers declarados — não exige código novo no caso comum. O escape hatch para mecânicas que não cabem em dado puro é uma função TS registrada pelo nome, invocada como referência declarativa no JSON (scripting embarcado pelo registry). No navegador, o conteúdo viaja empacotado com a aplicação — não há servidor de conteúdo em runtime.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Engine core</h3>
+    <p>Núcleo autoritativo do jogo, sem nenhuma dependência de interface, DOM ou APIs do navegador. Reúne seis subsistemas que respondem juntos a cada comando do jogador:</p>
+    <ul style="margin: 0.4rem 0 0.6rem 1.2rem; padding: 0; color: var(--text-secondary); font-size: 0.9rem;">
+      <li><strong>Rules engine</strong> — valida se o comando é legal na fase atual e nas condições atuais.</li>
+      <li><strong>State machine</strong> — fases do jogo (exploração, combate, recompensa, etc.) e estados de carta (no deck, na mão, em jogo, no descarte) explícitos, com transições validadas. Estado inconsistente impossível por construção.</li>
+      <li><strong>Effect resolver</strong> — recebe a intenção, consulta triggers, empilha efeitos encadeados (stack) e delega a aplicação aos sistemas. É onde mora a contabilidade.</li>
+      <li><strong>ECS world</strong> — entities (heróis, inimigos, salas, items em jogo) são identificadores; o que cada uma <em>tem</em> e <em>faz</em> mora em componentes plugáveis (Health, Damage, Conditions, Modifiers, Triggers, Tokens, etc.). Sistemas processam queries sobre componentes — não há lógica de carta espalhada em handlers monolíticos.</li>
+      <li><strong>Event bus interno</strong> — pub-sub síncrono dentro do core. Quando um sistema produz um evento (DamageDealt, EnemyDefeated, RoomEntered, TurnStarted), outros sistemas inscritos reagem em ordem determinística. É o que faz <em>"quando algo morre, ganhe X"</em> funcionar sem código de carta saber da existência de outras cartas.</li>
+      <li><strong>Game state + Action log</strong> — o estado autoritativo é serializável e contém a seed do RNG e a fase corrente; o log append-only de actions é a fonte da verdade (Command Pattern). Estado é sempre a projeção do log sobre o estado inicial.</li>
+    </ul>
+    <p><strong>Por que esses três (data-driven + event-driven + ECS) andam juntos:</strong> dano envolve modificadores de múltiplas fontes simultâneas (skill ativa do herói, item equipado, condition do inimigo, token de área, aura de outra criatura). Um sistema de dano consulta <em>todas</em> as fontes via query antes de calcular. Eventos (DamageAboutToBeDealt) deixam outros sistemas modificarem o valor antes da aplicação. Dados declarativos descrevem quem reage a quê. A contabilidade fecha porque <em>existe um único lugar onde cada tipo de cálculo acontece</em>, e ele enxerga tudo de uma vez.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Projection layer</h3>
+    <p>Filtra estado e eventos por perspectiva antes de sair do engine. A interface do jogador recebe a view dele; uma IA oponente recebe view limitada (sem ver mão do humano, sem prever RNG futuro); um replay viewer recebe view completa. Toda regra de visibilidade vive aqui — não espalhada pela interface.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Engine adapter (no lugar do transport layer)</h3>
+    <p>No navegador não há rede entre engine e jogador — então a <em>transport layer</em> do diagrama abstrato colapsa em <strong>fronteira de processo</strong>. O adapter expõe um contrato único: comandos entram, projeção e eventos saem. A mesma forma serve pra três cenários sem que o resto da aplicação perceba: motor rodando junto da interface (mesma thread), motor rodando em thread separada (libera a UI de cálculos pesados, libera a IA pra pensar sem travar), ou duas abas observando a mesma partida (uma joga, outra espectadora). Trocar o substrato muda só o adapter.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Consumidores</h3>
+    <p><strong>Interface do jogador</strong> é o consumidor primário: renderiza a projeção e devolve comandos do humano. <strong>IA local</strong> é um consumidor paralelo opcional — bot oponente, assistente de jogada, gerador de dicas — que consome view limitada e devolve comandos como qualquer outro jogador. <strong>Ferramentas de dev</strong> (inspector de ações, replay viewer, balanceador, runner com seed fixa pra reproduzir bug) consomem view completa e leem direto do action log.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Persistência local</h3>
+    <p>Camada lateral, ausente do diagrama abstrato (que assume servidor). No navegador é onde o "log é a verdade" se materializa offline. Dois usos complementares: <em>snapshot</em> do estado pra retomada instantânea ao reabrir a aba, e <em>action log persistido</em> como histórico completo da partida — base de replays, exportação de bug reports, biblioteca de partidas anteriores. O engine não conhece os detalhes; só sabe ler/gravar através de uma porta abstrata. Política: o log é a fonte primária; snapshot é otimização.</p>
+  </div>
+</div>
+
+<div class="legend" style="margin-top: 2rem;">
+  <h2>Princípios que amarram tudo</h2>
+
+  <div class="legend-section">
+    <h3>Toda regra é dado (Data-Driven)</h3>
+    <p>Cartas, skills, keywords, conditions, transições de fase, custos, modificadores — tudo declarado em arquivos. Código TS só interpreta dado e implementa os sistemas. Uma carta nova é uma entrada de JSON com componentes e triggers; só vira código quando a mecânica é genuinamente nova. Adicionar mecânica = adicionar dado + (raramente) adicionar sistema.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Sistemas reagem a eventos, não chamam uns aos outros (Event-Driven)</h3>
+    <p>Quando algo acontece no jogo, o sistema responsável emite um evento no barramento; quem se inscreveu reage. Skills com trigger <em>"quando inimigo morre"</em> se registram como ouvintes de <code>EnemyDefeated</code> — não há acoplamento entre quem dispara e quem responde. Eventos são síncronos e ordenados: a ordem de resolução é determinística e auditável; cascatas (evento A dispara efeito que emite evento B) resolvem pela stack.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Composição em vez de hierarquia (Component-Based)</h3>
+    <p>Entidades (heróis, inimigos, salas, items em jogo) são identificadores; o que cada uma <em>é</em> e <em>faz</em> mora em componentes plugáveis. Buff adiciona componente, dispel remove. Conditions, items, tokens, modifiers, triggers são todos componentes com forma uniforme. Sistemas processam queries (<em>"todas as entidades com componente Armor"</em>) em vez de switch sobre tipos. Adicionar capacidade = adicionar componente, não inflar o reducer.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Direção única de fluxo</h3>
+    <p>Comandos sobem (consumidor → adapter → rules → effect resolver → sistemas), eventos descem (sistemas → event bus → log → projeção → adapter → consumidor). Nunca o contrário. A interface não muta o game state direto — emite intenções e observa o resultado.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>O action log é a verdade — inclusive offline</h3>
+    <p>Estado atual é projeção das ações sobre o estado inicial, não o contrário. Disso saem de graça: retomar partida ao reabrir a aba, exportar replay como JSON, anexar log + seed a bug report, navegar no tempo dentro do inspector, simular "e se eu tivesse jogado outra carta" sem perder a partida real.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Determinismo é feature, não detalhe</h3>
+    <p>Todo RNG passa pelo state (seed inicial + contador). Mesma seed + mesma sequência de ações = mesmo resultado, no navegador do jogador, na thread de IA local, no runner de testes. Sem aleatoriedade implícita escondida dentro de sistema. Sem este princípio, replay e bug repro não funcionam.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Projeção é onde mora a segurança</h3>
+    <p>Toda regra de quem pode ver o quê vive numa camada só. Num single-player isso parece overkill, mas é o que impede que uma IA oponente local "espie" a mão do jogador ou olhe à frente no RNG. Adicionar modos novos (espectador em outra aba, replay público, IA cega) muda só a projeção.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>A fronteira de processo é o eixo de evolução</h3>
+    <p>O que hoje é chamada direta de função pode virar amanhã troca de mensagens entre threads, e depois entre abas. Pra isso o contrato precisa ser <em>como se já fosse serializado</em> desde o início: comandos e estado puramente em dados, sem referências vivas, sem closures, sem objetos opacos. Custa pouco agora; paga muito quando o motor sai da thread principal.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>O engine ignora o navegador</h3>
+    <p>O core não sabe que está num navegador. Não conhece DOM, não conhece persistência, não conhece o adapter que o invoca. Tudo que é "navegador" entra como dependência injetada através de portas abstratas (persistência, relógio, fonte de aleatoriedade pra seed inicial). O mesmo engine roda igual sob um runner de testes ou sob a interface real.</p>
+  </div>
+</div>
+
+<div class="legend" style="margin-top: 2rem;">
+  <h2>Como a contabilidade fecha</h2>
+  <p style="margin: -0.5rem 0 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+    Esta arquitetura existe pra resolver um problema específico: a contabilidade de combinações entre skills, items, conditions, tokens e modifiers tem que fechar — sempre, em qualquer ordem, com qualquer combinação. Como cada padrão contribui:
+  </p>
+
+  <div class="legend-section">
+    <h3>Um cálculo, um sistema, uma query</h3>
+    <p>Dano não é aplicado por uma skill nem por um item nem por uma condition — é aplicado pelo <em>damage system</em>, que recebe a intenção e enumera todas as fontes relevantes via query no ECS antes de calcular. Mesma ideia pra cura, draw, modificação de rolagem, etc. Não existe "ordem dos handlers" porque não existem handlers competindo — existe um sistema que vê tudo.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Eventos abrem janelas pra modificação</h3>
+    <p>Antes de aplicar dano, o sistema emite <code>DamageAboutToBeDealt</code> no bus. Listeners inscritos (armor, damage_reduction, redirect) podem ajustar o valor ou cancelar. Depois da aplicação, emite <code>DamageDealt</code>; outros listeners reagem (on_damage_taken triggers, retaliação). A ordem dessas janelas é parte do contrato do evento, não acidente do código de carta.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Stack ordena cadeias</h3>
+    <p>Efeito A dispara evento que aciona efeito B que dispara evento que aciona efeito C. Sem ordem clara, cada execução pode dar resultado diferente. A stack do effect resolver empilha efeitos pendentes e resolve em ordem definida (LIFO ou FIFO conforme a regra), com pontos de pausa explícitos pra escolha do jogador entre passos. Cadeia em cadeia não vira bug-fest.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Determinismo torna bug reproduzível</h3>
+    <p>Quando a contabilidade falha, o caminho pra investigar é fixo: pegar seed + action log do bug report, replicar, navegar no tempo até o passo errado, ver qual sistema processou qual query com quais componentes. Sem determinismo, "às vezes acontece" é cemitério de bug.</p>
+  </div>
+</div>
+
+<div class="legend" style="margin-top: 2rem;">
+  <h2>Plano de refactor incremental — 4 fases</h2>
+  <p style="margin: -0.5rem 0 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+    Visão de alto nível. O plano detalhado, com escopo passo a passo, contratos de código e critérios de aceitação, vive em <code>migration_plan.md</code> ao lado deste documento.
+  </p>
+
+  <div class="legend-section">
+    <h3>Fase 1 — Fundação (estado, determinismo, dados)</h3>
+    <p>Action log explícito como sequência de comandos (Command Pattern materializado) · RNG seedado vivendo no game state · consolidação data-driven (todo conteúdo de jogo em um lugar, nada hardcoded fora dele) · máquina de estados das fases tornada explícita com transições validadas.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Fase 2 — Núcleo do engine (ECS, effects, events)</h3>
+    <p>Modelagem do ECS world: entities como ids, componentes plugáveis uniformes (Health, Damage, Conditions, Modifiers, Triggers, Tokens) · sistemas que processam queries (damage system, heal system, draw system, etc.) substituindo handlers monolíticos · event bus interno síncrono com janelas pré/pós para cada operação de cálculo · stack de resolução pra efeitos encadeados. Esta fase é o coração: é aqui que a contabilidade passa a fechar.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Fase 3 — Fronteira e tecnologia</h3>
+    <p>Projection layer explícita (selectors saem da interface, viram views nomeadas por consumidor) · engine adapter selando o core atrás de contrato uniforme · troca do store por substrato com integração nativa ao Redux DevTools, materializando o desejo de "estado observável".</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Fase 4 — Persistência e tooling</h3>
+    <p>Persistência por porta abstrata (snapshot + action log) com política "log é a verdade, snapshot é otimização" · replay viewer que rebobina partidas a partir do log · exportação JSON do log pra anexar em bug reports. Fecha o ciclo provando que a arquitetura cumpre a promessa.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>O que fica explicitamente fora deste ciclo</h3>
+    <p>Engine em outra thread (só se houver necessidade real de performance — o adapter já deixa a porta aberta) · servidor autoritativo e delta sync (incompatíveis com single-player; a disciplina das fases 1-2 já entrega o core portável caso um dia entrem) · content pipeline visual (ferramenta de produtividade pra autores, não engine).</p>
+  </div>
+</div>
+
+<div class="legend" style="margin-top: 2rem;">
+  <h2>Desejos (escolhas de tecnologia)</h2>
+  <p style="margin: -0.5rem 0 1rem; color: var(--text-secondary); font-size: 0.9rem;">
+    Separado de propósito: o desenho acima é tecnologicamente neutro. Esta seção lista preferências concretas que orientam <em>como</em> implementar as camadas, sem misturá-las à definição arquitetural — trocar uma escolha aqui não invalida o resto do documento.
+  </p>
+
+  <div class="legend-section">
+    <h3>Estado observável por Redux DevTools</h3>
+    <p>O painel do Redux DevTools (extensão de navegador) é o critério prático de "estado bem desenhado": cada ação aparece nomeada, o diff de estado é legível, dá pra navegar no tempo e exportar o histórico. Qualquer store usado precisa expor essa integração — ela funciona como inspetor de ações, replay viewer rudimentar e arnês de debug, tudo no mesmo lugar, sem precisar construir devtools próprias.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Elf como substrato do store</h3>
+    <p>Preferência por <em>Elf</em> como gerenciador de estado em vez de Redux clássico ou bibliotecas mais pesadas. Motivo: API mais simples e composicional, stores menores e independentes em vez de um único state root, e integração nativa com o painel do Redux DevTools — atende o desejo anterior sem o boilerplate. Encaixa bem no papel de adapter desta arquitetura: cada store é um ponto de entrada de comandos e uma fonte de projeção, sem virar o dono da lógica de regras (que continua no engine core).</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Como esses desejos se encaixam nas camadas</h3>
+    <p>O <strong>engine core</strong> permanece puro e ignorante de Elf — o store é cliente dele, não o contrário. O <strong>adapter</strong> é onde Elf entra: recebe comandos do consumidor, delega ao reducer do core, escreve o novo estado no store. O <strong>Redux DevTools</strong> observa o store do adapter, então cada ação visível no painel corresponde 1-pra-1 com uma entrada do action log autoritativo. Trocar Elf por outra biblioteca amanhã muda só essa camada.</p>
+  </div>
+
+  <div class="legend-section">
+    <h3>Portabilidade pra backend Node (desejo de longo prazo)</h3>
+    <p>A mesma disciplina que torna Elf trocável torna o engine portável pra um servidor Node com pouco esforço. Como o core é puro e ignorante do navegador, ele compila e roda em Node sem mudar uma linha — o mesmo arquivo que serve a interface local serve o servidor autoritativo. A migração troca apenas <em>quem</em> é dono de cada camada: action log e game state vivem no servidor; o cliente fica com Elf, Redux DevTools e a projeção que recebe pela rede. O adapter, que hoje é chamada de função, vira troca de mensagens — mesma assinatura, substrato diferente. Persistência migra de armazenamento local pra banco através da porta abstrata que já existe. O que <em>custa</em> de fato é o trabalho que qualquer backend multiplayer exigiria (sessão, autenticação, reconexão, anti-cheat) — não a reescrita do motor. Esse desejo não pede nada agora; só impõe uma restrição: manter comandos, eventos e estado puramente como dados serializáveis, sem closures nem objetos opacos.</p>
+  </div>
+</div>
+
+<footer>
+  Arquitetura web do motor · adaptação de <em>card_game_architecture.html</em> · documento de referência
+</footer>
+
+</div>
+</body>
+</html>

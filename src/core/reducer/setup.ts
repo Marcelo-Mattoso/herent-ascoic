@@ -9,23 +9,31 @@ import {
 	getRooms,
 } from "../../data/cards";
 import { DIFFICULTY_PRESETS } from "../config/defaults";
+import { createRng } from "../ports/random";
 import type { ColorIndex } from "../state/color";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameConfig, GameState } from "../state/gameState";
+import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
-import { createHeroFromCard, log, shuffle } from "./utils";
+import { createHeroFromCard, log, shuffleRng, withRng } from "./utils";
+import type { RngState } from "../ports/random";
 
 export function handleStartGame(
 	state: GameState,
-	payload: GameConfig,
+	payload: GameConfig & { seed?: number; gameId?: string },
 ): GameState {
-	// Suporte ao campo legado heroCardName (string única) para compatibilidade de testes
 	const heroNames: string[] =
 		payload.heroCardNames.length > 0 ? payload.heroCardNames : [];
 
 	if (heroNames.length === 0) {
 		return log(state, "[ERRO] Nenhum herói selecionado.");
 	}
+
+	// Seed e gameId vêm do payload (injetados pela UI ou testes).
+	// Fallback determinístico para testes que não fornecem seed.
+	const seed = payload.seed ?? 0;
+	const gameId = payload.gameId ?? `game-${seed}`;
+	let rng = createRng(seed);
 
 	// Offsets de dificuldade
 	const difficulty = payload.difficulty ?? "normal";
@@ -34,14 +42,18 @@ export function handleStartGame(
 	const despertarIndex = Math.min(4, preset.despertarOffset) as ColorIndex;
 
 	// Criar estados de herói (em competitivo cada herói tem playerIndex único)
-	const heroes = heroNames.map((name, idx) => {
+	const heroes: HeroState[] = [];
+	for (let idx = 0; idx < heroNames.length; idx++) {
+		const name = heroNames[idx]!;
 		const card = getCardByName(name);
 		if (!card || card.type !== "hero") {
 			throw new Error(`Carta de herói não encontrada: ${name}`);
 		}
 		const playerIdx = (payload.mode ?? "cooperative") === "competitive" ? idx : 0;
-		return createHeroFromCard(card, heroColorIndex, playerIdx);
-	});
+		const { hero, next } = createHeroFromCard(card, heroColorIndex, rng, playerIdx);
+		heroes.push(hero);
+		rng = next;
+	}
 
 	const bossName = payload.bossCardName ?? selectBoss();
 
@@ -52,8 +64,21 @@ export function handleStartGame(
 
 	const mode = payload.mode ?? "cooperative";
 
+	// Embaralhar todos os decks encadeando o RNG
+	let shuffledRooms: string[];
+	let shuffledCreatures: string[];
+	let shuffledItems: string[];
+	let shuffledArtifacts: string[];
+
+	({ value: shuffledRooms, next: rng } = shuffleRng(roomNames, rng));
+	({ value: shuffledCreatures, next: rng } = shuffleRng(creatureNames, rng));
+	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
+	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
+
 	const next: GameState = {
 		...state,
+		gameId,
+		rng,
 		difficulty,
 		mode,
 		status: "REVEAL_ROOM",
@@ -75,26 +100,15 @@ export function handleStartGame(
 		combat: createEmptyCombatState(),
 		pendingRewards: [],
 		decks: {
-			dungeonDeck: {
-				available: shuffle(roomNames),
-				discarded: [],
-				removed: [],
-			},
-			enemyDeck: {
-				available: shuffle(creatureNames),
-				discarded: [],
-				removed: [],
-			},
-			itemDeck: { available: shuffle(itemNames), discarded: [], removed: [] },
-			artifactDeck: {
-				available: shuffle(artifactNames),
-				discarded: [],
-				removed: [],
-			},
+			dungeonDeck: { available: shuffledRooms, discarded: [], removed: [] },
+			enemyDeck: { available: shuffledCreatures, discarded: [], removed: [] },
+			itemDeck: { available: shuffledItems, discarded: [], removed: [] },
+			artifactDeck: { available: shuffledArtifacts, discarded: [], removed: [] },
 		},
 		eventLog: [
 			`Partida iniciada. Heróis: ${heroes.map((h) => h.cardName).join(", ")}. Boss: ${bossName}.`,
 		],
+		// START_GAME reinicia o actionLog (feito pelo wrapper em reducer/index.ts)
 	};
 
 	return next;

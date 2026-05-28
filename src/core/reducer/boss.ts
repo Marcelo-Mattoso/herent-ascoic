@@ -3,7 +3,7 @@
 
 import { getBoss } from "../../data/cards";
 import { calculateTotal, resolveAttack } from "../rules/combat";
-import { rollDice } from "../rules/dice";
+import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
@@ -166,7 +166,7 @@ function checkBossEnd(state: GameState): GameState {
 }
 
 // Reutiliza o ROLL_DICE normal mas com o boss no par
-export function buildBossRoll(state: GameState): CombatRollResult | null {
+export function buildBossRoll(state: GameState): { roll: CombatRollResult; nextState: GameState } | null {
 	if (!state.combat || state.combat.pairs.length === 0) return null;
 	const pair = state.combat.pairs[0];
 	if (!pair) return null;
@@ -175,8 +175,8 @@ export function buildBossRoll(state: GameState): CombatRollResult | null {
 	const boss = state.activeEnemies.find((e) => e.id === "boss");
 	if (!hero || !boss) return null;
 
-	const heroRoll = rollDice(hero.dice);
-	const bossRoll = rollDice(boss.dice);
+	const { result: heroRoll, next: rng1 } = rollDiceRng(hero.dice, state.rng);
+	const { result: bossRoll, next: rng2 } = rollDiceRng(boss.dice, rng1);
 
 	const heroBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: hero.hitBonus },
@@ -188,7 +188,7 @@ export function buildBossRoll(state: GameState): CombatRollResult | null {
 	const heroCalc = calculateTotal(heroRoll.results, heroBonuses);
 	const bossCalc = calculateTotal(bossRoll.results, bossBonuses);
 
-	return {
+	const roll: CombatRollResult = {
 		heroId: hero.id,
 		enemyId: boss.id,
 		heroResults: heroRoll.results,
@@ -198,4 +198,5 @@ export function buildBossRoll(state: GameState): CombatRollResult | null {
 		enemyTotal: bossCalc.total,
 		enemyBreakdown: bossBonuses,
 	};
+	return { roll, nextState: { ...state, rng: rng2 } };
 }

@@ -92,12 +92,13 @@ function reducerCore(state: GameState, action: Action): GameState {
 		case "ROLL_DICE": {
 			if (state.status === "BOSS_COMBAT") {
 				// Boss: usa buildBossRoll e vai direto para RESOLVE_ATTACK
-				const roll = buildBossRoll(state);
-				if (!roll) return state;
+				const bossResult = buildBossRoll(state);
+				if (!bossResult) return state;
+				const { roll, nextState } = bossResult;
 				return {
-					...state,
+					...nextState,
 					status: "RESOLVE_ATTACK",
-					combat: state.combat ? { ...state.combat, lastRoll: roll } : null,
+					combat: nextState.combat ? { ...nextState.combat, lastRoll: roll } : null,
 				};
 			}
 			return handleRollDice(state);

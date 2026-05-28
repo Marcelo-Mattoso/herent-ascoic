@@ -4,7 +4,7 @@
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
 import { calculateTotal, resolveAttack } from "../rules/combat";
-import { rollDice } from "../rules/dice";
+import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import { fireTrigger } from "../skills/dispatch";
 import { resolveSkillFor } from "../skills/lookup";
@@ -14,7 +14,7 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
-import { log, mapEnemy, mapHero, shuffle } from "./utils";
+import { log, mapEnemy, mapHero, shuffleRng } from "./utils";
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
 
@@ -201,24 +201,25 @@ export function handleRollDice(state: GameState): GameState {
 
 	const extraDice = preRoll.combat?.extraDice[hero.id] ?? 0;
 	const heroDiceCount = hero.dice + extraDice;
-	const heroRoll = rollDice(heroDiceCount);
-	const enemyRoll = rollDice(enemy.dice);
+	const { result: heroRollResult, next: rng1 } = rollDiceRng(heroDiceCount, preRoll.rng);
+	const { result: enemyRollResult, next: rng2 } = rollDiceRng(enemy.dice, rng1);
+	preRoll = { ...preRoll, rng: rng2 };
 
 	const heroBonuses = collectHeroBonuses(hero, preRoll);
 	const enemyBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: enemy.hitBonus },
 	];
 
-	const heroCalc = calculateTotal(heroRoll.results, heroBonuses);
-	const enemyCalc = calculateTotal(enemyRoll.results, enemyBonuses);
+	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);
+	const enemyCalc = calculateTotal(enemyRollResult.results, enemyBonuses);
 
 	const roll: CombatRollResult = {
 		heroId: hero.id,
 		enemyId: enemy.id,
-		heroResults: heroRoll.results,
+		heroResults: heroRollResult.results,
 		heroTotal: heroCalc.total,
 		heroBreakdown: heroBonuses,
-		enemyResults: enemyRoll.results,
+		enemyResults: enemyRollResult.results,
 		enemyTotal: enemyCalc.total,
 		enemyBreakdown: enemyBonuses,
 	};
@@ -511,13 +512,15 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 		let next = state;
 		if (fled.length > 0) {
 			const fleeNames = fled.map((e) => e.cardName);
+			const { value: shuffled, next: rngAfterShuffle } = shuffleRng([...next.decks.enemyDeck.available, ...fleeNames], next.rng);
 			next = {
 				...next,
+				rng: rngAfterShuffle,
 				decks: {
 					...next.decks,
 					enemyDeck: {
 						...next.decks.enemyDeck,
-						available: shuffle([...next.decks.enemyDeck.available, ...fleeNames]),
+						available: shuffled,
 					},
 				},
 			};
@@ -715,8 +718,11 @@ export function handleSelectDie(
 
 	// Aplicar ação
 	let newValue: number;
+	let stateAfterRng = state;
 	if (sel.action === "reroll") {
-		newValue = rollDice(1).results[0] ?? 1;
+		const { result, next: rngNext } = rollDiceRng(1, state.rng);
+		newValue = result.results[0] ?? 1;
+		stateAfterRng = { ...state, rng: rngNext };
 	} else {
 		newValue = sel.setToValue ?? 6;
 	}
@@ -732,9 +738,9 @@ export function handleSelectDie(
 
 	return log(
 		{
-			...state,
+			...stateAfterRng,
 			combat: {
-				...state.combat,
+				...stateAfterRng.combat!,
 				lastRoll: newRoll,
 				pendingDiceSelection: undefined,
 			},

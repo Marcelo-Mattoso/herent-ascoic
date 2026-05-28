@@ -5,8 +5,7 @@
 import type { SkillContext } from "../../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
-import { log, mapHero } from "../../reducer/utils";
-import { shuffle } from "../../reducer/utils";
+import { log, mapHero, shuffleRng } from "../../reducer/utils";
 
 export function handleRecoverDungeon(
 	state: GameState,
@@ -20,10 +19,11 @@ export function handleRecoverDungeon(
 	const toRecover = discarded.slice(0, count);
 	const remaining = discarded.slice(count);
 
-	const reshuffled = shuffle([...state.decks.dungeonDeck.available, ...toRecover]);
+	const { value: reshuffled, next: rng } = shuffleRng([...state.decks.dungeonDeck.available, ...toRecover], state.rng);
 
 	let next: GameState = {
 		...state,
+		rng,
 		decks: {
 			...state.decks,
 			dungeonDeck: {

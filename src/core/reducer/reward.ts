@@ -12,7 +12,7 @@ import type { GameState, PendingReward } from "../state/gameState";
 import { defaultItemDestination } from "../strategies/itemDistribution";
 import { handleDungeonExhaustedSpend } from "./exploration";
 import { levelUpHero, lowerDespertar } from "./progression";
-import { getActiveHero, log, mapHero, shuffle } from "./utils";
+import { getActiveHero, log, mapHero, shuffleRng } from "./utils";
 
 // ─── GRANT_REWARDS ────────────────────────────────────────────────────────────
 // Calcula XP, monta fila de itens/artefatos pendentes e mantém status REWARD_PHASE.
@@ -260,12 +260,14 @@ export function handleSpendXp(
 	switch (option) {
 		case "recover_dungeon": {
 			const { discarded, removed } = next.decks.dungeonDeck;
+			const { value: reshuffled, next: rng } = shuffleRng(discarded, next.rng);
 			next = {
 				...next,
+				rng,
 				decks: {
 					...next.decks,
 					dungeonDeck: {
-						available: shuffle(discarded),
+						available: reshuffled,
 						discarded: [],
 						removed,
 					},

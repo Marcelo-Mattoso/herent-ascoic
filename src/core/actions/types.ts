@@ -25,7 +25,7 @@ export type InvToZone =
 export type { XpSpendOption };
 
 export type Action =
-	| { type: "START_GAME"; payload: GameConfig }
+	| { type: "START_GAME"; payload: GameConfig & { seed?: number; gameId?: string } }
 	| { type: "REVEAL_ROOM" }
 	| { type: "RESOLVE_ROOM_EFFECT" }
 	| { type: "SPAWN_ENEMIES" }

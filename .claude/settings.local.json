@@ -57,7 +57,10 @@
       "Bash(python -c ' *)",
       "Bash(node -e \"const s = require\\('./src/data/skills.json'\\); console.log\\(Object.keys\\(s\\).slice\\(0,5\\)\\);\")",
       "Bash(xargs grep -l \"self_damage\")",
-      "Bash(node -e \"const c = require\\('./src/data/cards.json'\\); const adaga = Object.values\\(c\\).find\\(v=>v.name&&v.name.includes\\('Adaga'\\)\\); console.log\\(JSON.stringify\\(adaga\\)\\);\")"
+      "Bash(node -e \"const c = require\\('./src/data/cards.json'\\); const adaga = Object.values\\(c\\).find\\(v=>v.name&&v.name.includes\\('Adaga'\\)\\); console.log\\(JSON.stringify\\(adaga\\)\\);\")",
+      "PowerShell(Get-ChildItem -Path \"F:\\\\temp\\\\jogo-cartas-mvp1\" -Recurse -File | ForEach-Object { $_.FullName.Replace\\(\"F:\\\\temp\\\\jogo-cartas-mvp1\\\\\", \"\"\\) } | Sort-Object)",
+      "Bash(grep -E \"\\\\.ts$\")",
+      "Bash(git checkout *)"
     ]
   }
 }

@@ -2,6 +2,8 @@
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
 import type { LoggedAction } from "../actions/types";
+import { createRng } from "../ports/random";
+import type { RngState } from "../ports/random";
 import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
 import { createEmptyCombatState } from "./combatState";
@@ -33,6 +35,7 @@ export interface GameState {
 	readonly gameId: string;
 	readonly mode: GameMode;
 	readonly difficulty: Difficulty;
+	readonly rng: RngState;
 	status: GameStatus;
 
 	// Progressão
@@ -125,9 +128,10 @@ export interface GameConfig {
 
 export function createInitialGameState(config: GameConfig): GameState {
 	return {
-		gameId: crypto.randomUUID(),
+		gameId: "__PREGAME__",
 		mode: "cooperative",
 		difficulty: config.difficulty ?? "normal",
+		rng: createRng(0),
 		status: "MAIN_MENU",
 
 		groupXp: 0,
