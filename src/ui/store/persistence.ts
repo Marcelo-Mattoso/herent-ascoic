@@ -9,10 +9,11 @@
 // Esta camada é chamada pelo store na inicialização da aplicação.
 
 import { FEATURE_FLAGS } from "@/core/config/defaults";
+import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
 import { localStoragePersistence } from "@/core/persistence/localStoragePersistence";
 import type { PersistencePort } from "@/core/ports/persistence";
 import { isLogIntact } from "@/core/ports/persistence";
-import { reducerCore } from "@/core/reducer/index";
+import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
 
@@ -21,14 +22,19 @@ const SNAPSHOT_INTERVAL = 10; // Salva snapshot a cada K dispatches
 // Porta ativa — trocável sem tocar src/core/.
 export const persistence: PersistencePort = localStoragePersistence;
 
-// Reconstrói o GameState a partir do action log (replay deterministico).
+// Reconstrói o GameState a partir do action log (replay determinístico).
+// Usa o adapter em vez do reducer diretamente — mantém o padrão Passo 10.
 function replayFromLog(port: PersistencePort): GameState | null {
 	const log = port.loadActionLog();
 	if (!isLogIntact(log)) return null;
 
 	const initial = createInitialGameState({ heroCardNames: [] });
 	try {
-		return log.reduce<GameState>((state, entry) => reducerCore(state, entry.action), initial);
+		const adapter = createInProcessAdapter(initial);
+		for (const entry of log) {
+			adapter.dispatch(entry.action as Action);
+		}
+		return adapter.getState();
 	} catch {
 		if (import.meta.env.DEV) console.warn("[persistence] Falha no replay do log");
 		return null;
