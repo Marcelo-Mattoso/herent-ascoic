@@ -53,7 +53,7 @@ import { getContinuation } from "../skills/registry";
 import { lookupSkillById } from "../skills/lookup";
 import { handleStartGame } from "./setup";
 
-export function reducer(state: GameState, action: Action): GameState {
+function reducerCore(state: GameState, action: Action): GameState {
 	switch (action.type) {
 		case "START_GAME":
 			return handleStartGame(state, action.payload);
@@ -247,3 +247,18 @@ export function reducer(state: GameState, action: Action): GameState {
 			return state;
 	}
 }
+
+export function reducer(state: GameState, action: Action): GameState {
+	const next = reducerCore(state, action);
+	const newEntry = { seq: 0, action };
+	if (action.type === "START_GAME") {
+		return { ...next, actionLog: [newEntry] };
+	}
+	const seq = next.actionLog.length;
+	return {
+		...next,
+		actionLog: [...next.actionLog, { seq, action }],
+	};
+}
+
+export { reducerCore };

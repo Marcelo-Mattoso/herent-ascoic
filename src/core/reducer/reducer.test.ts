@@ -468,3 +468,53 @@ describe("vitória contra boss", () => {
 		expect(s.bossDefeated).toBe(true);
 	});
 });
+
+// ─── Testes de actionLog (Passo 1) ───────────────────────────────────────────
+
+describe("actionLog", () => {
+	const base = () => createInitialGameState({ heroCardNames: [HERO] });
+
+	it("actionLog.length === N após N dispatches", () => {
+		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		// START_GAME reinicia o log com exatamente 1 entrada
+		expect(s.actionLog).toHaveLength(1);
+
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		expect(s.actionLog).toHaveLength(2);
+
+		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
+		expect(s.actionLog).toHaveLength(3);
+	});
+
+	it("actionLog[i].seq === i para todo i", () => {
+		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
+
+		for (let i = 0; i < s.actionLog.length; i++) {
+			expect(s.actionLog[i]?.seq).toBe(i);
+		}
+	});
+
+	it("actionLog[i].action é exatamente a action passada (deep equal)", () => {
+		const startAction = { type: "START_GAME" as const, payload: { heroCardNames: [HERO] } };
+		const revealAction = { type: "REVEAL_ROOM" as const };
+
+		let s = reducer(base(), startAction);
+		s = reducer(s, revealAction);
+
+		expect(s.actionLog[0]?.action).toEqual(startAction);
+		expect(s.actionLog[1]?.action).toEqual(revealAction);
+	});
+
+	it("START_GAME reinicia o actionLog com exatamente uma entrada", () => {
+		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		s = reducer(s, { type: "REVEAL_ROOM" });
+		expect(s.actionLog).toHaveLength(2);
+
+		// Segunda partida: log deve recomeçar do zero
+		s = reducer(s, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		expect(s.actionLog).toHaveLength(1);
+		expect(s.actionLog[0]?.action.type).toBe("START_GAME");
+	});
+});

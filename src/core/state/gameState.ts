@@ -1,6 +1,7 @@
 // Estado raiz da partida. Contém tudo que o reducer precisa para processar qualquer action.
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
+import type { LoggedAction } from "../actions/types";
 import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
 import { createEmptyCombatState } from "./combatState";
@@ -101,6 +102,9 @@ export interface GameState {
 
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
+
+	// Log autoritativo de todas as actions despachadas (passo 1)
+	readonly actionLog: readonly LoggedAction[];
 }
 
 // Recompensa pendente aguardando resolução pelo jogador.
@@ -167,5 +171,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 		tokens: {},
 
 		eventLog: [],
+
+		actionLog: [],
 	};
 }
