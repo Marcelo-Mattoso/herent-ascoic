@@ -7,7 +7,7 @@ import {
 	getCreatures,
 	getItems,
 	getRooms,
-} from "../../data/cards";
+} from "../data/cards";
 import { syncHeroesAndEnemies } from "../ecs/sync";
 import { createEmptyWorld } from "../ecs/world";
 import { DIFFICULTY_PRESETS } from "../config/defaults";

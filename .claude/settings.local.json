@@ -66,7 +66,12 @@
       "Bash(node -e \"const s = require\\('./src/data/skills.json'\\); console.log\\(typeof s, Array.isArray\\(s\\)\\); const keys = Object.keys\\(s\\).slice\\(0,3\\); console.log\\(keys\\)\")",
       "Bash(node -e \"const s = require\\('./src/data/skills.json'\\); console.log\\(Object.keys\\(s\\)\\); const firstHero = s.game?.heroes?.[0]; console.log\\(JSON.stringify\\(firstHero?.skills?.slice\\(0,1\\), null, 2\\)\\)\")",
       "Bash(node -e \"const s = require\\('./src/data/skills.json'\\); console.log\\(Object.keys\\(s.game ?? {}\\)\\); console.log\\(Object.keys\\(s.abilities ?? {}\\).slice\\(0,5\\)\\)\")",
-      "Bash(node -e \"const s = require\\('./src/data/skills.json'\\); const a = s.abilities; const first = a[0]; console.log\\(JSON.stringify\\(first, null, 2\\)\\)\")"
+      "Bash(node -e \"const s = require\\('./src/data/skills.json'\\); const a = s.abilities; const first = a[0]; console.log\\(JSON.stringify\\(first, null, 2\\)\\)\")",
+      "PowerShell(New-Item -ItemType Directory -Force -Path \"F:\\\\temp\\\\jogo-cartas-mvp1\\\\src\\\\core\\\\systems\\\\__tests__\")",
+      "Bash(git -C F:/temp/jogo-cartas-mvp1 add src/core/systems/ src/core/skills/handlers/damage_bonus.ts src/core/skills/handlers/heal_or_survive.ts src/core/skills/handlers/heal_or_damage_bonus.ts src/core/skills/handlers/recoverDungeon.ts src/core/skills/handlers/direct_damage.ts src/core/skills/handlers/heal.ts src/core/skills/handlers/splash_damage.ts src/core/reducer/combat.ts src/core/reducer/boss.ts src/core/reducer/exploration.ts src/core/reducer/progression.ts)",
+      "Bash(git -C F:/temp/jogo-cartas-mvp1 add src/core/effects/ src/data/event_rules.json src/core/events/effectResolver.ts src/core/events/bus.ts src/core/state/gameState.ts src/core/reducer/exploration.ts src/core/reducer/index.ts src/core/ecs/sync.ts)",
+      "Bash(git -C F:/temp/jogo-cartas-mvp1 diff --cached --stat)",
+      "Bash(grep -v \"//.*crypto\\\\|//.*Math\")"
     ]
   }
 }

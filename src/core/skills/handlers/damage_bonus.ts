@@ -1,8 +1,8 @@
-// damage_bonus: Fúria Rubra do Bárbaro Rubro.
+﻿// damage_bonus: Fúria Rubra do Bárbaro Rubro.
 // O herói paga `value` de vida para adicionar `value * 3` de dano ao próximo ataque.
 // A engine resolve isso adicionando um bônus temporário no combat.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { applyDamageMin1 } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";

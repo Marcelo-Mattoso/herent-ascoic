@@ -1,9 +1,9 @@
-// damage_bonus_duration: Fúria Rubra Poderosa (Bárbaro power).
+﻿// damage_bonus_duration: Fúria Rubra Poderosa (Bárbaro power).
 // Ao usar Fúria Rubra, o dano adicional dura até o fim do combate (não apenas 1 ataque).
 // Trigger: once_per_game_on_use_furia_rubra (custom).
 // Implementação: marca uma flag no combat state que o handler damage_bonus verifica.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

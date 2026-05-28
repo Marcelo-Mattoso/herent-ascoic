@@ -1,12 +1,12 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
-import { getArtifacts, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../../data/cards";
+import { getArtifacts, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../data/cards";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
 import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
 import { fireTrigger } from "../skills/dispatch";
 import { createEmptyCombatState } from "../state/combatState";
-import type { SubbossRoomCard } from "../../data/cardTypes";
+import type { SubbossRoomCard } from "../data/cardTypes";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
 import { applyFullHeal } from "../systems/healSystem";

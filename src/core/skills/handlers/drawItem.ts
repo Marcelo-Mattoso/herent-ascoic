@@ -1,7 +1,7 @@
-// drawItem: Espólios da Fornalha — ao vencer a sala, veja N cartas do deck de itens e fique com K.
+﻿// drawItem: Espólios da Fornalha — ao vencer a sala, veja N cartas do deck de itens e fique com K.
 // defaultValue: "2/1" → draw 2, keep 1.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState, PendingReward } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 import { registerContinuation } from "../registry";

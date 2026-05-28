@@ -3,7 +3,7 @@
 // Drag & drop livre entre todas as zonas: mesa ↔ herói-slot ↔ herói-mochila.
 
 import { useEffect, useRef, useState } from "react";
-import { getCardByName } from "@/data/cards";
+import { getCardByName } from "@/core/data/cards";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import { useGameStore } from "@/ui/store/gameStore";

@@ -1,7 +1,7 @@
-// dungeonLevel: Despertar da Fornalha, Despertar Sombrio (efeito roxo).
+﻿// dungeonLevel: Despertar da Fornalha, Despertar Sombrio (efeito roxo).
 // Aumenta o Despertar da Masmorra em `value` níveis.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";

@@ -1,7 +1,7 @@
-// direct_damage: Brasa Viva (Tocha), Ataque Traiçoeiro (criaturas), etc.
+﻿// direct_damage: Brasa Viva (Tocha), Ataque Traiçoeiro (criaturas), etc.
 // Causa `value` de dano direto a um alvo.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { applyDamage } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";

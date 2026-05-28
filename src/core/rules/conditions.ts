@@ -1,7 +1,7 @@
 // Verificação de condição de acesso ao boss.
 // A condição é declarada no campo accessCondition da carta do boss em cards.json.
 
-import { getCardByName } from "../../data/cards";
+import { getCardByName } from "../data/cards";
 import type { GameState } from "../state/gameState";
 
 type AccessCondition =

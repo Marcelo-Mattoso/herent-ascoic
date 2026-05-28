@@ -1,4 +1,4 @@
-import { getCardByName } from "@/data/cards";
+import { getCardByName } from "@/core/data/cards";
 import type { CardType } from "@/ui/components/Card";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";

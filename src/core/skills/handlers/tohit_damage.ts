@@ -1,11 +1,11 @@
-// tohit_damage: bônus de acerto+dano em combate.
+﻿// tohit_damage: bônus de acerto+dano em combate.
 // Cobre múltiplas skills:
 //   - Fio Mortal (Adaga, Machado, Martelo, Coração de Brasa): trigger "combat", sempre ativo
 //   - Luz da Aurora Final (Paladino): trigger "combat_if_dungeon_red_or_purple", só a Despertar 3+
 //   - Fera Solitária (Rato, Cavaleiro, Ogro): trigger "combat_if_alone_in_room" (enemy skill)
 // O trigger controla QUANDO dispara; o handler aplica o bônus ao herói atacante.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseSlashPair } from "../valueParsers";
 import { log } from "../../reducer/utils";

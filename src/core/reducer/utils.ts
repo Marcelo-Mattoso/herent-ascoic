@@ -1,7 +1,7 @@
 // Utilitários internos do reducer: shuffle, fábricas de HeroState/EnemyState, log.
 // Não exportar para fora do módulo reducer.
 
-import type { CreatureCard, HeroCard, SubbossCard } from "../../data/cardTypes";
+import type { CreatureCard, HeroCard, SubbossCard } from "../data/cardTypes";
 import { nextFloat, nextId } from "../ports/random";
 import type { RngState } from "../ports/random";
 import type { ColorIndex } from "../state/color";

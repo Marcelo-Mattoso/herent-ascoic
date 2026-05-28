@@ -1,8 +1,8 @@
-// Impede tentativa de fuga de heróis nesta sala.
+﻿// Impede tentativa de fuga de heróis nesta sala.
 // Por ora registrado como noop — a UI desabilita o botão se flee_block estiver ativo.
 // A flag state.flags.fleeBlocked seria checada em handleDeclareFlee quando implementado.
 import type { GameState } from "../../state/gameState";
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import { log } from "../../reducer/utils";
 
 export function handleFleeBlock(

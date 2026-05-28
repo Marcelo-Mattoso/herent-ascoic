@@ -11,7 +11,7 @@
 // Se dois handlers no mesmo nível conflitarem em balanceamento, adicionar
 // `priority?: number` em SkillDefinition (menor = executa primeiro).
 
-import type { SkillDefinition, SkillContext, TriggerName } from "../../data/skillTypes";
+import type { SkillDefinition, SkillContext, TriggerName } from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
 import { getHandler } from "./registry";
 import { resolveSkillFor, resolveSkillValue } from "./lookup";

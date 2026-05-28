@@ -1,8 +1,8 @@
-// Desvio de Foco: Capuz do Túnel — ao ser escolhido como alvo, o portador pode
+﻿// Desvio de Foco: Capuz do Túnel — ao ser escolhido como alvo, o portador pode
 // redirecionar o ataque para outra criatura ou aceitar e ganhar +N de acerto.
 // Trigger: once_per_room_on_targeted.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";

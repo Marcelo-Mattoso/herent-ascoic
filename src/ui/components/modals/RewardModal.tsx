@@ -8,7 +8,7 @@ import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
-import { getCardByName } from "@/data/cards";
+import { getCardByName } from "@/core/data/cards";
 
 interface RewardModalProps {
 	onClose: () => void;

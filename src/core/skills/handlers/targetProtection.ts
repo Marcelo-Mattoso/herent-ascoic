@@ -1,9 +1,9 @@
-// targetProtection: Véu Protetor (Manto do Véu Partido, Alaúde).
+﻿// targetProtection: Véu Protetor (Manto do Véu Partido, Alaúde).
 // Uma vez por sala, ignora o primeiro efeito que escolheria este herói como alvo.
 // Trigger: once_per_room_on_targeted_by_effect → on_targeted.
 // Flag verificada por handlers de dano direto ao herói.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

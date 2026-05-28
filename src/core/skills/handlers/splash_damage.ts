@@ -1,8 +1,8 @@
-// Dano em área ao destruir uma criatura com ataque.
+﻿// Dano em área ao destruir uma criatura com ataque.
 // Aplica `value` de dano a outra criatura ativa na mesma sala.
 // Cobre: habilidade-golpe-trespassante (Espada do Trespasse, Lâmina Vermelha).
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { applyDamage } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";

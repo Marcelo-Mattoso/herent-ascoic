@@ -1,8 +1,8 @@
-// mark_and_tohit: Marca da Presa (Caçador skill).
+﻿// mark_and_tohit: Marca da Presa (Caçador skill).
 // No início de cada combate, escolhe 1 criatura como Presa.
 // Contra ela, recebe +value no bônus de acerto.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";

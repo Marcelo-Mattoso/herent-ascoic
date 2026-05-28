@@ -1,7 +1,7 @@
-// heal: Cura da Última Luz (Clérigo skill) e Poção de Vigor Menor.
+﻿// heal: Cura da Última Luz (Clérigo skill) e Poção de Vigor Menor.
 // Cura `value` de vida em um herói alvo (determinado por ctx.targetHeroIds).
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { applyHeal } from "../../systems/healSystem";
 import { parseNumber } from "../valueParsers";

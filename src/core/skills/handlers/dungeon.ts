@@ -1,9 +1,9 @@
-// dungeon: Iluminar o Caminho (Tocha de Breu).
+﻿// dungeon: Iluminar o Caminho (Tocha de Breu).
 // Ao revelar caminhos, mostra as cartas do topo do deck de dungeon via SKILL_CHOICE.
 // A continuação é informacional — o jogador confirma e o jogo prossegue.
 // Trigger: on_reveal_paths.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";

@@ -1,9 +1,9 @@
-// heal_or_damage_bonus: Juramento da Última Luz (Paladino power).
+﻿// heal_or_damage_bonus: Juramento da Última Luz (Paladino power).
 // Uma vez por jogo: cura 5 de vida de todos os heróis OU +5 de dano no próximo ataque.
 // value = "5/5".
 // Escolha do jogador via ctx.value === "heal" ou "damage".
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { applyHeal } from "../../systems/healSystem";
 import { parseSlashPair } from "../valueParsers";

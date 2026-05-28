@@ -1,7 +1,7 @@
 // Registro de handlers de habilidades.
 // Cada handler é uma função pura: (state, ctx, value) → state.
 
-import type { SkillContext } from "../../data/skillTypes";
+import type { SkillContext } from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
 
 export type SkillHandler = (

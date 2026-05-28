@@ -1,8 +1,8 @@
-// heal_block: bloqueia cura de heróis-alvo enquanto ativo.
+﻿// heal_block: bloqueia cura de heróis-alvo enquanto ativo.
 // Cobre: habilidade-fumaca-da-fornalha.
 // Verificado no início de handleHeal, handleHealOrSurvive, handleHealOrDamageBonus.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log, mapHero } from "../../reducer/utils";
 

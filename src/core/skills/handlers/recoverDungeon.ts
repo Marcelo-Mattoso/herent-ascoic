@@ -1,8 +1,8 @@
-// recoverDungeon: Rito de Retorno (Necromante skill) e Caminho Restaurado (Ladino power).
+﻿// recoverDungeon: Rito de Retorno (Necromante skill) e Caminho Restaurado (Ladino power).
 // Uma vez por sala: paga 3 de vida (Necromante) e recupera `value` carta do descarte,
 // embaralhando no deck. O Ladino power não tem custo.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { applyDamageMin1 } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";

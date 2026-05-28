@@ -2,7 +2,7 @@
 // Patch 1: GRANT_REWARDS constrói fila pendingRewards em vez de distribuir automaticamente.
 // Itens e artefatos são resolvidos um a um via CHOOSE_ITEM_DESTINATION / CHOOSE_ARTIFACT_BEARER.
 
-import { getCardByName } from "../../data/cards";
+import { getCardByName } from "../data/cards";
 import type { XpSpendOption } from "../config/defaults";
 import type { InvFromZone, InvToZone } from "../actions/types";
 import { XP_COSTS } from "../config/defaults";

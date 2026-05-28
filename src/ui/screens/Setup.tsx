@@ -1,6 +1,6 @@
 import { useState } from "react";
 import type { Difficulty, GameMode } from "@/core/state/gameState";
-import { getBoss, getHeroes } from "@/data/cards";
+import { getBoss, getHeroes } from "@/core/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { useGameStore } from "@/ui/store/gameStore";

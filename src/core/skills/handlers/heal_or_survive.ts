@@ -1,9 +1,9 @@
-// heal_or_survive: Milagre Maior da Última Luz (Clérigo power).
+﻿// heal_or_survive: Milagre Maior da Última Luz (Clérigo power).
 // Escolha: cura totalmente 1 herói OU impede que ele seja destruído (deixa com 1 de vida).
 // value = "full/1" — "full" = cura total, "1" = sobrevivência mínima.
 // Escolha do jogador: via ctx.targetHeroIds + ctx.value === "full" ou "survive".
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { applyFullHeal, applySurvive } from "../../systems/healSystem";
 import { log } from "../../reducer/utils";

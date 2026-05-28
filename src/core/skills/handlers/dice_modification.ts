@@ -1,9 +1,9 @@
-// dice_modification: Runa das Fendas (Mago skill).
+﻿// dice_modification: Runa das Fendas (Mago skill).
 // Depois de rolar, altere 1 dado aliado em até `value` (sem passar de 6 nem ficar abaixo de 1).
 // Por ser interativo (jogador escolhe qual dado), emite uma flag no estado
 // para a UI saber que está pendente — a efetivação ocorre quando o jogador confirma.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 

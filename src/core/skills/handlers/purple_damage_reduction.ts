@@ -1,9 +1,9 @@
-// Resguardo da Última Luz: reduz dano recebido de efeitos roxos enquanto ativo.
+﻿// Resguardo da Última Luz: reduz dano recebido de efeitos roxos enquanto ativo.
 // Trigger: on_purple_effect_damage_taken.
 // Quando o trigger disparar (via efeito roxo que causa dano), este handler reduz o dano.
 // Implementado como flag em state.flags para ser consultado pelo handler que causa dano roxo.
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";

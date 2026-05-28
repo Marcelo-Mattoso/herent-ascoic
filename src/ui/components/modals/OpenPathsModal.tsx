@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCardByName } from "@/data/cards";
+import { getCardByName } from "@/core/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";

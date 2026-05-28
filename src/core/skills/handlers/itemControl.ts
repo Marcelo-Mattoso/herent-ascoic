@@ -1,8 +1,8 @@
-// itemControl: Evasão das Fendas (Morcego do Teto Negro, Crânio Flamejante).
+﻿// itemControl: Evasão das Fendas (Morcego do Teto Negro, Crânio Flamejante).
 // Ignora o primeiro efeito de item usado contra esta criatura por combate.
 // Trigger: first_item_effect_received. Verificado em handleUseItem (combat.ts).
 
-import type { SkillContext } from "../../../data/skillTypes";
+import type { SkillContext } from "../../data/skillTypes";
 import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
 
