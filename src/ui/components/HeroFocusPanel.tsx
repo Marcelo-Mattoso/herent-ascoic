@@ -3,14 +3,12 @@
 // Também cobre ações de não-combate (revelar sala, iniciar combate, etc.).
 
 import { getCardByName } from "@/core/data/cards";
-import { isSkillGuardConsumed } from "@/core/skills/dispatch";
+import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
-import { isManuallyActivatable } from "@/core/skills/useSkill";
-import type { CombatState } from "@/core/state/combatState";
-import type { GameState } from "@/core/state/gameState";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import type { CardType } from "@/ui/components/Card";
+import type { HeroCombatActions } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
 import { ColorBar } from "./ColorBar";
@@ -19,7 +17,8 @@ import { ItemChip } from "./ItemChip";
 
 interface HeroFocusPanelProps {
 	hero: HeroState | null;
-	state: GameState;
+	view: PlayerView;
+	heroActions: HeroCombatActions;
 	onAttack: () => void;
 	onPass: () => void;
 	onCancelSelection: () => void;
@@ -32,7 +31,8 @@ interface HeroFocusPanelProps {
 
 export function HeroFocusPanel({
 	hero,
-	state,
+	view,
+	heroActions,
 	onAttack,
 	onPass,
 	onCancelSelection,
@@ -42,23 +42,19 @@ export function HeroFocusPanel({
 	onCardDetail,
 	onItemDetail,
 }: HeroFocusPanelProps) {
-	const { status } = state;
-	const combat: CombatState | null = state.combat;
-	const phase = combat?.phase ?? null;
+	const { status } = view;
+	const phase = view.combat?.phase ?? null;
 
 	const heroCard = hero ? getCardByName(hero.cardName) : null;
 	const powerUsed = hero
-		? (combat?.powersUsedThisRoom[hero.id] ?? false)
+		? (view.combat?.powersUsedThisRoom[hero.id] ?? false)
 		: false;
 
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isSelectingHero = isInCombat && phase === "selecting_hero";
 	const isSelectingTarget = isInCombat && phase === "selecting_target";
-	const isFocusedHeroSelected = !!hero && combat?.selectedHeroId === hero.id;
+	const isFocusedHeroSelected = !!hero && view.combat?.selectedHeroId === hero.id;
 
-	const availableEnemies = state.activeEnemies.filter(
-		(e) => e.status === "active",
-	);
 
 	return (
 		<div
@@ -337,14 +333,12 @@ export function HeroFocusPanel({
 
 					{/* Botões de ação individuais */}
 					<ActionSection
-						state={state}
+						heroActions={heroActions}
 						hero={hero}
 						isInCombat={isInCombat}
 						isSelectingHero={isSelectingHero}
 						isSelectingTarget={isSelectingTarget}
 						isFocusedHeroSelected={isFocusedHeroSelected}
-						availableEnemies={availableEnemies.length}
-						powerUsed={powerUsed}
 						onAttack={onAttack}
 						onPass={onPass}
 						onCancelSelection={onCancelSelection}
@@ -374,14 +368,11 @@ export function HeroFocusPanel({
 // ─── Botões de ação (combate e não-combate) ────────────────────────────────────
 
 function ActionSection({
-	state,
+	heroActions,
 	hero,
 	isInCombat,
 	isSelectingHero,
-	isSelectingTarget,
 	isFocusedHeroSelected,
-	availableEnemies,
-	powerUsed,
 	onAttack,
 	onPass,
 	onCancelSelection,
@@ -389,14 +380,12 @@ function ActionSection({
 	onFlee,
 	onUseSkill,
 }: {
-	state: GameState;
+	heroActions: HeroCombatActions;
 	hero: HeroState;
 	isInCombat: boolean;
 	isSelectingHero: boolean;
 	isSelectingTarget: boolean;
 	isFocusedHeroSelected: boolean;
-	availableEnemies: number;
-	powerUsed: boolean;
 	onAttack: () => void;
 	onPass: () => void;
 	onCancelSelection: () => void;
@@ -404,143 +393,115 @@ function ActionSection({
 	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
 }) {
-	// Verificar se a skill do herói tem trigger on_use e pode ser ativada agora
-	const heroCardForSkill = getCardByName(hero.cardName);
-	const habilidadeEntry = heroCardForSkill
-		? cardSkills(heroCardForSkill.id).find(
-				({ def }) => def.category === "habilidade",
-			)
-		: null;
-	const skillDef = habilidadeEntry?.def ?? null;
-	const skillIsActivatable =
-		skillDef !== null && isManuallyActivatable(skillDef);
-	const skillAlreadyUsed =
-		skillDef !== null && isSkillGuardConsumed(state, skillDef, hero.id);
+	const { canAttack, canPass, canCancel, canUsePower, canFlee, fleeAlreadyDeclared, skill } =
+		heroActions;
 
-	// Só mostra botões individuais durante combate
 	if (!isInCombat) return null;
 
-	// Combate: 4 botões canônicos do Patch 3
-	if (isInCombat) {
-		const canAttack =
-			isSelectingTarget && isFocusedHeroSelected && availableEnemies > 0;
-		const canPass = isSelectingTarget && isFocusedHeroSelected;
-		const canCancel = isSelectingTarget && isFocusedHeroSelected;
-		const canPower = isSelectingTarget && isFocusedHeroSelected && !powerUsed;
-		const canFlee =
-			isInCombat && hero.currentLife === 1 && !state.flags?.fleeBlocked;
-		const fleeAlreadyDeclared = !!state.combat?.fleeAttemptByHero?.[hero.id];
-
-		// hint durante selecting_hero
-		if (isSelectingHero) {
-			const heroesActed = state.combat?.heroesActed ?? [];
-			const hasActed = heroesActed.includes(hero.id);
-			const hint = hasActed
-				? "Este herói já agiu nesta rodada."
-				: "Arraste o herói até um inimigo para atacar.";
-			return (
-				<div>
-					<p style={{ color: UI.textTertiary, fontSize: 11, marginBottom: 6 }}>
-						{hint}
-					</p>
-					<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-						<ActionButton
-							label="Atacar (arraste)"
-							icon="⚔"
-							variant="primary"
-							disabled
-							onClick={onAttack}
-						/>
-						<ActionButton
-							label="Usar item"
-							icon="🎒"
-							variant="secondary"
-							disabled
-							onClick={() => {}}
-						/>
-						<ActionButton
-							label="Usar poder"
-							icon="⚡"
-							variant="secondary"
-							disabled
-							onClick={onPower}
-						/>
-						<ActionButton
-							label="Passar rodada"
-							icon="⏭"
-							variant="secondary"
-							disabled
-							onClick={onPass}
-						/>
-						<ActionButton
-							label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
-							icon="🏃"
-							variant="danger"
-							disabled={!canFlee || fleeAlreadyDeclared}
-							onClick={onFlee}
-						/>
-					</div>
-				</div>
-			);
-		}
-
+	if (isSelectingHero) {
+		const heroesActedHint = isFocusedHeroSelected
+			? "Este herói já agiu nesta rodada."
+			: "Arraste o herói até um inimigo para atacar.";
 		return (
-			<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
-				<ActionButton
-					label="Atacar (arraste)"
-					icon="⚔"
-					variant="primary"
-					disabled={!canAttack}
-					onClick={onAttack}
-				/>
-				<ActionButton
-					label="Usar item"
-					icon="🎒"
-					variant="secondary"
-					disabled
-					onClick={() => {}}
-				/>
-				{skillIsActivatable && skillDef && (
+			<div>
+				<p style={{ color: UI.textTertiary, fontSize: 11, marginBottom: 6 }}>
+					{heroesActedHint}
+				</p>
+				<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 					<ActionButton
-						label="Usar habilidade"
-						icon="✨"
+						label="Atacar (arraste)"
+						icon="⚔"
+						variant="primary"
+						disabled
+						onClick={onAttack}
+					/>
+					<ActionButton
+						label="Usar item"
+						icon="🎒"
 						variant="secondary"
-						disabled={!isFocusedHeroSelected || skillAlreadyUsed}
-						onClick={() => onUseSkill?.(skillDef.id, hero.id)}
+						disabled
+						onClick={() => {}}
 					/>
-				)}
-				<ActionButton
-					label="Usar poder"
-					icon="⚡"
-					variant="secondary"
-					disabled={!canPower}
-					onClick={onPower}
-				/>
-				<ActionButton
-					label="Passar rodada"
-					icon="⏭"
-					variant="secondary"
-					disabled={!canPass}
-					onClick={onPass}
-				/>
-				<ActionButton
-					label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
-					icon="🏃"
-					variant="danger"
-					disabled={!canFlee || fleeAlreadyDeclared}
-					onClick={onFlee}
-				/>
-				{canCancel && (
 					<ActionButton
-						label="Cancelar"
-						icon="✕"
-						variant="danger"
-						onClick={onCancelSelection}
+						label="Usar poder"
+						icon="⚡"
+						variant="secondary"
+						disabled
+						onClick={onPower}
 					/>
-				)}
+					<ActionButton
+						label="Passar rodada"
+						icon="⏭"
+						variant="secondary"
+						disabled
+						onClick={onPass}
+					/>
+					<ActionButton
+						label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
+						icon="🏃"
+						variant="danger"
+						disabled={!canFlee || fleeAlreadyDeclared}
+						onClick={onFlee}
+					/>
+				</div>
 			</div>
 		);
 	}
 
-	return null;
+	return (
+		<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+			<ActionButton
+				label="Atacar (arraste)"
+				icon="⚔"
+				variant="primary"
+				disabled={!canAttack}
+				onClick={onAttack}
+			/>
+			<ActionButton
+				label="Usar item"
+				icon="🎒"
+				variant="secondary"
+				disabled
+				onClick={() => {}}
+			/>
+			{skill?.activatable && (
+				<ActionButton
+					label="Usar habilidade"
+					icon="✨"
+					variant="secondary"
+					disabled={!isFocusedHeroSelected || skill.alreadyUsed}
+					onClick={() => onUseSkill?.(skill.skillId, hero.id)}
+				/>
+			)}
+			<ActionButton
+				label="Usar poder"
+				icon="⚡"
+				variant="secondary"
+				disabled={!canUsePower}
+				onClick={onPower}
+			/>
+			<ActionButton
+				label="Passar rodada"
+				icon="⏭"
+				variant="secondary"
+				disabled={!canPass}
+				onClick={onPass}
+			/>
+			<ActionButton
+				label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
+				icon="🏃"
+				variant="danger"
+				disabled={!canFlee || fleeAlreadyDeclared}
+				onClick={onFlee}
+			/>
+			{canCancel && (
+				<ActionButton
+					label="Cancelar"
+					icon="✕"
+					variant="danger"
+					onClick={onCancelSelection}
+				/>
+			)}
+		</div>
+	);
 }

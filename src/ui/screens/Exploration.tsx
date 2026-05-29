@@ -17,7 +17,7 @@ import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
 import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { useGameStore } from "@/ui/store/gameStore";
-import { selectFocusedHero } from "@/ui/store/selectors";
+import { selectFocusedHero, selectHeroCombatActions } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 
 // Estados mecânicos auto-avançados sem decisão do jogador
@@ -43,13 +43,17 @@ interface CardDetailState {
 }
 
 export function Exploration() {
-	const { state, ui, dispatch, setFocusedHero } = useGameStore();
+	const { state, view, ui, dispatch, setFocusedHero } = useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showLog, setShowLog] = useState(false);
 
-	const status = state.status;
-	const combat = state.combat;
+	const status = view.status;
+	const combat = view.combat;
 	const focusedHero = selectFocusedHero(state, ui.focusedHeroId);
+	const heroActions = selectHeroCombatActions(
+		state,
+		focusedHero?.id ?? "",
+	);
 
 	const modal: ModalType = (() => {
 		if (detailCard) return "card_detail";
@@ -275,7 +279,8 @@ export function Exploration() {
 					{/* PAINEL DO HERÓI EM FOCO */}
 					<HeroFocusPanel
 						hero={focusedHero}
-						state={state}
+						view={view}
+						heroActions={heroActions}
 						onAttack={handleAttack}
 						onPass={handlePass}
 						onCancelSelection={handleCancelSelection}
