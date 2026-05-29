@@ -5,7 +5,6 @@
 // Seus testes foram portados para verificar o comportamento via drainStack.
 
 import { describe, expect, it } from "vitest";
-import { handleTohitPenalty } from "../tohit_penalty";
 import { handleHeal } from "../heal";
 import { handleDiscardDungeonPrevention } from "../discardDungeon_prevention";
 import { handleGrantRewards } from "../../../reducer/reward";
@@ -54,19 +53,25 @@ function makeEvalCtx(state: GameState, sourceId?: string, targetId?: string) {
 	return buildScriptCtx(state, { triggeredBy: "on_use", sourceHeroId: sourceId, sourceEnemyId: sourceId });
 }
 
-// ── tohit_penalty ─────────────────────────────────────────────────────────────
+// ── DSL add_modifier stat:"tohit_penalty" (antigo handleTohitPenalty) ────────
 
-describe("handleTohitPenalty", () => {
-	it("seta tohitPenaltyByHero para o herói atacante", () => {
+describe("DSL add_modifier tohit_penalty", () => {
+	it("seta tohitPenaltyByHero após drainStack", () => {
 		const state = makeState();
-		const result = handleTohitPenalty(state, { triggeredBy: "before_attack", sourceHeroId: "h1" }, 2);
+		const ctx = buildScriptCtx(state, { triggeredBy: "before_attack", sourceHeroId: "h1" }, {});
+		const result = drainStack(evaluate([{
+			kind: "add_modifier", to: "$source", stat: "tohit_penalty",
+			operation: "add", value: 2, duration: { kind: "once" },
+		}], ctx));
 		expect(result.combat?.tohitPenaltyByHero["h1"]).toBe(2);
 	});
 
-	it("acumula penalidade se chamado múltiplas vezes", () => {
+	it("acumula penalidade em múltiplas aplicações", () => {
 		const state = makeState();
-		const r1 = handleTohitPenalty(state, { triggeredBy: "before_attack", sourceHeroId: "h1" }, 1);
-		const r2 = handleTohitPenalty(r1, { triggeredBy: "before_attack", sourceHeroId: "h1" }, 1);
+		const ctx1 = buildScriptCtx(state, { triggeredBy: "before_attack", sourceHeroId: "h1" }, {});
+		const r1 = drainStack(evaluate([{ kind: "add_modifier", to: "$source", stat: "tohit_penalty", operation: "add", value: 1, duration: { kind: "once" } }], ctx1));
+		const ctx2 = buildScriptCtx(r1, { triggeredBy: "before_attack", sourceHeroId: "h1" }, {});
+		const r2 = drainStack(evaluate([{ kind: "add_modifier", to: "$source", stat: "tohit_penalty", operation: "add", value: 1, duration: { kind: "once" } }], ctx2));
 		expect(r2.combat?.tohitPenaltyByHero["h1"]).toBe(2);
 	});
 

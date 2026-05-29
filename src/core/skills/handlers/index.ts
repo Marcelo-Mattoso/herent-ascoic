@@ -13,7 +13,7 @@ import { handleDamageBonusDuration } from "./damage_bonus_duration";
 import { handleDiceFix } from "./diceFix";
 import { handleDiceFixDamage } from "./diceFix_damage";
 import { handleDiceModification } from "./dice_modification";
-import { handleDirectDamage } from "./direct_damage";
+
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDrawItem } from "./drawItem";
 import { handleScript } from "./script";
@@ -27,9 +27,9 @@ import { handleNoop } from "./noop";
 import { handlePreventDamage } from "./prevent_damage";
 import { handleRecoverDungeon } from "./recoverDungeon";
 import { handleReroll } from "./reroll";
-import { handleTohit } from "./tohit";
+
 import { handleTohitDamage } from "./tohit_damage";
-import { handleTohitPenalty } from "./tohit_penalty";
+
 import { handleTargetRedirectOrTohit } from "./targetRedirect_or_tohit";
 import { handleToken } from "./token";
 
@@ -48,13 +48,7 @@ register("token", handleToken);
 register("diceFix_damage", handleDiceFixDamage);
 
 // Itens / criaturas / salas
-register("direct_damage", handleDirectDamage);
-register("directDamage", handleDirectDamage); // alias camelCase — skill_opportunity_shot
-register("tohit", handleTohit);
 register("prevent_damage", handlePreventDamage);
-
-// Efeitos reativos
-register("tohit_penalty", handleTohitPenalty);
 
 // Handlers com SKILL_CHOICE (ainda ativos)
 register("itemControl", handleItemControl);

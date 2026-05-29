@@ -166,6 +166,20 @@ export function resolveEffect(state: GameState, pending: PendingEffect): GameSta
 						},
 					};
 				}
+				case "tohit_penalty": {
+					if (!state.combat) return state;
+					const prevPenalty = state.combat.tohitPenaltyByHero[entityId] ?? 0;
+					return {
+						...state,
+						combat: {
+							...state.combat,
+							tohitPenaltyByHero: {
+								...state.combat.tohitPenaltyByHero,
+								[entityId]: prevPenalty + value,
+							},
+						},
+					};
+				}
 				case "purple_damage_reduction": {
 					// Corrige bug do handler antigo: armazena como número, não boolean
 					const key = `purpleDmgReduction::${entityId}`;
