@@ -63,7 +63,7 @@ export function parseTrigger(trigger: TriggerName): { guard: string | null; base
 	return { guard: null, base: trigger };
 }
 
-function guardPassed(
+export function guardPassed(
 	state: GameState,
 	skill: SkillDefinition,
 	sourceHeroId?: string,
@@ -78,6 +78,14 @@ function guardPassed(
 	if (guard === "once_per_combat") return !(state.combat?.oncePer?.combat?.[key]);
 	if (guard === "once_per_round") return !(state.combat?.oncePer?.round?.[key]);
 	return true;
+}
+
+export function isSkillGuardConsumed(
+	state: GameState,
+	skill: SkillDefinition,
+	sourceHeroId?: string,
+): boolean {
+	return !guardPassed(state, skill, sourceHeroId);
 }
 
 function markGuardUsed(

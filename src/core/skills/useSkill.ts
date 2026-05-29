@@ -4,8 +4,19 @@
 import { SKILLS } from "../data/skills";
 import { getHandler } from "./registry";
 import { cardSkills } from "./lookup";
+import type { SkillDefinition } from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
 import { log } from "../reducer/utils";
+
+export function isManuallyActivatable(def: SkillDefinition): boolean {
+	return (
+		def.trigger === "on_use" ||
+		def.trigger === "once_per_game" ||
+		def.trigger === "once_per_room" ||
+		def.trigger === "once_per_combat" ||
+		def.trigger.includes("on_use")
+	);
+}
 
 export interface UseSkillPayload {
 	skillId: string;
@@ -23,13 +34,7 @@ export function fireOnUseSkill(state: GameState, payload: UseSkillPayload): Game
 	}
 
 	// Verificar que trigger é do tipo "on_use" (ou variante once_per_X)
-	const isUsable =
-		def.trigger === "on_use" ||
-		def.trigger === "once_per_game" ||
-		def.trigger === "once_per_room" ||
-		def.trigger === "once_per_combat" ||
-		def.trigger.includes("on_use");
-	if (!isUsable) {
+	if (!isManuallyActivatable(def)) {
 		return log(state, `[AVISO] Skill ${skillId} não é ativável manualmente (trigger: ${def.trigger})`);
 	}
 

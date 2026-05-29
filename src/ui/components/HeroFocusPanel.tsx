@@ -7,6 +7,8 @@ import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
 import { getCardByName } from "@/core/data/cards";
 import { cardSkills } from "@/core/skills/lookup";
+import { isManuallyActivatable } from "@/core/skills/useSkill";
+import { isSkillGuardConsumed } from "@/core/skills/dispatch";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
@@ -381,11 +383,9 @@ function ActionSection({
 		? cardSkills(heroCardForSkill.id).find(({ def }) => def.category === "habilidade")
 		: null;
 	const skillDef = habilidadeEntry?.def ?? null;
-	const skillIsActivatable =
-		skillDef !== null &&
-		(skillDef.trigger === "on_use" || skillDef.trigger.startsWith("once_per_"));
+	const skillIsActivatable = skillDef !== null && isManuallyActivatable(skillDef);
 	const skillAlreadyUsed =
-		skillDef !== null && !!state.combat?.oncePer?.room?.[`${skillDef.id}::${hero.id}`];
+		skillDef !== null && isSkillGuardConsumed(state, skillDef, hero.id);
 
 	// Só mostra botões individuais durante combate
 	if (!isInCombat) return null;
