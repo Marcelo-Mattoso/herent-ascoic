@@ -52,6 +52,8 @@ import "../skills/handlers/index"; // registra todos os handlers no boot
 import { fireOnUseSkill } from "../skills/useSkill";
 import { getContinuation } from "../skills/registry";
 import { lookupSkillById } from "../skills/lookup";
+import { evaluate } from "../skills/dsl/evaluate";
+import { buildScriptCtx } from "../scripts/context";
 import { handleStartGame } from "./setup";
 import { assertTransition } from "../rules/stateMachine";
 
@@ -200,9 +202,28 @@ function dispatch(state: GameState, action: Action): GameState {
 		case "SKILL_CHOICE": {
 			const pending = state.pendingSkillChoice;
 			if (!pending) return state;
+			const cleared = { ...state, pendingSkillChoice: undefined };
+
+			// ── DSL choose_one path (Patch-12 Lote 3+) ───────────────────────────
+			const chosenOption = pending.options.find((o) => o.id === action.payload.choice);
+			if (chosenOption?.effect) {
+				const ctx = buildScriptCtx(
+					cleared,
+					{
+						triggeredBy: "on_use",
+						skillId: pending.skillId,
+						sourceHeroId: pending.sourceHeroId,
+						targetHeroIds: pending.targetHeroIds,
+						targetEnemyIds: pending.targetEnemyIds,
+					},
+					{},
+				);
+				return drainStack(evaluate(chosenOption.effect, ctx));
+			}
+
+			// ── Legacy handler continuation ───────────────────────────────────────
 			const def = lookupSkillById(pending.skillId);
 			const cont = getContinuation(def?.type ?? "");
-			const cleared = { ...state, pendingSkillChoice: undefined };
 			if (!cont) return cleared;
 			return cont(
 				cleared,

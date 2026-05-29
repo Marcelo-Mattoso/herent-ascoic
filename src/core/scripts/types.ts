@@ -53,8 +53,13 @@ export interface ScriptCtx {
 
 		/**
 		 * Registra pendingSkillChoice e pausa a drenagem para input do jogador.
+		 * `effect` em cada opção é o ramo DSL a avaliar quando escolhida (Lote 3+).
 		 */
-		requestChoice(options: ReadonlyArray<{ readonly id: string; readonly label: string }>): GameState;
+		requestChoice(options: ReadonlyArray<{
+			readonly id: string;
+			readonly label: string;
+			readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
+		}>): GameState;
 
 		/** Acrescenta mensagem ao eventLog. */
 		log(msg: string): GameState;

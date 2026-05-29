@@ -99,8 +99,14 @@ export function buildScriptCtx(
 					pendingSkillChoice: {
 						skillId,
 						prompt: "Escolha uma opção:",
-						options: options.map((o) => ({ id: o.id, label: o.label })),
+						options: options.map((o) => ({
+							id: o.id,
+							label: o.label,
+							...(o.effect ? { effect: o.effect } : {}),
+						})),
 						sourceHeroId: skillCtx.sourceHeroId,
+						targetHeroIds: skillCtx.targetHeroIds,
+						targetEnemyIds: skillCtx.targetEnemyIds,
 					},
 				};
 			},

@@ -115,7 +115,11 @@ function evaluateOne(node: EffectNode, ctx: EvalCtx): import("../../state/gameSt
 		}
 
 		case "choose_one": {
-			const options = node.options.map((opt) => ({ id: opt.label, label: opt.label }));
+			const options = node.options.map((opt) => ({
+				id: opt.label,
+				label: opt.label,
+				effect: opt.effect, // ramo DSL armazenado no pendingSkillChoice
+			}));
 			return ctx.action.requestChoice(options);
 		}
 

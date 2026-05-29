@@ -74,11 +74,19 @@ export function resolveEffect(state: GameState, pending: PendingEffect): GameSta
 
 		case "discard_from": {
 			const pile = effect["pile"] as string;
+			const count = (effect["count"] as number) ?? 1;
 			if (pile === "dungeon") {
-				const count = (effect["count"] as number) ?? 1;
 				return discardFromDungeonDeck(state, count);
 			}
-			// pile === "item": deferred (Lote 3/4)
+			if (pile === "item") {
+				// Descarta automaticamente o primeiro item disponível (mochila ou slot equipado).
+				// Comportamento compatível com o handler item_or_discardDungeon legado.
+				let next = state;
+				for (let i = 0; i < count; i++) {
+					next = discardFirstAvailableItem(next);
+				}
+				return next;
+			}
 			return state;
 		}
 
@@ -192,6 +200,41 @@ export function resolveEffect(state: GameState, pending: PendingEffect): GameSta
 			// Passo 9+ adicionará log de aviso.
 			return state;
 	}
+}
+
+// Descarta o primeiro item disponível (mochila primeiro, depois slot equipado).
+function discardFirstAvailableItem(state: GameState): GameState {
+	// Tentar mochila primeiro
+	const heroWithBackpack = state.heroes.find(
+		(h) => h.status === "active" && h.backpack.length > 0,
+	);
+	if (heroWithBackpack) {
+		const [removed, ...rest] = heroWithBackpack.backpack;
+		return log(
+			mapHero(state, heroWithBackpack.id, (h) => ({ ...h, backpack: rest })),
+			`Tributo: ${removed} descartado da mochila.`,
+		);
+	}
+	// Fallback: primeiro slot equipado de qualquer herói ativo
+	const heroWithItem = state.heroes.find(
+		(h) => h.status === "active" && Object.values(h.activeItems).some(Boolean),
+	);
+	if (heroWithItem) {
+		const slot = (Object.keys(heroWithItem.activeItems) as (keyof typeof heroWithItem.activeItems)[]).find(
+			(k) => heroWithItem.activeItems[k],
+		);
+		if (slot) {
+			return log(
+				mapHero(state, heroWithItem.id, (h) => {
+					const items = { ...h.activeItems };
+					delete items[slot];
+					return { ...h, activeItems: items };
+				}),
+				`Tributo: ${heroWithItem.activeItems[slot]} descartado.`,
+			);
+		}
+	}
+	return log(state, "Tributo: nenhum item disponível para descartar.");
 }
 
 // Drena a stack até esvaziar, aplicando efeitos na ordem determinística.

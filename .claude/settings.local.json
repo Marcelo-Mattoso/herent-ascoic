@@ -92,7 +92,8 @@
       "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('vitest:', p.devDependencies?.vitest\\); console.log\\('zod:', p.dependencies?.zod ?? p.devDependencies?.zod\\)\")",
       "Bash(node -e \"const {z}=require\\('zod'\\); console.log\\('zod ok', z.string\\(\\)._def.typeName\\)\")",
       "Bash(node tools/skill-port/migrate-lote1.cjs)",
-      "Bash(node tools/skill-port/migrate-lote2.cjs)"
+      "Bash(node tools/skill-port/migrate-lote2.cjs)",
+      "Bash(node tools/skill-port/migrate-lote3.cjs)"
     ]
   }
 }

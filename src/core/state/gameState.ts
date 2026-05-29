@@ -116,8 +116,15 @@ export interface GameState {
 	pendingSkillChoice?: {
 		readonly skillId: string;
 		readonly prompt: string;
-		readonly options: readonly { readonly id: string; readonly label: string }[];
+		readonly options: readonly {
+			readonly id: string;
+			readonly label: string;
+			/** DSL: efeito a avaliar quando esta opção for escolhida (Patch-12 Lote 3+). */
+			readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
+		}[];
 		readonly sourceHeroId?: string;
+		readonly targetHeroIds?: readonly string[];
+		readonly targetEnemyIds?: readonly string[];
 	};
 
 	// Log de eventos para debug e UI

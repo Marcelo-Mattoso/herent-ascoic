@@ -296,12 +296,43 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "heal_or_damage_bonus",
       "trigger": "once_per_room",
       "target": "ally_or_next_attack",
       "textTemplate": "uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura.",
       "labelTemplate": "Milagre da Última Luz: uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "choose_one",
+          "options": [
+            {
+              "label": "Curar 2",
+              "effect": [
+                {
+                  "kind": "apply_heal",
+                  "to": "$target",
+                  "amount": 2
+                }
+              ]
+            },
+            {
+              "label": "+2 dano",
+              "effect": [
+                {
+                  "kind": "add_modifier",
+                  "to": "$source",
+                  "stat": "damage_bonus",
+                  "operation": "add",
+                  "value": 2,
+                  "duration": {
+                    "kind": "once"
+                  }
+                }
+              ]
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "skill_piercing_strike",
@@ -589,7 +620,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "item_or_discardDungeon",
       "trigger": "before_first_combat_in_room",
       "target": "group",
       "textTemplate": "antes do primeiro combate desta sala, o grupo deve escolher: descartar 1 item ou descartar 1 carta adicional de dungeon.",
@@ -612,6 +642,33 @@
           "field": "effect",
           "value": 1,
           "cardId": "subboss_cracked_abyss_guardian"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "choose_one",
+          "options": [
+            {
+              "label": "Descartar 1 item",
+              "effect": [
+                {
+                  "kind": "discard_from",
+                  "pile": "item",
+                  "count": 1
+                }
+              ]
+            },
+            {
+              "label": "Descartar 1 carta de dungeon",
+              "effect": [
+                {
+                  "kind": "discard_from",
+                  "pile": "dungeon",
+                  "count": 1
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1104,7 +1161,6 @@
       "sourceSection": "Poderes dos Heróis",
       "usesVariable": false,
       "defaultValue": "full/1",
-      "type": "heal_or_survive",
       "trigger": "once_per_game",
       "target": "hero",
       "textTemplate": "cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.",
@@ -1127,6 +1183,31 @@
           "field": "effect",
           "value": "full/1",
           "cardId": "artifact_last_vigil_brazier"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "choose_one",
+          "options": [
+            {
+              "label": "Curar totalmente",
+              "effect": [
+                {
+                  "kind": "apply_full_heal",
+                  "to": "$target"
+                }
+              ]
+            },
+            {
+              "label": "Sobreviver com 1 vida",
+              "effect": [
+                {
+                  "kind": "prevent_destroy",
+                  "to": "$target"
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1251,7 +1332,6 @@
       "sourceSection": "Poderes dos Heróis",
       "usesVariable": false,
       "defaultValue": "5/5",
-      "type": "heal_or_damage_bonus",
       "trigger": "once_per_game",
       "target": "heroes_or_self_next_attack",
       "textTemplate": "uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói.",
@@ -1262,6 +1342,45 @@
           "field": "power",
           "value": "5/5",
           "cardId": "hero_last_light_paladin"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "choose_one",
+          "options": [
+            {
+              "label": "Curar todos (5)",
+              "effect": [
+                {
+                  "kind": "for_each",
+                  "over": "all_heroes",
+                  "as": "$h",
+                  "do": [
+                    {
+                      "kind": "apply_heal",
+                      "to": "$target",
+                      "amount": 5
+                    }
+                  ]
+                }
+              ]
+            },
+            {
+              "label": "+5 dano sagrado",
+              "effect": [
+                {
+                  "kind": "add_modifier",
+                  "to": "$source",
+                  "stat": "damage_bonus",
+                  "operation": "add",
+                  "value": 5,
+                  "duration": {
+                    "kind": "once"
+                  }
+                }
+              ]
+            }
+          ]
         }
       ]
     },
@@ -1544,7 +1663,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "item_or_discardDungeon",
       "trigger": "before_combat",
       "target": "group",
       "textTemplate": "antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.",
@@ -1556,6 +1674,33 @@
           "value": 1,
           "cardId": "creature_dark_cave_goblin"
         }
+      ],
+      "effect": [
+        {
+          "kind": "choose_one",
+          "options": [
+            {
+              "label": "Descartar 1 item",
+              "effect": [
+                {
+                  "kind": "discard_from",
+                  "pile": "item",
+                  "count": 1
+                }
+              ]
+            },
+            {
+              "label": "Descartar 1 carta de dungeon",
+              "effect": [
+                {
+                  "kind": "discard_from",
+                  "pile": "dungeon",
+                  "count": 1
+                }
+              ]
+            }
+          ]
+        }
       ]
     },
     {
@@ -1565,7 +1710,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": 3,
-      "type": "item_or_damage",
       "trigger": "before_combat",
       "target": "group_or_chosen_hero",
       "textTemplate": "antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha.",
@@ -1576,6 +1720,33 @@
           "field": "purpleEffect",
           "value": 3,
           "cardId": "creature_low_ember_kobold"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "choose_one",
+          "options": [
+            {
+              "label": "Descartar 1 item",
+              "effect": [
+                {
+                  "kind": "discard_from",
+                  "pile": "item",
+                  "count": 1
+                }
+              ]
+            },
+            {
+              "label": "Sofrer 3 dano",
+              "effect": [
+                {
+                  "kind": "apply_damage",
+                  "to": "$target",
+                  "amount": 3
+                }
+              ]
+            }
+          ]
         }
       ]
     },
