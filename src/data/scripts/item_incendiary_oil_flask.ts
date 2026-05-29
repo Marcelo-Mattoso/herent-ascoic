@@ -15,5 +15,5 @@ export const livingEmber: ScriptHandler = (ctx) => {
 	);
 	const amount = hasGelatinous ? 3 : 2;
 
-	return action.dealDamage(enemyId, amount);
+	return action.pushEffect({ kind: "apply_damage", to: enemyId, amount });
 };
