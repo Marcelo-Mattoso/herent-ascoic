@@ -197,6 +197,7 @@ export interface HeroCombatActions {
 	readonly canCancel: boolean;
 	readonly canUsePower: boolean;
 	readonly canFlee: boolean;
+	readonly fleeAlreadyDeclared: boolean;
 	readonly skill: {
 		readonly skillId: string;
 		readonly activatable: boolean;
@@ -241,5 +242,16 @@ export function selectHeroCombatActions(
 			}
 		: null;
 
-	return { canAttack, canPass, canCancel, canUsePower, canFlee, skill };
+	const fleeAlreadyDeclared =
+		state.combat?.fleeAttemptByHero?.[heroId] ?? false;
+
+	return {
+		canAttack,
+		canPass,
+		canCancel,
+		canUsePower,
+		canFlee,
+		fleeAlreadyDeclared,
+		skill,
+	};
 }

@@ -5,12 +5,14 @@
 //   resolving         → Rolar dados / Resolver ataque
 //   outros            → nada (auto-avance cuida)
 
-import type { GameState } from "@/core/state/gameState";
+import type { PlayerView } from "@/core/projection/playerView";
 import { ActionButton } from "@/ui/components/ActionButton";
+import type { HeroCombatActions } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 
 interface CombatActionPanelProps {
-	state: GameState;
+	view: PlayerView;
+	heroActions: HeroCombatActions;
 	onAttack: () => void;
 	onPass: () => void;
 	onCancelSelection: () => void;
@@ -20,7 +22,8 @@ interface CombatActionPanelProps {
 }
 
 export function CombatActionPanel({
-	state,
+	view,
+	heroActions,
 	onAttack,
 	onPass,
 	onCancelSelection,
@@ -28,16 +31,16 @@ export function CombatActionPanel({
 	onResolve,
 	onPower,
 }: CombatActionPanelProps) {
-	const phase = state.combat?.phase;
-	const gameStatus = state.status;
+	const phase = view.combat?.phase;
+	const gameStatus = view.status;
 
 	// Fase: aguardando seleção de herói
 	if (
 		phase === "selecting_hero" &&
 		(gameStatus === "HERO_ACTION" || gameStatus === "BOSS_COMBAT")
 	) {
-		const pending = state.heroes.filter(
-			(h) => h.status === "active" && !state.combat?.heroesActed.includes(h.id),
+		const pending = view.heroes.filter(
+			(h) => h.status === "active" && !view.combat?.heroesActed.includes(h.id),
 		);
 		return (
 			<div
@@ -56,12 +59,8 @@ export function CombatActionPanel({
 		phase === "selecting_target" &&
 		(gameStatus === "HERO_ACTION" || gameStatus === "BOSS_COMBAT")
 	) {
-		const selectedId = state.combat?.selectedHeroId;
-		const hero = state.heroes.find((h) => h.id === selectedId);
-		const hasPower = hero && !state.combat?.powersUsedThisRoom[hero.id];
-		const hasActiveEnemies = state.activeEnemies.some(
-			(e) => e.status === "active",
-		);
+		const selectedId = view.combat?.selectedHeroId;
+		const hero = view.heroes.find((h) => h.id === selectedId);
 
 		return (
 			<div className="space-y-2">
@@ -75,13 +74,13 @@ export function CombatActionPanel({
 						icon="⚔"
 						variant="primary"
 						onClick={onAttack}
-						disabled={!hasActiveEnemies}
+						disabled={!heroActions.canAttack}
 					/>
 					<ActionButton
 						label="Usar poder"
 						icon="⚡"
 						variant="secondary"
-						disabled={!hasPower}
+						disabled={!heroActions.canUsePower}
 						onClick={onPower}
 					/>
 					<ActionButton
