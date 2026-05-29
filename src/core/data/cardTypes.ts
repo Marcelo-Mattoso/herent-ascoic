@@ -8,16 +8,14 @@ export type CardRewardType = "item" | "artifact";
 // Dados de dado por cor: [branco, amarelo, laranja, vermelho, roxo]
 export type DiceByColor = readonly [number, number, number, number, number];
 
-// --- Ability (v2) ---
+// --- SkillRef ---
 
-export interface Ability {
-	readonly name: string;
-	readonly value: number | string | null;
-	readonly type: string;
-	readonly trigger: string;
-	readonly target: string;
-	readonly text: string;
-	readonly label: string;
+export interface SkillRef {
+	readonly skillId: string;
+	// Override dos params default da skill. Específico desta carta.
+	readonly params?: Readonly<Record<string, number | string>>;
+	// Só dispara com Despertar = 4. Substitui o slot "purpleEffect".
+	readonly requiresAwakening?: boolean;
 }
 
 // --- Hero ---
@@ -30,8 +28,7 @@ export interface HeroCard {
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
 	readonly damage: number;
-	readonly skill: Ability;
-	readonly power: Ability;
+	readonly skills: readonly SkillRef[];
 	readonly style: string;
 }
 
@@ -48,8 +45,7 @@ export interface CreatureCard {
 	readonly xp: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
-	readonly effect: Ability;
-	readonly purpleEffect: Ability;
+	readonly skills: readonly SkillRef[];
 }
 
 // --- Subboss ---
@@ -65,8 +61,7 @@ export interface SubbossCard {
 	readonly xp: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
-	readonly effect: Ability;
-	readonly purpleEffect: Ability;
+	readonly skills: readonly SkillRef[];
 }
 
 // --- Room ---
@@ -80,7 +75,7 @@ export interface RoomCard {
 	readonly enemiesByPlayers: readonly [number, number, number, number];
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
-	readonly effect: Ability;
+	readonly skills: readonly SkillRef[];
 	readonly xp?: number;
 	readonly specialCreature?: string;
 }
@@ -93,7 +88,7 @@ export interface SubbossRoomCard {
 	readonly exits: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
-	readonly effect: Ability;
+	readonly skills: readonly SkillRef[];
 	readonly xp?: number;
 	readonly linkedSubbossName: string;
 }
@@ -108,7 +103,7 @@ export interface ItemCard {
 	readonly name: string;
 	readonly itemClass: ItemClass;
 	readonly tags: readonly string[];
-	readonly effect: Ability;
+	readonly skills: readonly SkillRef[];
 }
 
 // --- Artifact ---
@@ -118,14 +113,14 @@ export interface ArtifactCard {
 	readonly id: string;
 	readonly name: string;
 	readonly countsAs: "artifact";
-	readonly effect: Ability;
+	readonly skills: readonly SkillRef[];
 }
 
 // --- Boss ---
 
 export interface BossAbility {
 	readonly name: string;
-	readonly effect: Ability;
+	readonly skills: readonly SkillRef[];
 }
 
 export interface BossCard {

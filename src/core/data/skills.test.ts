@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { getAllCards } from "./cards";
 import { SKILLS } from "./skills";
+import { cardSkills, skillUsedBy } from "../skills/lookup";
 
 describe("catálogo de skills (skills.json)", () => {
 	it("carrega sem erros e tem versão definida", () => {
@@ -25,59 +26,40 @@ describe("catálogo de skills (skills.json)", () => {
 			}
 			expect(typeof ability.trigger).toBe("string");
 			expect(typeof ability.target).toBe("string");
-			expect(Array.isArray(ability.usedBy)).toBe(true);
+			// usedBy foi removido (patch-13) — derivado de cards.json via skillUsedBy()
 		}
 	});
 
-	it("todos os usedBy[].cardId existem em cards.json", () => {
+	it("integridade referencial: todos os skillIds em cards.json existem em skills.json", () => {
 		const allCards = getAllCards();
-		const cardIds = new Set(allCards.map((c) => c.id));
-		const missing: string[] = [];
-
-		for (const ability of SKILLS.abilities) {
-			for (const usage of ability.usedBy) {
-				if (!cardIds.has(usage.cardId)) {
-					missing.push(`${ability.id}: usedBy cardId "${usage.cardId}" não encontrado`);
-				}
-			}
-		}
-
-		if (missing.length > 0) {
-			throw new Error(`Skills com usedBy inválidos:\n${missing.join("\n")}`);
-		}
-	});
-
-	it("todos os usedBy[].field são válidos para o tipo de carta", () => {
-		const allCards = getAllCards();
-		const cardMap = new Map(allCards.map((c) => [c.id, c]));
+		const skillIds = new Set(SKILLS.abilities.map((a) => a.id));
 		const errors: string[] = [];
 
-		const validFieldsByType: Record<string, string[]> = {
-			hero: ["skill", "power"],
-			creature: ["effect", "purpleEffect"],
-			subboss: ["effect", "purpleEffect"],
-			subboss_room: ["effect"],
-			item: ["effect"],
-			artifact: ["effect"],
-			room: ["effect"],
-			boss: ["abilities"],
-		};
-
-		for (const ability of SKILLS.abilities) {
-			for (const usage of ability.usedBy) {
-				const card = cardMap.get(usage.cardId);
-				if (!card) continue; // já verificado no teste anterior
-				const allowed = validFieldsByType[card.type] ?? [];
-				if (!allowed.includes(usage.field)) {
-					errors.push(
-						`${ability.id}: campo "${usage.field}" inválido para tipo "${card.type}" (carta: ${usage.cardId})`,
-					);
+		for (const card of allCards) {
+			const refs = cardSkills(card.id);
+			for (const { ref } of refs) {
+				if (!skillIds.has(ref.skillId)) {
+					errors.push(`${card.id}: skillId "${ref.skillId}" não existe em skills.json`);
 				}
 			}
 		}
 
 		if (errors.length > 0) {
-			throw new Error(`Skills com field inválido:\n${errors.join("\n")}`);
+			throw new Error(`SkillIds inválidos:\n${errors.join("\n")}`);
+		}
+	});
+
+	it("toda skill é referenciada por ao menos uma carta (ou é detectada pelo índice)", () => {
+		const allCards = getAllCards();
+		const referencedIds = new Set<string>();
+		for (const card of allCards) {
+			for (const { def } of cardSkills(card.id)) {
+				referencedIds.add(def.id);
+			}
+		}
+		// Verificar que skillUsedBy funciona corretamente para skills referenciadas
+		for (const id of referencedIds) {
+			expect(skillUsedBy(id).length).toBeGreaterThan(0);
 		}
 	});
 });

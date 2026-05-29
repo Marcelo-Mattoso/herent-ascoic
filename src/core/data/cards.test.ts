@@ -72,23 +72,24 @@ describe("catálogo de cartas", () => {
 		}
 	});
 
-	it("skill e power do herói são objetos Ability com label", () => {
+	it("herói tem skills[] com habilidade e poder", () => {
 		const card = getCardById("hero_eternal_rest_cleric");
 		expect(card?.type).toBe("hero");
 		if (card?.type === "hero") {
-			expect(typeof card.skill.label).toBe("string");
-			expect(card.skill.label.length).toBeGreaterThan(0);
-			expect(typeof card.power.label).toBe("string");
-			expect(card.power.label.length).toBeGreaterThan(0);
+			expect(Array.isArray(card.skills)).toBe(true);
+			expect(card.skills.length).toBe(2);
+			expect(card.skills[0].skillId).toBeTruthy();
+			expect(card.skills[1].skillId).toBeTruthy();
 		}
 	});
 
-	it("effect de criatura é objeto Ability com label", () => {
+	it("criatura tem skills[] com pelo menos uma skill", () => {
 		const cards = getAllCards();
 		const creature = cards.find((c) => c.type === "creature");
 		expect(creature).toBeDefined();
 		if (creature?.type === "creature") {
-			expect(typeof creature.effect.label).toBe("string");
+			expect(Array.isArray(creature.skills)).toBe(true);
+			expect(creature.skills.length).toBeGreaterThan(0);
 		}
 	});
 });

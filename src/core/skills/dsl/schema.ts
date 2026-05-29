@@ -152,16 +152,6 @@ export const SkillDefinitionV2Schema = z
 		params: z.record(z.unknown()).optional(),
 		effect: z.array(EffectNodeSchema).optional(),
 		script: z.string().optional(),
-		usedBy: z
-			.array(
-				z.object({
-					cardId: z.string(),
-					cardType: z.string(),
-					field: z.string(),
-					value: z.union([z.number(), z.string(), z.null()]),
-				}),
-			)
-			.default([]),
 	})
 	.refine((d) => (d.effect !== undefined) !== (d.script !== undefined), {
 		message: "Cada entrada deve ter exatamente um de `effect` ou `script` — nunca ambos, nunca nenhum.",

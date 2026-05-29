@@ -11,8 +11,6 @@ export type SkillCategory =
 
 export type SkillCardType = "hero" | "creature" | "subboss" | "item" | "artifact" | "room";
 
-export type SkillField = "skill" | "power" | "effect" | "purpleEffect";
-
 // Conjunto de triggers reconhecidos pelo engine.
 // Triggers compostos (once_per_X_...) são parseados por parseTrigger().
 export type TriggerName =
@@ -105,13 +103,6 @@ export type TargetSpec =
 	| "another_hero_or_self"
 	| string; // fallback
 
-export interface SkillUsage {
-	readonly cardId: string;
-	readonly cardType: SkillCardType;
-	readonly field: SkillField;
-	readonly value: number | string | null;
-}
-
 export interface SkillDefinition {
 	readonly id: string;
 	readonly name: string;
@@ -126,13 +117,12 @@ export interface SkillDefinition {
 	readonly textTemplate: string;
 	readonly labelTemplate: string;
 	readonly notes?: string;
-	readonly usedBy: readonly SkillUsage[];
 	// ── Campos pós-patch-12 ────────────────────────────────────────
 	/** Array de EffectNode DSL. Exatamente um de effect/script deve estar presente (pós-migração). */
 	readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
 	/** Nome do script em src/data/scripts/<script>.ts. */
 	readonly script?: string;
-	/** Params fixos da habilidade. Mesclados com usedBy[].value como $value. */
+	/** Params fixos da habilidade. Mesclados com SkillRef.params como $value. */
 	readonly params?: Readonly<Record<string, unknown>>;
 }
 
