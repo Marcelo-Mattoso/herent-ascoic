@@ -472,6 +472,49 @@ describe("vitória contra boss", () => {
 	});
 });
 
+// ─── Boss sobrevive a uma rodada ─────────────────────────────────────────────
+
+describe("boss sobrevive a uma rodada", () => {
+	it("após RESOLVE_ATTACK phase reinicia para selecting_hero", () => {
+		const base = createInitialGameState({ heroCardNames: [HERO] });
+		let s = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
+
+		s = {
+			...s,
+			groupArtifacts: [
+				{ cardId: "artifact_crimson_jailer_chain", cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
+				{ cardId: "artifact_ancient_ember_heart", cardName: "Coração de Brasa Antiga", carriedBy: null },
+			],
+			status: "BOSS_REVEAL" as const,
+		};
+
+		s = reducer(s, { type: "REVEAL_BOSS" });
+
+		// Boss com vida alta e herói com dano baixo → boss sobrevive
+		s = {
+			...s,
+			heroes: s.heroes.map((h) => ({ ...h, hitBonus: 1000, damage: 1 })),
+			activeEnemies: s.activeEnemies.map((e) =>
+				e.id === "boss" ? { ...e, currentLife: 999, hitBonus: 0 } : e,
+			),
+		};
+
+		const heroId = s.heroes[0]?.id ?? "";
+		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "boss" } });
+		s = reducer(s, { type: "ROLL_DICE" });
+		s = reducer(s, { type: "RESOLVE_ATTACK" });
+
+		expect(s.status).toBe("BOSS_COMBAT");
+		expect(s.combat?.phase).toBe("selecting_hero");
+		expect(s.combat?.selectedHeroId).toBeNull();
+		expect(s.combat?.pairs).toHaveLength(0);
+		expect(s.combat?.heroesActed).toHaveLength(0);
+	});
+});
+
 // ─── Testes de actionLog (Passo 1) ───────────────────────────────────────────
 
 describe("actionLog", () => {

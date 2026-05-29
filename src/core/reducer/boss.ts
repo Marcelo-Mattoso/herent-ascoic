@@ -63,9 +63,10 @@ export function handleBossResolveAttack(state: GameState): GameState {
 
 	// Ascensão Final: +2 hit bonus quando boss está na metade da vida ou menos
 	let enemyTotal = roll.enemyTotal;
+	let next = state;
 	if (boss.currentLife <= Math.floor(boss.maxLife / 2)) {
 		enemyTotal += 2;
-		log(state, "Ascensão Final ativada: +2 no acerto do boss.");
+		next = log(next, "Ascensão Final ativada: +2 no acerto do boss.");
 	}
 
 	const result = resolveAttack(
@@ -74,8 +75,6 @@ export function handleBossResolveAttack(state: GameState): GameState {
 		hero.damage,
 		boss.damage,
 	);
-
-	let next = state;
 
 	if (result.enemyDamageTaken > 0) {
 		let dmg = result.enemyDamageTaken;
@@ -138,6 +137,8 @@ function checkBossEnd(state: GameState): GameState {
 		? {
 				...state.combat,
 				round: state.combat.round + 1,
+				phase: "selecting_hero" as const,
+				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
 				lastRoll: null,
