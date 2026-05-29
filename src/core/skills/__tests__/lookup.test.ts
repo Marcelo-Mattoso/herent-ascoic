@@ -6,7 +6,8 @@ describe("resolveSkillFor", () => {
 		const def = resolveSkillFor("Bárbaro Rubro", "skill");
 		expect(def).not.toBeNull();
 		expect(def?.id).toBe("skill_crimson_fury");
-		expect(def?.type).toBe("damage_bonus");
+		// type removido na migração Lote 4 (patch-12); skill usa script field
+		expect(def?.script).toBe("skill_crimson_fury");
 	});
 
 	it("resolve poder do Mago das Runas Rubras (power)", () => {

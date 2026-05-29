@@ -23,7 +23,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "damage_bonus",
       "trigger": "before_attack",
       "target": "self",
       "textTemplate": "este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido no próximo ataque.",
@@ -41,7 +40,8 @@
           "value": 2,
           "cardId": "item_fury_potion"
         }
-      ]
+      ],
+      "script": "skill_crimson_fury"
     },
     {
       "id": "skill_last_light_healing",
@@ -89,7 +89,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "armor",
       "trigger": "on_damage_taken",
       "target": "hero_or_ally",
       "textTemplate": "reduza em {value} o dano que um herói ou aliado sofreria.",
@@ -100,6 +99,18 @@
           "field": "skill",
           "value": 3,
           "cardId": "hero_broken_bastion_warrior"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$source",
+          "stat": "damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
         }
       ]
     },
@@ -131,7 +142,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "tohit",
       "trigger": "while_equipped",
       "target": "self",
       "textTemplate": "enquanto este item estiver equipado, este herói recebe +{value} no Bônus de Acerto.",
@@ -149,7 +159,8 @@
           "value": 2,
           "cardId": "item_low_flame_charm"
         }
-      ]
+      ],
+      "script": "skill_hunter_focus"
     },
     {
       "id": "skill_living_ember",
@@ -268,12 +279,12 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "reroll",
       "trigger": "once_per_combat",
       "target": "ally_die",
       "textTemplate": "uma vez por combate, rerrole 1 dado aliado.",
       "labelTemplate": "Segunda Chance das Fendas: uma vez por combate, rerrole 1 dado aliado.",
-      "usedBy": []
+      "usedBy": [],
+      "script": "skill_rift_second_chance"
     },
     {
       "id": "skill_perfect_rune",
@@ -282,12 +293,12 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "diceFix",
       "trigger": "once_per_room_after_roll",
       "target": "ally_die",
       "textTemplate": "uma vez por sala, depois de rolar, transforme 1 dado aliado em 6.",
       "labelTemplate": "Runa Perfeita: uma vez por sala, depois de rolar, transforme 1 dado aliado em 6.",
-      "usedBy": []
+      "usedBy": [],
+      "script": "skill_perfect_rune"
     },
     {
       "id": "skill_last_light_miracle",
@@ -341,12 +352,12 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "direct_damage",
       "trigger": "on_destroy_creature_with_attack",
       "target": "other_creature_in_same_room",
       "textTemplate": "quando destruir uma criatura com um ataque, cause 1 de dano direto a outra criatura da mesma sala.",
       "labelTemplate": "Golpe Trespassante: quando destruir uma criatura com um ataque, cause 1 de dano direto a outra criatura da mesma sala.",
-      "usedBy": []
+      "usedBy": [],
+      "script": "skill_piercing_strike"
     },
     {
       "id": "skill_forge_spoils",
@@ -457,12 +468,30 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "tohit_penalty",
       "trigger": "first_roll_in_room",
       "target": "heroes",
       "textTemplate": "os heróis recebem -{value} no total da primeira rolagem feita nesta sala.",
       "labelTemplate": "Calor Escaldante ({value}): os heróis recebem -{value} no total da primeira rolagem feita nesta sala.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "for_each",
+          "over": "all_heroes",
+          "as": "$h",
+          "do": [
+            {
+              "kind": "add_modifier",
+              "to": "$target",
+              "stat": "tohit_penalty",
+              "operation": "add",
+              "value": "$value",
+              "duration": {
+                "kind": "once"
+              }
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "skill_crimson_chains",
@@ -510,7 +539,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "armor",
       "trigger": "on_take_attack_damage",
       "target": "self",
       "textTemplate": "esta criatura reduz em {value} o dano sofrido por ataques.",
@@ -533,6 +561,18 @@
           "field": "effect",
           "value": 1,
           "cardId": "creature_dead_torch_sentinel"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$source",
+          "stat": "damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "while_in_play"
+          }
         }
       ]
     },
@@ -706,12 +746,23 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": -2,
-      "type": "tohit_penalty",
       "trigger": "on_first_target_chosen_in_room",
       "target": "target_hero",
       "textTemplate": "o primeiro herói escolhido como alvo nesta sala recebe -2 no total da próxima rolagem.",
       "labelTemplate": "Prisão das Correntes: o primeiro herói escolhido como alvo nesta sala recebe -2 no total da próxima rolagem.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$target",
+          "stat": "tohit_penalty",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
     },
     {
       "id": "skill_path_corruption",
@@ -866,7 +917,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "tohit_penalty",
       "trigger": "while_active",
       "target": "heroes_attacking_self",
       "textTemplate": "heróis recebem -{value} de bônus de acerto contra essa criatura.",
@@ -877,6 +927,18 @@
           "field": "effect",
           "value": -1,
           "cardId": "creature_wet_stone_slime"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$source",
+          "stat": "tohit_penalty",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "while_in_play"
+          }
         }
       ]
     },
@@ -1140,7 +1202,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "reroll",
       "trigger": "once_per_room_after_roll",
       "target": "die_with_value_1",
       "textTemplate": "uma vez por sala, depois de rolar, você pode rerrolar um dado que tenha o valor 1.",
@@ -1152,7 +1213,8 @@
           "value": 1,
           "cardId": "item_crimson_rune_staff"
         }
-      ]
+      ],
+      "script": "skill_minor_rune"
     },
     {
       "id": "power_greater_last_light_miracle",
@@ -1532,7 +1594,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "armor",
       "trigger": "on_take_damage",
       "target": "self",
       "textTemplate": "esta criatura reduz em {value} todo dano que sofreria.",
@@ -1555,6 +1616,18 @@
           "field": "purpleEffect",
           "value": 2,
           "cardId": "creature_dead_torch_sentinel"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$source",
+          "stat": "damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "while_in_play"
+          }
         }
       ]
     },
@@ -1628,7 +1701,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "damage_reflect",
       "trigger": "on_take_damage",
       "target": "attacking_hero",
       "textTemplate": "sempre que esta criatura sofrer dano, o herói que causou esse dano sofre 1 dano direto.",
@@ -1640,7 +1712,8 @@
           "value": 1,
           "cardId": "creature_low_fire_salamander"
         }
-      ]
+      ],
+      "script": "purple_ember_blood"
     },
     {
       "id": "purple_depths_seal",
@@ -1649,12 +1722,17 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "powerBlock",
       "trigger": "while_in_play",
       "target": "heroes",
       "textTemplate": "enquanto esta criatura estiver em jogo, heróis não podem usar poderes uma vez por jogo.",
       "labelTemplate": "Selo das Profundezas: enquanto esta criatura estiver em jogo, heróis não podem usar poderes uma vez por jogo.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "power_use"
+        }
+      ]
     },
     {
       "id": "purple_dark_tribute",
@@ -1757,7 +1835,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "damage_reflect",
       "trigger": "on_hit_received",
       "target": "attacking_hero",
       "textTemplate": "sempre que esta criatura for acertada por um herói, esse herói sofre {value} de dano.",
@@ -1775,7 +1852,8 @@
           "value": 1,
           "cardId": "creature_hot_ash_worm"
         }
-      ]
+      ],
+      "script": "purple_veil_retaliation"
     },
     {
       "id": "purple_healing_rupture",
@@ -1810,7 +1888,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "tohit_penalty",
       "trigger": "on_first_targeted",
       "target": "target_hero",
       "textTemplate": "o primeiro herói alvo dela recebe -{value} no total de bônus de acerto da próxima rolagem.",
@@ -1822,6 +1899,18 @@
           "value": -2,
           "cardId": "creature_ancient_pillar_spider"
         }
+      ],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$target",
+          "stat": "tohit_penalty",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "once"
+          }
+        }
       ]
     },
     {
@@ -1831,7 +1920,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "dungeonLock",
       "trigger": "while_in_play",
       "target": "heroes",
       "textTemplate": "enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra.",
@@ -1843,6 +1931,12 @@
           "value": null,
           "cardId": "creature_old_chains_knight"
         }
+      ],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "dungeon_level_reduction"
+        }
       ]
     },
     {
@@ -1852,7 +1946,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": "-3/-3",
-      "type": "tohit_damage_penalty",
       "trigger": "on_first_target_chosen_by_creature",
       "target": "target_hero",
       "textTemplate": "o primeiro herói escolhido como alvo por esta criatura recebe -3 no total da próxima rolagem de ataque e causa -3 de dano se acertar.",
@@ -1863,6 +1956,28 @@
           "field": "purpleEffect",
           "value": "-3/-3",
           "cardId": "subboss_crimson_dungeon_jailer"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$target",
+          "stat": "tohit_penalty",
+          "operation": "add",
+          "value": 3,
+          "duration": {
+            "kind": "once"
+          }
+        },
+        {
+          "kind": "add_modifier",
+          "to": "$target",
+          "stat": "damage_penalty",
+          "operation": "add",
+          "value": 3,
+          "duration": {
+            "kind": "once"
+          }
         }
       ]
     },
@@ -1912,7 +2027,6 @@
       "sourceSection": "Habilidades de Itens",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "armor",
       "trigger": "on_take_damage",
       "target": "self",
       "textTemplate": "reduza em {value} o dano sofrido por este herói.",
@@ -1947,6 +2061,18 @@
           "field": "effect",
           "value": 10,
           "cardId": "item_warm_blood_charm"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "add_modifier",
+          "to": "$source",
+          "stat": "damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "while_in_play"
+          }
         }
       ]
     },

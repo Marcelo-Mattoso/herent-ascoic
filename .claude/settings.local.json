@@ -93,7 +93,9 @@
       "Bash(node -e \"const {z}=require\\('zod'\\); console.log\\('zod ok', z.string\\(\\)._def.typeName\\)\")",
       "Bash(node tools/skill-port/migrate-lote1.cjs)",
       "Bash(node tools/skill-port/migrate-lote2.cjs)",
-      "Bash(node tools/skill-port/migrate-lote3.cjs)"
+      "Bash(node tools/skill-port/migrate-lote3.cjs)",
+      "Bash(node tools/skill-port/migrate-lote4-dsl.cjs)",
+      "Bash(node tools/skill-port/migrate-lote4-scripts.cjs)"
     ]
   }
 }

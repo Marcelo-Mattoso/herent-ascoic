@@ -17,6 +17,7 @@ import { getHandler } from "./registry";
 import { resolveSkillForById, resolveSkillValueById, resolveSkillFor, resolveSkillValue } from "./lookup";
 import { evaluate } from "./dsl/evaluate";
 import { buildScriptCtx } from "../scripts/context";
+import { getScript } from "../scripts/registry";
 
 interface ActiveSkill {
 	definition: SkillDefinition;
@@ -239,20 +240,28 @@ export function fireTrigger(
 			value: skill.value,
 		};
 
+		// Normaliza valor para params: slash-pair "X/Y" → value = X (número)
+		const rawValue = skill.value;
+		const numericValue: number | string | null =
+			typeof rawValue === "string" && rawValue.includes("/")
+				? Number(rawValue.split("/")[0]) || 0
+				: rawValue;
+		const params: Record<string, unknown> = {
+			value: numericValue,
+			...(skill.definition.params ?? {}),
+		};
+
 		if (skill.definition.effect) {
 			// ── DSL path (Patch-12 Lote 1+) ──────────────────────────────────
-			// Normaliza valor: slash-pair "X/Y" → value = X (número)
-			const rawValue = skill.value;
-			let numericValue: number | string | null = rawValue;
-			if (typeof rawValue === "string" && rawValue.includes("/")) {
-				numericValue = Number(rawValue.split("/")[0]) || 0;
-			}
-			const params: Record<string, unknown> = {
-				value: numericValue,
-				...(skill.definition.params ?? {}),
-			};
 			const evalCtx = buildScriptCtx(current, resolvedCtx, params);
 			current = evaluate(skill.definition.effect, evalCtx);
+		} else if (skill.definition.script) {
+			// ── Script path (Patch-12 Lote 4+) ───────────────────────────────
+			const fn = getScript(`${skill.definition.script}.run`);
+			if (fn) {
+				const scriptCtx = buildScriptCtx(current, resolvedCtx, params);
+				current = fn(scriptCtx);
+			}
 		} else {
 			// ── Handler legado ────────────────────────────────────────────────
 			const handler = getHandler(skill.definition.type ?? "noop");

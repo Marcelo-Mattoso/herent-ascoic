@@ -50,7 +50,7 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 				className="absolute bottom-6 text-xs"
 				style={{ color: UI.textTertiary }}
 			>
-				MVP 1 · v0.9.50
+				MVP 1 · v0.9.51
 			</p>
 		</div>
 	);

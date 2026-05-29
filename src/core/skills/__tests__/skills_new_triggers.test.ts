@@ -267,32 +267,35 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 	}
 
 	it("aplica bônus de Fio Mortal no Despertar 1 (sem restrição de despertar)", () => {
+		// DSL/Script migrado: fireTrigger empilha efeitos; drainStack aplica.
+		// skill_crimson_fury → script → pushEffect add_modifier damage_bonus +6
+		// item_skill_deadly_edge → legacy tohit_damage handler → bonusNextAttack diretamente
 		const state = makeStateWithAdaga(1 as ColorIndex);
-		const result = fireTrigger(state, "before_attack", {
+		const result = drainStack(fireTrigger(state, "before_attack", {
 			triggeredBy: "before_attack",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
-		});
-		// Adaga: +1 dano (Fio Mortal). Bárbaro também tem Fúria Rubra (before_attack) → +6. Total = 7.
+		}));
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		const total = entries.reduce((s, e) => s + e.value, 0);
 		expect(total).toBe(7);
-		expect(entries.some((e) => e.label === "Fúria Rubra" && e.value === 6)).toBe(true);
-		expect(entries.some((e) => e.label === "Fio Mortal" && e.value === 1)).toBe(true);
+		// label = skill_id (script) ou nome legado (handler)
+		expect(entries.some((e) => e.value === 6)).toBe(true); // Fúria Rubra via script
+		expect(entries.some((e) => e.value === 1)).toBe(true); // Fio Mortal via handler
 	});
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
 		const state = makeStateWithAdaga(4 as ColorIndex);
-		const result = fireTrigger(state, "before_attack", {
+		const result = drainStack(fireTrigger(state, "before_attack", {
 			triggeredBy: "before_attack",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
-		});
+		}));
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		const total = entries.reduce((s, e) => s + e.value, 0);
 		expect(total).toBe(7);
-		expect(entries.some((e) => e.label === "Fúria Rubra" && e.value === 6)).toBe(true);
-		expect(entries.some((e) => e.label === "Fio Mortal" && e.value === 1)).toBe(true);
+		expect(entries.some((e) => e.value === 6)).toBe(true);
+		expect(entries.some((e) => e.value === 1)).toBe(true);
 	});
 });
 

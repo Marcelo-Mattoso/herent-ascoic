@@ -57,6 +57,7 @@ export type ModifierStat =
 	| "dungeon_discard_prevention"
 	| "dungeon_discard_locked"
 	| "first_damage_prevented"
+	| "damage_penalty"
 	| (string & {});
 
 export type BlockActionTarget =
