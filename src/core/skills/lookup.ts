@@ -1,82 +1,66 @@
-// Resolve qual SkillDefinition corresponde a (cardName, field).
-// O catálogo skills.json é a fonte única de verdade — catálogo vence em caso de divergência.
+// Resolve SkillDefinitions a partir dos dados de composição em cards.json.
+// cards.json é a fonte única de composição (card → skill refs).
+// skills.json é a fonte única de comportamento e templates.
 
 import { SKILLS } from "../data/skills";
-import { getCardById } from "../data/cards";
-import type { SkillDefinition, SkillField } from "../data/skillTypes";
+import { getAllCards } from "../data/cards";
+import type { SkillDefinition } from "../data/skillTypes";
+import type { SkillRef } from "../data/cardTypes";
 
-// Dois caches: um por id canônico, outro por nome PT-BR (compat até Fase 6 limpar callers)
-const _byCardId = new Map<string, SkillDefinition>();   // "cardId::field"
-const _byCardName = new Map<string, SkillDefinition>(); // "cardName::field"
+interface ResolvedSkillRef {
+	def: SkillDefinition;
+	ref: SkillRef;
+}
+
+// Índices derivados de cards.json
+const _byCardId = new Map<string, ResolvedSkillRef[]>(); // cardId → refs resolvidas
+const _bySkillId = new Map<string, string[]>();           // skillId → cardIds que a usam
 
 function buildCache(): void {
-	for (const ability of SKILLS.abilities) {
-		for (const usage of ability.usedBy) {
-			const idKey = `${usage.cardId}::${usage.field}`;
-			if (!_byCardId.has(idKey)) {
-				_byCardId.set(idKey, ability);
-			}
-			// Also index by card name for callers still using cardName (deprecated path)
-			const card = getCardById(usage.cardId);
-			if (card) {
-				const nameKey = `${card.name}::${usage.field}`;
-				if (!_byCardName.has(nameKey)) {
-					_byCardName.set(nameKey, ability);
-				}
+	for (const card of getAllCards()) {
+		const refs: ResolvedSkillRef[] = [];
+		// Coleta todos os SkillRef do card (campo `skills` flat + boss.abilities[].skills)
+		const rawRefs: SkillRef[] = [];
+		if ("skills" in card && Array.isArray(card.skills)) {
+			rawRefs.push(...(card.skills as SkillRef[]));
+		}
+		if (card.type === "boss") {
+			for (const ab of card.abilities) {
+				rawRefs.push(...ab.skills);
 			}
 		}
+
+		for (const ref of rawRefs) {
+			const def = SKILLS.abilities.find((a) => a.id === ref.skillId);
+			if (!def) {
+				throw new Error(`skillId "${ref.skillId}" em ${card.id} não existe em skills.json`);
+			}
+			refs.push({ def, ref });
+			const existing = _bySkillId.get(ref.skillId);
+			if (existing) {
+				if (!existing.includes(card.id)) existing.push(card.id);
+			} else {
+				_bySkillId.set(ref.skillId, [card.id]);
+			}
+		}
+
+		if (refs.length > 0) _byCardId.set(card.id, refs);
 	}
 }
 
 buildCache();
 
-export function resolveSkillFor(
-	cardName: string,
-	field: SkillField,
-): SkillDefinition | null {
-	const key = `${cardName}::${field}`;
-	return _byCardName.get(key) ?? null;
+/** Retorna todos os { def, ref } de um card pelo id canônico. */
+export function cardSkills(cardId: string): ResolvedSkillRef[] {
+	return _byCardId.get(cardId) ?? [];
 }
 
-export function resolveSkillForById(
-	cardId: string,
-	field: SkillField,
-): SkillDefinition | null {
-	const key = `${cardId}::${field}`;
-	return _byCardId.get(key) ?? null;
+/** Retorna a lista de cardIds que referenciam a skill. */
+export function skillUsedBy(skillId: string): string[] {
+	return _bySkillId.get(skillId) ?? [];
 }
 
-// Busca uma SkillDefinition pelo id único da skill.
+/** Busca uma SkillDefinition pelo id único da skill. */
 export function lookupSkillById(id: string): SkillDefinition | null {
 	return SKILLS.abilities.find((a) => a.id === id) ?? null;
-}
-
-// Retorna o `value` declarado em usedBy para o par (cardName, field).
-export function resolveSkillValue(
-	cardName: string,
-	field: SkillField,
-): number | string | null {
-	for (const ability of SKILLS.abilities) {
-		for (const usage of ability.usedBy) {
-			const card = getCardById(usage.cardId);
-			if (card?.name === cardName && usage.field === field) {
-				return usage.value;
-			}
-		}
-	}
-	return null;
-}
-
-// Retorna o `value` pelo id canônico da carta.
-export function resolveSkillValueById(
-	cardId: string,
-	field: SkillField,
-): number | string | null {
-	for (const ability of SKILLS.abilities) {
-		const usage = ability.usedBy.find(
-			(u) => u.cardId === cardId && u.field === field,
-		);
-		if (usage) return usage.value;
-	}
-	return null;
 }

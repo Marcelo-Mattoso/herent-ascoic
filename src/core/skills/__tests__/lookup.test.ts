@@ -1,38 +1,60 @@
 import { describe, expect, it } from "vitest";
-import { resolveSkillFor, resolveSkillValue } from "../lookup";
+import { cardSkills, lookupSkillById, skillUsedBy } from "../lookup";
+import { getCardByName } from "../../data/cards";
 
-describe("resolveSkillFor", () => {
-	it("resolve habilidade do Bárbaro Rubro (skill)", () => {
-		const def = resolveSkillFor("Bárbaro Rubro", "skill");
-		expect(def).not.toBeNull();
-		expect(def?.id).toBe("skill_crimson_fury");
-		// type removido na migração Lote 4 (patch-12); skill usa script field
-		expect(def?.script).toBe("skill_crimson_fury");
+describe("cardSkills", () => {
+	it("resolve habilidade do Bárbaro Rubro", () => {
+		const card = getCardByName("Bárbaro Rubro");
+		expect(card).not.toBeUndefined();
+		const skills = cardSkills(card!.id);
+		const habilidade = skills.find(({ def }) => def.category === "habilidade");
+		expect(habilidade).not.toBeUndefined();
+		expect(habilidade!.def.id).toBe("skill_crimson_fury");
+		expect(habilidade!.def.script).toBe("skill_crimson_fury");
 	});
 
-	it("resolve poder do Mago das Runas Rubras (power)", () => {
-		const def = resolveSkillFor("Mago das Runas Rubras", "power");
-		expect(def).not.toBeNull();
-		expect(def?.id).toBe("power_supreme_rift_rune");
+	it("resolve poder do Mago das Runas Rubras", () => {
+		const card = getCardByName("Mago das Runas Rubras");
+		expect(card).not.toBeUndefined();
+		const skills = cardSkills(card!.id);
+		const poder = skills.find(({ def }) => def.category === "poder_heroi");
+		expect(poder).not.toBeUndefined();
+		expect(poder!.def.id).toBe("power_supreme_rift_rune");
 	});
 
-	it("retorna null para carta inexistente", () => {
-		const def = resolveSkillFor("Carta Fantasma", "skill");
-		expect(def).toBeNull();
+	it("retorna [] para cardId inexistente", () => {
+		expect(cardSkills("id_que_nao_existe")).toEqual([]);
 	});
 
-	it("retorna null para field inválido no contexto", () => {
-		const def = resolveSkillFor("Bárbaro Rubro", "effect");
-		expect(def).toBeNull();
+	it("não retorna skill do slot errado — efeito de criatura em herói", () => {
+		const card = getCardByName("Bárbaro Rubro");
+		expect(card).not.toBeUndefined();
+		const skills = cardSkills(card!.id);
+		const efeito = skills.find(({ def }) => def.category === "habilidade_dungeon");
+		expect(efeito).toBeUndefined();
 	});
 });
 
-describe("resolveSkillValue", () => {
-	it("retorna 2 para skill do Bárbaro Rubro", () => {
-		expect(resolveSkillValue("Bárbaro Rubro", "skill")).toBe(2);
+describe("lookupSkillById", () => {
+	it("retorna a definição pelo id", () => {
+		const def = lookupSkillById("skill_crimson_fury");
+		expect(def).not.toBeNull();
+		expect(def?.id).toBe("skill_crimson_fury");
 	});
 
-	it("retorna null para carta sem habilidade catalogada", () => {
-		expect(resolveSkillValue("Carta Fantasma", "skill")).toBeNull();
+	it("retorna null para id inexistente", () => {
+		expect(lookupSkillById("skill_inexistente")).toBeNull();
+	});
+});
+
+describe("skillUsedBy", () => {
+	it("retorna cards que usam a skill", () => {
+		const cards = skillUsedBy("skill_crimson_fury");
+		expect(cards.length).toBeGreaterThan(0);
+		expect(cards.some((id) => id.includes("crimson_barbarian"))).toBe(true);
+	});
+
+	it("retorna [] para skill sem cards", () => {
+		expect(skillUsedBy("skill_inexistente")).toEqual([]);
 	});
 });
