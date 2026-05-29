@@ -45,6 +45,16 @@ describe("playerView — contrato da projeção", () => {
 		);
 	});
 
+	it("view.combat expõe phase, selectedHeroId, round e lastRoll do estado de combate", () => {
+		const state = buildStartedState();
+		const view = playerView(state);
+		expect(view.combat).not.toBeNull();
+		expect(view.combat?.phase).toBe(state.combat?.phase);
+		expect(view.combat?.selectedHeroId).toBe(state.combat?.selectedHeroId);
+		expect(view.combat?.round).toBe(state.combat?.round);
+		expect(view.combat?.lastRoll).toBe(state.combat?.lastRoll);
+	});
+
 	it("view.decks expõe os campos necessários aos selectors", () => {
 		const state = buildStartedState();
 		const view = playerView(state);

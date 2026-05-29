@@ -6,6 +6,7 @@
 
 import type { PausedState } from "../effects/stack";
 import type { ColorIndex } from "../state/color";
+import type { CombatPhase, CombatRollResult } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
@@ -24,8 +25,12 @@ export interface PlayerView {
 	readonly enemies: readonly EnemyView[];
 	readonly currentRoom: RoomView | null;
 	readonly combat: {
+		readonly phase: CombatPhase;
+		readonly selectedHeroId: string | null;
+		readonly round: number;
 		readonly heroesActed: readonly string[];
 		readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
+		readonly lastRoll: CombatRollResult | null;
 	} | null;
 	readonly groupXp: number;
 	readonly despertar: ColorIndex;
@@ -56,8 +61,12 @@ export function playerView(state: GameState): PlayerView {
 		currentRoom: state.currentRoom,
 		combat: state.combat
 			? {
+					phase: state.combat.phase,
+					selectedHeroId: state.combat.selectedHeroId,
+					round: state.combat.round,
 					heroesActed: state.combat.heroesActed,
 					powersUsedThisRoom: state.combat.powersUsedThisRoom,
+					lastRoll: state.combat.lastRoll,
 				}
 			: null,
 		groupXp: state.groupXp,
