@@ -30,8 +30,8 @@ import {
 	handleChoosePath,
 	handleDiscardPaths,
 	handleOpenPaths,
-	handleRestartDungeon,
 	handleResolveRoomEffect,
+	handleRestartDungeon,
 	handleRevealRoom,
 	handleSpawnEnemies,
 } from "./exploration";
@@ -49,15 +49,19 @@ import {
 	handleSpendXp,
 } from "./reward";
 import "../skills/handlers/index"; // registra todos os handlers no boot
-import { fireOnUseSkill } from "../skills/useSkill";
-import { getContinuation } from "../skills/registry";
-import { lookupSkillById } from "../skills/lookup";
-import { evaluate } from "../skills/dsl/evaluate";
-import { buildScriptCtx } from "../scripts/context";
-import { handleStartGame } from "./setup";
 import { assertTransition } from "../rules/stateMachine";
+import { buildScriptCtx } from "../scripts/context";
+import { evaluate } from "../skills/dsl/evaluate";
+import { lookupSkillById } from "../skills/lookup";
+import { getContinuation } from "../skills/registry";
+import { fireOnUseSkill } from "../skills/useSkill";
+import { handleStartGame } from "./setup";
 
-function applyAndValidate(prev: GameState, action: Action, next: GameState): GameState {
+function applyAndValidate(
+	prev: GameState,
+	action: Action,
+	next: GameState,
+): GameState {
 	// START_GAME é uma ação de reset — pode transitar de qualquer estado.
 	if (action.type === "START_GAME") return next;
 	if (prev.status !== next.status) {
@@ -111,7 +115,9 @@ function dispatch(state: GameState, action: Action): GameState {
 				return {
 					...nextState,
 					status: "RESOLVE_ATTACK",
-					combat: nextState.combat ? { ...nextState.combat, lastRoll: roll } : null,
+					combat: nextState.combat
+						? { ...nextState.combat, lastRoll: roll }
+						: null,
 				};
 			}
 			return handleRollDice(state);
@@ -205,7 +211,9 @@ function dispatch(state: GameState, action: Action): GameState {
 			const cleared = { ...state, pendingSkillChoice: undefined };
 
 			// ── DSL choose_one path (Patch-12 Lote 3+) ───────────────────────────
-			const chosenOption = pending.options.find((o) => o.id === action.payload.choice);
+			const chosenOption = pending.options.find(
+				(o) => o.id === action.payload.choice,
+			);
 			if (chosenOption?.effect) {
 				const ctx = buildScriptCtx(
 					cleared,
@@ -227,7 +235,11 @@ function dispatch(state: GameState, action: Action): GameState {
 			if (!cont) return cleared;
 			return cont(
 				cleared,
-				{ triggeredBy: "on_use", skillId: pending.skillId, sourceHeroId: pending.sourceHeroId },
+				{
+					triggeredBy: "on_use",
+					skillId: pending.skillId,
+					sourceHeroId: pending.sourceHeroId,
+				},
 				action.payload.choice,
 			);
 		}

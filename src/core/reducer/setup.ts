@@ -1,6 +1,7 @@
 // Handler de START_GAME: monta estado inicial, embaralha decks, cria heróis ativos.
 // Patch 1: suporta 1 a 8 heróis; aplica heroOffset e despertarOffset da dificuldade.
 
+import { DIFFICULTY_PRESETS } from "../config/defaults";
 import {
 	getArtifacts,
 	getCardByName,
@@ -10,7 +11,6 @@ import {
 } from "../data/cards";
 import { syncHeroesAndEnemies } from "../ecs/sync";
 import { createEmptyWorld } from "../ecs/world";
-import { DIFFICULTY_PRESETS } from "../config/defaults";
 import { createRng } from "../ports/random";
 import type { ColorIndex } from "../state/color";
 import { createEmptyCombatState } from "../state/combatState";
@@ -50,8 +50,14 @@ export function handleStartGame(
 		if (!card || card.type !== "hero") {
 			throw new Error(`Carta de herói não encontrada: ${name}`);
 		}
-		const playerIdx = (payload.mode ?? "cooperative") === "competitive" ? idx : 0;
-		const { hero, next } = createHeroFromCard(card, heroColorIndex, rng, playerIdx);
+		const playerIdx =
+			(payload.mode ?? "cooperative") === "competitive" ? idx : 0;
+		const { hero, next } = createHeroFromCard(
+			card,
+			heroColorIndex,
+			rng,
+			playerIdx,
+		);
 		heroes.push(hero);
 		rng = next;
 	}
@@ -109,7 +115,11 @@ export function handleStartGame(
 			dungeonDeck: { available: shuffledRooms, discarded: [], removed: [] },
 			enemyDeck: { available: shuffledCreatures, discarded: [], removed: [] },
 			itemDeck: { available: shuffledItems, discarded: [], removed: [] },
-			artifactDeck: { available: shuffledArtifacts, discarded: [], removed: [] },
+			artifactDeck: {
+				available: shuffledArtifacts,
+				discarded: [],
+				removed: [],
+			},
 		},
 		eventLog: [
 			`Partida iniciada. Heróis: ${heroes.map((h) => h.cardName).join(", ")}. Boss: ${bossName}.`,

@@ -4,7 +4,8 @@ import type { ScriptHandler } from "@/core/scripts/types";
 // Uma vez por sala, depois de rolar, transforma 1 dado aliado em 6.
 export const run: ScriptHandler = (ctx) => {
 	const { state, skillCtx } = ctx;
-	if (!state.combat?.lastRoll || !skillCtx.sourceHeroId || !skillCtx.skillId) return state;
+	if (!state.combat?.lastRoll || !skillCtx.sourceHeroId || !skillCtx.skillId)
+		return state;
 	return {
 		...state,
 		combat: {

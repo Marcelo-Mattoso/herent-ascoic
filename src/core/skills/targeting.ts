@@ -1,7 +1,12 @@
 // Resolve o target de uma habilidade para ids concretos no estado atual.
 // Targets que exigem escolha do jogador retornam { kind: "needs_selection" }.
 
-import type { SkillContext, TargetCandidate, TargetResolution, TargetSpec } from "../data/skillTypes";
+import type {
+	SkillContext,
+	TargetCandidate,
+	TargetResolution,
+	TargetSpec,
+} from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
 
 export function resolveTarget(
@@ -19,9 +24,11 @@ export function resolveTarget(
 
 		case "hero": {
 			// Se o contexto já especifica um alvo, usa-o; senão pede seleção.
-			if (ctx.sourceHeroId) return { kind: "resolved", heroIds: [ctx.sourceHeroId] };
+			if (ctx.sourceHeroId)
+				return { kind: "resolved", heroIds: [ctx.sourceHeroId] };
 			const activeHeroes = state.heroes.filter((h) => h.status === "active");
-			if (activeHeroes.length === 1) return { kind: "resolved", heroIds: [activeHeroes[0]!.id] };
+			if (activeHeroes.length === 1)
+				return { kind: "resolved", heroIds: [activeHeroes[0]!.id] };
 			return {
 				kind: "needs_selection",
 				candidates: activeHeroes.map<TargetCandidate>((h) => ({
@@ -33,7 +40,9 @@ export function resolveTarget(
 		}
 
 		case "heroes": {
-			const ids = state.heroes.filter((h) => h.status === "active").map((h) => h.id);
+			const ids = state.heroes
+				.filter((h) => h.status === "active")
+				.map((h) => h.id);
 			return { kind: "resolved", heroIds: ids };
 		}
 
@@ -41,8 +50,13 @@ export function resolveTarget(
 		case "hero_or_ally_creature": {
 			const candidates: TargetCandidate[] = state.heroes
 				.filter((h) => h.status === "active")
-				.map<TargetCandidate>((h) => ({ kind: "hero", id: h.id, label: h.cardName }));
-			if (candidates.length === 1) return { kind: "resolved", heroIds: [candidates[0]!.id] };
+				.map<TargetCandidate>((h) => ({
+					kind: "hero",
+					id: h.id,
+					label: h.cardName,
+				}));
+			if (candidates.length === 1)
+				return { kind: "resolved", heroIds: [candidates[0]!.id] };
 			return { kind: "needs_selection", candidates };
 		}
 
@@ -51,15 +65,22 @@ export function resolveTarget(
 			const activeHeroes = state.heroes.filter((h) => h.status === "active");
 			return {
 				kind: "needs_selection",
-				candidates: activeHeroes.map<TargetCandidate>((h) => ({ kind: "hero", id: h.id, label: h.cardName })),
+				candidates: activeHeroes.map<TargetCandidate>((h) => ({
+					kind: "hero",
+					id: h.id,
+					label: h.cardName,
+				})),
 			};
 		}
 
 		case "creature_in_room":
 		case "creature_in_play":
 		case "chosen_enemy": {
-			const activeEnemies = state.activeEnemies.filter((e) => e.status === "active");
-			if (activeEnemies.length === 1) return { kind: "resolved", enemyIds: [activeEnemies[0]!.id] };
+			const activeEnemies = state.activeEnemies.filter(
+				(e) => e.status === "active",
+			);
+			if (activeEnemies.length === 1)
+				return { kind: "resolved", enemyIds: [activeEnemies[0]!.id] };
 			return {
 				kind: "needs_selection",
 				candidates: activeEnemies.map<TargetCandidate>((e) => ({
@@ -95,7 +116,9 @@ export function resolveTarget(
 		case "lowest_life_hero": {
 			const active = state.heroes.filter((h) => h.status === "active");
 			if (active.length === 0) return { kind: "none" };
-			const lowest = active.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b));
+			const lowest = active.reduce((a, b) =>
+				a.currentLife <= b.currentLife ? a : b,
+			);
 			return { kind: "resolved", heroIds: [lowest.id] };
 		}
 

@@ -5,9 +5,9 @@
 //   2. src/data/scripts/x.ts existe mas nenhuma skill em skills.json declara script = "x"
 //      (exceto prefixo _ e arquivos legados conhecidos)
 
-import { describe, expect, it } from "vitest";
 import * as fs from "node:fs";
 import * as path from "node:path";
+import { describe, expect, it } from "vitest";
 import { getScript } from "@/core/scripts/registry";
 
 const SKILLS_JSON = path.join(import.meta.dirname, "../../../data/skills.json");
@@ -16,7 +16,11 @@ const SCRIPTS_DIR = path.join(import.meta.dirname, "..");
 // Arquivos que existem mas NÃO precisam de entrada skills.json:
 // - _smoke_test.ts: utilitário de teste
 // - item_incendiary_oil_flask.ts: legado patch-10, mantido por compat histórica
-const EXEMPTED_FILES = new Set(["_smoke_test", "item_incendiary_oil_flask", "example"]);
+const EXEMPTED_FILES = new Set([
+	"_smoke_test",
+	"item_incendiary_oil_flask",
+	"example",
+]);
 
 function getScriptIdsFromJson(): string[] {
 	const data = JSON.parse(fs.readFileSync(SKILLS_JSON, "utf8"));
@@ -44,10 +48,15 @@ describe("paridade skills.json → arquivos de script", () => {
 	for (const id of scriptIds) {
 		it(`skills.json[script=${id}] → src/data/scripts/${id}.ts existe e exporta run`, () => {
 			const filePath = path.join(SCRIPTS_DIR, `${id}.ts`);
-			expect(fs.existsSync(filePath), `Arquivo ${id}.ts não encontrado`).toBe(true);
+			expect(fs.existsSync(filePath), `Arquivo ${id}.ts não encontrado`).toBe(
+				true,
+			);
 			// Verifica que o registry carregou o run
 			const fn = getScript(`${id}.run`);
-			expect(fn, `${id}.ts não exporta 'run' ou não foi carregado pelo registry`).not.toBeNull();
+			expect(
+				fn,
+				`${id}.ts não exporta 'run' ou não foi carregado pelo registry`,
+			).not.toBeNull();
 		});
 	}
 });
@@ -64,7 +73,7 @@ describe("paridade arquivos de script → skills.json", () => {
 			expect(
 				scriptIds.has(fileId),
 				`Arquivo ${fileId}.ts existe mas nenhuma skill declara script="${fileId}". ` +
-				`Adicione à skills.json ou inclua em EXEMPTED_FILES se for utilitário.`,
+					`Adicione à skills.json ou inclua em EXEMPTED_FILES se for utilitário.`,
 			).toBe(true);
 		});
 	}

@@ -4,9 +4,9 @@
 // Quando trigger=on_damage_taken: reduz o dano do ctx diretamente (stateless — modifica valor no ctx futuro).
 
 import type { SkillContext } from "../../data/skillTypes";
+import { log } from "../../reducer/utils";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
-import { log } from "../../reducer/utils";
 
 export function handleArmor(
 	state: GameState,
@@ -18,8 +18,12 @@ export function handleArmor(
 	if (!state.combat) return state;
 
 	// once_per_game_until_end_of_round → aplica damageReduction a todos os heróis
-	const activeHeroIds = state.heroes.filter((h) => h.status === "active").map((h) => h.id);
-	const newReduction: Record<string, number> = { ...state.combat.damageReduction };
+	const activeHeroIds = state.heroes
+		.filter((h) => h.status === "active")
+		.map((h) => h.id);
+	const newReduction: Record<string, number> = {
+		...state.combat.damageReduction,
+	};
 	for (const id of activeHeroIds) {
 		newReduction[id] = (newReduction[id] ?? 0) + reduction;
 	}

@@ -4,8 +4,8 @@
 // Por ser interativo (jogador ativa após ver a rolagem), o handler apenas loga e registra disponibilidade.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleDiceFixDamage(
 	state: GameState,
@@ -33,7 +33,10 @@ export function handleDiceFixDamage(
 				...state.combat,
 				bonusNextAttack: {
 					...state.combat.bonusNextAttack,
-					[hero.id]: [...(state.combat.bonusNextAttack?.[hero.id] ?? []), { label: "Execução do Caçador", value: 1 }],
+					[hero.id]: [
+						...(state.combat.bonusNextAttack?.[hero.id] ?? []),
+						{ label: "Execução do Caçador", value: 1 },
+					],
 				},
 			},
 		},

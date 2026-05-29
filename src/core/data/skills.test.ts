@@ -1,7 +1,7 @@
 import { describe, expect, it } from "vitest";
+import { cardSkills, skillUsedBy } from "../skills/lookup";
 import { getAllCards } from "./cards";
 import { SKILLS } from "./skills";
-import { cardSkills, skillUsedBy } from "../skills/lookup";
 
 describe("catálogo de skills (skills.json)", () => {
 	it("carrega sem erros e tem versão definida", () => {
@@ -39,7 +39,9 @@ describe("catálogo de skills (skills.json)", () => {
 			const refs = cardSkills(card.id);
 			for (const { ref } of refs) {
 				if (!skillIds.has(ref.skillId)) {
-					errors.push(`${card.id}: skillId "${ref.skillId}" não existe em skills.json`);
+					errors.push(
+						`${card.id}: skillId "${ref.skillId}" não existe em skills.json`,
+					);
 				}
 			}
 		}

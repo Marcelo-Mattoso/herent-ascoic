@@ -35,4 +35,6 @@ if (missing > 0) {
 }
 
 writeFileSync(cardsPath, JSON.stringify(updated, null, 2) + "\n");
-console.log(`OK: ${updated.length} cartas com id injetado em src/data/cards.json`);
+console.log(
+	`OK: ${updated.length} cartas com id injetado em src/data/cards.json`,
+);

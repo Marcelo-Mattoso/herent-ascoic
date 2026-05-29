@@ -53,17 +53,35 @@ export interface EntityDefeatedPayload {
 // ── União discriminada ────────────────────────────────────────────────────────
 
 export type GameEvent =
-	| { readonly type: "DamageAboutToBeDealt"; readonly payload: DamageAboutToBeDealtPayload }
+	| {
+			readonly type: "DamageAboutToBeDealt";
+			readonly payload: DamageAboutToBeDealtPayload;
+	  }
 	| { readonly type: "DamageDealt"; readonly payload: DamageDealtPayload }
-	| { readonly type: "HealAboutToBeApplied"; readonly payload: HealAboutToBeAppliedPayload }
+	| {
+			readonly type: "HealAboutToBeApplied";
+			readonly payload: HealAboutToBeAppliedPayload;
+	  }
 	| { readonly type: "HealApplied"; readonly payload: HealAppliedPayload }
 	| { readonly type: "EntityDefeated"; readonly payload: EntityDefeatedPayload }
-	| { readonly type: "RoomEntered"; readonly payload: { readonly roomName: string } }
+	| {
+			readonly type: "RoomEntered";
+			readonly payload: { readonly roomName: string };
+	  }
 	| { readonly type: "CombatStarted"; readonly payload: Record<string, never> }
 	| { readonly type: "CombatEnded"; readonly payload: Record<string, never> }
-	| { readonly type: "TurnStarted"; readonly payload: { readonly heroId: EntityId } }
-	| { readonly type: "TurnEnded"; readonly payload: { readonly heroId: EntityId } }
-	| { readonly type: "CardDrawn"; readonly payload: { readonly cardName: string } }
+	| {
+			readonly type: "TurnStarted";
+			readonly payload: { readonly heroId: EntityId };
+	  }
+	| {
+			readonly type: "TurnEnded";
+			readonly payload: { readonly heroId: EntityId };
+	  }
+	| {
+			readonly type: "CardDrawn";
+			readonly payload: { readonly cardName: string };
+	  }
 	| {
 			readonly type: "SkillUsed";
 			readonly payload: { readonly heroId: EntityId; readonly skillId: string };

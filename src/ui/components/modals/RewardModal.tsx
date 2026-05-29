@@ -3,12 +3,12 @@
 // Artefatos: confirmação direta (ou escolha de portador se requiresBearer).
 
 import { useState } from "react";
+import { getCardByName } from "@/core/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
-import { getCardByName } from "@/core/data/cards";
 
 interface RewardModalProps {
 	onClose: () => void;
@@ -184,7 +184,8 @@ export function RewardModal({ onClose }: RewardModalProps) {
 	const hero =
 		activeHeroes.find((h) => h.id === selectedHeroId) ?? activeHeroes[0];
 	const itemCard = getCardByName(reward.cardName);
-	const isConsumable = itemCard?.type === "item" && itemCard.itemClass === "consumable";
+	const isConsumable =
+		itemCard?.type === "item" && itemCard.itemClass === "consumable";
 
 	return (
 		<Modal title={`Item: ${reward.cardName}`} maxWidth={380}>
@@ -208,21 +209,21 @@ export function RewardModal({ onClose }: RewardModalProps) {
 
 				<div className="flex flex-col gap-2">
 					{!isConsumable && (
-					<ActionButton
-						label="Equipar"
-						variant="primary"
-						fullWidth
-						onClick={() => {
-							dispatch({
-								type: "CHOOSE_ITEM_DESTINATION",
-								payload: {
-									heroId: selectedHeroId,
-									destination: "equip",
-								},
-							});
-							onClose();
-						}}
-					/>
+						<ActionButton
+							label="Equipar"
+							variant="primary"
+							fullWidth
+							onClick={() => {
+								dispatch({
+									type: "CHOOSE_ITEM_DESTINATION",
+									payload: {
+										heroId: selectedHeroId,
+										destination: "equip",
+									},
+								});
+								onClose();
+							}}
+						/>
 					)}
 					<ActionButton
 						label="Guardar na mochila"

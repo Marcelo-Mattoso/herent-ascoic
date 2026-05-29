@@ -1,15 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { resolveTrigger, markLimitUsed } from "../resolveTrigger";
-import type { EvalCtx, TriggerObject } from "../types";
+import { createEmptyCombatState } from "../../../state/combatState";
 import type { GameState } from "../../../state/gameState";
 import { createInitialGameState } from "../../../state/gameState";
-import { createEmptyCombatState } from "../../../state/combatState";
+import { markLimitUsed, resolveTrigger } from "../resolveTrigger";
+import type { EvalCtx, TriggerObject } from "../types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function makeCtx(
 	state: GameState,
-	opts: { dungeonLevel?: number; roomEnemyCount?: number; sourceId?: string } = {},
+	opts: {
+		dungeonLevel?: number;
+		roomEnemyCount?: number;
+		sourceId?: string;
+	} = {},
 ): EvalCtx {
 	return {
 		state,
@@ -22,6 +26,7 @@ function makeCtx(
 			creatureHasSkill: () => false,
 			dungeonLevel: () => opts.dungeonLevel ?? 1,
 			roomEnemyCount: () => opts.roomEnemyCount ?? 1,
+			heroWithLowestLife: () => null,
 		},
 		action: {
 			pushEffect: () => state,
@@ -51,7 +56,10 @@ describe("resolveTrigger — when", () => {
 			on: "combat",
 			when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
 		};
-		const ctx = makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), { dungeonLevel: 3 });
+		const ctx = makeCtx(
+			createInitialGameState({ heroCardNames: ["Herói Teste"] }),
+			{ dungeonLevel: 3 },
+		);
 		expect(resolveTrigger(trigger, ctx)).toBe(true);
 	});
 
@@ -60,7 +68,10 @@ describe("resolveTrigger — when", () => {
 			on: "combat",
 			when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
 		};
-		const ctx = makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), { dungeonLevel: 1 });
+		const ctx = makeCtx(
+			createInitialGameState({ heroCardNames: ["Herói Teste"] }),
+			{ dungeonLevel: 1 },
+		);
 		expect(resolveTrigger(trigger, ctx)).toBe(false);
 	});
 
@@ -75,17 +86,53 @@ describe("resolveTrigger — when", () => {
 				],
 			},
 		};
-		expect(resolveTrigger(trigger, makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), { dungeonLevel: 4 }))).toBe(true);
-		expect(resolveTrigger(trigger, makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), { dungeonLevel: 2 }))).toBe(false);
+		expect(
+			resolveTrigger(
+				trigger,
+				makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), {
+					dungeonLevel: 4,
+				}),
+			),
+		).toBe(true);
+		expect(
+			resolveTrigger(
+				trigger,
+				makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), {
+					dungeonLevel: 2,
+				}),
+			),
+		).toBe(false);
 	});
 
 	it("when com not: inverte condição", () => {
 		const trigger: TriggerObject = {
 			on: "combat",
-			when: { kind: "not", child: { kind: "compare", op: "eq", left: "$room.enemy_count", right: 1 } },
+			when: {
+				kind: "not",
+				child: {
+					kind: "compare",
+					op: "eq",
+					left: "$room.enemy_count",
+					right: 1,
+				},
+			},
 		};
-		expect(resolveTrigger(trigger, makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), { roomEnemyCount: 2 }))).toBe(true);
-		expect(resolveTrigger(trigger, makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), { roomEnemyCount: 1 }))).toBe(false);
+		expect(
+			resolveTrigger(
+				trigger,
+				makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), {
+					roomEnemyCount: 2,
+				}),
+			),
+		).toBe(true);
+		expect(
+			resolveTrigger(
+				trigger,
+				makeCtx(createInitialGameState({ heroCardNames: ["Herói Teste"] }), {
+					roomEnemyCount: 1,
+				}),
+			),
+		).toBe(false);
 	});
 });
 
@@ -109,13 +156,17 @@ describe("resolveTrigger — limit", () => {
 	});
 
 	it("once_per_combat: dispara quando não usado", () => {
-		const state = stateWithCombat(createInitialGameState({ heroCardNames: ["Herói Teste"] }));
+		const state = stateWithCombat(
+			createInitialGameState({ heroCardNames: ["Herói Teste"] }),
+		);
 		const trigger: TriggerObject = { on: "on_use", limit: "once_per_combat" };
 		expect(resolveTrigger(trigger, makeCtx(state))).toBe(true);
 	});
 
 	it("once_per_combat: não dispara quando já usado", () => {
-		const base = stateWithCombat(createInitialGameState({ heroCardNames: ["Herói Teste"] }));
+		const base = stateWithCombat(
+			createInitialGameState({ heroCardNames: ["Herói Teste"] }),
+		);
 		const state: GameState = {
 			...base,
 			combat: {
@@ -131,7 +182,9 @@ describe("resolveTrigger — limit", () => {
 	});
 
 	it("once_per_room: não dispara quando já usado", () => {
-		const base = stateWithCombat(createInitialGameState({ heroCardNames: ["Herói Teste"] }));
+		const base = stateWithCombat(
+			createInitialGameState({ heroCardNames: ["Herói Teste"] }),
+		);
 		const state: GameState = {
 			...base,
 			combat: {
@@ -167,13 +220,25 @@ describe("resolveTrigger — limit", () => {
 describe("markLimitUsed", () => {
 	it("marca once_per_game", () => {
 		const state = createInitialGameState({ heroCardNames: ["Herói Teste"] });
-		const next = markLimitUsed({ on: "on_use", limit: "once_per_game" }, "test_skill", "h1", state);
+		const next = markLimitUsed(
+			{ on: "on_use", limit: "once_per_game" },
+			"test_skill",
+			"h1",
+			state,
+		);
 		expect(next.oncePer.game["test_skill::h1"]).toBe(true);
 	});
 
 	it("marca once_per_combat", () => {
-		const state = stateWithCombat(createInitialGameState({ heroCardNames: ["Herói Teste"] }));
-		const next = markLimitUsed({ on: "on_use", limit: "once_per_combat" }, "test_skill", "h1", state);
+		const state = stateWithCombat(
+			createInitialGameState({ heroCardNames: ["Herói Teste"] }),
+		);
+		const next = markLimitUsed(
+			{ on: "on_use", limit: "once_per_combat" },
+			"test_skill",
+			"h1",
+			state,
+		);
 		expect(next.combat?.oncePer.combat["test_skill::h1"]).toBe(true);
 	});
 

@@ -12,7 +12,10 @@ const rawSkills = JSON.parse(readFileSync(skillsPath, "utf8")) as {
 // Build lookup: skill name → skill canonical id
 const skillIdByName = new Map(rawSkills.abilities.map((a) => [a.name, a.id]));
 
-const rawCards = JSON.parse(readFileSync(cardsPath, "utf8")) as Record<string, unknown>[];
+const rawCards = JSON.parse(readFileSync(cardsPath, "utf8")) as Record<
+	string,
+	unknown
+>[];
 
 const SKILL_FIELDS = ["skill", "power", "effect"] as const;
 
@@ -31,8 +34,11 @@ for (const card of rawCards) {
 		const skillId = skillIdByName.get(skillName);
 		if (!skillId) {
 			// Boss abilities are nested differently (abilities[].effect) — skip those here
-			if (field !== "skill" && field !== "power" && field !== "effect") continue;
-			console.error(`MISSING skillId for: "${skillName}" (card: ${card.name}, field: ${field})`);
+			if (field !== "skill" && field !== "power" && field !== "effect")
+				continue;
+			console.error(
+				`MISSING skillId for: "${skillName}" (card: ${card.name}, field: ${field})`,
+			);
 			missing++;
 			continue;
 		}
@@ -46,7 +52,9 @@ for (const card of rawCards) {
 // Boss abilities: card.abilities[].effect
 for (const card of rawCards) {
 	if (card.type !== "boss") continue;
-	const abilities = card.abilities as { name: string; effect: Record<string, unknown> }[] | undefined;
+	const abilities = card.abilities as
+		| { name: string; effect: Record<string, unknown> }[]
+		| undefined;
 	if (!abilities) continue;
 	for (const bossAbility of abilities) {
 		const eff = bossAbility.effect;
@@ -64,9 +72,13 @@ for (const card of rawCards) {
 }
 
 if (missing > 0) {
-	console.error(`\n${missing} inline skill(s) sem skillId. Verifique os erros acima.`);
+	console.error(
+		`\n${missing} inline skill(s) sem skillId. Verifique os erros acima.`,
+	);
 	process.exit(1);
 }
 
 writeFileSync(cardsPath, JSON.stringify(rawCards, null, 2) + "\n");
-console.log(`OK: ${injected} referências inline com skillId injetado em src/data/cards.json`);
+console.log(
+	`OK: ${injected} referências inline com skillId injetado em src/data/cards.json`,
+);

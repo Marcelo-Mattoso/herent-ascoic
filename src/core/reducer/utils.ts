@@ -2,8 +2,8 @@
 // Não exportar para fora do módulo reducer.
 
 import type { CreatureCard, HeroCard, SubbossCard } from "../data/cardTypes";
-import { nextFloat, nextId } from "../ports/random";
 import type { RngState } from "../ports/random";
+import { nextFloat, nextId } from "../ports/random";
 import type { ColorIndex } from "../state/color";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
@@ -19,7 +19,10 @@ export function withRng<T>(
 }
 
 // Fisher-Yates determinístico usando RngState.
-export function shuffleRng<T>(arr: readonly T[], rng: RngState): { value: T[]; next: RngState } {
+export function shuffleRng<T>(
+	arr: readonly T[],
+	rng: RngState,
+): { value: T[]; next: RngState } {
 	const copy = [...arr];
 	let currentRng = rng;
 	for (let i = copy.length - 1; i > 0; i--) {
@@ -30,7 +33,6 @@ export function shuffleRng<T>(arr: readonly T[], rng: RngState): { value: T[]; n
 	}
 	return { value: copy, next: currentRng };
 }
-
 
 export function createHeroFromCard(
 	card: HeroCard,

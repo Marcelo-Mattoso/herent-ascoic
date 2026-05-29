@@ -1,15 +1,21 @@
 import { describe, expect, it } from "vitest";
-import { applyFullHeal, applyHeal, applyLifeGain, applySurvive } from "../healSystem";
-import { createInitialGameState } from "../../state/gameState";
-import { createEmptyCombatState } from "../../state/combatState";
-import { getComponent } from "../../ecs/world";
 import type { HealthComponent } from "../../ecs/types";
+import { getComponent } from "../../ecs/world";
+import { createEmptyCombatState } from "../../state/combatState";
 import type { GameState } from "../../state/gameState";
+import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
+import {
+	applyFullHeal,
+	applyHeal,
+	applyLifeGain,
+	applySurvive,
+} from "../healSystem";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Bárbaro Rubro",
 		maxLife: 10,
 		currentLife: 6,

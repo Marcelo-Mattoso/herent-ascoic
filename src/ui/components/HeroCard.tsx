@@ -30,7 +30,8 @@ export function HeroCard({
 	const isDefeated = hero.status === "defeated";
 	const hasFled = hero.status === "fled";
 	const isActive = hero.status === "active";
-	const isCritical = hero.maxLife > 0 && hero.currentLife / hero.maxLife <= 0.25;
+	const isCritical =
+		hero.maxLife > 0 && hero.currentLife / hero.maxLife <= 0.25;
 
 	let borderColor: string = UI.border;
 	let borderWidth = "0.5px";
@@ -50,10 +51,18 @@ export function HeroCard({
 					: 1;
 
 	const firstName = hero.cardName.split(",")[0]?.split(" ")[0] ?? hero.cardName;
-	const shortName = firstName.length > 7 ? `${firstName.slice(0, 7)}` : firstName;
+	const shortName =
+		firstName.length > 7 ? `${firstName.slice(0, 7)}` : firstName;
 
 	return (
-		<div style={{ display: "flex", flexDirection: "column", alignItems: "center", width: 64 }}>
+		<div
+			style={{
+				display: "flex",
+				flexDirection: "column",
+				alignItems: "center",
+				width: 64,
+			}}
+		>
 			<button
 				type="button"
 				draggable={isActive}
@@ -109,7 +118,14 @@ export function HeroCard({
 				{/* Barra de vida */}
 				<HpBar current={hero.currentLife} max={hero.maxLife} height={3} />
 				{/* Vida numérica */}
-				<p style={{ color: UI.textTertiary, fontSize: 9, marginTop: 1, lineHeight: 1 }}>
+				<p
+					style={{
+						color: UI.textTertiary,
+						fontSize: 9,
+						marginTop: 1,
+						lineHeight: 1,
+					}}
+				>
 					{hero.currentLife}/{hero.maxLife}
 				</p>
 			</button>

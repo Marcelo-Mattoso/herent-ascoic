@@ -8,7 +8,10 @@ export const run: ScriptHandler = (ctx) => {
 	const enemyId = ctx.skillCtx.targetEnemyIds?.[0];
 	if (!enemyId) return ctx.state;
 
-	const hasGelatinous = ctx.query.creatureHasSkill(enemyId, "skill_gelatinous_body");
+	const hasGelatinous = ctx.query.creatureHasSkill(
+		enemyId,
+		"skill_gelatinous_body",
+	);
 	const amount = hasGelatinous ? 3 : 2;
 
 	return ctx.action.pushEffect({ kind: "apply_damage", to: enemyId, amount });

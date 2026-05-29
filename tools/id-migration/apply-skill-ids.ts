@@ -5,11 +5,20 @@ const root = resolve(import.meta.dirname, "../..");
 const proposedPath = resolve(import.meta.dirname, "proposed-ids.json");
 const skillsPath = resolve(root, "src/data/skills.json");
 
-const { skills: proposals } = JSON.parse(readFileSync(proposedPath, "utf8")) as {
-	skills: { name: string; category: string; currentId: string; proposedId: string }[];
+const { skills: proposals } = JSON.parse(
+	readFileSync(proposedPath, "utf8"),
+) as {
+	skills: {
+		name: string;
+		category: string;
+		currentId: string;
+		proposedId: string;
+	}[];
 };
 
-const idByCurrentId = new Map(proposals.map((p) => [p.currentId, p.proposedId]));
+const idByCurrentId = new Map(
+	proposals.map((p) => [p.currentId, p.proposedId]),
+);
 
 const raw = JSON.parse(readFileSync(skillsPath, "utf8")) as {
 	abilities: { id: string; [key: string]: unknown }[];
@@ -33,4 +42,6 @@ if (missing > 0) {
 }
 
 writeFileSync(skillsPath, JSON.stringify(raw, null, 2) + "\n");
-console.log(`OK: ${raw.abilities.length} skills com id reescrito em src/data/skills.json`);
+console.log(
+	`OK: ${raw.abilities.length} skills com id reescrito em src/data/skills.json`,
+);

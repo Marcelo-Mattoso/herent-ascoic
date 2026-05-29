@@ -2,7 +2,10 @@
 // Smoke tests: dispatch START_GAME, ler estado, focusedHeroId recomputado.
 // Não testa DevTools (requer extensão do browser) nem useSyncExternalStore (React).
 
-import { describe, expect, it, beforeEach } from "vitest";
+import { beforeEach, describe, expect, it } from "vitest";
+import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
+import { reducer } from "@/core/reducer/index";
+import { createInitialGameState } from "@/core/state/gameState";
 import {
 	gameElfStore,
 	getElfGameState,
@@ -10,9 +13,6 @@ import {
 	resetElfStore,
 	setElfStoreProps,
 } from "./elfStore";
-import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
-import { reducer } from "@/core/reducer/index";
-import { createInitialGameState } from "@/core/state/gameState";
 
 const HERO = "Bárbaro Rubro";
 const EMPTY_CONFIG = { heroCardNames: [] as string[] };
@@ -37,7 +37,10 @@ describe("elfStore — operações básicas", () => {
 
 	it("setElfStoreProps atualiza gameState imediatamente", () => {
 		const adapter = makeAdapter();
-		adapter.dispatch({ type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		adapter.dispatch({
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 		const newState = adapter.getState();
 
 		setElfStoreProps({ gameState: newState });
@@ -73,10 +76,16 @@ describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 	it("estado após START_GAME é idêntico ao reducer puro", () => {
 		const initial = createInitialGameState({ heroCardNames: [HERO] });
 		const adapter = makeAdapter();
-		adapter.dispatch({ type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		adapter.dispatch({
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 
 		const adapterState = adapter.getState();
-		const reducerState = reducer(initial, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		const reducerState = reducer(initial, {
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 
 		// Simula o que gameStore.dispatch faria: atualiza o elfStore
 		setElfStoreProps({ gameState: adapterState });
@@ -89,7 +98,10 @@ describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 
 	it("após START_GAME, herói ativo está presente no estado Elf", () => {
 		const adapter = makeAdapter();
-		adapter.dispatch({ type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		adapter.dispatch({
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 		setElfStoreProps({ gameState: adapter.getState() });
 
 		const state = getElfGameState();
@@ -104,7 +116,10 @@ describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 describe("focusedHeroId — recomputação", () => {
 	it("focusedHeroId aponta para o primeiro herói ativo após START_GAME", () => {
 		const adapter = makeAdapter();
-		adapter.dispatch({ type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		adapter.dispatch({
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 		const nextState = adapter.getState();
 
 		const activeHeroes = nextState.heroes.filter((h) => h.status === "active");
@@ -121,7 +136,10 @@ describe("focusedHeroId — recomputação", () => {
 
 	it("focusedHeroId permanece inalterado se herói ainda está ativo", () => {
 		const adapter = makeAdapter();
-		adapter.dispatch({ type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		adapter.dispatch({
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 		const state1 = adapter.getState();
 		const heroId = state1.heroes[0]!.id;
 
@@ -137,7 +155,9 @@ describe("focusedHeroId — recomputação", () => {
 		const focusStillValid = currentFocus
 			? activeHeroes.some((h) => h.id === currentFocus)
 			: false;
-		const newFocusId = focusStillValid ? currentFocus : (activeHeroes[0]?.id ?? null);
+		const newFocusId = focusStillValid
+			? currentFocus
+			: (activeHeroes[0]?.id ?? null);
 
 		setElfStoreProps({ gameState: state2, ui: { focusedHeroId: newFocusId } });
 

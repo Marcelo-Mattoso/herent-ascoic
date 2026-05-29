@@ -2,10 +2,10 @@
 // cards.json é a fonte única de composição (card → skill refs).
 // skills.json é a fonte única de comportamento e templates.
 
-import { SKILLS } from "../data/skills";
 import { getAllCards } from "../data/cards";
-import type { SkillDefinition } from "../data/skillTypes";
 import type { SkillRef } from "../data/cardTypes";
+import { SKILLS } from "../data/skills";
+import type { SkillDefinition } from "../data/skillTypes";
 
 interface ResolvedSkillRef {
 	def: SkillDefinition;
@@ -14,19 +14,22 @@ interface ResolvedSkillRef {
 
 // Índices derivados de cards.json
 const _byCardId = new Map<string, ResolvedSkillRef[]>(); // cardId → refs resolvidas
-const _bySkillId = new Map<string, string[]>();           // skillId → cardIds que a usam
+const _bySkillId = new Map<string, string[]>(); // skillId → cardIds que a usam
 
 function buildCache(): void {
 	for (const card of getAllCards()) {
 		const refs: ResolvedSkillRef[] = [];
-		const rawRefs: SkillRef[] = "skills" in card && Array.isArray(card.skills)
-			? (card.skills as SkillRef[])
-			: [];
+		const rawRefs: SkillRef[] =
+			"skills" in card && Array.isArray(card.skills)
+				? (card.skills as SkillRef[])
+				: [];
 
 		for (const ref of rawRefs) {
 			const def = SKILLS.abilities.find((a) => a.id === ref.skillId);
 			if (!def) {
-				throw new Error(`skillId "${ref.skillId}" em ${card.id} não existe em skills.json`);
+				throw new Error(
+					`skillId "${ref.skillId}" em ${card.id} não existe em skills.json`,
+				);
 			}
 			refs.push({ def, ref });
 			const existing = _bySkillId.get(ref.skillId);

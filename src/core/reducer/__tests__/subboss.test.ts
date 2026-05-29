@@ -2,8 +2,8 @@
 // Verifica injeção de salas ao atingir Despertar 3 e revelação de sala de subchefe.
 
 import { describe, expect, it } from "vitest";
-import { reducer } from "../index";
 import { createInitialGameState } from "../../state/gameState";
+import { reducer } from "../index";
 import "../../skills/handlers/index"; // popula registry
 
 function makeState() {
@@ -34,7 +34,10 @@ describe("F13 — Subchefes", () => {
 		};
 		const deckBefore = state.decks.dungeonDeck.available.length;
 
-		state = reducer(state, { type: "SPEND_XP", payload: { option: "level_up", heroId } });
+		state = reducer(state, {
+			type: "SPEND_XP",
+			payload: { option: "level_up", heroId },
+		});
 
 		// Despertar agora é 3
 		expect(state.despertar).toBe(3);
@@ -56,15 +59,23 @@ describe("F13 — Subchefes", () => {
 			despertar: 2 as import("../../state/color").ColorIndex,
 		};
 		// Primeira injeção (despertar 2 → 3)
-		state = reducer(state, { type: "SPEND_XP", payload: { option: "level_up", heroId } });
+		state = reducer(state, {
+			type: "SPEND_XP",
+			payload: { option: "level_up", heroId },
+		});
 		expect(state.despertar).toBe(3);
 		const availableAfterFirst = [...state.subbosses.available];
 
 		// Segundo level-up: despertar 3 → 4, subbosses.available.length > 0 → não reinjecta
-		state = reducer(state, { type: "SPEND_XP", payload: { option: "level_up", heroId } });
+		state = reducer(state, {
+			type: "SPEND_XP",
+			payload: { option: "level_up", heroId },
+		});
 		expect(state.despertar).toBe(4);
 		// subbosses.available não cresceu (pode ter diminuído se algum foi derrotado, mas aqui 0 derrotados)
-		expect(state.subbosses.available.length).toBeLessThanOrEqual(availableAfterFirst.length);
+		expect(state.subbosses.available.length).toBeLessThanOrEqual(
+			availableAfterFirst.length,
+		);
 	});
 
 	it("revelar sala de subchefe spawna o subchefe correto (sem desenhar do enemyDeck)", () => {
@@ -74,12 +85,18 @@ describe("F13 — Subchefes", () => {
 		state = {
 			...state,
 			despertar: 3 as import("../../state/color").ColorIndex,
-			subbosses: { available: ["Câmara do Carcereiro", "Câmara do Abismo Rachado"], defeated: [] },
+			subbosses: {
+				available: ["Câmara do Carcereiro", "Câmara do Abismo Rachado"],
+				defeated: [],
+			},
 			decks: {
 				...state.decks,
 				dungeonDeck: {
 					...state.decks.dungeonDeck,
-					available: ["Câmara do Carcereiro", ...state.decks.dungeonDeck.available],
+					available: [
+						"Câmara do Carcereiro",
+						...state.decks.dungeonDeck.available,
+					],
 				},
 			},
 		};
@@ -93,12 +110,16 @@ describe("F13 — Subchefes", () => {
 		expect(state.currentRoom?.cardName).toBe("Câmara do Carcereiro");
 		// O subchefe foi spawniado como enemy ativo
 		expect(state.activeEnemies).toHaveLength(1);
-		expect(state.activeEnemies[0]!.cardName).toBe("Carcereiro da Masmorra Rubra");
+		expect(state.activeEnemies[0]!.cardName).toBe(
+			"Carcereiro da Masmorra Rubra",
+		);
 		expect(state.activeEnemies[0]!.isSubboss).toBe(true);
 		// Enemy deck não foi tocado
 		expect(state.decks.enemyDeck.available.length).toBe(enemyDeckSizeBefore);
 		// Herói foi selecionado inicialmente via START_GAME — não verificamos aqui
 		// O deck de dungeon consumiu a carta
-		expect(state.decks.dungeonDeck.available).not.toContain("Câmara do Carcereiro");
+		expect(state.decks.dungeonDeck.available).not.toContain(
+			"Câmara do Carcereiro",
+		);
 	});
 });

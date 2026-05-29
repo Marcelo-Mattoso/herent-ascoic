@@ -1,15 +1,17 @@
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../data/skills";
-import { createInitialGameState } from "../../state/gameState";
 import { reducer } from "../../reducer/index";
-import { fireOnUseSkill } from "../useSkill";
-import { isManuallyActivatable } from "../useSkill";
+import { createInitialGameState } from "../../state/gameState";
+import { fireOnUseSkill, isManuallyActivatable } from "../useSkill";
 
 const HERO = "Bárbaro Rubro";
 
 function buildBaseState() {
 	const base = createInitialGameState({ heroCardNames: [HERO] });
-	return reducer(base, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+	return reducer(base, {
+		type: "START_GAME",
+		payload: { heroCardNames: [HERO] },
+	});
 }
 
 describe("isManuallyActivatable — asserts diretos", () => {
@@ -20,7 +22,9 @@ describe("isManuallyActivatable — asserts diretos", () => {
 	});
 
 	it("Clérigo skill on_use → true", () => {
-		const def = SKILLS.abilities.find((a) => a.id === "skill_last_light_healing");
+		const def = SKILLS.abilities.find(
+			(a) => a.id === "skill_last_light_healing",
+		);
 		expect(def).toBeDefined();
 		expect(isManuallyActivatable(def!)).toBe(true);
 	});
@@ -38,14 +42,23 @@ describe("fireOnUseSkill rejeita iff !isManuallyActivatable", () => {
 		const heroId = state.heroes[0]?.id ?? "";
 
 		for (const def of SKILLS.abilities) {
-			const result = fireOnUseSkill(state, { skillId: def.id, sourceId: heroId });
+			const result = fireOnUseSkill(state, {
+				skillId: def.id,
+				sourceId: heroId,
+			});
 			const lastLog = result.eventLog[result.eventLog.length - 1] ?? "";
 			const wasRejected = lastLog.includes("não é ativável manualmente");
 
 			if (!isManuallyActivatable(def)) {
-				expect(wasRejected, `skill ${def.id} (${def.trigger}) deveria ser rejeitada`).toBe(true);
+				expect(
+					wasRejected,
+					`skill ${def.id} (${def.trigger}) deveria ser rejeitada`,
+				).toBe(true);
 			} else {
-				expect(wasRejected, `skill ${def.id} (${def.trigger}) não deveria ser rejeitada`).toBe(false);
+				expect(
+					wasRejected,
+					`skill ${def.id} (${def.trigger}) não deveria ser rejeitada`,
+				).toBe(false);
 			}
 		}
 	});

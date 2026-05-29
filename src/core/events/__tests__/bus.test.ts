@@ -1,19 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { emit } from "../bus";
+import type { TriggerComponent } from "../../ecs/types";
+import { addComponent, createEntity, upsertEntity } from "../../ecs/world";
+import { createEmptyCombatState } from "../../state/combatState";
+import type { EnemyState } from "../../state/enemyState";
+import type { GameState } from "../../state/gameState";
+import { createInitialGameState } from "../../state/gameState";
+import type { HeroState } from "../../state/heroState";
 import { applyDamage } from "../../systems/damageSystem";
 import { applyHeal } from "../../systems/healSystem";
-import { createInitialGameState } from "../../state/gameState";
-import { createEmptyCombatState } from "../../state/combatState";
-import {
-	addComponent,
-	createEmptyWorld,
-	createEntity,
-	upsertEntity,
-} from "../../ecs/world";
-import type { TriggerComponent } from "../../ecs/types";
-import type { GameState } from "../../state/gameState";
-import type { HeroState } from "../../state/heroState";
-import type { EnemyState } from "../../state/enemyState";
+import { emit } from "../bus";
 import type { GameEvent } from "../types";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
@@ -21,6 +16,7 @@ import type { GameEvent } from "../types";
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Bárbaro Rubro",
 		maxLife: 10,
 		currentLife: 8,
@@ -42,6 +38,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
+		cardId: "creature_dark_cave_goblin",
 		cardName: "Goblin",
 		maxLife: 5,
 		currentLife: 5,
@@ -64,7 +61,8 @@ function makeState(
 	return {
 		...base,
 		heroes: [makeHero(heroOverrides)],
-		activeEnemies: enemyOverrides !== undefined ? [makeEnemy(enemyOverrides)] : [],
+		activeEnemies:
+			enemyOverrides !== undefined ? [makeEnemy(enemyOverrides)] : [],
 		combat: createEmptyCombatState(),
 	};
 }
@@ -99,7 +97,12 @@ describe("emit — world vazio", () => {
 		const state = makeState();
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 5 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 5,
+			},
 		};
 		const result = emit(state, event);
 		expect(result.state).toBe(state);
@@ -122,7 +125,12 @@ describe("emit — world vazio", () => {
 
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 5 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 5,
+			},
 		};
 		const result = emit(stateWithTrigger, event);
 		expect((result.event.payload as { amount: number }).amount).toBe(5);
@@ -136,7 +144,12 @@ describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {
 		const state = withArmorTrigger(makeState(), "h1", 2);
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 5 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 5,
+			},
 		};
 		const { event: modified } = emit(state, event);
 		expect((modified.payload as { amount: number }).amount).toBe(3);
@@ -146,7 +159,12 @@ describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {
 		const state = withArmorTrigger(makeState(), "h1", 100);
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 5 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 5,
+			},
 		};
 		const { event: modified } = emit(state, event);
 		expect((modified.payload as { amount: number }).amount).toBe(0);
@@ -157,7 +175,12 @@ describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {
 		const state = withArmorTrigger(makeState(), "h1", 3);
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h2", damageType: "physical", amount: 5 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h2",
+				damageType: "physical",
+				amount: 5,
+			},
 		};
 		const { event: modified } = emit(state, event);
 		expect((modified.payload as { amount: number }).amount).toBe(5);
@@ -200,7 +223,12 @@ describe("emit — ordenação por prioridade", () => {
 		const stateWithTriggers = { ...state, world };
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 10 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 10,
+			},
 		};
 		const { event: modified } = emit(stateWithTriggers, event);
 		// h2 (priority 5, delta=-3) → 10-3=7, mas targetId=h1 então é ignorado por h2
@@ -236,7 +264,12 @@ describe("emit — ordenação por prioridade", () => {
 		const stateWithTriggers = { ...state, world };
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 8 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 8,
+			},
 		};
 		const { event: modified } = emit(stateWithTriggers, event);
 		// priority 5: 8-2=6; priority 10: 6-1=5
@@ -263,7 +296,12 @@ describe("emit — condition predicate", () => {
 
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 7 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 7,
+			},
 		};
 		const { event: modified } = emit({ ...state, world }, event);
 		expect((modified.payload as { amount: number }).amount).toBe(7);
@@ -285,7 +323,12 @@ describe("emit — condition predicate", () => {
 
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 7 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 7,
+			},
 		};
 		const { event: modified } = emit({ ...state, world }, event);
 		expect((modified.payload as { amount: number }).amount).toBe(4);
@@ -313,7 +356,12 @@ describe("emit — guard de recursão", () => {
 				try {
 					emit(state, {
 						type: "DamageDealt",
-						payload: { sourceId: "e1", targetId: entity.id, damageType: "physical", amount: 0 },
+						payload: {
+							sourceId: "e1",
+							targetId: entity.id,
+							damageType: "physical",
+							amount: 0,
+						},
 					});
 				} catch {
 					// esperado — recursão proibida
@@ -326,7 +374,12 @@ describe("emit — guard de recursão", () => {
 		// O emit externo não deve lançar (o interno lança e é capturado dentro de condition)
 		const event: GameEvent = {
 			type: "DamageAboutToBeDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 5 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 5,
+			},
 		};
 		expect(() => emit({ ...state, world }, event)).not.toThrow();
 	});
@@ -338,7 +391,12 @@ describe("emit — guard de recursão", () => {
 		const state = makeState();
 		const event: GameEvent = {
 			type: "DamageDealt",
-			payload: { sourceId: "e1", targetId: "h1", damageType: "physical", amount: 3 },
+			payload: {
+				sourceId: "e1",
+				targetId: "h1",
+				damageType: "physical",
+				amount: 3,
+			},
 		};
 		// Emissão normal não deve lançar
 		expect(() => emit(state, event)).not.toThrow();

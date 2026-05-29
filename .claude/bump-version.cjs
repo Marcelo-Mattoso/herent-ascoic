@@ -10,8 +10,8 @@ const menuPath = path.join(root, "src/ui/screens/MainMenu.tsx");
 let pkg = fs.readFileSync(pkgPath, "utf8");
 const m = pkg.match(/"version": "(\d+)\.(\d+)\.(\d+)"/);
 if (!m) {
-  console.error("bump-version: campo version não encontrado em package.json");
-  process.exit(1);
+	console.error("bump-version: campo version não encontrado em package.json");
+	process.exit(1);
 }
 
 const newVersion = `${m[1]}.${m[2]}.${+m[3] + 1}`;

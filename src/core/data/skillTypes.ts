@@ -9,7 +9,13 @@ export type SkillCategory =
 	| "habilidade_dungeon"
 	| "habilidade_chefe";
 
-export type SkillCardType = "hero" | "creature" | "subboss" | "item" | "artifact" | "room";
+export type SkillCardType =
+	| "hero"
+	| "creature"
+	| "subboss"
+	| "item"
+	| "artifact"
+	| "room";
 
 // Conjunto de triggers reconhecidos pelo engine.
 // Triggers compostos (once_per_X_...) são parseados por parseTrigger().
@@ -153,7 +159,12 @@ export interface SkillContext {
 
 // Resultado do resolveTarget quando é necessário interação do jogador.
 export type TargetResolution =
-	| { kind: "resolved"; heroIds?: string[]; enemyIds?: string[]; dieIndices?: number[] }
+	| {
+			kind: "resolved";
+			heroIds?: string[];
+			enemyIds?: string[];
+			dieIndices?: number[];
+	  }
 	| { kind: "needs_selection"; candidates: TargetCandidate[] }
 	| { kind: "none" };
 

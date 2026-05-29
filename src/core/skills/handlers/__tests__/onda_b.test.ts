@@ -5,24 +5,24 @@
 // Testes portados para usar evaluate() + drainStack + reducer com novos option IDs.
 
 import { describe, expect, it } from "vitest";
+import { buildScriptCtx } from "../../../scripts/context";
+import { evaluate } from "../../dsl/evaluate";
+import { handleDungeon } from "../dungeon";
 import { handleItemControl } from "../itemControl";
 import { handleTargetProtection } from "../targetProtection";
-import { handleDungeon } from "../dungeon";
-import { evaluate } from "../../dsl/evaluate";
-import { drainStack } from "../../../effects/resolver";
-import { buildScriptCtx } from "../../../scripts/context";
 // Importar index para que registerContinuation seja chamado
 import "../index";
 import { reducer } from "../../../reducer";
-import { createInitialGameState } from "../../../state/gameState";
 import { createEmptyCombatState } from "../../../state/combatState";
-import type { GameState } from "../../../state/gameState";
-import type { HeroState } from "../../../state/heroState";
 import type { EnemyState } from "../../../state/enemyState";
+import type { GameState } from "../../../state/gameState";
+import { createInitialGameState } from "../../../state/gameState";
+import type { HeroState } from "../../../state/heroState";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Bárbaro Rubro",
 		maxLife: 10,
 		currentLife: 10,
@@ -44,6 +44,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
+		cardId: "creature_dark_cave_bat",
 		cardName: "Morcego do Teto Negro",
 		maxLife: 3,
 		currentLife: 3,
@@ -75,41 +76,91 @@ describe("DSL choose_one — dark_tribute", () => {
 		{
 			kind: "choose_one" as const,
 			options: [
-				{ label: "Descartar 1 item", effect: [{ kind: "discard_from" as const, pile: "item" as const, count: 1 }] },
-				{ label: "Descartar 1 carta de dungeon", effect: [{ kind: "discard_from" as const, pile: "dungeon" as const, count: 1 }] },
+				{
+					label: "Descartar 1 item",
+					effect: [
+						{ kind: "discard_from" as const, pile: "item" as const, count: 1 },
+					],
+				},
+				{
+					label: "Descartar 1 carta de dungeon",
+					effect: [
+						{
+							kind: "discard_from" as const,
+							pile: "dungeon" as const,
+							count: 1,
+						},
+					],
+				},
 			],
 		},
 	];
 
 	it("abre pendingSkillChoice com opções DSL", () => {
-		const state = makeState({ heroes: [makeHero({ backpack: ["Adaga Enferrujada"] })] });
-		const ctx = buildScriptCtx(state, { triggeredBy: "before_first_combat_in_room", skillId: "skill_dark_tribute" }, {});
+		const state = makeState({
+			heroes: [makeHero({ backpack: ["Adaga Enferrujada"] })],
+		});
+		const ctx = buildScriptCtx(
+			state,
+			{
+				triggeredBy: "before_first_combat_in_room",
+				skillId: "skill_dark_tribute",
+			},
+			{},
+		);
 		const result = evaluate(darkTributeEffect, ctx);
 		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options.map((o) => o.label)).toContain("Descartar 1 item");
-		expect(result.pendingSkillChoice?.options.map((o) => o.label)).toContain("Descartar 1 carta de dungeon");
+		expect(result.pendingSkillChoice?.options.map((o) => o.label)).toContain(
+			"Descartar 1 item",
+		);
+		expect(result.pendingSkillChoice?.options.map((o) => o.label)).toContain(
+			"Descartar 1 carta de dungeon",
+		);
 	});
 
 	it("escolha 'dungeon' descarta 1 carta do deck via SKILL_CHOICE", () => {
 		const base = makeState({
 			decks: {
 				...createInitialGameState({ heroCardNames: [] }).decks,
-				dungeonDeck: { available: ["Sala A", "Sala B"], discarded: [], removed: [] },
+				dungeonDeck: {
+					available: ["Sala A", "Sala B"],
+					discarded: [],
+					removed: [],
+				},
 			},
 		});
-		const ctx = buildScriptCtx(base, { triggeredBy: "before_first_combat_in_room", skillId: "skill_dark_tribute" }, {});
+		const ctx = buildScriptCtx(
+			base,
+			{
+				triggeredBy: "before_first_combat_in_room",
+				skillId: "skill_dark_tribute",
+			},
+			{},
+		);
 		const withChoice = evaluate(darkTributeEffect, ctx);
 		const result = reducer(withChoice, {
 			type: "SKILL_CHOICE",
-			payload: { skillId: "skill_dark_tribute", choice: "Descartar 1 carta de dungeon" },
+			payload: {
+				skillId: "skill_dark_tribute",
+				choice: "Descartar 1 carta de dungeon",
+			},
 		});
 		expect(result.decks.dungeonDeck.available).toHaveLength(1);
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
 
 	it("escolha 'item' remove item da mochila via SKILL_CHOICE", () => {
-		const base = makeState({ heroes: [makeHero({ backpack: ["Poção de Vigor Menor"] })] });
-		const ctx = buildScriptCtx(base, { triggeredBy: "before_first_combat_in_room", skillId: "skill_dark_tribute" }, {});
+		const base = makeState({
+			heroes: [makeHero({ backpack: ["Poção de Vigor Menor"] })],
+		});
+		const ctx = buildScriptCtx(
+			base,
+			{
+				triggeredBy: "before_first_combat_in_room",
+				skillId: "skill_dark_tribute",
+			},
+			{},
+		);
 		const withChoice = evaluate(darkTributeEffect, ctx);
 		const result = reducer(withChoice, {
 			type: "SKILL_CHOICE",
@@ -171,7 +222,11 @@ describe("handleDungeon", () => {
 		const state = makeState({
 			decks: {
 				...createInitialGameState({ heroCardNames: [] }).decks,
-				dungeonDeck: { available: ["Sala Secreta", "Sala B"], discarded: [], removed: [] },
+				dungeonDeck: {
+					available: ["Sala Secreta", "Sala B"],
+					discarded: [],
+					removed: [],
+				},
 			},
 		});
 		const result = handleDungeon(
@@ -180,7 +235,11 @@ describe("handleDungeon", () => {
 			1,
 		);
 		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options.some((o) => o.label === "Sala Secreta")).toBe(true);
+		expect(
+			result.pendingSkillChoice?.options.some(
+				(o) => o.label === "Sala Secreta",
+			),
+		).toBe(true);
 	});
 
 	it("continuação 'ok' limpa pendingSkillChoice sem alterar o deck", () => {
@@ -195,7 +254,10 @@ describe("handleDungeon", () => {
 				options: [{ id: "ok", label: "Confirmar" }],
 			},
 		});
-		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "skill_illuminate_path", choice: "ok" } });
+		const result = reducer(state, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "skill_illuminate_path", choice: "ok" },
+		});
 		expect(result.pendingSkillChoice).toBeUndefined();
 		expect(result.decks.dungeonDeck.available).toHaveLength(1);
 	});
@@ -206,7 +268,10 @@ describe("handleDungeon", () => {
 describe("reducer SKILL_CHOICE", () => {
 	it("sem pendingSkillChoice, retorna estado inalterado (exceto actionLog)", () => {
 		const state = makeState();
-		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "x", choice: "y" } });
+		const result = reducer(state, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "x", choice: "y" },
+		});
 		// actionLog sempre acumula — compara o resto do estado
 		const { actionLog: _a, ...restResult } = result;
 		const { actionLog: _b, ...restState } = state;
@@ -221,7 +286,10 @@ describe("reducer SKILL_CHOICE", () => {
 				options: [{ id: "a", label: "A" }],
 			},
 		});
-		const result = reducer(state, { type: "SKILL_CHOICE", payload: { skillId: "habilidade-inexistente", choice: "a" } });
+		const result = reducer(state, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "habilidade-inexistente", choice: "a" },
+		});
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
 });

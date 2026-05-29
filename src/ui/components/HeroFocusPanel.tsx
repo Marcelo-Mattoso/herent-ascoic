@@ -2,21 +2,20 @@
 // Mostra stats, habilidade, poder, mochila e botões de ação.
 // Também cobre ações de não-combate (revelar sala, iniciar combate, etc.).
 
+import { getCardByName } from "@/core/data/cards";
+import { isSkillGuardConsumed } from "@/core/skills/dispatch";
+import { cardSkills } from "@/core/skills/lookup";
+import { renderSkillLabel } from "@/core/skills/renderLabel";
+import { isManuallyActivatable } from "@/core/skills/useSkill";
 import type { CombatState } from "@/core/state/combatState";
 import type { GameState } from "@/core/state/gameState";
-import type { HeroState } from "@/core/state/heroState";
-import { getCardByName } from "@/core/data/cards";
-import { cardSkills } from "@/core/skills/lookup";
-import { isManuallyActivatable } from "@/core/skills/useSkill";
-import { isSkillGuardConsumed } from "@/core/skills/dispatch";
-import { renderSkillLabel } from "@/core/skills/renderLabel";
+import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
 import { ColorBar } from "./ColorBar";
 import { HpBar } from "./HpBar";
 import { ItemChip } from "./ItemChip";
-import type { ItemSlotType } from "@/core/state/heroState";
 
 interface HeroFocusPanelProps {
 	hero: HeroState | null;
@@ -48,7 +47,9 @@ export function HeroFocusPanel({
 	const phase = combat?.phase ?? null;
 
 	const heroCard = hero ? getCardByName(hero.cardName) : null;
-	const powerUsed = hero ? (combat?.powersUsedThisRoom[hero.id] ?? false) : false;
+	const powerUsed = hero
+		? (combat?.powersUsedThisRoom[hero.id] ?? false)
+		: false;
 
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isSelectingHero = isInCombat && phase === "selecting_hero";
@@ -144,8 +145,7 @@ export function HeroFocusPanel({
 									<strong>
 										{hero.currentLife}/{hero.maxLife}
 									</strong>{" "}
-									· Acerto{" "}
-									<strong>+{hero.hitBonus}</strong> · Dano{" "}
+									· Acerto <strong>+{hero.hitBonus}</strong> · Dano{" "}
 									<strong>D{hero.damage}</strong> · Dados{" "}
 									<strong>{hero.dice}d6</strong>
 								</p>
@@ -160,87 +160,112 @@ export function HeroFocusPanel({
 					</div>
 
 					{/* Habilidade + Poder */}
-					{heroCard?.type === "hero" && (() => {
-						const heroSkills = cardSkills(heroCard.id);
-						const habilidade = heroSkills.find(({ def }) => def.category === "habilidade");
-						const poder = heroSkills.find(({ def }) => def.category === "poder_heroi");
-						return (
-							<div style={{ display: "grid", gridTemplateColumns: "1fr 1fr", gap: 6 }}>
-								{/* Habilidade */}
-								{habilidade && (
-									<div
-										style={{
-											background: UI.subpanelBg,
-											borderRadius: 6,
-											padding: "6px 8px",
-										}}
-									>
-										<p
+					{heroCard?.type === "hero" &&
+						(() => {
+							const heroSkills = cardSkills(heroCard.id);
+							const habilidade = heroSkills.find(
+								({ def }) => def.category === "habilidade",
+							);
+							const poder = heroSkills.find(
+								({ def }) => def.category === "poder_heroi",
+							);
+							return (
+								<div
+									style={{
+										display: "grid",
+										gridTemplateColumns: "1fr 1fr",
+										gap: 6,
+									}}
+								>
+									{/* Habilidade */}
+									{habilidade && (
+										<div
 											style={{
-												fontSize: 10,
-												fontWeight: 500,
-												color: UI.textSecondary,
-												marginBottom: 2,
+												background: UI.subpanelBg,
+												borderRadius: 6,
+												padding: "6px 8px",
 											}}
 										>
-											📖 Habilidade ·{" "}
-											<span
+											<p
 												style={{
-													background: "#EAF3DE",
-													color: "#3B6D11",
-													borderRadius: 3,
-													padding: "0 4px",
-													fontSize: 9,
+													fontSize: 10,
+													fontWeight: 500,
+													color: UI.textSecondary,
+													marginBottom: 2,
 												}}
 											>
-												ativa
-											</span>
-										</p>
-										<p style={{ color: UI.textPrimary, fontSize: 10, lineHeight: 1.4 }}>
-											{renderSkillLabel(habilidade.ref)}
-										</p>
-									</div>
-								)}
+												📖 Habilidade ·{" "}
+												<span
+													style={{
+														background: "#EAF3DE",
+														color: "#3B6D11",
+														borderRadius: 3,
+														padding: "0 4px",
+														fontSize: 9,
+													}}
+												>
+													ativa
+												</span>
+											</p>
+											<p
+												style={{
+													color: UI.textPrimary,
+													fontSize: 10,
+													lineHeight: 1.4,
+												}}
+											>
+												{renderSkillLabel(habilidade.ref)}
+											</p>
+										</div>
+									)}
 
-								{/* Poder */}
-								{poder && (
-									<div
-										style={{
-											background: UI.subpanelBg,
-											borderRadius: 6,
-											padding: "6px 8px",
-										}}
-									>
-										<p
+									{/* Poder */}
+									{poder && (
+										<div
 											style={{
-												fontSize: 10,
-												fontWeight: 500,
-												color: UI.textSecondary,
-												marginBottom: 2,
+												background: UI.subpanelBg,
+												borderRadius: 6,
+												padding: "6px 8px",
 											}}
 										>
-											⚡ Poder ·{" "}
-											<span
+											<p
 												style={{
-													background: powerUsed ? UI.subpanelBg : UI.panelBg,
-													color: powerUsed ? UI.textTertiary : UI.textSecondary,
-													border: `1px solid ${UI.border}`,
-													borderRadius: 3,
-													padding: "0 4px",
-													fontSize: 9,
+													fontSize: 10,
+													fontWeight: 500,
+													color: UI.textSecondary,
+													marginBottom: 2,
 												}}
 											>
-												{powerUsed ? "usado" : "disponível"}
-											</span>
-										</p>
-										<p style={{ color: UI.textPrimary, fontSize: 10, lineHeight: 1.4 }}>
-											{renderSkillLabel(poder.ref)}
-										</p>
-									</div>
-								)}
-							</div>
-						);
-					})()}
+												⚡ Poder ·{" "}
+												<span
+													style={{
+														background: powerUsed ? UI.subpanelBg : UI.panelBg,
+														color: powerUsed
+															? UI.textTertiary
+															: UI.textSecondary,
+														border: `1px solid ${UI.border}`,
+														borderRadius: 3,
+														padding: "0 4px",
+														fontSize: 9,
+													}}
+												>
+													{powerUsed ? "usado" : "disponível"}
+												</span>
+											</p>
+											<p
+												style={{
+													color: UI.textPrimary,
+													fontSize: 10,
+													lineHeight: 1.4,
+												}}
+											>
+												{renderSkillLabel(poder.ref)}
+											</p>
+										</div>
+									)}
+								</div>
+							);
+						})()}
 
 					{/* Mochila */}
 					<div>
@@ -290,7 +315,9 @@ export function HeroFocusPanel({
 									const item = hero.activeItems[slot];
 									if (!item) return null;
 									const slotCard = getCardByName(item);
-									const isConsumable = slotCard?.type === "item" && slotCard.itemClass === "consumable";
+									const isConsumable =
+										slotCard?.type === "item" &&
+										slotCard.itemClass === "consumable";
 									return (
 										<ItemChip
 											key={slot}
@@ -380,10 +407,13 @@ function ActionSection({
 	// Verificar se a skill do herói tem trigger on_use e pode ser ativada agora
 	const heroCardForSkill = getCardByName(hero.cardName);
 	const habilidadeEntry = heroCardForSkill
-		? cardSkills(heroCardForSkill.id).find(({ def }) => def.category === "habilidade")
+		? cardSkills(heroCardForSkill.id).find(
+				({ def }) => def.category === "habilidade",
+			)
 		: null;
 	const skillDef = habilidadeEntry?.def ?? null;
-	const skillIsActivatable = skillDef !== null && isManuallyActivatable(skillDef);
+	const skillIsActivatable =
+		skillDef !== null && isManuallyActivatable(skillDef);
 	const skillAlreadyUsed =
 		skillDef !== null && isSkillGuardConsumed(state, skillDef, hero.id);
 
@@ -397,8 +427,9 @@ function ActionSection({
 		const canPass = isSelectingTarget && isFocusedHeroSelected;
 		const canCancel = isSelectingTarget && isFocusedHeroSelected;
 		const canPower = isSelectingTarget && isFocusedHeroSelected && !powerUsed;
-		const canFlee = isInCombat && hero.currentLife === 1 && !state.flags?.fleeBlocked;
-		const fleeAlreadyDeclared = !!(state.combat?.fleeAttemptByHero?.[hero.id]);
+		const canFlee =
+			isInCombat && hero.currentLife === 1 && !state.flags?.fleeBlocked;
+		const fleeAlreadyDeclared = !!state.combat?.fleeAttemptByHero?.[hero.id];
 
 		// hint durante selecting_hero
 		if (isSelectingHero) {

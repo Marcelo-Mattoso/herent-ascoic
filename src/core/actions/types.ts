@@ -25,7 +25,10 @@ export type InvToZone =
 export type { XpSpendOption };
 
 export type Action =
-	| { type: "START_GAME"; payload: GameConfig & { seed?: number; gameId?: string } }
+	| {
+			type: "START_GAME";
+			payload: GameConfig & { seed?: number; gameId?: string };
+	  }
 	| { type: "REVEAL_ROOM" }
 	| { type: "RESOLVE_ROOM_EFFECT" }
 	| { type: "SPAWN_ENEMIES" }
@@ -87,7 +90,11 @@ export type Action =
 	  }
 	| {
 			type: "INV_ASSIGN_ARTIFACT";
-			payload: { artifactName: string; vagaIndex: 0 | 1; heroId: string | null };
+			payload: {
+				artifactName: string;
+				vagaIndex: 0 | 1;
+				heroId: string | null;
+			};
 	  }
 	| {
 			type: "INV_SET_BEARER";

@@ -1,7 +1,7 @@
-import type { Component } from "../ecs/types";
 import type { SkillContext } from "../data/skillTypes";
-import type { GameState } from "../state/gameState";
+import type { Component } from "../ecs/types";
 import type { EffectNode } from "../skills/dsl/types";
+import type { GameState } from "../state/gameState";
 
 export interface ScriptCtx {
 	readonly state: GameState;
@@ -20,7 +20,7 @@ export interface ScriptCtx {
 		creatureHasSkill(enemyId: string, skillId: string): boolean;
 		dungeonLevel(): number;
 		roomEnemyCount(): number;
-		// cresce sob demanda
+		heroWithLowestLife(): string | null;
 	};
 
 	// ── Ações (retornam novo GameState) ─────────────────────────────────────
@@ -49,17 +49,22 @@ export interface ScriptCtx {
 		/**
 		 * Emite um evento no bus — stub para o Passo 7 do event bus.
 		 */
-		emit(event: { readonly type: string; readonly [k: string]: unknown }): GameState;
+		emit(event: {
+			readonly type: string;
+			readonly [k: string]: unknown;
+		}): GameState;
 
 		/**
 		 * Registra pendingSkillChoice e pausa a drenagem para input do jogador.
 		 * `effect` em cada opção é o ramo DSL a avaliar quando escolhida (Lote 3+).
 		 */
-		requestChoice(options: ReadonlyArray<{
-			readonly id: string;
-			readonly label: string;
-			readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
-		}>): GameState;
+		requestChoice(
+			options: ReadonlyArray<{
+				readonly id: string;
+				readonly label: string;
+				readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
+			}>,
+		): GameState;
 
 		/** Acrescenta mensagem ao eventLog. */
 		log(msg: string): GameState;

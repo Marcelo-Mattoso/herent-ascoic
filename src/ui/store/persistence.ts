@@ -8,12 +8,12 @@
 //
 // Esta camada é chamada pelo store na inicialização da aplicação.
 
-import { FEATURE_FLAGS } from "@/core/config/defaults";
+import type { Action } from "@/core/actions/types";
 import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
+import { FEATURE_FLAGS } from "@/core/config/defaults";
 import { localStoragePersistence } from "@/core/persistence/localStoragePersistence";
 import type { PersistencePort } from "@/core/ports/persistence";
 import { isLogIntact } from "@/core/ports/persistence";
-import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
 
@@ -36,7 +36,8 @@ function replayFromLog(port: PersistencePort): GameState | null {
 		}
 		return adapter.getState();
 	} catch {
-		if (import.meta.env.DEV) console.warn("[persistence] Falha no replay do log");
+		if (import.meta.env.DEV)
+			console.warn("[persistence] Falha no replay do log");
 		return null;
 	}
 }

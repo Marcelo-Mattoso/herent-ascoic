@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { fireTrigger } from "../dispatch";
 import { drainStack } from "../../effects/resolver";
-import { createInitialGameState } from "../../state/gameState";
 import { createEmptyCombatState } from "../../state/combatState";
-import type { GameConfig } from "../../state/gameState";
 import type { EnemyState } from "../../state/enemyState";
+import type { GameConfig } from "../../state/gameState";
+import { createInitialGameState } from "../../state/gameState";
+import { fireTrigger } from "../dispatch";
 // Importar handlers para que o registry esteja populado
 import "../handlers/index";
 
@@ -13,7 +13,9 @@ const config: GameConfig = { heroCardNames: ["Bárbaro Rubro"] };
 describe("fireTrigger", () => {
 	it("retorna o estado inalterado quando não há handlers registrados", () => {
 		const state = createInitialGameState(config);
-		const result = fireTrigger(state, "before_attack", { triggeredBy: "before_attack" });
+		const result = fireTrigger(state, "before_attack", {
+			triggeredBy: "before_attack",
+		});
 		// Sem handlers, o estado deve ser idêntico
 		expect(result.eventLog).toEqual(state.eventLog);
 	});
@@ -62,14 +64,28 @@ describe("purpleEffect filter", () => {
 			activeEnemies: [morcego],
 			heroes: [
 				{
-					id: "h1", cardId: "hero_crimson_barbarian", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
-					damage: 3, hitBonus: 1, dice: 2, impeto: 0 as const,
-					activeItems: {}, backpack: [], usedPowers: {}, conditions: [], status: "active" as const,
-					playerIndex: 0, xp: 0,
+					id: "h1",
+					cardId: "hero_crimson_barbarian",
+					cardName: "Bárbaro Rubro",
+					maxLife: 10,
+					currentLife: 10,
+					damage: 3,
+					hitBonus: 1,
+					dice: 2,
+					impeto: 0 as const,
+					activeItems: {},
+					backpack: [],
+					usedPowers: {},
+					conditions: [],
+					status: "active" as const,
+					playerIndex: 0,
+					xp: 0,
 				},
 			],
 		};
-		const result = fireTrigger(state, "on_enter_room", { triggeredBy: "on_enter_room" });
+		const result = fireTrigger(state, "on_enter_room", {
+			triggeredBy: "on_enter_room",
+		});
 		expect(result.heroes[0].healBlocked).toBeFalsy();
 	});
 
@@ -80,15 +96,29 @@ describe("purpleEffect filter", () => {
 			activeEnemies: [morcego],
 			heroes: [
 				{
-					id: "h1", cardId: "hero_crimson_barbarian", cardName: "Bárbaro Rubro", maxLife: 10, currentLife: 10,
-					damage: 3, hitBonus: 1, dice: 2, impeto: 0 as const,
-					activeItems: {}, backpack: [], usedPowers: {}, conditions: [], status: "active" as const,
-					playerIndex: 0, xp: 0,
+					id: "h1",
+					cardId: "hero_crimson_barbarian",
+					cardName: "Bárbaro Rubro",
+					maxLife: 10,
+					currentLife: 10,
+					damage: 3,
+					hitBonus: 1,
+					dice: 2,
+					impeto: 0 as const,
+					activeItems: {},
+					backpack: [],
+					usedPowers: {},
+					conditions: [],
+					status: "active" as const,
+					playerIndex: 0,
+					xp: 0,
 				},
 			],
 		};
 		// DSL-migrated skills push to EffectStack; drain to get final state
-		const result = drainStack(fireTrigger(state, "on_enter_room", { triggeredBy: "on_enter_room" }));
+		const result = drainStack(
+			fireTrigger(state, "on_enter_room", { triggeredBy: "on_enter_room" }),
+		);
 		expect(result.heroes[0].healBlocked).toBe(true);
 	});
 });

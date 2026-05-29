@@ -6,7 +6,10 @@ import { getComponent, query } from "../world";
 
 function buildStartedState(heroNames = ["Bárbaro Rubro"]) {
 	const base = createInitialGameState({ heroCardNames: heroNames });
-	return reducer(base, { type: "START_GAME", payload: { heroCardNames: heroNames } });
+	return reducer(base, {
+		type: "START_GAME",
+		payload: { heroCardNames: heroNames },
+	});
 }
 
 describe("sincronização world após START_GAME", () => {
@@ -30,7 +33,11 @@ describe("sincronização world após START_GAME", () => {
 	it("entidade de herói tem HealthComponent com vida correta", () => {
 		const state = buildStartedState(["Bárbaro Rubro"]);
 		const heroState = state.heroes[0]!;
-		const health = getComponent<HealthComponent>(state.world, heroState.id, "health");
+		const health = getComponent<HealthComponent>(
+			state.world,
+			heroState.id,
+			"health",
+		);
 		expect(health).toBeDefined();
 		expect(health?.current).toBe(heroState.currentLife);
 		expect(health?.max).toBe(heroState.maxLife);

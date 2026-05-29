@@ -2,8 +2,8 @@
 
 import { describe, expect, it } from "vitest";
 import type { SkillContext } from "../../data/skillTypes";
-import { getScript } from "../../scripts/registry";
 import { buildScriptCtx } from "../../scripts/context";
+import { getScript } from "../../scripts/registry";
 import { createInitialGameState } from "../../state/gameState";
 
 const baseCtx: SkillContext = { triggeredBy: "on_use" };

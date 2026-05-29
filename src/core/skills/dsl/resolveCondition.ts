@@ -2,8 +2,8 @@
 // Pura — sem efeitos colaterais.
 // Serve duas posições: nó `if` dentro de `effect` e campo `when` do trigger.
 
-import type { ConditionNode, EvalCtx } from "./types";
 import { resolveEntityRef, resolveExpr } from "./resolveExpr";
+import type { ConditionNode, EvalCtx } from "./types";
 
 export function resolveCondition(node: ConditionNode, ctx: EvalCtx): boolean {
 	switch (node.kind) {
@@ -34,12 +34,19 @@ export function resolveCondition(node: ConditionNode, ctx: EvalCtx): boolean {
 			}
 
 			// Comparação numérica/string
+			const l = left as number | string;
+			const r = right as number | string;
 			switch (node.op) {
-				case "lt":  return left < right;
-				case "lte": return left <= right;
-				case "eq":  return left === right;
-				case "gte": return left >= right;
-				case "gt":  return left > right;
+				case "lt":
+					return l < r;
+				case "lte":
+					return l <= r;
+				case "eq":
+					return l === r;
+				case "gte":
+					return l >= r;
+				case "gt":
+					return l > r;
 			}
 		}
 
@@ -72,8 +79,10 @@ function resolveValue(node: import("./types").ExprNode, ctx: EvalCtx): unknown {
 
 		// Refs especiais de estado que retornam string (não número)
 		switch (name) {
-			case "dungeon.level": return ctx.query.dungeonLevel();
-			case "room.enemy_count": return ctx.query.roomEnemyCount();
+			case "dungeon.level":
+				return ctx.query.dungeonLevel();
+			case "room.enemy_count":
+				return ctx.query.roomEnemyCount();
 		}
 
 		// Params podem ser array (para `in`)

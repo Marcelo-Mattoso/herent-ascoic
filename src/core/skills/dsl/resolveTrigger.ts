@@ -1,9 +1,9 @@
 // Resolução de TriggerObject → boolean (a habilidade pode disparar?).
 // Pura — não muta estado. Cabe ao dispatcher chamar markLimitUsed após decidir disparar.
 
-import type { EvalCtx, LimitKind, TriggerObject } from "./types";
-import { resolveCondition } from "./resolveCondition";
 import type { GameState } from "../../state/gameState";
+import { resolveCondition } from "./resolveCondition";
+import type { EvalCtx, LimitKind, TriggerObject } from "./types";
 
 /**
  * Decide se uma habilidade dispara dado seu TriggerObject e o contexto atual.
@@ -15,7 +15,10 @@ import type { GameState } from "../../state/gameState";
  * Retorna `true` se ambos passam (ou estão ausentes).
  */
 export function resolveTrigger(trigger: TriggerObject, ctx: EvalCtx): boolean {
-	if (trigger.limit && !limitPassed(trigger.limit, ctx.skillId, ctx.sourceId, ctx.state)) {
+	if (
+		trigger.limit &&
+		!limitPassed(trigger.limit, ctx.skillId, ctx.sourceId, ctx.state)
+	) {
 		return false;
 	}
 	if (trigger.when && !resolveCondition(trigger.when, ctx)) {
@@ -38,13 +41,13 @@ function limitPassed(
 
 	switch (limit) {
 		case "once_per_game":
-			return !(state.oncePer.game[key]);
+			return !state.oncePer.game[key];
 		case "once_per_room":
-			return !(state.combat?.oncePer.room[key]);
+			return !state.combat?.oncePer.room[key];
 		case "once_per_combat":
-			return !(state.combat?.oncePer.combat[key]);
+			return !state.combat?.oncePer.combat[key];
 		case "once_per_round":
-			return !(state.combat?.oncePer.round[key]);
+			return !state.combat?.oncePer.round[key];
 	}
 }
 
@@ -66,7 +69,10 @@ export function markLimitUsed(
 		case "once_per_game":
 			return {
 				...state,
-				oncePer: { ...state.oncePer, game: { ...state.oncePer.game, [key]: true } },
+				oncePer: {
+					...state.oncePer,
+					game: { ...state.oncePer.game, [key]: true },
+				},
 			};
 		case "once_per_room":
 			if (!state.combat) return state;

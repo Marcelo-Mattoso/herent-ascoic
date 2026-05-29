@@ -27,6 +27,7 @@ function makeEnemy(
 ): EnemyState {
 	return {
 		id: `enemy-${++_enemyCounter}`,
+		cardId: "creature_deep_rift_rat",
 		cardName: "Rato das Fendas Profundas",
 		maxLife: 2,
 		currentLife: 0,

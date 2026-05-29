@@ -4,10 +4,10 @@
 //
 // Passo 12: implementação trocável sem tocar src/core/ — basta trocar a instância da porta.
 
-import { FEATURE_FLAGS } from "../config/defaults";
 import type { LoggedAction } from "../actions/types";
-import type { GameState } from "../state/gameState";
+import { FEATURE_FLAGS } from "../config/defaults";
 import type { PersistencePort } from "../ports/persistence";
+import type { GameState } from "../state/gameState";
 
 const SNAPSHOT_KEY = "ascensao_heroica_snapshot";
 const ACTION_LOG_KEY = "ascensao_heroica_log";

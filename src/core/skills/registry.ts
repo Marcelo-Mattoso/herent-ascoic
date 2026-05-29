@@ -25,7 +25,10 @@ export function register(type: string, handler: SkillHandler): void {
 	_registry.set(type, handler);
 }
 
-export function registerContinuation(type: string, fn: SkillContinuation): void {
+export function registerContinuation(
+	type: string,
+	fn: SkillContinuation,
+): void {
 	_continuations.set(type, fn);
 }
 

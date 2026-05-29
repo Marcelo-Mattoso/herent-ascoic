@@ -38,24 +38,27 @@ export function Victory() {
 						isCompetitive ? null : ["XP total", state.groupXp],
 						["Nível do herói", hero ? COLORS_MAP[hero.impeto].name : "—"],
 						["Despertar final", COLORS_MAP[state.despertar].name],
-					].filter((x): x is [string, string | number] => x !== null).map(([label, value]) => (
-						<div key={String(label)} className="flex justify-between text-sm">
-							<span style={{ color: UI.textSecondary }}>{label}</span>
-							<span className="font-medium" style={{ color: UI.textPrimary }}>
-								{value}
-							</span>
-						</div>
-					))}
-					{isCompetitive && state.heroes.map((h) => (
-						<div key={h.id} className="flex justify-between text-sm">
-							<span style={{ color: UI.textSecondary }}>
-								XP — {h.cardName} (J{h.playerIndex + 1})
-							</span>
-							<span className="font-medium" style={{ color: UI.textPrimary }}>
-								{h.xp}
-							</span>
-						</div>
-					))}
+					]
+						.filter((x): x is [string, string | number] => x !== null)
+						.map(([label, value]) => (
+							<div key={String(label)} className="flex justify-between text-sm">
+								<span style={{ color: UI.textSecondary }}>{label}</span>
+								<span className="font-medium" style={{ color: UI.textPrimary }}>
+									{value}
+								</span>
+							</div>
+						))}
+					{isCompetitive &&
+						state.heroes.map((h) => (
+							<div key={h.id} className="flex justify-between text-sm">
+								<span style={{ color: UI.textSecondary }}>
+									XP — {h.cardName} (J{h.playerIndex + 1})
+								</span>
+								<span className="font-medium" style={{ color: UI.textPrimary }}>
+									{h.xp}
+								</span>
+							</div>
+						))}
 				</div>
 
 				<div className="flex gap-3">

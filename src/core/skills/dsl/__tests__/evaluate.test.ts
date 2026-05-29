@@ -1,16 +1,16 @@
-import { describe, expect, it, vi } from "vitest";
-import { evaluate } from "../evaluate";
-import type { EffectNode, EvalCtx } from "../types";
+import { describe, expect, it } from "vitest";
 import type { GameState } from "../../../state/gameState";
 import { createInitialGameState } from "../../../state/gameState";
-import { createEmptyCombatState } from "../../../state/combatState";
 import type { HeroState } from "../../../state/heroState";
+import { evaluate } from "../evaluate";
+import type { EffectNode, EvalCtx } from "../types";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Herói Teste",
 		maxLife: 10,
 		currentLife: 10,
@@ -58,6 +58,7 @@ function makeMockCtx(
 			creatureHasSkill: () => false,
 			dungeonLevel: () => opts.dungeonLevel ?? 1,
 			roomEnemyCount: () => opts.roomEnemyCount ?? 1,
+			heroWithLowestLife: () => null,
 		},
 		action: {
 			pushEffect(node) {
@@ -123,7 +124,10 @@ describe("evaluate — apply_damage", () => {
 
 	it("respeita minimum quando amount < minimum", () => {
 		const ctx = makeMockCtx(makeState());
-		evaluate([{ kind: "apply_damage", to: "$target", amount: 0, minimum: 1 }], ctx);
+		evaluate(
+			[{ kind: "apply_damage", to: "$target", amount: 0, minimum: 1 }],
+			ctx,
+		);
 		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 1 });
 	});
 
@@ -154,20 +158,22 @@ describe("evaluate — add_modifier", () => {
 		const state = makeState();
 		const ctx = makeMockCtx(state, { value: 3 });
 		evaluate(
-			[{
-				kind: "add_modifier",
-				to: "$source",
-				stat: "damage_reduction",
-				operation: "add",
-				value: "$value",
-				duration: { kind: "until_end_of_combat" },
-			}],
+			[
+				{
+					kind: "add_modifier",
+					to: "$source",
+					stat: "damage_reduction",
+					operation: "add",
+					value: "$value",
+					duration: { kind: "until_end_of_combat" },
+				},
+			],
 			ctx,
 		);
 		expect(ctx.pushed).toHaveLength(1);
 		expect(ctx.pushed[0]).toMatchObject({
 			kind: "add_modifier",
-			to: "h1",       // $source resolvido
+			to: "h1", // $source resolvido
 			stat: "damage_reduction",
 			operation: "add",
 			value: 3,
@@ -203,11 +209,18 @@ describe("evaluate — if/then/else", () => {
 	it("sem else e condição falsa: nenhum efeito", () => {
 		const ctx = makeMockCtx(makeState(), {}, { dungeonLevel: 1 });
 		evaluate(
-			[{
-				kind: "if",
-				when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
-				then: [{ kind: "apply_damage", to: "$target", amount: 5 }],
-			}],
+			[
+				{
+					kind: "if",
+					when: {
+						kind: "compare",
+						op: "gte",
+						left: "$dungeon.level",
+						right: 3,
+					},
+					then: [{ kind: "apply_damage", to: "$target", amount: 5 }],
+				},
+			],
 			ctx,
 		);
 		expect(ctx.pushed).toHaveLength(0);
@@ -219,20 +232,19 @@ describe("evaluate — for_each all_heroes", () => {
 		const base = createInitialGameState(BASE_CONFIG);
 		const state: GameState = {
 			...base,
-			heroes: [
-				makeHero({ id: "h1" }),
-				makeHero({ id: "h2" }),
-			],
+			heroes: [makeHero({ id: "h1" }), makeHero({ id: "h2" })],
 		};
 		const pushed: Pushed[] = [];
 		const ctx = makeMockCtx(state, {}, { pushed });
 		evaluate(
-			[{
-				kind: "for_each",
-				over: "all_heroes",
-				as: "$target",
-				do: [{ kind: "apply_damage", to: "$target", amount: 1 }],
-			}],
+			[
+				{
+					kind: "for_each",
+					over: "all_heroes",
+					as: "$target",
+					do: [{ kind: "apply_damage", to: "$target", amount: 1 }],
+				},
+			],
 			ctx,
 		);
 		expect(pushed).toHaveLength(2);
@@ -249,13 +261,21 @@ describe("evaluate — choose_one", () => {
 			return state;
 		};
 		evaluate(
-			[{
-				kind: "choose_one",
-				options: [
-					{ label: "Curar 2", effect: [{ kind: "apply_heal", to: "$target", amount: 2 }] },
-					{ label: "+2 dano", effect: [{ kind: "apply_damage", to: "$target", amount: 2 }] },
-				],
-			}],
+			[
+				{
+					kind: "choose_one",
+					options: [
+						{
+							label: "Curar 2",
+							effect: [{ kind: "apply_heal", to: "$target", amount: 2 }],
+						},
+						{
+							label: "+2 dano",
+							effect: [{ kind: "apply_damage", to: "$target", amount: 2 }],
+						},
+					],
+				},
+			],
 			ctx,
 		);
 		expect(choices).toHaveLength(2);
@@ -268,7 +288,11 @@ describe("evaluate — sequência encadeada", () => {
 		evaluate(
 			[
 				{ kind: "apply_damage", to: "$source", amount: "$cost" },
-				{ kind: "apply_damage", to: "$target", amount: { op: "mul", args: ["$cost", 3] } },
+				{
+					kind: "apply_damage",
+					to: "$target",
+					amount: { op: "mul", args: ["$cost", 3] },
+				},
 			],
 			ctx,
 		);

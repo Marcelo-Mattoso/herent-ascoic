@@ -3,11 +3,10 @@
 // Quando todos os handlers migrarem para sistemas, estes helpers são removidos.
 
 import type { EnemyState } from "../state/enemyState";
-import type { ItemSlotType } from "../state/heroState";
-import type { HeroState } from "../state/heroState";
+import type { HeroState, ItemSlotType } from "../state/heroState";
 import type { Component } from "./types";
-import { createEntity, upsertEntity } from "./world";
 import type { World } from "./world";
+import { createEntity, upsertEntity } from "./world";
 
 // Tipos de componentes gerenciados dinamicamente (adicionados por skills/efeitos).
 // Esses componentes NÃO são derivados do shape legado — devem ser preservados

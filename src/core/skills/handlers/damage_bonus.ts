@@ -3,10 +3,10 @@
 // A engine resolve isso adicionando um bônus temporário no combat.
 
 import type { SkillContext } from "../../data/skillTypes";
+import { log } from "../../reducer/utils";
 import type { GameState } from "../../state/gameState";
 import { applyDamageMin1 } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";
-import { log } from "../../reducer/utils";
 
 export function handleDamageBonus(
 	state: GameState,
@@ -33,11 +33,17 @@ export function handleDamageBonus(
 					...next.combat,
 					bonusNextAttack: {
 						...(next.combat.bonusNextAttack ?? {}),
-						[hero.id]: [...(next.combat.bonusNextAttack?.[hero.id] ?? []), { label: "Fúria Rubra", value: bonus }],
+						[hero.id]: [
+							...(next.combat.bonusNextAttack?.[hero.id] ?? []),
+							{ label: "Fúria Rubra", value: bonus },
+						],
 					},
 				}
 			: null,
 	};
 
-	return log(next, `Fúria Rubra: ${hero.cardName} paga ${cost} de vida, +${bonus} no próximo ataque.`);
+	return log(
+		next,
+		`Fúria Rubra: ${hero.cardName} paga ${cost} de vida, +${bonus} no próximo ataque.`,
+	);
 }

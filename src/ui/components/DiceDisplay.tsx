@@ -33,7 +33,9 @@ export function DiceDisplay({
 		return (
 			<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
 				{label && (
-					<span style={{ fontSize: 10, color: UI.textSecondary, fontWeight: 500 }}>
+					<span
+						style={{ fontSize: 10, color: UI.textSecondary, fontWeight: 500 }}
+					>
 						{label}
 					</span>
 				)}
@@ -41,26 +43,36 @@ export function DiceDisplay({
 					{results.map((val, i) => {
 						const eligible = eligibleIndices?.has(i) ?? false;
 						return (
-						<div
-							key={`die-${i}`}
-							className="w-6 h-6 flex items-center justify-center rounded text-xs font-bold"
-							onClick={eligible ? () => onDieClick?.(i) : undefined}
-							style={{
-								background: eligible ? UI.warning?.bg ?? "#FEF3C7" : dieColor.bg,
-								color: eligible ? "#92400E" : dieColor.text,
-								border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
-								cursor: eligible ? "pointer" : "default",
-							}}
-						>
-							{val}
-						</div>
+							<div
+								key={`die-${i}`}
+								className="w-6 h-6 flex items-center justify-center rounded text-xs font-bold"
+								onClick={eligible ? () => onDieClick?.(i) : undefined}
+								style={{
+									background: eligible
+										? (UI.warning?.bg ?? "#FEF3C7")
+										: dieColor.bg,
+									color: eligible ? "#92400E" : dieColor.text,
+									border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
+									cursor: eligible ? "pointer" : "default",
+								}}
+							>
+								{val}
+							</div>
 						);
 					})}
 				</div>
 				{bonusStr && (
-					<span style={{ fontSize: 10, color: UI.textTertiary }}>{bonusStr}</span>
+					<span style={{ fontSize: 10, color: UI.textTertiary }}>
+						{bonusStr}
+					</span>
 				)}
-				<span style={{ fontSize: 11, fontWeight: 600, color: isHero ? UI.info.text : UI.danger.text }}>
+				<span
+					style={{
+						fontSize: 11,
+						fontWeight: 600,
+						color: isHero ? UI.info.text : UI.danger.text,
+					}}
+				>
 					total {total}
 				</span>
 			</div>
@@ -81,19 +93,21 @@ export function DiceDisplay({
 				{results.map((val, i) => {
 					const eligible = eligibleIndices?.has(i) ?? false;
 					return (
-					<div
-						key={`die-${i}`}
-						className="w-7 h-7 flex items-center justify-center rounded text-sm font-bold"
-						onClick={eligible ? () => onDieClick?.(i) : undefined}
-						style={{
-							background: eligible ? UI.warning?.bg ?? "#FEF3C7" : dieColor.bg,
-							color: eligible ? "#92400E" : dieColor.text,
-							border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
-							cursor: eligible ? "pointer" : "default",
-						}}
-					>
-						{val}
-					</div>
+						<div
+							key={`die-${i}`}
+							className="w-7 h-7 flex items-center justify-center rounded text-sm font-bold"
+							onClick={eligible ? () => onDieClick?.(i) : undefined}
+							style={{
+								background: eligible
+									? (UI.warning?.bg ?? "#FEF3C7")
+									: dieColor.bg,
+								color: eligible ? "#92400E" : dieColor.text,
+								border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
+								cursor: eligible ? "pointer" : "default",
+							}}
+						>
+							{val}
+						</div>
 					);
 				})}
 			</div>

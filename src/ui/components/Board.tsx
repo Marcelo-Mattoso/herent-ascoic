@@ -9,8 +9,8 @@ import type { HeroState } from "@/core/state/heroState";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
-import { DiceDisplay } from "./DiceDisplay";
 import { BoardFooter } from "./BoardFooter";
+import { DiceDisplay } from "./DiceDisplay";
 import { EnemyCard } from "./EnemyCard";
 import { HeroCard } from "./HeroCard";
 import { RoomCard } from "./RoomCard";
@@ -145,7 +145,9 @@ export function Board({
 									justifyContent: "center",
 								}}
 							>
-								<span style={{ color: UI.textTertiary, fontSize: 11 }}>sem sala</span>
+								<span style={{ color: UI.textTertiary, fontSize: 11 }}>
+									sem sala
+								</span>
 							</div>
 						)}
 					</div>
@@ -200,18 +202,32 @@ export function Board({
 						<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
 							{(() => {
 								const sel = state.combat?.pendingDiceSelection;
-								const heroEligible = sel?.side === "hero" || sel?.side === "any"
-									? new Set(roll.heroResults.reduce<number[]>((acc, v, i) => {
-											if (sel.filter?.value === undefined || v === sel.filter.value) acc.push(i);
-											return acc;
-										}, []))
-									: undefined;
-								const enemyEligible = sel?.side === "enemy" || sel?.side === "any"
-									? new Set(roll.enemyResults.reduce<number[]>((acc, v, i) => {
-											if (sel.filter?.value === undefined || v === sel.filter.value) acc.push(i);
-											return acc;
-										}, []))
-									: undefined;
+								const heroEligible =
+									sel?.side === "hero" || sel?.side === "any"
+										? new Set(
+												roll.heroResults.reduce<number[]>((acc, v, i) => {
+													if (
+														sel.filter?.value === undefined ||
+														v === sel.filter.value
+													)
+														acc.push(i);
+													return acc;
+												}, []),
+											)
+										: undefined;
+								const enemyEligible =
+									sel?.side === "enemy" || sel?.side === "any"
+										? new Set(
+												roll.enemyResults.reduce<number[]>((acc, v, i) => {
+													if (
+														sel.filter?.value === undefined ||
+														v === sel.filter.value
+													)
+														acc.push(i);
+													return acc;
+												}, []),
+											)
+										: undefined;
 								return (
 									<>
 										<DiceDisplay
@@ -223,10 +239,34 @@ export function Board({
 											eligibleIndices={enemyEligible}
 											onDieClick={(i) => onSelectDie?.("enemy", i)}
 										/>
-										<div style={{ display: "flex", alignItems: "center", margin: "2px 0" }}>
-											<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
-											<ActionButton label="Resolver ataque" icon="💥" variant="primary" onClick={onResolve} disabled={!!sel} />
-											<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+										<div
+											style={{
+												display: "flex",
+												alignItems: "center",
+												margin: "2px 0",
+											}}
+										>
+											<div
+												style={{
+													flex: 1,
+													height: 1,
+													borderTop: `1px dashed ${UI.border}`,
+												}}
+											/>
+											<ActionButton
+												label="Resolver ataque"
+												icon="💥"
+												variant="primary"
+												onClick={onResolve}
+												disabled={!!sel}
+											/>
+											<div
+												style={{
+													flex: 1,
+													height: 1,
+													borderTop: `1px dashed ${UI.border}`,
+												}}
+											/>
 										</div>
 										<DiceDisplay
 											results={roll.heroResults}
@@ -250,15 +290,43 @@ export function Board({
 								margin: "2px 0",
 							}}
 						>
-							<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
-							{status === "REVEAL_ROOM" || status === "ROOM_EFFECT" || status === "SPAWN_ENEMIES" ? (
-								<ActionButton label="Revelar sala" icon="🚪" variant="primary" onClick={onReveal} />
+							<div
+								style={{
+									flex: 1,
+									height: 1,
+									borderTop: `1px dashed ${UI.border}`,
+								}}
+							/>
+							{status === "REVEAL_ROOM" ||
+							status === "ROOM_EFFECT" ||
+							status === "SPAWN_ENEMIES" ? (
+								<ActionButton
+									label="Revelar sala"
+									icon="🚪"
+									variant="primary"
+									onClick={onReveal}
+								/>
 							) : status === "COMBAT_START" ? (
-								<ActionButton label="Iniciar combate" icon="⚔" variant="primary" onClick={onStartCombat} />
+								<ActionButton
+									label="Iniciar combate"
+									icon="⚔"
+									variant="primary"
+									onClick={onStartCombat}
+								/>
 							) : status === "ROLL_DICE" ? (
-								<ActionButton label="Rolar dados" icon="🎲" variant="primary" onClick={onRoll} />
+								<ActionButton
+									label="Rolar dados"
+									icon="🎲"
+									variant="primary"
+									onClick={onRoll}
+								/>
 							) : status === "BOSS_REVEAL" ? (
-								<ActionButton label="Revelar chefe" icon="🐲" variant="danger" onClick={onRevealBoss} />
+								<ActionButton
+									label="Revelar chefe"
+									icon="🐲"
+									variant="danger"
+									onClick={onRevealBoss}
+								/>
 							) : (
 								<span
 									style={{
@@ -272,7 +340,13 @@ export function Board({
 									Linha de combate
 								</span>
 							)}
-							<div style={{ flex: 1, height: 1, borderTop: `1px dashed ${UI.border}` }} />
+							<div
+								style={{
+									flex: 1,
+									height: 1,
+									borderTop: `1px dashed ${UI.border}`,
+								}}
+							/>
 						</div>
 					)}
 
@@ -336,10 +410,7 @@ export function Board({
 			</div>
 
 			{/* Footer do grupo */}
-			<BoardFooter
-				state={state}
-				onArtifactClick={onCardDetail}
-			/>
+			<BoardFooter state={state} onArtifactClick={onCardDetail} />
 		</div>
 	);
 }

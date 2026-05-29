@@ -45,10 +45,10 @@
 							"level": "error",
 							"options": {
 								"deniedGlobals": {
-								"Math": "Scripts de carta devem ser determinísticos — use ctx.random.int() no lugar de Math.random()",
-								"Date": "Scripts de carta devem ser determinísticos — proibido Date.now() e new Date()",
-								"performance": "Scripts de carta devem ser determinísticos — proibido performance.now()"
-							}
+									"Math": "Scripts de carta devem ser determinísticos — use ctx.random.int() no lugar de Math.random()",
+									"Date": "Scripts de carta devem ser determinísticos — proibido Date.now() e new Date()",
+									"performance": "Scripts de carta devem ser determinísticos — proibido performance.now()"
+								}
 							}
 						}
 					}

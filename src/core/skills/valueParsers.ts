@@ -11,7 +11,9 @@ export function parseNumber(value: number | string | null): number | null {
 }
 
 // "a/b" → { a, b }
-export function parseSlashPair(value: number | string | null): { a: number; b: number } | null {
+export function parseSlashPair(
+	value: number | string | null,
+): { a: number; b: number } | null {
 	if (typeof value !== "string") return null;
 	const parts = value.split("/");
 	if (parts.length !== 2) return null;
@@ -22,7 +24,9 @@ export function parseSlashPair(value: number | string | null): { a: number; b: n
 }
 
 // "a/b/c/d" → [a, b, c, d]
-export function parseSlashQuad(value: number | string | null): [number, number, number, number] | null {
+export function parseSlashQuad(
+	value: number | string | null,
+): [number, number, number, number] | null {
 	if (typeof value !== "string") return null;
 	const parts = value.split("/");
 	if (parts.length !== 4) return null;
@@ -32,7 +36,9 @@ export function parseSlashQuad(value: number | string | null): [number, number, 
 }
 
 // "full/b" → { full: true, b }
-export function parseFullOr(value: number | string | null): { full: true; alt: number } | null {
+export function parseFullOr(
+	value: number | string | null,
+): { full: true; alt: number } | null {
 	if (typeof value !== "string") return null;
 	const parts = value.split("/");
 	if (parts.length !== 2 || parts[0] !== "full") return null;

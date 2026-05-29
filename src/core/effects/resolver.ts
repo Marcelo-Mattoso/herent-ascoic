@@ -6,14 +6,14 @@
 
 import eventRules from "../../data/event_rules.json";
 import type { EntityId } from "../ecs/types";
-import type { GameState } from "../state/gameState";
-import { applyDamage } from "../systems/damageSystem";
-import { applyHeal, applyFullHeal, applySurvive } from "../systems/healSystem";
 import { discardFromDungeonDeck } from "../reducer/exploration";
 import { log, mapEnemy, mapHero } from "../reducer/utils";
 import type { ColorIndex } from "../state/color";
-import { MAX_STACK_DEPTH, orderPending } from "./stack";
+import type { GameState } from "../state/gameState";
+import { applyDamage } from "../systems/damageSystem";
+import { applyFullHeal, applyHeal, applySurvive } from "../systems/healSystem";
 import type { PendingEffect } from "./stack";
+import { MAX_STACK_DEPTH, orderPending } from "./stack";
 
 type EventRule = "lifo" | "fifo";
 const rules = eventRules as Record<string, EventRule>;
@@ -27,7 +27,10 @@ function ruleFor(cause: string): EventRule {
 // Aplica um único efeito pendente ao estado.
 // Aceita tanto `type` (legado) quanto `kind` (DSL) no campo discriminante.
 // Aceita tanto `targetId` (legado) quanto `to` (DSL) para o alvo.
-export function resolveEffect(state: GameState, pending: PendingEffect): GameState {
+export function resolveEffect(
+	state: GameState,
+	pending: PendingEffect,
+): GameState {
 	const effect = pending.effect;
 	// Normaliza: kind (DSL) tem prioridade sobre type (legado)
 	const effectKind = (effect["kind"] ?? effect["type"]) as string | undefined;
@@ -68,8 +71,14 @@ export function resolveEffect(state: GameState, pending: PendingEffect): GameSta
 
 		case "advance_dungeon_level": {
 			const amount = (effect["amount"] as number) ?? 1;
-			const newLevel = Math.min(MAX_DUNGEON_LEVEL, state.despertar + amount) as ColorIndex;
-			return log({ ...state, despertar: newLevel }, `Despertar avançou para nível ${newLevel}.`);
+			const newLevel = Math.min(
+				MAX_DUNGEON_LEVEL,
+				state.despertar + amount,
+			) as ColorIndex;
+			return log(
+				{ ...state, despertar: newLevel },
+				`Despertar avançou para nível ${newLevel}.`,
+			);
 		}
 
 		case "discard_from": {
@@ -107,7 +116,9 @@ export function resolveEffect(state: GameState, pending: PendingEffect): GameSta
 					let next = state;
 					const targets = who
 						? [who]
-						: state.heroes.filter((h) => h.status === "active").map((h) => h.id);
+						: state.heroes
+								.filter((h) => h.status === "active")
+								.map((h) => h.id);
 					for (const heroId of targets) {
 						next = mapHero(next, heroId, (h) => ({ ...h, healBlocked: true }));
 					}
@@ -183,11 +194,14 @@ export function resolveEffect(state: GameState, pending: PendingEffect): GameSta
 				case "purple_damage_reduction": {
 					// Corrige bug do handler antigo: armazena como número, não boolean
 					const key = `purpleDmgReduction::${entityId}`;
-					const prevPurple = (state.flags[key] as number | boolean | undefined);
+					const prevPurple = state.flags[key] as number | boolean | undefined;
 					const prevNum = typeof prevPurple === "number" ? prevPurple : 0;
 					return {
 						...state,
-						flags: { ...state.flags, [key]: prevNum + value },
+						flags: {
+							...state.flags,
+							[key]: (prevNum + value) as unknown as boolean,
+						},
 					};
 				}
 				default:
@@ -234,9 +248,11 @@ function discardFirstAvailableItem(state: GameState): GameState {
 		(h) => h.status === "active" && Object.values(h.activeItems).some(Boolean),
 	);
 	if (heroWithItem) {
-		const slot = (Object.keys(heroWithItem.activeItems) as (keyof typeof heroWithItem.activeItems)[]).find(
-			(k) => heroWithItem.activeItems[k],
-		);
+		const slot = (
+			Object.keys(
+				heroWithItem.activeItems,
+			) as (keyof typeof heroWithItem.activeItems)[]
+		).find((k) => heroWithItem.activeItems[k]);
 		if (slot) {
 			return log(
 				mapHero(state, heroWithItem.id, (h) => {
@@ -260,7 +276,7 @@ export function drainStack(state: GameState): GameState {
 		if (++iterations > MAX_STACK_DEPTH) {
 			throw new Error(
 				`[effectStack] profundidade máxima atingida (${MAX_STACK_DEPTH}). ` +
-				"Possível loop de efeito — verifique TriggerComponents encadeados.",
+					"Possível loop de efeito — verifique TriggerComponents encadeados.",
 			);
 		}
 
@@ -268,7 +284,7 @@ export function drainStack(state: GameState): GameState {
 
 		const rule = ruleFor(state.effectStack.pending[0]!.cause);
 		const ordered = orderPending(state.effectStack.pending, rule);
-		const [next, ...remaining] = ordered as [PendingEffect, ...PendingEffect[]];
+		const [next] = ordered as [PendingEffect, ...PendingEffect[]];
 
 		state = {
 			...state,

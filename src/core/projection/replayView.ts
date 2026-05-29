@@ -5,8 +5,8 @@
 // Passo 9: esqueleto — evolui no Passo 13 quando o Replay Viewer for implementado.
 
 import type { GameState } from "../state/gameState";
-import { playerView } from "./playerView";
 import type { PlayerView } from "./playerView";
+import { playerView } from "./playerView";
 
 // ReplayView é idêntico ao PlayerView agora.
 // Tipo distinto para permitir divergência futura sem quebrar o contrato da UI.

@@ -7,5 +7,9 @@ import type { ScriptHandler } from "@/core/scripts/types";
 export const run: ScriptHandler = (ctx) => {
 	const attackerId = ctx.targetId; // herói que causou o dano (targetId no contexto de dano recebido)
 	if (!attackerId) return ctx.state;
-	return ctx.action.pushEffect({ kind: "apply_damage", to: attackerId, amount: 1 });
+	return ctx.action.pushEffect({
+		kind: "apply_damage",
+		to: attackerId,
+		amount: 1,
+	});
 };

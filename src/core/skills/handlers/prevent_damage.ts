@@ -3,8 +3,8 @@
 // Registrado como modificador passivo verificado no on_damage_taken.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handlePreventDamage(
 	state: GameState,

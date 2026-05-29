@@ -3,10 +3,10 @@
 // Passo 7: applyDamage emite DamageAboutToBeDealt (pré) e DamageDealt (pós).
 // applyDamageMin1 é custo de vida (sem janela de bus — não é dano recebido de inimigo).
 
-import { emit } from "../events/bus";
-import type { DamageType } from "../events/types";
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
+import { emit } from "../events/bus";
+import type { DamageType } from "../events/types";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";

@@ -1,16 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { applyDamage, applyDamageMin1 } from "../damageSystem";
-import { createInitialGameState } from "../../state/gameState";
-import { createEmptyCombatState } from "../../state/combatState";
-import { getComponent } from "../../ecs/world";
 import type { HealthComponent } from "../../ecs/types";
-import type { GameState } from "../../state/gameState";
-import type { HeroState } from "../../state/heroState";
+import { getComponent } from "../../ecs/world";
+import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
+import type { GameState } from "../../state/gameState";
+import { createInitialGameState } from "../../state/gameState";
+import type { HeroState } from "../../state/heroState";
+import { applyDamage, applyDamageMin1 } from "../damageSystem";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Bárbaro Rubro",
 		maxLife: 10,
 		currentLife: 10,
@@ -32,6 +33,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
+		cardId: "creature_dark_cave_goblin",
 		cardName: "Goblin",
 		maxLife: 5,
 		currentLife: 5,
@@ -54,7 +56,8 @@ function makeState(
 	return {
 		...base,
 		heroes: [makeHero(heroOverrides)],
-		activeEnemies: enemyOverrides !== undefined ? [makeEnemy(enemyOverrides)] : [],
+		activeEnemies:
+			enemyOverrides !== undefined ? [makeEnemy(enemyOverrides)] : [],
 		combat: createEmptyCombatState(),
 	};
 }

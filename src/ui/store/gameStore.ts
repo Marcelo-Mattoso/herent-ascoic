@@ -18,8 +18,8 @@ import {
 	gameElfStore,
 	getElfGameState,
 	getElfUiState,
-	setElfStoreProps,
 	resetElfStore,
+	setElfStoreProps,
 	type UiState,
 } from "./elfStore";
 
@@ -40,13 +40,21 @@ type ReduxDevToolsExtension = {
 	connect(options: { name: string }): {
 		init(state: unknown): void;
 		send(action: { type: string; payload?: unknown }, state: unknown): void;
-		subscribe(listener: (message: { type: string; payload?: { type?: string }; state?: string }) => void): () => void;
+		subscribe(
+			listener: (message: {
+				type: string;
+				payload?: { type?: string };
+				state?: string;
+			}) => void,
+		): () => void;
 	};
 };
 
 function connectDevTools(initialState: GameState) {
 	if (typeof window === "undefined") return null;
-	const ext = (window as { __REDUX_DEVTOOLS_EXTENSION__?: ReduxDevToolsExtension }).__REDUX_DEVTOOLS_EXTENSION__;
+	const ext = (
+		window as { __REDUX_DEVTOOLS_EXTENSION__?: ReduxDevToolsExtension }
+	).__REDUX_DEVTOOLS_EXTENSION__;
 	if (!ext) return null;
 
 	const instance = ext.connect({ name: "AscensaoHeroica" });
@@ -56,7 +64,8 @@ function connectDevTools(initialState: GameState) {
 	instance.subscribe((message) => {
 		if (
 			message.type === "DISPATCH" &&
-			(message.payload?.type === "JUMP_TO_STATE" || message.payload?.type === "JUMP_TO_ACTION") &&
+			(message.payload?.type === "JUMP_TO_STATE" ||
+				message.payload?.type === "JUMP_TO_ACTION") &&
 			message.state
 		) {
 			try {
@@ -113,7 +122,10 @@ function setFocusedHero(heroId: string | null): void {
 function resolveSkillChoice(choice: string): void {
 	const pending = getElfGameState().pendingSkillChoice;
 	if (!pending) return;
-	dispatch({ type: "SKILL_CHOICE", payload: { skillId: pending.skillId, choice } });
+	dispatch({
+		type: "SKILL_CHOICE",
+		payload: { skillId: pending.skillId, choice },
+	});
 }
 
 function reset(): void {
@@ -160,7 +172,9 @@ function subscribeToStore(onStoreChange: () => void): () => void {
 
 export function useGameStore(): GameStore;
 export function useGameStore<T>(selector: (store: GameStore) => T): T;
-export function useGameStore<T>(selector?: (store: GameStore) => T): GameStore | T {
+export function useGameStore<T>(
+	selector?: (store: GameStore) => T,
+): GameStore | T {
 	const snapshot = useSyncExternalStore(subscribeToStore, getSnapshot);
 	if (selector) return selector(snapshot);
 	return snapshot;

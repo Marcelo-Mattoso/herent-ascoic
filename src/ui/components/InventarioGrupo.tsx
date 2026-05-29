@@ -3,10 +3,10 @@
 // Drag & drop livre entre todas as zonas: mesa ↔ herói-slot ↔ herói-mochila.
 
 import { useEffect, useRef, useState } from "react";
+import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { getCardByName } from "@/core/data/cards";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
-import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
@@ -16,19 +16,25 @@ import { UI } from "@/ui/theme";
 const AMBER = { bg: "#FAEEDA", border: "#BA7517", ink: "#633806" } as const;
 
 // Mesma paleta do ItemTile (board): weapon=ouro, armor=azul, utility=verde, special=rosa
-const SLOT_COLORS_INV: Record<string, { bg: string; border: string; text: string }> = {
-	weapon:  { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
-	armor:   { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" },
+const SLOT_COLORS_INV: Record<
+	string,
+	{ bg: string; border: string; text: string }
+> = {
+	weapon: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
+	armor: { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" },
 	utility: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" },
 	special: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" },
 };
 
 // itemClass → cor mais próxima da paleta de slots
-const ITEM_COLORS: Record<string, { bg: string; border: string; text: string }> = {
+const ITEM_COLORS: Record<
+	string,
+	{ bg: string; border: string; text: string }
+> = {
 	equipment: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" }, // ouro (weapon)
 	consumable: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" }, // verde (utility)
-	utility:   { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" }, // azul (armor)
-	special:   { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" }, // rosa (special)
+	utility: { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" }, // azul (armor)
+	special: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" }, // rosa (special)
 };
 
 function itemColor(itemName: string) {
@@ -178,7 +184,13 @@ function Slot({
 
 // ── Componente de herói ───────────────────────────────────────────────────────
 
-type TooltipTarget = { name: string; kind: "item" | "artifact"; x: number; y: number; heroId?: string };
+type TooltipTarget = {
+	name: string;
+	kind: "item" | "artifact";
+	x: number;
+	y: number;
+	heroId?: string;
+};
 
 interface HeroColumnProps {
 	hero: HeroState;
@@ -286,7 +298,9 @@ function HeroColumn({
 			>
 				{SLOT_TYPES.map((slotType) => {
 					const name = hero.activeItems[slotType];
-					const col = name ? (SLOT_COLORS_INV[slotType] ?? itemColor(name)) : null;
+					const col = name
+						? (SLOT_COLORS_INV[slotType] ?? itemColor(name))
+						: null;
 					const isThisItemDragging =
 						dragging?.from.kind === "hero_slot" &&
 						dragging.from.heroId === hero.id &&
@@ -309,15 +323,28 @@ function HeroColumn({
 								});
 							}}
 							onDragEnd={onDragEnd}
-							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
-							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
+							onMouseEnter={(e) =>
+								onShowTooltip({
+									name,
+									kind: "item",
+									x: e.clientX,
+									y: e.clientY,
+									heroId: hero.id,
+								})
+							}
+							onMouseMove={(e) =>
+								onShowTooltip({
+									name,
+									kind: "item",
+									x: e.clientX,
+									y: e.clientY,
+									heroId: hero.id,
+								})
+							}
 							onMouseLeave={onHideTooltip}
 						/>
 					) : (
-						<Slot
-							key={slotType}
-							label={SLOT_LABELS[slotType]}
-						/>
+						<Slot key={slotType} label={SLOT_LABELS[slotType]} />
 					);
 				})}
 			</div>
@@ -361,7 +388,9 @@ function HeroColumn({
 					minHeight: 36,
 				}}
 			>
-				<div>❤ {hero.currentLife}/{hero.maxLife}</div>
+				<div>
+					❤ {hero.currentLife}/{hero.maxLife}
+				</div>
 				<div>⚔ {hero.damage} dmg</div>
 			</div>
 
@@ -410,8 +439,24 @@ function HeroColumn({
 								});
 							}}
 							onDragEnd={onDragEnd}
-							onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
-							onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
+							onMouseEnter={(e) =>
+								onShowTooltip({
+									name,
+									kind: "item",
+									x: e.clientX,
+									y: e.clientY,
+									heroId: hero.id,
+								})
+							}
+							onMouseMove={(e) =>
+								onShowTooltip({
+									name,
+									kind: "item",
+									x: e.clientX,
+									y: e.clientY,
+									heroId: hero.id,
+								})
+							}
 							onMouseLeave={onHideTooltip}
 						/>
 					) : (
@@ -646,436 +691,524 @@ export function InventarioGrupo() {
 
 	return (
 		<>
-		<div
-			className="fixed inset-0 z-50 flex items-center justify-center p-4"
-			style={{ background: "rgba(0,0,0,0.45)" }}
-		>
 			<div
-				role="dialog"
-				aria-modal="true"
-				aria-label="Inventário do grupo"
-				style={{
-					background: UI.panelBg,
-					width: "100%",
-					maxWidth: 920,
-					borderRadius: 12,
-					padding: 24,
-					boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-					color: UI.textPrimary,
-				}}
+				className="fixed inset-0 z-50 flex items-center justify-center p-4"
+				style={{ background: "rgba(0,0,0,0.45)" }}
 			>
-				{/* Título */}
 				<div
+					role="dialog"
+					aria-modal="true"
+					aria-label="Inventário do grupo"
 					style={{
-						display: "flex",
-						justifyContent: "space-between",
-						alignItems: "baseline",
-						borderBottom: `1px solid ${UI.border}`,
-						paddingBottom: 12,
-						marginBottom: 20,
+						background: UI.panelBg,
+						width: "100%",
+						maxWidth: 920,
+						borderRadius: 12,
+						padding: 24,
+						boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
+						color: UI.textPrimary,
 					}}
 				>
-					<h1
-						style={{
-							fontSize: 18,
-							fontWeight: 500,
-							margin: 0,
-							color: UI.textPrimary,
-						}}
-					>
-						Inventário do grupo
-					</h1>
-					<span style={{ fontSize: 12, color: UI.textTertiary }}>
-						arraste itens entre as zonas
-					</span>
-				</div>
-
-				{/* ── MESA ──────────────────────────────────────────────────── */}
-				<p style={{ fontSize: 12, color: UI.textSecondary, margin: "0 0 8px 0" }}>
-					Mesa · o que ficar aqui será descartado
-				</p>
-
-				<div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-					{/* Mesa — itens */}
+					{/* Título */}
 					<div
-						{...dropHandlers("mesa")}
 						style={{
-							flex: 1,
-							border: `1px ${mesaDropValid ? "dashed" : "dashed"} ${
-								mesaDropValid
-									? hoverZone === "mesa"
-										? "#0044AA"
-										: "#3B82F6"
-									: UI.border
-							}`,
-							borderRadius: 8,
-							padding: 10,
-							background:
-								mesaDropValid && hoverZone === "mesa" ? "#EFF6FF" : "transparent",
-							transition: "background 0.1s, border-color 0.1s",
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "baseline",
+							borderBottom: `1px solid ${UI.border}`,
+							paddingBottom: 12,
+							marginBottom: 20,
 						}}
 					>
-						<p style={{ fontSize: 11, color: UI.textSecondary, margin: "0 0 6px 0" }}>
-							Itens
-						</p>
-						<div
+						<h1
 							style={{
-								display: "grid",
-								gridTemplateColumns: "repeat(auto-fill, 36px)",
-								gap: 4,
-								minHeight: 36,
+								fontSize: 18,
+								fontWeight: 500,
+								margin: 0,
+								color: UI.textPrimary,
 							}}
 						>
-							{mesaItens.map((r) => {
-								const col = itemColor(r.cardName);
-								const isMe =
-									dragging?.from.kind === "mesa" &&
-									dragging.name === r.cardName;
-								return (
-									<Slot
-										key={r.cardName}
-										label={shortLabel(r.cardName)}
-										color={col}
-										filled
-										draggable
-										isDragging={isMe}
-										onDragStart={(e) => {
-											e.dataTransfer.setData("text/plain", r.cardName);
-											handleItemDragStart(r.cardName, { kind: "mesa" });
+							Inventário do grupo
+						</h1>
+						<span style={{ fontSize: 12, color: UI.textTertiary }}>
+							arraste itens entre as zonas
+						</span>
+					</div>
+
+					{/* ── MESA ──────────────────────────────────────────────────── */}
+					<p
+						style={{
+							fontSize: 12,
+							color: UI.textSecondary,
+							margin: "0 0 8px 0",
+						}}
+					>
+						Mesa · o que ficar aqui será descartado
+					</p>
+
+					<div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
+						{/* Mesa — itens */}
+						<div
+							{...dropHandlers("mesa")}
+							style={{
+								flex: 1,
+								border: `1px ${mesaDropValid ? "dashed" : "dashed"} ${
+									mesaDropValid
+										? hoverZone === "mesa"
+											? "#0044AA"
+											: "#3B82F6"
+										: UI.border
+								}`,
+								borderRadius: 8,
+								padding: 10,
+								background:
+									mesaDropValid && hoverZone === "mesa"
+										? "#EFF6FF"
+										: "transparent",
+								transition: "background 0.1s, border-color 0.1s",
+							}}
+						>
+							<p
+								style={{
+									fontSize: 11,
+									color: UI.textSecondary,
+									margin: "0 0 6px 0",
+								}}
+							>
+								Itens
+							</p>
+							<div
+								style={{
+									display: "grid",
+									gridTemplateColumns: "repeat(auto-fill, 36px)",
+									gap: 4,
+									minHeight: 36,
+								}}
+							>
+								{mesaItens.map((r) => {
+									const col = itemColor(r.cardName);
+									const isMe =
+										dragging?.from.kind === "mesa" &&
+										dragging.name === r.cardName;
+									return (
+										<Slot
+											key={r.cardName}
+											label={shortLabel(r.cardName)}
+											color={col}
+											filled
+											draggable
+											isDragging={isMe}
+											onDragStart={(e) => {
+												e.dataTransfer.setData("text/plain", r.cardName);
+												handleItemDragStart(r.cardName, { kind: "mesa" });
+											}}
+											onDragEnd={handleDragEnd}
+											onMouseEnter={(e) =>
+												showTooltip({
+													name: r.cardName,
+													kind: "item",
+													x: e.clientX,
+													y: e.clientY,
+												})
+											}
+											onMouseMove={(e) =>
+												showTooltip({
+													name: r.cardName,
+													kind: "item",
+													x: e.clientX,
+													y: e.clientY,
+												})
+											}
+											onMouseLeave={hideTooltip}
+										/>
+									);
+								})}
+								{mesaItens.length === 0 && (
+									<span
+										style={{
+											fontSize: 11,
+											color: UI.textTertiary,
+											alignSelf: "center",
 										}}
-										onDragEnd={handleDragEnd}
-										onMouseEnter={(e) => showTooltip({ name: r.cardName, kind: "item", x: e.clientX, y: e.clientY })}
-										onMouseMove={(e) => showTooltip({ name: r.cardName, kind: "item", x: e.clientX, y: e.clientY })}
-										onMouseLeave={hideTooltip}
-									/>
-								);
-							})}
-							{mesaItens.length === 0 && (
-								<span
-									style={{ fontSize: 11, color: UI.textTertiary, alignSelf: "center" }}
-								>
-									vazio
-								</span>
-							)}
+									>
+										vazio
+									</span>
+								)}
+							</div>
+						</div>
+
+						{/* Mesa — artefatos */}
+						<div
+							style={{
+								width: 220,
+								background: AMBER.bg,
+								border: `1px solid ${AMBER.border}`,
+								borderRadius: 8,
+								padding: 10,
+							}}
+						>
+							<p
+								style={{ fontSize: 11, color: AMBER.ink, margin: "0 0 6px 0" }}
+							>
+								Artefatos de grupo
+							</p>
+							<div
+								style={{
+									display: "grid",
+									gridTemplateColumns: "repeat(auto-fill, 36px)",
+									gap: 4,
+									minHeight: 36,
+								}}
+							>
+								{mesaArtefatos.map((r) => {
+									const isMe =
+										dragging?.from.kind === "mesa" &&
+										dragging.name === r.cardName;
+									return (
+										<Slot
+											key={r.cardName}
+											amber
+											label={shortLabel(r.cardName)}
+											filled
+											draggable
+											isDragging={isMe}
+											onDragStart={(e) => {
+												e.dataTransfer.setData("text/plain", r.cardName);
+												setTooltip(null);
+												setDragging({
+													name: r.cardName,
+													kind: "artefato",
+													from: { kind: "mesa" },
+												});
+											}}
+											onDragEnd={handleDragEnd}
+											onMouseEnter={(e) =>
+												showTooltip({
+													name: r.cardName,
+													kind: "artifact",
+													x: e.clientX,
+													y: e.clientY,
+												})
+											}
+											onMouseMove={(e) =>
+												showTooltip({
+													name: r.cardName,
+													kind: "artifact",
+													x: e.clientX,
+													y: e.clientY,
+												})
+											}
+											onMouseLeave={hideTooltip}
+										/>
+									);
+								})}
+								{mesaArtefatos.length === 0 && (
+									<span
+										style={{
+											fontSize: 11,
+											color: AMBER.ink,
+											opacity: 0.6,
+											alignSelf: "center",
+										}}
+									>
+										vazio
+									</span>
+								)}
+							</div>
 						</div>
 					</div>
 
-					{/* Mesa — artefatos */}
-					<div
+					<hr
 						style={{
-							width: 220,
-							background: AMBER.bg,
-							border: `1px solid ${AMBER.border}`,
-							borderRadius: 8,
-							padding: 10,
+							border: "none",
+							borderTop: `1px solid ${UI.border}`,
+							margin: "0 0 16px 0",
+						}}
+					/>
+
+					{/* ── ARTEFATOS ATIVOS DO GRUPO ─────────────────────────── */}
+					<p
+						style={{
+							fontSize: 12,
+							color: UI.textSecondary,
+							margin: "0 0 8px 0",
 						}}
 					>
-						<p style={{ fontSize: 11, color: AMBER.ink, margin: "0 0 6px 0" }}>
-							Artefatos de grupo
-						</p>
-						<div
-							style={{
-								display: "grid",
-								gridTemplateColumns: "repeat(auto-fill, 36px)",
-								gap: 4,
-								minHeight: 36,
-							}}
-						>
-							{mesaArtefatos.map((r) => {
-								const isMe =
-									dragging?.from.kind === "mesa" && dragging.name === r.cardName;
+						Grupo · artefatos ativos ({grupoArtefatos.length}/2)
+					</p>
+
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "1fr 1fr",
+							gap: 12,
+							marginBottom: 16,
+						}}
+					>
+						{[0, 1].map((vagaIndex) => {
+							const art = grupoArtefatos[vagaIndex];
+							const zone = `grupo_vaga_${vagaIndex}`;
+							const valid = isValidZone(zone);
+							const isHov = hoverZone === zone;
+
+							if (!art) {
 								return (
-									<Slot
-										key={r.cardName}
-										amber
-										label={shortLabel(r.cardName)}
-										filled
-										draggable
-										isDragging={isMe}
-										onDragStart={(e) => {
-											e.dataTransfer.setData("text/plain", r.cardName);
-											setTooltip(null);
-											setDragging({
-												name: r.cardName,
-												kind: "artefato",
-												from: { kind: "mesa" },
-											});
+									<div
+										key={vagaIndex}
+										{...dropHandlers(zone)}
+										style={{
+											background: isHov ? "#FFF3CD" : AMBER.bg,
+											border: `1px dashed ${isHov ? "#996600" : AMBER.border}`,
+											borderRadius: 8,
+											padding: 12,
+											display: "flex",
+											justifyContent: "center",
+											alignItems: "center",
+											opacity: valid ? 1 : 0.55,
+											color: AMBER.ink,
+											fontSize: 12,
+											minHeight: 68,
+											transition: "background 0.1s",
 										}}
-										onDragEnd={handleDragEnd}
-										onMouseEnter={(e) => showTooltip({ name: r.cardName, kind: "artifact", x: e.clientX, y: e.clientY })}
-										onMouseMove={(e) => showTooltip({ name: r.cardName, kind: "artifact", x: e.clientX, y: e.clientY })}
-										onMouseLeave={hideTooltip}
-									/>
+									>
+										vaga {vagaIndex + 1} — vazia
+									</div>
 								);
-							})}
-							{mesaArtefatos.length === 0 && (
-								<span
-									style={{ fontSize: 11, color: AMBER.ink, opacity: 0.6, alignSelf: "center" }}
-								>
-									vazio
-								</span>
-							)}
-						</div>
-					</div>
-				</div>
+							}
 
-				<hr style={{ border: "none", borderTop: `1px solid ${UI.border}`, margin: "0 0 16px 0" }} />
-
-				{/* ── ARTEFATOS ATIVOS DO GRUPO ─────────────────────────── */}
-				<p style={{ fontSize: 12, color: UI.textSecondary, margin: "0 0 8px 0" }}>
-					Grupo · artefatos ativos ({grupoArtefatos.length}/2)
-				</p>
-
-				<div
-					style={{
-						display: "grid",
-						gridTemplateColumns: "1fr 1fr",
-						gap: 12,
-						marginBottom: 16,
-					}}
-				>
-					{[0, 1].map((vagaIndex) => {
-						const art = grupoArtefatos[vagaIndex];
-						const zone = `grupo_vaga_${vagaIndex}`;
-						const valid = isValidZone(zone);
-						const isHov = hoverZone === zone;
-
-						if (!art) {
+							const requiresBearer = artifactRequiresBearer(art.cardName);
 							return (
 								<div
 									key={vagaIndex}
-									{...dropHandlers(zone)}
 									style={{
-										background: isHov ? "#FFF3CD" : AMBER.bg,
-										border: `1px dashed ${isHov ? "#996600" : AMBER.border}`,
+										background: AMBER.bg,
+										border: `1px solid ${AMBER.border}`,
 										borderRadius: 8,
 										padding: 12,
 										display: "flex",
-										justifyContent: "center",
-										alignItems: "center",
-										opacity: valid ? 1 : 0.55,
+										gap: 12,
+										alignItems: "flex-start",
 										color: AMBER.ink,
-										fontSize: 12,
-										minHeight: 68,
-										transition: "background 0.1s",
 									}}
 								>
-									vaga {vagaIndex + 1} — vazia
-								</div>
-							);
-						}
-
-						const requiresBearer = artifactRequiresBearer(art.cardName);
-						return (
-							<div
-								key={vagaIndex}
-								style={{
-									background: AMBER.bg,
-									border: `1px solid ${AMBER.border}`,
-									borderRadius: 8,
-									padding: 12,
-									display: "flex",
-									gap: 12,
-									alignItems: "flex-start",
-									color: AMBER.ink,
-								}}
-							>
-								<div
-									style={{
-										width: 44,
-										height: 44,
-										border: `1px solid ${AMBER.border}`,
-										borderRadius: 4,
-										flexShrink: 0,
-										display: "flex",
-										alignItems: "center",
-										justifyContent: "center",
-										fontSize: 22,
-									}}
-								>
-									💎
-								</div>
-								<div style={{ flex: 1, minWidth: 0 }}>
-									<p
+									<div
 										style={{
-											fontWeight: 500,
-											fontSize: 13,
-											margin: 0,
-											overflow: "hidden",
-											textOverflow: "ellipsis",
-											whiteSpace: "nowrap",
+											width: 44,
+											height: 44,
+											border: `1px solid ${AMBER.border}`,
+											borderRadius: 4,
+											flexShrink: 0,
+											display: "flex",
+											alignItems: "center",
+											justifyContent: "center",
+											fontSize: 22,
 										}}
-										title={art.cardName}
 									>
-										{art.cardName}
-									</p>
-									{requiresBearer ? (
-										<div
+										💎
+									</div>
+									<div style={{ flex: 1, minWidth: 0 }}>
+										<p
 											style={{
-												display: "flex",
-												alignItems: "center",
-												gap: 6,
-												marginTop: 4,
-												fontSize: 11,
+												fontWeight: 500,
+												fontSize: 13,
+												margin: 0,
+												overflow: "hidden",
+												textOverflow: "ellipsis",
+												whiteSpace: "nowrap",
 											}}
+											title={art.cardName}
 										>
-											<span>Portador:</span>
-											<select
-												value={art.carriedBy ?? ""}
-												onChange={(e) =>
-													dispatch({
-														type: "INV_SET_BEARER",
-														payload: { vagaIndex, heroId: e.target.value || null },
-													})
-												}
+											{art.cardName}
+										</p>
+										{requiresBearer ? (
+											<div
 												style={{
-													flex: 1,
+													display: "flex",
+													alignItems: "center",
+													gap: 6,
+													marginTop: 4,
 													fontSize: 11,
-													padding: "2px 4px",
-													border: `1px solid ${AMBER.border}`,
-													borderRadius: 4,
-													background: "#fff",
-													color: AMBER.ink,
 												}}
 											>
-												<option value="">— sem portador —</option>
-												{heroes.map((h) => (
-													<option key={h.id} value={h.id}>
-														{h.cardName.split(" ")[0]}
-													</option>
-												))}
-											</select>
-										</div>
-									) : (
-										<p style={{ fontSize: 11, margin: "4px 0 0 0", opacity: 0.7 }}>
-											Artefato passivo do grupo
-										</p>
-									)}
+												<span>Portador:</span>
+												<select
+													value={art.carriedBy ?? ""}
+													onChange={(e) =>
+														dispatch({
+															type: "INV_SET_BEARER",
+															payload: {
+																vagaIndex,
+																heroId: e.target.value || null,
+															},
+														})
+													}
+													style={{
+														flex: 1,
+														fontSize: 11,
+														padding: "2px 4px",
+														border: `1px solid ${AMBER.border}`,
+														borderRadius: 4,
+														background: "#fff",
+														color: AMBER.ink,
+													}}
+												>
+													<option value="">— sem portador —</option>
+													{heroes.map((h) => (
+														<option key={h.id} value={h.id}>
+															{h.cardName.split(" ")[0]}
+														</option>
+													))}
+												</select>
+											</div>
+										) : (
+											<p
+												style={{
+													fontSize: 11,
+													margin: "4px 0 0 0",
+													opacity: 0.7,
+												}}
+											>
+												Artefato passivo do grupo
+											</p>
+										)}
+									</div>
 								</div>
-							</div>
-						);
-					})}
-				</div>
-
-				<hr style={{ border: "none", borderTop: `1px solid ${UI.border}`, margin: "0 0 16px 0" }} />
-
-				{/* ── HERÓIS ────────────────────────────────────────────── */}
-				<p style={{ fontSize: 12, color: UI.textSecondary, margin: "0 0 8px 0" }}>
-					Heróis · {heroes.length} ativo{heroes.length !== 1 ? "s" : ""} · arraste lateral para ver todos
-				</p>
-
-				<div
-					ref={scrollRef}
-					onMouseDown={onScrollMouseDown}
-					onMouseMove={onScrollMouseMove}
-					onMouseUp={onScrollMouseUp}
-					onMouseLeave={onScrollMouseUp}
-					style={{
-						overflowX: "auto",
-						paddingBottom: 8,
-						cursor: scrollDown.current.active ? "grabbing" : "grab",
-					}}
-				>
-					<div style={{ display: "flex", gap: 12, width: "max-content" }}>
-						{heroes.map((hero) => (
-							<HeroColumn
-								key={hero.id}
-								hero={hero}
-								dragging={dragging}
-								hoverZone={hoverZone}
-								groupArtifacts={grupoArtefatos}
-								onDrop={handleZoneDrop}
-								onSetHover={setHoverZone}
-								onDragItemStart={handleItemDragStart}
-								onDragEnd={handleDragEnd}
-								onShowTooltip={showTooltip}
-								onHideTooltip={hideTooltip}
-								onUseItem={handleUseItemFromTooltip}
-							/>
-						))}
-						{heroes.length === 0 && (
-							<p style={{ fontSize: 13, color: UI.textTertiary }}>
-								Nenhum herói ativo.
-							</p>
-						)}
-					</div>
-				</div>
-
-				{/* ── RODAPÉ ────────────────────────────────────────────── */}
-				<div
-					style={{
-						borderTop: `1px solid ${UI.border}`,
-						marginTop: 20,
-						paddingTop: 14,
-						display: "flex",
-						justifyContent: "space-between",
-						alignItems: "center",
-					}}
-				>
-					<div>
-						{totalMesa > 0 ? (
-							<label
-								style={{
-									display: "flex",
-									alignItems: "center",
-									gap: 8,
-									fontSize: 13,
-									color: UI.textPrimary,
-									cursor: "pointer",
-								}}
-							>
-								<input
-									type="checkbox"
-									checked={confirmDiscard}
-									onChange={(e) => setConfirmDiscard(e.target.checked)}
-									style={{ width: 16, height: 16 }}
-								/>
-								Confirmo descartar {totalMesa} item
-								{totalMesa !== 1 ? "s" : ""} da mesa
-							</label>
-						) : (
-							<span style={{ fontSize: 13, color: UI.textTertiary }}>
-								Mesa vazia
-							</span>
-						)}
+							);
+						})}
 					</div>
 
-					<button
-						type="button"
-						onClick={handleSair}
-						disabled={totalMesa > 0 && !confirmDiscard}
+					<hr
 						style={{
-							padding: "8px 20px",
-							border: `1px solid ${UI.border}`,
-							borderRadius: 6,
-							background:
-								totalMesa > 0 && !confirmDiscard ? UI.subpanelBg : UI.panelBg,
-							fontSize: 13,
-							cursor:
-								totalMesa > 0 && !confirmDiscard ? "not-allowed" : "pointer",
-							color:
-								totalMesa > 0 && !confirmDiscard
-									? UI.textTertiary
-									: UI.textPrimary,
-							opacity: totalMesa > 0 && !confirmDiscard ? 0.45 : 1,
-							transition: "opacity 0.15s",
+							border: "none",
+							borderTop: `1px solid ${UI.border}`,
+							margin: "0 0 16px 0",
+						}}
+					/>
+
+					{/* ── HERÓIS ────────────────────────────────────────────── */}
+					<p
+						style={{
+							fontSize: 12,
+							color: UI.textSecondary,
+							margin: "0 0 8px 0",
 						}}
 					>
-						{totalMesa > 0 ? "Descartar e sair" : "Sair"}
-					</button>
+						Heróis · {heroes.length} ativo{heroes.length !== 1 ? "s" : ""} ·
+						arraste lateral para ver todos
+					</p>
+
+					<div
+						ref={scrollRef}
+						onMouseDown={onScrollMouseDown}
+						onMouseMove={onScrollMouseMove}
+						onMouseUp={onScrollMouseUp}
+						onMouseLeave={onScrollMouseUp}
+						style={{
+							overflowX: "auto",
+							paddingBottom: 8,
+							cursor: scrollDown.current.active ? "grabbing" : "grab",
+						}}
+					>
+						<div style={{ display: "flex", gap: 12, width: "max-content" }}>
+							{heroes.map((hero) => (
+								<HeroColumn
+									key={hero.id}
+									hero={hero}
+									dragging={dragging}
+									hoverZone={hoverZone}
+									groupArtifacts={grupoArtefatos}
+									onDrop={handleZoneDrop}
+									onSetHover={setHoverZone}
+									onDragItemStart={handleItemDragStart}
+									onDragEnd={handleDragEnd}
+									onShowTooltip={showTooltip}
+									onHideTooltip={hideTooltip}
+									onUseItem={handleUseItemFromTooltip}
+								/>
+							))}
+							{heroes.length === 0 && (
+								<p style={{ fontSize: 13, color: UI.textTertiary }}>
+									Nenhum herói ativo.
+								</p>
+							)}
+						</div>
+					</div>
+
+					{/* ── RODAPÉ ────────────────────────────────────────────── */}
+					<div
+						style={{
+							borderTop: `1px solid ${UI.border}`,
+							marginTop: 20,
+							paddingTop: 14,
+							display: "flex",
+							justifyContent: "space-between",
+							alignItems: "center",
+						}}
+					>
+						<div>
+							{totalMesa > 0 ? (
+								<label
+									style={{
+										display: "flex",
+										alignItems: "center",
+										gap: 8,
+										fontSize: 13,
+										color: UI.textPrimary,
+										cursor: "pointer",
+									}}
+								>
+									<input
+										type="checkbox"
+										checked={confirmDiscard}
+										onChange={(e) => setConfirmDiscard(e.target.checked)}
+										style={{ width: 16, height: 16 }}
+									/>
+									Confirmo descartar {totalMesa} item
+									{totalMesa !== 1 ? "s" : ""} da mesa
+								</label>
+							) : (
+								<span style={{ fontSize: 13, color: UI.textTertiary }}>
+									Mesa vazia
+								</span>
+							)}
+						</div>
+
+						<button
+							type="button"
+							onClick={handleSair}
+							disabled={totalMesa > 0 && !confirmDiscard}
+							style={{
+								padding: "8px 20px",
+								border: `1px solid ${UI.border}`,
+								borderRadius: 6,
+								background:
+									totalMesa > 0 && !confirmDiscard ? UI.subpanelBg : UI.panelBg,
+								fontSize: 13,
+								cursor:
+									totalMesa > 0 && !confirmDiscard ? "not-allowed" : "pointer",
+								color:
+									totalMesa > 0 && !confirmDiscard
+										? UI.textTertiary
+										: UI.textPrimary,
+								opacity: totalMesa > 0 && !confirmDiscard ? 0.45 : 1,
+								transition: "opacity 0.15s",
+							}}
+						>
+							{totalMesa > 0 ? "Descartar e sair" : "Sair"}
+						</button>
+					</div>
 				</div>
 			</div>
-		</div>
 
-		{/* ── TOOLTIP ──────────────────────────────────────────────── */}
-		{tooltip && (
-			<ItemTooltipPanel
-				target={tooltip}
-				onUseItem={handleUseItemFromTooltip}
-				onMouseEnter={cancelHideTooltip}
-				onMouseLeave={hideTooltip}
-			/>
-		)}
+			{/* ── TOOLTIP ──────────────────────────────────────────────── */}
+			{tooltip && (
+				<ItemTooltipPanel
+					target={tooltip}
+					onUseItem={handleUseItemFromTooltip}
+					onMouseEnter={cancelHideTooltip}
+					onMouseLeave={hideTooltip}
+				/>
+			)}
 		</>
 	);
 }
@@ -1107,7 +1240,8 @@ function ItemTooltipPanel({
 	const effect = effectEntry ? renderSkillLabel(effectEntry.ref) : "";
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
-	const isConsumable = isItem && card.itemClass === "consumable" && !!target.heroId;
+	const isConsumable =
+		isItem && card.itemClass === "consumable" && !!target.heroId;
 
 	return (
 		<div
@@ -1131,7 +1265,14 @@ function ItemTooltipPanel({
 			}}
 		>
 			{/* Nome */}
-			<p style={{ fontWeight: 600, fontSize: 12, margin: "0 0 2px 0", color: "#FFFFFF" }}>
+			<p
+				style={{
+					fontWeight: 600,
+					fontSize: 12,
+					margin: "0 0 2px 0",
+					color: "#FFFFFF",
+				}}
+			>
 				{card.name}
 			</p>
 			{/* Tag / tipo */}
@@ -1148,7 +1289,12 @@ function ItemTooltipPanel({
 				{tagLine}
 			</p>
 			{/* Divisor */}
-			<div style={{ borderTop: "1px solid rgba(255,255,255,0.12)", marginBottom: 6 }} />
+			<div
+				style={{
+					borderTop: "1px solid rgba(255,255,255,0.12)",
+					marginBottom: 6,
+				}}
+			/>
 			{/* Efeito */}
 			<p style={{ margin: "0 0 0 0", color: "#CCCAC4" }}>{effect}</p>
 			{/* Botão Usar — só consumíveis na mochila de um herói */}

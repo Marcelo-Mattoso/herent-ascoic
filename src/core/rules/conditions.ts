@@ -8,7 +8,10 @@ type AccessCondition =
 	| { type: "group_artifacts_gte"; value: number }
 	| { type: "always" };
 
-function evaluateCondition(condition: AccessCondition, state: GameState): boolean {
+function evaluateCondition(
+	condition: AccessCondition,
+	state: GameState,
+): boolean {
 	switch (condition.type) {
 		case "group_artifacts_gte":
 			return state.groupArtifacts.length >= condition.value;

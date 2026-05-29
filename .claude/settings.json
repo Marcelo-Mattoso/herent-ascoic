@@ -1,18 +1,18 @@
 {
-  "hooks": {
-    "PreToolUse": [
-      {
-        "matcher": "Bash",
-        "hooks": [
-          {
-            "type": "command",
-            "if": "Bash(git commit*)",
-            "command": "node .claude/bump-version.cjs && git add package.json src/ui/screens/MainMenu.tsx",
-            "shell": "bash",
-            "statusMessage": "Incrementando versão..."
-          }
-        ]
-      }
-    ]
-  }
+	"hooks": {
+		"PreToolUse": [
+			{
+				"matcher": "Bash",
+				"hooks": [
+					{
+						"type": "command",
+						"if": "Bash(git commit*)",
+						"command": "node .claude/bump-version.cjs && git add package.json src/ui/screens/MainMenu.tsx",
+						"shell": "bash",
+						"statusMessage": "Incrementando versão..."
+					}
+				]
+			}
+		]
+	}
 }

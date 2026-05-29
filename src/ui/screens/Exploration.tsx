@@ -5,8 +5,8 @@ import { useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
-import type { CardType } from "@/ui/components/Card";
 import { Board } from "@/ui/components/Board";
+import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
 import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
@@ -184,135 +184,142 @@ export function Exploration() {
 
 	return (
 		<>
-		<div className="min-h-screen py-4 px-4" style={{ background: UI.pageBg }}>
-			<div className="max-w-4xl mx-auto space-y-3">
-
-				{/* Barra de status topo */}
-				<div
-					className="flex items-center justify-between px-4 py-2 rounded-lg text-sm"
-					style={{ background: UI.subpanelBg }}
-				>
-					<div className="flex gap-5 flex-wrap">
-						<span style={{ color: UI.textSecondary }}>
-							Sala:{" "}
-							<strong style={{ color: UI.textPrimary }}>
-								{state.roomsCleared}
-							</strong>
-						</span>
-						<span style={{ color: UI.textSecondary }}>
-							Heróis:{" "}
-							<strong style={{ color: UI.textPrimary }}>
-								{state.heroes.filter((h) => h.status === "active").length}
-							</strong>{" "}
-							ativos
-						</span>
-						{state.combat?.round ? (
+			<div className="min-h-screen py-4 px-4" style={{ background: UI.pageBg }}>
+				<div className="max-w-4xl mx-auto space-y-3">
+					{/* Barra de status topo */}
+					<div
+						className="flex items-center justify-between px-4 py-2 rounded-lg text-sm"
+						style={{ background: UI.subpanelBg }}
+					>
+						<div className="flex gap-5 flex-wrap">
 							<span style={{ color: UI.textSecondary }}>
-								Rodada:{" "}
+								Sala:{" "}
 								<strong style={{ color: UI.textPrimary }}>
-									{state.combat.round}
+									{state.roomsCleared}
 								</strong>
 							</span>
-						) : null}
+							<span style={{ color: UI.textSecondary }}>
+								Heróis:{" "}
+								<strong style={{ color: UI.textPrimary }}>
+									{state.heroes.filter((h) => h.status === "active").length}
+								</strong>{" "}
+								ativos
+							</span>
+							{state.combat?.round ? (
+								<span style={{ color: UI.textSecondary }}>
+									Rodada:{" "}
+									<strong style={{ color: UI.textPrimary }}>
+										{state.combat.round}
+									</strong>
+								</span>
+							) : null}
+						</div>
+						<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+							<button
+								type="button"
+								onClick={() => setShowLog((v) => !v)}
+								style={{
+									fontSize: 11,
+									padding: "2px 8px",
+									borderRadius: 6,
+									border: `1px solid ${showLog ? UI.borderStrong : UI.border}`,
+									background: showLog ? UI.textPrimary : UI.panelBg,
+									color: showLog ? UI.panelBg : UI.textSecondary,
+									cursor: "pointer",
+									fontWeight: 500,
+								}}
+							>
+								📋 Log
+							</button>
+							<span
+								className="text-xs px-2 py-0.5 rounded"
+								style={{ background: UI.panelBg, color: UI.textTertiary }}
+							>
+								{status}
+							</span>
+						</div>
 					</div>
-					<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-						<button
-							type="button"
-							onClick={() => setShowLog((v) => !v)}
-							style={{
-								fontSize: 11,
-								padding: "2px 8px",
-								borderRadius: 6,
-								border: `1px solid ${showLog ? UI.borderStrong : UI.border}`,
-								background: showLog ? UI.textPrimary : UI.panelBg,
-								color: showLog ? UI.panelBg : UI.textSecondary,
-								cursor: "pointer",
-								fontWeight: 500,
-							}}
-						>
-							📋 Log
-						</button>
-						<span
-							className="text-xs px-2 py-0.5 rounded"
-							style={{ background: UI.panelBg, color: UI.textTertiary }}
-						>
-							{status}
-						</span>
-					</div>
+
+					{/* TABULEIRO */}
+					<Board
+						state={state}
+						focusedHeroId={ui.focusedHeroId}
+						roll={roll ?? null}
+						onHeroClick={handleHeroClick}
+						onHeroDragStart={handleHeroDragStart}
+						onEnemyDrop={handleEnemyDrop}
+						onEnemyClick={handleEnemyClick}
+						onRoomClick={() =>
+							state.currentRoom &&
+							openCardDetail(state.currentRoom.cardName, "room")
+						}
+						onCardDetail={openCardDetail}
+						onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
+						onStartCombat={() => dispatch({ type: "START_COMBAT" })}
+						onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
+						onRoll={handleRollDice}
+						onResolve={handleResolveAttack}
+						onSelectDie={(side, index) =>
+							dispatch({ type: "SELECT_DIE", payload: { side, index } })
+						}
+					/>
+
+					{/* LOG DE EVENTOS (toggle) */}
+					{showLog && (
+						<EventLogPanel
+							entries={state.eventLog}
+							onClose={() => setShowLog(false)}
+						/>
+					)}
+
+					{/* PAINEL DO HERÓI EM FOCO */}
+					<HeroFocusPanel
+						hero={focusedHero}
+						state={state}
+						onAttack={handleAttack}
+						onPass={handlePass}
+						onCancelSelection={handleCancelSelection}
+						onPower={handleUsePower}
+						onFlee={handleFlee}
+						onUseSkill={handleUseSkill}
+						onCardDetail={openCardDetail}
+						onItemDetail={(itemName, heroId) =>
+							setDetailCard({ name: itemName, cardType: "item", heroId })
+						}
+					/>
 				</div>
 
-				{/* TABULEIRO */}
-				<Board
-					state={state}
-					focusedHeroId={ui.focusedHeroId}
-					roll={roll ?? null}
-					onHeroClick={handleHeroClick}
-					onHeroDragStart={handleHeroDragStart}
-					onEnemyDrop={handleEnemyDrop}
-					onEnemyClick={handleEnemyClick}
-					onRoomClick={() =>
-						state.currentRoom &&
-						openCardDetail(state.currentRoom.cardName, "room")
-					}
-					onCardDetail={openCardDetail}
-					onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
-					onStartCombat={() => dispatch({ type: "START_COMBAT" })}
-					onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
-					onRoll={handleRollDice}
-					onResolve={handleResolveAttack}
-					onSelectDie={(side, index) => dispatch({ type: "SELECT_DIE", payload: { side, index } })}
-				/>
-
-				{/* LOG DE EVENTOS (toggle) */}
-				{showLog && (
-					<EventLogPanel
-						entries={state.eventLog}
-						onClose={() => setShowLog(false)}
+				{/* Modais */}
+				{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
+				{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
+				{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
+				{modal === "flee_restart" && <FleeReconfigureModal />}
+				{state.pendingSkillChoice && <SkillChoiceModal />}
+				{modal === "card_detail" && detailCard && (
+					<CardDetailModal
+						cardName={detailCard.name}
+						cardType={detailCard.cardType}
+						onClose={() => setDetailCard(null)}
+						onUseItem={
+							detailCard.heroId
+								? () => {
+										dispatch({
+											type: "USE_ITEM",
+											payload: {
+												itemName: detailCard.name,
+												heroId: detailCard.heroId!,
+											},
+										});
+										setDetailCard(null);
+									}
+								: undefined
+						}
 					/>
 				)}
-
-				{/* PAINEL DO HERÓI EM FOCO */}
-				<HeroFocusPanel
-					hero={focusedHero}
-					state={state}
-					onAttack={handleAttack}
-					onPass={handlePass}
-					onCancelSelection={handleCancelSelection}
-					onPower={handleUsePower}
-					onFlee={handleFlee}
-					onUseSkill={handleUseSkill}
-					onCardDetail={openCardDetail}
-					onItemDetail={(itemName, heroId) =>
-						setDetailCard({ name: itemName, cardType: "item", heroId })
-					}
-				/>
 			</div>
 
-			{/* Modais */}
-			{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
-			{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
-			{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
-			{modal === "flee_restart" && <FleeReconfigureModal />}
-			{state.pendingSkillChoice && <SkillChoiceModal />}
-			{modal === "card_detail" && detailCard && (
-				<CardDetailModal
-					cardName={detailCard.name}
-					cardType={detailCard.cardType}
-					onClose={() => setDetailCard(null)}
-					onUseItem={
-						detailCard.heroId
-							? () => {
-									dispatch({ type: "USE_ITEM", payload: { itemName: detailCard.name, heroId: detailCard.heroId! } });
-									setDetailCard(null);
-								}
-							: undefined
-					}
-				/>
-			)}
-		</div>
-
-		{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}
-		{status === "REWARD_PHASE" && <InventarioGrupo />}
+			{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}
+			{status === "REWARD_PHASE" && <InventarioGrupo />}
 		</>
 	);
 }

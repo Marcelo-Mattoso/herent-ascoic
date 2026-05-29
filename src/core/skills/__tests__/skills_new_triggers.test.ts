@@ -2,16 +2,16 @@
 // on_destroyed, combat (Fio Mortal), e filtro combat_against_self.
 
 import { describe, expect, it } from "vitest";
-import { fireTrigger } from "../dispatch";
-import { handleStartCombat } from "../../reducer/combat";
 import { drainStack } from "../../effects/resolver";
-import { createInitialGameState } from "../../state/gameState";
+import { handleStartCombat } from "../../reducer/combat";
 import { createEmptyCombatState } from "../../state/combatState";
+import { createInitialGameState } from "../../state/gameState";
+import { fireTrigger } from "../dispatch";
 import "../handlers/index"; // popula registry
-import type { EnemyState } from "../../state/enemyState";
-import type { HeroState } from "../../state/heroState";
-import type { GameState } from "../../state/gameState";
 import type { ColorIndex } from "../../state/color";
+import type { EnemyState } from "../../state/enemyState";
+import type { GameState } from "../../state/gameState";
+import type { HeroState } from "../../state/heroState";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
@@ -84,7 +84,10 @@ describe("while_in_play — flee_block", () => {
 		// Como não temos carta real com while_in_play flee_block nos usedBy,
 		// testamos via handleStartCombat que não quebra com inimigos sem a skill.
 		const enemy = makeEnemy({ cardName: "Goblin" });
-		const state = baseState({ activeEnemies: [enemy], despertar: 4 as ColorIndex });
+		const state = baseState({
+			activeEnemies: [enemy],
+			despertar: 4 as ColorIndex,
+		});
 		const result = handleStartCombat(state);
 		// Goblin não tem while_in_play, então fleeBlocked não deve estar ativo
 		expect(result.flags?.fleeBlocked).toBeFalsy();
@@ -95,7 +98,9 @@ describe("while_in_play — flee_block", () => {
 
 describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 	function makeStateWithPaladino(despertar: ColorIndex): GameState {
-		const base = createInitialGameState({ heroCardNames: ["Paladino da Última Luz"] });
+		const base = createInitialGameState({
+			heroCardNames: ["Paladino da Última Luz"],
+		});
 		const hero: HeroState = {
 			id: "h1",
 			cardId: "hero_last_light_paladin",
@@ -120,7 +125,13 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			phase: "resolving" as const,
 			currentPair: { heroId: "h1", enemyId: "e1" },
 		};
-		return { ...base, heroes: [hero], activeEnemies: [enemy], despertar, combat };
+		return {
+			...base,
+			heroes: [hero],
+			activeEnemies: [enemy],
+			despertar,
+			combat,
+		};
 	}
 
 	it("fireTrigger direto dispara mesmo com despertar < 3 (guarda fica em combat.ts)", () => {
@@ -142,11 +153,13 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
 		const state = makeStateWithPaladino(3 as ColorIndex);
-		const result = drainStack(fireTrigger(state, "combat_if_dungeon_red_or_purple", {
-			triggeredBy: "combat_if_dungeon_red_or_purple",
-			sourceHeroId: "h1",
-			sourceEnemyId: "e1",
-		}));
+		const result = drainStack(
+			fireTrigger(state, "combat_if_dungeon_red_or_purple", {
+				triggeredBy: "combat_if_dungeon_red_or_purple",
+				sourceHeroId: "h1",
+				sourceEnemyId: "e1",
+			}),
+		);
 		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		expect(entries).toHaveLength(2);
@@ -155,11 +168,13 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 
 	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
 		const state = makeStateWithPaladino(4 as ColorIndex);
-		const result = drainStack(fireTrigger(state, "combat_if_dungeon_red_or_purple", {
-			triggeredBy: "combat_if_dungeon_red_or_purple",
-			sourceHeroId: "h1",
-			sourceEnemyId: "e1",
-		}));
+		const result = drainStack(
+			fireTrigger(state, "combat_if_dungeon_red_or_purple", {
+				triggeredBy: "combat_if_dungeon_red_or_purple",
+				sourceHeroId: "h1",
+				sourceEnemyId: "e1",
+			}),
+		);
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		expect(entries).toHaveLength(2);
 		expect(entries.every((e) => e.value === 2)).toBe(true);
@@ -263,7 +278,13 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			phase: "resolving" as const,
 			currentPair: { heroId: "h1", enemyId: "e1" },
 		};
-		return { ...base, heroes: [hero], activeEnemies: [enemy], despertar, combat };
+		return {
+			...base,
+			heroes: [hero],
+			activeEnemies: [enemy],
+			despertar,
+			combat,
+		};
 	}
 
 	it("aplica bônus de Fio Mortal no Despertar 1 (sem restrição de despertar)", () => {
@@ -271,11 +292,13 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		// skill_crimson_fury → script → pushEffect add_modifier damage_bonus +6
 		// item_skill_deadly_edge → legacy tohit_damage handler → bonusNextAttack diretamente
 		const state = makeStateWithAdaga(1 as ColorIndex);
-		const result = drainStack(fireTrigger(state, "before_attack", {
-			triggeredBy: "before_attack",
-			sourceHeroId: "h1",
-			sourceEnemyId: "e1",
-		}));
+		const result = drainStack(
+			fireTrigger(state, "before_attack", {
+				triggeredBy: "before_attack",
+				sourceHeroId: "h1",
+				sourceEnemyId: "e1",
+			}),
+		);
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		const total = entries.reduce((s, e) => s + e.value, 0);
 		expect(total).toBe(7);
@@ -286,11 +309,13 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
 		const state = makeStateWithAdaga(4 as ColorIndex);
-		const result = drainStack(fireTrigger(state, "before_attack", {
-			triggeredBy: "before_attack",
-			sourceHeroId: "h1",
-			sourceEnemyId: "e1",
-		}));
+		const result = drainStack(
+			fireTrigger(state, "before_attack", {
+				triggeredBy: "before_attack",
+				sourceHeroId: "h1",
+				sourceEnemyId: "e1",
+			}),
+		);
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		const total = entries.reduce((s, e) => s + e.value, 0);
 		expect(total).toBe(7);

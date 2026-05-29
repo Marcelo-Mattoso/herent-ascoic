@@ -25,6 +25,7 @@ export function handleRevealBoss(state: GameState): GameState {
 
 	const bossEnemy: EnemyState = {
 		id: "boss",
+		cardId: bossCard.id,
 		cardName: bossCard.name,
 		maxLife: totalLife,
 		currentLife: totalLife,
@@ -153,7 +154,9 @@ function checkBossEnd(state: GameState): GameState {
 }
 
 // Reutiliza o ROLL_DICE normal mas com o boss no par
-export function buildBossRoll(state: GameState): { roll: CombatRollResult; nextState: GameState } | null {
+export function buildBossRoll(
+	state: GameState,
+): { roll: CombatRollResult; nextState: GameState } | null {
 	if (!state.combat || state.combat.pairs.length === 0) return null;
 	const pair = state.combat.pairs[0];
 	if (!pair) return null;

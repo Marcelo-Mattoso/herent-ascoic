@@ -11,15 +11,19 @@
 // Se dois handlers no mesmo nível conflitarem em balanceamento, adicionar
 // `priority?: number` em SkillDefinition (menor = executa primeiro).
 
-import type { SkillDefinition, SkillContext, TriggerName } from "../data/skillTypes";
+import { getCardByName } from "../data/cards";
 import type { SkillRef } from "../data/cardTypes";
-import type { GameState } from "../state/gameState";
-import { getHandler } from "./registry";
-import { cardSkills } from "./lookup";
-import { evaluate } from "./dsl/evaluate";
+import type {
+	SkillContext,
+	SkillDefinition,
+	TriggerName,
+} from "../data/skillTypes";
 import { buildScriptCtx } from "../scripts/context";
 import { getScript } from "../scripts/registry";
-import { getCardByName } from "../data/cards";
+import type { GameState } from "../state/gameState";
+import { evaluate } from "./dsl/evaluate";
+import { cardSkills } from "./lookup";
+import { getHandler } from "./registry";
 
 interface ActiveSkill {
 	definition: SkillDefinition;
@@ -30,8 +34,16 @@ interface ActiveSkill {
 
 // Parseia trigger composto — separa guard e base trigger.
 // Ex: "once_per_game_after_any_roll" → { guard: "once_per_game", base: "after_roll" }
-export function parseTrigger(trigger: TriggerName): { guard: string | null; base: string } {
-	const guards = ["once_per_game", "once_per_room", "once_per_combat", "once_per_round"];
+export function parseTrigger(trigger: TriggerName): {
+	guard: string | null;
+	base: string;
+} {
+	const guards = [
+		"once_per_game",
+		"once_per_room",
+		"once_per_combat",
+		"once_per_round",
+	];
 	for (const g of guards) {
 		if (trigger === g) return { guard: g, base: "on_use" };
 		if (trigger.startsWith(`${g}_`)) {
@@ -59,7 +71,8 @@ export function parseTrigger(trigger: TriggerName): { guard: string | null; base
 		while_in_play: "while_in_play",
 		on_destroyed: "on_destroyed",
 	};
-	if (triggerAliases[trigger]) return { guard: null, base: triggerAliases[trigger] };
+	if (triggerAliases[trigger])
+		return { guard: null, base: triggerAliases[trigger] };
 	return { guard: null, base: trigger };
 }
 
@@ -73,10 +86,10 @@ export function guardPassed(
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
 
-	if (guard === "once_per_game") return !(state.oncePer?.game?.[key]);
-	if (guard === "once_per_room") return !(state.combat?.oncePer?.room?.[key]);
-	if (guard === "once_per_combat") return !(state.combat?.oncePer?.combat?.[key]);
-	if (guard === "once_per_round") return !(state.combat?.oncePer?.round?.[key]);
+	if (guard === "once_per_game") return !state.oncePer?.game?.[key];
+	if (guard === "once_per_room") return !state.combat?.oncePer?.room?.[key];
+	if (guard === "once_per_combat") return !state.combat?.oncePer?.combat?.[key];
+	if (guard === "once_per_round") return !state.combat?.oncePer?.round?.[key];
 	return true;
 }
 
@@ -107,8 +120,18 @@ function markGuardUsed(
 			},
 		};
 	}
-	if ((guard === "once_per_room" || guard === "once_per_combat" || guard === "once_per_round") && state.combat) {
-		const scope = guard === "once_per_round" ? "round" : guard === "once_per_combat" ? "combat" : "room";
+	if (
+		(guard === "once_per_room" ||
+			guard === "once_per_combat" ||
+			guard === "once_per_round") &&
+		state.combat
+	) {
+		const scope =
+			guard === "once_per_round"
+				? "round"
+				: guard === "once_per_combat"
+					? "combat"
+					: "room";
 		return {
 			...state,
 			combat: {
@@ -142,14 +165,17 @@ function inPlaySources(state: GameState, trigger: TriggerName): InPlaySource[] {
 		for (const itemName of Object.values(hero.activeItems)) {
 			if (!itemName) continue;
 			const itemCard = getCardByName(itemName);
-			if (itemCard) sources.push({ cardId: itemCard.id, sourceHeroId: hero.id });
+			if (itemCard)
+				sources.push({ cardId: itemCard.id, sourceHeroId: hero.id });
 		}
 	}
 
 	// 3. Inimigos ativos (on_destroyed inclui recém-derrotados)
-	const enemyFilter = trigger === "on_destroyed"
-		? (e: { status: string }) => e.status === "active" || e.status === "defeated"
-		: (e: { status: string }) => e.status === "active";
+	const enemyFilter =
+		trigger === "on_destroyed"
+			? (e: { status: string }) =>
+					e.status === "active" || e.status === "defeated"
+			: (e: { status: string }) => e.status === "active";
 	for (const enemy of state.activeEnemies.filter(enemyFilter)) {
 		sources.push({ cardId: enemy.cardId, sourceEnemyId: enemy.id });
 	}
@@ -161,17 +187,26 @@ function inPlaySources(state: GameState, trigger: TriggerName): InPlaySource[] {
 
 	// 5. Artefatos do grupo
 	for (const artifact of state.groupArtifacts) {
-		sources.push({ cardId: artifact.cardId, sourceHeroId: artifact.carriedBy ?? undefined });
+		sources.push({
+			cardId: artifact.cardId,
+			sourceHeroId: artifact.carriedBy ?? undefined,
+		});
 	}
 
 	return sources;
 }
 
 // Coleta todas as habilidades "em jogo" para o trigger dado.
-function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkill[] {
+function collectActiveSkills(
+	state: GameState,
+	trigger: TriggerName,
+): ActiveSkill[] {
 	const active: ActiveSkill[] = [];
 
-	for (const { cardId, sourceHeroId, sourceEnemyId } of inPlaySources(state, trigger)) {
+	for (const { cardId, sourceHeroId, sourceEnemyId } of inPlaySources(
+		state,
+		trigger,
+	)) {
 		for (const { def, ref } of cardSkills(cardId)) {
 			if (ref.requiresAwakening && state.despertar !== 4) continue;
 			const { base } = parseTrigger(def.trigger);
@@ -227,9 +262,9 @@ export function fireTrigger(
 				? Number(rawValue.split("/")[0]) || 0
 				: rawValue;
 		const params: Record<string, unknown> = {
-			value: numericValue,
 			...(skill.definition.params ?? {}),
 			...(skill.ref.params ?? {}),
+			value: numericValue,
 		};
 
 		if (skill.definition.effect) {

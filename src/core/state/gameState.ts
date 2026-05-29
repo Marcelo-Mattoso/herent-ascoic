@@ -2,12 +2,12 @@
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
 import type { LoggedAction } from "../actions/types";
-import type { EffectStack, PausedState } from "../effects/stack";
-import { createEmptyEffectStack } from "../effects/stack";
 import type { World } from "../ecs/world";
 import { createEmptyWorld } from "../ecs/world";
-import { createRng } from "../ports/random";
+import type { EffectStack, PausedState } from "../effects/stack";
+import { createEmptyEffectStack } from "../effects/stack";
 import type { RngState } from "../ports/random";
+import { createRng } from "../ports/random";
 import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
 import { createEmptyCombatState } from "./combatState";
@@ -110,7 +110,16 @@ export interface GameState {
 	readonly flags: Readonly<Record<string, boolean>>;
 
 	// Tokens persistentes fora do combate (chave: `${ownerId}::${type}`)
-	readonly tokens: Readonly<Record<string, { readonly count: number; readonly ownerId: string; readonly type: string }>>;
+	readonly tokens: Readonly<
+		Record<
+			string,
+			{
+				readonly count: number;
+				readonly ownerId: string;
+				readonly type: string;
+			}
+		>
+	>;
 
 	// Escolha pendente de skill aguardando input do jogador
 	pendingSkillChoice?: {

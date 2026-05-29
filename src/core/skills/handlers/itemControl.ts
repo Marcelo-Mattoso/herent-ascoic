@@ -3,8 +3,8 @@
 // Trigger: first_item_effect_received. Verificado em handleUseItem (combat.ts).
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleItemControl(
 	state: GameState,
@@ -23,7 +23,10 @@ export function handleItemControl(
 			...state,
 			combat: {
 				...state.combat,
-				itemControlByEnemy: { ...state.combat.itemControlByEnemy, [enemyId]: true },
+				itemControlByEnemy: {
+					...state.combat.itemControlByEnemy,
+					[enemyId]: true,
+				},
 				oncePer: {
 					...state.combat.oncePer,
 					combat: { ...state.combat.oncePer.combat, [key]: true },

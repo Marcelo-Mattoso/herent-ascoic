@@ -32,7 +32,10 @@ export function CombatActionPanel({
 	const gameStatus = state.status;
 
 	// Fase: aguardando seleção de herói
-	if (phase === "selecting_hero" && (gameStatus === "HERO_ACTION" || gameStatus === "BOSS_COMBAT")) {
+	if (
+		phase === "selecting_hero" &&
+		(gameStatus === "HERO_ACTION" || gameStatus === "BOSS_COMBAT")
+	) {
 		const pending = state.heroes.filter(
 			(h) => h.status === "active" && !state.combat?.heroesActed.includes(h.id),
 		);
@@ -49,11 +52,16 @@ export function CombatActionPanel({
 	}
 
 	// Fase: herói selecionado, aguardando alvo ou ação
-	if (phase === "selecting_target" && (gameStatus === "HERO_ACTION" || gameStatus === "BOSS_COMBAT")) {
+	if (
+		phase === "selecting_target" &&
+		(gameStatus === "HERO_ACTION" || gameStatus === "BOSS_COMBAT")
+	) {
 		const selectedId = state.combat?.selectedHeroId;
 		const hero = state.heroes.find((h) => h.id === selectedId);
 		const hasPower = hero && !state.combat?.powersUsedThisRoom[hero.id];
-		const hasActiveEnemies = state.activeEnemies.some((e) => e.status === "active");
+		const hasActiveEnemies = state.activeEnemies.some(
+			(e) => e.status === "active",
+		);
 
 		return (
 			<div className="space-y-2">

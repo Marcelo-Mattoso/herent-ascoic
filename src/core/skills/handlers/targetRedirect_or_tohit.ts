@@ -3,10 +3,10 @@
 // Trigger: once_per_room_on_targeted.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
-import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 import { registerContinuation } from "../registry";
+import { parseNumber } from "../valueParsers";
 
 export function handleTargetRedirectOrTohit(
 	state: GameState,
@@ -21,18 +21,25 @@ export function handleTargetRedirectOrTohit(
 	);
 
 	const options: { id: string; label: string }[] = [
-		{ id: "tohit", label: `Aceitar e ganhar +${tohitBonus} de acerto neste ataque` },
+		{
+			id: "tohit",
+			label: `Aceitar e ganhar +${tohitBonus} de acerto neste ataque`,
+		},
 	];
 
 	if (otherEnemies.length > 0) {
-		options.unshift({ id: "redirect", label: `Redirecionar para ${otherEnemies[0]!.cardName}` });
+		options.unshift({
+			id: "redirect",
+			label: `Redirecionar para ${otherEnemies[0]!.cardName}`,
+		});
 	}
 
 	return {
 		...state,
 		pendingSkillChoice: {
 			skillId: ctx.skillId,
-			prompt: "Capuz do Túnel: você foi escolhido como alvo. Como deseja responder?",
+			prompt:
+				"Capuz do Túnel: você foi escolhido como alvo. Como deseja responder?",
 			options,
 			sourceHeroId: ctx.sourceHeroId,
 		},
@@ -47,14 +54,17 @@ registerContinuation(
 		if (choice === "redirect") {
 			// Redirecionar o último par para outra criatura ativa
 			const pairs = [...state.combat.pairs];
-			const pairIndex = pairs.findLastIndex((p) => p.heroId === ctx.sourceHeroId);
+			const pairIndex = pairs.findLastIndex(
+				(p) => p.heroId === ctx.sourceHeroId,
+			);
 			if (pairIndex === -1) return state;
 
 			const currentPair = pairs[pairIndex]!;
 			const other = state.activeEnemies.find(
 				(e) => e.status === "active" && e.id !== currentPair.enemyId,
 			);
-			if (!other) return log(state, "Nenhuma outra criatura para redirecionar.");
+			if (!other)
+				return log(state, "Nenhuma outra criatura para redirecionar.");
 
 			pairs[pairIndex] = { ...currentPair, enemyId: other.id };
 			return log(
@@ -71,7 +81,13 @@ registerContinuation(
 				...state,
 				combat: {
 					...state.combat,
-					bonusNextAttack: { ...state.combat.bonusNextAttack, [ctx.sourceHeroId]: [...current, { label: "Desvio de Foco", value: bonus }] },
+					bonusNextAttack: {
+						...state.combat.bonusNextAttack,
+						[ctx.sourceHeroId]: [
+							...current,
+							{ label: "Desvio de Foco", value: bonus },
+						],
+					},
 				},
 			},
 			`Desvio de Foco: +${bonus} de acerto neste ataque.`,

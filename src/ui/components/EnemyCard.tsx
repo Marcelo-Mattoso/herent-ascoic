@@ -109,11 +109,21 @@ export function EnemyCard({
 			{/* Barra de vida */}
 			<HpBar current={enemy.currentLife} max={enemy.maxLife} height={3} />
 			{/* Stats */}
-			<p style={{ color: UI.textTertiary, fontSize: 9, marginTop: 1, lineHeight: 1 }}>
-				{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · D{enemy.damage}
+			<p
+				style={{
+					color: UI.textTertiary,
+					fontSize: 9,
+					marginTop: 1,
+					lineHeight: 1,
+				}}
+			>
+				{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · D
+				{enemy.damage}
 			</p>
 			{isEngaged && (
-				<p style={{ color: UI.textTertiary, fontSize: 9, marginTop: 1 }}>engajado</p>
+				<p style={{ color: UI.textTertiary, fontSize: 9, marginTop: 1 }}>
+					engajado
+				</p>
 			)}
 		</div>
 	);

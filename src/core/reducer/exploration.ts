@@ -1,14 +1,22 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
-import { getArtifacts, getCardById, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../data/cards";
-import { cardSkills } from "../skills/lookup";
-import { renderSkillLabel } from "../skills/renderLabel";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
+import {
+	getArtifacts,
+	getCardById,
+	getCardByName,
+	getCreatures,
+	getItems,
+	getRooms,
+	getSubbosses,
+} from "../data/cards";
+import type { SubbossRoomCard } from "../data/cardTypes";
 import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
 import { fireTrigger } from "../skills/dispatch";
+import { cardSkills } from "../skills/lookup";
+import { renderSkillLabel } from "../skills/renderLabel";
 import { createEmptyCombatState } from "../state/combatState";
-import type { SubbossRoomCard } from "../data/cardTypes";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
 import { applyFullHeal } from "../systems/healSystem";
@@ -32,7 +40,8 @@ export function handleRevealRoom(state: GameState): GameState {
 
 	const [roomName, ...remaining] = available;
 	const card = getCardByName(roomName as string);
-	if (!card || (card.type !== "room" && card.type !== "subboss_room")) return state;
+	if (!card || (card.type !== "room" && card.type !== "subboss_room"))
+		return state;
 
 	// Sala de subchefe: spawna diretamente o subchefe vinculado
 	if (card.type === "subboss_room") {
@@ -46,7 +55,10 @@ export function handleRevealRoom(state: GameState): GameState {
 		currentEnemies: card.enemiesByPlayers[0], // solo = índice 0
 		reward: card.reward,
 		rewardType: card.rewardType,
-		effect: (() => { const s = cardSkills(card.id)[0]; return s ? renderSkillLabel(s.ref) : ""; })(),
+		effect: (() => {
+			const s = cardSkills(card.id)[0];
+			return s ? renderSkillLabel(s.ref) : "";
+		})(),
 		xp: card.xp ?? 0,
 		specialCreature: card.specialCreature,
 		status: "active",
@@ -70,8 +82,14 @@ function handleRevealSubbossRoom(
 	card: SubbossRoomCard,
 	remainingDeck: readonly string[],
 ): GameState {
-	const subbossCard = getSubbosses().find((s) => s.name === card.linkedSubbossName);
-	if (!subbossCard) return log(state, `[AVISO] Subchefe não encontrado: ${card.linkedSubbossName}`);
+	const subbossCard = getSubbosses().find(
+		(s) => s.name === card.linkedSubbossName,
+	);
+	if (!subbossCard)
+		return log(
+			state,
+			`[AVISO] Subchefe não encontrado: ${card.linkedSubbossName}`,
+		);
 
 	const room: RoomState = {
 		cardId: card.id,
@@ -80,13 +98,20 @@ function handleRevealSubbossRoom(
 		currentEnemies: 1,
 		reward: card.reward,
 		rewardType: card.rewardType,
-		effect: (() => { const s = cardSkills(card.id)[0]; return s ? renderSkillLabel(s.ref) : ""; })(),
+		effect: (() => {
+			const s = cardSkills(card.id)[0];
+			return s ? renderSkillLabel(s.ref) : "";
+		})(),
 		xp: card.xp ?? 0,
 		specialCreature: card.linkedSubbossName,
 		status: "active",
 	};
 
-	const { enemy, next: rng } = createEnemyFromCard(subbossCard, state.despertar, state.rng);
+	const { enemy, next: rng } = createEnemyFromCard(
+		subbossCard,
+		state.despertar,
+		state.rng,
+	);
 
 	let next: GameState = {
 		...state,
@@ -101,8 +126,13 @@ function handleRevealSubbossRoom(
 		},
 	};
 	next = fireTrigger(next, "before_combat", { triggeredBy: "before_combat" });
-	next = fireTrigger(next, "before_first_combat_in_room", { triggeredBy: "before_first_combat_in_room" });
-	return log(next, `Sala de subchefe revelada: ${card.name}. ${subbossCard.name} aparece!`);
+	next = fireTrigger(next, "before_first_combat_in_room", {
+		triggeredBy: "before_first_combat_in_room",
+	});
+	return log(
+		next,
+		`Sala de subchefe revelada: ${card.name}. ${subbossCard.name} aparece!`,
+	);
 }
 
 export function handleResolveRoomEffect(state: GameState): GameState {
@@ -115,7 +145,9 @@ export function handleResolveRoomEffect(state: GameState): GameState {
 		log(state, `[TODO] Efeito de sala não implementado: ${name}`);
 	}
 	const withSpawn: GameState = { ...state, status: "SPAWN_ENEMIES" };
-	return fireTrigger(withSpawn, "on_enter_room", { triggeredBy: "on_enter_room" });
+	return fireTrigger(withSpawn, "on_enter_room", {
+		triggeredBy: "on_enter_room",
+	});
 }
 
 // Patch 2: contagem dinâmica de inimigos baseada no número de heróis ativos.
@@ -160,7 +192,8 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	const enemies: ReturnType<typeof createEnemyFromCard>["enemy"][] = [];
 	for (const name of drawn) {
 		const card = getCardByName(name);
-		if (!card || (card.type !== "creature" && card.type !== "subboss")) continue;
+		if (!card || (card.type !== "creature" && card.type !== "subboss"))
+			continue;
 		const { enemy, next } = createEnemyFromCard(card, state.despertar, rng);
 		enemies.push(enemy);
 		rng = next;
@@ -169,8 +202,15 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	// Spawn da criatura especial da sala (ex.: Carcereiro, Guardião do Abismo)
 	if (state.currentRoom.specialCreature) {
 		const specialCard = getCardByName(state.currentRoom.specialCreature);
-		if (specialCard && (specialCard.type === "creature" || specialCard.type === "subboss")) {
-			const { enemy, next } = createEnemyFromCard(specialCard, state.despertar, rng);
+		if (
+			specialCard &&
+			(specialCard.type === "creature" || specialCard.type === "subboss")
+		) {
+			const { enemy, next } = createEnemyFromCard(
+				specialCard,
+				state.despertar,
+				rng,
+			);
 			enemies.push(enemy);
 			rng = next;
 		}
@@ -192,8 +232,13 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		},
 	};
 	next = fireTrigger(next, "before_combat", { triggeredBy: "before_combat" });
-	next = fireTrigger(next, "before_first_combat_in_room", { triggeredBy: "before_first_combat_in_room" });
-	return log(next, `${enemies.length} inimigo(s) aparecem: ${enemies.map((e) => e.cardName).join(", ")}.`);
+	next = fireTrigger(next, "before_first_combat_in_room", {
+		triggeredBy: "before_first_combat_in_room",
+	});
+	return log(
+		next,
+		`${enemies.length} inimigo(s) aparecem: ${enemies.map((e) => e.cardName).join(", ")}.`,
+	);
 }
 
 export function handleOpenPaths(state: GameState): GameState {
@@ -215,7 +260,9 @@ export function handleOpenPaths(state: GameState): GameState {
 		},
 		`${drawn.length} caminho(s) revelado(s).`,
 	);
-	next = fireTrigger(next, "on_reveal_paths", { triggeredBy: "on_reveal_paths" });
+	next = fireTrigger(next, "on_reveal_paths", {
+		triggeredBy: "on_reveal_paths",
+	});
 	return next;
 }
 
@@ -282,7 +329,11 @@ export function discardFromDungeonDeck(state: GameState, n: number): GameState {
 		...state,
 		decks: {
 			...state.decks,
-			dungeonDeck: { available: remaining, discarded: [...discarded, ...toDiscard], removed },
+			dungeonDeck: {
+				available: remaining,
+				discarded: [...discarded, ...toDiscard],
+				removed,
+			},
 		},
 	};
 }
@@ -301,7 +352,10 @@ export function handleRestartDungeon(
 
 	// Embaralhar encadeando o RNG
 	let rng = state.rng;
-	let shuffledRooms: string[], shuffledCreatures: string[], shuffledItems: string[], shuffledArtifacts: string[];
+	let shuffledRooms: string[],
+		shuffledCreatures: string[],
+		shuffledItems: string[],
+		shuffledArtifacts: string[];
 	({ value: shuffledRooms, next: rng } = shuffleRng(roomNames, rng));
 	({ value: shuffledCreatures, next: rng } = shuffleRng(creatureNames, rng));
 	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
@@ -341,7 +395,11 @@ export function handleRestartDungeon(
 				dungeonDeck: { available: shuffledRooms, discarded: [], removed: [] },
 				enemyDeck: { available: shuffledCreatures, discarded: [], removed: [] },
 				itemDeck: { available: shuffledItems, discarded: [], removed: [] },
-				artifactDeck: { available: shuffledArtifacts, discarded: [], removed: [] },
+				artifactDeck: {
+					available: shuffledArtifacts,
+					discarded: [],
+					removed: [],
+				},
 			},
 		},
 		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,

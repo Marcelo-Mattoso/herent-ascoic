@@ -1,13 +1,13 @@
 // Testes do Passo 12 — Persistência.
 // Testa: porta mock, isLogIntact, replay de log, e localStoragePersistence (com mock do localStorage).
 
-import { describe, expect, it, vi, beforeEach } from "vitest";
+import { describe, expect, it } from "vitest";
+import type { LoggedAction } from "../actions/types";
+import { reducer, reducerCore } from "../reducer/index";
+import type { GameState } from "../state/gameState";
+import { createInitialGameState } from "../state/gameState";
 import type { PersistencePort } from "./persistence";
 import { isLogIntact } from "./persistence";
-import { reducer, reducerCore } from "../reducer/index";
-import { createInitialGameState } from "../state/gameState";
-import type { LoggedAction } from "../actions/types";
-import type { GameState } from "../state/gameState";
 
 const HERO = "Bárbaro Rubro";
 
@@ -35,16 +35,28 @@ describe("isLogIntact", () => {
 	});
 
 	it("retorna false se seq=0 não é START_GAME", () => {
-		expect(isLogIntact([{ seq: 0, action: { type: "REVEAL_ROOM" } }])).toBe(false);
+		expect(isLogIntact([{ seq: 0, action: { type: "REVEAL_ROOM" } }])).toBe(
+			false,
+		);
 	});
 
 	it("retorna false se seqs não começam em 0", () => {
-		expect(isLogIntact([{ seq: 1, action: { type: "START_GAME", payload: { heroCardNames: [] } } }])).toBe(false);
+		expect(
+			isLogIntact([
+				{
+					seq: 1,
+					action: { type: "START_GAME", payload: { heroCardNames: [] } },
+				},
+			]),
+		).toBe(false);
 	});
 
 	it("retorna false se há buraco nas seqs", () => {
 		const log: LoggedAction[] = [
-			{ seq: 0, action: { type: "START_GAME", payload: { heroCardNames: [HERO] } } },
+			{
+				seq: 0,
+				action: { type: "START_GAME", payload: { heroCardNames: [HERO] } },
+			},
 			{ seq: 2, action: { type: "REVEAL_ROOM" } }, // seq 1 ausente
 		];
 		expect(isLogIntact(log)).toBe(false);
@@ -52,7 +64,10 @@ describe("isLogIntact", () => {
 
 	it("retorna true para log com 1 entry START_GAME", () => {
 		const log: LoggedAction[] = [
-			{ seq: 0, action: { type: "START_GAME", payload: { heroCardNames: [HERO] } } },
+			{
+				seq: 0,
+				action: { type: "START_GAME", payload: { heroCardNames: [HERO] } },
+			},
 		];
 		expect(isLogIntact(log)).toBe(true);
 	});
@@ -65,19 +80,32 @@ describe("isLogIntact", () => {
 // ── Porta mock — appendAction e loadActionLog ─────────────────────────────────
 
 describe("PersistencePort mock — contrato básico", () => {
-	function createMockPort(): PersistencePort & { _log: LoggedAction[]; _snapshot: GameState | null } {
+	function createMockPort(): PersistencePort & {
+		_log: LoggedAction[];
+		_snapshot: GameState | null;
+	} {
 		const _log: LoggedAction[] = [];
 		let _snapshot: GameState | null = null;
 
 		return {
 			_log,
-			get _snapshot() { return _snapshot; },
+			get _snapshot() {
+				return _snapshot;
+			},
 			loadSnapshot: () => _snapshot,
-			saveSnapshot: (s) => { _snapshot = s; },
-			clearSnapshot: () => { _snapshot = null; },
-			appendAction: (e) => { _log.push(e); },
+			saveSnapshot: (s) => {
+				_snapshot = s;
+			},
+			clearSnapshot: () => {
+				_snapshot = null;
+			},
+			appendAction: (e) => {
+				_log.push(e);
+			},
 			loadActionLog: () => _log,
-			clearActionLog: () => { _log.splice(0, _log.length); },
+			clearActionLog: () => {
+				_log.splice(0, _log.length);
+			},
 		};
 	}
 
@@ -152,7 +180,10 @@ describe("boot — replay do log", () => {
 describe("boot — log corrompido cai pro snapshot", () => {
 	it("log corrompido (seq faltando) → isLogIntact retorna false", () => {
 		const corruptLog: LoggedAction[] = [
-			{ seq: 0, action: { type: "START_GAME", payload: { heroCardNames: [HERO] } } },
+			{
+				seq: 0,
+				action: { type: "START_GAME", payload: { heroCardNames: [HERO] } },
+			},
 			{ seq: 5, action: { type: "REVEAL_ROOM" } }, // seq inválido
 		];
 		expect(isLogIntact(corruptLog)).toBe(false);

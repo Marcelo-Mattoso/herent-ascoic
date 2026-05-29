@@ -3,10 +3,10 @@
 // embaralhando no deck. O Ladino power não tem custo.
 
 import type { SkillContext } from "../../data/skillTypes";
+import { log, shuffleRng } from "../../reducer/utils";
 import type { GameState } from "../../state/gameState";
 import { applyDamageMin1 } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";
-import { log, shuffleRng } from "../../reducer/utils";
 
 export function handleRecoverDungeon(
 	state: GameState,
@@ -15,12 +15,16 @@ export function handleRecoverDungeon(
 ): GameState {
 	const count = parseNumber(value) ?? 1;
 	const { discarded } = state.decks.dungeonDeck;
-	if (discarded.length === 0) return log(state, "Descarte da dungeon vazio — nada para recuperar.");
+	if (discarded.length === 0)
+		return log(state, "Descarte da dungeon vazio — nada para recuperar.");
 
 	const toRecover = discarded.slice(0, count);
 	const remaining = discarded.slice(count);
 
-	const { value: reshuffled, next: rng } = shuffleRng([...state.decks.dungeonDeck.available, ...toRecover], state.rng);
+	const { value: reshuffled, next: rng } = shuffleRng(
+		[...state.decks.dungeonDeck.available, ...toRecover],
+		state.rng,
+	);
 
 	let next: GameState = {
 		...state,

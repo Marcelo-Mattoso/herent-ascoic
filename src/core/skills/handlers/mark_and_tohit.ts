@@ -3,9 +3,9 @@
 // Contra ela, recebe +value no bônus de acerto.
 
 import type { SkillContext } from "../../data/skillTypes";
+import { log } from "../../reducer/utils";
 import type { GameState } from "../../state/gameState";
 import { parseNumber } from "../valueParsers";
-import { log } from "../../reducer/utils";
 
 export function handleMarkAndTohit(
 	state: GameState,
@@ -22,7 +22,9 @@ export function handleMarkAndTohit(
 	}
 
 	// Auto-seleciona o único inimigo ativo, ou aguarda seleção do jogador.
-	const activeEnemies = state.activeEnemies.filter((e) => e.status === "active");
+	const activeEnemies = state.activeEnemies.filter(
+		(e) => e.status === "active",
+	);
 	if (activeEnemies.length === 0) return state;
 
 	// Com 1 inimigo: auto-seleciona.
@@ -38,5 +40,8 @@ export function handleMarkAndTohit(
 	}
 
 	// Com múltiplos: registra que precisa de seleção (jogador usa USE_SKILL para confirmar).
-	return log(state, `Caçador: escolha a Presa entre os inimigos ativos (+${bonus} no acerto).`);
+	return log(
+		state,
+		`Caçador: escolha a Presa entre os inimigos ativos (+${bonus} no acerto).`,
+	);
 }

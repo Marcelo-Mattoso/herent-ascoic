@@ -24,13 +24,19 @@ export function nextFloat(rng: RngState): { value: number; next: RngState } {
 	return { value, next: { seed: rng.seed, counter: rng.counter + 1 } };
 }
 
-export function nextInt(rng: RngState, max: number): { value: number; next: RngState } {
+export function nextInt(
+	rng: RngState,
+	max: number,
+): { value: number; next: RngState } {
 	const { value: f, next } = nextFloat(rng);
 	return { value: Math.floor(f * max), next };
 }
 
 // Substitui crypto.randomUUID no core. Único dentro da partida, determinístico.
-export function nextId(rng: RngState, prefix: string): { value: string; next: RngState } {
+export function nextId(
+	rng: RngState,
+	prefix: string,
+): { value: string; next: RngState } {
 	const { value: n1, next: rng1 } = nextInt(rng, 0xffffffff);
 	const { value: n2, next: rng2 } = nextInt(rng1, 0xffffffff);
 	const value = `${prefix}-${n1.toString(36)}-${n2.toString(36)}`;

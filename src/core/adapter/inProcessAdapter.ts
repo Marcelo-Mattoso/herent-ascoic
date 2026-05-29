@@ -5,8 +5,8 @@
 // transitivamente via reducer, populando o registry de skills antes de qualquer dispatch.
 // Nunca importe o reducer diretamente fora de src/core/ — use este adapter.
 
-import { reducer } from "../reducer/index"; // side-effect: popula o registry de skills
 import type { Action } from "../actions/types";
+import { reducer } from "../reducer/index"; // side-effect: popula o registry de skills
 import type { GameState } from "../state/gameState";
 import type { EngineAdapter } from "./engineAdapter";
 

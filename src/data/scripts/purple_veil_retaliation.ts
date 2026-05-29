@@ -8,5 +8,9 @@ export const run: ScriptHandler = (ctx) => {
 	const attackerId = ctx.targetId;
 	if (!attackerId) return ctx.state;
 	const amount = (ctx.params.value as number) ?? 1;
-	return ctx.action.pushEffect({ kind: "apply_damage", to: attackerId, amount });
+	return ctx.action.pushEffect({
+		kind: "apply_damage",
+		to: attackerId,
+		amount,
+	});
 };

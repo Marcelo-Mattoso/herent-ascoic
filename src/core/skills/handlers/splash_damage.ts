@@ -3,10 +3,10 @@
 // Cobre: habilidade-golpe-trespassante (Espada do Trespasse, Lâmina Vermelha).
 
 import type { SkillContext } from "../../data/skillTypes";
+import { log } from "../../reducer/utils";
 import type { GameState } from "../../state/gameState";
 import { applyDamage } from "../../systems/damageSystem";
 import { parseNumber } from "../valueParsers";
-import { log } from "../../reducer/utils";
 
 export function handleSplashDamage(
 	state: GameState,
@@ -23,8 +23,13 @@ export function handleSplashDamage(
 	if (others.length === 0) return state;
 
 	// Alvo: criatura com menor vida dentre as restantes
-	const target = others.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b));
+	const target = others.reduce((a, b) =>
+		a.currentLife <= b.currentLife ? a : b,
+	);
 
 	const next = applyDamage(state, target.id, amount);
-	return log(next, `Golpe Trespassante: ${target.cardName} sofreu ${amount} de dano.`);
+	return log(
+		next,
+		`Golpe Trespassante: ${target.cardName} sofreu ${amount} de dano.`,
+	);
 }

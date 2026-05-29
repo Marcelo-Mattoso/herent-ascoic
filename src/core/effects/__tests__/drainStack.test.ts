@@ -3,28 +3,25 @@
 // pausa para input do jogador, e replay determinístico com cadeias.
 
 import { describe, expect, it } from "vitest";
-import { drainStack, resolveEffect } from "../resolver";
-import { reducer } from "../../reducer/index";
-import { createInitialGameState } from "../../state/gameState";
-import { createEmptyCombatState } from "../../state/combatState";
-import { applyDamage } from "../../systems/damageSystem";
-import {
-	addComponent,
-	createEntity,
-	upsertEntity,
-} from "../../ecs/world";
-import { addPending, createEmptyEffectStack, MAX_STACK_DEPTH } from "../stack";
 import type { TriggerComponent } from "../../ecs/types";
-import type { GameState } from "../../state/gameState";
-import type { HeroState } from "../../state/heroState";
+import { addComponent, createEntity, upsertEntity } from "../../ecs/world";
+import { reducer } from "../../reducer/index";
+import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
+import type { GameState } from "../../state/gameState";
+import { createInitialGameState } from "../../state/gameState";
+import type { HeroState } from "../../state/heroState";
+import { applyDamage } from "../../systems/damageSystem";
+import { drainStack } from "../resolver";
 import type { PausedState } from "../stack";
+import { addPending, createEmptyEffectStack, MAX_STACK_DEPTH } from "../stack";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Bárbaro Rubro",
 		maxLife: 10,
 		currentLife: 10,
@@ -43,9 +40,13 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	};
 }
 
-function makeEnemy(id: string, overrides: Partial<EnemyState> = {}): EnemyState {
+function makeEnemy(
+	id: string,
+	overrides: Partial<EnemyState> = {},
+): EnemyState {
 	return {
 		id,
+		cardId: "creature_dark_cave_goblin",
 		cardName: `Goblin ${id}`,
 		maxLife: 5,
 		currentLife: 5,
@@ -187,9 +188,15 @@ describe("drainStack — cadeia de profundidade 3+", () => {
 		// Drenar stack (pendentes de e1 → DamageDealt de e2 → pendentes de e2 → ...)
 		const result = drainStack(afterDamage);
 
-		expect(result.activeEnemies.find((e) => e.id === "e1")!.currentLife).toBe(3); // 5-2
-		expect(result.activeEnemies.find((e) => e.id === "e2")!.currentLife).toBe(4); // 5-1
-		expect(result.activeEnemies.find((e) => e.id === "e3")!.currentLife).toBe(4); // 5-1
+		expect(result.activeEnemies.find((e) => e.id === "e1")!.currentLife).toBe(
+			3,
+		); // 5-2
+		expect(result.activeEnemies.find((e) => e.id === "e2")!.currentLife).toBe(
+			4,
+		); // 5-1
+		expect(result.activeEnemies.find((e) => e.id === "e3")!.currentLife).toBe(
+			4,
+		); // 5-1
 		expect(result.effectStack.pending).toHaveLength(0);
 	});
 
@@ -214,8 +221,12 @@ describe("drainStack — cadeia de profundidade 3+", () => {
 		});
 		const result = drainStack({ ...state, effectStack: stack });
 		// Ambos aplicados independente da ordem (valores distintos, sem dependência)
-		expect(result.activeEnemies.find((e) => e.id === "e1")!.currentLife).toBe(4);
-		expect(result.activeEnemies.find((e) => e.id === "e2")!.currentLife).toBe(2);
+		expect(result.activeEnemies.find((e) => e.id === "e1")!.currentLife).toBe(
+			4,
+		);
+		expect(result.activeEnemies.find((e) => e.id === "e2")!.currentLife).toBe(
+			2,
+		);
 	});
 });
 
@@ -278,7 +289,10 @@ describe("replay determinístico com effect stack", () => {
 	it("aplicar actionLog reproduz o mesmo GameState final em partida com cadeia", () => {
 		// Iniciar partida
 		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
-		const s1 = reducer(base, { type: "START_GAME", payload: { heroCardNames: ["Bárbaro Rubro"] } });
+		const s1 = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardNames: ["Bárbaro Rubro"] },
+		});
 
 		// A partida progride alguns passos sem TriggerComponents
 		// (testes com TriggerComponents e cadeias são cobertos nos testes de drainStack acima)
@@ -286,7 +300,9 @@ describe("replay determinístico com effect stack", () => {
 		const s2 = reducer(s1, { type: "REVEAL_ROOM" });
 
 		// Replay: aplicar log ao estado inicial
-		const replayBase = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const replayBase = createInitialGameState({
+			heroCardNames: ["Bárbaro Rubro"],
+		});
 		let replayed: GameState = replayBase;
 		for (const entry of s2.actionLog) {
 			replayed = reducer(replayed, entry.action);
@@ -305,7 +321,10 @@ describe("replay determinístico com effect stack", () => {
 		// Após cada action processada pelo reducer, a stack deve estar vazia
 		// (drainStack foi chamado)
 		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
-		const s1 = reducer(base, { type: "START_GAME", payload: { heroCardNames: ["Bárbaro Rubro"] } });
+		const s1 = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardNames: ["Bárbaro Rubro"] },
+		});
 		expect(s1.effectStack.pending).toHaveLength(0);
 		expect(s1.effectStack.resolving).toBeNull();
 

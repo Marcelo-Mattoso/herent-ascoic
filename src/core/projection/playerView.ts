@@ -4,12 +4,12 @@
 //
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
-import type { EnemyState } from "../state/enemyState";
 import type { PausedState } from "../effects/stack";
+import type { ColorIndex } from "../state/color";
+import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import type { RoomState } from "../state/roomState";
-import type { ColorIndex } from "../state/color";
 import type { GameStatus } from "../state/status";
 
 // Aliases estruturais — iguais ao shape interno por enquanto.
@@ -40,7 +40,10 @@ export interface PlayerView {
 	readonly pendingSkillChoice: {
 		readonly skillId: string;
 		readonly prompt: string;
-		readonly options: readonly { readonly id: string; readonly label: string }[];
+		readonly options: readonly {
+			readonly id: string;
+			readonly label: string;
+		}[];
 		readonly sourceHeroId?: string;
 	} | null;
 }

@@ -2,9 +2,9 @@
 // Respeita healBlocked (ex: Fumaça da Fornalha).
 // Passo 7: applyHeal emite HealAboutToBeApplied (pré) e HealApplied (pós).
 
-import { emit } from "../events/bus";
 import { syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
+import { emit } from "../events/bus";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 
@@ -50,7 +50,11 @@ export function applyHeal(
 export function applyFullHeal(state: GameState, targetId: EntityId): GameState {
 	const hero = findHero(state, targetId);
 	if (!hero) return state;
-	const s1 = replaceHero(state, { ...hero, currentLife: hero.maxLife, healBlocked: undefined });
+	const s1 = replaceHero(state, {
+		...hero,
+		currentLife: hero.maxLife,
+		healBlocked: undefined,
+	});
 	// Notifica pós — cura total, sem janela pré (é um reset de estado).
 	const { state: s2 } = emit(s1, {
 		type: "HealApplied",
@@ -59,14 +63,15 @@ export function applyFullHeal(state: GameState, targetId: EntityId): GameState {
 	return s2;
 }
 
-export function applySurvive(
-	state: GameState,
-	targetId: EntityId,
-): GameState {
+export function applySurvive(state: GameState, targetId: EntityId): GameState {
 	const hero = findHero(state, targetId);
 	if (!hero) return state;
 	const newLife = Math.max(1, hero.currentLife);
-	return replaceHero(state, { ...hero, currentLife: newLife, status: "active" });
+	return replaceHero(state, {
+		...hero,
+		currentLife: newLife,
+		status: "active",
+	});
 }
 
 // Aplica ganho de vida sem verificar healBlocked (usado em progressão/level-up).

@@ -20,8 +20,16 @@ export type ExprNode = number | string | ArithExpr;
 // ── Condições ────────────────────────────────────────────────────────────────
 
 export type ConditionNode =
-	| { readonly kind: "has_skill"; readonly of: string; readonly skillId: string }
-	| { readonly kind: "has_condition"; readonly of: string; readonly conditionType: string }
+	| {
+			readonly kind: "has_skill";
+			readonly of: string;
+			readonly skillId: string;
+	  }
+	| {
+			readonly kind: "has_condition";
+			readonly of: string;
+			readonly conditionType: string;
+	  }
 	| {
 			readonly kind: "compare";
 			readonly op: "lt" | "lte" | "eq" | "gte" | "gt" | "in";
@@ -72,8 +80,17 @@ export type DiscardPile = "dungeon" | "item";
 
 export type EffectNode =
 	// Dano / cura
-	| { readonly kind: "apply_damage"; readonly to: string; readonly amount: ExprNode; readonly minimum?: number }
-	| { readonly kind: "apply_heal"; readonly to: string; readonly amount: ExprNode }
+	| {
+			readonly kind: "apply_damage";
+			readonly to: string;
+			readonly amount: ExprNode;
+			readonly minimum?: number;
+	  }
+	| {
+			readonly kind: "apply_heal";
+			readonly to: string;
+			readonly amount: ExprNode;
+	  }
 	| { readonly kind: "apply_full_heal"; readonly to: string }
 	| { readonly kind: "prevent_destroy"; readonly to: string }
 	// Modificadores / componentes ECS
@@ -97,16 +114,41 @@ export type EffectNode =
 	  }
 	| { readonly kind: "block_action"; readonly what: BlockActionTarget }
 	// Decks
-	| { readonly kind: "discard_from"; readonly pile: DiscardPile; readonly count: ExprNode; readonly who?: string }
-	| { readonly kind: "draw_from"; readonly pile: DrawPile; readonly count: ExprNode }
+	| {
+			readonly kind: "discard_from";
+			readonly pile: DiscardPile;
+			readonly count: ExprNode;
+			readonly who?: string;
+	  }
+	| {
+			readonly kind: "draw_from";
+			readonly pile: DrawPile;
+			readonly count: ExprNode;
+	  }
 	// Dungeon
 	| { readonly kind: "advance_dungeon_level"; readonly amount: ExprNode }
 	// Misc
 	| { readonly kind: "set_no_reward"; readonly to: string }
 	// Composição
-	| { readonly kind: "if"; readonly when: ConditionNode; readonly then: readonly EffectNode[]; readonly else?: readonly EffectNode[] }
-	| { readonly kind: "choose_one"; readonly options: ReadonlyArray<{ readonly label: string; readonly effect: readonly EffectNode[] }> }
-	| { readonly kind: "for_each"; readonly over: "targets" | "allies" | "enemies" | "all_heroes"; readonly as: string; readonly do: readonly EffectNode[] }
+	| {
+			readonly kind: "if";
+			readonly when: ConditionNode;
+			readonly then: readonly EffectNode[];
+			readonly else?: readonly EffectNode[];
+	  }
+	| {
+			readonly kind: "choose_one";
+			readonly options: ReadonlyArray<{
+				readonly label: string;
+				readonly effect: readonly EffectNode[];
+			}>;
+	  }
+	| {
+			readonly kind: "for_each";
+			readonly over: "targets" | "allies" | "enemies" | "all_heroes";
+			readonly as: string;
+			readonly do: readonly EffectNode[];
+	  }
 	| { readonly kind: "noop" };
 
 // ── Trigger (forma objeto, substitui string) ─────────────────────────────────
@@ -153,7 +195,9 @@ export interface EvalCtx {
 	readonly action: {
 		pushEffect(node: EffectNode): GameState;
 		addComponent(entityId: string, component: Component): GameState;
-		requestChoice(options: ReadonlyArray<{ readonly id: string; readonly label: string }>): GameState;
+		requestChoice(
+			options: ReadonlyArray<{ readonly id: string; readonly label: string }>,
+		): GameState;
 		log(msg: string): GameState;
 	};
 

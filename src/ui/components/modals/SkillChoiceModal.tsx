@@ -14,7 +14,10 @@ export function SkillChoiceModal() {
 
 	function choose(choiceId: string) {
 		if (!pending) return;
-		dispatch({ type: "SKILL_CHOICE", payload: { skillId: pending.skillId, choice: choiceId } });
+		dispatch({
+			type: "SKILL_CHOICE",
+			payload: { skillId: pending.skillId, choice: choiceId },
+		});
 	}
 
 	return (

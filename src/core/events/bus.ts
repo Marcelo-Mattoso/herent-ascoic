@@ -44,7 +44,12 @@ export function emit(
 	for (const { entity, trigger } of matching) {
 		// Verificar condição opcional.
 		if (trigger.condition && !trigger.condition(entity)) continue;
-		const result = applyEffect(currentState, currentEvent, entity.id, trigger.effect);
+		const result = applyEffect(
+			currentState,
+			currentEvent,
+			entity.id,
+			trigger.effect,
+		);
 		currentState = result.state;
 		currentEvent = result.event;
 	}

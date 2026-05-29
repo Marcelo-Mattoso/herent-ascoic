@@ -2,6 +2,8 @@
 // Verifica: partida sintética de actions com replay, export/import round-trip.
 
 import { describe, expect, it } from "vitest";
+import { createInProcessAdapter } from "../adapter/inProcessAdapter";
+import { createInitialGameState } from "../state/gameState";
 import {
 	buildReplayPackage,
 	buildReplayStates,
@@ -9,8 +11,6 @@ import {
 	importPackageFromJson,
 	replayFromPackage,
 } from "./replayEngine";
-import { createInProcessAdapter } from "../adapter/inProcessAdapter";
-import { createInitialGameState } from "../state/gameState";
 
 const HERO = "Bárbaro Rubro";
 

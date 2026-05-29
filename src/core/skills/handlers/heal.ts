@@ -2,10 +2,10 @@
 // Cura `value` de vida em um herói alvo (determinado por ctx.targetHeroIds).
 
 import type { SkillContext } from "../../data/skillTypes";
+import { log } from "../../reducer/utils";
 import type { GameState } from "../../state/gameState";
 import { applyHeal } from "../../systems/healSystem";
 import { parseNumber } from "../valueParsers";
-import { log } from "../../reducer/utils";
 
 export function handleHeal(
 	state: GameState,
@@ -29,13 +29,19 @@ export function handleHeal(
 		const hero = next.heroes.find((h) => h.id === heroId);
 		if (!hero || hero.status !== "active") continue;
 		if (hero.healBlocked) {
-			next = log(next, `${hero.cardName}: cura bloqueada (Fumaça da Fornalha).`);
+			next = log(
+				next,
+				`${hero.cardName}: cura bloqueada (Fumaça da Fornalha).`,
+			);
 			continue;
 		}
 		const prevLife = hero.currentLife;
 		next = applyHeal(next, heroId, amount);
-		const healed = (next.heroes.find((h) => h.id === heroId)?.currentLife ?? prevLife) - prevLife;
-		if (healed > 0) next = log(next, `${hero.cardName} recuperou ${healed} de vida.`);
+		const healed =
+			(next.heroes.find((h) => h.id === heroId)?.currentLife ?? prevLife) -
+			prevLife;
+		if (healed > 0)
+			next = log(next, `${hero.cardName} recuperou ${healed} de vida.`);
 	}
 	return next;
 }

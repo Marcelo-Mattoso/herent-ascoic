@@ -4,17 +4,20 @@
 // playerView expõe campos pós-ECS (paused, pendingSkillChoice).
 
 import { describe, expect, it } from "vitest";
-import { createInitialGameState } from "../state/gameState";
 import { reducer } from "../reducer/index";
+import { createInitialGameState } from "../state/gameState";
 import { aiView } from "./aiView";
-import { replayView } from "./replayView";
 import { playerView } from "./playerView";
+import { replayView } from "./replayView";
 
 const HERO = "Bárbaro Rubro";
 
 function buildStartedState() {
 	const base = createInitialGameState({ heroCardNames: [HERO] });
-	return reducer(base, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+	return reducer(base, {
+		type: "START_GAME",
+		payload: { heroCardNames: [HERO] },
+	});
 }
 
 // ── aiView — campos privados ausentes ────────────────────────────────────────
@@ -111,8 +114,12 @@ describe("aiView — contrato de campos", () => {
 		let state = buildStartedState();
 		state = reducer(state, { type: "REVEAL_ROOM" });
 		const view = aiView(state, { playerIndex: 0 });
-		const enemyEntities = view.visibleEntities.filter((e) => e.type === "enemy");
-		const activeEnemies = state.activeEnemies.filter((e) => e.status === "active");
+		const enemyEntities = view.visibleEntities.filter(
+			(e) => e.type === "enemy",
+		);
+		const activeEnemies = state.activeEnemies.filter(
+			(e) => e.status === "active",
+		);
 		expect(enemyEntities.length).toBe(activeEnemies.length);
 	});
 });

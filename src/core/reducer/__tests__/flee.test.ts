@@ -2,21 +2,22 @@
 
 import { describe, expect, it } from "vitest";
 import "../../skills/handlers/index"; // registra handlers
-import { reducer } from "../index";
-import { createInitialGameState } from "../../state/gameState";
 import { createEmptyCombatState } from "../../state/combatState";
-import type { GameState } from "../../state/gameState";
-import type { HeroState } from "../../state/heroState";
 import type { EnemyState } from "../../state/enemyState";
+import type { GameState } from "../../state/gameState";
+import { createInitialGameState } from "../../state/gameState";
+import type { HeroState } from "../../state/heroState";
+import { reducer } from "../index";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
+		cardId: "hero_crimson_barbarian",
 		cardName: "Bárbaro Rubro",
 		maxLife: 10,
-		currentLife: 1, // 1 de vida para poder fugir
+		currentLife: 1,
 		damage: 3,
 		hitBonus: 1,
 		dice: 2,
@@ -35,6 +36,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
+		cardId: "creature_dark_cave_bat",
 		cardName: "Morcego do Teto Negro",
 		maxLife: 3,
 		currentLife: 3,
@@ -66,7 +68,10 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 describe("DECLARE_FLEE", () => {
 	it("marca fleeAttemptByHero quando herói tem 1 de vida e há combate", () => {
 		const state = makeState();
-		const result = reducer(state, { type: "DECLARE_FLEE", payload: { heroId: "h1" } });
+		const result = reducer(state, {
+			type: "DECLARE_FLEE",
+			payload: { heroId: "h1" },
+		});
 		expect(result.combat?.fleeAttemptByHero["h1"]).toBe(true);
 	});
 
@@ -74,19 +79,28 @@ describe("DECLARE_FLEE", () => {
 		const state = makeState({
 			heroes: [makeHero({ currentLife: 5 })],
 		});
-		const result = reducer(state, { type: "DECLARE_FLEE", payload: { heroId: "h1" } });
+		const result = reducer(state, {
+			type: "DECLARE_FLEE",
+			payload: { heroId: "h1" },
+		});
 		expect(result.combat?.fleeAttemptByHero["h1"]).toBeFalsy();
 	});
 
 	it("ignora se não há combate", () => {
 		const state = makeState({ combat: null });
-		const result = reducer(state, { type: "DECLARE_FLEE", payload: { heroId: "h1" } });
+		const result = reducer(state, {
+			type: "DECLARE_FLEE",
+			payload: { heroId: "h1" },
+		});
 		expect(result.combat).toBeNull();
 	});
 
 	it("ignora se fleeBlocked está ativo", () => {
 		const state = makeState({ flags: { fleeBlocked: true } });
-		const result = reducer(state, { type: "DECLARE_FLEE", payload: { heroId: "h1" } });
+		const result = reducer(state, {
+			type: "DECLARE_FLEE",
+			payload: { heroId: "h1" },
+		});
 		expect(result.combat?.fleeAttemptByHero["h1"]).toBeFalsy();
 	});
 });
@@ -207,7 +221,10 @@ describe("RESTART_DUNGEON", () => {
 			heroes: [],
 			fledHeroes: [makeHero({ currentLife: 1, status: "fled" })],
 		};
-		const result = reducer(state, { type: "RESTART_DUNGEON", payload: { keepEquipment: false } });
+		const result = reducer(state, {
+			type: "RESTART_DUNGEON",
+			payload: { keepEquipment: false },
+		});
 		expect(result.heroes).toHaveLength(1);
 		expect(result.heroes[0].currentLife).toBe(result.heroes[0].maxLife);
 		expect(result.heroes[0].status).toBe("active");
@@ -227,7 +244,10 @@ describe("RESTART_DUNGEON", () => {
 			heroes: [],
 			fledHeroes: [hero],
 		};
-		const result = reducer(state, { type: "RESTART_DUNGEON", payload: { keepEquipment: true } });
+		const result = reducer(state, {
+			type: "RESTART_DUNGEON",
+			payload: { keepEquipment: true },
+		});
 		expect(result.heroes[0].activeItems.weapon).toBe("Adaga Enferrujada");
 		expect(result.heroes[0].backpack).toContain("Poção de Vigor Menor");
 	});
@@ -245,7 +265,10 @@ describe("RESTART_DUNGEON", () => {
 			heroes: [],
 			fledHeroes: [hero],
 		};
-		const result = reducer(state, { type: "RESTART_DUNGEON", payload: { keepEquipment: false } });
+		const result = reducer(state, {
+			type: "RESTART_DUNGEON",
+			payload: { keepEquipment: false },
+		});
 		expect(Object.keys(result.heroes[0].activeItems)).toHaveLength(0);
 		expect(result.heroes[0].backpack).toHaveLength(0);
 	});

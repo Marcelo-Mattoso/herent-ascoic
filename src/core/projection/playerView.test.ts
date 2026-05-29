@@ -1,7 +1,4 @@
 import { describe, expect, it } from "vitest";
-import { createInitialGameState } from "../state/gameState";
-import { reducer } from "../reducer/index";
-import { playerView } from "./playerView";
 import {
 	selectActiveHero,
 	selectAvailableActions,
@@ -10,12 +7,18 @@ import {
 	selectHeroesAvailableForRound,
 	selectXpSpendOptions,
 } from "../../ui/store/selectors";
+import { reducer } from "../reducer/index";
+import { createInitialGameState } from "../state/gameState";
+import { playerView } from "./playerView";
 
 const HERO = "Bárbaro Rubro";
 
 function buildStartedState() {
 	const base = createInitialGameState({ heroCardNames: [HERO] });
-	return reducer(base, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+	return reducer(base, {
+		type: "START_GAME",
+		payload: { heroCardNames: [HERO] },
+	});
 }
 
 describe("playerView — contrato da projeção", () => {
@@ -37,15 +40,23 @@ describe("playerView — contrato da projeção", () => {
 		// combat nunca é null — começa com createEmptyCombatState()
 		expect(view.combat).not.toBeNull();
 		expect(view.combat?.heroesActed).toEqual(state.combat?.heroesActed);
-		expect(view.combat?.powersUsedThisRoom).toEqual(state.combat?.powersUsedThisRoom);
+		expect(view.combat?.powersUsedThisRoom).toEqual(
+			state.combat?.powersUsedThisRoom,
+		);
 	});
 
 	it("view.decks expõe os campos necessários aos selectors", () => {
 		const state = buildStartedState();
 		const view = playerView(state);
-		expect(view.decks.dungeonDeck.discarded).toEqual(state.decks.dungeonDeck.discarded);
-		expect(view.decks.artifactDeck.available).toEqual(state.decks.artifactDeck.available);
-		expect(view.decks.itemDeck.available).toEqual(state.decks.itemDeck.available);
+		expect(view.decks.dungeonDeck.discarded).toEqual(
+			state.decks.dungeonDeck.discarded,
+		);
+		expect(view.decks.artifactDeck.available).toEqual(
+			state.decks.artifactDeck.available,
+		);
+		expect(view.decks.itemDeck.available).toEqual(
+			state.decks.itemDeck.available,
+		);
 	});
 
 	it("mesma referência de arrays — projeção não clona", () => {

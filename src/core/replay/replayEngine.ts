@@ -24,7 +24,8 @@ export function buildReplayPackage(state: GameState): ReplayPackage {
 	const firstEntry = state.actionLog[0];
 	const seed =
 		firstEntry?.action.type === "START_GAME"
-			? ((firstEntry.action as { payload?: { seed?: number } }).payload?.seed ?? 0)
+			? ((firstEntry.action as { payload?: { seed?: number } }).payload?.seed ??
+				0)
 			: 0;
 
 	return {

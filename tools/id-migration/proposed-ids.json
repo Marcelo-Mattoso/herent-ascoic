@@ -1,173 +1,928 @@
 {
-  "cards": [
-    { "name": "Clérigo do Descanso Eterno",       "type": "hero",         "proposedId": "hero_eternal_rest_cleric" },
-    { "name": "Guerreiro do Bastião Partido",       "type": "hero",         "proposedId": "hero_broken_bastion_warrior" },
-    { "name": "Ladino das Fendas",                  "type": "hero",         "proposedId": "hero_rift_rogue" },
-    { "name": "Mago das Runas Rubras",              "type": "hero",         "proposedId": "hero_crimson_rune_mage" },
-    { "name": "Bárbaro Rubro",                      "type": "hero",         "proposedId": "hero_crimson_barbarian" },
-    { "name": "Paladino da Última Luz",             "type": "hero",         "proposedId": "hero_last_light_paladin" },
-    { "name": "Necromante do Véu Profundo",         "type": "hero",         "proposedId": "hero_deep_veil_necromancer" },
-    { "name": "Caçador do Véu Partido",             "type": "hero",         "proposedId": "hero_broken_veil_hunter" },
-    { "name": "Rato das Fendas Profundas",          "type": "creature",     "proposedId": "creature_deep_rift_rat" },
-    { "name": "Goblin das Cavernas Escuras",        "type": "creature",     "proposedId": "creature_dark_cave_goblin" },
-    { "name": "Limo das Pedras Úmidas",             "type": "creature",     "proposedId": "creature_wet_stone_slime" },
-    { "name": "Morcego do Teto Negro",              "type": "creature",     "proposedId": "creature_black_ceiling_bat" },
-    { "name": "Aranha dos Pilares Antigos",         "type": "creature",     "proposedId": "creature_ancient_pillar_spider" },
-    { "name": "Vigia das Portas Quebradas",         "type": "creature",     "proposedId": "creature_broken_gates_watcher" },
-    { "name": "Cultista da Chama Oculta",           "type": "creature",     "proposedId": "creature_hidden_flame_cultist" },
-    { "name": "Esqueleto das Catacumbas",           "type": "creature",     "proposedId": "creature_catacomb_skeleton" },
-    { "name": "Ladrão das Passagens Mortas",        "type": "creature",     "proposedId": "creature_dead_passage_thief" },
-    { "name": "Cavaleiro das Correntes Velhas",     "type": "creature",     "proposedId": "creature_old_chains_knight" },
-    { "name": "Salamandra do Fogo Baixo",           "type": "creature",     "proposedId": "creature_low_fire_salamander" },
-    { "name": "Ogro do Salão Arruinado",            "type": "creature",     "proposedId": "creature_ruined_hall_ogre" },
-    { "name": "Kobold das Brasas Baixas",           "type": "creature",     "proposedId": "creature_low_ember_kobold" },
-    { "name": "Verme das Cinzas Quentes",           "type": "creature",     "proposedId": "creature_hot_ash_worm" },
-    { "name": "Crânio Flamejante",                  "type": "creature",     "proposedId": "creature_blazing_skull" },
-    { "name": "Sentinela das Tochas Mortas",        "type": "creature",     "proposedId": "creature_dead_torch_sentinel" },
-    { "name": "Acólito da Fornalha",                "type": "creature",     "proposedId": "creature_forge_acolyte" },
-    { "name": "Bruto das Correntes Partidas",       "type": "creature",     "proposedId": "creature_broken_chains_brute" },
-    { "name": "Carcereiro da Masmorra Rubra",       "type": "subboss",      "proposedId": "subboss_crimson_dungeon_jailer" },
-    { "name": "Guardião do Abismo Rachado",         "type": "subboss",      "proposedId": "subboss_cracked_abyss_guardian" },
-    { "name": "Câmara do Carcereiro",               "type": "subboss_room", "proposedId": "subboss_room_jailer_chamber" },
-    { "name": "Câmara do Abismo Rachado",           "type": "subboss_room", "proposedId": "subboss_room_cracked_abyss_chamber" },
-    { "name": "Tocha de Breu",                      "type": "item",         "proposedId": "item_pitch_torch" },
-    { "name": "Corda Gasta de Explorador",          "type": "item",         "proposedId": "item_worn_explorer_rope" },
-    { "name": "Adaga Enferrujada",                  "type": "item",         "proposedId": "item_rusty_dagger" },
-    { "name": "Escudo Rachado",                     "type": "item",         "proposedId": "item_cracked_shield" },
-    { "name": "Poção de Vigor Menor",               "type": "item",         "proposedId": "item_lesser_vigor_potion" },
-    { "name": "Frasco de Óleo Incendiário",         "type": "item",         "proposedId": "item_incendiary_oil_flask" },
-    { "name": "Chave de Ferro Antiga",              "type": "item",         "proposedId": "item_ancient_iron_key" },
-    { "name": "Capuz do Túnel",                     "type": "item",         "proposedId": "item_tunnel_hood" },
-    { "name": "Botas de Pedra Leve",                "type": "item",         "proposedId": "item_light_stone_boots" },
-    { "name": "Cajado das Runas Rubras",            "type": "item",         "proposedId": "item_crimson_rune_staff" },
-    { "name": "Espada da Última Luz",               "type": "item",         "proposedId": "item_last_light_sword" },
-    { "name": "Foice do Véu Profundo",              "type": "item",         "proposedId": "item_deep_veil_scythe" },
-    { "name": "Machado do Salão Arruinado",         "type": "item",         "proposedId": "item_ruined_hall_axe" },
-    { "name": "Martelo de Pedra Quebrada",          "type": "item",         "proposedId": "item_broken_stone_hammer" },
-    { "name": "Arco das Fendas",                    "type": "item",         "proposedId": "item_rift_bow" },
-    { "name": "Armadura de Couro Reforçado",        "type": "item",         "proposedId": "item_reinforced_leather_armor" },
-    { "name": "Armadura de Metal Antigo",           "type": "item",         "proposedId": "item_ancient_metal_armor" },
-    { "name": "Armadura Mágica da Fornalha",        "type": "item",         "proposedId": "item_forge_magic_armor" },
-    { "name": "Manto do Véu Partido",               "type": "item",         "proposedId": "item_broken_veil_cloak" },
-    { "name": "Poção de Fúria",                     "type": "item",         "proposedId": "item_fury_potion" },
-    { "name": "Poção de Precisão",                  "type": "item",         "proposedId": "item_precision_potion" },
-    { "name": "Poção de Pele de Pedra",             "type": "item",         "proposedId": "item_stoneskin_potion" },
-    { "name": "Poção de Retorno",                   "type": "item",         "proposedId": "item_return_potion" },
-    { "name": "Poção de Brasa Viva",                "type": "item",         "proposedId": "item_living_ember_potion" },
-    { "name": "Poção de Vigor Maior",               "type": "item",         "proposedId": "item_greater_vigor_potion" },
-    { "name": "Encanto da Masmorra Calada",         "type": "item",         "proposedId": "item_silent_dungeon_charm" },
-    { "name": "Encanto da Chama Baixa",             "type": "item",         "proposedId": "item_low_flame_charm" },
-    { "name": "Encanto do Sangue Quente",           "type": "item",         "proposedId": "item_warm_blood_charm" },
-    { "name": "Encanto do Caminho Seguro",          "type": "item",         "proposedId": "item_safe_path_charm" },
-    { "name": "Encanto da Última Defesa",           "type": "item",         "proposedId": "item_last_defense_charm" },
-    { "name": "Alaúde do Último Acorde",            "type": "item",         "proposedId": "item_last_chord_lute" },
-    { "name": "Manto da Saída Estreita",            "type": "item",         "proposedId": "item_narrow_exit_cloak" },
-    { "name": "Mapa Rasgado das Profundezas",       "type": "item",         "proposedId": "item_torn_depths_map" },
-    { "name": "Baú Oculto da Fornalha",             "type": "item",         "proposedId": "item_hidden_forge_chest" },
-    { "name": "Corrente do Carcereiro Rubro",       "type": "artifact",     "proposedId": "artifact_crimson_jailer_chain" },
-    { "name": "Coração de Brasa Antiga",            "type": "artifact",     "proposedId": "artifact_ancient_ember_heart" },
-    { "name": "Martelo da Forja Perdida",           "type": "artifact",     "proposedId": "artifact_lost_forge_hammer" },
-    { "name": "Braseiro da Última Vigília",         "type": "artifact",     "proposedId": "artifact_last_vigil_brazier" },
-    { "name": "Lâmina do Primeiro Incêndio",        "type": "artifact",     "proposedId": "artifact_first_fire_blade" },
-    { "name": "Corredor Estreito",                  "type": "room",         "proposedId": "room_narrow_corridor" },
-    { "name": "Sala da Masmorra",                   "type": "room",         "proposedId": "room_dungeon_room" },
-    { "name": "Câmara das Correntes Rubras",        "type": "room",         "proposedId": "room_crimson_chains_chamber" },
-    { "name": "Passagem das Tochas Mortas",         "type": "room",         "proposedId": "room_dead_torches_passage" },
-    { "name": "Salão das Colunas Quebradas",        "type": "room",         "proposedId": "room_broken_columns_hall" },
-    { "name": "Escadaria para as Profundezas",      "type": "room",         "proposedId": "room_depths_stairway" },
-    { "name": "Cela Abandonada",                    "type": "room",         "proposedId": "room_abandoned_cell" },
-    { "name": "Forja em Ruínas",                    "type": "room",         "proposedId": "room_ruined_forge" },
-    { "name": "Sala do Carcereiro",                 "type": "room",         "proposedId": "room_jailer_room" },
-    { "name": "Abismo Rachado",                     "type": "room",         "proposedId": "room_cracked_abyss" },
-    { "name": "Azhakar, Dragão da Fornalha Sombria","type": "boss",         "proposedId": "boss_azhakar" }
-  ],
-  "skills": [
-    { "name": "Fúria Rubra",                        "category": "habilidade",          "currentId": "habilidade-furia-rubra",                              "proposedId": "skill_crimson_fury" },
-    { "name": "Cura da Última Luz",                 "category": "habilidade",          "currentId": "habilidade-cura-da-ultima-luz",                       "proposedId": "skill_last_light_healing" },
-    { "name": "Guarda do Bastião",                  "category": "habilidade",          "currentId": "habilidade-guarda-do-bastiao",                        "proposedId": "skill_bastion_guard" },
-    { "name": "Runa das Fendas",                    "category": "habilidade",          "currentId": "habilidade-runa-das-fendas",                          "proposedId": "skill_rift_rune" },
-    { "name": "Foco do Caçador",                    "category": "habilidade",          "currentId": "habilidade-foco-do-cacador",                          "proposedId": "skill_hunter_focus" },
-    { "name": "Brasa Viva",                         "category": "habilidade",          "currentId": "habilidade-brasa-viva",                               "proposedId": "skill_living_ember" },
-    { "name": "Escudo da Última Luz",               "category": "habilidade",          "currentId": "habilidade-escudo-da-ultima-luz",                     "proposedId": "skill_last_light_shield" },
-    { "name": "Caminho Preservado",                 "category": "habilidade",          "currentId": "habilidade-caminho-preservado",                       "proposedId": "skill_preserved_path" },
-    { "name": "Forja Reacesa",                      "category": "habilidade",          "currentId": "habilidade-forja-reacesa",                            "proposedId": "skill_rekindled_forge" },
-    { "name": "Segunda Chance das Fendas",          "category": "habilidade",          "currentId": "habilidade-segunda-chance-das-fendas",                "proposedId": "skill_rift_second_chance" },
-    { "name": "Runa Perfeita",                      "category": "habilidade",          "currentId": "habilidade-runa-perfeita",                            "proposedId": "skill_perfect_rune" },
-    { "name": "Milagre da Última Luz",              "category": "habilidade",          "currentId": "habilidade-milagre-da-ultima-luz",                    "proposedId": "skill_last_light_miracle" },
-    { "name": "Golpe Trespassante",                 "category": "habilidade",          "currentId": "habilidade-golpe-trespassante",                       "proposedId": "skill_piercing_strike" },
-    { "name": "Espólios da Fornalha",               "category": "habilidade",          "currentId": "habilidade-espolios-da-fornalha",                     "proposedId": "skill_forge_spoils" },
-    { "name": "Marca da Presa",                     "category": "habilidade",          "currentId": "habilidade-marca-da-presa",                           "proposedId": "skill_prey_mark" },
-    { "name": "Rito de Retorno",                    "category": "habilidade",          "currentId": "habilidade-rito-de-retorno",                          "proposedId": "skill_return_rite" },
-    { "name": "Luz da Aurora Final",                "category": "habilidade",          "currentId": "habilidade-luz-da-aurora-final",                      "proposedId": "skill_final_dawn_light" },
-    { "name": "Calor Escaldante",                   "category": "habilidade",          "currentId": "habilidade-calor-escaldante",                         "proposedId": "skill_scorching_heat" },
-    { "name": "Correntes Rubras",                   "category": "habilidade",          "currentId": "habilidade-correntes-rubras",                         "proposedId": "skill_crimson_chains" },
-    { "name": "Cinzas Sufocantes",                  "category": "habilidade",          "currentId": "habilidade-cinzas-sufocantes",                        "proposedId": "skill_choking_ashes" },
-    { "name": "Couraça Carbonizada",                "category": "habilidade",          "currentId": "habilidade-couraca-carbonizada",                      "proposedId": "skill_charred_plate" },
-    { "name": "Despertar da Fornalha",              "category": "habilidade",          "currentId": "habilidade-despertar-da-fornalha",                    "proposedId": "skill_forge_awakening" },
-    { "name": "Porta Selada",                       "category": "habilidade",          "currentId": "habilidade-porta-selada",                             "proposedId": "skill_sealed_door" },
-    { "name": "Chão em Ruína",                      "category": "habilidade",          "currentId": "habilidade-chao-em-ruina",                            "proposedId": "skill_ruined_floor" },
-    { "name": "Fumaça da Fornalha",                 "category": "habilidade",          "currentId": "habilidade-fumaca-da-fornalha",                       "proposedId": "skill_forge_smoke" },
-    { "name": "Tributo Sombrio",                    "category": "habilidade",          "currentId": "habilidade-tributo-sombrio",                          "proposedId": "skill_dark_tribute" },
-    { "name": "Evasão das Fendas",                  "category": "habilidade",          "currentId": "habilidade-evasao-das-fendas",                        "proposedId": "skill_rift_evasion" },
-    { "name": "Prisão das Correntes",               "category": "habilidade",          "currentId": "habilidade-prisao-das-correntes",                     "proposedId": "skill_chains_prison" },
-    { "name": "Corrupção de Caminho",               "category": "habilidade",          "currentId": "habilidade-corrupcao-de-caminho",                     "proposedId": "skill_path_corruption" },
-    { "name": "Fera Solitária",                     "category": "habilidade",          "currentId": "habilidade-fera-solitaria",                           "proposedId": "skill_lone_beast" },
-    { "name": "Ataque Traiçoeiro",                  "category": "habilidade",          "currentId": "habilidade-ataque-traicoeiro",                        "proposedId": "skill_treacherous_attack" },
-    { "name": "Fuga Covarde",                       "category": "habilidade",          "currentId": "habilidade-fuga-covarde",                             "proposedId": "skill_cowardly_flee" },
-    { "name": "Corpo Gelatinoso",                   "category": "habilidade",          "currentId": "habilidade-corpo-gelatinoso",                         "proposedId": "skill_gelatinous_body" },
-    { "name": "Presença da Chama Oculta",           "category": "habilidade",          "currentId": "habilidade-presenca-da-chama-oculta",                 "proposedId": "skill_hidden_flame_presence" },
-    { "name": "Coragem de Bando",                   "category": "habilidade",          "currentId": "habilidade-coragem-de-bando",                         "proposedId": "skill_pack_courage" },
-    { "name": "Iluminar o Caminho",                 "category": "habilidade",          "currentId": "habilidade-iluminar-o-caminho",                       "proposedId": "skill_illuminate_path" },
-    { "name": "Salvaguarda de Caminho",             "category": "habilidade",          "currentId": "habilidade-salvaguarda-de-caminho",                   "proposedId": "skill_path_safeguard" },
-    { "name": "Drenar Vida",                        "category": "habilidade",          "currentId": "habilidade-drenar-vida",                              "proposedId": "skill_life_drain" },
-    { "name": "Tiro de Oportunidade",               "category": "habilidade",          "currentId": "habilidade-tiro-de-oportunidade",                     "proposedId": "skill_opportunity_shot" },
-    { "name": "Resguardo da Última Luz",            "category": "habilidade",          "currentId": "habilidade-resguardo-da-ultima-luz",                  "proposedId": "skill_last_light_ward" },
-    { "name": "Véu Protetor",                       "category": "habilidade",          "currentId": "habilidade-veu-protetor",                             "proposedId": "skill_protective_veil" },
-    { "name": "Passo Leve das Fendas",              "category": "habilidade",          "currentId": "habilidade-passo-leve-das-fendas",                    "proposedId": "skill_rift_light_step" },
-    { "name": "Desvio de Foco",                     "category": "habilidade",          "currentId": "habilidade-desvio-de-foco",                           "proposedId": "skill_focus_deflection" },
-    { "name": "Runa Menor",                         "category": "habilidade",          "currentId": "habilidade-runa-menor",                               "proposedId": "skill_minor_rune" },
-    { "name": "Milagre Maior da Última Luz",        "category": "poder_heroi",         "currentId": "poder_heroi-milagre-maior-da-ultima-luz",             "proposedId": "power_greater_last_light_miracle" },
-    { "name": "Guarda Inquebrável do Bastião",      "category": "poder_heroi",         "currentId": "poder_heroi-guarda-inquebravel-do-bastiao",           "proposedId": "power_unbreakable_bastion_guard" },
-    { "name": "Caminho Restaurado",                 "category": "poder_heroi",         "currentId": "poder_heroi-caminho-restaurado",                      "proposedId": "power_restored_path" },
-    { "name": "Runa Suprema das Fendas",            "category": "poder_heroi",         "currentId": "poder_heroi-runa-suprema-das-fendas",                 "proposedId": "power_supreme_rift_rune" },
-    { "name": "Fúria Rubra Poderosa",               "category": "poder_heroi",         "currentId": "poder_heroi-furia-rubra-poderosa",                    "proposedId": "power_mighty_crimson_fury" },
-    { "name": "Juramento da Última Luz",            "category": "poder_heroi",         "currentId": "poder_heroi-juramento-da-ultima-luz",                 "proposedId": "power_last_light_oath" },
-    { "name": "Eco Profundo do Véu",                "category": "poder_heroi",         "currentId": "poder_heroi-eco-profundo-do-veu",                     "proposedId": "power_deep_veil_echo" },
-    { "name": "Execução do Caçador",                "category": "poder_heroi",         "currentId": "poder_heroi-execucao-do-cacador",                     "proposedId": "power_hunter_execution" },
-    { "name": "Chamas Vorazes",                     "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-chamas-vorazes",                  "proposedId": "purple_raging_flames" },
-    { "name": "Correntes da Fornalha",              "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-correntes-da-fornalha",           "proposedId": "purple_forge_chains" },
-    { "name": "Cinzas da Ruína",                    "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-cinzas-da-ruina",                 "proposedId": "purple_ruin_ashes" },
-    { "name": "Couraça Rubra",                      "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-couraca-rubra",                   "proposedId": "purple_crimson_plate" },
-    { "name": "Proteção das Cinzas",                "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-protecao-das-cinzas",             "proposedId": "purple_ash_protection" },
-    { "name": "Despertar Sombrio",                  "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-despertar-sombrio",               "proposedId": "purple_dark_awakening" },
-    { "name": "Despertar Mortal",                   "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-despertar-mortal",                "proposedId": "purple_deadly_awakening" },
-    { "name": "Sangue em Brasa",                    "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-sangue-em-brasa",                 "proposedId": "purple_ember_blood" },
-    { "name": "Selo das Profundezas",               "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-selo-das-profundezas",            "proposedId": "purple_depths_seal" },
-    { "name": "Tributo Sombrio",                    "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-tributo-sombrio",                 "proposedId": "purple_dark_tribute" },
-    { "name": "Tributo de Sangue",                  "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-tributo-de-sangue",               "proposedId": "purple_blood_tribute" },
-    { "name": "Retaliação do Véu",                  "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-retaliacao-do-veu",               "proposedId": "purple_veil_retaliation" },
-    { "name": "Ruptura da Cura",                    "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-ruptura-da-cura",                 "proposedId": "purple_healing_rupture" },
-    { "name": "Prisão do Véu Antigo",               "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-prisao-do-veu-antigo",            "proposedId": "purple_ancient_veil_prison" },
-    { "name": "Selo do Véu Profundo",               "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-selo-do-veu-profundo",            "proposedId": "purple_deep_veil_seal" },
-    { "name": "Grilhões Rubros",                    "category": "efeito_roxo_monstro", "currentId": "efeito_roxo_monstro-grilhoes-rubros",                 "proposedId": "purple_crimson_shackles" },
-    { "name": "Fio Mortal",                         "category": "habilidade_item",     "currentId": "habilidade_item-fio-mortal",                          "proposedId": "item_skill_deadly_edge" },
-    { "name": "Bloqueio",                           "category": "habilidade_item",     "currentId": "habilidade_item-bloqueio",                            "proposedId": "item_skill_block" },
-    { "name": "Saque Místico",                      "category": "habilidade_item",     "currentId": "habilidade_item-saque-mistico",                       "proposedId": "item_skill_mystic_draw" },
-    { "name": "Lâmina da Última Luz",               "category": "habilidade_item",     "currentId": "habilidade_item-lamina-da-ultima-luz",                "proposedId": "item_skill_last_light_blade" },
-    { "name": "Confinamento",                       "category": "habilidade_dungeon",  "currentId": "habilidade_dungeon-confinamento",                     "proposedId": "dungeon_skill_confinement" },
-    { "name": "Tochas Mortas",                      "category": "habilidade_dungeon",  "currentId": "habilidade_dungeon-tochas-mortas",                    "proposedId": "dungeon_skill_dead_torches" },
-    { "name": "Queda de Coluna",                    "category": "habilidade_dungeon",  "currentId": "habilidade_dungeon-queda-de-coluna",                  "proposedId": "dungeon_skill_column_fall" },
-    { "name": "Piso Irregular",                     "category": "habilidade_dungeon",  "currentId": "habilidade_dungeon-piso-irregular",                   "proposedId": "dungeon_skill_uneven_floor" },
-    { "name": "Espólios da Fornalha",               "category": "habilidade_dungeon",  "currentId": "habilidade_dungeon-espolios-da-fornalha",             "proposedId": "dungeon_skill_forge_spoils" },
-    { "name": "Forja Reacesa",                      "category": "habilidade_dungeon",  "currentId": "habilidade_dungeon-forja-reacesa",                    "proposedId": "dungeon_skill_rekindled_forge" },
-    { "name": "Invocar Guardião",                   "category": "habilidade_dungeon",  "currentId": "habilidade_dungeon-invocar-guardiao",                 "proposedId": "dungeon_skill_summon_guardian" },
-    { "name": "Trono de Cinzas Vivas",              "category": "habilidade_chefe",    "currentId": "habilidade_chefe-trono-de-cinzas-vivas",              "proposedId": "boss_skill_living_ash_throne" },
-    { "name": "Pressão da Fornalha Sombria",        "category": "habilidade_chefe",    "currentId": "habilidade_chefe-pressao-da-fornalha-sombria",        "proposedId": "boss_skill_dark_forge_pressure" },
-    { "name": "Ascensão de Azhakar",                "category": "habilidade_chefe",    "currentId": "habilidade_chefe-ascensao-de-azhakar",                "proposedId": "boss_skill_azhakar_ascension" },
-    { "name": "Drenar Vida e Fio Mortal",           "category": "habilidade_item",     "currentId": null,                                                  "proposedId": "item_skill_drain_life_and_deadly_edge" },
-    { "name": "Bloqueio e Resguardo da Última Luz", "category": "habilidade_item",     "currentId": null,                                                  "proposedId": "item_skill_block_and_last_light_ward" },
-    { "name": "Fúria Rubra e Fúria Rubra Poderosa", "category": "habilidade_item",     "currentId": null,                                                  "proposedId": "item_skill_crimson_fury_mighty" },
-    { "name": "Sala do Subchefe",                   "category": "habilidade_dungeon",  "currentId": null,                                                  "proposedId": "dungeon_skill_subboss_room" },
-    { "name": "Sala Vazia",                         "category": "habilidade_dungeon",  "currentId": null,                                                  "proposedId": "dungeon_skill_empty_room" }
-  ]
+	"cards": [
+		{
+			"name": "Clérigo do Descanso Eterno",
+			"type": "hero",
+			"proposedId": "hero_eternal_rest_cleric"
+		},
+		{
+			"name": "Guerreiro do Bastião Partido",
+			"type": "hero",
+			"proposedId": "hero_broken_bastion_warrior"
+		},
+		{
+			"name": "Ladino das Fendas",
+			"type": "hero",
+			"proposedId": "hero_rift_rogue"
+		},
+		{
+			"name": "Mago das Runas Rubras",
+			"type": "hero",
+			"proposedId": "hero_crimson_rune_mage"
+		},
+		{
+			"name": "Bárbaro Rubro",
+			"type": "hero",
+			"proposedId": "hero_crimson_barbarian"
+		},
+		{
+			"name": "Paladino da Última Luz",
+			"type": "hero",
+			"proposedId": "hero_last_light_paladin"
+		},
+		{
+			"name": "Necromante do Véu Profundo",
+			"type": "hero",
+			"proposedId": "hero_deep_veil_necromancer"
+		},
+		{
+			"name": "Caçador do Véu Partido",
+			"type": "hero",
+			"proposedId": "hero_broken_veil_hunter"
+		},
+		{
+			"name": "Rato das Fendas Profundas",
+			"type": "creature",
+			"proposedId": "creature_deep_rift_rat"
+		},
+		{
+			"name": "Goblin das Cavernas Escuras",
+			"type": "creature",
+			"proposedId": "creature_dark_cave_goblin"
+		},
+		{
+			"name": "Limo das Pedras Úmidas",
+			"type": "creature",
+			"proposedId": "creature_wet_stone_slime"
+		},
+		{
+			"name": "Morcego do Teto Negro",
+			"type": "creature",
+			"proposedId": "creature_black_ceiling_bat"
+		},
+		{
+			"name": "Aranha dos Pilares Antigos",
+			"type": "creature",
+			"proposedId": "creature_ancient_pillar_spider"
+		},
+		{
+			"name": "Vigia das Portas Quebradas",
+			"type": "creature",
+			"proposedId": "creature_broken_gates_watcher"
+		},
+		{
+			"name": "Cultista da Chama Oculta",
+			"type": "creature",
+			"proposedId": "creature_hidden_flame_cultist"
+		},
+		{
+			"name": "Esqueleto das Catacumbas",
+			"type": "creature",
+			"proposedId": "creature_catacomb_skeleton"
+		},
+		{
+			"name": "Ladrão das Passagens Mortas",
+			"type": "creature",
+			"proposedId": "creature_dead_passage_thief"
+		},
+		{
+			"name": "Cavaleiro das Correntes Velhas",
+			"type": "creature",
+			"proposedId": "creature_old_chains_knight"
+		},
+		{
+			"name": "Salamandra do Fogo Baixo",
+			"type": "creature",
+			"proposedId": "creature_low_fire_salamander"
+		},
+		{
+			"name": "Ogro do Salão Arruinado",
+			"type": "creature",
+			"proposedId": "creature_ruined_hall_ogre"
+		},
+		{
+			"name": "Kobold das Brasas Baixas",
+			"type": "creature",
+			"proposedId": "creature_low_ember_kobold"
+		},
+		{
+			"name": "Verme das Cinzas Quentes",
+			"type": "creature",
+			"proposedId": "creature_hot_ash_worm"
+		},
+		{
+			"name": "Crânio Flamejante",
+			"type": "creature",
+			"proposedId": "creature_blazing_skull"
+		},
+		{
+			"name": "Sentinela das Tochas Mortas",
+			"type": "creature",
+			"proposedId": "creature_dead_torch_sentinel"
+		},
+		{
+			"name": "Acólito da Fornalha",
+			"type": "creature",
+			"proposedId": "creature_forge_acolyte"
+		},
+		{
+			"name": "Bruto das Correntes Partidas",
+			"type": "creature",
+			"proposedId": "creature_broken_chains_brute"
+		},
+		{
+			"name": "Carcereiro da Masmorra Rubra",
+			"type": "subboss",
+			"proposedId": "subboss_crimson_dungeon_jailer"
+		},
+		{
+			"name": "Guardião do Abismo Rachado",
+			"type": "subboss",
+			"proposedId": "subboss_cracked_abyss_guardian"
+		},
+		{
+			"name": "Câmara do Carcereiro",
+			"type": "subboss_room",
+			"proposedId": "subboss_room_jailer_chamber"
+		},
+		{
+			"name": "Câmara do Abismo Rachado",
+			"type": "subboss_room",
+			"proposedId": "subboss_room_cracked_abyss_chamber"
+		},
+		{
+			"name": "Tocha de Breu",
+			"type": "item",
+			"proposedId": "item_pitch_torch"
+		},
+		{
+			"name": "Corda Gasta de Explorador",
+			"type": "item",
+			"proposedId": "item_worn_explorer_rope"
+		},
+		{
+			"name": "Adaga Enferrujada",
+			"type": "item",
+			"proposedId": "item_rusty_dagger"
+		},
+		{
+			"name": "Escudo Rachado",
+			"type": "item",
+			"proposedId": "item_cracked_shield"
+		},
+		{
+			"name": "Poção de Vigor Menor",
+			"type": "item",
+			"proposedId": "item_lesser_vigor_potion"
+		},
+		{
+			"name": "Frasco de Óleo Incendiário",
+			"type": "item",
+			"proposedId": "item_incendiary_oil_flask"
+		},
+		{
+			"name": "Chave de Ferro Antiga",
+			"type": "item",
+			"proposedId": "item_ancient_iron_key"
+		},
+		{
+			"name": "Capuz do Túnel",
+			"type": "item",
+			"proposedId": "item_tunnel_hood"
+		},
+		{
+			"name": "Botas de Pedra Leve",
+			"type": "item",
+			"proposedId": "item_light_stone_boots"
+		},
+		{
+			"name": "Cajado das Runas Rubras",
+			"type": "item",
+			"proposedId": "item_crimson_rune_staff"
+		},
+		{
+			"name": "Espada da Última Luz",
+			"type": "item",
+			"proposedId": "item_last_light_sword"
+		},
+		{
+			"name": "Foice do Véu Profundo",
+			"type": "item",
+			"proposedId": "item_deep_veil_scythe"
+		},
+		{
+			"name": "Machado do Salão Arruinado",
+			"type": "item",
+			"proposedId": "item_ruined_hall_axe"
+		},
+		{
+			"name": "Martelo de Pedra Quebrada",
+			"type": "item",
+			"proposedId": "item_broken_stone_hammer"
+		},
+		{
+			"name": "Arco das Fendas",
+			"type": "item",
+			"proposedId": "item_rift_bow"
+		},
+		{
+			"name": "Armadura de Couro Reforçado",
+			"type": "item",
+			"proposedId": "item_reinforced_leather_armor"
+		},
+		{
+			"name": "Armadura de Metal Antigo",
+			"type": "item",
+			"proposedId": "item_ancient_metal_armor"
+		},
+		{
+			"name": "Armadura Mágica da Fornalha",
+			"type": "item",
+			"proposedId": "item_forge_magic_armor"
+		},
+		{
+			"name": "Manto do Véu Partido",
+			"type": "item",
+			"proposedId": "item_broken_veil_cloak"
+		},
+		{
+			"name": "Poção de Fúria",
+			"type": "item",
+			"proposedId": "item_fury_potion"
+		},
+		{
+			"name": "Poção de Precisão",
+			"type": "item",
+			"proposedId": "item_precision_potion"
+		},
+		{
+			"name": "Poção de Pele de Pedra",
+			"type": "item",
+			"proposedId": "item_stoneskin_potion"
+		},
+		{
+			"name": "Poção de Retorno",
+			"type": "item",
+			"proposedId": "item_return_potion"
+		},
+		{
+			"name": "Poção de Brasa Viva",
+			"type": "item",
+			"proposedId": "item_living_ember_potion"
+		},
+		{
+			"name": "Poção de Vigor Maior",
+			"type": "item",
+			"proposedId": "item_greater_vigor_potion"
+		},
+		{
+			"name": "Encanto da Masmorra Calada",
+			"type": "item",
+			"proposedId": "item_silent_dungeon_charm"
+		},
+		{
+			"name": "Encanto da Chama Baixa",
+			"type": "item",
+			"proposedId": "item_low_flame_charm"
+		},
+		{
+			"name": "Encanto do Sangue Quente",
+			"type": "item",
+			"proposedId": "item_warm_blood_charm"
+		},
+		{
+			"name": "Encanto do Caminho Seguro",
+			"type": "item",
+			"proposedId": "item_safe_path_charm"
+		},
+		{
+			"name": "Encanto da Última Defesa",
+			"type": "item",
+			"proposedId": "item_last_defense_charm"
+		},
+		{
+			"name": "Alaúde do Último Acorde",
+			"type": "item",
+			"proposedId": "item_last_chord_lute"
+		},
+		{
+			"name": "Manto da Saída Estreita",
+			"type": "item",
+			"proposedId": "item_narrow_exit_cloak"
+		},
+		{
+			"name": "Mapa Rasgado das Profundezas",
+			"type": "item",
+			"proposedId": "item_torn_depths_map"
+		},
+		{
+			"name": "Baú Oculto da Fornalha",
+			"type": "item",
+			"proposedId": "item_hidden_forge_chest"
+		},
+		{
+			"name": "Corrente do Carcereiro Rubro",
+			"type": "artifact",
+			"proposedId": "artifact_crimson_jailer_chain"
+		},
+		{
+			"name": "Coração de Brasa Antiga",
+			"type": "artifact",
+			"proposedId": "artifact_ancient_ember_heart"
+		},
+		{
+			"name": "Martelo da Forja Perdida",
+			"type": "artifact",
+			"proposedId": "artifact_lost_forge_hammer"
+		},
+		{
+			"name": "Braseiro da Última Vigília",
+			"type": "artifact",
+			"proposedId": "artifact_last_vigil_brazier"
+		},
+		{
+			"name": "Lâmina do Primeiro Incêndio",
+			"type": "artifact",
+			"proposedId": "artifact_first_fire_blade"
+		},
+		{
+			"name": "Corredor Estreito",
+			"type": "room",
+			"proposedId": "room_narrow_corridor"
+		},
+		{
+			"name": "Sala da Masmorra",
+			"type": "room",
+			"proposedId": "room_dungeon_room"
+		},
+		{
+			"name": "Câmara das Correntes Rubras",
+			"type": "room",
+			"proposedId": "room_crimson_chains_chamber"
+		},
+		{
+			"name": "Passagem das Tochas Mortas",
+			"type": "room",
+			"proposedId": "room_dead_torches_passage"
+		},
+		{
+			"name": "Salão das Colunas Quebradas",
+			"type": "room",
+			"proposedId": "room_broken_columns_hall"
+		},
+		{
+			"name": "Escadaria para as Profundezas",
+			"type": "room",
+			"proposedId": "room_depths_stairway"
+		},
+		{
+			"name": "Cela Abandonada",
+			"type": "room",
+			"proposedId": "room_abandoned_cell"
+		},
+		{
+			"name": "Forja em Ruínas",
+			"type": "room",
+			"proposedId": "room_ruined_forge"
+		},
+		{
+			"name": "Sala do Carcereiro",
+			"type": "room",
+			"proposedId": "room_jailer_room"
+		},
+		{
+			"name": "Abismo Rachado",
+			"type": "room",
+			"proposedId": "room_cracked_abyss"
+		},
+		{
+			"name": "Azhakar, Dragão da Fornalha Sombria",
+			"type": "boss",
+			"proposedId": "boss_azhakar"
+		}
+	],
+	"skills": [
+		{
+			"name": "Fúria Rubra",
+			"category": "habilidade",
+			"currentId": "habilidade-furia-rubra",
+			"proposedId": "skill_crimson_fury"
+		},
+		{
+			"name": "Cura da Última Luz",
+			"category": "habilidade",
+			"currentId": "habilidade-cura-da-ultima-luz",
+			"proposedId": "skill_last_light_healing"
+		},
+		{
+			"name": "Guarda do Bastião",
+			"category": "habilidade",
+			"currentId": "habilidade-guarda-do-bastiao",
+			"proposedId": "skill_bastion_guard"
+		},
+		{
+			"name": "Runa das Fendas",
+			"category": "habilidade",
+			"currentId": "habilidade-runa-das-fendas",
+			"proposedId": "skill_rift_rune"
+		},
+		{
+			"name": "Foco do Caçador",
+			"category": "habilidade",
+			"currentId": "habilidade-foco-do-cacador",
+			"proposedId": "skill_hunter_focus"
+		},
+		{
+			"name": "Brasa Viva",
+			"category": "habilidade",
+			"currentId": "habilidade-brasa-viva",
+			"proposedId": "skill_living_ember"
+		},
+		{
+			"name": "Escudo da Última Luz",
+			"category": "habilidade",
+			"currentId": "habilidade-escudo-da-ultima-luz",
+			"proposedId": "skill_last_light_shield"
+		},
+		{
+			"name": "Caminho Preservado",
+			"category": "habilidade",
+			"currentId": "habilidade-caminho-preservado",
+			"proposedId": "skill_preserved_path"
+		},
+		{
+			"name": "Forja Reacesa",
+			"category": "habilidade",
+			"currentId": "habilidade-forja-reacesa",
+			"proposedId": "skill_rekindled_forge"
+		},
+		{
+			"name": "Segunda Chance das Fendas",
+			"category": "habilidade",
+			"currentId": "habilidade-segunda-chance-das-fendas",
+			"proposedId": "skill_rift_second_chance"
+		},
+		{
+			"name": "Runa Perfeita",
+			"category": "habilidade",
+			"currentId": "habilidade-runa-perfeita",
+			"proposedId": "skill_perfect_rune"
+		},
+		{
+			"name": "Milagre da Última Luz",
+			"category": "habilidade",
+			"currentId": "habilidade-milagre-da-ultima-luz",
+			"proposedId": "skill_last_light_miracle"
+		},
+		{
+			"name": "Golpe Trespassante",
+			"category": "habilidade",
+			"currentId": "habilidade-golpe-trespassante",
+			"proposedId": "skill_piercing_strike"
+		},
+		{
+			"name": "Espólios da Fornalha",
+			"category": "habilidade",
+			"currentId": "habilidade-espolios-da-fornalha",
+			"proposedId": "skill_forge_spoils"
+		},
+		{
+			"name": "Marca da Presa",
+			"category": "habilidade",
+			"currentId": "habilidade-marca-da-presa",
+			"proposedId": "skill_prey_mark"
+		},
+		{
+			"name": "Rito de Retorno",
+			"category": "habilidade",
+			"currentId": "habilidade-rito-de-retorno",
+			"proposedId": "skill_return_rite"
+		},
+		{
+			"name": "Luz da Aurora Final",
+			"category": "habilidade",
+			"currentId": "habilidade-luz-da-aurora-final",
+			"proposedId": "skill_final_dawn_light"
+		},
+		{
+			"name": "Calor Escaldante",
+			"category": "habilidade",
+			"currentId": "habilidade-calor-escaldante",
+			"proposedId": "skill_scorching_heat"
+		},
+		{
+			"name": "Correntes Rubras",
+			"category": "habilidade",
+			"currentId": "habilidade-correntes-rubras",
+			"proposedId": "skill_crimson_chains"
+		},
+		{
+			"name": "Cinzas Sufocantes",
+			"category": "habilidade",
+			"currentId": "habilidade-cinzas-sufocantes",
+			"proposedId": "skill_choking_ashes"
+		},
+		{
+			"name": "Couraça Carbonizada",
+			"category": "habilidade",
+			"currentId": "habilidade-couraca-carbonizada",
+			"proposedId": "skill_charred_plate"
+		},
+		{
+			"name": "Despertar da Fornalha",
+			"category": "habilidade",
+			"currentId": "habilidade-despertar-da-fornalha",
+			"proposedId": "skill_forge_awakening"
+		},
+		{
+			"name": "Porta Selada",
+			"category": "habilidade",
+			"currentId": "habilidade-porta-selada",
+			"proposedId": "skill_sealed_door"
+		},
+		{
+			"name": "Chão em Ruína",
+			"category": "habilidade",
+			"currentId": "habilidade-chao-em-ruina",
+			"proposedId": "skill_ruined_floor"
+		},
+		{
+			"name": "Fumaça da Fornalha",
+			"category": "habilidade",
+			"currentId": "habilidade-fumaca-da-fornalha",
+			"proposedId": "skill_forge_smoke"
+		},
+		{
+			"name": "Tributo Sombrio",
+			"category": "habilidade",
+			"currentId": "habilidade-tributo-sombrio",
+			"proposedId": "skill_dark_tribute"
+		},
+		{
+			"name": "Evasão das Fendas",
+			"category": "habilidade",
+			"currentId": "habilidade-evasao-das-fendas",
+			"proposedId": "skill_rift_evasion"
+		},
+		{
+			"name": "Prisão das Correntes",
+			"category": "habilidade",
+			"currentId": "habilidade-prisao-das-correntes",
+			"proposedId": "skill_chains_prison"
+		},
+		{
+			"name": "Corrupção de Caminho",
+			"category": "habilidade",
+			"currentId": "habilidade-corrupcao-de-caminho",
+			"proposedId": "skill_path_corruption"
+		},
+		{
+			"name": "Fera Solitária",
+			"category": "habilidade",
+			"currentId": "habilidade-fera-solitaria",
+			"proposedId": "skill_lone_beast"
+		},
+		{
+			"name": "Ataque Traiçoeiro",
+			"category": "habilidade",
+			"currentId": "habilidade-ataque-traicoeiro",
+			"proposedId": "skill_treacherous_attack"
+		},
+		{
+			"name": "Fuga Covarde",
+			"category": "habilidade",
+			"currentId": "habilidade-fuga-covarde",
+			"proposedId": "skill_cowardly_flee"
+		},
+		{
+			"name": "Corpo Gelatinoso",
+			"category": "habilidade",
+			"currentId": "habilidade-corpo-gelatinoso",
+			"proposedId": "skill_gelatinous_body"
+		},
+		{
+			"name": "Presença da Chama Oculta",
+			"category": "habilidade",
+			"currentId": "habilidade-presenca-da-chama-oculta",
+			"proposedId": "skill_hidden_flame_presence"
+		},
+		{
+			"name": "Coragem de Bando",
+			"category": "habilidade",
+			"currentId": "habilidade-coragem-de-bando",
+			"proposedId": "skill_pack_courage"
+		},
+		{
+			"name": "Iluminar o Caminho",
+			"category": "habilidade",
+			"currentId": "habilidade-iluminar-o-caminho",
+			"proposedId": "skill_illuminate_path"
+		},
+		{
+			"name": "Salvaguarda de Caminho",
+			"category": "habilidade",
+			"currentId": "habilidade-salvaguarda-de-caminho",
+			"proposedId": "skill_path_safeguard"
+		},
+		{
+			"name": "Drenar Vida",
+			"category": "habilidade",
+			"currentId": "habilidade-drenar-vida",
+			"proposedId": "skill_life_drain"
+		},
+		{
+			"name": "Tiro de Oportunidade",
+			"category": "habilidade",
+			"currentId": "habilidade-tiro-de-oportunidade",
+			"proposedId": "skill_opportunity_shot"
+		},
+		{
+			"name": "Resguardo da Última Luz",
+			"category": "habilidade",
+			"currentId": "habilidade-resguardo-da-ultima-luz",
+			"proposedId": "skill_last_light_ward"
+		},
+		{
+			"name": "Véu Protetor",
+			"category": "habilidade",
+			"currentId": "habilidade-veu-protetor",
+			"proposedId": "skill_protective_veil"
+		},
+		{
+			"name": "Passo Leve das Fendas",
+			"category": "habilidade",
+			"currentId": "habilidade-passo-leve-das-fendas",
+			"proposedId": "skill_rift_light_step"
+		},
+		{
+			"name": "Desvio de Foco",
+			"category": "habilidade",
+			"currentId": "habilidade-desvio-de-foco",
+			"proposedId": "skill_focus_deflection"
+		},
+		{
+			"name": "Runa Menor",
+			"category": "habilidade",
+			"currentId": "habilidade-runa-menor",
+			"proposedId": "skill_minor_rune"
+		},
+		{
+			"name": "Milagre Maior da Última Luz",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-milagre-maior-da-ultima-luz",
+			"proposedId": "power_greater_last_light_miracle"
+		},
+		{
+			"name": "Guarda Inquebrável do Bastião",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-guarda-inquebravel-do-bastiao",
+			"proposedId": "power_unbreakable_bastion_guard"
+		},
+		{
+			"name": "Caminho Restaurado",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-caminho-restaurado",
+			"proposedId": "power_restored_path"
+		},
+		{
+			"name": "Runa Suprema das Fendas",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-runa-suprema-das-fendas",
+			"proposedId": "power_supreme_rift_rune"
+		},
+		{
+			"name": "Fúria Rubra Poderosa",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-furia-rubra-poderosa",
+			"proposedId": "power_mighty_crimson_fury"
+		},
+		{
+			"name": "Juramento da Última Luz",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-juramento-da-ultima-luz",
+			"proposedId": "power_last_light_oath"
+		},
+		{
+			"name": "Eco Profundo do Véu",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-eco-profundo-do-veu",
+			"proposedId": "power_deep_veil_echo"
+		},
+		{
+			"name": "Execução do Caçador",
+			"category": "poder_heroi",
+			"currentId": "poder_heroi-execucao-do-cacador",
+			"proposedId": "power_hunter_execution"
+		},
+		{
+			"name": "Chamas Vorazes",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-chamas-vorazes",
+			"proposedId": "purple_raging_flames"
+		},
+		{
+			"name": "Correntes da Fornalha",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-correntes-da-fornalha",
+			"proposedId": "purple_forge_chains"
+		},
+		{
+			"name": "Cinzas da Ruína",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-cinzas-da-ruina",
+			"proposedId": "purple_ruin_ashes"
+		},
+		{
+			"name": "Couraça Rubra",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-couraca-rubra",
+			"proposedId": "purple_crimson_plate"
+		},
+		{
+			"name": "Proteção das Cinzas",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-protecao-das-cinzas",
+			"proposedId": "purple_ash_protection"
+		},
+		{
+			"name": "Despertar Sombrio",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-despertar-sombrio",
+			"proposedId": "purple_dark_awakening"
+		},
+		{
+			"name": "Despertar Mortal",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-despertar-mortal",
+			"proposedId": "purple_deadly_awakening"
+		},
+		{
+			"name": "Sangue em Brasa",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-sangue-em-brasa",
+			"proposedId": "purple_ember_blood"
+		},
+		{
+			"name": "Selo das Profundezas",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-selo-das-profundezas",
+			"proposedId": "purple_depths_seal"
+		},
+		{
+			"name": "Tributo Sombrio",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-tributo-sombrio",
+			"proposedId": "purple_dark_tribute"
+		},
+		{
+			"name": "Tributo de Sangue",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-tributo-de-sangue",
+			"proposedId": "purple_blood_tribute"
+		},
+		{
+			"name": "Retaliação do Véu",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-retaliacao-do-veu",
+			"proposedId": "purple_veil_retaliation"
+		},
+		{
+			"name": "Ruptura da Cura",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-ruptura-da-cura",
+			"proposedId": "purple_healing_rupture"
+		},
+		{
+			"name": "Prisão do Véu Antigo",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-prisao-do-veu-antigo",
+			"proposedId": "purple_ancient_veil_prison"
+		},
+		{
+			"name": "Selo do Véu Profundo",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-selo-do-veu-profundo",
+			"proposedId": "purple_deep_veil_seal"
+		},
+		{
+			"name": "Grilhões Rubros",
+			"category": "efeito_roxo_monstro",
+			"currentId": "efeito_roxo_monstro-grilhoes-rubros",
+			"proposedId": "purple_crimson_shackles"
+		},
+		{
+			"name": "Fio Mortal",
+			"category": "habilidade_item",
+			"currentId": "habilidade_item-fio-mortal",
+			"proposedId": "item_skill_deadly_edge"
+		},
+		{
+			"name": "Bloqueio",
+			"category": "habilidade_item",
+			"currentId": "habilidade_item-bloqueio",
+			"proposedId": "item_skill_block"
+		},
+		{
+			"name": "Saque Místico",
+			"category": "habilidade_item",
+			"currentId": "habilidade_item-saque-mistico",
+			"proposedId": "item_skill_mystic_draw"
+		},
+		{
+			"name": "Lâmina da Última Luz",
+			"category": "habilidade_item",
+			"currentId": "habilidade_item-lamina-da-ultima-luz",
+			"proposedId": "item_skill_last_light_blade"
+		},
+		{
+			"name": "Confinamento",
+			"category": "habilidade_dungeon",
+			"currentId": "habilidade_dungeon-confinamento",
+			"proposedId": "dungeon_skill_confinement"
+		},
+		{
+			"name": "Tochas Mortas",
+			"category": "habilidade_dungeon",
+			"currentId": "habilidade_dungeon-tochas-mortas",
+			"proposedId": "dungeon_skill_dead_torches"
+		},
+		{
+			"name": "Queda de Coluna",
+			"category": "habilidade_dungeon",
+			"currentId": "habilidade_dungeon-queda-de-coluna",
+			"proposedId": "dungeon_skill_column_fall"
+		},
+		{
+			"name": "Piso Irregular",
+			"category": "habilidade_dungeon",
+			"currentId": "habilidade_dungeon-piso-irregular",
+			"proposedId": "dungeon_skill_uneven_floor"
+		},
+		{
+			"name": "Espólios da Fornalha",
+			"category": "habilidade_dungeon",
+			"currentId": "habilidade_dungeon-espolios-da-fornalha",
+			"proposedId": "dungeon_skill_forge_spoils"
+		},
+		{
+			"name": "Forja Reacesa",
+			"category": "habilidade_dungeon",
+			"currentId": "habilidade_dungeon-forja-reacesa",
+			"proposedId": "dungeon_skill_rekindled_forge"
+		},
+		{
+			"name": "Invocar Guardião",
+			"category": "habilidade_dungeon",
+			"currentId": "habilidade_dungeon-invocar-guardiao",
+			"proposedId": "dungeon_skill_summon_guardian"
+		},
+		{
+			"name": "Trono de Cinzas Vivas",
+			"category": "habilidade_chefe",
+			"currentId": "habilidade_chefe-trono-de-cinzas-vivas",
+			"proposedId": "boss_skill_living_ash_throne"
+		},
+		{
+			"name": "Pressão da Fornalha Sombria",
+			"category": "habilidade_chefe",
+			"currentId": "habilidade_chefe-pressao-da-fornalha-sombria",
+			"proposedId": "boss_skill_dark_forge_pressure"
+		},
+		{
+			"name": "Ascensão de Azhakar",
+			"category": "habilidade_chefe",
+			"currentId": "habilidade_chefe-ascensao-de-azhakar",
+			"proposedId": "boss_skill_azhakar_ascension"
+		},
+		{
+			"name": "Drenar Vida e Fio Mortal",
+			"category": "habilidade_item",
+			"currentId": null,
+			"proposedId": "item_skill_drain_life_and_deadly_edge"
+		},
+		{
+			"name": "Bloqueio e Resguardo da Última Luz",
+			"category": "habilidade_item",
+			"currentId": null,
+			"proposedId": "item_skill_block_and_last_light_ward"
+		},
+		{
+			"name": "Fúria Rubra e Fúria Rubra Poderosa",
+			"category": "habilidade_item",
+			"currentId": null,
+			"proposedId": "item_skill_crimson_fury_mighty"
+		},
+		{
+			"name": "Sala do Subchefe",
+			"category": "habilidade_dungeon",
+			"currentId": null,
+			"proposedId": "dungeon_skill_subboss_room"
+		},
+		{
+			"name": "Sala Vazia",
+			"category": "habilidade_dungeon",
+			"currentId": null,
+			"proposedId": "dungeon_skill_empty_room"
+		}
+	]
 }

@@ -1,8 +1,8 @@
 // Strategy: destino de um item recebido (equipar, mochila ou descartar).
 // Default: equipa se o slot estiver livre, caso contrário vai para a mochila.
 
-import type { ItemClass } from "../data/cardTypes";
 import { ITEM_CLASS_TO_SLOT } from "../config/defaults";
+import type { ItemClass } from "../data/cardTypes";
 import type { HeroState, ItemSlotType } from "../state/heroState";
 
 export type ItemDestination = "equip" | "backpack" | "discard";

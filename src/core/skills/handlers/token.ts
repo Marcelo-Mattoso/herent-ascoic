@@ -4,8 +4,8 @@
 // value = "1/3/2/2" → [ecoCost, tohit, damageReduction, deckLook].
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleToken(
 	state: GameState,

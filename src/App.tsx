@@ -1,4 +1,4 @@
-import { useState, useEffect } from "react";
+import { useEffect, useState } from "react";
 import { Defeat } from "@/ui/screens/Defeat";
 import { Exploration } from "@/ui/screens/Exploration";
 import { MainMenu } from "@/ui/screens/MainMenu";

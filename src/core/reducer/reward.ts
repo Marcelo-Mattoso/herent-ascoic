@@ -2,14 +2,14 @@
 // Patch 1: GRANT_REWARDS constrói fila pendingRewards em vez de distribuir automaticamente.
 // Itens e artefatos são resolvidos um a um via CHOOSE_ITEM_DESTINATION / CHOOSE_ARTIFACT_BEARER.
 
-import { getCardByName } from "../data/cards";
-import { cardSkills } from "../skills/lookup";
-import { renderSkillLabel } from "../skills/renderLabel";
-import type { XpSpendOption } from "../config/defaults";
 import type { InvFromZone, InvToZone } from "../actions/types";
+import type { XpSpendOption } from "../config/defaults";
 import { XP_COSTS } from "../config/defaults";
+import { getCardByName } from "../data/cards";
 import { calculateRewards } from "../rules/reward";
 import { fireTrigger } from "../skills/dispatch";
+import { cardSkills } from "../skills/lookup";
+import { renderSkillLabel } from "../skills/renderLabel";
 import type { GameState, PendingReward } from "../state/gameState";
 import { defaultItemDestination } from "../strategies/itemDistribution";
 import { handleDungeonExhaustedSpend } from "./exploration";
@@ -104,7 +104,8 @@ export function handleGrantRewards(state: GameState): GameState {
 		};
 		// Verificar se o artefato tem portador ("portador" no label renderizado)
 		const artCard = getCardByName(artName as string);
-		const artSkillEntry = artCard?.type === "artifact" ? cardSkills(artCard.id)[0] : null;
+		const artSkillEntry =
+			artCard?.type === "artifact" ? cardSkills(artCard.id)[0] : null;
 		const requiresBearer =
 			artCard?.type === "artifact" &&
 			!!artSkillEntry &&
@@ -166,22 +167,22 @@ export function handleChooseItemDestination(
 					}));
 					next = log(next, `${itemName} guardado na mochila de ${heroId}.`);
 				} else {
-				const slot =
-					card.itemClass === "equipment"
-						? "weapon"
-						: card.itemClass === "utility"
-							? "utility"
-							: "special";
-				next = mapHero(next, heroId, (h) => {
-					// Item anterior do mesmo slot vai para a mochila
-					const displaced = h.activeItems[slot];
-					return {
-						...h,
-						activeItems: { ...h.activeItems, [slot]: itemName },
-						backpack: displaced ? [...h.backpack, displaced] : h.backpack,
-					};
-				});
-				next = log(next, `${itemName} equipado por ${heroId}.`);
+					const slot =
+						card.itemClass === "equipment"
+							? "weapon"
+							: card.itemClass === "utility"
+								? "utility"
+								: "special";
+					next = mapHero(next, heroId, (h) => {
+						// Item anterior do mesmo slot vai para a mochila
+						const displaced = h.activeItems[slot];
+						return {
+							...h,
+							activeItems: { ...h.activeItems, [slot]: itemName },
+							backpack: displaced ? [...h.backpack, displaced] : h.backpack,
+						};
+					});
+					next = log(next, `${itemName} equipado por ${heroId}.`);
 				}
 			} else {
 				// backpack
@@ -214,7 +215,11 @@ export function handleChooseArtifactBearer(
 		pendingRewards: state.pendingRewards.slice(1),
 		groupArtifacts: [
 			...state.groupArtifacts,
-			{ cardId: getCardByName(reward.cardName)?.id ?? "", cardName: reward.cardName, carriedBy: heroId },
+			{
+				cardId: getCardByName(reward.cardName)?.id ?? "",
+				cardName: reward.cardName,
+				carriedBy: heroId,
+			},
 		],
 	};
 
@@ -313,7 +318,11 @@ export function handleSpendXp(
 					...next,
 					groupArtifacts: [
 						...next.groupArtifacts,
-						{ cardId: getCardByName(artName as string)?.id ?? "", cardName: artName as string, carriedBy: null },
+						{
+							cardId: getCardByName(artName as string)?.id ?? "",
+							cardName: artName as string,
+							carriedBy: null,
+						},
 					],
 					decks: {
 						...next.decks,
@@ -513,36 +522,37 @@ export function handleInvAssignItem(
 				}));
 				next = log(next, `${itemName} na mochila de ${heroId}.`);
 			} else {
-			const slot =
-				card.itemClass === "equipment"
-					? "weapon"
-					: card.itemClass === "utility"
-						? "utility"
-						: "special";
-			next = mapHero(next, heroId, (h) => ({
-				...h,
-				activeItems: { ...h.activeItems, [slot]: itemName },
-				backpack: h.backpack,
-			}));
-			// Se o slot estava ocupado, item deslocado volta para a mesa
-			const hero = state.heroes.find((h) => h.id === heroId);
-			const displaced = hero?.activeItems[
-				card.itemClass === "equipment"
-					? "weapon"
-					: card.itemClass === "utility"
-						? "utility"
-						: "special"
-			];
-			if (displaced) {
-				next = {
-					...next,
-					pendingRewards: [
-						...next.pendingRewards,
-						{ type: "item", cardName: displaced, requiresBearer: false },
-					],
-				};
-			}
-			next = log(next, `${itemName} equipado por ${heroId}.`);
+				const slot =
+					card.itemClass === "equipment"
+						? "weapon"
+						: card.itemClass === "utility"
+							? "utility"
+							: "special";
+				next = mapHero(next, heroId, (h) => ({
+					...h,
+					activeItems: { ...h.activeItems, [slot]: itemName },
+					backpack: h.backpack,
+				}));
+				// Se o slot estava ocupado, item deslocado volta para a mesa
+				const hero = state.heroes.find((h) => h.id === heroId);
+				const displaced =
+					hero?.activeItems[
+						card.itemClass === "equipment"
+							? "weapon"
+							: card.itemClass === "utility"
+								? "utility"
+								: "special"
+					];
+				if (displaced) {
+					next = {
+						...next,
+						pendingRewards: [
+							...next.pendingRewards,
+							{ type: "item", cardName: displaced, requiresBearer: false },
+						],
+					};
+				}
+				next = log(next, `${itemName} equipado por ${heroId}.`);
 			}
 		}
 	} else {
@@ -581,7 +591,11 @@ export function handleInvAssignArtifact(
 			pendingRewards: remaining,
 			groupArtifacts: [
 				...state.groupArtifacts,
-				{ cardId: getCardByName(artifactName)?.id ?? "", cardName: artifactName, carriedBy: heroId },
+				{
+					cardId: getCardByName(artifactName)?.id ?? "",
+					cardName: artifactName,
+					carriedBy: heroId,
+				},
 			],
 		},
 		`Artefato ${artifactName} ativo no grupo.`,

@@ -1,6 +1,6 @@
 import { useState } from "react";
-import type { Difficulty, GameMode } from "@/core/state/gameState";
 import { getBoss, getHeroes } from "@/core/data/cards";
+import type { Difficulty, GameMode } from "@/core/state/gameState";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { useGameStore } from "@/ui/store/gameStore";
@@ -84,7 +84,9 @@ export function Setup({ onBack }: SetupProps) {
 						<p className="text-sm" style={{ color: UI.textSecondary }}>
 							{mode === "competitive" ? "Competitivo" : "Cooperativo"} ·{" "}
 							{selectedHeroes.length === 0
-								? mode === "competitive" ? "Selecione 2 a 8 heróis" : "Selecione 1 a 8 heróis"
+								? mode === "competitive"
+									? "Selecione 2 a 8 heróis"
+									: "Selecione 1 a 8 heróis"
 								: `${selectedHeroes.length} herói(s) selecionado(s)`}
 						</p>
 					</div>
@@ -92,7 +94,10 @@ export function Setup({ onBack }: SetupProps) {
 
 				{/* Modo */}
 				<section className="mb-6">
-					<p className="text-sm font-medium mb-2" style={{ color: UI.textSecondary }}>
+					<p
+						className="text-sm font-medium mb-2"
+						style={{ color: UI.textSecondary }}
+					>
 						Modo de jogo
 					</p>
 					<div className="flex gap-2">

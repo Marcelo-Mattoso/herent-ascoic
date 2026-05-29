@@ -4,10 +4,10 @@
 // Trigger: on_reveal_paths.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
-import { parseNumber } from "../valueParsers";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 import { registerContinuation } from "../registry";
+import { parseNumber } from "../valueParsers";
 
 export function handleDungeon(
 	state: GameState,

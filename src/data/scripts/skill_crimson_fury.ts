@@ -14,7 +14,12 @@ export const run: ScriptHandler = (ctx) => {
 	const bonus = cost * 3;
 
 	// Pagar custo em vida (sem matar — applyDamageMin1 semântica via minimum no effect)
-	let state = ctx.action.pushEffect({ kind: "apply_damage", to: ctx.sourceId, amount: cost, minimum: 1 });
+	let state = ctx.action.pushEffect({
+		kind: "apply_damage",
+		to: ctx.sourceId,
+		amount: cost,
+		minimum: 1,
+	});
 	// Registrar bônus de dano para o próximo ataque
 	const ctx2 = ctx.withState(state);
 	state = ctx2.action.pushEffect({

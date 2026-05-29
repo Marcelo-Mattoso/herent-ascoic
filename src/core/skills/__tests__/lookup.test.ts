@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { cardSkills, lookupSkillById, skillUsedBy } from "../lookup";
 import { getCardByName } from "../../data/cards";
+import { cardSkills, lookupSkillById, skillUsedBy } from "../lookup";
 
 describe("cardSkills", () => {
 	it("resolve habilidade do Bárbaro Rubro", () => {
@@ -30,7 +30,9 @@ describe("cardSkills", () => {
 		const card = getCardByName("Bárbaro Rubro");
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
-		const efeito = skills.find(({ def }) => def.category === "habilidade_dungeon");
+		const efeito = skills.find(
+			({ def }) => def.category === "habilidade_dungeon",
+		);
 		expect(efeito).toBeUndefined();
 	});
 });

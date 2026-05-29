@@ -4,15 +4,16 @@
 // Abre pendingDiceSelection para o jogador escolher qual dado transformar.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleDiceFix(
 	state: GameState,
 	ctx: SkillContext,
 	_value: number | string | null,
 ): GameState {
-	if (!state.combat?.lastRoll || !ctx.sourceHeroId || !ctx.skillId) return state;
+	if (!state.combat?.lastRoll || !ctx.sourceHeroId || !ctx.skillId)
+		return state;
 	const hero = state.heroes.find((h) => h.id === ctx.sourceHeroId);
 	if (!hero) return state;
 

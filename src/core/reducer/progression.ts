@@ -54,7 +54,10 @@ function injectSubbossRooms(state: GameState): GameState {
 	if (subbossRoomNames.length === 0) return state;
 
 	const { available, discarded, removed } = state.decks.dungeonDeck;
-	const { value: combined, next: rng } = shuffleRng([...available, ...subbossRoomNames], state.rng);
+	const { value: combined, next: rng } = shuffleRng(
+		[...available, ...subbossRoomNames],
+		state.rng,
+	);
 	return log(
 		{
 			...state,

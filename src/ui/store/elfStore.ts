@@ -7,7 +7,7 @@
 // INVARIANTE: este módulo é o único lugar onde @ngneat/elf é usado diretamente.
 // O resto da UI lê via useGameStore() em gameStore.ts.
 
-import { createStore, withProps, setProps, select } from "@ngneat/elf";
+import { createStore, select, setProps, withProps } from "@ngneat/elf";
 import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
 
@@ -60,8 +60,10 @@ export function setElfStoreProps(props: Partial<ElfStoreProps>): void {
 
 // Reset completo — volta ao estado pré-partida.
 export function resetElfStore(): void {
-	gameElfStore.update(setProps({
-		gameState: createInitialGameState(EMPTY_CONFIG),
-		ui: { focusedHeroId: null },
-	}));
+	gameElfStore.update(
+		setProps({
+			gameState: createInitialGameState(EMPTY_CONFIG),
+			ui: { focusedHeroId: null },
+		}),
+	);
 }

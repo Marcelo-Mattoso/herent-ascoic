@@ -24,6 +24,7 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 
 	const enemy: EnemyState = {
 		id: "e1",
+		cardId: "creature_deep_rift_rat",
 		cardName: "Rato das Fendas Profundas",
 		maxLife: lifeEnemy,
 		currentLife: lifeEnemy,
@@ -309,13 +310,14 @@ describe("combate múltiplo v2 (§8.8)", () => {
 	function stateWithTwoHeroesOneEnemy(): GameState {
 		const HERO2 = "Guerreiro do Bastião Partido";
 		const base = createInitialGameState({ heroCardNames: [HERO, HERO2] });
-		let s = reducer(base, {
+		const s = reducer(base, {
 			type: "START_GAME",
 			payload: { heroCardNames: [HERO, HERO2] },
 		});
 
 		const enemy: EnemyState = {
 			id: "e1",
+			cardId: "creature_deep_rift_rat",
 			cardName: "Rato das Fendas Profundas",
 			maxLife: 99,
 			currentLife: 99,
@@ -382,6 +384,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		// Segundo inimigo que não será atacado
 		const unattacked: EnemyState = {
 			id: "e2",
+			cardId: "creature_deep_rift_rat",
 			cardName: "Rato das Fendas Profundas",
 			maxLife: 5,
 			currentLife: 5,
@@ -438,8 +441,16 @@ describe("vitória contra boss", () => {
 		s = {
 			...s,
 			groupArtifacts: [
-				{ cardId: "artifact_crimson_jailer_chain", cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
-				{ cardId: "artifact_ancient_ember_heart", cardName: "Coração de Brasa Antiga", carriedBy: null },
+				{
+					cardId: "artifact_crimson_jailer_chain",
+					cardName: "Corrente do Carcereiro Rubro",
+					carriedBy: null,
+				},
+				{
+					cardId: "artifact_ancient_ember_heart",
+					cardName: "Coração de Brasa Antiga",
+					carriedBy: null,
+				},
 			],
 			status: "BOSS_REVEAL" as const,
 		};
@@ -485,8 +496,16 @@ describe("boss sobrevive a uma rodada", () => {
 		s = {
 			...s,
 			groupArtifacts: [
-				{ cardId: "artifact_crimson_jailer_chain", cardName: "Corrente do Carcereiro Rubro", carriedBy: null },
-				{ cardId: "artifact_ancient_ember_heart", cardName: "Coração de Brasa Antiga", carriedBy: null },
+				{
+					cardId: "artifact_crimson_jailer_chain",
+					cardName: "Corrente do Carcereiro Rubro",
+					carriedBy: null,
+				},
+				{
+					cardId: "artifact_ancient_ember_heart",
+					cardName: "Coração de Brasa Antiga",
+					carriedBy: null,
+				},
 			],
 			status: "BOSS_REVEAL" as const,
 		};
@@ -503,7 +522,10 @@ describe("boss sobrevive a uma rodada", () => {
 		};
 
 		const heroId = s.heroes[0]?.id ?? "";
-		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "boss" } });
+		s = reducer(s, {
+			type: "CHOOSE_TARGET",
+			payload: { heroId, enemyId: "boss" },
+		});
 		s = reducer(s, { type: "ROLL_DICE" });
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
 
@@ -521,7 +543,10 @@ describe("actionLog", () => {
 	const base = () => createInitialGameState({ heroCardNames: [HERO] });
 
 	it("actionLog.length === N após N dispatches", () => {
-		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		let s = reducer(base(), {
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 		// START_GAME reinicia o log com exatamente 1 entrada
 		expect(s.actionLog).toHaveLength(1);
 
@@ -533,7 +558,10 @@ describe("actionLog", () => {
 	});
 
 	it("actionLog[i].seq === i para todo i", () => {
-		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		let s = reducer(base(), {
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 		s = reducer(s, { type: "REVEAL_ROOM" });
 		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
 
@@ -543,7 +571,10 @@ describe("actionLog", () => {
 	});
 
 	it("actionLog[i].action é exatamente a action passada (deep equal)", () => {
-		const startAction = { type: "START_GAME" as const, payload: { heroCardNames: [HERO] } };
+		const startAction = {
+			type: "START_GAME" as const,
+			payload: { heroCardNames: [HERO] },
+		};
 		const revealAction = { type: "REVEAL_ROOM" as const };
 
 		let s = reducer(base(), startAction);
@@ -554,7 +585,10 @@ describe("actionLog", () => {
 	});
 
 	it("START_GAME reinicia o actionLog com exatamente uma entrada", () => {
-		let s = reducer(base(), { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		let s = reducer(base(), {
+			type: "START_GAME",
+			payload: { heroCardNames: [HERO] },
+		});
 		s = reducer(s, { type: "REVEAL_ROOM" });
 		expect(s.actionLog).toHaveLength(2);
 
@@ -568,7 +602,10 @@ describe("actionLog", () => {
 // ─── Testes de determinismo (Passo 2) ────────────────────────────────────────
 
 describe("determinismo via seed", () => {
-	const startAction = { type: "START_GAME" as const, payload: { heroCardNames: [HERO], seed: 42, gameId: "test-game" } };
+	const startAction = {
+		type: "START_GAME" as const,
+		payload: { heroCardNames: [HERO], seed: 42, gameId: "test-game" },
+	};
 	const init = () => createInitialGameState({ heroCardNames: [HERO] });
 
 	it("mesma seed + mesma sequência → mesmo GameState final (executando 2× separadamente)", () => {
@@ -583,7 +620,9 @@ describe("determinismo via seed", () => {
 		s2 = reducer(s2, { type: "SPAWN_ENEMIES" });
 
 		// Estados finais são idênticos
-		expect(s1.decks.dungeonDeck.available).toEqual(s2.decks.dungeonDeck.available);
+		expect(s1.decks.dungeonDeck.available).toEqual(
+			s2.decks.dungeonDeck.available,
+		);
 		expect(s1.heroes[0]?.id).toBe(s2.heroes[0]?.id);
 		expect(s1.rng).toEqual(s2.rng);
 	});
@@ -603,15 +642,25 @@ describe("determinismo via seed", () => {
 			init(),
 		);
 
-		expect(replayed.decks.dungeonDeck.available).toEqual(finalState.decks.dungeonDeck.available);
+		expect(replayed.decks.dungeonDeck.available).toEqual(
+			finalState.decks.dungeonDeck.available,
+		);
 		expect(replayed.heroes[0]?.id).toBe(finalState.heroes[0]?.id);
 		expect(replayed.rng).toEqual(finalState.rng);
 	});
 
 	it("seeds diferentes → ao menos um resultado de deck diferente", () => {
-		const s1 = reducer(init(), { ...startAction, payload: { ...startAction.payload, seed: 1 } });
-		const s2 = reducer(init(), { ...startAction, payload: { ...startAction.payload, seed: 999 } });
-		const same = s1.decks.dungeonDeck.available.join(",") === s2.decks.dungeonDeck.available.join(",");
+		const s1 = reducer(init(), {
+			...startAction,
+			payload: { ...startAction.payload, seed: 1 },
+		});
+		const s2 = reducer(init(), {
+			...startAction,
+			payload: { ...startAction.payload, seed: 999 },
+		});
+		const same =
+			s1.decks.dungeonDeck.available.join(",") ===
+			s2.decks.dungeonDeck.available.join(",");
 		expect(same).toBe(false);
 	});
 

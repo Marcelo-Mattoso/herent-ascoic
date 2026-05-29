@@ -4,8 +4,8 @@
 // Flag verificada por handlers de dano direto ao herói.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleTargetProtection(
 	state: GameState,
@@ -20,7 +20,10 @@ export function handleTargetProtection(
 			...state,
 			combat: {
 				...state.combat,
-				targetProtectionByHero: { ...state.combat.targetProtectionByHero, [heroId]: true },
+				targetProtectionByHero: {
+					...state.combat.targetProtectionByHero,
+					[heroId]: true,
+				},
 			},
 		},
 		`${heroId}: Véu Protetor ativo — próximo efeito que escolha este herói ignorado.`,
@@ -37,7 +40,10 @@ export function consumeTargetProtection(
 		...state,
 		combat: {
 			...state.combat,
-			targetProtectionByHero: { ...state.combat.targetProtectionByHero, [heroId]: false },
+			targetProtectionByHero: {
+				...state.combat.targetProtectionByHero,
+				[heroId]: false,
+			},
 		},
 	};
 	return [true, log(next, `${heroId}: Véu Protetor consumido.`)];

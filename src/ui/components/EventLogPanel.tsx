@@ -48,12 +48,12 @@ function classifyEntry(msg: string): EntryKind {
 }
 
 const KIND_STYLE: Record<EntryKind, { dot: string; text: string }> = {
-	damage:  { dot: "#E05252", text: "#501313" },
-	heal:    { dot: "#5BA84E", text: "#2E5C1A" },
-	skill:   { dot: "#5A7EC7", text: "#1A3A6E" },
+	damage: { dot: "#E05252", text: "#501313" },
+	heal: { dot: "#5BA84E", text: "#2E5C1A" },
+	skill: { dot: "#5A7EC7", text: "#1A3A6E" },
 	warning: { dot: "#C49A00", text: "#7A5E00" },
-	error:   { dot: "#C0392B", text: "#7B1A1A" },
-	info:    { dot: UI.textTertiary, text: UI.textSecondary },
+	error: { dot: "#C0392B", text: "#7B1A1A" },
+	info: { dot: UI.textTertiary, text: UI.textSecondary },
 };
 
 export function EventLogPanel({ entries, onClose }: EventLogPanelProps) {
@@ -84,7 +84,9 @@ export function EventLogPanel({ entries, onClose }: EventLogPanelProps) {
 					borderBottom: `1px solid ${UI.border}`,
 				}}
 			>
-				<span style={{ fontSize: 11, fontWeight: 600, color: UI.textSecondary }}>
+				<span
+					style={{ fontSize: 11, fontWeight: 600, color: UI.textSecondary }}
+				>
 					📋 Log de eventos
 					<span
 						style={{
@@ -127,7 +129,14 @@ export function EventLogPanel({ entries, onClose }: EventLogPanelProps) {
 				}}
 			>
 				{entries.length === 0 ? (
-					<p style={{ fontSize: 11, color: UI.textTertiary, textAlign: "center", padding: "8px 0" }}>
+					<p
+						style={{
+							fontSize: 11,
+							color: UI.textTertiary,
+							textAlign: "center",
+							padding: "8px 0",
+						}}
+					>
 						Nenhum evento ainda.
 					</p>
 				) : (

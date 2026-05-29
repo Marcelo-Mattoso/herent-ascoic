@@ -2,9 +2,9 @@
 // Verifica: dispatch equivale ao reducer puro; subscribe/unsubscribe; getState; sincronia.
 
 import { describe, expect, it, vi } from "vitest";
-import { createInProcessAdapter } from "./inProcessAdapter";
 import { reducer } from "../reducer/index";
 import { createInitialGameState } from "../state/gameState";
+import { createInProcessAdapter } from "./inProcessAdapter";
 
 const HERO = "Bárbaro Rubro";
 
@@ -12,7 +12,10 @@ function buildInitial() {
 	return createInitialGameState({ heroCardNames: [HERO] });
 }
 
-const START_ACTION = { type: "START_GAME" as const, payload: { heroCardNames: [HERO] } };
+const START_ACTION = {
+	type: "START_GAME" as const,
+	payload: { heroCardNames: [HERO] },
+};
 
 // ── dispatch ──────────────────────────────────────────────────────────────────
 
@@ -88,7 +91,9 @@ describe("subscribe", () => {
 		const adapter = createInProcessAdapter(initial);
 		let capturedState: typeof initial | null = null;
 
-		adapter.subscribe((s) => { capturedState = s; });
+		adapter.subscribe((s) => {
+			capturedState = s;
+		});
 		await adapter.dispatch(START_ACTION);
 
 		expect(capturedState).not.toBeNull();

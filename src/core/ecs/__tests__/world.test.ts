@@ -60,8 +60,16 @@ describe("getComponent / getComponents", () => {
 	});
 
 	it("getComponents retorna todos os componentes do tipo", () => {
-		const c1: Component = { type: "condition", conditionType: "burning", duration: { kind: "this_turn" } };
-		const c2: Component = { type: "condition", conditionType: "frozen", duration: { kind: "rounds", remaining: 2 } };
+		const c1: Component = {
+			type: "condition",
+			conditionType: "burning",
+			duration: { kind: "this_turn" },
+		};
+		const c2: Component = {
+			type: "condition",
+			conditionType: "frozen",
+			duration: { kind: "rounds", remaining: 2 },
+		};
 		let w = createEmptyWorld();
 		w = upsertEntity(w, createEntity("e1", "hero", [c1, c2]));
 		expect(getComponents(w, "e1", "condition")).toHaveLength(2);
@@ -94,12 +102,25 @@ describe("addComponent", () => {
 
 describe("removeComponent", () => {
 	it("remove apenas o componente que satisfaz o predicado", () => {
-		const c1: Component = { type: "condition", conditionType: "burning", duration: { kind: "this_turn" } };
-		const c2: Component = { type: "condition", conditionType: "frozen", duration: { kind: "this_turn" } };
+		const c1: Component = {
+			type: "condition",
+			conditionType: "burning",
+			duration: { kind: "this_turn" },
+		};
+		const c2: Component = {
+			type: "condition",
+			conditionType: "frozen",
+			duration: { kind: "this_turn" },
+		};
 		let w = createEmptyWorld();
 		w = upsertEntity(w, createEntity("e1", "hero", [health, c1, c2]));
 
-		w = removeComponent(w, "e1", (c) => c.type === "condition" && (c as typeof c1).conditionType === "burning");
+		w = removeComponent(
+			w,
+			"e1",
+			(c) =>
+				c.type === "condition" && (c as typeof c1).conditionType === "burning",
+		);
 		const conditions = getComponents(w, "e1", "condition");
 		expect(conditions).toHaveLength(1);
 		expect((conditions[0] as typeof c2).conditionType).toBe("frozen");
@@ -110,8 +131,14 @@ describe("removeComponent", () => {
 describe("updateComponent", () => {
 	it("atualiza o componente sem afetar os outros", () => {
 		let w = createEmptyWorld();
-		w = upsertEntity(w, createEntity("e1", "hero", [health, { type: "dice", count: 3 }]));
-		w = updateComponent<HealthComponent>(w, "e1", "health", (h) => ({ ...h, current: 5 }));
+		w = upsertEntity(
+			w,
+			createEntity("e1", "hero", [health, { type: "dice", count: 3 }]),
+		);
+		w = updateComponent<HealthComponent>(w, "e1", "health", (h) => ({
+			...h,
+			current: 5,
+		}));
 
 		expect(getComponent<HealthComponent>(w, "e1", "health")?.current).toBe(5);
 		expect(getComponent(w, "e1", "dice")).toBeDefined();

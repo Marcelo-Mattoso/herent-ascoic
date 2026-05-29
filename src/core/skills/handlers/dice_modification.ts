@@ -4,8 +4,8 @@
 // para a UI saber que está pendente — a efetivação ocorre quando o jogador confirma.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleDiceModification(
 	state: GameState,
@@ -17,5 +17,8 @@ export function handleDiceModification(
 	if (!ctx.sourceHeroId) return state;
 	const hero = state.heroes.find((h) => h.id === ctx.sourceHeroId);
 	if (!hero) return state;
-	return log(state, `${hero.cardName}: Runa das Fendas disponível — altere 1 dado em até ${value}.`);
+	return log(
+		state,
+		`${hero.cardName}: Runa das Fendas disponível — altere 1 dado em até ${value}.`,
+	);
 }

@@ -8,8 +8,7 @@ interface HpBarProps {
 
 export function HpBar({ current, max, height = 4 }: HpBarProps) {
 	const ratio = max > 0 ? current / max : 0;
-	const fill =
-		ratio > 0.5 ? "#3B6D11" : ratio > 0.25 ? "#BA7517" : "#A32D2D";
+	const fill = ratio > 0.5 ? "#3B6D11" : ratio > 0.25 ? "#BA7517" : "#A32D2D";
 	return (
 		<div
 			style={{

@@ -2,8 +2,8 @@
 // Loga uma mensagem mas não altera o estado.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleNoop(
 	state: GameState,

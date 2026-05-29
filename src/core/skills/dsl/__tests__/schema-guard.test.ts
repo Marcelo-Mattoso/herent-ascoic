@@ -14,47 +14,67 @@ describe("TriggerFieldSchema — rejeita string legada", () => {
 	});
 
 	it("rejeita trigger como string composta", () => {
-		const result = TriggerFieldSchema.safeParse("combat_if_dungeon_red_or_purple");
+		const result = TriggerFieldSchema.safeParse(
+			"combat_if_dungeon_red_or_purple",
+		);
 		expect(result.success).toBe(false);
 	});
 
 	it("aceita trigger como objeto mínimo {on}", () => {
-		expect(TriggerFieldSchema.safeParse({ on: "before_attack" }).success).toBe(true);
+		expect(TriggerFieldSchema.safeParse({ on: "before_attack" }).success).toBe(
+			true,
+		);
 	});
 
 	it("aceita trigger com when e limit", () => {
-		expect(TriggerFieldSchema.safeParse({
-			on: "combat",
-			when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
-			limit: "once_per_game",
-		}).success).toBe(true);
+		expect(
+			TriggerFieldSchema.safeParse({
+				on: "combat",
+				when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
+				limit: "once_per_game",
+			}).success,
+		).toBe(true);
 	});
 });
 
 // ── SkillDefinitionV2Schema — valida entradas pós-migração ────────────────────
 
 const validBase = {
-	id: "test_skill", name: "Teste", category: "habilidade",
-	trigger: { on: "on_use" }, target: "self", usedBy: [],
+	id: "test_skill",
+	name: "Teste",
+	category: "habilidade",
+	trigger: { on: "on_use" },
+	target: "self",
+	usedBy: [],
 };
 
 describe("SkillDefinitionV2Schema — effect XOR script", () => {
 	it("aceita entrada só com effect", () => {
-		expect(SkillDefinitionV2Schema.safeParse({
-			...validBase, effect: [{ kind: "noop" }],
-		}).success).toBe(true);
+		expect(
+			SkillDefinitionV2Schema.safeParse({
+				...validBase,
+				effect: [{ kind: "noop" }],
+			}).success,
+		).toBe(true);
 	});
 
 	it("aceita entrada só com script", () => {
-		expect(SkillDefinitionV2Schema.safeParse({
-			...validBase, script: "test_script",
-		}).success).toBe(true);
+		expect(
+			SkillDefinitionV2Schema.safeParse({
+				...validBase,
+				script: "test_script",
+			}).success,
+		).toBe(true);
 	});
 
 	it("rejeita entrada com ambos effect e script", () => {
-		expect(SkillDefinitionV2Schema.safeParse({
-			...validBase, effect: [{ kind: "noop" }], script: "test_script",
-		}).success).toBe(false);
+		expect(
+			SkillDefinitionV2Schema.safeParse({
+				...validBase,
+				effect: [{ kind: "noop" }],
+				script: "test_script",
+			}).success,
+		).toBe(false);
 	});
 
 	it("rejeita entrada sem effect nem script", () => {
@@ -64,9 +84,12 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 	// Nota: o guard de `type` legado não é verificável aqui pois Zod faz strip()
 	// de campos desconhecidos antes do refine. O guarda real é o schema TS (type?: string).
 	it("aceita entrada sem campo type (pós-migração)", () => {
-		expect(SkillDefinitionV2Schema.safeParse({
-			...validBase, effect: [{ kind: "noop" }],
-		}).success).toBe(true);
+		expect(
+			SkillDefinitionV2Schema.safeParse({
+				...validBase,
+				effect: [{ kind: "noop" }],
+			}).success,
+		).toBe(true);
 	});
 });
 
@@ -87,9 +110,10 @@ describe("skills.json — entradas migradas passam no schema v2", () => {
 			// Convertemos trigger string para objeto para validação (legado ainda usa string)
 			const toValidate = {
 				...skill,
-				trigger: typeof skill.trigger === "string"
-					? { on: skill.trigger }
-					: skill.trigger,
+				trigger:
+					typeof skill.trigger === "string"
+						? { on: skill.trigger }
+						: skill.trigger,
 			};
 			const result = SkillDefinitionV2Schema.safeParse(toValidate);
 			if (!result.success) {

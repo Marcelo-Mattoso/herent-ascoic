@@ -4,8 +4,8 @@
 // Implementação: marca uma flag no combat state que o handler damage_bonus verifica.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleDamageBonusDuration(
 	state: GameState,
@@ -21,7 +21,11 @@ export function handleDamageBonusDuration(
 				// Flag que damage_bonus handler usa para manter bônus por toda a sala
 				temporaryEffects: [
 					...state.combat.temporaryEffects,
-					{ id: "furia-rubra-duracao", description: "Fúria Rubra dura todo o combate", roundsLeft: -1 },
+					{
+						id: "furia-rubra-duracao",
+						description: "Fúria Rubra dura todo o combate",
+						roundsLeft: -1,
+					},
 				],
 			},
 		},

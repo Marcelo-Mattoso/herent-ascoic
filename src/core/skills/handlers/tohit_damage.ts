@@ -6,9 +6,9 @@
 // O trigger controla QUANDO dispara; o handler aplica o bônus ao herói atacante.
 
 import type { SkillContext } from "../../data/skillTypes";
+import { log } from "../../reducer/utils";
 import type { GameState } from "../../state/gameState";
 import { parseSlashPair } from "../valueParsers";
-import { log } from "../../reducer/utils";
 
 export function handleTohitDamage(
 	state: GameState,
@@ -16,7 +16,9 @@ export function handleTohitDamage(
 	value: number | string | null,
 ): GameState {
 	// Aceita "X/Y" (tohit/damage distintos) ou número simples (ambos iguais)
-	const parsed = parseSlashPair(value) ?? (typeof value === "number" ? { a: value, b: value } : null);
+	const parsed =
+		parseSlashPair(value) ??
+		(typeof value === "number" ? { a: value, b: value } : null);
 	if (!parsed) return state;
 	const { a: _tohit, b: damage } = parsed;
 
@@ -29,12 +31,13 @@ export function handleTohitDamage(
 		ctx.triggeredBy === "combat_if_dungeon_red_or_purple"
 			? "Luz da Aurora Final"
 			: ctx.triggeredBy === "combat_if_alone_in_room"
-			? "Fera Solitária"
-			: "Fio Mortal";
+				? "Fera Solitária"
+				: "Fio Mortal";
 
-	const logLabel = ctx.triggeredBy === "combat_if_dungeon_red_or_purple"
-		? `Despertar ${state.despertar}: +${_tohit} acerto, +${damage} dano.`
-		: `+${_tohit} acerto, +${damage} dano neste ataque.`;
+	const logLabel =
+		ctx.triggeredBy === "combat_if_dungeon_red_or_purple"
+			? `Despertar ${state.despertar}: +${_tohit} acerto, +${damage} dano.`
+			: `+${_tohit} acerto, +${damage} dano neste ataque.`;
 
 	return log(
 		{
@@ -43,7 +46,10 @@ export function handleTohitDamage(
 				...state.combat,
 				bonusNextAttack: {
 					...state.combat.bonusNextAttack,
-					[hero.id]: [...(state.combat.bonusNextAttack?.[hero.id] ?? []), { label: skillLabel, value: damage }],
+					[hero.id]: [
+						...(state.combat.bonusNextAttack?.[hero.id] ?? []),
+						{ label: skillLabel, value: damage },
+					],
 				},
 			},
 		},

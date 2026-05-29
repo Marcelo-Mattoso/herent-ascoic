@@ -1,14 +1,14 @@
 import type { SkillContext } from "../data/skillTypes";
-import { log as appendLog } from "../reducer/utils";
-import { cardSkills } from "../skills/lookup";
-import type { GameState } from "../state/gameState";
-import { applyDamage } from "../systems/damageSystem";
-import { addPending } from "../effects/stack";
+import type { ModifierComponent, TriggerComponent } from "../ecs/types";
 import {
 	addComponent as ecsAddComponent,
 	removeComponent as ecsRemoveComponent,
 } from "../ecs/world";
-import type { ModifierComponent, TriggerComponent } from "../ecs/types";
+import { addPending } from "../effects/stack";
+import { log as appendLog } from "../reducer/utils";
+import { cardSkills } from "../skills/lookup";
+import type { GameState } from "../state/gameState";
+import { applyDamage } from "../systems/damageSystem";
 import type { ScriptCtx } from "./types";
 
 /**
@@ -55,7 +55,8 @@ export function buildScriptCtx(
 			heroWithLowestLife() {
 				const active = state.heroes.filter((h) => h.status === "active");
 				if (active.length === 0) return null;
-				return active.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b)).id;
+				return active.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b))
+					.id;
 			},
 		},
 
@@ -75,14 +76,10 @@ export function buildScriptCtx(
 			},
 
 			removeComponentsBySource(entityId, source) {
-				const newWorld = ecsRemoveComponent(
-					state.world,
-					entityId,
-					(c) => {
-						const typed = c as ModifierComponent | TriggerComponent;
-						return "source" in typed && typed.source === source;
-					},
-				);
+				const newWorld = ecsRemoveComponent(state.world, entityId, (c) => {
+					const typed = c as ModifierComponent | TriggerComponent;
+					return "source" in typed && typed.source === source;
+				});
 				return { ...state, world: newWorld };
 			},
 
@@ -118,12 +115,18 @@ export function buildScriptCtx(
 				const enemy = state.activeEnemies.find((e) => e.id === tId);
 				if (enemy?.status === "active") {
 					const next = applyDamage(state, tId, amount);
-					return appendLog(next, `Dano direto: ${enemy.cardName} sofreu ${amount}.`);
+					return appendLog(
+						next,
+						`Dano direto: ${enemy.cardName} sofreu ${amount}.`,
+					);
 				}
 				const hero = state.heroes.find((h) => h.id === tId);
 				if (hero?.status === "active") {
 					const next = applyDamage(state, tId, amount);
-					return appendLog(next, `Dano direto: ${hero.cardName} sofreu ${amount}.`);
+					return appendLog(
+						next,
+						`Dano direto: ${hero.cardName} sofreu ${amount}.`,
+					);
 				}
 				return state;
 			},

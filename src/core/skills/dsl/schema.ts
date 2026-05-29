@@ -22,15 +22,26 @@ const ExprNodeSchema: z.ZodType<unknown> = z.union([
 
 const ConditionNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 	z.discriminatedUnion("kind", [
-		z.object({ kind: z.literal("has_skill"), of: z.string(), skillId: z.string() }),
-		z.object({ kind: z.literal("has_condition"), of: z.string(), conditionType: z.string() }),
+		z.object({
+			kind: z.literal("has_skill"),
+			of: z.string(),
+			skillId: z.string(),
+		}),
+		z.object({
+			kind: z.literal("has_condition"),
+			of: z.string(),
+			conditionType: z.string(),
+		}),
 		z.object({
 			kind: z.literal("compare"),
 			op: z.enum(["lt", "lte", "eq", "gte", "gt", "in"]),
 			left: ExprNodeSchema,
 			right: ExprNodeSchema,
 		}),
-		z.object({ kind: z.literal("and"), children: z.array(ConditionNodeSchema) }),
+		z.object({
+			kind: z.literal("and"),
+			children: z.array(ConditionNodeSchema),
+		}),
 		z.object({ kind: z.literal("or"), children: z.array(ConditionNodeSchema) }),
 		z.object({ kind: z.literal("not"), child: ConditionNodeSchema }),
 	]),
@@ -52,8 +63,17 @@ const DurationNodeSchema = z.discriminatedUnion("kind", [
 const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 	z.discriminatedUnion("kind", [
 		// Dano / cura
-		z.object({ kind: z.literal("apply_damage"), to: z.string(), amount: ExprNodeSchema, minimum: z.number().optional() }),
-		z.object({ kind: z.literal("apply_heal"), to: z.string(), amount: ExprNodeSchema }),
+		z.object({
+			kind: z.literal("apply_damage"),
+			to: z.string(),
+			amount: ExprNodeSchema,
+			minimum: z.number().optional(),
+		}),
+		z.object({
+			kind: z.literal("apply_heal"),
+			to: z.string(),
+			amount: ExprNodeSchema,
+		}),
 		z.object({ kind: z.literal("apply_full_heal"), to: z.string() }),
 		z.object({ kind: z.literal("prevent_destroy"), to: z.string() }),
 		// Modificadores
@@ -77,13 +97,31 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		}),
 		z.object({
 			kind: z.literal("block_action"),
-			what: z.enum(["flee", "heal", "dungeon_discard", "power_use", "dungeon_level_reduction"]),
+			what: z.enum([
+				"flee",
+				"heal",
+				"dungeon_discard",
+				"power_use",
+				"dungeon_level_reduction",
+			]),
 		}),
 		// Decks
-		z.object({ kind: z.literal("discard_from"), pile: z.enum(["dungeon", "item"]), count: ExprNodeSchema, who: z.string().optional() }),
-		z.object({ kind: z.literal("draw_from"), pile: z.enum(["dungeon", "item_deck", "artifact_deck"]), count: ExprNodeSchema }),
+		z.object({
+			kind: z.literal("discard_from"),
+			pile: z.enum(["dungeon", "item"]),
+			count: ExprNodeSchema,
+			who: z.string().optional(),
+		}),
+		z.object({
+			kind: z.literal("draw_from"),
+			pile: z.enum(["dungeon", "item_deck", "artifact_deck"]),
+			count: ExprNodeSchema,
+		}),
 		// Dungeon
-		z.object({ kind: z.literal("advance_dungeon_level"), amount: ExprNodeSchema }),
+		z.object({
+			kind: z.literal("advance_dungeon_level"),
+			amount: ExprNodeSchema,
+		}),
 		// Misc
 		z.object({ kind: z.literal("set_no_reward"), to: z.string() }),
 		// Composição
@@ -95,7 +133,11 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		}),
 		z.object({
 			kind: z.literal("choose_one"),
-			options: z.array(z.object({ label: z.string(), effect: z.array(EffectNodeSchema) })).min(2),
+			options: z
+				.array(
+					z.object({ label: z.string(), effect: z.array(EffectNodeSchema) }),
+				)
+				.min(2),
 		}),
 		z.object({
 			kind: z.literal("for_each"),
@@ -109,7 +151,12 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 
 // ── Trigger (objeto) ──────────────────────────────────────────────────────────
 
-const LimitKindSchema = z.enum(["once_per_game", "once_per_combat", "once_per_room", "once_per_round"]);
+const LimitKindSchema = z.enum([
+	"once_per_game",
+	"once_per_combat",
+	"once_per_room",
+	"once_per_round",
+]);
 
 export const TriggerObjectSchema = z.object({
 	on: z.string().min(1),
@@ -149,12 +196,13 @@ export const SkillDefinitionV2Schema = z
 		]),
 		trigger: TriggerObjectSchema,
 		target: z.string(),
-		params: z.record(z.unknown()).optional(),
+		params: z.record(z.string(), z.unknown()).optional(),
 		effect: z.array(EffectNodeSchema).optional(),
 		script: z.string().optional(),
 	})
 	.refine((d) => (d.effect !== undefined) !== (d.script !== undefined), {
-		message: "Cada entrada deve ter exatamente um de `effect` ou `script` — nunca ambos, nunca nenhum.",
+		message:
+			"Cada entrada deve ter exatamente um de `effect` ou `script` — nunca ambos, nunca nenhum.",
 	})
 	.refine((d) => !("type" in d), {
 		message: "Campo `type` removido — use `effect` ou `script`.",
@@ -164,4 +212,9 @@ export type SkillDefinitionV2 = z.infer<typeof SkillDefinitionV2Schema>;
 
 // ── Exports dos schemas atômicos (para testes unitários) ─────────────────────
 
-export { ExprNodeSchema, ConditionNodeSchema, DurationNodeSchema, EffectNodeSchema };
+export {
+	ConditionNodeSchema,
+	DurationNodeSchema,
+	EffectNodeSchema,
+	ExprNodeSchema,
+};

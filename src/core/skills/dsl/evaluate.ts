@@ -4,14 +4,21 @@
 // Cada nó despacha para ctx.action.* (pipeline ECS) — sem mutação direta de state.
 // ctx.withState() é chamado entre efeitos para encadear o estado resultante.
 
-import type { EffectNode, EvalCtx } from "./types";
 import { resolveCondition } from "./resolveCondition";
-import { resolveEntityRef, resolveEntityListRef, resolveExpr } from "./resolveExpr";
+import {
+	resolveEntityListRef,
+	resolveEntityRef,
+	resolveExpr,
+} from "./resolveExpr";
+import type { EffectNode, EvalCtx } from "./types";
 
 /**
  * Avalia um array de EffectNode em sequência, encadeando o estado resultante.
  */
-export function evaluate(effects: readonly EffectNode[], ctx: EvalCtx): import("../../state/gameState").GameState {
+export function evaluate(
+	effects: readonly EffectNode[],
+	ctx: EvalCtx,
+): import("../../state/gameState").GameState {
 	let cur = ctx;
 	for (const node of effects) {
 		const next = evaluateOne(node, cur);
@@ -20,15 +27,23 @@ export function evaluate(effects: readonly EffectNode[], ctx: EvalCtx): import("
 	return cur.state;
 }
 
-function evaluateOne(node: EffectNode, ctx: EvalCtx): import("../../state/gameState").GameState {
+function evaluateOne(
+	node: EffectNode,
+	ctx: EvalCtx,
+): import("../../state/gameState").GameState {
 	switch (node.kind) {
 		// ── Dano / cura ───────────────────────────────────────────────────────
 
 		case "apply_damage": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const amount = resolveExpr(node.amount, ctx);
-			const clamped = node.minimum !== undefined ? Math.max(node.minimum, amount) : amount;
-			return ctx.action.pushEffect({ kind: "apply_damage", to, amount: clamped });
+			const clamped =
+				node.minimum !== undefined ? Math.max(node.minimum, amount) : amount;
+			return ctx.action.pushEffect({
+				kind: "apply_damage",
+				to,
+				amount: clamped,
+			});
 		}
 
 		case "apply_heal": {
@@ -65,11 +80,15 @@ function evaluateOne(node: EffectNode, ctx: EvalCtx): import("../../state/gameSt
 
 		case "add_trigger": {
 			const entityId = resolveEntityRef(node.to, ctx);
-			if (!entityId) return ctx.action.log(`[evaluate] add_trigger: alvo "${node.to}" não resolveu`);
+			if (!entityId)
+				return ctx.action.log(
+					`[evaluate] add_trigger: alvo "${node.to}" não resolveu`,
+				);
 			return ctx.action.addComponent(entityId, {
 				type: "trigger",
 				on: node.on,
-				effect: node.effect as unknown as import("../../ecs/types").EffectDescriptor,
+				effect:
+					node.effect as unknown as import("../../ecs/types").EffectDescriptor,
 				source: ctx.skillId,
 				duration: mapDuration(node.duration),
 				priority: node.priority ?? 0,
@@ -84,12 +103,20 @@ function evaluateOne(node: EffectNode, ctx: EvalCtx): import("../../state/gameSt
 
 		case "discard_from": {
 			const count = resolveExpr(node.count, ctx);
-			return ctx.action.pushEffect({ kind: "discard_from", pile: node.pile, count });
+			return ctx.action.pushEffect({
+				kind: "discard_from",
+				pile: node.pile,
+				count,
+			});
 		}
 
 		case "draw_from": {
 			const count = resolveExpr(node.count, ctx);
-			return ctx.action.pushEffect({ kind: "draw_from", pile: node.pile, count });
+			return ctx.action.pushEffect({
+				kind: "draw_from",
+				pile: node.pile,
+				count,
+			});
 		}
 
 		// ── Dungeon ───────────────────────────────────────────────────────────
@@ -152,11 +179,17 @@ import type { DurationNode } from "./types";
 
 function mapDuration(d: DurationNode): Duration {
 	switch (d.kind) {
-		case "once":               return { kind: "once" };
-		case "until_end_of_round": return { kind: "this_turn" }; // proxy: this_turn ≈ fim da rodada
-		case "until_end_of_combat": return { kind: "this_combat" };
-		case "while_in_play":      return { kind: "permanent" }; // proxy: enquanto ativo
-		case "passive":            return { kind: "permanent" };
-		case "once_per_round":     return { kind: "rounds", remaining: 1 };
+		case "once":
+			return { kind: "once" };
+		case "until_end_of_round":
+			return { kind: "this_turn" }; // proxy: this_turn ≈ fim da rodada
+		case "until_end_of_combat":
+			return { kind: "this_combat" };
+		case "while_in_play":
+			return { kind: "permanent" }; // proxy: enquanto ativo
+		case "passive":
+			return { kind: "permanent" };
+		case "once_per_round":
+			return { kind: "rounds", remaining: 1 };
 	}
 }

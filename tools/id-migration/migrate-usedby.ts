@@ -5,7 +5,9 @@ const root = resolve(import.meta.dirname, "../..");
 const proposedPath = resolve(import.meta.dirname, "proposed-ids.json");
 const skillsPath = resolve(root, "src/data/skills.json");
 
-const { cards: cardProposals } = JSON.parse(readFileSync(proposedPath, "utf8")) as {
+const { cards: cardProposals } = JSON.parse(
+	readFileSync(proposedPath, "utf8"),
+) as {
 	cards: { name: string; type: string; proposedId: string }[];
 };
 
@@ -14,7 +16,13 @@ const cardIdByName = new Map(cardProposals.map((p) => [p.name, p.proposedId]));
 const raw = JSON.parse(readFileSync(skillsPath, "utf8")) as {
 	abilities: {
 		id: string;
-		usedBy: { card?: string; cardId?: string; cardType: string; field: string; value: unknown }[];
+		usedBy: {
+			card?: string;
+			cardId?: string;
+			cardType: string;
+			field: string;
+			value: unknown;
+		}[];
 		[key: string]: unknown;
 	}[];
 	[key: string]: unknown;
@@ -27,7 +35,9 @@ for (const ability of raw.abilities) {
 			const cardName = usage.card as string;
 			const cardId = cardIdByName.get(cardName);
 			if (!cardId) {
-				console.error(`MISSING card id for usedBy card: "${cardName}" (skill: ${ability.id})`);
+				console.error(
+					`MISSING card id for usedBy card: "${cardName}" (skill: ${ability.id})`,
+				);
 				missing++;
 				continue;
 			}
@@ -45,4 +55,6 @@ if (missing > 0) {
 }
 
 writeFileSync(skillsPath, JSON.stringify(raw, null, 2) + "\n");
-console.log("OK: usedBy[].card → usedBy[].cardId migrado em src/data/skills.json");
+console.log(
+	"OK: usedBy[].card → usedBy[].cardId migrado em src/data/skills.json",
+);

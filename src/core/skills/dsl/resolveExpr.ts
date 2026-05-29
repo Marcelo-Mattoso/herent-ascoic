@@ -19,12 +19,18 @@ export function resolveExpr(node: ExprNode, ctx: EvalCtx): number {
 	const left = resolveExpr(a, ctx);
 	const right = resolveExpr(b, ctx);
 	switch (node.op) {
-		case "add": return left + right;
-		case "sub": return left - right;
-		case "mul": return left * right;
-		case "div": return right !== 0 ? left / right : 0;
-		case "min": return Math.min(left, right);
-		case "max": return Math.max(left, right);
+		case "add":
+			return left + right;
+		case "sub":
+			return left - right;
+		case "mul":
+			return left * right;
+		case "div":
+			return right !== 0 ? left / right : 0;
+		case "min":
+			return Math.min(left, right);
+		case "max":
+			return Math.max(left, right);
 	}
 }
 
@@ -37,7 +43,9 @@ function resolveRef(ref: string, ctx: EvalCtx): number {
 		// Literal não prefixado — tenta converter
 		const n = Number(ref);
 		if (!Number.isNaN(n)) return n;
-		throw new Error(`[resolveExpr] ref "${ref}" não começa com $ e não é número`);
+		throw new Error(
+			`[resolveExpr] ref "${ref}" não começa com $ e não é número`,
+		);
 	}
 
 	const name = ref.slice(1); // remove "$"
@@ -53,17 +61,23 @@ function resolveRef(ref: string, ctx: EvalCtx): number {
 
 	// Refs especiais de estado
 	switch (name) {
-		case "dungeon.level": return ctx.query.dungeonLevel();
-		case "room.enemy_count": return ctx.query.roomEnemyCount();
+		case "dungeon.level":
+			return ctx.query.dungeonLevel();
+		case "room.enemy_count":
+			return ctx.query.roomEnemyCount();
 		case "self.currentLife":
 		case "self.maxLife": {
 			const entityId = ctx.sourceId;
 			if (!entityId) throw new Error(`[resolveExpr] $${name} requer sourceId`);
 			const hero = ctx.state.heroes.find((h) => h.id === entityId);
-			if (hero) return name === "self.currentLife" ? hero.currentLife : hero.maxLife;
+			if (hero)
+				return name === "self.currentLife" ? hero.currentLife : hero.maxLife;
 			const enemy = ctx.state.activeEnemies.find((e) => e.id === entityId);
-			if (enemy) return name === "self.currentLife" ? enemy.currentLife : enemy.maxLife;
-			throw new Error(`[resolveExpr] entidade "${entityId}" não encontrada para $${name}`);
+			if (enemy)
+				return name === "self.currentLife" ? enemy.currentLife : enemy.maxLife;
+			throw new Error(
+				`[resolveExpr] entidade "${entityId}" não encontrada para $${name}`,
+			);
 		}
 	}
 
@@ -92,10 +106,14 @@ export function resolveEntityRef(ref: string, ctx: EvalCtx): string | null {
 	if (!ref.startsWith("$")) return ref; // id literal
 
 	switch (ref) {
-		case "$source": return ctx.sourceId;
-		case "$target": return ctx.targetId;
-		case "$self": return ctx.sourceId;
-		case "$lowest_life_hero": return ctx.query.heroWithLowestLife();
+		case "$source":
+			return ctx.sourceId;
+		case "$target":
+			return ctx.targetId;
+		case "$self":
+			return ctx.sourceId;
+		case "$lowest_life_hero":
+			return ctx.query.heroWithLowestLife();
 	}
 
 	// Ref a param
@@ -111,15 +129,25 @@ export function resolveEntityRef(ref: string, ctx: EvalCtx): string | null {
 /**
  * Resolve uma ref para lista de entity ids.
  */
-export function resolveEntityListRef(ref: string, ctx: EvalCtx): readonly string[] {
+export function resolveEntityListRef(
+	ref: string,
+	ctx: EvalCtx,
+): readonly string[] {
 	switch (ref) {
-		case "$targets": return ctx.targetIds;
-		case "$source": return ctx.sourceId ? [ctx.sourceId] : [];
-		case "$target": return ctx.targetId ? [ctx.targetId] : [];
+		case "$targets":
+			return ctx.targetIds;
+		case "$source":
+			return ctx.sourceId ? [ctx.sourceId] : [];
+		case "$target":
+			return ctx.targetId ? [ctx.targetId] : [];
 		case "all_heroes":
-			return ctx.state.heroes.filter((h) => h.status === "active").map((h) => h.id);
+			return ctx.state.heroes
+				.filter((h) => h.status === "active")
+				.map((h) => h.id);
 		case "all_enemies":
-			return ctx.state.activeEnemies.filter((e) => e.status === "active").map((e) => e.id);
+			return ctx.state.activeEnemies
+				.filter((e) => e.status === "active")
+				.map((e) => e.id);
 	}
 
 	const single = resolveEntityRef(ref, ctx);

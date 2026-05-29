@@ -12,6 +12,12 @@ export const run: ScriptHandler = (ctx) => {
 	if (others.length === 0) return ctx.state;
 
 	// Alvo: criatura com menor vida entre as restantes
-	const target = others.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b));
-	return ctx.action.pushEffect({ kind: "apply_damage", to: target.id, amount: 1 });
+	const target = others.reduce((a, b) =>
+		a.currentLife <= b.currentLife ? a : b,
+	);
+	return ctx.action.pushEffect({
+		kind: "apply_damage",
+		to: target.id,
+		amount: 1,
+	});
 };

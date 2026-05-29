@@ -62,7 +62,9 @@ export interface CombatState {
 	bossFirstDamageReduced: boolean;
 	readonly temporaryEffects: readonly TemporaryEffect[];
 	// Bônus de dano para o próximo ataque de cada herói — array de entradas por skill (consumido após uso)
-	readonly bonusNextAttack: Readonly<Record<string, readonly SkillBonusEntry[]>>;
+	readonly bonusNextAttack: Readonly<
+		Record<string, readonly SkillBonusEntry[]>
+	>;
 	// Redução de dano recebido ativa por herói (ex: Guerreiro power até fim da rodada)
 	readonly damageReduction: Readonly<Record<string, number>>;
 	// Presa do Caçador: id do inimigo marcado como alvo preferencial

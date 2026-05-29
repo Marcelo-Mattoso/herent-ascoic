@@ -2,11 +2,11 @@
 // Valida que a habilidade tem trigger "on_use" (ou variante), resolve e executa o handler.
 
 import { SKILLS } from "../data/skills";
-import { getHandler } from "./registry";
-import { cardSkills } from "./lookup";
 import type { SkillDefinition } from "../data/skillTypes";
-import type { GameState } from "../state/gameState";
 import { log } from "../reducer/utils";
+import type { GameState } from "../state/gameState";
+import { cardSkills } from "./lookup";
+import { getHandler } from "./registry";
 
 export function isManuallyActivatable(def: SkillDefinition): boolean {
 	return (
@@ -25,7 +25,10 @@ export interface UseSkillPayload {
 	value?: number | string | null;
 }
 
-export function fireOnUseSkill(state: GameState, payload: UseSkillPayload): GameState {
+export function fireOnUseSkill(
+	state: GameState,
+	payload: UseSkillPayload,
+): GameState {
 	const { skillId, sourceId, targetIds, value } = payload;
 
 	const def = SKILLS.abilities.find((a) => a.id === skillId);
@@ -35,7 +38,10 @@ export function fireOnUseSkill(state: GameState, payload: UseSkillPayload): Game
 
 	// Verificar que trigger é do tipo "on_use" (ou variante once_per_X)
 	if (!isManuallyActivatable(def)) {
-		return log(state, `[AVISO] Skill ${skillId} não é ativável manualmente (trigger: ${def.trigger})`);
+		return log(
+			state,
+			`[AVISO] Skill ${skillId} não é ativável manualmente (trigger: ${def.trigger})`,
+		);
 	}
 
 	const handler = getHandler(def.type ?? "noop");
@@ -51,16 +57,24 @@ export function fireOnUseSkill(state: GameState, payload: UseSkillPayload): Game
 		? cardSkills(sourceCardId).find(({ def: d }) => d.id === skillId)?.ref
 		: undefined;
 	const resolvedValue =
-		value !== undefined
-			? value
-			: (cardRef?.params?.value ?? def.defaultValue);
+		value !== undefined ? value : (cardRef?.params?.value ?? def.defaultValue);
 
-	return handler(state, {
-		triggeredBy: "on_use",
-		sourceHeroId: state.heroes.some((h) => h.id === sourceId) ? sourceId : undefined,
-		targetHeroIds: targetIds?.filter((id) => state.heroes.some((h) => h.id === id)),
-		targetEnemyIds: targetIds?.filter((id) => state.activeEnemies.some((e) => e.id === id)),
-		skillId,
-		value: resolvedValue,
-	}, resolvedValue);
+	return handler(
+		state,
+		{
+			triggeredBy: "on_use",
+			sourceHeroId: state.heroes.some((h) => h.id === sourceId)
+				? sourceId
+				: undefined,
+			targetHeroIds: targetIds?.filter((id) =>
+				state.heroes.some((h) => h.id === id),
+			),
+			targetEnemyIds: targetIds?.filter((id) =>
+				state.activeEnemies.some((e) => e.id === id),
+			),
+			skillId,
+			value: resolvedValue,
+		},
+		resolvedValue,
+	);
 }

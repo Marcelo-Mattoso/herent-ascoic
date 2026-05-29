@@ -7,15 +7,15 @@
 //   - Exibe GameState atual como JSON pretty-print
 //   - Exportar JSON do estado atual (inclui actionLog completo)
 
-import { useState, useCallback, useRef, useEffect } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import type { ReplayPackage } from "@/core/replay/replayEngine";
 import {
+	buildReplayPackage,
 	buildReplayStates,
 	exportPackageToJson,
 	importPackageFromJson,
 } from "@/core/replay/replayEngine";
 import type { GameState } from "@/core/state/gameState";
-import { buildReplayPackage } from "@/core/replay/replayEngine";
 import { useGameStore } from "@/ui/store/gameStore";
 
 interface ReplayProps {
@@ -53,21 +53,24 @@ export function Replay({ onClose }: ReplayProps) {
 	}, [currentState]);
 
 	// Importar JSON externo
-	const handleImportJson = useCallback((e: React.ChangeEvent<HTMLInputElement>) => {
-		const file = e.target.files?.[0];
-		if (!file) return;
-		const reader = new FileReader();
-		reader.onload = (ev) => {
-			const text = ev.target?.result as string;
-			const pkg = importPackageFromJson(text);
-			if (!pkg) {
-				setError("JSON inválido ou formato não reconhecido.");
-				return;
-			}
-			loadPackage(pkg);
-		};
-		reader.readAsText(file);
-	}, [loadPackage]);
+	const handleImportJson = useCallback(
+		(e: React.ChangeEvent<HTMLInputElement>) => {
+			const file = e.target.files?.[0];
+			if (!file) return;
+			const reader = new FileReader();
+			reader.onload = (ev) => {
+				const text = ev.target?.result as string;
+				const pkg = importPackageFromJson(text);
+				if (!pkg) {
+					setError("JSON inválido ou formato não reconhecido.");
+					return;
+				}
+				loadPackage(pkg);
+			};
+			reader.readAsText(file);
+		},
+		[loadPackage],
+	);
 
 	// Replay da partida em curso (sem importar arquivo)
 	const handleReplayCurrent = useCallback(() => {
@@ -76,9 +79,12 @@ export function Replay({ onClose }: ReplayProps) {
 	}, [currentState, loadPackage]);
 
 	// Navegação
-	const goTo = useCallback((idx: number) => {
-		setCursor(Math.max(0, Math.min(idx, states.length - 1)));
-	}, [states.length]);
+	const goTo = useCallback(
+		(idx: number) => {
+			setCursor(Math.max(0, Math.min(idx, states.length - 1)));
+		},
+		[states.length],
+	);
 
 	const handlePlay = useCallback(() => {
 		if (playing) {
@@ -118,7 +124,9 @@ export function Replay({ onClose }: ReplayProps) {
 			{/* Header */}
 			<div className="flex items-center gap-3 mb-4 flex-shrink-0">
 				<h1 className="text-xl font-bold">Replay Viewer</h1>
-				<span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">DEV</span>
+				<span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
+					DEV
+				</span>
 				<button
 					onClick={onClose}
 					className="ml-auto px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm"
@@ -201,8 +209,8 @@ export function Replay({ onClose }: ReplayProps) {
 						Passo {cursor} / {states.length - 1}
 						{cursor > 0 && (
 							<span className="ml-2 text-gray-500">
-								{/* Ação que levou a este estado */}
-								← {states[cursor]?.actionLog[cursor - 1]?.action.type ?? "?"}
+								{/* Ação que levou a este estado */}←{" "}
+								{states[cursor]?.actionLog[cursor - 1]?.action.type ?? "?"}
 							</span>
 						)}
 					</span>
@@ -217,9 +225,10 @@ export function Replay({ onClose }: ReplayProps) {
 							{
 								status: currentDisplayState.status,
 								step: cursor,
-								action: cursor > 0
-									? currentDisplayState.actionLog[cursor - 1]?.action
-									: "(estado inicial)",
+								action:
+									cursor > 0
+										? currentDisplayState.actionLog[cursor - 1]?.action
+										: "(estado inicial)",
 								heroes: currentDisplayState.heroes.map((h) => ({
 									id: h.id,
 									cardName: h.cardName,
@@ -236,7 +245,8 @@ export function Replay({ onClose }: ReplayProps) {
 								groupXp: currentDisplayState.groupXp,
 								effectStack: {
 									pending: currentDisplayState.effectStack.pending.length,
-									resolving: currentDisplayState.effectStack.resolving?.id ?? null,
+									resolving:
+										currentDisplayState.effectStack.resolving?.id ?? null,
 								},
 							},
 							null,
@@ -245,7 +255,8 @@ export function Replay({ onClose }: ReplayProps) {
 					</pre>
 				) : (
 					<div className="text-gray-500 text-sm">
-						Nenhum replay carregado. Use "Replay da partida atual" ou "Importar JSON".
+						Nenhum replay carregado. Use "Replay da partida atual" ou "Importar
+						JSON".
 					</div>
 				)}
 			</div>

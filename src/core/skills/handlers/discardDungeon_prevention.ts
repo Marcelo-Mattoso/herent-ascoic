@@ -5,8 +5,8 @@
 // o estado "pronto para prevenir" (guardado via oncePer no dispatch).
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState } from "../../state/gameState";
 
 export function handleDiscardDungeonPrevention(
 	state: GameState,
@@ -17,7 +17,13 @@ export function handleDiscardDungeonPrevention(
 	const hero = state.heroes.find((h) => h.id === ctx.sourceHeroId);
 	if (!hero) return state;
 	if (state.flags?.discardDungeonLocked) {
-		return log(state, `${hero.cardName}: Caminho Preservado bloqueado pela Corrupção de Caminho.`);
+		return log(
+			state,
+			`${hero.cardName}: Caminho Preservado bloqueado pela Corrupção de Caminho.`,
+		);
 	}
-	return log(state, `${hero.cardName}: Caminho Preservado — próximo descarte de dungeon cancelado.`);
+	return log(
+		state,
+		`${hero.cardName}: Caminho Preservado — próximo descarte de dungeon cancelado.`,
+	);
 }

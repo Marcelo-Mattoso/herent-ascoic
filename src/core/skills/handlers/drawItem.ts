@@ -2,11 +2,14 @@
 // defaultValue: "2/1" → draw 2, keep 1.
 
 import type { SkillContext } from "../../data/skillTypes";
-import type { GameState, PendingReward } from "../../state/gameState";
 import { log } from "../../reducer/utils";
+import type { GameState, PendingReward } from "../../state/gameState";
 import { registerContinuation } from "../registry";
 
-function parseDraw(value: number | string | null): { draw: number; keep: number } {
+function parseDraw(value: number | string | null): {
+	draw: number;
+	keep: number;
+} {
 	if (typeof value === "string") {
 		const parts = value.split("/").map(Number);
 		return { draw: parts[0] ?? 2, keep: parts[1] ?? 1 };
@@ -24,7 +27,8 @@ export function handleDrawItem(
 
 	const available = state.decks.itemDeck.available;
 	const drawn = available.slice(0, draw);
-	if (drawn.length === 0) return log(state, "Deck de itens vazio — nenhum item sorteado.");
+	if (drawn.length === 0)
+		return log(state, "Deck de itens vazio — nenhum item sorteado.");
 
 	const remaining = available.slice(draw);
 	const next: GameState = {
@@ -36,10 +40,16 @@ export function handleDrawItem(
 		pendingSkillChoice: {
 			skillId: ctx.skillId,
 			prompt: `Espólios da Fornalha: escolha 1 item para ficar (os outros são descartados).`,
-			options: drawn.map((name) => ({ id: name as string, label: name as string })),
+			options: drawn.map((name) => ({
+				id: name as string,
+				label: name as string,
+			})),
 		},
 	};
-	return log(next, `Espólios da Fornalha: ${drawn.length} itens revelados para escolha.`);
+	return log(
+		next,
+		`Espólios da Fornalha: ${drawn.length} itens revelados para escolha.`,
+	);
 }
 
 registerContinuation(
