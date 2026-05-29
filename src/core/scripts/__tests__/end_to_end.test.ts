@@ -1,7 +1,7 @@
-import { describe, it, expect } from "vitest";
+import { describe, expect, it } from "vitest";
+import type { SkillContext } from "../../data/skillTypes";
 import { handleScript } from "../../skills/handlers/script";
 import { createInitialGameState } from "../../state/gameState";
-import type { SkillContext } from "../../data/skillTypes";
 
 // Importa o barrel para garantir que o handler "script" está registrado
 import "../../skills/handlers/index";

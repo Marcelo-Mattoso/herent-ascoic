@@ -1,18 +1,19 @@
 import type { SkillContext } from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
 
-// Contexto rico passado ao script. Cresce conforme demanda.
-// Mantém referência ao SkillContext original para compat com handlers existentes.
-//
-// Namespaces planejados para Fase 4 (sob demanda):
-//   readonly self: { id: string; controller: string; cardName: string }
-//   readonly event: SkillContext["triggeredBy"]
-//   readonly query: { countHeroDeathsThisRoom(controller: string): number; ... }
-//   readonly action: { dealDamage(targetId: string, amount: number): GameState; heal(...): GameState; ... }
-//   readonly random: { int(min: number, max: number): number }  // usar RNG seedado
 export interface ScriptCtx {
 	readonly state: GameState;
 	readonly skillCtx: SkillContext;
+	// Consultas de estado — puras, sem mutação.
+	// Cresce sob demanda (não adicionar especulativamente).
+	readonly query: {
+		creatureHasSkill(enemyId: string, skillId: string): boolean;
+	};
+	// Ações — retornam novo GameState sem mutar o atual.
+	// Cresce sob demanda. Scripts não chamam applyDamage diretamente.
+	readonly action: {
+		dealDamage(targetId: string, amount: number): GameState;
+	};
 	readonly log: (msg: string) => GameState;
 }
 

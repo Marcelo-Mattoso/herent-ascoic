@@ -161,14 +161,30 @@
         {
           "cardType": "item",
           "field": "effect",
-          "value": "2/3",
-          "cardId": "item_incendiary_oil_flask"
-        },
+          "value": 3,
+          "cardId": "item_living_ember_potion"
+        }
+      ]
+    },
+    {
+      "id": "skill_living_ember_oil",
+      "name": "Brasa Viva (Condicional)",
+      "category": "habilidade_item",
+      "sourceSection": "Habilidades",
+      "usesVariable": false,
+      "defaultValue": "item_incendiary_oil_flask.livingEmber",
+      "type": "script",
+      "trigger": "on_use",
+      "target": "creature_in_play",
+      "textTemplate": "cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver Corpo Gelatinoso, cause 3 de dano em vez de 2.",
+      "labelTemplate": "Brasa Viva (2/3): cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver Corpo Gelatinoso, cause 3 de dano em vez de 2.",
+      "notes": "Migrada para script (patch-10). Condicional baseada em skill_gelatinous_body do alvo.",
+      "usedBy": [
         {
           "cardType": "item",
           "field": "effect",
-          "value": 3,
-          "cardId": "item_living_ember_potion"
+          "value": "item_incendiary_oil_flask.livingEmber",
+          "cardId": "item_incendiary_oil_flask"
         }
       ]
     },
@@ -1851,7 +1867,12 @@
       "textTemplate": "receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.",
       "labelTemplate": "Drenar Vida e Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.",
       "usedBy": [
-        { "cardId": "item_deep_veil_scythe", "cardType": "item", "field": "effect", "value": "1/1" }
+        {
+          "cardId": "item_deep_veil_scythe",
+          "cardType": "item",
+          "field": "effect",
+          "value": "1/1"
+        }
       ]
     },
     {
@@ -1867,7 +1888,12 @@
       "textTemplate": "reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional.",
       "labelTemplate": "Bloqueio e Resguardo da Última Luz ({value}): reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional.",
       "usedBy": [
-        { "cardId": "item_forge_magic_armor", "cardType": "item", "field": "effect", "value": "3/2" }
+        {
+          "cardId": "item_forge_magic_armor",
+          "cardType": "item",
+          "field": "effect",
+          "value": "3/2"
+        }
       ]
     },
     {
@@ -1883,7 +1909,12 @@
       "textTemplate": "este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
       "labelTemplate": "Fúria Rubra e Fúria Rubra Poderosa ({value}): este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
       "usedBy": [
-        { "cardId": "artifact_first_fire_blade", "cardType": "artifact", "field": "effect", "value": "2/poderosa" }
+        {
+          "cardId": "artifact_first_fire_blade",
+          "cardType": "artifact",
+          "field": "effect",
+          "value": "2/poderosa"
+        }
       ]
     },
     {
@@ -1899,8 +1930,18 @@
       "textTemplate": "sala especial: um subchefe guarda esta câmara.",
       "labelTemplate": "Sala do Subchefe: sala especial: um subchefe guarda esta câmara.",
       "usedBy": [
-        { "cardId": "subboss_room_jailer_chamber",        "cardType": "subboss_room", "field": "effect", "value": null },
-        { "cardId": "subboss_room_cracked_abyss_chamber", "cardType": "subboss_room", "field": "effect", "value": null }
+        {
+          "cardId": "subboss_room_jailer_chamber",
+          "cardType": "subboss_room",
+          "field": "effect",
+          "value": null
+        },
+        {
+          "cardId": "subboss_room_cracked_abyss_chamber",
+          "cardType": "subboss_room",
+          "field": "effect",
+          "value": null
+        }
       ]
     },
     {
@@ -1916,8 +1957,18 @@
       "textTemplate": "sem efeito adicional.",
       "labelTemplate": "Sala Vazia: sem efeito adicional.",
       "usedBy": [
-        { "cardId": "room_narrow_corridor", "cardType": "room", "field": "effect", "value": null },
-        { "cardId": "room_dungeon_room",    "cardType": "room", "field": "effect", "value": null }
+        {
+          "cardId": "room_narrow_corridor",
+          "cardType": "room",
+          "field": "effect",
+          "value": null
+        },
+        {
+          "cardId": "room_dungeon_room",
+          "cardType": "room",
+          "field": "effect",
+          "value": null
+        }
       ]
     }
   ]

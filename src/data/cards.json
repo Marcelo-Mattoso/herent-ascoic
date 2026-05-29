@@ -1473,10 +1473,10 @@
       "Fogo"
     ],
     "effect": {
-      "skillId": "skill_living_ember",
+      "skillId": "skill_living_ember_oil",
       "name": "Brasa Viva",
-      "value": "2/3",
-      "type": "damage",
+      "value": "item_incendiary_oil_flask.livingEmber",
+      "type": "script",
       "trigger": "before_combat_roll",
       "target": "creature",
       "text": "cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver a habilidade Corpo Gelatinoso, cause 3 de dano em vez de 2.",

@@ -1,5 +1,5 @@
-import { describe, it, expect, beforeEach } from "vitest";
-import { getScript, _resetForTests, _registerForTests } from "./registry";
+import { beforeEach, describe, expect, it } from "vitest";
+import { _registerForTests, _resetForTests, getScript } from "./registry";
 import type { ScriptHandler } from "./types";
 
 describe("script registry", () => {

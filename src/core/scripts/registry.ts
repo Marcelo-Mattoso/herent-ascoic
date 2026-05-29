@@ -12,8 +12,8 @@ const warnedMissing = new Set<string>();
 
 for (const [path, mod] of Object.entries(modules)) {
 	const match = path.match(/scripts\/(.+)\.ts$/);
-	if (!match) continue;
-	const cardKey = match[1]!;
+	if (!match?.[1]) continue;
+	const cardKey = match[1];
 	for (const [exportName, fn] of Object.entries(mod)) {
 		if (typeof fn !== "function") continue;
 		cache.set(`${cardKey}.${exportName}`, fn);
