@@ -19,16 +19,9 @@ const _bySkillId = new Map<string, string[]>();           // skillId → cardIds
 function buildCache(): void {
 	for (const card of getAllCards()) {
 		const refs: ResolvedSkillRef[] = [];
-		// Coleta todos os SkillRef do card (campo `skills` flat + boss.abilities[].skills)
-		const rawRefs: SkillRef[] = [];
-		if ("skills" in card && Array.isArray(card.skills)) {
-			rawRefs.push(...(card.skills as SkillRef[]));
-		}
-		if (card.type === "boss") {
-			for (const ab of card.abilities) {
-				rawRefs.push(...ab.skills);
-			}
-		}
+		const rawRefs: SkillRef[] = "skills" in card && Array.isArray(card.skills)
+			? (card.skills as SkillRef[])
+			: [];
 
 		for (const ref of rawRefs) {
 			const def = SKILLS.abilities.find((a) => a.id === ref.skillId);

@@ -1,5 +1,5 @@
 import { getCardByName } from "@/core/data/cards";
-import { cardSkills } from "@/core/skills/lookup";
+import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CardType } from "@/ui/components/Card";
 import { Modal } from "@/ui/components/Modal";
@@ -145,16 +145,20 @@ export function CardDetailModal({
 					{card?.type === "boss" && (
 						<>
 							<Row label="Condição" value={card.condition} />
-							{card.abilities.map((a) => (
-								<div key={a.name}>
-									<p className="text-xs font-medium" style={{ color: UI.textSecondary }}>
-										{a.name}
-									</p>
-									<p className="text-xs" style={{ color: UI.textPrimary }}>
-										{a.skills[0] ? renderSkillLabel(a.skills[0]) : ""}
-									</p>
-								</div>
-							))}
+							{card.skills.map((ref) => {
+								const def = lookupSkillById(ref.skillId);
+								if (!def) return null;
+								return (
+									<div key={ref.skillId}>
+										<p className="text-xs font-medium" style={{ color: UI.textSecondary }}>
+											{def.name}
+										</p>
+										<p className="text-xs" style={{ color: UI.textPrimary }}>
+											{renderSkillLabel(ref)}
+										</p>
+									</div>
+								);
+							})}
 						</>
 					)}
 

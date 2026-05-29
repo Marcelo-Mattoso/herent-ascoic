@@ -30,7 +30,7 @@ Array de objetos. Cada objeto é uma carta discriminada pelo campo `type`.
 | `subboss_room` | `exits`, `reward`, `rewardType`, `linkedSubbossName` |
 | `item` | `itemClass`, `tags[]` |
 | `artifact` | `countsAs: "artifact"` |
-| `boss` | `dice`, `lifeBase`, `hitBonusBase`, `damage`, `condition`, `artifactBonus`, `dungeonScaling`, `victory`, `abilities[]` |
+| `boss` | `dice`, `lifeBase`, `hitBonusBase`, `damage`, `condition`, `artifactBonus`, `dungeonScaling`, `victory` |
 
 ### Campo `skills`
 
@@ -117,22 +117,21 @@ O dispatch normaliza slash-pairs extraindo o primeiro número para `$value`. A l
 }
 ```
 
-**Boss (abilities com skills):**
+**Boss:**
 ```json
 {
   "id": "boss_azhakar",
   "type": "boss",
   ...
-  "abilities": [
-    {
-      "name": "Trono de Cinzas Vivas",
-      "skills": [
-        { "skillId": "boss_skill_living_ash_throne", "params": { "value": 1 } }
-      ]
-    }
+  "skills": [
+    { "skillId": "boss_skill_living_ash_throne",   "params": { "value": 1 } },
+    { "skillId": "boss_skill_dark_forge_pressure", "params": { "value": 1 } },
+    { "skillId": "boss_skill_azhakar_ascension",   "params": { "value": 2 } }
   ]
 }
 ```
+
+O nome de cada habilidade do boss é lido de `skills.json[skillId].name` — não é duplicado no card.
 
 ### IDs canônicos
 

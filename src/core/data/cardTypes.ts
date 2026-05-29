@@ -118,11 +118,6 @@ export interface ArtifactCard {
 
 // --- Boss ---
 
-export interface BossAbility {
-	readonly name: string;
-	readonly skills: readonly SkillRef[];
-}
-
 export interface BossCard {
 	readonly type: "boss";
 	readonly id: string;
@@ -135,7 +130,7 @@ export interface BossCard {
 	readonly condition: string;
 	readonly artifactBonus: string;
 	readonly dungeonScaling: string;
-	readonly abilities: readonly BossAbility[];
+	readonly skills: readonly SkillRef[];
 	readonly victory: string;
 }
 

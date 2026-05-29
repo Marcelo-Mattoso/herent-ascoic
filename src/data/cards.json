@@ -2154,39 +2154,24 @@
       "type": "group_artifacts_gte",
       "value": 2
     },
-    "abilities": [
+    "skills": [
       {
-        "name": "Trono de Cinzas Vivas",
-        "skills": [
-          {
-            "skillId": "boss_skill_living_ash_throne",
-            "params": {
-              "value": 1
-            }
-          }
-        ]
+        "skillId": "boss_skill_living_ash_throne",
+        "params": {
+          "value": 1
+        }
       },
       {
-        "name": "Pressão da Fornalha Sombria",
-        "skills": [
-          {
-            "skillId": "boss_skill_dark_forge_pressure",
-            "params": {
-              "value": 1
-            }
-          }
-        ]
+        "skillId": "boss_skill_dark_forge_pressure",
+        "params": {
+          "value": 1
+        }
       },
       {
-        "name": "Ascensão de Azhakar",
-        "skills": [
-          {
-            "skillId": "boss_skill_azhakar_ascension",
-            "params": {
-              "value": 2
-            }
-          }
-        ]
+        "skillId": "boss_skill_azhakar_ascension",
+        "params": {
+          "value": 2
+        }
       }
     ]
   }
