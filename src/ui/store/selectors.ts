@@ -1,5 +1,8 @@
 import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
 import { playerView } from "@/core/projection/playerView";
+import { isSkillGuardConsumed } from "@/core/skills/dispatch";
+import { cardSkills } from "@/core/skills/lookup";
+import { isManuallyActivatable } from "@/core/skills/useSkill";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
@@ -186,4 +189,57 @@ export function selectFocusedHero(
 		if (hero) return hero;
 	}
 	return view.heroes.find((h) => h.status === "active") ?? null;
+}
+
+export interface HeroCombatActions {
+	readonly canAttack: boolean;
+	readonly canPass: boolean;
+	readonly canCancel: boolean;
+	readonly canUsePower: boolean;
+	readonly canFlee: boolean;
+	readonly skill: {
+		readonly skillId: string;
+		readonly activatable: boolean;
+		readonly alreadyUsed: boolean;
+	} | null;
+}
+
+// Descritores de ação de combate para um herói específico.
+// Centraliza a habilitação de botões, consumindo predicados do core.
+export function selectHeroCombatActions(
+	state: GameState,
+	heroId: string,
+): HeroCombatActions {
+	const view = playerView(state);
+	const hero = view.heroes.find((h) => h.id === heroId) ?? null;
+	const combat = view.combat;
+
+	const isSelectingTarget =
+		combat?.phase === "selecting_target" &&
+		combat.selectedHeroId === heroId;
+	const hasActiveEnemies = view.enemies.some((e) => e.status === "active");
+
+	const canAttack = isSelectingTarget && hasActiveEnemies;
+	const canPass = isSelectingTarget;
+	const canCancel = isSelectingTarget;
+	const canUsePower =
+		isSelectingTarget && !(combat?.powersUsedThisRoom[heroId] ?? false);
+	const canFlee =
+		hero !== null &&
+		hero.currentLife === 1 &&
+		!state.flags["fleeBlocked"];
+
+	// Skill: habilidade manual do herói (category === "habilidade")
+	const habilidadeEntry = hero
+		? cardSkills(hero.cardId).find(({ def }) => def.category === "habilidade")
+		: null;
+	const skill = habilidadeEntry
+		? {
+				skillId: habilidadeEntry.def.id,
+				activatable: isManuallyActivatable(habilidadeEntry.def),
+				alreadyUsed: isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
+			}
+		: null;
+
+	return { canAttack, canPass, canCancel, canUsePower, canFlee, skill };
 }
