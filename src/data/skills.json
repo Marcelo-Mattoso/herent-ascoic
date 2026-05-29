@@ -195,8 +195,6 @@
       "category": "habilidade_item",
       "sourceSection": "Habilidades",
       "usesVariable": false,
-      "defaultValue": "item_incendiary_oil_flask.livingEmber",
-      "type": "script",
       "trigger": "on_use",
       "target": "creature_in_play",
       "textTemplate": "cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver Corpo Gelatinoso, cause 3 de dano em vez de 2.",
@@ -209,7 +207,8 @@
           "value": "item_incendiary_oil_flask.livingEmber",
           "cardId": "item_incendiary_oil_flask"
         }
-      ]
+      ],
+      "script": "skill_living_ember_oil"
     },
     {
       "id": "skill_last_light_shield",
