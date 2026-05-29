@@ -27,20 +27,6 @@
       "target": "self",
       "textTemplate": "este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido no próximo ataque.",
       "labelTemplate": "Fúria Rubra ({value}): este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido no próximo ataque.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": 2,
-          "cardId": "hero_crimson_barbarian"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 2,
-          "cardId": "item_fury_potion"
-        }
-      ],
       "script": "skill_crimson_fury"
     },
     {
@@ -54,26 +40,6 @@
       "target": "hero_or_ally_creature",
       "textTemplate": "cure {value} de vida de um herói ou criatura aliada.",
       "labelTemplate": "Cura da Última Luz ({value}): cure {value} de vida de um herói ou criatura aliada.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": 3,
-          "cardId": "hero_eternal_rest_cleric"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 2,
-          "cardId": "item_lesser_vigor_potion"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 4,
-          "cardId": "item_greater_vigor_potion"
-        }
-      ],
       "effect": [
         {
           "kind": "apply_heal",
@@ -93,14 +59,6 @@
       "target": "hero_or_ally",
       "textTemplate": "reduza em {value} o dano que um herói ou aliado sofreria.",
       "labelTemplate": "Guarda do Bastião ({value}): reduza em {value} o dano que um herói ou aliado sofreria.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": 3,
-          "cardId": "hero_broken_bastion_warrior"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -125,15 +83,7 @@
       "trigger": "after_roll",
       "target": "ally_die",
       "textTemplate": "depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1.",
-      "labelTemplate": "Runa das Fendas ({value}): depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": 1,
-          "cardId": "hero_crimson_rune_mage"
-        }
-      ]
+      "labelTemplate": "Runa das Fendas ({value}): depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1."
     },
     {
       "id": "skill_hunter_focus",
@@ -146,20 +96,6 @@
       "target": "self",
       "textTemplate": "enquanto este item estiver equipado, este herói recebe +{value} no Bônus de Acerto.",
       "labelTemplate": "Foco do Caçador ({value}): enquanto este item estiver equipado, este herói recebe +{value} no Bônus de Acerto.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 4,
-          "cardId": "item_precision_potion"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 2,
-          "cardId": "item_low_flame_charm"
-        }
-      ],
       "script": "skill_hunter_focus"
     },
     {
@@ -173,14 +109,6 @@
       "target": "creature_in_play",
       "textTemplate": "cause {value} de dano direto a uma criatura em jogo.",
       "labelTemplate": "Brasa Viva ({value}): cause {value} de dano direto a uma criatura em jogo.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 3,
-          "cardId": "item_living_ember_potion"
-        }
-      ],
       "effect": [
         {
           "kind": "apply_damage",
@@ -200,14 +128,6 @@
       "textTemplate": "cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver Corpo Gelatinoso, cause 3 de dano em vez de 2.",
       "labelTemplate": "Brasa Viva (2/3): cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver Corpo Gelatinoso, cause 3 de dano em vez de 2.",
       "notes": "Migrada para script (patch-10). Condicional baseada em skill_gelatinous_body do alvo.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": "item_incendiary_oil_flask.livingEmber",
-          "cardId": "item_incendiary_oil_flask"
-        }
-      ],
       "script": "skill_living_ember_oil"
     },
     {
@@ -221,8 +141,7 @@
       "trigger": "once_per_round_on_damage_taken",
       "target": "hero",
       "textTemplate": "uma vez por rodada, impeça todo o dano que um herói sofreria.",
-      "labelTemplate": "Escudo da Última Luz: uma vez por rodada, impeça todo o dano que um herói sofreria.",
-      "usedBy": []
+      "labelTemplate": "Escudo da Última Luz: uma vez por rodada, impeça todo o dano que um herói sofreria."
     },
     {
       "id": "skill_preserved_path",
@@ -235,27 +154,7 @@
       "trigger": "once_per_room_on_dungeon_discard",
       "target": "dungeon",
       "textTemplate": "uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.",
-      "labelTemplate": "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": null,
-          "cardId": "hero_rift_rogue"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_worn_explorer_rope"
-        },
-        {
-          "cardType": "artifact",
-          "field": "effect",
-          "value": null,
-          "cardId": "artifact_crimson_jailer_chain"
-        }
-      ]
+      "labelTemplate": "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
     },
     {
       "id": "skill_rekindled_forge",
@@ -268,8 +167,7 @@
       "trigger": "on_win_room",
       "target": "group",
       "textTemplate": "ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói.",
-      "labelTemplate": "Forja Reacesa: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói.",
-      "usedBy": []
+      "labelTemplate": "Forja Reacesa: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói."
     },
     {
       "id": "skill_rift_second_chance",
@@ -282,7 +180,6 @@
       "target": "ally_die",
       "textTemplate": "uma vez por combate, rerrole 1 dado aliado.",
       "labelTemplate": "Segunda Chance das Fendas: uma vez por combate, rerrole 1 dado aliado.",
-      "usedBy": [],
       "script": "skill_rift_second_chance"
     },
     {
@@ -296,7 +193,6 @@
       "target": "ally_die",
       "textTemplate": "uma vez por sala, depois de rolar, transforme 1 dado aliado em 6.",
       "labelTemplate": "Runa Perfeita: uma vez por sala, depois de rolar, transforme 1 dado aliado em 6.",
-      "usedBy": [],
       "script": "skill_perfect_rune"
     },
     {
@@ -310,7 +206,6 @@
       "target": "ally_or_next_attack",
       "textTemplate": "uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura.",
       "labelTemplate": "Milagre da Última Luz: uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "choose_one",
@@ -355,7 +250,6 @@
       "target": "other_creature_in_same_room",
       "textTemplate": "quando destruir uma criatura com um ataque, cause 1 de dano direto a outra criatura da mesma sala.",
       "labelTemplate": "Golpe Trespassante: quando destruir uma criatura com um ataque, cause 1 de dano direto a outra criatura da mesma sala.",
-      "usedBy": [],
       "script": "skill_piercing_strike"
     },
     {
@@ -369,8 +263,7 @@
       "trigger": "on_win_room",
       "target": "item_deck",
       "textTemplate": "ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon.",
-      "labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon.",
-      "usedBy": []
+      "labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon."
     },
     {
       "id": "skill_prey_mark",
@@ -383,15 +276,7 @@
       "trigger": "start_of_combat",
       "target": "creature_in_room",
       "textTemplate": "no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto.",
-      "labelTemplate": "Marca da Presa ({value}): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": 1,
-          "cardId": "hero_broken_veil_hunter"
-        }
-      ]
+      "labelTemplate": "Marca da Presa ({value}): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto."
     },
     {
       "id": "skill_return_rite",
@@ -404,15 +289,7 @@
       "trigger": "once_per_room",
       "target": "dungeon",
       "textTemplate": "uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck.",
-      "labelTemplate": "Rito de Retorno ({value}): uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": 1,
-          "cardId": "hero_deep_veil_necromancer"
-        }
-      ]
+      "labelTemplate": "Rito de Retorno ({value}): uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck."
     },
     {
       "id": "skill_final_dawn_light",
@@ -425,14 +302,6 @@
       "target": "self",
       "textTemplate": "contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +{value} no ataque e +{value} de dano.",
       "labelTemplate": "Luz da Aurora Final ({value}): contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +{value} no ataque e +{value} de dano.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "skill",
-          "value": "2/2",
-          "cardId": "hero_last_light_paladin"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -471,7 +340,6 @@
       "target": "heroes",
       "textTemplate": "os heróis recebem -{value} no total da primeira rolagem feita nesta sala.",
       "labelTemplate": "Calor Escaldante ({value}): os heróis recebem -{value} no total da primeira rolagem feita nesta sala.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "for_each",
@@ -503,7 +371,6 @@
       "target": "hero",
       "textTemplate": "até o fim da rodada, {value} herói não pode fugir ou sair de combate por efeito.",
       "labelTemplate": "Correntes Rubras ({value}): até o fim da rodada, {value} herói não pode fugir ou sair de combate por efeito.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "block_action",
@@ -522,7 +389,6 @@
       "target": "lowest_life_hero",
       "textTemplate": "cause {value} de dano direto ao herói com menos vida.",
       "labelTemplate": "Cinzas Sufocantes ({value}): cause {value} de dano direto ao herói com menos vida.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "apply_damage",
@@ -542,26 +408,6 @@
       "target": "self",
       "textTemplate": "esta criatura reduz em {value} o dano sofrido por ataques.",
       "labelTemplate": "Couraça Carbonizada ({value}): esta criatura reduz em {value} o dano sofrido por ataques.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 1,
-          "cardId": "creature_broken_gates_watcher"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 1,
-          "cardId": "creature_hot_ash_worm"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 1,
-          "cardId": "creature_dead_torch_sentinel"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -586,7 +432,6 @@
       "target": "dungeon",
       "textTemplate": "aumente o Despertar da Masmorra em {value} nível.",
       "labelTemplate": "Despertar da Fornalha ({value}): aumente o Despertar da Masmorra em {value} nível.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "advance_dungeon_level",
@@ -605,7 +450,6 @@
       "target": "heroes",
       "textTemplate": "enquanto esta sala estiver ativa, heróis não podem fugir no primeiro combate.",
       "labelTemplate": "Porta Selada: enquanto esta sala estiver ativa, heróis não podem fugir no primeiro combate.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "block_action",
@@ -624,7 +468,6 @@
       "target": "dungeon",
       "textTemplate": "a primeira vez que um herói perder um combate nesta sala, descarte 1 carta adicional de dungeon.",
       "labelTemplate": "Chão em Ruína: a primeira vez que um herói perder um combate nesta sala, descarte 1 carta adicional de dungeon.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "discard_from",
@@ -644,7 +487,6 @@
       "target": "heroes",
       "textTemplate": "na primeira rodada desta sala, os heróis não podem usar efeitos de cura.",
       "labelTemplate": "Fumaça da Fornalha: na primeira rodada desta sala, os heróis não podem usar efeitos de cura.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "block_action",
@@ -663,26 +505,6 @@
       "target": "group",
       "textTemplate": "antes do primeiro combate desta sala, o grupo deve escolher: descartar 1 item ou descartar 1 carta adicional de dungeon.",
       "labelTemplate": "Tributo Sombrio: antes do primeiro combate desta sala, o grupo deve escolher: descartar 1 item ou descartar 1 carta adicional de dungeon.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 1,
-          "cardId": "creature_catacomb_skeleton"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 1,
-          "cardId": "creature_dead_passage_thief"
-        },
-        {
-          "cardType": "subboss",
-          "field": "effect",
-          "value": 1,
-          "cardId": "subboss_cracked_abyss_guardian"
-        }
-      ],
       "effect": [
         {
           "kind": "choose_one",
@@ -722,21 +544,7 @@
       "trigger": "first_item_effect_received",
       "target": "self",
       "textTemplate": "esta criatura ignora o primeiro efeito de item usado contra ela.",
-      "labelTemplate": "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": null,
-          "cardId": "creature_black_ceiling_bat"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": null,
-          "cardId": "creature_blazing_skull"
-        }
-      ]
+      "labelTemplate": "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela."
     },
     {
       "id": "skill_chains_prison",
@@ -749,7 +557,6 @@
       "target": "target_hero",
       "textTemplate": "o primeiro herói escolhido como alvo nesta sala recebe -2 no total da próxima rolagem.",
       "labelTemplate": "Prisão das Correntes: o primeiro herói escolhido como alvo nesta sala recebe -2 no total da próxima rolagem.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "add_modifier",
@@ -774,20 +581,6 @@
       "target": "heroes",
       "textTemplate": "enquanto esta sala estiver ativa, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura.",
       "labelTemplate": "Corrupção de Caminho: enquanto esta sala estiver ativa, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": null,
-          "cardId": "creature_broken_chains_brute"
-        },
-        {
-          "cardType": "subboss",
-          "field": "effect",
-          "value": null,
-          "cardId": "subboss_crimson_dungeon_jailer"
-        }
-      ],
       "effect": [
         {
           "kind": "block_action",
@@ -806,26 +599,6 @@
       "target": "self",
       "textTemplate": "se estiver sozinho na sala, recebe +{value} no bônus de acerto e dano.",
       "labelTemplate": "Fera Solitária ({value}): se estiver sozinho na sala, recebe +{value} no bônus de acerto e dano.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": "1/1",
-          "cardId": "creature_deep_rift_rat"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": "2/2",
-          "cardId": "creature_old_chains_knight"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": "2/2",
-          "cardId": "creature_ruined_hall_ogre"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -861,20 +634,6 @@
       "textTemplate": "ao entrar em combate, causa {value} dano ao herói com menos vida.",
       "labelTemplate": "Ataque Traiçoeiro ({value}): ao entrar em combate, causa {value} dano ao herói com menos vida.",
       "notes": "No texto original, o nome possui variável, mas o efeito-base cita 1 dano. Use {value} quando quiser escalar.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 2,
-          "cardId": "creature_ancient_pillar_spider"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 1,
-          "cardId": "creature_low_fire_salamander"
-        }
-      ],
       "effect": [
         {
           "kind": "apply_damage",
@@ -894,14 +653,6 @@
       "target": "self",
       "textTemplate": "se fugir ou sair de jogo, não concede recompensa.",
       "labelTemplate": "Fuga Covarde: se fugir ou sair de jogo, não concede recompensa.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": null,
-          "cardId": "creature_dark_cave_goblin"
-        }
-      ],
       "effect": [
         {
           "kind": "set_no_reward",
@@ -920,14 +671,6 @@
       "target": "heroes_attacking_self",
       "textTemplate": "heróis recebem -{value} de bônus de acerto contra essa criatura.",
       "labelTemplate": "Corpo Gelatinoso ({value}): heróis recebem -{value} de bônus de acerto contra essa criatura.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": -1,
-          "cardId": "creature_wet_stone_slime"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -952,20 +695,6 @@
       "target": "another_creature_in_room",
       "textTemplate": "se houver outra criatura na sala, essa outra criatura recebe +{value} no total de bônus de acerto.",
       "labelTemplate": "Presença da Chama Oculta ({value}): se houver outra criatura na sala, essa outra criatura recebe +{value} no total de bônus de acerto.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 2,
-          "cardId": "creature_hidden_flame_cultist"
-        },
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 2,
-          "cardId": "creature_forge_acolyte"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -990,14 +719,6 @@
       "target": "self",
       "textTemplate": "se houver outra criatura na sala, esta criatura recebe +{value} no total.",
       "labelTemplate": "Coragem de Bando ({value}): se houver outra criatura na sala, esta criatura recebe +{value} no total.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "effect",
-          "value": 1,
-          "cardId": "creature_low_ember_kobold"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -1022,27 +743,7 @@
       "trigger": "on_reveal_paths",
       "target": "dungeon",
       "textTemplate": "ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo.",
-      "labelTemplate": "Iluminar o Caminho: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_pitch_torch"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_safe_path_charm"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_narrow_exit_cloak"
-        }
-      ]
+      "labelTemplate": "Iluminar o Caminho: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo."
     },
     {
       "id": "skill_path_safeguard",
@@ -1055,15 +756,7 @@
       "trigger": "on_dungeon_discard",
       "target": "dungeon",
       "textTemplate": "previna o descarte de dungeon dessa rodada.",
-      "labelTemplate": "Salvaguarda de Caminho: previna o descarte de dungeon dessa rodada.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_silent_dungeon_charm"
-        }
-      ]
+      "labelTemplate": "Salvaguarda de Caminho: previna o descarte de dungeon dessa rodada."
     },
     {
       "id": "skill_life_drain",
@@ -1076,8 +769,7 @@
       "trigger": "on_deal_damage",
       "target": "self",
       "textTemplate": "cure do herói portador o equivalente a {value}, apenas se ele causar dano.",
-      "labelTemplate": "Drenar Vida ({value}): cure do herói portador o equivalente a {value}, apenas se ele causar dano.",
-      "usedBy": []
+      "labelTemplate": "Drenar Vida ({value}): cure do herói portador o equivalente a {value}, apenas se ele causar dano."
     },
     {
       "id": "skill_opportunity_shot",
@@ -1090,15 +782,7 @@
       "trigger": "once_per_combat_instead_of_attack",
       "target": "creature",
       "textTemplate": "uma vez por combate, ao invés de combater, cause o seu dano direto na criatura.",
-      "labelTemplate": "Tiro de Oportunidade: uma vez por combate, ao invés de combater, cause o seu dano direto na criatura.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_rift_bow"
-        }
-      ]
+      "labelTemplate": "Tiro de Oportunidade: uma vez por combate, ao invés de combater, cause o seu dano direto na criatura."
     },
     {
       "id": "skill_last_light_ward",
@@ -1111,7 +795,6 @@
       "target": "self",
       "textTemplate": "contra efeitos Roxos, reduza {value} o dano recebido.",
       "labelTemplate": "Resguardo da Última Luz ({value}): contra efeitos Roxos, reduza {value} o dano recebido.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "add_modifier",
@@ -1136,21 +819,7 @@
       "trigger": "once_per_room_on_targeted_by_effect",
       "target": "self",
       "textTemplate": "uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo.",
-      "labelTemplate": "Véu Protetor: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_broken_veil_cloak"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_last_chord_lute"
-        }
-      ]
+      "labelTemplate": "Véu Protetor: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo."
     },
     {
       "id": "skill_rift_light_step",
@@ -1163,15 +832,7 @@
       "trigger": "once_per_room_on_extra_dungeon_discard",
       "target": "self",
       "textTemplate": "uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon.",
-      "labelTemplate": "Passo Leve das Fendas: uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": null,
-          "cardId": "item_light_stone_boots"
-        }
-      ]
+      "labelTemplate": "Passo Leve das Fendas: uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon."
     },
     {
       "id": "skill_focus_deflection",
@@ -1184,15 +845,7 @@
       "trigger": "once_per_room_on_targeted",
       "target": "another_hero_or_self",
       "textTemplate": "uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto.",
-      "labelTemplate": "Desvio de Foco: uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 2,
-          "cardId": "item_tunnel_hood"
-        }
-      ]
+      "labelTemplate": "Desvio de Foco: uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto."
     },
     {
       "id": "skill_minor_rune",
@@ -1205,14 +858,6 @@
       "target": "die_with_value_1",
       "textTemplate": "uma vez por sala, depois de rolar, você pode rerrolar um dado que tenha o valor 1.",
       "labelTemplate": "Runa Menor: uma vez por sala, depois de rolar, você pode rerrolar um dado que tenha o valor 1.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_crimson_rune_staff"
-        }
-      ],
       "script": "skill_minor_rune"
     },
     {
@@ -1226,26 +871,6 @@
       "target": "hero",
       "textTemplate": "cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.",
       "labelTemplate": "Milagre Maior da Última Luz: cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": "full/1",
-          "cardId": "hero_eternal_rest_cleric"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": "full/1",
-          "cardId": "item_last_defense_charm"
-        },
-        {
-          "cardType": "artifact",
-          "field": "effect",
-          "value": "full/1",
-          "cardId": "artifact_last_vigil_brazier"
-        }
-      ],
       "effect": [
         {
           "kind": "choose_one",
@@ -1283,14 +908,6 @@
       "target": "heroes",
       "textTemplate": "até o fim da rodada, todo dano sofrido pelos heróis é reduzido em 1.",
       "labelTemplate": "Guarda Inquebrável do Bastião: até o fim da rodada, todo dano sofrido pelos heróis é reduzido em 1.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": 1,
-          "cardId": "hero_broken_bastion_warrior"
-        }
-      ],
       "effect": [
         {
           "kind": "for_each",
@@ -1322,21 +939,7 @@
       "trigger": "once_per_game",
       "target": "dungeon",
       "textTemplate": "recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.",
-      "labelTemplate": "Caminho Restaurado: recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": 1,
-          "cardId": "hero_rift_rogue"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_return_potion"
-        }
-      ]
+      "labelTemplate": "Caminho Restaurado: recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon."
     },
     {
       "id": "power_supreme_rift_rune",
@@ -1349,21 +952,7 @@
       "trigger": "once_per_game_after_any_roll",
       "target": "ally_or_enemy_die",
       "textTemplate": "depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.",
-      "labelTemplate": "Runa Suprema das Fendas: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": "6/1",
-          "cardId": "hero_crimson_rune_mage"
-        },
-        {
-          "cardType": "artifact",
-          "field": "effect",
-          "value": "6/1",
-          "cardId": "artifact_lost_forge_hammer"
-        }
-      ]
+      "labelTemplate": "Runa Suprema das Fendas: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
     },
     {
       "id": "power_mighty_crimson_fury",
@@ -1376,15 +965,7 @@
       "trigger": "once_per_game_on_use_furia_rubra",
       "target": "self",
       "textTemplate": "ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-      "labelTemplate": "Fúria Rubra Poderosa: ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": null,
-          "cardId": "hero_crimson_barbarian"
-        }
-      ]
+      "labelTemplate": "Fúria Rubra Poderosa: ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
     },
     {
       "id": "power_last_light_oath",
@@ -1397,14 +978,6 @@
       "target": "heroes_or_self_next_attack",
       "textTemplate": "uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói.",
       "labelTemplate": "Juramento da Última Luz: uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": "5/5",
-          "cardId": "hero_last_light_paladin"
-        }
-      ],
       "effect": [
         {
           "kind": "choose_one",
@@ -1456,15 +1029,7 @@
       "trigger": "once_per_game_on_defeat_creature",
       "target": "self",
       "textTemplate": "uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos.",
-      "labelTemplate": "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": "1/3/2/2",
-          "cardId": "hero_deep_veil_necromancer"
-        }
-      ]
+      "labelTemplate": "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos."
     },
     {
       "id": "power_hunter_execution",
@@ -1477,15 +1042,7 @@
       "trigger": "once_per_game_after_roll_vs_prey",
       "target": "blue_die_and_self",
       "textTemplate": "uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar.",
-      "labelTemplate": "Execução do Caçador: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar.",
-      "usedBy": [
-        {
-          "cardType": "hero",
-          "field": "power",
-          "value": "6/1",
-          "cardId": "hero_broken_veil_hunter"
-        }
-      ]
+      "labelTemplate": "Execução do Caçador: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar."
     },
     {
       "id": "purple_raging_flames",
@@ -1498,7 +1055,6 @@
       "target": "all_heroes",
       "textTemplate": "ao entrar em jogo, cause 1 de dano direto a todos os heróis.",
       "labelTemplate": "Chamas Vorazes: ao entrar em jogo, cause 1 de dano direto a todos os heróis.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "for_each",
@@ -1525,7 +1081,6 @@
       "target": "heroes",
       "textTemplate": "enquanto esta criatura estiver em jogo, heróis não podem fugir.",
       "labelTemplate": "Correntes da Fornalha: enquanto esta criatura estiver em jogo, heróis não podem fugir.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "block_action",
@@ -1544,26 +1099,6 @@
       "target": "dungeon",
       "textTemplate": "quando esta criatura for destruída, descarte 1 carta adicional de dungeon.",
       "labelTemplate": "Cinzas da Ruína: quando esta criatura for destruída, descarte 1 carta adicional de dungeon.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_dead_passage_thief"
-        },
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_blazing_skull"
-        },
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_forge_acolyte"
-        }
-      ],
       "effect": [
         {
           "kind": "discard_from",
@@ -1583,8 +1118,7 @@
       "trigger": "first_damage_each_round",
       "target": "self",
       "textTemplate": "o primeiro dano que esta criatura sofreria em cada rodada é ignorado.",
-      "labelTemplate": "Couraça Rubra: o primeiro dano que esta criatura sofreria em cada rodada é ignorado.",
-      "usedBy": []
+      "labelTemplate": "Couraça Rubra: o primeiro dano que esta criatura sofreria em cada rodada é ignorado."
     },
     {
       "id": "purple_ash_protection",
@@ -1597,26 +1131,6 @@
       "target": "self",
       "textTemplate": "esta criatura reduz em {value} todo dano que sofreria.",
       "labelTemplate": "Proteção das Cinzas ({value}): esta criatura reduz em {value} todo dano que sofreria.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_broken_gates_watcher"
-        },
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 2,
-          "cardId": "creature_catacomb_skeleton"
-        },
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 2,
-          "cardId": "creature_dead_torch_sentinel"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -1641,7 +1155,6 @@
       "target": "dungeon",
       "textTemplate": "ao entrar em jogo, aumente o Despertar da Masmorra em 1 nível.",
       "labelTemplate": "Despertar Sombrio: ao entrar em jogo, aumente o Despertar da Masmorra em 1 nível.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "advance_dungeon_level",
@@ -1660,32 +1173,6 @@
       "target": "dungeon",
       "textTemplate": "quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.",
       "labelTemplate": "Despertar Mortal: quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_hidden_flame_cultist"
-        },
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_ruined_hall_ogre"
-        },
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_broken_chains_brute"
-        },
-        {
-          "cardType": "subboss",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "subboss_cracked_abyss_guardian"
-        }
-      ],
       "effect": [
         {
           "kind": "advance_dungeon_level",
@@ -1704,14 +1191,6 @@
       "target": "attacking_hero",
       "textTemplate": "sempre que esta criatura sofrer dano, o herói que causou esse dano sofre 1 dano direto.",
       "labelTemplate": "Sangue em Brasa: sempre que esta criatura sofrer dano, o herói que causou esse dano sofre 1 dano direto.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_low_fire_salamander"
-        }
-      ],
       "script": "purple_ember_blood"
     },
     {
@@ -1725,7 +1204,6 @@
       "target": "heroes",
       "textTemplate": "enquanto esta criatura estiver em jogo, heróis não podem usar poderes uma vez por jogo.",
       "labelTemplate": "Selo das Profundezas: enquanto esta criatura estiver em jogo, heróis não podem usar poderes uma vez por jogo.",
-      "usedBy": [],
       "effect": [
         {
           "kind": "block_action",
@@ -1744,14 +1222,6 @@
       "target": "group",
       "textTemplate": "antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.",
       "labelTemplate": "Tributo Sombrio: antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_dark_cave_goblin"
-        }
-      ],
       "effect": [
         {
           "kind": "choose_one",
@@ -1791,14 +1261,6 @@
       "target": "group_or_chosen_hero",
       "textTemplate": "antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha.",
       "labelTemplate": "Tributo de Sangue: antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 3,
-          "cardId": "creature_low_ember_kobold"
-        }
-      ],
       "effect": [
         {
           "kind": "choose_one",
@@ -1838,20 +1300,6 @@
       "target": "attacking_hero",
       "textTemplate": "sempre que esta criatura for acertada por um herói, esse herói sofre {value} de dano.",
       "labelTemplate": "Retaliação do Véu ({value}): sempre que esta criatura for acertada por um herói, esse herói sofre {value} de dano.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_wet_stone_slime"
-        },
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": 1,
-          "cardId": "creature_hot_ash_worm"
-        }
-      ],
       "script": "purple_veil_retaliation"
     },
     {
@@ -1865,14 +1313,6 @@
       "target": "heroes",
       "textTemplate": "ao entrar nesta sala, anule o próximo efeito de cura usado pelos heróis.",
       "labelTemplate": "Ruptura da Cura: ao entrar nesta sala, anule o próximo efeito de cura usado pelos heróis.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": null,
-          "cardId": "creature_black_ceiling_bat"
-        }
-      ],
       "effect": [
         {
           "kind": "block_action",
@@ -1891,14 +1331,6 @@
       "target": "target_hero",
       "textTemplate": "o primeiro herói alvo dela recebe -{value} no total de bônus de acerto da próxima rolagem.",
       "labelTemplate": "Prisão do Véu Antigo ({value}): o primeiro herói alvo dela recebe -{value} no total de bônus de acerto da próxima rolagem.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": -2,
-          "cardId": "creature_ancient_pillar_spider"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -1923,14 +1355,6 @@
       "target": "heroes",
       "textTemplate": "enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra.",
       "labelTemplate": "Selo do Véu Profundo: enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra.",
-      "usedBy": [
-        {
-          "cardType": "creature",
-          "field": "purpleEffect",
-          "value": null,
-          "cardId": "creature_old_chains_knight"
-        }
-      ],
       "effect": [
         {
           "kind": "block_action",
@@ -1949,14 +1373,6 @@
       "target": "target_hero",
       "textTemplate": "o primeiro herói escolhido como alvo por esta criatura recebe -3 no total da próxima rolagem de ataque e causa -3 de dano se acertar.",
       "labelTemplate": "Grilhões Rubros: o primeiro herói escolhido como alvo por esta criatura recebe -3 no total da próxima rolagem de ataque e causa -3 de dano se acertar.",
-      "usedBy": [
-        {
-          "cardType": "subboss",
-          "field": "purpleEffect",
-          "value": "-3/-3",
-          "cardId": "subboss_crimson_dungeon_jailer"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -1991,33 +1407,7 @@
       "trigger": "combat",
       "target": "self",
       "textTemplate": "receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano.",
-      "labelTemplate": "Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_rusty_dagger"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 3,
-          "cardId": "item_ruined_hall_axe"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 2,
-          "cardId": "item_broken_stone_hammer"
-        },
-        {
-          "cardType": "artifact",
-          "field": "effect",
-          "value": 1,
-          "cardId": "artifact_ancient_ember_heart"
-        }
-      ]
+      "labelTemplate": "Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano."
     },
     {
       "id": "item_skill_block",
@@ -2030,38 +1420,6 @@
       "target": "self",
       "textTemplate": "reduza em {value} o dano sofrido por este herói.",
       "labelTemplate": "Bloqueio ({value}): reduza em {value} o dano sofrido por este herói.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 2,
-          "cardId": "item_cracked_shield"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_reinforced_leather_armor"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 2,
-          "cardId": "item_ancient_metal_armor"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 3,
-          "cardId": "item_stoneskin_potion"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 10,
-          "cardId": "item_warm_blood_charm"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -2086,27 +1444,7 @@
       "trigger": "on_use",
       "target": "artifact_deck",
       "textTemplate": "saque 1 carta de Artefato da pilha de artefatos.",
-      "labelTemplate": "Saque Místico: saque 1 carta de Artefato da pilha de artefatos.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_ancient_iron_key"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_torn_depths_map"
-        },
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": 1,
-          "cardId": "item_hidden_forge_chest"
-        }
-      ]
+      "labelTemplate": "Saque Místico: saque 1 carta de Artefato da pilha de artefatos."
     },
     {
       "id": "item_skill_last_light_blade",
@@ -2119,14 +1457,6 @@
       "target": "self",
       "textTemplate": "receba +2 no total de bônus da rolagem. Contra chefes e subchefes, cause +2 de dano ao acertar.",
       "labelTemplate": "Lâmina da Última Luz: receba +2 no total de bônus da rolagem. Contra chefes e subchefes, cause +2 de dano ao acertar.",
-      "usedBy": [
-        {
-          "cardType": "item",
-          "field": "effect",
-          "value": "2/2",
-          "cardId": "item_last_light_sword"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -2165,14 +1495,6 @@
       "target": "creatures_or_heroes_in_room",
       "textTemplate": "criaturas ou heróis nesta sala não podem fugir.",
       "labelTemplate": "Confinamento: criaturas ou heróis nesta sala não podem fugir.",
-      "usedBy": [
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": null,
-          "cardId": "room_crimson_chains_chamber"
-        }
-      ],
       "effect": [
         {
           "kind": "block_action",
@@ -2191,15 +1513,7 @@
       "trigger": "before_first_combat_in_room",
       "target": "heroes",
       "textTemplate": "antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
-      "labelTemplate": "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
-      "usedBy": [
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": "-1/1",
-          "cardId": "room_dead_torches_passage"
-        }
-      ]
+      "labelTemplate": "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito."
     },
     {
       "id": "dungeon_skill_column_fall",
@@ -2212,14 +1526,6 @@
       "target": "remaining_creature",
       "textTemplate": "a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano.",
       "labelTemplate": "Queda de Coluna: a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano.",
-      "usedBy": [
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": 1,
-          "cardId": "room_broken_columns_hall"
-        }
-      ],
       "effect": [
         {
           "kind": "apply_damage",
@@ -2239,14 +1545,6 @@
       "target": "dungeon",
       "textTemplate": "se algum herói perder um combate nesta sala, descarte +1 carta de dungeon.",
       "labelTemplate": "Piso Irregular: se algum herói perder um combate nesta sala, descarte +1 carta de dungeon.",
-      "usedBy": [
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": 1,
-          "cardId": "room_depths_stairway"
-        }
-      ],
       "effect": [
         {
           "kind": "discard_from",
@@ -2266,15 +1564,7 @@
       "trigger": "on_win_room",
       "target": "item_deck",
       "textTemplate": "ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon.",
-      "labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon.",
-      "usedBy": [
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": "2/1",
-          "cardId": "room_abandoned_cell"
-        }
-      ]
+      "labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon."
     },
     {
       "id": "dungeon_skill_rekindled_forge",
@@ -2287,15 +1577,7 @@
       "trigger": "on_win_room",
       "target": "item_deck_or_discard",
       "textTemplate": "ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói.",
-      "labelTemplate": "Forja Reacesa: ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói.",
-      "usedBy": [
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": null,
-          "cardId": "room_ruined_forge"
-        }
-      ]
+      "labelTemplate": "Forja Reacesa: ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói."
     },
     {
       "id": "dungeon_skill_summon_guardian",
@@ -2309,21 +1591,7 @@
       "target": "special_creature",
       "textTemplate": "revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo.",
       "labelTemplate": "Invocar Guardião ({value}): revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo.",
-      "notes": "Use {value} como o nome da criatura especial/subchefe revelado pela sala.",
-      "usedBy": [
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": "Carcereiro da Masmorra Rubra",
-          "cardId": "room_jailer_room"
-        },
-        {
-          "cardType": "room",
-          "field": "effect",
-          "value": "Guardião do Abismo Rachado",
-          "cardId": "room_cracked_abyss"
-        }
-      ]
+      "notes": "Use {value} como o nome da criatura especial/subchefe revelado pela sala."
     },
     {
       "id": "boss_skill_living_ash_throne",
@@ -2336,15 +1604,7 @@
       "trigger": "first_damage_each_round",
       "target": "boss",
       "textTemplate": "o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1.",
-      "labelTemplate": "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1.",
-      "usedBy": [
-        {
-          "cardType": "boss",
-          "field": "abilities",
-          "value": 1,
-          "cardId": "boss_azhakar"
-        }
-      ]
+      "labelTemplate": "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."
     },
     {
       "id": "boss_skill_dark_forge_pressure",
@@ -2357,14 +1617,6 @@
       "target": "dungeon",
       "textTemplate": "após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon.",
       "labelTemplate": "Pressão da Fornalha Sombria (1): após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon.",
-      "usedBy": [
-        {
-          "cardType": "boss",
-          "field": "abilities",
-          "value": 1,
-          "cardId": "boss_azhakar"
-        }
-      ],
       "effect": [
         {
           "kind": "if",
@@ -2395,14 +1647,6 @@
       "target": "boss",
       "textTemplate": "quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto.",
       "labelTemplate": "Ascensão de Azhakar (2): quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto.",
-      "usedBy": [
-        {
-          "cardType": "boss",
-          "field": "abilities",
-          "value": 2,
-          "cardId": "boss_azhakar"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -2427,15 +1671,7 @@
       "trigger": "combat_and_on_damage_dealt",
       "target": "self",
       "textTemplate": "receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.",
-      "labelTemplate": "Drenar Vida e Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.",
-      "usedBy": [
-        {
-          "cardId": "item_deep_veil_scythe",
-          "cardType": "item",
-          "field": "effect",
-          "value": "1/1"
-        }
-      ]
+      "labelTemplate": "Drenar Vida e Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano."
     },
     {
       "id": "item_skill_block_and_last_light_ward",
@@ -2448,14 +1684,6 @@
       "target": "self",
       "textTemplate": "reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional.",
       "labelTemplate": "Bloqueio e Resguardo da Última Luz ({value}): reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional.",
-      "usedBy": [
-        {
-          "cardId": "item_forge_magic_armor",
-          "cardType": "item",
-          "field": "effect",
-          "value": "3/2"
-        }
-      ],
       "effect": [
         {
           "kind": "add_modifier",
@@ -2494,15 +1722,7 @@
       "trigger": "before_attack_once_per_game",
       "target": "self",
       "textTemplate": "este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-      "labelTemplate": "Fúria Rubra e Fúria Rubra Poderosa ({value}): este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-      "usedBy": [
-        {
-          "cardId": "artifact_first_fire_blade",
-          "cardType": "artifact",
-          "field": "effect",
-          "value": "2/poderosa"
-        }
-      ]
+      "labelTemplate": "Fúria Rubra e Fúria Rubra Poderosa ({value}): este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
     },
     {
       "id": "dungeon_skill_subboss_room",
@@ -2515,20 +1735,6 @@
       "target": "room",
       "textTemplate": "sala especial: um subchefe guarda esta câmara.",
       "labelTemplate": "Sala do Subchefe: sala especial: um subchefe guarda esta câmara.",
-      "usedBy": [
-        {
-          "cardId": "subboss_room_jailer_chamber",
-          "cardType": "subboss_room",
-          "field": "effect",
-          "value": null
-        },
-        {
-          "cardId": "subboss_room_cracked_abyss_chamber",
-          "cardType": "subboss_room",
-          "field": "effect",
-          "value": null
-        }
-      ],
       "effect": [
         {
           "kind": "noop"
@@ -2546,20 +1752,6 @@
       "target": "room",
       "textTemplate": "sem efeito adicional.",
       "labelTemplate": "Sala Vazia: sem efeito adicional.",
-      "usedBy": [
-        {
-          "cardId": "room_narrow_corridor",
-          "cardType": "room",
-          "field": "effect",
-          "value": null
-        },
-        {
-          "cardId": "room_dungeon_room",
-          "cardType": "room",
-          "field": "effect",
-          "value": null
-        }
-      ],
       "effect": [
         {
           "kind": "noop"

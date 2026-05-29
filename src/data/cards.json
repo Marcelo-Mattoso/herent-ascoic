@@ -25,27 +25,21 @@
       14
     ],
     "damage": 2,
-    "skill": {
-      "skillId": "skill_last_light_healing",
-      "name": "Cura da Última Luz",
-      "value": 3,
-      "type": "heal",
-      "trigger": "on_use",
-      "target": "hero_or_ally_creature",
-      "text": "cure 3 de vida de um herói ou criatura aliada.",
-      "label": "Cura da Última Luz (3): cure 3 de vida de um herói ou criatura aliada."
-    },
-    "power": {
-      "skillId": "power_greater_last_light_miracle",
-      "name": "Milagre Maior da Última Luz",
-      "value": "full/1",
-      "type": "heal_or_survive",
-      "trigger": "once_per_game",
-      "target": "hero",
-      "text": "uma vez por jogo, cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.",
-      "label": "Milagre Maior da Última Luz (full/1): uma vez por jogo, cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida."
-    },
-    "style": "suporte, cura, sobrevivência, Última Luz."
+    "style": "suporte, cura, sobrevivência, Última Luz.",
+    "skills": [
+      {
+        "skillId": "skill_last_light_healing",
+        "params": {
+          "value": 3
+        }
+      },
+      {
+        "skillId": "power_greater_last_light_miracle",
+        "params": {
+          "value": "full/1"
+        }
+      }
+    ]
   },
   {
     "id": "hero_broken_bastion_warrior",
@@ -73,27 +67,21 @@
       18
     ],
     "damage": 3,
-    "skill": {
-      "skillId": "skill_bastion_guard",
-      "name": "Guarda do Bastião",
-      "value": 3,
-      "type": "armor",
-      "trigger": "on_damage_taken",
-      "target": "hero_or_ally",
-      "text": "reduza em 3 o dano que um herói ou aliado sofreria.",
-      "label": "Guarda do Bastião (3): reduza em 3 o dano que um herói ou aliado sofreria."
-    },
-    "power": {
-      "skillId": "power_unbreakable_bastion_guard",
-      "name": "Guarda Inquebrável do Bastião",
-      "value": 1,
-      "type": "armor",
-      "trigger": "once_per_game_until_end_of_round",
-      "target": "heroes",
-      "text": "uma vez por jogo, até o fim da rodada, todo dano sofrido pelos heróis é reduzido em 1.",
-      "label": "Guarda Inquebrável do Bastião (1): uma vez por jogo, até o fim da rodada, todo dano sofrido pelos heróis é reduzido em 1."
-    },
-    "style": "combate, linha de frente, Bastião Partido, dano."
+    "style": "combate, linha de frente, Bastião Partido, dano.",
+    "skills": [
+      {
+        "skillId": "skill_bastion_guard",
+        "params": {
+          "value": 3
+        }
+      },
+      {
+        "skillId": "power_unbreakable_bastion_guard",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "hero_rift_rogue",
@@ -121,27 +109,18 @@
       14
     ],
     "damage": 2,
-    "skill": {
-      "skillId": "skill_preserved_path",
-      "name": "Caminho Preservado",
-      "value": null,
-      "type": "discardDungeon",
-      "trigger": "once_per_room_on_dungeon_card_would_be_discarded",
-      "target": "dungeon",
-      "text": "uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.",
-      "label": "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
-    },
-    "power": {
-      "skillId": "power_restored_path",
-      "name": "Caminho Restaurado",
-      "value": 1,
-      "type": "recoverDungeon",
-      "trigger": "once_per_game",
-      "target": "dungeon",
-      "text": "uma vez por jogo, recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.",
-      "label": "Caminho Restaurado (1): uma vez por jogo, recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon."
-    },
-    "style": "exploração, controle da dungeon, Fendas, mobilidade."
+    "style": "exploração, controle da dungeon, Fendas, mobilidade.",
+    "skills": [
+      {
+        "skillId": "skill_preserved_path"
+      },
+      {
+        "skillId": "power_restored_path",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "hero_crimson_rune_mage",
@@ -169,27 +148,21 @@
       14
     ],
     "damage": 2,
-    "skill": {
-      "skillId": "skill_rift_rune",
-      "name": "Runa das Fendas",
-      "value": 1,
-      "type": "dice_adjust",
-      "trigger": "after_roll",
-      "target": "ally_die",
-      "text": "depois de rolar, altere o resultado de 1 dado aliado em até 1, sem passar de 6 nem ficar abaixo de 1.",
-      "label": "Runa das Fendas (1): depois de rolar, altere o resultado de 1 dado aliado em até 1, sem passar de 6 nem ficar abaixo de 1."
-    },
-    "power": {
-      "skillId": "power_supreme_rift_rune",
-      "name": "Runa Suprema das Fendas",
-      "value": "6/1",
-      "type": "diceFix",
-      "trigger": "once_per_game_after_any_roll",
-      "target": "ally_or_enemy_die",
-      "text": "uma vez por jogo, depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.",
-      "label": "Runa Suprema das Fendas (6/1): uma vez por jogo, depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
-    },
-    "style": "magia, manipulação de dado, controle, Fendas."
+    "style": "magia, manipulação de dado, controle, Fendas.",
+    "skills": [
+      {
+        "skillId": "skill_rift_rune",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "power_supreme_rift_rune",
+        "params": {
+          "value": "6/1"
+        }
+      }
+    ]
   },
   {
     "id": "hero_crimson_barbarian",
@@ -217,27 +190,18 @@
       18
     ],
     "damage": 4,
-    "skill": {
-      "skillId": "skill_crimson_fury",
-      "name": "Fúria Rubra",
-      "value": 2,
-      "type": "self_damage_for_damage",
-      "trigger": "before_attack",
-      "target": "self",
-      "text": "este personagem sofre 2 de dano para causar dano adicional igual a 6 no próximo ataque.",
-      "label": "Fúria Rubra (2): este personagem sofre 2 de dano para causar dano adicional igual a 6 no próximo ataque."
-    },
-    "power": {
-      "skillId": "power_mighty_crimson_fury",
-      "name": "Fúria Rubra Poderosa",
-      "value": null,
-      "type": "skillEnhancement",
-      "trigger": "once_per_game_on_use_furia_rubra",
-      "target": "self",
-      "text": "uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-      "label": "Fúria Rubra Poderosa: uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
-    },
-    "style": "dano, risco, Deserto Rubro, sacrifício."
+    "style": "dano, risco, Deserto Rubro, sacrifício.",
+    "skills": [
+      {
+        "skillId": "skill_crimson_fury",
+        "params": {
+          "value": 2
+        }
+      },
+      {
+        "skillId": "power_mighty_crimson_fury"
+      }
+    ]
   },
   {
     "id": "hero_last_light_paladin",
@@ -265,27 +229,21 @@
       18
     ],
     "damage": 3,
-    "skill": {
-      "skillId": "skill_final_dawn_light",
-      "name": "Luz da Aurora Final",
-      "value": "2/2",
-      "type": "tohit_damage",
-      "trigger": "combat_if_dungeon_red_or_purple",
-      "target": "self",
-      "text": "contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +2 no ataque e +2 de dano.",
-      "label": "Luz da Aurora Final (2/2): contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +2 no ataque e +2 de dano."
-    },
-    "power": {
-      "skillId": "power_last_light_oath",
-      "name": "Juramento da Última Luz",
-      "value": "5/5",
-      "type": "heal_or_damage",
-      "trigger": "once_per_game",
-      "target": "heroes_or_next_attack",
-      "text": "uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói.",
-      "label": "Juramento da Última Luz (5/5): uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói."
-    },
-    "style": "equilíbrio, cura, dano, Última Luz."
+    "style": "equilíbrio, cura, dano, Última Luz.",
+    "skills": [
+      {
+        "skillId": "skill_final_dawn_light",
+        "params": {
+          "value": "2/2"
+        }
+      },
+      {
+        "skillId": "power_last_light_oath",
+        "params": {
+          "value": "5/5"
+        }
+      }
+    ]
   },
   {
     "id": "hero_deep_veil_necromancer",
@@ -313,27 +271,21 @@
       14
     ],
     "damage": 2,
-    "skill": {
-      "skillId": "skill_return_rite",
-      "name": "Rito de Retorno",
-      "value": 1,
-      "type": "recoverDungeon",
-      "trigger": "once_per_room",
-      "target": "dungeon",
-      "text": "uma vez por sala, pode pagar 3 de vida e recuperar 1 carta de dungeon descartada, embaralhando-a no deck.",
-      "label": "Rito de Retorno (1): uma vez por sala, pode pagar 3 de vida e recuperar 1 carta de dungeon descartada, embaralhando-a no deck."
-    },
-    "power": {
-      "skillId": "power_deep_veil_echo",
-      "name": "Eco Profundo do Véu",
-      "value": "1/3/2/2",
-      "type": "token",
-      "trigger": "once_per_game_on_defeat_creature",
-      "target": "self",
-      "text": "uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos.",
-      "label": "Eco Profundo do Véu (1/3/2/2): uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos."
-    },
-    "style": "Véu, recuperação, controle tardio, necromancia."
+    "style": "Véu, recuperação, controle tardio, necromancia.",
+    "skills": [
+      {
+        "skillId": "skill_return_rite",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "power_deep_veil_echo",
+        "params": {
+          "value": "1/3/2/2"
+        }
+      }
+    ]
   },
   {
     "id": "hero_broken_veil_hunter",
@@ -361,27 +313,21 @@
       18
     ],
     "damage": 3,
-    "skill": {
-      "skillId": "skill_prey_mark",
-      "name": "Marca da Presa",
-      "value": 1,
-      "type": "mark",
-      "trigger": "start_of_combat",
-      "target": "creature_in_room",
-      "text": "no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +1 no acerto.",
-      "label": "Marca da Presa (1): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +1 no acerto."
-    },
-    "power": {
-      "skillId": "power_hunter_execution",
-      "name": "Execução do Caçador",
-      "value": "6/1",
-      "type": "diceFix_damage",
-      "trigger": "once_per_game_after_roll_against_prey",
-      "target": "blue_die",
-      "text": "uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar.",
-      "label": "Execução do Caçador (6/1): uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar."
-    },
-    "style": "foco, precisão, eliminação, Véu."
+    "style": "foco, precisão, eliminação, Véu.",
+    "skills": [
+      {
+        "skillId": "skill_prey_mark",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "power_hunter_execution",
+        "params": {
+          "value": "6/1"
+        }
+      }
+    ]
   },
   {
     "id": "creature_deep_rift_rat",
@@ -412,25 +358,21 @@
     "xp": 1,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_lone_beast",
-      "name": "Fera Solitária",
-      "value": "1/1",
-      "type": "tohit_damage",
-      "trigger": "combat_if_alone_in_room",
-      "target": "self",
-      "text": "se estiver sozinho na sala, recebe +1 no bônus de acerto e dano.",
-      "label": "Fera Solitária (1/1): se estiver sozinho na sala, recebe +1 no bônus de acerto e dano."
-    },
-    "purpleEffect": {
-      "name": "Ataque Traiçoeiro",
-      "value": 1,
-      "type": "damage",
-      "trigger": "on_enter_combat",
-      "target": "lowest_life_hero",
-      "text": "ao entrar em combate, causa 1 dano ao herói com menos vida.",
-      "label": "Ataque Traiçoeiro (1): ao entrar em combate, causa 1 dano ao herói com menos vida."
-    }
+    "skills": [
+      {
+        "skillId": "skill_lone_beast",
+        "params": {
+          "value": "1/1"
+        }
+      },
+      {
+        "skillId": "skill_treacherous_attack",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_dark_cave_goblin",
@@ -461,25 +403,18 @@
     "xp": 1,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_cowardly_flee",
-      "name": "Fuga Covarde",
-      "value": null,
-      "type": "reward",
-      "trigger": "on_flee_or_leave_play",
-      "target": "self",
-      "text": "se fugir ou sair de jogo, não concede recompensa.",
-      "label": "Fuga Covarde: se fugir ou sair de jogo, não concede recompensa."
-    },
-    "purpleEffect": {
-      "name": "Tributo Sombrio",
-      "value": 1,
-      "type": "item_or_discardDungeon",
-      "trigger": "before_combat",
-      "target": "group",
-      "text": "antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.",
-      "label": "Tributo Sombrio (1): antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "skill_cowardly_flee"
+      },
+      {
+        "skillId": "purple_dark_tribute",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_wet_stone_slime",
@@ -510,25 +445,21 @@
     "xp": 1,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_gelatinous_body",
-      "name": "Corpo Gelatinoso",
-      "value": -1,
-      "type": "tohit_penalty",
-      "trigger": "combat_against_self",
-      "target": "heroes",
-      "text": "heróis recebem -1 de bônus de acerto contra essa criatura.",
-      "label": "Corpo Gelatinoso (-1): heróis recebem -1 de bônus de acerto contra essa criatura."
-    },
-    "purpleEffect": {
-      "name": "Retaliação do Véu",
-      "value": 1,
-      "type": "damage",
-      "trigger": "on_hit_received",
-      "target": "attacking_hero",
-      "text": "sempre que esta criatura for acertada por um herói, esse herói sofre 1 de dano.",
-      "label": "Retaliação do Véu (1): sempre que esta criatura for acertada por um herói, esse herói sofre 1 de dano."
-    }
+    "skills": [
+      {
+        "skillId": "skill_gelatinous_body",
+        "params": {
+          "value": -1
+        }
+      },
+      {
+        "skillId": "purple_veil_retaliation",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_black_ceiling_bat",
@@ -559,25 +490,15 @@
     "xp": 2,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_rift_evasion",
-      "name": "Evasão das Fendas",
-      "value": null,
-      "type": "itemControl",
-      "trigger": "first_item_effect_received",
-      "target": "self",
-      "text": "esta criatura ignora o primeiro efeito de item usado contra ela.",
-      "label": "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela."
-    },
-    "purpleEffect": {
-      "name": "Ruptura da Cura",
-      "value": null,
-      "type": "healBlock",
-      "trigger": "on_enter_room",
-      "target": "heroes",
-      "text": "ao entrar nesta sala, anule o próximo efeito de cura usado pelos heróis.",
-      "label": "Ruptura da Cura: ao entrar nesta sala, anule o próximo efeito de cura usado pelos heróis."
-    }
+    "skills": [
+      {
+        "skillId": "skill_rift_evasion"
+      },
+      {
+        "skillId": "purple_healing_rupture",
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_ancient_pillar_spider",
@@ -608,25 +529,21 @@
     "xp": 2,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_treacherous_attack",
-      "name": "Ataque Traiçoeiro",
-      "value": 2,
-      "type": "damage",
-      "trigger": "on_enter_combat",
-      "target": "lowest_life_hero",
-      "text": "ao entrar em combate, causa 2 dano ao herói com menos vida.",
-      "label": "Ataque Traiçoeiro (2): ao entrar em combate, causa 2 dano ao herói com menos vida."
-    },
-    "purpleEffect": {
-      "name": "Prisão do Véu Antigo",
-      "value": -2,
-      "type": "tohit_penalty",
-      "trigger": "on_targeted_first_time",
-      "target": "target_hero",
-      "text": "o primeiro herói alvo dela recebe -2 no total de bônus de acerto da próxima rolagem.",
-      "label": "Prisão do Véu Antigo (-2): o primeiro herói alvo dela recebe -2 no total de bônus de acerto da próxima rolagem."
-    }
+    "skills": [
+      {
+        "skillId": "skill_treacherous_attack",
+        "params": {
+          "value": 2
+        }
+      },
+      {
+        "skillId": "purple_ancient_veil_prison",
+        "params": {
+          "value": -2
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_broken_gates_watcher",
@@ -657,25 +574,21 @@
     "xp": 2,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_charred_plate",
-      "name": "Couraça Carbonizada",
-      "value": 1,
-      "type": "armor",
-      "trigger": "on_take_attack_damage",
-      "target": "self",
-      "text": "esta criatura reduz em 1 o dano sofrido por ataques.",
-      "label": "Couraça Carbonizada (1): esta criatura reduz em 1 o dano sofrido por ataques."
-    },
-    "purpleEffect": {
-      "name": "Proteção das Cinzas",
-      "value": 1,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "esta criatura reduz em 1 todo dano que sofreria.",
-      "label": "Proteção das Cinzas (1): esta criatura reduz em 1 todo dano que sofreria."
-    }
+    "skills": [
+      {
+        "skillId": "skill_charred_plate",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_ash_protection",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_hidden_flame_cultist",
@@ -706,25 +619,21 @@
     "xp": 2,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_hidden_flame_presence",
-      "name": "Presença da Chama Oculta",
-      "value": 2,
-      "type": "tohit",
-      "trigger": "combat_if_another_creature_in_room",
-      "target": "another_creature_in_room",
-      "text": "se houver outra criatura na sala, essa outra criatura recebe +2 no total de bônus de acerto.",
-      "label": "Presença da Chama Oculta (2): se houver outra criatura na sala, essa outra criatura recebe +2 no total de bônus de acerto."
-    },
-    "purpleEffect": {
-      "name": "Despertar Mortal",
-      "value": 1,
-      "type": "dungeonLevel",
-      "trigger": "on_destroyed",
-      "target": "dungeon",
-      "text": "quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.",
-      "label": "Despertar Mortal (1): quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível."
-    }
+    "skills": [
+      {
+        "skillId": "skill_hidden_flame_presence",
+        "params": {
+          "value": 2
+        }
+      },
+      {
+        "skillId": "purple_deadly_awakening",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_catacomb_skeleton",
@@ -755,25 +664,21 @@
     "xp": 3,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "purple_dark_tribute",
-      "name": "Tributo Sombrio",
-      "value": 1,
-      "type": "item_or_discardDungeon",
-      "trigger": "before_combat",
-      "target": "group",
-      "text": "antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.",
-      "label": "Tributo Sombrio (1): antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon."
-    },
-    "purpleEffect": {
-      "name": "Proteção das Cinzas",
-      "value": 2,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "esta criatura reduz em 2 todo dano que sofreria.",
-      "label": "Proteção das Cinzas (2): esta criatura reduz em 2 todo dano que sofreria."
-    }
+    "skills": [
+      {
+        "skillId": "purple_dark_tribute",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_ash_protection",
+        "params": {
+          "value": 2
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_dead_passage_thief",
@@ -804,25 +709,21 @@
     "xp": 3,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "purple_dark_tribute",
-      "name": "Tributo Sombrio",
-      "value": 1,
-      "type": "item_or_discardDungeon",
-      "trigger": "before_combat",
-      "target": "group",
-      "text": "antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.",
-      "label": "Tributo Sombrio (1): antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon."
-    },
-    "purpleEffect": {
-      "name": "Cinzas da Ruína",
-      "value": 1,
-      "type": "discardDungeon",
-      "trigger": "on_destroyed",
-      "target": "dungeon",
-      "text": "quando esta criatura for destruída, descarte 1 carta adicional de dungeon.",
-      "label": "Cinzas da Ruína (1): quando esta criatura for destruída, descarte 1 carta adicional de dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "purple_dark_tribute",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_ruin_ashes",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_old_chains_knight",
@@ -853,25 +754,18 @@
     "xp": 3,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_lone_beast",
-      "name": "Fera Solitária",
-      "value": "2/2",
-      "type": "tohit_damage",
-      "trigger": "combat_if_alone_in_room",
-      "target": "self",
-      "text": "se estiver sozinho na sala, recebe +2 no bônus de acerto e dano.",
-      "label": "Fera Solitária (2/2): se estiver sozinho na sala, recebe +2 no bônus de acerto e dano."
-    },
-    "purpleEffect": {
-      "name": "Selo do Véu Profundo",
-      "value": null,
-      "type": "dungeonLock",
-      "trigger": "while_in_play",
-      "target": "heroes",
-      "text": "enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra.",
-      "label": "Selo do Véu Profundo: enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra."
-    }
+    "skills": [
+      {
+        "skillId": "skill_lone_beast",
+        "params": {
+          "value": "2/2"
+        }
+      },
+      {
+        "skillId": "purple_deep_veil_seal",
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_low_fire_salamander",
@@ -902,25 +796,21 @@
     "xp": 3,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_treacherous_attack",
-      "name": "Ataque Traiçoeiro",
-      "value": 1,
-      "type": "damage",
-      "trigger": "on_enter_combat",
-      "target": "lowest_life_hero",
-      "text": "ao entrar em combate, causa 1 dano ao herói com menos vida.",
-      "label": "Ataque Traiçoeiro (1): ao entrar em combate, causa 1 dano ao herói com menos vida."
-    },
-    "purpleEffect": {
-      "name": "Sangue em Brasa",
-      "value": 1,
-      "type": "damage",
-      "trigger": "on_take_damage",
-      "target": "attacking_hero",
-      "text": "sempre que esta criatura sofrer dano, o herói que causou esse dano sofre 1 dano direto.",
-      "label": "Sangue em Brasa (1): sempre que esta criatura sofrer dano, o herói que causou esse dano sofre 1 dano direto."
-    }
+    "skills": [
+      {
+        "skillId": "skill_treacherous_attack",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_ember_blood",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_ruined_hall_ogre",
@@ -951,25 +841,21 @@
     "xp": 3,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_lone_beast",
-      "name": "Fera Solitária",
-      "value": "2/2",
-      "type": "tohit_damage",
-      "trigger": "combat_if_alone_in_room",
-      "target": "self",
-      "text": "se estiver sozinho na sala, recebe +2 no bônus de acerto e dano.",
-      "label": "Fera Solitária (2/2): se estiver sozinho na sala, recebe +2 no bônus de acerto e dano."
-    },
-    "purpleEffect": {
-      "name": "Despertar Mortal",
-      "value": 1,
-      "type": "dungeonLevel",
-      "trigger": "on_destroyed",
-      "target": "dungeon",
-      "text": "quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.",
-      "label": "Despertar Mortal (1): quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível."
-    }
+    "skills": [
+      {
+        "skillId": "skill_lone_beast",
+        "params": {
+          "value": "2/2"
+        }
+      },
+      {
+        "skillId": "purple_deadly_awakening",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_low_ember_kobold",
@@ -1000,25 +886,21 @@
     "xp": 1,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_pack_courage",
-      "name": "Coragem de Bando",
-      "value": 1,
-      "type": "tohit",
-      "trigger": "combat_if_another_creature_in_room",
-      "target": "self",
-      "text": "se houver outra criatura na sala, esta criatura recebe +1 no total.",
-      "label": "Coragem de Bando (1): se houver outra criatura na sala, esta criatura recebe +1 no total."
-    },
-    "purpleEffect": {
-      "name": "Tributo de Sangue",
-      "value": 3,
-      "type": "item_or_damage",
-      "trigger": "before_combat",
-      "target": "group_or_chosen_hero",
-      "text": "antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha.",
-      "label": "Tributo de Sangue (3): antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha."
-    }
+    "skills": [
+      {
+        "skillId": "skill_pack_courage",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_blood_tribute",
+        "params": {
+          "value": 3
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_hot_ash_worm",
@@ -1049,25 +931,21 @@
     "xp": 1,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_charred_plate",
-      "name": "Couraça Carbonizada",
-      "value": 1,
-      "type": "armor",
-      "trigger": "on_take_attack_damage",
-      "target": "self",
-      "text": "esta criatura reduz em 1 o dano sofrido por ataques.",
-      "label": "Couraça Carbonizada (1): esta criatura reduz em 1 o dano sofrido por ataques."
-    },
-    "purpleEffect": {
-      "name": "Retaliação do Véu",
-      "value": 1,
-      "type": "damage",
-      "trigger": "on_hit_received",
-      "target": "attacking_hero",
-      "text": "sempre que esta criatura for acertada por um herói, esse herói sofre 1 de dano.",
-      "label": "Retaliação do Véu (1): sempre que esta criatura for acertada por um herói, esse herói sofre 1 de dano."
-    }
+    "skills": [
+      {
+        "skillId": "skill_charred_plate",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_veil_retaliation",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_blazing_skull",
@@ -1098,25 +976,18 @@
     "xp": 2,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_rift_evasion",
-      "name": "Evasão das Fendas",
-      "value": null,
-      "type": "itemControl",
-      "trigger": "first_item_effect_received",
-      "target": "self",
-      "text": "esta criatura ignora o primeiro efeito de item usado contra ela.",
-      "label": "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela."
-    },
-    "purpleEffect": {
-      "name": "Cinzas da Ruína",
-      "value": 1,
-      "type": "discardDungeon",
-      "trigger": "on_destroyed",
-      "target": "dungeon",
-      "text": "quando esta criatura for destruída, descarte 1 carta adicional de dungeon.",
-      "label": "Cinzas da Ruína (1): quando esta criatura for destruída, descarte 1 carta adicional de dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "skill_rift_evasion"
+      },
+      {
+        "skillId": "purple_ruin_ashes",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_dead_torch_sentinel",
@@ -1147,25 +1018,21 @@
     "xp": 2,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_charred_plate",
-      "name": "Couraça Carbonizada",
-      "value": 1,
-      "type": "armor",
-      "trigger": "on_take_attack_damage",
-      "target": "self",
-      "text": "esta criatura reduz em 1 o dano sofrido por ataques.",
-      "label": "Couraça Carbonizada (1): esta criatura reduz em 1 o dano sofrido por ataques."
-    },
-    "purpleEffect": {
-      "name": "Proteção das Cinzas",
-      "value": 2,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "esta criatura reduz em 2 todo dano que sofreria.",
-      "label": "Proteção das Cinzas (2): esta criatura reduz em 2 todo dano que sofreria."
-    }
+    "skills": [
+      {
+        "skillId": "skill_charred_plate",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_ash_protection",
+        "params": {
+          "value": 2
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_forge_acolyte",
@@ -1196,25 +1063,21 @@
     "xp": 2,
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_hidden_flame_presence",
-      "name": "Presença da Chama Oculta",
-      "value": 2,
-      "type": "tohit",
-      "trigger": "combat_if_another_creature_in_room",
-      "target": "another_creature_in_room",
-      "text": "se houver outra criatura na sala, essa outra criatura recebe +2 no total de bônus de acerto.",
-      "label": "Presença da Chama Oculta (2): se houver outra criatura na sala, essa outra criatura recebe +2 no total de bônus de acerto."
-    },
-    "purpleEffect": {
-      "name": "Cinzas da Ruína",
-      "value": 1,
-      "type": "discardDungeon",
-      "trigger": "on_destroyed",
-      "target": "dungeon",
-      "text": "quando esta criatura for destruída, descarte 1 carta adicional de dungeon.",
-      "label": "Cinzas da Ruína (1): quando esta criatura for destruída, descarte 1 carta adicional de dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "skill_hidden_flame_presence",
+        "params": {
+          "value": 2
+        }
+      },
+      {
+        "skillId": "purple_ruin_ashes",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "creature_broken_chains_brute",
@@ -1245,25 +1108,18 @@
     "xp": 3,
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "skill_path_corruption",
-      "name": "Corrupção de Caminho",
-      "value": null,
-      "type": "discardDungeonLock",
-      "trigger": "while_in_play",
-      "target": "heroes",
-      "text": "enquanto esta criatura estiver em jogo, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura.",
-      "label": "Corrupção de Caminho: enquanto esta criatura estiver em jogo, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura."
-    },
-    "purpleEffect": {
-      "name": "Despertar Mortal",
-      "value": 1,
-      "type": "dungeonLevel",
-      "trigger": "on_destroyed",
-      "target": "dungeon",
-      "text": "quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.",
-      "label": "Despertar Mortal (1): quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível."
-    }
+    "skills": [
+      {
+        "skillId": "skill_path_corruption"
+      },
+      {
+        "skillId": "purple_deadly_awakening",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "subboss_crimson_dungeon_jailer",
@@ -1294,25 +1150,18 @@
     "xp": 4,
     "reward": 1,
     "rewardType": "artifact",
-    "effect": {
-      "skillId": "skill_path_corruption",
-      "name": "Corrupção de Caminho",
-      "value": null,
-      "type": "discardDungeonLock",
-      "trigger": "while_in_play",
-      "target": "heroes",
-      "text": "enquanto esta criatura estiver em jogo, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura.",
-      "label": "Corrupção de Caminho: enquanto esta criatura estiver em jogo, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura."
-    },
-    "purpleEffect": {
-      "name": "Grilhões Rubros",
-      "value": "-3/-3",
-      "type": "tohit_damage_penalty",
-      "trigger": "on_targeted_first_time",
-      "target": "target_hero",
-      "text": "o primeiro herói escolhido como alvo por esta criatura recebe -3 no total da próxima rolagem de ataque e causa -3 de dano se acertar.",
-      "label": "Grilhões Rubros (-3/-3): o primeiro herói escolhido como alvo por esta criatura recebe -3 no total da próxima rolagem de ataque e causa -3 de dano se acertar."
-    }
+    "skills": [
+      {
+        "skillId": "skill_path_corruption"
+      },
+      {
+        "skillId": "purple_crimson_shackles",
+        "params": {
+          "value": "-3/-3"
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "subboss_cracked_abyss_guardian",
@@ -1343,25 +1192,21 @@
     "xp": 4,
     "reward": 1,
     "rewardType": "artifact",
-    "effect": {
-      "skillId": "purple_dark_tribute",
-      "name": "Tributo Sombrio",
-      "value": 1,
-      "type": "item_or_discardDungeon",
-      "trigger": "before_combat",
-      "target": "group",
-      "text": "antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.",
-      "label": "Tributo Sombrio (1): antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon."
-    },
-    "purpleEffect": {
-      "name": "Despertar Mortal",
-      "value": 1,
-      "type": "dungeonLevel",
-      "trigger": "on_destroyed",
-      "target": "dungeon",
-      "text": "quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.",
-      "label": "Despertar Mortal (1): quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível."
-    }
+    "skills": [
+      {
+        "skillId": "purple_dark_tribute",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "purple_deadly_awakening",
+        "params": {
+          "value": 1
+        },
+        "requiresAwakening": true
+      }
+    ]
   },
   {
     "id": "item_pitch_torch",
@@ -1371,16 +1216,14 @@
     "tags": [
       "Utilitário"
     ],
-    "effect": {
-      "skillId": "skill_illuminate_path",
-      "name": "Iluminar o Caminho",
-      "value": 1,
-      "type": "dungeon",
-      "trigger": "on_reveal_paths",
-      "target": "dungeon",
-      "text": "ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo. Se a próxima sala for Passagem das Tochas Mortas, ignore o efeito negativo da sala.",
-      "label": "Iluminar o Caminho (1): ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo. Se a próxima sala for Passagem das Tochas Mortas, ignore o efeito negativo da sala."
-    }
+    "skills": [
+      {
+        "skillId": "skill_illuminate_path",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "item_worn_explorer_rope",
@@ -1391,16 +1234,11 @@
       "Consumível",
       "Exploração"
     ],
-    "effect": {
-      "skillId": "skill_preserved_path",
-      "name": "Caminho Preservado",
-      "value": null,
-      "type": "discardDungeon",
-      "trigger": "on_use_when_dungeon_card_would_be_discarded",
-      "target": "dungeon",
-      "text": "descarte este item. Uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.",
-      "label": "Caminho Preservado: descarte este item. Uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "skill_preserved_path"
+      }
+    ]
   },
   {
     "id": "item_rusty_dagger",
@@ -1411,16 +1249,14 @@
       "Equipável",
       "Arma"
     ],
-    "effect": {
-      "skillId": "item_skill_deadly_edge",
-      "name": "Fio Mortal",
-      "value": 1,
-      "type": "tohit_damage",
-      "trigger": "combat",
-      "target": "self",
-      "text": "receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano.",
-      "label": "Fio Mortal (1): receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_deadly_edge",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "item_cracked_shield",
@@ -1432,16 +1268,14 @@
       "Escudo",
       "Defesa"
     ],
-    "effect": {
-      "skillId": "item_skill_block",
-      "name": "Bloqueio",
-      "value": 2,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "reduza em 2 o dano sofrido por este herói.",
-      "label": "Bloqueio (2): reduza em 2 o dano sofrido por este herói."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_block",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
   },
   {
     "id": "item_lesser_vigor_potion",
@@ -1452,16 +1286,14 @@
       "Consumível",
       "Cura"
     ],
-    "effect": {
-      "skillId": "skill_last_light_healing",
-      "name": "Cura da Última Luz",
-      "value": 2,
-      "type": "heal",
-      "trigger": "on_use",
-      "target": "hero_or_ally_creature",
-      "text": "cure 2 de vida de um herói ou criatura aliada.",
-      "label": "Cura da Última Luz (2): cure 2 de vida de um herói ou criatura aliada."
-    }
+    "skills": [
+      {
+        "skillId": "skill_last_light_healing",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
   },
   {
     "id": "item_incendiary_oil_flask",
@@ -1472,16 +1304,14 @@
       "Consumível",
       "Fogo"
     ],
-    "effect": {
-      "skillId": "skill_living_ember_oil",
-      "name": "Brasa Viva",
-      "value": "item_incendiary_oil_flask.livingEmber",
-      "type": "script",
-      "trigger": "before_combat_roll",
-      "target": "creature",
-      "text": "cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver a habilidade Corpo Gelatinoso, cause 3 de dano em vez de 2.",
-      "label": "Brasa Viva (2/3): cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver a habilidade Corpo Gelatinoso, cause 3 de dano em vez de 2."
-    }
+    "skills": [
+      {
+        "skillId": "skill_living_ember_oil",
+        "params": {
+          "value": "item_incendiary_oil_flask.livingEmber"
+        }
+      }
+    ]
   },
   {
     "id": "item_ancient_iron_key",
@@ -1492,16 +1322,14 @@
       "Especial",
       "Artefato"
     ],
-    "effect": {
-      "skillId": "item_skill_mystic_draw",
-      "name": "Saque Místico",
-      "value": 1,
-      "type": "drawArtifact",
-      "trigger": "on_use",
-      "target": "artifact_deck",
-      "text": "saque 1 carta de Artefato da pilha de artefatos.",
-      "label": "Saque Místico (1): saque 1 carta de Artefato da pilha de artefatos."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_mystic_draw",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "item_tunnel_hood",
@@ -1513,16 +1341,14 @@
       "Proteção",
       "Exploração"
     ],
-    "effect": {
-      "skillId": "skill_focus_deflection",
-      "name": "Desvio de Foco",
-      "value": 2,
-      "type": "targetRedirect",
-      "trigger": "once_per_room_on_targeted",
-      "target": "another_hero_or_self",
-      "text": "uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto.",
-      "label": "Desvio de Foco (2): uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto."
-    }
+    "skills": [
+      {
+        "skillId": "skill_focus_deflection",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
   },
   {
     "id": "item_light_stone_boots",
@@ -1533,16 +1359,11 @@
       "Equipável",
       "Mobilidade"
     ],
-    "effect": {
-      "skillId": "skill_rift_light_step",
-      "name": "Passo Leve das Fendas",
-      "value": null,
-      "type": "controlProtection",
-      "trigger": "once_per_room",
-      "target": "dungeon",
-      "text": "uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon.",
-      "label": "Passo Leve das Fendas: uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "skill_rift_light_step"
+      }
+    ]
   },
   {
     "id": "item_crimson_rune_staff",
@@ -1554,16 +1375,14 @@
       "Arma",
       "Runas"
     ],
-    "effect": {
-      "skillId": "skill_minor_rune",
-      "name": "Runa Menor",
-      "value": 1,
-      "type": "reroll",
-      "trigger": "once_per_room_after_roll",
-      "target": "die_with_value_1",
-      "text": "uma vez por sala, depois de rolar, você pode rerrolar um dado que tenha o valor 1.",
-      "label": "Runa Menor (1): uma vez por sala, depois de rolar, você pode rerrolar um dado que tenha o valor 1."
-    }
+    "skills": [
+      {
+        "skillId": "skill_minor_rune",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "item_last_light_sword",
@@ -1575,16 +1394,14 @@
       "Arma",
       "Última Luz"
     ],
-    "effect": {
-      "skillId": "item_skill_last_light_blade",
-      "name": "Lâmina da Última Luz",
-      "value": "2/2",
-      "type": "tohit_damage",
-      "trigger": "combat_vs_boss_or_subboss",
-      "target": "self",
-      "text": "receba +2 no total de bônus da rolagem. Contra chefes e subchefes, cause +2 de dano ao acertar.",
-      "label": "Lâmina da Última Luz (2/2): receba +2 no total de bônus da rolagem. Contra chefes e subchefes, cause +2 de dano ao acertar."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_last_light_blade",
+        "params": {
+          "value": "2/2"
+        }
+      }
+    ]
   },
   {
     "id": "item_deep_veil_scythe",
@@ -1596,16 +1413,14 @@
       "Arma",
       "Véu"
     ],
-    "effect": {
-      "skillId": "item_skill_drain_life_and_deadly_edge",
-      "name": "Drenar Vida e Fio Mortal",
-      "value": "1/1",
-      "type": "tohit_damage_heal",
-      "trigger": "combat_and_on_damage_dealt",
-      "target": "self",
-      "text": "receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano. Cure 1 de vida deste herói apenas se ele causar dano.",
-      "label": "Drenar Vida e Fio Mortal (1/1): receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano. Cure 1 de vida deste herói apenas se ele causar dano."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_drain_life_and_deadly_edge",
+        "params": {
+          "value": "1/1"
+        }
+      }
+    ]
   },
   {
     "id": "item_ruined_hall_axe",
@@ -1617,16 +1432,14 @@
       "Arma",
       "Dano"
     ],
-    "effect": {
-      "skillId": "item_skill_deadly_edge",
-      "name": "Fio Mortal",
-      "value": 3,
-      "type": "tohit_damage",
-      "trigger": "combat",
-      "target": "self",
-      "text": "receba +3 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +3 de dano.",
-      "label": "Fio Mortal (3): receba +3 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +3 de dano."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_deadly_edge",
+        "params": {
+          "value": 3
+        }
+      }
+    ]
   },
   {
     "id": "item_broken_stone_hammer",
@@ -1638,16 +1451,14 @@
       "Arma",
       "Força"
     ],
-    "effect": {
-      "skillId": "item_skill_deadly_edge",
-      "name": "Fio Mortal",
-      "value": 2,
-      "type": "tohit_damage",
-      "trigger": "combat",
-      "target": "self",
-      "text": "receba +2 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +2 de dano.",
-      "label": "Fio Mortal (2): receba +2 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +2 de dano."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_deadly_edge",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
   },
   {
     "id": "item_rift_bow",
@@ -1660,16 +1471,11 @@
       "Distância",
       "Fendas"
     ],
-    "effect": {
-      "skillId": "skill_opportunity_shot",
-      "name": "Tiro de Oportunidade",
-      "value": null,
-      "type": "directDamage",
-      "trigger": "once_per_combat_instead_of_attack",
-      "target": "creature",
-      "text": "uma vez por combate, ao invés de combater, cause o seu dano direto na criatura.",
-      "label": "Tiro de Oportunidade: uma vez por combate, ao invés de combater, cause o seu dano direto na criatura."
-    }
+    "skills": [
+      {
+        "skillId": "skill_opportunity_shot"
+      }
+    ]
   },
   {
     "id": "item_reinforced_leather_armor",
@@ -1681,16 +1487,14 @@
       "Armadura",
       "Defesa"
     ],
-    "effect": {
-      "skillId": "item_skill_block",
-      "name": "Bloqueio",
-      "value": 1,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "reduza em 1 o dano sofrido por este herói.",
-      "label": "Bloqueio (1): reduza em 1 o dano sofrido por este herói."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_block",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "item_ancient_metal_armor",
@@ -1702,16 +1506,14 @@
       "Armadura",
       "Metal"
     ],
-    "effect": {
-      "skillId": "item_skill_block",
-      "name": "Bloqueio",
-      "value": 2,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "reduza em 2 o dano sofrido por este herói.",
-      "label": "Bloqueio (2): reduza em 2 o dano sofrido por este herói."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_block",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
   },
   {
     "id": "item_forge_magic_armor",
@@ -1724,16 +1526,14 @@
       "Fornalha",
       "Arcano"
     ],
-    "effect": {
-      "skillId": "item_skill_block_and_last_light_ward",
-      "name": "Bloqueio e Resguardo da Última Luz",
-      "value": "3/2",
-      "type": "armor_purple_damage_reduction",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "reduza em 3 o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional.",
-      "label": "Bloqueio e Resguardo da Última Luz (3/2): reduza em 3 o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_block_and_last_light_ward",
+        "params": {
+          "value": "3/2"
+        }
+      }
+    ]
   },
   {
     "id": "item_broken_veil_cloak",
@@ -1745,16 +1545,11 @@
       "Armadura",
       "Véu"
     ],
-    "effect": {
-      "skillId": "skill_protective_veil",
-      "name": "Véu Protetor",
-      "value": null,
-      "type": "targetProtection",
-      "trigger": "once_per_room",
-      "target": "self",
-      "text": "uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo.",
-      "label": "Véu Protetor: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo."
-    }
+    "skills": [
+      {
+        "skillId": "skill_protective_veil"
+      }
+    ]
   },
   {
     "id": "item_fury_potion",
@@ -1766,16 +1561,14 @@
       "Deserto Rubro",
       "Dano"
     ],
-    "effect": {
-      "skillId": "skill_crimson_fury",
-      "name": "Fúria Rubra",
-      "value": 2,
-      "type": "self_damage_for_damage",
-      "trigger": "before_attack",
-      "target": "self",
-      "text": "este personagem sofre 2 de dano para causar dano adicional igual a 6 no próximo ataque.",
-      "label": "Fúria Rubra (2): este personagem sofre 2 de dano para causar dano adicional igual a 6 no próximo ataque."
-    }
+    "skills": [
+      {
+        "skillId": "skill_crimson_fury",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
   },
   {
     "id": "item_precision_potion",
@@ -1786,16 +1579,14 @@
       "Consumível",
       "Precisão"
     ],
-    "effect": {
-      "skillId": "skill_hunter_focus",
-      "name": "Foco do Caçador",
-      "value": 4,
-      "type": "tohit",
-      "trigger": "on_use",
-      "target": "self",
-      "text": "descarte este item. Este herói recebe +4 no Bônus de Acerto no próximo ataque.",
-      "label": "Foco do Caçador (4): descarte este item. Este herói recebe +4 no Bônus de Acerto no próximo ataque."
-    }
+    "skills": [
+      {
+        "skillId": "skill_hunter_focus",
+        "params": {
+          "value": 4
+        }
+      }
+    ]
   },
   {
     "id": "item_stoneskin_potion",
@@ -1807,16 +1598,14 @@
       "Defesa",
       "Pedra"
     ],
-    "effect": {
-      "skillId": "item_skill_block",
-      "name": "Bloqueio",
-      "value": 3,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "reduza em 3 o dano sofrido por este herói.",
-      "label": "Bloqueio (3): reduza em 3 o dano sofrido por este herói."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_block",
+        "params": {
+          "value": 3
+        }
+      }
+    ]
   },
   {
     "id": "item_return_potion",
@@ -1828,16 +1617,14 @@
       "Dungeon",
       "Fendas"
     ],
-    "effect": {
-      "skillId": "power_restored_path",
-      "name": "Caminho Restaurado",
-      "value": 1,
-      "type": "recoverDungeon",
-      "trigger": "once_per_game",
-      "target": "dungeon",
-      "text": "uma vez por jogo, recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.",
-      "label": "Caminho Restaurado (1): uma vez por jogo, recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "power_restored_path",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "item_living_ember_potion",
@@ -1849,16 +1636,14 @@
       "Fogo",
       "Dano Direto"
     ],
-    "effect": {
-      "skillId": "skill_living_ember",
-      "name": "Brasa Viva",
-      "value": 3,
-      "type": "damage",
-      "trigger": "on_use",
-      "target": "creature",
-      "text": "cause 3 de dano direto a uma criatura em jogo.",
-      "label": "Brasa Viva (3): cause 3 de dano direto a uma criatura em jogo."
-    }
+    "skills": [
+      {
+        "skillId": "skill_living_ember",
+        "params": {
+          "value": 3
+        }
+      }
+    ]
   },
   {
     "id": "item_greater_vigor_potion",
@@ -1869,16 +1654,14 @@
       "Consumível",
       "Cura"
     ],
-    "effect": {
-      "skillId": "skill_last_light_healing",
-      "name": "Cura da Última Luz",
-      "value": 4,
-      "type": "heal",
-      "trigger": "on_use",
-      "target": "hero_or_ally_creature",
-      "text": "cure 4 de vida de um herói ou criatura aliada.",
-      "label": "Cura da Última Luz (4): cure 4 de vida de um herói ou criatura aliada."
-    }
+    "skills": [
+      {
+        "skillId": "skill_last_light_healing",
+        "params": {
+          "value": 4
+        }
+      }
+    ]
   },
   {
     "id": "item_silent_dungeon_charm",
@@ -1890,16 +1673,11 @@
       "Dungeon",
       "Proteção"
     ],
-    "effect": {
-      "skillId": "skill_path_safeguard",
-      "name": "Salvaguarda de Caminho",
-      "value": null,
-      "type": "discardDungeon",
-      "trigger": "on_dungeon_discard",
-      "target": "dungeon",
-      "text": "previna o descarte de dungeon dessa rodada.",
-      "label": "Salvaguarda de Caminho: previna o descarte de dungeon dessa rodada."
-    }
+    "skills": [
+      {
+        "skillId": "skill_path_safeguard"
+      }
+    ]
   },
   {
     "id": "item_low_flame_charm",
@@ -1911,16 +1689,14 @@
       "Fornalha",
       "Acerto"
     ],
-    "effect": {
-      "skillId": "skill_hunter_focus",
-      "name": "Foco do Caçador",
-      "value": 2,
-      "type": "tohit",
-      "trigger": "while_equipped",
-      "target": "self",
-      "text": "enquanto este item estiver equipado, este herói recebe +2 no Bônus de Acerto.",
-      "label": "Foco do Caçador (2): enquanto este item estiver equipado, este herói recebe +2 no Bônus de Acerto."
-    }
+    "skills": [
+      {
+        "skillId": "skill_hunter_focus",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
   },
   {
     "id": "item_warm_blood_charm",
@@ -1932,16 +1708,14 @@
       "Deserto Rubro",
       "Sobrevivência"
     ],
-    "effect": {
-      "skillId": "item_skill_block",
-      "name": "Bloqueio",
-      "value": 10,
-      "type": "armor",
-      "trigger": "on_take_damage",
-      "target": "self",
-      "text": "reduza em 10 o dano sofrido por este herói.",
-      "label": "Bloqueio (10): reduza em 10 o dano sofrido por este herói."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_block",
+        "params": {
+          "value": 10
+        }
+      }
+    ]
   },
   {
     "id": "item_safe_path_charm",
@@ -1953,16 +1727,11 @@
       "Exploração",
       "Dungeon"
     ],
-    "effect": {
-      "skillId": "skill_illuminate_path",
-      "name": "Iluminar o Caminho",
-      "value": null,
-      "type": "dungeon",
-      "trigger": "on_reveal_paths",
-      "target": "dungeon",
-      "text": "ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo.",
-      "label": "Iluminar o Caminho: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo."
-    }
+    "skills": [
+      {
+        "skillId": "skill_illuminate_path"
+      }
+    ]
   },
   {
     "id": "item_last_defense_charm",
@@ -1974,16 +1743,14 @@
       "Última Luz",
       "Sobrevivência"
     ],
-    "effect": {
-      "skillId": "power_greater_last_light_miracle",
-      "name": "Milagre Maior da Última Luz",
-      "value": "full/1",
-      "type": "heal_or_survive",
-      "trigger": "once_per_game",
-      "target": "hero",
-      "text": "uma vez por jogo, cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.",
-      "label": "Milagre Maior da Última Luz (full/1): uma vez por jogo, cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida."
-    }
+    "skills": [
+      {
+        "skillId": "power_greater_last_light_miracle",
+        "params": {
+          "value": "full/1"
+        }
+      }
+    ]
   },
   {
     "id": "item_last_chord_lute",
@@ -1995,16 +1762,11 @@
       "Encanto",
       "Fuga"
     ],
-    "effect": {
-      "skillId": "skill_protective_veil",
-      "name": "Véu Protetor",
-      "value": null,
-      "type": "targetProtection",
-      "trigger": "once_per_room",
-      "target": "self",
-      "text": "uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo.",
-      "label": "Véu Protetor: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo."
-    }
+    "skills": [
+      {
+        "skillId": "skill_protective_veil"
+      }
+    ]
   },
   {
     "id": "item_narrow_exit_cloak",
@@ -2016,16 +1778,11 @@
       "Fuga",
       "Mobilidade"
     ],
-    "effect": {
-      "skillId": "skill_illuminate_path",
-      "name": "Iluminar o Caminho",
-      "value": null,
-      "type": "dungeon",
-      "trigger": "on_reveal_paths",
-      "target": "dungeon",
-      "text": "ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo.",
-      "label": "Iluminar o Caminho: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo."
-    }
+    "skills": [
+      {
+        "skillId": "skill_illuminate_path"
+      }
+    ]
   },
   {
     "id": "item_torn_depths_map",
@@ -2037,16 +1794,14 @@
       "Artefato",
       "Exploração"
     ],
-    "effect": {
-      "skillId": "item_skill_mystic_draw",
-      "name": "Saque Místico",
-      "value": 1,
-      "type": "drawArtifact",
-      "trigger": "on_use",
-      "target": "artifact_deck",
-      "text": "saque 1 carta de Artefato da pilha de artefatos.",
-      "label": "Saque Místico (1): saque 1 carta de Artefato da pilha de artefatos."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_mystic_draw",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "item_hidden_forge_chest",
@@ -2058,96 +1813,81 @@
       "Artefato",
       "Fornalha"
     ],
-    "effect": {
-      "skillId": "item_skill_mystic_draw",
-      "name": "Saque Místico",
-      "value": 1,
-      "type": "drawArtifact",
-      "trigger": "on_use",
-      "target": "artifact_deck",
-      "text": "saque 1 carta de Artefato da pilha de artefatos.",
-      "label": "Saque Místico (1): saque 1 carta de Artefato da pilha de artefatos."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_mystic_draw",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "artifact_crimson_jailer_chain",
     "type": "artifact",
     "name": "Corrente do Carcereiro Rubro",
     "countsAs": "artifact",
-    "effect": {
-      "skillId": "skill_preserved_path",
-      "name": "Caminho Preservado",
-      "value": null,
-      "type": "discardDungeon",
-      "trigger": "once_per_room_on_dungeon_card_would_be_discarded",
-      "target": "dungeon",
-      "text": "uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.",
-      "label": "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
-    }
+    "skills": [
+      {
+        "skillId": "skill_preserved_path"
+      }
+    ]
   },
   {
     "id": "artifact_ancient_ember_heart",
     "type": "artifact",
     "name": "Coração de Brasa Antiga",
     "countsAs": "artifact",
-    "effect": {
-      "skillId": "item_skill_deadly_edge",
-      "name": "Fio Mortal",
-      "value": 1,
-      "type": "tohit_damage",
-      "trigger": "combat",
-      "target": "self",
-      "text": "receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano.",
-      "label": "Fio Mortal (1): receba +1 no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +1 de dano."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_deadly_edge",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "artifact_lost_forge_hammer",
     "type": "artifact",
     "name": "Martelo da Forja Perdida",
     "countsAs": "artifact",
-    "effect": {
-      "skillId": "power_supreme_rift_rune",
-      "name": "Runa Suprema das Fendas",
-      "value": "6/1",
-      "type": "diceFix",
-      "trigger": "once_per_game_after_any_roll",
-      "target": "ally_or_enemy_die",
-      "text": "uma vez por jogo, depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.",
-      "label": "Runa Suprema das Fendas (6/1): uma vez por jogo, depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
-    }
+    "skills": [
+      {
+        "skillId": "power_supreme_rift_rune",
+        "params": {
+          "value": "6/1"
+        }
+      }
+    ]
   },
   {
     "id": "artifact_last_vigil_brazier",
     "type": "artifact",
     "name": "Braseiro da Última Vigília",
     "countsAs": "artifact",
-    "effect": {
-      "skillId": "power_greater_last_light_miracle",
-      "name": "Milagre Maior da Última Luz",
-      "value": "full/1",
-      "type": "heal_or_survive",
-      "trigger": "once_per_game",
-      "target": "hero",
-      "text": "uma vez por jogo, cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.",
-      "label": "Milagre Maior da Última Luz (full/1): uma vez por jogo, cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida."
-    }
+    "skills": [
+      {
+        "skillId": "power_greater_last_light_miracle",
+        "params": {
+          "value": "full/1"
+        }
+      }
+    ]
   },
   {
     "id": "artifact_first_fire_blade",
     "type": "artifact",
     "name": "Lâmina do Primeiro Incêndio",
     "countsAs": "artifact",
-    "effect": {
-      "skillId": "item_skill_crimson_fury_mighty",
-      "name": "Fúria Rubra e Fúria Rubra Poderosa",
-      "value": "2/poderosa",
-      "type": "self_damage_for_damage_until_end_of_combat",
-      "trigger": "before_attack_once_per_game",
-      "target": "self",
-      "text": "este personagem sofre 2 de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-      "label": "Fúria Rubra e Fúria Rubra Poderosa (2/poderosa): este personagem sofre 2 de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
-    }
+    "skills": [
+      {
+        "skillId": "item_skill_crimson_fury_mighty",
+        "params": {
+          "value": "2/poderosa"
+        }
+      }
+    ]
   },
   {
     "id": "subboss_room_jailer_chamber",
@@ -2158,16 +1898,11 @@
     "rewardType": "artifact",
     "xp": 4,
     "linkedSubbossName": "Carcereiro da Masmorra Rubra",
-    "effect": {
-      "skillId": "dungeon_skill_subboss_room",
-      "name": "Sala do Subchefe",
-      "value": null,
-      "type": "noop",
-      "trigger": "room_passive",
-      "target": "room",
-      "text": "sala especial: o Carcereiro da Masmorra Rubra guarda esta câmara.",
-      "label": "Sala do Subchefe: o Carcereiro da Masmorra Rubra guarda esta câmara."
-    }
+    "skills": [
+      {
+        "skillId": "dungeon_skill_subboss_room"
+      }
+    ]
   },
   {
     "id": "subboss_room_cracked_abyss_chamber",
@@ -2178,16 +1913,11 @@
     "rewardType": "artifact",
     "xp": 4,
     "linkedSubbossName": "Guardião do Abismo Rachado",
-    "effect": {
-      "skillId": "dungeon_skill_subboss_room",
-      "name": "Sala do Subchefe",
-      "value": null,
-      "type": "noop",
-      "trigger": "room_passive",
-      "target": "room",
-      "text": "sala especial: o Guardião do Abismo Rachado patrulha este abismo.",
-      "label": "Sala do Subchefe: o Guardião do Abismo Rachado patrulha este abismo."
-    }
+    "skills": [
+      {
+        "skillId": "dungeon_skill_subboss_room"
+      }
+    ]
   },
   {
     "id": "room_narrow_corridor",
@@ -2202,16 +1932,11 @@
     ],
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_empty_room",
-      "name": "Sala Vazia",
-      "value": null,
-      "type": "room",
-      "trigger": "room_passive",
-      "target": "room",
-      "text": "sem efeito adicional. Sala de início ideal.",
-      "label": "Sala Vazia: sem efeito adicional. Sala de início ideal."
-    }
+    "skills": [
+      {
+        "skillId": "dungeon_skill_empty_room"
+      }
+    ]
   },
   {
     "id": "room_dungeon_room",
@@ -2226,17 +1951,12 @@
     ],
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_empty_room",
-      "name": "Sala Vazia",
-      "value": null,
-      "type": "room",
-      "trigger": "room_passive",
-      "target": "room",
-      "text": "sem efeito adicional.",
-      "label": "Sala Vazia: sem efeito adicional."
-    },
-    "xp": 1
+    "xp": 1,
+    "skills": [
+      {
+        "skillId": "dungeon_skill_empty_room"
+      }
+    ]
   },
   {
     "id": "room_crimson_chains_chamber",
@@ -2251,17 +1971,12 @@
     ],
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_confinement",
-      "name": "Confinamento",
-      "value": null,
-      "type": "fleeLock",
-      "trigger": "while_room_active",
-      "target": "creatures_or_heroes_in_room",
-      "text": "criaturas ou heróis nesta sala não podem fugir.",
-      "label": "Confinamento: criaturas ou heróis nesta sala não podem fugir."
-    },
-    "xp": 2
+    "xp": 2,
+    "skills": [
+      {
+        "skillId": "dungeon_skill_confinement"
+      }
+    ]
   },
   {
     "id": "room_dead_torches_passage",
@@ -2276,17 +1991,15 @@
     ],
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_dead_torches",
-      "name": "Tochas Mortas",
-      "value": "-1/1",
-      "type": "item_or_tohit_penalty",
-      "trigger": "before_first_combat_in_room",
-      "target": "heroes",
-      "text": "antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
-      "label": "Tochas Mortas (-1/1): antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito."
-    },
-    "xp": 2
+    "xp": 2,
+    "skills": [
+      {
+        "skillId": "dungeon_skill_dead_torches",
+        "params": {
+          "value": "-1/1"
+        }
+      }
+    ]
   },
   {
     "id": "room_broken_columns_hall",
@@ -2301,17 +2014,15 @@
     ],
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_column_fall",
-      "name": "Queda de Coluna",
-      "value": 1,
-      "type": "damage",
-      "trigger": "on_first_creature_destroyed_in_room",
-      "target": "remaining_creature",
-      "text": "a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano.",
-      "label": "Queda de Coluna (1): a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano."
-    },
-    "xp": 1
+    "xp": 1,
+    "skills": [
+      {
+        "skillId": "dungeon_skill_column_fall",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "room_depths_stairway",
@@ -2326,17 +2037,15 @@
     ],
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_uneven_floor",
-      "name": "Piso Irregular",
-      "value": 1,
-      "type": "discardDungeon",
-      "trigger": "on_hero_lose_combat_in_room",
-      "target": "dungeon",
-      "text": "se algum herói perder um combate nesta sala, descarte +1 carta de dungeon.",
-      "label": "Piso Irregular (1): se algum herói perder um combate nesta sala, descarte +1 carta de dungeon."
-    },
-    "xp": 2
+    "xp": 2,
+    "skills": [
+      {
+        "skillId": "dungeon_skill_uneven_floor",
+        "params": {
+          "value": 1
+        }
+      }
+    ]
   },
   {
     "id": "room_abandoned_cell",
@@ -2351,17 +2060,15 @@
     ],
     "reward": 1,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_forge_spoils",
-      "name": "Espólios da Fornalha",
-      "value": "2/1",
-      "type": "drawItem",
-      "trigger": "on_win_room",
-      "target": "item_deck",
-      "text": "ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon.",
-      "label": "Espólios da Fornalha (2/1): ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon."
-    },
-    "xp": 1
+    "xp": 1,
+    "skills": [
+      {
+        "skillId": "dungeon_skill_forge_spoils",
+        "params": {
+          "value": "2/1"
+        }
+      }
+    ]
   },
   {
     "id": "room_ruined_forge",
@@ -2376,17 +2083,12 @@
     ],
     "reward": 2,
     "rewardType": "item",
-    "effect": {
-      "skillId": "dungeon_skill_rekindled_forge",
-      "name": "Forja Reacesa",
-      "value": null,
-      "type": "recoverItem",
-      "trigger": "on_win_room",
-      "target": "discarded_item",
-      "text": "ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói.",
-      "label": "Forja Reacesa: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói."
-    },
-    "xp": 2
+    "xp": 2,
+    "skills": [
+      {
+        "skillId": "dungeon_skill_rekindled_forge"
+      }
+    ]
   },
   {
     "id": "room_jailer_room",
@@ -2401,18 +2103,16 @@
     ],
     "reward": 1,
     "rewardType": "artifact",
-    "effect": {
-      "skillId": "dungeon_skill_summon_guardian",
-      "name": "Invocar Guardião",
-      "value": "Carcereiro da Masmorra Rubra",
-      "type": "roomSpecial",
-      "trigger": "on_room_reveal",
-      "target": "special_creature",
-      "text": "revele o Carcereiro da Masmorra Rubra junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o Carcereiro da Masmorra Rubra seja derrotado, remova esta carta do jogo.",
-      "label": "Invocar Guardião (Carcereiro da Masmorra Rubra): revele o Carcereiro da Masmorra Rubra junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o Carcereiro da Masmorra Rubra seja derrotado, remova esta carta do jogo."
-    },
     "xp": 3,
-    "specialCreature": "Carcereiro da Masmorra Rubra"
+    "specialCreature": "Carcereiro da Masmorra Rubra",
+    "skills": [
+      {
+        "skillId": "dungeon_skill_summon_guardian",
+        "params": {
+          "value": "Carcereiro da Masmorra Rubra"
+        }
+      }
+    ]
   },
   {
     "id": "room_cracked_abyss",
@@ -2427,18 +2127,16 @@
     ],
     "reward": 1,
     "rewardType": "artifact",
-    "effect": {
-      "skillId": "dungeon_skill_summon_guardian",
-      "name": "Invocar Guardião",
-      "value": "Guardião do Abismo Rachado",
-      "type": "roomSpecial",
-      "trigger": "on_room_reveal",
-      "target": "special_creature",
-      "text": "revele o Guardião do Abismo Rachado junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o Guardião do Abismo Rachado seja derrotado, remova esta carta do jogo.",
-      "label": "Invocar Guardião (Guardião do Abismo Rachado): revele o Guardião do Abismo Rachado junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o Guardião do Abismo Rachado seja derrotado, remova esta carta do jogo."
-    },
     "xp": 3,
-    "specialCreature": "Guardião do Abismo Rachado"
+    "specialCreature": "Guardião do Abismo Rachado",
+    "skills": [
+      {
+        "skillId": "dungeon_skill_summon_guardian",
+        "params": {
+          "value": "Guardião do Abismo Rachado"
+        }
+      }
+    ]
   },
   {
     "id": "boss_azhakar",
@@ -2451,51 +2149,45 @@
     "condition": "o grupo precisa possuir ao menos 3 Artefatos.",
     "artifactBonus": "se o grupo possuir Corrente do Carcereiro Rubro, Coração de Brasa Antiga e Martelo da Forja Perdida, Azhakar começa a luta com 16 de Vida em vez de 20.",
     "dungeonScaling": "Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.",
-    "abilities": [
-      {
-        "name": "Trono de Cinzas Vivas",
-        "effect": {
-          "skillId": "boss_skill_living_ash_throne",
-          "name": "Trono de Cinzas Vivas",
-          "value": 1,
-          "type": "armor",
-          "trigger": "first_damage_each_round",
-          "target": "boss",
-          "text": "o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1.",
-          "label": "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."
-        }
-      },
-      {
-        "name": "Pressão da Fornalha Sombria",
-        "effect": {
-          "skillId": "boss_skill_dark_forge_pressure",
-          "name": "Pressão da Fornalha Sombria",
-          "value": 1,
-          "type": "discardDungeon",
-          "trigger": "after_each_combat_round_if_purple",
-          "target": "dungeon",
-          "text": "após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon.",
-          "label": "Pressão da Fornalha Sombria (1): após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon."
-        }
-      },
-      {
-        "name": "Ascensão de Azhakar",
-        "effect": {
-          "skillId": "boss_skill_azhakar_ascension",
-          "name": "Ascensão de Azhakar",
-          "value": 2,
-          "type": "tohit",
-          "trigger": "when_half_life_or_less",
-          "target": "boss",
-          "text": "quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto.",
-          "label": "Ascensão de Azhakar (2): quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto."
-        }
-      }
-    ],
     "victory": "ao derrotar Azhakar, os jogadores vencem a partida.",
     "accessCondition": {
       "type": "group_artifacts_gte",
       "value": 2
-    }
+    },
+    "abilities": [
+      {
+        "name": "Trono de Cinzas Vivas",
+        "skills": [
+          {
+            "skillId": "boss_skill_living_ash_throne",
+            "params": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "name": "Pressão da Fornalha Sombria",
+        "skills": [
+          {
+            "skillId": "boss_skill_dark_forge_pressure",
+            "params": {
+              "value": 1
+            }
+          }
+        ]
+      },
+      {
+        "name": "Ascensão de Azhakar",
+        "skills": [
+          {
+            "skillId": "boss_skill_azhakar_ascension",
+            "params": {
+              "value": 2
+            }
+          }
+        ]
+      }
+    ]
   }
 ]
