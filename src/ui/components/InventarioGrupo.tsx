@@ -4,6 +4,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import { getCardByName } from "@/core/data/cards";
+import { cardSkills } from "@/core/skills/lookup";
+import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import { useGameStore } from "@/ui/store/gameStore";
@@ -53,10 +55,10 @@ function shortLabel(name: string): string {
 
 function artifactRequiresBearer(cardName: string): boolean {
 	const card = getCardByName(cardName);
-	return (
-		card?.type === "artifact" &&
-		card.effect.label.toLowerCase().includes("portador")
-	);
+	if (card?.type !== "artifact") return false;
+	const main = cardSkills(card.id)[0];
+	if (!main) return false;
+	return renderSkillLabel(main.ref).toLowerCase().includes("portador");
 }
 
 // ── Tipo do item em voo ───────────────────────────────────────────────────────
@@ -1101,7 +1103,8 @@ function ItemTooltipPanel({
 
 	const isItem = card.type === "item";
 	const tagLine = isItem ? card.tags.join(" · ") : "Artefato de grupo";
-	const effect = card.effect.label;
+	const effectEntry = cardSkills(card.id)[0];
+	const effect = effectEntry ? renderSkillLabel(effectEntry.ref) : "";
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
 	const isConsumable = isItem && card.itemClass === "consumable" && !!target.heroId;

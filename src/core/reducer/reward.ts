@@ -3,6 +3,8 @@
 // Itens e artefatos são resolvidos um a um via CHOOSE_ITEM_DESTINATION / CHOOSE_ARTIFACT_BEARER.
 
 import { getCardByName } from "../data/cards";
+import { cardSkills } from "../skills/lookup";
+import { renderSkillLabel } from "../skills/renderLabel";
 import type { XpSpendOption } from "../config/defaults";
 import type { InvFromZone, InvToZone } from "../actions/types";
 import { XP_COSTS } from "../config/defaults";
@@ -100,12 +102,13 @@ export function handleGrantRewards(state: GameState): GameState {
 				artifactDeck: { ...next.decks.artifactDeck, available: rest },
 			},
 		};
-		// Verificar se o artefato tem portador ("portador" no texto)
+		// Verificar se o artefato tem portador ("portador" no label renderizado)
 		const artCard = getCardByName(artName as string);
+		const artSkillEntry = artCard?.type === "artifact" ? cardSkills(artCard.id)[0] : null;
 		const requiresBearer =
 			artCard?.type === "artifact" &&
-			(artCard.effect.label.toLowerCase().includes("portador") ||
-				artCard.effect.text.toLowerCase().includes("portador"));
+			!!artSkillEntry &&
+			renderSkillLabel(artSkillEntry.ref).toLowerCase().includes("portador");
 		queue.push({
 			type: "artifact",
 			cardName: artName as string,

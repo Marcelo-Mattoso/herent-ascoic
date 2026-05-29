@@ -1,4 +1,6 @@
 import { getCardByName } from "@/core/data/cards";
+import { cardSkills } from "@/core/skills/lookup";
+import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CardType } from "@/ui/components/Card";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -33,122 +35,123 @@ export function CardDetailModal({
 						{card?.type ?? cardType}
 					</p>
 
-					{card?.type === "hero" && (
-						<>
-							<Row label="Dano" value={String(card.damage)} />
-							<div>
-								<p
-									className="text-xs font-medium"
-									style={{ color: UI.textSecondary }}
-								>
-									Habilidade
-								</p>
-								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{card.skill.label}
-								</p>
-							</div>
-							<div>
-								<p
-									className="text-xs font-medium"
-									style={{ color: UI.textSecondary }}
-								>
-									Poder
-								</p>
-								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{card.power.label}
-								</p>
-							</div>
-							<p className="text-xs italic" style={{ color: UI.textTertiary }}>
-								{card.style}
+					{card?.type === "hero" && (() => {
+						const heroSkills = cardSkills(card.id);
+						const habilidade = heroSkills.find(({ def }) => def.category === "habilidade");
+						const poder = heroSkills.find(({ def }) => def.category === "poder_heroi");
+						return (
+							<>
+								<Row label="Dano" value={String(card.damage)} />
+								{habilidade && (
+									<div>
+										<p className="text-xs font-medium" style={{ color: UI.textSecondary }}>Habilidade</p>
+										<p className="text-xs" style={{ color: UI.textPrimary }}>{renderSkillLabel(habilidade.ref)}</p>
+									</div>
+								)}
+								{poder && (
+									<div>
+										<p className="text-xs font-medium" style={{ color: UI.textSecondary }}>Poder</p>
+										<p className="text-xs" style={{ color: UI.textPrimary }}>{renderSkillLabel(poder.ref)}</p>
+									</div>
+								)}
+								<p className="text-xs italic" style={{ color: UI.textTertiary }}>{card.style}</p>
+							</>
+						);
+					})()}
+
+					{(card?.type === "creature" || card?.type === "subboss") && (() => {
+						const creatureSkills = cardSkills(card.id);
+						const main = creatureSkills.find(({ ref }) => !ref.requiresAwakening);
+						const purple = creatureSkills.find(({ ref }) => ref.requiresAwakening);
+						return (
+							<>
+								<Row label="Dano" value={String(card.damage)} />
+								<Row label="XP" value={String(card.xp)} />
+								{main && (
+									<p className="text-xs italic" style={{ color: UI.textSecondary }}>
+										{renderSkillLabel(main.ref)}
+									</p>
+								)}
+								{purple && (
+									<p className="text-xs italic" style={{ color: "#3D1A6E" }}>
+										Roxo: {renderSkillLabel(purple.ref)}
+									</p>
+								)}
+							</>
+						);
+					})()}
+
+					{card?.type === "room" && (() => {
+						const roomSkills = cardSkills(card.id);
+						const main = roomSkills[0];
+						return (
+							<>
+								<Row label="Saídas" value={String(card.exits)} />
+								<Row label="XP" value={String(card.xp ?? 0)} />
+								{main && (
+									<p className="text-xs italic" style={{ color: UI.textSecondary }}>
+										{renderSkillLabel(main.ref)}
+									</p>
+								)}
+							</>
+						);
+					})()}
+
+					{card?.type === "item" && (() => {
+						const itemSkills = cardSkills(card.id);
+						const main = itemSkills[0];
+						return (
+							<>
+								<Row label="Tipo" value={card.itemClass} />
+								{main && (
+									<p className="text-xs" style={{ color: UI.textPrimary }}>
+										{renderSkillLabel(main.ref)}
+									</p>
+								)}
+								{onUseItem && card.itemClass === "consumable" && (
+									<button
+										type="button"
+										onClick={onUseItem}
+										style={{
+											marginTop: 8,
+											width: "100%",
+											padding: "6px 0",
+											background: "#3B6D11",
+											color: "#E8F5DE",
+											border: "none",
+											borderRadius: 6,
+											fontSize: 12,
+											fontWeight: 600,
+											cursor: "pointer",
+										}}
+									>
+										Usar
+									</button>
+								)}
+							</>
+						);
+					})()}
+
+					{card?.type === "artifact" && (() => {
+						const artSkills = cardSkills(card.id);
+						const main = artSkills[0];
+						return main ? (
+							<p className="text-xs" style={{ color: UI.textPrimary }}>
+								{renderSkillLabel(main.ref)}
 							</p>
-						</>
-					)}
-
-					{(card?.type === "creature" || card?.type === "subboss") && (
-						<>
-							<Row label="Dano" value={String(card.damage)} />
-							<Row label="XP" value={String(card.xp)} />
-							{card.effect.label && (
-								<p
-									className="text-xs italic"
-									style={{ color: UI.textSecondary }}
-								>
-									{card.effect.label}
-								</p>
-							)}
-							{card.purpleEffect.label && (
-								<p className="text-xs italic" style={{ color: "#3D1A6E" }}>
-									Roxo: {card.purpleEffect.label}
-								</p>
-							)}
-						</>
-					)}
-
-					{card?.type === "room" && (
-						<>
-							<Row label="Saídas" value={String(card.exits)} />
-							<Row label="XP" value={String(card.xp ?? 0)} />
-							{card.effect.label && (
-								<p
-									className="text-xs italic"
-									style={{ color: UI.textSecondary }}
-								>
-									{card.effect.label}
-								</p>
-							)}
-						</>
-					)}
-
-					{card?.type === "item" && (
-						<>
-							<Row label="Tipo" value={card.itemClass} />
-							{card.effect.label && (
-								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{card.effect.label}
-								</p>
-							)}
-							{onUseItem && card.itemClass === "consumable" && (
-								<button
-									type="button"
-									onClick={onUseItem}
-									style={{
-										marginTop: 8,
-										width: "100%",
-										padding: "6px 0",
-										background: "#3B6D11",
-										color: "#E8F5DE",
-										border: "none",
-										borderRadius: 6,
-										fontSize: 12,
-										fontWeight: 600,
-										cursor: "pointer",
-									}}
-								>
-									Usar
-								</button>
-							)}
-						</>
-					)}
-
-					{card?.type === "artifact" && card.effect.label && (
-						<p className="text-xs" style={{ color: UI.textPrimary }}>
-							{card.effect.label}
-						</p>
-					)}
+						) : null;
+					})()}
 
 					{card?.type === "boss" && (
 						<>
 							<Row label="Condição" value={card.condition} />
 							{card.abilities.map((a) => (
 								<div key={a.name}>
-									<p
-										className="text-xs font-medium"
-										style={{ color: UI.textSecondary }}
-									>
+									<p className="text-xs font-medium" style={{ color: UI.textSecondary }}>
 										{a.name}
 									</p>
 									<p className="text-xs" style={{ color: UI.textPrimary }}>
-										{a.effect.label}
+										{a.skills[0] ? renderSkillLabel(a.skills[0]) : ""}
 									</p>
 								</div>
 							))}

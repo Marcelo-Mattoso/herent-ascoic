@@ -1,6 +1,8 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
 import { getArtifacts, getCardById, getCardByName, getCreatures, getItems, getRooms, getSubbosses } from "../data/cards";
+import { cardSkills } from "../skills/lookup";
+import { renderSkillLabel } from "../skills/renderLabel";
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
 import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
@@ -44,7 +46,7 @@ export function handleRevealRoom(state: GameState): GameState {
 		currentEnemies: card.enemiesByPlayers[0], // solo = índice 0
 		reward: card.reward,
 		rewardType: card.rewardType,
-		effect: card.effect.label,
+		effect: (() => { const s = cardSkills(card.id)[0]; return s ? renderSkillLabel(s.ref) : ""; })(),
 		xp: card.xp ?? 0,
 		specialCreature: card.specialCreature,
 		status: "active",
@@ -78,7 +80,7 @@ function handleRevealSubbossRoom(
 		currentEnemies: 1,
 		reward: card.reward,
 		rewardType: card.rewardType,
-		effect: card.effect.label,
+		effect: (() => { const s = cardSkills(card.id)[0]; return s ? renderSkillLabel(s.ref) : ""; })(),
 		xp: card.xp ?? 0,
 		specialCreature: card.linkedSubbossName,
 		status: "active",
