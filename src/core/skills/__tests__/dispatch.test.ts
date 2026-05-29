@@ -1,10 +1,11 @@
 import { describe, expect, it } from "vitest";
 import { fireTrigger } from "../dispatch";
+import { drainStack } from "../../effects/resolver";
 import { createInitialGameState } from "../../state/gameState";
 import { createEmptyCombatState } from "../../state/combatState";
 import type { GameConfig } from "../../state/gameState";
 import type { EnemyState } from "../../state/enemyState";
-// Importar handlers para que healBlock e outros sejam registrados no registry
+// Importar handlers para que o registry esteja populado
 import "../handlers/index";
 
 const config: GameConfig = { heroCardNames: ["Bárbaro Rubro"] };
@@ -86,7 +87,8 @@ describe("purpleEffect filter", () => {
 				},
 			],
 		};
-		const result = fireTrigger(state, "on_enter_room", { triggeredBy: "on_enter_room" });
+		// DSL-migrated skills push to EffectStack; drain to get final state
+		const result = drainStack(fireTrigger(state, "on_enter_room", { triggeredBy: "on_enter_room" }));
 		expect(result.heroes[0].healBlocked).toBe(true);
 	});
 });

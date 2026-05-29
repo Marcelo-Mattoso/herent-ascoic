@@ -144,6 +144,7 @@ export interface EvalCtx {
 		creatureHasSkill(enemyId: string, skillId: string): boolean;
 		dungeonLevel(): number;
 		roomEnemyCount(): number;
+		heroWithLowestLife(): string | null;
 	};
 
 	// Ações — retornam novo GameState sem mutar o atual.

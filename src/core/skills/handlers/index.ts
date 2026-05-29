@@ -1,5 +1,8 @@
 // Registra todos os handlers de habilidades no registry.
 // Importar este módulo uma vez popula o registry completo.
+//
+// Lote 1 (Patch-12): removidos handlers absorvidos pela DSL:
+//   dungeonLevel, discardDungeon, reward, discardDungeonLock, flee_block, heal_block
 
 import { register } from "../registry";
 import { handleArmor } from "./armor";
@@ -9,21 +12,16 @@ import { handleDiceFix } from "./diceFix";
 import { handleDiceFixDamage } from "./diceFix_damage";
 import { handleDiceModification } from "./dice_modification";
 import { handleDirectDamage } from "./direct_damage";
-import { handleDiscardDungeon } from "./discardDungeon";
-import { handleDiscardDungeonLock } from "./discardDungeonLock";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDrawItem } from "./drawItem";
 import { handlePurpleDamageReduction } from "./purple_damage_reduction";
 import { handleScript } from "./script";
 import { handleDungeon } from "./dungeon";
-import { handleDungeonLevel } from "./dungeonLevel";
-import { handleFleeBlock } from "./flee_block";
 import { handleSplashDamage } from "./splash_damage";
 import { handleItemControl } from "./itemControl";
 import { handleItemOrDiscardDungeon } from "./item_or_discardDungeon";
 import { handleTargetProtection } from "./targetProtection";
 import { handleHeal } from "./heal";
-import { handleHealBlock } from "./heal_block";
 import { handleHealOrDamageBonus } from "./heal_or_damage_bonus";
 import { handleHealOrSurvive } from "./heal_or_survive";
 import { handleMarkAndTohit } from "./mark_and_tohit";
@@ -31,7 +29,6 @@ import { handleNoop } from "./noop";
 import { handlePreventDamage } from "./prevent_damage";
 import { handleRecoverDungeon } from "./recoverDungeon";
 import { handleReroll } from "./reroll";
-import { handleReward } from "./reward";
 import { handleTohit } from "./tohit";
 import { handleTohitDamage } from "./tohit_damage";
 import { handleTohitPenalty } from "./tohit_penalty";
@@ -56,46 +53,36 @@ register("diceFix_damage", handleDiceFixDamage);
 
 // Itens / criaturas / salas
 register("direct_damage", handleDirectDamage);
-register("directDamage", handleDirectDamage); // alias com camelCase do catálogo
+register("directDamage", handleDirectDamage); // alias camelCase — skill_opportunity_shot
 register("tohit", handleTohit);
 register("prevent_damage", handlePreventDamage);
-register("dungeonLevel", handleDungeonLevel);
 
-// Onda A (patch-8 fase 2)
+// Efeitos reativos
 register("tohit_penalty", handleTohitPenalty);
-register("healBlock", handleHealBlock);
-register("discardDungeonLock", handleDiscardDungeonLock);
-register("discardDungeon", handleDiscardDungeon);
-register("reward", handleReward);
 
-// Onda B (patch-8 fase 5) — handlers com SKILL_CHOICE
-// Imports com side-effect de registerContinuation já ocorrem acima
+// Handlers com SKILL_CHOICE
 register("item_or_discardDungeon", handleItemOrDiscardDungeon);
 register("itemControl", handleItemControl);
 register("targetProtection", handleTargetProtection);
 register("dungeon", handleDungeon);
 
-// Fuga (Onda C — patch-8 fase 3)
-register("flee_block", handleFleeBlock);
-
-// Dano em área + alternativo (patch-8 fases 6/7)
+// Dano em área
 register("splash_damage", handleSplashDamage);
 
-// Reroll interativo (patch-8 fase 8)
+// Reroll interativo
 register("reroll", handleReroll);
 
-// Redirecionamento de alvo (patch-8 fase 9)
+// Redirecionamento de alvo
 register("targetRedirect_or_tohit", handleTargetRedirectOrTohit);
 
-// DrawItem — Espólios da Fornalha (patch-8 fase 12)
+// DrawItem — Espólios da Fornalha
 register("drawItem", handleDrawItem);
 
-// Redução de dano roxo (patch-8 fase 10)
+// Redução de dano roxo
 register("purple_damage_reduction", handlePurpleDamageReduction);
 
-// Scripts de carta (patch-10)
+// Scripts de carta
 register("script", handleScript);
 
-// Tipos "recover_item" e "roomSpecial" não são registrados — ausência no registry
-// é sinal de "não implementado" e é tratada pelo getHandler com log de aviso.
-// "roomSpecial" é tratado via handleSpawnEnemies (spawn implícito da carta da sala).
+// Fallback
+register("noop", handleNoop);

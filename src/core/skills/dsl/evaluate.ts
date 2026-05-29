@@ -25,21 +25,27 @@ function evaluateOne(node: EffectNode, ctx: EvalCtx): import("../../state/gameSt
 		// ── Dano / cura ───────────────────────────────────────────────────────
 
 		case "apply_damage": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const amount = resolveExpr(node.amount, ctx);
 			const clamped = node.minimum !== undefined ? Math.max(node.minimum, amount) : amount;
-			return ctx.action.pushEffect({ kind: "apply_damage", to: node.to, amount: clamped });
+			return ctx.action.pushEffect({ kind: "apply_damage", to, amount: clamped });
 		}
 
 		case "apply_heal": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const amount = resolveExpr(node.amount, ctx);
-			return ctx.action.pushEffect({ kind: "apply_heal", to: node.to, amount });
+			return ctx.action.pushEffect({ kind: "apply_heal", to, amount });
 		}
 
-		case "apply_full_heal":
-			return ctx.action.pushEffect({ kind: "apply_full_heal", to: node.to });
+		case "apply_full_heal": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			return ctx.action.pushEffect({ kind: "apply_full_heal", to });
+		}
 
-		case "prevent_destroy":
-			return ctx.action.pushEffect({ kind: "prevent_destroy", to: node.to });
+		case "prevent_destroy": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			return ctx.action.pushEffect({ kind: "prevent_destroy", to });
+		}
 
 		// ── Modificadores / componentes ECS ───────────────────────────────────
 
@@ -97,9 +103,8 @@ function evaluateOne(node: EffectNode, ctx: EvalCtx): import("../../state/gameSt
 		// ── Misc ──────────────────────────────────────────────────────────────
 
 		case "set_no_reward": {
-			const entityId = resolveEntityRef(node.to, ctx);
-			if (!entityId) return ctx.action.log(`[evaluate] set_no_reward: alvo "${node.to}" não resolveu`);
-			return ctx.action.pushEffect({ kind: "set_no_reward", to: entityId });
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			return ctx.action.pushEffect({ kind: "set_no_reward", to });
 		}
 
 		// ── Composição ────────────────────────────────────────────────────────

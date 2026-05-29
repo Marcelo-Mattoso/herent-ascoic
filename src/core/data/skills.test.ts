@@ -19,7 +19,10 @@ describe("catálogo de skills (skills.json)", () => {
 		for (const ability of SKILLS.abilities) {
 			expect(typeof ability.id).toBe("string");
 			expect(typeof ability.name).toBe("string");
-			expect(typeof ability.type).toBe("string");
+			// `type` é opcional em entradas migradas para DSL/script (patch-12)
+			if (!ability.effect && !ability.script) {
+				expect(typeof ability.type).toBe("string");
+			}
 			expect(typeof ability.trigger).toBe("string");
 			expect(typeof ability.target).toBe("string");
 			expect(Array.isArray(ability.usedBy)).toBe(true);

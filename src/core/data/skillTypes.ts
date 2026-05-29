@@ -119,13 +119,21 @@ export interface SkillDefinition {
 	readonly sourceSection?: string;
 	readonly usesVariable: boolean;
 	readonly defaultValue: number | string | null;
-	readonly type: string;
+	/** @deprecated — removido nas entradas já migradas para DSL/script. */
+	readonly type?: string;
 	readonly trigger: TriggerName;
 	readonly target: TargetSpec;
 	readonly textTemplate: string;
 	readonly labelTemplate: string;
 	readonly notes?: string;
 	readonly usedBy: readonly SkillUsage[];
+	// ── Campos pós-patch-12 ────────────────────────────────────────
+	/** Array de EffectNode DSL. Exatamente um de effect/script deve estar presente (pós-migração). */
+	readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
+	/** Nome do script em src/data/scripts/<script>.ts. */
+	readonly script?: string;
+	/** Params fixos da habilidade. Mesclados com usedBy[].value como $value. */
+	readonly params?: Readonly<Record<string, unknown>>;
 }
 
 export interface SkillCatalog {

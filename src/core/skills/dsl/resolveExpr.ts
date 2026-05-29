@@ -95,6 +95,7 @@ export function resolveEntityRef(ref: string, ctx: EvalCtx): string | null {
 		case "$source": return ctx.sourceId;
 		case "$target": return ctx.targetId;
 		case "$self": return ctx.sourceId;
+		case "$lowest_life_hero": return ctx.query.heroWithLowestLife();
 	}
 
 	// Ref a param

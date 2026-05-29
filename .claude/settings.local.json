@@ -78,7 +78,20 @@
       "Bash(mkdir \"src\\\\data\\\\scripts\")",
       "Bash(git mv *)",
       "Bash(Get-ChildItem \"F:\\\\temp\\\\jogo-cartas-mvp1\\\\docs\\\\patches\")",
-      "Bash(tsc -b --noEmit)"
+      "Bash(tsc -b --noEmit)",
+      "Bash(Remove-Item \"F:\\\\temp\\\\jogo-cartas-mvp1\\\\src\\\\data\\\\scripts\\\\example.ts\")",
+      "Bash(python3 -c ' *)",
+      "WebSearch",
+      "WebFetch(domain:hearthstonejson.com)",
+      "Bash(node -e \"const s=require\\('./src/data/skills.json'\\); console.log\\('skills count:', s.length\\); console.log\\('sample ids:', s.slice\\(0,5\\).map\\(x=>x.id\\)\\)\")",
+      "Bash(node -e \"const s=require\\('./src/data/skills.json'\\); const arr=Object.values\\(s\\); console.log\\('skills count:', arr.length\\); console.log\\('sample ids:', arr.slice\\(0,5\\).map\\(x=>x.id\\)\\); console.log\\('keys:', Object.keys\\(s\\).slice\\(0,3\\)\\)\")",
+      "Bash(node -e \"const s=require\\('./src/data/skills.json'\\); console.log\\(JSON.stringify\\(Object.keys\\(s\\)\\)\\)\")",
+      "Bash(node -e \"const s=require\\('./src/data/skills.json'\\); const abilities=s.abilities; console.log\\('type:', typeof abilities, Array.isArray\\(abilities\\)\\); if\\(Array.isArray\\(abilities\\)\\){console.log\\('count:', abilities.length, 'sample:', JSON.stringify\\(abilities[0]\\)\\)} else {console.log\\('keys:', Object.keys\\(abilities\\).slice\\(0,5\\)\\)}\")",
+      "Bash(node tools/skill-port/gen-specs.cjs)",
+      "Bash(node -e \"const d=require\\('/dev/stdin'\\); console.log\\('vitest:', d.devDependencies?.vitest, 'zod:', d.dependencies?.zod ?? d.devDependencies?.zod\\)\")",
+      "Bash(node -e \"const p=require\\('./package.json'\\); console.log\\('vitest:', p.devDependencies?.vitest\\); console.log\\('zod:', p.dependencies?.zod ?? p.devDependencies?.zod\\)\")",
+      "Bash(node -e \"const {z}=require\\('zod'\\); console.log\\('zod ok', z.string\\(\\)._def.typeName\\)\")",
+      "Bash(node tools/skill-port/migrate-lote1.cjs)"
     ]
   }
 }

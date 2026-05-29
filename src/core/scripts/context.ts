@@ -54,6 +54,11 @@ export function buildScriptCtx(
 			roomEnemyCount() {
 				return state.activeEnemies.filter((e) => e.status === "active").length;
 			},
+			heroWithLowestLife() {
+				const active = state.heroes.filter((h) => h.status === "active");
+				if (active.length === 0) return null;
+				return active.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b)).id;
+			},
 		},
 
 		action: {

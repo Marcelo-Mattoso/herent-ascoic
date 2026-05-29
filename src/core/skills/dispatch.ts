@@ -15,6 +15,8 @@ import type { SkillDefinition, SkillContext, TriggerName } from "../data/skillTy
 import type { GameState } from "../state/gameState";
 import { getHandler } from "./registry";
 import { resolveSkillForById, resolveSkillValueById, resolveSkillFor, resolveSkillValue } from "./lookup";
+import { evaluate } from "./dsl/evaluate";
+import { buildScriptCtx } from "../scripts/context";
 
 interface ActiveSkill {
 	definition: SkillDefinition;
@@ -228,9 +230,6 @@ export function fireTrigger(
 
 		if (!guardPassed(current, skill.definition, skill.sourceHeroId)) continue;
 
-		const handler = getHandler(skill.definition.type);
-		if (!handler) continue;
-
 		const resolvedCtx: SkillContext = {
 			...ctx,
 			triggeredBy: trigger,
@@ -240,7 +239,21 @@ export function fireTrigger(
 			value: skill.value,
 		};
 
-		current = handler(current, resolvedCtx, skill.value);
+		if (skill.definition.effect) {
+			// ── DSL path (Patch-12 Lote 1+) ──────────────────────────────────
+			const params: Record<string, unknown> = {
+				value: skill.value,
+				...(skill.definition.params ?? {}),
+			};
+			const evalCtx = buildScriptCtx(current, resolvedCtx, params);
+			current = evaluate(skill.definition.effect, evalCtx);
+		} else {
+			// ── Handler legado ────────────────────────────────────────────────
+			const handler = getHandler(skill.definition.type ?? "noop");
+			if (!handler) continue;
+			current = handler(current, resolvedCtx, skill.value);
+		}
+
 		current = markGuardUsed(current, skill.definition, skill.sourceHeroId);
 	}
 

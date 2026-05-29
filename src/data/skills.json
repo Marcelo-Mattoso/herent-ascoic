@@ -50,7 +50,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "heal",
       "trigger": "on_use",
       "target": "hero_or_ally_creature",
       "textTemplate": "cure {value} de vida de um herói ou criatura aliada.",
@@ -73,6 +72,13 @@
           "field": "effect",
           "value": 4,
           "cardId": "item_greater_vigor_potion"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "apply_heal",
+          "to": "$target",
+          "amount": "$value"
         }
       ]
     },
@@ -152,7 +158,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "direct_damage",
       "trigger": "on_use",
       "target": "creature_in_play",
       "textTemplate": "cause {value} de dano direto a uma criatura em jogo.",
@@ -163,6 +168,13 @@
           "field": "effect",
           "value": 3,
           "cardId": "item_living_ember_potion"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "apply_damage",
+          "to": "$target",
+          "amount": "$value"
         }
       ]
     },
@@ -403,12 +415,17 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "flee_block",
       "trigger": "until_end_of_round",
       "target": "hero",
       "textTemplate": "até o fim da rodada, {value} herói não pode fugir ou sair de combate por efeito.",
       "labelTemplate": "Correntes Rubras ({value}): até o fim da rodada, {value} herói não pode fugir ou sair de combate por efeito.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "flee"
+        }
+      ]
     },
     {
       "id": "skill_choking_ashes",
@@ -417,12 +434,18 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "direct_damage",
       "trigger": "on_use",
       "target": "lowest_life_hero",
       "textTemplate": "cause {value} de dano direto ao herói com menos vida.",
       "labelTemplate": "Cinzas Sufocantes ({value}): cause {value} de dano direto ao herói com menos vida.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "apply_damage",
+          "to": "$lowest_life_hero",
+          "amount": "$value"
+        }
+      ]
     },
     {
       "id": "skill_charred_plate",
@@ -464,12 +487,17 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": null,
-      "type": "dungeonLevel",
       "trigger": "on_use",
       "target": "dungeon",
       "textTemplate": "aumente o Despertar da Masmorra em {value} nível.",
       "labelTemplate": "Despertar da Fornalha ({value}): aumente o Despertar da Masmorra em {value} nível.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "advance_dungeon_level",
+          "amount": "$value"
+        }
+      ]
     },
     {
       "id": "skill_sealed_door",
@@ -478,12 +506,17 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "flee_block",
       "trigger": "while_room_active_first_combat",
       "target": "heroes",
       "textTemplate": "enquanto esta sala estiver ativa, heróis não podem fugir no primeiro combate.",
       "labelTemplate": "Porta Selada: enquanto esta sala estiver ativa, heróis não podem fugir no primeiro combate.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "flee"
+        }
+      ]
     },
     {
       "id": "skill_ruined_floor",
@@ -492,12 +525,18 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "discardDungeon",
       "trigger": "first_hero_lose_combat_in_room",
       "target": "dungeon",
       "textTemplate": "a primeira vez que um herói perder um combate nesta sala, descarte 1 carta adicional de dungeon.",
       "labelTemplate": "Chão em Ruína: a primeira vez que um herói perder um combate nesta sala, descarte 1 carta adicional de dungeon.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "discard_from",
+          "pile": "dungeon",
+          "count": 1
+        }
+      ]
     },
     {
       "id": "skill_forge_smoke",
@@ -506,12 +545,17 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "healBlock",
       "trigger": "first_round_in_room",
       "target": "heroes",
       "textTemplate": "na primeira rodada desta sala, os heróis não podem usar efeitos de cura.",
       "labelTemplate": "Fumaça da Fornalha: na primeira rodada desta sala, os heróis não podem usar efeitos de cura.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "heal"
+        }
+      ]
     },
     {
       "id": "skill_dark_tribute",
@@ -594,7 +638,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "discardDungeonLock",
       "trigger": "while_room_active",
       "target": "heroes",
       "textTemplate": "enquanto esta sala estiver ativa, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura.",
@@ -611,6 +654,12 @@
           "field": "effect",
           "value": null,
           "cardId": "subboss_crimson_dungeon_jailer"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "dungeon_discard"
         }
       ]
     },
@@ -654,7 +703,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": true,
       "defaultValue": 1,
-      "type": "direct_damage",
       "trigger": "on_enter_combat",
       "target": "lowest_life_hero",
       "textTemplate": "ao entrar em combate, causa {value} dano ao herói com menos vida.",
@@ -673,6 +721,13 @@
           "value": 1,
           "cardId": "creature_low_fire_salamander"
         }
+      ],
+      "effect": [
+        {
+          "kind": "apply_damage",
+          "to": "$lowest_life_hero",
+          "amount": "$value"
+        }
       ]
     },
     {
@@ -682,7 +737,6 @@
       "sourceSection": "Habilidades",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "reward",
       "trigger": "on_flee_or_leave_play",
       "target": "self",
       "textTemplate": "se fugir ou sair de jogo, não concede recompensa.",
@@ -693,6 +747,12 @@
           "field": "effect",
           "value": null,
           "cardId": "creature_dark_cave_goblin"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "set_no_reward",
+          "to": "$source"
         }
       ]
     },
@@ -1157,12 +1217,25 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "direct_damage",
       "trigger": "on_enter_play",
       "target": "all_heroes",
       "textTemplate": "ao entrar em jogo, cause 1 de dano direto a todos os heróis.",
       "labelTemplate": "Chamas Vorazes: ao entrar em jogo, cause 1 de dano direto a todos os heróis.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "for_each",
+          "over": "all_heroes",
+          "as": "$loopTarget",
+          "do": [
+            {
+              "kind": "apply_damage",
+              "to": "$target",
+              "amount": 1
+            }
+          ]
+        }
+      ]
     },
     {
       "id": "purple_forge_chains",
@@ -1171,12 +1244,17 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "flee_block",
       "trigger": "while_in_play",
       "target": "heroes",
       "textTemplate": "enquanto esta criatura estiver em jogo, heróis não podem fugir.",
       "labelTemplate": "Correntes da Fornalha: enquanto esta criatura estiver em jogo, heróis não podem fugir.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "flee"
+        }
+      ]
     },
     {
       "id": "purple_ruin_ashes",
@@ -1185,7 +1263,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "discardDungeon",
       "trigger": "on_destroyed",
       "target": "dungeon",
       "textTemplate": "quando esta criatura for destruída, descarte 1 carta adicional de dungeon.",
@@ -1208,6 +1285,13 @@
           "field": "purpleEffect",
           "value": 1,
           "cardId": "creature_forge_acolyte"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "discard_from",
+          "pile": "dungeon",
+          "count": 1
         }
       ]
     },
@@ -1265,12 +1349,17 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "dungeonLevel",
       "trigger": "on_enter_play",
       "target": "dungeon",
       "textTemplate": "ao entrar em jogo, aumente o Despertar da Masmorra em 1 nível.",
       "labelTemplate": "Despertar Sombrio: ao entrar em jogo, aumente o Despertar da Masmorra em 1 nível.",
-      "usedBy": []
+      "usedBy": [],
+      "effect": [
+        {
+          "kind": "advance_dungeon_level",
+          "amount": 1
+        }
+      ]
     },
     {
       "id": "purple_deadly_awakening",
@@ -1279,7 +1368,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "dungeonLevel",
       "trigger": "on_destroyed",
       "target": "dungeon",
       "textTemplate": "quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.",
@@ -1308,6 +1396,12 @@
           "field": "purpleEffect",
           "value": 1,
           "cardId": "subboss_cracked_abyss_guardian"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "advance_dungeon_level",
+          "amount": 1
         }
       ]
     },
@@ -1422,7 +1516,6 @@
       "sourceSection": "Efeitos Roxos dos Monstros",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "healBlock",
       "trigger": "on_enter_room",
       "target": "heroes",
       "textTemplate": "ao entrar nesta sala, anule o próximo efeito de cura usado pelos heróis.",
@@ -1433,6 +1526,12 @@
           "field": "purpleEffect",
           "value": null,
           "cardId": "creature_black_ceiling_bat"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "heal"
         }
       ]
     },
@@ -1644,7 +1743,6 @@
       "sourceSection": "Habilidades de Dungeon",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "flee_block",
       "trigger": "while_room_active",
       "target": "creatures_or_heroes_in_room",
       "textTemplate": "criaturas ou heróis nesta sala não podem fugir.",
@@ -1655,6 +1753,12 @@
           "field": "effect",
           "value": null,
           "cardId": "room_crimson_chains_chamber"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "block_action",
+          "what": "flee"
         }
       ]
     },
@@ -1686,7 +1790,6 @@
       "sourceSection": "Habilidades de Dungeon",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "direct_damage",
       "trigger": "on_first_creature_destroyed_in_room",
       "target": "remaining_creature",
       "textTemplate": "a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano.",
@@ -1698,6 +1801,13 @@
           "value": 1,
           "cardId": "room_broken_columns_hall"
         }
+      ],
+      "effect": [
+        {
+          "kind": "apply_damage",
+          "to": "$target",
+          "amount": 1
+        }
       ]
     },
     {
@@ -1707,7 +1817,6 @@
       "sourceSection": "Habilidades de Dungeon",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "discardDungeon",
       "trigger": "on_hero_lose_combat_in_room",
       "target": "dungeon",
       "textTemplate": "se algum herói perder um combate nesta sala, descarte +1 carta de dungeon.",
@@ -1718,6 +1827,13 @@
           "field": "effect",
           "value": 1,
           "cardId": "room_depths_stairway"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "discard_from",
+          "pile": "dungeon",
+          "count": 1
         }
       ]
     },
@@ -1819,7 +1935,6 @@
       "sourceSection": "Chefe da Masmorra",
       "usesVariable": false,
       "defaultValue": 1,
-      "type": "discardDungeon",
       "trigger": "after_each_combat_round_if_purple",
       "target": "dungeon",
       "textTemplate": "após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon.",
@@ -1830,6 +1945,24 @@
           "field": "abilities",
           "value": 1,
           "cardId": "boss_azhakar"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "if",
+          "when": {
+            "kind": "compare",
+            "op": "gte",
+            "left": "$dungeon.level",
+            "right": 4
+          },
+          "then": [
+            {
+              "kind": "discard_from",
+              "pile": "dungeon",
+              "count": 1
+            }
+          ]
         }
       ]
     },
@@ -1924,7 +2057,6 @@
       "sourceSection": "Habilidades de Dungeon",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "noop",
       "trigger": "room_passive",
       "target": "room",
       "textTemplate": "sala especial: um subchefe guarda esta câmara.",
@@ -1942,6 +2074,11 @@
           "field": "effect",
           "value": null
         }
+      ],
+      "effect": [
+        {
+          "kind": "noop"
+        }
       ]
     },
     {
@@ -1951,7 +2088,6 @@
       "sourceSection": "Habilidades de Dungeon",
       "usesVariable": false,
       "defaultValue": null,
-      "type": "room",
       "trigger": "room_passive",
       "target": "room",
       "textTemplate": "sem efeito adicional.",
@@ -1968,6 +2104,11 @@
           "cardType": "room",
           "field": "effect",
           "value": null
+        }
+      ],
+      "effect": [
+        {
+          "kind": "noop"
         }
       ]
     }
