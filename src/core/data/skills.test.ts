@@ -57,7 +57,6 @@ describe("catálogo de skills (skills.json)", () => {
 				referencedIds.add(def.id);
 			}
 		}
-		// Verificar que skillUsedBy funciona corretamente para skills referenciadas
 		for (const id of referencedIds) {
 			expect(skillUsedBy(id).length).toBeGreaterThan(0);
 		}

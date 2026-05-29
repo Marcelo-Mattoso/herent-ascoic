@@ -16,7 +16,7 @@ const SCRIPTS_DIR = path.join(import.meta.dirname, "..");
 // Arquivos que existem mas NÃO precisam de entrada skills.json:
 // - _smoke_test.ts: utilitário de teste
 // - item_incendiary_oil_flask.ts: legado patch-10, mantido por compat histórica
-const EXEMPTED_FILES = new Set(["_smoke_test", "item_incendiary_oil_flask"]);
+const EXEMPTED_FILES = new Set(["_smoke_test", "item_incendiary_oil_flask", "example"]);
 
 function getScriptIdsFromJson(): string[] {
 	const data = JSON.parse(fs.readFileSync(SKILLS_JSON, "utf8"));
