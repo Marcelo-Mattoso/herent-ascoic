@@ -12,6 +12,7 @@
 import { useSyncExternalStore } from "react";
 import type { Action } from "@/core/actions/types";
 import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
+import { playerView, type PlayerView } from "@/core/projection/playerView";
 import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
 import {
@@ -26,7 +27,9 @@ import {
 // ── Tipos públicos ──────────────────────────────────────────────────────────
 
 interface GameStore {
+	/** @deprecated usar `view`; será removido na Fase 7 */
 	readonly state: GameState;
+	readonly view: PlayerView;
 	readonly ui: UiState;
 	readonly dispatch: (action: Action) => void;
 	readonly setFocusedHero: (heroId: string | null) => void;
@@ -141,6 +144,7 @@ function reset(): void {
 let cachedElfProps = gameElfStore.getValue();
 let cachedSnapshot: GameStore = {
 	state: cachedElfProps.gameState,
+	view: playerView(cachedElfProps.gameState),
 	ui: cachedElfProps.ui,
 	dispatch,
 	setFocusedHero,
@@ -154,6 +158,7 @@ function getSnapshot(): GameStore {
 	cachedElfProps = props;
 	cachedSnapshot = {
 		state: props.gameState,
+		view: playerView(props.gameState),
 		ui: props.ui,
 		dispatch,
 		setFocusedHero,
