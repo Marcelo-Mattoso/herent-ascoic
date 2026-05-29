@@ -50,17 +50,16 @@ function evaluateOne(node: EffectNode, ctx: EvalCtx): import("../../state/gameSt
 		// ── Modificadores / componentes ECS ───────────────────────────────────
 
 		case "add_modifier": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const value = resolveExpr(node.value, ctx);
-			const entityId = resolveEntityRef(node.to, ctx);
-			if (!entityId) return ctx.action.log(`[evaluate] add_modifier: alvo "${node.to}" não resolveu`);
-			return ctx.action.addComponent(entityId, {
-				type: "modifier",
-				target: node.stat as import("../../ecs/types").ModifierComponent["target"],
+			// Vai para o drainStack que faz dual-write (ECS world + legacy combat state)
+			return ctx.action.pushEffect({
+				kind: "add_modifier",
+				to,
+				stat: node.stat,
 				operation: node.operation,
 				value,
-				source: ctx.skillId,
-				duration: mapDuration(node.duration),
-				condition: undefined,
+				duration: node.duration,
 			});
 		}
 

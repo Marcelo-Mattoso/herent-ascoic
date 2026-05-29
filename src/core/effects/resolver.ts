@@ -118,6 +118,62 @@ export function resolveEffect(state: GameState, pending: PendingEffect): GameSta
 			return state;
 		}
 
+		// ── Modificadores (dual-write: ECS world + legacy combat state) ─────────
+
+		case "add_modifier": {
+			const entityId = targetId ?? (effect["to"] as string | undefined);
+			if (!entityId) return state;
+			const stat = effect["stat"] as string;
+			const value = effect["value"] as number;
+			const source = pending.source;
+
+			switch (stat) {
+				case "damage_bonus":
+				case "tohit_bonus": {
+					// Ambos adicionam ao bonusNextAttack — mecanismo unificado de bônus de rolagem
+					if (!state.combat) return state;
+					const prev = state.combat.bonusNextAttack[entityId] ?? [];
+					return {
+						...state,
+						combat: {
+							...state.combat,
+							bonusNextAttack: {
+								...state.combat.bonusNextAttack,
+								[entityId]: [...prev, { label: source, value }],
+							},
+						},
+					};
+				}
+				case "damage_reduction": {
+					if (!state.combat) return state;
+					const prevRed = state.combat.damageReduction[entityId] ?? 0;
+					return {
+						...state,
+						combat: {
+							...state.combat,
+							damageReduction: {
+								...state.combat.damageReduction,
+								[entityId]: prevRed + value,
+							},
+						},
+					};
+				}
+				case "purple_damage_reduction": {
+					// Corrige bug do handler antigo: armazena como número, não boolean
+					const key = `purpleDmgReduction::${entityId}`;
+					const prevPurple = (state.flags[key] as number | boolean | undefined);
+					const prevNum = typeof prevPurple === "number" ? prevPurple : 0;
+					return {
+						...state,
+						flags: { ...state.flags, [key]: prevNum + value },
+					};
+				}
+				default:
+					// Stat desconhecido: apenas adiciona ao ECS world (Fase 7 usará isto)
+					return state;
+			}
+		}
+
 		// ── Misc ──────────────────────────────────────────────────────────────
 
 		case "set_no_reward": {

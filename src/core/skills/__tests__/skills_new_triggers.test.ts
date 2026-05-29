@@ -4,6 +4,7 @@
 import { describe, expect, it } from "vitest";
 import { fireTrigger } from "../dispatch";
 import { handleStartCombat } from "../../reducer/combat";
+import { drainStack } from "../../effects/resolver";
 import { createInitialGameState } from "../../state/gameState";
 import { createEmptyCombatState } from "../../state/combatState";
 import "../handlers/index"; // popula registry
@@ -125,34 +126,43 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 	it("fireTrigger direto dispara mesmo com despertar < 3 (guarda fica em combat.ts)", () => {
 		// A guarda de despertar está em handleRollDice (combat.ts), não no handler.
 		// Chamar fireTrigger diretamente ignora essa guarda — isso é comportamento esperado.
+		// DSL migrada: skill empurra add_modifier para stack; drain para obter bonusNextAttack.
 		const state = makeStateWithPaladino(2 as ColorIndex);
-		const result = fireTrigger(state, "combat_if_dungeon_red_or_purple", {
+		const intermediate = fireTrigger(state, "combat_if_dungeon_red_or_purple", {
 			triggeredBy: "combat_if_dungeon_red_or_purple",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
-		expect(result.combat?.bonusNextAttack?.["h1"]).toEqual([{ label: "Luz da Aurora Final", value: 2 }]);
+		const result = drainStack(intermediate);
+		// DSL adiciona tohit_bonus + damage_bonus (2 entradas) com label = skill_id
+		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
+		expect(entries).toHaveLength(2);
+		expect(entries.every((e) => e.value === 2)).toBe(true);
 	});
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
 		const state = makeStateWithPaladino(3 as ColorIndex);
-		const result = fireTrigger(state, "combat_if_dungeon_red_or_purple", {
+		const result = drainStack(fireTrigger(state, "combat_if_dungeon_red_or_purple", {
 			triggeredBy: "combat_if_dungeon_red_or_purple",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
-		});
-		// Paladino tem skill value "2/2" → damage bonus = 2
-		expect(result.combat?.bonusNextAttack?.["h1"]).toEqual([{ label: "Luz da Aurora Final", value: 2 }]);
+		}));
+		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2
+		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
+		expect(entries).toHaveLength(2);
+		expect(entries.every((e) => e.value === 2)).toBe(true);
 	});
 
 	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
 		const state = makeStateWithPaladino(4 as ColorIndex);
-		const result = fireTrigger(state, "combat_if_dungeon_red_or_purple", {
+		const result = drainStack(fireTrigger(state, "combat_if_dungeon_red_or_purple", {
 			triggeredBy: "combat_if_dungeon_red_or_purple",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
-		});
-		expect(result.combat?.bonusNextAttack?.["h1"]).toEqual([{ label: "Luz da Aurora Final", value: 2 }]);
+		}));
+		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
+		expect(entries).toHaveLength(2);
+		expect(entries.every((e) => e.value === 2)).toBe(true);
 	});
 });
 

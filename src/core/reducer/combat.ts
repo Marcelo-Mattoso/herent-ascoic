@@ -4,6 +4,7 @@
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
 import { calculateTotal, resolveAttack } from "../rules/combat";
+import { drainStack } from "../effects/resolver";
 import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import { fireTrigger } from "../skills/dispatch";
@@ -200,6 +201,39 @@ export function handleRollDice(state: GameState): GameState {
 			sourceEnemyId: enemy.id,
 		});
 	}
+	// combat_vs_boss_or_subboss: itens com bônus especial vs chefes
+	if (enemy.cardId?.startsWith("boss_") || enemy.cardId?.startsWith("subboss_")) {
+		preRoll = fireTrigger(preRoll, "combat_vs_boss_or_subboss", {
+			triggeredBy: "combat_vs_boss_or_subboss",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+		});
+	}
+	// Habilidades de criatura condicionadas ao estado da sala ou do inimigo
+	const activeEnemyCount = preRoll.activeEnemies.filter((e) => e.status === "active").length;
+	if (activeEnemyCount === 1) {
+		preRoll = fireTrigger(preRoll, "combat_if_alone_in_room", {
+			triggeredBy: "combat_if_alone_in_room",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+		});
+	} else if (activeEnemyCount > 1) {
+		preRoll = fireTrigger(preRoll, "combat_if_another_creature_in_room", {
+			triggeredBy: "combat_if_another_creature_in_room",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+		});
+	}
+	// when_half_life_or_less: bônus de chefe quando na metade da vida
+	if (enemy.currentLife <= Math.ceil(enemy.maxLife / 2)) {
+		preRoll = fireTrigger(preRoll, "when_half_life_or_less", {
+			triggeredBy: "when_half_life_or_less",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+		});
+	}
+	// Drena a stack de efeitos acumulados pelos triggers acima (modificadores de combate)
+	preRoll = drainStack(preRoll);
 
 	const extraDice = preRoll.combat?.extraDice[hero.id] ?? 0;
 	const heroDiceCount = hero.dice + extraDice;
@@ -208,8 +242,11 @@ export function handleRollDice(state: GameState): GameState {
 	preRoll = { ...preRoll, rng: rng2 };
 
 	const heroBonuses = collectHeroBonuses(hero, preRoll);
+	// Bônus do inimigo: hitBonus base + modificadores acumulados via DSL (Patch-12)
+	const enemySkillEntries = preRoll.combat?.bonusNextAttack?.[enemy.id] ?? [];
 	const enemyBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: enemy.hitBonus },
+		...enemySkillEntries.map((e) => ({ source: e.label, value: e.value })),
 	];
 
 	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);

@@ -149,14 +149,10 @@ describe("evaluate — apply_heal", () => {
 });
 
 describe("evaluate — add_modifier", () => {
-	it("chama addComponent com stat e value corretos", () => {
+	it("empurra add_modifier para a stack com stat e value corretos", () => {
+		// add_modifier usa pushEffect → drainStack aplica dual-write (ECS + legacy)
 		const state = makeState();
-		const addedComponents: { id: string; comp: unknown }[] = [];
 		const ctx = makeMockCtx(state, { value: 3 });
-		ctx.action.addComponent = (id, comp) => {
-			addedComponents.push({ id, comp });
-			return state;
-		};
 		evaluate(
 			[{
 				kind: "add_modifier",
@@ -168,10 +164,11 @@ describe("evaluate — add_modifier", () => {
 			}],
 			ctx,
 		);
-		expect(addedComponents).toHaveLength(1);
-		expect(addedComponents[0]!.comp).toMatchObject({
-			type: "modifier",
-			target: "damage_reduction",
+		expect(ctx.pushed).toHaveLength(1);
+		expect(ctx.pushed[0]).toMatchObject({
+			kind: "add_modifier",
+			to: "h1",       // $source resolvido
+			stat: "damage_reduction",
 			operation: "add",
 			value: 3,
 		});

@@ -14,7 +14,7 @@ import { handleDiceModification } from "./dice_modification";
 import { handleDirectDamage } from "./direct_damage";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDrawItem } from "./drawItem";
-import { handlePurpleDamageReduction } from "./purple_damage_reduction";
+
 import { handleScript } from "./script";
 import { handleDungeon } from "./dungeon";
 import { handleSplashDamage } from "./splash_damage";
@@ -77,9 +77,6 @@ register("targetRedirect_or_tohit", handleTargetRedirectOrTohit);
 
 // DrawItem — Espólios da Fornalha
 register("drawItem", handleDrawItem);
-
-// Redução de dano roxo
-register("purple_damage_reduction", handlePurpleDamageReduction);
 
 // Scripts de carta
 register("script", handleScript);

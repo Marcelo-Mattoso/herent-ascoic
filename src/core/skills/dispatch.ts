@@ -241,8 +241,14 @@ export function fireTrigger(
 
 		if (skill.definition.effect) {
 			// ── DSL path (Patch-12 Lote 1+) ──────────────────────────────────
+			// Normaliza valor: slash-pair "X/Y" → value = X (número)
+			const rawValue = skill.value;
+			let numericValue: number | string | null = rawValue;
+			if (typeof rawValue === "string" && rawValue.includes("/")) {
+				numericValue = Number(rawValue.split("/")[0]) || 0;
+			}
 			const params: Record<string, unknown> = {
-				value: skill.value,
+				value: numericValue,
 				...(skill.definition.params ?? {}),
 			};
 			const evalCtx = buildScriptCtx(current, resolvedCtx, params);
