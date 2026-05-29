@@ -8,7 +8,8 @@ import { drainStack } from "../effects/resolver";
 import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import { fireTrigger } from "../skills/dispatch";
-import { resolveSkillFor } from "../skills/lookup";
+import { cardSkills } from "../skills/lookup";
+import { getCardByName } from "../data/cards";
 import { fireOnUseSkill } from "../skills/useSkill";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
@@ -644,7 +645,9 @@ export function handleUseItem(
 	targetHeroId?: string,
 ): GameState {
 	// Resolve a skill do item via catálogo
-	const skillDef = resolveSkillFor(itemName, "effect");
+	const itemCard = getCardByName(itemName);
+	const itemSkillRef = itemCard ? cardSkills(itemCard.id)[0] : null;
+	const skillDef = itemSkillRef?.def ?? null;
 	if (!skillDef) {
 		return log(state, `[TODO] Efeito de item não catalogado: ${itemName}`);
 	}
@@ -696,7 +699,9 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 	// Verificar se algum item equipado tem trigger once_per_combat_instead_of_attack
 	const equippedItems = Object.values(hero.activeItems).filter(Boolean) as string[];
 	for (const itemName of equippedItems) {
-		const itemSkill = resolveSkillFor(itemName, "effect");
+		const equippedCard = getCardByName(itemName);
+		const itemSkillEntry = equippedCard ? cardSkills(equippedCard.id)[0] : null;
+		const itemSkill = itemSkillEntry?.def ?? null;
 		if (itemSkill?.trigger === "once_per_combat_instead_of_attack") {
 			const guardKey = `${itemSkill.id}::${heroId}`;
 			if (state.combat.oncePer.combat[guardKey]) {
@@ -737,7 +742,9 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 		return log(state, `Poder de ${hero.cardName} já foi usado nesta sala.`);
 	}
 
-	const powerDef = resolveSkillFor(hero.cardName, "power");
+	const heroCard = getCardByName(hero.cardName);
+	const powerEntry = heroCard ? cardSkills(heroCard.id).find(({ def }) => def.category === "poder_heroi") : null;
+	const powerDef = powerEntry?.def ?? null;
 	if (!powerDef) {
 		return log(state, `[TODO] Poder não catalogado para: ${hero.cardName}`);
 	}

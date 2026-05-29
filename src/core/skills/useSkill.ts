@@ -3,6 +3,7 @@
 
 import { SKILLS } from "../data/skills";
 import { getHandler } from "./registry";
+import { cardSkills } from "./lookup";
 import type { GameState } from "../state/gameState";
 import { log } from "../reducer/utils";
 
@@ -32,19 +33,22 @@ export function fireOnUseSkill(state: GameState, payload: UseSkillPayload): Game
 		return log(state, `[AVISO] Skill ${skillId} não é ativável manualmente (trigger: ${def.trigger})`);
 	}
 
-	const handler = getHandler(def.type);
+	const handler = getHandler(def.type ?? "noop");
 	if (!handler) {
 		return log(state, `[SKILL NÃO IMPLEMENTADA: ${skillId}]`);
 	}
 
-	// Resolve value: payload.value tem prioridade, fallback para usedBy[].value.
+	// Resolve value: payload.value tem prioridade, fallback para params da carta ou defaultValue.
 	const sourceCardId =
 		state.heroes.find((h) => h.id === sourceId)?.cardId ??
 		state.activeEnemies.find((e) => e.id === sourceId)?.cardId;
+	const cardRef = sourceCardId
+		? cardSkills(sourceCardId).find(({ def: d }) => d.id === skillId)?.ref
+		: undefined;
 	const resolvedValue =
 		value !== undefined
 			? value
-			: def.usedBy.find((u) => u.cardId === sourceCardId)?.value ?? def.defaultValue;
+			: (cardRef?.params?.value ?? def.defaultValue);
 
 	return handler(state, {
 		triggeredBy: "on_use",

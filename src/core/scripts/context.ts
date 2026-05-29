@@ -1,6 +1,6 @@
 import type { SkillContext } from "../data/skillTypes";
 import { log as appendLog } from "../reducer/utils";
-import { resolveSkillForById } from "../skills/lookup";
+import { cardSkills } from "../skills/lookup";
 import type { GameState } from "../state/gameState";
 import { applyDamage } from "../systems/damageSystem";
 import { addPending } from "../effects/stack";
@@ -44,9 +44,7 @@ export function buildScriptCtx(
 			creatureHasSkill(enemyId, sId) {
 				const enemy = state.activeEnemies.find((e) => e.id === enemyId);
 				if (!enemy) return false;
-				const effect = resolveSkillForById(enemy.cardId, "effect");
-				const purple = resolveSkillForById(enemy.cardId, "purpleEffect");
-				return effect?.id === sId || purple?.id === sId;
+				return cardSkills(enemy.cardId).some(({ def }) => def.id === sId);
 			},
 			dungeonLevel() {
 				return state.despertar;

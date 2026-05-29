@@ -1,6 +1,6 @@
 // Engine de dispatch de habilidades.
 // fireTrigger(state, trigger, ctx) percorre todas as habilidades "em jogo",
-// filtra por trigger, e executa o handler registrado para cada type.
+// filtra por trigger, e executa o handler registrado para cada skill.
 //
 // Ordem de resolução (quando há múltiplos handlers para o mesmo trigger):
 //   1. Heróis ativos (na ordem em state.heroes)
@@ -12,16 +12,18 @@
 // `priority?: number` em SkillDefinition (menor = executa primeiro).
 
 import type { SkillDefinition, SkillContext, TriggerName } from "../data/skillTypes";
+import type { SkillRef } from "../data/cardTypes";
 import type { GameState } from "../state/gameState";
 import { getHandler } from "./registry";
-import { resolveSkillForById, resolveSkillValueById, resolveSkillFor, resolveSkillValue } from "./lookup";
+import { cardSkills } from "./lookup";
 import { evaluate } from "./dsl/evaluate";
 import { buildScriptCtx } from "../scripts/context";
 import { getScript } from "../scripts/registry";
+import { getCardByName } from "../data/cards";
 
 interface ActiveSkill {
 	definition: SkillDefinition;
-	value: number | string | null;
+	ref: SkillRef;
 	sourceHeroId?: string;
 	sourceEnemyId?: string;
 }
@@ -34,7 +36,6 @@ export function parseTrigger(trigger: TriggerName): { guard: string | null; base
 		if (trigger === g) return { guard: g, base: "on_use" };
 		if (trigger.startsWith(`${g}_`)) {
 			const rest = trigger.slice(g.length + 1);
-			// Mapear sufixos para base triggers
 			const suffixMap: Record<string, string> = {
 				after_any_roll: "after_roll",
 				after_roll: "after_roll",
@@ -51,13 +52,12 @@ export function parseTrigger(trigger: TriggerName): { guard: string | null; base
 			return { guard: g, base: suffixMap[rest] ?? rest };
 		}
 	}
-	// Aliases: triggers do JSON que disparam via um trigger base já existente
 	const triggerAliases: Record<string, string> = {
-		combat: "before_attack", // Fio Mortal — item sempre ativo em combate
-		combat_against_self: "before_attack", // Corpo Gelatinoso — penalidade ao atacar esta criatura
-		combat_if_dungeon_red_or_purple: "combat_if_dungeon_red_or_purple", // disparado condicionalmente em combat.ts
-		while_in_play: "while_in_play", // disparado em handleStartCombat
-		on_destroyed: "on_destroyed", // disparado em handleResolveAttack ao matar inimigo
+		combat: "before_attack",
+		combat_against_self: "before_attack",
+		combat_if_dungeon_red_or_purple: "combat_if_dungeon_red_or_purple",
+		while_in_play: "while_in_play",
+		on_destroyed: "on_destroyed",
 	};
 	if (triggerAliases[trigger]) return { guard: null, base: triggerAliases[trigger] };
 	return { guard: null, base: trigger };
@@ -73,18 +73,10 @@ function guardPassed(
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
 
-	if (guard === "once_per_game") {
-		return !(state.oncePer?.game?.[key]);
-	}
-	if (guard === "once_per_room") {
-		return !(state.combat?.oncePer?.room?.[key]);
-	}
-	if (guard === "once_per_combat") {
-		return !(state.combat?.oncePer?.combat?.[key]);
-	}
-	if (guard === "once_per_round") {
-		return !(state.combat?.oncePer?.round?.[key]);
-	}
+	if (guard === "once_per_game") return !(state.oncePer?.game?.[key]);
+	if (guard === "once_per_room") return !(state.combat?.oncePer?.room?.[key]);
+	if (guard === "once_per_combat") return !(state.combat?.oncePer?.combat?.[key]);
+	if (guard === "once_per_round") return !(state.combat?.oncePer?.round?.[key]);
 	return true;
 }
 
@@ -123,81 +115,61 @@ function markGuardUsed(
 	return state;
 }
 
-// Coleta todas as habilidades "em jogo" para o trigger dado.
-function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkill[] {
-	const active: ActiveSkill[] = [];
+// Fontes "em jogo" com metadados de origem.
+interface InPlaySource {
+	cardId: string;
+	sourceHeroId?: string;
+	sourceEnemyId?: string;
+}
 
-	// Heróis ativos — skill e power
+function inPlaySources(state: GameState, trigger: TriggerName): InPlaySource[] {
+	const sources: InPlaySource[] = [];
+
+	// 1. Heróis ativos
 	for (const hero of state.heroes.filter((h) => h.status === "active")) {
-		for (const field of ["skill", "power"] as const) {
-			const def = resolveSkillForById(hero.cardId, field);
-			if (!def) continue;
-			const { base } = parseTrigger(def.trigger);
-			if (base !== trigger) continue;
-			active.push({
-				definition: def,
-				value: resolveSkillValueById(hero.cardId, field),
-				sourceHeroId: hero.id,
-			});
-		}
-		// Itens equipados
+		const heroCard = getCardByName(hero.cardName);
+		if (heroCard) sources.push({ cardId: heroCard.id, sourceHeroId: hero.id });
+
+		// 2. Itens equipados pelo herói
 		for (const itemName of Object.values(hero.activeItems)) {
 			if (!itemName) continue;
-			const def = resolveSkillFor(itemName, "effect");
-			if (!def) continue;
-			const { base } = parseTrigger(def.trigger);
-			if (base !== trigger) continue;
-			active.push({
-				definition: def,
-				value: resolveSkillValue(itemName, "effect"),
-				sourceHeroId: hero.id,
-			});
+			const itemCard = getCardByName(itemName);
+			if (itemCard) sources.push({ cardId: itemCard.id, sourceHeroId: hero.id });
 		}
 	}
 
-	// Inimigos ativos — effect e purpleEffect
-	// on_destroyed também inclui inimigos recém-derrotados (status "defeated")
+	// 3. Inimigos ativos (on_destroyed inclui recém-derrotados)
 	const enemyFilter = trigger === "on_destroyed"
 		? (e: { status: string }) => e.status === "active" || e.status === "defeated"
 		: (e: { status: string }) => e.status === "active";
 	for (const enemy of state.activeEnemies.filter(enemyFilter)) {
-		for (const field of ["effect", "purpleEffect"] as const) {
-				if (field === "purpleEffect" && state.despertar !== 4) continue;
-				const def = resolveSkillForById(enemy.cardId, field);
-			if (!def) continue;
+		sources.push({ cardId: enemy.cardId, sourceEnemyId: enemy.id });
+	}
+
+	// 4. Sala atual
+	if (state.currentRoom) {
+		sources.push({ cardId: state.currentRoom.cardId });
+	}
+
+	// 5. Artefatos do grupo
+	for (const artifact of state.groupArtifacts) {
+		sources.push({ cardId: artifact.cardId, sourceHeroId: artifact.carriedBy ?? undefined });
+	}
+
+	return sources;
+}
+
+// Coleta todas as habilidades "em jogo" para o trigger dado.
+function collectActiveSkills(state: GameState, trigger: TriggerName): ActiveSkill[] {
+	const active: ActiveSkill[] = [];
+
+	for (const { cardId, sourceHeroId, sourceEnemyId } of inPlaySources(state, trigger)) {
+		for (const { def, ref } of cardSkills(cardId)) {
+			if (ref.requiresAwakening && state.despertar !== 4) continue;
 			const { base } = parseTrigger(def.trigger);
 			if (base !== trigger) continue;
-			active.push({
-				definition: def,
-				value: resolveSkillValueById(enemy.cardId, field),
-				sourceEnemyId: enemy.id,
-			});
+			active.push({ definition: def, ref, sourceHeroId, sourceEnemyId });
 		}
-	}
-
-	// Sala atual
-	if (state.currentRoom) {
-		const def = resolveSkillForById(state.currentRoom.cardId, "effect");
-		if (def) {
-			const { base } = parseTrigger(def.trigger);
-			if (base === trigger) {
-				active.push({ definition: def, value: resolveSkillValueById(state.currentRoom.cardId, "effect") });
-			}
-		}
-	}
-
-	// Artefatos do grupo
-	for (const artifact of state.groupArtifacts) {
-		const def = resolveSkillForById(artifact.cardId, "effect");
-		if (!def) continue;
-		const { base } = parseTrigger(def.trigger);
-		if (base !== trigger) continue;
-		const bearerHeroId = artifact.carriedBy ?? undefined;
-		active.push({
-			definition: def,
-			value: resolveSkillValueById(artifact.cardId, "effect"),
-			sourceHeroId: bearerHeroId,
-		});
 	}
 
 	return active;
@@ -237,11 +209,11 @@ export function fireTrigger(
 			sourceHeroId: skill.sourceHeroId ?? ctx.sourceHeroId,
 			sourceEnemyId: skill.sourceEnemyId ?? ctx.sourceEnemyId,
 			skillId: skill.definition.id,
-			value: skill.value,
+			value: skill.ref.params?.value ?? null,
 		};
 
 		// Normaliza valor para params: slash-pair "X/Y" → value = X (número)
-		const rawValue = skill.value;
+		const rawValue = skill.ref.params?.value ?? null;
 		const numericValue: number | string | null =
 			typeof rawValue === "string" && rawValue.includes("/")
 				? Number(rawValue.split("/")[0]) || 0
@@ -249,24 +221,25 @@ export function fireTrigger(
 		const params: Record<string, unknown> = {
 			value: numericValue,
 			...(skill.definition.params ?? {}),
+			...(skill.ref.params ?? {}),
 		};
 
 		if (skill.definition.effect) {
-			// ── DSL path (Patch-12 Lote 1+) ──────────────────────────────────
+			// ── DSL path ─────────────────────────────────────────────────────────
 			const evalCtx = buildScriptCtx(current, resolvedCtx, params);
 			current = evaluate(skill.definition.effect, evalCtx);
 		} else if (skill.definition.script) {
-			// ── Script path (Patch-12 Lote 4+) ───────────────────────────────
+			// ── Script path ──────────────────────────────────────────────────────
 			const fn = getScript(`${skill.definition.script}.run`);
 			if (fn) {
 				const scriptCtx = buildScriptCtx(current, resolvedCtx, params);
 				current = fn(scriptCtx);
 			}
 		} else {
-			// ── Handler legado ────────────────────────────────────────────────
+			// ── Handler legado ────────────────────────────────────────────────────
 			const handler = getHandler(skill.definition.type ?? "noop");
 			if (!handler) continue;
-			current = handler(current, resolvedCtx, skill.value);
+			current = handler(current, resolvedCtx, rawValue);
 		}
 
 		current = markGuardUsed(current, skill.definition, skill.sourceHeroId);
