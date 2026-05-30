@@ -17,7 +17,6 @@ import type { HeroState } from "../../../state/heroState";
 import type { RoomState } from "../../../state/roomState";
 import { evaluate } from "../../dsl/evaluate";
 import { handleDiscardDungeonPrevention } from "../discardDungeon_prevention";
-import { handleHeal } from "../heal";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
@@ -194,17 +193,6 @@ describe("DSL block_action heal", () => {
 		expect(result.heroes[0].healBlocked).toBe(true);
 	});
 
-	it("handleHeal não cura herói com healBlocked", () => {
-		const state = makeState({
-			heroes: [makeHero({ currentLife: 5, healBlocked: true })],
-		});
-		const result = handleHeal(
-			state,
-			{ triggeredBy: "on_use", sourceHeroId: "h1" },
-			3,
-		);
-		expect(result.heroes[0].currentLife).toBe(5);
-	});
 });
 
 // ── block_action dungeon_discard (antigo discardDungeonLock) ─────────────────

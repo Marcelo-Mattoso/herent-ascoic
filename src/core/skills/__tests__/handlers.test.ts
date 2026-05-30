@@ -6,7 +6,6 @@ import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { handleArmor } from "../handlers/armor";
 import { handleDamageBonus } from "../handlers/damage_bonus";
-import { handleHeal } from "../handlers/heal";
 import { handleMarkAndTohit } from "../handlers/mark_and_tohit";
 import { handleRecoverDungeon } from "../handlers/recoverDungeon";
 import { handleToken } from "../handlers/token";
@@ -110,46 +109,6 @@ describe("handleDamageBonus", () => {
 			{ triggeredBy: "before_attack", sourceHeroId: "h1" },
 			null,
 		);
-		expect(result).toBe(state);
-	});
-});
-
-// ── heal ─────────────────────────────────────────────────────────────────────
-
-describe("handleHeal", () => {
-	it("cura o herói alvo", () => {
-		const state = makeState({ currentLife: 5 });
-		const result = handleHeal(
-			state,
-			{ triggeredBy: "on_use", sourceHeroId: "h1", targetHeroIds: ["h1"] },
-			3,
-		);
-		expect(result.heroes[0]!.currentLife).toBe(8);
-	});
-
-	it("não passa da vida máxima", () => {
-		const state = makeState({ currentLife: 9 });
-		const result = handleHeal(
-			state,
-			{ triggeredBy: "on_use", sourceHeroId: "h1", targetHeroIds: ["h1"] },
-			5,
-		);
-		expect(result.heroes[0]!.currentLife).toBe(10);
-	});
-
-	it("usa sourceHeroId como fallback se targetHeroIds ausente", () => {
-		const state = makeState({ currentLife: 5 });
-		const result = handleHeal(
-			state,
-			{ triggeredBy: "on_use", sourceHeroId: "h1" },
-			3,
-		);
-		expect(result.heroes[0]!.currentLife).toBe(8);
-	});
-
-	it("retorna estado inalterado sem alvo válido", () => {
-		const state = makeState();
-		const result = handleHeal(state, { triggeredBy: "on_use" }, 3);
 		expect(result).toBe(state);
 	});
 });

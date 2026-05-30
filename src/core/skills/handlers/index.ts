@@ -7,6 +7,7 @@
 // Lote 3 (Patch-12): removidos heal_or_damage_bonus, heal_or_survive, item_or_discardDungeon
 // Lote 4 (Patch-12): removidos tohit, tohit_penalty, direct_damage
 // Fase 7 (Patch-12): removido script (skill_living_ember_oil usa script field nativo)
+// Patch-16 Lote A: removido heal
 
 import { register } from "../registry";
 import { handleArmor } from "./armor";
@@ -18,7 +19,6 @@ import { handleDiceFixDamage } from "./diceFix_damage";
 import { handleDiscardDungeonPrevention } from "./discardDungeon_prevention";
 import { handleDrawItem } from "./drawItem";
 import { handleDungeon } from "./dungeon";
-import { handleHeal } from "./heal";
 import { handleItemControl } from "./itemControl";
 import { handleMarkAndTohit } from "./mark_and_tohit";
 import { handleNoop } from "./noop";
@@ -32,7 +32,6 @@ import { handleTohitDamage } from "./tohit_damage";
 import { handleToken } from "./token";
 
 register("damage_bonus", handleDamageBonus);
-register("heal", handleHeal);
 register("armor", handleArmor);
 register("dice_modification", handleDiceModification);
 register("discardDungeon_prevention", handleDiscardDungeonPrevention);

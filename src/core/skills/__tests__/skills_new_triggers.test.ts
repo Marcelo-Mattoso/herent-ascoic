@@ -288,9 +288,10 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 	}
 
 	it("aplica bônus de Fio Mortal no Despertar 1 (sem restrição de despertar)", () => {
-		// DSL/Script migrado: fireTrigger empilha efeitos; drainStack aplica.
-		// skill_crimson_fury → script → pushEffect add_modifier damage_bonus +6
-		// item_skill_deadly_edge → legacy tohit_damage handler → bonusNextAttack diretamente
+		// Patch-16 Lote A: item_skill_deadly_edge migrado para DSL — adiciona
+		// tohit_bonus E damage_bonus (dois entradas de value 1 em vez de uma).
+		// skill_crimson_fury → script → damage_bonus +6
+		// item_skill_deadly_edge → DSL → tohit_bonus +1 + damage_bonus +1
 		const state = makeStateWithAdaga(1 as ColorIndex);
 		const result = drainStack(
 			fireTrigger(state, "before_attack", {
@@ -301,10 +302,9 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		);
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		const total = entries.reduce((s, e) => s + e.value, 0);
-		expect(total).toBe(7);
-		// label = skill_id (script) ou nome legado (handler)
-		expect(entries.some((e) => e.value === 6)).toBe(true); // Fúria Rubra via script
-		expect(entries.some((e) => e.value === 1)).toBe(true); // Fio Mortal via handler
+		expect(total).toBe(8); // 6 (furia_rubra) + 1 (tohit) + 1 (damage) = 8
+		expect(entries.some((e) => e.value === 6)).toBe(true);
+		expect(entries.filter((e) => e.value === 1).length).toBeGreaterThanOrEqual(2);
 	});
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
@@ -318,9 +318,9 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		);
 		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
 		const total = entries.reduce((s, e) => s + e.value, 0);
-		expect(total).toBe(7);
+		expect(total).toBe(8);
 		expect(entries.some((e) => e.value === 6)).toBe(true);
-		expect(entries.some((e) => e.value === 1)).toBe(true);
+		expect(entries.filter((e) => e.value === 1).length).toBeGreaterThanOrEqual(2);
 	});
 });
 

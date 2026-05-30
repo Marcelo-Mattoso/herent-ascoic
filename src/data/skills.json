@@ -765,11 +765,17 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": true,
 			"defaultValue": null,
-			"type": "heal",
 			"trigger": "on_deal_damage",
 			"target": "self",
 			"textTemplate": "cure do herói portador o equivalente a {value}, apenas se ele causar dano.",
-			"labelTemplate": "Drenar Vida ({value}): cure do herói portador o equivalente a {value}, apenas se ele causar dano."
+			"labelTemplate": "Drenar Vida ({value}): cure do herói portador o equivalente a {value}, apenas se ele causar dano.",
+			"effect": [
+				{
+					"kind": "apply_heal",
+					"to": "$source",
+					"amount": "$value"
+				}
+			]
 		},
 		{
 			"id": "skill_opportunity_shot",
@@ -961,11 +967,21 @@
 			"sourceSection": "Poderes dos Heróis",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "damage_bonus_duration",
 			"trigger": "once_per_game_on_use_furia_rubra",
 			"target": "self",
 			"textTemplate": "ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-			"labelTemplate": "Fúria Rubra Poderosa: ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
+			"labelTemplate": "Fúria Rubra Poderosa: ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
+			"params": { "bonus": 6 },
+			"effect": [
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "damage_bonus",
+					"operation": "add",
+					"value": "$bonus",
+					"duration": { "kind": "until_end_of_combat" }
+				}
+			]
 		},
 		{
 			"id": "power_last_light_oath",
@@ -1403,11 +1419,28 @@
 			"sourceSection": "Habilidades de Itens",
 			"usesVariable": true,
 			"defaultValue": null,
-			"type": "tohit_damage",
 			"trigger": "combat",
 			"target": "self",
 			"textTemplate": "receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano.",
-			"labelTemplate": "Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano."
+			"labelTemplate": "Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano.",
+			"effect": [
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "tohit_bonus",
+					"operation": "add",
+					"value": "$value",
+					"duration": { "kind": "once" }
+				},
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "damage_bonus",
+					"operation": "add",
+					"value": "$value",
+					"duration": { "kind": "once" }
+				}
+			]
 		},
 		{
 			"id": "item_skill_block",
@@ -1509,11 +1542,36 @@
 			"sourceSection": "Habilidades de Dungeon",
 			"usesVariable": false,
 			"defaultValue": "-1/1",
-			"type": "item_or_tohit_penalty",
 			"trigger": "before_first_combat_in_room",
 			"target": "heroes",
 			"textTemplate": "antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
-			"labelTemplate": "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito."
+			"labelTemplate": "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
+			"effect": [
+				{
+					"kind": "choose_one",
+					"options": [
+						{
+							"label": "Descartar 1 item",
+							"effect": [
+								{ "kind": "discard_from", "pile": "item", "count": 1 }
+							]
+						},
+						{
+							"label": "Sofrer -1 no acerto",
+							"effect": [
+								{
+									"kind": "add_modifier",
+									"to": "$source",
+									"stat": "tohit_penalty",
+									"operation": "add",
+									"value": 1,
+									"duration": { "kind": "until_end_of_combat" }
+								}
+							]
+						}
+					]
+				}
+			]
 		},
 		{
 			"id": "dungeon_skill_column_fall",
@@ -1667,11 +1725,33 @@
 			"sourceSection": "Habilidades de Itens",
 			"usesVariable": true,
 			"defaultValue": "1/1",
-			"type": "tohit_damage_heal",
 			"trigger": "combat_and_on_damage_dealt",
 			"target": "self",
 			"textTemplate": "receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.",
-			"labelTemplate": "Drenar Vida e Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano."
+			"labelTemplate": "Drenar Vida e Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.",
+			"effect": [
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "tohit_bonus",
+					"operation": "add",
+					"value": "$value",
+					"duration": { "kind": "once" }
+				},
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "damage_bonus",
+					"operation": "add",
+					"value": "$value",
+					"duration": { "kind": "once" }
+				},
+				{
+					"kind": "apply_heal",
+					"to": "$source",
+					"amount": 1
+				}
+			]
 		},
 		{
 			"id": "item_skill_block_and_last_light_ward",
@@ -1718,11 +1798,25 @@
 			"sourceSection": "Habilidades de Itens",
 			"usesVariable": true,
 			"defaultValue": "2/poderosa",
-			"type": "self_damage_for_damage_until_end_of_combat",
 			"trigger": "before_attack_once_per_game",
 			"target": "self",
 			"textTemplate": "este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
-			"labelTemplate": "Fúria Rubra e Fúria Rubra Poderosa ({value}): este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
+			"labelTemplate": "Fúria Rubra e Fúria Rubra Poderosa ({value}): este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.",
+			"effect": [
+				{
+					"kind": "apply_damage",
+					"to": "$source",
+					"amount": "$value"
+				},
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "damage_bonus",
+					"operation": "add",
+					"value": 6,
+					"duration": { "kind": "until_end_of_combat" }
+				}
+			]
 		},
 		{
 			"id": "dungeon_skill_subboss_room",
