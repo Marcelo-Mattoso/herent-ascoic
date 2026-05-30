@@ -40,34 +40,18 @@ Acesse `http://localhost:5173` no navegador.
 
 ```
 src/
-├── core/               # Motor de jogo puro (sem React)
-│   ├── actions/        # Tipos e criadores de actions
-│   ├── adapter/        # EngineAdapter + inProcessAdapter (ponte core ↔ UI)
-│   ├── config/         # Constantes e configurações globais
-│   ├── data/           # Loaders e tipos (cards.ts, skills.ts, cardTypes.ts, skillTypes.ts)
-│   ├── ecs/            # ECS world — entities, components e world API
-│   ├── effects/        # Effect stack — resolução ordenada de cadeias de efeitos
-│   ├── events/         # Event bus síncrono (DamageAboutToBeDealt, HealAboutToBeApplied…)
-│   ├── persistence/    # Porta de persistência (localStorage / no-op)
-│   ├── ports/          # Interfaces abstratas (PersistencePort, etc.)
-│   ├── projection/     # Projeções de estado (playerView, aiView, replayView)
-│   ├── reducer/        # Reducer por domínio (setup, combat, reward…)
-│   ├── replay/         # Replay viewer — navega pelo actionLog passo a passo
-│   ├── rules/          # Funções puras (dice, combat, shield, colorScale…)
-│   ├── skills/         # Catálogo de habilidades e handlers por tipo
-│   │   └── handlers/   # Um arquivo por handler (damage_bonus, heal, reroll…)
-│   ├── state/          # Tipos do GameState, CombatState e factories iniciais
-│   ├── strategies/     # Estratégias plugáveis (targetSelection, etc.)
-│   └── systems/        # Sistemas com queries (damageSystem, healSystem, conditionSystem)
-├── data/               # Dados estáticos JSON (cards, skills, balance, transitions…)
-│   └── scripts/        # Scripts de carta (módulos TS do designer, carregados pelo engine)
+├── core/               # Motor de jogo puro (sem React) — ver src/core/README.md
+├── data/               # Dados estáticos JSON (cards, skills, transitions) — ver src/data/README.md
+│   └── scripts/        # Scripts de carta (lógica de skill que não cabe em DSL)
 ├── ui/
-│   ├── components/     # Componentes reutilizáveis (Board, HeroFocusPanel, EventLogPanel…)
+│   ├── components/     # Reutilizáveis (Board, HeroFocusPanel, BuffBar, EventLogPanel…)
 │   │   └── modals/     # Modais (XpSpend, OpenPaths, CardDetail, SkillChoice…)
 │   ├── screens/        # Telas (MainMenu, Setup, Exploration, Victory, Defeat)
-│   └── store/          # Elf store, seletores, persistência e adaptador
+│   └── store/          # Elf store, seletores, persistência e adapter pro core
 └── main.tsx
 ```
+
+A regra de separação é dura: **a UI consome o core via projeção; nunca duplica lógica de jogo.** Toda mudança de estado passa por `dispatch(action)`. Detalhes da arquitetura do core estão em [`src/core/README.md`](src/core/README.md); do catálogo de cartas e skills em [`src/data/README.md`](src/data/README.md).
 
 ## Como jogar
 
@@ -104,37 +88,70 @@ Vigia das Portas Quebradas sofreu 7 de dano.
   Inimigo: [2,1] | total 3
 ```
 
+### Efeitos ativos (BuffBar)
+
+Entre o tabuleiro e o card do herói há uma barra unificada de efeitos ativos no combate, dividida por uma `<hr>` tracejada:
+
+- **Topo** (`🤝 Grupo:`): efeitos que afetam recursos compartilhados — `dungeonDiscardPrevented` (Caminho Preservado), `fleeBlocked`, `discardDungeonLocked`, etc. Vivem em `state.flags.*` e são projetados em `view.groupBuffs`.
+- **Base** (`🧙 <Nome>:`): efeitos individuais do herói em foco — `bonusNextAttack`, `damageReduction`, `tohitPenaltyByHero`, `extraDice`, Marca da Presa, passivas `while_equipped`. Vivem em `state.combat.*` e são projetados em `view.combat.buffsByHero[heroId]`.
+
+Cada chip carrega `kind: "buff" | "debuff" | "neutral"` (cor: âmbar / magenta / cinza) e `source` (origem semântica) mostrada no chip e no tooltip. A BuffBar inteira esconde quando nem grupo nem herói têm efeitos.
+
+### Animação "clique aqui"
+
+A UI marca o **próximo clique esperado** com um pulso âmbar (`.click-attention` em [src/index.css](src/index.css)):
+
+- Botão central do tabuleiro (Revelar sala / Iniciar combate / Rolar dados / Revelar chefe / Resolver ataque).
+- Botões "Atacar" e "Usar poder" no painel do herói quando habilitados.
+- Cards de herói quando `phase = selecting_hero`.
+- Cards de inimigo quando `phase = selecting_target`.
+- Dados elegíveis quando há `pendingDiceSelection` (animação mais enfática `.die-eligible`).
+
+Respeita `prefers-reduced-motion` — em modo reduzido, vira anel estático sem pulsar.
+
 ### Replay Viewer
 
 Pressione **Ctrl+Shift+R** para abrir o Replay Viewer. Ele permite navegar passo a passo pelo `actionLog` da partida atual — útil para depurar o efeito de cada action sobre o estado.
 
 ### Console do navegador
 
-Em modo dev (`npm run dev`) o store é exposto em `window.__store`. O padrão é: despacha → lê o que mudou → confirma.
+Em modo dev (`npm run dev`) o core expõe dois objetos no `window`:
+
+- `window.__elfStore` — store Elf. `.getValue()` devolve `{ gameState, ui }` cru. Útil pra inspecionar o estado completo (`combat`, `flags`, `heroes`, etc.).
+- `window.__dispatch(action)` — despacha uma `Action` no adapter síncrono. Quando retorna, o estado já está atualizado.
+
+> O hook `window.__store` exposto pelo `useGameStore` **não pode ser chamado** fora do React (Invalid hook call). Use os dois acima.
 
 ```js
 // Helpers rápidos
-const d = () => window.__store.getState().dispatch;
-const g = () => window.__store.getState().state;
+const g = () => window.__elfStore.getValue().gameState;
+const d = window.__dispatch;
 
-// Após qualquer dispatch, o estado já está atualizado na próxima linha:
-d()({ type: "START_COMBAT" });
+// Após qualquer dispatch, o estado já está atualizado:
+d({ type: "START_COMBAT" });
 g().combat?.phase;          // "selecting_hero"
 
 // Escolhe herói e inimigo:
 const heroId = g().heroes[0].id;
-d()({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
+d({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
 
 const enemyId = g().activeEnemies[0].id;
-d()({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+d({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 
 // Rola e resolve:
-d()({ type: "ROLL_DICE" });
+d({ type: "ROLL_DICE" });
 g().combat?.lastRoll;       // { heroTotal, enemyTotal, heroBreakdown, ... }
-d()({ type: "RESOLVE_ATTACK" });
+d({ type: "RESOLVE_ATTACK" });
 
 // EventLog: feedback textual de tudo que aconteceu
 g().eventLog.slice(-5);
+
+// Buffs ativos por herói (visto pela UI):
+import("@/core/projection/playerView").then(({ playerView }) => {
+  const view = playerView(g());
+  console.log("grupo:", view.groupBuffs);
+  console.log("herói:", view.combat?.buffsByHero[heroId]);
+});
 ```
 
 ### Script de partida rápida até o combate
@@ -142,15 +159,16 @@ g().eventLog.slice(-5);
 ```js
 // Cola no console, retorna um resumo sem nenhum screenshot
 (() => {
-  const s = window.__store;
-  s.getState().reset();
-  s.getState().dispatch({ type: "START_GAME", payload: {
+  const d = window.__dispatch;
+  const g = () => window.__elfStore.getValue().gameState;
+
+  d({ type: "START_GAME", payload: {
     heroCardNames: ["Clérigo do Descanso Eterno", "Guerreiro do Bastião Partido", "Bárbaro Rubro"]
   }});
   ["REVEAL_ROOM", "RESOLVE_ROOM_EFFECT", "SPAWN_ENEMIES", "START_COMBAT"]
-    .forEach(type => s.getState().dispatch({ type }));
+    .forEach(type => d({ type }));
 
-  const st = s.getState().state;
+  const st = g();
   return {
     status:   st.status,
     phase:    st.combat?.phase,

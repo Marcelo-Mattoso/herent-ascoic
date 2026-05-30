@@ -224,6 +224,20 @@ O campo `trigger` aceita a string de nome do evento. Os principais:
 
 Guards `once_per_*` são detectados automaticamente pelo dispatcher.
 
+#### Manual vs reativo
+
+O core distingue triggers **manuais** (o jogador clica "Usar habilidade"/"Usar poder") de **reativos** (disparam automaticamente em resposta a um evento). Critério em [`src/core/skills/useSkill.ts:isManuallyActivatable`](../core/skills/useSkill.ts):
+
+- **Manual:** `on_use`, ou qualquer `once_per_game*`/`once_per_room*`/`once_per_combat*` **sem** `_on_`/`_after_` no meio. Inclui combinações compostas com sufixo de duração ou modificador de uso:
+  - `once_per_game_until_end_of_round` (Guarda Inquebrável do Bastião) — manual com duração até fim da rodada.
+  - `once_per_combat_instead_of_attack` (Tiro de Oportunidade) — manual que substitui o ataque.
+- **Reativo:** qualquer trigger que contenha `_on_*` ou `_after_*`, mesmo com prefixo `once_per_*`. Disparado pelo handler do evento; **não** ativável pelo jogador via clique.
+  - `once_per_room_on_dungeon_discard` (Caminho Preservado) — reage a um descarte de dungeon.
+  - `once_per_room_after_roll`, `once_per_game_after_any_roll` — reagem à rolagem dos dados.
+  - `once_per_game_on_defeat_creature`, `once_per_game_after_roll_vs_prey` — reagem ao resultado de combate.
+
+Se a UI deixar o jogador clicar "Usar habilidade" numa skill reativa, `fireOnUseSkill` rejeita com log `[AVISO] Skill X não é ativável manualmente (trigger: …)` e **não** consome o item nem aplica o efeito.
+
 ### DSL de efeitos (`effect`)
 
 Array de nós `EffectNode`. Os mais usados:
@@ -277,13 +291,14 @@ Array de nós `EffectNode`. Os mais usados:
 | `$target` | ID do alvo primário |
 | `$dungeon_level` | Nível atual do Despertar (0–4) |
 
-**Durações** para `add_modifier`:
+**Durações** para `add_modifier` (validadas em [`src/core/skills/dsl/schema.ts`](../core/skills/dsl/schema.ts)):
 
 | `kind` | Duração |
 |--------|---------|
 | `once` | Consome-se no primeiro hit |
-| `until_end_of_round` | Até fim da rodada |
-| `until_end_of_combat` | Até fim do combate |
+| `until_end_of_round` | Até fim da rodada de combate |
+| `until_end_of_combat` | Até fim do combate inteiro |
+| `once_per_round` | Pode disparar uma vez por rodada |
 | `while_in_play` | Enquanto a entidade estiver em jogo |
 | `passive` | Permanente (item equipado) |
 
