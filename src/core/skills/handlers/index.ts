@@ -11,29 +11,11 @@
 // Patch-16 Lote B: removidos armor, prevent_damage, targetProtection, recoverDungeon,
 //   mark_and_tohit, drawItem, discardDungeon_prevention, dungeon, tohit_damage,
 //   damage_bonus_duration
+// Patch-16 Lote C: removidos dice_modification, diceFix, diceFix_damage,
+//   targetRedirect_or_tohit, itemControl, token, splash_damage, reroll, damage_bonus
+// Todos os handlers legados foram migrados para DSL (effect) ou script.
 
 import { register } from "../registry";
-import { handleDamageBonus } from "./damage_bonus";
-import { handleDiceModification } from "./dice_modification";
-import { handleDiceFix } from "./diceFix";
-import { handleDiceFixDamage } from "./diceFix_damage";
-import { handleItemControl } from "./itemControl";
 import { handleNoop } from "./noop";
-import { handleReroll } from "./reroll";
-import { handleSplashDamage } from "./splash_damage";
-import { handleTargetRedirectOrTohit } from "./targetRedirect_or_tohit";
-import { handleToken } from "./token";
 
-register("damage_bonus", handleDamageBonus);
-register("dice_modification", handleDiceModification);
-register("diceFix", handleDiceFix);
-register("diceFix_damage", handleDiceFixDamage);
-register("token", handleToken);
-register("itemControl", handleItemControl);
-register("splash_damage", handleSplashDamage);
-register("reroll", handleReroll);
-register("targetRedirect_or_tohit", handleTargetRedirectOrTohit);
 register("noop", handleNoop);
-// directDamage (skill_opportunity_shot): handler removido com direct_damage.ts;
-// skill_opportunity_shot será migrada para script no Lote C.
-// Por ora cai no fallback noop do dispatch.

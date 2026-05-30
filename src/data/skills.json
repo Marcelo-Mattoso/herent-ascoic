@@ -79,11 +79,11 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": true,
 			"defaultValue": null,
-			"type": "dice_modification",
 			"trigger": "after_roll",
 			"target": "ally_die",
 			"textTemplate": "depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1.",
-			"labelTemplate": "Runa das Fendas ({value}): depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1."
+			"labelTemplate": "Runa das Fendas ({value}): depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1.",
+			"script": "skill_rift_rune"
 		},
 		{
 			"id": "skill_hunter_focus",
@@ -167,11 +167,11 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "recover_item",
 			"trigger": "on_win_room",
 			"target": "group",
 			"textTemplate": "ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói.",
-			"labelTemplate": "Forja Reacesa: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói."
+			"labelTemplate": "Forja Reacesa: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói.",
+			"script": "skill_rekindled_forge"
 		},
 		{
 			"id": "skill_rift_second_chance",
@@ -559,11 +559,11 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "itemControl",
 			"trigger": "first_item_effect_received",
 			"target": "self",
 			"textTemplate": "esta criatura ignora o primeiro efeito de item usado contra ela.",
-			"labelTemplate": "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela."
+			"labelTemplate": "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela.",
+			"script": "skill_rift_evasion"
 		},
 		{
 			"id": "skill_chains_prison",
@@ -807,11 +807,11 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "directDamage",
 			"trigger": "once_per_combat_instead_of_attack",
 			"target": "creature",
 			"textTemplate": "uma vez por combate, ao invés de combater, cause o seu dano direto na criatura.",
-			"labelTemplate": "Tiro de Oportunidade: uma vez por combate, ao invés de combater, cause o seu dano direto na criatura."
+			"labelTemplate": "Tiro de Oportunidade: uma vez por combate, ao invés de combater, cause o seu dano direto na criatura.",
+			"script": "skill_opportunity_shot"
 		},
 		{
 			"id": "skill_last_light_ward",
@@ -874,11 +874,11 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": 2,
-			"type": "targetRedirect_or_tohit",
 			"trigger": "once_per_room_on_targeted",
 			"target": "another_hero_or_self",
 			"textTemplate": "uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto.",
-			"labelTemplate": "Desvio de Foco: uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto."
+			"labelTemplate": "Desvio de Foco: uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto.",
+			"script": "skill_focus_deflection"
 		},
 		{
 			"id": "skill_minor_rune",
@@ -983,11 +983,11 @@
 			"sourceSection": "Poderes dos Heróis",
 			"usesVariable": false,
 			"defaultValue": "6/1",
-			"type": "diceFix",
 			"trigger": "once_per_game_after_any_roll",
 			"target": "ally_or_enemy_die",
 			"textTemplate": "depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.",
-			"labelTemplate": "Runa Suprema das Fendas: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
+			"labelTemplate": "Runa Suprema das Fendas: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.",
+			"script": "power_supreme_rift_rune"
 		},
 		{
 			"id": "power_mighty_crimson_fury",
@@ -1070,11 +1070,11 @@
 			"sourceSection": "Poderes dos Heróis",
 			"usesVariable": false,
 			"defaultValue": "1/3/2/2",
-			"type": "token",
 			"trigger": "once_per_game_on_defeat_creature",
 			"target": "self",
 			"textTemplate": "uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos.",
-			"labelTemplate": "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos."
+			"labelTemplate": "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos.",
+			"script": "power_deep_veil_echo"
 		},
 		{
 			"id": "power_hunter_execution",
@@ -1083,11 +1083,11 @@
 			"sourceSection": "Poderes dos Heróis",
 			"usesVariable": false,
 			"defaultValue": "6/1",
-			"type": "diceFix_damage",
 			"trigger": "once_per_game_after_roll_vs_prey",
 			"target": "blue_die_and_self",
 			"textTemplate": "uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar.",
-			"labelTemplate": "Execução do Caçador: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar."
+			"labelTemplate": "Execução do Caçador: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar.",
+			"script": "power_hunter_execution"
 		},
 		{
 			"id": "purple_raging_flames",
@@ -1666,11 +1666,11 @@
 			"sourceSection": "Habilidades de Dungeon",
 			"usesVariable": false,
 			"defaultValue": 1,
-			"type": "drawSpecificItem",
 			"trigger": "on_win_room",
 			"target": "item_deck_or_discard",
 			"textTemplate": "ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói.",
-			"labelTemplate": "Forja Reacesa: ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói."
+			"labelTemplate": "Forja Reacesa: ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói.",
+			"script": "dungeon_skill_rekindled_forge"
 		},
 		{
 			"id": "dungeon_skill_summon_guardian",
@@ -1679,12 +1679,12 @@
 			"sourceSection": "Habilidades de Dungeon",
 			"usesVariable": true,
 			"defaultValue": null,
-			"type": "roomSpecial",
 			"trigger": "on_room_reveal",
 			"target": "special_creature",
 			"textTemplate": "revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo.",
 			"labelTemplate": "Invocar Guardião ({value}): revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo.",
-			"notes": "Use {value} como o nome da criatura especial/subchefe revelado pela sala."
+			"notes": "Use {value} como o nome da criatura especial/subchefe revelado pela sala.",
+			"script": "dungeon_skill_summon_guardian"
 		},
 		{
 			"id": "boss_skill_living_ash_throne",

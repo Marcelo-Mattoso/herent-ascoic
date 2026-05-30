@@ -7,7 +7,6 @@
 import { describe, expect, it } from "vitest";
 import { buildScriptCtx } from "../../../scripts/context";
 import { evaluate } from "../../dsl/evaluate";
-import { handleItemControl } from "../itemControl";
 // Importar index para que registerContinuation seja chamado
 import "../index";
 import { reducer } from "../../../reducer";
@@ -166,36 +165,6 @@ describe("DSL choose_one — dark_tribute", () => {
 		});
 		expect(result.heroes[0].backpack).toHaveLength(0);
 		expect(result.pendingSkillChoice).toBeUndefined();
-	});
-});
-
-// ── itemControl ───────────────────────────────────────────────────────────────
-
-describe("handleItemControl", () => {
-	it("liga itemControlByEnemy para o inimigo-fonte", () => {
-		const state = makeState({ activeEnemies: [makeEnemy()] });
-		const result = handleItemControl(
-			state,
-			{ triggeredBy: "first_item_effect_received", sourceEnemyId: "e1" },
-			null,
-		);
-		expect(result.combat?.itemControlByEnemy["e1"]).toBe(true);
-	});
-
-	it("não bloqueia novamente após o primeiro bloqueio (oncePer.combat)", () => {
-		const combat = {
-			...createEmptyCombatState(),
-			itemControlByEnemy: { e1: false },
-			oncePer: { room: {}, combat: { "itemControl::e1": true }, round: {} },
-		};
-		const state = makeState({ activeEnemies: [makeEnemy()], combat });
-		const result = handleItemControl(
-			state,
-			{ triggeredBy: "first_item_effect_received", sourceEnemyId: "e1" },
-			null,
-		);
-		// Flag não deve ser re-setada
-		expect(result.combat?.itemControlByEnemy["e1"]).toBeFalsy();
 	});
 });
 

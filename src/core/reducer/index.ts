@@ -229,9 +229,11 @@ function dispatch(state: GameState, action: Action): GameState {
 				return drainStack(evaluate(chosenOption.effect, ctx));
 			}
 
-			// ── Legacy handler continuation ───────────────────────────────────────
+			// ── Legacy handler continuation (type) ou script continuation (id) ──
 			const def = lookupSkillById(pending.skillId);
-			const cont = getContinuation(def?.type ?? "");
+			const cont =
+				getContinuation(def?.type ?? "") ??
+				getContinuation(pending.skillId);
 			if (!cont) return cleared;
 			return cont(
 				cleared,

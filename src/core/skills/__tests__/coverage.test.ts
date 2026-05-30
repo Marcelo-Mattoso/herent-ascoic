@@ -212,12 +212,9 @@ describe("cobertura de skills — todas rodam no core", () => {
 		// Patch-16 Lote A removidos: dungeon_skill_dead_torches,
 		// item_skill_drain_life_and_deadly_edge, item_skill_crimson_fury_mighty
 		// Patch-16 Lote B removido: item_skill_mystic_draw
-		const KNOWN_UNIMPLEMENTED = new Set<string>([
-			"skill_rekindled_forge",
-			"skill_opportunity_shot",
-			"dungeon_skill_rekindled_forge",
-			"dungeon_skill_summon_guardian",
-		]);
+		// Patch-16 Lote C removidos: skill_rekindled_forge, skill_opportunity_shot,
+		//   dungeon_skill_rekindled_forge, dungeon_skill_summon_guardian
+		const KNOWN_UNIMPLEMENTED = new Set<string>();
 		const unimpl = rows.filter((r) => r.status === "unimplemented").map((r) => r.id);
 		const novos = unimpl.filter((id) => !KNOWN_UNIMPLEMENTED.has(id));
 		expect(novos, `Skills quebraram (fora do baseline): ${novos.join(", ")}`).toHaveLength(0);
