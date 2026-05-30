@@ -1,17 +1,17 @@
 // Footer do tabuleiro: XP do grupo · Despertar · Artefatos · Condição do chefe.
 
-import type { GameState } from "@/core/state/gameState";
+import type { PlayerView } from "@/core/projection/playerView";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
 import { ColorBar } from "./ColorBar";
 
 interface BoardFooterProps {
-	state: GameState;
+	view: PlayerView;
 	onArtifactClick: (name: string, type: CardType) => void;
 }
 
-export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
-	const missing = Math.max(0, 2 - state.groupArtifacts.length);
+export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
+	const missing = Math.max(0, 2 - view.groupArtifacts.length);
 
 	return (
 		<div
@@ -26,7 +26,7 @@ export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
 		>
 			{/* XP */}
 			<div style={{ textAlign: "center" }}>
-				{state.mode === "competitive" ? (
+				{view.mode === "competitive" ? (
 					<>
 						<p style={{ color: UI.textSecondary, fontSize: 10 }}>
 							XP por jogador
@@ -39,7 +39,7 @@ export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
 								gap: 4,
 							}}
 						>
-							{state.heroes
+							{view.heroes
 								.filter((h) => h.status === "active")
 								.map((h) => (
 									<span
@@ -66,7 +66,7 @@ export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
 								lineHeight: 1.2,
 							}}
 						>
-							{state.groupXp}
+							{view.groupXp}
 						</p>
 					</>
 				)}
@@ -77,13 +77,13 @@ export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
 				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 3 }}>
 					Despertar
 				</p>
-				<ColorBar current={state.despertar} />
+				<ColorBar current={view.despertar} />
 			</div>
 
 			{/* Artefatos */}
 			<div style={{ textAlign: "center" }}>
 				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 3 }}>
-					Artefatos {state.groupArtifacts.length}/2
+					Artefatos {view.groupArtifacts.length}/2
 				</p>
 				<div
 					style={{
@@ -93,7 +93,7 @@ export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
 						justifyContent: "center",
 					}}
 				>
-					{state.groupArtifacts.map((a) => (
+					{view.groupArtifacts.map((a) => (
 						<button
 							key={a.cardName}
 							type="button"
@@ -134,7 +134,7 @@ export function BoardFooter({ state, onArtifactClick }: BoardFooterProps) {
 					Condição do chefe
 				</p>
 				<p style={{ color: UI.textPrimary, fontSize: 11 }}>
-					2 Artefatos ({state.groupArtifacts.length}/2)
+					2 Artefatos ({view.groupArtifacts.length}/2)
 				</p>
 			</div>
 		</div>

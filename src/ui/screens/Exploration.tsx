@@ -137,7 +137,7 @@ export function Exploration() {
 	function handleAttack() {
 		const selectedHeroId = combat?.selectedHeroId;
 		if (!selectedHeroId) return;
-		const target = state.activeEnemies.find((e) => e.status === "active");
+		const target = view.enemies.find((e) => e.status === "active");
 		if (!target) return;
 		dispatch({
 			type: "CHOOSE_TARGET",
@@ -199,21 +199,21 @@ export function Exploration() {
 							<span style={{ color: UI.textSecondary }}>
 								Sala:{" "}
 								<strong style={{ color: UI.textPrimary }}>
-									{state.roomsCleared}
+									{view.roomsCleared}
 								</strong>
 							</span>
 							<span style={{ color: UI.textSecondary }}>
 								Heróis:{" "}
 								<strong style={{ color: UI.textPrimary }}>
-									{state.heroes.filter((h) => h.status === "active").length}
+									{view.heroes.filter((h) => h.status === "active").length}
 								</strong>{" "}
 								ativos
 							</span>
-							{state.combat?.round ? (
+							{view.combat?.round ? (
 								<span style={{ color: UI.textSecondary }}>
 									Rodada:{" "}
 									<strong style={{ color: UI.textPrimary }}>
-										{state.combat.round}
+										{view.combat.round}
 									</strong>
 								</span>
 							) : null}
@@ -246,7 +246,7 @@ export function Exploration() {
 
 					{/* TABULEIRO */}
 					<Board
-						state={state}
+						view={view}
 						focusedHeroId={ui.focusedHeroId}
 						roll={roll ?? null}
 						onHeroClick={handleHeroClick}
@@ -254,8 +254,8 @@ export function Exploration() {
 						onEnemyDrop={handleEnemyDrop}
 						onEnemyClick={handleEnemyClick}
 						onRoomClick={() =>
-							state.currentRoom &&
-							openCardDetail(state.currentRoom.cardName, "room")
+							view.currentRoom &&
+							openCardDetail(view.currentRoom.cardName, "room")
 						}
 						onCardDetail={openCardDetail}
 						onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
@@ -271,7 +271,7 @@ export function Exploration() {
 					{/* LOG DE EVENTOS (toggle) */}
 					{showLog && (
 						<EventLogPanel
-							entries={state.eventLog}
+							entries={view.eventLog}
 							onClose={() => setShowLog(false)}
 						/>
 					)}
@@ -299,7 +299,7 @@ export function Exploration() {
 				{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
 				{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
 				{modal === "flee_restart" && <FleeReconfigureModal />}
-				{state.pendingSkillChoice && <SkillChoiceModal />}
+				{view.pendingSkillChoice && <SkillChoiceModal />}
 				{modal === "card_detail" && detailCard && (
 					<CardDetailModal
 						cardName={detailCard.name}

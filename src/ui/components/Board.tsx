@@ -2,10 +2,10 @@
 // Layout: pilha-esq | arena-central | pilha-dir, com footer do grupo embaixo.
 
 import { useState } from "react";
-import type { CombatRollResult, CombatState } from "@/core/state/combatState";
+import type { CombatRollResult } from "@/core/state/combatState";
 import type { EnemyState } from "@/core/state/enemyState";
-import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
+import type { PlayerView } from "@/core/projection/playerView";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
@@ -17,7 +17,7 @@ import { RoomCard } from "./RoomCard";
 import { Stack } from "./Stack";
 
 interface BoardProps {
-	state: GameState;
+	view: PlayerView;
 	focusedHeroId: string | null;
 	onHeroClick: (hero: HeroState) => void;
 	onHeroDragStart: (heroId: string) => void;
@@ -36,7 +36,7 @@ interface BoardProps {
 }
 
 export function Board({
-	state,
+	view,
 	focusedHeroId,
 	onHeroClick,
 	onHeroDragStart,
@@ -54,18 +54,17 @@ export function Board({
 }: BoardProps) {
 	const [draggingHeroId, setDraggingHeroId] = useState<string | null>(null);
 
-	const combat: CombatState | null = state.combat;
-	const heroesActed = combat?.heroesActed ?? [];
-	const selectedHeroId = combat?.selectedHeroId ?? null;
-	const phase = combat?.phase ?? null;
-	const status = state.status;
+	const heroesActed = view.combat?.heroesActed ?? [];
+	const selectedHeroId = view.combat?.selectedHeroId ?? null;
+	const phase = view.combat?.phase ?? null;
+	const status = view.status;
 
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isSelectingTarget =
 		isInCombat && phase === "selecting_target" && !!selectedHeroId;
 
-	const heroes = state.heroes;
-	const enemies = state.activeEnemies.filter((e) => e.status === "active");
+	const heroes = view.heroes;
+	const enemies = view.enemies.filter((e) => e.status === "active");
 
 	function handleDragStart(heroId: string) {
 		setDraggingHeroId(heroId);
@@ -112,13 +111,13 @@ export function Board({
 				>
 					<Stack
 						name="Masmorra"
-						count={state.decks.dungeonDeck.available.length}
-						discardCount={state.decks.dungeonDeck.discarded.length}
+						count={view.decks.dungeonDeck.available}
+						discardCount={view.decks.dungeonDeck.discarded.length}
 					/>
 					<Stack
 						name="Monstros"
-						count={state.decks.enemyDeck.available.length}
-						discardCount={state.decks.enemyDeck.discarded.length}
+						count={view.decks.enemyDeck.available}
+						discardCount={view.decks.enemyDeck.discarded}
 					/>
 				</div>
 
@@ -126,10 +125,10 @@ export function Board({
 				<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
 					{/* Sala no topo */}
 					<div style={{ display: "flex", justifyContent: "center" }}>
-						{state.currentRoom ? (
+						{view.currentRoom ? (
 							<RoomCard
-								room={state.currentRoom}
-								despertar={state.despertar}
+								room={view.currentRoom}
+								despertar={view.despertar}
 								onClick={onRoomClick}
 							/>
 						) : (
@@ -201,7 +200,7 @@ export function Board({
 					{status === "RESOLVE_ATTACK" && roll ? (
 						<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
 							{(() => {
-								const sel = state.combat?.pendingDiceSelection;
+								const sel = view.combat?.pendingDiceSelection;
 								const heroEligible =
 									sel?.side === "hero" || sel?.side === "any"
 										? new Set(
@@ -398,19 +397,19 @@ export function Board({
 				>
 					<Stack
 						name="Itens"
-						count={state.decks.itemDeck.available.length}
-						discardCount={state.decks.itemDeck.discarded.length}
+						count={view.decks.itemDeck.available.length}
+						discardCount={view.decks.itemDeck.discarded}
 					/>
 					<Stack
 						name="Artefatos"
-						count={state.decks.artifactDeck.available.length}
-						discardCount={state.decks.artifactDeck.discarded.length}
+						count={view.decks.artifactDeck.available.length}
+						discardCount={view.decks.artifactDeck.discarded}
 					/>
 				</div>
 			</div>
 
 			{/* Footer do grupo */}
-			<BoardFooter state={state} onArtifactClick={onCardDetail} />
+			<BoardFooter view={view} onArtifactClick={onCardDetail} />
 		</div>
 	);
 }
