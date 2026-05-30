@@ -4,7 +4,7 @@
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
 import { getCardByName } from "../data/cards";
-import { tickModifierDurations } from "../ecs/world";
+import { getModifierTotal, tickModifierDurations } from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
@@ -478,8 +478,8 @@ export function handleResolveAttack(state: GameState): GameState {
 			hero.activeItems.weapon === "Escudo Rachado" ||
 			hero.activeItems.armor === "Escudo Rachado";
 		const shieldUsed = next.combat?.shieldsUsedThisCombat[hero.id] ?? false;
-		// Redução via engine de habilidades (ex: Guarda Inquebrável do Guerreiro)
-		const engineReduction = next.combat?.damageReduction?.[hero.id] ?? 0;
+		// Redução via ECS world (Lote B: leitura migrada do legacy)
+		const engineReduction = -getModifierTotal(next.world, hero.id, "damage_taken");
 		let dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
 		dmg = Math.max(0, dmg - engineReduction);
 		const newShields =

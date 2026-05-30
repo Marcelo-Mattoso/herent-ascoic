@@ -5,6 +5,7 @@
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
 import { getCardByName } from "../data/cards";
+import { getModifierTotal } from "../ecs/world";
 import type { PausedState } from "../effects/stack";
 import { cardSkills } from "../skills/lookup";
 import type { ColorIndex } from "../state/color";
@@ -213,8 +214,8 @@ function projectBuffsByHero(
 			});
 		}
 
-		// Redução de dano sofrido (Guarda Inquebrável, etc.)
-		const reduction = combat.damageReduction[id] ?? 0;
+		// Redução de dano sofrido — lê do ECS world (Lote B)
+		const reduction = -getModifierTotal(state.world, id, "damage_taken");
 		if (reduction > 0) {
 			push(id, {
 				id: "damage-reduction",
