@@ -4,7 +4,9 @@
 //
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
+import { getCardByName } from "../data/cards";
 import type { PausedState } from "../effects/stack";
+import { cardSkills } from "../skills/lookup";
 import type { ColorIndex } from "../state/color";
 import type {
 	CombatPhase,
@@ -33,6 +35,18 @@ export type HeroView = HeroState;
 export type EnemyView = EnemyState;
 export type RoomView = RoomState;
 
+// Efeito ativo projetado para a UI — chip com ícone + texto curto.
+// `kind` define a polaridade (buff/debuff/neutro) usada para colorir.
+// `source` identifica de onde veio (skill, item, sala, criatura) — mostrado em tooltip.
+export interface BuffView {
+	readonly id: string;
+	readonly kind: "buff" | "debuff" | "neutral";
+	readonly icon: string;
+	readonly label: string;
+	readonly detail: string;
+	readonly source: string;
+}
+
 export interface PlayerView {
 	readonly status: GameStatus;
 	readonly mode: GameMode;
@@ -47,6 +61,7 @@ export interface PlayerView {
 		readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
 		readonly lastRoll: CombatRollResult | null;
 		readonly pendingDiceSelection: CombatState["pendingDiceSelection"];
+		readonly buffsByHero: Readonly<Record<string, readonly BuffView[]>>;
 	} | null;
 	readonly groupXp: number;
 	readonly despertar: ColorIndex;
@@ -58,6 +73,9 @@ export interface PlayerView {
 	readonly paths: readonly string[];
 	readonly pendingRewards: readonly PendingReward[];
 	readonly eventLog: readonly string[];
+	// Efeitos que afetam o grupo todo (recursos compartilhados: deck, fuga, sala).
+	// Vivem aqui — não duplicados nas BuffBars dos heróis.
+	readonly groupBuffs: readonly BuffView[];
 	readonly decks: {
 		readonly dungeonDeck: {
 			readonly available: number;
@@ -106,6 +124,7 @@ export function playerView(state: GameState): PlayerView {
 					powersUsedThisRoom: state.combat.powersUsedThisRoom,
 					lastRoll: state.combat.lastRoll,
 					pendingDiceSelection: state.combat.pendingDiceSelection,
+					buffsByHero: projectBuffsByHero(state),
 				}
 			: null,
 		groupXp: state.groupXp,
@@ -118,6 +137,7 @@ export function playerView(state: GameState): PlayerView {
 		paths: state.paths,
 		pendingRewards: state.pendingRewards,
 		eventLog: state.eventLog,
+		groupBuffs: projectGroupBuffs(state),
 		decks: {
 			dungeonDeck: {
 				available: state.decks.dungeonDeck.available.length,
@@ -139,4 +159,193 @@ export function playerView(state: GameState): PlayerView {
 		paused: state.paused,
 		pendingSkillChoice: state.pendingSkillChoice ?? null,
 	};
+}
+
+// Projeta os buffs/efeitos ativos por herói para exibição na UI.
+// Lê apenas os campos do CombatState que representam estado "em vigor agora".
+function projectBuffsByHero(
+	state: GameState,
+): Readonly<Record<string, readonly BuffView[]>> {
+	const combat = state.combat;
+	if (!combat) return {};
+
+	const result: Record<string, BuffView[]> = {};
+	const push = (heroId: string, buff: BuffView) => {
+		if (!result[heroId]) result[heroId] = [];
+		result[heroId].push(buff);
+	};
+
+	// Marca da Presa — nome da criatura marcada (mostra em todos os heróis).
+	const preyEnemyName = combat.prey
+		? (state.activeEnemies.find((e) => e.id === combat.prey)?.cardName ?? null)
+		: null;
+
+	for (const hero of state.heroes) {
+		const id = hero.id;
+
+		// Bônus de próximo ataque (Fúria Rubra, Juramento, Coragem de Bando…).
+		// `entry.label` já é o nome da skill que aplicou — usamos como source.
+		const skillEntries = combat.bonusNextAttack[id] ?? [];
+		for (let i = 0; i < skillEntries.length; i++) {
+			const entry = skillEntries[i]!;
+			const polarity: "buff" | "debuff" = entry.value < 0 ? "debuff" : "buff";
+			const sign = entry.value >= 0 ? "+" : "";
+			push(id, {
+				id: `bonus:${entry.label}:${i}`,
+				kind: polarity,
+				icon: "⚔️",
+				label: `${sign}${entry.value} próximo ataque`,
+				detail: "consumido após resolver",
+				source: entry.label,
+			});
+		}
+
+		// Dado extra (Bárbaro Rubro etc.)
+		const extra = combat.extraDice[id] ?? 0;
+		if (extra > 0) {
+			push(id, {
+				id: "extra-dice",
+				kind: "buff",
+				icon: "🎲",
+				label: `+${extra} dado`,
+				detail: "próxima rolagem",
+				source: "Poder do herói",
+			});
+		}
+
+		// Redução de dano sofrido (Guarda Inquebrável, etc.)
+		const reduction = combat.damageReduction[id] ?? 0;
+		if (reduction > 0) {
+			push(id, {
+				id: "damage-reduction",
+				kind: "buff",
+				icon: "🛡️",
+				label: `-${reduction} dano sofrido`,
+				detail: "até fim da rodada",
+				source: "Modificador defensivo",
+			});
+		}
+
+		// Penalidade de acerto (Calor Escaldante, Corpo Gelatinoso, maldições…)
+		const penalty = combat.tohitPenaltyByHero[id] ?? 0;
+		if (penalty > 0) {
+			push(id, {
+				id: "tohit-penalty",
+				kind: "debuff",
+				icon: "🌫️",
+				label: `-${penalty} acerto`,
+				detail: "imposta por inimigo/efeito",
+				source: "Maldição",
+			});
+		}
+
+		// Eco do Necromante
+		const eco = combat.ecoTokens[id] ?? 0;
+		if (eco > 0) {
+			push(id, {
+				id: "eco",
+				kind: "buff",
+				icon: "👻",
+				label: "Eco",
+				detail: "token disponível",
+				source: "Necromante",
+			});
+		}
+
+		// Véu Protetor — herói ignora o próximo efeito que o escolha como alvo.
+		if (combat.targetProtectionByHero[id]) {
+			push(id, {
+				id: "target-protection",
+				kind: "buff",
+				icon: "✨",
+				label: "Véu Protetor",
+				detail: "ignora o próximo efeito direcionado",
+				source: "Véu Protetor",
+			});
+		}
+
+		// Fuga declarada — não é buff nem debuff, é estado.
+		if (combat.fleeAttemptByHero[id]) {
+			push(id, {
+				id: "flee",
+				kind: "neutral",
+				icon: "🏃",
+				label: "Fuga declarada",
+				detail: "resolve no próximo confronto",
+				source: "Decisão do jogador",
+			});
+		}
+
+		// Marca da Presa — afeta os ataques contra a criatura marcada.
+		if (preyEnemyName) {
+			push(id, {
+				id: "prey",
+				kind: "buff",
+				icon: "🎯",
+				label: `Marca: ${preyEnemyName}`,
+				detail: "bônus ao atacar a presa",
+				source: "Caçador",
+			});
+		}
+
+		// Passivas while_equipped — varre os itens equipados do herói e adiciona
+		// um chip por skill com trigger while_equipped (Foco do Caçador etc.).
+		const equippedItems = Object.values(hero.activeItems).filter(
+			(name): name is string => typeof name === "string" && name.length > 0,
+		);
+		for (const itemName of equippedItems) {
+			const itemCard = getCardByName(itemName);
+			if (!itemCard) continue;
+			for (const { def } of cardSkills(itemCard.id)) {
+				if (def.trigger !== "while_equipped") continue;
+				push(id, {
+					id: `equipped:${itemName}:${def.id}`,
+					kind: "buff",
+					icon: "🔮",
+					label: def.name,
+					detail: `equipado · ${itemName}`,
+					source: itemName,
+				});
+			}
+		}
+	}
+
+	return result;
+}
+
+// Efeitos que afetam o grupo todo — recursos compartilhados (deck, fuga, sala).
+// Vivem em `state.flags.*` e são únicos no estado, não por herói.
+function projectGroupBuffs(state: GameState): readonly BuffView[] {
+	const buffs: BuffView[] = [];
+	if (state.flags.dungeonDiscardPrevented) {
+		buffs.push({
+			id: "flag:dungeon-discard-prevented",
+			kind: "buff",
+			icon: "🗝️",
+			label: "Caminho Preservado",
+			detail: "próximo descarte de dungeon será devolvido ao topo",
+			source: "Ladino das Fendas",
+		});
+	}
+	if (state.flags.fleeBlocked) {
+		buffs.push({
+			id: "flag:flee-blocked",
+			kind: "debuff",
+			icon: "🚷",
+			label: "Fuga bloqueada",
+			detail: "ninguém pode fugir desta sala",
+			source: "Efeito de sala/inimigo",
+		});
+	}
+	if (state.flags.discardDungeonLocked) {
+		buffs.push({
+			id: "flag:discard-dungeon-locked",
+			kind: "neutral",
+			icon: "🔒",
+			label: "Descartes trancados",
+			detail: "cartas de dungeon não podem ser descartadas",
+			source: "Efeito de sala",
+		});
+	}
+	return buffs;
 }

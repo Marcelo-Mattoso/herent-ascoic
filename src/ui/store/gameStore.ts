@@ -94,6 +94,13 @@ function makeAdapter() {
 let adapter = makeAdapter();
 let devTools = connectDevTools(getElfGameState());
 
+// Debug: expõe dispatch no window pra inspeção via DevTools/preview.
+if (typeof window !== "undefined") {
+	(window as unknown as { __dispatch: (action: Action) => void }).__dispatch = (
+		action: Action,
+	) => dispatch(action);
+}
+
 // ── Ações estáveis (referências module-level, nunca recriadas) ───────────────
 
 function dispatch(action: Action): void {

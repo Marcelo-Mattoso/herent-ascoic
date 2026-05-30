@@ -6,6 +6,7 @@ import type { Action } from "@/core/actions/types";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
 import { Board } from "@/ui/components/Board";
+import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
@@ -240,6 +241,24 @@ export function Exploration() {
 							</span>
 						</div>
 					</div>
+
+					{/* EFEITOS DE GRUPO — recursos compartilhados (deck, fuga, sala) */}
+					{view.groupBuffs.length > 0 && (
+						<div
+							style={{
+								background: UI.panelBg,
+								border: `1px solid ${UI.border}`,
+								borderRadius: 8,
+								padding: "4px 10px",
+							}}
+						>
+							<BuffBar
+								buffs={view.groupBuffs}
+								leadingLabel="🤝 Grupo:"
+								hideWhenEmpty
+							/>
+						</div>
+					)}
 
 					{/* TABULEIRO */}
 					<Board

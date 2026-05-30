@@ -45,7 +45,7 @@ export function DiceDisplay({
 						return (
 							<div
 								key={`die-${i}`}
-								className="w-6 h-6 flex items-center justify-center rounded text-xs font-bold"
+								className={`w-6 h-6 flex items-center justify-center rounded text-xs font-bold${eligible ? " die-eligible" : ""}`}
 								onClick={eligible ? () => onDieClick?.(i) : undefined}
 								style={{
 									background: eligible
@@ -95,7 +95,7 @@ export function DiceDisplay({
 					return (
 						<div
 							key={`die-${i}`}
-							className="w-7 h-7 flex items-center justify-center rounded text-sm font-bold"
+							className={`w-7 h-7 flex items-center justify-center rounded text-sm font-bold${eligible ? " die-eligible" : ""}`}
 							onClick={eligible ? () => onDieClick?.(i) : undefined}
 							style={{
 								background: eligible

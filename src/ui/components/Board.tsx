@@ -258,6 +258,7 @@ export function Board({
 												variant="primary"
 												onClick={onResolve}
 												disabled={!!sel}
+												attention={!sel}
 											/>
 											<div
 												style={{
@@ -304,6 +305,7 @@ export function Board({
 									icon="🚪"
 									variant="primary"
 									onClick={onReveal}
+									attention
 								/>
 							) : status === "COMBAT_START" ? (
 								<ActionButton
@@ -311,6 +313,7 @@ export function Board({
 									icon="⚔"
 									variant="primary"
 									onClick={onStartCombat}
+									attention
 								/>
 							) : status === "ROLL_DICE" ? (
 								<ActionButton
@@ -318,6 +321,7 @@ export function Board({
 									icon="🎲"
 									variant="primary"
 									onClick={onRoll}
+									attention
 								/>
 							) : status === "BOSS_REVEAL" ? (
 								<ActionButton
@@ -325,6 +329,7 @@ export function Board({
 									icon="🐲"
 									variant="danger"
 									onClick={onRevealBoss}
+									attention
 								/>
 							) : (
 								<span

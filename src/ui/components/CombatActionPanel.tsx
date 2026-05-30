@@ -75,6 +75,7 @@ export function CombatActionPanel({
 						variant="primary"
 						onClick={onAttack}
 						disabled={!heroActions.canAttack}
+						attention={heroActions.canAttack}
 					/>
 					<ActionButton
 						label="Usar poder"
@@ -109,11 +110,13 @@ export function CombatActionPanel({
 				variant="primary"
 				onClick={onRoll}
 				fullWidth
+				attention
 			/>
 		);
 	}
 
 	if (gameStatus === "RESOLVE_ATTACK") {
+		const blocked = !!view.combat?.pendingDiceSelection;
 		return (
 			<ActionButton
 				label="Resolver ataque"
@@ -121,6 +124,8 @@ export function CombatActionPanel({
 				variant="primary"
 				onClick={onResolve}
 				fullWidth
+				disabled={blocked}
+				attention={!blocked}
 			/>
 		);
 	}

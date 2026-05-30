@@ -37,6 +37,7 @@ export function EnemyCard({
 
 	return (
 		<div
+			className={isSelectable && !isDragOver ? "click-attention" : undefined}
 			style={{
 				width: 88,
 				background: UI.subpanelBg,

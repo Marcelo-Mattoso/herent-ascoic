@@ -11,12 +11,13 @@ import { evaluate } from "./dsl/evaluate";
 import { cardSkills } from "./lookup";
 
 export function isManuallyActivatable(def: SkillDefinition): boolean {
+	const t = def.trigger;
 	return (
-		def.trigger === "on_use" ||
-		def.trigger === "once_per_game" ||
-		def.trigger === "once_per_room" ||
-		def.trigger === "once_per_combat" ||
-		def.trigger.includes("on_use")
+		t === "on_use" ||
+		t.includes("on_use") ||
+		t.startsWith("once_per_game") ||
+		t.startsWith("once_per_room") ||
+		t.startsWith("once_per_combat")
 	);
 }
 

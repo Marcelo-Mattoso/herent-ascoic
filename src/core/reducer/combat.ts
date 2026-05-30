@@ -10,7 +10,7 @@ import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import { fireTrigger } from "../skills/dispatch";
 import { cardSkills } from "../skills/lookup";
-import { fireOnUseSkill } from "../skills/useSkill";
+import { fireOnUseSkill, isManuallyActivatable } from "../skills/useSkill";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
@@ -724,11 +724,25 @@ export function handleUseItem(
 		return log(state, `[TODO] Efeito de item não catalogado: ${itemName}`);
 	}
 
+	// Skill do item não é ativável manualmente (ex: trigger before_attack).
+	// Não consumir — sinaliza ao jogador que o item não pode ser usado dessa forma.
+	if (!isManuallyActivatable(skillDef)) {
+		return log(
+			state,
+			`${itemName} não pode ser usado agora (efeito: ${skillDef.trigger}).`,
+		);
+	}
+
 	// Consumir o item da mochila antes de executar o efeito
-	const withItemRemoved: GameState = mapHero(state, heroId, (h) => ({
-		...h,
-		backpack: h.backpack.filter((i) => i !== itemName),
-	}));
+	const heroName =
+		state.heroes.find((h) => h.id === heroId)?.cardName ?? heroId;
+	const withItemRemoved: GameState = log(
+		mapHero(state, heroId, (h) => ({
+			...h,
+			backpack: h.backpack.filter((i) => i !== itemName),
+		})),
+		`${heroName} usou ${itemName}.`,
+	);
 
 	// itemControl: inimigo do par atual pode ignorar o 1º efeito de item
 	const currentPairEnemyId = state.combat?.pairs.find(

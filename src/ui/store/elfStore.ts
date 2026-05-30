@@ -32,6 +32,13 @@ export const gameElfStore = createStore(
 	}),
 );
 
+// Debug: expõe o store no window pra inspeção via DevTools/preview.
+// Não tem efeito em produção (window não existe em SSR).
+if (typeof window !== "undefined") {
+	(window as unknown as { __elfStore: typeof gameElfStore }).__elfStore =
+		gameElfStore;
+}
+
 // Seletores reativos (para uso fora do React ou com useObservable no futuro).
 export const gameState$ = gameElfStore.pipe(select((s) => s.gameState));
 export const uiState$ = gameElfStore.pipe(select((s) => s.ui));

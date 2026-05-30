@@ -66,6 +66,7 @@ export function HeroCard({
 			<button
 				type="button"
 				draggable={isActive}
+				className={canAct ? "click-attention" : undefined}
 				onDragStart={(e) => {
 					if (!isActive || !canAct) {
 						e.preventDefault();
