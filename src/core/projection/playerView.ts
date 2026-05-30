@@ -4,10 +4,11 @@
 //
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
-import { getCardByName } from "../data/cards";
+import { getCardById, getCardByName } from "../data/cards";
+import type { ModifierComponent } from "../ecs/types";
 import { getModifierTotal } from "../ecs/world";
 import type { PausedState } from "../effects/stack";
-import { cardSkills } from "../skills/lookup";
+import { cardSkills, lookupSkillById, skillUsedBy } from "../skills/lookup";
 import type { ColorIndex } from "../state/color";
 import type {
 	CombatPhase,
@@ -48,6 +49,44 @@ export interface BuffView {
 	readonly source: string;
 }
 
+// ── Influências Ativas ────────────────────────────────────────────────────────
+// Grafo completo de "quem está fazendo efeito sobre quem" no estado atual.
+// Cada ModifierComponent no world é uma influência.
+
+export type InfluenceActor =
+	| { kind: "hero"; id: string; name: string }
+	| { kind: "enemy"; id: string; name: string }
+	| { kind: "room"; id: string; name: string }
+	| { kind: "item"; id: string; name: string }
+	| { kind: "group" }
+	| { kind: "dungeon" }
+	| { kind: "self"; id: string; name: string };
+
+export type InfluenceScope =
+	| "room_to_group"
+	| "room_to_hero"
+	| "hero_to_dungeon"
+	| "hero_to_group"
+	| "hero_to_self"
+	| "hero_to_enemy"
+	| "enemy_to_hero"
+	| "enemy_to_group"
+	| "dungeon_to_group"
+	| "item_to_hero"
+	| "unknown";
+
+export interface InfluenceView {
+	readonly id: string;
+	readonly from: InfluenceActor;
+	readonly to: InfluenceActor;
+	readonly kind: "buff" | "debuff" | "neutral";
+	readonly icon: string;
+	readonly label: string;
+	readonly source: string;
+	readonly duration: string;
+	readonly scope: InfluenceScope;
+}
+
 export interface PlayerView {
 	readonly status: GameStatus;
 	readonly mode: GameMode;
@@ -77,6 +116,7 @@ export interface PlayerView {
 	// Efeitos que afetam o grupo todo (recursos compartilhados: deck, fuga, sala).
 	// Vivem aqui — não duplicados nas BuffBars dos heróis.
 	readonly groupBuffs: readonly BuffView[];
+	readonly activeInfluences: readonly InfluenceView[];
 	readonly decks: {
 		readonly dungeonDeck: {
 			readonly available: number;
@@ -159,6 +199,7 @@ export function playerView(state: GameState): PlayerView {
 		},
 		paused: state.paused,
 		pendingSkillChoice: state.pendingSkillChoice ?? null,
+		activeInfluences: projectActiveInfluences(state),
 	};
 }
 
@@ -317,6 +358,189 @@ function projectBuffsByHero(
 	}
 
 	return result;
+}
+
+// ── projectActiveInfluences ──────────────────────────────────────────────────
+
+function resolveFromActor(skillId: string, state: GameState): InfluenceActor {
+	const cardIds = skillUsedBy(skillId);
+	for (const cardId of cardIds) {
+		const card = getCardById(cardId);
+		if (!card) continue;
+		if (card.type === "hero") {
+			const hero = state.heroes.find((h) => h.cardId === cardId);
+			if (hero) return { kind: "hero", id: hero.id, name: hero.cardName };
+		}
+		if (card.type === "creature" || card.type === "subboss") {
+			const enemy = state.activeEnemies.find((e) => e.cardId === cardId);
+			if (enemy) return { kind: "enemy", id: enemy.id, name: enemy.cardName };
+		}
+		if (card.type === "room" || card.type === "subboss_room") {
+			if (state.currentRoom?.cardId === cardId) {
+				return { kind: "room", id: cardId, name: state.currentRoom.name ?? cardId };
+			}
+		}
+		if (card.type === "item" || card.type === "artifact") {
+			// Passiva while_equipped — "from" é o item
+			return { kind: "item", id: cardId, name: card.name };
+		}
+	}
+	return { kind: "dungeon" };
+}
+
+function resolveToActor(
+	entityId: string,
+	entityType: string,
+	state: GameState,
+): InfluenceActor {
+	if (entityType === "hero") {
+		const hero = state.heroes.find((h) => h.id === entityId);
+		if (hero) return { kind: "hero", id: hero.id, name: hero.cardName };
+	}
+	if (entityType === "enemy" || entityType === "subboss") {
+		const enemy = state.activeEnemies.find((e) => e.id === entityId);
+		if (enemy) return { kind: "enemy", id: enemy.id, name: enemy.cardName };
+	}
+	if (entityType === "room") {
+		return { kind: "dungeon" };
+	}
+	return { kind: "dungeon" };
+}
+
+function deriveScope(from: InfluenceActor, to: InfluenceActor): InfluenceScope {
+	const f = from.kind;
+	const t = to.kind;
+	if (f === "item" && t === "hero") return "item_to_hero";
+	if (f === "hero" && t === "group") return "hero_to_group";
+	if (f === "hero" && t === "dungeon") return "hero_to_dungeon";
+	if (f === "hero" && t === "hero") return "hero_to_self";
+	if (f === "hero" && t === "enemy") return "hero_to_enemy";
+	if (f === "enemy" && t === "hero") return "enemy_to_hero";
+	if (f === "enemy" && t === "group") return "enemy_to_group";
+	if (f === "room" && t === "hero") return "room_to_hero";
+	if (f === "room" && t === "group") return "room_to_group";
+	if (f === "dungeon" && t === "group") return "dungeon_to_group";
+	return "unknown";
+}
+
+function modifierKind(mod: ModifierComponent): "buff" | "debuff" | "neutral" {
+	const positive =
+		mod.target === "damage_dealt" ||
+		mod.target === "hit_bonus" ||
+		mod.target === "healing_received" ||
+		mod.target === "dice_count";
+	if (positive) return mod.value > 0 ? "buff" : "debuff";
+	// damage_taken: negativo = reduz dano = buff; positivo = debuff
+	if (mod.target === "damage_taken") return mod.value < 0 ? "buff" : "debuff";
+	return "neutral";
+}
+
+function modifierIcon(mod: ModifierComponent): string {
+	switch (mod.target) {
+		case "damage_dealt": return mod.value > 0 ? "⚔️" : "💀";
+		case "damage_taken": return mod.value < 0 ? "🛡️" : "🩸";
+		case "hit_bonus": return mod.value > 0 ? "🎯" : "🌫️";
+		case "dice_count": return mod.value > 0 ? "🎲" : "🎲";
+		case "healing_received": return "💚";
+		default: return "✨";
+	}
+}
+
+function modifierLabel(mod: ModifierComponent): string {
+	const abs = Math.abs(mod.value);
+	switch (mod.target) {
+		case "damage_dealt": return `${mod.value > 0 ? "+" : ""}${mod.value} dano causado`;
+		case "damage_taken": return mod.value < 0 ? `-${abs} dano sofrido` : `+${abs} dano sofrido`;
+		case "hit_bonus": return `${mod.value > 0 ? "+" : ""}${mod.value} acerto`;
+		case "dice_count": return `${mod.value > 0 ? "+" : ""}${mod.value} dado`;
+		case "healing_received": return `${mod.value > 0 ? "+" : ""}${mod.value} cura`;
+		default: return `${mod.value > 0 ? "+" : ""}${mod.value}`;
+	}
+}
+
+function durationText(d: ModifierComponent["duration"]): string {
+	switch (d.kind) {
+		case "permanent": return "passivo";
+		case "this_turn": return "até fim da rodada";
+		case "this_combat": return "até fim do combate";
+		case "once": return "próximo evento";
+		case "rounds": return `${d.remaining} rodada(s)`;
+	}
+}
+
+function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
+	const world = state.world;
+	const heroIds = new Set(state.heroes.map((h) => h.id));
+
+	// Collect all (entityId, modifier) pairs
+	type ModEntry = { entityId: string; entityType: string; modifier: ModifierComponent };
+	const allMods: ModEntry[] = [];
+	for (const entity of Object.values(world.entities)) {
+		for (const comp of entity.components) {
+			if (comp.type === "modifier") {
+				allMods.push({ entityId: entity.id, entityType: entity.type, modifier: comp as ModifierComponent });
+			}
+		}
+	}
+
+	// Group by (source, target, value, operation) to detect group fan-out
+	const grouped = new Map<string, ModEntry[]>();
+	for (const entry of allMods) {
+		const m = entry.modifier;
+		const key = `${m.source}:${m.target}:${m.value}:${m.operation}`;
+		const arr = grouped.get(key);
+		if (arr) arr.push(entry);
+		else grouped.set(key, [entry]);
+	}
+
+	const influences: InfluenceView[] = [];
+
+	for (const [key, entries] of grouped) {
+		const first = entries[0];
+		const mod = first.modifier;
+		const skillId = mod.source;
+		const skillDef = lookupSkillById(skillId);
+		const sourceName = skillDef?.name ?? skillId;
+		const fromActor = resolveFromActor(skillId, state);
+
+		// Fan-out: all targets are heroes and covers all (or most) heroes → collapse to group
+		const targetIds = entries.map((e) => e.entityId);
+		const allTargetHeroes = targetIds.every((id) => heroIds.has(id));
+		const coversGroup = allTargetHeroes && entries.length > 1;
+
+		if (coversGroup) {
+			const toActor: InfluenceActor = { kind: "group" };
+			influences.push({
+				id: `${key}:group`,
+				from: fromActor,
+				to: toActor,
+				kind: modifierKind(mod),
+				icon: modifierIcon(mod),
+				label: modifierLabel(mod),
+				source: sourceName,
+				duration: durationText(mod.duration),
+				scope: deriveScope(fromActor, toActor),
+			});
+		} else {
+			for (let i = 0; i < entries.length; i++) {
+				const entry = entries[i];
+				const toActor = resolveToActor(entry.entityId, entry.entityType, state);
+				influences.push({
+					id: `${key}:${entry.entityId}:${i}`,
+					from: fromActor,
+					to: toActor,
+					kind: modifierKind(mod),
+					icon: modifierIcon(mod),
+					label: modifierLabel(mod),
+					source: sourceName,
+					duration: durationText(mod.duration),
+					scope: deriveScope(fromActor, toActor),
+				});
+			}
+		}
+	}
+
+	return influences;
 }
 
 // Efeitos que afetam o grupo todo — recursos compartilhados (deck, fuga, sala).
