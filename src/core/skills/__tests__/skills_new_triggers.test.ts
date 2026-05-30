@@ -2,6 +2,8 @@
 // on_destroyed, combat (Fio Mortal), e filtro combat_against_self.
 
 import { describe, expect, it } from "vitest";
+import type { ModifierComponent } from "../../ecs/types";
+import { getComponents } from "../../ecs/world";
 import { drainStack } from "../../effects/resolver";
 import { handleStartCombat } from "../../reducer/combat";
 import { createEmptyCombatState } from "../../state/combatState";
@@ -137,7 +139,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 	it("fireTrigger direto dispara mesmo com despertar < 3 (guarda fica em combat.ts)", () => {
 		// A guarda de despertar está em handleRollDice (combat.ts), não no handler.
 		// Chamar fireTrigger diretamente ignora essa guarda — isso é comportamento esperado.
-		// DSL migrada: skill empurra add_modifier para stack; drain para obter bonusNextAttack.
+		// Patch-18 Lote G: modifiers agora no ECS world (não em bonusNextAttack).
 		const state = makeStateWithPaladino(2 as ColorIndex);
 		const intermediate = fireTrigger(state, "combat_if_dungeon_red_or_purple", {
 			triggeredBy: "combat_if_dungeon_red_or_purple",
@@ -145,10 +147,11 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			sourceEnemyId: "e1",
 		});
 		const result = drainStack(intermediate);
-		// DSL adiciona tohit_bonus + damage_bonus (2 entradas) com label = skill_id
-		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
-		expect(entries).toHaveLength(2);
-		expect(entries.every((e) => e.value === 2)).toBe(true);
+		// DSL adiciona tohit_bonus + damage_bonus → ModifierComponents no ECS world
+		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
+			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		expect(mods.length).toBeGreaterThanOrEqual(2);
+		expect(mods.every((m) => m.value === 2)).toBe(true);
 	});
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
@@ -160,10 +163,11 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 				sourceEnemyId: "e1",
 			}),
 		);
-		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2
-		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
-		expect(entries).toHaveLength(2);
-		expect(entries.every((e) => e.value === 2)).toBe(true);
+		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2 no ECS world
+		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
+			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		expect(mods.length).toBeGreaterThanOrEqual(2);
+		expect(mods.every((m) => m.value === 2)).toBe(true);
 	});
 
 	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
@@ -175,9 +179,9 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 				sourceEnemyId: "e1",
 			}),
 		);
-		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
-		expect(entries).toHaveLength(2);
-		expect(entries.every((e) => e.value === 2)).toBe(true);
+		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
+			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		expect(mods.length).toBeGreaterThanOrEqual(2);
 	});
 });
 
@@ -288,10 +292,9 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 	}
 
 	it("aplica bônus de Fio Mortal no Despertar 1 (sem restrição de despertar)", () => {
-		// Patch-16 Lote A: item_skill_deadly_edge migrado para DSL — adiciona
-		// tohit_bonus E damage_bonus (dois entradas de value 1 em vez de uma).
-		// skill_crimson_fury → script → damage_bonus +6
-		// item_skill_deadly_edge → DSL → tohit_bonus +1 + damage_bonus +1
+		// Patch-18 Lote G: modifiers agora no ECS world (damage_dealt + hit_bonus).
+		// skill_crimson_fury → damage_bonus +6 → damage_dealt +6
+		// item_skill_deadly_edge → tohit_bonus +1 + damage_bonus +1 → hit_bonus +1 + damage_dealt +1
 		const state = makeStateWithAdaga(1 as ColorIndex);
 		const result = drainStack(
 			fireTrigger(state, "before_attack", {
@@ -300,11 +303,12 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 				sourceEnemyId: "e1",
 			}),
 		);
-		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
-		const total = entries.reduce((s, e) => s + e.value, 0);
-		expect(total).toBe(8); // 6 (furia_rubra) + 1 (tohit) + 1 (damage) = 8
-		expect(entries.some((e) => e.value === 6)).toBe(true);
-		expect(entries.filter((e) => e.value === 1).length).toBeGreaterThanOrEqual(2);
+		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
+			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		const total = mods.reduce((s, m) => s + m.value, 0);
+		expect(total).toBe(8); // 6 + 1 + 1 = 8
+		expect(mods.some((m) => m.value === 6)).toBe(true);
+		expect(mods.filter((m) => m.value === 1).length).toBeGreaterThanOrEqual(2);
 	});
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
@@ -316,11 +320,12 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 				sourceEnemyId: "e1",
 			}),
 		);
-		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
-		const total = entries.reduce((s, e) => s + e.value, 0);
+		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
+			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		const total = mods.reduce((s, m) => s + m.value, 0);
 		expect(total).toBe(8);
-		expect(entries.some((e) => e.value === 6)).toBe(true);
-		expect(entries.filter((e) => e.value === 1).length).toBeGreaterThanOrEqual(2);
+		expect(mods.some((m) => m.value === 6)).toBe(true);
+		expect(mods.filter((m) => m.value === 1).length).toBeGreaterThanOrEqual(2);
 	});
 });
 

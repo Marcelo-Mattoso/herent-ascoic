@@ -7,7 +7,7 @@
 import { describe, expect, it } from "vitest";
 import { syncEntityFromHero } from "../../../ecs/sync";
 import type { ModifierComponent } from "../../../ecs/types";
-import { addComponent } from "../../../ecs/world";
+import { addComponent, getModifierTotal } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { handleRollDice } from "../../../reducer/combat";
 import { handleGrantRewards } from "../../../reducer/reward";
@@ -96,7 +96,7 @@ function makeEvalCtx(state: GameState, sourceId?: string, _targetId?: string) {
 // ── DSL add_modifier stat:"tohit_penalty" (antigo handleTohitPenalty) ────────
 
 describe("DSL add_modifier tohit_penalty", () => {
-	it("seta tohitPenaltyByHero após drainStack", () => {
+	it("seta tohit_penalty no ECS world (hit_bonus negativo) — patch-18 Lote G", () => {
 		const state = makeState();
 		const ctx = buildScriptCtx(
 			state,
@@ -118,10 +118,11 @@ describe("DSL add_modifier tohit_penalty", () => {
 				ctx,
 			),
 		);
-		expect(result.combat?.tohitPenaltyByHero["h1"]).toBe(2);
+		// tohit_penalty → hit_bonus negativo no ECS world
+		expect(getModifierTotal(result.world, "h1", "hit_bonus")).toBe(-2);
 	});
 
-	it("acumula penalidade em múltiplas aplicações", () => {
+	it("acumula penalidade em múltiplas aplicações no ECS world", () => {
 		const state = makeState();
 		const ctx1 = buildScriptCtx(
 			state,
@@ -163,15 +164,13 @@ describe("DSL add_modifier tohit_penalty", () => {
 				ctx2,
 			),
 		);
-		expect(r2.combat?.tohitPenaltyByHero["h1"]).toBe(2);
+		expect(getModifierTotal(r2.world, "h1", "hit_bonus")).toBe(-2);
 	});
 
 	it("heroBreakdown inclui entrada de penalidade após handleRollDice", () => {
 		const combat = {
 			...createEmptyCombatState(),
 			pairs: [{ heroId: "h1", enemyId: "e1" }],
-			// legacy mantido por dual-write; leitura agora vem do ECS (Lote C)
-			tohitPenaltyByHero: { h1: 2 },
 		};
 		const hero = makeHero();
 		const base = makeState({ combat, activeEnemies: [makeEnemy()] });

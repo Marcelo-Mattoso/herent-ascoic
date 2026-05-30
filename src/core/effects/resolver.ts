@@ -6,7 +6,7 @@
 
 import eventRules from "../../data/event_rules.json";
 import type { EntityId, ModifierComponent } from "../ecs/types";
-import { addComponent } from "../ecs/world";
+import { addComponent, createEntity, upsertEntity } from "../ecs/world";
 import { discardFromDungeonDeck } from "../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../reducer/utils";
 import type { ColorIndex } from "../state/color";
@@ -189,55 +189,29 @@ export function resolveEffect(
 					source,
 					duration: mapDurationNode(durationNode),
 				};
-				const newWorld = addComponent(worldState.world, entityId, modComp);
-				worldState = { ...worldState, world: newWorld };
+				// Garante que a entidade existe no world antes de adicionar o componente
+				let world = worldState.world;
+				if (!world.entities[entityId]) {
+					const entityType = worldState.heroes.some((h) => h.id === entityId)
+						? ("hero" as const)
+						: worldState.activeEnemies.some((e) => e.id === entityId)
+							? ("enemy" as const)
+							: ("hero" as const);
+					world = upsertEntity(world, createEntity(entityId, entityType));
+				}
+				world = addComponent(world, entityId, modComp);
+				worldState = { ...worldState, world };
 			}
 
 			switch (stat) {
+				// damage_bonus, tohit_bonus, damage_reduction, tohit_penalty:
+				// migrados para ECS world (patch-18 Lote G — removido dual-write legacy)
 				case "damage_bonus":
-				case "tohit_bonus": {
-					// Ambos adicionam ao bonusNextAttack — mecanismo unificado de bônus de rolagem
-					if (!worldState.combat) return worldState;
-					const prev = worldState.combat.bonusNextAttack[entityId] ?? [];
-					return {
-						...worldState,
-						combat: {
-							...worldState.combat,
-							bonusNextAttack: {
-								...worldState.combat.bonusNextAttack,
-								[entityId]: [...prev, { label: source, value }],
-							},
-						},
-					};
-				}
-				case "damage_reduction": {
-					if (!worldState.combat) return worldState;
-					const prevRed = worldState.combat.damageReduction[entityId] ?? 0;
-					return {
-						...worldState,
-						combat: {
-							...worldState.combat,
-							damageReduction: {
-								...worldState.combat.damageReduction,
-								[entityId]: prevRed + value,
-							},
-						},
-					};
-				}
-				case "tohit_penalty": {
-					if (!worldState.combat) return worldState;
-					const prevPenalty = worldState.combat.tohitPenaltyByHero[entityId] ?? 0;
-					return {
-						...worldState,
-						combat: {
-							...worldState.combat,
-							tohitPenaltyByHero: {
-								...worldState.combat.tohitPenaltyByHero,
-								[entityId]: prevPenalty + value,
-							},
-						},
-					};
-				}
+				case "tohit_bonus":
+				case "damage_reduction":
+				case "tohit_penalty":
+					return worldState; // apenas ECS world (escrito acima via ecsTarget)
+
 				case "purple_damage_reduction": {
 					// Corrige bug do handler antigo: armazena como número, não boolean
 					const key = `purpleDmgReduction::${entityId}`;

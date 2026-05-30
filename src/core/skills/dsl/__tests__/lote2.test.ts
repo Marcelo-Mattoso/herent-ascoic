@@ -1,6 +1,8 @@
 // Testes de aceite Lote 2 (Patch-12 Fase 4) — DSL com add_modifier.
 
 import { describe, expect, it } from "vitest";
+import type { ModifierComponent } from "../../../ecs/types";
+import { getComponents, getModifierTotal } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
@@ -43,7 +45,7 @@ function stateWithCombat(extra: Partial<GameState> = {}): GameState {
 	};
 }
 
-// ── add_modifier stat:"damage_bonus" → combat.bonusNextAttack ────────────────
+// ── add_modifier stat:"damage_bonus" → ECS world (patch-18 Lote G) ──────────
 
 describe("add_modifier damage_bonus → bonusNextAttack", () => {
 	it("adiciona bônus ao herói-fonte após drainStack", () => {
@@ -68,13 +70,11 @@ describe("add_modifier damage_bonus → bonusNextAttack", () => {
 				ctx,
 			),
 		);
-		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
-		expect(entries.length).toBeGreaterThan(0);
-		expect(entries.some((e) => e.value === 2)).toBe(true);
+		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(2);
 	});
 });
 
-// ── add_modifier stat:"tohit_bonus" → bonusNextAttack ────────────────────────
+// ── add_modifier stat:"tohit_bonus" → ECS world ──────────────────────────────
 
 describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 	it("adiciona bônus de acerto ao inimigo-fonte", () => {
@@ -99,12 +99,11 @@ describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 				ctx,
 			),
 		);
-		const entries = result.combat?.bonusNextAttack?.["e1"] ?? [];
-		expect(entries.some((e) => e.value === 1)).toBe(true);
+		expect(getModifierTotal(result.world, "e1", "hit_bonus")).toBe(1);
 	});
 });
 
-// ── add_modifier stat:"damage_reduction" → combat.damageReduction ───────────
+// ── add_modifier stat:"damage_reduction" → ECS world ─────────────────────────
 
 describe("add_modifier damage_reduction → damageReduction", () => {
 	it("adiciona redução de dano ao herói após drainStack", () => {
@@ -129,7 +128,8 @@ describe("add_modifier damage_reduction → damageReduction", () => {
 				ctx,
 			),
 		);
-		expect(result.combat?.damageReduction?.["h1"]).toBe(3);
+		// damage_reduction → damage_taken ECS com valor negativo
+		expect(getModifierTotal(result.world, "h1", "damage_taken")).toBe(-3);
 	});
 });
 
@@ -244,7 +244,8 @@ describe("for_each + add_modifier — power_unbreakable_bastion_guard", () => {
 				ctx,
 			),
 		);
-		expect(result.combat?.damageReduction?.["h1"]).toBe(1);
-		expect(result.combat?.damageReduction?.["h2"]).toBe(1);
+		// damage_reduction → damage_taken ECS com valor negativo
+		expect(getModifierTotal(result.world, "h1", "damage_taken")).toBe(-1);
+		expect(getModifierTotal(result.world, "h2", "damage_taken")).toBe(-1);
 	});
 });

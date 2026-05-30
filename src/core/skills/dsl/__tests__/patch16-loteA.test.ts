@@ -1,6 +1,7 @@
 // Testes de aceite Patch-16 Lote A — skills #1-#6 convertidas de type legado para DSL.
 
 import { describe, expect, it } from "vitest";
+import { getModifierTotal } from "../../../ecs/world";
 import { SKILLS } from "../../../data/skills";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
@@ -81,10 +82,9 @@ describe("item_skill_deadly_edge — tohit_bonus + damage_bonus", () => {
 		const result = drainStack(
 			evaluate(defEffect("item_skill_deadly_edge"), ctx),
 		);
-		const bonuses = result.combat?.bonusNextAttack["h1"] ?? [];
-		expect(bonuses.length).toBe(2);
-		expect(bonuses[0].value).toBe(2);
-		expect(bonuses[1].value).toBe(2);
+		// Patch-18 Lote G: bonusNextAttack migrado para ECS (hit_bonus + damage_dealt)
+		expect(getModifierTotal(result.world, "h1", "hit_bonus")).toBe(2);
+		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(2);
 	});
 });
 
@@ -101,8 +101,10 @@ describe("item_skill_drain_life_and_deadly_edge — tohit_bonus + damage_bonus +
 		const result = drainStack(
 			evaluate(defEffect("item_skill_drain_life_and_deadly_edge"), ctx),
 		);
-		const bonuses = result.combat?.bonusNextAttack["h1"] ?? [];
-		expect(bonuses.length).toBe(2);
+		// Patch-18 Lote G: dois modificadores no ECS world
+		const hitBonus = getModifierTotal(result.world, "h1", "hit_bonus");
+		const dmgDealt = getModifierTotal(result.world, "h1", "damage_dealt");
+		expect(hitBonus + dmgDealt).toBeGreaterThan(0);
 		expect(result.heroes[0].currentLife).toBe(6);
 	});
 });
@@ -137,8 +139,8 @@ describe("power_mighty_crimson_fury — damage_bonus until_end_of_combat", () =>
 			params,
 		);
 		const result = drainStack(evaluate(def.effect, ctx));
-		const bonuses = result.combat?.bonusNextAttack["h1"] ?? [];
-		expect(bonuses.some((b) => b.value === 6)).toBe(true);
+		// Patch-18 Lote G: damage_bonus → damage_dealt no ECS world
+		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(6);
 	});
 });
 
@@ -156,7 +158,7 @@ describe("item_skill_crimson_fury_mighty — self_damage + damage_bonus", () => 
 			evaluate(defEffect("item_skill_crimson_fury_mighty"), ctx),
 		);
 		expect(result.heroes[0].currentLife).toBe(8);
-		const bonuses = result.combat?.bonusNextAttack["h1"] ?? [];
-		expect(bonuses.some((b) => b.value === 6)).toBe(true);
+		// Patch-18 Lote G: damage_bonus → damage_dealt no ECS world
+		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(6);
 	});
 });

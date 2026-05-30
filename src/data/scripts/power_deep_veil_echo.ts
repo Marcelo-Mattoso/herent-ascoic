@@ -1,4 +1,6 @@
 import type { ScriptHandler } from "@/core/scripts/types";
+import { addComponent } from "@/core/ecs/world";
+import type { ModifierComponent } from "@/core/ecs/types";
 import { registerContinuation } from "@/core/skills/registry";
 import { log } from "@/core/reducer/utils";
 
@@ -55,37 +57,27 @@ registerContinuation(
 		};
 
 		if (choice === "tohit") {
-			const prev = state.combat.bonusNextAttack[ctx.sourceHeroId] ?? [];
+			// Patch-18 Lote G: usa ECS world (hit_bonus) em vez de bonusNextAttack
+			const mod: ModifierComponent = {
+				type: "modifier", target: "hit_bonus", operation: "add",
+				value: 3, source: "power_deep_veil_echo", duration: { kind: "once" },
+			};
+			const newWorld = addComponent(state.world, ctx.sourceHeroId, mod);
 			return log(
-				{
-					...state,
-					combat: {
-						...state.combat,
-						ecoTokens,
-						bonusNextAttack: {
-							...state.combat.bonusNextAttack,
-							[ctx.sourceHeroId]: [...prev, { label: "Eco Profundo", value: 3 }],
-						},
-					},
-				},
+				{ ...state, world: newWorld, combat: { ...state.combat, ecoTokens } },
 				"Eco Profundo gasto: +3 de acerto neste ataque.",
 			);
 		}
 
 		if (choice === "damage_reduction") {
-			const prevRed = state.combat.damageReduction[ctx.sourceHeroId] ?? 0;
+			// Patch-18 Lote G: usa ECS world (damage_taken negativo) em vez de damageReduction
+			const mod: ModifierComponent = {
+				type: "modifier", target: "damage_taken", operation: "add",
+				value: -2, source: "power_deep_veil_echo", duration: { kind: "this_combat" },
+			};
+			const newWorld = addComponent(state.world, ctx.sourceHeroId, mod);
 			return log(
-				{
-					...state,
-					combat: {
-						...state.combat,
-						ecoTokens,
-						damageReduction: {
-							...state.combat.damageReduction,
-							[ctx.sourceHeroId]: prevRed + 2,
-						},
-					},
-				},
+				{ ...state, world: newWorld, combat: { ...state.combat, ecoTokens } },
 				"Eco Profundo gasto: -2 no próximo dano sofrido.",
 			);
 		}

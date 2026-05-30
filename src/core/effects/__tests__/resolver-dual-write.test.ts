@@ -86,41 +86,31 @@ function pushModifier(
 }
 
 describe("add_modifier dual-write", () => {
-	it("damage_reduction: escreve em combat.damageReduction E no ECS world", () => {
+	it("damage_reduction: escreve no ECS world (damage_taken negativo) — patch-18 Lote G", () => {
 		const state = makeState();
 		const heroId = "hero_warrior";
 
 		const after = pushModifier(state, heroId, "damage_reduction", 1, "power_unbreakable_bastion_guard", "until_end_of_round");
 
-		// Legacy
-		expect(after.combat?.damageReduction[heroId]).toBe(1);
-
 		// ECS: damage_reduction DSL → damage_taken ECS, valor negativo (debuff de dano sofrido)
 		expect(getModifierTotal(after.world, heroId, "damage_taken")).toBe(-1);
 	});
 
-	it("damage_bonus: escreve em bonusNextAttack E no ECS world", () => {
+	it("damage_bonus: escreve no ECS world — patch-18 Lote G", () => {
 		const state = makeState();
 		const heroId = "hero_warrior";
 
 		const after = pushModifier(state, heroId, "damage_bonus", 3, "skill_test_bonus", "once");
 
-		// Legacy
-		const legacyBonus = after.combat?.bonusNextAttack[heroId] ?? [];
-		expect(legacyBonus.some((e) => e.value === 3)).toBe(true);
-
-		// ECS
+		// ECS: damage_bonus → damage_dealt
 		expect(getModifierTotal(after.world, heroId, "damage_dealt")).toBe(3);
 	});
 
-	it("tohit_penalty: escreve em tohitPenaltyByHero E no ECS world (negativo)", () => {
+	it("tohit_penalty: escreve no ECS world (hit_bonus negativo) — patch-18 Lote G", () => {
 		const state = makeState();
 		const heroId = "hero_warrior";
 
 		const after = pushModifier(state, heroId, "tohit_penalty", 2, "skill_scorching_heat", "until_end_of_combat");
-
-		// Legacy
-		expect(after.combat?.tohitPenaltyByHero[heroId]).toBe(2);
 
 		// ECS: tohit_penalty → hit_bonus com valor negativo
 		expect(getModifierTotal(after.world, heroId, "hit_bonus")).toBe(-2);

@@ -10,7 +10,6 @@ import { emit } from "../events/bus";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
-import { fireTrigger } from "../skills/dispatch";
 import { cardSkills } from "../skills/lookup";
 import { fireOnUseSkill, isManuallyActivatable } from "../skills/useSkill";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
@@ -148,12 +147,8 @@ export function handleChooseTarget(
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
 
-	// on_targeted: Capuz do Túnel pode redirecionar antes de fechar o par
-	const afterTrigger = fireTrigger(state, "on_targeted", {
-		triggeredBy: "on_targeted",
-		sourceHeroId: heroId,
-		sourceEnemyId: enemyId,
-	});
+	// on_targeted: removido em Lote G (semântica incorreta; HeroTargeted emitido via bus se necessário)
+	const afterTrigger = state;
 
 	// Lote E: emite TargetChosen
 	const roomTargetKey = `targetChosen::${enemyId}`;
@@ -695,23 +690,15 @@ export function handleUseItem(
 		(p) => p.heroId === heroId,
 	)?.enemyId;
 	if (currentPairEnemyId) {
-		const afterTrigger = fireTrigger(
-			withItemRemoved,
-			"first_item_effect_received",
-			{
-				triggeredBy: "first_item_effect_received",
-				sourceHeroId: heroId,
-				sourceEnemyId: currentPairEnemyId,
-			},
-		);
-		if (afterTrigger.combat?.itemControlByEnemy[currentPairEnemyId]) {
+		// itemControl: inimigo do par atual pode ignorar o 1º efeito de item (Evasão das Fendas)
+		if (withItemRemoved.combat?.itemControlByEnemy[currentPairEnemyId]) {
 			return log(
 				{
-					...afterTrigger,
+					...withItemRemoved,
 					combat: {
-						...afterTrigger.combat!,
+						...withItemRemoved.combat!,
 						itemControlByEnemy: {
-							...afterTrigger.combat!.itemControlByEnemy,
+							...withItemRemoved.combat!.itemControlByEnemy,
 							[currentPairEnemyId]: false,
 						},
 					},
@@ -719,8 +706,16 @@ export function handleUseItem(
 				`${currentPairEnemyId}: Evasão das Fendas — efeito de item bloqueado.`,
 			);
 		}
+		const roomFirstTime = !withItemRemoved.flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
+		let afterItemEmit = roomFirstTime
+			? { ...withItemRemoved, flags: { ...withItemRemoved.flags, [`itemEffect::${currentPairEnemyId}::${heroId}`]: true } }
+			: withItemRemoved;
+		({ state: afterItemEmit } = emit(afterItemEmit, {
+			type: "ItemEffectAppliedTo",
+			payload: { heroId, itemName: itemName, sourceId: currentPairEnemyId, roomFirstTime },
+		}));
 		const targetIds = targetHeroId ? [targetHeroId] : [heroId];
-		return fireOnUseSkill(afterTrigger, {
+		return fireOnUseSkill(afterItemEmit, {
 			skillId: skillDef.id,
 			sourceId: heroId,
 			targetIds,

@@ -61,12 +61,9 @@ export interface CombatState {
 	// Controle Azhakar: primeiro dano do turno já sofreu redução de Trono Vivo
 	bossFirstDamageReduced: boolean;
 	readonly temporaryEffects: readonly TemporaryEffect[];
-	// Bônus de dano para o próximo ataque de cada herói — array de entradas por skill (consumido após uso)
-	readonly bonusNextAttack: Readonly<
-		Record<string, readonly SkillBonusEntry[]>
-	>;
-	// Redução de dano recebido ativa por herói (ex: Guerreiro power até fim da rodada)
-	readonly damageReduction: Readonly<Record<string, number>>;
+	// Bônus de próximo ataque e redução de dano migrados para ECS world (patch-18 Lote G)
+	// bonusNextAttack → ModifierComponent target="damage_dealt" / target="hit_bonus"
+	// damageReduction → ModifierComponent target="damage_taken"
 	// Presa do Caçador: id do inimigo marcado como alvo preferencial
 	prey: string | null;
 	// Token do Necromante (Eco): 0 = sem eco, 1 = eco disponível
@@ -82,8 +79,8 @@ export interface CombatState {
 		readonly action: "reroll" | "set_to";
 		readonly setToValue?: number;
 	};
-	// Penalidade de acerto por herói (ex: Calor Escaldante, Corpo Gelatinoso)
-	readonly tohitPenaltyByHero: Readonly<Record<string, number>>;
+	// tohitPenaltyByHero migrado para ECS (patch-18 Lote G)
+	// → ModifierComponent target="hit_bonus" com valor negativo
 	// Inimigo ignora 1º efeito de item (Evasão das Fendas)
 	readonly itemControlByEnemy: Readonly<Record<string, boolean>>;
 	// Herói ignora 1º efeito que o escolha como alvo (Véu Protetor)
@@ -110,12 +107,9 @@ export function createEmptyCombatState(): CombatState {
 		bossFirstDamageReduced: false,
 		temporaryEffects: [],
 		oncePer: { room: {}, combat: {}, round: {} },
-		bonusNextAttack: {},
-		damageReduction: {},
 		prey: null,
 		ecoTokens: {},
 		fleeAttemptByHero: {},
-		tohitPenaltyByHero: {},
 		itemControlByEnemy: {},
 		targetProtectionByHero: {},
 	};

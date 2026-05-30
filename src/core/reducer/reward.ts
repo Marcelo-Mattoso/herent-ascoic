@@ -7,7 +7,7 @@ import type { XpSpendOption } from "../config/defaults";
 import { XP_COSTS } from "../config/defaults";
 import { getCardByName } from "../data/cards";
 import { calculateRewards } from "../rules/reward";
-import { fireTrigger } from "../skills/dispatch";
+import { emit } from "../events/bus";
 import { cardSkills } from "../skills/lookup";
 import { renderSkillLabel } from "../skills/renderLabel";
 import type { GameState, PendingReward } from "../state/gameState";
@@ -24,7 +24,9 @@ export function handleGrantRewards(state: GameState): GameState {
 	// Evitar processar duas vezes (fila já preenchida)
 	if (state.pendingRewards.length > 0) return state;
 
-	let next = fireTrigger(state, "on_win_room", { triggeredBy: "on_win_room" });
+	// on_win_room: via TriggerComponents (emit CombatEnded — Lote G)
+	let next = state;
+	({ state: next } = emit(next, { type: "CombatEnded", payload: {} }));
 
 	const eligibleGraveyard = next.enemyGraveyard.filter((e) => !e.noReward);
 	const summary = calculateRewards(next.currentRoom!, eligibleGraveyard);

@@ -1,6 +1,7 @@
 // Testes de aceite Patch-16 Lote B — novos kinds DSL e skills #7-#20.
 
 import { describe, expect, it } from "vitest";
+import { getModifierTotal } from "../../../ecs/world";
 import { SKILLS } from "../../../data/skills";
 import { drainStack } from "../../../effects/resolver";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
@@ -166,8 +167,8 @@ describe("mark_target — skill_prey_mark (#13)", () => {
 		);
 		const result = drainStack(evaluate(defEffect("skill_prey_mark"), ctx));
 		expect(result.combat?.prey).toBe("e1");
-		const bonuses = result.combat?.bonusNextAttack["h1"] ?? [];
-		expect(bonuses.some((b) => b.value === 1)).toBe(true);
+		// Patch-18 Lote G: tohit_bonus → hit_bonus no ECS world
+		expect(getModifierTotal(result.world, "h1", "hit_bonus")).toBe(1);
 	});
 });
 

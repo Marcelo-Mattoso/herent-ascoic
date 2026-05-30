@@ -1,4 +1,6 @@
 import type { ScriptHandler } from "@/core/scripts/types";
+import { addComponent } from "@/core/ecs/world";
+import type { ModifierComponent } from "@/core/ecs/types";
 import { registerContinuation } from "@/core/skills/registry";
 import { log } from "@/core/reducer/utils";
 
@@ -59,26 +61,15 @@ registerContinuation(
 			);
 		}
 
-		// "tohit": bônus de acerto
-		const bonus =
-			typeof state.combat.bonusNextAttack[ctx.sourceHeroId] !== "undefined"
-				? 2
-				: 2;
-		const prev = state.combat.bonusNextAttack[ctx.sourceHeroId] ?? [];
+		// "tohit": bônus de acerto via ECS world (patch-18 Lote G)
+		const bonus = 2;
+		const mod: ModifierComponent = {
+			type: "modifier", target: "hit_bonus", operation: "add",
+			value: bonus, source: "skill_focus_deflection", duration: { kind: "once" },
+		};
+		const newWorld = addComponent(state.world, ctx.sourceHeroId, mod);
 		return log(
-			{
-				...state,
-				combat: {
-					...state.combat,
-					bonusNextAttack: {
-						...state.combat.bonusNextAttack,
-						[ctx.sourceHeroId]: [
-							...prev,
-							{ label: "Desvio de Foco", value: bonus },
-						],
-					},
-				},
-			},
+			{ ...state, world: newWorld },
 			`Desvio de Foco: +${bonus} de acerto neste ataque.`,
 		);
 	},

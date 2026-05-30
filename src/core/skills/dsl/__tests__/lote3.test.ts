@@ -1,6 +1,7 @@
 // Testes de aceite Lote 3 (Patch-12 Fase 5) — DSL choose_one.
 
 import { describe, expect, it } from "vitest";
+import { getModifierTotal } from "../../../ecs/world";
 import { reducer } from "../../../reducer";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
@@ -168,8 +169,8 @@ describe("choose_one — fluxo completo", () => {
 			ctx,
 		);
 		const result = dispatchChoice(withChoice, "test_skill", "+2 dano");
-		const entries = result.combat?.bonusNextAttack?.["h1"] ?? [];
-		expect(entries.some((e) => e.value === 2)).toBe(true);
+		// Patch-18 Lote G: damage_bonus → damage_dealt no ECS world
+		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(2);
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
 });

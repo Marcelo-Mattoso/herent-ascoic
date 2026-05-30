@@ -184,21 +184,25 @@ function projectBuffsByHero(
 	for (const hero of state.heroes) {
 		const id = hero.id;
 
-		// Bônus de próximo ataque (Fúria Rubra, Juramento, Coragem de Bando…).
-		// `entry.label` já é o nome da skill que aplicou — usamos como source.
-		const skillEntries = combat.bonusNextAttack[id] ?? [];
-		for (let i = 0; i < skillEntries.length; i++) {
-			const entry = skillEntries[i]!;
-			const polarity: "buff" | "debuff" = entry.value < 0 ? "debuff" : "buff";
-			const sign = entry.value >= 0 ? "+" : "";
-			push(id, {
-				id: `bonus:${entry.label}:${i}`,
-				kind: polarity,
-				icon: "⚔️",
-				label: `${sign}${entry.value} próximo ataque`,
-				detail: "consumido após resolver",
-				source: entry.label,
-			});
+		// Bônus de próximo ataque — lê do ECS world (Lote G: damage_dealt e hit_bonus positivos)
+		const entity = state.world.entities[id];
+		if (entity) {
+			let i = 0;
+			for (const comp of entity.components) {
+				if (comp.type !== "modifier") continue;
+				if (comp.target !== "damage_dealt" && comp.target !== "hit_bonus") continue;
+				if (comp.value <= 0) continue;
+				const polarity: "buff" | "debuff" = "buff";
+				const sign = "+";
+				push(id, {
+					id: `bonus:${comp.source}:${i++}`,
+					kind: polarity,
+					icon: "⚔️",
+					label: `${sign}${comp.value} próximo ataque`,
+					detail: "consumido após resolver",
+					source: comp.source,
+				});
+			}
 		}
 
 		// Dado extra (Bárbaro Rubro etc.)

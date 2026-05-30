@@ -18,29 +18,31 @@ export const run: ScriptHandler = (ctx) => {
 		);
 	if (!fightingPrey) return ctx.state;
 
-	// +1 bônus de dano + pendingDiceSelection para transformar dado azul em 6
-	const prevBonuses = ctx.state.combat.bonusNextAttack[ctx.sourceId] ?? [];
+	// +1 bônus de dano via ECS world (patch-18 Lote G: migrado de bonusNextAttack)
+	let state = ctx.action.pushEffect({
+		kind: "add_modifier",
+		to: ctx.sourceId,
+		stat: "damage_bonus",
+		operation: "add",
+		value: 1,
+		duration: { kind: "once" },
+	});
 	return {
-		...ctx.state,
-		combat: {
-			...ctx.state.combat,
-			bonusNextAttack: {
-				...ctx.state.combat.bonusNextAttack,
-				[ctx.sourceId]: [
-					...prevBonuses,
-					{ label: "Execução do Caçador", value: 1 },
-				],
-			},
-			pendingDiceSelection: {
-				skillId: ctx.skillId,
-				heroId: ctx.sourceId,
-				side: "hero" as const,
-				action: "set_to" as const,
-				setToValue: 6,
-			},
-		},
+		...state,
+		combat: state.combat
+			? {
+					...state.combat,
+					pendingDiceSelection: {
+						skillId: ctx.skillId,
+						heroId: ctx.sourceId,
+						side: "hero" as const,
+						action: "set_to" as const,
+						setToValue: 6,
+					},
+				}
+			: null,
 		eventLog: [
-			...ctx.state.eventLog,
+			...state.eventLog,
 			`${hero.cardName}: Execução do Caçador — dado azul → 6, +1 dano contra Presa.`,
 		],
 	};

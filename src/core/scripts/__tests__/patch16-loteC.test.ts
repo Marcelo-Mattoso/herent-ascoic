@@ -1,6 +1,8 @@
 // Testes de aceite Patch-16 Lote C — scripts para skills #21-#30.
 
 import { describe, expect, it } from "vitest";
+import type { ModifierComponent } from "../../ecs/types";
+import { getComponents } from "../../ecs/world";
 import { drainStack } from "../../effects/resolver";
 import { buildScriptCtx } from "../context";
 import { getScript } from "../registry";
@@ -160,9 +162,11 @@ describe("power_hunter_execution (#23)", () => {
 			{ triggeredBy: "once_per_game_after_roll_vs_prey", sourceHeroId: "h1", skillId: "power_hunter_execution" },
 			{},
 		);
-		const result = runScript("power_hunter_execution", ctx);
-		const bonuses = result.combat?.bonusNextAttack["h1"] ?? [];
-		expect(bonuses.some((b) => b.value === 1)).toBe(true);
+		const result = drainStack(runScript("power_hunter_execution", ctx));
+		// Patch-18 Lote G: bonusNextAttack migrado para ECS world (damage_dealt)
+		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
+			.filter(m => m.target === "damage_dealt" || m.target === "hit_bonus");
+		expect(mods.some((m) => m.value === 1)).toBe(true);
 		expect(result.combat?.pendingDiceSelection?.action).toBe("set_to");
 	});
 

@@ -16,7 +16,6 @@ import { syncEntityFromEnemy } from "../ecs/sync";
 import { createEmptyEffectStack } from "../effects/stack";
 import { emit } from "../events/bus";
 import { checkBossCondition } from "../rules/conditions";
-import { fireTrigger } from "../skills/dispatch";
 import { cardSkills } from "../skills/lookup";
 import { renderSkillLabel } from "../skills/renderLabel";
 import { createEmptyCombatState } from "../state/combatState";
