@@ -172,17 +172,23 @@ export function handleChooseTarget(
 function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
 
-	// Bônus de dano acumulado via engine de habilidades (ex: Fúria Rubra, Juramento)
-	// Cada entrada do array representa uma skill distinta com seu label e valor individual.
-	const skillEntries = state.combat?.bonusNextAttack?.[hero.id] ?? [];
-	for (const entry of skillEntries) {
-		bonuses.push({ source: entry.label, value: entry.value });
+	// Bônus de dano/acerto — lê do ECS world (Lote C)
+	const entity = state.world.entities[hero.id];
+	if (entity) {
+		for (const comp of entity.components) {
+			if (comp.type === "modifier" && (comp.target === "damage_dealt" || comp.target === "hit_bonus") && comp.value > 0) {
+				bonuses.push({ source: comp.source, value: comp.value });
+			}
+		}
 	}
 
-	// Penalidade de acerto (ex: Calor Escaldante, Corpo Gelatinoso)
-	const penalty = state.combat?.tohitPenaltyByHero?.[hero.id] ?? 0;
-	if (penalty > 0) {
-		bonuses.push({ source: "penalidade", value: -penalty });
+	// Penalidade de acerto via ECS world (hit_bonus com valor negativo) — Lote C/D
+	if (entity) {
+		for (const comp of entity.components) {
+			if (comp.type === "modifier" && comp.target === "hit_bonus" && comp.value < 0) {
+				bonuses.push({ source: comp.source, value: comp.value });
+			}
+		}
 	}
 
 	return bonuses;
@@ -261,12 +267,16 @@ export function handleRollDice(state: GameState): GameState {
 	preRoll = { ...preRoll, rng: rng2 };
 
 	const heroBonuses = collectHeroBonuses(hero, preRoll);
-	// Bônus do inimigo: hitBonus base + modificadores acumulados via DSL (Patch-12)
-	const enemySkillEntries = preRoll.combat?.bonusNextAttack?.[enemy.id] ?? [];
-	const enemyBonuses: BonusEntry[] = [
-		{ source: "hitBonus", value: enemy.hitBonus },
-		...enemySkillEntries.map((e) => ({ source: e.label, value: e.value })),
-	];
+	// Bônus do inimigo — lê do ECS world (Lote C)
+	const enemyBonuses: BonusEntry[] = [{ source: "hitBonus", value: enemy.hitBonus }];
+	const enemyEntity = preRoll.world.entities[enemy.id];
+	if (enemyEntity) {
+		for (const comp of enemyEntity.components) {
+			if (comp.type === "modifier" && (comp.target === "damage_dealt" || comp.target === "hit_bonus")) {
+				enemyBonuses.push({ source: comp.source, value: comp.value });
+			}
+		}
+	}
 
 	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);
 	const enemyCalc = calculateTotal(enemyRollResult.results, enemyBonuses);
@@ -511,6 +521,9 @@ export function handleResolveAttack(state: GameState): GameState {
 			`${hero.cardName} sofreu ${dmg} de dano${tieNoteHero}${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${roll.heroTotal}.`,
 		);
 	}
+
+	// Consumir modificadores "once" após o ataque ser resolvido (Lote C)
+	next = { ...next, world: tickModifierDurations(next.world, "once_consumed") };
 
 	// Registrar herói como tendo agido nesta rodada
 	const updatedActed = [...(next.combat?.heroesActed ?? []), roll.heroId];

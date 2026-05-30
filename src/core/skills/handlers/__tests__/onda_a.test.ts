@@ -5,6 +5,9 @@
 // Seus testes foram portados para verificar o comportamento via drainStack.
 
 import { describe, expect, it } from "vitest";
+import { syncEntityFromHero } from "../../../ecs/sync";
+import type { ModifierComponent } from "../../../ecs/types";
+import { addComponent } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { handleRollDice } from "../../../reducer/combat";
 import { handleGrantRewards } from "../../../reducer/reward";
@@ -167,14 +170,29 @@ describe("DSL add_modifier tohit_penalty", () => {
 		const combat = {
 			...createEmptyCombatState(),
 			pairs: [{ heroId: "h1", enemyId: "e1" }],
+			// legacy mantido por dual-write; leitura agora vem do ECS (Lote C)
 			tohitPenaltyByHero: { h1: 2 },
 		};
-		const state = makeState({ combat, activeEnemies: [makeEnemy()] });
+		const hero = makeHero();
+		const base = makeState({ combat, activeEnemies: [makeEnemy()] });
+		// Popula ECS world com o modifier de penalidade
+		const penMod: ModifierComponent = {
+			type: "modifier",
+			target: "hit_bonus",
+			operation: "add",
+			value: -2,
+			source: "skill_scorching_heat",
+			duration: { kind: "this_combat" },
+		};
+		let world = syncEntityFromHero(base.world, hero);
+		world = addComponent(world, hero.id, penMod);
+		const state = { ...base, world };
 		const result = handleRollDice(state);
+		// A nova leitura usa source do ModifierComponent (não mais a string "penalidade")
 		const penEntry = result.combat?.lastRoll?.heroBreakdown.find(
-			(b) => b.source === "penalidade",
+			(b) => b.value === -2,
 		);
-		expect(penEntry).toEqual({ source: "penalidade", value: -2 });
+		expect(penEntry).toEqual({ source: "skill_scorching_heat", value: -2 });
 	});
 });
 
