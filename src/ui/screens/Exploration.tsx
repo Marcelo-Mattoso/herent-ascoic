@@ -242,24 +242,6 @@ export function Exploration() {
 						</div>
 					</div>
 
-					{/* EFEITOS DE GRUPO — recursos compartilhados (deck, fuga, sala) */}
-					{view.groupBuffs.length > 0 && (
-						<div
-							style={{
-								background: UI.panelBg,
-								border: `1px solid ${UI.border}`,
-								borderRadius: 8,
-								padding: "4px 10px",
-							}}
-						>
-							<BuffBar
-								buffs={view.groupBuffs}
-								leadingLabel="🤝 Grupo:"
-								hideWhenEmpty
-							/>
-						</div>
-					)}
-
 					{/* TABULEIRO */}
 					<Board
 						view={view}
@@ -291,6 +273,45 @@ export function Exploration() {
 							onClose={() => setShowLog(false)}
 						/>
 					)}
+
+					{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
+					{(() => {
+						const heroBuffs = focusedHero
+							? (view.combat?.buffsByHero[focusedHero.id] ?? [])
+							: [];
+						const groupBuffs = view.groupBuffs;
+						if (heroBuffs.length === 0 && groupBuffs.length === 0) return null;
+						return (
+							<div
+								style={{
+									background: UI.panelBg,
+									border: `1px solid ${UI.border}`,
+									borderRadius: 8,
+									padding: "4px 10px",
+								}}
+							>
+								<BuffBar
+									buffs={groupBuffs}
+									leadingLabel="🤝 Grupo:"
+								/>
+								<hr
+									style={{
+										border: "none",
+										borderTop: `1px dashed ${UI.border}`,
+										margin: "2px 0",
+									}}
+								/>
+								<BuffBar
+									buffs={heroBuffs}
+									leadingLabel={
+										focusedHero
+											? `🧙 ${focusedHero.cardName.split(",")[0]?.split(" ")[0] ?? "Herói"}:`
+											: "🧙 Herói:"
+									}
+								/>
+							</div>
+						);
+					})()}
 
 					{/* PAINEL DO HERÓI EM FOCO */}
 					<HeroFocusPanel

@@ -11,7 +11,6 @@ import type { CardType } from "@/ui/components/Card";
 import type { HeroCombatActions } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
-import { BuffBar } from "./BuffBar";
 import { ColorBar } from "./ColorBar";
 import { HpBar } from "./HpBar";
 import { ItemChip } from "./ItemChip";
@@ -153,9 +152,6 @@ export function HeroFocusPanel({
 
 							{/* Barra de vida grande */}
 							<HpBar current={hero.currentLife} max={hero.maxLife} height={8} />
-
-							{/* Barra de buffs/efeitos ativos no combate */}
-							<BuffBar buffs={view.combat?.buffsByHero[hero.id] ?? []} />
 						</div>
 					</div>
 
