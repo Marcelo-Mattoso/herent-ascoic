@@ -248,6 +248,15 @@ export function handleOpenPaths(state: GameState): GameState {
 	const drawn = available.slice(0, exits);
 	const remaining = available.slice(exits);
 
+	// Deck esgotado ou sala sem saídas: pula CHOOSE_PATH (modal vazio sem como
+	// confirmar) e vai direto para DUNGEON_EXHAUSTED.
+	if (drawn.length === 0) {
+		return log(
+			{ ...state, status: "DUNGEON_EXHAUSTED" },
+			"Sem caminhos disponíveis — masmorra esgotada.",
+		);
+	}
+
 	let next: GameState = log(
 		{
 			...state,

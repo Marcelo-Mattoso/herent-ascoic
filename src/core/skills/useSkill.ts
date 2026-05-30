@@ -12,13 +12,14 @@ import { cardSkills } from "./lookup";
 
 export function isManuallyActivatable(def: SkillDefinition): boolean {
 	const t = def.trigger;
-	return (
-		t === "on_use" ||
-		t.includes("on_use") ||
+	// Triggers reativos a evento têm "_on_" ou "_after_" no meio
+	// (ex: once_per_room_on_dungeon_discard) — NÃO são ativáveis manualmente.
+	const isReactive = t.includes("_on_") || t.includes("_after_");
+	const isManualScope =
 		t.startsWith("once_per_game") ||
 		t.startsWith("once_per_room") ||
-		t.startsWith("once_per_combat")
-	);
+		t.startsWith("once_per_combat");
+	return t === "on_use" || t.includes("on_use") || (isManualScope && !isReactive);
 }
 
 export interface UseSkillPayload {
