@@ -6,6 +6,7 @@
 import { getCardByName } from "../data/cards";
 import { getModifierTotal, tickModifierDurations } from "../ecs/world";
 import { drainStack } from "../effects/resolver";
+import { emit } from "../events/bus";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
@@ -36,6 +37,12 @@ export function handleStartCombat(state: GameState): GameState {
 	});
 	// while_in_play: efeitos passivos enquanto inimigo está em jogo (ex: Corrupção de Caminho)
 	next = fireTrigger(next, "while_in_play", { triggeredBy: "while_in_play" });
+	// Lote E: emite CombatStarted + RoundStarted(1) para triggers reativos ECS
+	({ state: next } = emit(next, {
+		type: "CombatStarted",
+		payload: { roomName: next.currentRoom?.cardName ?? "" },
+	}));
+	({ state: next } = emit(next, { type: "RoundStarted", payload: { round: 1 } }));
 	return log(next, "Combate iniciado.");
 }
 
@@ -57,19 +64,19 @@ export function handleDeclareFlee(state: GameState, heroId: string): GameState {
 	if (hero.currentLife !== 1) {
 		return log(state, "[AVISO] Fuga só permitida com 1 de vida.");
 	}
-	return log(
-		{
-			...state,
-			combat: {
-				...state.combat,
-				fleeAttemptByHero: {
-					...state.combat.fleeAttemptByHero,
-					[heroId]: true,
-				},
+	let next: GameState = {
+		...state,
+		combat: {
+			...state.combat,
+			fleeAttemptByHero: {
+				...state.combat.fleeAttemptByHero,
+				[heroId]: true,
 			},
 		},
-		`${hero.cardName} declara fuga! O próximo confronto será uma tentativa de fuga.`,
-	);
+	};
+	// Lote E: emite HeroFled ao declarar fuga
+	({ state: next } = emit(next, { type: "HeroFled", payload: { heroId } }));
+	return log(next, `${hero.cardName} declara fuga! O próximo confronto será uma tentativa de fuga.`);
 }
 
 // ─── CHOOSE_HERO_FOR_ROUND ────────────────────────────────────────────────────
@@ -154,9 +161,21 @@ export function handleChooseTarget(
 		sourceEnemyId: enemyId,
 	});
 
+	// Lote E: emite TargetChosen
+	const roomTargetKey = `targetChosen::${enemyId}`;
+	const roomFirstTime = !state.flags[roomTargetKey];
+	let afterEmit = afterTrigger;
+	if (roomFirstTime) {
+		afterEmit = { ...afterEmit, flags: { ...afterEmit.flags, [roomTargetKey]: true } };
+	}
+	({ state: afterEmit } = emit(afterEmit, {
+		type: "TargetChosen",
+		payload: { sourceId: heroId, targetId: enemyId, sourceType: "hero", roomFirstTime },
+	}));
+
 	const pair = { heroId, enemyId };
 	return {
-		...afterTrigger,
+		...afterEmit,
 		status: "ROLL_DICE",
 		combat: {
 			...afterTrigger.combat!,
@@ -204,8 +223,15 @@ export function handleRollDice(state: GameState): GameState {
 	const enemy = state.activeEnemies.find((e) => e.id === pair.enemyId);
 	if (!hero || !enemy) return state;
 
+	// Lote E: emite RollAboutToHappen antes do roll
+	let preRoll = state;
+	({ state: preRoll } = emit(preRoll, {
+		type: "RollAboutToHappen",
+		payload: { heroId: hero.id, enemyId: enemy.id, round: preRoll.combat?.round ?? 0 },
+	}));
+
 	// before_attack: modificadores antes de rolar (inclui aliases: combat, combat_against_self)
-	let preRoll = fireTrigger(state, "before_attack", {
+	preRoll = fireTrigger(preRoll, "before_attack", {
 		triggeredBy: "before_attack",
 		sourceHeroId: hero.id,
 		sourceEnemyId: enemy.id,
@@ -293,11 +319,24 @@ export function handleRollDice(state: GameState): GameState {
 	};
 
 	// after_roll: modificações pós-rolagem (ex: Mago ajusta dado)
-	const postRoll = fireTrigger(preRoll, "after_roll", {
+	let postRoll = fireTrigger(preRoll, "after_roll", {
 		triggeredBy: "after_roll",
 		sourceHeroId: hero.id,
 		sourceEnemyId: enemy.id,
 	});
+
+	// Lote E: emite RollResolved
+	({ state: postRoll } = emit(postRoll, {
+		type: "RollResolved",
+		payload: {
+			heroId: hero.id,
+			enemyId: enemy.id,
+			heroTotal: heroCalc.total,
+			enemyTotal: enemyCalc.total,
+			heroResults: heroRollResult.results,
+			enemyResults: enemyRollResult.results,
+		},
+	}));
 
 	return log(
 		{
@@ -706,14 +745,22 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 				},
 			}
 		: createEmptyCombatState();
+	// Lote E: emite RoundEnded para a rodada que terminou
+	const currentRound = state.combat?.round ?? 0;
+	let nextState: GameState = state;
+	({ state: nextState } = emit(nextState, { type: "RoundEnded", payload: { round: currentRound } }));
+
 	// Expirar modificadores ECS de duração "end_of_round" (this_turn)
-	const worldAfterTick = tickModifierDurations(state.world, "end_of_round");
-	let nextState: GameState = {
-		...state,
+	const worldAfterTick = tickModifierDurations(nextState.world, "end_of_round");
+	nextState = {
+		...nextState,
 		status: "HERO_ACTION",
 		combat: nextCombat,
 		world: worldAfterTick,
 	};
+
+	// Lote E: emite RoundStarted para a nova rodada
+	({ state: nextState } = emit(nextState, { type: "RoundStarted", payload: { round: nextRound } }));
 
 	// first_round_in_room: disparar na rodada 1 (round começa em 0, então nextRound === 1)
 	if (nextRound === 1) {

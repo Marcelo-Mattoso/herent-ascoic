@@ -12,6 +12,7 @@ import {
 } from "../data/cards";
 import type { SubbossRoomCard } from "../data/cardTypes";
 import { createEmptyEffectStack } from "../effects/stack";
+import { emit } from "../events/bus";
 import { checkBossCondition } from "../rules/conditions";
 import { fireTrigger } from "../skills/dispatch";
 import { cardSkills } from "../skills/lookup";
@@ -74,6 +75,8 @@ export function handleRevealRoom(state: GameState): GameState {
 		},
 	};
 	next = fireTrigger(next, "on_room_reveal", { triggeredBy: "on_room_reveal" });
+	// Lote E: emite RoomEntered
+	({ state: next } = emit(next, { type: "RoomEntered", payload: { roomName: room.cardName } }));
 	return log(next, `Sala revelada: ${room.cardName}.`);
 }
 
@@ -272,6 +275,8 @@ export function handleOpenPaths(state: GameState): GameState {
 	next = fireTrigger(next, "on_reveal_paths", {
 		triggeredBy: "on_reveal_paths",
 	});
+	// Lote E: emite PathsRevealed
+	({ state: next } = emit(next, { type: "PathsRevealed", payload: { cards: drawn as string[] } }));
 	return next;
 }
 
@@ -329,7 +334,7 @@ export function handleCheckBossCondition(state: GameState): GameState {
 }
 
 // Descarta N cartas do topo do deck de dungeon. Utilitário compartilhado com handlers de skill.
-export function discardFromDungeonDeck(state: GameState, n: number): GameState {
+export function discardFromDungeonDeck(state: GameState, n: number, reason: "effect" | "extra" = "effect"): GameState {
 	// Prevenção de descarte (Caminho Preservado, Salvaguarda, Passo Leve).
 	// Bloqueada pela Corrupção de Caminho (discardDungeonLocked).
 	if (state.flags.dungeonDiscardPrevented && !state.flags.discardDungeonLocked) {
@@ -343,7 +348,7 @@ export function discardFromDungeonDeck(state: GameState, n: number): GameState {
 	const toDiscard = available.slice(0, n);
 	const remaining = available.slice(n);
 	if (toDiscard.length === 0) return state;
-	return {
+	let next: GameState = {
 		...state,
 		decks: {
 			...state.decks,
@@ -354,6 +359,14 @@ export function discardFromDungeonDeck(state: GameState, n: number): GameState {
 			},
 		},
 	};
+	// Lote E: emite DungeonCardDiscarded para cada carta descartada
+	for (const cardName of toDiscard) {
+		({ state: next } = emit(next, {
+			type: "DungeonCardDiscarded",
+			payload: { cardName: cardName as string, reason },
+		}));
+	}
+	return next;
 }
 
 // Re-exporta log para uso em handlers que importam este módulo.

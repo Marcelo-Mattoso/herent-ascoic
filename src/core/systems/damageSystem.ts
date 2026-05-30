@@ -86,7 +86,25 @@ export function applyDamage(
 		payload: { sourceId, targetId, damageType, amount: finalAmount },
 	});
 
-	return s3;
+	// Lote E: emite EnemyDestroyed ou HeroDefeated quando entidade é derrotada
+	let s4 = s3;
+	const defeatedHero = s4.heroes.find((h) => h.id === targetId && h.status === "defeated");
+	if (defeatedHero) {
+		({ state: s4 } = emit(s4, {
+			type: "HeroDefeated",
+			payload: { heroId: targetId, sourceId },
+		}));
+	}
+	const defeatedEnemy = s4.activeEnemies.find((e) => e.id === targetId && e.status === "defeated");
+	if (defeatedEnemy) {
+		const roomFirstKill = s4.creaturesDefeated === 0;
+		({ state: s4 } = emit(s4, {
+			type: "EnemyDestroyed",
+			payload: { enemyId: targetId, sourceId, roomFirstKill },
+		}));
+	}
+
+	return s4;
 }
 
 // Aplica custo de vida mínimo 1 (skill cost / self-damage).

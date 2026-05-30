@@ -3,6 +3,7 @@
 
 import { SKILLS } from "../data/skills";
 import type { SkillContext, SkillDefinition } from "../data/skillTypes";
+import { emit } from "../events/bus";
 import { log } from "../reducer/utils";
 import { buildScriptCtx } from "../scripts/context";
 import { getScript } from "../scripts/registry";
@@ -83,18 +84,25 @@ export function fireOnUseSkill(
 		value: resolvedValue,
 	};
 
+	// Lote E: emite SkillUsed antes de executar
+	let stateBeforeExec = state;
+	({ state: stateBeforeExec } = emit(stateBeforeExec, {
+		type: "SkillUsed",
+		payload: { sourceId, skillId },
+	}));
+
 	if (def.effect) {
-		const evalCtx = buildScriptCtx(state, resolvedCtx, params);
+		const evalCtx = buildScriptCtx(stateBeforeExec, resolvedCtx, params);
 		return evaluate(def.effect, evalCtx);
 	}
 
 	if (def.script) {
 		const fn = getScript(`${def.script}.run`);
 		if (!fn) {
-			return log(state, `[SCRIPT NÃO ENCONTRADO: ${def.script}.run]`);
+			return log(stateBeforeExec, `[SCRIPT NÃO ENCONTRADO: ${def.script}.run]`);
 		}
-		return fn(buildScriptCtx(state, resolvedCtx, params));
+		return fn(buildScriptCtx(stateBeforeExec, resolvedCtx, params));
 	}
 
-	return log(state, `[AVISO] Skill sem implementação (sem effect ou script): ${skillId}`);
+	return log(stateBeforeExec, `[AVISO] Skill sem implementação (sem effect ou script): ${skillId}`);
 }

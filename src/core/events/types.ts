@@ -1,9 +1,10 @@
 // Tipos de eventos do barramento interno.
 // Passo 7: bus síncrono com janelas pré/pós para modificação de accumulators.
+// Patch-18 Lote E: catálogo completo de eventos reativos.
 
 import type { EntityId } from "../ecs/types";
 
-export type DamageType = "physical" | "magical" | "direct" | "condition";
+export type DamageType = "physical" | "magical" | "direct" | "condition" | "attack" | "purple";
 
 export type EventType =
 	| "DamageAboutToBeDealt"
@@ -17,7 +18,22 @@ export type EventType =
 	| "TurnStarted"
 	| "TurnEnded"
 	| "CardDrawn"
-	| "SkillUsed";
+	| "SkillUsed"
+	// Lote E
+	| "RollAboutToHappen"
+	| "RollResolved"
+	| "EnemyDestroyed"
+	| "HeroDefeated"
+	| "HeroTargeted"
+	| "HeroTargetedByEffect"
+	| "TargetChosen"
+	| "HeroLostCombat"
+	| "HeroFled"
+	| "PathsRevealed"
+	| "DungeonCardDiscarded"
+	| "ItemEffectAppliedTo"
+	| "RoundEnded"
+	| "RoundStarted";
 
 // ── Payloads tipados ──────────────────────────────────────────────────────────
 
@@ -68,7 +84,7 @@ export type GameEvent =
 			readonly type: "RoomEntered";
 			readonly payload: { readonly roomName: string };
 	  }
-	| { readonly type: "CombatStarted"; readonly payload: Record<string, never> }
+	| { readonly type: "CombatStarted"; readonly payload: { readonly roomName: string } }
 	| { readonly type: "CombatEnded"; readonly payload: Record<string, never> }
 	| {
 			readonly type: "TurnStarted";
@@ -84,5 +100,95 @@ export type GameEvent =
 	  }
 	| {
 			readonly type: "SkillUsed";
-			readonly payload: { readonly heroId: EntityId; readonly skillId: string };
+			readonly payload: { readonly sourceId: EntityId; readonly skillId: string };
+	  }
+	// ── Lote E ────────────────────────────────────────────────────────────────
+	| {
+			readonly type: "RollAboutToHappen";
+			readonly payload: { readonly heroId: string; readonly enemyId: string; readonly round: number };
+	  }
+	| {
+			readonly type: "RollResolved";
+			readonly payload: {
+				readonly heroId: string;
+				readonly enemyId: string;
+				readonly heroTotal: number;
+				readonly enemyTotal: number;
+				readonly heroResults: readonly number[];
+				readonly enemyResults: readonly number[];
+			};
+	  }
+	| {
+			readonly type: "EnemyDestroyed";
+			readonly payload: {
+				readonly enemyId: string;
+				readonly sourceId: string;
+				readonly roomFirstKill: boolean;
+			};
+	  }
+	| {
+			readonly type: "HeroDefeated";
+			readonly payload: { readonly heroId: string; readonly sourceId: string };
+	  }
+	| {
+			readonly type: "HeroTargeted";
+			readonly payload: {
+				readonly heroId: string;
+				readonly sourceId: string;
+				readonly roomFirstTime: boolean;
+			};
+	  }
+	| {
+			readonly type: "HeroTargetedByEffect";
+			readonly payload: {
+				readonly heroId: string;
+				readonly skillId: string;
+				readonly roomFirstTime: boolean;
+			};
+	  }
+	| {
+			readonly type: "TargetChosen";
+			readonly payload: {
+				readonly sourceId: string;
+				readonly targetId: string;
+				readonly sourceType: "hero" | "enemy";
+				readonly roomFirstTime: boolean;
+			};
+	  }
+	| {
+			readonly type: "HeroLostCombat";
+			readonly payload: {
+				readonly heroId: string;
+				readonly enemyId: string;
+				readonly roomFirstTime: boolean;
+			};
+	  }
+	| {
+			readonly type: "HeroFled";
+			readonly payload: { readonly heroId: string };
+	  }
+	| {
+			readonly type: "PathsRevealed";
+			readonly payload: { readonly cards: readonly string[] };
+	  }
+	| {
+			readonly type: "DungeonCardDiscarded";
+			readonly payload: { readonly cardName: string; readonly reason: "effect" | "extra" };
+	  }
+	| {
+			readonly type: "ItemEffectAppliedTo";
+			readonly payload: {
+				readonly heroId: string;
+				readonly itemName: string;
+				readonly sourceId: string;
+				readonly roomFirstTime: boolean;
+			};
+	  }
+	| {
+			readonly type: "RoundEnded";
+			readonly payload: { readonly round: number };
+	  }
+	| {
+			readonly type: "RoundStarted";
+			readonly payload: { readonly round: number };
 	  };
