@@ -227,8 +227,9 @@ function projectBuffsByHero(
 			});
 		}
 
-		// Penalidade de acerto (Calor Escaldante, Corpo Gelatinoso, maldições…)
-		const penalty = combat.tohitPenaltyByHero[id] ?? 0;
+		// Penalidade de acerto — lê do ECS world (Lote D; hit_bonus negativo = debuff)
+		const penaltyTotal = getModifierTotal(state.world, id, "hit_bonus");
+		const penalty = penaltyTotal < 0 ? -penaltyTotal : 0;
 		if (penalty > 0) {
 			push(id, {
 				id: "tohit-penalty",
