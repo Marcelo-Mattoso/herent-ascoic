@@ -2,11 +2,13 @@
 // Valida que a habilidade tem trigger "on_use" (ou variante), resolve e executa o handler.
 
 import { SKILLS } from "../data/skills";
-import type { SkillDefinition } from "../data/skillTypes";
+import type { SkillContext, SkillDefinition } from "../data/skillTypes";
 import { log } from "../reducer/utils";
+import { buildScriptCtx } from "../scripts/context";
+import { getScript } from "../scripts/registry";
 import type { GameState } from "../state/gameState";
+import { evaluate } from "./dsl/evaluate";
 import { cardSkills } from "./lookup";
-import { getHandler } from "./registry";
 
 export function isManuallyActivatable(def: SkillDefinition): boolean {
 	return (
@@ -44,11 +46,6 @@ export function fireOnUseSkill(
 		);
 	}
 
-	const handler = getHandler(def.type ?? "noop");
-	if (!handler) {
-		return log(state, `[SKILL NÃO IMPLEMENTADA: ${skillId}]`);
-	}
-
 	// Resolve value: payload.value tem prioridade, fallback para params da carta ou defaultValue.
 	const sourceCardId =
 		state.heroes.find((h) => h.id === sourceId)?.cardId ??
@@ -59,22 +56,43 @@ export function fireOnUseSkill(
 	const resolvedValue =
 		value !== undefined ? value : (cardRef?.params?.value ?? def.defaultValue);
 
-	return handler(
-		state,
-		{
-			triggeredBy: "on_use",
-			sourceHeroId: state.heroes.some((h) => h.id === sourceId)
-				? sourceId
-				: undefined,
-			targetHeroIds: targetIds?.filter((id) =>
-				state.heroes.some((h) => h.id === id),
-			),
-			targetEnemyIds: targetIds?.filter((id) =>
-				state.activeEnemies.some((e) => e.id === id),
-			),
-			skillId,
-			value: resolvedValue,
-		},
-		resolvedValue,
-	);
+	const resolvedCtx: SkillContext = {
+		triggeredBy: "on_use",
+		sourceHeroId: state.heroes.some((h) => h.id === sourceId)
+			? sourceId
+			: undefined,
+		sourceEnemyId: state.activeEnemies.some((e) => e.id === sourceId)
+			? sourceId
+			: undefined,
+		targetHeroIds: targetIds?.filter((id) =>
+			state.heroes.some((h) => h.id === id),
+		),
+		targetEnemyIds: targetIds?.filter((id) =>
+			state.activeEnemies.some((e) => e.id === id),
+		),
+		skillId,
+		value: resolvedValue,
+	};
+
+	// Ordem de resolução: DSL → script.
+	const params: Record<string, unknown> = {
+		...(def.params ?? {}),
+		...(cardRef?.params ?? {}),
+		value: resolvedValue,
+	};
+
+	if (def.effect) {
+		const evalCtx = buildScriptCtx(state, resolvedCtx, params);
+		return evaluate(def.effect, evalCtx);
+	}
+
+	if (def.script) {
+		const fn = getScript(`${def.script}.run`);
+		if (!fn) {
+			return log(state, `[SCRIPT NÃO ENCONTRADO: ${def.script}.run]`);
+		}
+		return fn(buildScriptCtx(state, resolvedCtx, params));
+	}
+
+	return log(state, `[AVISO] Skill sem implementação (sem effect ou script): ${skillId}`);
 }

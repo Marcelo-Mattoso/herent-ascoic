@@ -23,7 +23,6 @@ import { getScript } from "../scripts/registry";
 import type { GameState } from "../state/gameState";
 import { evaluate } from "./dsl/evaluate";
 import { cardSkills } from "./lookup";
-import { getHandler } from "./registry";
 
 interface ActiveSkill {
 	definition: SkillDefinition;
@@ -278,12 +277,8 @@ export function fireTrigger(
 				const scriptCtx = buildScriptCtx(current, resolvedCtx, params);
 				current = fn(scriptCtx);
 			}
-		} else {
-			// ── Handler legado ────────────────────────────────────────────────────
-			const handler = getHandler(skill.definition.type ?? "noop");
-			if (!handler) continue;
-			current = handler(current, resolvedCtx, rawValue);
 		}
+		// Sem effect nem script: skill sem implementação, ignorada silenciosamente.
 
 		current = markGuardUsed(current, skill.definition, skill.sourceHeroId);
 	}

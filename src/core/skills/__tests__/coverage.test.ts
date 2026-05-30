@@ -13,8 +13,7 @@ import type { HeroState } from "../../state/heroState";
 import { buildScriptCtx } from "../../scripts/context";
 import { getScript } from "../../scripts/registry";
 import { evaluate } from "../dsl/evaluate";
-import { getHandler } from "../registry";
-import "../handlers/index"; // popula o registry de handlers legados
+import "../handlers/index"; // garante que continuações de script sejam registradas
 
 const CFG = { heroCardNames: ["Bárbaro Rubro"] };
 
@@ -109,18 +108,22 @@ function baseState(): GameState {
 type Status = "ok" | "no-effect" | "unimplemented" | "error";
 interface Row {
 	id: string;
-	path: "effect" | "script" | "type" | "none";
+	path: "effect" | "script" | "none";
 	status: Status;
 	detail?: string;
 }
 
 function logHasUnimpl(s: GameState, id: string): boolean {
 	return (s.eventLog ?? []).some(
-		(l) => typeof l === "string" && l.includes(`[SKILL NÃO IMPLEMENTADA: ${id}]`),
+		(l) =>
+			typeof l === "string" &&
+			(l.includes(`[SCRIPT NÃO ENCONTRADO`) ||
+				l.includes(`sem implementação`) ||
+				l.includes(id)),
 	);
 }
 function pathOf(def: SkillDefinition): Row["path"] {
-	return def.effect ? "effect" : def.script ? "script" : def.type ? "type" : "none";
+	return def.effect ? "effect" : def.script ? "script" : "none";
 }
 
 // Snapshot do estado de jogo IGNORANDO eventLog e effectStack (sempre mudam por log/dreno).
@@ -165,12 +168,7 @@ function runSkill(def: SkillDefinition): { status: Status; detail?: string } {
 			const out = drainStack(fn(buildScriptCtx(state, ctx, params)));
 			return classify(state, out, def.id);
 		}
-		const type = def.type ?? "noop";
-		if (type === "noop") return { status: "unimplemented", detail: "type ausente" };
-		const handler = getHandler(type);
-		if (!handler) return { status: "unimplemented", detail: `handler ${type} ausente` };
-		const out = drainStack(handler(state, ctx, ctx.value ?? null));
-		return classify(state, out, def.id);
+		return { status: "unimplemented", detail: "sem effect nem script" };
 	} catch (e) {
 		return { status: "error", detail: (e as Error).message };
 	}
