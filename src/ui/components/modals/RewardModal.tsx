@@ -15,9 +15,9 @@ interface RewardModalProps {
 }
 
 export function RewardModal({ onClose }: RewardModalProps) {
-	const { state, dispatch } = useGameStore();
-	const reward = state.pendingRewards[0];
-	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+	const { view, dispatch } = useGameStore();
+	const reward = view.pendingRewards[0];
+	const activeHeroes = view.heroes.filter((h) => h.status === "active");
 
 	// Etapa do fluxo: "choose_hero" | "choose_destination" | "artifact_bearer"
 	const [selectedHeroId, setSelectedHeroId] = useState<string>(

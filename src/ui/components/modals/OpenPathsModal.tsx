@@ -11,10 +11,10 @@ interface OpenPathsModalProps {
 }
 
 export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
-	const { state, dispatch } = useGameStore();
+	const { view, dispatch } = useGameStore();
 	const [selected, setSelected] = useState<string | null>(null);
 
-	const paths = state.paths;
+	const paths = view.paths;
 
 	function confirmPath() {
 		if (!selected) return;

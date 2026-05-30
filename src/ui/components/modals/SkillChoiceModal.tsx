@@ -7,8 +7,8 @@ import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
 
 export function SkillChoiceModal() {
-	const { state, dispatch } = useGameStore();
-	const pending = state.pendingSkillChoice;
+	const { view, dispatch } = useGameStore();
+	const pending = view.pendingSkillChoice;
 
 	if (!pending) return null;
 

@@ -10,8 +10,8 @@ interface XpSpendModalProps {
 }
 
 export function XpSpendModal({ onClose }: XpSpendModalProps) {
-	const { state, dispatch } = useGameStore();
-	const options = selectXpSpendOptions(state);
+	const { view, dispatch } = useGameStore();
+	const options = selectXpSpendOptions(view);
 
 	function spend(option: XpSpendOption) {
 		dispatch({ type: "SPEND_XP", payload: { option } });
@@ -26,7 +26,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 		<Modal title="Gastar XP" onClose={undefined} maxWidth={480}>
 			<p className="text-sm mb-4" style={{ color: UI.textSecondary }}>
 				Você tem{" "}
-				<strong style={{ color: UI.textPrimary }}>{state.groupXp} XP</strong>.
+				<strong style={{ color: UI.textPrimary }}>{view.groupXp} XP</strong>.
 				Gaste antes de explorar os caminhos.
 			</p>
 

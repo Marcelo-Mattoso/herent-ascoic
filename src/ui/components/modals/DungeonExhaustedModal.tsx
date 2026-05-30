@@ -4,9 +4,9 @@ import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
 
 export function DungeonExhaustedModal() {
-	const { state, dispatch } = useGameStore();
+	const { view, dispatch } = useGameStore();
 	const canPay =
-		state.groupXp >= 5 && state.decks.dungeonDeck.discarded.length > 0;
+		view.groupXp >= 5 && view.decks.dungeonDeck.discarded.length > 0;
 
 	function payXp() {
 		dispatch({ type: "SPEND_XP", payload: { option: "recover_dungeon" } });
@@ -25,8 +25,8 @@ export function DungeonExhaustedModal() {
 			</p>
 
 			<p className="text-xs mb-5" style={{ color: UI.textTertiary }}>
-				XP disponível: {state.groupXp} · Cartas no descarte:{" "}
-				{state.decks.dungeonDeck.discarded.length}
+				XP disponível: {view.groupXp} · Cartas no descarte:{" "}
+				{view.decks.dungeonDeck.discarded.length}
 			</p>
 
 			<div className="flex gap-3">

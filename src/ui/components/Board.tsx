@@ -2,10 +2,10 @@
 // Layout: pilha-esq | arena-central | pilha-dir, com footer do grupo embaixo.
 
 import { useState } from "react";
+import type { PlayerView } from "@/core/projection/playerView";
 import type { CombatRollResult } from "@/core/state/combatState";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
-import type { PlayerView } from "@/core/projection/playerView";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";

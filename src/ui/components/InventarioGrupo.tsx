@@ -488,14 +488,14 @@ function HeroColumn({
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function InventarioGrupo() {
-	const { state, dispatch } = useGameStore();
+	const { view, dispatch } = useGameStore();
 
-	const mesaItens = state.pendingRewards.filter((r) => r.type === "item");
-	const mesaArtefatos = state.pendingRewards.filter(
+	const mesaItens = view.pendingRewards.filter((r) => r.type === "item");
+	const mesaArtefatos = view.pendingRewards.filter(
 		(r) => r.type === "artifact",
 	);
-	const heroes = state.heroes.filter((h) => h.status === "active");
-	const grupoArtefatos = state.groupArtifacts;
+	const heroes = view.heroes.filter((h) => h.status === "active");
+	const grupoArtefatos = view.groupArtifacts;
 
 	const [dragging, setDragging] = useState<DragItem | null>(null);
 	const [hoverZone, setHoverZone] = useState<string | null>(null);
@@ -510,7 +510,7 @@ export function InventarioGrupo() {
 	// Ao montar: se não há rewards pendentes, chamar GRANT_REWARDS
 	// biome-ignore lint/correctness/useExhaustiveDependencies: só no mount
 	useEffect(() => {
-		if (state.pendingRewards.length === 0) {
+		if (view.pendingRewards.length === 0) {
 			dispatch({ type: "GRANT_REWARDS" });
 		}
 	}, []);

@@ -6,9 +6,23 @@
 
 import type { PausedState } from "../effects/stack";
 import type { ColorIndex } from "../state/color";
-import type { CombatPhase, CombatRollResult, CombatState } from "../state/combatState";
+import type {
+	CombatPhase,
+	CombatRollResult,
+	CombatState,
+} from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
-import type { GameMode, GameState, GroupArtifact } from "../state/gameState";
+import type {
+	Difficulty,
+	GameMode,
+	GameState,
+	GroupArtifact,
+	PendingReward,
+} from "../state/gameState";
+
+// Re-exporta tipos de configuração usados pela UI (ex: Setup.tsx)
+export type { Difficulty, GameMode };
+
 import type { HeroState } from "../state/heroState";
 import type { RoomState } from "../state/roomState";
 import type { GameStatus } from "../state/status";
@@ -38,12 +52,29 @@ export interface PlayerView {
 	readonly despertar: ColorIndex;
 	readonly groupArtifacts: readonly GroupArtifact[];
 	readonly roomsCleared: number;
+	readonly creaturesDefeated: number;
+	readonly bossCardName: string;
+	readonly winner: string | undefined;
+	readonly paths: readonly string[];
+	readonly pendingRewards: readonly PendingReward[];
 	readonly eventLog: readonly string[];
 	readonly decks: {
-		readonly dungeonDeck: { readonly available: number; readonly discarded: readonly string[] };
-		readonly enemyDeck: { readonly available: number; readonly discarded: number };
-		readonly artifactDeck: { readonly available: readonly string[]; readonly discarded: number };
-		readonly itemDeck: { readonly available: readonly string[]; readonly discarded: number };
+		readonly dungeonDeck: {
+			readonly available: number;
+			readonly discarded: readonly string[];
+		};
+		readonly enemyDeck: {
+			readonly available: number;
+			readonly discarded: number;
+		};
+		readonly artifactDeck: {
+			readonly available: readonly string[];
+			readonly discarded: number;
+		};
+		readonly itemDeck: {
+			readonly available: readonly string[];
+			readonly discarded: number;
+		};
 	};
 	// Passo 8: estado de pausa para input do jogador durante resolução de efeitos.
 	readonly paused: PausedState | null;
@@ -81,6 +112,11 @@ export function playerView(state: GameState): PlayerView {
 		despertar: state.despertar,
 		groupArtifacts: state.groupArtifacts,
 		roomsCleared: state.roomsCleared,
+		creaturesDefeated: state.creaturesDefeated,
+		bossCardName: state.bossCardName,
+		winner: state.winner,
+		paths: state.paths,
+		pendingRewards: state.pendingRewards,
 		eventLog: state.eventLog,
 		decks: {
 			dungeonDeck: {

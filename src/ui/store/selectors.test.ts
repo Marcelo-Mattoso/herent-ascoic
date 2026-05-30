@@ -1,8 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { reducer } from "@/core/reducer/index";
-import { createInitialGameState } from "@/core/state/gameState";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { GameState } from "@/core/state/gameState";
+import { createInitialGameState } from "@/core/state/gameState";
 import type { RoomState } from "@/core/state/roomState";
 import { selectHeroCombatActions } from "./selectors";
 

@@ -3,13 +3,13 @@ import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
 
 export function Defeat() {
-	const { state, reset } = useGameStore();
-	const hero = state.heroes[0];
+	const { view, reset } = useGameStore();
+	const hero = view.heroes[0];
 
 	const deathReason =
 		hero && hero.currentLife <= 0
 			? "Herói eliminado em combate"
-			: state.decks.dungeonDeck.available.length === 0
+			: view.decks.dungeonDeck.available === 0
 				? "Deck de dungeon esgotado"
 				: "Derrota pelo boss";
 
@@ -35,11 +35,11 @@ export function Defeat() {
 				>
 					{[
 						["Motivo", deathReason],
-						["Salas exploradas", state.roomsCleared],
-						["Criaturas derrotadas", state.creaturesDefeated],
-						["Chefe escolhido", state.bossCardName],
-						["XP obtido", state.groupXp],
-						["Artefatos encontrados", state.groupArtifacts.length],
+						["Salas exploradas", view.roomsCleared],
+						["Criaturas derrotadas", view.creaturesDefeated],
+						["Chefe escolhido", view.bossCardName],
+						["XP obtido", view.groupXp],
+						["Artefatos encontrados", view.groupArtifacts.length],
 					].map(([label, value]) => (
 						<div key={String(label)} className="flex justify-between text-sm">
 							<span style={{ color: UI.textSecondary }}>{label}</span>

@@ -53,8 +53,8 @@ export function HeroFocusPanel({
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isSelectingHero = isInCombat && phase === "selecting_hero";
 	const isSelectingTarget = isInCombat && phase === "selecting_target";
-	const isFocusedHeroSelected = !!hero && view.combat?.selectedHeroId === hero.id;
-
+	const isFocusedHeroSelected =
+		!!hero && view.combat?.selectedHeroId === hero.id;
 
 	return (
 		<div
@@ -393,8 +393,15 @@ function ActionSection({
 	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
 }) {
-	const { canAttack, canPass, canCancel, canUsePower, canFlee, fleeAlreadyDeclared, skill } =
-		heroActions;
+	const {
+		canAttack,
+		canPass,
+		canCancel,
+		canUsePower,
+		canFlee,
+		fleeAlreadyDeclared,
+		skill,
+	} = heroActions;
 
 	if (!isInCombat) return null;
 

@@ -16,14 +16,14 @@ import {
 	importPackageFromJson,
 } from "@/core/replay/replayEngine";
 import type { GameState } from "@/core/state/gameState";
-import { useGameStore } from "@/ui/store/gameStore";
+import { useRawGameState } from "@/ui/store/gameStore";
 
 interface ReplayProps {
 	onClose: () => void;
 }
 
 export function Replay({ onClose }: ReplayProps) {
-	const currentState = useGameStore((s) => s.state);
+	const currentState = useRawGameState();
 	const [states, setStates] = useState<readonly GameState[]>([]);
 	const [cursor, setCursor] = useState(0);
 	const [playing, setPlaying] = useState(false);

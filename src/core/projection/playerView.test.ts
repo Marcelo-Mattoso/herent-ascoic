@@ -80,45 +80,52 @@ describe("playerView — contrato da projeção", () => {
 describe("selectors via projeção — spot-checks", () => {
 	it("selectActiveHero retorna herói ativo", () => {
 		const state = buildStartedState();
-		const hero = selectActiveHero(state);
+		const view = playerView(state);
+		const hero = selectActiveHero(view);
 		expect(hero).not.toBeNull();
 		expect(hero?.cardName).toBe(HERO);
 	});
 
 	it("selectAvailableActions em REVEAL_ROOM retorna ['reveal_room']", () => {
 		const state = buildStartedState();
-		expect(state.status).toBe("REVEAL_ROOM");
-		expect(selectAvailableActions(state)).toEqual(["reveal_room"]);
+		const view = playerView(state);
+		expect(view.status).toBe("REVEAL_ROOM");
+		expect(selectAvailableActions(view)).toEqual(["reveal_room"]);
 	});
 
 	it("selectXpSpendOptions retorna entradas para todas as opções", () => {
 		const state = buildStartedState();
-		const options = selectXpSpendOptions(state);
+		const view = playerView(state);
+		const options = selectXpSpendOptions(view);
 		expect(options.length).toBeGreaterThan(0);
 		expect(options.every((o) => typeof o.cost === "number")).toBe(true);
 	});
 
 	it("selectHeroesAvailableForRound retorna herói antes de agir", () => {
 		const state = buildStartedState();
-		const available = selectHeroesAvailableForRound(state);
+		const view = playerView(state);
+		const available = selectHeroesAvailableForRound(view);
 		expect(available.some((h) => h.cardName === HERO)).toBe(true);
 	});
 
 	it("selectEnemiesAvailableAsTargets retorna array vazio fora de combate", () => {
 		const state = buildStartedState();
-		expect(selectEnemiesAvailableAsTargets(state)).toEqual([]);
+		const view = playerView(state);
+		expect(selectEnemiesAvailableAsTargets(view)).toEqual([]);
 	});
 
 	it("selectFocusedHero com id válido retorna herói correto", () => {
 		const state = buildStartedState();
-		const hero = state.heroes[0];
-		const focused = selectFocusedHero(state, hero.id);
+		const view = playerView(state);
+		const hero = view.heroes[0];
+		const focused = selectFocusedHero(view, hero.id);
 		expect(focused?.id).toBe(hero.id);
 	});
 
 	it("selectFocusedHero com id inválido faz fallback pro primeiro ativo", () => {
 		const state = buildStartedState();
-		const fallback = selectFocusedHero(state, "id-que-nao-existe");
+		const view = playerView(state);
+		const fallback = selectFocusedHero(view, "id-que-nao-existe");
 		expect(fallback?.status).toBe("active");
 	});
 });

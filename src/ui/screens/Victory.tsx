@@ -3,10 +3,10 @@ import { useGameStore } from "@/ui/store/gameStore";
 import { COLORS_MAP, UI } from "@/ui/theme";
 
 export function Victory() {
-	const { state, reset } = useGameStore();
-	const hero = state.heroes[0];
-	const isCompetitive = state.mode === "competitive";
-	const winner = state.winner;
+	const { view, reset } = useGameStore();
+	const hero = view.heroes[0];
+	const isCompetitive = view.mode === "competitive";
+	const winner = view.winner;
 
 	return (
 		<div
@@ -31,13 +31,13 @@ export function Victory() {
 					style={{ background: UI.subpanelBg }}
 				>
 					{[
-						["Chefe derrotado", state.bossCardName],
-						["Salas exploradas", state.roomsCleared],
-						["Criaturas derrotadas", state.creaturesDefeated],
-						["Artefatos obtidos", state.groupArtifacts.length],
-						isCompetitive ? null : ["XP total", state.groupXp],
+						["Chefe derrotado", view.bossCardName],
+						["Salas exploradas", view.roomsCleared],
+						["Criaturas derrotadas", view.creaturesDefeated],
+						["Artefatos obtidos", view.groupArtifacts.length],
+						isCompetitive ? null : ["XP total", view.groupXp],
 						["Nível do herói", hero ? COLORS_MAP[hero.impeto].name : "—"],
-						["Despertar final", COLORS_MAP[state.despertar].name],
+						["Despertar final", COLORS_MAP[view.despertar].name],
 					]
 						.filter((x): x is [string, string | number] => x !== null)
 						.map(([label, value]) => (
@@ -49,7 +49,7 @@ export function Victory() {
 							</div>
 						))}
 					{isCompetitive &&
-						state.heroes.map((h) => (
+						view.heroes.map((h) => (
 							<div key={h.id} className="flex justify-between text-sm">
 								<span style={{ color: UI.textSecondary }}>
 									XP — {h.cardName} (J{h.playerIndex + 1})

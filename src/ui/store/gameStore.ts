@@ -12,7 +12,7 @@
 import { useSyncExternalStore } from "react";
 import type { Action } from "@/core/actions/types";
 import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
-import { playerView, type PlayerView } from "@/core/projection/playerView";
+import { type PlayerView, playerView } from "@/core/projection/playerView";
 import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
 import {
@@ -23,16 +23,16 @@ import {
 	setElfStoreProps,
 	type UiState,
 } from "./elfStore";
+import { type HeroCombatActions, selectHeroCombatActions } from "./selectors";
 
 // ── Tipos públicos ──────────────────────────────────────────────────────────
 
 interface GameStore {
-	/** @deprecated usar `view`; será removido na Fase 7 */
-	readonly state: GameState;
 	readonly view: PlayerView;
 	readonly ui: UiState;
 	readonly dispatch: (action: Action) => void;
 	readonly setFocusedHero: (heroId: string | null) => void;
+	readonly heroActionsFor: (heroId: string) => HeroCombatActions;
 	readonly resolveSkillChoice: (choice: string) => void;
 	readonly reset: () => void;
 }
@@ -122,6 +122,10 @@ function setFocusedHero(heroId: string | null): void {
 	setElfStoreProps({ ui: { focusedHeroId: heroId } });
 }
 
+function heroActionsFor(heroId: string): HeroCombatActions {
+	return selectHeroCombatActions(getElfGameState(), heroId);
+}
+
 function resolveSkillChoice(choice: string): void {
 	const pending = getElfGameState().pendingSkillChoice;
 	if (!pending) return;
@@ -143,11 +147,11 @@ function reset(): void {
 // Snapshot estável — só recria quando gameState ou ui mudam.
 let cachedElfProps = gameElfStore.getValue();
 let cachedSnapshot: GameStore = {
-	state: cachedElfProps.gameState,
 	view: playerView(cachedElfProps.gameState),
 	ui: cachedElfProps.ui,
 	dispatch,
 	setFocusedHero,
+	heroActionsFor,
 	resolveSkillChoice,
 	reset,
 };
@@ -157,11 +161,11 @@ function getSnapshot(): GameStore {
 	if (props === cachedElfProps) return cachedSnapshot;
 	cachedElfProps = props;
 	cachedSnapshot = {
-		state: props.gameState,
 		view: playerView(props.gameState),
 		ui: props.ui,
 		dispatch,
 		setFocusedHero,
+		heroActionsFor,
 		resolveSkillChoice,
 		reset,
 	};
@@ -183,4 +187,12 @@ export function useGameStore<T>(
 	const snapshot = useSyncExternalStore(subscribeToStore, getSnapshot);
 	if (selector) return selector(snapshot);
 	return snapshot;
+}
+
+// Hook para Replay.tsx — único consumidor permitido de GameState cru fora do store/.
+export function useRawGameState(): GameState {
+	return useSyncExternalStore(
+		subscribeToStore,
+		() => gameElfStore.getValue().gameState,
+	);
 }

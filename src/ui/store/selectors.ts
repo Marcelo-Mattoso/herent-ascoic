@@ -1,5 +1,5 @@
 import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
-import { playerView } from "@/core/projection/playerView";
+import { type PlayerView, playerView } from "@/core/projection/playerView";
 import { isSkillGuardConsumed } from "@/core/skills/dispatch";
 import { cardSkills } from "@/core/skills/lookup";
 import { isManuallyActivatable } from "@/core/skills/useSkill";
@@ -8,8 +8,7 @@ import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
 
 // Herói que está atualmente em ação (ou o primeiro ativo)
-export function selectActiveHero(state: GameState): HeroState | null {
-	const view = playerView(state);
+export function selectActiveHero(view: PlayerView): HeroState | null {
 	if (!view.combat)
 		return view.heroes.find((h) => h.status === "active") ?? null;
 	const heroesActed = view.combat.heroesActed;
@@ -34,13 +33,12 @@ export type AvailableAction =
 	| "resolve_attack";
 
 // Quais ações o jogador pode tomar no status atual
-export function selectAvailableActions(state: GameState): AvailableAction[] {
-	const view = playerView(state);
+export function selectAvailableActions(view: PlayerView): AvailableAction[] {
 	const { status } = view;
 	switch (status) {
 		case "HERO_ACTION":
 		case "BOSS_COMBAT": {
-			const hero = selectActiveHero(state);
+			const hero = selectActiveHero(view);
 			const actions: AvailableAction[] = ["attack"];
 			if (hero) {
 				const hasConsumable =
@@ -93,8 +91,7 @@ const XP_LABELS: Record<XpSpendOption, string> = {
 };
 
 // Quais opções de gasto de XP estão disponíveis e com custo suficiente
-export function selectXpSpendOptions(state: GameState): XpSpendChoice[] {
-	const view = playerView(state);
+export function selectXpSpendOptions(view: PlayerView): XpSpendChoice[] {
 	const xp = view.groupXp;
 	return (Object.keys(XP_COSTS) as XpSpendOption[]).map((option) => {
 		const cost = XP_COSTS[option];
@@ -162,8 +159,7 @@ export function selectXpSpendOptions(state: GameState): XpSpendChoice[] {
 }
 
 // Heróis ativos que ainda não agiram na rodada atual
-export function selectHeroesAvailableForRound(state: GameState): HeroState[] {
-	const view = playerView(state);
+export function selectHeroesAvailableForRound(view: PlayerView): HeroState[] {
 	const heroesActed = view.combat?.heroesActed ?? [];
 	return view.heroes.filter(
 		(h) => h.status === "active" && !heroesActed.includes(h.id),
@@ -172,18 +168,17 @@ export function selectHeroesAvailableForRound(state: GameState): HeroState[] {
 
 // Inimigos ativos disponíveis como alvo (v2: sem restrição de engajamento)
 export function selectEnemiesAvailableAsTargets(
-	state: GameState,
+	view: PlayerView,
 ): EnemyState[] {
-	const view = playerView(state);
 	return view.enemies.filter((e) => e.status === "active");
 }
 
-// Herói em foco — usa focusedHeroId da UI; fallback para primeiro ativo
+// Herói em foco — usa focusedHeroId da UI; fallback para primeiro ativo.
+// Aceita PlayerView (caminho preferido) ou GameState (retrocompatibilidade com selectors que passam state).
 export function selectFocusedHero(
-	state: GameState,
+	view: PlayerView,
 	focusedHeroId: string | null,
 ): HeroState | null {
-	const view = playerView(state);
 	if (focusedHeroId) {
 		const hero = view.heroes.find((h) => h.id === focusedHeroId);
 		if (hero) return hero;
@@ -216,8 +211,7 @@ export function selectHeroCombatActions(
 	const combat = view.combat;
 
 	const isSelectingTarget =
-		combat?.phase === "selecting_target" &&
-		combat.selectedHeroId === heroId;
+		combat?.phase === "selecting_target" && combat.selectedHeroId === heroId;
 	const hasActiveEnemies = view.enemies.some((e) => e.status === "active");
 
 	const canAttack = isSelectingTarget && hasActiveEnemies;
@@ -226,9 +220,7 @@ export function selectHeroCombatActions(
 	const canUsePower =
 		isSelectingTarget && !(combat?.powersUsedThisRoom[heroId] ?? false);
 	const canFlee =
-		hero !== null &&
-		hero.currentLife === 1 &&
-		!state.flags["fleeBlocked"];
+		hero !== null && hero.currentLife === 1 && !state.flags["fleeBlocked"];
 
 	// Skill: habilidade manual do herói (category === "habilidade")
 	const habilidadeEntry = hero
