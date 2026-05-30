@@ -4,6 +4,7 @@
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
 import { getCardByName } from "../data/cards";
+import { tickModifierDurations } from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
@@ -692,10 +693,13 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 				},
 			}
 		: createEmptyCombatState();
+	// Expirar modificadores ECS de duração "end_of_round" (this_turn)
+	const worldAfterTick = tickModifierDurations(state.world, "end_of_round");
 	let nextState: GameState = {
 		...state,
 		status: "HERO_ACTION",
 		combat: nextCombat,
+		world: worldAfterTick,
 	};
 
 	// first_round_in_room: disparar na rodada 1 (round começa em 0, então nextRound === 1)

@@ -5,7 +5,8 @@
 // `kind` (DSL) e `type` (legado) são tratados como equivalentes.
 
 import eventRules from "../../data/event_rules.json";
-import type { EntityId } from "../ecs/types";
+import type { EntityId, ModifierComponent } from "../ecs/types";
+import { addComponent } from "../ecs/world";
 import { discardFromDungeonDeck } from "../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../reducer/utils";
 import type { ColorIndex } from "../state/color";
@@ -145,47 +146,93 @@ export function resolveEffect(
 			const stat = effect["stat"] as string;
 			const value = effect["value"] as number;
 			const source = pending.source;
+			const durationNode = effect["duration"] as
+				| { kind: string; remaining?: number }
+				| undefined;
+
+			// Mapeia stat DSL → target ECS
+			const ecsTargetMap: Record<string, ModifierComponent["target"]> = {
+				damage_reduction: "damage_taken",
+				damage_bonus: "damage_dealt",
+				tohit_bonus: "hit_bonus",
+				tohit_penalty: "hit_bonus",
+				dice_count: "dice_count",
+			};
+			const ecsTarget = ecsTargetMap[stat];
+
+			// Mapeia duration DSL → Duration ECS
+			function mapDurationNode(
+				d: { kind: string; remaining?: number } | undefined,
+			): import("../ecs/types").Duration {
+				if (!d) return { kind: "this_combat" };
+				switch (d.kind) {
+					case "once": return { kind: "once" };
+					case "until_end_of_round": return { kind: "this_turn" };
+					case "until_end_of_combat": return { kind: "this_combat" };
+					case "while_in_play": return { kind: "permanent" };
+					case "passive": return { kind: "permanent" };
+					case "once_per_round": return { kind: "rounds", remaining: 1 };
+					default: return { kind: "this_combat" };
+				}
+			}
+
+			// Dual-write: escreve no ECS world para todos os stats mapeados
+			let worldState = state;
+			if (ecsTarget) {
+				// damage_reduction e tohit_penalty: negativo no ECS (reduz dano/acerto sofrido)
+				const ecsValue = (stat === "tohit_penalty" || stat === "damage_reduction") ? -value : value;
+				const modComp: ModifierComponent = {
+					type: "modifier",
+					target: ecsTarget,
+					operation: "add",
+					value: ecsValue,
+					source,
+					duration: mapDurationNode(durationNode),
+				};
+				const newWorld = addComponent(worldState.world, entityId, modComp);
+				worldState = { ...worldState, world: newWorld };
+			}
 
 			switch (stat) {
 				case "damage_bonus":
 				case "tohit_bonus": {
 					// Ambos adicionam ao bonusNextAttack — mecanismo unificado de bônus de rolagem
-					if (!state.combat) return state;
-					const prev = state.combat.bonusNextAttack[entityId] ?? [];
+					if (!worldState.combat) return worldState;
+					const prev = worldState.combat.bonusNextAttack[entityId] ?? [];
 					return {
-						...state,
+						...worldState,
 						combat: {
-							...state.combat,
+							...worldState.combat,
 							bonusNextAttack: {
-								...state.combat.bonusNextAttack,
+								...worldState.combat.bonusNextAttack,
 								[entityId]: [...prev, { label: source, value }],
 							},
 						},
 					};
 				}
 				case "damage_reduction": {
-					if (!state.combat) return state;
-					const prevRed = state.combat.damageReduction[entityId] ?? 0;
+					if (!worldState.combat) return worldState;
+					const prevRed = worldState.combat.damageReduction[entityId] ?? 0;
 					return {
-						...state,
+						...worldState,
 						combat: {
-							...state.combat,
+							...worldState.combat,
 							damageReduction: {
-								...state.combat.damageReduction,
+								...worldState.combat.damageReduction,
 								[entityId]: prevRed + value,
 							},
 						},
 					};
 				}
 				case "tohit_penalty": {
-					if (!state.combat) return state;
-					const prevPenalty = state.combat.tohitPenaltyByHero[entityId] ?? 0;
+					if (!worldState.combat) return worldState;
+					const prevPenalty = worldState.combat.tohitPenaltyByHero[entityId] ?? 0;
 					return {
-						...state,
+						...worldState,
 						combat: {
-							...state.combat,
+							...worldState.combat,
 							tohitPenaltyByHero: {
-								...state.combat.tohitPenaltyByHero,
+								...worldState.combat.tohitPenaltyByHero,
 								[entityId]: prevPenalty + value,
 							},
 						},
@@ -194,19 +241,19 @@ export function resolveEffect(
 				case "purple_damage_reduction": {
 					// Corrige bug do handler antigo: armazena como número, não boolean
 					const key = `purpleDmgReduction::${entityId}`;
-					const prevPurple = state.flags[key] as number | boolean | undefined;
+					const prevPurple = worldState.flags[key] as number | boolean | undefined;
 					const prevNum = typeof prevPurple === "number" ? prevPurple : 0;
 					return {
-						...state,
+						...worldState,
 						flags: {
-							...state.flags,
+							...worldState.flags,
 							[key]: (prevNum + value) as unknown as boolean,
 						},
 					};
 				}
 				default:
-					// Stat desconhecido: apenas adiciona ao ECS world (Fase 7 usará isto)
-					return state;
+					// Stat desconhecido: apenas no ECS world
+					return worldState;
 			}
 		}
 

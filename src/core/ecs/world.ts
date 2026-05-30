@@ -4,9 +4,11 @@
 import type {
 	Component,
 	ComponentType,
+	Duration,
 	Entity,
 	EntityId,
 	EntityType,
+	ModifierComponent,
 } from "./types";
 
 export interface World {
@@ -126,4 +128,82 @@ export function queryWithComponent<T extends Component>(
 		if (component) results.push({ entity, component });
 	}
 	return results;
+}
+
+// ── Modifier helpers ──────────────────────────────────────────────────────────
+
+export function getModifierTotal(
+	world: World,
+	entityId: EntityId,
+	target: ModifierComponent["target"],
+): number {
+	const entity = world.entities[entityId];
+	if (!entity) return 0;
+	const mods = entity.components.filter(
+		(c): c is ModifierComponent => c.type === "modifier" && c.target === target,
+	);
+	if (mods.length === 0) return 0;
+
+	// Processa em ordem: add/multiply acumulam; set (último vence); clamp aplica min/max.
+	let total = 0;
+	let setOverride: number | undefined;
+	let clampMin: number | undefined;
+	let clampMax: number | undefined;
+
+	for (const mod of mods) {
+		switch (mod.operation) {
+			case "add":
+				total += mod.value;
+				break;
+			case "multiply":
+				total *= mod.value;
+				break;
+			case "set":
+				setOverride = mod.value;
+				break;
+			case "clamp":
+				// value positivo = max; value negativo = min
+				if (mod.value >= 0) clampMax = mod.value;
+				else clampMin = mod.value;
+				break;
+		}
+	}
+
+	let result = setOverride !== undefined ? setOverride : total;
+	if (clampMin !== undefined) result = Math.max(clampMin, result);
+	if (clampMax !== undefined) result = Math.min(clampMax, result);
+	return result;
+}
+
+// Durations que expiram por scope
+function durationExpiresAt(
+	d: Duration,
+	scope: "end_of_round" | "end_of_combat" | "once_consumed",
+): boolean {
+	switch (scope) {
+		case "end_of_round":
+			return d.kind === "this_turn";
+		case "end_of_combat":
+			return d.kind === "this_combat";
+		case "once_consumed":
+			return d.kind === "once";
+	}
+}
+
+export function tickModifierDurations(
+	world: World,
+	scope: "end_of_round" | "end_of_combat" | "once_consumed",
+): World {
+	let updated = world;
+	for (const entity of Object.values(world.entities)) {
+		const toRemove = entity.components.filter(
+			(c): c is ModifierComponent =>
+				c.type === "modifier" && durationExpiresAt(c.duration, scope),
+		);
+		if (toRemove.length === 0) continue;
+		updated = removeComponent(updated, entity.id, (c) =>
+			c.type === "modifier" && durationExpiresAt((c as ModifierComponent).duration, scope),
+		);
+	}
+	return updated;
 }
