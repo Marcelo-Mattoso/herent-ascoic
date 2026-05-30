@@ -32,6 +32,18 @@ para o `world` em etapas, mantendo dual-write até a leitura migrar, e depois de
 > influências, granularidade de chip, agrupamento) ficam pro **patch-19**, que
 > consome o ECS já migrado.
 
+**Princípio inegociável — migração total, sem wrapper.**
+> Não fica nada do legacy ao fim do patch. `fireTrigger` é apagado. Os campos
+> `damageReduction`, `bonusNextAttack`, `tohitPenaltyByHero`, `extraDice`,
+> `tohitPenaltyByHero`, `prey`, `targetProtectionByHero`, `ecoTokens`,
+> `fleeAttemptByHero`, `shieldsUsedThisCombat`, `itemControlByEnemy`,
+> `bossFirstDamageReduced` saem do `CombatState`. As flags persistentes em
+> `state.flags` (`dungeonDiscardPrevented`, `fleeBlocked`, `discardDungeonLocked`)
+> viram `ModifierComponent`/`TokenComponent` no world ou ficam só como sinalizadores
+> derivados (não fonte da verdade). Mesma funcionalidade, formato único.
+> Se ao fim do Lote G um `grep` por qualquer um desses nomes ainda achar uso de
+> produção, o patch não terminou.
+
 **Diretriz de execução:**
 > **Dual-write → switch reads → drop legacy.** Cada modifier/trigger é migrado em três passos
 > independentes. Enquanto a leitura ainda usa o campo legacy, a escrita popula os dois lados.
@@ -217,175 +229,366 @@ populado por compatibilidade.
 
 ---
 
-## Lote E — Eventos novos no bus
+## Lote E — Catálogo completo de eventos no bus
 
-**Alvo:** dar ao bus os eventos que os triggers vão precisar consumir.
-Preparação pro Lote F. Sem mudança de comportamento ainda.
+**Alvo:** dar ao bus **todos os eventos** que os triggers reativos precisam consumir.
+Sem isso o Lote F não consegue migrar tudo e sobra trigger-string órfã.
+Sem mudança de comportamento de combate ainda — só infra de eventos.
+
+**Inventário prévio (obrigatório antes de escrever código):**
+
+Levantar **todas** as strings em `def.trigger` usadas em `skills.json` que **não** sejam
+manuais (excluir `on_use` e variantes `once_per_*` puras detectadas por
+`isManuallyActivatable`) nem passivas (`while_equipped`, `while_in_play`, `while_active`,
+`while_room_active*`, `room_passive`). O resultado deve cobrir ~40 strings reativas.
+
+Cada string vira **um par `{ event, condition }`** no Lote F. O evento vem deste catálogo;
+a condition é uma função pura `(entity, event, world) => boolean`.
 
 **Arquivos:**
 
-- [`src/core/events/types.ts`](../../src/core/events/types.ts) — novos `GameEvent`:
+- [`src/core/events/types.ts`](../../src/core/events/types.ts) — adicionar a união completa:
   ```ts
-  | { type: "RollAboutToHappen"; payload: { heroId: string; enemyId: string } }
-  | { type: "RollResolved";      payload: { heroId: string; enemyId: string;
-                                              heroTotal: number; enemyTotal: number } }
-  | { type: "EnemyDestroyed";    payload: { enemyId: string; sourceId: string } }
-  | { type: "RoomEntered";       payload: { roomName: string } }
-  | { type: "CombatStarted";     payload: { roomName: string } }
-  | { type: "RoundEnded";        payload: { round: number } }
+  // Já existentes
+  | { type: "DamageAboutToBeDealt"; payload: { ... } }
+  | { type: "HealAboutToBeApplied"; payload: { ... } }
+  // Lote E
+  | { type: "RollAboutToHappen";          payload: { heroId: string; enemyId: string; round: number } }
+  | { type: "RollResolved";               payload: { heroId: string; enemyId: string;
+                                                      heroTotal: number; enemyTotal: number;
+                                                      heroResults: readonly number[];
+                                                      enemyResults: readonly number[] } }
+  | { type: "DamageDealt";                payload: { sourceId: string; targetId: string;
+                                                      amount: number; damageType: string } }
+  | { type: "EnemyDestroyed";             payload: { enemyId: string; sourceId: string;
+                                                      roomFirstKill: boolean } }
+  | { type: "HeroDefeated";               payload: { heroId: string; sourceId: string } }
+  | { type: "HeroTargeted";               payload: { heroId: string; sourceId: string;
+                                                      roomFirstTime: boolean } }
+  | { type: "HeroTargetedByEffect";       payload: { heroId: string; skillId: string;
+                                                      roomFirstTime: boolean } }
+  | { type: "TargetChosen";               payload: { sourceId: string; targetId: string;
+                                                      sourceType: "hero" | "enemy";
+                                                      roomFirstTime: boolean } }
+  | { type: "HeroLostCombat";             payload: { heroId: string; enemyId: string;
+                                                      roomFirstTime: boolean } }
+  | { type: "HeroFled";                   payload: { heroId: string } }
+  | { type: "PathsRevealed";              payload: { cards: readonly string[] } }
+  | { type: "DungeonCardDiscarded";       payload: { cardName: string; reason: "effect" | "extra" } }
+  | { type: "ItemEffectAppliedTo";        payload: { heroId: string; itemName: string;
+                                                      sourceId: string; roomFirstTime: boolean } }
+  | { type: "SkillUsed";                  payload: { sourceId: string; skillId: string } }
+  | { type: "RoomEntered";                payload: { roomName: string } }
+  | { type: "CombatStarted";              payload: { roomName: string } }
+  | { type: "RoundEnded";                 payload: { round: number } }
+  | { type: "RoundStarted";               payload: { round: number } }
   ```
-- [`src/core/reducer/combat.ts:handleRollDice`](../../src/core/reducer/combat.ts) —
-  `emit(state, { type: "RollAboutToHappen", ... })` antes da rolagem;
-  `emit(...RollResolved)` depois.
+
+  Os flags `roomFirstTime` / `roomFirstKill` são preenchidos pelo emissor consultando
+  contadores em `state.flags` (introduzidos sob demanda) ou queries no world. Isso permite
+  que filtros `first_*_in_room` virem `condition` no `TriggerComponent` sem precisar de
+  guards inventados.
+
+- [`src/core/reducer/combat.ts`](../../src/core/reducer/combat.ts) —
+  `handleRollDice`: emite `RollAboutToHappen` antes; `RollResolved` depois.
+  `handleStartCombat`: emite `CombatStarted` + `RoundStarted(round=1)`.
+  `handleChooseTarget`: emite `TargetChosen`.
+  `handleChooseHeroForRound` / next-round logic: emite `RoundEnded(round)` + `RoundStarted(round+1)`.
+  `handlePassHeroAction` / `handleCheckCombatEnd`: emite `HeroLostCombat` quando aplicável.
+
 - [`src/core/systems/damageSystem.ts`](../../src/core/systems/damageSystem.ts) —
-  quando `currentLife <= 0`, `emit(EnemyDestroyed)`.
-- [`src/core/reducer/exploration.ts:handleRevealRoom`](../../src/core/reducer/exploration.ts) —
-  `emit(RoomEntered)` ao popular `currentRoom`.
-- [`src/core/reducer/combat.ts:handleStartCombat`](../../src/core/reducer/combat.ts) —
-  `emit(CombatStarted)`; no fim de cada rodada, `emit(RoundEnded)`.
+  `applyDamage`: emite `DamageDealt` após resolver; se `currentLife <= 0`, emite
+  `EnemyDestroyed` (alvo é inimigo) ou `HeroDefeated` (alvo é herói).
+  Janela pré (`DamageAboutToBeDealt`) já existe — mantém.
 
-**Testes:**
+- [`src/core/reducer/exploration.ts`](../../src/core/reducer/exploration.ts) —
+  `handleRevealRoom`: emite `RoomEntered`.
+  `handleOpenPaths`: emite `PathsRevealed`.
+  `discardFromDungeonDeck` (helper): emite `DungeonCardDiscarded`.
 
-- `src/core/events/__tests__/new-events.test.ts` — instalar um `TriggerComponent` que
-  escuta cada evento e verificar que dispara no momento certo.
+- [`src/core/reducer/combat.ts:handleUseItem`](../../src/core/reducer/combat.ts) —
+  emite `ItemEffectAppliedTo` para cada herói alvo.
+
+- [`src/core/skills/useSkill.ts:fireOnUseSkill`](../../src/core/skills/useSkill.ts) —
+  emite `SkillUsed` antes de executar o effect/script.
+
+- [`src/core/reducer/combat.ts:handleDeclareFlee`](../../src/core/reducer/combat.ts) —
+  emite `HeroFled` quando fuga é resolvida.
+
+**Testes (novos):**
+
+- `src/core/events/__tests__/event-emission.test.ts` — pra cada evento, um cenário
+  determinístico que verifica que `emit` é chamado no momento certo, com payload
+  correto. Use o framework de teste atual; instale TriggerComponents espiões.
 
 **Critério de saída:**
 
-- Bus emite 6 eventos novos.
+- Bus emite **todos** os eventos listados acima.
+- Cada emissor é testado isoladamente.
 - Nenhuma skill ainda usa esses eventos — Lote F faz a ligação.
+- 553 testes atuais continuam verdes.
 
-**Risco:** baixo. Tamanho: médio.
+**Risco:** médio (mexe em vários pontos do reducer). Tamanho: grande.
 
 ---
 
-## Lote F — Instalar TriggerComponents a partir do trigger declarado da skill
+## Lote F — Installer cobre 100% dos triggers
 
 **Alvo:** substituir o despacho por string ([`fireTrigger`](../../src/core/skills/dispatch.ts))
-por instalação automática de `TriggerComponent` no world, **sem mexer no JSON da skill**.
+por instalação automática de `TriggerComponent` no world. **Cobertura total.**
+Quando o lote terminar, `fireTrigger` não tem mais clientes — Lote G só apaga.
+**Sem mexer no JSON da skill.**
 
 **Arquivos:**
 
-- **Novo:** `src/core/ecs/installTriggers.ts` — tabela de mapeamento e installer:
+- **Novo:** `src/core/ecs/installTriggers.ts` — tabela completa + installer:
   ```ts
-  // Tabela única do core. Não exposta na DSL.
-  const TRIGGER_TO_EVENT: Partial<Record<string, GameEventType>> = {
-    before_attack: "RollAboutToHappen",
-    after_roll:    "RollResolved",
-    on_damage_taken: "DamageAboutToBeDealt",
-    on_destroyed:    "EnemyDestroyed",
-    start_of_combat: "CombatStarted",
-    on_enter_room:   "RoomEntered",
-    on_room_reveal:  "RoomEntered",
-    // ...completar conforme migração avança.
+  type InstallFn = (def: SkillDefinition, ref: CardSkillRef) => Omit<TriggerComponent, "type">;
+
+  // Cada string em def.trigger vira um TriggerComponent completo, com condition
+  // pros filtros (if_alone_in_room, vs_boss_or_subboss, first_in_room, etc.).
+  const TRIGGER_TO_INSTALL: Record<string, InstallFn> = {
+    // ── Reativos simples ─────────────────────────────────────────────────
+    before_attack:   (def) => ({ on: "RollAboutToHappen", effect: def.effect, source: def.id,
+                                  duration: { kind: "permanent" }, priority: 0 }),
+    after_roll:      (def) => ({ on: "RollResolved", ... }),
+    on_damage_taken: (def) => ({ on: "DamageAboutToBeDealt", ... }),
+    on_take_damage:  (def) => ({ on: "DamageDealt", ... }),
+    on_take_attack_damage: (def) => ({ on: "DamageDealt", ...,
+                                       condition: (e, ev) => ev.payload.damageType === "attack" }),
+    on_hit_received: (def) => ({ on: "DamageDealt", ... }),
+    on_deal_damage:  (def) => ({ on: "DamageDealt", ...,
+                                 condition: (e, ev) => ev.payload.sourceId === e.id }),
+    on_destroyed:    (def) => ({ on: "EnemyDestroyed", ...,
+                                 condition: (e, ev) => ev.payload.enemyId === e.id }),
+    on_destroy_creature_with_attack: (def) => ({ on: "EnemyDestroyed", ...,
+                                                  condition: (e, ev) => ev.payload.sourceId === e.id }),
+    on_dungeon_discard: (def) => ({ on: "DungeonCardDiscarded", ... }),
+    on_flee_or_leave_play: (def) => ({ on: "HeroFled", ... }),
+    on_first_targeted: (def) => ({ on: "HeroTargeted", ...,
+                                    condition: (e, ev) => ev.payload.roomFirstTime }),
+    on_first_target_chosen_in_room: (def) => ({ on: "TargetChosen", ...,
+                                                  condition: (e, ev) => ev.payload.roomFirstTime }),
+    on_first_target_chosen_by_creature: (def) => ({ on: "TargetChosen", ...,
+                                                    condition: (e, ev) =>
+                                                      ev.payload.roomFirstTime &&
+                                                      ev.payload.sourceType === "enemy" }),
+    on_first_creature_destroyed_in_room: (def) => ({ on: "EnemyDestroyed", ...,
+                                                      condition: (e, ev) => ev.payload.roomFirstKill }),
+    on_hero_lose_combat_in_room: (def) => ({ on: "HeroLostCombat", ... }),
+    on_purple_effect_damage_taken: (def) => ({ on: "DamageDealt", ...,
+                                                condition: (e, ev) => ev.payload.damageType === "purple" }),
+    on_enter_room:   (def) => ({ on: "RoomEntered", ... }),
+    on_room_reveal:  (def) => ({ on: "RoomEntered", ... }),
+    on_reveal_paths: (def) => ({ on: "PathsRevealed", ... }),
+    on_enter_combat: (def) => ({ on: "CombatStarted", ... }),
+    start_of_combat: (def) => ({ on: "CombatStarted", ... }),
+    before_combat:   (def) => ({ on: "CombatStarted", ... }),
+    before_first_combat_in_room: (def) => ({ on: "CombatStarted", ...,
+                                              condition: (e, ev, w) => isFirstCombatInRoom(w) }),
+
+    // ── Filtros de combate (todos disparam no RollAboutToHappen) ───────
+    combat:          (def) => ({ on: "RollAboutToHappen", ... }),
+    combat_vs_boss_or_subboss: (def) => ({ on: "RollAboutToHappen", ...,
+                                           condition: (e, ev, w) => targetIsBossOrSubboss(w, ev.payload.enemyId) }),
+    combat_if_alone_in_room: (def) => ({ on: "RollAboutToHappen", ...,
+                                          condition: (e, ev, w) => activeEnemyCount(w) === 1 }),
+    combat_if_another_creature_in_room: (def) => ({ on: "RollAboutToHappen", ...,
+                                                     condition: (e, ev, w) => activeEnemyCount(w) > 1 }),
+    combat_if_dungeon_red_or_purple: (def) => ({ on: "RollAboutToHappen", ...,
+                                                  condition: (e, ev, w, s) => s.despertar >= 3 }),
+    combat_and_on_damage_dealt: (def) => /* composta: instala 2 triggers */,
+    when_half_life_or_less: (def) => ({ on: "RollAboutToHappen", ...,
+                                         condition: (e, ev, w) => entityIsHalfLifeOrLess(w, ev.payload.enemyId) }),
+
+    // ── "First" e contagens ────────────────────────────────────────────
+    first_damage_each_round: (def) => ({ on: "DamageDealt", ...,
+                                          condition: (e, ev, w, s) => isFirstDamageThisRound(s) }),
+    first_round_in_room: (def) => ({ on: "RoundStarted", ...,
+                                     condition: (e, ev) => ev.payload.round === 1 }),
+    first_roll_in_room: (def) => ({ on: "RollAboutToHappen", ...,
+                                    condition: (e, ev, w, s) => isFirstRollInRoom(s) }),
+    first_item_effect_received: (def) => ({ on: "ItemEffectAppliedTo", ...,
+                                             condition: (e, ev) => ev.payload.roomFirstTime }),
+    first_hero_lose_combat_in_room: (def) => ({ on: "HeroLostCombat", ...,
+                                                 condition: (e, ev) => ev.payload.roomFirstTime }),
+    after_each_combat_round_if_purple: (def) => ({ on: "RoundEnded", ...,
+                                                    condition: (e, ev, w, s) => s.despertar >= 3 }),
+
+    // ── once_per_* compostos (não-manuais; o once_* puro é manual) ────
+    before_attack_once_per_game: (def) => ({ on: "RollAboutToHappen", ...,
+                                              duration: { kind: "permanent" },
+                                              // guard once_per_game é flag no payload do TriggerComponent;
+                                              // bus consome e remove o trigger após disparar 1x.
+                                              consumeAfterFire: { scope: "game" } }),
+    once_per_room_on_dungeon_discard:    (def) => ({ on: "DungeonCardDiscarded", ...,
+                                                      consumeAfterFire: { scope: "room" } }),
+    once_per_room_on_targeted:           (def) => ({ on: "HeroTargeted", ...,
+                                                      consumeAfterFire: { scope: "room" } }),
+    once_per_room_on_targeted_by_effect: (def) => ({ on: "HeroTargetedByEffect", ...,
+                                                      consumeAfterFire: { scope: "room" } }),
+    once_per_room_on_extra_dungeon_discard: (def) => ({ on: "DungeonCardDiscarded", ...,
+                                                         condition: (e, ev) => ev.payload.reason === "extra",
+                                                         consumeAfterFire: { scope: "room" } }),
+    once_per_room_after_roll:            (def) => ({ on: "RollResolved", ...,
+                                                      consumeAfterFire: { scope: "room" } }),
+    once_per_round_on_damage_taken:      (def) => ({ on: "DamageDealt", ...,
+                                                      consumeAfterFire: { scope: "round" } }),
+    once_per_game_on_use_furia_rubra:    (def) => ({ on: "SkillUsed", ...,
+                                                      condition: (e, ev) => ev.payload.skillId === "skill_crimson_fury",
+                                                      consumeAfterFire: { scope: "game" } }),
+    once_per_game_on_defeat_creature:    (def) => ({ on: "EnemyDestroyed", ...,
+                                                      consumeAfterFire: { scope: "game" } }),
+    once_per_game_after_any_roll:        (def) => ({ on: "RollResolved", ...,
+                                                      consumeAfterFire: { scope: "game" } }),
+    once_per_game_after_roll_vs_prey:    (def) => ({ on: "RollResolved", ...,
+                                                      condition: (e, ev, w, s) => ev.payload.enemyId === s.combat?.prey,
+                                                      consumeAfterFire: { scope: "game" } }),
+
+    // ── Passivos: instalados como ModifierComponent ou skill state, não trigger ─
+    // while_equipped, while_in_play, while_active, while_room_active*, room_passive
+    // são tratados separadamente abaixo (não entram em TRIGGER_TO_INSTALL).
   };
 
   export function installSkillTriggers(
     world: World, entityId: EntityId, skills: readonly CardSkillRef[],
+    state: GameState,
   ): World {
     for (const { def, ref } of skills) {
-      if (isManuallyActivatable(def)) continue;          // on_use / once_per_* — não instala
-      const eventType = TRIGGER_TO_EVENT[def.trigger];
-      if (!eventType) continue;                          // sem evento → continua no fireTrigger legacy
-      world = addComponent(world, entityId, {
-        type: "trigger",
-        on: eventType,
-        effect: def.effect as EffectDescriptor,         // DSL pré-resolvida
-        source: def.id,
-        duration: { kind: "permanent" },                // skill base do herói vive enquanto ele está em jogo
-        priority: 0,
-        condition: undefined,
-      });
+      if (isManuallyActivatable(def)) continue;          // on_use / once_per_* puros — vão por fireOnUseSkill
+      if (isPassive(def.trigger)) {                      // while_*, room_passive — instala como ModifierComponent
+        world = installPassive(world, entityId, def, ref, state);
+        continue;
+      }
+      const factory = TRIGGER_TO_INSTALL[def.trigger];
+      if (!factory) throw new Error(`patch-18: trigger "${def.trigger}" não tem installer`);
+      const trigger = factory(def, ref);
+      world = addComponent(world, entityId, { type: "trigger", ...trigger });
     }
     return world;
   }
   ```
+  A factory pode retornar um objeto extra `consumeAfterFire: { scope: "game"|"room"|"round" }`
+  que o bus consome: ao disparar uma vez, remove o `TriggerComponent` do world. Substitui
+  os contadores `oncePer.game/room/round` do CombatState.
+
+- **Novo:** `src/core/ecs/installPassive.ts` — converte skills `while_*` em `ModifierComponent`
+  permanentes no world (Foco do Caçador equipado vira `{ target: "hit_bonus", value: +4,
+  duration: { kind: "passive" }, source: "skill_hunter_focus" }`). A retirada do item / saída
+  da sala remove os componentes pelo `source`.
+
 - [`src/core/reducer/setup.ts`](../../src/core/reducer/setup.ts) — após criar cada herói,
-  chamar `installSkillTriggers(world, heroId, cardSkills(heroCardId))`.
+  `installSkillTriggers(world, heroId, cardSkills(heroCardId), state)`.
 - [`src/core/reducer/exploration.ts:handleSpawnEnemies`](../../src/core/reducer/exploration.ts) —
-  idem para cada inimigo spawnado.
-- [`src/core/reducer/reward.ts`](../../src/core/reducer/reward.ts) (handleInvAssignItem ou
-  equivalente) — ao equipar item, instalar triggers do item.
-- [`src/core/skills/dispatch.ts:fireTrigger`](../../src/core/skills/dispatch.ts) — vira
-  wrapper fino:
-  ```ts
-  export function fireTrigger(state, triggerName, ctx) {
-    // 1. Emite no bus se houver evento equivalente — TriggerComponents do world reagem.
-    const event = LEGACY_TO_EVENT[triggerName];
-    let next = state;
-    if (event) {
-      const r = emit(state, { type: event, payload: buildPayload(triggerName, ctx) });
-      next = r.state;
-    }
-    // 2. Fallback pro dispatch antigo pra triggers sem evento (skills ainda não migradas).
-    return legacyDispatch(next, triggerName, ctx);
-  }
-  ```
+  pra cada inimigo spawnado.
+- [`src/core/reducer/exploration.ts:handleRevealRoom`](../../src/core/reducer/exploration.ts) —
+  pra a sala (skills com category `habilidade_dungeon`).
+- [`src/core/reducer/reward.ts`](../../src/core/reducer/reward.ts) — ao equipar/desequipar
+  item: install/remove dos triggers e passivos do item.
+- [`src/core/events/bus.ts`](../../src/core/events/bus.ts) — consumir
+  `consumeAfterFire` no fim do `emit`: depois que o efeito do trigger é processado, se a
+  scope dele expirou, remover o `TriggerComponent`. `scope: "game"` é único (one-shot);
+  `scope: "room"` reseta com `RoomEntered` (tick); `scope: "round"` reseta com `RoundStarted`.
 
-**Migração de skills em ondas (dentro deste lote):**
-
-Para cada trigger string que ganhou evento equivalente no Lote E, popular
-`TRIGGER_TO_EVENT` e rodar a suíte. Quando todas as skills daquela string forem cobertas
-pelo bus, o `legacyDispatch` pra aquela string não tem mais clientes (e pode ser apagado
-do switch interno).
-
-Triggers sem evento equivalente (`combat_if_alone_in_room`, `once_per_room_on_dungeon_discard`,
-`combat_vs_boss_or_subboss`, etc.) **continuam no dispatcher legacy** até alguém modelar o evento.
-Migração parcial é o estado esperado de saída do Lote F.
+**Triggers manuais** (`on_use`, `once_per_*` puros sem `_on_`/`_after_`) **não entram aqui** —
+continuam sendo despachados por [`fireOnUseSkill`](../../src/core/skills/useSkill.ts), que
+é a rota correta pra ativação por clique do jogador. Esse caminho **não é legacy**, é o
+contrato com a UI; permanece.
 
 **Testes:**
 
-- `src/core/skills/__tests__/migrated/<trigger>.test.ts` — uma suíte por trigger migrado
-  prova comportamento idêntico antes/depois.
-- `src/core/skills/__tests__/dispatch-fallback.test.ts` — skill com trigger não mapeado
-  ainda dispara via legacy.
+- `src/core/skills/__tests__/migrated/<trigger_string>.test.ts` — pra **cada** string em
+  `TRIGGER_TO_INSTALL`, um cenário que prova: skill instalada → evento disparado → efeito
+  aplicado → (se `consumeAfterFire`) trigger removido após disparar.
+- `src/core/ecs/__tests__/passive-install.test.ts` — equipar/desequipar item, entrar/sair
+  da sala, install/remove dos passivos.
+- `src/core/skills/__tests__/migrated/coverage.test.ts` — varre `skills.json` e verifica
+  que **toda** skill não-manual tem cobertura no installer (`TRIGGER_TO_INSTALL[def.trigger]`
+  existe ou `isPassive(def.trigger) === true`). Falha se uma string nova aparecer sem
+  mapeamento — protege regressão.
 
 **Critério de saída:**
 
-- Toda string de trigger em `TRIGGER_TO_EVENT` tem teste de migração.
-- Replay determinístico continua.
-- Nenhuma mudança em `skills.json` / `cards.json`.
+- `npm test` verde.
+- `grep -rn "fireTrigger" src/core/` mostra que o único uso é a definição em `dispatch.ts`
+  e os call sites antigos no reducer — todos podem ser removidos no Lote G.
+- Inventário do Lote E está 100% coberto: nenhuma skill não-manual sobra sem
+  `TRIGGER_TO_INSTALL` ou `installPassive`.
 
-**Risco:** alto (mexe em ~30 skills indiretamente, mas sem editar o JSON delas).
-Tamanho: grande, em ondas.
+**Risco:** alto (cobertura total = muita superfície). Tamanho: grande.
 
 ---
 
-## Lote G — Cleanup
+## Lote G — Cleanup total (sem legacy)
 
-**Alvo:** remover o legacy depois que todo mundo lê do world.
+**Alvo:** remover **tudo** que é legado. Não fica wrapper, não fica fallback,
+não fica gaveta vazia. O `world` ECS é fonte única da verdade.
 
 **Arquivos:**
 
 - [`src/core/state/combatState.ts`](../../src/core/state/combatState.ts) — remover
-  campos `damageReduction`, `bonusNextAttack`, `tohitPenaltyByHero` (e os escrevem em
-  resolver/handlers). Atualizar `createEmptyCombatState`.
-- [`src/core/effects/resolver.ts`](../../src/core/effects/resolver.ts) — `add_modifier`
-  agora só escreve no world; o switch por stat sai inteiro.
+  do `CombatState`:
+  - `bonusNextAttack`, `damageReduction`, `tohitPenaltyByHero`, `extraDice`
+  - `prey`, `targetProtectionByHero`, `ecoTokens`, `fleeAttemptByHero`
+  - `shieldsUsedThisCombat`, `itemControlByEnemy`, `bossFirstDamageReduced`
+  - `oncePer` (`{ room, combat, round }`) — substituído pelo `consumeAfterFire` no bus
+  - `temporaryEffects` (genérico não usado)
+
+  Sobra do `CombatState`: `round`, `phase`, `selectedHeroId`, `heroesActed`, `pairs`,
+  `lastRoll`, `pendingDiceSelection`, `powersUsedThisRoom` (este último vira tag
+  `once_per_room` no fireOnUseSkill, mas ok manter por simplicidade — não é modifier).
+
+- [`src/core/state/gameState.ts`](../../src/core/state/gameState.ts) — remover
+  `state.flags.dungeonDiscardPrevented`, `fleeBlocked`, `discardDungeonLocked` e
+  qualquer outro flag persistente que tenha equivalente no world (auditar caso a caso).
+  Se algum flag for transiente (não é efeito ativo, só um sinal de uma ação), pode ficar.
+
+- [`src/core/effects/resolver.ts`](../../src/core/effects/resolver.ts) — `case "add_modifier"`
+  vira **só** escrita no world. O switch por stat sai inteiro. Os `case`s que escreviam
+  em `damageReduction`/`bonusNextAttack`/`tohitPenaltyByHero`/`flags.*` desaparecem.
+
 - [`src/core/projection/playerView.ts`](../../src/core/projection/playerView.ts) —
-  `projectBuffsByHero` lê **só** do world; remove referências a `combat.*`
-  pra esses três campos.
-- [`src/core/skills/dispatch.ts:fireTrigger`](../../src/core/skills/dispatch.ts) — se
-  todas as strings migraram, apaga o legacy e vira `bus.emit` puro. Se sobrou string
-  sem evento (esperado), mantém o caminho como atalho documentado.
-- [`src/core/ecs/sync.ts`](../../src/core/ecs/sync.ts) — `DYNAMIC_COMPONENT_TYPES` deixa
-  de precisar preservar `modifier` se ele agora sempre vive no world (não duplicado em
-  HeroState). Verifique se a remoção quebra `syncEntityFromHero`.
+  `projectBuffsByHero` e `projectGroupBuffs` leem **só** do world. Nenhuma referência
+  a `combat.damageReduction`, `state.flags.*`, etc.
+
+- [`src/core/skills/dispatch.ts`](../../src/core/skills/dispatch.ts) — **`fireTrigger`
+  removido inteiro.** Não há mais despacho por string-trigger. Todos os call sites
+  antigos (`fireTrigger(state, "start_of_combat", ctx)`, etc.) viram `emit(state, { type: "CombatStarted", payload: ... })`.
+
+- [`src/core/ecs/sync.ts`](../../src/core/ecs/sync.ts) — revisar `DYNAMIC_COMPONENT_TYPES`.
+  Se modifiers e triggers sempre vivem no world (nunca no HeroState), o conjunto pode
+  ficar vazio ou só conter `condition`/`token`. Verifique que a remoção não quebra
+  `syncEntityFromHero/Enemy`.
+
+- [`src/core/reducer/combat.ts`](../../src/core/reducer/combat.ts),
+  [`src/core/reducer/exploration.ts`](../../src/core/reducer/exploration.ts),
+  [`src/core/reducer/boss.ts`](../../src/core/reducer/boss.ts) — toda escrita em
+  `state.combat.damageReduction[...] = ...` (e os outros campos removidos) deve ter sido
+  trocada por `emit(...)` ou install de `ModifierComponent` em lotes anteriores.
+  Lote G só varre e confirma.
+
 - [`src/core/README.md`](../../src/core/README.md) e
-  [`src/data/README.md`](../../src/data/README.md) — refletir que o ECS virou fonte da
-  verdade dos modifiers; atualizar a tabela "O que NÃO está conectado".
+  [`src/data/README.md`](../../src/data/README.md) — refletir que o ECS é fonte da
+  verdade; remover a tabela "O que NÃO está conectado" (não existe mais legado).
 
 **Testes:**
 
 - Toda a suíte (553+) verde.
-- `grep -rn "damageReduction\|bonusNextAttack\|tohitPenaltyByHero" src/` retorna zero
-  (exceto comentários históricos no patch-18).
+- Asserções automatizadas no `coverage.test.ts`:
+  ```
+  grep -rn "damageReduction\|bonusNextAttack\|tohitPenaltyByHero\|fireTrigger" src/core/
+    → vazio (exceto comentários históricos)
+  grep -rn "state\.flags\.dungeonDiscardPrevented" src/core/
+    → vazio
+  ```
 
 **Critério de saída:**
 
-- Diff final é majoritariamente **deleções**.
-- README do core perde a frase "Ainda subutilizado" sobre ECS.
+- Diff do lote é majoritariamente **deleções**.
+- README do core perde toda menção a "ainda subutilizado" / "dual-write" / "Fase 7" do ECS.
+- `grep` por qualquer nome legacy retorna zero. Migração total confirmada.
 
-**Risco:** baixo (todas as leituras já migraram). Tamanho: pequeno.
+**Risco:** baixo (todas as leituras já migraram em lotes anteriores). Tamanho: pequeno.
 
 ---
 
@@ -405,14 +608,13 @@ Recomendação: A → (B + E paralelos) → C → D → F → G.
 
 ---
 
-## Pontos abertos pra dono do repo decidir antes de iniciar
+## Decisões já tomadas (não revisitar)
 
-1. **`fireTrigger` no Lote G.** Apaga inteiro (assume migração 100%) ou mantém como
-   wrapper que faz `bus.emit + fallback`?
-2. **Stat `tohit_penalty` no ECS.** Reusar `hit_bonus` com valor negativo (mais simples)
-   ou criar `tohit_penalty` separado (mais legível ao varrer o world)?
-
-Resolva esses dois antes de começar o Lote A.
+- **`fireTrigger` é apagado inteiro no Lote G.** Sem wrapper, sem fallback. Migração total.
+- **`tohit_penalty` reusa `hit_bonus` com valor negativo.** ECS-idiomático, sem duplicar
+  enum, sem duplicar agregação. Polaridade buff/debuff vive na projeção, não no storage.
+- **Triggers manuais** (`on_use` + `once_per_*` puros) continuam em `fireOnUseSkill` —
+  esse é o contrato com a UI pra ativação por clique, **não é legacy**, permanece.
 
 > Decisões de UI (granularidade do chip, agrupamento por source, painel de influências)
 > ficam pro **patch-19**. Patch-18 entrega o ECS como fonte da verdade; patch-19 consome.
