@@ -90,9 +90,27 @@ export function applyEffect(
 			const entityIsEnemy = state.activeEnemies.some((e) => e.id === entityId);
 			const payload = event.payload as Record<string, unknown>;
 
-			// Para eventos de combate, heroId/enemyId no payload definem o contexto
-			const eventHeroId = (payload["heroId"] ?? payload["targetId"]) as string | undefined;
-			const eventEnemyId = (payload["enemyId"] ?? payload["sourceId"]) as string | undefined;
+			// Para eventos de dano, source/target no payload são inequívocos:
+			// payload["sourceId"] = quem causou o dano, payload["targetId"] = quem sofreu.
+			// A "outra parte" é quem NÃO é esta entidade — evita loop onde a entidade
+			// se torna alvo do próprio efeito reativo (ex: purple_ember_blood).
+			let eventHeroId: string | undefined;
+			let eventEnemyId: string | undefined;
+			if (event.type === "DamageDealt" || event.type === "DamageAboutToBeDealt") {
+				const dmgSource = payload["sourceId"] as string | undefined;
+				const dmgTarget = payload["targetId"] as string | undefined;
+				const otherParty = entityId === dmgTarget ? dmgSource : dmgTarget;
+				if (otherParty) {
+					if (state.heroes.some((h) => h.id === otherParty)) {
+						eventHeroId = otherParty;
+					} else {
+						eventEnemyId = otherParty;
+					}
+				}
+			} else {
+				eventHeroId = (payload["heroId"] ?? payload["targetId"]) as string | undefined;
+				eventEnemyId = (payload["enemyId"] ?? payload["sourceId"]) as string | undefined;
+			}
 
 			const skillCtx: SkillContext = {
 				triggeredBy: event.type,
