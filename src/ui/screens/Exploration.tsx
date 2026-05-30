@@ -9,6 +9,7 @@ import { Board } from "@/ui/components/Board";
 import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
+import { InfluencePanel } from "@/ui/components/InfluencePanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
 import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
@@ -312,6 +313,9 @@ export function Exploration() {
 							</div>
 						);
 					})()}
+
+					{/* PAINEL DE INFLUÊNCIAS — sempre visível, abaixo dos buffs */}
+					<InfluencePanel influences={view.activeInfluences} />
 
 					{/* PAINEL DO HERÓI EM FOCO */}
 					<HeroFocusPanel
