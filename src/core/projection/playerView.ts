@@ -6,7 +6,6 @@
 
 import { getCardById, getCardByName } from "../data/cards";
 import type { ModifierComponent } from "../ecs/types";
-import { getModifierTotal } from "../ecs/world";
 import type { PausedState } from "../effects/stack";
 import { cardSkills, lookupSkillById, skillUsedBy } from "../skills/lookup";
 import type { ColorIndex } from "../state/color";
@@ -36,18 +35,6 @@ import type { GameStatus } from "../state/status";
 export type HeroView = HeroState;
 export type EnemyView = EnemyState;
 export type RoomView = RoomState;
-
-// Efeito ativo projetado para a UI — chip com ícone + texto curto.
-// `kind` define a polaridade (buff/debuff/neutro) usada para colorir.
-// `source` identifica de onde veio (skill, item, sala, criatura) — mostrado em tooltip.
-export interface BuffView {
-	readonly id: string;
-	readonly kind: "buff" | "debuff" | "neutral";
-	readonly icon: string;
-	readonly label: string;
-	readonly detail: string;
-	readonly source: string;
-}
 
 // ── Influências Ativas ────────────────────────────────────────────────────────
 // Grafo completo de "quem está fazendo efeito sobre quem" no estado atual.
@@ -101,7 +88,7 @@ export interface PlayerView {
 		readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
 		readonly lastRoll: CombatRollResult | null;
 		readonly pendingDiceSelection: CombatState["pendingDiceSelection"];
-		readonly buffsByHero: Readonly<Record<string, readonly BuffView[]>>;
+		readonly buffsByHero: Readonly<Record<string, readonly InfluenceView[]>>;
 	} | null;
 	readonly groupXp: number;
 	readonly despertar: ColorIndex;
@@ -115,7 +102,7 @@ export interface PlayerView {
 	readonly eventLog: readonly string[];
 	// Efeitos que afetam o grupo todo (recursos compartilhados: deck, fuga, sala).
 	// Vivem aqui — não duplicados nas BuffBars dos heróis.
-	readonly groupBuffs: readonly BuffView[];
+	readonly groupBuffs: readonly InfluenceView[];
 	readonly activeInfluences: readonly InfluenceView[];
 	readonly decks: {
 		readonly dungeonDeck: {
@@ -150,6 +137,25 @@ export interface PlayerView {
 }
 
 export function playerView(state: GameState): PlayerView {
+	const activeInfluences = projectActiveInfluences(state);
+	const heroIds = new Set(state.heroes.map((h) => h.id));
+
+	// buffsByHero: influências cujo alvo é um herói específico
+	const buffsByHero: Record<string, InfluenceView[]> = {};
+	if (state.combat) {
+		for (const inf of activeInfluences) {
+			if (inf.to.kind === "hero" && heroIds.has(inf.to.id)) {
+				if (!buffsByHero[inf.to.id]) buffsByHero[inf.to.id] = [];
+				buffsByHero[inf.to.id].push(inf);
+			}
+		}
+	}
+
+	// groupBuffs: influências cujo alvo é o grupo ou dungeon
+	const groupBuffs = activeInfluences.filter(
+		(i) => i.to.kind === "group" || i.to.kind === "dungeon",
+	);
+
 	return {
 		status: state.status,
 		mode: state.mode,
@@ -165,7 +171,7 @@ export function playerView(state: GameState): PlayerView {
 					powersUsedThisRoom: state.combat.powersUsedThisRoom,
 					lastRoll: state.combat.lastRoll,
 					pendingDiceSelection: state.combat.pendingDiceSelection,
-					buffsByHero: projectBuffsByHero(state),
+					buffsByHero,
 				}
 			: null,
 		groupXp: state.groupXp,
@@ -178,7 +184,7 @@ export function playerView(state: GameState): PlayerView {
 		paths: state.paths,
 		pendingRewards: state.pendingRewards,
 		eventLog: state.eventLog,
-		groupBuffs: projectGroupBuffs(state),
+		groupBuffs,
 		decks: {
 			dungeonDeck: {
 				available: state.decks.dungeonDeck.available.length,
@@ -199,165 +205,8 @@ export function playerView(state: GameState): PlayerView {
 		},
 		paused: state.paused,
 		pendingSkillChoice: state.pendingSkillChoice ?? null,
-		activeInfluences: projectActiveInfluences(state),
+		activeInfluences,
 	};
-}
-
-// Projeta os buffs/efeitos ativos por herói para exibição na UI.
-// Lê apenas os campos do CombatState que representam estado "em vigor agora".
-function projectBuffsByHero(
-	state: GameState,
-): Readonly<Record<string, readonly BuffView[]>> {
-	const combat = state.combat;
-	if (!combat) return {};
-
-	const result: Record<string, BuffView[]> = {};
-	const push = (heroId: string, buff: BuffView) => {
-		if (!result[heroId]) result[heroId] = [];
-		result[heroId].push(buff);
-	};
-
-	// Marca da Presa — nome da criatura marcada (mostra em todos os heróis).
-	const preyEnemyName = combat.prey
-		? (state.activeEnemies.find((e) => e.id === combat.prey)?.cardName ?? null)
-		: null;
-
-	for (const hero of state.heroes) {
-		const id = hero.id;
-
-		// Bônus de próximo ataque — lê do ECS world (Lote G: damage_dealt e hit_bonus positivos)
-		const entity = state.world.entities[id];
-		if (entity) {
-			let i = 0;
-			for (const comp of entity.components) {
-				if (comp.type !== "modifier") continue;
-				if (comp.target !== "damage_dealt" && comp.target !== "hit_bonus") continue;
-				if (comp.value <= 0) continue;
-				const polarity: "buff" | "debuff" = "buff";
-				const sign = "+";
-				push(id, {
-					id: `bonus:${comp.source}:${i++}`,
-					kind: polarity,
-					icon: "⚔️",
-					label: `${sign}${comp.value} próximo ataque`,
-					detail: "consumido após resolver",
-					source: comp.source,
-				});
-			}
-		}
-
-		// Dado extra (Bárbaro Rubro etc.)
-		const extra = combat.extraDice[id] ?? 0;
-		if (extra > 0) {
-			push(id, {
-				id: "extra-dice",
-				kind: "buff",
-				icon: "🎲",
-				label: `+${extra} dado`,
-				detail: "próxima rolagem",
-				source: "Poder do herói",
-			});
-		}
-
-		// Redução de dano sofrido — lê do ECS world (Lote B)
-		const reduction = -getModifierTotal(state.world, id, "damage_taken");
-		if (reduction > 0) {
-			push(id, {
-				id: "damage-reduction",
-				kind: "buff",
-				icon: "🛡️",
-				label: `-${reduction} dano sofrido`,
-				detail: "até fim da rodada",
-				source: "Modificador defensivo",
-			});
-		}
-
-		// Penalidade de acerto — lê do ECS world (Lote D; hit_bonus negativo = debuff)
-		const penaltyTotal = getModifierTotal(state.world, id, "hit_bonus");
-		const penalty = penaltyTotal < 0 ? -penaltyTotal : 0;
-		if (penalty > 0) {
-			push(id, {
-				id: "tohit-penalty",
-				kind: "debuff",
-				icon: "🌫️",
-				label: `-${penalty} acerto`,
-				detail: "imposta por inimigo/efeito",
-				source: "Maldição",
-			});
-		}
-
-		// Eco do Necromante
-		const eco = combat.ecoTokens[id] ?? 0;
-		if (eco > 0) {
-			push(id, {
-				id: "eco",
-				kind: "buff",
-				icon: "👻",
-				label: "Eco",
-				detail: "token disponível",
-				source: "Necromante",
-			});
-		}
-
-		// Véu Protetor — herói ignora o próximo efeito que o escolha como alvo.
-		if (combat.targetProtectionByHero[id]) {
-			push(id, {
-				id: "target-protection",
-				kind: "buff",
-				icon: "✨",
-				label: "Véu Protetor",
-				detail: "ignora o próximo efeito direcionado",
-				source: "Véu Protetor",
-			});
-		}
-
-		// Fuga declarada — não é buff nem debuff, é estado.
-		if (combat.fleeAttemptByHero[id]) {
-			push(id, {
-				id: "flee",
-				kind: "neutral",
-				icon: "🏃",
-				label: "Fuga declarada",
-				detail: "resolve no próximo confronto",
-				source: "Decisão do jogador",
-			});
-		}
-
-		// Marca da Presa — afeta os ataques contra a criatura marcada.
-		if (preyEnemyName) {
-			push(id, {
-				id: "prey",
-				kind: "buff",
-				icon: "🎯",
-				label: `Marca: ${preyEnemyName}`,
-				detail: "bônus ao atacar a presa",
-				source: "Caçador",
-			});
-		}
-
-		// Passivas while_equipped — varre os itens equipados do herói e adiciona
-		// um chip por skill com trigger while_equipped (Foco do Caçador etc.).
-		const equippedItems = Object.values(hero.activeItems).filter(
-			(name): name is string => typeof name === "string" && name.length > 0,
-		);
-		for (const itemName of equippedItems) {
-			const itemCard = getCardByName(itemName);
-			if (!itemCard) continue;
-			for (const { def } of cardSkills(itemCard.id)) {
-				if (def.trigger !== "while_equipped") continue;
-				push(id, {
-					id: `equipped:${itemName}:${def.id}`,
-					kind: "buff",
-					icon: "🔮",
-					label: def.name,
-					detail: `equipado · ${itemName}`,
-					source: itemName,
-				});
-			}
-		}
-	}
-
-	return result;
 }
 
 // ── projectActiveInfluences ──────────────────────────────────────────────────
@@ -540,42 +389,167 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 		}
 	}
 
-	return influences;
-}
+	// ── Efeitos de estado legacy (combat + flags) ───────────────────────────
 
-// Efeitos que afetam o grupo todo — recursos compartilhados (deck, fuga, sala).
-// Vivem em `state.flags.*` e são únicos no estado, não por herói.
-function projectGroupBuffs(state: GameState): readonly BuffView[] {
-	const buffs: BuffView[] = [];
+	// Flags globais → influências dungeon/group
 	if (state.flags.dungeonDiscardPrevented) {
-		buffs.push({
+		const ladino = state.heroes.find((h) => h.cardId === "hero_rift_rogue");
+		const from: InfluenceActor = ladino
+			? { kind: "hero", id: ladino.id, name: ladino.cardName }
+			: { kind: "dungeon" };
+		influences.push({
 			id: "flag:dungeon-discard-prevented",
+			from,
+			to: { kind: "dungeon" },
 			kind: "buff",
 			icon: "🗝️",
 			label: "Caminho Preservado",
-			detail: "próximo descarte de dungeon será devolvido ao topo",
 			source: "Ladino das Fendas",
+			duration: "até próximo uso",
+			scope: "hero_to_dungeon",
 		});
 	}
 	if (state.flags.fleeBlocked) {
-		buffs.push({
+		influences.push({
 			id: "flag:flee-blocked",
+			from: { kind: "dungeon" },
+			to: { kind: "group" },
 			kind: "debuff",
 			icon: "🚷",
 			label: "Fuga bloqueada",
-			detail: "ninguém pode fugir desta sala",
 			source: "Efeito de sala/inimigo",
+			duration: "até fim da sala",
+			scope: "dungeon_to_group",
 		});
 	}
 	if (state.flags.discardDungeonLocked) {
-		buffs.push({
+		influences.push({
 			id: "flag:discard-dungeon-locked",
+			from: { kind: "dungeon" },
+			to: { kind: "group" },
 			kind: "neutral",
 			icon: "🔒",
 			label: "Descartes trancados",
-			detail: "cartas de dungeon não podem ser descartadas",
 			source: "Efeito de sala",
+			duration: "até fim da sala",
+			scope: "dungeon_to_group",
 		});
 	}
-	return buffs;
+
+	// Efeitos de combate legacy (não migrados para ECS world ainda)
+	if (state.combat) {
+		const combat = state.combat;
+
+		// Marca da Presa
+		const preyEnemy = combat.prey
+			? state.activeEnemies.find((e) => e.id === combat.prey)
+			: null;
+		if (preyEnemy) {
+			for (const hero of state.heroes) {
+				influences.push({
+					id: `prey:${hero.id}`,
+					from: { kind: "hero", id: hero.id, name: hero.cardName },
+					to: { kind: "enemy", id: preyEnemy.id, name: preyEnemy.cardName },
+					kind: "buff",
+					icon: "🎯",
+					label: `Marca: ${preyEnemy.cardName}`,
+					source: "Caçador",
+					duration: "até matar a presa",
+					scope: "hero_to_enemy",
+				});
+			}
+		}
+
+		for (const hero of state.heroes) {
+			const id = hero.id;
+			const toActor: InfluenceActor = { kind: "hero", id, name: hero.cardName };
+
+			// Dado extra
+			const extra = combat.extraDice[id] ?? 0;
+			if (extra > 0) {
+				influences.push({
+					id: `extra-dice:${id}`,
+					from: { kind: "hero", id, name: hero.cardName },
+					to: toActor,
+					kind: "buff",
+					icon: "🎲",
+					label: `+${extra} dado`,
+					source: "Poder do herói",
+					duration: "próxima rolagem",
+					scope: "hero_to_self",
+				});
+			}
+
+			// Eco do Necromante
+			const eco = combat.ecoTokens[id] ?? 0;
+			if (eco > 0) {
+				influences.push({
+					id: `eco:${id}`,
+					from: { kind: "hero", id, name: hero.cardName },
+					to: toActor,
+					kind: "buff",
+					icon: "👻",
+					label: "Eco",
+					source: "Necromante",
+					duration: "token disponível",
+					scope: "hero_to_self",
+				});
+			}
+
+			// Véu Protetor
+			if (combat.targetProtectionByHero[id]) {
+				influences.push({
+					id: `veil:${id}`,
+					from: { kind: "hero", id, name: hero.cardName },
+					to: toActor,
+					kind: "buff",
+					icon: "✨",
+					label: "Véu Protetor",
+					source: "Véu Protetor",
+					duration: "próximo efeito direcionado",
+					scope: "hero_to_self",
+				});
+			}
+
+			// Fuga declarada
+			if (combat.fleeAttemptByHero[id]) {
+				influences.push({
+					id: `flee:${id}`,
+					from: { kind: "hero", id, name: hero.cardName },
+					to: toActor,
+					kind: "neutral",
+					icon: "🏃",
+					label: "Fuga declarada",
+					source: "Decisão do jogador",
+					duration: "próximo confronto",
+					scope: "hero_to_self",
+				});
+			}
+
+			// Passivas while_equipped sem modifier ECS (chip visual de item equipado)
+			const equippedItems = Object.values(hero.activeItems).filter(
+				(name): name is string => typeof name === "string" && name.length > 0,
+			);
+			for (const itemName of equippedItems) {
+				const itemCard = getCardByName(itemName);
+				if (!itemCard) continue;
+				for (const { def } of cardSkills(itemCard.id)) {
+					if (def.trigger !== "while_equipped") continue;
+					influences.push({
+						id: `equipped:${itemName}:${def.id}`,
+						from: { kind: "item", id: itemCard.id, name: itemName },
+						to: toActor,
+						kind: "buff",
+						icon: "🔮",
+						label: def.name,
+						source: itemName,
+						duration: "passivo",
+						scope: "item_to_hero",
+					});
+				}
+			}
+		}
+	}
+
+	return influences;
 }

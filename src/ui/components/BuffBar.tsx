@@ -1,18 +1,14 @@
-import type { BuffView } from "@/core/projection/playerView";
+import type { InfluenceView } from "@/core/projection/playerView";
 import { UI } from "@/ui/theme";
 
 interface BuffBarProps {
-	buffs: readonly BuffView[];
-	// Quando true, esconde o estado vazio "sem efeitos ativos".
-	// Útil pra barra de grupo, que pode ficar invisível quando não há efeitos.
+	buffs: readonly InfluenceView[];
 	hideWhenEmpty?: boolean;
-	// Rótulo opcional à esquerda da lista (ex: "Grupo").
 	leadingLabel?: string;
 }
 
-// Paleta por polaridade. Buff = âmbar/dourado; debuff = vermelho/roxo; neutro = cinza.
 const PALETTE: Record<
-	BuffView["kind"],
+	InfluenceView["kind"],
 	{ bg: string; fg: string; border: string }
 > = {
 	buff: { bg: "#FEF3C7", fg: "#92400E", border: "#F59E0B" },
@@ -63,7 +59,7 @@ export function BuffBar({ buffs, hideWhenEmpty, leadingLabel }: BuffBarProps) {
 			)}
 			{buffs.map((b) => {
 				const c = PALETTE[b.kind];
-				const tooltip = `${b.source} · ${b.detail}`;
+				const tooltip = `${b.source} · ${b.duration}`;
 				return (
 					<span
 						key={b.id}
