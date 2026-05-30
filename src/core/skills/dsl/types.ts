@@ -129,6 +129,24 @@ export type EffectNode =
 	| { readonly kind: "advance_dungeon_level"; readonly amount: ExprNode }
 	// Misc
 	| { readonly kind: "set_no_reward"; readonly to: string }
+	// Patch-16 Lote B — novos kinds
+	| { readonly kind: "prevent_next_damage"; readonly to: string }
+	| { readonly kind: "ignore_next_targeting"; readonly to: string }
+	| { readonly kind: "recover_dungeon"; readonly count: ExprNode }
+	| { readonly kind: "mark_target"; readonly to: string }
+	| { readonly kind: "prevent_dungeon_discard" }
+	| {
+			readonly kind: "draw_and_choose";
+			readonly pile: DrawPile;
+			readonly reveal: ExprNode;
+			readonly keep: ExprNode;
+	  }
+	| { readonly kind: "reveal_dungeon"; readonly count: ExprNode }
+	| {
+			readonly kind: "grant_pending_reward";
+			readonly rewardType: "item" | "artifact";
+			readonly cardName: string;
+	  }
 	// Composição
 	| {
 			readonly kind: "if";

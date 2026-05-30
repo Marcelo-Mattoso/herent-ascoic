@@ -7,9 +7,7 @@
 import { describe, expect, it } from "vitest";
 import { buildScriptCtx } from "../../../scripts/context";
 import { evaluate } from "../../dsl/evaluate";
-import { handleDungeon } from "../dungeon";
 import { handleItemControl } from "../itemControl";
-import { handleTargetProtection } from "../targetProtection";
 // Importar index para que registerContinuation seja chamado
 import "../index";
 import { reducer } from "../../../reducer";
@@ -198,68 +196,6 @@ describe("handleItemControl", () => {
 		);
 		// Flag não deve ser re-setada
 		expect(result.combat?.itemControlByEnemy["e1"]).toBeFalsy();
-	});
-});
-
-// ── targetProtection ──────────────────────────────────────────────────────────
-
-describe("handleTargetProtection", () => {
-	it("liga targetProtectionByHero para o herói-fonte", () => {
-		const state = makeState();
-		const result = handleTargetProtection(
-			state,
-			{ triggeredBy: "on_targeted", sourceHeroId: "h1" },
-			null,
-		);
-		expect(result.combat?.targetProtectionByHero["h1"]).toBe(true);
-	});
-});
-
-// ── dungeon ───────────────────────────────────────────────────────────────────
-
-describe("handleDungeon", () => {
-	it("define pendingSkillChoice mostrando topo do deck de dungeon", () => {
-		const state = makeState({
-			decks: {
-				...createInitialGameState({ heroCardNames: [] }).decks,
-				dungeonDeck: {
-					available: ["Sala Secreta", "Sala B"],
-					discarded: [],
-					removed: [],
-				},
-			},
-		});
-		const result = handleDungeon(
-			state,
-			{ triggeredBy: "on_reveal_paths", skillId: "skill_illuminate_path" },
-			1,
-		);
-		expect(result.pendingSkillChoice).toBeDefined();
-		expect(
-			result.pendingSkillChoice?.options.some(
-				(o) => o.label === "Sala Secreta",
-			),
-		).toBe(true);
-	});
-
-	it("continuação 'ok' limpa pendingSkillChoice sem alterar o deck", () => {
-		const state = makeState({
-			decks: {
-				...createInitialGameState({ heroCardNames: [] }).decks,
-				dungeonDeck: { available: ["Sala A"], discarded: [], removed: [] },
-			},
-			pendingSkillChoice: {
-				skillId: "skill_illuminate_path",
-				prompt: "test",
-				options: [{ id: "ok", label: "Confirmar" }],
-			},
-		});
-		const result = reducer(state, {
-			type: "SKILL_CHOICE",
-			payload: { skillId: "skill_illuminate_path", choice: "ok" },
-		});
-		expect(result.pendingSkillChoice).toBeUndefined();
-		expect(result.decks.dungeonDeck.available).toHaveLength(1);
 	});
 });
 

@@ -7,9 +7,9 @@
 import eventRules from "../../data/event_rules.json";
 import type { EntityId } from "../ecs/types";
 import { discardFromDungeonDeck } from "../reducer/exploration";
-import { log, mapEnemy, mapHero } from "../reducer/utils";
+import { log, mapEnemy, mapHero, shuffleRng } from "../reducer/utils";
 import type { ColorIndex } from "../state/color";
-import type { GameState } from "../state/gameState";
+import type { GameState, PendingReward } from "../state/gameState";
 import { applyDamage } from "../systems/damageSystem";
 import { applyFullHeal, applyHeal, applySurvive } from "../systems/healSystem";
 import type { PendingEffect } from "./stack";
@@ -222,6 +222,218 @@ export function resolveEffect(
 
 		case "noop":
 			return state;
+
+		// ── Patch-16 Lote B — novos kinds ────────────────────────────────────
+
+		case "prevent_next_damage": {
+			const entityId = targetId;
+			if (!entityId) return state;
+			return log(
+				{
+					...state,
+					flags: {
+						...state.flags,
+						[`firstDamagePrevented::${entityId}`]: true,
+					},
+				},
+				`${entityId}: próximo dano prevenido.`,
+			);
+		}
+
+		case "ignore_next_targeting": {
+			const heroId = targetId;
+			if (!heroId || !state.combat) return state;
+			return log(
+				{
+					...state,
+					combat: {
+						...state.combat,
+						targetProtectionByHero: {
+							...state.combat.targetProtectionByHero,
+							[heroId]: true,
+						},
+					},
+				},
+				`${heroId}: próximo efeito que escolha este herói será ignorado.`,
+			);
+		}
+
+		case "recover_dungeon": {
+			const count = (effect["count"] as number) ?? 1;
+			const { discarded } = state.decks.dungeonDeck;
+			if (discarded.length === 0)
+				return log(state, "Descarte de dungeon vazio — nada a recuperar.");
+			const toRecover = discarded.slice(0, count);
+			const remaining = discarded.slice(count);
+			const { value: reshuffled, next: rng } = shuffleRng(
+				[...state.decks.dungeonDeck.available, ...toRecover],
+				state.rng,
+			);
+			return log(
+				{
+					...state,
+					rng,
+					decks: {
+						...state.decks,
+						dungeonDeck: {
+							...state.decks.dungeonDeck,
+							available: reshuffled,
+							discarded: remaining,
+						},
+					},
+				},
+				`${count} carta(s) de dungeon recuperada(s) do descarte.`,
+			);
+		}
+
+		case "mark_target": {
+			const preyId = targetId;
+			if (!preyId || !state.combat) return state;
+			return log(
+				{ ...state, combat: { ...state.combat, prey: preyId } },
+				`${preyId} marcado como Presa.`,
+			);
+		}
+
+		case "prevent_dungeon_discard":
+			return log(
+				{ ...state, flags: { ...state.flags, dungeonDiscardPrevented: true } },
+				"Próximo descarte de dungeon será prevenido.",
+			);
+
+		case "draw_from": {
+			const pile = effect["pile"] as string;
+			const count = (effect["count"] as number) ?? 1;
+			if (pile === "artifact_deck") {
+				const { available } = state.decks.artifactDeck;
+				const drawn = available.slice(0, count);
+				if (drawn.length === 0)
+					return log(state, "Deck de artefatos vazio — nenhum artefato sacado.");
+				const newRewards: PendingReward[] = drawn.map((name) => ({
+					type: "artifact" as const,
+					cardName: name as string,
+					requiresBearer: false,
+				}));
+				return log(
+					{
+						...state,
+						decks: {
+							...state.decks,
+							artifactDeck: {
+								...state.decks.artifactDeck,
+								available: available.slice(count),
+							},
+						},
+						pendingRewards: [...state.pendingRewards, ...newRewards],
+					},
+					`${drawn.length} artefato(s) sacado(s).`,
+				);
+			}
+			if (pile === "item_deck") {
+				const { available } = state.decks.itemDeck;
+				const drawn = available.slice(0, count);
+				if (drawn.length === 0)
+					return log(state, "Deck de itens vazio — nenhum item sacado.");
+				const newRewards: PendingReward[] = drawn.map((name) => ({
+					type: "item" as const,
+					cardName: name as string,
+					requiresBearer: false,
+				}));
+				return log(
+					{
+						...state,
+						decks: {
+							...state.decks,
+							itemDeck: {
+								...state.decks.itemDeck,
+								available: available.slice(count),
+							},
+						},
+						pendingRewards: [...state.pendingRewards, ...newRewards],
+					},
+					`${drawn.length} item(s) sacado(s).`,
+				);
+			}
+			return state;
+		}
+
+		case "draw_and_choose": {
+			const pile = effect["pile"] as string;
+			const reveal = (effect["reveal"] as number) ?? 2;
+			const skillId = (pending.source as string | undefined) ?? "draw_and_choose";
+			const deckKey =
+				pile === "item_deck"
+					? "itemDeck"
+					: pile === "artifact_deck"
+						? "artifactDeck"
+						: null;
+			if (!deckKey) return state;
+			const deck = state.decks[deckKey as keyof typeof state.decks];
+			const drawn = deck.available.slice(0, reveal);
+			if (drawn.length === 0)
+				return log(state, "Deck vazio — nenhuma carta revelada.");
+			const rewardType: "item" | "artifact" =
+				pile === "item_deck" ? "item" : "artifact";
+			const options = drawn.map((name) => ({
+				id: name as string,
+				label: name as string,
+				effect: [
+					{
+						kind: "grant_pending_reward" as const,
+						rewardType,
+						cardName: name as string,
+					},
+				],
+			}));
+			return log(
+				{
+					...state,
+					decks: {
+						...state.decks,
+						[deckKey]: { ...deck, available: deck.available.slice(reveal) },
+					},
+					pendingSkillChoice: {
+						skillId,
+						prompt: "Escolha 1 carta para ficar (as outras são descartadas):",
+						options,
+					},
+				},
+				`${drawn.length} carta(s) revelada(s) para escolha.`,
+			);
+		}
+
+		case "reveal_dungeon": {
+			const count = (effect["count"] as number) ?? 1;
+			const skillId = (pending.source as string | undefined) ?? "reveal_dungeon";
+			const topCards = state.decks.dungeonDeck.available.slice(0, count);
+			if (topCards.length === 0)
+				return log(state, "Deck de dungeon vazio.");
+			const options = [
+				...topCards.map((name, i) => ({
+					id: `card_${i}`,
+					label: name as string,
+				})),
+				{ id: "ok", label: "Confirmar (manter ordem atual)" },
+			];
+			return {
+				...state,
+				pendingSkillChoice: {
+					skillId,
+					prompt: `Próxima(s) ${topCards.length} carta(s) do deck de dungeon:`,
+					options,
+				},
+			};
+		}
+
+		case "grant_pending_reward": {
+			const cardName = effect["cardName"] as string;
+			const rewardType = effect["rewardType"] as "item" | "artifact";
+			const reward: PendingReward = { type: rewardType, cardName, requiresBearer: false };
+			return log(
+				{ ...state, pendingRewards: [...state.pendingRewards, reward] },
+				`${cardName} adicionado às recompensas pendentes.`,
+			);
+		}
 
 		default:
 			// Efeito desconhecido: ignorado silenciosamente.

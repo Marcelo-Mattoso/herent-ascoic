@@ -137,11 +137,13 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "prevent_damage",
 			"trigger": "once_per_round_on_damage_taken",
 			"target": "hero",
 			"textTemplate": "uma vez por rodada, impeça todo o dano que um herói sofreria.",
-			"labelTemplate": "Escudo da Última Luz: uma vez por rodada, impeça todo o dano que um herói sofreria."
+			"labelTemplate": "Escudo da Última Luz: uma vez por rodada, impeça todo o dano que um herói sofreria.",
+			"effect": [
+				{ "kind": "prevent_next_damage", "to": "$target" }
+			]
 		},
 		{
 			"id": "skill_preserved_path",
@@ -150,11 +152,13 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "discardDungeon_prevention",
 			"trigger": "once_per_room_on_dungeon_discard",
 			"target": "dungeon",
 			"textTemplate": "uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.",
-			"labelTemplate": "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
+			"labelTemplate": "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.",
+			"effect": [
+				{ "kind": "prevent_dungeon_discard" }
+			]
 		},
 		{
 			"id": "skill_rekindled_forge",
@@ -259,11 +263,13 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "drawItem",
 			"trigger": "on_win_room",
 			"target": "item_deck",
 			"textTemplate": "ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon.",
-			"labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon."
+			"labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon.",
+			"effect": [
+				{ "kind": "draw_and_choose", "pile": "item_deck", "reveal": 2, "keep": 1 }
+			]
 		},
 		{
 			"id": "skill_prey_mark",
@@ -272,11 +278,21 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": true,
 			"defaultValue": null,
-			"type": "mark_and_tohit",
 			"trigger": "start_of_combat",
 			"target": "creature_in_room",
 			"textTemplate": "no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto.",
-			"labelTemplate": "Marca da Presa ({value}): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto."
+			"labelTemplate": "Marca da Presa ({value}): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto.",
+			"effect": [
+				{ "kind": "mark_target", "to": "$target" },
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "tohit_bonus",
+					"operation": "add",
+					"value": "$value",
+					"duration": { "kind": "until_end_of_combat" }
+				}
+			]
 		},
 		{
 			"id": "skill_return_rite",
@@ -285,11 +301,14 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": true,
 			"defaultValue": null,
-			"type": "recoverDungeon",
 			"trigger": "once_per_room",
 			"target": "dungeon",
 			"textTemplate": "uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck.",
-			"labelTemplate": "Rito de Retorno ({value}): uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck."
+			"labelTemplate": "Rito de Retorno ({value}): uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck.",
+			"effect": [
+				{ "kind": "apply_damage", "to": "$source", "amount": 3 },
+				{ "kind": "recover_dungeon", "count": "$value" }
+			]
 		},
 		{
 			"id": "skill_final_dawn_light",
@@ -739,11 +758,13 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "dungeon",
 			"trigger": "on_reveal_paths",
 			"target": "dungeon",
 			"textTemplate": "ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo.",
-			"labelTemplate": "Iluminar o Caminho: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo."
+			"labelTemplate": "Iluminar o Caminho: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo.",
+			"effect": [
+				{ "kind": "reveal_dungeon", "count": "$value" }
+			]
 		},
 		{
 			"id": "skill_path_safeguard",
@@ -752,11 +773,13 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "discardDungeon_prevention",
 			"trigger": "on_dungeon_discard",
 			"target": "dungeon",
 			"textTemplate": "previna o descarte de dungeon dessa rodada.",
-			"labelTemplate": "Salvaguarda de Caminho: previna o descarte de dungeon dessa rodada."
+			"labelTemplate": "Salvaguarda de Caminho: previna o descarte de dungeon dessa rodada.",
+			"effect": [
+				{ "kind": "prevent_dungeon_discard" }
+			]
 		},
 		{
 			"id": "skill_life_drain",
@@ -821,11 +844,13 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "targetProtection",
 			"trigger": "once_per_room_on_targeted_by_effect",
 			"target": "self",
 			"textTemplate": "uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo.",
-			"labelTemplate": "Véu Protetor: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo."
+			"labelTemplate": "Véu Protetor: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo.",
+			"effect": [
+				{ "kind": "ignore_next_targeting", "to": "$source" }
+			]
 		},
 		{
 			"id": "skill_rift_light_step",
@@ -834,11 +859,13 @@
 			"sourceSection": "Habilidades",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "discardDungeon_prevention",
 			"trigger": "once_per_room_on_extra_dungeon_discard",
 			"target": "self",
 			"textTemplate": "uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon.",
-			"labelTemplate": "Passo Leve das Fendas: uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon."
+			"labelTemplate": "Passo Leve das Fendas: uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon.",
+			"effect": [
+				{ "kind": "prevent_dungeon_discard" }
+			]
 		},
 		{
 			"id": "skill_focus_deflection",
@@ -941,11 +968,13 @@
 			"sourceSection": "Poderes dos Heróis",
 			"usesVariable": false,
 			"defaultValue": 1,
-			"type": "recoverDungeon",
 			"trigger": "once_per_game",
 			"target": "dungeon",
 			"textTemplate": "recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.",
-			"labelTemplate": "Caminho Restaurado: recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon."
+			"labelTemplate": "Caminho Restaurado: recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.",
+			"effect": [
+				{ "kind": "recover_dungeon", "count": "$value" }
+			]
 		},
 		{
 			"id": "power_supreme_rift_rune",
@@ -1130,11 +1159,13 @@
 			"sourceSection": "Efeitos Roxos dos Monstros",
 			"usesVariable": false,
 			"defaultValue": null,
-			"type": "armor",
 			"trigger": "first_damage_each_round",
 			"target": "self",
 			"textTemplate": "o primeiro dano que esta criatura sofreria em cada rodada é ignorado.",
-			"labelTemplate": "Couraça Rubra: o primeiro dano que esta criatura sofreria em cada rodada é ignorado."
+			"labelTemplate": "Couraça Rubra: o primeiro dano que esta criatura sofreria em cada rodada é ignorado.",
+			"effect": [
+				{ "kind": "prevent_next_damage", "to": "$source" }
+			]
 		},
 		{
 			"id": "purple_ash_protection",
@@ -1473,11 +1504,13 @@
 			"sourceSection": "Habilidades de Itens",
 			"usesVariable": false,
 			"defaultValue": 1,
-			"type": "drawArtifact",
 			"trigger": "on_use",
 			"target": "artifact_deck",
 			"textTemplate": "saque 1 carta de Artefato da pilha de artefatos.",
-			"labelTemplate": "Saque Místico: saque 1 carta de Artefato da pilha de artefatos."
+			"labelTemplate": "Saque Místico: saque 1 carta de Artefato da pilha de artefatos.",
+			"effect": [
+				{ "kind": "draw_from", "pile": "artifact_deck", "count": "$value" }
+			]
 		},
 		{
 			"id": "item_skill_last_light_blade",
@@ -1618,11 +1651,13 @@
 			"sourceSection": "Habilidades de Dungeon",
 			"usesVariable": false,
 			"defaultValue": "2/1",
-			"type": "drawItem",
 			"trigger": "on_win_room",
 			"target": "item_deck",
 			"textTemplate": "ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon.",
-			"labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon."
+			"labelTemplate": "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon.",
+			"effect": [
+				{ "kind": "draw_and_choose", "pile": "item_deck", "reveal": 2, "keep": 1 }
+			]
 		},
 		{
 			"id": "dungeon_skill_rekindled_forge",
@@ -1658,11 +1693,20 @@
 			"sourceSection": "Chefe da Masmorra",
 			"usesVariable": false,
 			"defaultValue": 1,
-			"type": "armor",
 			"trigger": "first_damage_each_round",
 			"target": "boss",
 			"textTemplate": "o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1.",
-			"labelTemplate": "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."
+			"labelTemplate": "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1.",
+			"effect": [
+				{
+					"kind": "add_modifier",
+					"to": "$source",
+					"stat": "damage_reduction",
+					"operation": "add",
+					"value": "$value",
+					"duration": { "kind": "once" }
+				}
+			]
 		},
 		{
 			"id": "boss_skill_dark_forge_pressure",

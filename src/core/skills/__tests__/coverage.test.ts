@@ -211,10 +211,10 @@ describe("cobertura de skills — todas rodam no core", () => {
 	it("cobertura não regride (baseline)", () => {
 		// Patch-16 Lote A removidos: dungeon_skill_dead_torches,
 		// item_skill_drain_life_and_deadly_edge, item_skill_crimson_fury_mighty
+		// Patch-16 Lote B removido: item_skill_mystic_draw
 		const KNOWN_UNIMPLEMENTED = new Set<string>([
 			"skill_rekindled_forge",
 			"skill_opportunity_shot",
-			"item_skill_mystic_draw",
 			"dungeon_skill_rekindled_forge",
 			"dungeon_skill_summon_guardian",
 		]);

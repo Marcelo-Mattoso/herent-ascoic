@@ -16,7 +16,6 @@ import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
 import type { RoomState } from "../../../state/roomState";
 import { evaluate } from "../../dsl/evaluate";
-import { handleDiscardDungeonPrevention } from "../discardDungeon_prevention";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
@@ -207,21 +206,6 @@ describe("DSL block_action dungeon_discard", () => {
 		expect(result.flags.discardDungeonLocked).toBe(true);
 	});
 
-	it("handleDiscardDungeonPrevention é anulado quando locked", () => {
-		const state = {
-			...makeState({ heroes: [makeHero()] }),
-			flags: { discardDungeonLocked: true },
-		};
-		const before = state.eventLog.length;
-		const result = handleDiscardDungeonPrevention(
-			state,
-			{ triggeredBy: "on_dungeon_discard", sourceHeroId: "h1" },
-			null,
-		);
-		const newLogs = result.eventLog.slice(before);
-		expect(newLogs.some((l) => l.includes("bloqueado"))).toBe(true);
-		expect(newLogs.some((l) => l.includes("cancelado"))).toBe(false);
-	});
 });
 
 // ── discard_from dungeon (antigo discardDungeon) ──────────────────────────────

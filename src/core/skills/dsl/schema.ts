@@ -124,6 +124,24 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		}),
 		// Misc
 		z.object({ kind: z.literal("set_no_reward"), to: z.string() }),
+		// Patch-16 Lote B
+		z.object({ kind: z.literal("prevent_next_damage"), to: z.string() }),
+		z.object({ kind: z.literal("ignore_next_targeting"), to: z.string() }),
+		z.object({ kind: z.literal("recover_dungeon"), count: ExprNodeSchema }),
+		z.object({ kind: z.literal("mark_target"), to: z.string() }),
+		z.object({ kind: z.literal("prevent_dungeon_discard") }),
+		z.object({
+			kind: z.literal("draw_and_choose"),
+			pile: z.enum(["dungeon", "item_deck", "artifact_deck"]),
+			reveal: ExprNodeSchema,
+			keep: ExprNodeSchema,
+		}),
+		z.object({ kind: z.literal("reveal_dungeon"), count: ExprNodeSchema }),
+		z.object({
+			kind: z.literal("grant_pending_reward"),
+			rewardType: z.enum(["item", "artifact"]),
+			cardName: z.string(),
+		}),
 		// Composição
 		z.object({
 			kind: z.literal("if"),

@@ -4,10 +4,7 @@ import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
-import { handleArmor } from "../handlers/armor";
 import { handleDamageBonus } from "../handlers/damage_bonus";
-import { handleMarkAndTohit } from "../handlers/mark_and_tohit";
-import { handleRecoverDungeon } from "../handlers/recoverDungeon";
 import { handleToken } from "../handlers/token";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
@@ -110,86 +107,6 @@ describe("handleDamageBonus", () => {
 			null,
 		);
 		expect(result).toBe(state);
-	});
-});
-
-// ── armor ─────────────────────────────────────────────────────────────────────
-
-describe("handleArmor", () => {
-	it("registra damageReduction no combat state", () => {
-		const state = makeState();
-		const result = handleArmor(state, { triggeredBy: "on_use" }, 1);
-		expect(result.combat?.damageReduction?.["h1"]).toBe(1);
-	});
-
-	it("acumula com reduction existente", () => {
-		const state = makeState(
-			{},
-			{
-				combat: { ...createEmptyCombatState(), damageReduction: { h1: 1 } },
-			},
-		);
-		const result = handleArmor(state, { triggeredBy: "on_use" }, 2);
-		expect(result.combat?.damageReduction?.["h1"]).toBe(3);
-	});
-});
-
-// ── mark_and_tohit ────────────────────────────────────────────────────────────
-
-describe("handleMarkAndTohit", () => {
-	it("com 1 inimigo: auto-seleciona como presa", () => {
-		const state: GameState = { ...makeState(), activeEnemies: [makeEnemy()] };
-		const result = handleMarkAndTohit(
-			state,
-			{ triggeredBy: "start_of_combat" },
-			1,
-		);
-		expect(result.combat?.prey).toBe("e1");
-	});
-
-	it("com 0 inimigos: retorna estado inalterado", () => {
-		const state = makeState();
-		const result = handleMarkAndTohit(
-			state,
-			{ triggeredBy: "start_of_combat" },
-			1,
-		);
-		expect(result.combat?.prey).toBeNull();
-	});
-});
-
-// ── recoverDungeon ────────────────────────────────────────────────────────────
-
-describe("handleRecoverDungeon", () => {
-	it("recupera carta do descarte para o deck disponível", () => {
-		const state: GameState = {
-			...makeState(),
-			decks: {
-				...createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] }).decks,
-				dungeonDeck: {
-					available: [],
-					discarded: ["Sala A", "Sala B"],
-					removed: [],
-				},
-			},
-		};
-		const result = handleRecoverDungeon(
-			state,
-			{ triggeredBy: "once_per_room", sourceHeroId: "h1" },
-			1,
-		);
-		expect(result.decks.dungeonDeck.available.length).toBe(1);
-		expect(result.decks.dungeonDeck.discarded.length).toBe(1);
-	});
-
-	it("retorna estado com log se descarte vazio", () => {
-		const state = makeState();
-		const result = handleRecoverDungeon(
-			state,
-			{ triggeredBy: "once_per_room", sourceHeroId: "h1" },
-			1,
-		);
-		expect(result.eventLog.some((l) => l.includes("vazio"))).toBe(true);
 	});
 });
 

@@ -321,6 +321,15 @@ export function handleCheckBossCondition(state: GameState): GameState {
 
 // Descarta N cartas do topo do deck de dungeon. Utilitário compartilhado com handlers de skill.
 export function discardFromDungeonDeck(state: GameState, n: number): GameState {
+	// Prevenção de descarte (Caminho Preservado, Salvaguarda, Passo Leve).
+	// Bloqueada pela Corrupção de Caminho (discardDungeonLocked).
+	if (state.flags.dungeonDiscardPrevented && !state.flags.discardDungeonLocked) {
+		return log(
+			{ ...state, flags: { ...state.flags, dungeonDiscardPrevented: false } },
+			"Descarte de dungeon prevenido (Caminho Preservado).",
+		);
+	}
+
 	const { available, discarded, removed } = state.decks.dungeonDeck;
 	const toDiscard = available.slice(0, n);
 	const remaining = available.slice(n);

@@ -133,6 +133,54 @@ function evaluateOne(
 			return ctx.action.pushEffect({ kind: "set_no_reward", to });
 		}
 
+		// ── Patch-16 Lote B ───────────────────────────────────────────────────
+
+		case "prevent_next_damage": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			return ctx.action.pushEffect({ kind: "prevent_next_damage", to });
+		}
+
+		case "ignore_next_targeting": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			return ctx.action.pushEffect({ kind: "ignore_next_targeting", to });
+		}
+
+		case "recover_dungeon": {
+			const count = resolveExpr(node.count, ctx);
+			return ctx.action.pushEffect({ kind: "recover_dungeon", count });
+		}
+
+		case "mark_target": {
+			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			return ctx.action.pushEffect({ kind: "mark_target", to });
+		}
+
+		case "prevent_dungeon_discard":
+			return ctx.action.pushEffect({ kind: "prevent_dungeon_discard" });
+
+		case "draw_and_choose": {
+			const reveal = resolveExpr(node.reveal, ctx);
+			const keep = resolveExpr(node.keep, ctx);
+			return ctx.action.pushEffect({
+				kind: "draw_and_choose",
+				pile: node.pile,
+				reveal,
+				keep,
+			});
+		}
+
+		case "reveal_dungeon": {
+			const count = resolveExpr(node.count, ctx);
+			return ctx.action.pushEffect({ kind: "reveal_dungeon", count });
+		}
+
+		case "grant_pending_reward":
+			return ctx.action.pushEffect({
+				kind: "grant_pending_reward",
+				rewardType: node.rewardType,
+				cardName: node.cardName,
+			});
+
 		// ── Composição ────────────────────────────────────────────────────────
 
 		case "if": {
