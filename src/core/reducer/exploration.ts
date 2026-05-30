@@ -11,6 +11,8 @@ import {
 	getSubbosses,
 } from "../data/cards";
 import type { SubbossRoomCard } from "../data/cardTypes";
+import { installSkillTriggers } from "../ecs/installTriggers";
+import { syncEntityFromEnemy } from "../ecs/sync";
 import { createEmptyEffectStack } from "../effects/stack";
 import { emit } from "../events/bus";
 import { checkBossCondition } from "../rules/conditions";
@@ -74,7 +76,7 @@ export function handleRevealRoom(state: GameState): GameState {
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remaining },
 		},
 	};
-	next = fireTrigger(next, "on_room_reveal", { triggeredBy: "on_room_reveal" });
+	// on_room_reveal: agora via TriggerComponents (emit RoomEntered abaixo)
 	// Lote E: emite RoomEntered
 	({ state: next } = emit(next, { type: "RoomEntered", payload: { roomName: room.cardName } }));
 	return log(next, `Sala revelada: ${room.cardName}.`);
@@ -128,10 +130,7 @@ function handleRevealSubbossRoom(
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
 		},
 	};
-	next = fireTrigger(next, "before_combat", { triggeredBy: "before_combat" });
-	next = fireTrigger(next, "before_first_combat_in_room", {
-		triggeredBy: "before_first_combat_in_room",
-	});
+	// before_combat: via TriggerComponents (emit CombatStarted em handleStartCombat)
 	return log(
 		next,
 		`Sala de subchefe revelada: ${card.name}. ${subbossCard.name} aparece!`,
@@ -147,10 +146,8 @@ export function handleResolveRoomEffect(state: GameState): GameState {
 	if (!noEffect.includes(name)) {
 		log(state, `[TODO] Efeito de sala não implementado: ${name}`);
 	}
-	const withSpawn: GameState = { ...state, status: "SPAWN_ENEMIES" };
-	return fireTrigger(withSpawn, "on_enter_room", {
-		triggeredBy: "on_enter_room",
-	});
+	// on_enter_room: via TriggerComponents (emit RoomEntered em handleRevealRoom)
+	return { ...state, status: "SPAWN_ENEMIES" };
 }
 
 // Patch 2: contagem dinâmica de inimigos baseada no número de heróis ativos.
@@ -220,11 +217,22 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	}
 	state = { ...state, rng };
 
+	// Lote F: instala TriggerComponents dos inimigos antes de criar o estado
+	let worldWithEnemies = state.world;
+	for (const enemy of enemies) {
+		worldWithEnemies = syncEntityFromEnemy(worldWithEnemies, enemy);
+		const enemyCard = getCardByName(enemy.cardName);
+		if (enemyCard) {
+			worldWithEnemies = installSkillTriggers(worldWithEnemies, enemy.id, cardSkills(enemyCard.id));
+		}
+	}
+
 	let next: GameState = {
 		...state,
 		activeEnemies: enemies,
 		status: "COMBAT_START",
 		combat: createEmptyCombatState(),
+		world: worldWithEnemies,
 		decks: {
 			...state.decks,
 			enemyDeck: {
@@ -234,10 +242,7 @@ export function handleSpawnEnemies(state: GameState): GameState {
 			},
 		},
 	};
-	next = fireTrigger(next, "before_combat", { triggeredBy: "before_combat" });
-	next = fireTrigger(next, "before_first_combat_in_room", {
-		triggeredBy: "before_first_combat_in_room",
-	});
+	// before_combat e before_first_combat_in_room: via TriggerComponents (emit CombatStarted em handleStartCombat)
 	return log(
 		next,
 		`${enemies.length} inimigo(s) aparecem: ${enemies.map((e) => e.cardName).join(", ")}.`,
@@ -272,9 +277,7 @@ export function handleOpenPaths(state: GameState): GameState {
 		},
 		`${drawn.length} caminho(s) revelado(s).`,
 	);
-	next = fireTrigger(next, "on_reveal_paths", {
-		triggeredBy: "on_reveal_paths",
-	});
+	// on_reveal_paths: via TriggerComponents (emit PathsRevealed abaixo)
 	// Lote E: emite PathsRevealed
 	({ state: next } = emit(next, { type: "PathsRevealed", payload: { cards: drawn as string[] } }));
 	return next;

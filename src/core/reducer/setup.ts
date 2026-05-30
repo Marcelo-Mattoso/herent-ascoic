@@ -9,8 +9,10 @@ import {
 	getItems,
 	getRooms,
 } from "../data/cards";
+import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncHeroesAndEnemies } from "../ecs/sync";
 import { createEmptyWorld } from "../ecs/world";
+import { cardSkills } from "../skills/lookup";
 import { createRng } from "../ports/random";
 import type { ColorIndex } from "../state/color";
 import { createEmptyCombatState } from "../state/combatState";
@@ -83,7 +85,14 @@ export function handleStartGame(
 	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
 	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
 
-	const world = syncHeroesAndEnemies(createEmptyWorld(), heroes, []);
+	let world = syncHeroesAndEnemies(createEmptyWorld(), heroes, []);
+	// Lote F: instala TriggerComponents das habilidades de cada herói
+	for (const hero of heroes) {
+		const heroCard = getCardByName(hero.cardName);
+		if (heroCard) {
+			world = installSkillTriggers(world, hero.id, cardSkills(heroCard.id));
+		}
+	}
 
 	const next: GameState = {
 		...state,

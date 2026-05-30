@@ -18,7 +18,12 @@ export interface Entity {
 // Stubs para tipos que chegarão no Passo 7 (Event Bus).
 export type EventType = string;
 export type EffectDescriptor = Readonly<Record<string, unknown>>;
-export type ComponentPredicate = (entity: Entity) => boolean;
+// Predicate de componente: recebe entidade + contexto do evento para filtros reativos.
+export type ComponentPredicate = (
+	entity: Entity,
+	event?: import("../events/types").GameEvent,
+	world?: import("./world").World,
+) => boolean;
 
 export type Duration =
 	| { readonly kind: "permanent" }
@@ -100,6 +105,8 @@ export interface TriggerComponent {
 	readonly source: EntityId;
 	readonly duration: Duration;
 	readonly priority: number;
+	// consumeAfterFire: remove o trigger após disparar uma vez (once_per_*)
+	readonly consumeAfterFire?: { readonly scope: "game" | "room" | "round" };
 }
 
 export type Component =

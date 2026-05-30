@@ -29,14 +29,8 @@ export function handleStartCombat(state: GameState): GameState {
 		status: "HERO_ACTION",
 		combat: { ...createEmptyCombatState(), phase: "selecting_hero" },
 	};
-	next = fireTrigger(next, "start_of_combat", {
-		triggeredBy: "start_of_combat",
-	});
-	next = fireTrigger(next, "on_enter_combat", {
-		triggeredBy: "on_enter_combat",
-	});
-	// while_in_play: efeitos passivos enquanto inimigo está em jogo (ex: Corrupção de Caminho)
-	next = fireTrigger(next, "while_in_play", { triggeredBy: "while_in_play" });
+	// start_of_combat / on_enter_combat: agora via TriggerComponents (emit CombatStarted abaixo)
+	// while_in_play: passivo via installPassive — fireTrigger mantido durante transição
 	// Lote E: emite CombatStarted + RoundStarted(1) para triggers reativos ECS
 	({ state: next } = emit(next, {
 		type: "CombatStarted",
@@ -223,64 +217,14 @@ export function handleRollDice(state: GameState): GameState {
 	const enemy = state.activeEnemies.find((e) => e.id === pair.enemyId);
 	if (!hero || !enemy) return state;
 
-	// Lote E: emite RollAboutToHappen antes do roll
+	// Lote E+F: emit(RollAboutToHappen) dispara TriggerComponents instalados
+	// (before_attack, combat_*, when_half_life_or_less via condições no world)
 	let preRoll = state;
 	({ state: preRoll } = emit(preRoll, {
 		type: "RollAboutToHappen",
 		payload: { heroId: hero.id, enemyId: enemy.id, round: preRoll.combat?.round ?? 0 },
 	}));
-
-	// before_attack: modificadores antes de rolar (inclui aliases: combat, combat_against_self)
-	preRoll = fireTrigger(preRoll, "before_attack", {
-		triggeredBy: "before_attack",
-		sourceHeroId: hero.id,
-		sourceEnemyId: enemy.id,
-	});
-	// combat_if_dungeon_red_or_purple: habilidades condicionadas ao nível de Despertar
-	if (preRoll.despertar >= 3) {
-		preRoll = fireTrigger(preRoll, "combat_if_dungeon_red_or_purple", {
-			triggeredBy: "combat_if_dungeon_red_or_purple",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-		});
-	}
-	// combat_vs_boss_or_subboss: itens com bônus especial vs chefes
-	if (
-		enemy.cardId?.startsWith("boss_") ||
-		enemy.cardId?.startsWith("subboss_")
-	) {
-		preRoll = fireTrigger(preRoll, "combat_vs_boss_or_subboss", {
-			triggeredBy: "combat_vs_boss_or_subboss",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-		});
-	}
-	// Habilidades de criatura condicionadas ao estado da sala ou do inimigo
-	const activeEnemyCount = preRoll.activeEnemies.filter(
-		(e) => e.status === "active",
-	).length;
-	if (activeEnemyCount === 1) {
-		preRoll = fireTrigger(preRoll, "combat_if_alone_in_room", {
-			triggeredBy: "combat_if_alone_in_room",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-		});
-	} else if (activeEnemyCount > 1) {
-		preRoll = fireTrigger(preRoll, "combat_if_another_creature_in_room", {
-			triggeredBy: "combat_if_another_creature_in_room",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-		});
-	}
-	// when_half_life_or_less: bônus de chefe quando na metade da vida
-	if (enemy.currentLife <= Math.ceil(enemy.maxLife / 2)) {
-		preRoll = fireTrigger(preRoll, "when_half_life_or_less", {
-			triggeredBy: "when_half_life_or_less",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-		});
-	}
-	// Drena a stack de efeitos acumulados pelos triggers acima (modificadores de combate)
+	// Drena a stack de efeitos acumulados pelos TriggerComponents (modificadores de combate)
 	preRoll = drainStack(preRoll);
 
 	const extraDice = preRoll.combat?.extraDice[hero.id] ?? 0;
@@ -318,12 +262,8 @@ export function handleRollDice(state: GameState): GameState {
 		enemyBreakdown: enemyBonuses,
 	};
 
-	// after_roll: modificações pós-rolagem (ex: Mago ajusta dado)
-	let postRoll = fireTrigger(preRoll, "after_roll", {
-		triggeredBy: "after_roll",
-		sourceHeroId: hero.id,
-		sourceEnemyId: enemy.id,
-	});
+	// after_roll: via TriggerComponents (emit RollResolved abaixo)
+	let postRoll = preRoll;
 
 	// Lote E: emite RollResolved
 	({ state: postRoll } = emit(postRoll, {
@@ -458,16 +398,7 @@ export function handleResolveAttack(state: GameState): GameState {
 		};
 	}
 
-	// on_deal_damage: antes de aplicar dano ao inimigo
-	if (result.enemyDamageTaken > 0) {
-		next = fireTrigger(next, "on_deal_damage", {
-			triggeredBy: "on_deal_damage",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-			damageAmount: result.enemyDamageTaken,
-		});
-	}
-
+	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
 	if (result.enemyDamageTaken > 0) {
 		const dmg = result.enemyDamageTaken;
 		next = applyDamage(next, enemy.id, dmg);
@@ -482,44 +413,7 @@ export function handleResolveAttack(state: GameState): GameState {
 			`${enemy.cardName} sofreu ${dmg} de dano${tieNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
 		);
 
-		// on_destroy_creature_with_attack: inimigo derrotado por ataque
-		const updatedEnemy = next.activeEnemies.find((e) => e.id === enemy.id);
-		if (updatedEnemy?.status === "defeated") {
-			next = fireTrigger(next, "on_destroy_creature_with_attack", {
-				triggeredBy: "on_destroy_creature_with_attack",
-				sourceHeroId: hero.id,
-				sourceEnemyId: enemy.id,
-				isFirstKillInRoom: next.creaturesDefeated === 0,
-			});
-			// on_destroyed: efeitos ao ser destruído (ex: efeitos roxos de morte)
-			next = fireTrigger(next, "on_destroyed", {
-				triggeredBy: "on_destroyed",
-				sourceHeroId: hero.id,
-				sourceEnemyId: enemy.id,
-			});
-		}
-	}
-
-	// on_damage_taken: antes de aplicar escudo
-	if (result.heroDamageTaken > 0) {
-		next = fireTrigger(next, "on_damage_taken", {
-			triggeredBy: "on_damage_taken",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-			damageAmount: result.heroDamageTaken,
-		});
-		next = fireTrigger(next, "on_take_damage", {
-			triggeredBy: "on_take_damage",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-			damageAmount: result.heroDamageTaken,
-		});
-		next = fireTrigger(next, "on_take_attack_damage", {
-			triggeredBy: "on_take_attack_damage",
-			sourceHeroId: hero.id,
-			sourceEnemyId: enemy.id,
-			damageAmount: result.heroDamageTaken,
-		});
+		// on_destroy_creature_with_attack + on_destroyed: via TriggerComponents (emit EnemyDestroyed)
 	}
 
 	if (result.heroDamageTaken > 0) {
@@ -641,14 +535,9 @@ export function handleDirectDamage(state: GameState): GameState {
 	const target = selectTargetHero(state.heroes);
 	if (!target) return { ...state, status: "CHECK_COMBAT_END" };
 
+	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
 	let next = state;
 	for (const enemy of unengaged) {
-		next = fireTrigger(next, "on_deal_damage", {
-			triggeredBy: "on_deal_damage",
-			sourceEnemyId: enemy.id,
-			targetHeroIds: [target.id],
-			damageAmount: enemy.damage,
-		});
 		next = applyDamage(next, target.id, enemy.damage);
 		next = log(
 			next,
@@ -759,15 +648,8 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 		world: worldAfterTick,
 	};
 
-	// Lote E: emite RoundStarted para a nova rodada
+	// Lote E+F: emit(RoundStarted) dispara TriggerComponents (inclui first_round_in_room via condição round===1)
 	({ state: nextState } = emit(nextState, { type: "RoundStarted", payload: { round: nextRound } }));
-
-	// first_round_in_room: disparar na rodada 1 (round começa em 0, então nextRound === 1)
-	if (nextRound === 1) {
-		nextState = fireTrigger(nextState, "first_round_in_room", {
-			triggeredBy: "first_round_in_room",
-		});
-	}
 
 	return log(nextState, `Rodada ${nextRound + 1} de combate.`);
 }

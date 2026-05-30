@@ -1,6 +1,7 @@
 // Barramento de eventos síncrono com janelas pré/pós.
 // Passo 8: recursão é permitida quando chamada via drainStack → resolveEffect → system.
 // Listeners devem usar push_to_stack (em vez de emit direto) para encadear efeitos.
+// Patch-18 Lote F: suporte a condition com evento, consumeAfterFire.
 //
 // Fluxo:
 //   emit(state, event)
@@ -10,6 +11,7 @@
 //     → retorna { state, event } com accumulator final
 
 import type { Entity, TriggerComponent } from "../ecs/types";
+import { removeComponent } from "../ecs/world";
 import type { GameState } from "../state/gameState";
 import { applyEffect } from "./effectResolver";
 import type { GameEvent } from "./types";
@@ -42,8 +44,8 @@ export function emit(
 	let currentState = state;
 	let currentEvent = event;
 	for (const { entity, trigger } of matching) {
-		// Verificar condição opcional.
-		if (trigger.condition && !trigger.condition(entity)) continue;
+		// Verificar condição opcional (com acesso ao evento e world).
+		if (trigger.condition && !trigger.condition(entity, currentEvent, currentState.world)) continue;
 		const result = applyEffect(
 			currentState,
 			currentEvent,
@@ -52,6 +54,14 @@ export function emit(
 		);
 		currentState = result.state;
 		currentEvent = result.event;
+
+		// consumeAfterFire: remove o TriggerComponent após disparar
+		if (trigger.consumeAfterFire) {
+			currentState = {
+				...currentState,
+				world: removeComponent(currentState.world, entity.id, (c) => c === trigger),
+			};
+		}
 	}
 
 	return { state: currentState, event: currentEvent };
