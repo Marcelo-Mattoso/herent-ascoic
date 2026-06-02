@@ -1,0 +1,660 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Estudo de Migração — Lineage 2 Off para Stack Moderna</title>
+<style>
+  :root {
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #5a5a55;
+    --text-muted: #888780;
+    --border: rgba(0, 0, 0, 0.12);
+    --accent: #5C49C9;
+    --code-bg: #f1efe8;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --surface: #242422;
+      --text-primary: #f1efe8;
+      --text-secondary: #b4b2a9;
+      --text-muted: #888780;
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #AFA9EC;
+      --code-bg: #2c2c2a;
+    }
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    padding: 2rem 1rem;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+
+  .container {
+    max-width: 900px;
+    margin: 0 auto;
+  }
+
+  header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+
+  h1 {
+    font-size: 1.75rem;
+    font-weight: 500;
+    margin: 0 0 0.5rem;
+  }
+
+  h2.section-title {
+    font-size: 1.25rem;
+    font-weight: 500;
+    margin: 2.5rem 0 1rem;
+  }
+
+  .subtitle {
+    color: var(--text-secondary);
+    font-size: 1rem;
+    margin: 0;
+  }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+
+  .card svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  .card h2 {
+    font-size: 1.125rem;
+    font-weight: 500;
+    margin: 0 0 1rem;
+  }
+
+  .card h3 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 1rem 0 0.4rem;
+    color: var(--text-primary);
+  }
+
+  .card p {
+    margin: 0 0 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+  }
+
+  .card p:last-child { margin-bottom: 0; }
+
+  code, pre {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85em;
+  }
+
+  code {
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    color: var(--text-primary);
+  }
+
+  pre {
+    background: var(--code-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    line-height: 1.5;
+    margin: 0.75rem 0;
+  }
+
+  pre code { background: none; padding: 0; }
+
+  .two-col {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin: 1rem 0;
+  }
+
+  @media (max-width: 640px) {
+    .two-col { grid-template-columns: 1fr; }
+  }
+
+  .col-label {
+    font-size: 0.78rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--text-muted);
+    margin: 0 0 0.4rem;
+    font-weight: 500;
+  }
+
+  .phase-list {
+    counter-reset: phase;
+    padding: 0;
+    margin: 0;
+    list-style: none;
+  }
+
+  .phase-list > li {
+    counter-increment: phase;
+    position: relative;
+    padding: 0.75rem 0 0.75rem 2.5rem;
+    border-top: 1px solid var(--border);
+  }
+
+  .phase-list > li:first-child { border-top: none; padding-top: 0; }
+  .phase-list > li:first-child::before { top: 0; }
+
+  .phase-list > li::before {
+    content: counter(phase);
+    position: absolute;
+    left: 0;
+    top: 0.75rem;
+    width: 1.75rem;
+    height: 1.75rem;
+    border-radius: 50%;
+    background: var(--code-bg);
+    color: var(--text-primary);
+    font-size: 0.85rem;
+    font-weight: 500;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+  }
+
+  .phase-list h3 { margin: 0 0 0.3rem; }
+  .phase-list p { margin: 0; font-size: 0.9rem; }
+
+  /* SVG color ramps — espelhando o HTML de referência */
+  .c-gray rect, .c-gray ellipse { fill: #F1EFE8; stroke: #5F5E5A; }
+  .c-gray .th { fill: #2C2C2A; }
+  .c-gray .ts { fill: #5F5E5A; }
+
+  .c-purple rect, .c-purple ellipse { fill: #EEEDFE; stroke: #534AB7; }
+  .c-purple .th { fill: #26215C; }
+  .c-purple .ts { fill: #534AB7; }
+
+  .c-teal rect, .c-teal ellipse { fill: #E1F5EE; stroke: #0F6E56; }
+  .c-teal .th { fill: #04342C; }
+  .c-teal .ts { fill: #0F6E56; }
+
+  .c-amber rect, .c-amber ellipse { fill: #FAEEDA; stroke: #854F0B; }
+  .c-amber .th { fill: #412402; }
+  .c-amber .ts { fill: #854F0B; }
+
+  .c-coral rect, .c-coral ellipse { fill: #FAECE7; stroke: #993C1D; }
+  .c-coral .th { fill: #4A1B0C; }
+  .c-coral .ts { fill: #993C1D; }
+
+  .c-blue rect, .c-blue ellipse { fill: #E6F1FB; stroke: #185FA5; }
+  .c-blue .th { fill: #042C53; }
+  .c-blue .ts { fill: #185FA5; }
+
+  .c-pink rect, .c-pink ellipse { fill: #FBEAF0; stroke: #993556; }
+  .c-pink .th { fill: #4B1528; }
+  .c-pink .ts { fill: #993556; }
+
+  @media (prefers-color-scheme: dark) {
+    .c-gray rect, .c-gray ellipse { fill: #2C2C2A; stroke: #B4B2A9; }
+    .c-gray .th { fill: #D3D1C7; }
+    .c-gray .ts { fill: #B4B2A9; }
+
+    .c-purple rect, .c-purple ellipse { fill: #3C3489; stroke: #AFA9EC; }
+    .c-purple .th { fill: #CECBF6; }
+    .c-purple .ts { fill: #AFA9EC; }
+
+    .c-teal rect, .c-teal ellipse { fill: #085041; stroke: #5DCAA5; }
+    .c-teal .th { fill: #9FE1CB; }
+    .c-teal .ts { fill: #5DCAA5; }
+
+    .c-amber rect, .c-amber ellipse { fill: #633806; stroke: #EF9F27; }
+    .c-amber .th { fill: #FAC775; }
+    .c-amber .ts { fill: #EF9F27; }
+
+    .c-coral rect, .c-coral ellipse { fill: #712B13; stroke: #F0997B; }
+    .c-coral .th { fill: #F5C4B3; }
+    .c-coral .ts { fill: #F0997B; }
+
+    .c-blue rect, .c-blue ellipse { fill: #0C447C; stroke: #85B7EB; }
+    .c-blue .th { fill: #B5D4F4; }
+    .c-blue .ts { fill: #85B7EB; }
+
+    .c-pink rect, .c-pink ellipse { fill: #72243E; stroke: #ED93B1; }
+    .c-pink .th { fill: #F4C0D1; }
+    .c-pink .ts { fill: #ED93B1; }
+  }
+
+  .th { font-size: 14px; font-weight: 500; }
+  .ts { font-size: 12px; }
+  .label { font-size: 12px; fill: var(--text-secondary); }
+  .arr { stroke: var(--text-secondary); stroke-width: 1.5; fill: none; }
+  .arr-dashed { stroke: var(--text-secondary); stroke-width: 1.2; fill: none; stroke-dasharray: 4 4; }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Estudo de migração — Lineage 2 Off para stack moderna</h1>
+  <p class="subtitle">Do <code>skilldata.txt</code> monolítico ao engine headless com ECS, event log e multi-cliente</p>
+</header>
+
+<h2 class="section-title">1. O ponto de partida vs o ponto de chegada</h2>
+
+<div class="card">
+<svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t1 d1">
+<title id="t1">Comparação entre arquitetura atual e arquitetura alvo</title>
+<desc id="d1">À esquerda, o l2server.exe acoplado com skill_data.txt como única fonte. À direita, conteúdo declarativo alimentando um engine headless com event log e múltiplos clientes.</desc>
+<defs>
+<marker id="arrow" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<text class="label" x="40" y="28">Hoje</text>
+<g class="c-gray">
+<rect x="40" y="40" width="280" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="180" y="62" text-anchor="middle" dominant-baseline="central">skilldata.txt (UTF-16)</text>
+<text class="ts" x="180" y="80" text-anchor="middle" dominant-baseline="central">28.911 skills, 209 efeitos</text>
+</g>
+
+<line x1="180" y1="96" x2="180" y2="120" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-coral">
+<rect x="40" y="120" width="280" height="80" rx="8" stroke-width="0.5"/>
+<text class="th" x="180" y="146" text-anchor="middle" dominant-baseline="central">l2server.exe (C++)</text>
+<text class="ts" x="180" y="168" text-anchor="middle" dominant-baseline="central">Engine, regras, IA, rede</text>
+<text class="ts" x="180" y="184" text-anchor="middle" dominant-baseline="central">tudo num binário fechado</text>
+</g>
+
+<line x1="180" y1="200" x2="180" y2="224" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-gray">
+<rect x="40" y="224" width="280" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="180" y="246" text-anchor="middle" dominant-baseline="central">Client L2 (Blowfish)</text>
+<text class="ts" x="180" y="264" text-anchor="middle" dominant-baseline="central">Único cliente possível</text>
+</g>
+
+<text class="label" x="360" y="28">Alvo</text>
+
+<g class="c-gray">
+<rect x="360" y="40" width="280" height="40" rx="8" stroke-width="0.5"/>
+<text class="th" x="500" y="60" text-anchor="middle" dominant-baseline="central">Content layer (YAML/JSON)</text>
+</g>
+
+<line x1="500" y1="80" x2="500" y2="100" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-purple">
+<rect x="360" y="100" width="280" height="80" rx="8" stroke-width="0.5"/>
+<text class="th" x="500" y="122" text-anchor="middle" dominant-baseline="central">Engine headless + ECS</text>
+<text class="ts" x="500" y="142" text-anchor="middle" dominant-baseline="central">Rules · Effect resolver · State</text>
+<text class="ts" x="500" y="160" text-anchor="middle" dominant-baseline="central">Determinístico, com seed</text>
+</g>
+
+<line x1="500" y1="180" x2="500" y2="200" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-amber">
+<rect x="360" y="200" width="280" height="40" rx="8" stroke-width="0.5"/>
+<text class="th" x="500" y="220" text-anchor="middle" dominant-baseline="central">Event log + projeção</text>
+</g>
+
+<line x1="500" y1="240" x2="500" y2="260" class="arr" marker-end="url(#arrow)"/>
+
+<g class="c-pink">
+<rect x="360" y="260" width="86" height="56" rx="8" stroke-width="0.5"/>
+<text class="ts" x="403" y="282" text-anchor="middle" dominant-baseline="central">Client L2</text>
+<text class="ts" x="403" y="298" text-anchor="middle" dominant-baseline="central">legado</text>
+</g>
+<g class="c-pink">
+<rect x="457" y="260" width="86" height="56" rx="8" stroke-width="0.5"/>
+<text class="ts" x="500" y="282" text-anchor="middle" dominant-baseline="central">Web /</text>
+<text class="ts" x="500" y="298" text-anchor="middle" dominant-baseline="central">mobile</text>
+</g>
+<g class="c-pink">
+<rect x="554" y="260" width="86" height="56" rx="8" stroke-width="0.5"/>
+<text class="ts" x="597" y="282" text-anchor="middle" dominant-baseline="central">IA via</text>
+<text class="ts" x="597" y="298" text-anchor="middle" dominant-baseline="central">MCP</text>
+</g>
+</svg>
+
+<h3>O que muda essencialmente</h3>
+<p>Hoje, o conteúdo (<code>skilldata.txt</code>) e o motor (<code>l2server.exe</code>) andam juntos: o servidor lê o arquivo, mas a lógica de cada efeito está hardcoded no binário. Editar uma skill significa ajustar parâmetros declarativos, mas qualquer mecânica nova exige patchar bytecode.</p>
+<p>A arquitetura alvo separa de forma estrita conteúdo, motor, log e transporte. Cada camada tem uma única responsabilidade e pode ser substituída isoladamente. O client L2 original continua suportado por um adapter de protocolo, e novos consumidores (web, mobile, bots de IA) entram sem tocar o motor.</p>
+</div>
+
+<h2 class="section-title">2. Camadas do engine alvo</h2>
+
+<div class="card">
+<svg viewBox="0 0 680 660" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t2 d2">
+<title id="t2">Arquitetura em camadas do engine alvo</title>
+<desc id="d2">Cinco camadas verticais: content layer, engine core (rules, effect resolver, ECS state, event bus, event log), projection layer, transport layer, consumidores.</desc>
+<defs>
+<marker id="arrow2" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<text class="label" x="40" y="28">Camada de dados</text>
+<g class="c-gray">
+<rect x="40" y="40" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="62" text-anchor="middle" dominant-baseline="central">Content layer</text>
+<text class="ts" x="340" y="80" text-anchor="middle" dominant-baseline="central">skills/*.yaml · effects/ · keywords/ · traits/ · validado por schema</text>
+</g>
+
+<line x1="340" y1="96" x2="340" y2="118" class="arr" marker-end="url(#arrow2)"/>
+
+<text class="label" x="40" y="138">Núcleo autoritativo</text>
+<g class="c-purple">
+<rect x="40" y="148" width="600" height="190" rx="12" stroke-width="0.5"/>
+<text class="th" x="340" y="172" text-anchor="middle" dominant-baseline="central">Engine core (headless)</text>
+</g>
+
+<g class="c-teal">
+<rect x="60" y="190" width="170" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="145" y="208" text-anchor="middle" dominant-baseline="central">Rules engine</text>
+<text class="ts" x="145" y="228" text-anchor="middle" dominant-baseline="central">Valida ações legais</text>
+</g>
+
+<g class="c-teal">
+<rect x="255" y="190" width="170" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="208" text-anchor="middle" dominant-baseline="central">Effect resolver</text>
+<text class="ts" x="340" y="228" text-anchor="middle" dominant-baseline="central">Aplica efeitos primitivos</text>
+</g>
+
+<g class="c-teal">
+<rect x="450" y="190" width="170" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="535" y="208" text-anchor="middle" dominant-baseline="central">ECS world</text>
+<text class="ts" x="535" y="228" text-anchor="middle" dominant-baseline="central">Estado + sistemas em tick</text>
+</g>
+
+<g class="c-amber">
+<rect x="60" y="262" width="265" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="192" y="280" text-anchor="middle" dominant-baseline="central">Event bus</text>
+<text class="ts" x="192" y="298" text-anchor="middle" dominant-baseline="central">Pub-sub entre sistemas</text>
+</g>
+
+<g class="c-amber">
+<rect x="355" y="262" width="265" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="487" y="280" text-anchor="middle" dominant-baseline="central">Event log</text>
+<text class="ts" x="487" y="298" text-anchor="middle" dominant-baseline="central">Append-only · replay · snapshot</text>
+</g>
+
+<line x1="340" y1="338" x2="340" y2="360" class="arr" marker-end="url(#arrow2)"/>
+
+<text class="label" x="40" y="378">Projeção por perspectiva (Fog of War)</text>
+<g class="c-coral">
+<rect x="40" y="388" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="406" text-anchor="middle" dominant-baseline="central">Projection layer</text>
+<text class="ts" x="340" y="424" text-anchor="middle" dominant-baseline="central">Filtra estado e eventos por permissão de visão</text>
+</g>
+
+<line x1="340" y1="444" x2="340" y2="466" class="arr" marker-end="url(#arrow2)"/>
+
+<text class="label" x="40" y="484">Transporte e contratos</text>
+<g class="c-blue">
+<rect x="40" y="494" width="600" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="512" text-anchor="middle" dominant-baseline="central">Transport layer</text>
+<text class="ts" x="340" y="530" text-anchor="middle" dominant-baseline="central">Adapter L2 binário · WebSocket · MCP · gRPC</text>
+</g>
+
+<line x1="140" y1="550" x2="140" y2="572" class="arr" marker-end="url(#arrow2)"/>
+<line x1="340" y1="550" x2="340" y2="572" class="arr" marker-end="url(#arrow2)"/>
+<line x1="540" y1="550" x2="540" y2="572" class="arr" marker-end="url(#arrow2)"/>
+
+<text class="label" x="40" y="590">Consumidores</text>
+
+<g class="c-pink">
+<rect x="40" y="600" width="195" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="137" y="620" text-anchor="middle" dominant-baseline="central">Client L2 legado</text>
+<text class="ts" x="137" y="638" text-anchor="middle" dominant-baseline="central">via adapter binário</text>
+</g>
+
+<g class="c-pink">
+<rect x="242" y="600" width="195" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="340" y="620" text-anchor="middle" dominant-baseline="central">Fronts modernos</text>
+<text class="ts" x="340" y="638" text-anchor="middle" dominant-baseline="central">Web · mobile · desktop</text>
+</g>
+
+<g class="c-pink">
+<rect x="444" y="600" width="195" height="56" rx="8" stroke-width="0.5"/>
+<text class="th" x="541" y="620" text-anchor="middle" dominant-baseline="central">IA / dev tools</text>
+<text class="ts" x="541" y="638" text-anchor="middle" dominant-baseline="central">Bots · inspector · replay</text>
+</g>
+</svg>
+
+<h3>Content layer</h3>
+<p>O <code>skilldata.txt</code> vira um conjunto de arquivos YAML/JSON versionados em git, validados por JSON Schema. Skills, keywords, traits e o catálogo de primitivas de efeito ficam separados em pastas, com i18n nativo e diff legível em PR.</p>
+
+<h3>Engine core</h3>
+<p>Headless, sem dependência de UI ou rede. Reúne o rules engine (valida ações legais), o effect resolver (executa primitivas declaradas no conteúdo), o ECS world (entidades, componentes, sistemas) e o event log (fonte da verdade para replay e reconexão). RNG determinístico com seed garante que o mesmo input produz o mesmo output.</p>
+
+<h3>Projection layer</h3>
+<p>Filtra estado e eventos por perspectiva antes de sair do engine. Player vê HP exato próprio e percentual dos outros, espectador vê tudo aberto, IA recebe a view do jogador que assiste ou view completa se for analista. Toda regra de visibilidade vive aqui.</p>
+
+<h3>Transport layer</h3>
+<p>Abstrai o protocolo. Mesma mensagem com encoders diferentes: adapter binário para o client L2 original (preserva base de jogadores), WebSocket para web/mobile, MCP para IA, gRPC para ferramentas internas. Trocar ou adicionar protocolo não toca o engine.</p>
+</div>
+
+<h2 class="section-title">3. ECS — por que faz sentido para o L2</h2>
+
+<div class="card">
+<svg viewBox="0 0 680 360" xmlns="http://www.w3.org/2000/svg" role="img" aria-labelledby="t3 d3">
+<title id="t3">Modelo ECS aplicado a uma entidade do jogo</title>
+<desc id="d3">Uma entidade é só um ID. Vários componentes orbitam ao redor representando dados puros como Health, Position, Bleeding, Casting. Sistemas externos iteram em entidades com combinações específicas de componentes.</desc>
+<defs>
+<marker id="arrow3" viewBox="0 0 10 10" refX="8" refY="5" markerWidth="6" markerHeight="6" orient="auto-start-reverse">
+<path d="M2 1L8 5L2 9" fill="none" stroke="context-stroke" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+</marker>
+</defs>
+
+<g class="c-purple">
+<ellipse cx="340" cy="180" rx="80" ry="48" stroke-width="0.5"/>
+<text class="th" x="340" y="174" text-anchor="middle" dominant-baseline="central">Entity</text>
+<text class="ts" x="340" y="194" text-anchor="middle" dominant-baseline="central">player_42</text>
+</g>
+
+<g class="c-teal">
+<rect x="40" y="40" width="140" height="40" rx="8" stroke-width="0.5"/>
+<text class="ts" x="110" y="60" text-anchor="middle" dominant-baseline="central">Health {cur, max}</text>
+</g>
+<g class="c-teal">
+<rect x="500" y="40" width="140" height="40" rx="8" stroke-width="0.5"/>
+<text class="ts" x="570" y="60" text-anchor="middle" dominant-baseline="central">Mana {cur, max}</text>
+</g>
+<g class="c-teal">
+<rect x="40" y="160" width="140" height="40" rx="8" stroke-width="0.5"/>
+<text class="ts" x="110" y="180" text-anchor="middle" dominant-baseline="central">Position {x,y,z}</text>
+</g>
+<g class="c-teal">
+<rect x="500" y="160" width="140" height="40" rx="8" stroke-width="0.5"/>
+<text class="ts" x="570" y="180" text-anchor="middle" dominant-baseline="central">Inventory</text>
+</g>
+<g class="c-amber">
+<rect x="40" y="280" width="140" height="40" rx="8" stroke-width="0.5"/>
+<text class="ts" x="110" y="300" text-anchor="middle" dominant-baseline="central">Bleeding (temp.)</text>
+</g>
+<g class="c-amber">
+<rect x="500" y="280" width="140" height="40" rx="8" stroke-width="0.5"/>
+<text class="ts" x="570" y="300" text-anchor="middle" dominant-baseline="central">Casting (temp.)</text>
+</g>
+
+<line x1="180" y1="60"  x2="266" y2="148" class="arr-dashed"/>
+<line x1="500" y1="60"  x2="414" y2="148" class="arr-dashed"/>
+<line x1="180" y1="180" x2="260" y2="180" class="arr-dashed"/>
+<line x1="500" y1="180" x2="420" y2="180" class="arr-dashed"/>
+<line x1="180" y1="300" x2="266" y2="216" class="arr-dashed"/>
+<line x1="500" y1="300" x2="414" y2="216" class="arr-dashed"/>
+</svg>
+
+<div class="two-col">
+<div>
+<p class="col-label">OOP (hoje no L2OFF)</p>
+<pre><code>class CPlayer : public CPlayable {
+  int hp, mp, cp;
+  Position pos;
+  vector&lt;Abnormal*&gt; abnormals;
+  Inventory inv;
+  // ... +200 campos
+  void TakeDamage(int dmg);
+  void ApplyBuff(...);
+  // ... +500 métodos
+}</code></pre>
+</div>
+<div>
+<p class="col-label">ECS (alvo)</p>
+<pre><code>// Componentes: dados puros
+Health    { current, max }
+Position  { x, y, z }
+Bleeding  { power, tick, exp }
+Casting   { skillId, t0, target }
+
+// Sistema = função sobre query
+BleedTickSystem(now) {
+  for e in [Bleeding, Health] {
+    if now &gt;= e.Bleeding.nextTick {
+      e.Health.current -= power
+      ...
+    }
+  }
+}</code></pre>
+</div>
+</div>
+
+<h3>Abnormals viram componentes</h3>
+<p>O <code>abnormal_type</code> do <code>skilldata.txt</code> é literalmente um componente. Stun, bleed, poison, hold, root, haste — cada um vira um componente que aparece ou some da entidade. A regra de stacking por <code>abnormal_lv</code> vira uma função de três linhas em vez de varredura de lista em <code>CCreature</code>.</p>
+
+<h3>Player, NPC, pet, summon — sem hierarquia de classes</h3>
+<p>A pergunta <code>if target-&gt;IsPlayer() else if target-&gt;IsNpc()</code> desaparece. Um sistema de dano só precisa saber se a entidade tem <code>Health</code>. Cubic, decoy, trap, torre de siege — tudo é entidade com combinação de componentes. Adicionar um tipo novo é só decidir quais componentes ele carrega.</p>
+
+<h3>Determinismo e replay sai de graça</h3>
+<p>Sistemas iteram em ordem fixa sobre componentes em layout fixo. Snapshot é serializar componentes; restaurar é ler de volta. Replay aplica o event log sobre snapshot zero. O L2 original usa <code>rand()</code> global e tem ponteiros pendurados entre objetos — replay perfeito é impossível. Em ECS com seed é trivial.</p>
+</div>
+
+<h2 class="section-title">4. Como uma skill é representada nos dois mundos</h2>
+
+<div class="card">
+<h3>Hoje — uma linha do <code>skilldata.txt</code> (Backstab)</h3>
+<pre><code>skill_begin  skill_name=[s_backstab1]  skill_id=30  level=1
+  operate_type=A1  magic_level=38
+  effect={{i_backstab;1107;300;2000};{i_death2;4;1}}
+  operate_cond={{equip_weapon;{dagger}}}
+  is_magic=0  mp_consume2=60
+  cast_range=40  effective_range=400
+  skill_hit_time=1.08  skill_cool_time=0.72  reuse_delay=11
+  attribute=attr_death  effect_point=-305
+  target_type=enemy  affect_scope=single
+skill_end</code></pre>
+<p>O efeito <code>i_backstab;1107;300;2000</code> é uma caixa-preta. Os três números encapsulam dano, bônus por estar atrás, possível bleed embutido e provavelmente uma condição de crítico. Tudo vive hardcoded em <code>CEffectBackstab</code> dentro do <code>.exe</code>.</p>
+
+<h3>Alvo — YAML declarativo com primitivas explícitas</h3>
+<pre><code>id: backstab
+display_name:
+  en: Backstab
+  pt: Punhalada nas costas
+levels:
+  - level: 1
+    magic_level: 38
+    cast: { time: 1.08, cool: 0.72, reuse: 11 }
+    resources: { mp: { cast: 60 } }
+    range: { cast: 40, effective: 400 }
+    targeting: { target: enemy, scope: single }
+    conditions:
+      - equip_weapon: [dagger]
+      - position: behind
+    effects:
+      - type: physical_attack
+        power: 1107
+        crit_bonus: 300
+      - type: apply_abnormal
+        abnormal: bleed
+        power: 50
+        duration_ms: 2000
+      - type: mark
+        kind: death
+        level: 1
+    trait: death</code></pre>
+<p>O efeito monolítico explode em primitivas legíveis. O bleed vira <code>apply_abnormal</code> com tipo, poder e duração. A condição "estar atrás do alvo" — que hoje está escondida dentro de <code>CEffectBackstab</code> — fica explícita em <code>conditions</code>. Game designer ajusta números sem tocar código.</p>
+</div>
+
+<h2 class="section-title">5. Caminho de migração — sem big bang</h2>
+
+<div class="card">
+<ol class="phase-list">
+<li>
+<h3>Converter <code>skilldata.txt</code> em YAML validado</h3>
+<p>Parser lê o <code>.txt</code> UTF-16 e cospe YAML com schema. Exportador faz o caminho de volta para o formato original enquanto o servidor antigo ainda roda. Ganho imediato: PRs revisáveis, validação, diff legível.</p>
+</li>
+<li>
+<h3>Catalogar e desmontar os monolíticos</h3>
+<p>Para cada efeito <code>i_&lt;nome_de_skill&gt;</code> hardcoded (Backstab, Fatal Blow, Mortal Blow…), descobrir por engenharia reversa de comportamento in-game o que ele encapsula, e remontar como composição de primitivas no YAML. O <code>.txt</code> exportado mantém compatibilidade.</p>
+</li>
+<li>
+<h3>Engine novo headless em modo shadow</h3>
+<p>Implementa o engine novo lendo o YAML. Não substitui produção: roda em paralelo recebendo os mesmos inputs e comparando outputs. Onde divergir, ou o YAML está errado ou o engine novo está. Itera até bater consistentemente.</p>
+</li>
+<li>
+<h3>Event log e replay</h3>
+<p>Engine novo passa a gravar event log append-only. Agora existem replays de partidas reais, antes mesmo do cutover. Permite análise retrospectiva, balance tooling, e replays para os players.</p>
+</li>
+<li>
+<h3>Projection + transport novos</h3>
+<p>Camadas de projeção e transporte por cima do engine novo. Adapter binário mantém o client L2 original funcionando; client web entra como segundo consumidor; canal MCP abre para bots de IA.</p>
+</li>
+<li>
+<h3>Cutover gradual</h3>
+<p>Quando o shadow passa X semanas sem divergência, vira o tráfego. O <code>.exe</code> velho fica como fallback por mais um tempo e é desligado depois.</p>
+</li>
+</ol>
+</div>
+
+<h2 class="section-title">6. Riscos conhecidos</h2>
+
+<div class="card">
+<h3>Os monolíticos escondem regras sutis</h3>
+<p><code>i_backstab</code> provavelmente tem uma lógica de "atrás = X%, lado = Y%, frente = falha" que não está documentada em lugar nenhum. A engenharia reversa por comportamento in-game é tediosa e propensa a erro. Reservar tempo de QA específico para isso.</p>
+
+<h3>RNG não-determinístico no original</h3>
+<p>O L2 original usa <code>rand()</code> global do servidor. Replay perfeito requer reimplementar fórmulas com PRNG seeded, e isso pode dar resultados ligeiramente diferentes dos canônicos. Decidir cedo entre fidelidade absoluta e determinismo — geralmente determinismo ganha, e os players não percebem.</p>
+
+<h3>Abnormal stacking é cheio de exceções</h3>
+<p><code>abnormal_type</code> + <code>abnormal_lv</code> é a regra geral, mas tem casos especiais hardcoded — "Dance de X não conflita com Song de Y mesmo com mesmo type", buffs de set de armadura, etc. Precisa de uma tabela explícita de exceções na content layer.</p>
+
+<h3>O client original limita o que dá para inovar</h3>
+<p>Skill nova com efeito que o client legado não conhece não renderiza direito (ícone errado, animação ausente). Manter compatibilidade com o client original é uma jaula útil até o client web pegar tração.</p>
+</div>
+
+<footer>
+  Estudo de migração · Lineage 2 Off → stack moderna · documento de referência
+</footer>
+
+</div>
+</body>
+</html>
