@@ -3,15 +3,32 @@
 
 import type { EvalCtx, ExprNode } from "./types";
 
+/** Sentinela: ExprNode resolveu para null (array-por-cor em despertar sem efeito). */
+export class SkipEffect extends Error {
+	constructor() {
+		super("SkipEffect");
+		this.name = "SkipEffect";
+	}
+}
+
 /**
  * Resolve um ExprNode para número.
- * Throws se a ref não resolver para número.
+ * Throws SkipEffect se o nó for array-por-cor com null na posição do despertar atual.
+ * Throws Error se a ref não resolver para número.
  */
 export function resolveExpr(node: ExprNode, ctx: EvalCtx): number {
 	if (typeof node === "number") return node;
 
 	if (typeof node === "string") {
 		return resolveRef(node, ctx);
+	}
+
+	// ColorByAwakening — array de 5 valores indexado por state.despertar
+	if (Array.isArray(node)) {
+		const idx = ctx.state.despertar;
+		const v = (node as ReadonlyArray<number | null>)[idx];
+		if (v === null) throw new SkipEffect();
+		return v;
 	}
 
 	// ArithExpr

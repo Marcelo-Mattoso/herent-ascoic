@@ -1,7 +1,7 @@
 {
 	"name": "ascensao-heroica",
 	"private": true,
-	"version": "0.9.101",
+	"version": "0.9.102",
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
@@ -17,7 +17,8 @@
 		"@ngneat/elf": "^2.5.1",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",
-		"rxjs": "^7.8.2"
+		"rxjs": "^7.8.2",
+		"yaml": "^2.9.0"
 	},
 	"devDependencies": {
 		"@biomejs/biome": "^2.4.15",

@@ -12,10 +12,19 @@ const ArithExprSchema: z.ZodType<unknown> = z.lazy(() =>
 	}),
 );
 
+const ColorByAwakeningSchema = z.tuple([
+	z.number().nullable(),
+	z.number().nullable(),
+	z.number().nullable(),
+	z.number().nullable(),
+	z.number().nullable(),
+]);
+
 const ExprNodeSchema: z.ZodType<unknown> = z.union([
 	z.number(),
 	z.string(),
 	ArithExprSchema,
+	ColorByAwakeningSchema,
 ]);
 
 // ── Condições ────────────────────────────────────────────────────────────────
@@ -200,10 +209,17 @@ export const TriggerFieldSchema = z.union([
  * Entrada válida de `skills.json` pós-patch-12.
  * Regra: exatamente um de `effect` ou `script` deve estar presente.
  */
+const CostSchema = z
+	.object({
+		hp: z.number().optional(),
+		mp: z.number().optional(),
+		discard: z.number().optional(),
+	})
+	.optional();
+
 export const SkillDefinitionV2Schema = z
 	.object({
 		id: z.string().min(1),
-		name: z.string().min(1),
 		category: z.enum([
 			"habilidade",
 			"poder_heroi",
@@ -215,6 +231,7 @@ export const SkillDefinitionV2Schema = z
 		trigger: TriggerObjectSchema,
 		target: z.string(),
 		params: z.record(z.string(), z.unknown()).optional(),
+		cost: CostSchema,
 		effect: z.array(EffectNodeSchema).optional(),
 		script: z.string().optional(),
 	})

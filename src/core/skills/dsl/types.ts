@@ -10,12 +10,25 @@ export interface ArithExpr {
 }
 
 /**
+ * Array de 5 valores indexado por despertar (white=0 … purple=4).
+ * `null` na posição = efeito não dispara neste nível de despertar.
+ */
+export type ColorByAwakening = readonly [
+	number | null,
+	number | null,
+	number | null,
+	number | null,
+	number | null,
+];
+
+/**
  * Nó de expressão.
  * - `number` → literal
  * - `string` → referência simbólica (`"$cost"`, `"$source"`, `"$target"`, etc.)
  * - `ArithExpr` → aritmética binária
+ * - `ColorByAwakening` → valor indexado por nível de despertar
  */
-export type ExprNode = number | string | ArithExpr;
+export type ExprNode = number | string | ArithExpr | ColorByAwakening;
 
 // ── Condições ────────────────────────────────────────────────────────────────
 

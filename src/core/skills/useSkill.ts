@@ -57,7 +57,7 @@ export function fireOnUseSkill(
 		? cardSkills(sourceCardId).find(({ def: d }) => d.id === skillId)?.ref
 		: undefined;
 	const resolvedValue =
-		value !== undefined ? value : (cardRef?.params?.value ?? def.defaultValue);
+		value !== undefined ? value : (cardRef?.params?.value ?? def.params?.value ?? null);
 
 	const resolvedCtx: SkillContext = {
 		triggeredBy: "on_use",
@@ -90,6 +90,27 @@ export function fireOnUseSkill(
 		type: "SkillUsed",
 		payload: { sourceId, skillId },
 	}));
+
+	// Debitar custo da habilidade
+	if (def.cost) {
+		const { hp = 0 } = def.cost;
+		if (hp > 0) {
+			const hero = stateBeforeExec.heroes.find((h) => h.id === sourceId);
+			if (hero && hero.currentLife <= hp) {
+				return log(stateBeforeExec, `[AVISO] ${skillId}: custo de vida insuficiente`);
+			}
+			stateBeforeExec = stateBeforeExec.heroes.some((h) => h.id === sourceId)
+				? {
+						...stateBeforeExec,
+						heroes: stateBeforeExec.heroes.map((h) =>
+							h.id === sourceId
+								? { ...h, currentLife: h.currentLife - hp }
+								: h,
+						),
+					}
+				: stateBeforeExec;
+		}
+	}
 
 	if (def.effect) {
 		const evalCtx = buildScriptCtx(stateBeforeExec, resolvedCtx, params);

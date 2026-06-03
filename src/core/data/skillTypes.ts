@@ -111,15 +111,9 @@ export type TargetSpec =
 
 export interface SkillDefinition {
 	readonly id: string;
-	readonly name: string;
 	readonly category: SkillCategory;
-	readonly sourceSection?: string;
-	readonly usesVariable: boolean;
-	readonly defaultValue: number | string | null;
 	readonly trigger: TriggerName;
 	readonly target: TargetSpec;
-	readonly textTemplate: string;
-	readonly labelTemplate: string;
 	readonly notes?: string;
 	// ── Campos pós-patch-12 ────────────────────────────────────────
 	/** Array de EffectNode DSL. Exatamente um de effect/script deve estar presente. */
@@ -128,6 +122,12 @@ export interface SkillDefinition {
 	readonly script?: string;
 	/** Params fixos da habilidade. Mesclados com SkillRef.params como $value. */
 	readonly params?: Readonly<Record<string, unknown>>;
+	/** Custo da habilidade — debitado antes de executar o efeito. */
+	readonly cost?: {
+		readonly hp?: number;
+		readonly mp?: number;
+		readonly discard?: number;
+	};
 }
 
 export interface SkillCatalog {

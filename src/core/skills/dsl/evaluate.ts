@@ -6,6 +6,7 @@
 
 import { resolveCondition } from "./resolveCondition";
 import {
+	SkipEffect,
 	resolveEntityListRef,
 	resolveEntityRef,
 	resolveExpr,
@@ -21,8 +22,13 @@ export function evaluate(
 ): import("../../state/gameState").GameState {
 	let cur = ctx;
 	for (const node of effects) {
-		const next = evaluateOne(node, cur);
-		cur = cur.withState(next);
+		try {
+			const next = evaluateOne(node, cur);
+			cur = cur.withState(next);
+		} catch (e) {
+			if (e instanceof SkipEffect) continue;
+			throw e;
+		}
 	}
 	return cur.state;
 }
