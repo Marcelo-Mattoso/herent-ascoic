@@ -20,6 +20,9 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
+    nature:
+      - nat_physical
+      - nat_fire
   - id: skill_last_light_healing
     category: habilidade
     target: hero_or_ally_creature
@@ -28,6 +31,9 @@ abilities:
         to: $target
         amount: $value
     operate_type: op_active
+    nature:
+      - nat_magical
+      - nat_holy
   - id: skill_bastion_guard
     category: habilidade
     target: hero_or_ally
@@ -42,6 +48,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_damage_taken
+    nature:
+      - nat_physical
   - id: skill_rift_rune
     category: habilidade
     target: ally_die
@@ -49,11 +57,15 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_roll
+    nature:
+      - nat_magical
   - id: skill_hunter_focus
     category: habilidade
     target: self
     script: skill_hunter_focus
     operate_type: op_passive
+    nature:
+      - nat_physical
   - id: skill_living_ember
     category: habilidade
     target: creature_in_play
@@ -62,6 +74,9 @@ abilities:
         to: $target
         amount: $value
     operate_type: op_active
+    nature:
+      - nat_physical
+      - nat_fire
   - id: skill_living_ember_oil
     category: habilidade_item
     target: creature_in_play
@@ -69,6 +84,9 @@ abilities:
       skill_gelatinous_body do alvo.
     script: skill_living_ember_oil
     operate_type: op_active
+    nature:
+      - nat_physical
+      - nat_fire
   - id: skill_last_light_shield
     category: habilidade
     target: hero
@@ -81,6 +99,9 @@ abilities:
     cooldown:
       scope: round
       charges: 1
+    nature:
+      - nat_magical
+      - nat_holy
   - id: skill_preserved_path
     category: habilidade
     target: dungeon
@@ -92,6 +113,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_magical
   - id: skill_rekindled_forge
     category: habilidade
     target: group
@@ -99,6 +122,8 @@ abilities:
     operate_type: op_triggered
     trigger: &a1
       event: evt_room_leave
+    nature:
+      - nat_fire
   - id: skill_rift_second_chance
     category: habilidade
     target: ally_die
@@ -107,6 +132,8 @@ abilities:
     cooldown:
       scope: combat
       charges: 1
+    nature:
+      - nat_magical
   - id: skill_perfect_rune
     category: habilidade
     target: ally_die
@@ -117,6 +144,8 @@ abilities:
     cooldown: &a6
       scope: room
       charges: 1
+    nature:
+      - nat_magical
   - id: skill_last_light_miracle
     category: habilidade
     target: ally_or_next_attack
@@ -141,6 +170,9 @@ abilities:
     cooldown: &a2
       scope: room
       charges: 1
+    nature:
+      - nat_magical
+      - nat_holy
   - id: skill_piercing_strike
     category: habilidade
     target: other_creature_in_same_room
@@ -148,6 +180,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_kill
+    nature:
+      - nat_physical
   - id: skill_forge_spoils
     category: habilidade
     target: item_deck
@@ -158,6 +192,8 @@ abilities:
         keep: 1
     operate_type: op_triggered
     trigger: *a1
+    nature:
+      - nat_physical
   - id: skill_prey_mark
     category: habilidade
     target: creature_in_room
@@ -174,6 +210,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_combat_start
+    nature:
+      - nat_physical
   - id: skill_return_rite
     category: habilidade
     target: dungeon
@@ -185,6 +223,9 @@ abilities:
         count: $value
     operate_type: op_active
     cooldown: *a2
+    nature:
+      - nat_magical
+      - nat_dark
   - id: skill_final_dawn_light
     category: habilidade
     target: self
@@ -214,6 +255,9 @@ abilities:
         op: gte
         left: $dungeon.level
         right: 3
+    nature:
+      - nat_physical
+      - nat_fire
   - id: skill_scorching_heat
     category: habilidade
     target: heroes
@@ -235,6 +279,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_fire
   - id: skill_crimson_chains
     category: habilidade
     target: hero
@@ -242,6 +288,9 @@ abilities:
       - kind: block_action
         what: flee
     operate_type: op_active_buff
+    nature:
+      - nat_physical
+      - nat_fire
   - id: skill_choking_ashes
     category: habilidade
     target: lowest_life_hero
@@ -250,6 +299,9 @@ abilities:
         to: $lowest_life_hero
         amount: $value
     operate_type: op_active
+    nature:
+      - nat_physical
+      - nat_fire
   - id: skill_charred_plate
     category: habilidade
     target: self
@@ -264,6 +316,9 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_damage_taken
+    nature:
+      - nat_physical
+      - nat_fire
   - id: skill_forge_awakening
     category: habilidade
     target: dungeon
@@ -271,6 +326,8 @@ abilities:
       - kind: advance_dungeon_level
         amount: $value
     operate_type: op_active
+    nature:
+      - nat_fire
   - id: skill_sealed_door
     category: habilidade
     target: heroes
@@ -278,6 +335,8 @@ abilities:
       - kind: block_action
         what: flee
     operate_type: op_passive
+    nature:
+      - nat_physical
   - id: skill_ruined_floor
     category: habilidade
     target: dungeon
@@ -291,6 +350,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_physical
   - id: skill_forge_smoke
     category: habilidade
     target: heroes
@@ -305,6 +366,8 @@ abilities:
         op: eq
         left: $round
         right: 1
+    nature:
+      - nat_fire
   - id: skill_dark_tribute
     category: habilidade
     target: group
@@ -327,6 +390,8 @@ abilities:
     cooldown: &a13
       scope: room
       charges: 1
+    nature:
+      - nat_dark
   - id: skill_rift_evasion
     category: habilidade
     target: self
@@ -337,6 +402,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_magical
   - id: skill_chains_prison
     category: habilidade
     target: target_hero
@@ -354,6 +421,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_physical
   - id: skill_path_corruption
     category: habilidade
     target: heroes
@@ -361,6 +430,8 @@ abilities:
       - kind: block_action
         what: dungeon_discard
     operate_type: op_passive
+    nature:
+      - nat_dark
   - id: skill_lone_beast
     category: habilidade
     target: self
@@ -387,6 +458,8 @@ abilities:
         op: eq
         left: $room.enemy_count
         right: 1
+    nature:
+      - nat_physical
   - id: skill_treacherous_attack
     category: habilidade
     target: lowest_life_hero
@@ -399,6 +472,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_combat_start
+    nature:
+      - nat_physical
   - id: skill_cowardly_flee
     category: habilidade
     target: self
@@ -408,6 +483,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_leave_play
+    nature:
+      - nat_physical
   - id: skill_gelatinous_body
     category: habilidade
     target: heroes_attacking_self
@@ -420,6 +497,8 @@ abilities:
         duration:
           kind: while_in_play
     operate_type: op_passive
+    nature:
+      - nat_physical
   - id: skill_hidden_flame_presence
     category: habilidade
     target: another_creature_in_room
@@ -439,6 +518,8 @@ abilities:
         op: gt
         left: $room.enemy_count
         right: 1
+    nature:
+      - nat_fire
   - id: skill_pack_courage
     category: habilidade
     target: self
@@ -453,6 +534,8 @@ abilities:
     operate_type: op_triggered
     trigger: *a3
     conditions: *a4
+    nature:
+      - nat_physical
   - id: skill_illuminate_path
     category: habilidade
     target: dungeon
@@ -462,6 +545,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_room_reveal
+    nature:
+      - nat_magical
   - id: skill_path_safeguard
     category: habilidade
     target: dungeon
@@ -470,6 +555,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_dungeon_discard
+    nature:
+      - nat_magical
   - id: skill_life_drain
     category: habilidade
     target: self
@@ -480,6 +567,9 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_damage_dealt
+    nature:
+      - nat_magical
+      - nat_dark
   - id: skill_opportunity_shot
     category: habilidade
     target: creature
@@ -488,6 +578,8 @@ abilities:
     cooldown:
       scope: combat
       charges: 1
+    nature:
+      - nat_physical
   - id: skill_last_light_ward
     category: habilidade
     target: self
@@ -502,6 +594,9 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_damage_taken
+    nature:
+      - nat_magical
+      - nat_holy
   - id: skill_protective_veil
     category: habilidade
     target: self
@@ -514,6 +609,7 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature: []
   - id: skill_rift_light_step
     category: habilidade
     target: self
@@ -525,6 +621,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_magical
   - id: skill_focus_deflection
     category: habilidade
     target: another_hero_or_self
@@ -535,6 +633,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_physical
   - id: skill_minor_rune
     category: habilidade
     target: die_with_value_1
@@ -542,6 +642,8 @@ abilities:
     operate_type: op_triggered
     trigger: *a5
     cooldown: *a6
+    nature:
+      - nat_magical
   - id: power_greater_last_light_miracle
     category: poder_heroi
     target: hero
@@ -560,6 +662,9 @@ abilities:
     cooldown: &a7
       scope: game
       charges: 1
+    nature:
+      - nat_magical
+      - nat_holy
   - id: power_unbreakable_bastion_guard
     category: poder_heroi
     target: heroes
@@ -579,6 +684,9 @@ abilities:
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_magical
+      - nat_holy
   - id: power_restored_path
     category: poder_heroi
     target: dungeon
@@ -587,6 +695,8 @@ abilities:
         count: $value
     operate_type: op_active
     cooldown: *a7
+    nature:
+      - nat_magical
   - id: power_supreme_rift_rune
     category: poder_heroi
     target: ally_or_enemy_die
@@ -597,6 +707,8 @@ abilities:
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_magical
   - id: power_mighty_crimson_fury
     category: poder_heroi
     target: self
@@ -616,6 +728,9 @@ abilities:
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_physical
+      - nat_fire
   - id: power_last_light_oath
     category: poder_heroi
     target: heroes_or_self_next_attack
@@ -642,6 +757,9 @@ abilities:
                   kind: once
     operate_type: op_active
     cooldown: *a7
+    nature:
+      - nat_magical
+      - nat_holy
   - id: power_deep_veil_echo
     category: poder_heroi
     target: self
@@ -652,6 +770,8 @@ abilities:
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_magical
   - id: power_hunter_execution
     category: poder_heroi
     target: blue_die_and_self
@@ -662,6 +782,8 @@ abilities:
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_physical
   - id: purple_raging_flames
     category: efeito_roxo_monstro
     target: all_heroes
@@ -676,6 +798,9 @@ abilities:
     operate_type: op_triggered
     trigger: &a8
       event: evt_enter_play
+    nature:
+      - nat_fire
+      - nat_dark
   - id: purple_forge_chains
     category: efeito_roxo_monstro
     target: heroes
@@ -683,6 +808,9 @@ abilities:
       - kind: block_action
         what: flee
     operate_type: op_passive
+    nature:
+      - nat_dark
+      - nat_fire
   - id: purple_ruin_ashes
     category: efeito_roxo_monstro
     target: dungeon
@@ -693,6 +821,9 @@ abilities:
     operate_type: op_triggered
     trigger: &a9
       event: evt_destroy
+    nature:
+      - nat_dark
+      - nat_fire
   - id: purple_crimson_plate
     category: efeito_roxo_monstro
     target: self
@@ -705,6 +836,9 @@ abilities:
     cooldown: &a15
       scope: round
       charges: 1
+    nature:
+      - nat_dark
+      - nat_fire
   - id: purple_ash_protection
     category: efeito_roxo_monstro
     target: self
@@ -719,6 +853,9 @@ abilities:
     operate_type: op_triggered
     trigger: &a10
       event: evt_damage_taken
+    nature:
+      - nat_dark
+      - nat_fire
   - id: purple_dark_awakening
     category: efeito_roxo_monstro
     target: dungeon
@@ -727,6 +864,8 @@ abilities:
         amount: 1
     operate_type: op_triggered
     trigger: *a8
+    nature:
+      - nat_dark
   - id: purple_deadly_awakening
     category: efeito_roxo_monstro
     target: dungeon
@@ -735,12 +874,17 @@ abilities:
         amount: 1
     operate_type: op_triggered
     trigger: *a9
+    nature:
+      - nat_dark
   - id: purple_ember_blood
     category: efeito_roxo_monstro
     target: attacking_hero
     script: purple_ember_blood
     operate_type: op_triggered
     trigger: *a10
+    nature:
+      - nat_dark
+      - nat_fire
   - id: purple_depths_seal
     category: efeito_roxo_monstro
     target: heroes
@@ -748,6 +892,8 @@ abilities:
       - kind: block_action
         what: power_use
     operate_type: op_passive
+    nature:
+      - nat_dark
   - id: purple_dark_tribute
     category: efeito_roxo_monstro
     target: group
@@ -767,6 +913,8 @@ abilities:
     operate_type: op_triggered
     trigger: &a11
       event: evt_combat_start
+    nature:
+      - nat_dark
   - id: purple_blood_tribute
     category: efeito_roxo_monstro
     target: group_or_chosen_hero
@@ -785,6 +933,8 @@ abilities:
                 amount: 3
     operate_type: op_triggered
     trigger: *a11
+    nature:
+      - nat_dark
   - id: purple_veil_retaliation
     category: efeito_roxo_monstro
     target: attacking_hero
@@ -792,6 +942,9 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_hit
+    nature:
+      - nat_dark
+      - nat_magical
   - id: purple_healing_rupture
     category: efeito_roxo_monstro
     target: heroes
@@ -801,6 +954,9 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_room_enter
+    nature:
+      - nat_dark
+      - nat_magical
   - id: purple_ancient_veil_prison
     category: efeito_roxo_monstro
     target: target_hero
@@ -818,6 +974,9 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_dark
+      - nat_magical
   - id: purple_deep_veil_seal
     category: efeito_roxo_monstro
     target: heroes
@@ -825,6 +984,9 @@ abilities:
       - kind: block_action
         what: dungeon_level_reduction
     operate_type: op_passive
+    nature:
+      - nat_dark
+      - nat_magical
   - id: purple_crimson_shackles
     category: efeito_roxo_monstro
     target: target_hero
@@ -849,6 +1011,9 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_dark
+      - nat_physical
   - id: item_skill_deadly_edge
     category: habilidade_item
     target: self
@@ -870,6 +1035,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
+    nature:
+      - nat_physical
   - id: item_skill_block
     category: habilidade_item
     target: self
@@ -883,6 +1050,8 @@ abilities:
           kind: while_in_play
     operate_type: op_triggered
     trigger: *a10
+    nature:
+      - nat_physical
   - id: item_skill_mystic_draw
     category: habilidade_item
     target: artifact_deck
@@ -891,6 +1060,8 @@ abilities:
         pile: artifact_deck
         count: $value
     operate_type: op_active
+    nature:
+      - nat_magical
   - id: item_skill_last_light_blade
     category: habilidade_item
     target: self
@@ -916,6 +1087,9 @@ abilities:
       - kind: has_condition
         of: $enemy
         conditionType: boss_or_subboss
+    nature:
+      - nat_magical
+      - nat_holy
   - id: dungeon_skill_confinement
     category: habilidade_dungeon
     target: creatures_or_heroes_in_room
@@ -923,6 +1097,8 @@ abilities:
       - kind: block_action
         what: flee
     operate_type: op_passive
+    nature:
+      - nat_dark
   - id: dungeon_skill_dead_torches
     category: habilidade_dungeon
     target: heroes
@@ -946,6 +1122,8 @@ abilities:
     operate_type: op_triggered
     trigger: *a12
     cooldown: *a13
+    nature:
+      - nat_dark
   - id: dungeon_skill_column_fall
     category: habilidade_dungeon
     target: remaining_creature
@@ -959,6 +1137,8 @@ abilities:
     cooldown:
       scope: room
       charges: 1
+    nature:
+      - nat_physical
   - id: dungeon_skill_uneven_floor
     category: habilidade_dungeon
     target: dungeon
@@ -969,6 +1149,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_combat_end
+    nature:
+      - nat_physical
   - id: dungeon_skill_forge_spoils
     category: habilidade_dungeon
     target: item_deck
@@ -979,12 +1161,16 @@ abilities:
         keep: 1
     operate_type: op_triggered
     trigger: *a1
+    nature:
+      - nat_physical
   - id: dungeon_skill_rekindled_forge
     category: habilidade_dungeon
     target: item_deck_or_discard
     script: dungeon_skill_rekindled_forge
     operate_type: op_triggered
     trigger: *a1
+    nature:
+      - nat_fire
   - id: dungeon_skill_summon_guardian
     category: habilidade_dungeon
     target: special_creature
@@ -993,6 +1179,8 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_room_reveal
+    nature:
+      - nat_dark
   - id: boss_skill_living_ash_throne
     category: habilidade_chefe
     target: boss
@@ -1007,6 +1195,9 @@ abilities:
     operate_type: op_triggered
     trigger: *a14
     cooldown: *a15
+    nature:
+      - nat_fire
+      - nat_dark
   - id: boss_skill_dark_forge_pressure
     category: habilidade_chefe
     target: dungeon
@@ -1029,6 +1220,9 @@ abilities:
         op: gte
         left: $dungeon.level
         right: 3
+    nature:
+      - nat_dark
+      - nat_fire
   - id: boss_skill_azhakar_ascension
     category: habilidade_chefe
     target: boss
@@ -1047,6 +1241,9 @@ abilities:
       - kind: has_condition
         of: $self
         conditionType: half_life_or_less
+    nature:
+      - nat_dark
+      - nat_fire
   - id: item_skill_drain_life_and_deadly_edge
     category: habilidade_item
     target: self
@@ -1071,6 +1268,9 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
+    nature:
+      - nat_physical
+      - nat_dark
   - id: item_skill_block_and_last_light_ward
     category: habilidade_item
     target: self
@@ -1094,6 +1294,9 @@ abilities:
       purple: 2
     operate_type: op_triggered
     trigger: *a10
+    nature:
+      - nat_magical
+      - nat_holy
   - id: item_skill_crimson_fury_mighty
     category: habilidade_item
     target: self
@@ -1114,15 +1317,20 @@ abilities:
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_physical
+      - nat_fire
   - id: dungeon_skill_subboss_room
     category: habilidade_dungeon
     target: room
     effect:
       - kind: noop
     operate_type: op_passive
+    nature: []
   - id: dungeon_skill_empty_room
     category: habilidade_dungeon
     target: room
     effect:
       - kind: noop
     operate_type: op_passive
+    nature: []

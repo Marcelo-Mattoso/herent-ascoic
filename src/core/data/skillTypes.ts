@@ -59,6 +59,8 @@ export interface SkillDefinition {
 	readonly id: string;
 	readonly category: SkillCategory;
 	// ── Ativação v2 (patch-21 Lote B) ─────────────────────────────
+	/** Naturezas declarativas — sem efeito de motor em 21-D (resistências ficam para depois). */
+	readonly nature?: readonly import("../skills/dsl/types").Nature[];
 	readonly operate_type: import("../skills/dsl/types").OperateType;
 	readonly trigger?: { readonly event: import("../skills/dsl/types").EventName };
 	readonly conditions?: readonly import("../skills/dsl/types").ConditionNode[];

@@ -186,6 +186,31 @@ export type EffectNode =
 
 // ── Trigger v2 (patch-21 Lote B) ────────────────────────────────────────────
 
+// ── Nature (patch-21 Lote D) ─────────────────────────────────────────────────
+
+export type Nature =
+	// Tipo
+	| "nat_physical"
+	| "nat_magical"
+	// Elementos
+	| "nat_fire"
+	| "nat_water"
+	| "nat_earth"
+	| "nat_wind"
+	| "nat_holy"
+	| "nat_dark"
+	// Estados
+	| "nat_bleed"
+	| "nat_poison"
+	| "nat_shock"
+	| "nat_paralyze"
+	| "nat_sleep"
+	| "nat_hold"
+	| "nat_derangement"
+	// Especiais
+	| "nat_death"
+	| "nat_true";
+
 export type OperateType =
 	| "op_active"
 	| "op_active_buff"

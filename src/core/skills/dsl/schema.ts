@@ -180,6 +180,28 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 	]),
 );
 
+// ── Nature (patch-21 Lote D) ─────────────────────────────────────────────────
+
+const NatureSchema = z.enum([
+	"nat_physical",
+	"nat_magical",
+	"nat_fire",
+	"nat_water",
+	"nat_earth",
+	"nat_wind",
+	"nat_holy",
+	"nat_dark",
+	"nat_bleed",
+	"nat_poison",
+	"nat_shock",
+	"nat_paralyze",
+	"nat_sleep",
+	"nat_hold",
+	"nat_derangement",
+	"nat_death",
+	"nat_true",
+]);
+
 // ── Trigger v2 (patch-21 Lote B) ─────────────────────────────────────────────
 
 const OperateTypeSchema = z.enum([
@@ -267,6 +289,7 @@ export const SkillDefinitionV2Schema = z
 			"habilidade_dungeon",
 			"habilidade_chefe",
 		]),
+		nature: z.array(NatureSchema).optional(),
 		operate_type: OperateTypeSchema,
 		trigger: TriggerV2Schema.optional(),
 		conditions: z.array(ConditionNodeSchema).optional(),
