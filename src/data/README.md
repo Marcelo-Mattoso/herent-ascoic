@@ -1,14 +1,15 @@
 # src/data — Catálogos do jogo
 
-Este diretório contém os dados estáticos do jogo: cartas (`cards.json`), habilidades (`skills.json`) e scripts de comportamento (`scripts/`).
+Este diretório contém os dados estáticos do jogo: cartas (`cards.json`), habilidades (`skills.yaml` + locale), scripts de comportamento (`scripts/`), regras de eventos (`event_rules.json`) e balanceamento (`balance.json`).
 
 ---
 
-## Arquitetura em duas camadas
+## Arquitetura em três camadas
 
 | Arquivo | Responsabilidade |
 |---------|-----------------|
-| `skills.json` | **Comportamento e display.** Define o que cada habilidade faz (`effect` DSL ou `script`), o template de texto, o trigger, o alvo, e a categoria. |
+| `skills.yaml` | **Comportamento (DSL v2).** Define o que cada habilidade faz — `effect` DSL ou `script`, trigger, operate_type, nature, targeting. Sem textos. |
+| `skills.locale.pt-BR.yaml` | **Display.** Nomes, labels e textos de cada skill em PT-BR. Separado para facilitar tradução. |
 | `cards.json` | **Composição.** Define quais habilidades cada carta usa, com quais parâmetros, e sob quais condições (ex.: requer Despertar 4). |
 
 Regra: **nenhum dado de comportamento ou template fica na carta.** A carta só referencia skills por `skillId`.
@@ -47,7 +48,7 @@ Todo tipo (exceto `boss`) tem `skills: SkillRef[]`. O boss tem `skills` dentro d
 
 | Campo | Tipo | Descrição |
 |-------|------|-----------|
-| `skillId` | `string` — **obrigatório** | Id canônico da skill em `skills.json`. |
+| `skillId` | `string` — **obrigatório** | Id canônico da skill em `skills.yaml`. |
 | `params` | `{ value: number\|string }` — opcional | Override do valor padrão da skill. Omita se a skill não usa variável ou se o valor é o default. |
 | `requiresAwakening` | `true` — opcional | Só dispara quando `despertar === 4`. Substitui o antigo slot `purpleEffect`. |
 
@@ -131,7 +132,7 @@ O dispatch normaliza slash-pairs extraindo o primeiro número para `$value`. A l
 }
 ```
 
-O nome de cada habilidade do boss é lido de `skills.json[skillId].name` — não é duplicado no card.
+O nome de cada habilidade do boss é lido do locale (`skills.locale.pt-BR.yaml[skillId].name`) — não é duplicado no card.
 
 ### IDs canônicos
 
@@ -148,44 +149,44 @@ O nome de cada habilidade do boss é lido de `skills.json[skillId].name` — nã
 
 ---
 
-## `skills.json`
+## `skills.yaml`
 
-Catálogo de todas as habilidades do jogo. Cada entrada em `abilities[]` define uma skill.
+Catálogo de todas as habilidades do jogo. Usa o formato DSL v2.
+
+### Estrutura do arquivo
+
+```yaml
+version: "1.0"
+categories: [hero_skill, hero_power, monster_purple, item_skill, dungeon_skill, boss_skill]
+abilities:
+  - id: skill_last_light_healing
+    category: hero_skill
+    operate_type: op_active
+    nature: [nat_magical, nat_holy]
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
+    effect:
+      - kind: i_heal
+        to: $target
+        amount: $value
+```
 
 ### Campos de uma skill
 
-```json
-{
-  "id": "skill_last_light_healing",
-  "name": "Cura da Última Luz",
-  "category": "habilidade",
-  "usesVariable": true,
-  "defaultValue": null,
-  "trigger": "on_use",
-  "target": "hero_or_ally_creature",
-  "textTemplate": "cure {value} de vida de um herói ou criatura aliada.",
-  "labelTemplate": "Cura da Última Luz ({value}): cure {value} de vida de um herói ou criatura aliada.",
-  "effect": [
-    { "kind": "apply_heal", "to": "$target", "amount": "$value" }
-  ]
-}
-```
-
 | Campo | Obrigatório | Descrição |
 |-------|-------------|-----------|
-| `id` | sim | Identificador único. Convenção de prefixo acima. |
-| `name` | sim | Nome em PT-BR exibido na UI. |
-| `category` | sim | Define em qual slot de UI a skill aparece (ver tabela abaixo). |
-| `usesVariable` | sim | `true` se o template usa `{value}` e cada carta pode ter um valor diferente. |
-| `defaultValue` | sim | Valor padrão se a carta não declarar `params`. `null` = sem default. |
-| `trigger` | sim | Quando a skill dispara (ver seção Triggers). |
-| `target` | sim | Alvo padrão da skill. |
-| `textTemplate` | sim | Texto descritivo com `{value}` como placeholder. |
-| `labelTemplate` | sim | Label compacto exibido na UI. Formato: `"Nome ({value}): texto."` |
-| `effect` | um dos dois | Array de nós DSL que descrevem o efeito (preferido para lógica simples). |
-| `script` | um dos dois | Nome do arquivo em `scripts/` para lógica complexa (sem `.ts`). |
-| `params` | opcional | Valores fixos da skill injetados no contexto de execução junto com `$value`. |
-| `notes` | opcional | Notas internas — não exibidas na UI. |
+| `id` | sim | Identificador único. Convenção de prefixo abaixo. |
+| `category` | sim | Slot de UI (ver tabela de Categorias). |
+| `operate_type` | sim | `op_active` (manual), `op_triggered` (reativo), `op_passive`. |
+| `trigger` | condicional | Obrigatório se `op_triggered`. Objeto `{ event: "evt_*" }`. |
+| `nature` | sim | Lista de `nat_*` — tipos e elementos que descrevem o efeito. |
+| `target_type` | sim | `tgt_self`, `tgt_target`, `tgt_enemy`, `tgt_item`, `tgt_others`, `tgt_none`. |
+| `affect_scope` | sim | `scp_single`, `scp_party_full`, `scp_dead_party`, `scp_room`, `scp_none`. |
+| `affect_object` | sim | `obj_friend`, `obj_not_friend`, `obj_all`. |
+| `effect` | um dos dois | Array de nós DSL v2 (preferido). |
+| `script` | um dos dois | Nome do arquivo em `scripts/` para lógica imperativa (sem `.ts`). Legado — use `effect` sempre que possível. |
+| `params` | opcional | Valores fixos injetados no contexto de execução junto com `$value`. |
 
 **`effect` XOR `script`:** toda skill deve ter exatamente um dos dois.
 
@@ -202,85 +203,104 @@ Catálogo de todas as habilidades do jogo. Cada entrada em `abilities[]` define 
 
 A categoria determina onde a skill é exibida. Habilidades e poderes de herói compartilham o mesmo tipo de carta mas categorias distintas.
 
-### Triggers
+### Operate type e trigger
 
-O campo `trigger` aceita a string de nome do evento. Os principais:
+| `operate_type` | Comportamento |
+|---|---|
+| `op_active` | Manual — o jogador ativa clicando "Usar habilidade"/"Usar poder". |
+| `op_triggered` | Reativo — dispara automaticamente ao ocorrer `trigger.event`. |
+| `op_passive` | Passivo — aplicado enquanto a entidade está em campo. |
 
-| Trigger | Quando dispara |
-|---------|---------------|
-| `on_use` | O jogador ativa manualmente. |
-| `before_attack` | Antes de rolar dados de ataque. |
-| `after_roll` | Depois de rolar dados. |
-| `on_damage_taken` | Quando uma entidade vai sofrer dano. |
-| `on_destroyed` | Quando a entidade é destruída. |
-| `while_in_play` | Passivo — checado ao entrar em combate. |
-| `while_equipped` | Passivo de item equipado. |
-| `on_room_reveal` | Quando a sala é revelada. |
-| `on_enter_room` | Quando o grupo entra na sala. |
-| `once_per_game` | Ativo, usável uma vez por jogo. |
-| `once_per_room` | Ativo, usável uma vez por sala. |
-| `once_per_combat` | Ativo, usável uma vez por combate. |
-| `once_per_round` | Ativo, usável uma vez por rodada. |
-
-Guards `once_per_*` são detectados automaticamente pelo dispatcher.
+Eventos de trigger (prefixo `evt_`): `evt_attack_declared`, `evt_roll`, `evt_damage_taken`, `evt_entity_destroyed`, `evt_room_entered`, `evt_dungeon_discard`, entre outros. Definidos em [`src/data/event_rules.json`](event_rules.json).
 
 #### Manual vs reativo
 
-O core distingue triggers **manuais** (o jogador clica "Usar habilidade"/"Usar poder") de **reativos** (disparam automaticamente em resposta a um evento). Critério em [`src/core/skills/useSkill.ts:isManuallyActivatable`](../core/skills/useSkill.ts):
+O core distingue triggers **manuais** de **reativos** via `isManuallyActivatable` ([`src/core/skills/useSkill.ts`](../core/skills/useSkill.ts)):
 
-- **Manual:** `on_use`, ou qualquer `once_per_game*`/`once_per_room*`/`once_per_combat*` **sem** `_on_`/`_after_` no meio. Inclui combinações compostas com sufixo de duração ou modificador de uso:
-  - `once_per_game_until_end_of_round` (Guarda Inquebrável do Bastião) — manual com duração até fim da rodada.
-  - `once_per_combat_instead_of_attack` (Tiro de Oportunidade) — manual que substitui o ataque.
-- **Reativo:** qualquer trigger que contenha `_on_*` ou `_after_*`, mesmo com prefixo `once_per_*`. Disparado pelo handler do evento; **não** ativável pelo jogador via clique.
-  - `once_per_room_on_dungeon_discard` (Caminho Preservado) — reage a um descarte de dungeon.
-  - `once_per_room_after_roll`, `once_per_game_after_any_roll` — reagem à rolagem dos dados.
-  - `once_per_game_on_defeat_creature`, `once_per_game_after_roll_vs_prey` — reagem ao resultado de combate.
+- **Manual (`op_active`):** o jogador clica "Usar habilidade". Inclui skills com guard `once_per_*` sem `_on_`/`_after_` no nome do trigger legado.
+- **Reativo (`op_triggered`):** disparado pelo handler do evento; **não** ativável pelo jogador via clique.
 
-Se a UI deixar o jogador clicar "Usar habilidade" numa skill reativa, `fireOnUseSkill` rejeita com log `[AVISO] Skill X não é ativável manualmente (trigger: …)` e **não** consome o item nem aplica o efeito.
+Se a UI tentar ativar manualmente uma skill reativa, `fireOnUseSkill` rejeita com aviso no log e não aplica efeito.
 
-### DSL de efeitos (`effect`)
+### DSL de efeitos (`effect`) — vocabulário v2
 
-Array de nós `EffectNode`. Os mais usados:
+Array de nós `EffectNode`. Tipos completos em [`src/core/skills/dsl/types.ts`](../core/skills/dsl/types.ts). Os mais usados:
 
-```jsonc
-// Causar dano
-{ "kind": "apply_damage", "to": "$target", "amount": "$value" }
+```yaml
+# Causar dano (i_*)
+- kind: i_damage
+  to: $target
+  amount: $value
+  minimum: 1      # opcional — piso de dano
 
-// Curar
-{ "kind": "apply_heal", "to": "$target", "amount": "$value" }
+# Curar (i_*)
+- kind: i_heal
+  to: $target
+  amount: $value
 
-// Cura total
-{ "kind": "apply_full_heal", "to": "$target" }
+# Cura total
+- kind: i_full_heal
+  to: $target
 
-// Adicionar modificador temporário
-{
-  "kind": "add_modifier",
-  "to": "$source",
-  "stat": "damage_reduction",
-  "operation": "add",
-  "value": "$value",
-  "duration": { "kind": "once" }
-}
+# Adicionar modificador temporário (p_*)
+- kind: p_modifier
+  to: $source
+  stat: s_damage_reduction    # stat prefixada s_*
+  operation: add
+  value: $value
+  duration:
+    kind: once                # once | until_end_of_round | until_end_of_combat | while_in_play | passive | once_per_round
 
-// Condicional
-{
-  "kind": "if",
-  "when": { "kind": "compare", "op": "gte", "left": "$dungeon_level", "right": 3 },
-  "then": [ { "kind": "apply_damage", "to": "$target", "amount": 2 } ]
-}
+# Condicional (i_*)
+- kind: i_if
+  when:
+    kind: compare
+    op: gte
+    left: $dungeon_level
+    right: 3
+  then:
+    - kind: i_damage
+      to: $target
+      amount: 2
 
-// Escolha do jogador
-{
-  "kind": "choose_one",
-  "options": [
-    { "label": "Curar", "effect": [ { "kind": "apply_heal", "to": "$source", "amount": 3 } ] },
-    { "label": "Atacar", "effect": [ { "kind": "apply_damage", "to": "$target", "amount": 3 } ] }
-  ]
-}
+# Escolha do jogador (i_*)
+- kind: i_choose_one
+  options:
+    - id: opt_heal
+      effect:
+        - kind: i_heal
+          to: $source
+          amount: 3
+    - id: opt_attack
+      effect:
+        - kind: i_damage
+          to: $target
+          amount: 3
 
-// Descartar do deck
-{ "kind": "discard_from", "pile": "dungeon", "count": 1 }
+# Descartar do deck (i_*)
+- kind: i_discard
+  pile: dungeon
+  count: 1
+
+# Modificar dado (i_*)
+- kind: i_modify_die
+  delta: $value
+  die_side: hero   # hero | enemy | any
 ```
+
+**Prefixos do vocabulário DSL v2:**
+
+| Prefixo | Família |
+|---|---|
+| `i_*` | Imperativo — efeito que altera estado |
+| `p_*` | Componente ECS — instala modifier/trigger |
+| `s_*` | Stat — alvo de `p_modifier` |
+| `nat_*` | Nature — tipo/elemento do efeito |
+| `tgt_*` | Target type |
+| `scp_*` | Affect scope |
+| `obj_*` | Affect object |
+| `evt_*` | Evento de trigger |
+| `op_*` | Operate type |
 
 **Referências simbólicas** (prefixo `$`):
 
@@ -291,7 +311,7 @@ Array de nós `EffectNode`. Os mais usados:
 | `$target` | ID do alvo primário |
 | `$dungeon_level` | Nível atual do Despertar (0–4) |
 
-**Durações** para `add_modifier` (validadas em [`src/core/skills/dsl/schema.ts`](../core/skills/dsl/schema.ts)):
+**Durações** para `p_modifier` (validadas em [`src/core/skills/dsl/schema.ts`](../core/skills/dsl/schema.ts)):
 
 | `kind` | Duração |
 |--------|---------|
@@ -302,9 +322,55 @@ Array de nós `EffectNode`. Os mais usados:
 | `while_in_play` | Enquanto a entidade estiver em jogo |
 | `passive` | Permanente (item equipado) |
 
+---
+
+## `skills.locale.pt-BR.yaml`
+
+Contém nomes, labels e textos de cada skill em PT-BR. Separado de `skills.yaml` para facilitar a adição de novos idiomas.
+
+### Formato
+
+```yaml
+skill_last_light_healing:
+  name: Cura da Última Luz
+  label: "Cura da Última Luz ({value}): cure {value} de vida de um herói ou criatura aliada."
+  text: cure {value} de vida de um herói ou criatura aliada.
+```
+
+| Campo | Descrição |
+|---|---|
+| `name` | Nome exibido na UI. |
+| `label` | Label compacto com valor inline. Formato: `"Nome ({value}): texto."` |
+| `text` | Texto descritivo sem nome, para exibição em tooltips/detalhe. |
+
+O placeholder `{value}` é substituído em runtime pelo `params.value` da carta.
+
+### Como adicionar um idioma
+
+1. Crie `skills.locale.<lang>.yaml` com a mesma estrutura de chaves.
+2. Registre o loader em `src/core/data/skills.ts` para carregar o arquivo correspondente.
+
+---
+
+## `event_rules.json`
+
+Define a ordem de disparo para cada evento do bus (`src/core/events/bus.ts`).
+
+```json
+{
+  "DamageAboutToBeDealt": "lifo",
+  "HealApplied": "fifo"
+}
+```
+
+- **`fifo`** — first in, first out (ordem de registro).
+- **`lifo`** — last in, first out (mais recente dispara primeiro — útil para intercepção de dano).
+
+---
+
 ### Scripts (`scripts/`)
 
-Use `script` em vez de `effect` quando a lógica precisar de condicionais imperativas, loops, ou acesso ao estado que a DSL não cobre.
+Use `script` em vez de `effect` quando a lógica precisar de condicionais imperativas, loops, ou acesso ao estado que a DSL não cobre. **`script` é legado** — antes de criar um novo script, verifique se a DSL já cobre o caso com os nós `i_if`, `i_for_each`, `i_choose_one`, etc.
 
 Cada script é um arquivo `.ts` em `src/data/scripts/<skillId>.ts` com um export `run`:
 
@@ -337,11 +403,12 @@ O nome do arquivo deve ser idêntico ao campo `"script"` na skill.
 ## Como adicionar uma nova skill
 
 1. **Escolha um id** seguindo a convenção de prefixo da tabela acima.
-2. **Adicione a entrada em `skills.json`** com todos os campos obrigatórios.
-3. **Implemente o comportamento:**
-   - Lógica simples → campo `effect` com nós DSL.
-   - Lógica complexa → campo `script` com o nome do arquivo; crie `src/data/scripts/<id>.ts`.
-4. **Nenhuma alteração em `cards.json`** neste passo — a skill existe mas ainda não é usada por ninguém.
+2. **Adicione a entrada em `skills.yaml`** (em `abilities:`) com todos os campos obrigatórios.
+3. **Adicione a entrada em `skills.locale.pt-BR.yaml`** com `name`, `label` e `text`.
+4. **Implemente o comportamento:**
+   - Lógica simples → campo `effect` com nós DSL v2.
+   - Lógica imperativa sem equivalente DSL → campo `script` com o nome do arquivo; crie `src/data/scripts/<id>.ts`.
+5. **Nenhuma alteração em `cards.json`** neste passo — a skill existe mas ainda não é usada por ninguém.
 
 ## Como adicionar uma nova carta
 
@@ -370,11 +437,11 @@ Ambas referenciam `skill_last_light_healing`. O behavior (cura) está na skill; 
 
 O loader (`src/core/skills/lookup.ts`) valida na inicialização:
 
-- Todo `skillId` em `cards.json` **deve existir** em `skills.json`. Erro lançado no boot se falhar.
+- Todo `skillId` em `cards.json` **deve existir** em `skills.yaml`. Erro lançado no boot se falhar.
 
 O teste `src/core/data/skills.test.ts` verifica:
 
-- Todos os `skillId`s em `cards.json` existem em `skills.json`.
+- Todos os `skillId`s em `cards.json` existem em `skills.yaml`.
 - Toda skill referenciada aparece no índice reverso (`skillUsedBy`).
 
 O schema guard (`src/core/skills/dsl/__tests__/schema-guard.test.ts`) valida:

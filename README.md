@@ -41,7 +41,7 @@ Acesse `http://localhost:5173` no navegador.
 ```
 src/
 ├── core/               # Motor de jogo puro (sem React) — ver src/core/README.md
-├── data/               # Dados estáticos JSON (cards, skills, transitions) — ver src/data/README.md
+├── data/               # Catálogo de cartas e skills (JSON/YAML) — ver src/data/README.md
 │   └── scripts/        # Scripts de carta (lógica de skill que não cabe em DSL)
 ├── ui/
 │   ├── components/     # Reutilizáveis (Board, HeroFocusPanel, BuffBar, EventLogPanel…)
@@ -52,6 +52,16 @@ src/
 ```
 
 A regra de separação é dura: **a UI consome o core via projeção; nunca duplica lógica de jogo.** Toda mudança de estado passa por `dispatch(action)`. Detalhes da arquitetura do core estão em [`src/core/README.md`](src/core/README.md); do catálogo de cartas e skills em [`src/data/README.md`](src/data/README.md).
+
+## Documentação
+
+| Documento | Descrição |
+|---|---|
+| [`docs/arquitetura-mvp1.md`](docs/arquitetura-mvp1.md) | Decisões de arquitetura e visão geral do sistema |
+| [`docs/spec-telas-mvp1.md`](docs/spec-telas-mvp1.md) | Especificação de telas e fluxo de UI |
+| [`src/core/README.md`](src/core/README.md) | Motor de jogo — reducer, skills, ECS, projeção |
+| [`src/data/README.md`](src/data/README.md) | Catálogo de cartas, skills YAML e scripts |
+| [`docs/patches/`](docs/patches/) | Histórico de patches (escopo, critério de aceite, riscos) |
 
 ## Como jogar
 

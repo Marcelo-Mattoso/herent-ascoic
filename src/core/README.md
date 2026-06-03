@@ -44,8 +44,8 @@ Núcleo de regras do **Ascensão Heróica**. Puro TypeScript: sem React, sem DOM
 | [`actions/`](actions/) | Tipos discriminados (`Action`) e criadores. A "linguagem" pela qual a UI fala com o core. |
 | [`adapter/`](adapter/) | `EngineAdapter` (interface) e `createInProcessAdapter` (única implementação atual). Garante import transitivo do registry de skills. |
 | [`config/`](config/) | Constantes globais (limites, valores de balanceamento). |
-| [`data/`](data/) | Loaders de `cards.json` e `skills.json` — tipos derivados (`CardDefinition`, `SkillDefinition`) e busca por id/nome. |
-| [`ecs/`](ecs/) | Entity-Component-System esqueleto. `world.ts`, `types.ts` (Modifier/Trigger/Token/Condition), `sync.ts` para dual-write durante a transição. **Ainda subutilizado** — os modifiers vivem em `CombatState` por enquanto. |
+| [`data/`](data/) | Loaders de `cards.json` e `skills.yaml` — tipos derivados (`CardDefinition`, `SkillDefinition`) e busca por id/nome. |
+| [`ecs/`](ecs/) | Entity-Component-System. `world.ts`, `types.ts` (Modifier/Trigger/Token/Condition), `sync.ts` para dual-write durante a transição. `installTriggers.ts` instala triggers reativos de skills por entidade; `installPassive.ts` instala passivos (while_equipped e similares). Os modifiers ainda vivem em `CombatState` durante a transição; o ECS é a fonte futura. |
 | [`effects/`](effects/) | Stack de efeitos pendentes (`stack.ts`) e resolver que materializa cada `kind` em mutação de estado (`resolver.ts`). Drenado ao fim de cada action. |
 | [`events/`](events/) | Event bus síncrono. Pontos de extensão para "DamageAboutToBeDealt", "HealAboutToBeApplied", etc. |
 | [`persistence/`](persistence/) | Porta de persistência (in-memory / localStorage). |
@@ -55,7 +55,7 @@ Núcleo de regras do **Ascensão Heróica**. Puro TypeScript: sem React, sem DOM
 | [`replay/`](replay/) | Engine de replay determinístico. Mesma seed + mesmo `actionLog` → mesmo estado final. |
 | [`rules/`](rules/) | Funções puras: rolagem de dados, cálculo de combate, escudo, máquina de estados, condição do boss, escala de cores. |
 | [`scripts/`](scripts/) | `buildScriptCtx` — contexto passado a scripts de skills (acesso seguro a `state`, helpers de log/dano/cura, push de efeitos). |
-| [`skills/`](skills/) | Catálogo, dispatch por trigger, DSL (em [`dsl/`](skills/dsl/)), `useSkill` (ativação manual), `lookup`, `renderLabel`, `targeting`. **Skills são preferencialmente DSL; script só para lógica única.** |
+| [`skills/`](skills/) | Catálogo, dispatch por trigger, DSL v2 (em [`dsl/`](skills/dsl/)), `useSkill` (ativação manual), `lookup`, `renderLabel`, `targeting`. O vocabulário DSL usa prefixos: `i_*` (imperativo/efeito), `p_*` (componente ECS), `s_*` (stat), `nat_*` (nature), `tgt_*` (target), `scp_*` (scope), `obj_*` (object), `evt_*` (evento). **Skills são preferencialmente DSL; script só para lógica única.** |
 | [`state/`](state/) | Tipos imutáveis: `GameState`, `HeroState`, `EnemyState`, `CombatState`, `RoomState`, `status` (machine), color. Factories iniciais. |
 | [`strategies/`](strategies/) | Pontos de extensão plugáveis (ex: `targetSelection` para escolha de alvo do inimigo). |
 | [`systems/`](systems/) | Sistemas que percorrem o estado: `damageSystem`, `healSystem`, `conditionSystem`. Chamados pelo resolver e por handlers. |
@@ -188,3 +188,14 @@ npm run script tools/dev-scripts/exemplo.ts   # script avulso com acesso ao core
 - **Trigger composto** — quando criar um trigger novo, decida se é manual (sem `_on_`/`_after_`) ou reativo (com). `isManuallyActivatable` segue essa regra.
 - **Validação de transição** — ao criar status novo, atualize `transitions.json` antes de qualquer reducer que escreva nele.
 - **Estado projetado** — efeito novo que precisa aparecer na UI? Adicione campo em `BuffView` ou em `PlayerView.combat`; nunca exponha `GameState` cru.
+
+---
+
+## Referências
+
+| Documento | Conteúdo |
+|---|---|
+| [`docs/arquitetura-mvp1.md`](../../docs/arquitetura-mvp1.md) | Decisões de arquitetura do MVP 1 |
+| [`docs/engine/v2/`](../../docs/engine/v2/) | Design detalhado do motor v2 (ECS, DSL, event bus) |
+| [`docs/patches/`](../../docs/patches/) | Histórico de patches — contexto de cada mudança |
+| [`src/data/README.md`](../data/README.md) | Formato de `cards.json`, `skills.yaml` e locale |
