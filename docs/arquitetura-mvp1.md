@@ -515,7 +515,7 @@ Tudo que está em "MVP 2/3/4" da jornada original fica fora.
 
 ### Catálogo
 
-`src/data/skills.json` (cópia de `docs/spec/v3/habilidades_1.json`) é a **fonte única de verdade** para todas as habilidades. Em divergência entre `cards.json` e `skills.json`, **o catálogo vence** — o engine executa o `type` do catálogo silenciosamente.
+`src/data/skills.yaml` é a **fonte única de verdade** para todas as habilidades. Em divergência entre `cards.json` e `skills.yaml`, **o catálogo vence** — o engine executa o `type` do catálogo silenciosamente.
 
 ### Tipos
 
