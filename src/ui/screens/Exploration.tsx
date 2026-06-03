@@ -4,6 +4,7 @@
 import { useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
 import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
 import { Board } from "@/ui/components/Board";
@@ -307,7 +308,7 @@ export function Exploration() {
 									buffs={heroBuffs}
 									leadingLabel={
 										focusedHero
-											? `🧙 ${(getCardById(focusedHero.cardId)?.name ?? focusedHero.cardId).split(",")[0]?.split(" ")[0] ?? "Herói"}:`
+											? `🧙 ${getCardName(focusedHero.cardId).split(",")[0]?.split(" ")[0] ?? "Herói"}:`
 											: "🧙 Herói:"
 									}
 								/>

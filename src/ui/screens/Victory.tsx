@@ -1,4 +1,4 @@
-import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { useGameStore } from "@/ui/store/gameStore";
 import { COLORS_MAP, UI } from "@/ui/theme";
@@ -53,7 +53,7 @@ export function Victory() {
 						view.heroes.map((h) => (
 							<div key={h.id} className="flex justify-between text-sm">
 								<span style={{ color: UI.textSecondary }}>
-									XP — {getCardById(h.cardId)?.name ?? h.cardId} (J{h.playerIndex + 1})
+									XP — {getCardName(h.cardId)} (J{h.playerIndex + 1})
 								</span>
 								<span className="font-medium" style={{ color: UI.textPrimary }}>
 									{h.xp}

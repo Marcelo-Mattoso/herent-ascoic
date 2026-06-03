@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -50,7 +50,7 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 								className="text-xs font-medium mt-1"
 								style={{ color: UI.textPrimary }}
 							>
-								{card?.name ?? cardId}
+								{getCardName(cardId)}
 							</p>
 							{card?.type === "room" && (
 								<p className="text-xs" style={{ color: UI.textTertiary }}>

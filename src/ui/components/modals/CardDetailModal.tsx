@@ -1,4 +1,5 @@
 import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import { getSkillName } from "@/core/data/skillLocale";
 import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -21,7 +22,7 @@ export function CardDetailModal({
 	onUseItem,
 }: CardDetailModalProps) {
 	const card = getCardById(cardId);
-	const cardName = card?.name ?? cardId;
+	const cardName = getCardName(cardId);
 
 	return (
 		<Modal title={cardName} onClose={onClose} maxWidth={480}>

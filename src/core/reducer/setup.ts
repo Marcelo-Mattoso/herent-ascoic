@@ -9,6 +9,7 @@ import {
 	getItems,
 	getRooms,
 } from "../data/cards";
+import { getCardName } from "../data/cardLocale";
 import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncHeroesAndEnemies } from "../ecs/sync";
@@ -100,7 +101,7 @@ export function handleStartGame(
 		}
 	}
 
-	const heroNames = heroes.map((h) => getCardById(h.cardId)?.name ?? h.cardId);
+	const heroNames = heroes.map((h) => getCardName(h.cardId));
 	const bossCard = getCardById(bossId);
 
 	const next: GameState = {
@@ -139,7 +140,7 @@ export function handleStartGame(
 			},
 		},
 		eventLog: [
-			`Partida iniciada. Heróis: ${heroNames.join(", ")}. Boss: ${bossCard?.name ?? bossId}.`,
+			`Partida iniciada. Heróis: ${heroNames.join(", ")}. Boss: ${getCardName(bossId)}.`,
 		],
 		// START_GAME reinicia o actionLog (feito pelo wrapper em reducer/index.ts)
 	};

@@ -9,6 +9,7 @@ import {
 	getRooms,
 	getSubbosses,
 } from "../data/cards";
+import { getCardName } from "../data/cardLocale";
 import type { SubbossRoomCard } from "../data/cardTypes";
 import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
@@ -75,7 +76,7 @@ export function handleRevealRoom(state: GameState): GameState {
 		},
 	};
 	({ state: next } = emit(next, { type: "RoomEntered", payload: { roomId: room.cardId } }));
-	return log(next, `Sala revelada: ${card.name}.`);
+	return log(next, `Sala revelada: ${getCardName(card.id)}.`);
 }
 
 function handleRevealSubbossRoom(
@@ -127,7 +128,7 @@ function handleRevealSubbossRoom(
 	};
 	return log(
 		next,
-		`Sala de subchefe revelada: ${card.name}. ${subbossCard.name} aparece!`,
+		`Sala de subchefe revelada: ${getCardName(card.id)}. ${getCardName(subbossCard.id)} aparece!`,
 	);
 }
 
@@ -137,7 +138,7 @@ export function handleResolveRoomEffect(state: GameState): GameState {
 	const card = getCardById(cardId);
 	const noEffect = ["room_narrow_corridor", "room_dungeon_room"];
 	if (!noEffect.includes(cardId) && card) {
-		log(state, `[TODO] Efeito de sala não implementado: ${card.name}`);
+		log(state, `[TODO] Efeito de sala não implementado: ${getCardName(card.id)}`);
 	}
 	return { ...state, status: "SPAWN_ENEMIES" };
 }
@@ -245,7 +246,7 @@ export function handleSpawnEnemies(state: GameState): GameState {
 			payload: { entityId: enemy.id, entityType: "enemy" },
 		}));
 	}
-	const enemyNames = enemies.map((e) => getCardById(e.cardId)?.name ?? e.cardId);
+	const enemyNames = enemies.map((e) => getCardName(e.cardId));
 	return log(
 		next,
 		`${enemies.length} inimigo(s) aparecem: ${enemyNames.join(", ")}.`,
@@ -299,7 +300,7 @@ export function handleChoosePath(
 				},
 			},
 		},
-		`Caminho escolhido: ${getCardById(cardId)?.name ?? cardId}.`,
+		`Caminho escolhido: ${getCardName(cardId)}.`,
 	);
 }
 

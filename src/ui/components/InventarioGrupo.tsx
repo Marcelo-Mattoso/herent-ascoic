@@ -5,6 +5,7 @@
 import { useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { getCardById } from "@/core/data/cards";
+import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
@@ -353,8 +354,8 @@ function HeroColumn({
 			<div style={{ marginBottom: 8 }}>
 				<Slot
 					amber
-					label={posseArt ? shortLabel(getCardById(posseArt.cardId)?.name ?? posseArt.cardId) : ""}
-					title={posseArt ? (getCardById(posseArt.cardId)?.name ?? posseArt.cardId) : "sem artefato em posse"}
+					label={posseArt ? shortLabel(getCardName(posseArt.cardId)) : ""}
+					title={posseArt ? (getCardName(posseArt.cardId)) : "sem artefato em posse"}
 					filled={!!posseArt}
 				/>
 			</div>
@@ -477,9 +478,9 @@ function HeroColumn({
 					textOverflow: "ellipsis",
 					whiteSpace: "nowrap",
 				}}
-				title={getCardById(hero.cardId)?.name ?? hero.cardId}
+				title={getCardName(hero.cardId)}
 			>
-				{(getCardById(hero.cardId)?.name ?? hero.cardId).split(" ")[0]}
+				{(getCardName(hero.cardId)).split(" ")[0]}
 			</p>
 		</div>
 	);
@@ -787,7 +788,7 @@ export function InventarioGrupo() {
 							>
 								{mesaItens.map((r) => {
 									const col = itemColor(r.cardId);
-									const rName = getCardById(r.cardId)?.name ?? r.cardId;
+									const rName = getCardName(r.cardId);
 									const isMe =
 										dragging?.from.kind === "mesa" &&
 										dragging.name === r.cardId;
@@ -862,7 +863,7 @@ export function InventarioGrupo() {
 								}}
 							>
 								{mesaArtefatos.map((r) => {
-									const rName = getCardById(r.cardId)?.name ?? r.cardId;
+									const rName = getCardName(r.cardId);
 									const isMe =
 										dragging?.from.kind === "mesa" &&
 										dragging.name === r.cardId;
@@ -979,7 +980,7 @@ export function InventarioGrupo() {
 							}
 
 							const requiresBearer = artifactRequiresBearer(art.cardId);
-							const artName = getCardById(art.cardId)?.name ?? art.cardId;
+							const artName = getCardName(art.cardId);
 							return (
 								<div
 									key={vagaIndex}
@@ -1238,7 +1239,7 @@ function ItemTooltipPanel({
 	const top = target.y - 12;
 
 	const isItem = card.type === "item";
-	const tagLine = isItem ? card.tags.join(" · ") : "Artefato de grupo";
+	const tagLine = isItem ? (getCardLocale(card.id)?.tags ?? []).join(" · ") : "Artefato de grupo";
 	const effectEntry = cardSkills(card.id)[0];
 	const effect = effectEntry ? renderSkillLabel(effectEntry.ref) : "";
 
@@ -1276,7 +1277,7 @@ function ItemTooltipPanel({
 					color: "#FFFFFF",
 				}}
 			>
-				{card.name}
+				{getCardName(card.id)}
 			</p>
 			{/* Tag / tipo */}
 			<p

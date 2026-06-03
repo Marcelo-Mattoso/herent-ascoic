@@ -5,7 +5,7 @@
 //   resolving         → Rolar dados / Resolver ataque
 //   outros            → nada (auto-avance cuida)
 
-import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import type { PlayerView } from "@/core/projection/playerView";
 import { ActionButton } from "@/ui/components/ActionButton";
 import type { HeroCombatActions } from "@/ui/store/selectors";
@@ -66,7 +66,7 @@ export function CombatActionPanel({
 		return (
 			<div className="space-y-2">
 				<p className="text-xs text-center" style={{ color: UI.textSecondary }}>
-					<strong style={{ color: UI.textPrimary }}>{hero ? (getCardById(hero.cardId)?.name ?? hero.cardId) : ""}</strong> —
+					<strong style={{ color: UI.textPrimary }}>{hero ? getCardName(hero.cardId) : ""}</strong> —
 					clique num inimigo ou escolha uma ação
 				</p>
 				<div className="flex gap-2 flex-wrap">

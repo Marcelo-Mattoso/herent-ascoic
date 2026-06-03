@@ -23,13 +23,11 @@ export interface SkillRef {
 export interface HeroCard {
 	readonly type: "hero";
 	readonly id: string;
-	readonly name: string;
 	readonly diceByColor: DiceByColor;
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
 	readonly damage: number;
 	readonly skills: readonly SkillRef[];
-	readonly style: string;
 }
 
 // --- Creature ---
@@ -37,7 +35,6 @@ export interface HeroCard {
 export interface CreatureCard {
 	readonly type: "creature";
 	readonly id: string;
-	readonly name: string;
 	readonly diceByColor: DiceByColor;
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
@@ -53,7 +50,6 @@ export interface CreatureCard {
 export interface SubbossCard {
 	readonly type: "subboss";
 	readonly id: string;
-	readonly name: string;
 	readonly diceByColor: DiceByColor;
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
@@ -69,7 +65,6 @@ export interface SubbossCard {
 export interface RoomCard {
 	readonly type: "room";
 	readonly id: string;
-	readonly name: string;
 	readonly exits: number;
 	// Número de inimigos por quantidade de jogadores: [1p, 2p, 3p, 4p]
 	readonly enemiesByPlayers: readonly [number, number, number, number];
@@ -84,7 +79,6 @@ export interface RoomCard {
 export interface SubbossRoomCard {
 	readonly type: "subboss_room";
 	readonly id: string;
-	readonly name: string;
 	readonly exits: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
@@ -100,9 +94,7 @@ export type ItemClass = "equipment" | "consumable" | "utility" | "special";
 export interface ItemCard {
 	readonly type: "item";
 	readonly id: string;
-	readonly name: string;
 	readonly itemClass: ItemClass;
-	readonly tags: readonly string[];
 	readonly skills: readonly SkillRef[];
 }
 
@@ -111,7 +103,6 @@ export interface ItemCard {
 export interface ArtifactCard {
 	readonly type: "artifact";
 	readonly id: string;
-	readonly name: string;
 	readonly countsAs: "artifact";
 	readonly skills: readonly SkillRef[];
 }
@@ -121,17 +112,10 @@ export interface ArtifactCard {
 export interface BossCard {
 	readonly type: "boss";
 	readonly id: string;
-	readonly name: string;
-	// Boss usa string descritiva em vez de diceByColor
-	readonly dice: string;
 	readonly lifeBase: number;
 	readonly hitBonusBase: number;
 	readonly damage: number;
-	readonly condition: string;
-	readonly artifactBonus: string;
-	readonly dungeonScaling: string;
 	readonly skills: readonly SkillRef[];
-	readonly victory: string;
 }
 
 // --- União discriminada ---

@@ -1,11 +1,24 @@
 - id: hero_eternal_rest_cleric
   type: hero
-  name: Clérigo do Descanso Eterno
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 9, 11, 13, 15, 17 ]
-  hitBonus: [ 4, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 9
+    - 11
+    - 13
+    - 15
+    - 17
+  hitBonus:
+    - 4
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 2
-  style: suporte, cura, sobrevivência, Última Luz.
   skills:
     - skillId: skill_last_light_healing
       params:
@@ -13,12 +26,25 @@
     - skillId: power_greater_last_light_miracle
 - id: hero_broken_bastion_warrior
   type: hero
-  name: Guerreiro do Bastião Partido
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 11, 13, 15, 17, 19 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 11
+    - 13
+    - 15
+    - 17
+    - 19
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 3
-  style: combate, linha de frente, Bastião Partido, dano.
   skills:
     - skillId: skill_bastion_guard
       params:
@@ -28,12 +54,25 @@
         value: 1
 - id: hero_rift_rogue
   type: hero
-  name: Ladino das Fendas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 8, 10, 12, 14, 16 ]
-  hitBonus: [ 4, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 8
+    - 10
+    - 12
+    - 14
+    - 16
+  hitBonus:
+    - 4
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 2
-  style: exploração, controle da dungeon, Fendas, mobilidade.
   skills:
     - skillId: skill_preserved_path
     - skillId: power_restored_path
@@ -41,12 +80,25 @@
         value: 1
 - id: hero_crimson_rune_mage
   type: hero
-  name: Mago das Runas Rubras
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 8, 9, 11, 13, 15 ]
-  hitBonus: [ 4, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 8
+    - 9
+    - 11
+    - 13
+    - 15
+  hitBonus:
+    - 4
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 2
-  style: magia, manipulação de dado, controle, Fendas.
   skills:
     - skillId: skill_rift_rune
       params:
@@ -54,12 +106,25 @@
     - skillId: power_supreme_rift_rune
 - id: hero_crimson_barbarian
   type: hero
-  name: Bárbaro Rubro
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 12, 14, 16, 18, 20 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 12
+    - 14
+    - 16
+    - 18
+    - 20
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 4
-  style: dano, risco, Deserto Rubro, sacrifício.
   skills:
     - skillId: skill_crimson_fury
       params:
@@ -67,12 +132,25 @@
     - skillId: power_mighty_crimson_fury
 - id: hero_last_light_paladin
   type: hero
-  name: Paladino da Última Luz
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 10, 12, 14, 16, 18 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 10
+    - 12
+    - 14
+    - 16
+    - 18
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 3
-  style: equilíbrio, cura, dano, Última Luz.
   skills:
     - skillId: skill_final_dawn_light
       params:
@@ -80,12 +158,25 @@
     - skillId: power_last_light_oath
 - id: hero_deep_veil_necromancer
   type: hero
-  name: Necromante do Véu Profundo
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 8, 10, 12, 14, 16 ]
-  hitBonus: [ 4, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 8
+    - 10
+    - 12
+    - 14
+    - 16
+  hitBonus:
+    - 4
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 2
-  style: Véu, recuperação, controle tardio, necromancia.
   skills:
     - skillId: skill_return_rite
       params:
@@ -93,12 +184,25 @@
     - skillId: power_deep_veil_echo
 - id: hero_broken_veil_hunter
   type: hero
-  name: Caçador do Véu Partido
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 9, 10, 12, 14, 16 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 9
+    - 10
+    - 12
+    - 14
+    - 16
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 3
-  style: foco, precisão, eliminação, Véu.
   skills:
     - skillId: skill_prey_mark
       params:
@@ -106,10 +210,24 @@
     - skillId: power_hunter_execution
 - id: creature_deep_rift_rat
   type: creature
-  name: Rato das Fendas Profundas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 1, 2, 3, 4, 6 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 1
+    - 2
+    - 3
+    - 4
+    - 6
+  hitBonus:
+    - 2
+    - 3
+    - 5
+    - 7
+    - 10
   damage: 1
   xp: 1
   reward: 1
@@ -124,10 +242,24 @@
       requiresAwakening: true
 - id: creature_dark_cave_goblin
   type: creature
-  name: Goblin das Cavernas Escuras
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 1, 2, 3, 5, 7 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 1
+    - 2
+    - 3
+    - 5
+    - 7
+  hitBonus:
+    - 2
+    - 3
+    - 5
+    - 7
+    - 10
   damage: 2
   xp: 1
   reward: 1
@@ -140,10 +272,24 @@
       requiresAwakening: true
 - id: creature_wet_stone_slime
   type: creature
-  name: Limo das Pedras Úmidas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 2
+    - 3
+    - 4
+    - 6
+    - 8
+  hitBonus:
+    - 2
+    - 3
+    - 5
+    - 7
+    - 10
   damage: 2
   xp: 1
   reward: 1
@@ -158,10 +304,24 @@
       requiresAwakening: true
 - id: creature_black_ceiling_bat
   type: creature
-  name: Morcego do Teto Negro
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 2
+    - 3
+    - 4
+    - 6
+    - 8
+  hitBonus:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 3
   xp: 2
   reward: 1
@@ -172,10 +332,24 @@
       requiresAwakening: true
 - id: creature_ancient_pillar_spider
   type: creature
-  name: Aranha dos Pilares Antigos
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 3, 4, 5, 7, 9 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 3
+    - 4
+    - 5
+    - 7
+    - 9
+  hitBonus:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 4
   xp: 2
   reward: 1
@@ -190,10 +364,24 @@
       requiresAwakening: true
 - id: creature_broken_gates_watcher
   type: creature
-  name: Vigia das Portas Quebradas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 4, 5, 6, 8, 10 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 4
+    - 5
+    - 6
+    - 8
+    - 10
+  hitBonus:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 4
   xp: 2
   reward: 2
@@ -208,10 +396,24 @@
       requiresAwakening: true
 - id: creature_hidden_flame_cultist
   type: creature
-  name: Cultista da Chama Oculta
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 2
+    - 3
+    - 4
+    - 6
+    - 8
+  hitBonus:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 3
   xp: 2
   reward: 1
@@ -226,10 +428,24 @@
       requiresAwakening: true
 - id: creature_catacomb_skeleton
   type: creature
-  name: Esqueleto das Catacumbas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 5, 6, 7, 9, 11 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 5
+    - 6
+    - 7
+    - 9
+    - 11
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 5
   xp: 3
   reward: 2
@@ -244,10 +460,24 @@
       requiresAwakening: true
 - id: creature_dead_passage_thief
   type: creature
-  name: Ladrão das Passagens Mortas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 6, 7, 8, 10, 12 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 6
+    - 7
+    - 8
+    - 10
+    - 12
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 5
   xp: 3
   reward: 2
@@ -262,10 +492,24 @@
       requiresAwakening: true
 - id: creature_old_chains_knight
   type: creature
-  name: Cavaleiro das Correntes Velhas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 7, 8, 9, 11, 13 ]
-  hitBonus: [ 6, 9, 12, 16, 20 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 7
+    - 8
+    - 9
+    - 11
+    - 13
+  hitBonus:
+    - 6
+    - 9
+    - 12
+    - 16
+    - 20
   damage: 6
   xp: 3
   reward: 2
@@ -278,10 +522,24 @@
       requiresAwakening: true
 - id: creature_low_fire_salamander
   type: creature
-  name: Salamandra do Fogo Baixo
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 4, 5, 6, 8, 10 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 4
+    - 5
+    - 6
+    - 8
+    - 10
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 5
   xp: 3
   reward: 2
@@ -296,10 +554,24 @@
       requiresAwakening: true
 - id: creature_ruined_hall_ogre
   type: creature
-  name: Ogro do Salão Arruinado
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 5, 6, 7, 9, 11 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 5
+    - 6
+    - 7
+    - 9
+    - 11
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 5
   xp: 3
   reward: 2
@@ -314,10 +586,24 @@
       requiresAwakening: true
 - id: creature_low_ember_kobold
   type: creature
-  name: Kobold das Brasas Baixas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 1, 2, 3, 5, 7 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 1
+    - 2
+    - 3
+    - 5
+    - 7
+  hitBonus:
+    - 2
+    - 3
+    - 5
+    - 7
+    - 10
   damage: 2
   xp: 1
   reward: 1
@@ -332,10 +618,24 @@
       requiresAwakening: true
 - id: creature_hot_ash_worm
   type: creature
-  name: Verme das Cinzas Quentes
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 2
+    - 3
+    - 4
+    - 6
+    - 8
+  hitBonus:
+    - 2
+    - 3
+    - 5
+    - 7
+    - 10
   damage: 2
   xp: 1
   reward: 1
@@ -350,10 +650,24 @@
       requiresAwakening: true
 - id: creature_blazing_skull
   type: creature
-  name: Crânio Flamejante
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 2
+    - 3
+    - 4
+    - 6
+    - 8
+  hitBonus:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 3
   xp: 2
   reward: 1
@@ -366,10 +680,24 @@
       requiresAwakening: true
 - id: creature_dead_torch_sentinel
   type: creature
-  name: Sentinela das Tochas Mortas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 4, 5, 6, 8, 10 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 4
+    - 5
+    - 6
+    - 8
+    - 10
+  hitBonus:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 4
   xp: 2
   reward: 2
@@ -384,10 +712,24 @@
       requiresAwakening: true
 - id: creature_forge_acolyte
   type: creature
-  name: Acólito da Fornalha
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 2
+    - 3
+    - 4
+    - 6
+    - 8
+  hitBonus:
+    - 3
+    - 5
+    - 7
+    - 10
+    - 14
   damage: 3
   xp: 2
   reward: 1
@@ -402,10 +744,24 @@
       requiresAwakening: true
 - id: creature_broken_chains_brute
   type: creature
-  name: Bruto das Correntes Partidas
-  diceByColor: [ 1, 1, 2, 2, 3 ]
-  life: [ 5, 6, 7, 9, 11 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 1
+    - 2
+    - 2
+    - 3
+  life:
+    - 5
+    - 6
+    - 7
+    - 9
+    - 11
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 5
   xp: 3
   reward: 2
@@ -418,10 +774,24 @@
       requiresAwakening: true
 - id: subboss_crimson_dungeon_jailer
   type: subboss
-  name: Carcereiro da Masmorra Rubra
-  diceByColor: [ 1, 2, 2, 3, 3 ]
-  life: [ 6, 7, 8, 10, 12 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  diceByColor:
+    - 1
+    - 2
+    - 2
+    - 3
+    - 3
+  life:
+    - 6
+    - 7
+    - 8
+    - 10
+    - 12
+  hitBonus:
+    - 5
+    - 7
+    - 10
+    - 14
+    - 18
   damage: 5
   xp: 4
   reward: 1
@@ -432,10 +802,24 @@
       requiresAwakening: true
 - id: subboss_cracked_abyss_guardian
   type: subboss
-  name: Guardião do Abismo Rachado
-  diceByColor: [ 1, 2, 2, 3, 3 ]
-  life: [ 8, 9, 10, 12, 14 ]
-  hitBonus: [ 6, 9, 12, 16, 20 ]
+  diceByColor:
+    - 1
+    - 2
+    - 2
+    - 3
+    - 3
+  life:
+    - 8
+    - 9
+    - 10
+    - 12
+    - 14
+  hitBonus:
+    - 6
+    - 9
+    - 12
+    - 16
+    - 20
   damage: 6
   xp: 4
   reward: 1
@@ -450,202 +834,118 @@
       requiresAwakening: true
 - id: item_pitch_torch
   type: item
-  name: Tocha de Breu
   itemClass: utility
-  tags:
-    - Utilitário
   skills:
     - skillId: skill_illuminate_path
       params:
         value: 1
 - id: item_worn_explorer_rope
   type: item
-  name: Corda Gasta de Explorador
   itemClass: consumable
-  tags:
-    - Consumível
-    - Exploração
   skills:
     - skillId: skill_preserved_path
 - id: item_rusty_dagger
   type: item
-  name: Adaga Enferrujada
   itemClass: equipment
-  tags:
-    - Equipável
-    - Arma
   skills:
     - skillId: item_skill_deadly_edge
       params:
         value: 1
 - id: item_cracked_shield
   type: item
-  name: Escudo Rachado
   itemClass: equipment
-  tags:
-    - Equipável
-    - Escudo
-    - Defesa
   skills:
     - skillId: item_skill_block
       params:
         value: 2
 - id: item_lesser_vigor_potion
   type: item
-  name: Poção de Vigor Menor
   itemClass: consumable
-  tags:
-    - Consumível
-    - Cura
   skills:
     - skillId: skill_last_light_healing
       params:
         value: 2
 - id: item_incendiary_oil_flask
   type: item
-  name: Frasco de Óleo Incendiário
   itemClass: consumable
-  tags:
-    - Consumível
-    - Fogo
   skills:
     - skillId: skill_living_ember_oil
       params:
         value: item_incendiary_oil_flask.livingEmber
 - id: item_ancient_iron_key
   type: item
-  name: Chave de Ferro Antiga
   itemClass: special
-  tags:
-    - Especial
-    - Artefato
   skills:
     - skillId: item_skill_mystic_draw
       params:
         value: 1
 - id: item_tunnel_hood
   type: item
-  name: Capuz do Túnel
   itemClass: equipment
-  tags:
-    - Equipável
-    - Proteção
-    - Exploração
   skills:
     - skillId: skill_focus_deflection
       params:
         value: 2
 - id: item_light_stone_boots
   type: item
-  name: Botas de Pedra Leve
   itemClass: equipment
-  tags:
-    - Equipável
-    - Mobilidade
   skills:
     - skillId: skill_rift_light_step
 - id: item_crimson_rune_staff
   type: item
-  name: Cajado das Runas Rubras
   itemClass: equipment
-  tags:
-    - Equipável
-    - Arma
-    - Runas
   skills:
     - skillId: skill_minor_rune
       params:
         value: 1
 - id: item_last_light_sword
   type: item
-  name: Espada da Última Luz
   itemClass: equipment
-  tags:
-    - Equipável
-    - Arma
-    - Última Luz
   skills:
     - skillId: item_skill_last_light_blade
 - id: item_deep_veil_scythe
   type: item
-  name: Foice do Véu Profundo
   itemClass: equipment
-  tags:
-    - Equipável
-    - Arma
-    - Véu
   skills:
     - skillId: item_skill_drain_life_and_deadly_edge
       params:
         value: 1
 - id: item_ruined_hall_axe
   type: item
-  name: Machado do Salão Arruinado
   itemClass: equipment
-  tags:
-    - Equipável
-    - Arma
-    - Dano
   skills:
     - skillId: item_skill_deadly_edge
       params:
         value: 3
 - id: item_broken_stone_hammer
   type: item
-  name: Martelo de Pedra Quebrada
   itemClass: equipment
-  tags:
-    - Equipável
-    - Arma
-    - Força
   skills:
     - skillId: item_skill_deadly_edge
       params:
         value: 2
 - id: item_rift_bow
   type: item
-  name: Arco das Fendas
   itemClass: equipment
-  tags:
-    - Equipável
-    - Arma
-    - Distância
-    - Fendas
   skills:
     - skillId: skill_opportunity_shot
 - id: item_reinforced_leather_armor
   type: item
-  name: Armadura de Couro Reforçado
   itemClass: equipment
-  tags:
-    - Equipável
-    - Armadura
-    - Defesa
   skills:
     - skillId: item_skill_block
       params:
         value: 1
 - id: item_ancient_metal_armor
   type: item
-  name: Armadura de Metal Antigo
   itemClass: equipment
-  tags:
-    - Equipável
-    - Armadura
-    - Metal
   skills:
     - skillId: item_skill_block
       params:
         value: 2
 - id: item_forge_magic_armor
   type: item
-  name: Armadura Mágica da Fornalha
   itemClass: equipment
-  tags:
-    - Equipável
-    - Armadura
-    - Fornalha
-    - Arcano
   skills:
     - skillId: item_skill_block_and_last_light_ward
       params:
@@ -653,191 +953,111 @@
         purple: 2
 - id: item_broken_veil_cloak
   type: item
-  name: Manto do Véu Partido
   itemClass: equipment
-  tags:
-    - Equipável
-    - Armadura
-    - Véu
   skills:
     - skillId: skill_protective_veil
 - id: item_fury_potion
   type: item
-  name: Poção de Fúria
   itemClass: consumable
-  tags:
-    - Consumível
-    - Deserto Rubro
-    - Dano
   skills:
     - skillId: skill_crimson_fury
       params:
         value: 2
 - id: item_precision_potion
   type: item
-  name: Poção de Precisão
   itemClass: consumable
-  tags:
-    - Consumível
-    - Precisão
   skills:
     - skillId: skill_hunter_focus
       params:
         value: 4
 - id: item_stoneskin_potion
   type: item
-  name: Poção de Pele de Pedra
   itemClass: consumable
-  tags:
-    - Consumível
-    - Defesa
-    - Pedra
   skills:
     - skillId: item_skill_block
       params:
         value: 3
 - id: item_return_potion
   type: item
-  name: Poção de Retorno
   itemClass: consumable
-  tags:
-    - Consumível
-    - Dungeon
-    - Fendas
   skills:
     - skillId: power_restored_path
       params:
         value: 1
 - id: item_living_ember_potion
   type: item
-  name: Poção de Brasa Viva
   itemClass: consumable
-  tags:
-    - Consumível
-    - Fogo
-    - Dano Direto
   skills:
     - skillId: skill_living_ember
       params:
         value: 3
 - id: item_greater_vigor_potion
   type: item
-  name: Poção de Vigor Maior
   itemClass: consumable
-  tags:
-    - Consumível
-    - Cura
   skills:
     - skillId: skill_last_light_healing
       params:
         value: 4
 - id: item_silent_dungeon_charm
   type: item
-  name: Encanto da Masmorra Calada
   itemClass: charm
-  tags:
-    - Encanto
-    - Dungeon
-    - Proteção
   skills:
     - skillId: skill_path_safeguard
 - id: item_low_flame_charm
   type: item
-  name: Encanto da Chama Baixa
   itemClass: charm
-  tags:
-    - Encanto
-    - Fornalha
-    - Acerto
   skills:
     - skillId: skill_hunter_focus
       params:
         value: 2
 - id: item_warm_blood_charm
   type: item
-  name: Encanto do Sangue Quente
   itemClass: charm
-  tags:
-    - Encanto
-    - Deserto Rubro
-    - Sobrevivência
   skills:
     - skillId: item_skill_block
       params:
         value: 10
 - id: item_safe_path_charm
   type: item
-  name: Encanto do Caminho Seguro
   itemClass: charm
-  tags:
-    - Encanto
-    - Exploração
-    - Dungeon
   skills:
     - skillId: skill_illuminate_path
 - id: item_last_defense_charm
   type: item
-  name: Encanto da Última Defesa
   itemClass: charm
-  tags:
-    - Encanto
-    - Última Luz
-    - Sobrevivência
   skills:
     - skillId: power_greater_last_light_miracle
 - id: item_last_chord_lute
   type: item
-  name: Alaúde do Último Acorde
   itemClass: equipment
-  tags:
-    - Equipável
-    - Encanto
-    - Fuga
   skills:
     - skillId: skill_protective_veil
 - id: item_narrow_exit_cloak
   type: item
-  name: Manto da Saída Estreita
   itemClass: equipment
-  tags:
-    - Equipável
-    - Fuga
-    - Mobilidade
   skills:
     - skillId: skill_illuminate_path
 - id: item_torn_depths_map
   type: item
-  name: Mapa Rasgado das Profundezas
   itemClass: special
-  tags:
-    - Especial
-    - Artefato
-    - Exploração
   skills:
     - skillId: item_skill_mystic_draw
       params:
         value: 1
 - id: item_hidden_forge_chest
   type: item
-  name: Baú Oculto da Fornalha
   itemClass: special
-  tags:
-    - Especial
-    - Artefato
-    - Fornalha
   skills:
     - skillId: item_skill_mystic_draw
       params:
         value: 1
 - id: artifact_crimson_jailer_chain
   type: artifact
-  name: Corrente do Carcereiro Rubro
   countsAs: artifact
   skills:
     - skillId: skill_preserved_path
 - id: artifact_ancient_ember_heart
   type: artifact
-  name: Coração de Brasa Antiga
   countsAs: artifact
   skills:
     - skillId: item_skill_deadly_edge
@@ -845,19 +1065,16 @@
         value: 1
 - id: artifact_lost_forge_hammer
   type: artifact
-  name: Martelo da Forja Perdida
   countsAs: artifact
   skills:
     - skillId: power_supreme_rift_rune
 - id: artifact_last_vigil_brazier
   type: artifact
-  name: Braseiro da Última Vigília
   countsAs: artifact
   skills:
     - skillId: power_greater_last_light_miracle
 - id: artifact_first_fire_blade
   type: artifact
-  name: Lâmina do Primeiro Incêndio
   countsAs: artifact
   skills:
     - skillId: item_skill_crimson_fury_mighty
@@ -865,7 +1082,6 @@
         value: 2
 - id: subboss_room_jailer_chamber
   type: subboss_room
-  name: Câmara do Carcereiro
   exits: 1
   reward: 1
   rewardType: artifact
@@ -875,7 +1091,6 @@
     - skillId: dungeon_skill_subboss_room
 - id: subboss_room_cracked_abyss_chamber
   type: subboss_room
-  name: Câmara do Abismo Rachado
   exits: 2
   reward: 1
   rewardType: artifact
@@ -885,18 +1100,24 @@
     - skillId: dungeon_skill_subboss_room
 - id: room_narrow_corridor
   type: room
-  name: Corredor Estreito
   exits: 1
-  enemiesByPlayers: [ 1, 1, 2, 2 ]
+  enemiesByPlayers:
+    - 1
+    - 1
+    - 2
+    - 2
   reward: 1
   rewardType: item
   skills:
     - skillId: dungeon_skill_empty_room
 - id: room_dungeon_room
   type: room
-  name: Sala da Masmorra
   exits: 3
-  enemiesByPlayers: [ 1, 2, 2, 3 ]
+  enemiesByPlayers:
+    - 1
+    - 2
+    - 2
+    - 3
   reward: 1
   rewardType: item
   xp: 1
@@ -904,9 +1125,12 @@
     - skillId: dungeon_skill_empty_room
 - id: room_crimson_chains_chamber
   type: room
-  name: Câmara das Correntes Rubras
   exits: 3
-  enemiesByPlayers: [ 1, 2, 3, 4 ]
+  enemiesByPlayers:
+    - 1
+    - 2
+    - 3
+    - 4
   reward: 1
   rewardType: item
   xp: 2
@@ -914,9 +1138,12 @@
     - skillId: dungeon_skill_confinement
 - id: room_dead_torches_passage
   type: room
-  name: Passagem das Tochas Mortas
   exits: 2
-  enemiesByPlayers: [ 1, 2, 2, 3 ]
+  enemiesByPlayers:
+    - 1
+    - 2
+    - 2
+    - 3
   reward: 1
   rewardType: item
   xp: 2
@@ -924,9 +1151,12 @@
     - skillId: dungeon_skill_dead_torches
 - id: room_broken_columns_hall
   type: room
-  name: Salão das Colunas Quebradas
   exits: 4
-  enemiesByPlayers: [ 1, 2, 3, 4 ]
+  enemiesByPlayers:
+    - 1
+    - 2
+    - 3
+    - 4
   reward: 1
   rewardType: item
   xp: 1
@@ -936,9 +1166,12 @@
         value: 1
 - id: room_depths_stairway
   type: room
-  name: Escadaria para as Profundezas
   exits: 2
-  enemiesByPlayers: [ 2, 2, 3, 4 ]
+  enemiesByPlayers:
+    - 2
+    - 2
+    - 3
+    - 4
   reward: 1
   rewardType: item
   xp: 2
@@ -948,9 +1181,12 @@
         value: 1
 - id: room_abandoned_cell
   type: room
-  name: Cela Abandonada
   exits: 3
-  enemiesByPlayers: [ 0, 1, 2, 2 ]
+  enemiesByPlayers:
+    - 0
+    - 1
+    - 2
+    - 2
   reward: 1
   rewardType: item
   xp: 1
@@ -958,9 +1194,12 @@
     - skillId: dungeon_skill_forge_spoils
 - id: room_ruined_forge
   type: room
-  name: Forja em Ruínas
   exits: 3
-  enemiesByPlayers: [ 1, 1, 2, 3 ]
+  enemiesByPlayers:
+    - 1
+    - 1
+    - 2
+    - 3
   reward: 2
   rewardType: item
   xp: 2
@@ -968,9 +1207,12 @@
     - skillId: dungeon_skill_rekindled_forge
 - id: room_jailer_room
   type: room
-  name: Sala do Carcereiro
   exits: 2
-  enemiesByPlayers: [ 1, 2, 3, 4 ]
+  enemiesByPlayers:
+    - 1
+    - 2
+    - 3
+    - 4
   reward: 1
   rewardType: artifact
   xp: 3
@@ -979,9 +1221,12 @@
     - skillId: dungeon_skill_summon_guardian
 - id: room_cracked_abyss
   type: room
-  name: Abismo Rachado
   exits: 4
-  enemiesByPlayers: [ 2, 3, 4, 5 ]
+  enemiesByPlayers:
+    - 2
+    - 3
+    - 4
+    - 5
   reward: 1
   rewardType: artifact
   xp: 3
@@ -990,16 +1235,9 @@
     - skillId: dungeon_skill_summon_guardian
 - id: boss_azhakar
   type: boss
-  name: Azhakar, Dragão da Fornalha Sombria
-  dice: 3 dados vermelhos
   lifeBase: 20
   hitBonusBase: 12
   damage: 6
-  condition: o grupo precisa possuir ao menos 3 Artefatos.
-  artifactBonus: se o grupo possuir Corrente do Carcereiro Rubro, Coração de Brasa Antiga e Martelo da Forja Perdida,
-    Azhakar começa a luta com 16 de Vida em vez de 20.
-  dungeonScaling: Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.
-  victory: ao derrotar Azhakar, os jogadores vencem a partida.
   accessCondition:
     type: group_artifacts_gte
     value: 2

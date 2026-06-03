@@ -1,7 +1,7 @@
 // Card horizontal da sala atual (~200px). Vive dentro do tabuleiro, no topo central.
 // Inclui Despertar embutido.
 
-import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import type { ColorIndex } from "@/core/state/color";
 import type { RoomState } from "@/core/state/roomState";
 import { UI } from "@/ui/theme";
@@ -77,7 +77,7 @@ export function RoomCard({ room, despertar, onClick }: RoomCardProps) {
 						whiteSpace: "nowrap",
 					}}
 				>
-					{getCardById(room.cardId)?.name ?? room.cardId}
+					{getCardName(room.cardId)}
 				</p>
 				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 3 }}>
 					Saídas {room.exits} · XP {room.xp}

@@ -4,6 +4,7 @@
 
 import { useState } from "react";
 import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -32,7 +33,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 
 	if (!reward) return null;
 
-	const rewardName = getCardById(reward.cardId)?.name ?? reward.cardId;
+	const rewardName = getCardName(reward.cardId);
 
 	// ── Artefato ──────────────────────────────────────────────────────────────
 	if (reward.type === "artifact") {
@@ -70,7 +71,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 									}}
 									onClick={() => setSelectedHeroId(h.id)}
 								>
-									{getCardById(h.cardId)?.name ?? h.cardId}{" "}
+									{getCardName(h.cardId)}{" "}
 									<span style={{ color: UI.textSecondary }}>
 										({h.currentLife}/{h.maxLife} vida)
 									</span>
@@ -162,7 +163,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 								}}
 								onClick={() => setSelectedHeroId(h.id)}
 							>
-								{getCardById(h.cardId)?.name ?? h.cardId}{" "}
+								{getCardName(h.cardId)}{" "}
 								<span style={{ color: UI.textSecondary }}>
 									({h.currentLife}/{h.maxLife} vida)
 								</span>
@@ -203,7 +204,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 						</p>
 						{hero && (
 							<p className="text-xs" style={{ color: UI.textSecondary }}>
-								Para: {getCardById(hero.cardId)?.name ?? hero.cardId}
+								Para: {getCardName(hero.cardId)}
 							</p>
 						)}
 					</div>

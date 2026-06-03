@@ -1,5 +1,6 @@
 import { useState } from "react";
 import { getBoss, getHeroes } from "@/core/data/cards";
+import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -184,7 +185,7 @@ export function Setup({ onBack }: SetupProps) {
 										className="text-xs font-medium mt-1 leading-tight"
 										style={{ color: UI.textPrimary }}
 									>
-										{h.name}
+										{getCardName(h.id)}
 									</p>
 									<p className="text-xs" style={{ color: UI.textTertiary }}>
 										Vida {h.life[0]} · +{h.hitBonus[0]} · Dano {h.damage}
@@ -193,7 +194,7 @@ export function Setup({ onBack }: SetupProps) {
 										className="text-xs italic mt-0.5"
 										style={{ color: UI.textTertiary }}
 									>
-										{h.style}
+										{getCardLocale(h.id)?.style}
 									</p>
 								</button>
 							);
@@ -225,10 +226,10 @@ export function Setup({ onBack }: SetupProps) {
 									className="text-sm font-medium"
 									style={{ color: UI.textPrimary }}
 								>
-									{boss.name}
+									{getCardName(boss.id)}
 								</p>
 								<p className="text-xs" style={{ color: UI.textSecondary }}>
-									Condição: {boss.condition}
+									Condição: {getCardLocale(boss.id)?.condition}
 								</p>
 							</div>
 						</div>

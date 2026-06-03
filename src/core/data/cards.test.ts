@@ -6,6 +6,7 @@ import {
 	getDiceCount,
 	getHeroes,
 } from "./cards";
+import { getCardName } from "./cardLocale";
 
 describe("catálogo de cartas", () => {
 	it("carrega o total correto de cartas", () => {
@@ -19,7 +20,7 @@ describe("catálogo de cartas", () => {
 	it("getBoss retorna Azhakar", () => {
 		const boss = getBoss();
 		expect(boss).toBeDefined();
-		expect(boss?.name).toBe("Azhakar, Dragão da Fornalha Sombria");
+		expect(boss && getCardName(boss.id)).toBe("Azhakar, Dragão da Fornalha Sombria");
 		expect(boss?.type).toBe("boss");
 	});
 

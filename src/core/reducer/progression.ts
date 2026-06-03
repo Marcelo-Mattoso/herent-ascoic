@@ -2,6 +2,7 @@
 // Usada pelos handlers de SPEND_XP.
 
 import { getCardById, getSubbossRooms } from "../data/cards";
+import { getCardName } from "../data/cardLocale";
 import { nextColor, previousColor, valueAtColor } from "../rules/colorScale";
 import type { ColorIndex } from "../state/color";
 import type { GameState } from "../state/gameState";
@@ -15,7 +16,7 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 
 	const newImpeto = nextColor(hero.impeto);
 	if (newImpeto === hero.impeto) {
-		return log(state, `${getCardById(hero.cardId)?.name ?? hero.cardId} já está no nível máximo.`);
+		return log(state, `${getCardName(hero.cardId)} já está no nível máximo.`);
 	}
 
 	const card = getCardById(hero.cardId);
@@ -44,7 +45,7 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 
 	return log(
 		next,
-		`${getCardById(hero.cardId)?.name ?? hero.cardId} subiu para nível ${newImpeto}. Despertar avança.`,
+		`${getCardName(hero.cardId)} subiu para nível ${newImpeto}. Despertar avança.`,
 	);
 }
 
@@ -58,7 +59,7 @@ function injectSubbossRooms(state: GameState): GameState {
 		[...available, ...subbossRoomIds],
 		state.rng,
 	);
-	const subbossRoomNames = getSubbossRooms().map((r) => r.name);
+	const subbossRoomNames = getSubbossRooms().map((r) => getCardName(r.id));
 	return log(
 		{
 			...state,

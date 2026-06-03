@@ -1,7 +1,7 @@
 // Card mini de herói (~64px). Usado no tabuleiro.
 // Suporta drag-and-drop nativo HTML5 para iniciar combate.
 
-import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import type { HeroState } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";
 import { HpBar } from "./HpBar";
@@ -51,7 +51,7 @@ export function HeroCard({
 					? 0.65
 					: 1;
 
-	const heroName = getCardById(hero.cardId)?.name ?? hero.cardId;
+	const heroName = getCardName(hero.cardId);
 	const firstName = heroName.split(",")[0]?.split(" ")[0] ?? heroName;
 	const shortName =
 		firstName.length > 7 ? `${firstName.slice(0, 7)}` : firstName;

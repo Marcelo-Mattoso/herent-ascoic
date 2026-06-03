@@ -3,6 +3,7 @@
 // Também cobre ações de não-combate (revelar sala, iniciar combate, etc.).
 
 import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -104,7 +105,7 @@ export function HeroFocusPanel({
 									whiteSpace: "nowrap",
 								}}
 							>
-								{(getCardById(hero.cardId)?.name ?? hero.cardId).split(",")[0]?.split(" ")[0]}
+								{(getCardName(hero.cardId)).split(",")[0]?.split(" ")[0]}
 							</p>
 						</div>
 
@@ -273,7 +274,7 @@ export function HeroFocusPanel({
 								marginBottom: 4,
 							}}
 						>
-							🎒 Mochila do {(getCardById(hero.cardId)?.name ?? hero.cardId).split(" ")[0]} ·{" "}
+							🎒 Mochila do {(getCardName(hero.cardId)).split(" ")[0]} ·{" "}
 							{hero.backpack.length === 0
 								? "vazia"
 								: `${hero.backpack.length} ${hero.backpack.length === 1 ? "item" : "itens"}`}

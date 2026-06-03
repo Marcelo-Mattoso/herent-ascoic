@@ -3,6 +3,7 @@
 
 import { parse } from "yaml";
 import cardsYaml from "../../data/cards.yaml?raw";
+import { getCardLocale } from "./cardLocale";
 import type {
 	AnyCard,
 	ArtifactCard,
@@ -15,7 +16,9 @@ import type {
 	SubbossRoomCard,
 } from "./cardTypes";
 
-// Valida que cada entrada tem pelo menos `id` e `type`
+const LOCALE_FIELDS = ["name", "style", "tags", "condition", "victory", "dice", "artifactBonus", "dungeonScaling"] as const;
+
+// Valida que cada entrada tem apenas campos mecânicos (sem contaminação pt-BR)
 function validateRaw(raw: unknown[]): AnyCard[] {
 	for (const entry of raw) {
 		if (
@@ -25,6 +28,11 @@ function validateRaw(raw: unknown[]): AnyCard[] {
 			!("type" in entry)
 		) {
 			throw new Error(`Carta inválida no YAML: ${JSON.stringify(entry)}`);
+		}
+		for (const field of LOCALE_FIELDS) {
+			if (field in (entry as object)) {
+				throw new Error(`Campo de locale "${field}" encontrado em carta mecânica: ${(entry as { id: string }).id}`);
+			}
 		}
 	}
 	return raw as AnyCard[];
@@ -96,7 +104,8 @@ export function getDiceCount(
 	colorIndex: 0 | 1 | 2 | 3 | 4,
 ): number {
 	if (card.type === "boss") {
-		const match = card.dice.match(/\d+/);
+		const dice = getCardLocale(card.id)?.dice ?? "";
+		const match = dice.match(/\d+/);
 		return match ? Number.parseInt(match[0], 10) : 1;
 	}
 	return card.diceByColor[colorIndex];

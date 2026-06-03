@@ -2,6 +2,7 @@
 // Implementa: Trono Vivo (reduz 1 no primeiro dano do turno), Ascensão Final (+2 hit abaixo da metade).
 
 import { getCardById, getBoss } from "../data/cards";
+import { getCardName } from "../data/cardLocale";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
@@ -44,7 +45,7 @@ export function handleRevealBoss(state: GameState): GameState {
 			status: "BOSS_COMBAT",
 			combat: createEmptyCombatState(),
 		},
-		`${bossCard.name} revelado! Vida: ${totalLife}, Bônus de Acerto: ${totalHitBonus}.`,
+		`${getCardName(bossCard.id)} revelado! Vida: ${totalLife}, Bônus de Acerto: ${totalHitBonus}.`,
 	);
 }
 
@@ -101,7 +102,7 @@ export function handleBossResolveAttack(state: GameState): GameState {
 		const shieldUsed = state.combat.shieldsUsedThisCombat[hero.id] ?? false;
 		const dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
 		next = applyDamage(next, hero.id, dmg);
-		next = log(next, `${getCardById(hero.cardId)?.name ?? hero.cardId} sofreu ${dmg} de dano do boss.`);
+		next = log(next, `${getCardName(hero.cardId)} sofreu ${dmg} de dano do boss.`);
 	}
 
 	return checkBossEnd(next);

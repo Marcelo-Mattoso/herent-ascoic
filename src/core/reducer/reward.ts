@@ -6,6 +6,7 @@ import type { InvFromZone, InvToZone } from "../actions/types";
 import type { XpSpendOption } from "../config/defaults";
 import { XP_COSTS } from "../config/defaults";
 import { getCardById } from "../data/cards";
+import { getCardName } from "../data/cardLocale";
 import { calculateRewards } from "../rules/reward";
 import { tickModifierDurations } from "../ecs/world";
 import { tickBlockEntries } from "../state/blockHelpers";
@@ -166,7 +167,7 @@ export function handleChooseItemDestination(
 	if (!reward || reward.type !== "item") return state;
 
 	const itemId = reward.cardId;
-	const itemName = getCardById(itemId)?.name ?? itemId;
+	const itemName = getCardName(itemId);
 	const remainingRewards = state.pendingRewards.slice(1);
 	let next: GameState = { ...state, pendingRewards: remainingRewards };
 
@@ -237,7 +238,7 @@ export function handleChooseArtifactBearer(
 		],
 	};
 
-	return advanceRewardPhase(log(next, `Artefato obtido: ${getCardById(reward.cardId)?.name ?? reward.cardId}.`));
+	return advanceRewardPhase(log(next, `Artefato obtido: ${getCardName(reward.cardId)}.`));
 }
 
 // Quando a fila fica vazia, avança para XP_SPEND_PHASE.
@@ -342,7 +343,7 @@ export function handleSpendXp(
 						artifactDeck: { available: rest, discarded, removed },
 					},
 				},
-				`Artefato comprado: ${getCardById(artName as string)?.name ?? artName}.`,
+				`Artefato comprado: ${getCardName(artName as string)}.`,
 			);
 		}
 	}
@@ -410,7 +411,7 @@ export function handleInvMove(
 		next = returnToZone(next, displaced, from);
 	}
 
-	const itemName = getCardById(itemId)?.name ?? itemId;
+	const itemName = getCardName(itemId);
 	return log(next, `${itemName}: ${zoneLabel(from)} → ${zoneLabel(to)}`);
 }
 
@@ -522,7 +523,7 @@ export function handleInvAssignItem(
 
 	const remaining = state.pendingRewards.filter((r) => r !== reward);
 	let next: GameState = { ...state, pendingRewards: remaining };
-	const itemName = getCardById(itemId)?.name ?? itemId;
+	const itemName = getCardName(itemId);
 
 	if (destination === "equip") {
 		const card = getCardById(itemId);
@@ -600,7 +601,7 @@ export function handleInvAssignArtifact(
 	if (state.groupArtifacts.length >= 2) return state;
 
 	const remaining = state.pendingRewards.filter((r) => r !== reward);
-	const artifactName = getCardById(artifactId)?.name ?? artifactId;
+	const artifactName = getCardName(artifactId);
 	return log(
 		{
 			...state,
@@ -659,8 +660,8 @@ export function distributeItemAuto(
 	if (!card || card.type !== "item") return state;
 
 	const dest = defaultItemDestination(hero, card.itemClass);
-	const itemName = card.name;
-	const heroName = getCardById(hero.cardId)?.name ?? hero.cardId;
+	const itemName = getCardName(itemId);
+	const heroName = getCardName(hero.cardId);
 
 	if (dest === "equip") {
 		const slot =

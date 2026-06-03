@@ -1,4 +1,4 @@
-import { getCardById } from "@/core/data/cards";
+import { getCardName } from "@/core/data/cardLocale";
 import type { ItemSlotType } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";
 import { ItemTile } from "./ItemTile";
@@ -17,7 +17,7 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 };
 
 export function ItemChip({ item, slot, onClick }: ItemChipProps) {
-	const label = getCardById(item)?.name ?? item;
+	const label = getCardName(item);
 	return (
 		<button
 			type="button"
