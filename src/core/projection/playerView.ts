@@ -5,6 +5,7 @@
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
 import { getCardById } from "../data/cards";
+import { getCardName } from "../data/cardLocale";
 import { getSkillName } from "../data/skillLocale";
 import type { ModifierComponent } from "../ecs/types";
 import type { PausedState } from "../effects/stack";
@@ -219,20 +220,20 @@ function resolveFromActor(skillId: string, state: GameState): InfluenceActor {
 		if (!card) continue;
 		if (card.type === "hero") {
 			const hero = state.heroes.find((h) => h.cardId === cardId);
-			if (hero) return { kind: "hero", id: hero.id, name: card.name };
+			if (hero) return { kind: "hero", id: hero.id, name: getCardName(card.id) };
 		}
 		if (card.type === "creature" || card.type === "subboss") {
 			const enemy = state.activeEnemies.find((e) => e.cardId === cardId);
-			if (enemy) return { kind: "enemy", id: enemy.id, name: card.name };
+			if (enemy) return { kind: "enemy", id: enemy.id, name: getCardName(card.id) };
 		}
 		if (card.type === "room" || card.type === "subboss_room") {
 			if (state.currentRoom?.cardId === cardId) {
-				return { kind: "room", id: cardId, name: card.name };
+				return { kind: "room", id: cardId, name: getCardName(card.id) };
 			}
 		}
 		if (card.type === "item" || card.type === "artifact") {
 			// Passiva while_equipped — "from" é o item
-			return { kind: "item", id: cardId, name: card.name };
+			return { kind: "item", id: cardId, name: getCardName(card.id) };
 		}
 	}
 	return { kind: "dungeon" };

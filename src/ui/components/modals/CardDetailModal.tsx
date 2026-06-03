@@ -1,5 +1,5 @@
 import { getCardById } from "@/core/data/cards";
-import { getCardName } from "@/core/data/cardLocale";
+import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { getSkillName } from "@/core/data/skillLocale";
 import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -80,7 +80,7 @@ export function CardDetailModal({
 										className="text-xs italic"
 										style={{ color: UI.textTertiary }}
 									>
-										{card.style}
+										{getCardLocale(card.id)?.style}
 									</p>
 								</>
 							);
@@ -185,7 +185,7 @@ export function CardDetailModal({
 
 					{card?.type === "boss" && (
 						<>
-							<Row label="Condição" value={card.condition} />
+							<Row label="Condição" value={getCardLocale(card.id)?.condition} />
 							{card.skills.map((ref) => {
 								const def = lookupSkillById(ref.skillId);
 								if (!def) return null;
