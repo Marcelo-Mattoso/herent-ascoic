@@ -36,7 +36,7 @@ Itens identificados em discussão mas adiados. Sem prazo; revisitar quando houve
 
 ## Strings de UI cravadas em `i_choose_one.options[].label`
 
-**Status:** adiado. Discutido em 2026-06-02.
+**Status:** ~~adiado~~ **resolvido em patch-22 lote B (2026-06-03)**.
 
 **Problema.** Opções de escolha do jogador (`i_choose_one`) carregam o `label` como string PT-BR direto no efeito, violando o padrão do projeto (dados em inglês, tradução resolvida na UI):
 
@@ -70,7 +70,7 @@ Ocorrências em [src/data/skills.yaml](../../src/data/skills.yaml) linhas 210, 4
 
 ## Deletar `src/data/skills.json`
 
-**Status:** adiado. Discutido em 2026-06-02.
+**Status:** ~~adiado~~ **resolvido em patch-22 lote C (2026-06-03)**.
 
 **Problema.** Após a migração pra YAML, [src/data/skills.json](../../src/data/skills.json) virou cópia derivada/stale. O runtime carrega exclusivamente o YAML ([core/data/skills.ts:2](../../src/core/data/skills.ts:2) — `import yamlText from "../../data/skills.yaml?raw"`). Manter o JSON no repo:
 
