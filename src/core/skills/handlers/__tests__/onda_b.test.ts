@@ -74,13 +74,15 @@ describe("DSL choose_one — dark_tribute", () => {
 			kind: "i_choose_one" as const,
 			options: [
 				{
-					label: "Descartar 1 item",
+					id: "discard_item",
+					params: { value: 1 },
 					effect: [
 						{ kind: "i_discard" as const, pile: "item" as const, count: 1 },
 					],
 				},
 				{
-					label: "Descartar 1 carta de dungeon",
+					id: "discard_dungeon",
+					params: { value: 1 },
 					effect: [
 						{
 							kind: "i_discard" as const,
@@ -107,11 +109,11 @@ describe("DSL choose_one — dark_tribute", () => {
 		);
 		const result = evaluate(darkTributeEffect, ctx);
 		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options.map((o) => o.label)).toContain(
-			"Descartar 1 item",
+		expect(result.pendingSkillChoice?.options.map((o) => o.id)).toContain(
+			"discard_item",
 		);
-		expect(result.pendingSkillChoice?.options.map((o) => o.label)).toContain(
-			"Descartar 1 carta de dungeon",
+		expect(result.pendingSkillChoice?.options.map((o) => o.id)).toContain(
+			"discard_dungeon",
 		);
 	});
 
@@ -139,7 +141,7 @@ describe("DSL choose_one — dark_tribute", () => {
 			type: "SKILL_CHOICE",
 			payload: {
 				skillId: "skill_dark_tribute",
-				choice: "Descartar 1 carta de dungeon",
+				choice: "discard_dungeon",
 			},
 		});
 		expect(result.decks.dungeonDeck.available).toHaveLength(1);
@@ -161,7 +163,7 @@ describe("DSL choose_one — dark_tribute", () => {
 		const withChoice = evaluate(darkTributeEffect, ctx);
 		const result = reducer(withChoice, {
 			type: "SKILL_CHOICE",
-			payload: { skillId: "skill_dark_tribute", choice: "Descartar 1 item" },
+			payload: { skillId: "skill_dark_tribute", choice: "discard_item" },
 		});
 		expect(result.heroes[0].backpack).toHaveLength(0);
 		expect(result.pendingSkillChoice).toBeUndefined();

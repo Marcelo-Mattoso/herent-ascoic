@@ -209,18 +209,20 @@ abilities:
     effect:
       - kind: i_choose_one
         options:
-          - label: Curar 2
+          - id: heal
+            params: { value: 2 }
             effect:
               - kind: i_heal
                 to: $target
-                amount: 2
-          - label: +2 dano
+                amount: $value
+          - id: damage_bonus
+            params: { value: 2 }
             effect:
               - kind: p_modifier
                 to: $source
                 stat: s_damage_dealt
                 operation: add
-                value: 2
+                value: $value
                 duration:
                   kind: once
     operate_type: op_active
@@ -459,12 +461,14 @@ abilities:
     effect:
       - kind: i_choose_one
         options:
-          - label: Descartar 1 item
+          - id: discard_item
+            params: { value: 1 }
             effect:
               - kind: i_discard
                 pile: item
                 count: 1
-          - label: Descartar 1 carta de dungeon
+          - id: discard_dungeon
+            params: { value: 1 }
             effect:
               - kind: i_discard
                 pile: dungeon
@@ -779,11 +783,12 @@ abilities:
     effect:
       - kind: i_choose_one
         options:
-          - label: Curar totalmente
+          - id: full_heal
             effect:
               - kind: i_full_heal
                 to: $target
-          - label: Sobreviver com 1 vida
+          - id: survive
+            params: { value: 1 }
             effect:
               - kind: i_prevent_destroy
                 to: $target
@@ -879,7 +884,8 @@ abilities:
     effect:
       - kind: i_choose_one
         options:
-          - label: Curar todos (5)
+          - id: heal_all
+            params: { value: 5 }
             effect:
               - kind: i_for_each
                 over: all_heroes
@@ -888,7 +894,8 @@ abilities:
                   - kind: i_heal
                     to: $target
                     amount: 5
-          - label: +5 dano sagrado
+          - id: damage_bonus_holy
+            params: { value: 5 }
             effect:
               - kind: p_modifier
                 to: $source
@@ -1084,12 +1091,14 @@ abilities:
     effect:
       - kind: i_choose_one
         options:
-          - label: Descartar 1 item
+          - id: discard_item
+            params: { value: 1 }
             effect:
               - kind: i_discard
                 pile: item
                 count: 1
-          - label: Descartar 1 carta de dungeon
+          - id: discard_dungeon
+            params: { value: 1 }
             effect:
               - kind: i_discard
                 pile: dungeon
@@ -1107,12 +1116,14 @@ abilities:
     effect:
       - kind: i_choose_one
         options:
-          - label: Descartar 1 item
+          - id: discard_item
+            params: { value: 1 }
             effect:
               - kind: i_discard
                 pile: item
                 count: 1
-          - label: Sofrer 3 dano
+          - id: take_damage
+            params: { value: 3 }
             effect:
               - kind: i_damage
                 to: $target
@@ -1316,12 +1327,14 @@ abilities:
     effect:
       - kind: i_choose_one
         options:
-          - label: Descartar 1 item
+          - id: discard_item
+            params: { value: 1 }
             effect:
               - kind: i_discard
                 pile: item
                 count: 1
-          - label: Sofrer -1 no acerto
+          - id: hit_penalty
+            params: { value: 1 }
             effect:
               - kind: p_modifier
                 to: $source

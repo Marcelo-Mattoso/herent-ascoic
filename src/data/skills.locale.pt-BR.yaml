@@ -50,6 +50,9 @@ skill_last_light_miracle:
   name: Milagre da Última Luz
   label: "Milagre da Última Luz: uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura."
   text: "uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura."
+  options:
+    heal: "Curar {value}"
+    damage_bonus: "+{value} dano"
 skill_piercing_strike:
   name: Golpe Trespassante
   label: "Golpe Trespassante: quando destruir uma criatura com um ataque, cause 1 de dano direto a outra criatura da mesma sala."
@@ -106,6 +109,9 @@ skill_dark_tribute:
   name: Tributo Sombrio
   label: "Tributo Sombrio: antes do primeiro combate desta sala, o grupo deve escolher: descartar 1 item ou descartar 1 carta adicional de dungeon."
   text: "antes do primeiro combate desta sala, o grupo deve escolher: descartar 1 item ou descartar 1 carta adicional de dungeon."
+  options:
+    discard_item: "Descartar {value} item"
+    discard_dungeon: "Descartar {value} carta de dungeon"
 skill_rift_evasion:
   name: Evasão das Fendas
   label: "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela."
@@ -182,6 +188,9 @@ power_greater_last_light_miracle:
   name: Milagre Maior da Última Luz
   label: "Milagre Maior da Última Luz: cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida."
   text: cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.
+  options:
+    full_heal: "Curar totalmente"
+    survive: "Sobreviver com {value} vida"
 power_unbreakable_bastion_guard:
   name: Guarda Inquebrável do Bastião
   label: "Guarda Inquebrável do Bastião: até o fim da rodada, todo dano sofrido pelos heróis é reduzido em 1."
@@ -202,6 +211,9 @@ power_last_light_oath:
   name: Juramento da Última Luz
   label: "Juramento da Última Luz: uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói."
   text: "uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói."
+  options:
+    heal_all: "Curar todos ({value})"
+    damage_bonus_holy: "+{value} dano sagrado"
 power_deep_veil_echo:
   name: Eco Profundo do Véu
   label: "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos."
@@ -250,10 +262,16 @@ purple_dark_tribute:
   name: Tributo Sombrio
   label: "Tributo Sombrio: antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon."
   text: antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.
+  options:
+    discard_item: "Descartar {value} item"
+    discard_dungeon: "Descartar {value} carta de dungeon"
 purple_blood_tribute:
   name: Tributo de Sangue
   label: "Tributo de Sangue: antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha."
   text: antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha.
+  options:
+    discard_item: "Descartar {value} item"
+    take_damage: "Sofrer {value} de dano"
 purple_veil_retaliation:
   name: Retaliação do Véu
   label: "Retaliação do Véu ({value}): sempre que esta criatura for acertada por um herói, esse herói sofre {value} de dano."
@@ -298,6 +316,9 @@ dungeon_skill_dead_torches:
   name: Tochas Mortas
   label: "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito."
   text: "antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito."
+  options:
+    discard_item: "Descartar {value} item"
+    hit_penalty: "Sofrer -{value} no acerto"
 dungeon_skill_column_fall:
   name: Queda de Coluna
   label: "Queda de Coluna: a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano."

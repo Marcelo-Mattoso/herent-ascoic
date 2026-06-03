@@ -180,7 +180,11 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 			kind: z.literal("i_choose_one"),
 			options: z
 				.array(
-					z.object({ label: z.string(), effect: z.array(EffectNodeSchema) }),
+					z.object({
+						id: z.string().regex(/^[a-z_][a-z0-9_]*$/),
+						params: z.record(z.union([z.number(), z.string()])).optional(),
+						effect: z.array(EffectNodeSchema),
+					}),
 				)
 				.min(2),
 		}),

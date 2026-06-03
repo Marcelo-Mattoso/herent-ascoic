@@ -169,7 +169,8 @@ export type EffectNode =
 	| {
 			readonly kind: "i_choose_one";
 			readonly options: ReadonlyArray<{
-				readonly label: string;
+				readonly id: string;
+				readonly params?: Readonly<Record<string, number | string>>;
 				readonly effect: readonly EffectNode[];
 			}>;
 	  }

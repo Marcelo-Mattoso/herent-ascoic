@@ -224,7 +224,7 @@ function dispatch(state: GameState, action: Action): GameState {
 						targetHeroIds: pending.targetHeroIds,
 						targetEnemyIds: pending.targetEnemyIds,
 					},
-					{},
+					chosenOption.params ?? {},
 				);
 				return drainStack(evaluate(chosenOption.effect, ctx));
 			}

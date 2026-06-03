@@ -4,6 +4,7 @@
 // Cada nó despacha para ctx.action.* (pipeline ECS) — sem mutação direta de state.
 // ctx.withState() é chamado entre efeitos para encadear o estado resultante.
 
+import { getSkillLocale } from "../../data/skillLocale";
 import { resolveCondition } from "./resolveCondition";
 import {
 	SkipEffect,
@@ -196,11 +197,14 @@ function evaluateOne(
 		}
 
 		case "i_choose_one": {
-			const options = node.options.map((opt) => ({
-				id: opt.label,
-				label: opt.label,
-				effect: opt.effect, // ramo DSL armazenado no pendingSkillChoice
-			}));
+			const localeOptions = getSkillLocale(ctx.skillId).options ?? {};
+			const options = node.options.map((opt) => {
+				const template = localeOptions[opt.id] ?? opt.id;
+				const label = template.replace(/\{(\w+)\}/g, (_m, k: string) =>
+					String((opt.params ?? {})[k] ?? "?"),
+				);
+				return { id: opt.id, label, params: opt.params, effect: opt.effect };
+			});
 			return ctx.action.requestChoice(options);
 		}
 

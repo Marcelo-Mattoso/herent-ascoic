@@ -5,6 +5,7 @@ export interface SkillLocaleEntry {
 	readonly name?: string;
 	readonly label?: string;
 	readonly text?: string;
+	readonly options?: Readonly<Record<string, string>>;
 }
 
 export const SKILL_LOCALE: Readonly<Record<string, SkillLocaleEntry>> = parse(

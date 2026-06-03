@@ -266,11 +266,11 @@ describe("evaluate — choose_one", () => {
 					kind: "i_choose_one",
 					options: [
 						{
-							label: "Curar 2",
+							id: "heal",
 							effect: [{ kind: "i_heal", to: "$target", amount: 2 }],
 						},
 						{
-							label: "+2 dano",
+							id: "damage_bonus",
 							effect: [{ kind: "i_damage", to: "$target", amount: 2 }],
 						},
 					],

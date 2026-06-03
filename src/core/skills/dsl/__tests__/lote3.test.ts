@@ -68,11 +68,11 @@ describe("choose_one — fluxo completo", () => {
 					kind: "i_choose_one",
 					options: [
 						{
-							label: "Curar 3",
+							id: "heal",
 							effect: [{ kind: "i_heal", to: "$source", amount: 3 }],
 						},
 						{
-							label: "+2 dano",
+							id: "damage_bonus",
 							effect: [
 								{
 									kind: "p_modifier",
@@ -108,11 +108,11 @@ describe("choose_one — fluxo completo", () => {
 					kind: "i_choose_one",
 					options: [
 						{
-							label: "Curar 3",
+							id: "heal",
 							effect: [{ kind: "i_heal", to: "$source", amount: 3 }],
 						},
 						{
-							label: "+2 dano",
+							id: "damage_bonus",
 							effect: [
 								{
 									kind: "p_modifier",
@@ -129,7 +129,7 @@ describe("choose_one — fluxo completo", () => {
 			],
 			ctx,
 		);
-		const result = dispatchChoice(withChoice, "test_skill", "Curar 3");
+		const result = dispatchChoice(withChoice, "test_skill", "heal");
 		expect(result.heroes[0].currentLife).toBe(8);
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
@@ -147,11 +147,11 @@ describe("choose_one — fluxo completo", () => {
 					kind: "i_choose_one",
 					options: [
 						{
-							label: "Curar 3",
+							id: "heal",
 							effect: [{ kind: "i_heal", to: "$source", amount: 3 }],
 						},
 						{
-							label: "+2 dano",
+							id: "damage_bonus",
 							effect: [
 								{
 									kind: "p_modifier",
@@ -168,7 +168,7 @@ describe("choose_one — fluxo completo", () => {
 			],
 			ctx,
 		);
-		const result = dispatchChoice(withChoice, "test_skill", "+2 dano");
+		const result = dispatchChoice(withChoice, "test_skill", "damage_bonus");
 		// Patch-18 Lote G: damage_bonus → damage_dealt no ECS world
 		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(2);
 		expect(result.pendingSkillChoice).toBeUndefined();
@@ -197,11 +197,11 @@ describe("power_greater_last_light_miracle — choose_one", () => {
 					kind: "i_choose_one",
 					options: [
 						{
-							label: "Curar totalmente",
+							id: "full_heal",
 							effect: [{ kind: "i_full_heal", to: "$target" }],
 						},
 						{
-							label: "Sobreviver com 1 vida",
+							id: "survive",
 							effect: [{ kind: "i_prevent_destroy", to: "$target" }],
 						},
 					],
@@ -212,7 +212,7 @@ describe("power_greater_last_light_miracle — choose_one", () => {
 		const result = dispatchChoice(
 			withChoice,
 			"power_greater_last_light_miracle",
-			"Curar totalmente",
+			"full_heal",
 		);
 		expect(result.heroes[0].currentLife).toBe(10);
 	});
@@ -245,7 +245,7 @@ describe("power_last_light_oath — for_each heal", () => {
 					kind: "i_choose_one",
 					options: [
 						{
-							label: "Curar todos (5)",
+							id: "heal_all",
 							effect: [
 								{
 									kind: "i_for_each",
@@ -256,7 +256,7 @@ describe("power_last_light_oath — for_each heal", () => {
 							],
 						},
 						{
-							label: "+5 dano sagrado",
+							id: "damage_bonus_holy",
 							effect: [
 								{
 									kind: "p_modifier",
@@ -276,7 +276,7 @@ describe("power_last_light_oath — for_each heal", () => {
 		const result = dispatchChoice(
 			withChoice,
 			"power_last_light_oath",
-			"Curar todos (5)",
+			"heal_all",
 		);
 		expect(result.heroes.find((h) => h.id === "h1")?.currentLife).toBe(8);
 		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(10);

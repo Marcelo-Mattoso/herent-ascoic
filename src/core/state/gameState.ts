@@ -128,6 +128,7 @@ export interface GameState {
 		readonly options: readonly {
 			readonly id: string;
 			readonly label: string;
+			readonly params?: Readonly<Record<string, number | string>>;
 			/** DSL: efeito a avaliar quando esta opção for escolhida (Patch-12 Lote 3+). */
 			readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
 		}[];
