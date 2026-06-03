@@ -1,23 +1,8 @@
 - id: hero_eternal_rest_cleric
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 9
-    - 11
-    - 13
-    - 15
-    - 17
-  hitBonus:
-    - 4
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 9, 11, 13, 15, 17 ]
+  hitBonus: [ 4, 5, 7, 10, 14 ]
   damage: 2
   skills:
     - skillId: skill_last_light_healing
@@ -26,24 +11,9 @@
     - skillId: power_greater_last_light_miracle
 - id: hero_broken_bastion_warrior
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 11
-    - 13
-    - 15
-    - 17
-    - 19
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 11, 13, 15, 17, 19 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 3
   skills:
     - skillId: skill_bastion_guard
@@ -54,24 +24,9 @@
         value: 1
 - id: hero_rift_rogue
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 8
-    - 10
-    - 12
-    - 14
-    - 16
-  hitBonus:
-    - 4
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 8, 10, 12, 14, 16 ]
+  hitBonus: [ 4, 5, 7, 10, 14 ]
   damage: 2
   skills:
     - skillId: skill_preserved_path
@@ -80,24 +35,9 @@
         value: 1
 - id: hero_crimson_rune_mage
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 8
-    - 9
-    - 11
-    - 13
-    - 15
-  hitBonus:
-    - 4
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 8, 9, 11, 13, 15 ]
+  hitBonus: [ 4, 5, 7, 10, 14 ]
   damage: 2
   skills:
     - skillId: skill_rift_rune
@@ -106,24 +46,9 @@
     - skillId: power_supreme_rift_rune
 - id: hero_crimson_barbarian
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 12
-    - 14
-    - 16
-    - 18
-    - 20
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 12, 14, 16, 18, 20 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 4
   skills:
     - skillId: skill_crimson_fury
@@ -132,24 +57,9 @@
     - skillId: power_mighty_crimson_fury
 - id: hero_last_light_paladin
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 10
-    - 12
-    - 14
-    - 16
-    - 18
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 10, 12, 14, 16, 18 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 3
   skills:
     - skillId: skill_final_dawn_light
@@ -158,24 +68,9 @@
     - skillId: power_last_light_oath
 - id: hero_deep_veil_necromancer
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 8
-    - 10
-    - 12
-    - 14
-    - 16
-  hitBonus:
-    - 4
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 8, 10, 12, 14, 16 ]
+  hitBonus: [ 4, 5, 7, 10, 14 ]
   damage: 2
   skills:
     - skillId: skill_return_rite
@@ -184,24 +79,9 @@
     - skillId: power_deep_veil_echo
 - id: hero_broken_veil_hunter
   type: hero
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 9
-    - 10
-    - 12
-    - 14
-    - 16
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 9, 10, 12, 14, 16 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 3
   skills:
     - skillId: skill_prey_mark
@@ -210,24 +90,9 @@
     - skillId: power_hunter_execution
 - id: creature_deep_rift_rat
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 1
-    - 2
-    - 3
-    - 4
-    - 6
-  hitBonus:
-    - 2
-    - 3
-    - 5
-    - 7
-    - 10
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 1, 2, 3, 4, 6 ]
+  hitBonus: [ 2, 3, 5, 7, 10 ]
   damage: 1
   xp: 1
   reward: 1
@@ -242,24 +107,9 @@
       requiresAwakening: true
 - id: creature_dark_cave_goblin
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 1
-    - 2
-    - 3
-    - 5
-    - 7
-  hitBonus:
-    - 2
-    - 3
-    - 5
-    - 7
-    - 10
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 1, 2, 3, 5, 7 ]
+  hitBonus: [ 2, 3, 5, 7, 10 ]
   damage: 2
   xp: 1
   reward: 1
@@ -272,24 +122,9 @@
       requiresAwakening: true
 - id: creature_wet_stone_slime
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 2
-    - 3
-    - 4
-    - 6
-    - 8
-  hitBonus:
-    - 2
-    - 3
-    - 5
-    - 7
-    - 10
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 2, 3, 4, 6, 8 ]
+  hitBonus: [ 2, 3, 5, 7, 10 ]
   damage: 2
   xp: 1
   reward: 1
@@ -304,24 +139,9 @@
       requiresAwakening: true
 - id: creature_black_ceiling_bat
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 2
-    - 3
-    - 4
-    - 6
-    - 8
-  hitBonus:
-    - 3
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 2, 3, 4, 6, 8 ]
+  hitBonus: [ 3, 5, 7, 10, 14 ]
   damage: 3
   xp: 2
   reward: 1
@@ -332,24 +152,9 @@
       requiresAwakening: true
 - id: creature_ancient_pillar_spider
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 3
-    - 4
-    - 5
-    - 7
-    - 9
-  hitBonus:
-    - 3
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 3, 4, 5, 7, 9 ]
+  hitBonus: [ 3, 5, 7, 10, 14 ]
   damage: 4
   xp: 2
   reward: 1
@@ -364,24 +169,9 @@
       requiresAwakening: true
 - id: creature_broken_gates_watcher
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 4
-    - 5
-    - 6
-    - 8
-    - 10
-  hitBonus:
-    - 3
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 4, 5, 6, 8, 10 ]
+  hitBonus: [ 3, 5, 7, 10, 14 ]
   damage: 4
   xp: 2
   reward: 2
@@ -396,24 +186,9 @@
       requiresAwakening: true
 - id: creature_hidden_flame_cultist
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 2
-    - 3
-    - 4
-    - 6
-    - 8
-  hitBonus:
-    - 3
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 2, 3, 4, 6, 8 ]
+  hitBonus: [ 3, 5, 7, 10, 14 ]
   damage: 3
   xp: 2
   reward: 1
@@ -428,24 +203,9 @@
       requiresAwakening: true
 - id: creature_catacomb_skeleton
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 5
-    - 6
-    - 7
-    - 9
-    - 11
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 5, 6, 7, 9, 11 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 5
   xp: 3
   reward: 2
@@ -460,24 +220,9 @@
       requiresAwakening: true
 - id: creature_dead_passage_thief
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 6
-    - 7
-    - 8
-    - 10
-    - 12
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 6, 7, 8, 10, 12 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 5
   xp: 3
   reward: 2
@@ -492,24 +237,9 @@
       requiresAwakening: true
 - id: creature_old_chains_knight
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 7
-    - 8
-    - 9
-    - 11
-    - 13
-  hitBonus:
-    - 6
-    - 9
-    - 12
-    - 16
-    - 20
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 7, 8, 9, 11, 13 ]
+  hitBonus: [ 6, 9, 12, 16, 20 ]
   damage: 6
   xp: 3
   reward: 2
@@ -522,24 +252,9 @@
       requiresAwakening: true
 - id: creature_low_fire_salamander
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 4
-    - 5
-    - 6
-    - 8
-    - 10
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 4, 5, 6, 8, 10 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 5
   xp: 3
   reward: 2
@@ -554,24 +269,9 @@
       requiresAwakening: true
 - id: creature_ruined_hall_ogre
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 5
-    - 6
-    - 7
-    - 9
-    - 11
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 5, 6, 7, 9, 11 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 5
   xp: 3
   reward: 2
@@ -586,24 +286,9 @@
       requiresAwakening: true
 - id: creature_low_ember_kobold
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 1
-    - 2
-    - 3
-    - 5
-    - 7
-  hitBonus:
-    - 2
-    - 3
-    - 5
-    - 7
-    - 10
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 1, 2, 3, 5, 7 ]
+  hitBonus: [ 2, 3, 5, 7, 10 ]
   damage: 2
   xp: 1
   reward: 1
@@ -618,24 +303,9 @@
       requiresAwakening: true
 - id: creature_hot_ash_worm
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 2
-    - 3
-    - 4
-    - 6
-    - 8
-  hitBonus:
-    - 2
-    - 3
-    - 5
-    - 7
-    - 10
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 2, 3, 4, 6, 8 ]
+  hitBonus: [ 2, 3, 5, 7, 10 ]
   damage: 2
   xp: 1
   reward: 1
@@ -650,24 +320,9 @@
       requiresAwakening: true
 - id: creature_blazing_skull
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 2
-    - 3
-    - 4
-    - 6
-    - 8
-  hitBonus:
-    - 3
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 2, 3, 4, 6, 8 ]
+  hitBonus: [ 3, 5, 7, 10, 14 ]
   damage: 3
   xp: 2
   reward: 1
@@ -680,24 +335,9 @@
       requiresAwakening: true
 - id: creature_dead_torch_sentinel
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 4
-    - 5
-    - 6
-    - 8
-    - 10
-  hitBonus:
-    - 3
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 4, 5, 6, 8, 10 ]
+  hitBonus: [ 3, 5, 7, 10, 14 ]
   damage: 4
   xp: 2
   reward: 2
@@ -712,24 +352,9 @@
       requiresAwakening: true
 - id: creature_forge_acolyte
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 2
-    - 3
-    - 4
-    - 6
-    - 8
-  hitBonus:
-    - 3
-    - 5
-    - 7
-    - 10
-    - 14
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 2, 3, 4, 6, 8 ]
+  hitBonus: [ 3, 5, 7, 10, 14 ]
   damage: 3
   xp: 2
   reward: 1
@@ -744,24 +369,9 @@
       requiresAwakening: true
 - id: creature_broken_chains_brute
   type: creature
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
-  life:
-    - 5
-    - 6
-    - 7
-    - 9
-    - 11
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 1, 2, 2, 3 ]
+  life: [ 5, 6, 7, 9, 11 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 5
   xp: 3
   reward: 2
@@ -774,24 +384,9 @@
       requiresAwakening: true
 - id: subboss_crimson_dungeon_jailer
   type: subboss
-  diceByColor:
-    - 1
-    - 2
-    - 2
-    - 3
-    - 3
-  life:
-    - 6
-    - 7
-    - 8
-    - 10
-    - 12
-  hitBonus:
-    - 5
-    - 7
-    - 10
-    - 14
-    - 18
+  diceByColor: [ 1, 2, 2, 3, 3 ]
+  life: [ 6, 7, 8, 10, 12 ]
+  hitBonus: [ 5, 7, 10, 14, 18 ]
   damage: 5
   xp: 4
   reward: 1
@@ -802,24 +397,9 @@
       requiresAwakening: true
 - id: subboss_cracked_abyss_guardian
   type: subboss
-  diceByColor:
-    - 1
-    - 2
-    - 2
-    - 3
-    - 3
-  life:
-    - 8
-    - 9
-    - 10
-    - 12
-    - 14
-  hitBonus:
-    - 6
-    - 9
-    - 12
-    - 16
-    - 20
+  diceByColor: [ 1, 2, 2, 3, 3 ]
+  life: [ 8, 9, 10, 12, 14 ]
+  hitBonus: [ 6, 9, 12, 16, 20 ]
   damage: 6
   xp: 4
   reward: 1
@@ -1101,11 +681,7 @@
 - id: room_narrow_corridor
   type: room
   exits: 1
-  enemiesByPlayers:
-    - 1
-    - 1
-    - 2
-    - 2
+  enemiesByPlayers: [ 1, 1, 2, 2 ]
   reward: 1
   rewardType: item
   skills:
@@ -1113,11 +689,7 @@
 - id: room_dungeon_room
   type: room
   exits: 3
-  enemiesByPlayers:
-    - 1
-    - 2
-    - 2
-    - 3
+  enemiesByPlayers: [ 1, 2, 2, 3 ]
   reward: 1
   rewardType: item
   xp: 1
@@ -1126,11 +698,7 @@
 - id: room_crimson_chains_chamber
   type: room
   exits: 3
-  enemiesByPlayers:
-    - 1
-    - 2
-    - 3
-    - 4
+  enemiesByPlayers: [ 1, 2, 3, 4 ]
   reward: 1
   rewardType: item
   xp: 2
@@ -1139,11 +707,7 @@
 - id: room_dead_torches_passage
   type: room
   exits: 2
-  enemiesByPlayers:
-    - 1
-    - 2
-    - 2
-    - 3
+  enemiesByPlayers: [ 1, 2, 2, 3 ]
   reward: 1
   rewardType: item
   xp: 2
@@ -1152,11 +716,7 @@
 - id: room_broken_columns_hall
   type: room
   exits: 4
-  enemiesByPlayers:
-    - 1
-    - 2
-    - 3
-    - 4
+  enemiesByPlayers: [ 1, 2, 3, 4 ]
   reward: 1
   rewardType: item
   xp: 1
@@ -1167,11 +727,7 @@
 - id: room_depths_stairway
   type: room
   exits: 2
-  enemiesByPlayers:
-    - 2
-    - 2
-    - 3
-    - 4
+  enemiesByPlayers: [ 2, 2, 3, 4 ]
   reward: 1
   rewardType: item
   xp: 2
@@ -1182,11 +738,7 @@
 - id: room_abandoned_cell
   type: room
   exits: 3
-  enemiesByPlayers:
-    - 0
-    - 1
-    - 2
-    - 2
+  enemiesByPlayers: [ 0, 1, 2, 2 ]
   reward: 1
   rewardType: item
   xp: 1
@@ -1195,11 +747,7 @@
 - id: room_ruined_forge
   type: room
   exits: 3
-  enemiesByPlayers:
-    - 1
-    - 1
-    - 2
-    - 3
+  enemiesByPlayers: [ 1, 1, 2, 3 ]
   reward: 2
   rewardType: item
   xp: 2
@@ -1208,11 +756,7 @@
 - id: room_jailer_room
   type: room
   exits: 2
-  enemiesByPlayers:
-    - 1
-    - 2
-    - 3
-    - 4
+  enemiesByPlayers: [ 1, 2, 3, 4 ]
   reward: 1
   rewardType: artifact
   xp: 3
@@ -1222,11 +766,7 @@
 - id: room_cracked_abyss
   type: room
   exits: 4
-  enemiesByPlayers:
-    - 2
-    - 3
-    - 4
-    - 5
+  enemiesByPlayers: [ 2, 3, 4, 5 ]
   reward: 1
   rewardType: artifact
   xp: 3

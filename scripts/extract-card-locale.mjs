@@ -3,7 +3,7 @@
 // Uso: node scripts/extract-card-locale.mjs
 
 import { readFileSync, writeFileSync } from "node:fs";
-import { parse, stringify } from "yaml";
+import { parse, parseDocument, stringify, visit } from "yaml";
 
 const YAML_PATH = "src/data/cards.yaml";
 const LOCALE_PATH = "src/data/cards.locale.pt-BR.yaml";
@@ -43,8 +43,22 @@ for (const card of cards) {
 	cleaned.push(cleanCard);
 }
 
+// Stringify cleaned cards preserving flow style for numeric arrays
+function toFlowYaml(data) {
+	const doc = parseDocument(stringify(data, { lineWidth: 0 }));
+	visit(doc, {
+		Seq(_, node) {
+			// Use flow style when all items are numbers
+			if (node.items.length > 0 && node.items.every((item) => typeof item.value === "number")) {
+				node.flow = true;
+			}
+		},
+	});
+	return doc.toString({ lineWidth: 0 });
+}
+
 writeFileSync(LOCALE_PATH, stringify(locale, { lineWidth: 0 }));
-writeFileSync(YAML_PATH, stringify(cleaned, { lineWidth: 0 }));
+writeFileSync(YAML_PATH, toFlowYaml(cleaned));
 
 console.log(`Extracted locale entries: ${Object.keys(locale).length}`);
 console.log(`Cleaned cards: ${cleaned.length}`);
