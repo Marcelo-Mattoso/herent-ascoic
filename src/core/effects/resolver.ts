@@ -234,15 +234,14 @@ case "add_modifier": {
 						? { sourceEntityId }
 						: {}),
 				};
-				// Garante que a entidade existe no world antes de adicionar o componente
+				// Garante que a entidade existe no world antes de adicionar o componente.
+				// Não recriar entidades removidas (inimigos derrotados) — evita modifier fantasma.
 				let world = worldState.world;
 				if (!world.entities[entityId]) {
-					const entityType = worldState.heroes.some((h) => h.id === entityId)
-						? ("hero" as const)
-						: worldState.activeEnemies.some((e) => e.id === entityId)
-							? ("enemy" as const)
-							: ("hero" as const);
-					world = upsertEntity(world, createEntity(entityId, entityType));
+					const isActiveHero = worldState.heroes.some((h) => h.id === entityId && h.status === "active");
+					const isActiveEnemy = worldState.activeEnemies.some((e) => e.id === entityId && e.status === "active");
+					if (!isActiveHero && !isActiveEnemy) return worldState;
+					world = upsertEntity(world, createEntity(entityId, isActiveHero ? "hero" : "enemy"));
 				}
 				// Dedup: trigger reativo com while_source_in_play não deve empilhar modifier
 				// ao disparar múltiplas vezes — substituir em vez de adicionar (B5).

@@ -359,8 +359,8 @@ item_skill_drain_life_and_deadly_edge:
   text: receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.
 item_skill_block_and_last_light_ward:
   name: Bloqueio e Resguardo da Última Luz
-  label: "Bloqueio e Resguardo da Última Luz ({value}): reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional."
-  text: reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional.
+  label: "Bloqueio e Resguardo da Última Luz ({armor}/{purple}): reduza em {armor} o dano sofrido por este herói. Contra efeitos Roxos, reduza {purple} de dano adicional."
+  text: reduza em {armor} o dano sofrido por este herói. Contra efeitos Roxos, reduza {purple} de dano adicional.
 item_skill_crimson_fury_mighty:
   name: Fúria Rubra e Fúria Rubra Poderosa
   label: "Fúria Rubra e Fúria Rubra Poderosa ({value}): este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate."

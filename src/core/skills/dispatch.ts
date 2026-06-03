@@ -207,16 +207,9 @@ export function fireTrigger(
 			value: skill.ref.params?.value ?? null,
 		};
 
-		// Normaliza valor para params: slash-pair "X/Y" → value = X (número)
-		const rawValue = skill.ref.params?.value ?? null;
-		const numericValue: number | string | null =
-			typeof rawValue === "string" && rawValue.includes("/")
-				? Number(rawValue.split("/")[0]) || 0
-				: rawValue;
 		const params: Record<string, unknown> = {
 			...(skill.definition.params ?? {}),
 			...(skill.ref.params ?? {}),
-			value: numericValue,
 		};
 
 		// Avaliar def.conditions (Lote B): todas devem ser satisfeitas (AND implícito)

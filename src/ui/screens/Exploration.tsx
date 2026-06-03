@@ -119,7 +119,7 @@ export function Exploration() {
 	// Clique em inimigo: seleciona alvo em selecting_target, ou abre detalhe
 	function handleEnemyClick(e: EnemyState) {
 		if (
-			status === "HERO_ACTION" &&
+			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
 			combat?.phase === "selecting_target" &&
 			combat.selectedHeroId
 		) {

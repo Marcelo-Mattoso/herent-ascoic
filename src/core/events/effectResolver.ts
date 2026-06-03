@@ -9,6 +9,7 @@ import { addPending } from "../effects/stack";
 import type { SkillContext } from "../data/skillTypes";
 import { SKILLS } from "../data/skills";
 import { buildScriptCtx } from "../scripts/context";
+import { resolveCondition } from "../skills/dsl/resolveCondition";
 import { evaluate } from "../skills/dsl/evaluate";
 import { getScript } from "../scripts/registry";
 import type { GameState } from "../state/gameState";
@@ -123,6 +124,12 @@ export function applyEffect(
 			};
 
 			const evalCtx = buildScriptCtx(state, skillCtx, params);
+
+			// Checa def.conditions antes de avaliar — mesma semântica do path manual (dispatch.ts)
+			if (def.conditions && def.conditions.length > 0) {
+				const conditionsMet = def.conditions.every((c) => resolveCondition(c, evalCtx));
+				if (!conditionsMet) return { state, event };
+			}
 
 			if (def.effect) {
 				const newState = evaluate(def.effect, evalCtx);

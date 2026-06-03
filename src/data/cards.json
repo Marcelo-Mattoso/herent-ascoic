@@ -16,10 +16,7 @@
 				}
 			},
 			{
-				"skillId": "power_greater_last_light_miracle",
-				"params": {
-					"value": "full/1"
-				}
+				"skillId": "power_greater_last_light_miracle"
 			}
 		]
 	},
@@ -85,10 +82,7 @@
 				}
 			},
 			{
-				"skillId": "power_supreme_rift_rune",
-				"params": {
-					"value": "6/1"
-				}
+				"skillId": "power_supreme_rift_rune"
 			}
 		]
 	},
@@ -126,14 +120,11 @@
 			{
 				"skillId": "skill_final_dawn_light",
 				"params": {
-					"value": "2/2"
+					"value": 2
 				}
 			},
 			{
-				"skillId": "power_last_light_oath",
-				"params": {
-					"value": "5/5"
-				}
+				"skillId": "power_last_light_oath"
 			}
 		]
 	},
@@ -154,10 +145,7 @@
 				}
 			},
 			{
-				"skillId": "power_deep_veil_echo",
-				"params": {
-					"value": "1/3/2/2"
-				}
+				"skillId": "power_deep_veil_echo"
 			}
 		]
 	},
@@ -178,10 +166,7 @@
 				}
 			},
 			{
-				"skillId": "power_hunter_execution",
-				"params": {
-					"value": "6/1"
-				}
+				"skillId": "power_hunter_execution"
 			}
 		]
 	},
@@ -200,7 +185,7 @@
 			{
 				"skillId": "skill_lone_beast",
 				"params": {
-					"value": "1/1"
+					"value": 1
 				}
 			},
 			{
@@ -434,7 +419,7 @@
 			{
 				"skillId": "skill_lone_beast",
 				"params": {
-					"value": "2/2"
+					"value": 2
 				}
 			},
 			{
@@ -485,7 +470,7 @@
 			{
 				"skillId": "skill_lone_beast",
 				"params": {
-					"value": "2/2"
+					"value": 2
 				}
 			},
 			{
@@ -670,9 +655,6 @@
 			},
 			{
 				"skillId": "purple_crimson_shackles",
-				"params": {
-					"value": "-3/-3"
-				},
 				"requiresAwakening": true
 			}
 		]
@@ -856,10 +838,7 @@
 		"tags": ["Equipável", "Arma", "Última Luz"],
 		"skills": [
 			{
-				"skillId": "item_skill_last_light_blade",
-				"params": {
-					"value": "2/2"
-				}
+				"skillId": "item_skill_last_light_blade"
 			}
 		]
 	},
@@ -873,7 +852,7 @@
 			{
 				"skillId": "item_skill_drain_life_and_deadly_edge",
 				"params": {
-					"value": "1/1"
+					"value": 1
 				}
 			}
 		]
@@ -960,7 +939,8 @@
 			{
 				"skillId": "item_skill_block_and_last_light_ward",
 				"params": {
-					"value": "3/2"
+					"armor": 3,
+					"purple": 2
 				}
 			}
 		]
@@ -1129,10 +1109,7 @@
 		"tags": ["Encanto", "Última Luz", "Sobrevivência"],
 		"skills": [
 			{
-				"skillId": "power_greater_last_light_miracle",
-				"params": {
-					"value": "full/1"
-				}
+				"skillId": "power_greater_last_light_miracle"
 			}
 		]
 	},
@@ -1222,10 +1199,7 @@
 		"countsAs": "artifact",
 		"skills": [
 			{
-				"skillId": "power_supreme_rift_rune",
-				"params": {
-					"value": "6/1"
-				}
+				"skillId": "power_supreme_rift_rune"
 			}
 		]
 	},
@@ -1236,10 +1210,7 @@
 		"countsAs": "artifact",
 		"skills": [
 			{
-				"skillId": "power_greater_last_light_miracle",
-				"params": {
-					"value": "full/1"
-				}
+				"skillId": "power_greater_last_light_miracle"
 			}
 		]
 	},
@@ -1252,7 +1223,7 @@
 			{
 				"skillId": "item_skill_crimson_fury_mighty",
 				"params": {
-					"value": "2/poderosa"
+					"value": 2
 				}
 			}
 		]
@@ -1342,10 +1313,7 @@
 		"xp": 2,
 		"skills": [
 			{
-				"skillId": "dungeon_skill_dead_torches",
-				"params": {
-					"value": "-1/1"
-				}
+				"skillId": "dungeon_skill_dead_torches"
 			}
 		]
 	},
@@ -1396,10 +1364,7 @@
 		"xp": 1,
 		"skills": [
 			{
-				"skillId": "dungeon_skill_forge_spoils",
-				"params": {
-					"value": "2/1"
-				}
+				"skillId": "dungeon_skill_forge_spoils"
 			}
 		]
 	},
