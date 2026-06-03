@@ -490,6 +490,128 @@ case "grant_pending_reward": {
 			);
 		}
 
+		// ── Dado (Lote F) ────────────────────────────────────────────────────────
+
+		case "i_modify_die": {
+			const delta = effect["delta"] as number;
+			const die_side = effect["die_side"] as string;
+			const hero_id = effect["hero_id"] as string | undefined;
+			const skill_id = (effect["skill_id"] ?? pending.source) as string;
+			if (!state.combat?.lastRoll) return state;
+			return {
+				...state,
+				combat: {
+					...state.combat,
+					pendingDiceSelection: {
+						skillId: skill_id,
+						heroId: hero_id ?? state.combat.selectedHeroId ?? "",
+						side: die_side as "hero" | "enemy" | "any",
+						action: "reroll" as const,
+						filter: { minValue: 1 },
+						deltaMax: delta,
+					},
+				},
+			};
+		}
+
+		case "i_reroll": {
+			const die_side = effect["die_side"] as string;
+			const hero_id = effect["hero_id"] as string | undefined;
+			const skill_id = (effect["skill_id"] ?? pending.source) as string;
+			const only_if_value = effect["only_if_value"] as number | undefined;
+			if (!state.combat?.lastRoll) return state;
+			const filter =
+				only_if_value !== undefined ? { value: only_if_value } : undefined;
+			// Check if any die matches the filter
+			if (only_if_value !== undefined) {
+				const heroHasMatch = state.combat.lastRoll.heroResults.some(
+					(v) => v === only_if_value,
+				);
+				if (!heroHasMatch) return log(state, `Nenhum dado com valor ${only_if_value} para rerolar.`);
+			}
+			return {
+				...state,
+				combat: {
+					...state.combat,
+					pendingDiceSelection: {
+						skillId: skill_id,
+						heroId: hero_id ?? state.combat.selectedHeroId ?? "",
+						side: die_side as "hero" | "enemy" | "any",
+						action: "reroll" as const,
+						...(filter ? { filter } : {}),
+					},
+				},
+			};
+		}
+
+		case "i_set_die": {
+			const value = effect["value"] as number;
+			const die_side = effect["die_side"] as string;
+			const hero_id = effect["hero_id"] as string | undefined;
+			const skill_id = (effect["skill_id"] ?? pending.source) as string;
+			if (!state.combat?.lastRoll) return state;
+			return {
+				...state,
+				combat: {
+					...state.combat,
+					pendingDiceSelection: {
+						skillId: skill_id,
+						heroId: hero_id ?? state.combat.selectedHeroId ?? "",
+						side: die_side as "hero" | "enemy" | "any",
+						action: "set_to" as const,
+						setToValue: value,
+					},
+				},
+			};
+		}
+
+		// ── Status (Lote F) ───────────────────────────────────────────────────────
+
+		case "i_dispel": {
+			const category = effect["category"] as string;
+			// Remove all conditions matching the category from all active entities
+			const heroes = state.heroes.map((h) => ({
+				...h,
+				conditions: h.conditions.filter((c) => !c.startsWith(category)),
+			}));
+			const activeEnemies = state.activeEnemies.map((e) => ({
+				...e,
+				conditions: e.conditions.filter((c) => !c.startsWith(category)),
+			}));
+			return log({ ...state, heroes, activeEnemies }, `Dispel: categoria "${category}" removida.`);
+		}
+
+		case "i_remove_status": {
+			const status = effect["status"] as string;
+			const targetId = (effect["to"] ?? effect["targetId"]) as string | undefined;
+			let next = state;
+			if (targetId) {
+				const hero = next.heroes.find((h) => h.id === targetId);
+				if (hero) {
+					next = {
+						...next,
+						heroes: next.heroes.map((h) =>
+							h.id === targetId
+								? { ...h, conditions: h.conditions.filter((c) => c !== status) }
+								: h,
+						),
+					};
+				}
+				const enemy = next.activeEnemies.find((e) => e.id === targetId);
+				if (enemy) {
+					next = {
+						...next,
+						activeEnemies: next.activeEnemies.map((e) =>
+							e.id === targetId
+								? { ...e, conditions: e.conditions.filter((c) => c !== status) }
+								: e,
+						),
+					};
+				}
+			}
+			return log(next, `Status "${status}" removido de ${targetId ?? "todos"}.`);
+		}
+
 		default:
 			// Efeito desconhecido: ignorado silenciosamente.
 			// Passo 9+ adicionará log de aviso.

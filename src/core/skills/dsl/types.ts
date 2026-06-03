@@ -179,7 +179,32 @@ export type EffectNode =
 			readonly as: string;
 			readonly do: readonly EffectNode[];
 	  }
-	| { readonly kind: "i_noop" };
+	| { readonly kind: "i_noop" }
+	// ── Dado (patch-21 Lote F) ───────────────────────────────────────────────────
+	| {
+			readonly kind: "i_modify_die";
+			readonly delta: ExprNode;
+			readonly die_side: "hero" | "enemy" | "any";
+	  }
+	| {
+			readonly kind: "i_reroll";
+			readonly die_side: "hero" | "enemy" | "any";
+			readonly only_if_value?: ExprNode;
+	  }
+	| {
+			readonly kind: "i_set_die";
+			readonly value: ExprNode;
+			readonly die_side: "hero" | "enemy" | "any";
+	  }
+	// ── Status (patch-21 Lote F) ─────────────────────────────────────────────────
+	| {
+			readonly kind: "i_dispel";
+			readonly category: string;
+	  }
+	| {
+			readonly kind: "i_remove_status";
+			readonly status: string;
+	  };
 
 // ── Trigger v2 (patch-21 Lote B) ────────────────────────────────────────────
 

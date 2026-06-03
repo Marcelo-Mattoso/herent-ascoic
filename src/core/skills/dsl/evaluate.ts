@@ -223,6 +223,52 @@ function evaluateOne(
 
 		case "i_noop":
 			return ctx.state;
+
+		// ── Dado (Lote F) ─────────────────────────────────────────────────────
+
+		case "i_modify_die": {
+			const delta = resolveExpr(node.delta, ctx);
+			return ctx.action.pushEffect({
+				kind: "i_modify_die",
+				delta,
+				die_side: node.die_side,
+				hero_id: ctx.sourceId ?? undefined,
+				skill_id: ctx.skillId,
+			});
+		}
+
+		case "i_reroll": {
+			const only_if_value =
+				node.only_if_value !== undefined
+					? resolveExpr(node.only_if_value, ctx)
+					: undefined;
+			return ctx.action.pushEffect({
+				kind: "i_reroll",
+				die_side: node.die_side,
+				hero_id: ctx.sourceId ?? undefined,
+				skill_id: ctx.skillId,
+				only_if_value,
+			});
+		}
+
+		case "i_set_die": {
+			const value = resolveExpr(node.value, ctx);
+			return ctx.action.pushEffect({
+				kind: "i_set_die",
+				value,
+				die_side: node.die_side,
+				hero_id: ctx.sourceId ?? undefined,
+				skill_id: ctx.skillId,
+			});
+		}
+
+		// ── Status (Lote F) ───────────────────────────────────────────────────
+
+		case "i_dispel":
+			return ctx.action.pushEffect({ kind: "i_dispel", category: node.category });
+
+		case "i_remove_status":
+			return ctx.action.pushEffect({ kind: "i_remove_status", status: node.status });
 	}
 }
 

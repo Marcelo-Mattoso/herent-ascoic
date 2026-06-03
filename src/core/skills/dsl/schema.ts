@@ -191,6 +191,25 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 			do: z.array(EffectNodeSchema),
 		}),
 		z.object({ kind: z.literal("i_noop") }),
+		// Dado (Lote F)
+		z.object({
+			kind: z.literal("i_modify_die"),
+			delta: ExprNodeSchema,
+			die_side: z.enum(["hero", "enemy", "any"]),
+		}),
+		z.object({
+			kind: z.literal("i_reroll"),
+			die_side: z.enum(["hero", "enemy", "any"]),
+			only_if_value: ExprNodeSchema.optional(),
+		}),
+		z.object({
+			kind: z.literal("i_set_die"),
+			value: ExprNodeSchema,
+			die_side: z.enum(["hero", "enemy", "any"]),
+		}),
+		// Status (Lote F)
+		z.object({ kind: z.literal("i_dispel"), category: z.string() }),
+		z.object({ kind: z.literal("i_remove_status"), status: z.string() }),
 	]),
 );
 

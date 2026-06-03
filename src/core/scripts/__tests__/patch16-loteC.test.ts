@@ -13,9 +13,7 @@ import type { HeroState } from "../../state/heroState";
 import type { EnemyState } from "../../state/enemyState";
 
 // Importar scripts para registrá-los
-import "../../../data/scripts/skill_rift_rune";
-import "../../../data/scripts/power_supreme_rift_rune";
-import "../../../data/scripts/power_hunter_execution";
+// skill_rift_rune, power_supreme_rift_rune, power_hunter_execution migrados para DSL (patch-21 Lote F)
 import "../../../data/scripts/skill_focus_deflection";
 import "../../../data/scripts/skill_opportunity_shot";
 import "../../../data/scripts/skill_rekindled_forge";
@@ -82,9 +80,11 @@ function runScript(id: string, ctx: ReturnType<typeof buildScriptCtx>): GameStat
 	return fn(ctx);
 }
 
-// ── #21 skill_rift_rune ───────────────────────────────────────────────────────
+// ── #21 skill_rift_rune — migrado para DSL i_modify_die (patch-21 Lote F) ─────
 
-describe("skill_rift_rune (#21)", () => {
+import { evaluate } from "../../skills/dsl/evaluate";
+
+describe("skill_rift_rune — i_modify_die (patch-21 Lote F)", () => {
 	it("define pendingDiceSelection para herói-fonte com lastRoll presente", () => {
 		const combat = {
 			...createEmptyCombatState(),
@@ -97,10 +97,12 @@ describe("skill_rift_rune (#21)", () => {
 		const state = baseState({ combat });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "after_roll", sourceHeroId: "h1", skillId: "skill_rift_rune" },
+			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "skill_rift_rune" },
 			{ value: 2 },
 		);
-		const result = runScript("skill_rift_rune", ctx);
+		const result = drainStack(
+			evaluate([{ kind: "i_modify_die", delta: "$value", die_side: "hero" }], ctx),
+		);
 		expect(result.combat?.pendingDiceSelection).toBeDefined();
 		expect(result.combat?.pendingDiceSelection?.heroId).toBe("h1");
 	});
@@ -109,17 +111,19 @@ describe("skill_rift_rune (#21)", () => {
 		const state = baseState();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "after_roll", sourceHeroId: "h1", skillId: "skill_rift_rune" },
-			{ value: 1 },
+			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "skill_rift_rune" },
+			{ value: 2 },
 		);
-		const result = runScript("skill_rift_rune", ctx);
+		const result = drainStack(
+			evaluate([{ kind: "i_modify_die", delta: "$value", die_side: "hero" }], ctx),
+		);
 		expect(result.combat?.pendingDiceSelection).toBeUndefined();
 	});
 });
 
-// ── #22 power_supreme_rift_rune ───────────────────────────────────────────────
+// ── #22 power_supreme_rift_rune — migrado para DSL i_set_die (patch-21 Lote F) ─
 
-describe("power_supreme_rift_rune (#22)", () => {
+describe("power_supreme_rift_rune — i_set_die (patch-21 Lote F)", () => {
 	it("define pendingDiceSelection set_to 6 em qualquer lado", () => {
 		const combat = {
 			...createEmptyCombatState(),
@@ -132,20 +136,22 @@ describe("power_supreme_rift_rune (#22)", () => {
 		const state = baseState({ combat });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_game_after_any_roll", sourceHeroId: "h1", skillId: "power_supreme_rift_rune" },
+			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "power_supreme_rift_rune" },
 			{},
 		);
-		const result = runScript("power_supreme_rift_rune", ctx);
+		const result = drainStack(
+			evaluate([{ kind: "i_set_die", value: 6, die_side: "any" }], ctx),
+		);
 		expect(result.combat?.pendingDiceSelection?.action).toBe("set_to");
 		expect(result.combat?.pendingDiceSelection?.setToValue).toBe(6);
 		expect(result.combat?.pendingDiceSelection?.side).toBe("any");
 	});
 });
 
-// ── #23 power_hunter_execution ────────────────────────────────────────────────
+// ── #23 power_hunter_execution — migrado para DSL p_modifier + i_set_die ─────
 
-describe("power_hunter_execution (#23)", () => {
-	it("adiciona bônus e pendingDiceSelection quando luta contra a Presa", () => {
+describe("power_hunter_execution — p_modifier + i_set_die (patch-21 Lote F)", () => {
+	it("adiciona bônus e pendingDiceSelection quando lastRoll presente", () => {
 		const combat = {
 			...createEmptyCombatState(),
 			prey: "e1",
@@ -159,27 +165,19 @@ describe("power_hunter_execution (#23)", () => {
 		const state = baseState({ combat, activeEnemies: [makeEnemy()] });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_game_after_roll_vs_prey", sourceHeroId: "h1", skillId: "power_hunter_execution" },
+			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "power_hunter_execution" },
 			{},
 		);
-		const result = drainStack(runScript("power_hunter_execution", ctx));
-		// Patch-18 Lote G: bonusNextAttack migrado para ECS world (damage_dealt)
+		const result = drainStack(
+			evaluate([
+				{ kind: "p_modifier", to: "$source", stat: "s_damage_dealt", operation: "add", value: 1, duration: { kind: "once" } },
+				{ kind: "i_set_die", value: 6, die_side: "hero" },
+			], ctx),
+		);
 		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
-			.filter(m => m.target === "damage_dealt" || m.target === "hit_bonus");
+			.filter(m => m.target === "damage_dealt");
 		expect(mods.some((m) => m.value === 1)).toBe(true);
 		expect(result.combat?.pendingDiceSelection?.action).toBe("set_to");
-	});
-
-	it("retorna estado inalterado se não está lutando contra a Presa", () => {
-		const combat = { ...createEmptyCombatState(), prey: "e2" };
-		const state = baseState({ combat });
-		const ctx = buildScriptCtx(
-			state,
-			{ triggeredBy: "once_per_game_after_roll_vs_prey", sourceHeroId: "h1", skillId: "power_hunter_execution" },
-			{},
-		);
-		const result = runScript("power_hunter_execution", ctx);
-		expect(result).toBe(state);
 	});
 });
 

@@ -53,12 +53,15 @@ abilities:
   - id: skill_rift_rune
     category: habilidade
     target: ally_die
-    script: skill_rift_rune
     operate_type: op_triggered
     trigger:
       event: evt_roll
     nature:
       - nat_magical
+    effect:
+      - kind: i_modify_die
+        delta: $value
+        die_side: hero
   - id: skill_hunter_focus
     category: habilidade
     target: self
@@ -127,25 +130,30 @@ abilities:
   - id: skill_rift_second_chance
     category: habilidade
     target: ally_die
-    script: skill_rift_second_chance
     operate_type: op_active
     cooldown:
       scope: combat
       charges: 1
     nature:
       - nat_magical
+    effect:
+      - kind: i_reroll
+        die_side: hero
   - id: skill_perfect_rune
     category: habilidade
     target: ally_die
-    script: skill_perfect_rune
     operate_type: op_triggered
-    trigger: &a5
+    trigger:
       event: evt_roll
-    cooldown: &a6
+    cooldown:
       scope: room
       charges: 1
     nature:
       - nat_magical
+    effect:
+      - kind: i_set_die
+        value: 6
+        die_side: any
   - id: skill_last_light_miracle
     category: habilidade
     target: ally_or_next_attack
@@ -638,12 +646,18 @@ abilities:
   - id: skill_minor_rune
     category: habilidade
     target: die_with_value_1
-    script: skill_minor_rune
     operate_type: op_triggered
-    trigger: *a5
-    cooldown: *a6
+    trigger:
+      event: evt_roll
+    cooldown:
+      scope: room
+      charges: 1
     nature:
       - nat_magical
+    effect:
+      - kind: i_reroll
+        die_side: hero
+        only_if_value: 1
   - id: power_greater_last_light_miracle
     category: poder_heroi
     target: hero
@@ -700,7 +714,6 @@ abilities:
   - id: power_supreme_rift_rune
     category: poder_heroi
     target: ally_or_enemy_die
-    script: power_supreme_rift_rune
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -709,6 +722,10 @@ abilities:
       charges: 1
     nature:
       - nat_magical
+    effect:
+      - kind: i_set_die
+        value: 6
+        die_side: any
   - id: power_mighty_crimson_fury
     category: poder_heroi
     target: self
@@ -775,15 +792,29 @@ abilities:
   - id: power_hunter_execution
     category: poder_heroi
     target: blue_die_and_self
-    script: power_hunter_execution
     operate_type: op_triggered
     trigger:
       event: evt_roll
     cooldown:
       scope: game
       charges: 1
+    conditions:
+      - kind: has_condition
+        of: $target
+        conditionType: marked
     nature:
       - nat_physical
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_dealt
+        operation: add
+        value: 1
+        duration:
+          kind: once
+      - kind: i_set_die
+        value: 6
+        die_side: hero
   - id: purple_raging_flames
     category: efeito_roxo_monstro
     target: all_heroes
