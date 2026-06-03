@@ -1,7 +1,8 @@
-// Loader do catálogo de cartas. Importa o JSON estático, valida minimamente e expõe helpers tipados.
+// Loader do catálogo de cartas. Lê YAML estático, valida minimamente e expõe helpers tipados.
 // Nenhuma lógica de jogo aqui — apenas acesso e filtragem do catálogo.
 
-import rawCards from "../../data/cards.json";
+import { parse } from "yaml";
+import cardsYaml from "../../data/cards.yaml?raw";
 import type {
 	AnyCard,
 	ArtifactCard,
@@ -30,7 +31,7 @@ function validateRaw(raw: unknown[]): AnyCard[] {
 	return raw as AnyCard[];
 }
 
-const ALL_CARDS: readonly AnyCard[] = validateRaw(rawCards as unknown[]);
+const ALL_CARDS: readonly AnyCard[] = validateRaw(parse(cardsYaml) as unknown[]);
 
 const _byId = new Map<string, AnyCard>(ALL_CARDS.map((c) => [c.id, c]));
 const _byName = new Map<string, AnyCard>(ALL_CARDS.map((c) => [c.name, c]));

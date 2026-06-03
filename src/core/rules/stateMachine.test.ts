@@ -41,7 +41,7 @@ describe("assertTransition", () => {
 });
 
 describe("checkBossCondition via dados", () => {
-	it("condição lida de cards.json — integração", async () => {
+	it("condição lida de cards.yaml — integração", async () => {
 		const { checkBossCondition } = await import("./conditions");
 		const { createInitialGameState } = await import("../state/gameState");
 		const { reducer } = await import("../reducer/index");

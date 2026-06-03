@@ -1,4 +1,4 @@
-// Tipos TypeScript que espelham o schema do cards.json.
+// Tipos TypeScript que espelham o schema do cards.yaml.
 // Cada variante é discriminada pelo campo `type`.
 
 // --- Compartilhados ---

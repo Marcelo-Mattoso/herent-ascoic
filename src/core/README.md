@@ -44,7 +44,7 @@ Núcleo de regras do **Ascensão Heróica**. Puro TypeScript: sem React, sem DOM
 | [`actions/`](actions/) | Tipos discriminados (`Action`) e criadores. A "linguagem" pela qual a UI fala com o core. |
 | [`adapter/`](adapter/) | `EngineAdapter` (interface) e `createInProcessAdapter` (única implementação atual). Garante import transitivo do registry de skills. |
 | [`config/`](config/) | Constantes globais (limites, valores de balanceamento). |
-| [`data/`](data/) | Loaders de `cards.json` e `skills.yaml` — tipos derivados (`CardDefinition`, `SkillDefinition`) e busca por id/nome. |
+| [`data/`](data/) | Loaders de `cards.yaml` e `skills.yaml` — tipos derivados (`CardDefinition`, `SkillDefinition`) e busca por id/nome. |
 | [`ecs/`](ecs/) | Entity-Component-System. `world.ts`, `types.ts` (Modifier/Trigger/Token/Condition), `sync.ts` para dual-write durante a transição. `installTriggers.ts` instala triggers reativos de skills por entidade; `installPassive.ts` instala passivos (while_equipped e similares). Os modifiers ainda vivem em `CombatState` durante a transição; o ECS é a fonte futura. |
 | [`effects/`](effects/) | Stack de efeitos pendentes (`stack.ts`) e resolver que materializa cada `kind` em mutação de estado (`resolver.ts`). Drenado ao fim de cada action. |
 | [`events/`](events/) | Event bus síncrono. Pontos de extensão para "DamageAboutToBeDealt", "HealAboutToBeApplied", etc. |
@@ -165,7 +165,7 @@ Determinismo depende de **toda fonte de aleatoriedade** passar pelo `rng` intern
 - **`src/core/reducer/reducer.test.ts`** — pipeline integrado action por action.
 - **`src/core/skills/__tests__/`** — cobertura por skill, `activatable.test.ts` valida a heurística manual vs reativo.
 - **`src/core/skills/dsl/__tests__/`** — guard de schema (toda skill com `effect` valida contra `SkillDefinitionV2Schema`) + testes por kind DSL.
-- **`src/core/data/skills.test.ts`** — toda referência em `cards.json` tem skill correspondente em `skills.json`.
+- **`src/core/data/skills.test.ts`** — toda referência em `cards.yaml` tem skill correspondente em `skills.yaml`.
 - **`src/core/replay/replayEngine.test.ts`** — round-trip de replay.
 
 Rodar:
@@ -198,4 +198,4 @@ npm run script tools/dev-scripts/exemplo.ts   # script avulso com acesso ao core
 | [`docs/arquitetura-mvp1.md`](../../docs/arquitetura-mvp1.md) | Decisões de arquitetura do MVP 1 |
 | [`docs/engine/v2/`](../../docs/engine/v2/) | Design detalhado do motor v2 (ECS, DSL, event bus) |
 | [`docs/patches/`](../../docs/patches/) | Histórico de patches — contexto de cada mudança |
-| [`src/data/README.md`](../data/README.md) | Formato de `cards.json`, `skills.yaml` e locale |
+| [`src/data/README.md`](../data/README.md) | Formato de `cards.yaml`, `skills.yaml` e locale |

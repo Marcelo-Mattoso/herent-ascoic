@@ -1,5 +1,5 @@
-// Resolve SkillDefinitions a partir dos dados de composição em cards.json.
-// cards.json é a fonte única de composição (card → skill refs).
+// Resolve SkillDefinitions a partir dos dados de composição em cards.yaml.
+// cards.yaml é a fonte única de composição (card → skill refs).
 // skills.json é a fonte única de comportamento e templates.
 
 import { getAllCards } from "../data/cards";
@@ -12,7 +12,7 @@ interface ResolvedSkillRef {
 	ref: SkillRef;
 }
 
-// Índices derivados de cards.json
+// Índices derivados de cards.yaml
 const _byCardId = new Map<string, ResolvedSkillRef[]>(); // cardId → refs resolvidas
 const _bySkillId = new Map<string, string[]>(); // skillId → cardIds que a usam
 

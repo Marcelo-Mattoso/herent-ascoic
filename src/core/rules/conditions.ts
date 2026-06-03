@@ -1,5 +1,5 @@
 // Verificação de condição de acesso ao boss.
-// A condição é declarada no campo accessCondition da carta do boss em cards.json.
+// A condição é declarada no campo accessCondition da carta do boss em cards.yaml.
 
 import { getCardById } from "../data/cards";
 import type { GameState } from "../state/gameState";

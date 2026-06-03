@@ -1,6 +1,6 @@
 # src/data — Catálogos do jogo
 
-Este diretório contém os dados estáticos do jogo: cartas (`cards.json`), habilidades (`skills.yaml` + locale), scripts de comportamento (`scripts/`), regras de eventos (`event_rules.json`) e balanceamento (`balance.json`).
+Este diretório contém os dados estáticos do jogo: cartas (`cards.yaml`), habilidades (`skills.yaml` + locale), scripts de comportamento (`scripts/`), regras de eventos (`event_rules.json`) e balanceamento (`balance.json`).
 
 ---
 
@@ -10,13 +10,13 @@ Este diretório contém os dados estáticos do jogo: cartas (`cards.json`), habi
 |---------|-----------------|
 | `skills.yaml` | **Comportamento (DSL v2).** Define o que cada habilidade faz — `effect` DSL ou `script`, trigger, operate_type, nature, targeting. Sem textos. |
 | `skills.locale.pt-BR.yaml` | **Display.** Nomes, labels e textos de cada skill em PT-BR. Separado para facilitar tradução. |
-| `cards.json` | **Composição.** Define quais habilidades cada carta usa, com quais parâmetros, e sob quais condições (ex.: requer Despertar 4). |
+| `cards.yaml` | **Composição.** Define quais habilidades cada carta usa, com quais parâmetros, e sob quais condições (ex.: requer Despertar 4). |
 
 Regra: **nenhum dado de comportamento ou template fica na carta.** A carta só referencia skills por `skillId`.
 
 ---
 
-## `cards.json`
+## `cards.yaml`
 
 Array de objetos. Cada objeto é uma carta discriminada pelo campo `type`.
 
@@ -408,11 +408,11 @@ O nome do arquivo deve ser idêntico ao campo `"script"` na skill.
 4. **Implemente o comportamento:**
    - Lógica simples → campo `effect` com nós DSL v2.
    - Lógica imperativa sem equivalente DSL → campo `script` com o nome do arquivo; crie `src/data/scripts/<id>.ts`.
-5. **Nenhuma alteração em `cards.json`** neste passo — a skill existe mas ainda não é usada por ninguém.
+5. **Nenhuma alteração em `cards.yaml`** neste passo — a skill existe mas ainda não é usada por ninguém.
 
 ## Como adicionar uma nova carta
 
-1. **Crie a entrada em `cards.json`** com `id`, `type`, `name`, e os campos do tipo correspondente.
+1. **Crie a entrada em `cards.yaml`** com `id`, `type`, `name`, e os campos do tipo correspondente.
 2. **Declare `skills[]`** com os `SkillRef`s das habilidades que a carta usa.
    - Se a skill já existe e o valor é o mesmo que `defaultValue`, omita `params`.
    - Se o valor for diferente, declare `params: { value: X }`.
@@ -437,11 +437,11 @@ Ambas referenciam `skill_last_light_healing`. O behavior (cura) está na skill; 
 
 O loader (`src/core/skills/lookup.ts`) valida na inicialização:
 
-- Todo `skillId` em `cards.json` **deve existir** em `skills.yaml`. Erro lançado no boot se falhar.
+- Todo `skillId` em `cards.yaml` **deve existir** em `skills.yaml`. Erro lançado no boot se falhar.
 
 O teste `src/core/data/skills.test.ts` verifica:
 
-- Todos os `skillId`s em `cards.json` existem em `skills.yaml`.
+- Todos os `skillId`s em `cards.yaml` existem em `skills.yaml`.
 - Toda skill referenciada aparece no índice reverso (`skillUsedBy`).
 
 O schema guard (`src/core/skills/dsl/__tests__/schema-guard.test.ts`) valida:

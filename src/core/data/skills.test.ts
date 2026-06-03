@@ -25,13 +25,13 @@ describe("catálogo de skills (skills.json)", () => {
 			expect(["tgt_self", "tgt_target", "tgt_enemy", "tgt_item", "tgt_others", "tgt_none"]).toContain(ability.target_type);
 			expect(["scp_single", "scp_party_full", "scp_dead_party", "scp_room", "scp_none"]).toContain(ability.affect_scope);
 			expect(["obj_friend", "obj_not_friend", "obj_all"]).toContain(ability.affect_object);
-			// usedBy foi removido (patch-13) — derivado de cards.json via skillUsedBy()
+			// usedBy foi removido (patch-13) — derivado de cards.yaml via skillUsedBy()
 			// name/labelTemplate/textTemplate movidos para locale (patch-20).
 			// trigger agora é objeto {event} ou undefined (patch-21 Lote B).
 		}
 	});
 
-	it("integridade referencial: todos os skillIds em cards.json existem em skills.json", () => {
+	it("integridade referencial: todos os skillIds em cards.yaml existem em skills.yaml", () => {
 		const allCards = getAllCards();
 		const skillIds = new Set(SKILLS.abilities.map((a) => a.id));
 		const errors: string[] = [];
