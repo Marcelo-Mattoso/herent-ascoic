@@ -175,7 +175,7 @@ export type EffectNode =
 	  }
 	| {
 			readonly kind: "i_for_each";
-			readonly over: "targets" | "allies" | "enemies" | "all_heroes";
+			readonly over: "targets" | "allies" | "enemies" | "all_heroes" | "$each";
 			readonly as: string;
 			readonly do: readonly EffectNode[];
 	  }
@@ -232,6 +232,33 @@ export type Nature =
 	// Especiais
 	| "nat_death"
 	| "nat_true";
+
+// ── Targeting v2 (patch-21 Lote C) ──────────────────────────────────────────
+
+export type TargetType =
+	| "tgt_self"
+	| "tgt_target"
+	| "tgt_enemy"
+	| "tgt_item"
+	| "tgt_others"
+	| "tgt_none";
+
+export type AffectScope =
+	| "scp_single"
+	| "scp_party_full"
+	| "scp_dead_party"
+	| "scp_room"
+	| "scp_none";
+
+export type AffectObject =
+	| "obj_friend"
+	| "obj_not_friend"
+	| "obj_all";
+
+export interface AffectLimit {
+	readonly min: number;
+	readonly max: number;
+}
 
 export type OperateType =
 	| "op_active"

@@ -15,7 +15,6 @@ categories:
 abilities:
   - id: skill_crimson_fury
     category: habilidade
-    target: self
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
@@ -38,9 +37,11 @@ abilities:
             - 3
         duration:
           kind: once
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_last_light_healing
     category: habilidade
-    target: hero_or_ally_creature
     effect:
       - kind: i_heal
         to: $target
@@ -49,9 +50,11 @@ abilities:
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_bastion_guard
     category: habilidade
-    target: hero_or_ally
     effect:
       - kind: p_modifier
         to: $source
@@ -65,9 +68,11 @@ abilities:
       event: evt_damage_taken
     nature:
       - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_rift_rune
     category: habilidade
-    target: ally_die
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -77,16 +82,20 @@ abilities:
       - kind: i_modify_die
         delta: $value
         die_side: hero
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_hunter_focus
     category: habilidade
-    target: self
     script: skill_hunter_focus
     operate_type: op_passive
     nature:
       - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_living_ember
     category: habilidade
-    target: creature_in_play
     effect:
       - kind: i_damage
         to: $target
@@ -95,9 +104,11 @@ abilities:
     nature:
       - nat_physical
       - nat_fire
+    target_type: tgt_enemy
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: skill_living_ember_oil
     category: habilidade_item
-    target: creature_in_play
     operate_type: op_active
     nature:
       - nat_physical
@@ -116,9 +127,11 @@ abilities:
           - kind: i_damage
             to: $target
             amount: 2
+    target_type: tgt_enemy
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: skill_last_light_shield
     category: habilidade
-    target: hero
     effect:
       - kind: i_prevent_next_damage
         to: $target
@@ -131,9 +144,11 @@ abilities:
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_preserved_path
     category: habilidade
-    target: dungeon
     effect:
       - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
@@ -144,18 +159,22 @@ abilities:
       charges: 1
     nature:
       - nat_magical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: skill_rekindled_forge
     category: habilidade
-    target: group
     script: skill_rekindled_forge
     operate_type: op_triggered
     trigger: &a1
       event: evt_room_leave
     nature:
       - nat_fire
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_all
   - id: skill_rift_second_chance
     category: habilidade
-    target: ally_die
     operate_type: op_active
     cooldown:
       scope: combat
@@ -165,9 +184,11 @@ abilities:
     effect:
       - kind: i_reroll
         die_side: hero
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_perfect_rune
     category: habilidade
-    target: ally_die
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -180,9 +201,11 @@ abilities:
       - kind: i_set_die
         value: 6
         die_side: any
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_last_light_miracle
     category: habilidade
-    target: ally_or_next_attack
     effect:
       - kind: i_choose_one
         options:
@@ -207,18 +230,22 @@ abilities:
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_piercing_strike
     category: habilidade
-    target: other_creature_in_same_room
     script: skill_piercing_strike
     operate_type: op_triggered
     trigger:
       event: evt_kill
     nature:
       - nat_physical
+    target_type: tgt_others
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: skill_forge_spoils
     category: habilidade
-    target: item_deck
     effect:
       - kind: i_draw_and_choose
         pile: item_deck
@@ -228,9 +255,11 @@ abilities:
     trigger: *a1
     nature:
       - nat_physical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: skill_prey_mark
     category: habilidade
-    target: creature_in_room
     effect:
       - kind: i_mark_target
         to: $target
@@ -246,9 +275,11 @@ abilities:
       event: evt_combat_start
     nature:
       - nat_physical
+    target_type: tgt_enemy
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: skill_return_rite
     category: habilidade
-    target: dungeon
     effect:
       - kind: i_damage
         to: $source
@@ -260,9 +291,11 @@ abilities:
     nature:
       - nat_magical
       - nat_dark
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: skill_final_dawn_light
     category: habilidade
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -292,9 +325,11 @@ abilities:
     nature:
       - nat_physical
       - nat_fire
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_scorching_heat
     category: habilidade
-    target: heroes
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -315,9 +350,11 @@ abilities:
       charges: 1
     nature:
       - nat_fire
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: skill_crimson_chains
     category: habilidade
-    target: hero
     effect:
       - kind: p_block
         what: flee
@@ -325,9 +362,11 @@ abilities:
     nature:
       - nat_physical
       - nat_fire
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_choking_ashes
     category: habilidade
-    target: lowest_life_hero
     effect:
       - kind: i_damage
         to: $lowest_life_hero
@@ -336,9 +375,11 @@ abilities:
     nature:
       - nat_physical
       - nat_fire
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_charred_plate
     category: habilidade
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -353,27 +394,33 @@ abilities:
     nature:
       - nat_physical
       - nat_fire
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_forge_awakening
     category: habilidade
-    target: dungeon
     effect:
       - kind: i_advance_dungeon
         amount: $value
     operate_type: op_active
     nature:
       - nat_fire
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: skill_sealed_door
     category: habilidade
-    target: heroes
     effect:
       - kind: p_block
         what: flee
     operate_type: op_passive
     nature:
       - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: skill_ruined_floor
     category: habilidade
-    target: dungeon
     effect:
       - kind: i_discard
         pile: dungeon
@@ -386,9 +433,11 @@ abilities:
       charges: 1
     nature:
       - nat_physical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: skill_forge_smoke
     category: habilidade
-    target: heroes
     effect:
       - kind: p_block
         what: heal
@@ -402,9 +451,11 @@ abilities:
         right: 1
     nature:
       - nat_fire
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: skill_dark_tribute
     category: habilidade
-    target: group
     effect:
       - kind: i_choose_one
         options:
@@ -419,16 +470,18 @@ abilities:
                 pile: dungeon
                 count: 1
     operate_type: op_triggered
-    trigger: &a12
+    trigger: &a10
       event: evt_combat_start
-    cooldown: &a13
+    cooldown: &a11
       scope: room
       charges: 1
     nature:
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_all
   - id: skill_rift_evasion
     category: habilidade
-    target: self
     script: skill_rift_evasion
     operate_type: op_triggered
     trigger:
@@ -438,9 +491,11 @@ abilities:
       charges: 1
     nature:
       - nat_magical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_chains_prison
     category: habilidade
-    target: target_hero
     effect:
       - kind: p_modifier
         to: $target
@@ -457,18 +512,22 @@ abilities:
       charges: 1
     nature:
       - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_path_corruption
     category: habilidade
-    target: heroes
     effect:
       - kind: p_block
         what: dungeon_discard
     operate_type: op_passive
     nature:
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: skill_lone_beast
     category: habilidade
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -494,9 +553,11 @@ abilities:
         right: 1
     nature:
       - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_treacherous_attack
     category: habilidade
-    target: lowest_life_hero
     notes: No texto original, o nome possui variável, mas o efeito-base cita 1 dano.
       Use {value} quando quiser escalar.
     effect:
@@ -508,9 +569,11 @@ abilities:
       event: evt_combat_start
     nature:
       - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_cowardly_flee
     category: habilidade
-    target: self
     effect:
       - kind: i_set_no_reward
         to: $source
@@ -519,9 +582,11 @@ abilities:
       event: evt_leave_play
     nature:
       - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_gelatinous_body
     category: habilidade
-    target: heroes_attacking_self
     effect:
       - kind: p_modifier
         to: $source
@@ -533,9 +598,11 @@ abilities:
     operate_type: op_passive
     nature:
       - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_not_friend
   - id: skill_hidden_flame_presence
     category: habilidade
-    target: another_creature_in_room
     effect:
       - kind: p_modifier
         to: $source
@@ -554,9 +621,11 @@ abilities:
         right: 1
     nature:
       - nat_fire
+    target_type: tgt_others
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: skill_pack_courage
     category: habilidade
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -570,9 +639,11 @@ abilities:
     conditions: *a4
     nature:
       - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_illuminate_path
     category: habilidade
-    target: dungeon
     effect:
       - kind: i_reveal_dungeon
         count: $value
@@ -581,9 +652,11 @@ abilities:
       event: evt_room_reveal
     nature:
       - nat_magical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: skill_path_safeguard
     category: habilidade
-    target: dungeon
     effect:
       - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
@@ -591,9 +664,11 @@ abilities:
       event: evt_dungeon_discard
     nature:
       - nat_magical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: skill_life_drain
     category: habilidade
-    target: self
     effect:
       - kind: i_heal
         to: $source
@@ -604,9 +679,11 @@ abilities:
     nature:
       - nat_magical
       - nat_dark
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_opportunity_shot
     category: habilidade
-    target: creature
     script: skill_opportunity_shot
     operate_type: op_active
     cooldown:
@@ -614,9 +691,11 @@ abilities:
       charges: 1
     nature:
       - nat_physical
+    target_type: tgt_enemy
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: skill_last_light_ward
     category: habilidade
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -631,9 +710,11 @@ abilities:
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_protective_veil
     category: habilidade
-    target: self
     effect:
       - kind: i_ignore_next_targeting
         to: $source
@@ -644,9 +725,11 @@ abilities:
       scope: room
       charges: 1
     nature: []
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_rift_light_step
     category: habilidade
-    target: self
     effect:
       - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
@@ -657,9 +740,11 @@ abilities:
       charges: 1
     nature:
       - nat_magical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_focus_deflection
     category: habilidade
-    target: another_hero_or_self
     script: skill_focus_deflection
     operate_type: op_triggered
     trigger:
@@ -669,9 +754,11 @@ abilities:
       charges: 1
     nature:
       - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: skill_minor_rune
     category: habilidade
-    target: die_with_value_1
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -684,9 +771,11 @@ abilities:
       - kind: i_reroll
         die_side: hero
         only_if_value: 1
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: power_greater_last_light_miracle
     category: poder_heroi
-    target: hero
     effect:
       - kind: i_choose_one
         options:
@@ -699,15 +788,17 @@ abilities:
               - kind: i_prevent_destroy
                 to: $target
     operate_type: op_active
-    cooldown: &a7
+    cooldown: &a5
       scope: game
       charges: 1
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: power_unbreakable_bastion_guard
     category: poder_heroi
-    target: heroes
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -727,19 +818,23 @@ abilities:
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: power_restored_path
     category: poder_heroi
-    target: dungeon
     effect:
       - kind: i_recover_dungeon
         count: $value
     operate_type: op_active
-    cooldown: *a7
+    cooldown: *a5
     nature:
       - nat_magical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: power_supreme_rift_rune
     category: poder_heroi
-    target: ally_or_enemy_die
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -752,9 +847,11 @@ abilities:
       - kind: i_set_die
         value: 6
         die_side: any
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_all
   - id: power_mighty_crimson_fury
     category: poder_heroi
-    target: self
     params:
       bonus: 6
     effect:
@@ -774,9 +871,11 @@ abilities:
     nature:
       - nat_physical
       - nat_fire
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: power_last_light_oath
     category: poder_heroi
-    target: heroes_or_self_next_attack
     effect:
       - kind: i_choose_one
         options:
@@ -799,13 +898,15 @@ abilities:
                 duration:
                   kind: once
     operate_type: op_active
-    cooldown: *a7
+    cooldown: *a5
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: power_deep_veil_echo
     category: poder_heroi
-    target: self
     script: power_deep_veil_echo
     operate_type: op_triggered
     trigger:
@@ -815,9 +916,11 @@ abilities:
       charges: 1
     nature:
       - nat_magical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: power_hunter_execution
     category: poder_heroi
-    target: blue_die_and_self
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -841,9 +944,11 @@ abilities:
       - kind: i_set_die
         value: 6
         die_side: hero
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: purple_raging_flames
     category: efeito_roxo_monstro
-    target: all_heroes
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -853,14 +958,16 @@ abilities:
             to: $target
             amount: 1
     operate_type: op_triggered
-    trigger: &a8
+    trigger: &a6
       event: evt_enter_play
     nature:
       - nat_fire
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: purple_forge_chains
     category: efeito_roxo_monstro
-    target: heroes
     effect:
       - kind: p_block
         what: flee
@@ -868,37 +975,43 @@ abilities:
     nature:
       - nat_dark
       - nat_fire
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: purple_ruin_ashes
     category: efeito_roxo_monstro
-    target: dungeon
     effect:
       - kind: i_discard
         pile: dungeon
         count: 1
     operate_type: op_triggered
-    trigger: &a9
+    trigger: &a7
       event: evt_destroy
     nature:
       - nat_dark
       - nat_fire
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: purple_crimson_plate
     category: efeito_roxo_monstro
-    target: self
     effect:
       - kind: i_prevent_next_damage
         to: $source
     operate_type: op_triggered
-    trigger: &a14
+    trigger: &a12
       event: evt_damage_taken
-    cooldown: &a15
+    cooldown: &a13
       scope: round
       charges: 1
     nature:
       - nat_dark
       - nat_fire
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: purple_ash_protection
     category: efeito_roxo_monstro
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -908,34 +1021,40 @@ abilities:
         duration:
           kind: while_in_play
     operate_type: op_triggered
-    trigger: &a10
+    trigger: &a9
       event: evt_damage_taken
     nature:
       - nat_dark
       - nat_fire
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: purple_dark_awakening
     category: efeito_roxo_monstro
-    target: dungeon
     effect:
       - kind: i_advance_dungeon
         amount: 1
     operate_type: op_triggered
-    trigger: *a8
+    trigger: *a6
     nature:
       - nat_dark
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: purple_deadly_awakening
     category: efeito_roxo_monstro
-    target: dungeon
     effect:
       - kind: i_advance_dungeon
         amount: 1
     operate_type: op_triggered
-    trigger: *a9
+    trigger: *a7
     nature:
       - nat_dark
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: purple_ember_blood
     category: efeito_roxo_monstro
-    target: attacking_hero
     operate_type: op_triggered
     trigger:
       event: evt_damage_taken
@@ -946,18 +1065,22 @@ abilities:
       - kind: i_damage
         to: $target
         amount: 1
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: purple_depths_seal
     category: efeito_roxo_monstro
-    target: heroes
     effect:
       - kind: p_block
         what: power_use
     operate_type: op_passive
     nature:
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: purple_dark_tribute
     category: efeito_roxo_monstro
-    target: group
     effect:
       - kind: i_choose_one
         options:
@@ -972,13 +1095,15 @@ abilities:
                 pile: dungeon
                 count: 1
     operate_type: op_triggered
-    trigger: &a11
+    trigger: &a8
       event: evt_combat_start
     nature:
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_all
   - id: purple_blood_tribute
     category: efeito_roxo_monstro
-    target: group_or_chosen_hero
     effect:
       - kind: i_choose_one
         options:
@@ -993,12 +1118,14 @@ abilities:
                 to: $target
                 amount: 3
     operate_type: op_triggered
-    trigger: *a11
+    trigger: *a8
     nature:
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_all
   - id: purple_veil_retaliation
     category: efeito_roxo_monstro
-    target: attacking_hero
     operate_type: op_triggered
     trigger:
       event: evt_hit
@@ -1009,9 +1136,11 @@ abilities:
       - kind: i_damage
         to: $target
         amount: $value
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: purple_healing_rupture
     category: efeito_roxo_monstro
-    target: heroes
     effect:
       - kind: p_block
         what: heal
@@ -1021,9 +1150,11 @@ abilities:
     nature:
       - nat_dark
       - nat_magical
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: purple_ancient_veil_prison
     category: efeito_roxo_monstro
-    target: target_hero
     effect:
       - kind: p_modifier
         to: $target
@@ -1041,9 +1172,11 @@ abilities:
     nature:
       - nat_dark
       - nat_magical
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: purple_deep_veil_seal
     category: efeito_roxo_monstro
-    target: heroes
     effect:
       - kind: p_block
         what: dungeon_level_reduction
@@ -1051,9 +1184,11 @@ abilities:
     nature:
       - nat_dark
       - nat_magical
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: purple_crimson_shackles
     category: efeito_roxo_monstro
-    target: target_hero
     effect:
       - kind: p_modifier
         to: $target
@@ -1078,9 +1213,11 @@ abilities:
     nature:
       - nat_dark
       - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: item_skill_deadly_edge
     category: habilidade_item
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -1101,9 +1238,11 @@ abilities:
       event: evt_attack_declared
     nature:
       - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: item_skill_block
     category: habilidade_item
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -1113,12 +1252,14 @@ abilities:
         duration:
           kind: while_in_play
     operate_type: op_triggered
-    trigger: *a10
+    trigger: *a9
     nature:
       - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: item_skill_mystic_draw
     category: habilidade_item
-    target: artifact_deck
     effect:
       - kind: i_draw
         pile: artifact_deck
@@ -1126,9 +1267,11 @@ abilities:
     operate_type: op_active
     nature:
       - nat_magical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: item_skill_last_light_blade
     category: habilidade_item
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -1154,18 +1297,22 @@ abilities:
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: dungeon_skill_confinement
     category: habilidade_dungeon
-    target: creatures_or_heroes_in_room
     effect:
       - kind: p_block
         what: flee
     operate_type: op_passive
     nature:
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_room
+    affect_object: obj_all
   - id: dungeon_skill_dead_torches
     category: habilidade_dungeon
-    target: heroes
     effect:
       - kind: i_choose_one
         options:
@@ -1184,13 +1331,15 @@ abilities:
                 duration:
                   kind: until_end_of_combat
     operate_type: op_triggered
-    trigger: *a12
-    cooldown: *a13
+    trigger: *a10
+    cooldown: *a11
     nature:
       - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
   - id: dungeon_skill_column_fall
     category: habilidade_dungeon
-    target: remaining_creature
     effect:
       - kind: i_damage
         to: $target
@@ -1203,9 +1352,11 @@ abilities:
       charges: 1
     nature:
       - nat_physical
+    target_type: tgt_enemy
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: dungeon_skill_uneven_floor
     category: habilidade_dungeon
-    target: dungeon
     effect:
       - kind: i_discard
         pile: dungeon
@@ -1215,9 +1366,11 @@ abilities:
       event: evt_combat_end
     nature:
       - nat_physical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: dungeon_skill_forge_spoils
     category: habilidade_dungeon
-    target: item_deck
     effect:
       - kind: i_draw_and_choose
         pile: item_deck
@@ -1227,17 +1380,21 @@ abilities:
     trigger: *a1
     nature:
       - nat_physical
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: dungeon_skill_rekindled_forge
     category: habilidade_dungeon
-    target: item_deck_or_discard
     script: dungeon_skill_rekindled_forge
     operate_type: op_triggered
     trigger: *a1
     nature:
       - nat_fire
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: dungeon_skill_summon_guardian
     category: habilidade_dungeon
-    target: special_creature
     notes: Use {value} como o nome da criatura especial/subchefe revelado pela sala.
     script: dungeon_skill_summon_guardian
     operate_type: op_triggered
@@ -1245,9 +1402,11 @@ abilities:
       event: evt_room_reveal
     nature:
       - nat_dark
+    target_type: tgt_enemy
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: boss_skill_living_ash_throne
     category: habilidade_chefe
-    target: boss
     effect:
       - kind: p_modifier
         to: $source
@@ -1257,14 +1416,16 @@ abilities:
         duration:
           kind: once
     operate_type: op_triggered
-    trigger: *a14
-    cooldown: *a15
+    trigger: *a12
+    cooldown: *a13
     nature:
       - nat_fire
       - nat_dark
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: boss_skill_dark_forge_pressure
     category: habilidade_chefe
-    target: dungeon
     effect:
       - kind: i_if
         when:
@@ -1287,9 +1448,11 @@ abilities:
     nature:
       - nat_dark
       - nat_fire
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: boss_skill_azhakar_ascension
     category: habilidade_chefe
-    target: boss
     effect:
       - kind: p_modifier
         to: $source
@@ -1308,9 +1471,11 @@ abilities:
     nature:
       - nat_dark
       - nat_fire
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_not_friend
   - id: item_skill_drain_life_and_deadly_edge
     category: habilidade_item
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -1335,9 +1500,11 @@ abilities:
     nature:
       - nat_physical
       - nat_dark
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: item_skill_block_and_last_light_ward
     category: habilidade_item
-    target: self
     effect:
       - kind: p_modifier
         to: $source
@@ -1357,13 +1524,15 @@ abilities:
       armor: 3
       purple: 2
     operate_type: op_triggered
-    trigger: *a10
+    trigger: *a9
     nature:
       - nat_magical
       - nat_holy
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: item_skill_crimson_fury_mighty
     category: habilidade_item
-    target: self
     effect:
       - kind: i_damage
         to: $source
@@ -1384,17 +1553,24 @@ abilities:
     nature:
       - nat_physical
       - nat_fire
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: dungeon_skill_subboss_room
     category: habilidade_dungeon
-    target: room
     effect:
       - kind: i_noop
     operate_type: op_passive
     nature: []
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all
   - id: dungeon_skill_empty_room
     category: habilidade_dungeon
-    target: room
     effect:
       - kind: i_noop
     operate_type: op_passive
     nature: []
+    target_type: tgt_item
+    affect_scope: scp_none
+    affect_object: obj_all

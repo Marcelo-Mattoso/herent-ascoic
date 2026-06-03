@@ -38,12 +38,18 @@ describe("TriggerFieldSchema — rejeita string legada", () => {
 
 // ── SkillDefinitionV2Schema — valida entradas pós-migração ────────────────────
 
+const targetingV2 = {
+	target_type: "tgt_self",
+	affect_scope: "scp_single",
+	affect_object: "obj_friend",
+};
+
 // Base válida para op_active (sem trigger, sem cooldown)
 const validBaseActive = {
 	id: "test_skill",
 	category: "habilidade",
 	operate_type: "op_active",
-	target: "self",
+	...targetingV2,
 };
 
 // Base válida para op_triggered
@@ -52,7 +58,7 @@ const validBaseTriggered = {
 	category: "habilidade",
 	operate_type: "op_triggered",
 	trigger: { event: "evt_roll" },
-	target: "self",
+	...targetingV2,
 };
 
 describe("SkillDefinitionV2Schema — effect XOR script", () => {

@@ -145,12 +145,20 @@ export function resolveEntityRef(ref: string, ctx: EvalCtx): string | null {
 
 /**
  * Resolve uma ref para lista de entity ids.
+ * Inclui `$each` — itera sobre affect_scope da skill (resolução baseada em ctx.state).
  */
 export function resolveEntityListRef(
 	ref: string,
 	ctx: EvalCtx,
 ): readonly string[] {
 	switch (ref) {
+		case "$each":
+			// Resolve baseado nos targetIds do contexto (scp_party_full / scp_room → todos ativos)
+			// A semântica exata depende do affect_scope declarado na skill; aqui usamos targetIds
+			// como proxy universal. Para scp_party_full/scp_room, o dispatcher preenche targetIds.
+			return ctx.targetIds.length > 0
+				? ctx.targetIds
+				: ctx.state.heroes.filter((h) => h.status === "active").map((h) => h.id);
 		case "$targets":
 			return ctx.targetIds;
 		case "$source":

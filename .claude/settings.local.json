@@ -100,7 +100,8 @@
       "Bash(git -C F:/temp/jogo-cartas-mvp1 log --oneline -10)",
       "Bash(ls F:/temp/jogo-cartas-mvp1/.claude/skills/ 2>/dev/null; echo \"---\"; ls C:/Users/Felipe/.claude/skills/ 2>/dev/null)",
       "Bash(node tools/skill-port/migrate-triggers.mjs)",
-      "Bash(node tools/skill-port/rename-kinds.mjs)"
+      "Bash(node tools/skill-port/rename-kinds.mjs)",
+      "Bash(node tools/skill-port/migrate-target.mjs)"
     ]
   }
 }

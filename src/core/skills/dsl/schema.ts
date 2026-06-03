@@ -186,7 +186,7 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		}),
 		z.object({
 			kind: z.literal("i_for_each"),
-			over: z.enum(["targets", "allies", "enemies", "all_heroes"]),
+			over: z.enum(["targets", "allies", "enemies", "all_heroes", "$each"]),
 			as: z.string(),
 			do: z.array(EffectNodeSchema),
 		}),
@@ -327,7 +327,11 @@ export const SkillDefinitionV2Schema = z
 		trigger: TriggerV2Schema.optional(),
 		conditions: z.array(ConditionNodeSchema).optional(),
 		cooldown: CooldownSchema,
-		target: z.string(),
+		// Targeting v2 (Lote C)
+		target_type: z.enum(["tgt_self", "tgt_target", "tgt_enemy", "tgt_item", "tgt_others", "tgt_none"]),
+		affect_scope: z.enum(["scp_single", "scp_party_full", "scp_dead_party", "scp_room", "scp_none"]),
+		affect_object: z.enum(["obj_friend", "obj_not_friend", "obj_all"]),
+		affect_limit: z.object({ min: z.number(), max: z.number() }).optional(),
 		params: z.record(z.string(), z.unknown()).optional(),
 		cost: CostSchema,
 		effect: z.array(EffectNodeSchema).optional(),

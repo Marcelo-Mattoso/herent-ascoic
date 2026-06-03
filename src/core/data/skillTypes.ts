@@ -20,40 +20,8 @@ export type SkillCardType =
 /** @deprecated Lote B — use operate_type + trigger.event no lugar. Mantido para dispatch.ts legado. */
 export type TriggerName = string;
 
-// Conjunto de targets reconhecidos pelo engine.
-export type TargetSpec =
-	// Personagens
-	| "self"
-	| "hero"
-	| "heroes"
-	| "hero_or_ally"
-	| "hero_or_ally_creature"
-	| "heroes_or_self_next_attack"
-	| "creature_in_room"
-	| "creature_in_play"
-	| "another_creature_in_room"
-	| "other_creature_in_same_room"
-	| "another_creature_in_room"
-	| "chosen_enemy"
-	// Dados
-	| "ally_die"
-	| "ally_or_enemy_die"
-	| "blue_die_and_self"
-	| "die_with_value_1"
-	// Recursos/zonas
-	| "dungeon"
-	| "group"
-	| "item_deck"
-	// Inimigos
-	| "enemy"
-	| "all_enemies"
-	| "all_heroes"
-	| "lowest_life_hero"
-	| "target_hero"
-	| "heroes_attacking_self"
-	| "ally_or_next_attack"
-	| "another_hero_or_self"
-	| string; // fallback
+/** @deprecated Lote C — substituído por target_type + affect_scope + affect_object + affect_limit */
+export type TargetSpec = string;
 
 export interface SkillDefinition {
 	readonly id: string;
@@ -65,7 +33,11 @@ export interface SkillDefinition {
 	readonly trigger?: { readonly event: import("../skills/dsl/types").EventName };
 	readonly conditions?: readonly import("../skills/dsl/types").ConditionNode[];
 	readonly cooldown?: import("../skills/dsl/types").CooldownNode;
-	readonly target: TargetSpec;
+	// ── Targeting v2 (patch-21 Lote C) ──────────────────────────────────
+	readonly target_type: import("../skills/dsl/types").TargetType;
+	readonly affect_scope: import("../skills/dsl/types").AffectScope;
+	readonly affect_object: import("../skills/dsl/types").AffectObject;
+	readonly affect_limit?: import("../skills/dsl/types").AffectLimit;
 	readonly notes?: string;
 	// ── Campos pós-patch-12 ────────────────────────────────────────
 	/** Array de EffectNode DSL. Exatamente um de effect/script deve estar presente. */
