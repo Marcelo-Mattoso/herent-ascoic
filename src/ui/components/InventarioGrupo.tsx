@@ -4,7 +4,7 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
-import { getCardByName } from "@/core/data/cards";
+import { getCardById } from "@/core/data/cards";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
@@ -37,8 +37,8 @@ const ITEM_COLORS: Record<
 	special: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" }, // rosa (special)
 };
 
-function itemColor(itemName: string) {
-	const card = getCardByName(itemName);
+function itemColor(itemId: string) {
+	const card = getCardById(itemId);
 	if (!card || card.type !== "item") return null;
 	return ITEM_COLORS[card.itemClass] ?? null;
 }
@@ -59,8 +59,8 @@ function shortLabel(name: string): string {
 	return word.length <= 6 ? word : `${word.slice(0, 5)}…`;
 }
 
-function artifactRequiresBearer(cardName: string): boolean {
-	const card = getCardByName(cardName);
+function artifactRequiresBearer(cardId: string): boolean {
+	const card = getCardById(cardId);
 	if (card?.type !== "artifact") return false;
 	const main = cardSkills(card.id)[0];
 	if (!main) return false;
@@ -196,14 +196,14 @@ interface HeroColumnProps {
 	hero: HeroState;
 	dragging: DragItem | null;
 	hoverZone: string | null;
-	groupArtifacts: ReadonlyArray<{ cardName: string; carriedBy: string | null }>;
+	groupArtifacts: ReadonlyArray<{ cardId: string; carriedBy: string | null }>;
 	onDrop: (zone: string) => void;
 	onSetHover: (zone: string | null) => void;
 	onDragItemStart: (name: string, from: InvFromZone) => void;
 	onDragEnd: () => void;
 	onShowTooltip: (t: TooltipTarget) => void;
 	onHideTooltip: () => void;
-	onUseItem: (itemName: string, heroId: string) => void;
+	onUseItem: (itemId: string, heroId: string) => void;
 }
 
 function HeroColumn({
@@ -224,7 +224,7 @@ function HeroColumn({
 
 	function canEquipDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
-		const card = getCardByName(dragging.name);
+		const card = getCardById(dragging.name);
 		return card?.type === "item" && card.itemClass !== "consumable";
 	}
 
@@ -353,8 +353,8 @@ function HeroColumn({
 			<div style={{ marginBottom: 8 }}>
 				<Slot
 					amber
-					label={posseArt ? shortLabel(posseArt.cardName) : ""}
-					title={posseArt?.cardName ?? "sem artefato em posse"}
+					label={posseArt ? shortLabel(getCardById(posseArt.cardId)?.name ?? posseArt.cardId) : ""}
+					title={posseArt ? (getCardById(posseArt.cardId)?.name ?? posseArt.cardId) : "sem artefato em posse"}
 					filled={!!posseArt}
 				/>
 			</div>
@@ -477,9 +477,9 @@ function HeroColumn({
 					textOverflow: "ellipsis",
 					whiteSpace: "nowrap",
 				}}
-				title={hero.cardName}
+				title={getCardById(hero.cardId)?.name ?? hero.cardId}
 			>
-				{hero.cardName.split(" ")[0]}
+				{(getCardById(hero.cardId)?.name ?? hero.cardId).split(" ")[0]}
 			</p>
 		</div>
 	);
@@ -541,7 +541,7 @@ export function InventarioGrupo() {
 			}
 			// Equip: aceita qualquer item não-consumível
 			if (zone.startsWith("hero_equip_")) {
-				const card = getCardByName(dragging.name);
+				const card = getCardById(dragging.name);
 				return card?.type === "item" && card.itemClass !== "consumable";
 			}
 			// Mochila: aceita se tiver espaço
@@ -582,8 +582,8 @@ export function InventarioGrupo() {
 		}
 	}
 
-	function handleUseItemFromTooltip(itemName: string, heroId: string) {
-		dispatch({ type: "USE_ITEM", payload: { itemName, heroId } });
+	function handleUseItemFromTooltip(itemId: string, heroId: string) {
+		dispatch({ type: "USE_ITEM", payload: { itemId, heroId } });
 		setTooltip(null);
 	}
 
@@ -620,13 +620,13 @@ export function InventarioGrupo() {
 			}
 			dispatch({
 				type: "INV_MOVE",
-				payload: { itemName: dragging.name, from: dragging.from, to },
+				payload: { itemId: dragging.name, from: dragging.from, to },
 			});
 		} else if (dragging.kind === "artefato") {
 			const vagaIndex = zone === "grupo_vaga_0" ? 0 : (1 as 0 | 1);
 			dispatch({
 				type: "INV_ASSIGN_ARTIFACT",
-				payload: { artifactName: dragging.name, vagaIndex, heroId: null },
+				payload: { artifactId: dragging.name, vagaIndex, heroId: null },
 			});
 		}
 
@@ -786,26 +786,27 @@ export function InventarioGrupo() {
 								}}
 							>
 								{mesaItens.map((r) => {
-									const col = itemColor(r.cardName);
+									const col = itemColor(r.cardId);
+									const rName = getCardById(r.cardId)?.name ?? r.cardId;
 									const isMe =
 										dragging?.from.kind === "mesa" &&
-										dragging.name === r.cardName;
+										dragging.name === r.cardId;
 									return (
 										<Slot
-											key={r.cardName}
-											label={shortLabel(r.cardName)}
+											key={r.cardId}
+											label={shortLabel(rName)}
 											color={col}
 											filled
 											draggable
 											isDragging={isMe}
 											onDragStart={(e) => {
-												e.dataTransfer.setData("text/plain", r.cardName);
-												handleItemDragStart(r.cardName, { kind: "mesa" });
+												e.dataTransfer.setData("text/plain", r.cardId);
+												handleItemDragStart(r.cardId, { kind: "mesa" });
 											}}
 											onDragEnd={handleDragEnd}
 											onMouseEnter={(e) =>
 												showTooltip({
-													name: r.cardName,
+													name: r.cardId,
 													kind: "item",
 													x: e.clientX,
 													y: e.clientY,
@@ -813,7 +814,7 @@ export function InventarioGrupo() {
 											}
 											onMouseMove={(e) =>
 												showTooltip({
-													name: r.cardName,
+													name: r.cardId,
 													kind: "item",
 													x: e.clientX,
 													y: e.clientY,
@@ -861,22 +862,23 @@ export function InventarioGrupo() {
 								}}
 							>
 								{mesaArtefatos.map((r) => {
+									const rName = getCardById(r.cardId)?.name ?? r.cardId;
 									const isMe =
 										dragging?.from.kind === "mesa" &&
-										dragging.name === r.cardName;
+										dragging.name === r.cardId;
 									return (
 										<Slot
-											key={r.cardName}
+											key={r.cardId}
 											amber
-											label={shortLabel(r.cardName)}
+											label={shortLabel(rName)}
 											filled
 											draggable
 											isDragging={isMe}
 											onDragStart={(e) => {
-												e.dataTransfer.setData("text/plain", r.cardName);
+												e.dataTransfer.setData("text/plain", r.cardId);
 												setTooltip(null);
 												setDragging({
-													name: r.cardName,
+													name: r.cardId,
 													kind: "artefato",
 													from: { kind: "mesa" },
 												});
@@ -884,7 +886,7 @@ export function InventarioGrupo() {
 											onDragEnd={handleDragEnd}
 											onMouseEnter={(e) =>
 												showTooltip({
-													name: r.cardName,
+													name: r.cardId,
 													kind: "artifact",
 													x: e.clientX,
 													y: e.clientY,
@@ -892,7 +894,7 @@ export function InventarioGrupo() {
 											}
 											onMouseMove={(e) =>
 												showTooltip({
-													name: r.cardName,
+													name: r.cardId,
 													kind: "artifact",
 													x: e.clientX,
 													y: e.clientY,
@@ -976,7 +978,8 @@ export function InventarioGrupo() {
 								);
 							}
 
-							const requiresBearer = artifactRequiresBearer(art.cardName);
+							const requiresBearer = artifactRequiresBearer(art.cardId);
+							const artName = getCardById(art.cardId)?.name ?? art.cardId;
 							return (
 								<div
 									key={vagaIndex}
@@ -1016,9 +1019,9 @@ export function InventarioGrupo() {
 												textOverflow: "ellipsis",
 												whiteSpace: "nowrap",
 											}}
-											title={art.cardName}
+											title={artName}
 										>
-											{art.cardName}
+											{artName}
 										</p>
 										{requiresBearer ? (
 											<div
@@ -1055,7 +1058,7 @@ export function InventarioGrupo() {
 													<option value="">— sem portador —</option>
 													{heroes.map((h) => (
 														<option key={h.id} value={h.id}>
-															{h.cardName.split(" ")[0]}
+															{(getCardById(h.cardId)?.name ?? h.cardId).split(" ")[0]}
 														</option>
 													))}
 												</select>
@@ -1222,11 +1225,11 @@ function ItemTooltipPanel({
 	onMouseLeave,
 }: {
 	target: TooltipTarget;
-	onUseItem: (itemName: string, heroId: string) => void;
+	onUseItem: (itemId: string, heroId: string) => void;
 	onMouseEnter: () => void;
 	onMouseLeave: () => void;
 }) {
-	const card = getCardByName(target.name);
+	const card = getCardById(target.name);
 	if (!card || (card.type !== "item" && card.type !== "artifact")) return null;
 
 	// Posição: acima e à direita do cursor; ajusta se sair da viewport

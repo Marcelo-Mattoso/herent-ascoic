@@ -870,7 +870,7 @@
   reward: 1
   rewardType: artifact
   xp: 4
-  linkedSubbossName: Carcereiro da Masmorra Rubra
+  linkedSubbossId: subboss_crimson_dungeon_jailer
   skills:
     - skillId: dungeon_skill_subboss_room
 - id: subboss_room_cracked_abyss_chamber
@@ -880,7 +880,7 @@
   reward: 1
   rewardType: artifact
   xp: 4
-  linkedSubbossName: Guardião do Abismo Rachado
+  linkedSubbossId: subboss_cracked_abyss_guardian
   skills:
     - skillId: dungeon_skill_subboss_room
 - id: room_narrow_corridor
@@ -974,7 +974,7 @@
   reward: 1
   rewardType: artifact
   xp: 3
-  specialCreature: Carcereiro da Masmorra Rubra
+  specialCreatureId: subboss_crimson_dungeon_jailer
   skills:
     - skillId: dungeon_skill_summon_guardian
 - id: room_cracked_abyss
@@ -985,7 +985,7 @@
   reward: 1
   rewardType: artifact
   xp: 3
-  specialCreature: Guardião do Abismo Rachado
+  specialCreatureId: subboss_cracked_abyss_guardian
   skills:
     - skillId: dungeon_skill_summon_guardian
 - id: boss_azhakar

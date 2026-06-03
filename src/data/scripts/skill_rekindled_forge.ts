@@ -42,7 +42,7 @@ registerContinuation(
 
 		const reward: PendingReward = {
 			type: "item",
-			cardName: choice,
+			cardId: choice,
 			requiresBearer: false,
 		};
 		return log(

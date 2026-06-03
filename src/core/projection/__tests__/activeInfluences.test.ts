@@ -5,20 +5,20 @@ import { createInitialGameState } from "../../state/gameState";
 import { playerView } from "../playerView";
 
 function buildStartedState(heroNames: string[]) {
-	const base = createInitialGameState({ heroCardNames: heroNames });
-	return reducer(base, { type: "START_GAME", payload: { heroCardNames: heroNames } });
+	const base = createInitialGameState({ heroCardIds: heroNames });
+	return reducer(base, { type: "START_GAME", payload: { heroCardIds: heroNames } });
 }
 
 describe("projectActiveInfluences", () => {
 	it("retorna lista vazia quando não há modifiers no world", () => {
-		const state = buildStartedState(["Bárbaro Rubro"]);
+		const state = buildStartedState(["hero_crimson_barbarian"]);
 		const view = playerView(state);
 		// Sem combate ativo, world pode ter passivas mas activeInfluences reflete isso
 		expect(Array.isArray(view.activeInfluences)).toBe(true);
 	});
 
 	it("detecta modifier de herói → herói (hero_to_self)", () => {
-		let state = buildStartedState(["Bárbaro Rubro"]);
+		let state = buildStartedState(["hero_crimson_barbarian"]);
 		const heroId = state.heroes[0].id;
 		// Injeta modifier diretamente no world (simula bônus de dano)
 		let world = state.world;
@@ -47,7 +47,7 @@ describe("projectActiveInfluences", () => {
 	});
 
 	it("colapsa fan-out de grupo quando mesmo modifier cobre todos os heróis", () => {
-		const heroes = ["Bárbaro Rubro", "Guerreiro do Bastião Partido", "Ladino das Fendas"];
+		const heroes = ["hero_crimson_barbarian", "hero_broken_bastion_warrior", "hero_rift_rogue"];
 		let state = buildStartedState(heroes);
 
 		// Injeta o mesmo modifier (power_unbreakable_bastion_guard) em todos os heróis
@@ -78,7 +78,7 @@ describe("projectActiveInfluences", () => {
 	});
 
 	it("não colapsa quando só um herói tem o modifier", () => {
-		const heroes = ["Bárbaro Rubro", "Guerreiro do Bastião Partido"];
+		const heroes = ["hero_crimson_barbarian", "hero_broken_bastion_warrior"];
 		let state = buildStartedState(heroes);
 		const heroId = state.heroes[0].id;
 
@@ -107,7 +107,7 @@ describe("projectActiveInfluences", () => {
 	});
 
 	it("classifica modifier negativo em damage_taken como buff", () => {
-		let state = buildStartedState(["Bárbaro Rubro"]);
+		let state = buildStartedState(["hero_crimson_barbarian"]);
 		const heroId = state.heroes[0].id;
 		let world = state.world;
 		if (!world.entities[heroId]) {
@@ -131,7 +131,7 @@ describe("projectActiveInfluences", () => {
 	});
 
 	it("classifica modifier negativo em hit_bonus como debuff (penalidade de acerto)", () => {
-		let state = buildStartedState(["Bárbaro Rubro"]);
+		let state = buildStartedState(["hero_crimson_barbarian"]);
 		const heroId = state.heroes[0].id;
 		let world = state.world;
 		if (!world.entities[heroId]) {
@@ -154,7 +154,7 @@ describe("projectActiveInfluences", () => {
 	});
 
 	it("item_to_hero scope para modifier de skill de item", () => {
-		let state = buildStartedState(["Bárbaro Rubro"]);
+		let state = buildStartedState(["hero_crimson_barbarian"]);
 		const heroId = state.heroes[0].id;
 		let world = state.world;
 		if (!world.entities[heroId]) {
@@ -180,7 +180,7 @@ describe("projectActiveInfluences", () => {
 	});
 
 	it("activeInfluences não quebra buffsByHero existente", () => {
-		let state = buildStartedState(["Bárbaro Rubro"]);
+		let state = buildStartedState(["hero_crimson_barbarian"]);
 		const heroId = state.heroes[0].id;
 		let world = state.world;
 		if (!world.entities[heroId]) {

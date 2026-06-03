@@ -169,7 +169,7 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		z.object({
 			kind: z.literal("i_grant_reward"),
 			rewardType: z.enum(["item", "artifact"]),
-			cardName: z.string(),
+			cardId: z.string(),
 		}),
 		// Composição (i_*)
 		z.object({

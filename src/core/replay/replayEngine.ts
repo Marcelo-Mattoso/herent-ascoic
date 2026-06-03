@@ -38,7 +38,7 @@ export function buildReplayPackage(state: GameState): ReplayPackage {
 // Reproduz todas as actions de um pacote, retornando o estado final.
 // Usa um adapter separado — não contamina a partida em curso.
 export function replayFromPackage(pkg: ReplayPackage): GameState {
-	const initial = createInitialGameState({ heroCardNames: [] });
+	const initial = createInitialGameState({ heroCardIds: [] });
 	const adapter = createInProcessAdapter(initial);
 
 	for (const entry of pkg.actionLog) {
@@ -51,7 +51,7 @@ export function replayFromPackage(pkg: ReplayPackage): GameState {
 // Retorna todos os estados intermediários (cursor-friendly para o viewer).
 // Estados[0] = estado inicial, estados[N] = após N actions.
 export function buildReplayStates(pkg: ReplayPackage): readonly GameState[] {
-	const initial = createInitialGameState({ heroCardNames: [] });
+	const initial = createInitialGameState({ heroCardIds: [] });
 	const states: GameState[] = [initial];
 	const adapter = createInProcessAdapter(initial);
 

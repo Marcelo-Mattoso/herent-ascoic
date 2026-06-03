@@ -24,8 +24,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Bárbaro Rubro",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 1,
@@ -46,8 +45,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-		cardName: "Goblin das Cavernas Escuras",
-		maxLife: 4,
+			maxLife: 4,
 		currentLife: 4,
 		damage: 1,
 		hitBonus: 0,
@@ -63,8 +61,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 	return {
 		cardId: "room_narrow_corridor",
-		cardName: "Corredor Estreito",
-		exits: 2,
+			exits: 2,
 		currentEnemies: 1,
 		reward: 0,
 		rewardType: "item",
@@ -76,7 +73,7 @@ function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 }
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
-	const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 	return {
 		...base,
 		heroes: [makeHero()],
@@ -231,7 +228,7 @@ describe("DSL discard_from dungeon", () => {
 	it("descarta N cartas do deck de dungeon após drenagem", () => {
 		const state = makeState({
 			decks: {
-				...createInitialGameState({ heroCardNames: [] }).decks,
+				...createInitialGameState({ heroCardIds: [] }).decks,
 				dungeonDeck: {
 					available: ["Sala A", "Sala B", "Sala C"],
 					discarded: [],
@@ -250,7 +247,7 @@ describe("DSL discard_from dungeon", () => {
 	it("descarta 2 cartas quando count é 2", () => {
 		const state = makeState({
 			decks: {
-				...createInitialGameState({ heroCardNames: [] }).decks,
+				...createInitialGameState({ heroCardIds: [] }).decks,
 				dungeonDeck: { available: ["A", "B", "C"], discarded: [], removed: [] },
 			},
 		});
@@ -293,7 +290,7 @@ describe("DSL set_no_reward", () => {
 			activeEnemies: [],
 			enemyGraveyard: [defeatedEnemy],
 			decks: {
-				...createInitialGameState({ heroCardNames: [] }).decks,
+				...createInitialGameState({ heroCardIds: [] }).decks,
 				itemDeck: {
 					available: ["Adaga Enferrujada"],
 					discarded: [],

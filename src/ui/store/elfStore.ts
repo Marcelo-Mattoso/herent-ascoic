@@ -21,7 +21,7 @@ interface ElfStoreProps {
 	readonly ui: UiState;
 }
 
-const EMPTY_CONFIG = { heroCardNames: [] as string[] };
+const EMPTY_CONFIG = { heroCardIds: [] as string[] };
 
 // Store central do jogo — contém GameState + UI state.
 export const gameElfStore = createStore(

@@ -60,9 +60,9 @@ export const spendXp = (option: XpSpendOption, heroId?: string): Action => ({
 
 export const openPaths = (): Action => ({ type: "OPEN_PATHS" });
 
-export const choosePath = (cardName: string): Action => ({
+export const choosePath = (cardId: string): Action => ({
 	type: "CHOOSE_PATH",
-	payload: { cardName },
+	payload: { cardId },
 });
 
 export const discardPaths = (): Action => ({ type: "DISCARD_PATHS" });

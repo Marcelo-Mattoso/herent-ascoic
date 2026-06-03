@@ -3,6 +3,7 @@
 
 import { useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
+import { getCardById } from "@/core/data/cards";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
 import { Board } from "@/ui/components/Board";
@@ -39,7 +40,7 @@ type ModalType =
 	| null;
 
 interface CardDetailState {
-	name: string;
+	id: string;
 	cardType: CardType;
 	heroId?: string;
 }
@@ -79,8 +80,8 @@ export function Exploration() {
 		}
 	}, [status, dispatch]);
 
-	function openCardDetail(name: string, cardType: CardType) {
-		setDetailCard({ name, cardType });
+	function openCardDetail(id: string, cardType: CardType) {
+		setDetailCard({ id, cardType });
 	}
 
 	// Clique em card de herói: muda foco + seleciona para combate se válido
@@ -129,7 +130,7 @@ export function Exploration() {
 			});
 			return;
 		}
-		openCardDetail(e.cardName, e.id === "boss" ? "boss" : "enemy");
+		openCardDetail(e.cardId, e.id === "boss" ? "boss" : "enemy");
 	}
 
 	// Botão "Atacar" no painel: usa selectedHeroId + primeiro inimigo ativo
@@ -254,7 +255,7 @@ export function Exploration() {
 						onEnemyClick={handleEnemyClick}
 						onRoomClick={() =>
 							view.currentRoom &&
-							openCardDetail(view.currentRoom.cardName, "room")
+							openCardDetail(view.currentRoom.cardId, "room")
 						}
 						onCardDetail={openCardDetail}
 						onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
@@ -306,7 +307,7 @@ export function Exploration() {
 									buffs={heroBuffs}
 									leadingLabel={
 										focusedHero
-											? `🧙 ${focusedHero.cardName.split(",")[0]?.split(" ")[0] ?? "Herói"}:`
+											? `🧙 ${(getCardById(focusedHero.cardId)?.name ?? focusedHero.cardId).split(",")[0]?.split(" ")[0] ?? "Herói"}:`
 											: "🧙 Herói:"
 									}
 								/>
@@ -329,8 +330,8 @@ export function Exploration() {
 						onFlee={handleFlee}
 						onUseSkill={handleUseSkill}
 						onCardDetail={openCardDetail}
-						onItemDetail={(itemName, heroId) =>
-							setDetailCard({ name: itemName, cardType: "item", heroId })
+						onItemDetail={(itemId, heroId) =>
+							setDetailCard({ id: itemId, cardType: "item", heroId })
 						}
 					/>
 				</div>
@@ -343,7 +344,7 @@ export function Exploration() {
 				{view.pendingSkillChoice && <SkillChoiceModal />}
 				{modal === "card_detail" && detailCard && (
 					<CardDetailModal
-						cardName={detailCard.name}
+						cardId={detailCard.id}
 						cardType={detailCard.cardType}
 						onClose={() => setDetailCard(null)}
 						onUseItem={
@@ -352,7 +353,7 @@ export function Exploration() {
 										dispatch({
 											type: "USE_ITEM",
 											payload: {
-												itemName: detailCard.name,
+												itemId: detailCard.id,
 												heroId: detailCard.heroId!,
 											},
 										});

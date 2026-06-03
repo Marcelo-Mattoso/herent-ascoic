@@ -403,7 +403,7 @@ case "draw_from": {
 					return log(state, "Deck de artefatos vazio — nenhum artefato sacado.");
 				const newRewards: PendingReward[] = drawn.map((name) => ({
 					type: "artifact" as const,
-					cardName: name as string,
+					cardId: name as string,
 					requiresBearer: false,
 				}));
 				return log(
@@ -428,7 +428,7 @@ case "draw_from": {
 					return log(state, "Deck de itens vazio — nenhum item sacado.");
 				const newRewards: PendingReward[] = drawn.map((name) => ({
 					type: "item" as const,
-					cardName: name as string,
+					cardId: name as string,
 					requiresBearer: false,
 				}));
 				return log(
@@ -474,7 +474,7 @@ case "draw_and_choose": {
 					{
 						kind: "grant_pending_reward" as const,
 						rewardType,
-						cardName: name as string,
+						cardId: name as string,
 					},
 				],
 			}));
@@ -521,12 +521,12 @@ case "reveal_dungeon": {
 
 		case "i_grant_reward":
 case "grant_pending_reward": {
-			const cardName = effect["cardName"] as string;
+			const cardId = (effect["cardId"] ?? effect["cardName"]) as string;
 			const rewardType = effect["rewardType"] as "item" | "artifact";
-			const reward: PendingReward = { type: rewardType, cardName, requiresBearer: false };
+			const reward: PendingReward = { type: rewardType, cardId, requiresBearer: false };
 			return log(
 				{ ...state, pendingRewards: [...state.pendingRewards, reward] },
-				`${cardName} adicionado às recompensas pendentes.`,
+				`${cardId} adicionado às recompensas pendentes.`,
 			);
 		}
 

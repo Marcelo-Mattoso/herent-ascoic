@@ -7,10 +7,10 @@ import { reducer } from "../index";
 import "../../skills/handlers/index"; // popula registry
 
 function makeState() {
-	let state = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+	let state = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 	state = reducer(state, {
 		type: "START_GAME",
-		payload: { heroCardNames: ["Bárbaro Rubro"], difficulty: "very_easy" },
+		payload: { heroCardIds: ["hero_crimson_barbarian"], difficulty: "very_easy" },
 	});
 	return state;
 }
@@ -44,9 +44,9 @@ describe("F13 — Subchefes", () => {
 		// 2 salas de subchefe foram injetadas
 		expect(state.subbosses.available).toHaveLength(2);
 		expect(state.decks.dungeonDeck.available.length).toBe(deckBefore + 2);
-		// Os nomes das salas estão no deck
-		for (const name of state.subbosses.available) {
-			expect(state.decks.dungeonDeck.available).toContain(name);
+		// Os IDs das salas estão no deck
+		for (const id of state.subbosses.available) {
+			expect(state.decks.dungeonDeck.available).toContain(id);
 		}
 	});
 
@@ -86,7 +86,7 @@ describe("F13 — Subchefes", () => {
 			...state,
 			despertar: 3 as import("../../state/color").ColorIndex,
 			subbosses: {
-				available: ["Câmara do Carcereiro", "Câmara do Abismo Rachado"],
+				available: ["subboss_room_jailer_chamber", "subboss_room_cracked_abyss_chamber"],
 				defeated: [],
 			},
 			decks: {
@@ -94,7 +94,7 @@ describe("F13 — Subchefes", () => {
 				dungeonDeck: {
 					...state.decks.dungeonDeck,
 					available: [
-						"Câmara do Carcereiro",
+						"subboss_room_jailer_chamber",
 						...state.decks.dungeonDeck.available,
 					],
 				},
@@ -107,11 +107,11 @@ describe("F13 — Subchefes", () => {
 		// Deve ter ido direto para COMBAT_START
 		expect(state.status).toBe("COMBAT_START");
 		// Sala atual é a câmara
-		expect(state.currentRoom?.cardName).toBe("Câmara do Carcereiro");
+		expect(state.currentRoom?.cardId).toBe("subboss_room_jailer_chamber");
 		// O subchefe foi spawniado como enemy ativo
 		expect(state.activeEnemies).toHaveLength(1);
-		expect(state.activeEnemies[0]!.cardName).toBe(
-			"Carcereiro da Masmorra Rubra",
+		expect(state.activeEnemies[0]!.cardId).toBe(
+			"subboss_crimson_dungeon_jailer",
 		);
 		expect(state.activeEnemies[0]!.isSubboss).toBe(true);
 		// Enemy deck não foi tocado
@@ -119,7 +119,7 @@ describe("F13 — Subchefes", () => {
 		// Herói foi selecionado inicialmente via START_GAME — não verificamos aqui
 		// O deck de dungeon consumiu a carta
 		expect(state.decks.dungeonDeck.available).not.toContain(
-			"Câmara do Carcereiro",
+			"subboss_room_jailer_chamber",
 		);
 	});
 });

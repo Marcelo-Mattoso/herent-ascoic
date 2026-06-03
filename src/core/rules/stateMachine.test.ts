@@ -46,10 +46,10 @@ describe("checkBossCondition via dados", () => {
 		const { createInitialGameState } = await import("../state/gameState");
 		const { reducer } = await import("../reducer/index");
 
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: ["Bárbaro Rubro"] },
+			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
 
 		// Sem artefatos → false
@@ -61,13 +61,11 @@ describe("checkBossCondition via dados", () => {
 			groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
-					cardName: "Corrente do Carcereiro Rubro",
-					carriedBy: null,
+								carriedBy: null,
 				},
 				{
 					cardId: "artifact_ancient_ember_heart",
-					cardName: "Coração de Brasa Antiga",
-					carriedBy: null,
+								carriedBy: null,
 				},
 			],
 		};

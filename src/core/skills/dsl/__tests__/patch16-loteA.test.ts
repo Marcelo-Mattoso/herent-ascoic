@@ -12,14 +12,13 @@ import type { HeroState } from "../../../state/heroState";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
 
-const CFG = { heroCardNames: ["Herói Teste"] };
+const CFG = { heroCardIds: [] };
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Herói Teste",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 8,
 		damage: 3,
 		hitBonus: 0,

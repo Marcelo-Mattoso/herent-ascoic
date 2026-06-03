@@ -231,14 +231,14 @@ export function Replay({ onClose }: ReplayProps) {
 										: "(estado inicial)",
 								heroes: currentDisplayState.heroes.map((h) => ({
 									id: h.id,
-									cardName: h.cardName,
+									cardId: h.cardId,
 									currentLife: h.currentLife,
 									maxLife: h.maxLife,
 									status: h.status,
 								})),
 								activeEnemies: currentDisplayState.activeEnemies.map((e) => ({
 									id: e.id,
-									cardName: e.cardName,
+									cardId: e.cardId,
 									currentLife: e.currentLife,
 									status: e.status,
 								})),

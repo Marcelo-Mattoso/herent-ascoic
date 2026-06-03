@@ -1,5 +1,6 @@
 // Footer do tabuleiro: XP do grupo · Despertar · Artefatos · Condição do chefe.
 
+import { getCardById } from "@/core/data/cards";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
@@ -95,7 +96,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 				>
 					{view.groupArtifacts.map((a) => (
 						<button
-							key={a.cardName}
+							key={a.cardId}
 							type="button"
 							style={{
 								fontSize: 10,
@@ -106,9 +107,9 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 								padding: "1px 5px",
 								cursor: "pointer",
 							}}
-							onClick={() => onArtifactClick(a.cardName, "artifact")}
+							onClick={() => onArtifactClick(a.cardId, "artifact")}
 						>
-							{a.cardName}
+							{getCardById(a.cardId)?.name ?? a.cardId}
 						</button>
 					))}
 					{Array.from({ length: missing }).map((_, i) => (

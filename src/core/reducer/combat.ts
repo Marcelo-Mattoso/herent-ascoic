@@ -3,7 +3,7 @@
 // Engajamento é 1-para-1 por rodada: um monstro só pode ser alvo de 1 herói.
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
-import { getCardByName } from "../data/cards";
+import { getCardById } from "../data/cards";
 import { decrementRoundsModifiers, getModifierTotal, tickModifierDurations } from "../ecs/world";
 import { tickBlockEntries } from "../state/blockHelpers";
 import { drainStack } from "../effects/resolver";
@@ -34,7 +34,7 @@ export function handleStartCombat(state: GameState): GameState {
 	// Lote E: emite CombatStarted + RoundStarted(1) para triggers reativos ECS
 	({ state: next } = emit(next, {
 		type: "CombatStarted",
-		payload: { roomName: next.currentRoom?.cardName ?? "" },
+		payload: { roomId: next.currentRoom?.cardId ?? "" },
 	}));
 	({ state: next } = emit(next, { type: "RoundStarted", payload: { round: 1 } }));
 	return log(next, "Combate iniciado.");
@@ -70,7 +70,7 @@ export function handleDeclareFlee(state: GameState, heroId: string): GameState {
 	};
 	// Lote E: emite HeroFled ao declarar fuga
 	({ state: next } = emit(next, { type: "HeroFled", payload: { heroId } }));
-	return log(next, `${hero.cardName} declara fuga! O próximo confronto será uma tentativa de fuga.`);
+	return log(next, `${getCardById(hero.cardId)?.name ?? hero.cardId} declara fuga! O próximo confronto será uma tentativa de fuga.`);
 }
 
 // ─── CHOOSE_HERO_FOR_ROUND ────────────────────────────────────────────────────
@@ -97,7 +97,7 @@ export function handleChooseHeroForRound(
 				selectedHeroId: heroId,
 			},
 		},
-		`${hero.cardName} selecionado para agir.`,
+		`${getCardById(hero.cardId)?.name ?? hero.cardId} selecionado para agir.`,
 	);
 }
 
@@ -126,7 +126,7 @@ export function handlePassHeroAction(
 	const next = { ...state, combat: nextCombat };
 
 	if (pendingHeroes.length > 0) {
-		return log(next, `${hero?.cardName ?? heroId} passou a rodada.`);
+		return log(next, `${getCardById(hero?.cardId ?? "")?.name ?? heroId} passou a rodada.`);
 	}
 	return log(
 		{ ...next, status: "DIRECT_DAMAGE" },
@@ -352,7 +352,7 @@ export function handleResolveAttack(state: GameState): GameState {
 			heroes: next.heroes.filter((h) => h.id !== hero.id),
 			fledHeroes: [...next.fledHeroes, fledHero],
 		};
-		next = log(next, `${hero.cardName} fugiu do combate com sucesso!`);
+		next = log(next, `${getCardById(hero.cardId)?.name ?? hero.cardId} fugiu do combate com sucesso!`);
 		// Registrar herói como tendo agido e checar heróis restantes
 		const updatedActed = [...(next.combat?.heroesActed ?? []), roll.heroId];
 		next = {
@@ -406,7 +406,7 @@ export function handleResolveAttack(state: GameState): GameState {
 		const tieNote = result.outcome === "tie" ? " (empate)" : "";
 		next = log(
 			next,
-			`${enemy.cardName} sofreu ${dmg} de dano${tieNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
+			`${getCardById(enemy.cardId)?.name ?? enemy.cardId} sofreu ${dmg} de dano${tieNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
 		);
 
 		// on_destroy_creature_with_attack + on_destroyed: via TriggerComponents (emit EnemyDestroyed)
@@ -447,7 +447,7 @@ export function handleResolveAttack(state: GameState): GameState {
 			: "";
 		next = log(
 			next,
-			`${hero.cardName} sofreu ${dmg} de dano${tieNoteHero}${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${roll.heroTotal}.`,
+			`${getCardById(hero.cardId)?.name ?? hero.cardId} sofreu ${dmg} de dano${tieNoteHero}${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${roll.heroTotal}.`,
 		);
 	}
 
@@ -537,7 +537,7 @@ export function handleDirectDamage(state: GameState): GameState {
 		next = applyDamage(next, target.id, enemy.damage);
 		next = log(
 			next,
-			`${enemy.cardName} causa ${enemy.damage} de dano direto em ${target.cardName}.`,
+			`${getCardById(enemy.cardId)?.name ?? enemy.cardId} causa ${enemy.damage} de dano direto em ${getCardById(target.cardId)?.name ?? target.cardId}.`,
 		);
 	}
 
@@ -576,9 +576,9 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 		const fled = state.activeEnemies.filter((e) => e.status === "fled");
 		let next = state;
 		if (fled.length > 0) {
-			const fleeNames = fled.map((e) => e.cardName);
+			const fleeIds = fled.map((e) => e.cardId);
 			const { value: shuffled, next: rngAfterShuffle } = shuffleRng(
-				[...next.decks.enemyDeck.available, ...fleeNames],
+				[...next.decks.enemyDeck.available, ...fleeIds],
 				next.rng,
 			);
 			next = {
@@ -656,14 +656,15 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 
 export function handleUseItem(
 	state: GameState,
-	itemName: string,
+	itemId: string,
 	heroId: string,
 	targetHeroId?: string,
 ): GameState {
 	// Resolve a skill do item via catálogo
-	const itemCard = getCardByName(itemName);
+	const itemCard = getCardById(itemId);
 	const itemSkillRef = itemCard ? cardSkills(itemCard.id)[0] : null;
 	const skillDef = itemSkillRef?.def ?? null;
+	const itemName = itemCard?.name ?? itemId;
 	if (!skillDef) {
 		return log(state, `[TODO] Efeito de item não catalogado: ${itemName}`);
 	}
@@ -678,12 +679,12 @@ export function handleUseItem(
 	}
 
 	// Consumir o item da mochila antes de executar o efeito
-	const heroName =
-		state.heroes.find((h) => h.id === heroId)?.cardName ?? heroId;
+	const hero = state.heroes.find((h) => h.id === heroId);
+	const heroName = hero ? (getCardById(hero.cardId)?.name ?? heroId) : heroId;
 	const withItemRemoved: GameState = log(
 		mapHero(state, heroId, (h) => ({
 			...h,
-			backpack: h.backpack.filter((i) => i !== itemName),
+			backpack: h.backpack.filter((i) => i !== itemId),
 		})),
 		`${heroName} usou ${itemName}.`,
 	);
@@ -743,8 +744,8 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 	const equippedItems = Object.values(hero.activeItems).filter(
 		Boolean,
 	) as string[];
-	for (const itemName of equippedItems) {
-		const equippedCard = getCardByName(itemName);
+	for (const itemId of equippedItems) {
+		const equippedCard = getCardById(itemId);
 		const itemSkillEntry = equippedCard ? cardSkills(equippedCard.id)[0] : null;
 		const itemSkill = itemSkillEntry?.def ?? null;
 		if (itemSkill?.trigger === "once_per_combat_instead_of_attack") {
@@ -752,7 +753,7 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 			if (state.combat.oncePer.combat[guardKey]) {
 				return log(
 					state,
-					`${itemName}: Tiro de Oportunidade já usado neste combate.`,
+					`${equippedCard?.name ?? itemId}: Tiro de Oportunidade já usado neste combate.`,
 				);
 			}
 			// Aplicar dano direto ao inimigo do par atual (ou primeiro inimigo ativo)
@@ -782,7 +783,7 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 			next = applyDamage(next, targetEnemyId, dmg);
 			next = log(
 				next,
-				`${hero.cardName} — Tiro de Oportunidade: ${enemy.cardName} sofreu ${dmg} de dano direto.`,
+				`${getCardById(hero.cardId)?.name ?? hero.cardId} — Tiro de Oportunidade: ${getCardById(enemy.cardId)?.name ?? enemy.cardId} sofreu ${dmg} de dano direto.`,
 			);
 			// Marcar herói como tendo agido nesta rodada
 			const updatedActed = [...next.combat!.heroesActed, heroId];
@@ -811,16 +812,16 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 	}
 
 	if (state.combat.powersUsedThisRoom[heroId]) {
-		return log(state, `Poder de ${hero.cardName} já foi usado nesta sala.`);
+		return log(state, `Poder de ${getCardById(hero.cardId)?.name ?? hero.cardId} já foi usado nesta sala.`);
 	}
 
-	const heroCard = getCardByName(hero.cardName);
+	const heroCard = getCardById(hero.cardId);
 	const powerEntry = heroCard
 		? cardSkills(heroCard.id).find(({ def }) => def.category === "hero_power")
 		: null;
 	const powerDef = powerEntry?.def ?? null;
 	if (!powerDef) {
-		return log(state, `[TODO] Poder não catalogado para: ${hero.cardName}`);
+		return log(state, `[TODO] Poder não catalogado para: ${getCardById(hero.cardId)?.name ?? hero.cardId}`);
 	}
 
 	// Marcar como usado nesta sala

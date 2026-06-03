@@ -2,5 +2,5 @@
 // Default MVP 1: Azhakar fixo.
 
 export function selectBoss(): string {
-	return "Azhakar, Dragão da Fornalha Sombria";
+	return "boss_azhakar";
 }

@@ -2,7 +2,7 @@
 // Mostra stats, habilidade, poder, mochila e botões de ação.
 // Também cobre ações de não-combate (revelar sala, iniciar combate, etc.).
 
-import { getCardByName } from "@/core/data/cards";
+import { getCardById } from "@/core/data/cards";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -45,7 +45,7 @@ export function HeroFocusPanel({
 	const { status } = view;
 	const phase = view.combat?.phase ?? null;
 
-	const heroCard = hero ? getCardByName(hero.cardName) : null;
+	const heroCard = hero ? getCardById(hero.cardId) : null;
 	const powerUsed = hero
 		? (view.combat?.powersUsedThisRoom[hero.id] ?? false)
 		: false;
@@ -104,7 +104,7 @@ export function HeroFocusPanel({
 									whiteSpace: "nowrap",
 								}}
 							>
-								{hero.cardName.split(",")[0]?.split(" ")[0]}
+								{(getCardById(hero.cardId)?.name ?? hero.cardId).split(",")[0]?.split(" ")[0]}
 							</p>
 						</div>
 
@@ -273,7 +273,7 @@ export function HeroFocusPanel({
 								marginBottom: 4,
 							}}
 						>
-							🎒 Mochila do {hero.cardName.split(" ")[0]} ·{" "}
+							🎒 Mochila do {(getCardById(hero.cardId)?.name ?? hero.cardId).split(" ")[0]} ·{" "}
 							{hero.backpack.length === 0
 								? "vazia"
 								: `${hero.backpack.length} ${hero.backpack.length === 1 ? "item" : "itens"}`}
@@ -310,7 +310,7 @@ export function HeroFocusPanel({
 								).map((slot) => {
 									const item = hero.activeItems[slot];
 									if (!item) return null;
-									const slotCard = getCardByName(item);
+									const slotCard = getCardById(item);
 									const isConsumable =
 										slotCard?.type === "item" &&
 										slotCard.itemClass === "consumable";

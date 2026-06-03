@@ -14,8 +14,8 @@ import {
 	setElfStoreProps,
 } from "./elfStore";
 
-const HERO = "Bárbaro Rubro";
-const EMPTY_CONFIG = { heroCardNames: [] as string[] };
+const HERO = "hero_crimson_barbarian";
+const EMPTY_CONFIG = { heroCardIds: [] as string[] };
 
 function makeAdapter() {
 	return createInProcessAdapter(createInitialGameState(EMPTY_CONFIG));
@@ -39,7 +39,7 @@ describe("elfStore — operações básicas", () => {
 		const adapter = makeAdapter();
 		adapter.dispatch({
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		const newState = adapter.getState();
 
@@ -74,17 +74,17 @@ describe("elfStore — operações básicas", () => {
 
 describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 	it("estado após START_GAME é idêntico ao reducer puro", () => {
-		const initial = createInitialGameState({ heroCardNames: [HERO] });
+		const initial = createInitialGameState({ heroCardIds: [HERO] });
 		const adapter = makeAdapter();
 		adapter.dispatch({
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 
 		const adapterState = adapter.getState();
 		const reducerState = reducer(initial, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 
 		// Simula o que gameStore.dispatch faria: atualiza o elfStore
@@ -93,21 +93,21 @@ describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 		const elfState = getElfGameState();
 		expect(elfState.status).toBe(reducerState.status);
 		expect(elfState.heroes.length).toBe(reducerState.heroes.length);
-		expect(elfState.heroes[0]!.cardName).toBe(HERO);
+		expect(elfState.heroes[0]!.cardId).toBe(HERO);
 	});
 
 	it("após START_GAME, herói ativo está presente no estado Elf", () => {
 		const adapter = makeAdapter();
 		adapter.dispatch({
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		setElfStoreProps({ gameState: adapter.getState() });
 
 		const state = getElfGameState();
 		const activeHero = state.heroes.find((h) => h.status === "active");
 		expect(activeHero).toBeDefined();
-		expect(activeHero!.cardName).toBe(HERO);
+		expect(activeHero!.cardId).toBe(HERO);
 	});
 });
 
@@ -118,7 +118,7 @@ describe("focusedHeroId — recomputação", () => {
 		const adapter = makeAdapter();
 		adapter.dispatch({
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		const nextState = adapter.getState();
 
@@ -138,7 +138,7 @@ describe("focusedHeroId — recomputação", () => {
 		const adapter = makeAdapter();
 		adapter.dispatch({
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		const state1 = adapter.getState();
 		const heroId = state1.heroes[0]!.id;

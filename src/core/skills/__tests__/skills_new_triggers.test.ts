@@ -19,8 +19,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Bárbaro Rubro",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 10,
 		damage: 4,
 		hitBonus: 0,
@@ -41,8 +40,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "",
-		cardName: "Goblin",
-		maxLife: 5,
+			maxLife: 5,
 		currentLife: 5,
 		damage: 2,
 		hitBonus: 0,
@@ -56,7 +54,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 }
 
 function baseState(extras: Partial<GameState> = {}): GameState {
-	const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 	return {
 		...base,
 		heroes: [makeHero()],
@@ -85,7 +83,7 @@ describe("while_in_play — flee_block", () => {
 		// Precisamos do ID real da habilidade para que resolveSkillFor funcione.
 		// Como não temos carta real com while_in_play flee_block nos usedBy,
 		// testamos via handleStartCombat que não quebra com inimigos sem a skill.
-		const enemy = makeEnemy({ cardName: "Goblin" });
+		const enemy = makeEnemy({});
 		const state = baseState({
 			activeEnemies: [enemy],
 			despertar: 4 as ColorIndex,
@@ -101,13 +99,12 @@ describe("while_in_play — flee_block", () => {
 describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 	function makeStateWithPaladino(despertar: ColorIndex): GameState {
 		const base = createInitialGameState({
-			heroCardNames: ["Paladino da Última Luz"],
+			heroCardIds: ["hero_last_light_paladin"],
 		});
 		const hero: HeroState = {
 			id: "h1",
 			cardId: "hero_last_light_paladin",
-			cardName: "Paladino da Última Luz",
-			maxLife: 8,
+					maxLife: 8,
 			currentLife: 8,
 			damage: 3,
 			hitBonus: 0,
@@ -189,8 +186,7 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		const cultista: EnemyState = {
 			id: "e1",
 			cardId: "creature_hidden_flame_cultist",
-			cardName: "Cultista da Chama Oculta",
-			maxLife: 3,
+					maxLife: 3,
 			currentLife: 3,
 			damage: 2,
 			hitBonus: 0,
@@ -219,8 +215,7 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		const cultista: EnemyState = {
 			id: "e1",
 			cardId: "creature_hidden_flame_cultist",
-			cardName: "Cultista da Chama Oculta",
-			maxLife: 3,
+					maxLife: 3,
 			currentLife: 3,
 			damage: 2,
 			hitBonus: 0,
@@ -253,18 +248,17 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 
 describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)", () => {
 	function makeStateWithAdaga(despertar: ColorIndex): GameState {
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const hero: HeroState = {
 			id: "h1",
 			cardId: "hero_crimson_barbarian",
-			cardName: "Bárbaro Rubro",
-			maxLife: 10,
+					maxLife: 10,
 			currentLife: 10,
 			damage: 4,
 			hitBonus: 0,
 			dice: 2,
 			impeto: 0,
-			activeItems: { weapon: "Adaga Enferrujada" },
+			activeItems: { weapon: "item_rusty_dagger" },
 			backpack: [],
 			usedPowers: {},
 			conditions: [],
@@ -333,8 +327,8 @@ describe("filtro combat_against_self em before_attack", () => {
 	// se o contexto tem sourceEnemyId diferente do inimigo-fonte, não dispara.
 
 	it("skill do inimigo e2 não dispara quando o herói ataca e1", () => {
-		const e1 = makeEnemy({ id: "e1", cardName: "Goblin" });
-		const e2 = makeEnemy({ id: "e2", cardName: "Goblin" });
+		const e1 = makeEnemy({ id: "e1" });
+		const e2 = makeEnemy({ id: "e2" });
 		const state = baseState({ activeEnemies: [e1, e2] });
 		// Não deve explodir e não deve aplicar efeito de e2 quando sourceEnemyId=e1
 		expect(() =>

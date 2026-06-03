@@ -6,15 +6,15 @@ import { reducer } from "../reducer/index";
 import { createInitialGameState } from "../state/gameState";
 import { createInProcessAdapter } from "./inProcessAdapter";
 
-const HERO = "Bárbaro Rubro";
+const HERO = "hero_crimson_barbarian";
 
 function buildInitial() {
-	return createInitialGameState({ heroCardNames: [HERO] });
+	return createInitialGameState({ heroCardIds: [HERO] });
 }
 
 const START_ACTION = {
 	type: "START_GAME" as const,
-	payload: { heroCardNames: [HERO] },
+	payload: { heroCardIds: [HERO] },
 };
 
 // ── dispatch ──────────────────────────────────────────────────────────────────

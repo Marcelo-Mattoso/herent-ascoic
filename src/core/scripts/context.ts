@@ -1,3 +1,4 @@
+import { getCardById } from "../data/cards";
 import type { SkillContext } from "../data/skillTypes";
 import type { ModifierComponent, TriggerComponent } from "../ecs/types";
 import {
@@ -117,7 +118,7 @@ export function buildScriptCtx(
 					const next = applyDamage(state, tId, amount);
 					return appendLog(
 						next,
-						`Dano direto: ${enemy.cardName} sofreu ${amount}.`,
+						`Dano direto: ${getCardById(enemy.cardId)?.name ?? enemy.cardId} sofreu ${amount}.`,
 					);
 				}
 				const hero = state.heroes.find((h) => h.id === tId);
@@ -125,7 +126,7 @@ export function buildScriptCtx(
 					const next = applyDamage(state, tId, amount);
 					return appendLog(
 						next,
-						`Dano direto: ${hero.cardName} sofreu ${amount}.`,
+						`Dano direto: ${getCardById(hero.cardId)?.name ?? hero.cardId} sofreu ${amount}.`,
 					);
 				}
 				return state;

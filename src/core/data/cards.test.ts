@@ -3,7 +3,6 @@ import {
 	getAllCards,
 	getBoss,
 	getCardById,
-	getCardByName,
 	getDiceCount,
 	getHeroes,
 } from "./cards";
@@ -31,12 +30,6 @@ describe("catálogo de cartas", () => {
 		if (card?.type === "hero") {
 			expect(card.damage).toBe(4);
 		}
-	});
-
-	it("getCardByName ainda funciona para compat (deprecated)", () => {
-		const card = getCardByName("Bárbaro Rubro");
-		expect(card).toBeDefined();
-		expect(card?.id).toBe("hero_crimson_barbarian");
 	});
 
 	it("getDiceCount retorna 1 para Branco no Bárbaro Rubro", () => {

@@ -48,7 +48,7 @@ export type Action =
 	| { type: "DIRECT_DAMAGE" }
 	| {
 			type: "USE_ITEM";
-			payload: { itemName: string; heroId: string; targetHeroId?: string };
+			payload: { itemId: string; heroId: string; targetHeroId?: string };
 	  }
 	| { type: "USE_POWER"; payload: { heroId: string } }
 	| { type: "GRANT_REWARDS" }
@@ -66,7 +66,7 @@ export type Action =
 	| { type: "GAIN_XP"; payload: { amount: number } }
 	| { type: "SPEND_XP"; payload: { option: XpSpendOption; heroId?: string } }
 	| { type: "OPEN_PATHS" }
-	| { type: "CHOOSE_PATH"; payload: { cardName: string } }
+	| { type: "CHOOSE_PATH"; payload: { cardId: string } }
 	| { type: "DISCARD_PATHS" }
 	| { type: "CHECK_BOSS_CONDITION" }
 	| { type: "REVEAL_BOSS" }
@@ -78,12 +78,12 @@ export type Action =
 	| {
 			// Move geral entre qualquer zona — substitui INV_ASSIGN_ITEM
 			type: "INV_MOVE";
-			payload: { itemName: string; from: InvFromZone; to: InvToZone };
+			payload: { itemId: string; from: InvFromZone; to: InvToZone };
 	  }
 	| {
 			type: "INV_ASSIGN_ITEM"; // mantido por compatibilidade
 			payload: {
-				itemName: string;
+				itemId: string;
 				heroId: string;
 				destination: "equip" | "backpack";
 			};
@@ -91,7 +91,7 @@ export type Action =
 	| {
 			type: "INV_ASSIGN_ARTIFACT";
 			payload: {
-				artifactName: string;
+				artifactId: string;
 				vagaIndex: 0 | 1;
 				heroId: string | null;
 			};

@@ -12,16 +12,16 @@ import {
 	replayFromPackage,
 } from "./replayEngine";
 
-const HERO = "Bárbaro Rubro";
+const HERO = "hero_crimson_barbarian";
 
 // Constrói uma partida sintética com N actions e retorna o estado final.
 function buildSyntheticGame(actionCount = 5) {
-	const initial = createInitialGameState({ heroCardNames: [HERO] });
+	const initial = createInitialGameState({ heroCardIds: [HERO] });
 	const adapter = createInProcessAdapter(initial);
 
 	// Sequência realista de actions
 	const actions = [
-		{ type: "START_GAME" as const, payload: { heroCardNames: [HERO] } },
+		{ type: "START_GAME" as const, payload: { heroCardIds: [HERO] } },
 		{ type: "REVEAL_ROOM" as const },
 		{ type: "RESOLVE_ROOM_EFFECT" as const },
 		{ type: "SPAWN_ENEMIES" as const },

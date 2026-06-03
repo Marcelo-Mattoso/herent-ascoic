@@ -12,7 +12,7 @@ export const run: ScriptHandler = (ctx) => {
 		const [chosen, ...rest] = available;
 		const reward: PendingReward = {
 			type: "item",
-			cardName: chosen as string,
+			cardId: chosen as string,
 			requiresBearer: false,
 		};
 		return {
@@ -34,7 +34,7 @@ export const run: ScriptHandler = (ctx) => {
 		const [chosen, ...rest] = discarded;
 		const reward: PendingReward = {
 			type: "item",
-			cardName: chosen as string,
+			cardId: chosen as string,
 			requiresBearer: false,
 		};
 		return {

@@ -1,4 +1,4 @@
-import { getCardByName } from "@/core/data/cards";
+import { getCardById } from "@/core/data/cards";
 import { getSkillName } from "@/core/data/skillLocale";
 import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -8,19 +8,20 @@ import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { UI } from "@/ui/theme";
 
 interface CardDetailModalProps {
-	cardName: string;
+	cardId: string;
 	cardType: CardType;
 	onClose: () => void;
 	onUseItem?: () => void;
 }
 
 export function CardDetailModal({
-	cardName,
+	cardId,
 	cardType,
 	onClose,
 	onUseItem,
 }: CardDetailModalProps) {
-	const card = getCardByName(cardName);
+	const card = getCardById(cardId);
+	const cardName = card?.name ?? cardId;
 
 	return (
 		<Modal title={cardName} onClose={onClose} maxWidth={480}>

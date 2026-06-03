@@ -3,7 +3,7 @@
 // Artefatos: confirmação direta (ou escolha de portador se requiresBearer).
 
 import { useState } from "react";
-import { getCardByName } from "@/core/data/cards";
+import { getCardById } from "@/core/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -32,11 +32,13 @@ export function RewardModal({ onClose }: RewardModalProps) {
 
 	if (!reward) return null;
 
+	const rewardName = getCardById(reward.cardId)?.name ?? reward.cardId;
+
 	// ── Artefato ──────────────────────────────────────────────────────────────
 	if (reward.type === "artifact") {
 		if (reward.requiresBearer) {
 			return (
-				<Modal title={`Artefato: ${reward.cardName}`} maxWidth={440}>
+				<Modal title={`Artefato: ${rewardName}`} maxWidth={440}>
 					<div className="space-y-4">
 						<div className="flex gap-3 items-start">
 							<PlaceholderArt cardType="artifact" size="sm" />
@@ -45,7 +47,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 									className="text-sm font-medium"
 									style={{ color: UI.textPrimary }}
 								>
-									{reward.cardName}
+									{rewardName}
 								</p>
 								<p className="text-xs mt-1" style={{ color: UI.textSecondary }}>
 									Este artefato requer um portador. Escolha o herói que o
@@ -68,7 +70,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 									}}
 									onClick={() => setSelectedHeroId(h.id)}
 								>
-									{h.cardName}{" "}
+									{getCardById(h.cardId)?.name ?? h.cardId}{" "}
 									<span style={{ color: UI.textSecondary }}>
 										({h.currentLife}/{h.maxLife} vida)
 									</span>
@@ -103,7 +105,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 							className="text-sm font-medium"
 							style={{ color: UI.textPrimary }}
 						>
-							{reward.cardName}
+							{rewardName}
 						</p>
 					</div>
 					<p className="text-xs" style={{ color: UI.textSecondary }}>
@@ -129,7 +131,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 	// ── Item ──────────────────────────────────────────────────────────────────
 	if (step === "hero") {
 		return (
-			<Modal title={`Item: ${reward.cardName}`} maxWidth={440}>
+			<Modal title={`Item: ${rewardName}`} maxWidth={440}>
 				<div className="space-y-4">
 					<div className="flex gap-3 items-start">
 						<PlaceholderArt cardType="item" size="sm" />
@@ -138,7 +140,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 								className="text-sm font-medium"
 								style={{ color: UI.textPrimary }}
 							>
-								{reward.cardName}
+								{rewardName}
 							</p>
 							<p className="text-xs mt-1" style={{ color: UI.textSecondary }}>
 								Escolha o herói que vai receber este item.
@@ -160,7 +162,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 								}}
 								onClick={() => setSelectedHeroId(h.id)}
 							>
-								{h.cardName}{" "}
+								{getCardById(h.cardId)?.name ?? h.cardId}{" "}
 								<span style={{ color: UI.textSecondary }}>
 									({h.currentLife}/{h.maxLife} vida)
 								</span>
@@ -183,12 +185,12 @@ export function RewardModal({ onClose }: RewardModalProps) {
 	// Etapa 2: destino do item
 	const hero =
 		activeHeroes.find((h) => h.id === selectedHeroId) ?? activeHeroes[0];
-	const itemCard = getCardByName(reward.cardName);
+	const itemCard = getCardById(reward.cardId);
 	const isConsumable =
 		itemCard?.type === "item" && itemCard.itemClass === "consumable";
 
 	return (
-		<Modal title={`Item: ${reward.cardName}`} maxWidth={380}>
+		<Modal title={`Item: ${rewardName}`} maxWidth={380}>
 			<div className="space-y-4">
 				<div className="flex gap-3 items-center">
 					<PlaceholderArt cardType="item" size="sm" />
@@ -197,11 +199,11 @@ export function RewardModal({ onClose }: RewardModalProps) {
 							className="text-sm font-medium"
 							style={{ color: UI.textPrimary }}
 						>
-							{reward.cardName}
+							{rewardName}
 						</p>
 						{hero && (
 							<p className="text-xs" style={{ color: UI.textSecondary }}>
-								Para: {hero.cardName}
+								Para: {getCardById(hero.cardId)?.name ?? hero.cardId}
 							</p>
 						)}
 					</div>

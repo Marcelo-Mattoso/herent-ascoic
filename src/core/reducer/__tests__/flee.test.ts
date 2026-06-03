@@ -15,7 +15,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Bárbaro Rubro",
 		maxLife: 10,
 		currentLife: 1,
 		damage: 3,
@@ -37,7 +36,6 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_bat",
-		cardName: "Morcego do Teto Negro",
 		maxLife: 3,
 		currentLife: 3,
 		damage: 1,
@@ -52,7 +50,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 }
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
-	const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 	return {
 		...base,
 		heroes: [makeHero()],

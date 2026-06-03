@@ -1,6 +1,7 @@
 // Card mini de criatura/inimigo (~88px). Usado no tabuleiro.
 // Aceita drop de herói para iniciar combate.
 
+import { getCardById } from "@/core/data/cards";
 import type { EnemyState } from "@/core/state/enemyState";
 import { UI } from "@/ui/theme";
 import { HpBar } from "./HpBar";
@@ -105,7 +106,7 @@ export function EnemyCard({
 					lineHeight: 1.2,
 				}}
 			>
-				{enemy.cardName}
+				{getCardById(enemy.cardId)?.name ?? enemy.cardId}
 			</p>
 			{/* Barra de vida */}
 			<HpBar current={enemy.currentLife} max={enemy.maxLife} height={3} />

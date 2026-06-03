@@ -9,13 +9,13 @@ import { createInitialGameState } from "../state/gameState";
 import type { PersistencePort } from "./persistence";
 import { isLogIntact } from "./persistence";
 
-const HERO = "Bárbaro Rubro";
+const HERO = "hero_crimson_barbarian";
 
 function buildLog(n: number): readonly LoggedAction[] {
-	const base = createInitialGameState({ heroCardNames: [HERO] });
+	const base = createInitialGameState({ heroCardIds: [HERO] });
 	let state = base;
 	const actions = [
-		{ type: "START_GAME" as const, payload: { heroCardNames: [HERO] } },
+		{ type: "START_GAME" as const, payload: { heroCardIds: [HERO] } },
 		{ type: "REVEAL_ROOM" as const },
 	];
 
@@ -45,7 +45,7 @@ describe("isLogIntact", () => {
 			isLogIntact([
 				{
 					seq: 1,
-					action: { type: "START_GAME", payload: { heroCardNames: [] } },
+					action: { type: "START_GAME", payload: { heroCardIds: [] } },
 				},
 			]),
 		).toBe(false);
@@ -55,7 +55,7 @@ describe("isLogIntact", () => {
 		const log: LoggedAction[] = [
 			{
 				seq: 0,
-				action: { type: "START_GAME", payload: { heroCardNames: [HERO] } },
+				action: { type: "START_GAME", payload: { heroCardIds: [HERO] } },
 			},
 			{ seq: 2, action: { type: "REVEAL_ROOM" } }, // seq 1 ausente
 		];
@@ -66,7 +66,7 @@ describe("isLogIntact", () => {
 		const log: LoggedAction[] = [
 			{
 				seq: 0,
-				action: { type: "START_GAME", payload: { heroCardNames: [HERO] } },
+				action: { type: "START_GAME", payload: { heroCardIds: [HERO] } },
 			},
 		];
 		expect(isLogIntact(log)).toBe(true);
@@ -129,14 +129,14 @@ describe("PersistencePort mock — contrato básico", () => {
 
 	it("saveSnapshot e loadSnapshot fazem round-trip", () => {
 		const port = createMockPort();
-		const initial = createInitialGameState({ heroCardNames: [HERO] });
+		const initial = createInitialGameState({ heroCardIds: [HERO] });
 		port.saveSnapshot(initial);
 		expect(port.loadSnapshot()).toBe(initial);
 	});
 
 	it("clearSnapshot apaga snapshot", () => {
 		const port = createMockPort();
-		const initial = createInitialGameState({ heroCardNames: [] });
+		const initial = createInitialGameState({ heroCardIds: [] });
 		port.saveSnapshot(initial);
 		port.clearSnapshot();
 		expect(port.loadSnapshot()).toBeNull();
@@ -147,9 +147,9 @@ describe("PersistencePort mock — contrato básico", () => {
 
 describe("boot — replay do log", () => {
 	it("replay de log íntegro produz GameState equivalente ao dispatch sequencial", () => {
-		const initial = createInitialGameState({ heroCardNames: [HERO] });
+		const initial = createInitialGameState({ heroCardIds: [HERO] });
 		const actions = [
-			{ type: "START_GAME" as const, payload: { heroCardNames: [HERO] } },
+			{ type: "START_GAME" as const, payload: { heroCardIds: [HERO] } },
 			{ type: "REVEAL_ROOM" as const },
 		];
 
@@ -182,7 +182,7 @@ describe("boot — log corrompido cai pro snapshot", () => {
 		const corruptLog: LoggedAction[] = [
 			{
 				seq: 0,
-				action: { type: "START_GAME", payload: { heroCardNames: [HERO] } },
+				action: { type: "START_GAME", payload: { heroCardIds: [HERO] } },
 			},
 			{ seq: 5, action: { type: "REVEAL_ROOM" } }, // seq inválido
 		];
@@ -203,7 +203,7 @@ describe("boot — sem dados salvos", () => {
 	it("log vazio e snapshot null → isLogIntact = false, snapshot = null", () => {
 		expect(isLogIntact([])).toBe(false);
 		// Sem persistência, a aplicação começa no estado inicial
-		const initial = createInitialGameState({ heroCardNames: [] });
+		const initial = createInitialGameState({ heroCardIds: [] });
 		expect(initial.status).toBe("MAIN_MENU");
 	});
 });

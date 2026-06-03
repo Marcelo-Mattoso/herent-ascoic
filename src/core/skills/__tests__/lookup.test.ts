@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
-import { getCardByName } from "../../data/cards";
+import { getCardById } from "../../data/cards";
 import { cardSkills, lookupSkillById, skillUsedBy } from "../lookup";
 
 describe("cardSkills", () => {
 	it("resolve habilidade do Bárbaro Rubro", () => {
-		const card = getCardByName("Bárbaro Rubro");
+		const card = getCardById("hero_crimson_barbarian");
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
 		const habilidade = skills.find(({ def }) => def.category === "hero_skill");
@@ -15,7 +15,7 @@ describe("cardSkills", () => {
 	});
 
 	it("resolve poder do Mago das Runas Rubras", () => {
-		const card = getCardByName("Mago das Runas Rubras");
+		const card = getCardById("hero_crimson_rune_mage");
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
 		const poder = skills.find(({ def }) => def.category === "hero_power");
@@ -28,7 +28,7 @@ describe("cardSkills", () => {
 	});
 
 	it("não retorna skill do slot errado — efeito de criatura em herói", () => {
-		const card = getCardByName("Bárbaro Rubro");
+		const card = getCardById("hero_crimson_barbarian");
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
 		const efeito = skills.find(

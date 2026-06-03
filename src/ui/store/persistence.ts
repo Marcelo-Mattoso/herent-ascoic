@@ -28,7 +28,7 @@ function replayFromLog(port: PersistencePort): GameState | null {
 	const log = port.loadActionLog();
 	if (!isLogIntact(log)) return null;
 
-	const initial = createInitialGameState({ heroCardNames: [] });
+	const initial = createInitialGameState({ heroCardIds: [] });
 	try {
 		const adapter = createInProcessAdapter(initial);
 		for (const entry of log) {

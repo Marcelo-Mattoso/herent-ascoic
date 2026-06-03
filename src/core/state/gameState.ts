@@ -32,7 +32,6 @@ export type GameMode = "cooperative" | "competitive";
 
 export interface GroupArtifact {
 	readonly cardId: string;
-	readonly cardName: string;
 	// Herói que carrega o artefato (null = artefato do grupo sem portador definido)
 	readonly carriedBy: string | null;
 }
@@ -78,7 +77,6 @@ export interface GameState {
 
 	// Boss
 	readonly bossCardId: string;
-	readonly bossCardName: string;
 	bossDefeated: boolean;
 
 	// Em modo competitivo, nome do herói/jogador vencedor (definido ao atingir VICTORY)
@@ -160,16 +158,16 @@ export interface GameState {
 // Recompensa pendente aguardando resolução pelo jogador.
 export interface PendingReward {
 	readonly type: "item" | "artifact";
-	readonly cardName: string;
+	readonly cardId: string;
 	// Verdadeiro quando o artefato possui campo "portador" e precisa de escolha.
 	readonly requiresBearer: boolean;
 }
 
 export interface GameConfig {
 	// Suporta 1 a 8 heróis. Mantido como array; UI garante pelo menos 1 elemento.
-	heroCardNames: string[];
+	heroCardIds: string[];
 	difficulty?: Difficulty;
-	bossCardName?: string;
+	bossCardId?: string;
 	mode?: GameMode;
 }
 
@@ -195,8 +193,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 		activeEnemies: [],
 		enemyGraveyard: [],
 
-		bossCardId: "",
-		bossCardName: config.bossCardName ?? "Azhakar, Dragão da Fornalha Sombria",
+		bossCardId: config.bossCardId ?? "",
 		bossDefeated: false,
 
 		subbosses: { available: [], defeated: [] },

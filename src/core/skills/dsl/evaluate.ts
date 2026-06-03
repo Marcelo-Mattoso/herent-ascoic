@@ -187,7 +187,7 @@ function evaluateOne(
 			return ctx.action.pushEffect({
 				kind: "i_grant_reward",
 				rewardType: node.rewardType,
-				cardName: node.cardName,
+				cardId: node.cardId,
 			});
 
 		// ── Composição ────────────────────────────────────────────────────────

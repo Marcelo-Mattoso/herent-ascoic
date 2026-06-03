@@ -7,7 +7,7 @@ import type { GameState } from "../../state/gameState";
 import type { PendingEffect } from "../../effects/stack";
 
 function makeState(entityId: string, entityType: "hero" | "enemy" = "enemy"): GameState {
-	let state = createInitialGameState({ heroCardNames: [] });
+	let state = createInitialGameState({ heroCardIds: [] });
 	let world = createEmptyWorld();
 	world = upsertEntity(world, createEntity(entityId, entityType));
 	return { ...state, world };

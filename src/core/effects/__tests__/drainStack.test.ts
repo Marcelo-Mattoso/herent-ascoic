@@ -22,8 +22,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Bárbaro Rubro",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 10,
 		damage: 4,
 		hitBonus: 0,
@@ -47,8 +46,7 @@ function makeEnemy(
 	return {
 		id,
 		cardId: "creature_dark_cave_goblin",
-		cardName: `Goblin ${id}`,
-		maxLife: 5,
+			maxLife: 5,
 		currentLife: 5,
 		damage: 2,
 		hitBonus: 0,
@@ -62,7 +60,7 @@ function makeEnemy(
 }
 
 function makeState(...enemies: EnemyState[]): GameState {
-	const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 	return {
 		...base,
 		heroes: [makeHero()],
@@ -288,10 +286,10 @@ describe("drainStack — pausa", () => {
 describe("replay determinístico com effect stack", () => {
 	it("aplicar actionLog reproduz o mesmo GameState final em partida com cadeia", () => {
 		// Iniciar partida
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const s1 = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: ["Bárbaro Rubro"] },
+			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
 
 		// A partida progride alguns passos sem TriggerComponents
@@ -301,7 +299,7 @@ describe("replay determinístico com effect stack", () => {
 
 		// Replay: aplicar log ao estado inicial
 		const replayBase = createInitialGameState({
-			heroCardNames: ["Bárbaro Rubro"],
+			heroCardIds: ["hero_crimson_barbarian"],
 		});
 		let replayed: GameState = replayBase;
 		for (const entry of s2.actionLog) {
@@ -320,10 +318,10 @@ describe("replay determinístico com effect stack", () => {
 	it("stack vazia após cada action no replay", () => {
 		// Após cada action processada pelo reducer, a stack deve estar vazia
 		// (drainStack foi chamado)
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const s1 = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: ["Bárbaro Rubro"] },
+			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
 		expect(s1.effectStack.pending).toHaveLength(0);
 		expect(s1.effectStack.resolving).toBeNull();

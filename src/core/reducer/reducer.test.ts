@@ -8,15 +8,15 @@ import { createInitialGameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
 import { reducer, reducerCore } from "./index";
 
-const HERO = "Bárbaro Rubro";
-const BOSS_NAME = "Azhakar, Dragão da Fornalha Sombria";
+const HERO = "hero_crimson_barbarian";
+const BOSS_NAME = "boss_azhakar";
 
 // Constrói um estado com sala e inimigo pré-definidos para evitar aleatoriedade
 function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
-	const base = createInitialGameState({ heroCardNames: [HERO] });
+	const base = createInitialGameState({ heroCardIds: [HERO] });
 	const s = reducer(base, {
 		type: "START_GAME",
-		payload: { heroCardNames: [HERO] },
+		payload: { heroCardIds: [HERO] },
 	});
 
 	const hero = s.heroes[0];
@@ -25,7 +25,6 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 	const enemy: EnemyState = {
 		id: "e1",
 		cardId: "creature_deep_rift_rat",
-		cardName: "Rato das Fendas Profundas",
 		maxLife: lifeEnemy,
 		currentLife: lifeEnemy,
 		damage: 1,
@@ -39,7 +38,6 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 
 	const room: RoomState = {
 		cardId: "room_dungeon_room",
-		cardName: "Sala da Masmorra",
 		exits: 2,
 		currentEnemies: 1,
 		reward: 0,
@@ -58,7 +56,7 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 		decks: {
 			...s.decks,
 			dungeonDeck: {
-				available: ["Corredor Estreito", "Sala da Masmorra"],
+				available: ["room_narrow_corridor", "room_dungeon_room"],
 				discarded: [],
 				removed: [],
 			},
@@ -71,35 +69,35 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 
 describe("START_GAME", () => {
 	it("cria herói e embaralha decks", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		expect(s.heroes).toHaveLength(1);
-		expect(s.heroes[0]?.cardName).toBe(HERO);
+		expect(s.heroes[0]?.cardId).toBe(HERO);
 		expect(s.status).toBe("REVEAL_ROOM");
 		expect(s.decks.dungeonDeck.available.length).toBeGreaterThan(0);
 	});
 
 	it("inicia Guerreiro do Bastião Partido com bônus de acerto base 5 no normal", () => {
-		const warrior = "Guerreiro do Bastião Partido";
-		const base = createInitialGameState({ heroCardNames: [warrior] });
+		const warrior = "hero_broken_bastion_warrior";
+		const base = createInitialGameState({ heroCardIds: [warrior] });
 		const s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [warrior], difficulty: "normal" },
+			payload: { heroCardIds: [warrior], difficulty: "normal" },
 		});
-		expect(s.heroes[0]?.cardName).toBe(warrior);
+		expect(s.heroes[0]?.cardId).toBe(warrior);
 		expect(s.heroes[0]?.hitBonus).toBe(5);
 	});
 
 	it("define o boss corretamente", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
-		expect(s.bossCardName).toBe(BOSS_NAME);
+		expect(s.bossCardId).toBe(BOSS_NAME);
 	});
 });
 
@@ -107,10 +105,10 @@ describe("START_GAME", () => {
 
 describe("REVEAL_ROOM", () => {
 	it("remove carta do deck e cria sala atual", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		const deckSizeBefore = s.decks.dungeonDeck.available.length;
 		s = reducer(s, { type: "REVEAL_ROOM" });
@@ -120,10 +118,10 @@ describe("REVEAL_ROOM", () => {
 	});
 
 	it("transita para DUNGEON_EXHAUSTED quando deck vazio e XP suficiente", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		s = {
 			...s,
@@ -142,10 +140,10 @@ describe("REVEAL_ROOM", () => {
 	});
 
 	it("transita para DEFEAT quando deck vazio sem XP", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		s = {
 			...s,
@@ -208,7 +206,7 @@ describe("loop de sala completo", () => {
 
 		// Escolher caminho
 		const path = s.paths[0] as string;
-		s = reducer(s, { type: "CHOOSE_PATH", payload: { cardName: path } });
+		s = reducer(s, { type: "CHOOSE_PATH", payload: { cardId: path } });
 		s = reducer(s, { type: "DISCARD_PATHS" });
 		s = reducer(s, { type: "CHECK_BOSS_CONDITION" });
 
@@ -256,10 +254,10 @@ describe("derrota por herói", () => {
 
 describe("derrota por deck esgotado", () => {
 	it("sem XP e sem cartas → derrota direta", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		s = {
 			...s,
@@ -274,10 +272,10 @@ describe("derrota por deck esgotado", () => {
 	});
 
 	it("com XP → DUNGEON_EXHAUSTED; gastar 5 XP → reembaralha", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		s = {
 			...s,
@@ -308,17 +306,16 @@ describe("derrota por deck esgotado", () => {
 
 describe("combate múltiplo v2 (§8.8)", () => {
 	function stateWithTwoHeroesOneEnemy(): GameState {
-		const HERO2 = "Guerreiro do Bastião Partido";
-		const base = createInitialGameState({ heroCardNames: [HERO, HERO2] });
+		const HERO2 = "hero_broken_bastion_warrior";
+		const base = createInitialGameState({ heroCardIds: [HERO, HERO2] });
 		const s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO, HERO2] },
+			payload: { heroCardIds: [HERO, HERO2] },
 		});
 
 		const enemy: EnemyState = {
 			id: "e1",
 			cardId: "creature_deep_rift_rat",
-			cardName: "Rato das Fendas Profundas",
 			maxLife: 99,
 			currentLife: 99,
 			damage: 1,
@@ -332,7 +329,6 @@ describe("combate múltiplo v2 (§8.8)", () => {
 
 		const room: RoomState = {
 			cardId: "room_dungeon_room",
-			cardName: "Sala da Masmorra",
 			exits: 2,
 			currentEnemies: 1,
 			reward: 0,
@@ -385,7 +381,6 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		const unattacked: EnemyState = {
 			id: "e2",
 			cardId: "creature_deep_rift_rat",
-			cardName: "Rato das Fendas Profundas",
 			maxLife: 5,
 			currentLife: 5,
 			damage: 3,
@@ -431,10 +426,10 @@ describe("combate múltiplo v2 (§8.8)", () => {
 
 describe("vitória contra boss", () => {
 	it("boss com 1 de vida é derrotado na primeira rodada", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 
 		// Força 2 artefatos (condição do Azhakar) e vai pelo fluxo correto
@@ -443,12 +438,10 @@ describe("vitória contra boss", () => {
 			groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
-					cardName: "Corrente do Carcereiro Rubro",
 					carriedBy: null,
 				},
 				{
 					cardId: "artifact_ancient_ember_heart",
-					cardName: "Coração de Brasa Antiga",
 					carriedBy: null,
 				},
 			],
@@ -487,10 +480,10 @@ describe("vitória contra boss", () => {
 
 describe("boss sobrevive a uma rodada", () => {
 	it("após RESOLVE_ATTACK phase reinicia para selecting_hero", () => {
-		const base = createInitialGameState({ heroCardNames: [HERO] });
+		const base = createInitialGameState({ heroCardIds: [HERO] });
 		let s = reducer(base, {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 
 		s = {
@@ -498,12 +491,10 @@ describe("boss sobrevive a uma rodada", () => {
 			groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
-					cardName: "Corrente do Carcereiro Rubro",
 					carriedBy: null,
 				},
 				{
 					cardId: "artifact_ancient_ember_heart",
-					cardName: "Coração de Brasa Antiga",
 					carriedBy: null,
 				},
 			],
@@ -540,12 +531,12 @@ describe("boss sobrevive a uma rodada", () => {
 // ─── Testes de actionLog (Passo 1) ───────────────────────────────────────────
 
 describe("actionLog", () => {
-	const base = () => createInitialGameState({ heroCardNames: [HERO] });
+	const base = () => createInitialGameState({ heroCardIds: [HERO] });
 
 	it("actionLog.length === N após N dispatches", () => {
 		let s = reducer(base(), {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		// START_GAME reinicia o log com exatamente 1 entrada
 		expect(s.actionLog).toHaveLength(1);
@@ -560,7 +551,7 @@ describe("actionLog", () => {
 	it("actionLog[i].seq === i para todo i", () => {
 		let s = reducer(base(), {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		s = reducer(s, { type: "REVEAL_ROOM" });
 		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
@@ -573,7 +564,7 @@ describe("actionLog", () => {
 	it("actionLog[i].action é exatamente a action passada (deep equal)", () => {
 		const startAction = {
 			type: "START_GAME" as const,
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		};
 		const revealAction = { type: "REVEAL_ROOM" as const };
 
@@ -587,13 +578,13 @@ describe("actionLog", () => {
 	it("START_GAME reinicia o actionLog com exatamente uma entrada", () => {
 		let s = reducer(base(), {
 			type: "START_GAME",
-			payload: { heroCardNames: [HERO] },
+			payload: { heroCardIds: [HERO] },
 		});
 		s = reducer(s, { type: "REVEAL_ROOM" });
 		expect(s.actionLog).toHaveLength(2);
 
 		// Segunda partida: log deve recomeçar do zero
-		s = reducer(s, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+		s = reducer(s, { type: "START_GAME", payload: { heroCardIds: [HERO] } });
 		expect(s.actionLog).toHaveLength(1);
 		expect(s.actionLog[0]?.action.type).toBe("START_GAME");
 	});
@@ -604,9 +595,9 @@ describe("actionLog", () => {
 describe("determinismo via seed", () => {
 	const startAction = {
 		type: "START_GAME" as const,
-		payload: { heroCardNames: [HERO], seed: 42, gameId: "test-game" },
+		payload: { heroCardIds: [HERO], seed: 42, gameId: "test-game" },
 	};
-	const init = () => createInitialGameState({ heroCardNames: [HERO] });
+	const init = () => createInitialGameState({ heroCardIds: [HERO] });
 
 	it("mesma seed + mesma sequência → mesmo GameState final (executando 2× separadamente)", () => {
 		let s1 = reducer(init(), startAction);

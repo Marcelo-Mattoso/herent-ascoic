@@ -4,7 +4,6 @@ import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
 import {
 	getArtifacts,
 	getCardById,
-	getCardByName,
 	getCreatures,
 	getItems,
 	getRooms,
@@ -41,8 +40,8 @@ export function handleRevealRoom(state: GameState): GameState {
 		);
 	}
 
-	const [roomName, ...remaining] = available;
-	const card = getCardByName(roomName as string);
+	const [roomId, ...remaining] = available;
+	const card = getCardById(roomId as string);
 	if (!card || (card.type !== "room" && card.type !== "subboss_room"))
 		return state;
 
@@ -53,7 +52,6 @@ export function handleRevealRoom(state: GameState): GameState {
 
 	const room: RoomState = {
 		cardId: card.id,
-		cardName: card.name,
 		exits: card.exits,
 		currentEnemies: card.enemiesByPlayers[0], // solo = índice 0
 		reward: card.reward,
@@ -63,7 +61,7 @@ export function handleRevealRoom(state: GameState): GameState {
 			return s ? renderSkillLabel(s.ref) : "";
 		})(),
 		xp: card.xp ?? 0,
-		specialCreature: card.specialCreature,
+		specialCreatureId: card.specialCreatureId,
 		status: "active",
 	};
 
@@ -76,10 +74,8 @@ export function handleRevealRoom(state: GameState): GameState {
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remaining },
 		},
 	};
-	// on_room_reveal: agora via TriggerComponents (emit RoomEntered abaixo)
-	// Lote E: emite RoomEntered
-	({ state: next } = emit(next, { type: "RoomEntered", payload: { roomName: room.cardName } }));
-	return log(next, `Sala revelada: ${room.cardName}.`);
+	({ state: next } = emit(next, { type: "RoomEntered", payload: { roomId: room.cardId } }));
+	return log(next, `Sala revelada: ${card.name}.`);
 }
 
 function handleRevealSubbossRoom(
@@ -88,17 +84,16 @@ function handleRevealSubbossRoom(
 	remainingDeck: readonly string[],
 ): GameState {
 	const subbossCard = getSubbosses().find(
-		(s) => s.name === card.linkedSubbossName,
+		(s) => s.id === card.linkedSubbossId,
 	);
 	if (!subbossCard)
 		return log(
 			state,
-			`[AVISO] Subchefe não encontrado: ${card.linkedSubbossName}`,
+			`[AVISO] Subchefe não encontrado: ${card.linkedSubbossId}`,
 		);
 
 	const room: RoomState = {
 		cardId: card.id,
-		cardName: card.name,
 		exits: card.exits,
 		currentEnemies: 1,
 		reward: card.reward,
@@ -108,7 +103,7 @@ function handleRevealSubbossRoom(
 			return s ? renderSkillLabel(s.ref) : "";
 		})(),
 		xp: card.xp ?? 0,
-		specialCreature: card.linkedSubbossName,
+		specialCreatureId: card.linkedSubbossId,
 		status: "active",
 	};
 
@@ -130,7 +125,6 @@ function handleRevealSubbossRoom(
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
 		},
 	};
-	// before_combat: via TriggerComponents (emit CombatStarted em handleStartCombat)
 	return log(
 		next,
 		`Sala de subchefe revelada: ${card.name}. ${subbossCard.name} aparece!`,
@@ -139,14 +133,12 @@ function handleRevealSubbossRoom(
 
 export function handleResolveRoomEffect(state: GameState): GameState {
 	if (!state.currentRoom) return state;
-	// MVP1: efeitos de sala implementados — Corredor Estreito e Sala da Masmorra não têm efeito adicional.
-	// Outros efeitos ficam como TODO no log.
-	const name = state.currentRoom.cardName;
-	const noEffect = ["Corredor Estreito", "Sala da Masmorra"];
-	if (!noEffect.includes(name)) {
-		log(state, `[TODO] Efeito de sala não implementado: ${name}`);
+	const cardId = state.currentRoom.cardId;
+	const card = getCardById(cardId);
+	const noEffect = ["room_narrow_corridor", "room_dungeon_room"];
+	if (!noEffect.includes(cardId) && card) {
+		log(state, `[TODO] Efeito de sala não implementado: ${card.name}`);
 	}
-	// on_enter_room: via TriggerComponents (emit RoomEntered em handleRevealRoom)
 	return { ...state, status: "SPAWN_ENEMIES" };
 }
 
@@ -163,7 +155,6 @@ function getEnemyCount(
 
 export function handleSpawnEnemies(state: GameState): GameState {
 	if (!state.currentRoom) return state;
-	// Buscar a carta da sala para obter enemiesByPlayers e calcular contagem dinamicamente
 	const roomCard = getCardById(state.currentRoom.cardId);
 	const activeHeroesCount = state.heroes.filter(
 		(h) => h.status === "active",
@@ -190,8 +181,8 @@ export function handleSpawnEnemies(state: GameState): GameState {
 
 	let rng = state.rng;
 	const enemies: ReturnType<typeof createEnemyFromCard>["enemy"][] = [];
-	for (const name of drawn) {
-		const card = getCardByName(name);
+	for (const id of drawn) {
+		const card = getCardById(id);
 		if (!card || (card.type !== "creature" && card.type !== "subboss"))
 			continue;
 		const { enemy, next } = createEnemyFromCard(card, state.despertar, rng);
@@ -200,8 +191,8 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	}
 
 	// Spawn da criatura especial da sala (ex.: Carcereiro, Guardião do Abismo)
-	if (state.currentRoom.specialCreature) {
-		const specialCard = getCardByName(state.currentRoom.specialCreature);
+	if (state.currentRoom.specialCreatureId) {
+		const specialCard = getCardById(state.currentRoom.specialCreatureId);
 		if (
 			specialCard &&
 			(specialCard.type === "creature" || specialCard.type === "subboss")
@@ -221,7 +212,7 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	let worldWithEnemies = state.world;
 	for (const enemy of enemies) {
 		worldWithEnemies = syncEntityFromEnemy(worldWithEnemies, enemy);
-		const enemyCard = getCardByName(enemy.cardName);
+		const enemyCard = getCardById(enemy.cardId);
 		if (enemyCard) {
 			const skills = cardSkills(enemyCard.id);
 			worldWithEnemies = installSkillTriggers(worldWithEnemies, enemy.id, skills);
@@ -248,17 +239,16 @@ export function handleSpawnEnemies(state: GameState): GameState {
 			},
 		},
 	};
-	// Emite EntityEnteredPlay para cada inimigo que entrou em jogo — ativa triggers evt_enter_play.
 	for (const enemy of enemies) {
 		({ state: next } = emit(next, {
 			type: "EntityEnteredPlay",
 			payload: { entityId: enemy.id, entityType: "enemy" },
 		}));
 	}
-	// before_combat e before_first_combat_in_room: via TriggerComponents (emit CombatStarted em handleStartCombat)
+	const enemyNames = enemies.map((e) => getCardById(e.cardId)?.name ?? e.cardId);
 	return log(
 		next,
-		`${enemies.length} inimigo(s) aparecem: ${enemies.map((e) => e.cardName).join(", ")}.`,
+		`${enemies.length} inimigo(s) aparecem: ${enemyNames.join(", ")}.`,
 	);
 }
 
@@ -269,8 +259,6 @@ export function handleOpenPaths(state: GameState): GameState {
 	const drawn = available.slice(0, exits);
 	const remaining = available.slice(exits);
 
-	// Deck esgotado ou sala sem saídas: pula CHOOSE_PATH (modal vazio sem como
-	// confirmar) e vai direto para DUNGEON_EXHAUSTED.
 	if (drawn.length === 0) {
 		return log(
 			{ ...state, status: "DUNGEON_EXHAUSTED" },
@@ -290,18 +278,15 @@ export function handleOpenPaths(state: GameState): GameState {
 		},
 		`${drawn.length} caminho(s) revelado(s).`,
 	);
-	// on_reveal_paths: via TriggerComponents (emit PathsRevealed abaixo)
-	// Lote E: emite PathsRevealed
 	({ state: next } = emit(next, { type: "PathsRevealed", payload: { cards: drawn as string[] } }));
 	return next;
 }
 
 export function handleChoosePath(
 	state: GameState,
-	cardName: string,
+	cardId: string,
 ): GameState {
-	if (!state.paths.includes(cardName)) return state;
-	// Coloca a carta escolhida no topo do deck para ser revelada na próxima vez
+	if (!state.paths.includes(cardId)) return state;
 	return log(
 		{
 			...state,
@@ -310,18 +295,17 @@ export function handleChoosePath(
 				...state.decks,
 				dungeonDeck: {
 					...state.decks.dungeonDeck,
-					available: [cardName, ...state.decks.dungeonDeck.available],
+					available: [cardId, ...state.decks.dungeonDeck.available],
 				},
 			},
 		},
-		`Caminho escolhido: ${cardName}.`,
+		`Caminho escolhido: ${getCardById(cardId)?.name ?? cardId}.`,
 	);
 }
 
 export function handleDiscardPaths(state: GameState): GameState {
-	const chosenName = state.decks.dungeonDeck.available[0];
-	// Descarta os caminhos não escolhidos (os que ainda estão em paths)
-	const toDiscard = state.paths.filter((p) => p !== chosenName);
+	const chosenId = state.decks.dungeonDeck.available[0];
+	const toDiscard = state.paths.filter((p) => p !== chosenId);
 	const newDiscarded = [...state.decks.dungeonDeck.discarded, ...toDiscard];
 
 	const next = {
@@ -337,10 +321,9 @@ export function handleDiscardPaths(state: GameState): GameState {
 }
 
 export function handleCheckBossCondition(state: GameState): GameState {
-	// Emite RoomLeft ao sair da sala atual — ativa triggers evt_room_leave (ex: Forja Reacesa).
-	const roomName = state.currentRoom?.cardName ?? "";
+	const roomId = state.currentRoom?.cardId ?? "";
 	let s = state;
-	({ state: s } = emit(s, { type: "RoomLeft", payload: { roomName } }));
+	({ state: s } = emit(s, { type: "RoomLeft", payload: { roomId } }));
 
 	if (checkBossCondition(s, s.bossCardId)) {
 		return log(
@@ -356,8 +339,6 @@ export function handleCheckBossCondition(state: GameState): GameState {
 
 // Descarta N cartas do topo do deck de dungeon. Utilitário compartilhado com handlers de skill.
 export function discardFromDungeonDeck(state: GameState, n: number, reason: "effect" | "extra" = "effect"): GameState {
-	// Prevenção de descarte (Caminho Preservado, Salvaguarda, Passo Leve).
-	// Bloqueada pela Corrupção de Caminho (discardDungeonLocked).
 	if (state.flags.dungeonDiscardPrevented && !state.flags.discardDungeonLocked) {
 		return log(
 			{ ...state, flags: { ...state.flags, dungeonDiscardPrevented: false } },
@@ -380,11 +361,10 @@ export function discardFromDungeonDeck(state: GameState, n: number, reason: "eff
 			},
 		},
 	};
-	// Lote E: emite DungeonCardDiscarded para cada carta descartada
-	for (const cardName of toDiscard) {
+	for (const cardId of toDiscard) {
 		({ state: next } = emit(next, {
 			type: "DungeonCardDiscarded",
-			payload: { cardName: cardName as string, reason },
+			payload: { cardId: cardId as string, reason },
 		}));
 	}
 	return next;
@@ -397,23 +377,21 @@ export function handleRestartDungeon(
 	state: GameState,
 	keepEquipment: boolean,
 ): GameState {
-	const roomNames = getRooms().map((c) => c.name);
-	const creatureNames = getCreatures().map((c) => c.name);
-	const itemNames = getItems().map((c) => c.name);
-	const artifactNames = getArtifacts().map((c) => c.name);
+	const roomIds = getRooms().map((c) => c.id);
+	const creatureIds = getCreatures().map((c) => c.id);
+	const itemIds = getItems().map((c) => c.id);
+	const artifactIds = getArtifacts().map((c) => c.id);
 
-	// Embaralhar encadeando o RNG
 	let rng = state.rng;
 	let shuffledRooms: string[],
 		shuffledCreatures: string[],
 		shuffledItems: string[],
 		shuffledArtifacts: string[];
-	({ value: shuffledRooms, next: rng } = shuffleRng(roomNames, rng));
-	({ value: shuffledCreatures, next: rng } = shuffleRng(creatureNames, rng));
-	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
-	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
+	({ value: shuffledRooms, next: rng } = shuffleRng(roomIds, rng));
+	({ value: shuffledCreatures, next: rng } = shuffleRng(creatureIds, rng));
+	({ value: shuffledItems, next: rng } = shuffleRng(itemIds, rng));
+	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactIds, rng));
 
-	// Restaurar heróis fugidos: status e equipamentos (vida restaurada via healSystem depois)
 	const restoredHeroes = state.fledHeroes.map((h) => ({
 		...h,
 		status: "active" as const,
@@ -457,7 +435,6 @@ export function handleRestartDungeon(
 		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,
 	);
 
-	// Restaurar vida ao máximo via healSystem (sincroniza o world ECS)
 	for (const h of restoredHeroes) {
 		next = applyFullHeal(next, h.id);
 	}
@@ -465,7 +442,6 @@ export function handleRestartDungeon(
 }
 
 export function handleDungeonExhaustedSpend(state: GameState): GameState {
-	// Chamado via SPEND_XP com option "recover_dungeon" quando status é DUNGEON_EXHAUSTED
 	const { discarded } = state.decks.dungeonDeck;
 	const { value: reshuffled, next: rng } = shuffleRng(discarded, state.rng);
 	return log(

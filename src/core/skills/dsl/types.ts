@@ -162,7 +162,7 @@ export type EffectNode =
 	| {
 			readonly kind: "i_grant_reward";
 			readonly rewardType: "item" | "artifact";
-			readonly cardName: string;
+			readonly cardId: string;
 	  }
 	// Composição (i_*)
 	| {

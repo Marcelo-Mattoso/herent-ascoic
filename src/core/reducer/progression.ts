@@ -15,7 +15,7 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 
 	const newImpeto = nextColor(hero.impeto);
 	if (newImpeto === hero.impeto) {
-		return log(state, `${hero.cardName} já está no nível máximo.`);
+		return log(state, `${getCardById(hero.cardId)?.name ?? hero.cardId} já está no nível máximo.`);
 	}
 
 	const card = getCardById(hero.cardId);
@@ -44,26 +44,27 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 
 	return log(
 		next,
-		`${hero.cardName} subiu para nível ${newImpeto}. Despertar avança.`,
+		`${getCardById(hero.cardId)?.name ?? hero.cardId} subiu para nível ${newImpeto}. Despertar avança.`,
 	);
 }
 
 // Embaralha as 2 salas de subchefe no deck de dungeon remanescente.
 function injectSubbossRooms(state: GameState): GameState {
-	const subbossRoomNames = getSubbossRooms().map((r) => r.name);
-	if (subbossRoomNames.length === 0) return state;
+	const subbossRoomIds = getSubbossRooms().map((r) => r.id);
+	if (subbossRoomIds.length === 0) return state;
 
 	const { available, discarded, removed } = state.decks.dungeonDeck;
 	const { value: combined, next: rng } = shuffleRng(
-		[...available, ...subbossRoomNames],
+		[...available, ...subbossRoomIds],
 		state.rng,
 	);
+	const subbossRoomNames = getSubbossRooms().map((r) => r.name);
 	return log(
 		{
 			...state,
 			rng,
 			subbosses: {
-				available: subbossRoomNames,
+				available: subbossRoomIds,
 				defeated: state.subbosses.defeated,
 			},
 			decks: {

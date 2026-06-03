@@ -11,13 +11,13 @@ import { reducer } from "../reducer/index";
 import { createInitialGameState } from "../state/gameState";
 import { playerView } from "./playerView";
 
-const HERO = "Bárbaro Rubro";
+const HERO = "hero_crimson_barbarian";
 
 function buildStartedState() {
-	const base = createInitialGameState({ heroCardNames: [HERO] });
+	const base = createInitialGameState({ heroCardIds: [HERO] });
 	return reducer(base, {
 		type: "START_GAME",
-		payload: { heroCardNames: [HERO] },
+		payload: { heroCardIds: [HERO] },
 	});
 }
 
@@ -83,7 +83,7 @@ describe("selectors via projeção — spot-checks", () => {
 		const view = playerView(state);
 		const hero = selectActiveHero(view);
 		expect(hero).not.toBeNull();
-		expect(hero?.cardName).toBe(HERO);
+		expect(hero?.cardId).toBe(HERO);
 	});
 
 	it("selectAvailableActions em REVEAL_ROOM retorna ['reveal_room']", () => {
@@ -105,7 +105,7 @@ describe("selectors via projeção — spot-checks", () => {
 		const state = buildStartedState();
 		const view = playerView(state);
 		const available = selectHeroesAvailableForRound(view);
-		expect(available.some((h) => h.cardName === HERO)).toBe(true);
+		expect(available.some((h) => h.cardId === HERO)).toBe(true);
 	});
 
 	it("selectEnemiesAvailableAsTargets retorna array vazio fora de combate", () => {

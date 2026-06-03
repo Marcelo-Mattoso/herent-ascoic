@@ -4,7 +4,7 @@
 import { DIFFICULTY_PRESETS } from "../config/defaults";
 import {
 	getArtifacts,
-	getCardByName,
+	getCardById,
 	getCreatures,
 	getItems,
 	getRooms,
@@ -26,10 +26,10 @@ export function handleStartGame(
 	state: GameState,
 	payload: GameConfig & { seed?: number; gameId?: string },
 ): GameState {
-	const heroNames: string[] =
-		payload.heroCardNames.length > 0 ? payload.heroCardNames : [];
+	const heroIds: string[] =
+		payload.heroCardIds.length > 0 ? payload.heroCardIds : [];
 
-	if (heroNames.length === 0) {
+	if (heroIds.length === 0) {
 		return log(state, "[ERRO] Nenhum herói selecionado.");
 	}
 
@@ -47,11 +47,11 @@ export function handleStartGame(
 
 	// Criar estados de herói (em competitivo cada herói tem playerIndex único)
 	const heroes: HeroState[] = [];
-	for (let idx = 0; idx < heroNames.length; idx++) {
-		const name = heroNames[idx]!;
-		const card = getCardByName(name);
+	for (let idx = 0; idx < heroIds.length; idx++) {
+		const id = heroIds[idx]!;
+		const card = getCardById(id);
 		if (!card || card.type !== "hero") {
-			throw new Error(`Carta de herói não encontrada: ${name}`);
+			throw new Error(`Carta de herói não encontrada: ${id}`);
 		}
 		const playerIdx =
 			(payload.mode ?? "cooperative") === "competitive" ? idx : 0;
@@ -65,13 +65,12 @@ export function handleStartGame(
 		rng = next;
 	}
 
-	const bossName = payload.bossCardName ?? selectBoss();
-	const bossId = getCardByName(bossName)?.id ?? "";
+	const bossId = payload.bossCardId ?? selectBoss();
 
-	const roomNames = getRooms().map((c) => c.name);
-	const creatureNames = getCreatures().map((c) => c.name);
-	const itemNames = getItems().map((c) => c.name);
-	const artifactNames = getArtifacts().map((c) => c.name);
+	const roomIds = getRooms().map((c) => c.id);
+	const creatureIds = getCreatures().map((c) => c.id);
+	const itemIds = getItems().map((c) => c.id);
+	const artifactIds = getArtifacts().map((c) => c.id);
 
 	const mode = payload.mode ?? "cooperative";
 
@@ -81,15 +80,15 @@ export function handleStartGame(
 	let shuffledItems: string[];
 	let shuffledArtifacts: string[];
 
-	({ value: shuffledRooms, next: rng } = shuffleRng(roomNames, rng));
-	({ value: shuffledCreatures, next: rng } = shuffleRng(creatureNames, rng));
-	({ value: shuffledItems, next: rng } = shuffleRng(itemNames, rng));
-	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
+	({ value: shuffledRooms, next: rng } = shuffleRng(roomIds, rng));
+	({ value: shuffledCreatures, next: rng } = shuffleRng(creatureIds, rng));
+	({ value: shuffledItems, next: rng } = shuffleRng(itemIds, rng));
+	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactIds, rng));
 
 	let world = syncHeroesAndEnemies(createEmptyWorld(), heroes, []);
 	// Lote F: instala TriggerComponents e ModifierComponents passivos das habilidades de cada herói
 	for (const hero of heroes) {
-		const heroCard = getCardByName(hero.cardName);
+		const heroCard = getCardById(hero.cardId);
 		if (heroCard) {
 			const skills = cardSkills(heroCard.id);
 			world = installSkillTriggers(world, hero.id, skills);
@@ -100,6 +99,9 @@ export function handleStartGame(
 			}
 		}
 	}
+
+	const heroNames = heroes.map((h) => getCardById(h.cardId)?.name ?? h.cardId);
+	const bossCard = getCardById(bossId);
 
 	const next: GameState = {
 		...state,
@@ -117,7 +119,6 @@ export function handleStartGame(
 		activeEnemies: [],
 		enemyGraveyard: [],
 		bossCardId: bossId,
-		bossCardName: bossName,
 		bossDefeated: false,
 		subbosses: { available: [], defeated: [] },
 		groupArtifacts: [],
@@ -138,7 +139,7 @@ export function handleStartGame(
 			},
 		},
 		eventLog: [
-			`Partida iniciada. Heróis: ${heroes.map((h) => h.cardName).join(", ")}. Boss: ${bossName}.`,
+			`Partida iniciada. Heróis: ${heroNames.join(", ")}. Boss: ${bossCard?.name ?? bossId}.`,
 		],
 		// START_GAME reinicia o actionLog (feito pelo wrapper em reducer/index.ts)
 	};

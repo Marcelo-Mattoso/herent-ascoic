@@ -11,7 +11,6 @@
 // Se dois handlers no mesmo nível conflitarem em balanceamento, adicionar
 // `priority?: number` em SkillDefinition (menor = executa primeiro).
 
-import { getCardByName } from "../data/cards";
 import type { SkillRef } from "../data/cardTypes";
 import type {
 	SkillContext,
@@ -110,15 +109,12 @@ function inPlaySources(state: GameState, event: EventName): InPlaySource[] {
 
 	// 1. Heróis ativos
 	for (const hero of state.heroes.filter((h) => h.status === "active")) {
-		const heroCard = getCardByName(hero.cardName);
-		if (heroCard) sources.push({ cardId: heroCard.id, sourceHeroId: hero.id });
+		sources.push({ cardId: hero.cardId, sourceHeroId: hero.id });
 
 		// 2. Itens equipados pelo herói
-		for (const itemName of Object.values(hero.activeItems)) {
-			if (!itemName) continue;
-			const itemCard = getCardByName(itemName);
-			if (itemCard)
-				sources.push({ cardId: itemCard.id, sourceHeroId: hero.id });
+		for (const itemId of Object.values(hero.activeItems)) {
+			if (!itemId) continue;
+			sources.push({ cardId: itemId, sourceHeroId: hero.id });
 		}
 	}
 

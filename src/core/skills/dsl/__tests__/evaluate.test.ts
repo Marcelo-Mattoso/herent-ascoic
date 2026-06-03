@@ -11,8 +11,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Herói Teste",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -82,7 +81,7 @@ function makeMockCtx(
 	return ctx;
 }
 
-const BASE_CONFIG = { heroCardNames: ["Herói Teste"] };
+const BASE_CONFIG = { heroCardIds: [] };
 
 function makeState(heroOverrides: Partial<HeroState> = {}): GameState {
 	const base = createInitialGameState(BASE_CONFIG);

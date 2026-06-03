@@ -44,7 +44,6 @@ export function createHeroFromCard(
 	const hero: HeroState = {
 		id,
 		cardId: card.id,
-		cardName: card.name,
 		maxLife: card.life[colorIndex],
 		currentLife: card.life[colorIndex],
 		damage: card.damage,
@@ -71,7 +70,6 @@ export function createEnemyFromCard(
 	const enemy: EnemyState = {
 		id,
 		cardId: card.id,
-		cardName: card.name,
 		maxLife: card.life[despertar],
 		currentLife: card.life[despertar],
 		damage: card.damage,

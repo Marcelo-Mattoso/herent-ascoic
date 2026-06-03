@@ -5,10 +5,9 @@ import { checkBossCondition } from "./conditions";
 const BOSS = "boss_azhakar";
 
 function stateWithArtifacts(count: number) {
-	const state = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+	const state = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 	const artifacts = Array.from({ length: count }, (_, i) => ({
 		cardId: `artifact_test_${i + 1}`,
-		cardName: `Artefato ${i + 1}`,
 		carriedBy: null,
 	}));
 	return { ...state, groupArtifacts: artifacts };

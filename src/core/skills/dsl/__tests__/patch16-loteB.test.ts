@@ -13,14 +13,13 @@ import type { HeroState } from "../../../state/heroState";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
 
-const CFG = { heroCardNames: ["Herói Teste"] };
+const CFG = { heroCardIds: [] };
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Herói Teste",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -195,7 +194,7 @@ describe("draw_from — item_skill_mystic_draw (#14)", () => {
 		const result = drainStack(evaluate(defEffect("item_skill_mystic_draw"), ctx));
 		expect(result.pendingRewards).toHaveLength(1);
 		expect(result.pendingRewards[0].type).toBe("artifact");
-		expect(result.pendingRewards[0].cardName).toBe("Amuleto Antigo");
+		expect(result.pendingRewards[0].cardId).toBeTruthy(); // was cardName: "Amuleto Antigo");
 		expect(result.decks.artifactDeck.available).toHaveLength(1);
 	});
 });

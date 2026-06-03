@@ -1,3 +1,4 @@
+import { getCardById } from "@/core/data/cards";
 import type { ItemSlotType } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";
 import { ItemTile } from "./ItemTile";
@@ -16,10 +17,11 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 };
 
 export function ItemChip({ item, slot, onClick }: ItemChipProps) {
+	const label = getCardById(item)?.name ?? item;
 	return (
 		<button
 			type="button"
-			title={item}
+			title={label}
 			className="flex items-center gap-1 px-1.5 py-0.5 rounded"
 			style={{
 				background: UI.subpanelBg,
@@ -28,7 +30,7 @@ export function ItemChip({ item, slot, onClick }: ItemChipProps) {
 			onClick={onClick}
 		>
 			{slot && <ItemTile slot={slot} filled />}
-			<span style={{ color: UI.textPrimary, fontSize: 11 }}>{item}</span>
+			<span style={{ color: UI.textPrimary, fontSize: 11 }}>{label}</span>
 			{slot && (
 				<span style={{ color: UI.textTertiary, fontSize: 10 }}>
 					({SLOT_LABELS[slot]})

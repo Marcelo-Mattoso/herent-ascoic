@@ -85,9 +85,9 @@ export type GameEvent =
 	| { readonly type: "EntityDefeated"; readonly payload: EntityDefeatedPayload }
 	| {
 			readonly type: "RoomEntered";
-			readonly payload: { readonly roomName: string };
+			readonly payload: { readonly roomId: string };
 	  }
-	| { readonly type: "CombatStarted"; readonly payload: { readonly roomName: string } }
+	| { readonly type: "CombatStarted"; readonly payload: { readonly roomId: string } }
 	| { readonly type: "CombatEnded"; readonly payload: Record<string, never> }
 	| {
 			readonly type: "TurnStarted";
@@ -99,7 +99,7 @@ export type GameEvent =
 	  }
 	| {
 			readonly type: "CardDrawn";
-			readonly payload: { readonly cardName: string };
+			readonly payload: { readonly cardId: string };
 	  }
 	| {
 			readonly type: "SkillUsed";
@@ -176,7 +176,7 @@ export type GameEvent =
 	  }
 	| {
 			readonly type: "DungeonCardDiscarded";
-			readonly payload: { readonly cardName: string; readonly reason: "effect" | "extra" };
+			readonly payload: { readonly cardId: string; readonly reason: "effect" | "extra" };
 	  }
 	| {
 			readonly type: "ItemEffectAppliedTo";
@@ -198,7 +198,7 @@ export type GameEvent =
 	// Emitido quando o grupo avança para uma nova sala (após vitória/recompensa).
 	| {
 			readonly type: "RoomLeft";
-			readonly payload: { readonly roomName: string };
+			readonly payload: { readonly roomId: string };
 	  }
 	// Emitido quando uma entidade (criatura inicial ou spawn mid-combat) entra em jogo.
 	| {

@@ -4,7 +4,7 @@ import { createInitialGameState } from "../gameState";
 import type { GameState } from "../gameState";
 
 function base(): GameState {
-	return createInitialGameState({ heroCardNames: [] });
+	return createInitialGameState({ heroCardIds: [] });
 }
 
 function withHero(state: GameState, heroId: string): GameState {
@@ -15,8 +15,7 @@ function withHero(state: GameState, heroId: string): GameState {
 			{
 				id: heroId,
 				cardId: "test",
-				cardName: "Test Hero",
-				maxLife: 10,
+							maxLife: 10,
 				currentLife: 10,
 				damage: 1,
 				hitBonus: 0,

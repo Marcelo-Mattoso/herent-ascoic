@@ -6,7 +6,6 @@ import { calculateRewards } from "./reward";
 function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 	return {
 		cardId: "room_dungeon_room",
-		cardName: "Sala da Masmorra",
 		exits: 3,
 		currentEnemies: 1,
 		reward: 1,
@@ -28,7 +27,6 @@ function makeEnemy(
 	return {
 		id: `enemy-${++_enemyCounter}`,
 		cardId: "creature_deep_rift_rat",
-		cardName: "Rato das Fendas Profundas",
 		maxLife: 2,
 		currentLife: 0,
 		damage: 1,

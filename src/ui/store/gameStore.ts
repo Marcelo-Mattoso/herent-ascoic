@@ -85,7 +85,7 @@ function connectDevTools(initialState: GameState) {
 
 // ── Adapter e DevTools (module-level, recriados no reset) ───────────────────
 
-const EMPTY_CONFIG = { heroCardNames: [] as string[] };
+const EMPTY_CONFIG = { heroCardIds: [] as string[] };
 
 function makeAdapter() {
 	return createInProcessAdapter(createInitialGameState(EMPTY_CONFIG));

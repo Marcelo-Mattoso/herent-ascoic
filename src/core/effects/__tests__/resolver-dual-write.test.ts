@@ -13,8 +13,7 @@ function makeHero(id = "hero_warrior"): HeroState {
 	return {
 		id,
 		cardId: "hero_unbreakable_bastion",
-		cardName: "Guerreiro",
-		maxLife: 14,
+			maxLife: 14,
 		currentLife: 14,
 		damage: 4,
 		hitBonus: 1,
@@ -34,8 +33,7 @@ function makeEnemy(): EnemyState {
 	return {
 		id: "enemy_goblin",
 		cardId: "creature_dark_cave_goblin",
-		cardName: "Goblin",
-		maxLife: 5,
+			maxLife: 5,
 		currentLife: 5,
 		damage: 2,
 		hitBonus: 0,
@@ -49,7 +47,7 @@ function makeEnemy(): EnemyState {
 
 function makeState(): GameState {
 	const hero = makeHero();
-	const base = createInitialGameState({ heroCardNames: ["Guerreiro"] });
+	const base = createInitialGameState({ heroCardIds: [] });
 	let world = base.world;
 	world = syncEntityFromHero(world, hero);
 	return {

@@ -1,3 +1,4 @@
+import { getCardById } from "@/core/data/cards";
 import type { ScriptHandler } from "@/core/scripts/types";
 import { addComponent } from "@/core/ecs/world";
 import type { ModifierComponent } from "@/core/ecs/types";
@@ -25,7 +26,7 @@ export const run: ScriptHandler = (ctx) => {
 	if (otherHeroes.length > 0) {
 		options.unshift({
 			id: `redirect:${otherHeroes[0]!.id}`,
-			label: `Redirecionar para ${otherHeroes[0]!.cardName}`,
+			label: `Redirecionar para ${getCardById(otherHeroes[0]!.cardId)?.name ?? otherHeroes[0]!.cardId}`,
 		});
 	}
 

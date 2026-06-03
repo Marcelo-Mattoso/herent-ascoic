@@ -5,11 +5,11 @@ import { describe, expect, it } from "vitest";
 import { reducer } from "../../reducer/index";
 import { createInitialGameState } from "../../state/gameState";
 
-const HERO = "Bárbaro Rubro";
+const HERO = "hero_crimson_barbarian";
 
 function buildState() {
-	const base = createInitialGameState({ heroCardNames: [HERO] });
-	return reducer(base, { type: "START_GAME", payload: { heroCardNames: [HERO] } });
+	const base = createInitialGameState({ heroCardIds: [HERO] });
+	return reducer(base, { type: "START_GAME", payload: { heroCardIds: [HERO] } });
 }
 
 // Testa a lógica de debit de cost.hp isoladamente (sem depender de skill do catálogo).

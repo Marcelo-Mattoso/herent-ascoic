@@ -77,7 +77,7 @@ export interface RoomCard {
 	readonly rewardType: CardRewardType;
 	readonly skills: readonly SkillRef[];
 	readonly xp?: number;
-	readonly specialCreature?: string;
+	readonly specialCreatureId?: string;
 }
 
 // Sala especial que spawna um subchefe específico (injetada quando Despertar = 3).
@@ -90,7 +90,7 @@ export interface SubbossRoomCard {
 	readonly rewardType: CardRewardType;
 	readonly skills: readonly SkillRef[];
 	readonly xp?: number;
-	readonly linkedSubbossName: string;
+	readonly linkedSubbossId: string;
 }
 
 // --- Item ---

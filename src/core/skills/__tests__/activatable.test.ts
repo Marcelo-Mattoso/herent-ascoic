@@ -4,13 +4,13 @@ import { reducer } from "../../reducer/index";
 import { createInitialGameState } from "../../state/gameState";
 import { fireOnUseSkill, isManuallyActivatable } from "../useSkill";
 
-const HERO = "Bárbaro Rubro";
+const HERO = "hero_crimson_barbarian";
 
 function buildBaseState() {
-	const base = createInitialGameState({ heroCardNames: [HERO] });
+	const base = createInitialGameState({ heroCardIds: [HERO] });
 	return reducer(base, {
 		type: "START_GAME",
-		payload: { heroCardNames: [HERO] },
+		payload: { heroCardIds: [HERO] },
 	});
 }
 

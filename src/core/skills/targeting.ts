@@ -7,6 +7,7 @@ import type {
 	TargetResolution,
 	TargetSpec,
 } from "../data/skillTypes";
+import { getCardById } from "../data/cards";
 import type { GameState } from "../state/gameState";
 
 export function resolveTarget(
@@ -34,7 +35,7 @@ export function resolveTarget(
 				candidates: activeHeroes.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: h.cardName,
+					label: getCardById(h.cardId)?.name ?? h.cardId,
 				})),
 			};
 		}
@@ -53,7 +54,7 @@ export function resolveTarget(
 				.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: h.cardName,
+					label: getCardById(h.cardId)?.name ?? h.cardId,
 				}));
 			if (candidates.length === 1)
 				return { kind: "resolved", heroIds: [candidates[0]!.id] };
@@ -68,7 +69,7 @@ export function resolveTarget(
 				candidates: activeHeroes.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: h.cardName,
+					label: getCardById(h.cardId)?.name ?? h.cardId,
 				})),
 			};
 		}
@@ -86,7 +87,7 @@ export function resolveTarget(
 				candidates: activeEnemies.map<TargetCandidate>((e) => ({
 					kind: "enemy",
 					id: e.id,
-					label: e.cardName,
+					label: getCardById(e.cardId)?.name ?? e.cardId,
 				})),
 			};
 		}

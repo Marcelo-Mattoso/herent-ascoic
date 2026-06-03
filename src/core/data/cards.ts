@@ -15,17 +15,16 @@ import type {
 	SubbossRoomCard,
 } from "./cardTypes";
 
-// Valida que cada entrada tem pelo menos `id`, `type` e `name`
+// Valida que cada entrada tem pelo menos `id` e `type`
 function validateRaw(raw: unknown[]): AnyCard[] {
 	for (const entry of raw) {
 		if (
 			typeof entry !== "object" ||
 			entry === null ||
 			!("id" in entry) ||
-			!("type" in entry) ||
-			!("name" in entry)
+			!("type" in entry)
 		) {
-			throw new Error(`Carta inválida no JSON: ${JSON.stringify(entry)}`);
+			throw new Error(`Carta inválida no YAML: ${JSON.stringify(entry)}`);
 		}
 	}
 	return raw as AnyCard[];
@@ -34,7 +33,6 @@ function validateRaw(raw: unknown[]): AnyCard[] {
 const ALL_CARDS: readonly AnyCard[] = validateRaw(parse(cardsYaml) as unknown[]);
 
 const _byId = new Map<string, AnyCard>(ALL_CARDS.map((c) => [c.id, c]));
-const _byName = new Map<string, AnyCard>(ALL_CARDS.map((c) => [c.name, c]));
 
 // --- Acesso geral ---
 
@@ -52,11 +50,6 @@ export function getCardsByType<T extends AnyCard["type"]>(
 
 export function getCardById(id: string): AnyCard | undefined {
 	return _byId.get(id);
-}
-
-/** @deprecated Use getCardById instead */
-export function getCardByName(name: string): AnyCard | undefined {
-	return _byName.get(name);
 }
 
 // --- Helpers por tipo ---

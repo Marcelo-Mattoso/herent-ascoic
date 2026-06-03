@@ -12,7 +12,6 @@ import { evaluate } from "../../skills/dsl/evaluate";
 const goblin: EnemyState = {
 	id: "e_goblin",
 	cardId: "creature_dark_cave_goblin",
-	cardName: "Goblin das Cavernas Escuras",
 	maxLife: 4,
 	currentLife: 4,
 	damage: 1,
@@ -27,7 +26,6 @@ const goblin: EnemyState = {
 const slime: EnemyState = {
 	id: "e_slime",
 	cardId: "creature_wet_stone_slime",
-	cardName: "Limo das Pedras Úmidas",
 	maxLife: 6,
 	currentLife: 6,
 	damage: 1,
@@ -43,7 +41,7 @@ const def = SKILLS.abilities.find((a) => a.id === "skill_living_ember_oil")!;
 
 describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 	it("enfileira i_damage 2 contra criatura comum", () => {
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const state = { ...base, activeEnemies: [goblin] };
 		const ctx = buildScriptCtx(
 			state,
@@ -60,7 +58,7 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 	});
 
 	it("enfileira i_damage 3 contra criatura com Corpo Gelatinoso", () => {
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const state = { ...base, activeEnemies: [slime] };
 		const ctx = buildScriptCtx(
 			state,
@@ -77,7 +75,7 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 	});
 
 	it("causa dano correto após drainStack — criatura comum", () => {
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const state = { ...base, activeEnemies: [goblin] };
 		const ctx = buildScriptCtx(
 			state,
@@ -89,7 +87,7 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 	});
 
 	it("sem alvo — sem efeito (i_if sem alvo resolvido → skips)", () => {
-		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
+		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const ctx = buildScriptCtx(
 			base,
 			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil" },

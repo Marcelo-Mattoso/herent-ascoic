@@ -10,13 +10,13 @@ import { aiView } from "./aiView";
 import { playerView } from "./playerView";
 import { replayView } from "./replayView";
 
-const HERO = "Bárbaro Rubro";
+const HERO = "hero_crimson_barbarian";
 
 function buildStartedState() {
-	const base = createInitialGameState({ heroCardNames: [HERO] });
+	const base = createInitialGameState({ heroCardIds: [HERO] });
 	return reducer(base, {
 		type: "START_GAME",
-		payload: { heroCardNames: [HERO] },
+		payload: { heroCardIds: [HERO] },
 	});
 }
 

@@ -146,7 +146,7 @@ function dispatch(state: GameState, action: Action): GameState {
 		case "USE_ITEM":
 			return handleUseItem(
 				state,
-				action.payload.itemName,
+				action.payload.itemId,
 				action.payload.heroId,
 				action.payload.targetHeroId,
 			);
@@ -171,7 +171,7 @@ function dispatch(state: GameState, action: Action): GameState {
 		case "INV_MOVE":
 			return handleInvMove(
 				state,
-				action.payload.itemName,
+				action.payload.itemId,
 				action.payload.from,
 				action.payload.to,
 			);
@@ -179,7 +179,7 @@ function dispatch(state: GameState, action: Action): GameState {
 		case "INV_ASSIGN_ITEM":
 			return handleInvAssignItem(
 				state,
-				action.payload.itemName,
+				action.payload.itemId,
 				action.payload.heroId,
 				action.payload.destination,
 			);
@@ -187,7 +187,7 @@ function dispatch(state: GameState, action: Action): GameState {
 		case "INV_ASSIGN_ARTIFACT":
 			return handleInvAssignArtifact(
 				state,
-				action.payload.artifactName,
+				action.payload.artifactId,
 				action.payload.vagaIndex,
 				action.payload.heroId,
 			);
@@ -261,7 +261,7 @@ function dispatch(state: GameState, action: Action): GameState {
 			return handleOpenPaths(state);
 
 		case "CHOOSE_PATH":
-			return handleChoosePath(state, action.payload.cardName);
+			return handleChoosePath(state, action.payload.cardId);
 
 		case "DISCARD_PATHS":
 			return handleDiscardPaths(state);

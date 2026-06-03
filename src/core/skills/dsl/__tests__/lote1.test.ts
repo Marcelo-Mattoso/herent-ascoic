@@ -12,14 +12,13 @@ import { fireTrigger } from "../../dispatch";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
 
-const CFG = { heroCardNames: ["Bárbaro Rubro"] };
+const CFG = { heroCardIds: ["hero_crimson_barbarian"] };
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Bárbaro Rubro",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -40,8 +39,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-		cardName: "Goblin",
-		maxLife: 4,
+			maxLife: 4,
 		currentLife: 4,
 		damage: 1,
 		hitBonus: 0,

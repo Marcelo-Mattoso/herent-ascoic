@@ -15,14 +15,13 @@ import { getScript } from "../../scripts/registry";
 import { evaluate } from "../dsl/evaluate";
 import "../handlers/index"; // garante que continuações de script sejam registradas
 
-const CFG = { heroCardNames: ["Bárbaro Rubro"] };
+const CFG = { heroCardIds: ["hero_crimson_barbarian"] };
 
 function makeHero(): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Bárbaro Rubro",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 7,
 		damage: 3,
 		hitBonus: 0,
@@ -41,8 +40,7 @@ function makeEnemy(): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-		cardName: "Goblin",
-		maxLife: 4,
+			maxLife: 4,
 		currentLife: 4,
 		damage: 1,
 		hitBonus: 0,
@@ -70,8 +68,7 @@ function baseState(): GameState {
 		activeEnemies: [makeEnemy()],
 		currentRoom: {
 			cardId: "dungeon_room_test",
-			cardName: "Sala de Teste",
-			exits: 2,
+					exits: 2,
 			currentEnemies: 1,
 			reward: 1,
 			rewardType: "item",

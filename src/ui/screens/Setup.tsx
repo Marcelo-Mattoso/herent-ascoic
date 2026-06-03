@@ -47,9 +47,9 @@ export function Setup({ onBack }: SetupProps) {
 	const heroes = getHeroes();
 	const boss = getBoss();
 
-	function toggleHero(name: string) {
+	function toggleHero(id: string) {
 		setSelectedHeroes((prev) =>
-			prev.includes(name) ? prev.filter((h) => h !== name) : [...prev, name],
+			prev.includes(id) ? prev.filter((h) => h !== id) : [...prev, id],
 		);
 	}
 
@@ -58,7 +58,7 @@ export function Setup({ onBack }: SetupProps) {
 		if (mode === "competitive" && selectedHeroes.length < 2) return;
 		dispatch({
 			type: "START_GAME",
-			payload: { heroCardNames: selectedHeroes, difficulty, mode },
+			payload: { heroCardIds: selectedHeroes, difficulty, mode },
 		});
 	}
 
@@ -167,12 +167,12 @@ export function Setup({ onBack }: SetupProps) {
 					</p>
 					<div className="grid grid-cols-4 gap-3">
 						{heroes.map((h) => {
-							const selected = selectedHeroes.includes(h.name);
+							const selected = selectedHeroes.includes(h.id);
 							return (
 								<button
-									key={h.name}
+									key={h.id}
 									type="button"
-									onClick={() => toggleHero(h.name)}
+									onClick={() => toggleHero(h.id)}
 									className="rounded-lg p-2 text-left transition-all"
 									style={{
 										background: selected ? UI.info.bg : UI.panelBg,

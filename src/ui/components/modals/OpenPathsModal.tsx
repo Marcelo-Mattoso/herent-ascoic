@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { getCardByName } from "@/core/data/cards";
+import { getCardById } from "@/core/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -18,7 +18,7 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 
 	function confirmPath() {
 		if (!selected) return;
-		dispatch({ type: "CHOOSE_PATH", payload: { cardName: selected } });
+		dispatch({ type: "CHOOSE_PATH", payload: { cardId: selected } });
 		dispatch({ type: "DISCARD_PATHS" });
 		dispatch({ type: "CHECK_BOSS_CONDITION" });
 		onClose();
@@ -31,14 +31,14 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 			</p>
 
 			<div className="grid grid-cols-3 gap-3 mb-5">
-				{paths.map((cardName) => {
-					const card = getCardByName(cardName);
-					const isSelected = selected === cardName;
+				{paths.map((cardId) => {
+					const card = getCardById(cardId);
+					const isSelected = selected === cardId;
 					return (
 						<button
-							key={cardName}
+							key={cardId}
 							type="button"
-							onClick={() => setSelected(cardName)}
+							onClick={() => setSelected(cardId)}
 							className="rounded-lg p-2 text-left transition-all"
 							style={{
 								background: isSelected ? UI.info.bg : UI.subpanelBg,
@@ -50,7 +50,7 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 								className="text-xs font-medium mt-1"
 								style={{ color: UI.textPrimary }}
 							>
-								{cardName}
+								{card?.name ?? cardId}
 							</p>
 							{card?.type === "room" && (
 								<p className="text-xs" style={{ color: UI.textTertiary }}>

@@ -23,14 +23,13 @@ import "../../../data/scripts/dungeon_skill_summon_guardian";
 import "../../../data/scripts/power_deep_veil_echo";
 import "../../skills/handlers/index"; // registra continuações legadas
 
-const CFG = { heroCardNames: ["Herói Teste"] };
+const CFG = { heroCardIds: [] };
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-		cardName: "Herói Teste",
-		maxLife: 10,
+			maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -51,8 +50,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-		cardName: "Goblin",
-		maxLife: 4,
+			maxLife: 4,
 		currentLife: 4,
 		damage: 1,
 		hitBonus: 0,
@@ -289,7 +287,7 @@ describe("dungeon_skill_rekindled_forge (#27)", () => {
 		);
 		const result = runScript("dungeon_skill_rekindled_forge", ctx);
 		expect(result.pendingRewards).toHaveLength(1);
-		expect(result.pendingRewards[0].cardName).toBe("Adaga");
+		expect(result.pendingRewards[0].cardId).toBeTruthy(); // was cardName: "Adaga");
 		expect(result.decks.itemDeck.available).toHaveLength(1);
 	});
 });

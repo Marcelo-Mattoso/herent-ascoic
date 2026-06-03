@@ -8,7 +8,7 @@ import { fireTrigger } from "../dispatch";
 // Importar handlers para que o registry esteja populado
 import "../handlers/index";
 
-const config: GameConfig = { heroCardNames: ["Bárbaro Rubro"] };
+const config: GameConfig = { heroCardIds: ["hero_crimson_barbarian"] };
 
 describe("fireTrigger", () => {
 	it("retorna o estado inalterado quando não há handlers registrados", () => {
@@ -45,8 +45,7 @@ describe("purpleEffect filter", () => {
 	const morcego: EnemyState = {
 		id: "e1",
 		cardId: "creature_black_ceiling_bat",
-		cardName: "Morcego do Teto Negro",
-		maxLife: 3,
+			maxLife: 3,
 		currentLife: 3,
 		damage: 1,
 		hitBonus: 0,
@@ -66,8 +65,7 @@ describe("purpleEffect filter", () => {
 				{
 					id: "h1",
 					cardId: "hero_crimson_barbarian",
-					cardName: "Bárbaro Rubro",
-					maxLife: 10,
+									maxLife: 10,
 					currentLife: 10,
 					damage: 3,
 					hitBonus: 1,
@@ -98,8 +96,7 @@ describe("purpleEffect filter", () => {
 				{
 					id: "h1",
 					cardId: "hero_crimson_barbarian",
-					cardName: "Bárbaro Rubro",
-					maxLife: 10,
+									maxLife: 10,
 					currentLife: 10,
 					damage: 3,
 					hitBonus: 1,

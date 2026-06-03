@@ -6,15 +6,15 @@ import { createInitialGameState } from "@/core/state/gameState";
 import type { RoomState } from "@/core/state/roomState";
 import { selectHeroCombatActions } from "./selectors";
 
-const BARBARO = "Bárbaro Rubro";
-const CLERIGO = "Clérigo do Descanso Eterno";
-const LADINO = "Ladino das Fendas";
+const BARBARO = "hero_crimson_barbarian";
+const CLERIGO = "hero_eternal_rest_cleric";
+const LADINO = "hero_rift_rogue";
 
-function buildCombatStartState(heroName: string): GameState {
-	const base = createInitialGameState({ heroCardNames: [heroName] });
+function buildCombatStartState(heroId: string): GameState {
+	const base = createInitialGameState({ heroCardIds: [heroId] });
 	const s = reducer(base, {
 		type: "START_GAME",
-		payload: { heroCardNames: [heroName] },
+		payload: { heroCardIds: [heroId] },
 	});
 
 	const hero = s.heroes[0];
@@ -23,7 +23,6 @@ function buildCombatStartState(heroName: string): GameState {
 	const enemy: EnemyState = {
 		id: "e1",
 		cardId: "creature_deep_rift_rat",
-		cardName: "Rato das Fendas Profundas",
 		maxLife: 1,
 		currentLife: 1,
 		damage: 1,
@@ -37,7 +36,6 @@ function buildCombatStartState(heroName: string): GameState {
 
 	const room: RoomState = {
 		cardId: "room_dungeon_room",
-		cardName: "Sala da Masmorra",
 		exits: 2,
 		currentEnemies: 1,
 		reward: 0,
