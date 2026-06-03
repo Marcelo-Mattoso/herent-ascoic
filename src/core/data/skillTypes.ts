@@ -37,7 +37,6 @@ export interface SkillDefinition {
 	readonly affect_scope: import("../skills/dsl/types").AffectScope;
 	readonly affect_object: import("../skills/dsl/types").AffectObject;
 	readonly affect_limit?: import("../skills/dsl/types").AffectLimit;
-	readonly notes?: string;
 	// ── Campos pós-patch-12 ────────────────────────────────────────
 	/** Array de EffectNode DSL. Exatamente um de effect/script deve estar presente. */
 	readonly effect?: readonly import("../skills/dsl/types").EffectNode[];

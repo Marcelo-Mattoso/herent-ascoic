@@ -5,6 +5,7 @@ export interface SkillLocaleEntry {
 	readonly name?: string;
 	readonly label?: string;
 	readonly text?: string;
+	readonly notes?: string;
 	readonly options?: Readonly<Record<string, string>>;
 }
 

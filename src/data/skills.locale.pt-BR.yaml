@@ -132,6 +132,7 @@ skill_treacherous_attack:
   name: Ataque Traiçoeiro
   label: "Ataque Traiçoeiro ({value}): ao entrar em combate, causa {value} dano ao herói com menos vida."
   text: ao entrar em combate, causa {value} dano ao herói com menos vida.
+  notes: "No texto original, o nome possui variável, mas o efeito-base cita 1 dano. Use {value} quando quiser escalar."
 skill_cowardly_flee:
   name: Fuga Covarde
   label: "Fuga Covarde: se fugir ou sair de jogo, não concede recompensa."
@@ -339,6 +340,7 @@ dungeon_skill_summon_guardian:
   name: Invocar Guardião
   label: "Invocar Guardião ({value}): revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo."
   text: revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo.
+  notes: "Use {value} como o nome da criatura especial/subchefe revelado pela sala."
 boss_skill_living_ash_throne:
   name: Trono de Cinzas Vivas
   label: "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."

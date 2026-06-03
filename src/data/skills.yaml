@@ -570,8 +570,6 @@ abilities:
     affect_object: obj_friend
   - id: skill_treacherous_attack
     category: hero_skill
-    notes: No texto original, o nome possui variável, mas o efeito-base cita 1 dano.
-      Use {value} quando quiser escalar.
     effect:
       - kind: i_damage
         to: $lowest_life_hero
@@ -1427,7 +1425,6 @@ abilities:
     affect_object: obj_all
   - id: dungeon_skill_summon_guardian
     category: dungeon_skill
-    notes: Use {value} como o nome da criatura especial/subchefe revelado pela sala.
     script: dungeon_skill_summon_guardian
     operate_type: op_triggered
     trigger:
