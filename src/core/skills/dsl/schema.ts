@@ -30,29 +30,33 @@ const ExprNodeSchema: z.ZodType<unknown> = z.union([
 // ── Condições ────────────────────────────────────────────────────────────────
 
 const ConditionNodeSchema: z.ZodType<unknown> = z.lazy(() =>
-	z.discriminatedUnion("kind", [
-		z.object({
-			kind: z.literal("has_skill"),
-			of: z.string(),
-			skillId: z.string(),
-		}),
-		z.object({
-			kind: z.literal("has_condition"),
-			of: z.string(),
-			conditionType: z.string(),
-		}),
-		z.object({
-			kind: z.literal("compare"),
-			op: z.enum(["lt", "lte", "eq", "gte", "gt", "in"]),
-			left: ExprNodeSchema,
-			right: ExprNodeSchema,
-		}),
-		z.object({
-			kind: z.literal("and"),
-			children: z.array(ConditionNodeSchema),
-		}),
-		z.object({ kind: z.literal("or"), children: z.array(ConditionNodeSchema) }),
-		z.object({ kind: z.literal("not"), child: ConditionNodeSchema }),
+	z.union([
+		z.discriminatedUnion("kind", [
+			z.object({
+				kind: z.literal("has_skill"),
+				of: z.string(),
+				skillId: z.string(),
+			}),
+			z.object({
+				kind: z.literal("has_condition"),
+				of: z.string(),
+				conditionType: z.string(),
+			}),
+			z.object({
+				kind: z.literal("compare"),
+				op: z.enum(["lt", "lte", "eq", "gte", "gt", "in"]),
+				left: ExprNodeSchema,
+				right: ExprNodeSchema,
+			}),
+			z.object({
+				kind: z.literal("and"),
+				children: z.array(ConditionNodeSchema),
+			}),
+			z.object({ kind: z.literal("or"), children: z.array(ConditionNodeSchema) }),
+			z.object({ kind: z.literal("not"), child: ConditionNodeSchema }),
+		]),
+		// any_of — atalho OR sem kind discriminator
+		z.object({ any_of: z.array(ConditionNodeSchema) }),
 	]),
 );
 
@@ -176,7 +180,46 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 	]),
 );
 
-// ── Trigger (objeto) ──────────────────────────────────────────────────────────
+// ── Trigger v2 (patch-21 Lote B) ─────────────────────────────────────────────
+
+const OperateTypeSchema = z.enum([
+	"op_active",
+	"op_active_buff",
+	"op_triggered",
+	"op_passive",
+]);
+
+const EventNameSchema = z.enum([
+	"evt_attack_declared",
+	"evt_roll",
+	"evt_hit",
+	"evt_damage_dealt",
+	"evt_damage_taken",
+	"evt_destroy",
+	"evt_kill",
+	"evt_combat_start",
+	"evt_combat_end",
+	"evt_round_start",
+	"evt_round_end",
+	"evt_room_reveal",
+	"evt_room_enter",
+	"evt_room_leave",
+	"evt_dungeon_discard",
+	"evt_enter_play",
+	"evt_leave_play",
+	"evt_targeted",
+]);
+
+const TriggerV2Schema = z.object({ event: EventNameSchema });
+
+const CooldownSchema = z
+	.object({
+		scope: z.enum(["game", "room", "combat", "round"]),
+		charges: z.number().int().positive(),
+	})
+	.optional();
+
+// ── Trigger legado (mantido para schema-guard.test.ts) ─────────────────────
 
 const LimitKindSchema = z.enum([
 	"once_per_game",
@@ -197,18 +240,14 @@ export const TriggerFieldSchema = z.union([
 	z.string().transform((_val, ctx) => {
 		ctx.addIssue({
 			code: z.ZodIssueCode.custom,
-			message: `trigger deve ser objeto {on, when?, limit?} — formato string legado rejeitado. Recebido: "${_val}"`,
+			message: `trigger deve ser objeto — formato string legado rejeitado. Recebido: "${_val}"`,
 		});
 		return z.NEVER;
 	}),
 ]);
 
-// ── SkillDefinition (pós-patch-12) ───────────────────────────────────────────
+// ── SkillDefinition v2 (patch-21 Lote B) ─────────────────────────────────────
 
-/**
- * Entrada válida de `skills.json` pós-patch-12.
- * Regra: exatamente um de `effect` ou `script` deve estar presente.
- */
 const CostSchema = z
 	.object({
 		hp: z.number().optional(),
@@ -228,7 +267,10 @@ export const SkillDefinitionV2Schema = z
 			"habilidade_dungeon",
 			"habilidade_chefe",
 		]),
-		trigger: TriggerObjectSchema,
+		operate_type: OperateTypeSchema,
+		trigger: TriggerV2Schema.optional(),
+		conditions: z.array(ConditionNodeSchema).optional(),
+		cooldown: CooldownSchema,
 		target: z.string(),
 		params: z.record(z.string(), z.unknown()).optional(),
 		cost: CostSchema,
@@ -239,9 +281,11 @@ export const SkillDefinitionV2Schema = z
 		message:
 			"Cada entrada deve ter exatamente um de `effect` ou `script` — nunca ambos, nunca nenhum.",
 	})
-	.refine((d) => !("type" in d), {
-		message: "Campo `type` removido — use `effect` ou `script`.",
-	});
+	.refine(
+		(d) =>
+			d.operate_type !== "op_triggered" || d.trigger !== undefined,
+		{ message: "op_triggered requer trigger.event" },
+	);
 
 export type SkillDefinitionV2 = z.infer<typeof SkillDefinitionV2Schema>;
 
@@ -251,5 +295,7 @@ export {
 	ConditionNodeSchema,
 	DurationNodeSchema,
 	EffectNodeSchema,
+	EventNameSchema,
 	ExprNodeSchema,
+	OperateTypeSchema,
 };

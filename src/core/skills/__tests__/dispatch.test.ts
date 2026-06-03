@@ -13,8 +13,8 @@ const config: GameConfig = { heroCardNames: ["Bárbaro Rubro"] };
 describe("fireTrigger", () => {
 	it("retorna o estado inalterado quando não há handlers registrados", () => {
 		const state = createInitialGameState(config);
-		const result = fireTrigger(state, "before_attack", {
-			triggeredBy: "before_attack",
+		const result = fireTrigger(state, "evt_attack_declared", {
+			triggeredBy: "evt_attack_declared",
 		});
 		// Sem handlers, o estado deve ser idêntico
 		expect(result.eventLog).toEqual(state.eventLog);
@@ -23,7 +23,7 @@ describe("fireTrigger", () => {
 	it("não explode quando chamado sem heróis ativos", () => {
 		const state = createInitialGameState(config);
 		expect(() =>
-			fireTrigger(state, "start_of_combat", { triggeredBy: "start_of_combat" }),
+			fireTrigger(state, "evt_combat_start", { triggeredBy: "evt_combat_start" }),
 		).not.toThrow();
 	});
 
@@ -33,7 +33,7 @@ describe("fireTrigger", () => {
 			combat: createEmptyCombatState(),
 		};
 		expect(() =>
-			fireTrigger(state, "after_roll", { triggeredBy: "after_roll" }),
+			fireTrigger(state, "evt_roll", { triggeredBy: "evt_roll" }),
 		).not.toThrow();
 	});
 });
@@ -83,8 +83,8 @@ describe("purpleEffect filter", () => {
 				},
 			],
 		};
-		const result = fireTrigger(state, "on_enter_room", {
-			triggeredBy: "on_enter_room",
+		const result = fireTrigger(state, "evt_room_enter", {
+			triggeredBy: "evt_room_enter",
 		});
 		expect(result.heroes[0].healBlocked).toBeFalsy();
 	});
@@ -117,7 +117,7 @@ describe("purpleEffect filter", () => {
 		};
 		// DSL-migrated skills push to EffectStack; drain to get final state
 		const result = drainStack(
-			fireTrigger(state, "on_enter_room", { triggeredBy: "on_enter_room" }),
+			fireTrigger(state, "evt_room_enter", { triggeredBy: "evt_room_enter" }),
 		);
 		expect(result.heroes[0].healBlocked).toBe(true);
 	});

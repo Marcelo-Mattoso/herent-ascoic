@@ -154,7 +154,7 @@ describe("set_no_reward — skill_cowardly_flee via fireTrigger", () => {
 			cardId: "creature_dark_cave_goblin",
 		});
 		const state = { ...createInitialGameState(CFG), activeEnemies: [enemy] };
-		const result = run(state, "on_flee_or_leave_play", {
+		const result = run(state, "evt_leave_play", {
 			sourceEnemyId: "e_goblin",
 		});
 		expect(

@@ -1,4 +1,4 @@
-// Testes para triggers adicionados: while_in_play, combat_if_dungeon_red_or_purple,
+﻿// Testes para triggers adicionados: while_in_play, combat_if_dungeon_red_or_purple,
 // on_destroyed, combat (Fio Mortal), e filtro combat_against_self.
 
 import { describe, expect, it } from "vitest";
@@ -136,29 +136,25 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 		};
 	}
 
-	it("fireTrigger direto dispara mesmo com despertar < 3 (guarda fica em combat.ts)", () => {
-		// A guarda de despertar está em handleRollDice (combat.ts), não no handler.
-		// Chamar fireTrigger diretamente ignora essa guarda — isso é comportamento esperado.
-		// Patch-18 Lote G: modifiers agora no ECS world (não em bonusNextAttack).
+	it("NÃO dispara com despertar < 3 — conditions[] avaliadas pelo dispatch (Lote B)", () => {
+		// Patch-21 Lote B: conditions[] avaliadas no dispatch — guard declarativo.
+		// Com despertar=2 ($dungeon.level=2 < 3), a condition gte falha → skill não dispara.
 		const state = makeStateWithPaladino(2 as ColorIndex);
-		const intermediate = fireTrigger(state, "combat_if_dungeon_red_or_purple", {
-			triggeredBy: "combat_if_dungeon_red_or_purple",
+		const result = drainStack(fireTrigger(state, "evt_combat_start", {
+			triggeredBy: "evt_combat_start",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
-		});
-		const result = drainStack(intermediate);
-		// DSL adiciona tohit_bonus + damage_bonus → ModifierComponents no ECS world
+		}));
 		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
 			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
-		expect(mods.length).toBeGreaterThanOrEqual(2);
-		expect(mods.every((m) => m.value === 2)).toBe(true);
+		expect(mods.length).toBe(0);
 	});
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
 		const state = makeStateWithPaladino(3 as ColorIndex);
 		const result = drainStack(
-			fireTrigger(state, "combat_if_dungeon_red_or_purple", {
-				triggeredBy: "combat_if_dungeon_red_or_purple",
+			fireTrigger(state, "evt_combat_start", {
+				triggeredBy: "evt_combat_start",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 			}),
@@ -173,8 +169,8 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
 		const state = makeStateWithPaladino(4 as ColorIndex);
 		const result = drainStack(
-			fireTrigger(state, "combat_if_dungeon_red_or_purple", {
-				triggeredBy: "combat_if_dungeon_red_or_purple",
+			fireTrigger(state, "evt_combat_start", {
+				triggeredBy: "evt_combat_start",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 			}),
@@ -210,8 +206,8 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		});
 		// Despertar 4: purpleEffect ativo
 		const stateD4 = { ...state, despertar: 4 as ColorIndex };
-		const result = fireTrigger(stateD4, "on_destroyed", {
-			triggeredBy: "on_destroyed",
+		const result = fireTrigger(stateD4, "evt_destroy", {
+			triggeredBy: "evt_destroy",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
@@ -243,8 +239,8 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		// Na prática a skill é coletada com despertar === 4; vamos testar com estado D4 e despertar 3
 		// interno ao handler
 		const stateWith3 = { ...state, despertar: 3 as ColorIndex };
-		const result = fireTrigger(stateWith3, "on_destroyed", {
-			triggeredBy: "on_destroyed",
+		const result = fireTrigger(stateWith3, "evt_destroy", {
+			triggeredBy: "evt_destroy",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
@@ -297,8 +293,8 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		// item_skill_deadly_edge → tohit_bonus +1 + damage_bonus +1 → hit_bonus +1 + damage_dealt +1
 		const state = makeStateWithAdaga(1 as ColorIndex);
 		const result = drainStack(
-			fireTrigger(state, "before_attack", {
-				triggeredBy: "before_attack",
+			fireTrigger(state, "evt_attack_declared", {
+				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 			}),
@@ -314,8 +310,8 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
 		const state = makeStateWithAdaga(4 as ColorIndex);
 		const result = drainStack(
-			fireTrigger(state, "before_attack", {
-				triggeredBy: "before_attack",
+			fireTrigger(state, "evt_attack_declared", {
+				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 			}),
@@ -342,11 +338,12 @@ describe("filtro combat_against_self em before_attack", () => {
 		const state = baseState({ activeEnemies: [e1, e2] });
 		// Não deve explodir e não deve aplicar efeito de e2 quando sourceEnemyId=e1
 		expect(() =>
-			fireTrigger(state, "before_attack", {
-				triggeredBy: "before_attack",
+			fireTrigger(state, "evt_attack_declared", {
+				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 			}),
 		).not.toThrow();
 	});
 });
+

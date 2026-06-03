@@ -51,7 +51,9 @@ export type ConditionNode =
 	  }
 	| { readonly kind: "and"; readonly children: readonly ConditionNode[] }
 	| { readonly kind: "or"; readonly children: readonly ConditionNode[] }
-	| { readonly kind: "not"; readonly child: ConditionNode };
+	| { readonly kind: "not"; readonly child: ConditionNode }
+	/** Atalho OR para conditions[]: `any_of` satisfaz se qualquer filho satisfaz. */
+	| { readonly any_of: readonly ConditionNode[] };
 
 // ── Durações ─────────────────────────────────────────────────────────────────
 
@@ -182,7 +184,46 @@ export type EffectNode =
 	  }
 	| { readonly kind: "noop" };
 
-// ── Trigger (forma objeto, substitui string) ─────────────────────────────────
+// ── Trigger v2 (patch-21 Lote B) ────────────────────────────────────────────
+
+export type OperateType =
+	| "op_active"
+	| "op_active_buff"
+	| "op_triggered"
+	| "op_passive";
+
+export type EventName =
+	// Combate
+	| "evt_attack_declared"
+	| "evt_roll"
+	| "evt_hit"
+	| "evt_damage_dealt"
+	| "evt_damage_taken"
+	| "evt_destroy"
+	| "evt_kill"
+	// Ciclo
+	| "evt_combat_start"
+	| "evt_combat_end"
+	| "evt_round_start"
+	| "evt_round_end"
+	// Sala
+	| "evt_room_reveal"
+	| "evt_room_enter"
+	| "evt_room_leave"
+	| "evt_dungeon_discard"
+	// Entidade
+	| "evt_enter_play"
+	| "evt_leave_play"
+	| "evt_targeted";
+
+export type CooldownScope = "game" | "room" | "combat" | "round";
+
+export interface CooldownNode {
+	readonly scope: CooldownScope;
+	readonly charges: number;
+}
+
+// ── Trigger legado (pré-patch-21 — mantido para resolveTrigger.ts) ───────────
 
 export type LimitKind =
 	| "once_per_game"
@@ -190,7 +231,7 @@ export type LimitKind =
 	| "once_per_room"
 	| "once_per_round";
 
-/** Trigger no formato objeto pós-patch-12. */
+/** Trigger no formato objeto pós-patch-12 (legado). */
 export interface TriggerObject {
 	readonly on: string;
 	readonly when?: ConditionNode;

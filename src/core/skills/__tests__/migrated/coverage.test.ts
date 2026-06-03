@@ -1,34 +1,25 @@
-// Verifica que TRIGGER_TO_INSTALL cobre todos os triggers reativos do skills.json.
+// Verifica que installTriggers tem cobertura para todos os triggers reativos do skills.yaml.
 // Falha se uma nova skill aparecer sem mapeamento — protege regressão.
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../../data/skills";
-import { hasTriggerCoverage } from "../../../ecs/installTriggers";
+import { hasTriggerCoverage, isPassiveTrigger } from "../../../ecs/installTriggers";
 import { isManuallyActivatable } from "../../useSkill";
 
-const PASSIVE_TRIGGERS = new Set([
-	"while_equipped",
-	"while_in_play",
-	"while_active",
-	"while_room_active",
-	"while_room_active_first_combat",
-	"room_passive",
-]);
-
 describe("installTriggers coverage", () => {
-	it("todos os triggers do skills.json têm cobertura no installer", () => {
+	it("todos os triggers do skills.yaml têm cobertura no installer", () => {
 		const uncovered: string[] = [];
 		const seen = new Set<string>();
 
 		for (const def of SKILLS.abilities) {
-			const t = def.trigger;
-			if (seen.has(t)) continue;
-			seen.add(t);
+			const key = def.trigger?.event ?? def.operate_type;
+			if (seen.has(key)) continue;
+			seen.add(key);
 
-			if (isManuallyActivatable(def)) continue; // on_use path — OK
-			if (PASSIVE_TRIGGERS.has(t)) continue; // passivos — OK
+			if (isManuallyActivatable(def)) continue; // op_active / op_active_buff — OK
+			if (isPassiveTrigger(def)) continue;       // op_passive — OK
 
-			if (!hasTriggerCoverage(t)) {
-				uncovered.push(t);
+			if (!hasTriggerCoverage(def)) {
+				uncovered.push(`${def.id} (${def.operate_type} / ${def.trigger?.event ?? "no-event"})`);
 			}
 		}
 

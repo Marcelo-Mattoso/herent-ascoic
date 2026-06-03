@@ -1,10 +1,10 @@
 // Installer de TriggerComponents para habilidades reativas.
-// Patch-18 Lote F: converte trigger strings do skills.json em TriggerComponents no world.
+// Patch-21 Lote B: converte operate_type + trigger.event em TriggerComponents no world.
 //
-// Princípio: skills.json não muda — a complexidade fica aqui.
-// isManuallyActivatable → fireOnUseSkill (mantido, não é legacy).
-// isPassive → installPassive (while_*, room_passive).
-// Demais → TRIGGER_TO_INSTALL.
+// Princípio: skills.yaml é a fonte de verdade — a complexidade fica aqui.
+// op_active / op_active_buff → fireOnUseSkill (mantido).
+// op_passive → installPassive.
+// op_triggered → installSkillTriggers (este arquivo).
 
 import type { SkillDefinition } from "../data/skillTypes";
 import type { SkillRef } from "../data/cardTypes";
@@ -19,565 +19,147 @@ import type {
 import { addComponent, type World } from "./world";
 import type { GameEvent } from "../events/types";
 import type { Entity } from "./types";
+import type { EventName } from "../skills/dsl/types";
 
-// ── Tipos internos ─────────────────────────────────────────────────────────────
+// ── Mapeamento evt_* → nome do evento do sistema ─────────────────────────────
 
-interface InstallResult {
-	readonly on: string;
-	readonly condition?: ComponentPredicate;
-	readonly duration: Duration;
-	readonly priority: number;
-	readonly consumeAfterFire?: { readonly scope: "game" | "room" | "round" };
-}
+const EVENT_TO_GAME: Record<EventName, string> = {
+	evt_attack_declared: "RollAboutToHappen",
+	evt_roll:            "RollResolved",
+	evt_hit:             "DamageDealt",
+	evt_damage_dealt:    "DamageDealt",
+	evt_damage_taken:    "DamageAboutToBeDealt",
+	evt_destroy:         "EnemyDestroyed",
+	evt_kill:            "EnemyDestroyed",
+	evt_combat_start:    "CombatStarted",
+	evt_combat_end:      "CombatEnded",
+	evt_round_start:     "RoundStarted",
+	evt_round_end:       "RoundEnded",
+	evt_room_reveal:     "RoomEntered",
+	evt_room_enter:      "RoomEntered",
+	evt_room_leave:      "CombatEnded",
+	evt_dungeon_discard: "DungeonCardDiscarded",
+	evt_enter_play:      "CombatStarted",
+	evt_leave_play:      "HeroFled",
+	evt_targeted:        "HeroTargeted",
+};
 
-type InstallFn = (def: SkillDefinition, entityId: EntityId) => InstallResult | InstallResult[];
+// ── Durações padrão por evento ────────────────────────────────────────────────
 
-// ── Helpers de condição ────────────────────────────────────────────────────────
+const EVENT_DURATION: Record<EventName, Duration> = {
+	evt_attack_declared: { kind: "this_combat" },
+	evt_roll:            { kind: "this_combat" },
+	evt_hit:             { kind: "this_combat" },
+	evt_damage_dealt:    { kind: "this_combat" },
+	evt_damage_taken:    { kind: "this_combat" },
+	evt_destroy:         { kind: "this_combat" },
+	evt_kill:            { kind: "this_combat" },
+	evt_combat_start:    { kind: "this_combat" },
+	evt_combat_end:      { kind: "this_combat" },
+	evt_round_start:     { kind: "this_combat" },
+	evt_round_end:       { kind: "this_combat" },
+	evt_room_reveal:     { kind: "permanent" },
+	evt_room_enter:      { kind: "permanent" },
+	evt_room_leave:      { kind: "permanent" },
+	evt_dungeon_discard: { kind: "permanent" },
+	evt_enter_play:      { kind: "this_combat" },
+	evt_leave_play:      { kind: "permanent" },
+	evt_targeted:        { kind: "permanent" },
+};
 
-function isBossOrSubboss(enemyId: string): boolean {
-	return enemyId.includes("boss") || enemyId.includes("subboss");
-}
+// ── Condição padrão de entidade por evento ────────────────────────────────────
 
-function conditionSelf(entityId: EntityId): ComponentPredicate {
-	return (e: Entity) => e.id === entityId;
-}
+type PayloadRecord = Record<string, unknown>;
 
-function conditionHeroIsEntity(entityId: EntityId): ComponentPredicate {
+function heroCondition(entityId: EntityId): ComponentPredicate {
 	return (_e: Entity, ev?: GameEvent) => {
 		if (!ev) return false;
-		const p = ev.payload as Record<string, unknown>;
+		const p = ev.payload as PayloadRecord;
 		return (p["heroId"] as string | undefined) === entityId;
 	};
 }
 
-function conditionEnemyIsEntity(entityId: EntityId): ComponentPredicate {
+function enemyCondition(entityId: EntityId): ComponentPredicate {
 	return (_e: Entity, ev?: GameEvent) => {
 		if (!ev) return false;
-		const p = ev.payload as Record<string, unknown>;
+		const p = ev.payload as PayloadRecord;
 		return (p["enemyId"] as string | undefined) === entityId;
 	};
 }
 
-// ── Tabela de instalação ───────────────────────────────────────────────────────
+function targetCondition(entityId: EntityId): ComponentPredicate {
+	return (_e: Entity, ev?: GameEvent) => {
+		if (!ev) return false;
+		const p = ev.payload as PayloadRecord;
+		return (p["targetId"] as string | undefined) === entityId;
+	};
+}
 
-const TRIGGER_TO_INSTALL: Record<string, InstallFn> = {
-	// ── Reativos de combate (RollAboutToHappen) ────────────────────────────────
+function sourceCondition(entityId: EntityId): ComponentPredicate {
+	return (_e: Entity, ev?: GameEvent) => {
+		if (!ev) return false;
+		const p = ev.payload as PayloadRecord;
+		return (p["sourceId"] as string | undefined) === entityId;
+	};
+}
 
-	before_attack: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	combat: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	combat_vs_boss_or_subboss: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			const heroId = p["heroId"] as string | undefined;
-			const enemyId = p["enemyId"] as string | undefined;
-			return heroId === entityId && !!enemyId && isBossOrSubboss(enemyId);
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	combat_if_alone_in_room: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: (_e: Entity, ev?: GameEvent, world?: import("./world").World) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			if ((p["heroId"] as string) !== entityId) return false;
-			if (!world) return true;
-			const activeCount = Object.values(world.entities).filter(
-				(e) => (e.type === "enemy" || e.type === "subboss") &&
-					e.components.some((c) => c.type === "health" && (c as import("./types").HealthComponent).current > 0),
-			).length;
-			return activeCount === 1;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	combat_if_another_creature_in_room: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: (_e: Entity, ev?: GameEvent, world?: import("./world").World) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			if ((p["heroId"] as string) !== entityId) return false;
-			if (!world) return false;
-			const activeCount = Object.values(world.entities).filter(
-				(e) => (e.type === "enemy" || e.type === "subboss") &&
-					e.components.some((c) => c.type === "health" && (c as import("./types").HealthComponent).current > 0),
-			).length;
-			return activeCount > 1;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	combat_if_dungeon_red_or_purple: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			// despertar não está no payload; a condição é checada pelo emissor (já filtra no reducer)
-			return (p["heroId"] as string) === entityId || (p["enemyId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	when_half_life_or_less: (def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: conditionEnemyIsEntity(entityId),
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	combat_and_on_damage_dealt: (_def, entityId) => [
-		{ on: "RollAboutToHappen", condition: conditionHeroIsEntity(entityId), duration: { kind: "this_combat" }, priority: 0 },
-		{ on: "DamageDealt", condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["sourceId"] as string) === entityId;
-		}, duration: { kind: "this_combat" }, priority: 0 },
-	],
-
-	// ── Pós-rolagem ────────────────────────────────────────────────────────────
-
-	after_roll: (_def, entityId) => ({
-		on: "RollResolved",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	// ── Dano / alvo ────────────────────────────────────────────────────────────
-
-	on_damage_taken: (_def, entityId) => ({
-		on: "DamageAboutToBeDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["targetId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_take_damage: (_def, entityId) => ({
-		on: "DamageDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["targetId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_take_attack_damage: (_def, entityId) => ({
-		on: "DamageDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["targetId"] as string) === entityId && p["damageType"] === "attack";
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_hit_received: (_def, entityId) => ({
-		on: "DamageDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["targetId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_deal_damage: (_def, entityId) => ({
-		on: "DamageDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["sourceId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_purple_effect_damage_taken: (_def, entityId) => ({
-		on: "DamageDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["targetId"] as string) === entityId && p["damageType"] === "purple";
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	first_damage_each_round: (_def, entityId) => ({
-		on: "DamageDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["targetId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	// ── Destruição / derrota ───────────────────────────────────────────────────
-
-	on_destroyed: (def, entityId) => ({
-		on: "EnemyDestroyed",
-		condition: conditionEnemyIsEntity(entityId),
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_destroy_creature_with_attack: (_def, entityId) => ({
-		on: "EnemyDestroyed",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["sourceId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_first_creature_destroyed_in_room: (_def, _entityId) => ({
-		on: "EnemyDestroyed",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return !!(p["roomFirstKill"] as boolean);
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	// ── Alvo / proteção ────────────────────────────────────────────────────────
-
-	on_first_targeted: (_def, entityId) => ({
-		on: "HeroTargeted",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId && !!(p["roomFirstTime"] as boolean);
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_first_target_chosen_in_room: (_def, _entityId) => ({
-		on: "TargetChosen",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return !!(p["roomFirstTime"] as boolean);
-		},
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	on_first_target_chosen_by_creature: (_def, _entityId) => ({
-		on: "TargetChosen",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return !!(p["roomFirstTime"] as boolean) && p["sourceType"] === "enemy";
-		},
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	// ── Combate — início ────────────────────────────────────────────────────────
-
-	start_of_combat: (_def, _entityId) => ({
-		on: "CombatStarted",
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_enter_combat: (_def, _entityId) => ({
-		on: "CombatStarted",
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	before_combat: (_def, _entityId) => ({
-		on: "CombatStarted",
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	before_first_combat_in_room: (_def, _entityId) => ({
-		on: "CombatStarted",
-		// first combat: flagged via state; sem world/state no predicate usamos approximação
-		duration: { kind: "this_combat" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	// ── Combate — rodadas ────────────────────────────────────────────────────────
-
-	first_round_in_room: (_def, _entityId) => ({
-		on: "RoundStarted",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["round"] as number) === 1;
-		},
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	after_each_combat_round_if_purple: (_def, _entityId) => ({
-		on: "RoundEnded",
-		// despertar >= 3: verificado pelo emissor no reducer (só emite quando ativo)
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	first_roll_in_room: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "this_combat" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	first_hero_lose_combat_in_room: (_def, entityId) => ({
-		on: "HeroLostCombat",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId && !!(p["roomFirstTime"] as boolean);
-		},
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	on_hero_lose_combat_in_room: (_def, entityId) => ({
-		on: "HeroLostCombat",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId;
-		},
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	// ── Exploração ─────────────────────────────────────────────────────────────
-
-	on_enter_room: (_def, _entityId) => ({
-		on: "RoomEntered",
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	on_room_reveal: (_def, _entityId) => ({
-		on: "RoomEntered",
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	on_enter_play: (_def, _entityId) => ({
-		on: "CombatStarted",
-		duration: { kind: "this_combat" },
-		priority: 0,
-	}),
-
-	on_reveal_paths: (_def, _entityId) => ({
-		on: "PathsRevealed",
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	on_dungeon_discard: (_def, _entityId) => ({
-		on: "DungeonCardDiscarded",
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	on_flee_or_leave_play: (_def, entityId) => ({
-		on: "HeroFled",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId;
-		},
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	first_item_effect_received: (_def, entityId) => ({
-		on: "ItemEffectAppliedTo",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId && !!(p["roomFirstTime"] as boolean);
-		},
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	on_win_room: (_def, _entityId) => ({
-		on: "CombatEnded",
-		duration: { kind: "permanent" },
-		priority: 0,
-	}),
-
-	// ── Once-per-* compostos ────────────────────────────────────────────────────
-
-	before_attack_once_per_game: (_def, entityId) => ({
-		on: "RollAboutToHappen",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "game" },
-		priority: 0,
-	}),
-
-	once_per_room_on_dungeon_discard: (_def, _entityId) => ({
-		on: "DungeonCardDiscarded",
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	once_per_room_on_extra_dungeon_discard: (_def, _entityId) => ({
-		on: "DungeonCardDiscarded",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return p["reason"] === "extra";
-		},
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	once_per_room_on_targeted: (_def, entityId) => ({
-		on: "HeroTargeted",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId;
-		},
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	once_per_room_on_targeted_by_effect: (_def, entityId) => ({
-		on: "HeroTargetedByEffect",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId;
-		},
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	once_per_room_after_roll: (_def, entityId) => ({
-		on: "RollResolved",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "room" },
-		priority: 0,
-	}),
-
-	once_per_round_on_damage_taken: (_def, entityId) => ({
-		on: "DamageDealt",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["targetId"] as string) === entityId;
-		},
-		duration: { kind: "this_combat" },
-		consumeAfterFire: { scope: "round" },
-		priority: 0,
-	}),
-
-	once_per_game_after_any_roll: (_def, entityId) => ({
-		on: "RollResolved",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "game" },
-		priority: 0,
-	}),
-
-	once_per_game_after_roll_vs_prey: (_def, entityId) => ({
-		on: "RollResolved",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["heroId"] as string) === entityId;
-		},
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "game" },
-		priority: 0,
-	}),
-
-	once_per_game_on_defeat_creature: (_def, entityId) => ({
-		on: "EnemyDestroyed",
-		condition: (_e: Entity, ev?: GameEvent) => {
-			if (!ev) return false;
-			const p = ev.payload as Record<string, unknown>;
-			return (p["sourceId"] as string) === entityId;
-		},
-		duration: { kind: "permanent" },
-		consumeAfterFire: { scope: "game" },
-		priority: 0,
-	}),
-
-	// until_end_of_round standalone (Correntes Rubras)
-	until_end_of_round: (_def, entityId) => ({
-		on: "RoundStarted",
-		condition: conditionHeroIsEntity(entityId),
-		duration: { kind: "this_turn" },
-		priority: 0,
-	}),
-};
+/**
+ * Retorna a condição de entidade padrão para o evento + tipo de entidade.
+ * `isHero`: true se o entityId é de um herói, false se inimigo.
+ */
+function defaultEntityCondition(
+	event: EventName,
+	entityId: EntityId,
+	isHero: boolean,
+): ComponentPredicate | undefined {
+	switch (event) {
+		case "evt_attack_declared":
+			return isHero ? heroCondition(entityId) : enemyCondition(entityId);
+		case "evt_roll":
+			return isHero ? heroCondition(entityId) : undefined;
+		case "evt_hit":
+			return targetCondition(entityId);
+		case "evt_damage_taken":
+			return targetCondition(entityId);
+		case "evt_damage_dealt":
+			return sourceCondition(entityId);
+		case "evt_kill":
+			return sourceCondition(entityId);
+		case "evt_destroy":
+			return enemyCondition(entityId);
+		case "evt_leave_play":
+			return heroCondition(entityId);
+		case "evt_targeted":
+			return heroCondition(entityId);
+		// Eventos sem condição de entidade específica (room-level, global)
+		case "evt_combat_start":
+		case "evt_combat_end":
+		case "evt_round_start":
+		case "evt_round_end":
+		case "evt_room_reveal":
+		case "evt_room_enter":
+		case "evt_room_leave":
+		case "evt_dungeon_discard":
+		case "evt_enter_play":
+			return undefined;
+	}
+}
 
 // ── Passivos ───────────────────────────────────────────────────────────────────
 
-const PASSIVE_TRIGGERS = new Set([
-	"while_equipped",
-	"while_in_play",
-	"while_active",
-	"while_room_active",
-	"while_room_active_first_combat",
-	"room_passive",
-]);
-
-export function isPassiveTrigger(trigger: string): boolean {
-	return PASSIVE_TRIGGERS.has(trigger);
+export function isPassiveTrigger(def: SkillDefinition): boolean {
+	return def.operate_type === "op_passive";
 }
 
-// ── Função de cobertura ────────────────────────────────────────────────────────
+// ── Cobertura ──────────────────────────────────────────────────────────────────
 
-export function hasTriggerCoverage(trigger: string): boolean {
-	return trigger in TRIGGER_TO_INSTALL || isPassiveTrigger(trigger) || isManuallyActivatable({ trigger } as SkillDefinition);
+export function hasTriggerCoverage(def: SkillDefinition): boolean {
+	if (isManuallyActivatable(def)) return true;
+	if (isPassiveTrigger(def)) return true;
+	if (def.operate_type === "op_triggered" && def.trigger?.event) {
+		return def.trigger.event in EVENT_TO_GAME;
+	}
+	return false;
 }
 
 // ── Instalação principal ───────────────────────────────────────────────────────
@@ -588,42 +170,55 @@ export function installSkillTriggers(
 	skills: readonly { def: SkillDefinition; ref: SkillRef }[],
 ): World {
 	let w = world;
+
+	// Determinar tipo de entidade
+	const entity = w.entities[entityId];
+	const isHero = entity?.type === "hero";
+
 	for (const { def, ref } of skills) {
-		if (isManuallyActivatable(def)) continue; // on_use path permanece em fireOnUseSkill
-		if (isPassiveTrigger(def.trigger)) continue; // passivos via installPassive
+		if (isManuallyActivatable(def)) continue; // op_active / op_active_buff → useSkill
+		if (isPassiveTrigger(def)) continue;       // op_passive → installPassive
 
-		const factory = TRIGGER_TO_INSTALL[def.trigger];
-		if (!factory) {
-			// Trigger sem installer: não lança erro durante transição (Lote G vai cobrir)
-			continue;
-		}
+		if (def.operate_type !== "op_triggered") continue;
+		const event = def.trigger?.event;
+		if (!event) continue;
 
-		const result = factory(def, entityId);
-		const results = Array.isArray(result) ? result : [result];
+		const gameEvent = EVENT_TO_GAME[event];
+		if (!gameEvent) continue;
 
-		for (const r of results) {
-			// Combina params da definição com os params da referência (incluindo value)
-			const mergedParams = {
-				...(def.params ?? {}),
-				...(ref.params ?? {}),
-			};
-			const effect: EffectDescriptor = {
-				type: "run_skill",
-				skillId: def.id,
-				params: mergedParams,
-			};
-			const trigger: TriggerComponent = {
-				type: "trigger",
-				on: r.on,
-				condition: r.condition,
-				effect,
-				source: def.id,
-				duration: r.duration,
-				priority: r.priority,
-				...(r.consumeAfterFire ? { consumeAfterFire: r.consumeAfterFire } : {}),
-			};
-			w = addComponent(w, entityId, trigger);
-		}
+		const duration = EVENT_DURATION[event] ?? { kind: "permanent" as const };
+		const condition = defaultEntityCondition(event, entityId, isHero);
+
+		// Cooldown → consumeAfterFire
+		const consumeAfterFire = def.cooldown
+			? { scope: def.cooldown.scope as "game" | "room" | "round" }
+			: undefined;
+
+		// Combina params
+		const mergedParams = {
+			...(def.params ?? {}),
+			...(ref.params ?? {}),
+		};
+
+		const effect: EffectDescriptor = {
+			type: "run_skill",
+			skillId: def.id,
+			params: mergedParams,
+		};
+
+		const trigger: TriggerComponent = {
+			type: "trigger",
+			on: gameEvent,
+			condition,
+			effect,
+			source: def.id,
+			duration,
+			priority: 0,
+			...(consumeAfterFire ? { consumeAfterFire } : {}),
+		};
+
+		w = addComponent(w, entityId, trigger);
 	}
+
 	return w;
 }

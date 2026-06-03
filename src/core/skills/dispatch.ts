@@ -16,8 +16,9 @@ import type { SkillRef } from "../data/cardTypes";
 import type {
 	SkillContext,
 	SkillDefinition,
-	TriggerName,
 } from "../data/skillTypes";
+import type { EventName } from "./dsl/types";
+import { resolveCondition } from "./dsl/resolveCondition";
 import { buildScriptCtx } from "../scripts/context";
 import { getScript } from "../scripts/registry";
 import type { GameState } from "../state/gameState";
@@ -31,48 +32,9 @@ interface ActiveSkill {
 	sourceEnemyId?: string;
 }
 
-// Parseia trigger composto — separa guard e base trigger.
-// Ex: "once_per_game_after_any_roll" → { guard: "once_per_game", base: "after_roll" }
-export function parseTrigger(trigger: TriggerName): {
-	guard: string | null;
-	base: string;
-} {
-	const guards = [
-		"once_per_game",
-		"once_per_room",
-		"once_per_combat",
-		"once_per_round",
-	];
-	for (const g of guards) {
-		if (trigger === g) return { guard: g, base: "on_use" };
-		if (trigger.startsWith(`${g}_`)) {
-			const rest = trigger.slice(g.length + 1);
-			const suffixMap: Record<string, string> = {
-				after_any_roll: "after_roll",
-				after_roll: "after_roll",
-				on_damage_taken: "on_damage_taken",
-				on_dungeon_discard: "on_dungeon_discard",
-				on_targeted_by_effect: "on_targeted",
-				on_targeted: "on_targeted",
-				on_extra_dungeon_discard: "on_dungeon_discard",
-				on_defeat_creature: "on_destroy_creature_with_attack",
-				after_roll_vs_prey: "after_roll",
-				on_use_furia_rubra: "on_use_furia_rubra",
-				until_end_of_round: "on_use",
-			};
-			return { guard: g, base: suffixMap[rest] ?? rest };
-		}
-	}
-	const triggerAliases: Record<string, string> = {
-		combat: "before_attack",
-		combat_against_self: "before_attack",
-		combat_if_dungeon_red_or_purple: "combat_if_dungeon_red_or_purple",
-		while_in_play: "while_in_play",
-		on_destroyed: "on_destroyed",
-	};
-	if (triggerAliases[trigger])
-		return { guard: null, base: triggerAliases[trigger] };
-	return { guard: null, base: trigger };
+/** @deprecated Legado — usava trigger string. Mantido para compat de testes. */
+export function parseTrigger(_trigger: string): { guard: string | null; base: string } {
+	return { guard: null, base: _trigger };
 }
 
 export function guardPassed(
@@ -80,16 +42,17 @@ export function guardPassed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): boolean {
-	const { guard } = parseTrigger(skill.trigger);
-	if (!guard) return true;
+	const cooldown = skill.cooldown;
+	if (!cooldown) return true;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
 
-	if (guard === "once_per_game") return !state.oncePer?.game?.[key];
-	if (guard === "once_per_room") return !state.combat?.oncePer?.room?.[key];
-	if (guard === "once_per_combat") return !state.combat?.oncePer?.combat?.[key];
-	if (guard === "once_per_round") return !state.combat?.oncePer?.round?.[key];
-	return true;
+	switch (cooldown.scope) {
+		case "game":    return !state.oncePer?.game?.[key];
+		case "room":    return !state.combat?.oncePer?.room?.[key];
+		case "combat":  return !state.combat?.oncePer?.combat?.[key];
+		case "round":   return !state.combat?.oncePer?.round?.[key];
+	}
 }
 
 export function isSkillGuardConsumed(
@@ -105,12 +68,12 @@ function markGuardUsed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): GameState {
-	const { guard } = parseTrigger(skill.trigger);
-	if (!guard) return state;
+	const cooldown = skill.cooldown;
+	if (!cooldown) return state;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
 
-	if (guard === "once_per_game") {
+	if (cooldown.scope === "game") {
 		return {
 			...state,
 			oncePer: {
@@ -119,18 +82,8 @@ function markGuardUsed(
 			},
 		};
 	}
-	if (
-		(guard === "once_per_room" ||
-			guard === "once_per_combat" ||
-			guard === "once_per_round") &&
-		state.combat
-	) {
-		const scope =
-			guard === "once_per_round"
-				? "round"
-				: guard === "once_per_combat"
-					? "combat"
-					: "room";
+	if (state.combat) {
+		const scope = cooldown.scope as "room" | "combat" | "round";
 		return {
 			...state,
 			combat: {
@@ -152,7 +105,7 @@ interface InPlaySource {
 	sourceEnemyId?: string;
 }
 
-function inPlaySources(state: GameState, trigger: TriggerName): InPlaySource[] {
+function inPlaySources(state: GameState, event: EventName): InPlaySource[] {
 	const sources: InPlaySource[] = [];
 
 	// 1. Heróis ativos
@@ -169,9 +122,9 @@ function inPlaySources(state: GameState, trigger: TriggerName): InPlaySource[] {
 		}
 	}
 
-	// 3. Inimigos ativos (on_destroyed inclui recém-derrotados)
+	// 3. Inimigos ativos (evt_destroy inclui recém-derrotados)
 	const enemyFilter =
-		trigger === "on_destroyed"
+		event === "evt_destroy" || event === "evt_kill"
 			? (e: { status: string }) =>
 					e.status === "active" || e.status === "defeated"
 			: (e: { status: string }) => e.status === "active";
@@ -195,21 +148,21 @@ function inPlaySources(state: GameState, trigger: TriggerName): InPlaySource[] {
 	return sources;
 }
 
-// Coleta todas as habilidades "em jogo" para o trigger dado.
+// Coleta todas as habilidades "em jogo" para o evento dado.
 function collectActiveSkills(
 	state: GameState,
-	trigger: TriggerName,
+	event: EventName,
 ): ActiveSkill[] {
 	const active: ActiveSkill[] = [];
 
 	for (const { cardId, sourceHeroId, sourceEnemyId } of inPlaySources(
 		state,
-		trigger,
+		event,
 	)) {
 		for (const { def, ref } of cardSkills(cardId)) {
 			if (ref.requiresAwakening && state.despertar !== 4) continue;
-			const { base } = parseTrigger(def.trigger);
-			if (base !== trigger) continue;
+			if (def.operate_type !== "op_triggered") continue;
+			if (def.trigger?.event !== event) continue;
 			active.push({ definition: def, ref, sourceHeroId, sourceEnemyId });
 		}
 	}
@@ -219,24 +172,24 @@ function collectActiveSkills(
 
 export function fireTrigger(
 	state: GameState,
-	trigger: TriggerName,
+	event: EventName,
 	ctx: SkillContext,
 ): GameState {
-	const skills = collectActiveSkills(state, trigger);
+	const skills = collectActiveSkills(state, event);
 	let current = state;
 
 	for (const skill of skills) {
-		// Hero-owned skills on before_attack are self-only: only fire for the attacking hero.
+		// Hero-owned skills on evt_attack_declared are self-only
 		if (
-			trigger === "before_attack" &&
+			event === "evt_attack_declared" &&
 			skill.sourceHeroId &&
 			ctx.sourceHeroId &&
 			skill.sourceHeroId !== ctx.sourceHeroId
 		)
 			continue;
-		// Enemy skills with combat_against_self only fire when the hero is attacking THAT enemy.
+		// Enemy skills on evt_attack_declared fire only vs attacker
 		if (
-			trigger === "before_attack" &&
+			event === "evt_attack_declared" &&
 			skill.sourceEnemyId &&
 			ctx.sourceEnemyId &&
 			skill.sourceEnemyId !== ctx.sourceEnemyId
@@ -247,7 +200,7 @@ export function fireTrigger(
 
 		const resolvedCtx: SkillContext = {
 			...ctx,
-			triggeredBy: trigger,
+			triggeredBy: event,
 			sourceHeroId: skill.sourceHeroId ?? ctx.sourceHeroId,
 			sourceEnemyId: skill.sourceEnemyId ?? ctx.sourceEnemyId,
 			skillId: skill.definition.id,
@@ -265,6 +218,15 @@ export function fireTrigger(
 			...(skill.ref.params ?? {}),
 			value: numericValue,
 		};
+
+		// Avaliar def.conditions (Lote B): todas devem ser satisfeitas (AND implícito)
+		if (skill.definition.conditions && skill.definition.conditions.length > 0) {
+			const evalCtx = buildScriptCtx(current, resolvedCtx, params);
+			const conditionsMet = skill.definition.conditions.every((c) =>
+				resolveCondition(c, evalCtx),
+			);
+			if (!conditionsMet) continue;
+		}
 
 		if (skill.definition.effect) {
 			// ── DSL path ─────────────────────────────────────────────────────────

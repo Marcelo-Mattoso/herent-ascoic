@@ -19,14 +19,12 @@ describe("catálogo de skills (skills.json)", () => {
 	it("cada ability tem campos obrigatórios", () => {
 		for (const ability of SKILLS.abilities) {
 			expect(typeof ability.id).toBe("string");
-			expect(typeof ability.name).toBe("string");
-			// `type` é opcional em entradas migradas para DSL/script (patch-12)
-			if (!ability.effect && !ability.script) {
-				expect(typeof ability.type).toBe("string");
-			}
-			expect(typeof ability.trigger).toBe("string");
+			// operate_type obrigatório desde patch-21 Lote B
+			expect(["op_active", "op_active_buff", "op_triggered", "op_passive"]).toContain(ability.operate_type);
 			expect(typeof ability.target).toBe("string");
 			// usedBy foi removido (patch-13) — derivado de cards.json via skillUsedBy()
+			// name/labelTemplate/textTemplate movidos para locale (patch-20).
+			// trigger agora é objeto {event} ou undefined (patch-21 Lote B).
 		}
 	});
 

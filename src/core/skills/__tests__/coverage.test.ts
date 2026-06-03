@@ -141,22 +141,17 @@ function classify(before: GameState, after: GameState, id: string): { status: St
 
 function runSkill(def: SkillDefinition): { status: Status; detail?: string } {
 	const state = baseState();
-	const base = def.trigger ?? "on_use";
-	const rawValue = def.defaultValue ?? 3;
-	// Espelha normalização de dispatch.ts: "X/Y" → X (número)
-	const normalizedValue: number | string | null =
-		typeof rawValue === "string" && rawValue.includes("/")
-			? Number(rawValue.split("/")[0]) || 0
-			: rawValue;
+	const triggerEvent = def.trigger?.event ?? "evt_attack_declared";
+	const rawValue = (def.params?.value as number | null) ?? 3;
 	const ctx: SkillContext = {
-		triggeredBy: (base.includes("_on_") ? base.split("_on_").pop() : base) as never,
+		triggeredBy: triggerEvent,
 		skillId: def.id,
 		sourceHeroId: "h1",
 		targetHeroIds: ["h1"],
 		targetEnemyIds: ["e1"],
 		value: rawValue,
 	};
-	const params = { ...(def.params ?? {}), value: normalizedValue };
+	const params = { ...(def.params ?? {}), value: rawValue };
 	try {
 		if (def.effect) {
 			const out = drainStack(evaluate(def.effect, buildScriptCtx(state, ctx, params)));

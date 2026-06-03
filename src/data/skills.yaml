@@ -1,4 +1,4 @@
-﻿version: "1.0"
+version: "1.0"
 name: habilidades_1
 game: Dungeon Deck - A Fornalha Sombria
 placeholder:
@@ -15,20 +15,21 @@ categories:
 abilities:
   - id: skill_crimson_fury
     category: habilidade
-    trigger: before_attack
     target: self
     script: skill_crimson_fury
+    operate_type: op_triggered
+    trigger:
+      event: evt_attack_declared
   - id: skill_last_light_healing
     category: habilidade
-    trigger: on_use
     target: hero_or_ally_creature
     effect:
       - kind: apply_heal
         to: $target
         amount: $value
+    operate_type: op_active
   - id: skill_bastion_guard
     category: habilidade
-    trigger: on_damage_taken
     target: hero_or_ally
     effect:
       - kind: add_modifier
@@ -38,61 +39,86 @@ abilities:
         value: $value
         duration:
           kind: once
+    operate_type: op_triggered
+    trigger:
+      event: evt_damage_taken
   - id: skill_rift_rune
     category: habilidade
-    trigger: after_roll
     target: ally_die
     script: skill_rift_rune
+    operate_type: op_triggered
+    trigger:
+      event: evt_roll
   - id: skill_hunter_focus
     category: habilidade
-    trigger: while_equipped
     target: self
     script: skill_hunter_focus
+    operate_type: op_passive
   - id: skill_living_ember
     category: habilidade
-    trigger: on_use
     target: creature_in_play
     effect:
       - kind: apply_damage
         to: $target
         amount: $value
+    operate_type: op_active
   - id: skill_living_ember_oil
     category: habilidade_item
-    trigger: on_use
     target: creature_in_play
-    notes: Migrada para script (patch-10). Condicional baseada em skill_gelatinous_body do alvo.
+    notes: Migrada para script (patch-10). Condicional baseada em
+      skill_gelatinous_body do alvo.
     script: skill_living_ember_oil
+    operate_type: op_active
   - id: skill_last_light_shield
     category: habilidade
-    trigger: once_per_round_on_damage_taken
     target: hero
     effect:
       - kind: prevent_next_damage
         to: $target
+    operate_type: op_triggered
+    trigger:
+      event: evt_damage_taken
+    cooldown:
+      scope: round
+      charges: 1
   - id: skill_preserved_path
     category: habilidade
-    trigger: once_per_room_on_dungeon_discard
     target: dungeon
     effect:
       - kind: prevent_dungeon_discard
+    operate_type: op_triggered
+    trigger:
+      event: evt_dungeon_discard
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_rekindled_forge
     category: habilidade
-    trigger: on_win_room
     target: group
     script: skill_rekindled_forge
+    operate_type: op_triggered
+    trigger: &a1
+      event: evt_room_leave
   - id: skill_rift_second_chance
     category: habilidade
-    trigger: once_per_combat
     target: ally_die
     script: skill_rift_second_chance
+    operate_type: op_active
+    cooldown:
+      scope: combat
+      charges: 1
   - id: skill_perfect_rune
     category: habilidade
-    trigger: once_per_room_after_roll
     target: ally_die
     script: skill_perfect_rune
+    operate_type: op_triggered
+    trigger: &a5
+      event: evt_roll
+    cooldown: &a6
+      scope: room
+      charges: 1
   - id: skill_last_light_miracle
     category: habilidade
-    trigger: once_per_room
     target: ally_or_next_attack
     effect:
       - kind: choose_one
@@ -111,23 +137,29 @@ abilities:
                 value: 2
                 duration:
                   kind: once
+    operate_type: op_active
+    cooldown: &a2
+      scope: room
+      charges: 1
   - id: skill_piercing_strike
     category: habilidade
-    trigger: on_destroy_creature_with_attack
     target: other_creature_in_same_room
     script: skill_piercing_strike
+    operate_type: op_triggered
+    trigger:
+      event: evt_kill
   - id: skill_forge_spoils
     category: habilidade
-    trigger: on_win_room
     target: item_deck
     effect:
       - kind: draw_and_choose
         pile: item_deck
         reveal: 2
         keep: 1
+    operate_type: op_triggered
+    trigger: *a1
   - id: skill_prey_mark
     category: habilidade
-    trigger: start_of_combat
     target: creature_in_room
     effect:
       - kind: mark_target
@@ -139,9 +171,11 @@ abilities:
         value: $value
         duration:
           kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
   - id: skill_return_rite
     category: habilidade
-    trigger: once_per_room
     target: dungeon
     effect:
       - kind: apply_damage
@@ -149,9 +183,10 @@ abilities:
         amount: 3
       - kind: recover_dungeon
         count: $value
+    operate_type: op_active
+    cooldown: *a2
   - id: skill_final_dawn_light
     category: habilidade
-    trigger: combat_if_dungeon_red_or_purple
     target: self
     effect:
       - kind: add_modifier
@@ -171,9 +206,16 @@ abilities:
     params:
       tohit: 2
       damage: 2
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
+    conditions:
+      - kind: compare
+        op: gte
+        left: $dungeon.level
+        right: 3
   - id: skill_scorching_heat
     category: habilidade
-    trigger: first_roll_in_room
     target: heroes
     effect:
       - kind: for_each
@@ -187,24 +229,29 @@ abilities:
             value: $value
             duration:
               kind: once
+    operate_type: op_triggered
+    trigger:
+      event: evt_roll
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_crimson_chains
     category: habilidade
-    trigger: until_end_of_round
     target: hero
     effect:
       - kind: block_action
         what: flee
+    operate_type: op_active_buff
   - id: skill_choking_ashes
     category: habilidade
-    trigger: on_use
     target: lowest_life_hero
     effect:
       - kind: apply_damage
         to: $lowest_life_hero
         amount: $value
+    operate_type: op_active
   - id: skill_charred_plate
     category: habilidade
-    trigger: on_take_attack_damage
     target: self
     effect:
       - kind: add_modifier
@@ -214,38 +261,52 @@ abilities:
         value: $value
         duration:
           kind: while_in_play
+    operate_type: op_triggered
+    trigger:
+      event: evt_damage_taken
   - id: skill_forge_awakening
     category: habilidade
-    trigger: on_use
     target: dungeon
     effect:
       - kind: advance_dungeon_level
         amount: $value
+    operate_type: op_active
   - id: skill_sealed_door
     category: habilidade
-    trigger: while_room_active_first_combat
     target: heroes
     effect:
       - kind: block_action
         what: flee
+    operate_type: op_passive
   - id: skill_ruined_floor
     category: habilidade
-    trigger: first_hero_lose_combat_in_room
     target: dungeon
     effect:
       - kind: discard_from
         pile: dungeon
         count: 1
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_end
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_forge_smoke
     category: habilidade
-    trigger: first_round_in_room
     target: heroes
     effect:
       - kind: block_action
         what: heal
+    operate_type: op_triggered
+    trigger:
+      event: evt_round_start
+    conditions:
+      - kind: compare
+        op: eq
+        left: $round
+        right: 1
   - id: skill_dark_tribute
     category: habilidade
-    trigger: before_first_combat_in_room
     target: group
     effect:
       - kind: choose_one
@@ -260,14 +321,24 @@ abilities:
               - kind: discard_from
                 pile: dungeon
                 count: 1
+    operate_type: op_triggered
+    trigger: &a12
+      event: evt_combat_start
+    cooldown: &a13
+      scope: room
+      charges: 1
   - id: skill_rift_evasion
     category: habilidade
-    trigger: first_item_effect_received
     target: self
     script: skill_rift_evasion
+    operate_type: op_triggered
+    trigger:
+      event: evt_targeted
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_chains_prison
     category: habilidade
-    trigger: on_first_target_chosen_in_room
     target: target_hero
     effect:
       - kind: add_modifier
@@ -277,16 +348,21 @@ abilities:
         value: 2
         duration:
           kind: once
+    operate_type: op_triggered
+    trigger:
+      event: evt_targeted
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_path_corruption
     category: habilidade
-    trigger: while_room_active
     target: heroes
     effect:
       - kind: block_action
         what: dungeon_discard
+    operate_type: op_passive
   - id: skill_lone_beast
     category: habilidade
-    trigger: combat_if_alone_in_room
     target: self
     effect:
       - kind: add_modifier
@@ -303,25 +379,37 @@ abilities:
         value: $value
         duration:
           kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
+    conditions:
+      - kind: compare
+        op: eq
+        left: $room.enemy_count
+        right: 1
   - id: skill_treacherous_attack
     category: habilidade
-    trigger: on_enter_combat
     target: lowest_life_hero
-    notes: No texto original, o nome possui variável, mas o efeito-base cita 1 dano. Use {value} quando quiser escalar.
+    notes: No texto original, o nome possui variável, mas o efeito-base cita 1 dano.
+      Use {value} quando quiser escalar.
     effect:
       - kind: apply_damage
         to: $lowest_life_hero
         amount: $value
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
   - id: skill_cowardly_flee
     category: habilidade
-    trigger: on_flee_or_leave_play
     target: self
     effect:
       - kind: set_no_reward
         to: $source
+    operate_type: op_triggered
+    trigger:
+      event: evt_leave_play
   - id: skill_gelatinous_body
     category: habilidade
-    trigger: while_active
     target: heroes_attacking_self
     effect:
       - kind: add_modifier
@@ -331,9 +419,9 @@ abilities:
         value: $value
         duration:
           kind: while_in_play
+    operate_type: op_passive
   - id: skill_hidden_flame_presence
     category: habilidade
-    trigger: combat_if_another_creature_in_room
     target: another_creature_in_room
     effect:
       - kind: add_modifier
@@ -343,9 +431,16 @@ abilities:
         value: $value
         duration:
           kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger: &a3
+      event: evt_combat_start
+    conditions: &a4
+      - kind: compare
+        op: gt
+        left: $room.enemy_count
+        right: 1
   - id: skill_pack_courage
     category: habilidade
-    trigger: combat_if_another_creature_in_room
     target: self
     effect:
       - kind: add_modifier
@@ -355,35 +450,46 @@ abilities:
         value: $value
         duration:
           kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger: *a3
+    conditions: *a4
   - id: skill_illuminate_path
     category: habilidade
-    trigger: on_reveal_paths
     target: dungeon
     effect:
       - kind: reveal_dungeon
         count: $value
+    operate_type: op_triggered
+    trigger:
+      event: evt_room_reveal
   - id: skill_path_safeguard
     category: habilidade
-    trigger: on_dungeon_discard
     target: dungeon
     effect:
       - kind: prevent_dungeon_discard
+    operate_type: op_triggered
+    trigger:
+      event: evt_dungeon_discard
   - id: skill_life_drain
     category: habilidade
-    trigger: on_deal_damage
     target: self
     effect:
       - kind: apply_heal
         to: $source
         amount: $value
+    operate_type: op_triggered
+    trigger:
+      event: evt_damage_dealt
   - id: skill_opportunity_shot
     category: habilidade
-    trigger: once_per_combat_instead_of_attack
     target: creature
     script: skill_opportunity_shot
+    operate_type: op_active
+    cooldown:
+      scope: combat
+      charges: 1
   - id: skill_last_light_ward
     category: habilidade
-    trigger: on_purple_effect_damage_taken
     target: self
     effect:
       - kind: add_modifier
@@ -393,32 +499,51 @@ abilities:
         value: $value
         duration:
           kind: while_in_play
+    operate_type: op_triggered
+    trigger:
+      event: evt_damage_taken
   - id: skill_protective_veil
     category: habilidade
-    trigger: once_per_room_on_targeted_by_effect
     target: self
     effect:
       - kind: ignore_next_targeting
         to: $source
+    operate_type: op_triggered
+    trigger:
+      event: evt_targeted
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_rift_light_step
     category: habilidade
-    trigger: once_per_room_on_extra_dungeon_discard
     target: self
     effect:
       - kind: prevent_dungeon_discard
+    operate_type: op_triggered
+    trigger:
+      event: evt_dungeon_discard
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_focus_deflection
     category: habilidade
-    trigger: once_per_room_on_targeted
     target: another_hero_or_self
     script: skill_focus_deflection
+    operate_type: op_triggered
+    trigger:
+      event: evt_targeted
+    cooldown:
+      scope: room
+      charges: 1
   - id: skill_minor_rune
     category: habilidade
-    trigger: once_per_room_after_roll
     target: die_with_value_1
     script: skill_minor_rune
+    operate_type: op_triggered
+    trigger: *a5
+    cooldown: *a6
   - id: power_greater_last_light_miracle
     category: poder_heroi
-    trigger: once_per_game
     target: hero
     effect:
       - kind: choose_one
@@ -431,9 +556,12 @@ abilities:
             effect:
               - kind: prevent_destroy
                 to: $target
+    operate_type: op_active
+    cooldown: &a7
+      scope: game
+      charges: 1
   - id: power_unbreakable_bastion_guard
     category: poder_heroi
-    trigger: once_per_game_until_end_of_round
     target: heroes
     effect:
       - kind: for_each
@@ -447,21 +575,30 @@ abilities:
             value: 1
             duration:
               kind: until_end_of_round
+    operate_type: op_active_buff
+    cooldown:
+      scope: game
+      charges: 1
   - id: power_restored_path
     category: poder_heroi
-    trigger: once_per_game
     target: dungeon
     effect:
       - kind: recover_dungeon
         count: $value
+    operate_type: op_active
+    cooldown: *a7
   - id: power_supreme_rift_rune
     category: poder_heroi
-    trigger: once_per_game_after_any_roll
     target: ally_or_enemy_die
     script: power_supreme_rift_rune
+    operate_type: op_triggered
+    trigger:
+      event: evt_roll
+    cooldown:
+      scope: game
+      charges: 1
   - id: power_mighty_crimson_fury
     category: poder_heroi
-    trigger: once_per_game_on_use_furia_rubra
     target: self
     params:
       bonus: 6
@@ -473,9 +610,14 @@ abilities:
         value: $bonus
         duration:
           kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger:
+      event: evt_damage_dealt
+    cooldown:
+      scope: game
+      charges: 1
   - id: power_last_light_oath
     category: poder_heroi
-    trigger: once_per_game
     target: heroes_or_self_next_attack
     effect:
       - kind: choose_one
@@ -498,19 +640,30 @@ abilities:
                 value: 5
                 duration:
                   kind: once
+    operate_type: op_active
+    cooldown: *a7
   - id: power_deep_veil_echo
     category: poder_heroi
-    trigger: once_per_game_on_defeat_creature
     target: self
     script: power_deep_veil_echo
+    operate_type: op_triggered
+    trigger:
+      event: evt_kill
+    cooldown:
+      scope: game
+      charges: 1
   - id: power_hunter_execution
     category: poder_heroi
-    trigger: once_per_game_after_roll_vs_prey
     target: blue_die_and_self
     script: power_hunter_execution
+    operate_type: op_triggered
+    trigger:
+      event: evt_roll
+    cooldown:
+      scope: game
+      charges: 1
   - id: purple_raging_flames
     category: efeito_roxo_monstro
-    trigger: on_enter_play
     target: all_heroes
     effect:
       - kind: for_each
@@ -520,31 +673,40 @@ abilities:
           - kind: apply_damage
             to: $target
             amount: 1
+    operate_type: op_triggered
+    trigger: &a8
+      event: evt_enter_play
   - id: purple_forge_chains
     category: efeito_roxo_monstro
-    trigger: while_in_play
     target: heroes
     effect:
       - kind: block_action
         what: flee
+    operate_type: op_passive
   - id: purple_ruin_ashes
     category: efeito_roxo_monstro
-    trigger: on_destroyed
     target: dungeon
     effect:
       - kind: discard_from
         pile: dungeon
         count: 1
+    operate_type: op_triggered
+    trigger: &a9
+      event: evt_destroy
   - id: purple_crimson_plate
     category: efeito_roxo_monstro
-    trigger: first_damage_each_round
     target: self
     effect:
       - kind: prevent_next_damage
         to: $source
+    operate_type: op_triggered
+    trigger: &a14
+      event: evt_damage_taken
+    cooldown: &a15
+      scope: round
+      charges: 1
   - id: purple_ash_protection
     category: efeito_roxo_monstro
-    trigger: on_take_damage
     target: self
     effect:
       - kind: add_modifier
@@ -554,35 +716,40 @@ abilities:
         value: $value
         duration:
           kind: while_in_play
+    operate_type: op_triggered
+    trigger: &a10
+      event: evt_damage_taken
   - id: purple_dark_awakening
     category: efeito_roxo_monstro
-    trigger: on_enter_play
     target: dungeon
     effect:
       - kind: advance_dungeon_level
         amount: 1
+    operate_type: op_triggered
+    trigger: *a8
   - id: purple_deadly_awakening
     category: efeito_roxo_monstro
-    trigger: on_destroyed
     target: dungeon
     effect:
       - kind: advance_dungeon_level
         amount: 1
+    operate_type: op_triggered
+    trigger: *a9
   - id: purple_ember_blood
     category: efeito_roxo_monstro
-    trigger: on_take_damage
     target: attacking_hero
     script: purple_ember_blood
+    operate_type: op_triggered
+    trigger: *a10
   - id: purple_depths_seal
     category: efeito_roxo_monstro
-    trigger: while_in_play
     target: heroes
     effect:
       - kind: block_action
         what: power_use
+    operate_type: op_passive
   - id: purple_dark_tribute
     category: efeito_roxo_monstro
-    trigger: before_combat
     target: group
     effect:
       - kind: choose_one
@@ -597,9 +764,11 @@ abilities:
               - kind: discard_from
                 pile: dungeon
                 count: 1
+    operate_type: op_triggered
+    trigger: &a11
+      event: evt_combat_start
   - id: purple_blood_tribute
     category: efeito_roxo_monstro
-    trigger: before_combat
     target: group_or_chosen_hero
     effect:
       - kind: choose_one
@@ -614,21 +783,26 @@ abilities:
               - kind: apply_damage
                 to: $target
                 amount: 3
+    operate_type: op_triggered
+    trigger: *a11
   - id: purple_veil_retaliation
     category: efeito_roxo_monstro
-    trigger: on_hit_received
     target: attacking_hero
     script: purple_veil_retaliation
+    operate_type: op_triggered
+    trigger:
+      event: evt_hit
   - id: purple_healing_rupture
     category: efeito_roxo_monstro
-    trigger: on_enter_room
     target: heroes
     effect:
       - kind: block_action
         what: heal
+    operate_type: op_triggered
+    trigger:
+      event: evt_room_enter
   - id: purple_ancient_veil_prison
     category: efeito_roxo_monstro
-    trigger: on_first_targeted
     target: target_hero
     effect:
       - kind: add_modifier
@@ -638,16 +812,21 @@ abilities:
         value: 2
         duration:
           kind: once
+    operate_type: op_triggered
+    trigger:
+      event: evt_targeted
+    cooldown:
+      scope: room
+      charges: 1
   - id: purple_deep_veil_seal
     category: efeito_roxo_monstro
-    trigger: while_in_play
     target: heroes
     effect:
       - kind: block_action
         what: dungeon_level_reduction
+    operate_type: op_passive
   - id: purple_crimson_shackles
     category: efeito_roxo_monstro
-    trigger: on_first_target_chosen_by_creature
     target: target_hero
     effect:
       - kind: add_modifier
@@ -664,9 +843,14 @@ abilities:
         value: 3
         duration:
           kind: once
+    operate_type: op_triggered
+    trigger:
+      event: evt_targeted
+    cooldown:
+      scope: room
+      charges: 1
   - id: item_skill_deadly_edge
     category: habilidade_item
-    trigger: combat
     target: self
     effect:
       - kind: add_modifier
@@ -683,9 +867,11 @@ abilities:
         value: $value
         duration:
           kind: once
+    operate_type: op_triggered
+    trigger:
+      event: evt_attack_declared
   - id: item_skill_block
     category: habilidade_item
-    trigger: on_take_damage
     target: self
     effect:
       - kind: add_modifier
@@ -695,17 +881,18 @@ abilities:
         value: $value
         duration:
           kind: while_in_play
+    operate_type: op_triggered
+    trigger: *a10
   - id: item_skill_mystic_draw
     category: habilidade_item
-    trigger: on_use
     target: artifact_deck
     effect:
       - kind: draw_from
         pile: artifact_deck
         count: $value
+    operate_type: op_active
   - id: item_skill_last_light_blade
     category: habilidade_item
-    trigger: combat_vs_boss_or_subboss
     target: self
     effect:
       - kind: add_modifier
@@ -722,16 +909,22 @@ abilities:
         value: 2
         duration:
           kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
+    conditions:
+      - kind: has_condition
+        of: $enemy
+        conditionType: boss_or_subboss
   - id: dungeon_skill_confinement
     category: habilidade_dungeon
-    trigger: while_room_active
     target: creatures_or_heroes_in_room
     effect:
       - kind: block_action
         what: flee
+    operate_type: op_passive
   - id: dungeon_skill_dead_torches
     category: habilidade_dungeon
-    trigger: before_first_combat_in_room
     target: heroes
     effect:
       - kind: choose_one
@@ -750,45 +943,58 @@ abilities:
                 value: 1
                 duration:
                   kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger: *a12
+    cooldown: *a13
   - id: dungeon_skill_column_fall
     category: habilidade_dungeon
-    trigger: on_first_creature_destroyed_in_room
     target: remaining_creature
     effect:
       - kind: apply_damage
         to: $target
         amount: 1
+    operate_type: op_triggered
+    trigger:
+      event: evt_kill
+    cooldown:
+      scope: room
+      charges: 1
   - id: dungeon_skill_uneven_floor
     category: habilidade_dungeon
-    trigger: on_hero_lose_combat_in_room
     target: dungeon
     effect:
       - kind: discard_from
         pile: dungeon
         count: 1
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_end
   - id: dungeon_skill_forge_spoils
     category: habilidade_dungeon
-    trigger: on_win_room
     target: item_deck
     effect:
       - kind: draw_and_choose
         pile: item_deck
         reveal: 2
         keep: 1
+    operate_type: op_triggered
+    trigger: *a1
   - id: dungeon_skill_rekindled_forge
     category: habilidade_dungeon
-    trigger: on_win_room
     target: item_deck_or_discard
     script: dungeon_skill_rekindled_forge
+    operate_type: op_triggered
+    trigger: *a1
   - id: dungeon_skill_summon_guardian
     category: habilidade_dungeon
-    trigger: on_room_reveal
     target: special_creature
     notes: Use {value} como o nome da criatura especial/subchefe revelado pela sala.
     script: dungeon_skill_summon_guardian
+    operate_type: op_triggered
+    trigger:
+      event: evt_room_reveal
   - id: boss_skill_living_ash_throne
     category: habilidade_chefe
-    trigger: first_damage_each_round
     target: boss
     effect:
       - kind: add_modifier
@@ -798,9 +1004,11 @@ abilities:
         value: $value
         duration:
           kind: once
+    operate_type: op_triggered
+    trigger: *a14
+    cooldown: *a15
   - id: boss_skill_dark_forge_pressure
     category: habilidade_chefe
-    trigger: after_each_combat_round_if_purple
     target: dungeon
     effect:
       - kind: if
@@ -813,9 +1021,16 @@ abilities:
           - kind: discard_from
             pile: dungeon
             count: 1
+    operate_type: op_triggered
+    trigger:
+      event: evt_round_end
+    conditions:
+      - kind: compare
+        op: gte
+        left: $dungeon.level
+        right: 3
   - id: boss_skill_azhakar_ascension
     category: habilidade_chefe
-    trigger: when_half_life_or_less
     target: boss
     effect:
       - kind: add_modifier
@@ -825,9 +1040,15 @@ abilities:
         value: 2
         duration:
           kind: passive
+    operate_type: op_triggered
+    trigger:
+      event: evt_damage_taken
+    conditions:
+      - kind: has_condition
+        of: $self
+        conditionType: half_life_or_less
   - id: item_skill_drain_life_and_deadly_edge
     category: habilidade_item
-    trigger: combat_and_on_damage_dealt
     target: self
     effect:
       - kind: add_modifier
@@ -847,9 +1068,11 @@ abilities:
       - kind: apply_heal
         to: $source
         amount: 1
+    operate_type: op_triggered
+    trigger:
+      event: evt_attack_declared
   - id: item_skill_block_and_last_light_ward
     category: habilidade_item
-    trigger: on_take_damage
     target: self
     effect:
       - kind: add_modifier
@@ -869,9 +1092,10 @@ abilities:
     params:
       armor: 3
       purple: 2
+    operate_type: op_triggered
+    trigger: *a10
   - id: item_skill_crimson_fury_mighty
     category: habilidade_item
-    trigger: before_attack_once_per_game
     target: self
     effect:
       - kind: apply_damage
@@ -884,15 +1108,21 @@ abilities:
         value: 6
         duration:
           kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger:
+      event: evt_attack_declared
+    cooldown:
+      scope: game
+      charges: 1
   - id: dungeon_skill_subboss_room
     category: habilidade_dungeon
-    trigger: room_passive
     target: room
     effect:
       - kind: noop
+    operate_type: op_passive
   - id: dungeon_skill_empty_room
     category: habilidade_dungeon
-    trigger: room_passive
     target: room
     effect:
       - kind: noop
+    operate_type: op_passive
