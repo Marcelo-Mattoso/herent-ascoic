@@ -130,7 +130,7 @@ describe("REVEAL_ROOM", () => {
 				...s.decks,
 				dungeonDeck: {
 					available: [],
-					discarded: ["Corredor Estreito"],
+					discarded: ["room_narrow_corridor"],
 					removed: [],
 				},
 			},
@@ -284,7 +284,7 @@ describe("derrota por deck esgotado", () => {
 				...s.decks,
 				dungeonDeck: {
 					available: [],
-					discarded: ["Corredor Estreito", "Sala da Masmorra"],
+					discarded: ["room_narrow_corridor", "room_dungeon_room"],
 					removed: [],
 				},
 			},

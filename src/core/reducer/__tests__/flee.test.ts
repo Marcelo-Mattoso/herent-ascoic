@@ -233,8 +233,8 @@ describe("RESTART_DUNGEON", () => {
 		const hero = makeHero({
 			currentLife: 1,
 			status: "fled",
-			activeItems: { weapon: "Adaga Enferrujada" },
-			backpack: ["Poção de Vigor Menor"],
+			activeItems: { weapon: "item_rusty_dagger" },
+			backpack: ["item_lesser_vigor_potion"],
 		});
 		const state: GameState = {
 			...makeState(),
@@ -246,16 +246,16 @@ describe("RESTART_DUNGEON", () => {
 			type: "RESTART_DUNGEON",
 			payload: { keepEquipment: true },
 		});
-		expect(result.heroes[0].activeItems.weapon).toBe("Adaga Enferrujada");
-		expect(result.heroes[0].backpack).toContain("Poção de Vigor Menor");
+		expect(result.heroes[0].activeItems.weapon).toBe("item_rusty_dagger");
+		expect(result.heroes[0].backpack).toContain("item_lesser_vigor_potion");
 	});
 
 	it("com keepEquipment=false, limpa equipamentos", () => {
 		const hero = makeHero({
 			currentLife: 1,
 			status: "fled",
-			activeItems: { weapon: "Adaga Enferrujada" },
-			backpack: ["Poção de Vigor Menor"],
+			activeItems: { weapon: "item_rusty_dagger" },
+			backpack: ["item_lesser_vigor_potion"],
 		});
 		const state: GameState = {
 			...makeState(),

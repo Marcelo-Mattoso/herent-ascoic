@@ -414,8 +414,8 @@ export function handleResolveAttack(state: GameState): GameState {
 
 	if (result.heroDamageTaken > 0) {
 		const hasShield =
-			hero.activeItems.weapon === "Escudo Rachado" ||
-			hero.activeItems.armor === "Escudo Rachado";
+			hero.activeItems.weapon === "item_cracked_shield" ||
+			hero.activeItems.armor === "item_cracked_shield";
 		const shieldUsed = next.combat?.shieldsUsedThisCombat[hero.id] ?? false;
 		// Redução via ECS world (Lote B: leitura migrada do legacy)
 		const engineReduction = -getModifierTotal(next.world, hero.id, "damage_taken");

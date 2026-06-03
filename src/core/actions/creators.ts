@@ -33,12 +33,12 @@ export const checkCombatEnd = (): Action => ({ type: "CHECK_COMBAT_END" });
 export const directDamage = (): Action => ({ type: "DIRECT_DAMAGE" });
 
 export const useItem = (
-	itemName: string,
+	itemId: string,
 	heroId: string,
 	targetHeroId?: string,
 ): Action => ({
 	type: "USE_ITEM",
-	payload: { itemName, heroId, targetHeroId },
+	payload: { itemId, heroId, targetHeroId },
 });
 
 export const usePower = (heroId: string): Action => ({
