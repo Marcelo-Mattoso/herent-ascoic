@@ -47,7 +47,7 @@ const targetingV2 = {
 // Base válida para op_active (sem trigger, sem cooldown)
 const validBaseActive = {
 	id: "test_skill",
-	category: "habilidade",
+	category: "hero_skill",
 	operate_type: "op_active",
 	...targetingV2,
 };
@@ -55,7 +55,7 @@ const validBaseActive = {
 // Base válida para op_triggered
 const validBaseTriggered = {
 	id: "test_skill",
-	category: "habilidade",
+	category: "hero_skill",
 	operate_type: "op_triggered",
 	trigger: { event: "evt_roll" },
 	...targetingV2,

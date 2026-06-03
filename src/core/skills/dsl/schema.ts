@@ -315,12 +315,12 @@ export const SkillDefinitionV2Schema = z
 	.object({
 		id: z.string().min(1),
 		category: z.enum([
-			"habilidade",
-			"poder_heroi",
-			"efeito_roxo_monstro",
-			"habilidade_item",
-			"habilidade_dungeon",
-			"habilidade_chefe",
+			"hero_skill",
+			"hero_power",
+			"monster_purple",
+			"item_skill",
+			"dungeon_skill",
+			"boss_skill",
 		]),
 		nature: z.array(NatureSchema).optional(),
 		operate_type: OperateTypeSchema,

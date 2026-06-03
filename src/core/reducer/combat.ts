@@ -813,7 +813,7 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 
 	const heroCard = getCardByName(hero.cardName);
 	const powerEntry = heroCard
-		? cardSkills(heroCard.id).find(({ def }) => def.category === "poder_heroi")
+		? cardSkills(heroCard.id).find(({ def }) => def.category === "hero_power")
 		: null;
 	const powerDef = powerEntry?.def ?? null;
 	if (!powerDef) {

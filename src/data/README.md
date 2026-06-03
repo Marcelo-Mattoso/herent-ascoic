@@ -193,12 +193,12 @@ Catálogo de todas as habilidades do jogo. Cada entrada em `abilities[]` define 
 
 | `category` | Slot de UI | Tipo de carta |
 |------------|-----------|---------------|
-| `habilidade` | Habilidade do herói | Herói |
-| `poder_heroi` | Poder do herói | Herói |
-| `efeito_roxo_monstro` | Efeito roxo (Despertar 4) | Criatura, Subchefe |
-| `habilidade_item` | Efeito do item/artefato | Item, Artefato |
-| `habilidade_dungeon` | Efeito da sala | Sala |
-| `habilidade_chefe` | Habilidade do chefe | Boss |
+| `hero_skill` | Habilidade do herói | Herói |
+| `hero_power` | Poder do herói | Herói |
+| `monster_purple` | Efeito roxo (Despertar 4) | Criatura, Subchefe |
+| `item_skill` | Efeito do item/artefato | Item, Artefato |
+| `dungeon_skill` | Efeito da sala | Sala |
+| `boss_skill` | Habilidade do chefe | Boss |
 
 A categoria determina onde a skill é exibida. Habilidades e poderes de herói compartilham o mesmo tipo de carta mas categorias distintas.
 

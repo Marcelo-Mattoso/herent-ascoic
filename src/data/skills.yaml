@@ -6,15 +6,15 @@ placeholder:
   jsonToken: "{value}"
   description: Use o valor específico da carta para substituir {value} no texto e no label.
 categories:
-  - habilidade
-  - poder_heroi
-  - efeito_roxo_monstro
-  - habilidade_item
-  - habilidade_dungeon
-  - habilidade_chefe
+  - hero_skill
+  - hero_power
+  - monster_purple
+  - item_skill
+  - dungeon_skill
+  - boss_skill
 abilities:
   - id: skill_crimson_fury
-    category: habilidade
+    category: hero_skill
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
@@ -41,7 +41,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_last_light_healing
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_heal
         to: $target
@@ -54,7 +54,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_bastion_guard
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -72,7 +72,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_rift_rune
-    category: habilidade
+    category: hero_skill
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -86,7 +86,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_hunter_focus
-    category: habilidade
+    category: hero_skill
     script: skill_hunter_focus
     operate_type: op_passive
     nature:
@@ -95,7 +95,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_living_ember
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_damage
         to: $target
@@ -108,7 +108,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: skill_living_ember_oil
-    category: habilidade_item
+    category: item_skill
     operate_type: op_active
     nature:
       - nat_physical
@@ -131,7 +131,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: skill_last_light_shield
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_prevent_next_damage
         to: $target
@@ -148,7 +148,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_preserved_path
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
@@ -163,7 +163,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: skill_rekindled_forge
-    category: habilidade
+    category: hero_skill
     script: skill_rekindled_forge
     operate_type: op_triggered
     trigger: &a1
@@ -174,7 +174,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_all
   - id: skill_rift_second_chance
-    category: habilidade
+    category: hero_skill
     operate_type: op_active
     cooldown:
       scope: combat
@@ -188,7 +188,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_perfect_rune
-    category: habilidade
+    category: hero_skill
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -205,7 +205,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_last_light_miracle
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_choose_one
         options:
@@ -234,7 +234,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_piercing_strike
-    category: habilidade
+    category: hero_skill
     script: skill_piercing_strike
     operate_type: op_triggered
     trigger:
@@ -245,7 +245,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: skill_forge_spoils
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_draw_and_choose
         pile: item_deck
@@ -259,7 +259,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: skill_prey_mark
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_mark_target
         to: $target
@@ -279,7 +279,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: skill_return_rite
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_damage
         to: $source
@@ -295,7 +295,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: skill_final_dawn_light
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -329,7 +329,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_scorching_heat
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -354,7 +354,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: skill_crimson_chains
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_block
         what: flee
@@ -366,7 +366,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_choking_ashes
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_damage
         to: $lowest_life_hero
@@ -379,7 +379,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_charred_plate
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -398,7 +398,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_forge_awakening
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_advance_dungeon
         amount: $value
@@ -409,7 +409,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: skill_sealed_door
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_block
         what: flee
@@ -420,7 +420,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: skill_ruined_floor
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_discard
         pile: dungeon
@@ -437,7 +437,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: skill_forge_smoke
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_block
         what: heal
@@ -455,7 +455,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: skill_dark_tribute
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_choose_one
         options:
@@ -481,7 +481,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_all
   - id: skill_rift_evasion
-    category: habilidade
+    category: hero_skill
     script: skill_rift_evasion
     operate_type: op_triggered
     trigger:
@@ -495,7 +495,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_chains_prison
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $target
@@ -516,7 +516,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_path_corruption
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_block
         what: dungeon_discard
@@ -527,7 +527,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: skill_lone_beast
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -557,7 +557,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_treacherous_attack
-    category: habilidade
+    category: hero_skill
     notes: No texto original, o nome possui variável, mas o efeito-base cita 1 dano.
       Use {value} quando quiser escalar.
     effect:
@@ -573,7 +573,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_cowardly_flee
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_set_no_reward
         to: $source
@@ -586,7 +586,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_gelatinous_body
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -602,7 +602,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_not_friend
   - id: skill_hidden_flame_presence
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -625,7 +625,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: skill_pack_courage
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -643,7 +643,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_illuminate_path
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_reveal_dungeon
         count: $value
@@ -656,7 +656,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: skill_path_safeguard
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
@@ -668,7 +668,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: skill_life_drain
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_heal
         to: $source
@@ -683,7 +683,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_opportunity_shot
-    category: habilidade
+    category: hero_skill
     script: skill_opportunity_shot
     operate_type: op_active
     cooldown:
@@ -695,7 +695,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: skill_last_light_ward
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -714,7 +714,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_protective_veil
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_ignore_next_targeting
         to: $source
@@ -729,7 +729,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_rift_light_step
-    category: habilidade
+    category: hero_skill
     effect:
       - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
@@ -744,7 +744,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_focus_deflection
-    category: habilidade
+    category: hero_skill
     script: skill_focus_deflection
     operate_type: op_triggered
     trigger:
@@ -758,7 +758,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_minor_rune
-    category: habilidade
+    category: hero_skill
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -775,7 +775,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: power_greater_last_light_miracle
-    category: poder_heroi
+    category: hero_power
     effect:
       - kind: i_choose_one
         options:
@@ -798,7 +798,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: power_unbreakable_bastion_guard
-    category: poder_heroi
+    category: hero_power
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -822,7 +822,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: power_restored_path
-    category: poder_heroi
+    category: hero_power
     effect:
       - kind: i_recover_dungeon
         count: $value
@@ -834,7 +834,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: power_supreme_rift_rune
-    category: poder_heroi
+    category: hero_power
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -851,7 +851,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_all
   - id: power_mighty_crimson_fury
-    category: poder_heroi
+    category: hero_power
     params:
       bonus: 6
     effect:
@@ -875,7 +875,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: power_last_light_oath
-    category: poder_heroi
+    category: hero_power
     effect:
       - kind: i_choose_one
         options:
@@ -906,7 +906,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: power_deep_veil_echo
-    category: poder_heroi
+    category: hero_power
     script: power_deep_veil_echo
     operate_type: op_triggered
     trigger:
@@ -920,7 +920,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: power_hunter_execution
-    category: poder_heroi
+    category: hero_power
     operate_type: op_triggered
     trigger:
       event: evt_roll
@@ -948,7 +948,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: purple_raging_flames
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -967,7 +967,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: purple_forge_chains
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: p_block
         what: flee
@@ -979,7 +979,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: purple_ruin_ashes
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: i_discard
         pile: dungeon
@@ -994,7 +994,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: purple_crimson_plate
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: i_prevent_next_damage
         to: $source
@@ -1011,7 +1011,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: purple_ash_protection
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: p_modifier
         to: $source
@@ -1030,7 +1030,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: purple_dark_awakening
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: i_advance_dungeon
         amount: 1
@@ -1042,7 +1042,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: purple_deadly_awakening
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: i_advance_dungeon
         amount: 1
@@ -1054,7 +1054,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: purple_ember_blood
-    category: efeito_roxo_monstro
+    category: monster_purple
     operate_type: op_triggered
     trigger:
       event: evt_damage_taken
@@ -1069,7 +1069,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: purple_depths_seal
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: p_block
         what: power_use
@@ -1080,7 +1080,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: purple_dark_tribute
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: i_choose_one
         options:
@@ -1103,7 +1103,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_all
   - id: purple_blood_tribute
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: i_choose_one
         options:
@@ -1125,7 +1125,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_all
   - id: purple_veil_retaliation
-    category: efeito_roxo_monstro
+    category: monster_purple
     operate_type: op_triggered
     trigger:
       event: evt_hit
@@ -1140,7 +1140,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: purple_healing_rupture
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: p_block
         what: heal
@@ -1154,7 +1154,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: purple_ancient_veil_prison
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: p_modifier
         to: $target
@@ -1176,7 +1176,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: purple_deep_veil_seal
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: p_block
         what: dungeon_level_reduction
@@ -1188,7 +1188,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: purple_crimson_shackles
-    category: efeito_roxo_monstro
+    category: monster_purple
     effect:
       - kind: p_modifier
         to: $target
@@ -1217,7 +1217,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: item_skill_deadly_edge
-    category: habilidade_item
+    category: item_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -1242,7 +1242,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: item_skill_block
-    category: habilidade_item
+    category: item_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -1259,7 +1259,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: item_skill_mystic_draw
-    category: habilidade_item
+    category: item_skill
     effect:
       - kind: i_draw
         pile: artifact_deck
@@ -1271,7 +1271,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: item_skill_last_light_blade
-    category: habilidade_item
+    category: item_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -1301,7 +1301,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: dungeon_skill_confinement
-    category: habilidade_dungeon
+    category: dungeon_skill
     effect:
       - kind: p_block
         what: flee
@@ -1312,7 +1312,7 @@ abilities:
     affect_scope: scp_room
     affect_object: obj_all
   - id: dungeon_skill_dead_torches
-    category: habilidade_dungeon
+    category: dungeon_skill
     effect:
       - kind: i_choose_one
         options:
@@ -1339,7 +1339,7 @@ abilities:
     affect_scope: scp_party_full
     affect_object: obj_friend
   - id: dungeon_skill_column_fall
-    category: habilidade_dungeon
+    category: dungeon_skill
     effect:
       - kind: i_damage
         to: $target
@@ -1356,7 +1356,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: dungeon_skill_uneven_floor
-    category: habilidade_dungeon
+    category: dungeon_skill
     effect:
       - kind: i_discard
         pile: dungeon
@@ -1370,7 +1370,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: dungeon_skill_forge_spoils
-    category: habilidade_dungeon
+    category: dungeon_skill
     effect:
       - kind: i_draw_and_choose
         pile: item_deck
@@ -1384,7 +1384,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: dungeon_skill_rekindled_forge
-    category: habilidade_dungeon
+    category: dungeon_skill
     script: dungeon_skill_rekindled_forge
     operate_type: op_triggered
     trigger: *a1
@@ -1394,7 +1394,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: dungeon_skill_summon_guardian
-    category: habilidade_dungeon
+    category: dungeon_skill
     notes: Use {value} como o nome da criatura especial/subchefe revelado pela sala.
     script: dungeon_skill_summon_guardian
     operate_type: op_triggered
@@ -1406,7 +1406,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: boss_skill_living_ash_throne
-    category: habilidade_chefe
+    category: boss_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -1425,7 +1425,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: boss_skill_dark_forge_pressure
-    category: habilidade_chefe
+    category: boss_skill
     effect:
       - kind: i_if
         when:
@@ -1452,7 +1452,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: boss_skill_azhakar_ascension
-    category: habilidade_chefe
+    category: boss_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -1475,7 +1475,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_not_friend
   - id: item_skill_drain_life_and_deadly_edge
-    category: habilidade_item
+    category: item_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -1504,7 +1504,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: item_skill_block_and_last_light_ward
-    category: habilidade_item
+    category: item_skill
     effect:
       - kind: p_modifier
         to: $source
@@ -1532,7 +1532,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: item_skill_crimson_fury_mighty
-    category: habilidade_item
+    category: item_skill
     effect:
       - kind: i_damage
         to: $source
@@ -1557,7 +1557,7 @@ abilities:
     affect_scope: scp_single
     affect_object: obj_friend
   - id: dungeon_skill_subboss_room
-    category: habilidade_dungeon
+    category: dungeon_skill
     effect:
       - kind: i_noop
     operate_type: op_passive
@@ -1566,7 +1566,7 @@ abilities:
     affect_scope: scp_none
     affect_object: obj_all
   - id: dungeon_skill_empty_room
-    category: habilidade_dungeon
+    category: dungeon_skill
     effect:
       - kind: i_noop
     operate_type: op_passive

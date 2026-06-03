@@ -160,10 +160,10 @@ export function HeroFocusPanel({
 						(() => {
 							const heroSkills = cardSkills(heroCard.id);
 							const habilidade = heroSkills.find(
-								({ def }) => def.category === "habilidade",
+								({ def }) => def.category === "hero_skill",
 							);
 							const poder = heroSkills.find(
-								({ def }) => def.category === "poder_heroi",
+								({ def }) => def.category === "hero_power",
 							);
 							return (
 								<div

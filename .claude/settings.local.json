@@ -101,7 +101,8 @@
       "Bash(ls F:/temp/jogo-cartas-mvp1/.claude/skills/ 2>/dev/null; echo \"---\"; ls C:/Users/Felipe/.claude/skills/ 2>/dev/null)",
       "Bash(node tools/skill-port/migrate-triggers.mjs)",
       "Bash(node tools/skill-port/rename-kinds.mjs)",
-      "Bash(node tools/skill-port/migrate-target.mjs)"
+      "Bash(node tools/skill-port/migrate-target.mjs)",
+      "Bash(powershell -Command \"\\(Get-Content src/data/skills.yaml -Raw\\) -replace 'category: habilidade_dungeon', 'category: dungeon_skill' -replace 'category: habilidade_chefe', 'category: boss_skill' -replace 'category: habilidade_item', 'category: item_skill' -replace 'category: efeito_roxo_monstro', 'category: monster_purple' -replace 'category: poder_heroi', 'category: hero_power' -replace 'category: habilidade', 'category: hero_skill' | Set-Content src/data/skills.yaml -NoNewline\")"
     ]
   }
 }

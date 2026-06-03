@@ -224,7 +224,7 @@ export function selectHeroCombatActions(
 
 	// Skill: habilidade manual do herói (category === "habilidade")
 	const habilidadeEntry = hero
-		? cardSkills(hero.cardId).find(({ def }) => def.category === "habilidade")
+		? cardSkills(hero.cardId).find(({ def }) => def.category === "hero_skill")
 		: null;
 	const skill = habilidadeEntry
 		? {

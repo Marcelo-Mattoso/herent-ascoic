@@ -7,7 +7,7 @@ describe("cardSkills", () => {
 		const card = getCardByName("Bárbaro Rubro");
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
-		const habilidade = skills.find(({ def }) => def.category === "habilidade");
+		const habilidade = skills.find(({ def }) => def.category === "hero_skill");
 		expect(habilidade).not.toBeUndefined();
 		expect(habilidade!.def.id).toBe("skill_crimson_fury");
 		// skill_crimson_fury migrada para DSL em patch-21 Lote G
@@ -18,7 +18,7 @@ describe("cardSkills", () => {
 		const card = getCardByName("Mago das Runas Rubras");
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
-		const poder = skills.find(({ def }) => def.category === "poder_heroi");
+		const poder = skills.find(({ def }) => def.category === "hero_power");
 		expect(poder).not.toBeUndefined();
 		expect(poder!.def.id).toBe("power_supreme_rift_rune");
 	});
@@ -32,7 +32,7 @@ describe("cardSkills", () => {
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
 		const efeito = skills.find(
-			({ def }) => def.category === "habilidade_dungeon",
+			({ def }) => def.category === "dungeon_skill",
 		);
 		expect(efeito).toBeUndefined();
 	});

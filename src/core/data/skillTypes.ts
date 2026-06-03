@@ -1,13 +1,12 @@
-// Tipos TypeScript para o catálogo de habilidades (skills.json).
-// Schema derivado de docs/spec/v3/habilidades_1.json.
+// Tipos TypeScript para o catálogo de habilidades (skills.yaml).
 
 export type SkillCategory =
-	| "habilidade"
-	| "poder_heroi"
-	| "efeito_roxo_monstro"
-	| "habilidade_item"
-	| "habilidade_dungeon"
-	| "habilidade_chefe";
+	| "hero_skill"
+	| "hero_power"
+	| "monster_purple"
+	| "item_skill"
+	| "dungeon_skill"
+	| "boss_skill";
 
 export type SkillCardType =
 	| "hero"
