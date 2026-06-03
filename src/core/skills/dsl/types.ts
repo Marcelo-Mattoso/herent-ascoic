@@ -67,21 +67,19 @@ export type DurationNode =
 
 // ── Effects ──────────────────────────────────────────────────────────────────
 
-/** Stats reconhecidos por `add_modifier`. Extensível via string literal. */
+/** Stats prefixados s_* (patch-21 Lote E). Closed union — stat fora do catálogo = erro de compile. */
 export type ModifierStat =
-	| "damage_reduction"
-	| "purple_damage_reduction"
-	| "tohit_bonus"
-	| "tohit_penalty"
-	| "damage_bonus"
-	| "damage_penalty"
-	| "heal_blocked"
-	| "flee_blocked"
-	| "dungeon_discard_prevention"
-	| "dungeon_discard_locked"
-	| "first_damage_prevented"
-	| "damage_penalty"
-	| (string & {});
+	| "s_damage_reduction"
+	| "s_purple_damage_reduction"
+	| "s_hit_bonus"
+	| "s_hit_penalty"
+	| "s_damage_dealt"
+	| "s_damage_penalty"
+	| "s_heal_blocked"
+	| "s_flee_blocked"
+	| "s_dungeon_discard_prevention"
+	| "s_dungeon_discard_locked"
+	| "s_first_damage_prevented";
 
 export type BlockActionTarget =
 	| "flee"
@@ -94,23 +92,23 @@ export type DrawPile = "dungeon" | "item_deck" | "artifact_deck";
 export type DiscardPile = "dungeon" | "item";
 
 export type EffectNode =
-	// Dano / cura
+	// Dano / cura (i_*)
 	| {
-			readonly kind: "apply_damage";
+			readonly kind: "i_damage";
 			readonly to: string;
 			readonly amount: ExprNode;
 			readonly minimum?: number;
 	  }
 	| {
-			readonly kind: "apply_heal";
+			readonly kind: "i_heal";
 			readonly to: string;
 			readonly amount: ExprNode;
 	  }
-	| { readonly kind: "apply_full_heal"; readonly to: string }
-	| { readonly kind: "prevent_destroy"; readonly to: string }
-	// Modificadores / componentes ECS
+	| { readonly kind: "i_full_heal"; readonly to: string }
+	| { readonly kind: "i_prevent_destroy"; readonly to: string }
+	// Modificadores / componentes ECS (p_*)
 	| {
-			readonly kind: "add_modifier";
+			readonly kind: "p_modifier";
 			readonly to: string;
 			readonly stat: ModifierStat;
 			readonly operation: "add" | "multiply" | "set";
@@ -127,62 +125,61 @@ export type EffectNode =
 			readonly condition?: ConditionNode;
 			readonly priority?: number;
 	  }
-	| { readonly kind: "block_action"; readonly what: BlockActionTarget }
-	// Decks
+	| { readonly kind: "p_block"; readonly what: BlockActionTarget }
+	// Decks (i_*)
 	| {
-			readonly kind: "discard_from";
+			readonly kind: "i_discard";
 			readonly pile: DiscardPile;
 			readonly count: ExprNode;
 			readonly who?: string;
 	  }
 	| {
-			readonly kind: "draw_from";
+			readonly kind: "i_draw";
 			readonly pile: DrawPile;
 			readonly count: ExprNode;
 	  }
-	// Dungeon
-	| { readonly kind: "advance_dungeon_level"; readonly amount: ExprNode }
-	// Misc
-	| { readonly kind: "set_no_reward"; readonly to: string }
-	// Patch-16 Lote B — novos kinds
-	| { readonly kind: "prevent_next_damage"; readonly to: string }
-	| { readonly kind: "ignore_next_targeting"; readonly to: string }
-	| { readonly kind: "recover_dungeon"; readonly count: ExprNode }
-	| { readonly kind: "mark_target"; readonly to: string }
-	| { readonly kind: "prevent_dungeon_discard" }
+	// Dungeon (i_*)
+	| { readonly kind: "i_advance_dungeon"; readonly amount: ExprNode }
+	// Misc (i_*)
+	| { readonly kind: "i_set_no_reward"; readonly to: string }
+	| { readonly kind: "i_prevent_next_damage"; readonly to: string }
+	| { readonly kind: "i_ignore_next_targeting"; readonly to: string }
+	| { readonly kind: "i_recover_dungeon"; readonly count: ExprNode }
+	| { readonly kind: "i_mark_target"; readonly to: string }
+	| { readonly kind: "i_prevent_dungeon_discard" }
 	| {
-			readonly kind: "draw_and_choose";
+			readonly kind: "i_draw_and_choose";
 			readonly pile: DrawPile;
 			readonly reveal: ExprNode;
 			readonly keep: ExprNode;
 	  }
-	| { readonly kind: "reveal_dungeon"; readonly count: ExprNode }
+	| { readonly kind: "i_reveal_dungeon"; readonly count: ExprNode }
 	| {
-			readonly kind: "grant_pending_reward";
+			readonly kind: "i_grant_reward";
 			readonly rewardType: "item" | "artifact";
 			readonly cardName: string;
 	  }
-	// Composição
+	// Composição (i_*)
 	| {
-			readonly kind: "if";
+			readonly kind: "i_if";
 			readonly when: ConditionNode;
 			readonly then: readonly EffectNode[];
 			readonly else?: readonly EffectNode[];
 	  }
 	| {
-			readonly kind: "choose_one";
+			readonly kind: "i_choose_one";
 			readonly options: ReadonlyArray<{
 				readonly label: string;
 				readonly effect: readonly EffectNode[];
 			}>;
 	  }
 	| {
-			readonly kind: "for_each";
+			readonly kind: "i_for_each";
 			readonly over: "targets" | "allies" | "enemies" | "all_heroes";
 			readonly as: string;
 			readonly do: readonly EffectNode[];
 	  }
-	| { readonly kind: "noop" };
+	| { readonly kind: "i_noop" };
 
 // ── Trigger v2 (patch-21 Lote B) ────────────────────────────────────────────
 

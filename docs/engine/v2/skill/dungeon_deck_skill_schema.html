@@ -186,22 +186,10 @@ cooldown:
   scope: combat
   charges: 1
 
-levels:
-  - awakening: white
-    effects:
-      - kind: i_heal
-        to: $target
-        amount: 3
-  - awakening: orange
-    effects:
-      - kind: i_heal
-        to: $target
-        amount: 5
-  - awakening: purple
-    effects:
-      - kind: i_heal
-        to: $target
-        amount: 8</code></pre>
+effects:
+  - kind: i_heal
+    to: $target
+    amount: [3, 3, 5, 5, 8]    # white, yellow, orange, red, purple</code></pre>
 </div>
 
 <h2 class="section-title">3. Campos do schema</h2>
@@ -329,30 +317,65 @@ levels:
 <p>Cooldown ausente = sem limite de uso.</p>
 </div>
 
-<h2 class="section-title">6. Levels — progressão por despertar</h2>
+<h2 class="section-title">6. Progressão por despertar</h2>
 
 <div class="card">
-<p>Cada bloco em <code>levels[]</code> é um <strong>estágio completo</strong> da skill em um nível de despertar específico. Despertares omitidos <strong>herdam o anterior declarado</strong>. Se nenhum bloco cobre o despertar atual, a skill <strong>não dispara</strong> nesse estado — substitui o antigo <code>requiresAwakening</code>.</p>
+<p>Valores numéricos dentro de <code>effects</code> podem ser <strong>arrays de 5 posições</strong>, indexados pela escala de cor (<code>white</code>, <code>yellow</code>, <code>orange</code>, <code>red</code>, <code>purple</code>). O motor resolve o valor pelo despertar atual; um número solto vale para todos os despertares.</p>
 
-<pre><code>levels:
-  - awakening: white
-    effects:
-      - { kind: i_heal, to: $target, amount: 3 }
-  - awakening: orange
-    effects:
-      - { kind: i_heal, to: $target, amount: 5 }
-  - awakening: purple
-    effects:
-      - kind: i_heal
-        to: $target
-        amount: 8
-      - kind: i_dispel
-        to: $target
-        category: poison</code></pre>
+<p>Quando uma posição do array é <code>null</code>, aquele effect <strong>não dispara</strong> naquele despertar. Isso substitui o antigo <code>requiresAwakening</code> e dispensa um bloco <code>levels[]</code> separado.</p>
 
-<p>Em <code>white</code> e <code>yellow</code> → cura 3. Em <code>orange</code> e <code>red</code> → cura 5. Em <code>purple</code> → cura 8 + dispel veneno. A skill pode ganhar qualidade nova no topo, não só escalar números.</p>
+<h3>Skill que escala</h3>
+<pre><code>effects:
+  - kind: i_heal
+    to: $target
+    amount: [3, 3, 5, 5, 8]    # white, yellow, orange, red, purple</code></pre>
 
-<p>Para skills que não escalam por despertar, o array <code>levels</code> contém um único bloco com <code>awakening: white</code>.</p>
+<h3>Skill que não escala</h3>
+<pre><code>effects:
+  - kind: i_heal
+    to: $target
+    amount: 5      # valor único, vale em qualquer despertar</code></pre>
+
+<h3>Skill com múltiplos parâmetros</h3>
+<p>Quando a skill usa mais de um valor independente, declare em <code>params</code> nomeado e referencie nos effects:</p>
+<pre><code>params:
+  armor:  [3, 3, 4, 4, 5]
+  purple: [2, 2, 2, 3, 3]
+
+effects:
+  - kind: p_modifier
+    to: $self
+    stat: s_damage_reduction
+    value: $armor
+    duration: { kind: while_in_play }
+  - kind: p_modifier
+    to: $self
+    stat: s_purple_damage_reduction
+    value: $purple
+    duration: { kind: while_in_play }</code></pre>
+
+<h3>Skill que ganha qualidade nova em despertar alto</h3>
+<p>Quando o efeito adicional só existe a partir de certo despertar, use <code>null</code> nos despertares onde ele não dispara:</p>
+<pre><code>effects:
+  - kind: i_heal
+    to: $target
+    amount: [3, 3, 5, 5, 8]
+  - kind: i_dispel
+    to: $target
+    category: poison
+    amount: [null, null, null, null, 1]   # só dispara em purple</code></pre>
+
+<h3>Skill gated (antigo "efeito roxo")</h3>
+<p>A skill toda só dispara a partir de certo despertar — use <code>null</code> nos níveis em que ela está bloqueada:</p>
+<pre><code>effects:
+  - kind: i_damage
+    to: $target
+    amount: [null, null, null, null, 5]   # só dispara em purple</code></pre>
+
+<div class="note" style="border-left-color: #993556; background: #FBEAF0; color: #4B1528;">
+<strong>⚠ Alerta de migração — slash pairs</strong><br>
+O <code>skills.json</code> antigo empacota múltiplos valores numa string com barra (<code>"3/2"</code>, <code>"5/5"</code>, <code>"full/1"</code>) e usa scripts pra desempacotar. <strong>No schema novo isso some</strong>: cada valor vira um campo nomeado em <code>params</code>, com tipo próprio e escala própria por despertar. 9 skills do <code>skills.json</code> usam slash-pairs e precisam ser revisadas individualmente na migração — algumas misturam número com texto livre (<code>"2/poderosa"</code>), o que merece atenção extra.
+</div>
 </div>
 
 <h2 class="section-title">7. Prefixos de campo</h2>

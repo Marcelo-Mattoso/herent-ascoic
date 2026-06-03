@@ -5,6 +5,7 @@
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
 import { getCardById, getCardByName } from "../data/cards";
+import { getSkillName } from "../data/skillLocale";
 import type { ModifierComponent } from "../ecs/types";
 import type { PausedState } from "../effects/stack";
 import { cardSkills, lookupSkillById, skillUsedBy } from "../skills/lookup";
@@ -349,7 +350,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 		const mod = first.modifier;
 		const skillId = mod.source;
 		const skillDef = lookupSkillById(skillId);
-		const sourceName = skillDef?.name ?? skillId;
+		const sourceName = skillDef ? getSkillName(skillId) : skillId;
 		const fromActor = resolveFromActor(skillId, state);
 
 		// Fan-out: all targets are heroes and covers all (or most) heroes → collapse to group
@@ -541,7 +542,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 						to: toActor,
 						kind: "buff",
 						icon: "🔮",
-						label: def.name,
+						label: getSkillName(def.id),
 						source: itemName,
 						duration: "passivo",
 						scope: "item_to_hero",

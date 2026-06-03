@@ -97,7 +97,10 @@
       "Bash(node tools/skill-port/migrate-lote4-dsl.cjs)",
       "Bash(node tools/skill-port/migrate-lote4-scripts.cjs)",
       "Bash(grep -v \"^$\\\\|Checked\\\\|Diagnostics\\\\|Fixed\\\\|Found\\\\|check ━\\\\|Some errors\")",
-      "Bash(git -C F:/temp/jogo-cartas-mvp1 log --oneline -10)"
+      "Bash(git -C F:/temp/jogo-cartas-mvp1 log --oneline -10)",
+      "Bash(ls F:/temp/jogo-cartas-mvp1/.claude/skills/ 2>/dev/null; echo \"---\"; ls C:/Users/Felipe/.claude/skills/ 2>/dev/null)",
+      "Bash(node tools/skill-port/migrate-triggers.mjs)",
+      "Bash(node tools/skill-port/rename-kinds.mjs)"
     ]
   }
 }

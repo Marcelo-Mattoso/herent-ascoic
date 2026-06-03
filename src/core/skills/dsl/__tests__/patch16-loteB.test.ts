@@ -1,4 +1,4 @@
-// Testes de aceite Patch-16 Lote B — novos kinds DSL e skills #7-#20.
+﻿// Testes de aceite Patch-16 Lote B — novos kinds DSL e skills #7-#20.
 
 import { describe, expect, it } from "vitest";
 import { getModifierTotal } from "../../../ecs/world";
@@ -63,7 +63,7 @@ describe("prevent_next_damage (kinds #7 / #9)", () => {
 			{},
 		);
 		const result = drainStack(
-			evaluate([{ kind: "prevent_next_damage", to: "$target" }], ctx),
+			evaluate([{ kind: "i_prevent_next_damage", to: "$target" }], ctx),
 		);
 		expect(result.flags["firstDamagePrevented::h1"]).toBe(true);
 	});
@@ -108,7 +108,7 @@ describe("ignore_next_targeting — skill_protective_veil (#10)", () => {
 
 // ── recover_dungeon (#11 / #12) ───────────────────────────────────────────────
 
-describe("recover_dungeon", () => {
+describe("i_recover_dungeon", () => {
 	it("#11 skill_return_rite — paga 3 vida e recupera 1 carta do descarte", () => {
 		const state = {
 			...stateWithCombat({ heroes: [makeHero({ currentLife: 8 })] }),
@@ -202,7 +202,7 @@ describe("draw_from — item_skill_mystic_draw (#14)", () => {
 
 // ── prevent_dungeon_discard (#15 / #16 / #17) ─────────────────────────────────
 
-describe("prevent_dungeon_discard", () => {
+describe("i_prevent_dungeon_discard", () => {
 	it("#15 skill_preserved_path — seta flag dungeonDiscardPrevented", () => {
 		const state = stateWithCombat();
 		const ctx = buildScriptCtx(
@@ -307,3 +307,4 @@ describe("reveal_dungeon — skill_illuminate_path (#20)", () => {
 		expect(result.decks.dungeonDeck.available).toHaveLength(2);
 	});
 });
+

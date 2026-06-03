@@ -1,4 +1,4 @@
-// Testes de aceite Lote 1 (Patch-12 Fase 3).
+﻿// Testes de aceite Lote 1 (Patch-12 Fase 3).
 // Verifica habilidades reais via fireTrigger + drainStack.
 
 import { describe, expect, it } from "vitest";
@@ -62,12 +62,12 @@ function run(state: GameState, trigger: string, ctx: object = {}): GameState {
 
 // ── advance_dungeon_level ─────────────────────────────────────────────────────
 
-describe("advance_dungeon_level", () => {
+describe("i_advance_dungeon", () => {
 	it("sobe o despertar em value", () => {
 		const state = { ...createInitialGameState(CFG), despertar: 1 as const };
 		const ctx = buildScriptCtx(state, { triggeredBy: "on_use" }, { value: 1 });
 		const result = drainStack(
-			evaluate([{ kind: "advance_dungeon_level", amount: "$value" }], ctx),
+			evaluate([{ kind: "i_advance_dungeon", amount: "$value" }], ctx),
 		);
 		expect(result.despertar).toBe(2);
 	});
@@ -76,7 +76,7 @@ describe("advance_dungeon_level", () => {
 		const state = { ...createInitialGameState(CFG), despertar: 3 as const };
 		const ctx = buildScriptCtx(state, { triggeredBy: "on_use" }, {});
 		const result = drainStack(
-			evaluate([{ kind: "advance_dungeon_level", amount: 2 }], ctx),
+			evaluate([{ kind: "i_advance_dungeon", amount: 2 }], ctx),
 		);
 		expect(result.despertar).toBe(4);
 	});
@@ -96,7 +96,7 @@ describe("discard_from dungeon", () => {
 		};
 		const ctx = buildScriptCtx(state, { triggeredBy: "on_destroyed" }, {});
 		const result = drainStack(
-			evaluate([{ kind: "discard_from", pile: "dungeon", count: 1 }], ctx),
+			evaluate([{ kind: "i_discard", pile: "dungeon", count: 1 }], ctx),
 		);
 		expect(result.decks.dungeonDeck.available).toHaveLength(1);
 	});
@@ -109,7 +109,7 @@ describe("block_action flee", () => {
 		const state = createInitialGameState(CFG);
 		const ctx = buildScriptCtx(state, { triggeredBy: "while_active" }, {});
 		const result = drainStack(
-			evaluate([{ kind: "block_action", what: "flee" }], ctx),
+			evaluate([{ kind: "p_block", what: "flee" }], ctx),
 		);
 		expect(result.flags.fleeBlocked).toBe(true);
 	});
@@ -126,7 +126,7 @@ describe("block_action heal", () => {
 			{},
 		);
 		const result = drainStack(
-			evaluate([{ kind: "block_action", what: "heal" }], ctx),
+			evaluate([{ kind: "p_block", what: "heal" }], ctx),
 		);
 		expect(result.heroes[0].healBlocked).toBe(true);
 	});
@@ -139,7 +139,7 @@ describe("block_action dungeon_discard", () => {
 		const state = createInitialGameState(CFG);
 		const ctx = buildScriptCtx(state, { triggeredBy: "while_active" }, {});
 		const result = drainStack(
-			evaluate([{ kind: "block_action", what: "dungeon_discard" }], ctx),
+			evaluate([{ kind: "p_block", what: "dungeon_discard" }], ctx),
 		);
 		expect(result.flags.discardDungeonLocked).toBe(true);
 	});
@@ -173,7 +173,7 @@ describe("apply_damage to $lowest_life_hero", () => {
 		const ctx = buildScriptCtx(state, { triggeredBy: "on_use" }, { value: 2 });
 		const result = drainStack(
 			evaluate(
-				[{ kind: "apply_damage", to: "$lowest_life_hero", amount: "$value" }],
+				[{ kind: "i_damage", to: "$lowest_life_hero", amount: "$value" }],
 				ctx,
 			),
 		);
@@ -194,7 +194,7 @@ describe("apply_heal to $target — skill_last_light_healing", () => {
 			{ value: 3 },
 		);
 		const result = drainStack(
-			evaluate([{ kind: "apply_heal", to: "$target", amount: "$value" }], ctx),
+			evaluate([{ kind: "i_heal", to: "$target", amount: "$value" }], ctx),
 		);
 		expect(result.heroes[0].currentLife).toBe(8);
 	});
@@ -212,10 +212,10 @@ describe("for_each all_heroes — purple_raging_flames", () => {
 			evaluate(
 				[
 					{
-						kind: "for_each",
+						kind: "i_for_each",
 						over: "all_heroes",
 						as: "$loopTarget",
-						do: [{ kind: "apply_damage", to: "$target", amount: 1 }],
+						do: [{ kind: "i_damage", to: "$target", amount: 1 }],
 					},
 				],
 				ctx,
@@ -228,11 +228,12 @@ describe("for_each all_heroes — purple_raging_flames", () => {
 
 // ── noop ──────────────────────────────────────────────────────────────────────
 
-describe("noop", () => {
+describe("i_noop", () => {
 	it("state inalterado", () => {
 		const state = createInitialGameState(CFG);
 		const ctx = buildScriptCtx(state, { triggeredBy: "room_passive" }, {});
-		const result = drainStack(evaluate([{ kind: "noop" }], ctx));
+		const result = drainStack(evaluate([{ kind: "i_noop" }], ctx));
 		expect(result.effectStack.pending).toHaveLength(0);
 	});
 });
+

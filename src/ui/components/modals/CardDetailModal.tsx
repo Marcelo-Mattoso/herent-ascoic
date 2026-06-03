@@ -1,4 +1,5 @@
 import { getCardByName } from "@/core/data/cards";
+import { getSkillName } from "@/core/data/skillLocale";
 import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CardType } from "@/ui/components/Card";
@@ -192,7 +193,7 @@ export function CardDetailModal({
 											className="text-xs font-medium"
 											style={{ color: UI.textSecondary }}
 										>
-											{def.name}
+											{getSkillName(def.id)}
 										</p>
 										<p className="text-xs" style={{ color: UI.textPrimary }}>
 											{renderSkillLabel(ref)}

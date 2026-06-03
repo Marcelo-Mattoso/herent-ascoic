@@ -42,11 +42,17 @@ function mapPassiveTarget(
 	stat: string,
 ): ModifierComponent["target"] | undefined {
 	switch (stat) {
+		// v1 legado
 		case "damage_bonus": return "damage_dealt";
 		case "damage_reduction": return "damage_taken";
 		case "tohit_bonus": return "hit_bonus";
 		case "tohit_penalty": return "hit_bonus";
 		case "dice_count": return "dice_count";
+		// v2 (patch-21 Lote E)
+		case "s_damage_dealt": return "damage_dealt";
+		case "s_damage_reduction": return "damage_taken";
+		case "s_hit_bonus": return "hit_bonus";
+		case "s_hit_penalty": return "hit_bonus";
 		default: return undefined;
 	}
 }

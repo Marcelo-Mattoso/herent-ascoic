@@ -1,0 +1,558 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sistema de Skills — visão de adoção</title>
+<style>
+  :root {
+    --bg: #faf9f5;
+    --surface: #ffffff;
+    --text-primary: #1a1a1a;
+    --text-secondary: #5a5a55;
+    --text-muted: #888780;
+    --border: rgba(0, 0, 0, 0.12);
+    --accent: #5C49C9;
+    --accent-soft: #efeaff;
+    --code-bg: #f1efe8;
+    --good: #2e7d32;
+    --warn: #b26a00;
+    --bad: #993556;
+    --bad-soft: #FBEAF0;
+  }
+
+  @media (prefers-color-scheme: dark) {
+    :root {
+      --bg: #1a1a1a;
+      --surface: #242422;
+      --text-primary: #f1efe8;
+      --text-secondary: #b4b2a9;
+      --text-muted: #888780;
+      --border: rgba(255, 255, 255, 0.12);
+      --accent: #AFA9EC;
+      --accent-soft: #2e2853;
+      --code-bg: #2c2c2a;
+      --good: #7cc47f;
+      --warn: #e0b066;
+      --bad: #e58aa6;
+      --bad-soft: #3a1d27;
+    }
+  }
+
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 2rem 1rem;
+    background: var(--bg);
+    color: var(--text-primary);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.6;
+  }
+  .container { max-width: 980px; margin: 0 auto; }
+
+  header {
+    margin-bottom: 2.5rem;
+    padding-bottom: 1.5rem;
+    border-bottom: 1px solid var(--border);
+  }
+  h1 { font-size: 1.75rem; font-weight: 500; margin: 0 0 0.5rem; }
+  h2.section-title { font-size: 1.25rem; font-weight: 500; margin: 2.5rem 0 1rem; }
+  .subtitle { color: var(--text-secondary); font-size: 1rem; margin: 0; }
+
+  .card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 1.5rem;
+    margin-bottom: 1.5rem;
+  }
+  .card h3 {
+    font-size: 0.95rem;
+    font-weight: 500;
+    margin: 1.25rem 0 0.4rem;
+    color: var(--text-primary);
+  }
+  .card h3:first-child { margin-top: 0; }
+  .card p {
+    margin: 0 0 0.75rem;
+    color: var(--text-secondary);
+    font-size: 0.92rem;
+  }
+  .card p:last-child { margin-bottom: 0; }
+  .card ul, .card ol { color: var(--text-secondary); font-size: 0.92rem; padding-left: 1.25rem; }
+  .card li { margin: 0.25rem 0; }
+
+  code, pre {
+    font-family: "SF Mono", Menlo, Consolas, monospace;
+    font-size: 0.85em;
+  }
+  code {
+    background: var(--code-bg);
+    padding: 0.1em 0.35em;
+    border-radius: 4px;
+    color: var(--text-primary);
+  }
+  pre {
+    background: var(--code-bg);
+    padding: 1rem;
+    border-radius: 8px;
+    overflow-x: auto;
+    line-height: 1.5;
+    margin: 0.75rem 0;
+  }
+  pre code { background: none; padding: 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 0.75rem 0;
+    font-size: 0.9rem;
+  }
+  th, td {
+    text-align: left;
+    padding: 0.5rem 0.75rem;
+    border-bottom: 1px solid var(--border);
+    vertical-align: top;
+  }
+  th {
+    font-weight: 500;
+    color: var(--text-primary);
+    background: var(--code-bg);
+  }
+  td { color: var(--text-secondary); }
+  td code { font-size: 0.9em; }
+
+  .pill {
+    display: inline-block;
+    padding: 0.15em 0.55em;
+    border-radius: 999px;
+    font-size: 0.75rem;
+    font-weight: 500;
+    background: var(--code-bg);
+    color: var(--text-secondary);
+    margin-left: 0.4em;
+    vertical-align: middle;
+  }
+  .pill.good { background: rgba(46,125,50,0.12); color: var(--good); }
+  .pill.warn { background: rgba(178,106,0,0.14); color: var(--warn); }
+  .pill.bad  { background: rgba(153,53,86,0.14); color: var(--bad); }
+
+  .note {
+    border-left: 3px solid var(--accent);
+    padding: 0.6rem 0.9rem;
+    margin: 0.75rem 0;
+    background: var(--accent-soft);
+    border-radius: 4px;
+    font-size: 0.9rem;
+    color: var(--text-secondary);
+  }
+  .note.warn { border-left-color: var(--bad); background: var(--bad-soft); color: var(--text-secondary); }
+
+  .grid-2 {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+  }
+  @media (max-width: 700px) { .grid-2 { grid-template-columns: 1fr; } }
+
+  .grid-2 > .col h4 {
+    font-size: 0.85rem;
+    font-weight: 600;
+    margin: 0 0 0.5rem;
+    color: var(--text-primary);
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  footer {
+    margin-top: 2rem;
+    padding-top: 1rem;
+    border-top: 1px solid var(--border);
+    color: var(--text-secondary);
+    font-size: 0.85rem;
+    text-align: center;
+  }
+</style>
+</head>
+<body>
+<div class="container">
+
+<header>
+  <h1>Sistema de Skills — visão de adoção</h1>
+  <p class="subtitle">Adoção integral do <a href="skill/dungeon_deck_skill_schema.html">schema v2 maximalista</a> ao código atual. Este documento parte do schema como verdade e descreve o caminho de migração.</p>
+</header>
+
+<h2 class="section-title">1. Princípio</h2>
+<div class="card">
+  <p>O sistema de skills passa a seguir o <a href="skill/dungeon_deck_skill_schema.html">schema v2</a> integralmente: vocabulário coeso inspirado em L2off (<code>skilldata.txt</code>), com catálogos pequenos, prefixos por eixo, e campos ortogonais em vez de strings monolíticas.</p>
+  <p>Duas separações independentes acontecem juntas:</p>
+  <ol>
+    <li><strong>Regra ↔ Apresentação</strong>. A regra (trigger, alvo, custo, efeito) vive no core. A copy (<code>name</code>, <code>label</code>, <code>text</code>) vive em arquivo de locale por idioma.</li>
+    <li><strong>Formato ↔ Conteúdo</strong>. O arquivo de regra muda de JSON para YAML para permitir comentários, reduzir ruído de sintaxe e dar legibilidade a skills com 5+ effects compostos.</li>
+  </ol>
+  <div class="note">Memória do projeto: <em>Core é a fonte da verdade — UI consome regras do core; nunca duplicar lógica de jogo na UI.</em> A separação regra/copy reforça esse princípio. <em>Efeito repetido vira primitiva DSL no core; script só para lógica única.</em> O catálogo do v2 explicita o que é primitiva e o que sobra para script.</div>
+</div>
+
+<h2 class="section-title">2. Como funciona hoje (referência)</h2>
+<div class="card">
+  <p>Pipeline atual:</p>
+<pre><code>skills.json  →  DSL evaluate  →  EffectStack  →  resolver  →  systems  →  ECS world
+  (regra)       (despacho)       (fila)         (drena)      (apply)     (estado)</code></pre>
+
+  <table>
+    <tr><th>Camada</th><th>Arquivo</th><th>Função</th></tr>
+    <tr><td>Tipos</td><td><code>src/core/skills/dsl/types.ts</code></td><td><code>EffectNode</code> discriminada por <code>kind</code> (~25 kinds atuais)</td></tr>
+    <tr><td>Validação</td><td><code>src/core/skills/dsl/schema.ts</code></td><td>Zod do mesmo union</td></tr>
+    <tr><td>Despacho</td><td><code>src/core/skills/dsl/evaluate.ts</code></td><td>Resolve <code>$source</code>/<code>$target</code>/<code>$value</code>, empilha <code>PendingEffect</code></td></tr>
+    <tr><td>Fila</td><td><code>src/core/effects/stack.ts</code></td><td><code>addPending</code>, ordenação LIFO/FIFO via <code>event_rules.json</code></td></tr>
+    <tr><td>Aplicação</td><td><code>src/core/effects/resolver.ts</code></td><td>Drena a fila, aplica mudança no <code>GameState</code> + ECS</td></tr>
+    <tr><td>Sistemas</td><td><code>src/core/systems/*.ts</code></td><td>Funções puras de aplicação</td></tr>
+    <tr><td>Escape hatch</td><td><code>src/core/scripts/*</code></td><td>Quando DSL não cobre, <code>script: "id.run"</code> registra uma fn TS</td></tr>
+  </table>
+  <p>O pipeline permanece. O que muda é o <strong>vocabulário</strong> de entrada — os campos do YAML — e a forma como <code>resolveExpr</code> lê esses campos.</p>
+</div>
+
+<h2 class="section-title">3. As 7 dimensões do schema v2</h2>
+
+<div class="card">
+  <h3>3.1 Apresentação separada + arquivo em YAML</h3>
+  <p>Templates (<code>name</code>, <code>labelTemplate</code>, <code>textTemplate</code>) saem do arquivo de regra. <code>skills.json</code> vira <code>skills.yaml</code>. Copy mora em <code>skills.locale.pt-BR.yaml</code>.</p>
+
+  <div class="grid-2">
+    <div class="col">
+      <h4>skills.yaml (regra)</h4>
+<pre><code>- id: skill_last_light_healing
+  name: { pt: Cura da Última Luz, en: Last Light Healing }
+  operate_type: op_active
+  nature: [nat_magical, nat_holy]
+  target_type: tgt_target
+  affect_scope: scp_single
+  affect_object: obj_friend
+  affect_limit: { min: 1, max: 1 }
+  cost: { mp: 2 }
+  cooldown: { scope: combat, charges: 1 }
+  effects:
+    - kind: i_heal
+      to: $target
+      amount: [3, 3, 5, 5, 8]</code></pre>
+    </div>
+    <div class="col">
+      <h4>skills.locale.pt-BR.yaml (copy)</h4>
+<pre><code>skill_last_light_healing:
+  label: "Cura da Última Luz ({amount}): ..."
+  text: cure {amount} de vida de um herói
+        ou criatura aliada.</code></pre>
+    </div>
+  </div>
+
+  <p>O campo <code>name</code> com i18n inline (<code>{ pt, en }</code>) também pode migrar inteiro para o locale; o doc v2 deixa essa decisão aberta. Adotamos a versão mais limpa: <strong>todo texto humano vai para locale</strong>, o YAML de regra fica só com identificadores.</p>
+
+  <h3>3.2 <code>operate_type</code> — como a skill executa</h3>
+  <table>
+    <tr><th>Valor</th><th>Significado</th></tr>
+    <tr><td><code>op_active</code></td><td>Ativa instantânea (player ativa, resolve uma vez).</td></tr>
+    <tr><td><code>op_active_buff</code></td><td>Ativa com duração (player ativa, efeito persiste).</td></tr>
+    <tr><td><code>op_triggered</code></td><td>Reage a evento; exige <code>trigger.event</code>.</td></tr>
+    <tr><td><code>op_passive</code></td><td>Passiva permanente (enquanto a fonte estiver em jogo).</td></tr>
+  </table>
+  <p>Substitui a inferência implícita do <code>trigger: string</code> atual. "Quando a skill dispara" deixa de estar escondido no nome do trigger e vira campo de primeira classe.</p>
+
+  <h3>3.3 <code>trigger.event</code> (<code>evt_*</code>) + <code>conditions[]</code> + <code>cooldown</code> estruturado</h3>
+  <p>As ~64 trigger strings compostas (<code>once_per_room_after_roll</code>, <code>combat_if_dungeon_red_or_purple</code>) colapsam em <strong>18 eventos atômicos</strong> + condições + cooldown como campos próprios.</p>
+  <div class="grid-2">
+    <div class="col">
+      <h4>Antes</h4>
+<pre><code>trigger: once_per_room_after_roll</code></pre>
+    </div>
+    <div class="col">
+      <h4>Depois</h4>
+<pre><code>operate_type: op_triggered
+trigger:
+  event: evt_roll
+cooldown:
+  scope: room
+  charges: 1</code></pre>
+    </div>
+  </div>
+
+  <p><strong>Catálogo <code>evt_*</code></strong> (18 eventos):</p>
+  <table>
+    <tr><th>Grupo</th><th>Eventos</th></tr>
+    <tr><td>Combate</td><td><code>evt_attack_declared</code>, <code>evt_roll</code>, <code>evt_hit</code>, <code>evt_damage_dealt</code>, <code>evt_damage_taken</code>, <code>evt_destroy</code>, <code>evt_kill</code></td></tr>
+    <tr><td>Ciclo</td><td><code>evt_combat_start/end</code>, <code>evt_round_start/end</code></td></tr>
+    <tr><td>Sala / dungeon</td><td><code>evt_room_reveal</code>, <code>evt_room_enter</code>, <code>evt_room_leave</code>, <code>evt_dungeon_discard</code></td></tr>
+    <tr><td>Entidade</td><td><code>evt_enter_play</code>, <code>evt_leave_play</code>, <code>evt_targeted</code></td></tr>
+  </table>
+
+  <p><strong><code>conditions[]</code></strong> combinadas com AND; <code>any_of</code> para OR:</p>
+<pre><code>conditions:
+  - { kind: awakening, gte: orange }
+  - { kind: in_combat }
+  - { kind: owner_hp_pct, lte: 50 }
+  - any_of:
+      - { kind: target_has_status, status: bleeding }
+      - { kind: target_has_status, status: poisoned }</code></pre>
+
+  <p><strong><code>cooldown</code></strong> com <code>scope: game/room/combat/round</code> e <code>charges: N</code>. Cooldown ausente = sem limite.</p>
+
+  <h3>3.4 Targeting de 4 eixos</h3>
+  <p>O <code>target: string</code> monolítico (<code>hero_or_ally_creature</code>, <code>creatures_or_heroes_in_room</code>, <code>blue_die_and_self</code>...) é decomposto em 4 eixos ortogonais. A perspectiva "amigo/inimigo" deixa de estar hardcoded no nome — o motor resolve pela posição do caster.</p>
+  <table>
+    <tr><th>Eixo</th><th>Valores</th><th>Significado</th></tr>
+    <tr><td><code>target_type</code></td><td><code>tgt_self/target/enemy/item/others/none</code></td><td>Quem você seleciona.</td></tr>
+    <tr><td><code>affect_scope</code></td><td><code>scp_single/party_full/dead_party/room/none</code></td><td>O que o efeito atinge a partir do alvo.</td></tr>
+    <tr><td><code>affect_object</code></td><td><code>obj_friend/not_friend/all</code></td><td>Filtro aliado/inimigo (relativo ao caster).</td></tr>
+    <tr><td><code>affect_limit</code></td><td><code>{ min, max }</code></td><td>Quantidade. <code>{0,0}</code> ou omitido = sem limite.</td></tr>
+  </table>
+
+  <h3>3.5 <code>nature[]</code></h3>
+  <p>Lista cumulativa de categorias que a skill carrega — uma skill pode ser <code>nat_magical</code> + <code>nat_holy</code> simultaneamente, e cruzar com resistências da criatura em ambos os eixos.</p>
+  <table>
+    <tr><th>Grupo</th><th>Valores</th></tr>
+    <tr><td>Tipo</td><td><code>nat_physical</code>, <code>nat_magical</code></td></tr>
+    <tr><td>Elementos</td><td><code>nat_fire</code>, <code>nat_water</code>, <code>nat_earth</code>, <code>nat_wind</code>, <code>nat_holy</code>, <code>nat_dark</code></td></tr>
+    <tr><td>Estados</td><td><code>nat_bleed</code>, <code>nat_poison</code>, <code>nat_shock</code>, <code>nat_paralyze</code>, <code>nat_sleep</code>, <code>nat_hold</code>, <code>nat_derangement</code></td></tr>
+    <tr><td>Especiais</td><td><code>nat_death</code>, <code>nat_true</code></td></tr>
+  </table>
+  <p>Hoje entra como campo declarativo. O sistema de resistências por <code>nature</code> (redução/imunidade nas criaturas) é o passo seguinte e fica fora do escopo do patch-21 — entra quando o design de combate exigir.</p>
+
+  <h3>3.6 <code>cost</code> estruturado</h3>
+  <p>Substitui o <code>defaultValue</code> ad-hoc por campos nominais:</p>
+<pre><code>cost:
+  hp: 0
+  mp: 2
+  discard: 0</code></pre>
+  <p>Campos com valor <code>0</code> podem ser omitidos. Catálogo extensível conforme o jogo evoluir.</p>
+
+  <h3>3.7 Arrays-por-cor + null-skip</h3>
+  <p>Este é o eixo que mata o slash-pair de vez. Dois mecanismos coordenados, ambos em <code>resolveExpr</code>:</p>
+
+  <p><strong>Arrays-por-cor em qualquer valor de effect.</strong> Qualquer valor numérico aceita escalar ou array de 5 posições indexado por <code>state.despertar</code> (<code>white, yellow, orange, red, purple</code>):</p>
+<pre><code>effects:
+  - kind: i_heal
+    to: $target
+    amount: [3, 3, 5, 5, 8]    # escala por despertar
+  - kind: i_damage
+    to: $target
+    amount: 5                   # vale em qualquer despertar</code></pre>
+
+  <p><strong>Null-skip.</strong> Posição <code>null</code> no array = aquele effect <strong>não dispara</strong> naquele despertar. Substitui <code>requiresAwakening</code> e dispensa um bloco <code>levels[]</code>:</p>
+<pre><code>effects:
+  - kind: i_heal
+    to: $target
+    amount: [3, 3, 5, 5, 8]
+  - kind: i_dispel
+    to: $target
+    category: poison
+    amount: [null, null, null, null, 1]   # só dispara em purple</code></pre>
+
+  <p><strong>Múltiplos valores independentes vão inline.</strong> Quando a skill tem 2+ valores distintos, cada um mora no <code>value</code>/<code>amount</code> do seu próprio effect — o <code>stat</code> já nomeia o que é. Sem campo intermediário:</p>
+<pre><code>effects:
+  - kind: p_modifier
+    to: $self
+    stat: s_damage_reduction
+    value: [3, 3, 4, 4, 5]
+    duration: { kind: while_in_play }
+  - kind: p_modifier
+    to: $self
+    stat: s_purple_damage_reduction
+    value: [2, 2, 2, 3, 3]
+    duration: { kind: while_in_play }</code></pre>
+
+  <p><strong>Override por carta</strong> continua via <code>$value</code> escalar — o mecanismo atual ([useSkill.ts](src/core/skills/useSkill.ts)) preserva como está. <code>cardRef.params.value</code> alimenta <code>$value</code>; arrays-por-cor moram inline no effect, não em campo separado.</p>
+
+  <div class="note">O doc maximalista descreve um <code>params:</code> nomeado para agregar valores; descartamos esse nível de indireção. Inline com <code>stat</code> nomeando cada valor é mais direto, e nenhum caso real do jogo precisa de override-por-carta de múltiplos valores independentes. <code>params</code> entra na pauta quando aparecer skill que precise.</div>
+
+  <h3>3.8 Prefixos de catálogo (<code>i_/p_/t_/c_/s_/op_/nat_/tgt_/scp_/obj_/evt_</code>)</h3>
+  <p>Todo valor de catálogo carrega prefixo curto indicando de qual eixo vem. <code>grep i_</code> lista todo o catálogo de instantâneos; um valor solto nunca se confunde com outro catálogo.</p>
+  <table>
+    <tr><th>Prefixo</th><th>Eixo</th><th>Exemplos</th></tr>
+    <tr><td><code>op_</code></td><td><code>operate_type</code></td><td><code>op_active</code>, <code>op_passive</code></td></tr>
+    <tr><td><code>nat_</code></td><td><code>nature[]</code></td><td><code>nat_magical</code>, <code>nat_holy</code></td></tr>
+    <tr><td><code>tgt_</code> / <code>scp_</code> / <code>obj_</code></td><td>Targeting</td><td><code>tgt_target</code>, <code>scp_room</code>, <code>obj_friend</code></td></tr>
+    <tr><td><code>evt_</code></td><td><code>trigger.event</code></td><td><code>evt_roll</code>, <code>evt_damage_taken</code></td></tr>
+    <tr><td><code>i_</code></td><td><code>kind</code> instantâneo</td><td><code>i_damage</code>, <code>i_heal</code></td></tr>
+    <tr><td><code>p_</code></td><td><code>kind</code> persistente</td><td><code>p_modifier</code>, <code>p_status</code></td></tr>
+    <tr><td><code>t_</code></td><td><code>kind</code> tick no alvo</td><td><code>t_damage</code> (DoT), <code>t_heal</code> (HoT)</td></tr>
+    <tr><td><code>c_</code></td><td><code>kind</code> tick no caster</td><td><code>c_damage</code>, <code>c_resource</code></td></tr>
+    <tr><td><code>s_</code></td><td><code>stat</code> em <code>p_modifier</code></td><td><code>s_damage</code>, <code>s_hit_bonus</code></td></tr>
+  </table>
+  <p>Stats fora do catálogo <code>s_*</code> viram erro de compile — mata stat fantasma (declarado no YAML mas não lido pelo motor).</p>
+
+  <h3>3.9 Expressões e referências simbólicas</h3>
+  <table>
+    <tr><th>Símbolo</th><th>Resolve para</th></tr>
+    <tr><td><code>$self</code></td><td>Entidade executando a skill</td></tr>
+    <tr><td><code>$target</code></td><td>Alvo primário selecionado</td></tr>
+    <tr><td><code>$each</code></td><td>Cada elemento do scope (quando <code>affect_scope</code> &ne; <code>scp_single</code>)</td></tr>
+    <tr><td><code>$value</code></td><td>Valor declarado no level atual</td></tr>
+    <tr><td><code>$awakening</code></td><td>Nível atual de despertar</td></tr>
+    <tr><td><code>{ expr: "..." }</code></td><td>Aritmética com referências (<code>$value + $awakening</code>)</td></tr>
+  </table>
+</div>
+
+<h2 class="section-title">4. O que <em>não</em> muda</h2>
+<div class="card">
+  <ul>
+    <li><strong>Pipeline DSL → stack → resolver → ECS</strong>: as 4 camadas continuam. <code>add_modifier</code> deixa de fazer dual-write quando <code>combat</code> legacy for aposentado (continuidade do patch-18 Lote G — patch próprio).</li>
+    <li><strong>Triggers reativos via <code>p_trigger</code></strong> (antigo <code>add_trigger</code>): já é declarativo; só ganha catálogo <code>evt_*</code>.</li>
+    <li><strong>Effect stack ordenado</strong> via <code>event_rules.json</code> LIFO/FIFO: segue.</li>
+    <li><strong>Override por carta via <code>cardRef.params</code></strong>: já funciona, segue. Arrays-por-cor não tiram esse mecanismo — a carta pode sobrescrever um array inteiro.</li>
+    <li><strong>Scripts como escape hatch</strong>: continuam para padrões que não se repetem.</li>
+  </ul>
+</div>
+
+<h2 class="section-title">5. Scripts — escape hatch, não substituto</h2>
+<div class="card">
+  <p>O catálogo de primitivas do v2 cobre quase tudo. Para padrões que não se repetem, mantemos <code>script</code>.</p>
+
+  <h3>Saem para DSL com primitivas existentes ou triviais</h3>
+  <table>
+    <tr><th>Script</th><th>Migra para</th></tr>
+    <tr><td><code>skill_crimson_fury</code></td><td><code>i_damage($self)</code> + <code>p_modifier(s_damage_dealt, expr: "3*$value", once)</code></td></tr>
+    <tr><td><code>skill_living_ember_oil</code></td><td><code>i_if(target_has_skill(gelatinous) → i_damage:3, else i_damage:2)</code></td></tr>
+    <tr><td><code>purple_ember_blood</code>, <code>purple_veil_retaliation</code></td><td>Skill inteira vira <code>operate_type: op_triggered</code> + <code>trigger.event: evt_damage_taken</code> + <code>effects: [i_damage]</code>. Reatividade modelada no nível da skill, como o schema v2 prescreve — sem primitiva intermediária.</td></tr>
+  </table>
+
+  <h3>Saem para DSL com primitivas novas (matam vários de uma vez)</h3>
+  <table>
+    <tr><th>Nova primitiva</th><th>Mata</th></tr>
+    <tr><td><code>i_modify_die</code> / <code>i_reroll</code> / <code>i_set_die</code></td><td><code>skill_rift_rune</code>, <code>skill_rift_second_chance</code>, <code>skill_perfect_rune</code>, <code>skill_minor_rune</code>, <code>skill_rift_evasion</code>, <code>power_supreme_rift_rune</code>, <code>power_hunter_execution</code> (7)</td></tr>
+    <tr><td><code>i_dispel</code> / <code>i_remove_status</code></td><td>Não havia scripts dedicados, mas elimina necessidade futura de cravar lógica de remoção em script.</td></tr>
+  </table>
+
+  <h3>Continuam como <code>script</code> <span class="pill warn">único</span></h3>
+  <table>
+    <tr><th>Script</th><th>Por quê</th></tr>
+    <tr><td><code>power_deep_veil_echo</code></td><td>Sistema de charges/Eco — único</td></tr>
+    <tr><td><code>skill_focus_deflection</code></td><td>Swap de alvo — isolado</td></tr>
+    <tr><td><code>skill_rekindled_forge</code>, <code>dungeon_skill_rekindled_forge</code></td><td>Search-and-equip — 2 variantes, sem terceiro caso</td></tr>
+    <tr><td><code>dungeon_skill_summon_guardian</code></td><td>Summon de subchefe específico</td></tr>
+    <tr><td><code>skill_piercing_strike</code></td><td>Armor pierce — único</td></tr>
+    <tr><td><code>skill_hunter_focus</code></td><td>Passive equipped — único</td></tr>
+    <tr><td><code>skill_opportunity_shot</code></td><td>Ativo que "arma" um listener temporário — padrão fora do v2 (o schema só modela reatividade no nível da skill, não como effect que instala trigger). Sem ROI em criar primitiva agora.</td></tr>
+  </table>
+</div>
+
+<h2 class="section-title">6. Roadmap em dois patches</h2>
+
+<div class="card">
+  <h3>Patch-20 — i18n + YAML</h3>
+  <p><strong>Escopo:</strong> separar regra de copy e trocar o formato de JSON para YAML. Zero mudança de comportamento de jogo.</p>
+
+  <table>
+    <tr><th>Lote</th><th>O que faz</th><th>Toca</th></tr>
+    <tr>
+      <td><strong>20-A</strong> Loader YAML</td>
+      <td>Adiciona dep <code>yaml</code> (Eemeli Aro). Cria <code>loadYaml()</code> tipado. Converte <code>skills.json</code> → <code>skills.yaml</code> via script 1:1 (sem mudança de conteúdo). Ajusta <code>data/skills.ts</code> para carregar via loader. Schema Zod inalterado — YAML vira JS objeto antes de validar.</td>
+      <td>1 dep, 1 utilitário, <code>data/skills.ts</code>, troca de extensão.</td>
+    </tr>
+    <tr>
+      <td><strong>20-B</strong> Extração da copy</td>
+      <td>Script de extração gera <code>skills.locale.pt-BR.yaml</code> com <code>{ skillId: { name, label, text } }</code> para todas as ~70 skills. Remove os 3 campos do arquivo de regra. Atualiza <code>SkillDefinition</code> e schema Zod.</td>
+      <td><code>skills.yaml</code>, novo locale, <code>skillTypes.ts</code>, <code>schema.ts</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>20-C</strong> Render do locale</td>
+      <td>Refatora <code>renderSkillLabel</code>/<code>renderSkillText</code> em <code>renderLabel.ts</code> para ler do locale, com fallback para id. Expande <code>interpolate()</code> para qualquer chave de <code>params</code> (<code>{armor}</code>, <code>{purple}</code>, não só <code>{value}</code>). Guard de cobertura: teste que afirma "toda <code>skill.id</code> tem entrada no locale pt-BR".</td>
+      <td><code>renderLabel.ts</code>, novo teste.</td>
+    </tr>
+  </table>
+
+  <p><strong>Critério de aceite:</strong> jogo idêntico (mesmas labels e textos), arquivo de regra é YAML sem campos de copy, locale carregado, guard verde.</p>
+  <p><strong>Risco:</strong> baixo. Cada lote em PR próprio com testes verdes.</p>
+
+  <h3>Patch-21 — Vocabulário v2</h3>
+  <p><strong>Escopo:</strong> adoção integral do schema v2 nas 8 dimensões. Algumas mudanças observáveis (mesmo resultado, caminho diferente). Ordem dos lotes reflete dependência.</p>
+
+  <table>
+    <tr><th>Lote</th><th>O que faz</th><th>Toca</th></tr>
+    <tr>
+      <td><strong>21-A</strong> Valores: arrays-por-cor + null-skip + <code>cost</code></td>
+      <td>Estende <code>resolveExpr</code> para indexar arrays-por-cor pelo <code>state.despertar</code> e tratar <code>null</code> como "effect não dispara". Migra as 12 entradas com <code>defaultValue</code> slash-pair para valores inline em cada effect (sem campo intermediário). Adiciona <code>cost: { hp, mp, discard }</code> estruturado em <code>SkillDefinition</code>; <code>useSkill</code> consulta antes de despachar.</td>
+      <td><code>resolveExpr</code>, <code>schema</code>, <code>skillTypes</code>, <code>useSkill</code>, <code>skills.yaml</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>21-B</strong> Ativação: <code>operate_type</code> + <code>trigger.event</code> + <code>conditions[]</code> + <code>cooldown</code></td>
+      <td>Adiciona catálogos <code>op_*</code> (4) e <code>evt_*</code> (18) em <code>types</code>/<code>schema</code>. Estende <code>conditions[]</code> com <code>any_of</code> para OR. Formaliza <code>cooldown: { scope, charges }</code>. Mapeia as ~64 trigger strings monolíticas para <code>{ operate_type, trigger: { event }, conditions, cooldown }</code>. O <code>add_trigger</code> atual <strong>não vira primitiva</strong> — skills reativas modelam reatividade via <code>op_triggered</code> no nível da skill, alinhado com o schema v2.</td>
+      <td>Catálogos novos em <code>types</code>, <code>schema</code>, <code>resolveTrigger</code>, <code>resolveCondition</code>, <code>evaluate</code>, bus de eventos, <code>skills.yaml</code> inteiro.</td>
+    </tr>
+    <tr>
+      <td><strong>21-C</strong> Targeting decomposto (4 eixos)</td>
+      <td>Substitui <code>target: "..."</code> monolítico por <code>target_type</code> + <code>affect_scope</code> + <code>affect_object</code> + <code>affect_limit</code>. Estende <code>resolveEntityRef</code>/<code>resolveEntityListRef</code> para compor a partir dos eixos. Implementa <code>$each</code> para iteração sobre scope. Perspectiva amigo/inimigo resolve pelo lado do caster.</td>
+      <td>Catálogos <code>tgt_*</code>/<code>scp_*</code>/<code>obj_*</code>, <code>resolveExpr</code>, <code>resolveEntityListRef</code>, <code>skills.yaml</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>21-D</strong> <code>nature[]</code> declarativa</td>
+      <td>Adiciona campo <code>nature: nat_*[]</code> em <code>SkillDefinition</code>; popula nas skills existentes. Sistema de resistências fica para depois — patch-21 só adiciona o campo.</td>
+      <td><code>skillTypes</code>, <code>schema</code>, <code>skills.yaml</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>21-E</strong> Prefixos: <code>i_/p_/t_/c_</code> + <code>s_</code></td>
+      <td>Codemod aplicando prefixos aos kinds (<code>apply_damage</code> → <code>i_damage</code>, <code>add_modifier</code> → <code>p_modifier</code>, <code>add_trigger</code> → <code>p_trigger</code>...) e aos stats (<code>damage_reduction</code> → <code>s_damage_reduction</code>). Fecha <code>ModifierStat</code> como literal type estrita.</td>
+      <td>Todos os <code>kind</code>/<code>stat</code> em <code>skills.yaml</code> + <code>types</code>/<code>schema</code>/<code>evaluate</code>/<code>resolver</code>.</td>
+    </tr>
+    <tr>
+      <td><strong>21-F</strong> Primitivas novas</td>
+      <td>Adiciona <code>i_modify_die</code>, <code>i_reroll</code>, <code>i_set_die</code>, <code>i_dispel</code>, <code>i_remove_status</code> ao catálogo. Implementa em <code>types</code>/<code>schema</code>/<code>evaluate</code>/<code>resolver</code>. Migra 7 scripts para essas primitivas.</td>
+      <td>4 arquivos do motor + <code>skills.yaml</code> + remoção de 7 scripts.</td>
+    </tr>
+    <tr>
+      <td><strong>21-G</strong> Scripts triviais → DSL</td>
+      <td>Move <code>skill_crimson_fury</code>, <code>skill_living_ember_oil</code> para effect declarativo usando <code>i_if</code>. Move <code>purple_ember_blood</code> e <code>purple_veil_retaliation</code> para <code>operate_type: op_triggered</code> no nível da skill (sem primitiva intermediária).</td>
+      <td><code>skills.yaml</code> + remoção de 4 scripts.</td>
+    </tr>
+  </table>
+
+  <p><strong>Critério de aceite por lote:</strong> testes existentes verdes; cobertura de skill migrada com teste novo (entrada → efeito final esperado).</p>
+
+  <p><strong>Fora de escopo do patch-21</strong> (seguem como <code>script</code>): <code>power_deep_veil_echo</code> (charges), <code>skill_focus_deflection</code> (swap target), <code>skill_rekindled_forge</code>/<code>dungeon_skill_rekindled_forge</code> (search-equip), <code>dungeon_skill_summon_guardian</code> (summon), <code>skill_piercing_strike</code> (armor pierce), <code>skill_hunter_focus</code> (passive equipped), <code>skill_opportunity_shot</code> (ativo que instala listener temporário — padrão fora do v2). Cada um é caso único — sem ROI em primitiva nova.</p>
+
+  <div class="note warn"><strong>Ordem obrigatória:</strong>
+  <ol>
+    <li>21-A pode rodar antes ou em paralelo com qualquer outro (só conteúdo + 20 linhas em <code>resolveExpr</code>).</li>
+    <li>21-B precede 21-C (<code>operate_type</code> fixa a forma do trigger antes de mexer no targeting).</li>
+    <li>21-D é independente; entra quando convier.</li>
+    <li>21-E (codemod) só depois de A–D estabilizarem — codemod sobre alvo estável.</li>
+    <li>21-F e 21-G dependem de 21-E (usam os nomes novos).</li>
+  </ol>
+  </div>
+</div>
+
+<h2 class="section-title">7. Decisões adiadas conscientemente</h2>
+<div class="card">
+  <p>Pontos do schema v2 que <strong>não entram</strong> em patch-20/21 — ficam para quando aparecer demanda:</p>
+  <table>
+    <tr><th>Tema</th><th>Quando trazer de volta</th></tr>
+    <tr><td>Sistema de charges (<code>i_grant_charge</code>/<code>i_spend_charge</code>)</td><td>Quando aparecer 2ª skill com recurso por carta. Hoje só <code>power_deep_veil_echo</code> usa — segue como script.</td></tr>
+    <tr><td>Sistema de resistências por <code>nature[]</code></td><td>O <em>campo</em> entra em 21-D. A <em>regra</em> de fraqueza/imunidade/redução por tipo entra quando o design de combate exigir.</td></tr>
+    <tr><td>Catálogo formal de <code>status</code> nominados (<code>p_status</code>)</td><td>Quando passar de ~5 status únicos em uso.</td></tr>
+    <tr><td>Primitivas <code>t_*</code> (DoT/HoT) e <code>c_*</code> (tick no caster)</td><td>Quando aparecer 2ª skill com tick periódico. Hoje zero usos — sem ROI.</td></tr>
+    <tr><td>Primitiva pra instalar listener temporário em ativo (<code>p_trigger</code> / <code>i_install_trigger</code>)</td><td>Padrão não previsto pelo schema v2 (que modela reatividade só no nível da skill via <code>op_triggered</code>). Só <code>skill_opportunity_shot</code> usaria — segue como script.</td></tr>
+    <tr><td><code>params</code> nomeado para agregar valores</td><td>Quando aparecer skill com override-por-carta de múltiplos valores independentes, ou reuso DRY em 3+ effects. Hoje inline com <code>stat</code> nomeando cada valor é suficiente.</td></tr>
+    <tr><td>Aposentar <code>combat</code> legacy e dual-write em <code>add_modifier</code></td><td>Patch próprio, continuidade do patch-18 Lote G. 21-E fecha <code>ModifierStat</code>, mas <code>ecsTargetMap</code> em <code>resolver</code> só some com legacy fora.</td></tr>
+  </table>
+</div>
+
+<h2 class="section-title">8. Referência</h2>
+<div class="card">
+  <h3>Documentos relacionados</h3>
+  <ul>
+    <li><a href="skill/dungeon_deck_skill_schema.html">Schema v2 completo</a> — fonte deste plano. Quando este documento e o schema divergirem, o schema vence.</li>
+    <li><a href="skill/l2off_migration_study.html">Estudo de migração L2off</a> — referência conceitual.</li>
+    <li><a href="card_game_architecture.html">Arquitetura do card game</a></li>
+    <li><a href="script_architecture.html">Arquitetura de scripts</a></li>
+  </ul>
+
+  <h3>Critério unificador</h3>
+  <p><strong>O schema v2 entra inteiro porque suas dimensões se reforçam:</strong> <code>operate_type</code> + <code>trigger.event</code> + <code>cooldown</code> + <code>conditions</code> só faz sentido se os 4 vierem juntos; targeting de 4 eixos só vale se substituir o <code>target</code> string monolítico em <em>todas</em> as skills; prefixos só pagam grep-ability se cobrirem o catálogo inteiro. Adoção parcial cria dois dialetos coexistindo, com o pior dos dois mundos.</p>
+  <p>O que adiamos não é "metade do schema" — é <strong>extensão futura</strong> do mesmo vocabulário (resistências consomem <code>nature[]</code>; charges são novas primitivas alinhadas com <code>i_</code>/<code>p_</code>; DoT/HoT preenchem os prefixos <code>t_</code>/<code>c_</code>).</p>
+</div>
+
+<footer>
+  Sistema de skills · Dungeon Deck — A Fornalha Sombria · plano de adoção pré-patch-20
+</footer>
+
+</div>
+</body>
+</html>

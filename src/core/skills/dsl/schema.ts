@@ -73,27 +73,42 @@ const DurationNodeSchema = z.discriminatedUnion("kind", [
 
 // ── Effects ──────────────────────────────────────────────────────────────────
 
+// Stat closed enum for p_modifier
+const ModifierStatSchema = z.enum([
+	"s_damage_reduction",
+	"s_purple_damage_reduction",
+	"s_hit_bonus",
+	"s_hit_penalty",
+	"s_damage_dealt",
+	"s_damage_penalty",
+	"s_heal_blocked",
+	"s_flee_blocked",
+	"s_dungeon_discard_prevention",
+	"s_dungeon_discard_locked",
+	"s_first_damage_prevented",
+]);
+
 const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 	z.discriminatedUnion("kind", [
-		// Dano / cura
+		// Dano / cura (i_*)
 		z.object({
-			kind: z.literal("apply_damage"),
+			kind: z.literal("i_damage"),
 			to: z.string(),
 			amount: ExprNodeSchema,
 			minimum: z.number().optional(),
 		}),
 		z.object({
-			kind: z.literal("apply_heal"),
+			kind: z.literal("i_heal"),
 			to: z.string(),
 			amount: ExprNodeSchema,
 		}),
-		z.object({ kind: z.literal("apply_full_heal"), to: z.string() }),
-		z.object({ kind: z.literal("prevent_destroy"), to: z.string() }),
-		// Modificadores
+		z.object({ kind: z.literal("i_full_heal"), to: z.string() }),
+		z.object({ kind: z.literal("i_prevent_destroy"), to: z.string() }),
+		// Modificadores (p_*)
 		z.object({
-			kind: z.literal("add_modifier"),
+			kind: z.literal("p_modifier"),
 			to: z.string(),
-			stat: z.string(),
+			stat: ModifierStatSchema,
 			operation: z.enum(["add", "multiply", "set"]),
 			value: ExprNodeSchema,
 			duration: DurationNodeSchema,
@@ -109,7 +124,7 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 			priority: z.number().optional(),
 		}),
 		z.object({
-			kind: z.literal("block_action"),
+			kind: z.literal("p_block"),
 			what: z.enum([
 				"flee",
 				"heal",
@@ -118,52 +133,51 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 				"dungeon_level_reduction",
 			]),
 		}),
-		// Decks
+		// Decks (i_*)
 		z.object({
-			kind: z.literal("discard_from"),
+			kind: z.literal("i_discard"),
 			pile: z.enum(["dungeon", "item"]),
 			count: ExprNodeSchema,
 			who: z.string().optional(),
 		}),
 		z.object({
-			kind: z.literal("draw_from"),
+			kind: z.literal("i_draw"),
 			pile: z.enum(["dungeon", "item_deck", "artifact_deck"]),
 			count: ExprNodeSchema,
 		}),
-		// Dungeon
+		// Dungeon (i_*)
 		z.object({
-			kind: z.literal("advance_dungeon_level"),
+			kind: z.literal("i_advance_dungeon"),
 			amount: ExprNodeSchema,
 		}),
-		// Misc
-		z.object({ kind: z.literal("set_no_reward"), to: z.string() }),
-		// Patch-16 Lote B
-		z.object({ kind: z.literal("prevent_next_damage"), to: z.string() }),
-		z.object({ kind: z.literal("ignore_next_targeting"), to: z.string() }),
-		z.object({ kind: z.literal("recover_dungeon"), count: ExprNodeSchema }),
-		z.object({ kind: z.literal("mark_target"), to: z.string() }),
-		z.object({ kind: z.literal("prevent_dungeon_discard") }),
+		// Misc (i_*)
+		z.object({ kind: z.literal("i_set_no_reward"), to: z.string() }),
+		z.object({ kind: z.literal("i_prevent_next_damage"), to: z.string() }),
+		z.object({ kind: z.literal("i_ignore_next_targeting"), to: z.string() }),
+		z.object({ kind: z.literal("i_recover_dungeon"), count: ExprNodeSchema }),
+		z.object({ kind: z.literal("i_mark_target"), to: z.string() }),
+		z.object({ kind: z.literal("i_prevent_dungeon_discard") }),
 		z.object({
-			kind: z.literal("draw_and_choose"),
+			kind: z.literal("i_draw_and_choose"),
 			pile: z.enum(["dungeon", "item_deck", "artifact_deck"]),
 			reveal: ExprNodeSchema,
 			keep: ExprNodeSchema,
 		}),
-		z.object({ kind: z.literal("reveal_dungeon"), count: ExprNodeSchema }),
+		z.object({ kind: z.literal("i_reveal_dungeon"), count: ExprNodeSchema }),
 		z.object({
-			kind: z.literal("grant_pending_reward"),
+			kind: z.literal("i_grant_reward"),
 			rewardType: z.enum(["item", "artifact"]),
 			cardName: z.string(),
 		}),
-		// Composição
+		// Composição (i_*)
 		z.object({
-			kind: z.literal("if"),
+			kind: z.literal("i_if"),
 			when: ConditionNodeSchema,
 			then: z.array(EffectNodeSchema),
 			else: z.array(EffectNodeSchema).optional(),
 		}),
 		z.object({
-			kind: z.literal("choose_one"),
+			kind: z.literal("i_choose_one"),
 			options: z
 				.array(
 					z.object({ label: z.string(), effect: z.array(EffectNodeSchema) }),
@@ -171,12 +185,12 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 				.min(2),
 		}),
 		z.object({
-			kind: z.literal("for_each"),
+			kind: z.literal("i_for_each"),
 			over: z.enum(["targets", "allies", "enemies", "all_heroes"]),
 			as: z.string(),
 			do: z.array(EffectNodeSchema),
 		}),
-		z.object({ kind: z.literal("noop") }),
+		z.object({ kind: z.literal("i_noop") }),
 	]),
 );
 

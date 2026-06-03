@@ -1,0 +1,352 @@
+skill_crimson_fury:
+  name: Fúria Rubra
+  label: "Fúria Rubra ({value}): este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido no próximo ataque."
+  text: este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido no próximo ataque.
+skill_last_light_healing:
+  name: Cura da Última Luz
+  label: "Cura da Última Luz ({value}): cure {value} de vida de um herói ou criatura aliada."
+  text: cure {value} de vida de um herói ou criatura aliada.
+skill_bastion_guard:
+  name: Guarda do Bastião
+  label: "Guarda do Bastião ({value}): reduza em {value} o dano que um herói ou aliado sofreria."
+  text: reduza em {value} o dano que um herói ou aliado sofreria.
+skill_rift_rune:
+  name: Runa das Fendas
+  label: "Runa das Fendas ({value}): depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1."
+  text: depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1.
+skill_hunter_focus:
+  name: Foco do Caçador
+  label: "Foco do Caçador ({value}): enquanto este item estiver equipado, este herói recebe +{value} no Bônus de Acerto."
+  text: enquanto este item estiver equipado, este herói recebe +{value} no Bônus de Acerto.
+skill_living_ember:
+  name: Brasa Viva
+  label: "Brasa Viva ({value}): cause {value} de dano direto a uma criatura em jogo."
+  text: cause {value} de dano direto a uma criatura em jogo.
+skill_living_ember_oil:
+  name: Brasa Viva (Condicional)
+  label: "Brasa Viva (2/3): cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver Corpo Gelatinoso, cause 3 de dano em vez de 2."
+  text: cause 2 de dano direto a uma criatura em jogo. Se a criatura tiver Corpo Gelatinoso, cause 3 de dano em vez de 2.
+skill_last_light_shield:
+  name: Escudo da Última Luz
+  label: "Escudo da Última Luz: uma vez por rodada, impeça todo o dano que um herói sofreria."
+  text: uma vez por rodada, impeça todo o dano que um herói sofreria.
+skill_preserved_path:
+  name: Caminho Preservado
+  label: "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
+  text: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.
+skill_rekindled_forge:
+  name: Forja Reacesa
+  label: "Forja Reacesa: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói."
+  text: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói.
+skill_rift_second_chance:
+  name: Segunda Chance das Fendas
+  label: "Segunda Chance das Fendas: uma vez por combate, rerrole 1 dado aliado."
+  text: uma vez por combate, rerrole 1 dado aliado.
+skill_perfect_rune:
+  name: Runa Perfeita
+  label: "Runa Perfeita: uma vez por sala, depois de rolar, transforme 1 dado aliado em 6."
+  text: uma vez por sala, depois de rolar, transforme 1 dado aliado em 6.
+skill_last_light_miracle:
+  name: Milagre da Última Luz
+  label: "Milagre da Última Luz: uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura."
+  text: "uma vez por sala, escolha: cure 2 de vida de um aliado ou cause +2 de dano no próximo ataque contra uma criatura."
+skill_piercing_strike:
+  name: Golpe Trespassante
+  label: "Golpe Trespassante: quando destruir uma criatura com um ataque, cause 1 de dano direto a outra criatura da mesma sala."
+  text: quando destruir uma criatura com um ataque, cause 1 de dano direto a outra criatura da mesma sala.
+skill_forge_spoils:
+  name: Espólios da Fornalha
+  label: "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon."
+  text: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon.
+skill_prey_mark:
+  name: Marca da Presa
+  label: "Marca da Presa ({value}): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto."
+  text: no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto.
+skill_return_rite:
+  name: Rito de Retorno
+  label: "Rito de Retorno ({value}): uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck."
+  text: uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck.
+skill_final_dawn_light:
+  name: Luz da Aurora Final
+  label: "Luz da Aurora Final ({value}): contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +{value} no ataque e +{value} de dano."
+  text: contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +{value} no ataque e +{value} de dano.
+skill_scorching_heat:
+  name: Calor Escaldante
+  label: "Calor Escaldante ({value}): os heróis recebem -{value} no total da primeira rolagem feita nesta sala."
+  text: os heróis recebem -{value} no total da primeira rolagem feita nesta sala.
+skill_crimson_chains:
+  name: Correntes Rubras
+  label: "Correntes Rubras ({value}): até o fim da rodada, {value} herói não pode fugir ou sair de combate por efeito."
+  text: até o fim da rodada, {value} herói não pode fugir ou sair de combate por efeito.
+skill_choking_ashes:
+  name: Cinzas Sufocantes
+  label: "Cinzas Sufocantes ({value}): cause {value} de dano direto ao herói com menos vida."
+  text: cause {value} de dano direto ao herói com menos vida.
+skill_charred_plate:
+  name: Couraça Carbonizada
+  label: "Couraça Carbonizada ({value}): esta criatura reduz em {value} o dano sofrido por ataques."
+  text: esta criatura reduz em {value} o dano sofrido por ataques.
+skill_forge_awakening:
+  name: Despertar da Fornalha
+  label: "Despertar da Fornalha ({value}): aumente o Despertar da Masmorra em {value} nível."
+  text: aumente o Despertar da Masmorra em {value} nível.
+skill_sealed_door:
+  name: Porta Selada
+  label: "Porta Selada: enquanto esta sala estiver ativa, heróis não podem fugir no primeiro combate."
+  text: enquanto esta sala estiver ativa, heróis não podem fugir no primeiro combate.
+skill_ruined_floor:
+  name: Chão em Ruína
+  label: "Chão em Ruína: a primeira vez que um herói perder um combate nesta sala, descarte 1 carta adicional de dungeon."
+  text: a primeira vez que um herói perder um combate nesta sala, descarte 1 carta adicional de dungeon.
+skill_forge_smoke:
+  name: Fumaça da Fornalha
+  label: "Fumaça da Fornalha: na primeira rodada desta sala, os heróis não podem usar efeitos de cura."
+  text: na primeira rodada desta sala, os heróis não podem usar efeitos de cura.
+skill_dark_tribute:
+  name: Tributo Sombrio
+  label: "Tributo Sombrio: antes do primeiro combate desta sala, o grupo deve escolher: descartar 1 item ou descartar 1 carta adicional de dungeon."
+  text: "antes do primeiro combate desta sala, o grupo deve escolher: descartar 1 item ou descartar 1 carta adicional de dungeon."
+skill_rift_evasion:
+  name: Evasão das Fendas
+  label: "Evasão das Fendas: esta criatura ignora o primeiro efeito de item usado contra ela."
+  text: esta criatura ignora o primeiro efeito de item usado contra ela.
+skill_chains_prison:
+  name: Prisão das Correntes
+  label: "Prisão das Correntes: o primeiro herói escolhido como alvo nesta sala recebe -2 no total da próxima rolagem."
+  text: o primeiro herói escolhido como alvo nesta sala recebe -2 no total da próxima rolagem.
+skill_path_corruption:
+  name: Corrupção de Caminho
+  label: "Corrupção de Caminho: enquanto esta sala estiver ativa, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura."
+  text: enquanto esta sala estiver ativa, os heróis não podem impedir descartes de dungeon causados por efeitos de sala ou criatura.
+skill_lone_beast:
+  name: Fera Solitária
+  label: "Fera Solitária ({value}): se estiver sozinho na sala, recebe +{value} no bônus de acerto e dano."
+  text: se estiver sozinho na sala, recebe +{value} no bônus de acerto e dano.
+skill_treacherous_attack:
+  name: Ataque Traiçoeiro
+  label: "Ataque Traiçoeiro ({value}): ao entrar em combate, causa {value} dano ao herói com menos vida."
+  text: ao entrar em combate, causa {value} dano ao herói com menos vida.
+skill_cowardly_flee:
+  name: Fuga Covarde
+  label: "Fuga Covarde: se fugir ou sair de jogo, não concede recompensa."
+  text: se fugir ou sair de jogo, não concede recompensa.
+skill_gelatinous_body:
+  name: Corpo Gelatinoso
+  label: "Corpo Gelatinoso ({value}): heróis recebem -{value} de bônus de acerto contra essa criatura."
+  text: heróis recebem -{value} de bônus de acerto contra essa criatura.
+skill_hidden_flame_presence:
+  name: Presença da Chama Oculta
+  label: "Presença da Chama Oculta ({value}): se houver outra criatura na sala, essa outra criatura recebe +{value} no total de bônus de acerto."
+  text: se houver outra criatura na sala, essa outra criatura recebe +{value} no total de bônus de acerto.
+skill_pack_courage:
+  name: Coragem de Bando
+  label: "Coragem de Bando ({value}): se houver outra criatura na sala, esta criatura recebe +{value} no total."
+  text: se houver outra criatura na sala, esta criatura recebe +{value} no total.
+skill_illuminate_path:
+  name: Iluminar o Caminho
+  label: "Iluminar o Caminho: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo."
+  text: ao revelar novos caminhos, olhe as cartas de dungeon antes de escolher o caminho. Depois, descarte normalmente seguindo o curso normal de jogo.
+skill_path_safeguard:
+  name: Salvaguarda de Caminho
+  label: "Salvaguarda de Caminho: previna o descarte de dungeon dessa rodada."
+  text: previna o descarte de dungeon dessa rodada.
+skill_life_drain:
+  name: Drenar Vida
+  label: "Drenar Vida ({value}): cure do herói portador o equivalente a {value}, apenas se ele causar dano."
+  text: cure do herói portador o equivalente a {value}, apenas se ele causar dano.
+skill_opportunity_shot:
+  name: Tiro de Oportunidade
+  label: "Tiro de Oportunidade: uma vez por combate, ao invés de combater, cause o seu dano direto na criatura."
+  text: uma vez por combate, ao invés de combater, cause o seu dano direto na criatura.
+skill_last_light_ward:
+  name: Resguardo da Última Luz
+  label: "Resguardo da Última Luz ({value}): contra efeitos Roxos, reduza {value} o dano recebido."
+  text: contra efeitos Roxos, reduza {value} o dano recebido.
+skill_protective_veil:
+  name: Véu Protetor
+  label: "Véu Protetor: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo."
+  text: uma vez por sala, ignore o primeiro efeito que escolheria este herói como alvo.
+skill_rift_light_step:
+  name: Passo Leve das Fendas
+  label: "Passo Leve das Fendas: uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon."
+  text: uma vez por sala, ignore o primeiro efeito de sofrer descarte adicional de dungeon.
+skill_focus_deflection:
+  name: Desvio de Foco
+  label: "Desvio de Foco: uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto."
+  text: uma vez por sala, depois que uma criatura escolher este herói como alvo, você pode trocar o alvo para outro herói voluntário. Se não houver outro herói disponível, receba +2 no total de bônus de acerto.
+skill_minor_rune:
+  name: Runa Menor
+  label: "Runa Menor: uma vez por sala, depois de rolar, você pode rerrolar um dado que tenha o valor 1."
+  text: uma vez por sala, depois de rolar, você pode rerrolar um dado que tenha o valor 1.
+power_greater_last_light_miracle:
+  name: Milagre Maior da Última Luz
+  label: "Milagre Maior da Última Luz: cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida."
+  text: cure totalmente 1 herói ou impeça que ele seja destruído, deixando-o com 1 de vida.
+power_unbreakable_bastion_guard:
+  name: Guarda Inquebrável do Bastião
+  label: "Guarda Inquebrável do Bastião: até o fim da rodada, todo dano sofrido pelos heróis é reduzido em 1."
+  text: até o fim da rodada, todo dano sofrido pelos heróis é reduzido em 1.
+power_restored_path:
+  name: Caminho Restaurado
+  label: "Caminho Restaurado: recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon."
+  text: recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.
+power_supreme_rift_rune:
+  name: Runa Suprema das Fendas
+  label: "Runa Suprema das Fendas: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
+  text: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.
+power_mighty_crimson_fury:
+  name: Fúria Rubra Poderosa
+  label: "Fúria Rubra Poderosa: ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
+  text: ao usar Fúria Rubra, o dano adicional dura até o fim do combate.
+power_last_light_oath:
+  name: Juramento da Última Luz
+  label: "Juramento da Última Luz: uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói."
+  text: "uma vez por jogo, escolha: cure 5 de vida de todos os heróis ou cause +5 de dano sagrado no próximo ataque deste herói."
+power_deep_veil_echo:
+  name: Eco Profundo do Véu
+  label: "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos."
+  text: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos.
+power_hunter_execution:
+  name: Execução do Caçador
+  label: "Execução do Caçador: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar."
+  text: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar.
+purple_raging_flames:
+  name: Chamas Vorazes
+  label: "Chamas Vorazes: ao entrar em jogo, cause 1 de dano direto a todos os heróis."
+  text: ao entrar em jogo, cause 1 de dano direto a todos os heróis.
+purple_forge_chains:
+  name: Correntes da Fornalha
+  label: "Correntes da Fornalha: enquanto esta criatura estiver em jogo, heróis não podem fugir."
+  text: enquanto esta criatura estiver em jogo, heróis não podem fugir.
+purple_ruin_ashes:
+  name: Cinzas da Ruína
+  label: "Cinzas da Ruína: quando esta criatura for destruída, descarte 1 carta adicional de dungeon."
+  text: quando esta criatura for destruída, descarte 1 carta adicional de dungeon.
+purple_crimson_plate:
+  name: Couraça Rubra
+  label: "Couraça Rubra: o primeiro dano que esta criatura sofreria em cada rodada é ignorado."
+  text: o primeiro dano que esta criatura sofreria em cada rodada é ignorado.
+purple_ash_protection:
+  name: Proteção das Cinzas
+  label: "Proteção das Cinzas ({value}): esta criatura reduz em {value} todo dano que sofreria."
+  text: esta criatura reduz em {value} todo dano que sofreria.
+purple_dark_awakening:
+  name: Despertar Sombrio
+  label: "Despertar Sombrio: ao entrar em jogo, aumente o Despertar da Masmorra em 1 nível."
+  text: ao entrar em jogo, aumente o Despertar da Masmorra em 1 nível.
+purple_deadly_awakening:
+  name: Despertar Mortal
+  label: "Despertar Mortal: quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível."
+  text: quando esta criatura for destruída, aumente o Despertar da Masmorra em 1 nível.
+purple_ember_blood:
+  name: Sangue em Brasa
+  label: "Sangue em Brasa: sempre que esta criatura sofrer dano, o herói que causou esse dano sofre 1 dano direto."
+  text: sempre que esta criatura sofrer dano, o herói que causou esse dano sofre 1 dano direto.
+purple_depths_seal:
+  name: Selo das Profundezas
+  label: "Selo das Profundezas: enquanto esta criatura estiver em jogo, heróis não podem usar poderes uma vez por jogo."
+  text: enquanto esta criatura estiver em jogo, heróis não podem usar poderes uma vez por jogo.
+purple_dark_tribute:
+  name: Tributo Sombrio
+  label: "Tributo Sombrio: antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon."
+  text: antes do combate, o grupo deve descartar 1 item ou sofrer +1 descarte de dungeon.
+purple_blood_tribute:
+  name: Tributo de Sangue
+  label: "Tributo de Sangue: antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha."
+  text: antes do combate, o grupo deve descartar 1 item ou sofrer 3 dano em um herói à escolha.
+purple_veil_retaliation:
+  name: Retaliação do Véu
+  label: "Retaliação do Véu ({value}): sempre que esta criatura for acertada por um herói, esse herói sofre {value} de dano."
+  text: sempre que esta criatura for acertada por um herói, esse herói sofre {value} de dano.
+purple_healing_rupture:
+  name: Ruptura da Cura
+  label: "Ruptura da Cura: ao entrar nesta sala, anule o próximo efeito de cura usado pelos heróis."
+  text: ao entrar nesta sala, anule o próximo efeito de cura usado pelos heróis.
+purple_ancient_veil_prison:
+  name: Prisão do Véu Antigo
+  label: "Prisão do Véu Antigo ({value}): o primeiro herói alvo dela recebe -{value} no total de bônus de acerto da próxima rolagem."
+  text: o primeiro herói alvo dela recebe -{value} no total de bônus de acerto da próxima rolagem.
+purple_deep_veil_seal:
+  name: Selo do Véu Profundo
+  label: "Selo do Véu Profundo: enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra."
+  text: enquanto estiver em jogo, heróis não podem reduzir o nível da masmorra.
+purple_crimson_shackles:
+  name: Grilhões Rubros
+  label: "Grilhões Rubros: o primeiro herói escolhido como alvo por esta criatura recebe -3 no total da próxima rolagem de ataque e causa -3 de dano se acertar."
+  text: o primeiro herói escolhido como alvo por esta criatura recebe -3 no total da próxima rolagem de ataque e causa -3 de dano se acertar.
+item_skill_deadly_edge:
+  name: Fio Mortal
+  label: "Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano."
+  text: receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano.
+item_skill_block:
+  name: Bloqueio
+  label: "Bloqueio ({value}): reduza em {value} o dano sofrido por este herói."
+  text: reduza em {value} o dano sofrido por este herói.
+item_skill_mystic_draw:
+  name: Saque Místico
+  label: "Saque Místico: saque 1 carta de Artefato da pilha de artefatos."
+  text: saque 1 carta de Artefato da pilha de artefatos.
+item_skill_last_light_blade:
+  name: Lâmina da Última Luz
+  label: "Lâmina da Última Luz: receba +2 no total de bônus da rolagem. Contra chefes e subchefes, cause +2 de dano ao acertar."
+  text: receba +2 no total de bônus da rolagem. Contra chefes e subchefes, cause +2 de dano ao acertar.
+dungeon_skill_confinement:
+  name: Confinamento
+  label: "Confinamento: criaturas ou heróis nesta sala não podem fugir."
+  text: criaturas ou heróis nesta sala não podem fugir.
+dungeon_skill_dead_torches:
+  name: Tochas Mortas
+  label: "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito."
+  text: "antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito."
+dungeon_skill_column_fall:
+  name: Queda de Coluna
+  label: "Queda de Coluna: a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano."
+  text: a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano.
+dungeon_skill_uneven_floor:
+  name: Piso Irregular
+  label: "Piso Irregular: se algum herói perder um combate nesta sala, descarte +1 carta de dungeon."
+  text: se algum herói perder um combate nesta sala, descarte +1 carta de dungeon.
+dungeon_skill_forge_spoils:
+  name: Espólios da Fornalha
+  label: "Espólios da Fornalha: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon."
+  text: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra. Isso substitui o passo de saque e descarte de dungeon.
+dungeon_skill_rekindled_forge:
+  name: Forja Reacesa
+  label: "Forja Reacesa: ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói."
+  text: ao vencer esta sala, busque pelo primeiro Item [Equipável] na pilha de itens e equipe ele em um herói.
+dungeon_skill_summon_guardian:
+  name: Invocar Guardião
+  label: "Invocar Guardião ({value}): revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo."
+  text: revele o {value} junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o {value} seja derrotado, remova esta carta do jogo.
+boss_skill_living_ash_throne:
+  name: Trono de Cinzas Vivas
+  label: "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."
+  text: o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1.
+boss_skill_dark_forge_pressure:
+  name: Pressão da Fornalha Sombria
+  label: "Pressão da Fornalha Sombria (1): após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon."
+  text: após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon.
+boss_skill_azhakar_ascension:
+  name: Ascensão de Azhakar
+  label: "Ascensão de Azhakar (2): quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto."
+  text: quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto.
+item_skill_drain_life_and_deadly_edge:
+  name: Drenar Vida e Fio Mortal
+  label: "Drenar Vida e Fio Mortal ({value}): receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano."
+  text: receba +{value} no total da rolagem. Se vencer a rolagem por 4 ou mais, cause +{value} de dano. Cure 1 de vida deste herói apenas se ele causar dano.
+item_skill_block_and_last_light_ward:
+  name: Bloqueio e Resguardo da Última Luz
+  label: "Bloqueio e Resguardo da Última Luz ({value}): reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional."
+  text: reduza em {value} o dano sofrido por este herói. Contra efeitos Roxos, reduza 2 de dano adicional.
+item_skill_crimson_fury_mighty:
+  name: Fúria Rubra e Fúria Rubra Poderosa
+  label: "Fúria Rubra e Fúria Rubra Poderosa ({value}): este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
+  text: este personagem sofre {value} de dano para causar +6 de dano. Uma vez por jogo, ao usar Fúria Rubra, o dano adicional dura até o fim do combate.
+dungeon_skill_subboss_room:
+  name: Sala do Subchefe
+  label: "Sala do Subchefe: sala especial: um subchefe guarda esta câmara."
+  text: "sala especial: um subchefe guarda esta câmara."
+dungeon_skill_empty_room:
+  name: Sala Vazia
+  label: "Sala Vazia: sem efeito adicional."
+  text: sem efeito adicional.

@@ -14,5 +14,5 @@ export const run: ScriptHandler = (ctx) => {
 	);
 	const amount = hasGelatinous ? 3 : 2;
 
-	return ctx.action.pushEffect({ kind: "apply_damage", to: enemyId, amount });
+	return ctx.action.pushEffect({ kind: "i_damage", to: enemyId, amount });
 };

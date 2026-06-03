@@ -1,4 +1,4 @@
-// Testes da Onda A do patch-8 + Lote 1 do patch-12.
+﻿// Testes da Onda A do patch-8 + Lote 1 do patch-12.
 //
 // Patch-12 Lote 1: handlers deletados (discardDungeon, reward, discardDungeonLock,
 // flee_block, heal_block, dungeonLevel) foram absorvidos pela DSL.
@@ -93,7 +93,7 @@ function makeEvalCtx(state: GameState, sourceId?: string, _targetId?: string) {
 	});
 }
 
-// ── DSL add_modifier stat:"tohit_penalty" (antigo handleTohitPenalty) ────────
+// ── DSL add_modifier stat:"s_hit_penalty" (antigo handleTohitPenalty) ────────
 
 describe("DSL add_modifier tohit_penalty", () => {
 	it("seta tohit_penalty no ECS world (hit_bonus negativo) — patch-18 Lote G", () => {
@@ -107,9 +107,9 @@ describe("DSL add_modifier tohit_penalty", () => {
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "tohit_penalty",
+						stat: "s_hit_penalty",
 						operation: "add",
 						value: 2,
 						duration: { kind: "once" },
@@ -133,9 +133,9 @@ describe("DSL add_modifier tohit_penalty", () => {
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "tohit_penalty",
+						stat: "s_hit_penalty",
 						operation: "add",
 						value: 1,
 						duration: { kind: "once" },
@@ -153,9 +153,9 @@ describe("DSL add_modifier tohit_penalty", () => {
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "tohit_penalty",
+						stat: "s_hit_penalty",
 						operation: "add",
 						value: 1,
 						duration: { kind: "once" },
@@ -202,7 +202,7 @@ describe("DSL block_action heal", () => {
 		const state = makeState();
 		const ctx = makeEvalCtx(state);
 		const intermediate = evaluate(
-			[{ kind: "block_action", what: "heal" }],
+			[{ kind: "p_block", what: "heal" }],
 			ctx,
 		);
 		const result = drainStack(intermediate);
@@ -218,7 +218,7 @@ describe("DSL block_action dungeon_discard", () => {
 		const state = makeState();
 		const ctx = makeEvalCtx(state);
 		const result = drainStack(
-			evaluate([{ kind: "block_action", what: "dungeon_discard" }], ctx),
+			evaluate([{ kind: "p_block", what: "dungeon_discard" }], ctx),
 		);
 		expect(result.flags.discardDungeonLocked).toBe(true);
 	});
@@ -241,7 +241,7 @@ describe("DSL discard_from dungeon", () => {
 		});
 		const ctx = makeEvalCtx(state);
 		const result = drainStack(
-			evaluate([{ kind: "discard_from", pile: "dungeon", count: 1 }], ctx),
+			evaluate([{ kind: "i_discard", pile: "dungeon", count: 1 }], ctx),
 		);
 		expect(result.decks.dungeonDeck.available).toHaveLength(2);
 		expect(result.decks.dungeonDeck.discarded).toContain("Sala A");
@@ -256,7 +256,7 @@ describe("DSL discard_from dungeon", () => {
 		});
 		const ctx = makeEvalCtx(state);
 		const result = drainStack(
-			evaluate([{ kind: "discard_from", pile: "dungeon", count: 2 }], ctx),
+			evaluate([{ kind: "i_discard", pile: "dungeon", count: 2 }], ctx),
 		);
 		expect(result.decks.dungeonDeck.available).toHaveLength(1);
 	});
@@ -273,7 +273,7 @@ describe("DSL set_no_reward", () => {
 			skillId: "skill_cowardly_flee",
 		});
 		const result = drainStack(
-			evaluate([{ kind: "set_no_reward", to: "$source" }], ctx),
+			evaluate([{ kind: "i_set_no_reward", to: "$source" }], ctx),
 		);
 		const enemy = result.activeEnemies.find((e) => e.id === "e1");
 		expect(enemy?.noReward).toBe(true);
@@ -315,7 +315,7 @@ describe("DSL advance_dungeon_level", () => {
 		const state = { ...makeState(), despertar: 1 as const };
 		const ctx = makeEvalCtx(state);
 		const result = drainStack(
-			evaluate([{ kind: "advance_dungeon_level", amount: 2 }], ctx),
+			evaluate([{ kind: "i_advance_dungeon", amount: 2 }], ctx),
 		);
 		expect(result.despertar).toBe(3);
 	});
@@ -324,7 +324,7 @@ describe("DSL advance_dungeon_level", () => {
 		const state = { ...makeState(), despertar: 3 as const };
 		const ctx = makeEvalCtx(state);
 		const result = drainStack(
-			evaluate([{ kind: "advance_dungeon_level", amount: 2 }], ctx),
+			evaluate([{ kind: "i_advance_dungeon", amount: 2 }], ctx),
 		);
 		expect(result.despertar).toBe(4);
 	});
@@ -337,8 +337,9 @@ describe("DSL block_action flee", () => {
 		const state = makeState();
 		const ctx = makeEvalCtx(state);
 		const result = drainStack(
-			evaluate([{ kind: "block_action", what: "flee" }], ctx),
+			evaluate([{ kind: "p_block", what: "flee" }], ctx),
 		);
 		expect(result.flags.fleeBlocked).toBe(true);
 	});
 });
+

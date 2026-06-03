@@ -1,4 +1,4 @@
-// Resolvedor de efeitos da stack.
+﻿// Resolvedor de efeitos da stack.
 // Passo 8: drena a stack de efeitos pendentes sem recursão direta no call stack.
 //
 // Lote 1 (Patch-12): adicionados handlers para os kinds da DSL.
@@ -41,7 +41,8 @@ export function resolveEffect(
 	switch (effectKind) {
 		// ── Dano ─────────────────────────────────────────────────────────────
 
-		case "apply_damage": {
+		case "i_damage":
+case "apply_damage": {
 			if (!targetId) return state;
 			const amount = effect["amount"] as number;
 			return applyDamage(state, targetId, amount, {
@@ -52,25 +53,29 @@ export function resolveEffect(
 
 		// ── Cura ─────────────────────────────────────────────────────────────
 
-		case "apply_heal": {
+		case "i_heal":
+case "apply_heal": {
 			if (!targetId) return state;
 			const amount = effect["amount"] as number;
 			return applyHeal(state, targetId, amount);
 		}
 
-		case "apply_full_heal": {
+		case "i_full_heal":
+case "apply_full_heal": {
 			if (!targetId) return state;
 			return applyFullHeal(state, targetId);
 		}
 
-		case "prevent_destroy": {
+		case "i_prevent_destroy":
+case "prevent_destroy": {
 			if (!targetId) return state;
 			return applySurvive(state, targetId);
 		}
 
 		// ── Dungeon ───────────────────────────────────────────────────────────
 
-		case "advance_dungeon_level": {
+		case "i_advance_dungeon":
+case "advance_dungeon_level": {
 			const amount = (effect["amount"] as number) ?? 1;
 			const newLevel = Math.min(
 				MAX_DUNGEON_LEVEL,
@@ -82,7 +87,8 @@ export function resolveEffect(
 			);
 		}
 
-		case "discard_from": {
+		case "i_discard":
+case "discard_from": {
 			const pile = effect["pile"] as string;
 			const count = (effect["count"] as number) ?? 1;
 			if (pile === "dungeon") {
@@ -102,7 +108,8 @@ export function resolveEffect(
 
 		// ── Flags de mecânica ─────────────────────────────────────────────────
 
-		case "block_action": {
+		case "p_block":
+case "block_action": {
 			const what = effect["what"] as string;
 			switch (what) {
 				case "flee":
@@ -140,7 +147,8 @@ export function resolveEffect(
 
 		// ── Modificadores (dual-write: ECS world + legacy combat state) ─────────
 
-		case "add_modifier": {
+		case "p_modifier":
+case "add_modifier": {
 			const entityId = targetId ?? (effect["to"] as string | undefined);
 			if (!entityId) return state;
 			const stat = effect["stat"] as string;
@@ -150,13 +158,20 @@ export function resolveEffect(
 				| { kind: string; remaining?: number }
 				| undefined;
 
-			// Mapeia stat DSL → target ECS
+			// Mapeia stat DSL → target ECS (suporta nomes v1 legados e v2 com prefixo s_)
 			const ecsTargetMap: Record<string, ModifierComponent["target"]> = {
+				// Legado (v1)
 				damage_reduction: "damage_taken",
 				damage_bonus: "damage_dealt",
 				tohit_bonus: "hit_bonus",
 				tohit_penalty: "hit_bonus",
 				dice_count: "dice_count",
+				// v2 (patch-21 Lote E)
+				s_damage_reduction: "damage_taken",
+				s_damage_dealt: "damage_dealt",
+				s_hit_bonus: "hit_bonus",
+				s_hit_penalty: "hit_bonus",
+				s_damage_penalty: "damage_dealt",
 			};
 			const ecsTarget = ecsTargetMap[stat];
 
@@ -179,8 +194,11 @@ export function resolveEffect(
 			// Dual-write: escreve no ECS world para todos os stats mapeados
 			let worldState = state;
 			if (ecsTarget) {
-				// damage_reduction e tohit_penalty: negativo no ECS (reduz dano/acerto sofrido)
-				const ecsValue = (stat === "tohit_penalty" || stat === "damage_reduction") ? -value : value;
+				// damage_reduction e tohit_penalty/hit_penalty: negativo no ECS
+				const ecsValue = (
+					stat === "tohit_penalty" || stat === "damage_reduction" ||
+					stat === "s_hit_penalty" || stat === "s_damage_reduction"
+				) ? -value : value;
 				const modComp: ModifierComponent = {
 					type: "modifier",
 					target: ecsTarget,
@@ -204,15 +222,20 @@ export function resolveEffect(
 			}
 
 			switch (stat) {
-				// damage_bonus, tohit_bonus, damage_reduction, tohit_penalty:
-				// migrados para ECS world (patch-18 Lote G — removido dual-write legacy)
+				// stats com ECS target: apenas ECS world (escrito acima via ecsTarget)
 				case "damage_bonus":
 				case "tohit_bonus":
 				case "damage_reduction":
 				case "tohit_penalty":
-					return worldState; // apenas ECS world (escrito acima via ecsTarget)
+				case "s_damage_dealt":
+				case "s_hit_bonus":
+				case "s_hit_penalty":
+				case "s_damage_reduction":
+				case "s_damage_penalty":
+					return worldState;
 
-				case "purple_damage_reduction": {
+				case "purple_damage_reduction":
+				case "s_purple_damage_reduction": {
 					// Corrige bug do handler antigo: armazena como número, não boolean
 					const key = `purpleDmgReduction::${entityId}`;
 					const prevPurple = worldState.flags[key] as number | boolean | undefined;
@@ -233,7 +256,8 @@ export function resolveEffect(
 
 		// ── Misc ──────────────────────────────────────────────────────────────
 
-		case "set_no_reward": {
+		case "i_set_no_reward":
+case "set_no_reward": {
 			if (!targetId) return state;
 			return log(
 				mapEnemy(state, targetId, (e) => ({ ...e, noReward: true })),
@@ -241,12 +265,14 @@ export function resolveEffect(
 			);
 		}
 
-		case "noop":
+		case "i_noop":
+case "noop":
 			return state;
 
 		// ── Patch-16 Lote B — novos kinds ────────────────────────────────────
 
-		case "prevent_next_damage": {
+		case "i_prevent_next_damage":
+case "prevent_next_damage": {
 			const entityId = targetId;
 			if (!entityId) return state;
 			return log(
@@ -261,7 +287,8 @@ export function resolveEffect(
 			);
 		}
 
-		case "ignore_next_targeting": {
+		case "i_ignore_next_targeting":
+case "ignore_next_targeting": {
 			const heroId = targetId;
 			if (!heroId || !state.combat) return state;
 			return log(
@@ -279,7 +306,8 @@ export function resolveEffect(
 			);
 		}
 
-		case "recover_dungeon": {
+		case "i_recover_dungeon":
+case "recover_dungeon": {
 			const count = (effect["count"] as number) ?? 1;
 			const { discarded } = state.decks.dungeonDeck;
 			if (discarded.length === 0)
@@ -307,7 +335,8 @@ export function resolveEffect(
 			);
 		}
 
-		case "mark_target": {
+		case "i_mark_target":
+case "mark_target": {
 			const preyId = targetId;
 			if (!preyId || !state.combat) return state;
 			return log(
@@ -316,13 +345,15 @@ export function resolveEffect(
 			);
 		}
 
-		case "prevent_dungeon_discard":
+		case "i_prevent_dungeon_discard":
+case "prevent_dungeon_discard":
 			return log(
 				{ ...state, flags: { ...state.flags, dungeonDiscardPrevented: true } },
 				"Próximo descarte de dungeon será prevenido.",
 			);
 
-		case "draw_from": {
+		case "i_draw":
+case "draw_from": {
 			const pile = effect["pile"] as string;
 			const count = (effect["count"] as number) ?? 1;
 			if (pile === "artifact_deck") {
@@ -378,7 +409,8 @@ export function resolveEffect(
 			return state;
 		}
 
-		case "draw_and_choose": {
+		case "i_draw_and_choose":
+case "draw_and_choose": {
 			const pile = effect["pile"] as string;
 			const reveal = (effect["reveal"] as number) ?? 2;
 			const skillId = (pending.source as string | undefined) ?? "draw_and_choose";
@@ -423,7 +455,8 @@ export function resolveEffect(
 			);
 		}
 
-		case "reveal_dungeon": {
+		case "i_reveal_dungeon":
+case "reveal_dungeon": {
 			const count = (effect["count"] as number) ?? 1;
 			const skillId = (pending.source as string | undefined) ?? "reveal_dungeon";
 			const topCards = state.decks.dungeonDeck.available.slice(0, count);
@@ -446,7 +479,8 @@ export function resolveEffect(
 			};
 		}
 
-		case "grant_pending_reward": {
+		case "i_grant_reward":
+case "grant_pending_reward": {
 			const cardName = effect["cardName"] as string;
 			const rewardType = effect["rewardType"] as "item" | "artifact";
 			const reward: PendingReward = { type: rewardType, cardName, requiresBearer: false };
@@ -537,3 +571,4 @@ export function drainStack(state: GameState): GameState {
 
 	return state;
 }
+

@@ -1,4 +1,4 @@
-// Testes do script skill_living_ember_oil (Frasco de Óleo Incendiário).
+﻿// Testes do script skill_living_ember_oil (Frasco de Óleo Incendiário).
 // Fase 7: migrado de handleScript(type="script") para getScript("skill_living_ember_oil.run").
 
 import { describe, expect, it } from "vitest";
@@ -58,7 +58,7 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		});
 		expect(next.effectStack.pending).toHaveLength(1);
 		expect(next.effectStack.pending[0]!.effect).toMatchObject({
-			kind: "apply_damage",
+			kind: "i_damage",
 			to: "e_goblin",
 			amount: 2,
 		});
@@ -76,7 +76,7 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		});
 		expect(next.effectStack.pending).toHaveLength(1);
 		expect(next.effectStack.pending[0]!.effect).toMatchObject({
-			kind: "apply_damage",
+			kind: "i_damage",
 			to: "e_slime",
 			amount: 3,
 		});
@@ -99,3 +99,4 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		expect(next).toBe(base);
 	});
 });
+

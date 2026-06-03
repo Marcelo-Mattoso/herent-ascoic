@@ -1,4 +1,4 @@
-// Evaluator da DSL de efeitos (Patch-12 Fase 1).
+﻿// Evaluator da DSL de efeitos (Patch-12 Fase 1).
 // evaluate(effects, ctx) → GameState
 //
 // Cada nó despacha para ctx.action.* (pipeline ECS) — sem mutação direta de state.
@@ -40,42 +40,42 @@ function evaluateOne(
 	switch (node.kind) {
 		// ── Dano / cura ───────────────────────────────────────────────────────
 
-		case "apply_damage": {
+		case "i_damage": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const amount = resolveExpr(node.amount, ctx);
 			const clamped =
 				node.minimum !== undefined ? Math.max(node.minimum, amount) : amount;
 			return ctx.action.pushEffect({
-				kind: "apply_damage",
+				kind: "i_damage",
 				to,
 				amount: clamped,
 			});
 		}
 
-		case "apply_heal": {
+		case "i_heal": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const amount = resolveExpr(node.amount, ctx);
-			return ctx.action.pushEffect({ kind: "apply_heal", to, amount });
+			return ctx.action.pushEffect({ kind: "i_heal", to, amount });
 		}
 
-		case "apply_full_heal": {
+		case "i_full_heal": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
-			return ctx.action.pushEffect({ kind: "apply_full_heal", to });
+			return ctx.action.pushEffect({ kind: "i_full_heal", to });
 		}
 
-		case "prevent_destroy": {
+		case "i_prevent_destroy": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
-			return ctx.action.pushEffect({ kind: "prevent_destroy", to });
+			return ctx.action.pushEffect({ kind: "i_prevent_destroy", to });
 		}
 
 		// ── Modificadores / componentes ECS ───────────────────────────────────
 
-		case "add_modifier": {
+		case "p_modifier": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const value = resolveExpr(node.value, ctx);
 			// Vai para o drainStack que faz dual-write (ECS world + legacy combat state)
 			return ctx.action.pushEffect({
-				kind: "add_modifier",
+				kind: "p_modifier",
 				to,
 				stat: node.stat,
 				operation: node.operation,
@@ -102,24 +102,24 @@ function evaluateOne(
 			});
 		}
 
-		case "block_action":
-			return ctx.action.pushEffect({ kind: "block_action", what: node.what });
+		case "p_block":
+			return ctx.action.pushEffect({ kind: "p_block", what: node.what });
 
 		// ── Decks ─────────────────────────────────────────────────────────────
 
-		case "discard_from": {
+		case "i_discard": {
 			const count = resolveExpr(node.count, ctx);
 			return ctx.action.pushEffect({
-				kind: "discard_from",
+				kind: "i_discard",
 				pile: node.pile,
 				count,
 			});
 		}
 
-		case "draw_from": {
+		case "i_draw": {
 			const count = resolveExpr(node.count, ctx);
 			return ctx.action.pushEffect({
-				kind: "draw_from",
+				kind: "i_draw",
 				pile: node.pile,
 				count,
 			});
@@ -127,75 +127,75 @@ function evaluateOne(
 
 		// ── Dungeon ───────────────────────────────────────────────────────────
 
-		case "advance_dungeon_level": {
+		case "i_advance_dungeon": {
 			const amount = resolveExpr(node.amount, ctx);
-			return ctx.action.pushEffect({ kind: "advance_dungeon_level", amount });
+			return ctx.action.pushEffect({ kind: "i_advance_dungeon", amount });
 		}
 
 		// ── Misc ──────────────────────────────────────────────────────────────
 
-		case "set_no_reward": {
+		case "i_set_no_reward": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
-			return ctx.action.pushEffect({ kind: "set_no_reward", to });
+			return ctx.action.pushEffect({ kind: "i_set_no_reward", to });
 		}
 
 		// ── Patch-16 Lote B ───────────────────────────────────────────────────
 
-		case "prevent_next_damage": {
+		case "i_prevent_next_damage": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
-			return ctx.action.pushEffect({ kind: "prevent_next_damage", to });
+			return ctx.action.pushEffect({ kind: "i_prevent_next_damage", to });
 		}
 
-		case "ignore_next_targeting": {
+		case "i_ignore_next_targeting": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
-			return ctx.action.pushEffect({ kind: "ignore_next_targeting", to });
+			return ctx.action.pushEffect({ kind: "i_ignore_next_targeting", to });
 		}
 
-		case "recover_dungeon": {
+		case "i_recover_dungeon": {
 			const count = resolveExpr(node.count, ctx);
-			return ctx.action.pushEffect({ kind: "recover_dungeon", count });
+			return ctx.action.pushEffect({ kind: "i_recover_dungeon", count });
 		}
 
-		case "mark_target": {
+		case "i_mark_target": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
-			return ctx.action.pushEffect({ kind: "mark_target", to });
+			return ctx.action.pushEffect({ kind: "i_mark_target", to });
 		}
 
-		case "prevent_dungeon_discard":
-			return ctx.action.pushEffect({ kind: "prevent_dungeon_discard" });
+		case "i_prevent_dungeon_discard":
+			return ctx.action.pushEffect({ kind: "i_prevent_dungeon_discard" });
 
-		case "draw_and_choose": {
+		case "i_draw_and_choose": {
 			const reveal = resolveExpr(node.reveal, ctx);
 			const keep = resolveExpr(node.keep, ctx);
 			return ctx.action.pushEffect({
-				kind: "draw_and_choose",
+				kind: "i_draw_and_choose",
 				pile: node.pile,
 				reveal,
 				keep,
 			});
 		}
 
-		case "reveal_dungeon": {
+		case "i_reveal_dungeon": {
 			const count = resolveExpr(node.count, ctx);
-			return ctx.action.pushEffect({ kind: "reveal_dungeon", count });
+			return ctx.action.pushEffect({ kind: "i_reveal_dungeon", count });
 		}
 
-		case "grant_pending_reward":
+		case "i_grant_reward":
 			return ctx.action.pushEffect({
-				kind: "grant_pending_reward",
+				kind: "i_grant_reward",
 				rewardType: node.rewardType,
 				cardName: node.cardName,
 			});
 
 		// ── Composição ────────────────────────────────────────────────────────
 
-		case "if": {
+		case "i_if": {
 			const cond = resolveCondition(node.when, ctx);
 			const branch = cond ? node.then : (node.else ?? []);
 			return evaluate(branch, ctx);
 		}
 
-		case "choose_one": {
+		case "i_choose_one": {
 			const options = node.options.map((opt) => ({
 				id: opt.label,
 				label: opt.label,
@@ -204,7 +204,7 @@ function evaluateOne(
 			return ctx.action.requestChoice(options);
 		}
 
-		case "for_each": {
+		case "i_for_each": {
 			const ids = resolveEntityListRef(node.over, ctx);
 			let cur = ctx;
 			for (const id of ids) {
@@ -221,7 +221,7 @@ function evaluateOne(
 			return cur.state;
 		}
 
-		case "noop":
+		case "i_noop":
 			return ctx.state;
 	}
 }
@@ -247,3 +247,5 @@ function mapDuration(d: DurationNode): Duration {
 			return { kind: "rounds", remaining: 1 };
 	}
 }
+
+

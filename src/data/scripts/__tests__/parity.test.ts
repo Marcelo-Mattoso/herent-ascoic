@@ -8,9 +8,10 @@
 import * as fs from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
+import { parse } from "yaml";
 import { getScript } from "@/core/scripts/registry";
 
-const SKILLS_JSON = path.join(import.meta.dirname, "../../../data/skills.json");
+const SKILLS_YAML = path.join(import.meta.dirname, "../../../data/skills.yaml");
 const SCRIPTS_DIR = path.join(import.meta.dirname, "..");
 
 // Arquivos que existem mas NÃO precisam de entrada skills.json:
@@ -23,7 +24,7 @@ const EXEMPTED_FILES = new Set([
 ]);
 
 function getScriptIdsFromJson(): string[] {
-	const data = JSON.parse(fs.readFileSync(SKILLS_JSON, "utf8"));
+	const data = parse(fs.readFileSync(SKILLS_YAML, "utf8"));
 	return (data.abilities as Array<{ script?: string }>)
 		.filter((a) => a.script)
 		.map((a) => a.script as string);

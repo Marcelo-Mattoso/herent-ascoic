@@ -1,4 +1,4 @@
-// Testes de integração do reducer.
+﻿// Testes de integração do reducer.
 // Cada teste percorre um caminho completo do loop de jogo.
 
 import { describe, expect, it } from "vitest";
@@ -677,3 +677,4 @@ describe("determinismo via seed", () => {
 		expect(c2).toBeGreaterThanOrEqual(c1);
 	});
 });
+

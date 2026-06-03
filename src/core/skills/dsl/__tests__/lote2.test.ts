@@ -1,4 +1,4 @@
-// Testes de aceite Lote 2 (Patch-12 Fase 4) — DSL com add_modifier.
+﻿// Testes de aceite Lote 2 (Patch-12 Fase 4) — DSL com add_modifier.
 
 import { describe, expect, it } from "vitest";
 import type { ModifierComponent } from "../../../ecs/types";
@@ -45,7 +45,7 @@ function stateWithCombat(extra: Partial<GameState> = {}): GameState {
 	};
 }
 
-// ── add_modifier stat:"damage_bonus" → ECS world (patch-18 Lote G) ──────────
+// ── add_modifier stat:"s_damage_dealt" → ECS world (patch-18 Lote G) ──────────
 
 describe("add_modifier damage_bonus → bonusNextAttack", () => {
 	it("adiciona bônus ao herói-fonte após drainStack", () => {
@@ -59,9 +59,9 @@ describe("add_modifier damage_bonus → bonusNextAttack", () => {
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "damage_bonus",
+						stat: "s_damage_dealt",
 						operation: "add",
 						value: "$value",
 						duration: { kind: "until_end_of_combat" },
@@ -74,7 +74,7 @@ describe("add_modifier damage_bonus → bonusNextAttack", () => {
 	});
 });
 
-// ── add_modifier stat:"tohit_bonus" → ECS world ──────────────────────────────
+// ── add_modifier stat:"s_hit_bonus" → ECS world ──────────────────────────────
 
 describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 	it("adiciona bônus de acerto ao inimigo-fonte", () => {
@@ -88,9 +88,9 @@ describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "tohit_bonus",
+						stat: "s_hit_bonus",
 						operation: "add",
 						value: "$value",
 						duration: { kind: "until_end_of_combat" },
@@ -103,7 +103,7 @@ describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 	});
 });
 
-// ── add_modifier stat:"damage_reduction" → ECS world ─────────────────────────
+// ── add_modifier stat:"s_damage_reduction" → ECS world ─────────────────────────
 
 describe("add_modifier damage_reduction → damageReduction", () => {
 	it("adiciona redução de dano ao herói após drainStack", () => {
@@ -117,9 +117,9 @@ describe("add_modifier damage_reduction → damageReduction", () => {
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "damage_reduction",
+						stat: "s_damage_reduction",
 						operation: "add",
 						value: "$value",
 						duration: { kind: "while_in_play" },
@@ -133,7 +133,7 @@ describe("add_modifier damage_reduction → damageReduction", () => {
 	});
 });
 
-// ── add_modifier stat:"purple_damage_reduction" → flags (fix bug) ────────────
+// ── add_modifier stat:"s_purple_damage_reduction" → flags (fix bug) ────────────
 
 describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fix)", () => {
 	it("armazena valor numérico correto nas flags (não boolean)", () => {
@@ -147,9 +147,9 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "purple_damage_reduction",
+						stat: "s_purple_damage_reduction",
 						operation: "add",
 						value: "$value",
 						duration: { kind: "while_in_play" },
@@ -172,9 +172,9 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "purple_damage_reduction",
+						stat: "s_purple_damage_reduction",
 						operation: "add",
 						value: 1,
 						duration: { kind: "while_in_play" },
@@ -192,9 +192,9 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 			evaluate(
 				[
 					{
-						kind: "add_modifier",
+						kind: "p_modifier",
 						to: "$source",
-						stat: "purple_damage_reduction",
+						stat: "s_purple_damage_reduction",
 						operation: "add",
 						value: 1,
 						duration: { kind: "while_in_play" },
@@ -226,14 +226,14 @@ describe("for_each + add_modifier — power_unbreakable_bastion_guard", () => {
 			evaluate(
 				[
 					{
-						kind: "for_each",
+						kind: "i_for_each",
 						over: "all_heroes",
 						as: "$loopHero",
 						do: [
 							{
-								kind: "add_modifier",
+								kind: "p_modifier",
 								to: "$target",
-								stat: "damage_reduction",
+								stat: "s_damage_reduction",
 								operation: "add",
 								value: 1,
 								duration: { kind: "until_end_of_round" },
@@ -249,3 +249,4 @@ describe("for_each + add_modifier — power_unbreakable_bastion_guard", () => {
 		expect(getModifierTotal(result.world, "h2", "damage_taken")).toBe(-1);
 	});
 });
+

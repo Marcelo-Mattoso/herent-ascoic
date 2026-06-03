@@ -27,7 +27,7 @@ abilities:
     category: habilidade
     target: hero_or_ally_creature
     effect:
-      - kind: apply_heal
+      - kind: i_heal
         to: $target
         amount: $value
     operate_type: op_active
@@ -38,9 +38,9 @@ abilities:
     category: habilidade
     target: hero_or_ally
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_reduction
+        stat: s_damage_reduction
         operation: add
         value: $value
         duration:
@@ -70,7 +70,7 @@ abilities:
     category: habilidade
     target: creature_in_play
     effect:
-      - kind: apply_damage
+      - kind: i_damage
         to: $target
         amount: $value
     operate_type: op_active
@@ -91,7 +91,7 @@ abilities:
     category: habilidade
     target: hero
     effect:
-      - kind: prevent_next_damage
+      - kind: i_prevent_next_damage
         to: $target
     operate_type: op_triggered
     trigger:
@@ -106,7 +106,7 @@ abilities:
     category: habilidade
     target: dungeon
     effect:
-      - kind: prevent_dungeon_discard
+      - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
     trigger:
       event: evt_dungeon_discard
@@ -150,18 +150,18 @@ abilities:
     category: habilidade
     target: ally_or_next_attack
     effect:
-      - kind: choose_one
+      - kind: i_choose_one
         options:
           - label: Curar 2
             effect:
-              - kind: apply_heal
+              - kind: i_heal
                 to: $target
                 amount: 2
           - label: +2 dano
             effect:
-              - kind: add_modifier
+              - kind: p_modifier
                 to: $source
-                stat: damage_bonus
+                stat: s_damage_dealt
                 operation: add
                 value: 2
                 duration:
@@ -186,7 +186,7 @@ abilities:
     category: habilidade
     target: item_deck
     effect:
-      - kind: draw_and_choose
+      - kind: i_draw_and_choose
         pile: item_deck
         reveal: 2
         keep: 1
@@ -198,11 +198,11 @@ abilities:
     category: habilidade
     target: creature_in_room
     effect:
-      - kind: mark_target
+      - kind: i_mark_target
         to: $target
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: $value
         duration:
@@ -216,10 +216,10 @@ abilities:
     category: habilidade
     target: dungeon
     effect:
-      - kind: apply_damage
+      - kind: i_damage
         to: $source
         amount: 3
-      - kind: recover_dungeon
+      - kind: i_recover_dungeon
         count: $value
     operate_type: op_active
     cooldown: *a2
@@ -230,16 +230,16 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: 2
         duration:
           kind: until_end_of_combat
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_bonus
+        stat: s_damage_dealt
         operation: add
         value: 2
         duration:
@@ -262,13 +262,13 @@ abilities:
     category: habilidade
     target: heroes
     effect:
-      - kind: for_each
+      - kind: i_for_each
         over: all_heroes
         as: $h
         do:
-          - kind: add_modifier
+          - kind: p_modifier
             to: $target
-            stat: tohit_penalty
+            stat: s_hit_penalty
             operation: add
             value: $value
             duration:
@@ -285,7 +285,7 @@ abilities:
     category: habilidade
     target: hero
     effect:
-      - kind: block_action
+      - kind: p_block
         what: flee
     operate_type: op_active_buff
     nature:
@@ -295,7 +295,7 @@ abilities:
     category: habilidade
     target: lowest_life_hero
     effect:
-      - kind: apply_damage
+      - kind: i_damage
         to: $lowest_life_hero
         amount: $value
     operate_type: op_active
@@ -306,9 +306,9 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_reduction
+        stat: s_damage_reduction
         operation: add
         value: $value
         duration:
@@ -323,7 +323,7 @@ abilities:
     category: habilidade
     target: dungeon
     effect:
-      - kind: advance_dungeon_level
+      - kind: i_advance_dungeon
         amount: $value
     operate_type: op_active
     nature:
@@ -332,7 +332,7 @@ abilities:
     category: habilidade
     target: heroes
     effect:
-      - kind: block_action
+      - kind: p_block
         what: flee
     operate_type: op_passive
     nature:
@@ -341,7 +341,7 @@ abilities:
     category: habilidade
     target: dungeon
     effect:
-      - kind: discard_from
+      - kind: i_discard
         pile: dungeon
         count: 1
     operate_type: op_triggered
@@ -356,7 +356,7 @@ abilities:
     category: habilidade
     target: heroes
     effect:
-      - kind: block_action
+      - kind: p_block
         what: heal
     operate_type: op_triggered
     trigger:
@@ -372,16 +372,16 @@ abilities:
     category: habilidade
     target: group
     effect:
-      - kind: choose_one
+      - kind: i_choose_one
         options:
           - label: Descartar 1 item
             effect:
-              - kind: discard_from
+              - kind: i_discard
                 pile: item
                 count: 1
           - label: Descartar 1 carta de dungeon
             effect:
-              - kind: discard_from
+              - kind: i_discard
                 pile: dungeon
                 count: 1
     operate_type: op_triggered
@@ -408,9 +408,9 @@ abilities:
     category: habilidade
     target: target_hero
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $target
-        stat: tohit_penalty
+        stat: s_hit_penalty
         operation: add
         value: 2
         duration:
@@ -427,7 +427,7 @@ abilities:
     category: habilidade
     target: heroes
     effect:
-      - kind: block_action
+      - kind: p_block
         what: dungeon_discard
     operate_type: op_passive
     nature:
@@ -436,16 +436,16 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: $value
         duration:
           kind: until_end_of_combat
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_bonus
+        stat: s_damage_dealt
         operation: add
         value: $value
         duration:
@@ -466,7 +466,7 @@ abilities:
     notes: No texto original, o nome possui variável, mas o efeito-base cita 1 dano.
       Use {value} quando quiser escalar.
     effect:
-      - kind: apply_damage
+      - kind: i_damage
         to: $lowest_life_hero
         amount: $value
     operate_type: op_triggered
@@ -478,7 +478,7 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: set_no_reward
+      - kind: i_set_no_reward
         to: $source
     operate_type: op_triggered
     trigger:
@@ -489,9 +489,9 @@ abilities:
     category: habilidade
     target: heroes_attacking_self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_penalty
+        stat: s_hit_penalty
         operation: add
         value: $value
         duration:
@@ -503,9 +503,9 @@ abilities:
     category: habilidade
     target: another_creature_in_room
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: $value
         duration:
@@ -524,9 +524,9 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: $value
         duration:
@@ -540,7 +540,7 @@ abilities:
     category: habilidade
     target: dungeon
     effect:
-      - kind: reveal_dungeon
+      - kind: i_reveal_dungeon
         count: $value
     operate_type: op_triggered
     trigger:
@@ -551,7 +551,7 @@ abilities:
     category: habilidade
     target: dungeon
     effect:
-      - kind: prevent_dungeon_discard
+      - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
     trigger:
       event: evt_dungeon_discard
@@ -561,7 +561,7 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: apply_heal
+      - kind: i_heal
         to: $source
         amount: $value
     operate_type: op_triggered
@@ -584,9 +584,9 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: purple_damage_reduction
+        stat: s_purple_damage_reduction
         operation: add
         value: $value
         duration:
@@ -601,7 +601,7 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: ignore_next_targeting
+      - kind: i_ignore_next_targeting
         to: $source
     operate_type: op_triggered
     trigger:
@@ -614,7 +614,7 @@ abilities:
     category: habilidade
     target: self
     effect:
-      - kind: prevent_dungeon_discard
+      - kind: i_prevent_dungeon_discard
     operate_type: op_triggered
     trigger:
       event: evt_dungeon_discard
@@ -648,15 +648,15 @@ abilities:
     category: poder_heroi
     target: hero
     effect:
-      - kind: choose_one
+      - kind: i_choose_one
         options:
           - label: Curar totalmente
             effect:
-              - kind: apply_full_heal
+              - kind: i_full_heal
                 to: $target
           - label: Sobreviver com 1 vida
             effect:
-              - kind: prevent_destroy
+              - kind: i_prevent_destroy
                 to: $target
     operate_type: op_active
     cooldown: &a7
@@ -669,13 +669,13 @@ abilities:
     category: poder_heroi
     target: heroes
     effect:
-      - kind: for_each
+      - kind: i_for_each
         over: all_heroes
         as: $loopHero
         do:
-          - kind: add_modifier
+          - kind: p_modifier
             to: $target
-            stat: damage_reduction
+            stat: s_damage_reduction
             operation: add
             value: 1
             duration:
@@ -691,7 +691,7 @@ abilities:
     category: poder_heroi
     target: dungeon
     effect:
-      - kind: recover_dungeon
+      - kind: i_recover_dungeon
         count: $value
     operate_type: op_active
     cooldown: *a7
@@ -715,9 +715,9 @@ abilities:
     params:
       bonus: 6
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_bonus
+        stat: s_damage_dealt
         operation: add
         value: $bonus
         duration:
@@ -735,22 +735,22 @@ abilities:
     category: poder_heroi
     target: heroes_or_self_next_attack
     effect:
-      - kind: choose_one
+      - kind: i_choose_one
         options:
           - label: Curar todos (5)
             effect:
-              - kind: for_each
+              - kind: i_for_each
                 over: all_heroes
                 as: $h
                 do:
-                  - kind: apply_heal
+                  - kind: i_heal
                     to: $target
                     amount: 5
           - label: +5 dano sagrado
             effect:
-              - kind: add_modifier
+              - kind: p_modifier
                 to: $source
-                stat: damage_bonus
+                stat: s_damage_dealt
                 operation: add
                 value: 5
                 duration:
@@ -788,11 +788,11 @@ abilities:
     category: efeito_roxo_monstro
     target: all_heroes
     effect:
-      - kind: for_each
+      - kind: i_for_each
         over: all_heroes
         as: $loopTarget
         do:
-          - kind: apply_damage
+          - kind: i_damage
             to: $target
             amount: 1
     operate_type: op_triggered
@@ -805,7 +805,7 @@ abilities:
     category: efeito_roxo_monstro
     target: heroes
     effect:
-      - kind: block_action
+      - kind: p_block
         what: flee
     operate_type: op_passive
     nature:
@@ -815,7 +815,7 @@ abilities:
     category: efeito_roxo_monstro
     target: dungeon
     effect:
-      - kind: discard_from
+      - kind: i_discard
         pile: dungeon
         count: 1
     operate_type: op_triggered
@@ -828,7 +828,7 @@ abilities:
     category: efeito_roxo_monstro
     target: self
     effect:
-      - kind: prevent_next_damage
+      - kind: i_prevent_next_damage
         to: $source
     operate_type: op_triggered
     trigger: &a14
@@ -843,9 +843,9 @@ abilities:
     category: efeito_roxo_monstro
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_reduction
+        stat: s_damage_reduction
         operation: add
         value: $value
         duration:
@@ -860,7 +860,7 @@ abilities:
     category: efeito_roxo_monstro
     target: dungeon
     effect:
-      - kind: advance_dungeon_level
+      - kind: i_advance_dungeon
         amount: 1
     operate_type: op_triggered
     trigger: *a8
@@ -870,7 +870,7 @@ abilities:
     category: efeito_roxo_monstro
     target: dungeon
     effect:
-      - kind: advance_dungeon_level
+      - kind: i_advance_dungeon
         amount: 1
     operate_type: op_triggered
     trigger: *a9
@@ -889,7 +889,7 @@ abilities:
     category: efeito_roxo_monstro
     target: heroes
     effect:
-      - kind: block_action
+      - kind: p_block
         what: power_use
     operate_type: op_passive
     nature:
@@ -898,16 +898,16 @@ abilities:
     category: efeito_roxo_monstro
     target: group
     effect:
-      - kind: choose_one
+      - kind: i_choose_one
         options:
           - label: Descartar 1 item
             effect:
-              - kind: discard_from
+              - kind: i_discard
                 pile: item
                 count: 1
           - label: Descartar 1 carta de dungeon
             effect:
-              - kind: discard_from
+              - kind: i_discard
                 pile: dungeon
                 count: 1
     operate_type: op_triggered
@@ -919,16 +919,16 @@ abilities:
     category: efeito_roxo_monstro
     target: group_or_chosen_hero
     effect:
-      - kind: choose_one
+      - kind: i_choose_one
         options:
           - label: Descartar 1 item
             effect:
-              - kind: discard_from
+              - kind: i_discard
                 pile: item
                 count: 1
           - label: Sofrer 3 dano
             effect:
-              - kind: apply_damage
+              - kind: i_damage
                 to: $target
                 amount: 3
     operate_type: op_triggered
@@ -949,7 +949,7 @@ abilities:
     category: efeito_roxo_monstro
     target: heroes
     effect:
-      - kind: block_action
+      - kind: p_block
         what: heal
     operate_type: op_triggered
     trigger:
@@ -961,9 +961,9 @@ abilities:
     category: efeito_roxo_monstro
     target: target_hero
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $target
-        stat: tohit_penalty
+        stat: s_hit_penalty
         operation: add
         value: 2
         duration:
@@ -981,7 +981,7 @@ abilities:
     category: efeito_roxo_monstro
     target: heroes
     effect:
-      - kind: block_action
+      - kind: p_block
         what: dungeon_level_reduction
     operate_type: op_passive
     nature:
@@ -991,16 +991,16 @@ abilities:
     category: efeito_roxo_monstro
     target: target_hero
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $target
-        stat: tohit_penalty
+        stat: s_hit_penalty
         operation: add
         value: 3
         duration:
           kind: once
-      - kind: add_modifier
+      - kind: p_modifier
         to: $target
-        stat: damage_penalty
+        stat: s_damage_penalty
         operation: add
         value: 3
         duration:
@@ -1018,16 +1018,16 @@ abilities:
     category: habilidade_item
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: $value
         duration:
           kind: once
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_bonus
+        stat: s_damage_dealt
         operation: add
         value: $value
         duration:
@@ -1041,9 +1041,9 @@ abilities:
     category: habilidade_item
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_reduction
+        stat: s_damage_reduction
         operation: add
         value: $value
         duration:
@@ -1056,7 +1056,7 @@ abilities:
     category: habilidade_item
     target: artifact_deck
     effect:
-      - kind: draw_from
+      - kind: i_draw
         pile: artifact_deck
         count: $value
     operate_type: op_active
@@ -1066,16 +1066,16 @@ abilities:
     category: habilidade_item
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: 2
         duration:
           kind: until_end_of_combat
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_bonus
+        stat: s_damage_dealt
         operation: add
         value: 2
         duration:
@@ -1094,7 +1094,7 @@ abilities:
     category: habilidade_dungeon
     target: creatures_or_heroes_in_room
     effect:
-      - kind: block_action
+      - kind: p_block
         what: flee
     operate_type: op_passive
     nature:
@@ -1103,18 +1103,18 @@ abilities:
     category: habilidade_dungeon
     target: heroes
     effect:
-      - kind: choose_one
+      - kind: i_choose_one
         options:
           - label: Descartar 1 item
             effect:
-              - kind: discard_from
+              - kind: i_discard
                 pile: item
                 count: 1
           - label: Sofrer -1 no acerto
             effect:
-              - kind: add_modifier
+              - kind: p_modifier
                 to: $source
-                stat: tohit_penalty
+                stat: s_hit_penalty
                 operation: add
                 value: 1
                 duration:
@@ -1128,7 +1128,7 @@ abilities:
     category: habilidade_dungeon
     target: remaining_creature
     effect:
-      - kind: apply_damage
+      - kind: i_damage
         to: $target
         amount: 1
     operate_type: op_triggered
@@ -1143,7 +1143,7 @@ abilities:
     category: habilidade_dungeon
     target: dungeon
     effect:
-      - kind: discard_from
+      - kind: i_discard
         pile: dungeon
         count: 1
     operate_type: op_triggered
@@ -1155,7 +1155,7 @@ abilities:
     category: habilidade_dungeon
     target: item_deck
     effect:
-      - kind: draw_and_choose
+      - kind: i_draw_and_choose
         pile: item_deck
         reveal: 2
         keep: 1
@@ -1185,9 +1185,9 @@ abilities:
     category: habilidade_chefe
     target: boss
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_reduction
+        stat: s_damage_reduction
         operation: add
         value: $value
         duration:
@@ -1202,14 +1202,14 @@ abilities:
     category: habilidade_chefe
     target: dungeon
     effect:
-      - kind: if
+      - kind: i_if
         when:
           kind: compare
           op: gte
           left: $dungeon.level
           right: 4
         then:
-          - kind: discard_from
+          - kind: i_discard
             pile: dungeon
             count: 1
     operate_type: op_triggered
@@ -1227,9 +1227,9 @@ abilities:
     category: habilidade_chefe
     target: boss
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: 2
         duration:
@@ -1248,21 +1248,21 @@ abilities:
     category: habilidade_item
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: tohit_bonus
+        stat: s_hit_bonus
         operation: add
         value: $value
         duration:
           kind: once
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_bonus
+        stat: s_damage_dealt
         operation: add
         value: $value
         duration:
           kind: once
-      - kind: apply_heal
+      - kind: i_heal
         to: $source
         amount: 1
     operate_type: op_triggered
@@ -1275,16 +1275,16 @@ abilities:
     category: habilidade_item
     target: self
     effect:
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_reduction
+        stat: s_damage_reduction
         operation: add
         value: $armor
         duration:
           kind: while_in_play
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: purple_damage_reduction
+        stat: s_purple_damage_reduction
         operation: add
         value: $purple
         duration:
@@ -1301,12 +1301,12 @@ abilities:
     category: habilidade_item
     target: self
     effect:
-      - kind: apply_damage
+      - kind: i_damage
         to: $source
         amount: $value
-      - kind: add_modifier
+      - kind: p_modifier
         to: $source
-        stat: damage_bonus
+        stat: s_damage_dealt
         operation: add
         value: 6
         duration:
@@ -1324,13 +1324,13 @@ abilities:
     category: habilidade_dungeon
     target: room
     effect:
-      - kind: noop
+      - kind: i_noop
     operate_type: op_passive
     nature: []
   - id: dungeon_skill_empty_room
     category: habilidade_dungeon
     target: room
     effect:
-      - kind: noop
+      - kind: i_noop
     operate_type: op_passive
     nature: []

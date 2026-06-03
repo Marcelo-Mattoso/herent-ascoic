@@ -1,4 +1,4 @@
-// Testes de aceite Lote 3 (Patch-12 Fase 5) — DSL choose_one.
+﻿// Testes de aceite Lote 3 (Patch-12 Fase 5) — DSL choose_one.
 
 import { describe, expect, it } from "vitest";
 import { getModifierTotal } from "../../../ecs/world";
@@ -65,19 +65,19 @@ describe("choose_one — fluxo completo", () => {
 		const result = evaluate(
 			[
 				{
-					kind: "choose_one",
+					kind: "i_choose_one",
 					options: [
 						{
 							label: "Curar 3",
-							effect: [{ kind: "apply_heal", to: "$source", amount: 3 }],
+							effect: [{ kind: "i_heal", to: "$source", amount: 3 }],
 						},
 						{
 							label: "+2 dano",
 							effect: [
 								{
-									kind: "add_modifier",
+									kind: "p_modifier",
 									to: "$source",
-									stat: "damage_bonus",
+									stat: "s_damage_dealt",
 									operation: "add",
 									value: 2,
 									duration: { kind: "once" },
@@ -105,19 +105,19 @@ describe("choose_one — fluxo completo", () => {
 		const withChoice = evaluate(
 			[
 				{
-					kind: "choose_one",
+					kind: "i_choose_one",
 					options: [
 						{
 							label: "Curar 3",
-							effect: [{ kind: "apply_heal", to: "$source", amount: 3 }],
+							effect: [{ kind: "i_heal", to: "$source", amount: 3 }],
 						},
 						{
 							label: "+2 dano",
 							effect: [
 								{
-									kind: "add_modifier",
+									kind: "p_modifier",
 									to: "$source",
-									stat: "damage_bonus",
+									stat: "s_damage_dealt",
 									operation: "add",
 									value: 2,
 									duration: { kind: "once" },
@@ -144,19 +144,19 @@ describe("choose_one — fluxo completo", () => {
 		const withChoice = evaluate(
 			[
 				{
-					kind: "choose_one",
+					kind: "i_choose_one",
 					options: [
 						{
 							label: "Curar 3",
-							effect: [{ kind: "apply_heal", to: "$source", amount: 3 }],
+							effect: [{ kind: "i_heal", to: "$source", amount: 3 }],
 						},
 						{
 							label: "+2 dano",
 							effect: [
 								{
-									kind: "add_modifier",
+									kind: "p_modifier",
 									to: "$source",
-									stat: "damage_bonus",
+									stat: "s_damage_dealt",
 									operation: "add",
 									value: 2,
 									duration: { kind: "once" },
@@ -194,15 +194,15 @@ describe("power_greater_last_light_miracle — choose_one", () => {
 		const withChoice = evaluate(
 			[
 				{
-					kind: "choose_one",
+					kind: "i_choose_one",
 					options: [
 						{
 							label: "Curar totalmente",
-							effect: [{ kind: "apply_full_heal", to: "$target" }],
+							effect: [{ kind: "i_full_heal", to: "$target" }],
 						},
 						{
 							label: "Sobreviver com 1 vida",
-							effect: [{ kind: "prevent_destroy", to: "$target" }],
+							effect: [{ kind: "i_prevent_destroy", to: "$target" }],
 						},
 					],
 				},
@@ -242,16 +242,16 @@ describe("power_last_light_oath — for_each heal", () => {
 		const withChoice = evaluate(
 			[
 				{
-					kind: "choose_one",
+					kind: "i_choose_one",
 					options: [
 						{
 							label: "Curar todos (5)",
 							effect: [
 								{
-									kind: "for_each",
+									kind: "i_for_each",
 									over: "all_heroes",
 									as: "$h",
-									do: [{ kind: "apply_heal", to: "$target", amount: 5 }],
+									do: [{ kind: "i_heal", to: "$target", amount: 5 }],
 								},
 							],
 						},
@@ -259,9 +259,9 @@ describe("power_last_light_oath — for_each heal", () => {
 							label: "+5 dano sagrado",
 							effect: [
 								{
-									kind: "add_modifier",
+									kind: "p_modifier",
 									to: "$source",
-									stat: "damage_bonus",
+									stat: "s_damage_dealt",
 									operation: "add",
 									value: 5,
 									duration: { kind: "once" },
@@ -282,3 +282,4 @@ describe("power_last_light_oath — for_each heal", () => {
 		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(10);
 	});
 });
+

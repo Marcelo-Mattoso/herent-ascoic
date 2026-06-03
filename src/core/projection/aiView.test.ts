@@ -1,4 +1,4 @@
-// Testes do Passo 9 — Projeção Completa.
+﻿// Testes do Passo 9 — Projeção Completa.
 // Verifica: aiView não expõe campos privados (rng, world, etc.);
 // replayView cobre o que o replay viewer precisa;
 // playerView expõe campos pós-ECS (paused, pendingSkillChoice).
@@ -196,7 +196,7 @@ describe("playerView — campos pós-ECS (passo 9)", () => {
 					id: "effect-0-DamageDealt",
 					seq: 0,
 					cause: "DamageDealt",
-					effect: { type: "noop" },
+					effect: { type: "i_noop" },
 					source: "h1",
 				},
 			},
@@ -206,3 +206,4 @@ describe("playerView — campos pós-ECS (passo 9)", () => {
 		expect(view.paused!.reason).toBe("skill_choice");
 	});
 });
+

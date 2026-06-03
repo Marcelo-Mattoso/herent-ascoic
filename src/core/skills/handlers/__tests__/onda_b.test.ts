@@ -1,4 +1,4 @@
-// Testes da Onda B do patch-8: handlers com SKILL_CHOICE.
+﻿// Testes da Onda B do patch-8: handlers com SKILL_CHOICE.
 // Cada describe cobre 1 handler + continuação.
 
 // Lote 3 (Patch-12): item_or_discardDungeon absorvido pela DSL choose_one.
@@ -71,19 +71,19 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 describe("DSL choose_one — dark_tribute", () => {
 	const darkTributeEffect = [
 		{
-			kind: "choose_one" as const,
+			kind: "i_choose_one" as const,
 			options: [
 				{
 					label: "Descartar 1 item",
 					effect: [
-						{ kind: "discard_from" as const, pile: "item" as const, count: 1 },
+						{ kind: "i_discard" as const, pile: "item" as const, count: 1 },
 					],
 				},
 				{
 					label: "Descartar 1 carta de dungeon",
 					effect: [
 						{
-							kind: "discard_from" as const,
+							kind: "i_discard" as const,
 							pile: "dungeon" as const,
 							count: 1,
 						},
@@ -198,3 +198,4 @@ describe("reducer SKILL_CHOICE", () => {
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
 });
+

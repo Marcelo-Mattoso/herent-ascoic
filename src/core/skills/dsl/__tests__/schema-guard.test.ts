@@ -1,4 +1,4 @@
-// Guard rail — Fase 8 (Patch-12), atualizado em Patch-21 Lote B.
+﻿// Guard rail — Fase 8 (Patch-12), atualizado em Patch-21 Lote B.
 // Valida entradas migradas de skills.yaml contra o schema Zod v2.
 
 import { describe, expect, it } from "vitest";
@@ -60,7 +60,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 		expect(
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseActive,
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
 	});
@@ -78,7 +78,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 		expect(
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseTriggered,
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
 	});
@@ -88,7 +88,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseActive,
 				operate_type: "op_triggered",
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(false);
 	});
@@ -97,7 +97,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 		expect(
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseActive,
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 				script: "test_script",
 			}).success,
 		).toBe(false);
@@ -112,7 +112,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseActive,
 				operate_type: "op_active_buff",
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
 	});
@@ -122,7 +122,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseActive,
 				operate_type: "op_passive",
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
 	});
@@ -132,7 +132,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseTriggered,
 				cooldown: { scope: "room", charges: 1 },
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
 	});
@@ -142,7 +142,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseTriggered,
 				conditions: [{ kind: "compare", op: "gte", left: "$dungeon.level", right: 3 }],
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
 	});
@@ -157,7 +157,7 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 						{ kind: "compare", op: "eq", left: "$dungeon.level", right: 4 },
 					]},
 				],
-				effect: [{ kind: "noop" }],
+				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
 	});
@@ -185,3 +185,4 @@ describe("skills.yaml — todas as entradas passam no schema v2", () => {
 		});
 	}
 });
+

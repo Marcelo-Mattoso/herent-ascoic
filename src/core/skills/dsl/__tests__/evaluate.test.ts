@@ -1,4 +1,4 @@
-import { describe, expect, it } from "vitest";
+﻿import { describe, expect, it } from "vitest";
 import type { GameState } from "../../../state/gameState";
 import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
@@ -95,7 +95,7 @@ describe("evaluate — noop", () => {
 	it("retorna estado inalterado", () => {
 		const state = makeState();
 		const ctx = makeMockCtx(state);
-		const result = evaluate([{ kind: "noop" }], ctx);
+		const result = evaluate([{ kind: "i_noop" }], ctx);
 		expect(result).toBe(state);
 		expect(ctx.pushed).toHaveLength(0);
 	});
@@ -111,44 +111,44 @@ describe("evaluate — noop", () => {
 describe("evaluate — apply_damage", () => {
 	it("empurra effect com amount numérico literal", () => {
 		const ctx = makeMockCtx(makeState());
-		evaluate([{ kind: "apply_damage", to: "$target", amount: 3 }], ctx);
+		evaluate([{ kind: "i_damage", to: "$target", amount: 3 }], ctx);
 		expect(ctx.pushed).toHaveLength(1);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 3 });
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 3 });
 	});
 
 	it("resolve amount via $param", () => {
 		const ctx = makeMockCtx(makeState(), { cost: 2 });
-		evaluate([{ kind: "apply_damage", to: "$target", amount: "$cost" }], ctx);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 2 });
+		evaluate([{ kind: "i_damage", to: "$target", amount: "$cost" }], ctx);
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 2 });
 	});
 
 	it("respeita minimum quando amount < minimum", () => {
 		const ctx = makeMockCtx(makeState());
 		evaluate(
-			[{ kind: "apply_damage", to: "$target", amount: 0, minimum: 1 }],
+			[{ kind: "i_damage", to: "$target", amount: 0, minimum: 1 }],
 			ctx,
 		);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 1 });
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 1 });
 	});
 
 	it("resolve amount via expressão aritmética ($cost * 3)", () => {
 		const ctx = makeMockCtx(makeState(), { cost: 2 });
 		const amount: EffectNode = {
-			kind: "apply_damage",
+			kind: "i_damage",
 			to: "$target",
 			amount: { op: "mul", args: ["$cost", 3] },
 		};
 		evaluate([amount], ctx);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 6 });
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 6 });
 	});
 });
 
 describe("evaluate — apply_heal", () => {
 	it("empurra effect com amount correto", () => {
 		const ctx = makeMockCtx(makeState());
-		evaluate([{ kind: "apply_heal", to: "$source", amount: 4 }], ctx);
+		evaluate([{ kind: "i_heal", to: "$source", amount: 4 }], ctx);
 		expect(ctx.pushed).toHaveLength(1);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_heal", amount: 4 });
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_heal", amount: 4 });
 	});
 });
 
@@ -160,9 +160,9 @@ describe("evaluate — add_modifier", () => {
 		evaluate(
 			[
 				{
-					kind: "add_modifier",
+					kind: "p_modifier",
 					to: "$source",
-					stat: "damage_reduction",
+					stat: "s_damage_reduction",
 					operation: "add",
 					value: "$value",
 					duration: { kind: "until_end_of_combat" },
@@ -172,9 +172,9 @@ describe("evaluate — add_modifier", () => {
 		);
 		expect(ctx.pushed).toHaveLength(1);
 		expect(ctx.pushed[0]).toMatchObject({
-			kind: "add_modifier",
+			kind: "p_modifier",
 			to: "h1", // $source resolvido
-			stat: "damage_reduction",
+			stat: "s_damage_reduction",
 			operation: "add",
 			value: 3,
 		});
@@ -185,25 +185,25 @@ describe("evaluate — if/then/else", () => {
 	it("then executado quando condição verdadeira", () => {
 		const ctx = makeMockCtx(makeState(), {}, { dungeonLevel: 3 });
 		const effect: EffectNode = {
-			kind: "if",
+			kind: "i_if",
 			when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
-			then: [{ kind: "apply_damage", to: "$target", amount: 5 }],
-			else: [{ kind: "apply_damage", to: "$target", amount: 1 }],
+			then: [{ kind: "i_damage", to: "$target", amount: 5 }],
+			else: [{ kind: "i_damage", to: "$target", amount: 1 }],
 		};
 		evaluate([effect], ctx);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 5 });
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 5 });
 	});
 
 	it("else executado quando condição falsa", () => {
 		const ctx = makeMockCtx(makeState(), {}, { dungeonLevel: 1 });
 		const effect: EffectNode = {
-			kind: "if",
+			kind: "i_if",
 			when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
-			then: [{ kind: "apply_damage", to: "$target", amount: 5 }],
-			else: [{ kind: "apply_damage", to: "$target", amount: 1 }],
+			then: [{ kind: "i_damage", to: "$target", amount: 5 }],
+			else: [{ kind: "i_damage", to: "$target", amount: 1 }],
 		};
 		evaluate([effect], ctx);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 1 });
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 1 });
 	});
 
 	it("sem else e condição falsa: nenhum efeito", () => {
@@ -211,14 +211,14 @@ describe("evaluate — if/then/else", () => {
 		evaluate(
 			[
 				{
-					kind: "if",
+					kind: "i_if",
 					when: {
 						kind: "compare",
 						op: "gte",
 						left: "$dungeon.level",
 						right: 3,
 					},
-					then: [{ kind: "apply_damage", to: "$target", amount: 5 }],
+					then: [{ kind: "i_damage", to: "$target", amount: 5 }],
 				},
 			],
 			ctx,
@@ -239,10 +239,10 @@ describe("evaluate — for_each all_heroes", () => {
 		evaluate(
 			[
 				{
-					kind: "for_each",
+					kind: "i_for_each",
 					over: "all_heroes",
 					as: "$target",
-					do: [{ kind: "apply_damage", to: "$target", amount: 1 }],
+					do: [{ kind: "i_damage", to: "$target", amount: 1 }],
 				},
 			],
 			ctx,
@@ -263,15 +263,15 @@ describe("evaluate — choose_one", () => {
 		evaluate(
 			[
 				{
-					kind: "choose_one",
+					kind: "i_choose_one",
 					options: [
 						{
 							label: "Curar 2",
-							effect: [{ kind: "apply_heal", to: "$target", amount: 2 }],
+							effect: [{ kind: "i_heal", to: "$target", amount: 2 }],
 						},
 						{
 							label: "+2 dano",
-							effect: [{ kind: "apply_damage", to: "$target", amount: 2 }],
+							effect: [{ kind: "i_damage", to: "$target", amount: 2 }],
 						},
 					],
 				},
@@ -287,9 +287,9 @@ describe("evaluate — sequência encadeada", () => {
 		const ctx = makeMockCtx(makeState(), { cost: 2 });
 		evaluate(
 			[
-				{ kind: "apply_damage", to: "$source", amount: "$cost" },
+				{ kind: "i_damage", to: "$source", amount: "$cost" },
 				{
-					kind: "apply_damage",
+					kind: "i_damage",
 					to: "$target",
 					amount: { op: "mul", args: ["$cost", 3] },
 				},
@@ -297,7 +297,9 @@ describe("evaluate — sequência encadeada", () => {
 			ctx,
 		);
 		expect(ctx.pushed).toHaveLength(2);
-		expect(ctx.pushed[0]).toMatchObject({ kind: "apply_damage", amount: 2 });
-		expect(ctx.pushed[1]).toMatchObject({ kind: "apply_damage", amount: 6 });
+		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 2 });
+		expect(ctx.pushed[1]).toMatchObject({ kind: "i_damage", amount: 6 });
 	});
 });
+
+
