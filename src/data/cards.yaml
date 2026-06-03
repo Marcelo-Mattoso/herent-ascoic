@@ -1,12 +1,7 @@
 - id: hero_eternal_rest_cleric
   type: hero
   name: Clérigo do Descanso Eterno
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 9
     - 11
@@ -29,12 +24,7 @@
 - id: hero_broken_bastion_warrior
   type: hero
   name: Guerreiro do Bastião Partido
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 11
     - 13
@@ -59,12 +49,7 @@
 - id: hero_rift_rogue
   type: hero
   name: Ladino das Fendas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 8
     - 10
@@ -87,12 +72,7 @@
 - id: hero_crimson_rune_mage
   type: hero
   name: Mago das Runas Rubras
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 8
     - 9
@@ -115,12 +95,7 @@
 - id: hero_crimson_barbarian
   type: hero
   name: Bárbaro Rubro
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 12
     - 14
@@ -143,12 +118,7 @@
 - id: hero_last_light_paladin
   type: hero
   name: Paladino da Última Luz
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 10
     - 12
@@ -171,12 +141,7 @@
 - id: hero_deep_veil_necromancer
   type: hero
   name: Necromante do Véu Profundo
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 8
     - 10
@@ -199,12 +164,7 @@
 - id: hero_broken_veil_hunter
   type: hero
   name: Caçador do Véu Partido
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 9
     - 10
@@ -227,12 +187,7 @@
 - id: creature_deep_rift_rat
   type: creature
   name: Rato das Fendas Profundas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 1
     - 2
@@ -260,12 +215,7 @@
 - id: creature_dark_cave_goblin
   type: creature
   name: Goblin das Cavernas Escuras
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 1
     - 2
@@ -291,12 +241,7 @@
 - id: creature_wet_stone_slime
   type: creature
   name: Limo das Pedras Úmidas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 2
     - 3
@@ -324,12 +269,7 @@
 - id: creature_black_ceiling_bat
   type: creature
   name: Morcego do Teto Negro
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 2
     - 3
@@ -353,12 +293,7 @@
 - id: creature_ancient_pillar_spider
   type: creature
   name: Aranha dos Pilares Antigos
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 3
     - 4
@@ -386,12 +321,7 @@
 - id: creature_broken_gates_watcher
   type: creature
   name: Vigia das Portas Quebradas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 4
     - 5
@@ -419,12 +349,7 @@
 - id: creature_hidden_flame_cultist
   type: creature
   name: Cultista da Chama Oculta
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 2
     - 3
@@ -452,12 +377,7 @@
 - id: creature_catacomb_skeleton
   type: creature
   name: Esqueleto das Catacumbas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 5
     - 6
@@ -485,12 +405,7 @@
 - id: creature_dead_passage_thief
   type: creature
   name: Ladrão das Passagens Mortas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 6
     - 7
@@ -518,12 +433,7 @@
 - id: creature_old_chains_knight
   type: creature
   name: Cavaleiro das Correntes Velhas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 7
     - 8
@@ -549,12 +459,7 @@
 - id: creature_low_fire_salamander
   type: creature
   name: Salamandra do Fogo Baixo
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 4
     - 5
@@ -582,12 +487,7 @@
 - id: creature_ruined_hall_ogre
   type: creature
   name: Ogro do Salão Arruinado
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 5
     - 6
@@ -615,12 +515,7 @@
 - id: creature_low_ember_kobold
   type: creature
   name: Kobold das Brasas Baixas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 1
     - 2
@@ -648,12 +543,7 @@
 - id: creature_hot_ash_worm
   type: creature
   name: Verme das Cinzas Quentes
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 2
     - 3
@@ -681,12 +571,7 @@
 - id: creature_blazing_skull
   type: creature
   name: Crânio Flamejante
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 2
     - 3
@@ -712,12 +597,7 @@
 - id: creature_dead_torch_sentinel
   type: creature
   name: Sentinela das Tochas Mortas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 4
     - 5
@@ -745,12 +625,7 @@
 - id: creature_forge_acolyte
   type: creature
   name: Acólito da Fornalha
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 2
     - 3
@@ -778,12 +653,7 @@
 - id: creature_broken_chains_brute
   type: creature
   name: Bruto das Correntes Partidas
-  diceByColor:
-    - 1
-    - 1
-    - 2
-    - 2
-    - 3
+  diceByColor: [ 1, 1, 2, 2, 3 ]
   life:
     - 5
     - 6
@@ -809,12 +679,7 @@
 - id: subboss_crimson_dungeon_jailer
   type: subboss
   name: Carcereiro da Masmorra Rubra
-  diceByColor:
-    - 1
-    - 2
-    - 2
-    - 3
-    - 3
+  diceByColor: [ 1, 2, 2, 3, 3 ]
   life:
     - 6
     - 7
@@ -838,12 +703,7 @@
 - id: subboss_cracked_abyss_guardian
   type: subboss
   name: Guardião do Abismo Rachado
-  diceByColor:
-    - 1
-    - 2
-    - 2
-    - 3
-    - 3
+  diceByColor: [ 1, 2, 2, 3, 3 ]
   life:
     - 8
     - 9
