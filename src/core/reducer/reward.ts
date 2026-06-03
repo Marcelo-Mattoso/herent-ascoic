@@ -7,6 +7,7 @@ import type { XpSpendOption } from "../config/defaults";
 import { XP_COSTS } from "../config/defaults";
 import { getCardByName } from "../data/cards";
 import { calculateRewards } from "../rules/reward";
+import { tickModifierDurations } from "../ecs/world";
 import { emit } from "../events/bus";
 import { cardSkills } from "../skills/lookup";
 import { renderSkillLabel } from "../skills/renderLabel";
@@ -27,6 +28,15 @@ export function handleGrantRewards(state: GameState): GameState {
 	// on_win_room: via TriggerComponents (emit CombatEnded — Lote G)
 	let next = state;
 	({ state: next } = emit(next, { type: "CombatEnded", payload: {} }));
+	// Expira modificadores ECS com duração this_combat/this_turn ao fechar o combate
+	// (cobre sala limpa, onde RoundEnded/end_of_round tick não rodou).
+	next = {
+		...next,
+		world: tickModifierDurations(
+			tickModifierDurations(next.world, "end_of_round"),
+			"end_of_combat",
+		),
+	};
 
 	const eligibleGraveyard = next.enemyGraveyard.filter((e) => !e.noReward);
 	const summary = calculateRewards(next.currentRoom!, eligibleGraveyard);

@@ -5,6 +5,7 @@
 
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
+import { removeEntity } from "../ecs/world";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
 import type { EnemyState } from "../state/enemyState";
@@ -102,6 +103,10 @@ export function applyDamage(
 			type: "EnemyDestroyed",
 			payload: { enemyId: targetId, sourceId, roomFirstKill },
 		}));
+		// Remove entidade ECS do inimigo derrotado: drop dos modificadores
+		// while_in_play (passivos como purple_ash_protection) que ficariam
+		// pendurados no world depois da morte.
+		s4 = { ...s4, world: removeEntity(s4.world, targetId) };
 	}
 
 	return s4;

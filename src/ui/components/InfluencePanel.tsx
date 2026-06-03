@@ -82,6 +82,11 @@ function InfluenceChip({ influence: inf }: { influence: InfluenceView }) {
 		>
 			<span>{inf.icon}</span>
 			<span style={{ fontWeight: 600 }}>{inf.label}</span>
+			{inf.source && inf.source !== inf.label && (
+				<span style={{ opacity: 0.85, fontStyle: "italic" }}>
+					· {inf.source}
+				</span>
+			)}
 			{actor && (
 				<span style={{ opacity: 0.75 }}>· {actor}</span>
 			)}
