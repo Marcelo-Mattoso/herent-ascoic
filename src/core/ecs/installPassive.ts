@@ -15,23 +15,35 @@ export function installPassive(
 	world: World,
 	entityId: EntityId,
 	def: SkillDefinition,
-	_ref: SkillRef,
+	ref: SkillRef,
 ): World {
-	// Extrai modificadores estáticos do effect DSL da skill passiva
+	// Extrai modificadores estáticos do effect DSL da skill passiva.
+	// Suporta nós p_modifier (YAML v2). Nós p_block são geridos via estado de jogo (flags).
 	if (!def.effect) return world;
 	let w = world;
 	for (const node of def.effect) {
-		if (node.kind !== "add_modifier") continue;
+		if (node.kind !== "p_modifier") continue;
 		const target = mapPassiveTarget(node.stat);
 		if (!target) continue;
-		const value = typeof node.value === "number" ? node.value : 0;
+		// Resolve $value via ref.params quando o valor é uma variável
+		const rawValue = node.value;
+		const value =
+			typeof rawValue === "number"
+				? rawValue
+				: typeof rawValue === "string" && rawValue.startsWith("$")
+					? (typeof (ref.params as Record<string, unknown>)?.[rawValue.slice(1)] === "number"
+						? (ref.params as Record<string, number>)[rawValue.slice(1)]!
+						: 0)
+					: 0;
 		const mod: ModifierComponent = {
 			type: "modifier",
 			target,
 			operation: (node.operation as ModifierComponent["operation"]) ?? "add",
 			value,
 			source: def.id,
-			duration: { kind: "permanent" },
+			// Passivos while_in_play ficam atrelados à vida da entidade que os possui.
+			duration: { kind: "while_source_in_play" },
+			sourceEntityId: entityId,
 		};
 		w = addComponent(w, entityId, mod);
 	}

@@ -180,6 +180,8 @@ npm run script tools/dev-scripts/exemplo.ts   # script avulso com acesso ao core
 
 ## Convenções
 
+- **`rounds.remaining` decrementa em fim de rodada.** Modifiers com `duration: { kind: "rounds", remaining: N }` têm N decrementado a cada `end_of_round` via `decrementRoundsModifiers`. Quando `remaining` atinge 0 o modifier é removido. Usado internamente por `once_per_round` em skills DSL.
+- **`while_source_in_play` expira com a entidade-fonte.** Modifiers com este kind carregam `sourceEntityId`. Ao remover uma entidade via `removeEntity`, chamar também `removeModifiersForSource(world, entityId)` para limpar modifiers dependentes instalados em outras entidades.
 - **Sem `Math.random()`.** Sempre `rollDiceRng(n, rng)`. Determinismo é invariante.
 - **Sem mutação.** `state.foo = bar` é proibido. Sempre `{ ...state, foo: bar }`.
 - **`log(state, mensagem)`** ([`reducer/utils.ts`](reducer/utils.ts)) é a única forma correta de adicionar entrada ao `eventLog`.

@@ -11,6 +11,7 @@ import {
 	getSubbosses,
 } from "../data/cards";
 import type { SubbossRoomCard } from "../data/cardTypes";
+import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncEntityFromEnemy } from "../ecs/sync";
 import { createEmptyEffectStack } from "../effects/stack";
@@ -216,13 +217,19 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	}
 	state = { ...state, rng };
 
-	// Lote F: instala TriggerComponents dos inimigos antes de criar o estado
+	// Lote F: instala TriggerComponents e ModifierComponents passivos dos inimigos
 	let worldWithEnemies = state.world;
 	for (const enemy of enemies) {
 		worldWithEnemies = syncEntityFromEnemy(worldWithEnemies, enemy);
 		const enemyCard = getCardByName(enemy.cardName);
 		if (enemyCard) {
-			worldWithEnemies = installSkillTriggers(worldWithEnemies, enemy.id, cardSkills(enemyCard.id));
+			const skills = cardSkills(enemyCard.id);
+			worldWithEnemies = installSkillTriggers(worldWithEnemies, enemy.id, skills);
+			for (const { def, ref } of skills) {
+				if (def.operate_type === "op_passive") {
+					worldWithEnemies = installPassive(worldWithEnemies, enemy.id, def, ref);
+				}
+			}
 		}
 	}
 
@@ -241,6 +248,13 @@ export function handleSpawnEnemies(state: GameState): GameState {
 			},
 		},
 	};
+	// Emite EntityEnteredPlay para cada inimigo que entrou em jogo — ativa triggers evt_enter_play.
+	for (const enemy of enemies) {
+		({ state: next } = emit(next, {
+			type: "EntityEnteredPlay",
+			payload: { entityId: enemy.id, entityType: "enemy" },
+		}));
+	}
 	// before_combat e before_first_combat_in_room: via TriggerComponents (emit CombatStarted em handleStartCombat)
 	return log(
 		next,
@@ -323,14 +337,19 @@ export function handleDiscardPaths(state: GameState): GameState {
 }
 
 export function handleCheckBossCondition(state: GameState): GameState {
-	if (checkBossCondition(state, state.bossCardId)) {
+	// Emite RoomLeft ao sair da sala atual — ativa triggers evt_room_leave (ex: Forja Reacesa).
+	const roomName = state.currentRoom?.cardName ?? "";
+	let s = state;
+	({ state: s } = emit(s, { type: "RoomLeft", payload: { roomName } }));
+
+	if (checkBossCondition(s, s.bossCardId)) {
 		return log(
-			{ ...state, status: "BOSS_REVEAL" },
+			{ ...s, status: "BOSS_REVEAL" },
 			"Condição do boss atendida! Boss revelado.",
 		);
 	}
 	return log(
-		{ ...state, status: "REVEAL_ROOM" },
+		{ ...s, status: "REVEAL_ROOM" },
 		"Avançando para próxima sala.",
 	);
 }

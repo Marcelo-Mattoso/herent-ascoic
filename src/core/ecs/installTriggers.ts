@@ -37,9 +37,9 @@ const EVENT_TO_GAME: Record<EventName, string> = {
 	evt_round_end:       "RoundEnded",
 	evt_room_reveal:     "RoomEntered",
 	evt_room_enter:      "RoomEntered",
-	evt_room_leave:      "CombatEnded",
+	evt_room_leave:      "RoomLeft",
 	evt_dungeon_discard: "DungeonCardDiscarded",
-	evt_enter_play:      "CombatStarted",
+	evt_enter_play:      "EntityEnteredPlay",
 	evt_leave_play:      "HeroFled",
 	evt_targeted:        "HeroTargeted",
 };
@@ -62,7 +62,7 @@ const EVENT_DURATION: Record<EventName, Duration> = {
 	evt_room_enter:      { kind: "permanent" },
 	evt_room_leave:      { kind: "permanent" },
 	evt_dungeon_discard: { kind: "permanent" },
-	evt_enter_play:      { kind: "this_combat" },
+	evt_enter_play:      { kind: "permanent" },
 	evt_leave_play:      { kind: "permanent" },
 	evt_targeted:        { kind: "permanent" },
 };

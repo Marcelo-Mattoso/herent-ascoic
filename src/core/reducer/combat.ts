@@ -4,7 +4,7 @@
 // Implementa efeitos de: Adaga Enferrujada, Escudo Rachado, Poção de Vigor Menor, Bárbaro Rubro.
 
 import { getCardByName } from "../data/cards";
-import { getModifierTotal, tickModifierDurations } from "../ecs/world";
+import { decrementRoundsModifiers, getModifierTotal, tickModifierDurations } from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import { calculateTotal, resolveAttack } from "../rules/combat";
@@ -634,8 +634,10 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 	let nextState: GameState = state;
 	({ state: nextState } = emit(nextState, { type: "RoundEnded", payload: { round: currentRound } }));
 
-	// Expirar modificadores ECS de duração "end_of_round" (this_turn)
-	const worldAfterTick = tickModifierDurations(nextState.world, "end_of_round");
+	// Expirar modificadores ECS de duração "end_of_round" (this_turn) e decrementar rounds.
+	const worldAfterTick = decrementRoundsModifiers(
+		tickModifierDurations(nextState.world, "end_of_round"),
+	);
 	nextState = {
 		...nextState,
 		status: "HERO_ACTION",

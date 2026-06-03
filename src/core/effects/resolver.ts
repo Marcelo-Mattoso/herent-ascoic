@@ -157,6 +157,7 @@ case "add_modifier": {
 			const durationNode = effect["duration"] as
 				| { kind: string; remaining?: number }
 				| undefined;
+			const sourceEntityId = effect["sourceEntityId"] as string | undefined;
 
 			// Mapeia stat DSL → target ECS (suporta nomes v1 legados e v2 com prefixo s_)
 			const ecsTargetMap: Record<string, ModifierComponent["target"]> = {
@@ -184,7 +185,7 @@ case "add_modifier": {
 					case "once": return { kind: "once" };
 					case "until_end_of_round": return { kind: "this_turn" };
 					case "until_end_of_combat": return { kind: "this_combat" };
-					case "while_in_play": return { kind: "permanent" };
+					case "while_in_play": return { kind: "while_source_in_play" };
 					case "passive": return { kind: "permanent" };
 					case "once_per_round": return { kind: "rounds", remaining: 1 };
 					default: return { kind: "this_combat" };
@@ -199,13 +200,17 @@ case "add_modifier": {
 					stat === "tohit_penalty" || stat === "damage_reduction" ||
 					stat === "s_hit_penalty" || stat === "s_damage_reduction"
 				) ? -value : value;
+				const ecsDuration = mapDurationNode(durationNode);
 				const modComp: ModifierComponent = {
 					type: "modifier",
 					target: ecsTarget,
 					operation: "add",
 					value: ecsValue,
 					source,
-					duration: mapDurationNode(durationNode),
+					duration: ecsDuration,
+					...(ecsDuration.kind === "while_source_in_play" && sourceEntityId
+						? { sourceEntityId }
+						: {}),
 				};
 				// Garante que a entidade existe no world antes de adicionar o componente
 				let world = worldState.world;

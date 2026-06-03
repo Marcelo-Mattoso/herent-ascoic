@@ -30,7 +30,10 @@ export type Duration =
 	| { readonly kind: "this_turn" }
 	| { readonly kind: "this_combat" }
 	| { readonly kind: "rounds"; readonly remaining: number }
-	| { readonly kind: "once" };
+	| { readonly kind: "once" }
+	// Expira quando a entidade-fonte (sourceEntityId) é removida do world.
+	// removeModifiersForSource(world, sourceEntityId) limpa estes modifiers.
+	| { readonly kind: "while_source_in_play" };
 
 // ── Componentes core (intrínsecos ao tipo de entidade) ──────────────────────
 
@@ -95,6 +98,10 @@ export interface ModifierComponent {
 	readonly source: EntityId;
 	readonly duration: Duration;
 	readonly condition?: ComponentPredicate;
+	// Preenchido quando duration.kind === "while_source_in_play".
+	// Identifica a entidade que aplicou este modifier — ao ser removida do world,
+	// removeModifiersForSource() limpa todos os modifiers com este sourceEntityId.
+	readonly sourceEntityId?: EntityId;
 }
 
 export interface TriggerComponent {

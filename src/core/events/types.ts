@@ -33,7 +33,10 @@ export type EventType =
 	| "DungeonCardDiscarded"
 	| "ItemEffectAppliedTo"
 	| "RoundEnded"
-	| "RoundStarted";
+	| "RoundStarted"
+	// patch-23 Lote F
+	| "RoomLeft"
+	| "EntityEnteredPlay";
 
 // ── Payloads tipados ──────────────────────────────────────────────────────────
 
@@ -191,4 +194,14 @@ export type GameEvent =
 	| {
 			readonly type: "RoundStarted";
 			readonly payload: { readonly round: number };
+	  }
+	// Emitido quando o grupo avança para uma nova sala (após vitória/recompensa).
+	| {
+			readonly type: "RoomLeft";
+			readonly payload: { readonly roomName: string };
+	  }
+	// Emitido quando uma entidade (criatura inicial ou spawn mid-combat) entra em jogo.
+	| {
+			readonly type: "EntityEnteredPlay";
+			readonly payload: { readonly entityId: string; readonly entityType: "enemy" };
 	  };

@@ -207,3 +207,50 @@ export function tickModifierDurations(
 	}
 	return updated;
 }
+
+// Decrementa remaining de modifiers com duration.kind === "rounds".
+// Modifiers com remaining === 1 são removidos (expiram após esta rodada).
+// Chamado em fim de rodada junto com tickModifierDurations("end_of_round").
+export function decrementRoundsModifiers(world: World): World {
+	let updated = world;
+	for (const entity of Object.values(world.entities)) {
+		const hasRounds = entity.components.some(
+			(c): c is ModifierComponent =>
+				c.type === "modifier" && c.duration.kind === "rounds",
+		);
+		if (!hasRounds) continue;
+		const newComponents = entity.components.flatMap((c) => {
+			if (c.type !== "modifier") return [c];
+			const mod = c as ModifierComponent;
+			if (mod.duration.kind !== "rounds") return [c];
+			if (mod.duration.remaining <= 1) return []; // expira
+			return [{ ...mod, duration: { kind: "rounds" as const, remaining: mod.duration.remaining - 1 } }];
+		});
+		updated = upsertEntity(updated, { ...entity, components: newComponents });
+	}
+	return updated;
+}
+
+// Remove todos os modifiers cujo sourceEntityId aponta para uma entidade removida.
+// Chamado após removeEntity em damageSystem para limpar while_source_in_play órfãos.
+export function removeModifiersForSource(world: World, sourceEntityId: EntityId): World {
+	let updated = world;
+	for (const entity of Object.values(world.entities)) {
+		const hasMod = entity.components.some(
+			(c) =>
+				c.type === "modifier" &&
+				(c as ModifierComponent).duration.kind === "while_source_in_play" &&
+				(c as ModifierComponent).sourceEntityId === sourceEntityId,
+		);
+		if (!hasMod) continue;
+		updated = removeComponent(updated, entity.id, (c) => {
+			if (c.type !== "modifier") return false;
+			const mod = c as ModifierComponent;
+			return (
+				mod.duration.kind === "while_source_in_play" &&
+				mod.sourceEntityId === sourceEntityId
+			);
+		});
+	}
+	return updated;
+}

@@ -9,6 +9,7 @@ import {
 	getItems,
 	getRooms,
 } from "../data/cards";
+import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncHeroesAndEnemies } from "../ecs/sync";
 import { createEmptyWorld } from "../ecs/world";
@@ -86,11 +87,17 @@ export function handleStartGame(
 	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactNames, rng));
 
 	let world = syncHeroesAndEnemies(createEmptyWorld(), heroes, []);
-	// Lote F: instala TriggerComponents das habilidades de cada herói
+	// Lote F: instala TriggerComponents e ModifierComponents passivos das habilidades de cada herói
 	for (const hero of heroes) {
 		const heroCard = getCardByName(hero.cardName);
 		if (heroCard) {
-			world = installSkillTriggers(world, hero.id, cardSkills(heroCard.id));
+			const skills = cardSkills(heroCard.id);
+			world = installSkillTriggers(world, hero.id, skills);
+			for (const { def, ref } of skills) {
+				if (def.operate_type === "op_passive") {
+					world = installPassive(world, hero.id, def, ref);
+				}
+			}
 		}
 	}
 

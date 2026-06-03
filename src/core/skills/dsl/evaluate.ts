@@ -75,6 +75,7 @@ function evaluateOne(
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
 			const value = resolveExpr(node.value, ctx);
 			// Vai para o drainStack que faz dual-write (ECS world + legacy combat state)
+			// sourceEntityId propagado para permitir limpeza de while_source_in_play.
 			return ctx.action.pushEffect({
 				kind: "p_modifier",
 				to,
@@ -82,6 +83,7 @@ function evaluateOne(
 				operation: node.operation,
 				value,
 				duration: node.duration,
+				sourceEntityId: ctx.sourceId ?? undefined,
 			});
 		}
 
@@ -286,11 +288,11 @@ function mapDuration(d: DurationNode): Duration {
 		case "once":
 			return { kind: "once" };
 		case "until_end_of_round":
-			return { kind: "this_turn" }; // proxy: this_turn ≈ fim da rodada
+			return { kind: "this_turn" };
 		case "until_end_of_combat":
 			return { kind: "this_combat" };
 		case "while_in_play":
-			return { kind: "permanent" }; // proxy: enquanto ativo
+			return { kind: "while_source_in_play" };
 		case "passive":
 			return { kind: "permanent" };
 		case "once_per_round":
