@@ -10,7 +10,8 @@ describe("cardSkills", () => {
 		const habilidade = skills.find(({ def }) => def.category === "habilidade");
 		expect(habilidade).not.toBeUndefined();
 		expect(habilidade!.def.id).toBe("skill_crimson_fury");
-		expect(habilidade!.def.script).toBe("skill_crimson_fury");
+		// skill_crimson_fury migrada para DSL em patch-21 Lote G
+		expect(habilidade!.def.effect).toBeDefined();
 	});
 
 	it("resolve poder do Mago das Runas Rubras", () => {

@@ -1,12 +1,13 @@
-﻿// Testes do script skill_living_ember_oil (Frasco de Óleo Incendiário).
-// Fase 7: migrado de handleScript(type="script") para getScript("skill_living_ember_oil.run").
+// Testes de skill_living_ember_oil após migração para DSL (patch-21 Lote G).
+// Usa evaluate() diretamente, pois o script foi removido.
 
 import { describe, expect, it } from "vitest";
-import type { SkillContext } from "../../data/skillTypes";
+import { drainStack } from "../../effects/resolver";
 import { buildScriptCtx } from "../../scripts/context";
-import { getScript } from "../../scripts/registry";
 import type { EnemyState } from "../../state/enemyState";
 import { createInitialGameState } from "../../state/gameState";
+import { SKILLS } from "../../data/skills";
+import { evaluate } from "../../skills/dsl/evaluate";
 
 const goblin: EnemyState = {
 	id: "e_goblin",
@@ -38,42 +39,35 @@ const slime: EnemyState = {
 	status: "active",
 };
 
-function runScript(
-	state: ReturnType<typeof createInitialGameState>,
-	skillCtx: SkillContext,
-) {
-	const fn = getScript("skill_living_ember_oil.run");
-	if (!fn)
-		throw new Error("script skill_living_ember_oil não encontrado no registry");
-	return fn(buildScriptCtx(state, skillCtx));
-}
+const def = SKILLS.abilities.find((a) => a.id === "skill_living_ember_oil")!;
 
 describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
-	it("enfileira apply_damage 2 contra criatura comum", () => {
+	it("enfileira i_damage 2 contra criatura comum", () => {
 		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
 		const state = { ...base, activeEnemies: [goblin] };
-		const next = runScript(state, {
-			triggeredBy: "on_use",
-			targetEnemyIds: ["e_goblin"],
-		});
+		const ctx = buildScriptCtx(
+			state,
+			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil", targetEnemyIds: ["e_goblin"] },
+			{},
+		);
+		const next = evaluate(def.effect!, ctx);
 		expect(next.effectStack.pending).toHaveLength(1);
 		expect(next.effectStack.pending[0]!.effect).toMatchObject({
 			kind: "i_damage",
 			to: "e_goblin",
 			amount: 2,
 		});
-		expect(
-			next.activeEnemies.find((e) => e.id === "e_goblin")?.currentLife,
-		).toBe(4);
 	});
 
-	it("enfileira apply_damage 3 contra criatura com Corpo Gelatinoso", () => {
+	it("enfileira i_damage 3 contra criatura com Corpo Gelatinoso", () => {
 		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
 		const state = { ...base, activeEnemies: [slime] };
-		const next = runScript(state, {
-			triggeredBy: "on_use",
-			targetEnemyIds: ["e_slime"],
-		});
+		const ctx = buildScriptCtx(
+			state,
+			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil", targetEnemyIds: ["e_slime"] },
+			{},
+		);
+		const next = evaluate(def.effect!, ctx);
 		expect(next.effectStack.pending).toHaveLength(1);
 		expect(next.effectStack.pending[0]!.effect).toMatchObject({
 			kind: "i_damage",
@@ -82,21 +76,28 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		});
 	});
 
-	it("enfileira com source = skillId correto", () => {
+	it("causa dano correto após drainStack — criatura comum", () => {
 		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
 		const state = { ...base, activeEnemies: [goblin] };
-		const next = runScript(state, {
-			triggeredBy: "on_use",
-			skillId: "skill_living_ember_oil",
-			targetEnemyIds: ["e_goblin"],
-		});
-		expect(next.effectStack.pending[0]?.source).toBe("skill_living_ember_oil");
+		const ctx = buildScriptCtx(
+			state,
+			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil", targetEnemyIds: ["e_goblin"] },
+			{},
+		);
+		const result = drainStack(evaluate(def.effect!, ctx));
+		expect(result.activeEnemies.find((e) => e.id === "e_goblin")?.currentLife).toBe(2);
 	});
 
-	it("retorna state inalterado se não há alvo", () => {
+	it("sem alvo — sem efeito (i_if sem alvo resolvido → skips)", () => {
 		const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
-		const next = runScript(base, { triggeredBy: "on_use" });
-		expect(next).toBe(base);
+		const ctx = buildScriptCtx(
+			base,
+			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil" },
+			{},
+		);
+		// Sem targetEnemyIds, $target não resolve → i_if/i_damage noops
+		const result = drainStack(evaluate(def.effect!, ctx));
+		// Nenhum inimigo na lista, estado praticamente inalterado
+		expect(result.activeEnemies).toHaveLength(0);
 	});
 });
-

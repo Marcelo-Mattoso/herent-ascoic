@@ -16,13 +16,28 @@ abilities:
   - id: skill_crimson_fury
     category: habilidade
     target: self
-    script: skill_crimson_fury
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
     nature:
       - nat_physical
       - nat_fire
+    effect:
+      - kind: i_damage
+        to: $source
+        amount: $value
+        minimum: 1
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_dealt
+        operation: add
+        value:
+          op: mul
+          args:
+            - $value
+            - 3
+        duration:
+          kind: once
   - id: skill_last_light_healing
     category: habilidade
     target: hero_or_ally_creature
@@ -83,13 +98,24 @@ abilities:
   - id: skill_living_ember_oil
     category: habilidade_item
     target: creature_in_play
-    notes: Migrada para script (patch-10). Condicional baseada em
-      skill_gelatinous_body do alvo.
-    script: skill_living_ember_oil
     operate_type: op_active
     nature:
       - nat_physical
       - nat_fire
+    effect:
+      - kind: i_if
+        when:
+          kind: has_skill
+          of: $target
+          skillId: skill_gelatinous_body
+        then:
+          - kind: i_damage
+            to: $target
+            amount: 3
+        else:
+          - kind: i_damage
+            to: $target
+            amount: 2
   - id: skill_last_light_shield
     category: habilidade
     target: hero
@@ -910,12 +936,16 @@ abilities:
   - id: purple_ember_blood
     category: efeito_roxo_monstro
     target: attacking_hero
-    script: purple_ember_blood
     operate_type: op_triggered
-    trigger: *a10
+    trigger:
+      event: evt_damage_taken
     nature:
       - nat_dark
       - nat_fire
+    effect:
+      - kind: i_damage
+        to: $target
+        amount: 1
   - id: purple_depths_seal
     category: efeito_roxo_monstro
     target: heroes
@@ -969,13 +999,16 @@ abilities:
   - id: purple_veil_retaliation
     category: efeito_roxo_monstro
     target: attacking_hero
-    script: purple_veil_retaliation
     operate_type: op_triggered
     trigger:
       event: evt_hit
     nature:
       - nat_dark
       - nat_magical
+    effect:
+      - kind: i_damage
+        to: $target
+        amount: $value
   - id: purple_healing_rupture
     category: efeito_roxo_monstro
     target: heroes
