@@ -52,7 +52,7 @@ export interface CombatState {
 	readonly heroesActed: readonly string[];
 	readonly pairs: readonly CombatPair[];
 	lastRoll: CombatRollResult | null;
-	// Heróis que já usaram o Escudo Rachado neste combate
+	// Heróis que já usaram o item_cracked_shield neste combate
 	readonly shieldsUsedThisCombat: Readonly<Record<string, boolean>>;
 	// Heróis que usaram o poder do Bárbaro nesta sala
 	readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;

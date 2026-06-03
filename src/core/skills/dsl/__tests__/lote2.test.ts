@@ -2,7 +2,7 @@
 
 import { describe, expect, it } from "vitest";
 import type { ModifierComponent } from "../../../ecs/types";
-import { getComponents, getModifierTotal } from "../../../ecs/world";
+import { createEntity, getComponents, getModifierTotal, upsertEntity } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
@@ -77,7 +77,8 @@ describe("add_modifier damage_bonus → bonusNextAttack", () => {
 
 describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 	it("adiciona bônus de acerto ao inimigo-fonte", () => {
-		const state = stateWithCombat();
+		const base = stateWithCombat();
+		const state = { ...base, world: upsertEntity(base.world, createEntity("e1", "creature", [])) };
 		const ctx = buildScriptCtx(
 			state,
 			{ triggeredBy: "combat_if_alone_in_room", sourceEnemyId: "e1" },

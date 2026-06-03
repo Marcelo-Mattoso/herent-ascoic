@@ -28,7 +28,7 @@ Array de objetos. Cada objeto é uma carta discriminada pelo campo `type`.
 | `creature` | `diceByColor`, `life[5]`, `hitBonus[5]`, `damage`, `xp`, `reward`, `rewardType` |
 | `subboss` | mesmo que `creature` |
 | `room` | `exits`, `enemiesByPlayers[4]`, `reward`, `rewardType` |
-| `subboss_room` | `exits`, `reward`, `rewardType`, `linkedSubbossName` |
+| `subboss_room` | `exits`, `reward`, `rewardType`, `linkedSubbossId` |
 | `item` | `itemClass`, `tags[]` |
 | `artifact` | `countsAs: "artifact"` |
 | `boss` | `dice`, `lifeBase`, `hitBonusBase`, `damage`, `condition`, `artifactBonus`, `dungeonScaling`, `victory` |

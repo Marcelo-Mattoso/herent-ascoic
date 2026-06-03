@@ -182,7 +182,7 @@ export type GameEvent =
 			readonly type: "ItemEffectAppliedTo";
 			readonly payload: {
 				readonly heroId: string;
-				readonly itemName: string;
+				readonly itemId: string;
 				readonly sourceId: string;
 				readonly roomFirstTime: boolean;
 			};

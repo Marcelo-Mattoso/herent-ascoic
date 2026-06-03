@@ -70,7 +70,7 @@ export interface ConditionComponent {
 
 export interface ItemEquippedComponent {
 	readonly type: "item_equipped";
-	readonly itemName: string;
+	readonly itemId: string;
 	readonly slot: ItemSlotType;
 }
 

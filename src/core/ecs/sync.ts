@@ -26,11 +26,11 @@ export function syncEntityFromHero(world: World, hero: HeroState): World {
 		{ type: "impeto", level: hero.impeto },
 	];
 
-	for (const [slot, itemName] of Object.entries(hero.activeItems)) {
-		if (itemName) {
+	for (const [slot, itemId] of Object.entries(hero.activeItems)) {
+		if (itemId) {
 			components.push({
 				type: "item_equipped",
-				itemName,
+				itemId,
 				slot: slot as ItemSlotType,
 			});
 		}
