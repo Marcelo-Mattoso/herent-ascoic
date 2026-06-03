@@ -1,5 +1,9 @@
 # Auditoria de Durações — 88 Skills (patch-23 Lote 0)
 
+> **Snapshot pré-patch-23.** Status pós-patch-23 e pós-patch-25 registrado abaixo.
+> B1–B4, B6–B7 fechados em patch-23. B5 e PD-1 a PD-6 fechados em patch-25.
+> Todos os buracos desta auditoria estão resolvidos. Próxima auditoria: quando nova rodada de problemas for identificada.
+
 Gerado em 2026-06-03. Fonte da verdade: `src/data/skills.yaml` + `src/data/skills.locale.pt-BR.yaml`.
 
 ## Buracos de referência
@@ -10,10 +14,15 @@ Gerado em 2026-06-03. Fonte da verdade: `src/data/skills.yaml` + `src/data/skill
 | B2 | `while_in_play` / `passive` → `permanent` sem expiry atrelado à remoção da entidade-fonte |
 | B3 | `op_passive` skills não são instaladas (installPassive não é chamado) |
 | B4 | op_triggered com cooldown: TriggerComponent removido por consumeAfterFire e não reinstalado ao reset do scope |
-| B5 | Trigger + `while_in_play` empilha modifiers a cada disparo sem dedup |
-| B6 | `evt_room_leave` mapeia para `CombatEnded` (semanticamente errado) |
-| B7 | `evt_enter_play` mapeia para `CombatStarted` (não cobre spawn mid-combat) |
-| PD | precisa-decisao — sem B específico, mas comportamento inconsistente com o texto da carta |
+| B5 | Trigger + `while_in_play` empilha modifiers a cada disparo sem dedup | **✅ patch-25 Lote A** |
+| B6 | `evt_room_leave` mapeia para `CombatEnded` (semanticamente errado) | ✅ patch-23 |
+| B7 | `evt_enter_play` mapeia para `CombatStarted` (não cobre spawn mid-combat) | ✅ patch-23 |
+| PD-1 | `p_block` sem `duration` declarada (flee/heal com escopo "até fim da rodada") | **✅ patch-25 Lote B+C** |
+| PD-2 | `p_block` com escopo "sala" / "1º combate" sem mecanismo de reset | **✅ patch-25 Lote C** (while_in_play no YAML; sourceEntityId via avaliador pendente) |
+| PD-3 | `p_block` atrelado à presença da criatura (while_source_in_play) | **✅ patch-25 Lote B+C** |
+| PD-4 | `p_block` com semântica "próxima X" / "1×/jogo" | **✅ patch-25 Lote B+C** (once em purple_healing_rupture) |
+| PD-5 | trigger sem cooldown declarado mas label promete "1×" | **✅ patch-25 Lote C** (skill_path_safeguard) |
+| PD-6 | `duration: passive` ambíguo (texto = permanente) | **✅ patch-25 Lote D** (renomeado para `permanent`) |
 
 ---
 

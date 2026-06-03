@@ -20,6 +20,14 @@ import type { GameStatus } from "./status";
 
 export type Difficulty = "very_easy" | "easy" | "normal" | "hard" | "nightmare";
 
+// Entrada de bloco com duração. Usada em GameState.blocks para rastrear
+// blocos de ação (fuga, cura, etc.) que expiram em algum escopo.
+export interface BlockEntry {
+	readonly source: string;
+	readonly duration: import("../skills/dsl/types").DurationNode;
+	readonly sourceEntityId?: string;
+}
+
 export type GameMode = "cooperative" | "competitive";
 
 export interface GroupArtifact {
@@ -108,6 +116,11 @@ export interface GameState {
 
 	// Flags globais de mecânicas (ex: discardDungeonLocked)
 	readonly flags: Readonly<Record<string, boolean>>;
+
+	// Blocos de ações com duração (ex: fleeBlocked, discardDungeonLocked, heroId::healBlocked).
+	// O bloco está ativo enquanto o array tiver ao menos uma entrada.
+	// Limpo por tickBlockEntries() e removeBlocksForSource().
+	readonly blocks: Readonly<Record<string, readonly BlockEntry[]>>;
 
 	// Tokens persistentes fora do combate (chave: `${ownerId}::${type}`)
 	readonly tokens: Readonly<
@@ -209,6 +222,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 		oncePer: { game: {} },
 
 		flags: {},
+
+		blocks: {},
 
 		tokens: {},
 

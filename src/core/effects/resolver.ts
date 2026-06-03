@@ -6,11 +6,11 @@
 
 import eventRules from "../../data/event_rules.json";
 import type { EntityId, ModifierComponent } from "../ecs/types";
-import { addComponent, createEntity, upsertEntity } from "../ecs/world";
+import { addComponent, createEntity, removeComponent, upsertEntity } from "../ecs/world";
 import { discardFromDungeonDeck } from "../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../reducer/utils";
 import type { ColorIndex } from "../state/color";
-import type { GameState, PendingReward } from "../state/gameState";
+import type { BlockEntry, GameState, PendingReward } from "../state/gameState";
 import { applyDamage } from "../systems/damageSystem";
 import { applyFullHeal, applyHeal, applySurvive } from "../systems/healSystem";
 import type { PendingEffect } from "./stack";
@@ -111,12 +111,25 @@ case "discard_from": {
 		case "p_block":
 case "block_action": {
 			const what = effect["what"] as string;
+			const durationNode = effect["duration"] as import("../skills/dsl/types").DurationNode | undefined;
+			const blockSourceEntityId = effect["sourceEntityId"] as string | undefined;
+			const entry: BlockEntry = {
+				source: pending.source ?? "unknown",
+				duration: durationNode ?? { kind: "permanent" },
+				...(blockSourceEntityId ? { sourceEntityId: blockSourceEntityId } : {}),
+			};
 			switch (what) {
-				case "flee":
+				case "flee": {
+					const key = "fleeBlocked";
 					return log(
-						{ ...state, flags: { ...state.flags, fleeBlocked: true } },
+						{
+							...state,
+							flags: { ...state.flags, fleeBlocked: true },
+							blocks: { ...state.blocks, [key]: [...(state.blocks[key] ?? []), entry] },
+						},
 						"Fuga bloqueada.",
 					);
+				}
 				case "heal": {
 					// Aplica a todos os heróis ativos (behavior de forge_smoke/healing_rupture)
 					// ou ao alvo específico se `who` estiver presente.
@@ -128,15 +141,23 @@ case "block_action": {
 								.filter((h) => h.status === "active")
 								.map((h) => h.id);
 					for (const heroId of targets) {
+						const key = `${heroId}::healBlocked`;
 						next = mapHero(next, heroId, (h) => ({ ...h, healBlocked: true }));
+						next = { ...next, blocks: { ...next.blocks, [key]: [...(next.blocks[key] ?? []), entry] } };
 					}
 					return log(next, "Cura bloqueada.");
 				}
-				case "dungeon_discard":
+				case "dungeon_discard": {
+					const key = "discardDungeonLocked";
 					return log(
-						{ ...state, flags: { ...state.flags, discardDungeonLocked: true } },
+						{
+							...state,
+							flags: { ...state.flags, discardDungeonLocked: true },
+							blocks: { ...state.blocks, [key]: [...(state.blocks[key] ?? []), entry] },
+						},
 						"Prevenção de descarte de dungeon bloqueada.",
 					);
+				}
 				case "power_use":
 				case "dungeon_level_reduction":
 					// Implementado via flags — adicionado quando ECS estiver wired (Fase 7)
@@ -186,7 +207,8 @@ case "add_modifier": {
 					case "until_end_of_round": return { kind: "this_turn" };
 					case "until_end_of_combat": return { kind: "this_combat" };
 					case "while_in_play": return { kind: "while_source_in_play" };
-					case "passive": return { kind: "permanent" };
+					case "passive":
+					case "permanent": return { kind: "permanent" };
 					case "once_per_round": return { kind: "rounds", remaining: 1 };
 					default: return { kind: "this_combat" };
 				}
@@ -221,6 +243,20 @@ case "add_modifier": {
 							? ("enemy" as const)
 							: ("hero" as const);
 					world = upsertEntity(world, createEntity(entityId, entityType));
+				}
+				// Dedup: trigger reativo com while_source_in_play não deve empilhar modifier
+				// ao disparar múltiplas vezes — substituir em vez de adicionar (B5).
+				if (ecsDuration.kind === "while_source_in_play" && sourceEntityId) {
+					world = removeComponent(world, entityId, (c) => {
+						if (c.type !== "modifier") return false;
+						const m = c as ModifierComponent;
+						return (
+							m.duration.kind === "while_source_in_play" &&
+							m.source === source &&
+							m.target === ecsTarget &&
+							m.sourceEntityId === sourceEntityId
+						);
+					});
 				}
 				world = addComponent(world, entityId, modComp);
 				worldState = { ...worldState, world };

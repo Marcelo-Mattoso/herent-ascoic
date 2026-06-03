@@ -6,6 +6,7 @@ import { syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
 import { emit } from "../events/bus";
 import type { GameState } from "../state/gameState";
+import { consumeOnceBlock } from "../state/blockHelpers";
 import type { HeroState } from "../state/heroState";
 
 function findHero(state: GameState, targetId: EntityId): HeroState | undefined {
@@ -26,7 +27,11 @@ export function applyHeal(
 	amount: number,
 ): GameState {
 	const hero = findHero(state, targetId);
-	if (!hero || hero.healBlocked) return state;
+	if (!hero) return state;
+	if (hero.healBlocked) {
+		// Consome bloco `once` para que a próxima cura passe (semântica "próxima cura").
+		return consumeOnceBlock(state, `${targetId}::healBlocked`);
+	}
 
 	// Janela pré: listeners podem modificar a quantidade de cura.
 	const { state: s1, event: modified } = emit(state, {

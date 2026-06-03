@@ -67,7 +67,7 @@ const DurationNodeSchema = z.discriminatedUnion("kind", [
 	z.object({ kind: z.literal("until_end_of_round") }),
 	z.object({ kind: z.literal("until_end_of_combat") }),
 	z.object({ kind: z.literal("while_in_play") }),
-	z.object({ kind: z.literal("passive") }),
+	z.object({ kind: z.literal("permanent") }),
 	z.object({ kind: z.literal("once_per_round") }),
 ]);
 
@@ -132,6 +132,8 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 				"power_use",
 				"dungeon_level_reduction",
 			]),
+			duration: DurationNodeSchema.optional(),
+			sourceEntityId: z.string().optional(),
 		}),
 		// Decks (i_*)
 		z.object({

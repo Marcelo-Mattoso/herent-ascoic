@@ -62,7 +62,7 @@ export type DurationNode =
 	| { readonly kind: "until_end_of_round" }
 	| { readonly kind: "until_end_of_combat" }
 	| { readonly kind: "while_in_play" }
-	| { readonly kind: "passive" }
+	| { readonly kind: "permanent" }
 	| { readonly kind: "once_per_round" };
 
 // ── Effects ──────────────────────────────────────────────────────────────────
@@ -125,7 +125,12 @@ export type EffectNode =
 			readonly condition?: ConditionNode;
 			readonly priority?: number;
 	  }
-	| { readonly kind: "p_block"; readonly what: BlockActionTarget }
+	| {
+			readonly kind: "p_block";
+			readonly what: BlockActionTarget;
+			readonly duration?: DurationNode;
+			readonly sourceEntityId?: string;
+	  }
 	// Decks (i_*)
 	| {
 			readonly kind: "i_discard";

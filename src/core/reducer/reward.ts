@@ -8,6 +8,7 @@ import { XP_COSTS } from "../config/defaults";
 import { getCardByName } from "../data/cards";
 import { calculateRewards } from "../rules/reward";
 import { tickModifierDurations } from "../ecs/world";
+import { tickBlockEntries } from "../state/blockHelpers";
 import { emit } from "../events/bus";
 import { cardSkills } from "../skills/lookup";
 import { renderSkillLabel } from "../skills/renderLabel";
@@ -37,6 +38,7 @@ export function handleGrantRewards(state: GameState): GameState {
 			"end_of_combat",
 		),
 	};
+	next = tickBlockEntries(tickBlockEntries(next, "end_of_round"), "end_of_combat");
 
 	const eligibleGraveyard = next.enemyGraveyard.filter((e) => !e.noReward);
 	const summary = calculateRewards(next.currentRoom!, eligibleGraveyard);

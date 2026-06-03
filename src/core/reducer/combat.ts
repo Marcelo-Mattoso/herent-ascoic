@@ -5,6 +5,7 @@
 
 import { getCardByName } from "../data/cards";
 import { decrementRoundsModifiers, getModifierTotal, tickModifierDurations } from "../ecs/world";
+import { tickBlockEntries } from "../state/blockHelpers";
 import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import { calculateTotal, resolveAttack } from "../rules/combat";
@@ -638,12 +639,12 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 	const worldAfterTick = decrementRoundsModifiers(
 		tickModifierDurations(nextState.world, "end_of_round"),
 	);
-	nextState = {
+	nextState = tickBlockEntries({
 		...nextState,
 		status: "HERO_ACTION",
 		combat: nextCombat,
 		world: worldAfterTick,
-	};
+	}, "end_of_round");
 
 	// Lote E+F: emit(RoundStarted) dispara TriggerComponents (inclui first_round_in_room via condição round===1)
 	({ state: nextState } = emit(nextState, { type: "RoundStarted", payload: { round: nextRound } }));

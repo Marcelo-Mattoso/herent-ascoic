@@ -6,6 +6,7 @@
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
 import { removeEntity, removeModifiersForSource } from "../ecs/world";
+import { removeBlocksForSource } from "../state/blockHelpers";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
 import type { EnemyState } from "../state/enemyState";
@@ -103,10 +104,11 @@ export function applyDamage(
 			type: "EnemyDestroyed",
 			payload: { enemyId: targetId, sourceId, roomFirstKill },
 		}));
-		// Remove entidade ECS do inimigo derrotado e limpa modifiers while_source_in_play
-		// que esta entidade tenha aplicado em outras entidades (ex: gelatinous_body).
+		// Remove entidade ECS do inimigo derrotado e limpa modifiers/blocks while_source_in_play
+		// que esta entidade tenha aplicado em outras entidades (ex: gelatinous_body, forge_chains).
 		const worldAfterRemove = removeEntity(s4.world, targetId);
 		s4 = { ...s4, world: removeModifiersForSource(worldAfterRemove, targetId) };
+		s4 = removeBlocksForSource(s4, targetId);
 	}
 
 	return s4;
