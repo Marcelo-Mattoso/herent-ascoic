@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { getCardById } from "@/core/data/cards";
 import { getCardName } from "@/core/data/cardLocale";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
