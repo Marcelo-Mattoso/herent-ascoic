@@ -1,0 +1,155 @@
+Ajustes do Autor - Lote 01
+Data: 2026-06-04
+Status: aberto — aguarda implementação
+
+================================================================================
+AJUSTE 1 — Usar poder ou habilidade bloqueia ataque, mas não bloqueia item
+================================================================================
+
+Regra desejada
+  Um herói que usar um poder (USE_POWER) ou uma habilidade ativa (USE_SKILL)
+  no seu turno NÃO pode mais realizar ataque nessa rodada.
+  Usar item ainda deve ser permitido após usar poder/habilidade.
+
+Situação atual
+  Em combat.ts linha 790, USE_POWER adiciona o herói a `heroesActed` logo após
+  o poder ser disparado. Isso encerra o turno completamente — o jogador perde a
+  chance de usar item após o poder, o que está errado.
+
+  USE_SKILL (reducer/index.ts:205) não encerra o turno, mas também não marca
+  que o ataque foi bloqueado — a restrição de ataque pós-habilidade não existe.
+
+O que precisa mudar
+  - Criar um campo novo em CombatState (src/core/state/combatState.ts), ex.:
+      heroAttackBlockedThisRound: Record<string, boolean>
+    para marcar heróis que já usaram poder ou habilidade e não podem mais atacar.
+
+  - Em handleUsePower (combat.ts ~linha 738):
+    em vez de adicionar a heroesActed, setar heroAttackBlockedThisRound[heroId] = true
+    e manter o herói no turno (sem add a heroesActed).
+    O herói só vai para heroesActed quando passar (PASS_HERO_ACTION) ou quando
+    não houver mais ações disponíveis.
+
+  - Em USE_SKILL (reducer/index.ts:205 → fireOnUseSkill):
+    após executar a skill ativa, idem — setar heroAttackBlockedThisRound[heroId] = true.
+
+  - Em selectHeroCombatActions (ui/store/selectors.ts ~linha 205):
+    `canAttack` já deve verificar heroAttackBlockedThisRound para desabilitar o botão.
+
+  - Limpar heroAttackBlockedThisRound no início de cada nova rodada
+    (onde hoje heroesActed é resetado para []).
+
+Arquivos envolvidos
+  src/core/state/combatState.ts          — novo campo heroAttackBlockedThisRound
+  src/core/reducer/combat.ts:738+        — USE_POWER: não adicionar a heroesActed
+  src/core/reducer/index.ts:205          — USE_SKILL: setar bloqueio
+  src/core/projection/playerView.ts:89   — expor o campo na PlayerView se necessário
+  src/ui/store/selectors.ts:220          — canAttack lê o novo campo
+
+
+================================================================================
+AJUSTE 2 — Botão "Usar habilidade" não está acessível / não foi encontrado
+================================================================================
+
+Problema relatado
+  O jogador não encontrou como acionar a habilidade do herói. Só encontrou
+  o botão de poder.
+
+Situação atual
+  O botão "Usar habilidade" (✨) existe em ActionSection
+  (src/ui/components/HeroFocusPanel.tsx ~linha 810), mas só renderiza
+  se `skill?.activatable === true` E a condição de fase for `selecting_target`
+  (isFocusedHeroSelected). Ou seja:
+    1. O jogador precisa primeiro clicar no token do herói no tabuleiro para
+       entrar na fase selecting_target daquele herói.
+    2. Só então o botão aparece no painel inferior.
+  Esse fluxo não é intuitivo — a habilidade está descrita no card info como
+  "📖 Habilidade · ativa" mas essa caixa é somente texto, sem botão.
+
+  Além disso, em isSelectingHero (fase anterior), o painel mostra
+  "Usar poder" desabilitado mas não mostra "Usar habilidade" — reforça a
+  confusão.
+
+O que precisa mudar
+  Opção A (mínima): tornar a caixa de habilidade no card info clicável
+  quando a habilidade for ativa e o herói estiver em foco. Isso evita
+  depender de fase selecting_target.
+
+  Opção B (melhor UX): mostrar o botão "Usar habilidade" também na fase
+  isSelectingHero do painel, desabilitado com tooltip "selecione seu herói
+  no tabuleiro primeiro" — assim o jogador descobre que o botão existe.
+
+  Em ambas as opções, a caixa "📖 Habilidade · ativa" deve ter aparência
+  de botão (cursor pointer, hover state) quando a habilidade for ativável.
+
+Arquivos envolvidos
+  src/ui/components/HeroFocusPanel.tsx   — caixa de habilidade (info) + ActionSection
+  src/ui/store/selectors.ts:220+         — selectHeroCombatActions (canUseSkill já existe)
+
+
+================================================================================
+AJUSTE 3 — Dungeon revelada: cartas aparecem só com verso / sem interação
+================================================================================
+
+Problema relatado
+  Quando a dungeon é revelada no tabuleiro (Stack "Masmorra"), as cartas
+  aparecem apenas como verso — uma pilha com contagem. Não é possível:
+    (a) usar habilidades, poderes ou itens para "virar" (revelar) uma carta
+        de dungeon específica;
+    (b) recuperar cartas descartadas da dungeon através de ações de herói.
+
+Situação atual
+  O componente Stack (src/ui/components/Stack.tsx) exibe apenas o número
+  de cartas disponíveis e descartadas. Não há mecanismo para interagir com
+  cartas individuais da pilha de dungeon durante a exploração.
+
+  Existe recover_dungeon como opção de XP (src/ui/store/selectors.ts:86)
+  e o modal DungeonExhaustedModal para quando a dungeon esgota — mas isso
+  é um fluxo separado de "reiniciar" e não cobre o uso ativo de skills/itens
+  para manipular cartas.
+
+  Skills como skill_forge_spoils ("ao vencer sala, olha 2 itens da dungeon")
+  e skill_return_rite ("1×/sala, paga 3 vida, recupera carta de dungeon")
+  existem em skills.yaml mas não têm interface: o efeito DSL pode ser
+  executado pelo core, mas a UI não oferece nenhuma tela/modal para o
+  jogador ver e escolher as cartas.
+
+O que precisa mudar
+
+  Parte 1 — Revelar / escolher cartas do topo da dungeon
+    Quando um efeito exige "olhar X cartas da dungeon" (ex.: skill_forge_spoils,
+    qualquer item com efeito equivalente), o core precisa projetar as cartas
+    do topo da pilha na PlayerView e a UI precisa de um modal de seleção
+    (parecido com SkillChoiceModal, mas para cartas de dungeon).
+
+    No core: o efeito `i_look_dungeon_top` (ou equivalente DSL/script) deve
+    expor as cartas na projeção como `pendingDungeonLook: { cards: CardId[], count: number }`.
+    Na UI: novo modal DungeonLookModal semelhante a SkillChoiceModal
+    (src/ui/components/modals/SkillChoiceModal.tsx).
+
+  Parte 2 — Recuperar cartas da dungeon descartadas durante o jogo
+    Habilidades como skill_return_rite devem poder ser ativadas fora do
+    momento de exaustão. O efeito de recuperação já existe no core
+    (i_recover_dungeon ou similar), mas o jogador não tem como ativá-lo
+    em tempo de exploração.
+
+    Verificar se o trigger correto está mapeado para skill_return_rite
+    (operate_type: op_active, ativável em REVEAL_ROOM / HERO_ACTION).
+    Garantir que o botão "Usar habilidade" fique visível e habilitado
+    no estado correto para essa skill (ver Ajuste 2).
+
+  Parte 3 (opcional / futuro)
+    Itens com efeito de "virar carta de dungeon" ou "pular carta de dungeon"
+    precisarão do mesmo mecanismo de Parte 1. Anotar como extensão futura
+    do mesmo modal DungeonLookModal.
+
+Arquivos envolvidos
+  src/core/projection/playerView.ts      — expor pendingDungeonLook se necessário
+  src/core/effects/resolver.ts           — verificar/criar efeito i_look_dungeon_top
+  src/data/skills.yaml                   — skill_forge_spoils, skill_return_rite
+  src/ui/components/Stack.tsx            — referência de onde a pilha é renderizada
+  src/ui/components/Board.tsx:195        — onde Stack "Masmorra" é montada
+  src/ui/components/modals/             — novo DungeonLookModal a criar
+  src/ui/screens/Exploration.tsx        — integrar novo modal no fluxo de telas
+
+================================================================================
