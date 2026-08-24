@@ -3,7 +3,6 @@
 
 import { useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
-import { getCardById } from "@/core/data/cards";
 import { getCardName } from "@/core/data/cardLocale";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
@@ -20,6 +19,10 @@ import { FleeReconfigureModal } from "@/ui/components/modals/FleeReconfigureModa
 import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
 import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
+import { getCardImageUrl } from "@/ui/cardImages";
+import { useBackCards } from "@/ui/hooks/useBackCards";
+import { useBoardBackgrounds } from "@/ui/hooks/useBoardBackgrounds";
+import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useGameStore } from "@/ui/store/gameStore";
 import { selectFocusedHero } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
@@ -46,10 +49,17 @@ interface CardDetailState {
 	heroId?: string;
 }
 
+type ActionLogMode = "open" | "collapsed" | "hidden";
+
 export function Exploration() {
 	const { view, ui, dispatch, setFocusedHero, heroActionsFor } = useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
-	const [showLog, setShowLog] = useState(false);
+	const [showHeroFocus, setShowHeroFocus] = useState(false);
+	const [actionLogMode, setActionLogMode] = useState<ActionLogMode>("open");
+	const { boards, selectedBoard, selectedBoardId, setSelectedBoardId } =
+		useBoardBackgrounds();
+	const backCardUrls = useBackCards();
+	const cardImageUrls = useCardImages();
 
 	const status = view.status;
 	const combat = view.combat;
@@ -89,6 +99,7 @@ export function Exploration() {
 	function handleHeroClick(h: HeroState) {
 		if (h.status !== "active") return;
 		setFocusedHero(h.id);
+		setShowHeroFocus(true);
 		if (
 			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
 			combat?.phase === "selecting_hero" &&
@@ -186,184 +197,247 @@ export function Exploration() {
 	}
 
 	const roll = combat?.lastRoll;
+	const boardBackgroundImage = selectedBoard
+		? `linear-gradient(rgba(10, 9, 8, 0.08), rgba(10, 9, 8, 0.08)), url("${selectedBoard.url}")`
+		: undefined;
 
 	return (
 		<>
-			<div className="min-h-screen py-4 px-4" style={{ background: UI.pageBg }}>
-				<div className="max-w-4xl mx-auto space-y-3">
-					{/* Barra de status topo */}
-					<div
-						className="flex items-center justify-between px-4 py-2 rounded-lg text-sm"
-						style={{ background: UI.subpanelBg }}
-					>
-						<div className="flex gap-5 flex-wrap">
-							<span style={{ color: UI.textSecondary }}>
-								Sala:{" "}
-								<strong style={{ color: UI.textPrimary }}>
-									{view.roomsCleared}
-								</strong>
-							</span>
-							<span style={{ color: UI.textSecondary }}>
-								Heróis:{" "}
-								<strong style={{ color: UI.textPrimary }}>
-									{view.heroes.filter((h) => h.status === "active").length}
-								</strong>{" "}
-								ativos
-							</span>
-							{view.combat?.round ? (
+			<div className="game-viewport">
+				<div
+					className="game-landscape-stage"
+					style={{
+						backgroundColor: UI.pageBg,
+						backgroundImage: boardBackgroundImage,
+					}}
+				>
+					<div className="game-table-vignette" />
+					<div className="game-play-space">
+						{/* Barra de status topo */}
+						<div
+							className="game-topbar flex items-center justify-between text-sm"
+							style={{ background: "rgba(241, 239, 232, 0.88)" }}
+						>
+							<div className="flex gap-5 flex-wrap">
 								<span style={{ color: UI.textSecondary }}>
-									Rodada:{" "}
+									Sala:{" "}
 									<strong style={{ color: UI.textPrimary }}>
-										{view.combat.round}
+										{view.roomsCleared}
 									</strong>
 								</span>
-							) : null}
+								<span style={{ color: UI.textSecondary }}>
+									Heróis:{" "}
+									<strong style={{ color: UI.textPrimary }}>
+										{view.heroes.filter((h) => h.status === "active").length}
+									</strong>{" "}
+									ativos
+								</span>
+								{view.combat?.round ? (
+									<span style={{ color: UI.textSecondary }}>
+										Rodada:{" "}
+										<strong style={{ color: UI.textPrimary }}>
+											{view.combat.round}
+										</strong>
+									</span>
+								) : null}
+							</div>
+							<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
+								{boards.length > 0 && (
+									<label
+										style={{
+											display: "flex",
+											alignItems: "center",
+											gap: 4,
+											fontSize: 11,
+											color: UI.textSecondary,
+										}}
+									>
+										<span>Tabuleiro</span>
+										<select
+											value={selectedBoardId ?? ""}
+											onChange={(event) =>
+												setSelectedBoardId(event.currentTarget.value || null)
+											}
+											style={{
+												fontSize: 11,
+												borderRadius: 6,
+												border: `1px solid ${UI.border}`,
+												background: UI.panelBg,
+												color: UI.textPrimary,
+												padding: "2px 6px",
+												maxWidth: 150,
+											}}
+										>
+											{boards.map((board) => (
+												<option key={board.id} value={board.id}>
+													{board.name}
+												</option>
+											))}
+										</select>
+									</label>
+								)}
+								<span
+									className="text-xs px-2 py-0.5 rounded"
+									style={{ background: UI.panelBg, color: UI.textTertiary }}
+								>
+									{status}
+								</span>
+							</div>
 						</div>
-						<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-							<button
-								type="button"
-								onClick={() => setShowLog((v) => !v)}
-								style={{
-									fontSize: 11,
-									padding: "2px 8px",
-									borderRadius: 6,
-									border: `1px solid ${showLog ? UI.borderStrong : UI.border}`,
-									background: showLog ? UI.textPrimary : UI.panelBg,
-									color: showLog ? UI.panelBg : UI.textSecondary,
-									cursor: "pointer",
-									fontWeight: 500,
-								}}
-							>
-								📋 Log
-							</button>
-							<span
-								className="text-xs px-2 py-0.5 rounded"
-								style={{ background: UI.panelBg, color: UI.textTertiary }}
-							>
-								{status}
-							</span>
+
+						{/* TABULEIRO */}
+						<div className="game-board-surface">
+							<Board
+								view={view}
+								focusedHeroId={ui.focusedHeroId}
+								roll={roll ?? null}
+								onHeroClick={handleHeroClick}
+								onHeroDragStart={handleHeroDragStart}
+								onEnemyDrop={handleEnemyDrop}
+								onEnemyClick={handleEnemyClick}
+								onRoomClick={() =>
+									view.currentRoom &&
+									openCardDetail(view.currentRoom.cardId, "room")
+								}
+								onCardDetail={openCardDetail}
+								onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
+								onStartCombat={() => dispatch({ type: "START_COMBAT" })}
+								onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
+								onRoll={handleRollDice}
+								onResolve={handleResolveAttack}
+								onSelectDie={(side, index) =>
+									dispatch({ type: "SELECT_DIE", payload: { side, index } })
+								}
+								backCardUrls={backCardUrls}
+								cardImageUrls={cardImageUrls}
+							/>
+						</div>
+
+						<aside className="game-influence-chat">
+							<InfluencePanel influences={view.activeInfluences} />
+							{actionLogMode === "hidden" ? (
+								<button
+									type="button"
+									className="event-log-reopen"
+									onClick={() => setActionLogMode("open")}
+									title="Mostrar log da partida"
+									aria-label="Mostrar log da partida"
+								>
+									📋 Log
+								</button>
+							) : (
+								<EventLogPanel
+									entries={view.eventLog}
+									title="Log da partida"
+									maxHeight="var(--action-log-body-max-height)"
+									collapsed={actionLogMode === "collapsed"}
+									onToggleCollapsed={() =>
+										setActionLogMode((mode) =>
+											mode === "collapsed" ? "open" : "collapsed",
+										)
+									}
+									onClose={() => setActionLogMode("hidden")}
+								/>
+							)}
+						</aside>
+
+						<div className="game-bottom-dock">
+							{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
+							{(() => {
+								const heroBuffs = focusedHero
+									? (view.combat?.buffsByHero[focusedHero.id] ?? [])
+									: [];
+								const groupBuffs = view.groupBuffs;
+								if (heroBuffs.length === 0 && groupBuffs.length === 0)
+									return null;
+								return (
+									<div
+										style={{
+											background: UI.panelBg,
+											border: `1px solid ${UI.border}`,
+											borderRadius: 8,
+											padding: "4px 10px",
+										}}
+									>
+										<BuffBar buffs={groupBuffs} leadingLabel="🤝 Grupo:" />
+										<hr
+											style={{
+												border: "none",
+												borderTop: `1px dashed ${UI.border}`,
+												margin: "2px 0",
+											}}
+										/>
+										<BuffBar
+											buffs={heroBuffs}
+											leadingLabel={
+												focusedHero
+													? `🧙 ${getCardName(focusedHero.cardId).split(",")[0]?.split(" ")[0] ?? "Herói"}:`
+													: "🧙 Herói:"
+											}
+										/>
+									</div>
+								);
+							})()}
 						</div>
 					</div>
 
-					{/* TABULEIRO */}
-					<Board
-						view={view}
-						focusedHeroId={ui.focusedHeroId}
-						roll={roll ?? null}
-						onHeroClick={handleHeroClick}
-						onHeroDragStart={handleHeroDragStart}
-						onEnemyDrop={handleEnemyDrop}
-						onEnemyClick={handleEnemyClick}
-						onRoomClick={() =>
-							view.currentRoom &&
-							openCardDetail(view.currentRoom.cardId, "room")
-						}
-						onCardDetail={openCardDetail}
-						onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
-						onStartCombat={() => dispatch({ type: "START_COMBAT" })}
-						onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
-						onRoll={handleRollDice}
-						onResolve={handleResolveAttack}
-						onSelectDie={(side, index) =>
-							dispatch({ type: "SELECT_DIE", payload: { side, index } })
-						}
-					/>
-
-					{/* LOG DE EVENTOS (toggle) */}
-					{showLog && (
-						<EventLogPanel
-							entries={view.eventLog}
-							onClose={() => setShowLog(false)}
-						/>
-					)}
-
-					{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
-					{(() => {
-						const heroBuffs = focusedHero
-							? (view.combat?.buffsByHero[focusedHero.id] ?? [])
-							: [];
-						const groupBuffs = view.groupBuffs;
-						if (heroBuffs.length === 0 && groupBuffs.length === 0) return null;
-						return (
+					{showHeroFocus && focusedHero && (
+						<div
+							className="game-hero-focus-layer"
+							onMouseDown={() => setShowHeroFocus(false)}
+						>
 							<div
-								style={{
-									background: UI.panelBg,
-									border: `1px solid ${UI.border}`,
-									borderRadius: 8,
-									padding: "4px 10px",
-								}}
+								className="game-hero-focus-popover"
+								onMouseDown={(event) => event.stopPropagation()}
 							>
-								<BuffBar
-									buffs={groupBuffs}
-									leadingLabel="🤝 Grupo:"
-								/>
-								<hr
-									style={{
-										border: "none",
-										borderTop: `1px dashed ${UI.border}`,
-										margin: "2px 0",
-									}}
-								/>
-								<BuffBar
-									buffs={heroBuffs}
-									leadingLabel={
-										focusedHero
-											? `🧙 ${getCardName(focusedHero.cardId).split(",")[0]?.split(" ")[0] ?? "Herói"}:`
-											: "🧙 Herói:"
+								<HeroFocusPanel
+									hero={focusedHero}
+									view={view}
+									heroActions={heroActions}
+									onAttack={handleAttack}
+									onPass={handlePass}
+									onCancelSelection={handleCancelSelection}
+									onPower={handleUsePower}
+									onFlee={handleFlee}
+									onUseSkill={handleUseSkill}
+									onCardDetail={openCardDetail}
+									onItemDetail={(itemId, heroId) =>
+										setDetailCard({ id: itemId, cardType: "item", heroId })
 									}
 								/>
 							</div>
-						);
-					})()}
+						</div>
+					)}
 
-					{/* PAINEL DE INFLUÊNCIAS — sempre visível, abaixo dos buffs */}
-					<InfluencePanel influences={view.activeInfluences} />
-
-					{/* PAINEL DO HERÓI EM FOCO */}
-					<HeroFocusPanel
-						hero={focusedHero}
-						view={view}
-						heroActions={heroActions}
-						onAttack={handleAttack}
-						onPass={handlePass}
-						onCancelSelection={handleCancelSelection}
-						onPower={handleUsePower}
-						onFlee={handleFlee}
-						onUseSkill={handleUseSkill}
-						onCardDetail={openCardDetail}
-						onItemDetail={(itemId, heroId) =>
-							setDetailCard({ id: itemId, cardType: "item", heroId })
-						}
-					/>
+					{/* Modais */}
+					{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
+					{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
+					{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
+					{modal === "flee_restart" && <FleeReconfigureModal />}
+					{view.pendingSkillChoice && <SkillChoiceModal />}
+					{modal === "card_detail" && detailCard && (
+						<CardDetailModal
+							cardId={detailCard.id}
+							cardType={detailCard.cardType}
+							imageUrl={getCardImageUrl(cardImageUrls, detailCard.id)}
+							onClose={() => setDetailCard(null)}
+							onUseItem={
+								detailCard.heroId
+									? () => {
+											dispatch({
+												type: "USE_ITEM",
+												payload: {
+													itemId: detailCard.id,
+													heroId: detailCard.heroId!,
+												},
+											});
+											setDetailCard(null);
+										}
+									: undefined
+							}
+						/>
+					)}
 				</div>
-
-				{/* Modais */}
-				{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
-				{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
-				{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
-				{modal === "flee_restart" && <FleeReconfigureModal />}
-				{view.pendingSkillChoice && <SkillChoiceModal />}
-				{modal === "card_detail" && detailCard && (
-					<CardDetailModal
-						cardId={detailCard.id}
-						cardType={detailCard.cardType}
-						onClose={() => setDetailCard(null)}
-						onUseItem={
-							detailCard.heroId
-								? () => {
-										dispatch({
-											type: "USE_ITEM",
-											payload: {
-												itemId: detailCard.id,
-												heroId: detailCard.heroId!,
-											},
-										});
-										setDetailCard(null);
-									}
-								: undefined
-						}
-					/>
-				)}
 			</div>
 
 			{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}

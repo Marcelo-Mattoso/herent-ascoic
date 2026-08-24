@@ -7,7 +7,15 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-node_modules
+# Dependencies and package metadata
+node_modules/
+package.json
+package-lock.json
+
+# Local image source and generated public assets
+imagedata/
+public/generated/
+
 dist
 dist-ssr
 *.local

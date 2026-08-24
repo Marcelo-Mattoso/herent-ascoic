@@ -1,13 +1,18 @@
 // Painel de log de eventos da partida.
 // Mostra as entradas do state.eventLog com color-coding por tipo.
-// Toggleável — renderizado apenas quando showLog=true.
+// Pode ser usado como HUD persistente, recolhível ou ocultável.
 
 import { useEffect, useRef } from "react";
 import { UI } from "@/ui/theme";
 
 interface EventLogPanelProps {
 	entries: readonly string[];
-	onClose: () => void;
+	onClose?: () => void;
+	onToggleCollapsed?: () => void;
+	title?: string;
+	maxHeight?: number | string;
+	collapsed?: boolean;
+	className?: string;
 }
 
 type EntryKind = "damage" | "heal" | "skill" | "warning" | "error" | "info";
@@ -56,7 +61,15 @@ const KIND_STYLE: Record<EntryKind, { dot: string; text: string }> = {
 	info: { dot: UI.textTertiary, text: UI.textSecondary },
 };
 
-export function EventLogPanel({ entries, onClose }: EventLogPanelProps) {
+export function EventLogPanel({
+	entries,
+	onClose,
+	onToggleCollapsed,
+	title = "Log de eventos",
+	maxHeight = 160,
+	collapsed = false,
+	className,
+}: EventLogPanelProps) {
 	const bottomRef = useRef<HTMLDivElement>(null);
 
 	// Scroll para a entrada mais recente sempre que o log crescer
@@ -66,28 +79,34 @@ export function EventLogPanel({ entries, onClose }: EventLogPanelProps) {
 
 	return (
 		<div
+			className={[
+				"event-log-panel",
+				collapsed ? "event-log-panel--collapsed" : "",
+				className ?? "",
+			]
+				.filter(Boolean)
+				.join(" ")}
 			style={{
-				background: UI.panelBg,
-				border: `1px solid ${UI.border}`,
-				borderRadius: 12,
+				borderRadius: 8,
 				overflow: "hidden",
+				minHeight: 0,
 			}}
 		>
 			{/* Cabeçalho */}
 			<div
+				className="event-log-panel__header"
 				style={{
 					display: "flex",
 					alignItems: "center",
 					justifyContent: "space-between",
 					padding: "7px 12px",
-					background: UI.subpanelBg,
 					borderBottom: `1px solid ${UI.border}`,
 				}}
 			>
 				<span
 					style={{ fontSize: 11, fontWeight: 600, color: UI.textSecondary }}
 				>
-					📋 Log de eventos
+					📋 {title}
 					<span
 						style={{
 							marginLeft: 6,
@@ -99,79 +118,110 @@ export function EventLogPanel({ entries, onClose }: EventLogPanelProps) {
 						{entries.length} entrada{entries.length !== 1 ? "s" : ""}
 					</span>
 				</span>
-				<button
-					type="button"
-					onClick={onClose}
-					style={{
-						background: "none",
-						border: "none",
-						cursor: "pointer",
-						fontSize: 13,
-						color: UI.textTertiary,
-						padding: "0 2px",
-						lineHeight: 1,
-					}}
-					title="Fechar log"
-				>
-					✕
-				</button>
+				{(onToggleCollapsed || onClose) && (
+					<div style={{ display: "flex", alignItems: "center", gap: 4 }}>
+						{onToggleCollapsed && (
+							<button
+								type="button"
+								className="event-log-panel__icon-button"
+								onClick={onToggleCollapsed}
+								style={{
+									background: "none",
+									border: "none",
+									cursor: "pointer",
+									fontSize: 12,
+									color: UI.textTertiary,
+									padding: "0 3px",
+									lineHeight: 1,
+								}}
+								title={collapsed ? "Expandir log" : "Recolher log"}
+								aria-label={collapsed ? "Expandir log" : "Recolher log"}
+							>
+								{collapsed ? "▾" : "▴"}
+							</button>
+						)}
+						{onClose && (
+							<button
+								type="button"
+								className="event-log-panel__icon-button"
+								onClick={onClose}
+								style={{
+									background: "none",
+									border: "none",
+									cursor: "pointer",
+									fontSize: 13,
+									color: UI.textTertiary,
+									padding: "0 3px",
+									lineHeight: 1,
+								}}
+								title="Ocultar log"
+								aria-label="Ocultar log"
+							>
+								✕
+							</button>
+						)}
+					</div>
+				)}
 			</div>
 
 			{/* Entradas */}
-			<div
-				style={{
-					maxHeight: 160,
-					overflowY: "auto",
-					padding: "6px 10px",
-					display: "flex",
-					flexDirection: "column",
-					gap: 3,
-				}}
-			>
-				{entries.length === 0 ? (
-					<p
-						style={{
-							fontSize: 11,
-							color: UI.textTertiary,
-							textAlign: "center",
-							padding: "8px 0",
-						}}
-					>
-						Nenhum evento ainda.
-					</p>
-				) : (
-					entries.map((msg, i) => {
-						const kind = classifyEntry(msg);
-						const style = KIND_STYLE[kind];
-						return (
-							<div
-								key={i}
-								style={{
-									display: "flex",
-									alignItems: "flex-start",
-									gap: 6,
-									fontSize: 11,
-									lineHeight: 1.4,
-								}}
-							>
-								{/* Indicador colorido */}
-								<span
+			{!collapsed && (
+				<div
+					className="event-log-panel__body"
+					style={{
+						maxHeight,
+						overflowY: "auto",
+						padding: "6px 10px",
+						display: "flex",
+						flexDirection: "column",
+						gap: 3,
+					}}
+				>
+					{entries.length === 0 ? (
+						<p
+							style={{
+								fontSize: 11,
+								color: UI.textTertiary,
+								textAlign: "center",
+								padding: "8px 0",
+							}}
+						>
+							Nenhum evento ainda.
+						</p>
+					) : (
+						entries.map((msg, i) => {
+							const kind = classifyEntry(msg);
+							const style = KIND_STYLE[kind];
+							return (
+								<div
+									key={i}
 									style={{
-										width: 6,
-										height: 6,
-										borderRadius: "50%",
-										background: style.dot,
-										flexShrink: 0,
-										marginTop: 3,
+										display: "flex",
+										alignItems: "flex-start",
+										gap: 6,
+										fontSize: 11,
+										lineHeight: 1.4,
 									}}
-								/>
-								<span style={{ color: style.text }}>{msg}</span>
-							</div>
-						);
-					})
-				)}
-				<div ref={bottomRef} />
-			</div>
+								>
+									{/* Indicador colorido */}
+									<span
+										style={{
+											width: 6,
+											height: 6,
+											borderRadius: "50%",
+											background: style.dot,
+											flexShrink: 0,
+											marginTop: 3,
+										}}
+									/>
+									<span style={{ color: style.text }}>{msg}</span>
+								</div>
+							);
+						})
+					)}
+					<div ref={bottomRef} />
+				</div>
+			)}
 		</div>
 	);
 }

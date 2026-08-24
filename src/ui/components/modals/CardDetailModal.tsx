@@ -12,6 +12,7 @@ interface CardDetailModalProps {
 	cardId: string;
 	cardType: CardType;
 	onClose: () => void;
+	imageUrl?: string;
 	onUseItem?: () => void;
 }
 
@@ -19,6 +20,7 @@ export function CardDetailModal({
 	cardId,
 	cardType,
 	onClose,
+	imageUrl,
 	onUseItem,
 }: CardDetailModalProps) {
 	const card = getCardById(cardId);
@@ -28,7 +30,24 @@ export function CardDetailModal({
 		<Modal title={cardName} onClose={onClose} maxWidth={480}>
 			<div className="flex gap-4">
 				<div style={{ width: 120, flexShrink: 0 }}>
-					<PlaceholderArt cardType={cardType} size="lg" />
+					<div
+						style={{
+							width: 120,
+							height: 168,
+							borderRadius: 8,
+							overflow: "hidden",
+							backgroundImage: imageUrl ? `url("${imageUrl}")` : undefined,
+							backgroundPosition: "center",
+							backgroundRepeat: "no-repeat",
+							backgroundSize: imageUrl ? "100% 100%" : "cover",
+							backgroundOrigin: "border-box",
+							backgroundClip: "border-box",
+							boxShadow:
+								"0 7px 10px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.38)",
+						}}
+					>
+						{!imageUrl && <PlaceholderArt cardType={cardType} size="lg" />}
+					</div>
 				</div>
 				<div className="flex-1 space-y-2 text-sm">
 					<p
