@@ -357,7 +357,7 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 					textTransform: "uppercase",
 				}}
 			>
-				MVP 1 · v0.9.131
+				MVP 1 · v0.9.132
 			</p>
 		</div>
 	);
