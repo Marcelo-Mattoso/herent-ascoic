@@ -24,7 +24,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 1,
@@ -45,7 +45,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-			maxLife: 4,
+		maxLife: 4,
 		currentLife: 4,
 		damage: 1,
 		hitBonus: 0,
@@ -61,7 +61,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 	return {
 		cardId: "room_narrow_corridor",
-			exits: 2,
+		exits: 2,
 		currentEnemies: 1,
 		reward: 0,
 		rewardType: "item",
@@ -73,7 +73,9 @@ function makeRoom(overrides: Partial<RoomState> = {}): RoomState {
 }
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
-	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+	const base = createInitialGameState({
+		heroCardIds: ["hero_crimson_barbarian"],
+	});
 	return {
 		...base,
 		heroes: [makeHero()],
@@ -198,14 +200,10 @@ describe("DSL block_action heal", () => {
 	it("marca healBlocked no herói quando efeito é drenado", () => {
 		const state = makeState();
 		const ctx = makeEvalCtx(state);
-		const intermediate = evaluate(
-			[{ kind: "p_block", what: "heal" }],
-			ctx,
-		);
+		const intermediate = evaluate([{ kind: "p_block", what: "heal" }], ctx);
 		const result = drainStack(intermediate);
 		expect(result.heroes[0].healBlocked).toBe(true);
 	});
-
 });
 
 // ── block_action dungeon_discard (antigo discardDungeonLock) ─────────────────
@@ -219,7 +217,6 @@ describe("DSL block_action dungeon_discard", () => {
 		);
 		expect(result.flags.discardDungeonLocked).toBe(true);
 	});
-
 });
 
 // ── discard_from dungeon (antigo discardDungeon) ──────────────────────────────
@@ -339,4 +336,3 @@ describe("DSL block_action flee", () => {
 		expect(result.flags.fleeBlocked).toBe(true);
 	});
 });
-

@@ -2,12 +2,12 @@
 // Usa evaluate() diretamente, pois o script foi removido.
 
 import { describe, expect, it } from "vitest";
+import { SKILLS } from "../../data/skills";
 import { drainStack } from "../../effects/resolver";
 import { buildScriptCtx } from "../../scripts/context";
+import { evaluate } from "../../skills/dsl/evaluate";
 import type { EnemyState } from "../../state/enemyState";
 import { createInitialGameState } from "../../state/gameState";
-import { SKILLS } from "../../data/skills";
-import { evaluate } from "../../skills/dsl/evaluate";
 
 const goblin: EnemyState = {
 	id: "e_goblin",
@@ -41,11 +41,17 @@ const def = SKILLS.abilities.find((a) => a.id === "skill_living_ember_oil")!;
 
 describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 	it("enfileira i_damage 2 contra criatura comum", () => {
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const state = { ...base, activeEnemies: [goblin] };
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil", targetEnemyIds: ["e_goblin"] },
+			{
+				triggeredBy: "on_use",
+				skillId: "skill_living_ember_oil",
+				targetEnemyIds: ["e_goblin"],
+			},
 			{},
 		);
 		const next = evaluate(def.effect!, ctx);
@@ -58,11 +64,17 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 	});
 
 	it("enfileira i_damage 3 contra criatura com Corpo Gelatinoso", () => {
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const state = { ...base, activeEnemies: [slime] };
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil", targetEnemyIds: ["e_slime"] },
+			{
+				triggeredBy: "on_use",
+				skillId: "skill_living_ember_oil",
+				targetEnemyIds: ["e_slime"],
+			},
 			{},
 		);
 		const next = evaluate(def.effect!, ctx);
@@ -75,19 +87,29 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 	});
 
 	it("causa dano correto após drainStack — criatura comum", () => {
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const state = { ...base, activeEnemies: [goblin] };
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil", targetEnemyIds: ["e_goblin"] },
+			{
+				triggeredBy: "on_use",
+				skillId: "skill_living_ember_oil",
+				targetEnemyIds: ["e_goblin"],
+			},
 			{},
 		);
 		const result = drainStack(evaluate(def.effect!, ctx));
-		expect(result.activeEnemies.find((e) => e.id === "e_goblin")?.currentLife).toBe(2);
+		expect(
+			result.activeEnemies.find((e) => e.id === "e_goblin")?.currentLife,
+		).toBe(2);
 	});
 
 	it("sem alvo — sem efeito (i_if sem alvo resolvido → skips)", () => {
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const ctx = buildScriptCtx(
 			base,
 			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil" },

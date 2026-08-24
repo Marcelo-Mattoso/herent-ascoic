@@ -20,7 +20,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 1,
@@ -41,7 +41,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_bat",
-			maxLife: 3,
+		maxLife: 3,
 		currentLife: 3,
 		damage: 1,
 		hitBonus: 0,
@@ -55,7 +55,9 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 }
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
-	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+	const base = createInitialGameState({
+		heroCardIds: ["hero_crimson_barbarian"],
+	});
 	return {
 		...base,
 		heroes: [makeHero()],
@@ -198,4 +200,3 @@ describe("reducer SKILL_CHOICE", () => {
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
 });
-

@@ -52,7 +52,10 @@ const ConditionNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 				kind: z.literal("and"),
 				children: z.array(ConditionNodeSchema),
 			}),
-			z.object({ kind: z.literal("or"), children: z.array(ConditionNodeSchema) }),
+			z.object({
+				kind: z.literal("or"),
+				children: z.array(ConditionNodeSchema),
+			}),
 			z.object({ kind: z.literal("not"), child: ConditionNodeSchema }),
 		]),
 		// any_of — atalho OR sem kind discriminator
@@ -334,8 +337,21 @@ export const SkillDefinitionV2Schema = z
 		conditions: z.array(ConditionNodeSchema).optional(),
 		cooldown: CooldownSchema,
 		// Targeting v2 (Lote C)
-		target_type: z.enum(["tgt_self", "tgt_target", "tgt_enemy", "tgt_item", "tgt_others", "tgt_none"]),
-		affect_scope: z.enum(["scp_single", "scp_party_full", "scp_dead_party", "scp_room", "scp_none"]),
+		target_type: z.enum([
+			"tgt_self",
+			"tgt_target",
+			"tgt_enemy",
+			"tgt_item",
+			"tgt_others",
+			"tgt_none",
+		]),
+		affect_scope: z.enum([
+			"scp_single",
+			"scp_party_full",
+			"scp_dead_party",
+			"scp_room",
+			"scp_none",
+		]),
 		affect_object: z.enum(["obj_friend", "obj_not_friend", "obj_all"]),
 		affect_limit: z.object({ min: z.number(), max: z.number() }).optional(),
 		params: z.record(z.string(), z.unknown()).optional(),
@@ -347,11 +363,9 @@ export const SkillDefinitionV2Schema = z
 		message:
 			"Cada entrada deve ter exatamente um de `effect` ou `script` — nunca ambos, nunca nenhum.",
 	})
-	.refine(
-		(d) =>
-			d.operate_type !== "op_triggered" || d.trigger !== undefined,
-		{ message: "op_triggered requer trigger.event" },
-	);
+	.refine((d) => d.operate_type !== "op_triggered" || d.trigger !== undefined, {
+		message: "op_triggered requer trigger.event",
+	});
 
 export type SkillDefinitionV2 = z.infer<typeof SkillDefinitionV2Schema>;
 

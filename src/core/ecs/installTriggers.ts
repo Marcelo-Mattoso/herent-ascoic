@@ -6,65 +6,65 @@
 // op_passive → installPassive.
 // op_triggered → installSkillTriggers (este arquivo).
 
-import type { SkillDefinition } from "../data/skillTypes";
 import type { SkillRef } from "../data/cardTypes";
+import type { SkillDefinition } from "../data/skillTypes";
+import type { GameEvent } from "../events/types";
+import type { EventName } from "../skills/dsl/types";
 import { isManuallyActivatable } from "../skills/useSkill";
 import type {
 	ComponentPredicate,
 	Duration,
 	EffectDescriptor,
+	Entity,
 	EntityId,
 	TriggerComponent,
 } from "./types";
 import { addComponent, type World } from "./world";
-import type { GameEvent } from "../events/types";
-import type { Entity } from "./types";
-import type { EventName } from "../skills/dsl/types";
 
 // ── Mapeamento evt_* → nome do evento do sistema ─────────────────────────────
 
 const EVENT_TO_GAME: Record<EventName, string> = {
 	evt_attack_declared: "RollAboutToHappen",
-	evt_roll:            "RollResolved",
-	evt_hit:             "DamageDealt",
-	evt_damage_dealt:    "DamageDealt",
-	evt_damage_taken:    "DamageAboutToBeDealt",
-	evt_destroy:         "EnemyDestroyed",
-	evt_kill:            "EnemyDestroyed",
-	evt_combat_start:    "CombatStarted",
-	evt_combat_end:      "CombatEnded",
-	evt_round_start:     "RoundStarted",
-	evt_round_end:       "RoundEnded",
-	evt_room_reveal:     "RoomEntered",
-	evt_room_enter:      "RoomEntered",
-	evt_room_leave:      "RoomLeft",
+	evt_roll: "RollResolved",
+	evt_hit: "DamageDealt",
+	evt_damage_dealt: "DamageDealt",
+	evt_damage_taken: "DamageAboutToBeDealt",
+	evt_destroy: "EnemyDestroyed",
+	evt_kill: "EnemyDestroyed",
+	evt_combat_start: "CombatStarted",
+	evt_combat_end: "CombatEnded",
+	evt_round_start: "RoundStarted",
+	evt_round_end: "RoundEnded",
+	evt_room_reveal: "RoomEntered",
+	evt_room_enter: "RoomEntered",
+	evt_room_leave: "RoomLeft",
 	evt_dungeon_discard: "DungeonCardDiscarded",
-	evt_enter_play:      "EntityEnteredPlay",
-	evt_leave_play:      "HeroFled",
-	evt_targeted:        "HeroTargeted",
+	evt_enter_play: "EntityEnteredPlay",
+	evt_leave_play: "HeroFled",
+	evt_targeted: "HeroTargeted",
 };
 
 // ── Durações padrão por evento ────────────────────────────────────────────────
 
 const EVENT_DURATION: Record<EventName, Duration> = {
 	evt_attack_declared: { kind: "this_combat" },
-	evt_roll:            { kind: "this_combat" },
-	evt_hit:             { kind: "this_combat" },
-	evt_damage_dealt:    { kind: "this_combat" },
-	evt_damage_taken:    { kind: "this_combat" },
-	evt_destroy:         { kind: "this_combat" },
-	evt_kill:            { kind: "this_combat" },
-	evt_combat_start:    { kind: "this_combat" },
-	evt_combat_end:      { kind: "this_combat" },
-	evt_round_start:     { kind: "this_combat" },
-	evt_round_end:       { kind: "this_combat" },
-	evt_room_reveal:     { kind: "permanent" },
-	evt_room_enter:      { kind: "permanent" },
-	evt_room_leave:      { kind: "permanent" },
+	evt_roll: { kind: "this_combat" },
+	evt_hit: { kind: "this_combat" },
+	evt_damage_dealt: { kind: "this_combat" },
+	evt_damage_taken: { kind: "this_combat" },
+	evt_destroy: { kind: "this_combat" },
+	evt_kill: { kind: "this_combat" },
+	evt_combat_start: { kind: "this_combat" },
+	evt_combat_end: { kind: "this_combat" },
+	evt_round_start: { kind: "this_combat" },
+	evt_round_end: { kind: "this_combat" },
+	evt_room_reveal: { kind: "permanent" },
+	evt_room_enter: { kind: "permanent" },
+	evt_room_leave: { kind: "permanent" },
 	evt_dungeon_discard: { kind: "permanent" },
-	evt_enter_play:      { kind: "permanent" },
-	evt_leave_play:      { kind: "permanent" },
-	evt_targeted:        { kind: "permanent" },
+	evt_enter_play: { kind: "permanent" },
+	evt_leave_play: { kind: "permanent" },
+	evt_targeted: { kind: "permanent" },
 };
 
 // ── Condição padrão de entidade por evento ────────────────────────────────────
@@ -177,7 +177,7 @@ export function installSkillTriggers(
 
 	for (const { def, ref } of skills) {
 		if (isManuallyActivatable(def)) continue; // op_active / op_active_buff → useSkill
-		if (isPassiveTrigger(def)) continue;       // op_passive → installPassive
+		if (isPassiveTrigger(def)) continue; // op_passive → installPassive
 
 		if (def.operate_type !== "op_triggered") continue;
 		const event = def.trigger?.event;

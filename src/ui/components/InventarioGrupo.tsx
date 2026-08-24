@@ -4,8 +4,8 @@
 
 import { useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
-import { getCardById } from "@/core/data/cards";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
+import { getCardById } from "@/core/data/cards";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
@@ -355,7 +355,9 @@ function HeroColumn({
 				<Slot
 					amber
 					label={posseArt ? shortLabel(getCardName(posseArt.cardId)) : ""}
-					title={posseArt ? (getCardName(posseArt.cardId)) : "sem artefato em posse"}
+					title={
+						posseArt ? getCardName(posseArt.cardId) : "sem artefato em posse"
+					}
 					filled={!!posseArt}
 				/>
 			</div>
@@ -480,7 +482,7 @@ function HeroColumn({
 				}}
 				title={getCardName(hero.cardId)}
 			>
-				{(getCardName(hero.cardId)).split(" ")[0]}
+				{getCardName(hero.cardId).split(" ")[0]}
 			</p>
 		</div>
 	);
@@ -1059,7 +1061,11 @@ export function InventarioGrupo() {
 													<option value="">— sem portador —</option>
 													{heroes.map((h) => (
 														<option key={h.id} value={h.id}>
-															{(getCardById(h.cardId)?.name ?? h.cardId).split(" ")[0]}
+															{
+																(getCardById(h.cardId)?.name ?? h.cardId).split(
+																	" ",
+																)[0]
+															}
 														</option>
 													))}
 												</select>
@@ -1239,7 +1245,9 @@ function ItemTooltipPanel({
 	const top = target.y - 12;
 
 	const isItem = card.type === "item";
-	const tagLine = isItem ? (getCardLocale(card.id)?.tags ?? []).join(" · ") : "Artefato de grupo";
+	const tagLine = isItem
+		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
+		: "Artefato de grupo";
 	const effectEntry = cardSkills(card.id)[0];
 	const effect = effectEntry ? renderSkillLabel(effectEntry.ref) : "";
 

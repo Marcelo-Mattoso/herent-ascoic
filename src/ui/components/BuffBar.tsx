@@ -30,7 +30,9 @@ export function BuffBar({ buffs, hideWhenEmpty, leadingLabel }: BuffBarProps) {
 				}}
 			>
 				{leadingLabel && (
-					<span style={{ fontSize: 9, color: UI.textTertiary, fontWeight: 500 }}>
+					<span
+						style={{ fontSize: 9, color: UI.textTertiary, fontWeight: 500 }}
+					>
 						{leadingLabel}
 					</span>
 				)}

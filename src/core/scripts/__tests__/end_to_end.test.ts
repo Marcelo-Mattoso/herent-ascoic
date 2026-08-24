@@ -10,7 +10,9 @@ const baseCtx: SkillContext = { triggeredBy: "on_use" };
 
 describe("subsistema de scripts — end-to-end", () => {
 	it("ping escreve no eventLog via ctx.log", () => {
-		const state = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const state = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const fn = getScript("_smoke_test.ping");
 		expect(fn).toBeDefined();
 		const next = fn!(buildScriptCtx(state, baseCtx));

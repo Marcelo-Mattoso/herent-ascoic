@@ -1,6 +1,7 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
 import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
+import { getCardName } from "../data/cardLocale";
 import {
 	getArtifacts,
 	getCardById,
@@ -9,7 +10,6 @@ import {
 	getRooms,
 	getSubbosses,
 } from "../data/cards";
-import { getCardName } from "../data/cardLocale";
 import type { SubbossRoomCard } from "../data/cardTypes";
 import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
@@ -75,7 +75,10 @@ export function handleRevealRoom(state: GameState): GameState {
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remaining },
 		},
 	};
-	({ state: next } = emit(next, { type: "RoomEntered", payload: { roomId: room.cardId } }));
+	({ state: next } = emit(next, {
+		type: "RoomEntered",
+		payload: { roomId: room.cardId },
+	}));
 	return log(next, `Sala revelada: ${getCardName(card.id)}.`);
 }
 
@@ -84,9 +87,7 @@ function handleRevealSubbossRoom(
 	card: SubbossRoomCard,
 	remainingDeck: readonly string[],
 ): GameState {
-	const subbossCard = getSubbosses().find(
-		(s) => s.id === card.linkedSubbossId,
-	);
+	const subbossCard = getSubbosses().find((s) => s.id === card.linkedSubbossId);
 	if (!subbossCard)
 		return log(
 			state,
@@ -114,7 +115,7 @@ function handleRevealSubbossRoom(
 		state.rng,
 	);
 
-	let next: GameState = {
+	const next: GameState = {
 		...state,
 		rng,
 		currentRoom: room,
@@ -138,7 +139,10 @@ export function handleResolveRoomEffect(state: GameState): GameState {
 	const card = getCardById(cardId);
 	const noEffect = ["room_narrow_corridor", "room_dungeon_room"];
 	if (!noEffect.includes(cardId) && card) {
-		log(state, `[TODO] Efeito de sala não implementado: ${getCardName(card.id)}`);
+		log(
+			state,
+			`[TODO] Efeito de sala não implementado: ${getCardName(card.id)}`,
+		);
 	}
 	return { ...state, status: "SPAWN_ENEMIES" };
 }
@@ -216,10 +220,19 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		const enemyCard = getCardById(enemy.cardId);
 		if (enemyCard) {
 			const skills = cardSkills(enemyCard.id);
-			worldWithEnemies = installSkillTriggers(worldWithEnemies, enemy.id, skills);
+			worldWithEnemies = installSkillTriggers(
+				worldWithEnemies,
+				enemy.id,
+				skills,
+			);
 			for (const { def, ref } of skills) {
 				if (def.operate_type === "op_passive") {
-					worldWithEnemies = installPassive(worldWithEnemies, enemy.id, def, ref);
+					worldWithEnemies = installPassive(
+						worldWithEnemies,
+						enemy.id,
+						def,
+						ref,
+					);
 				}
 			}
 		}
@@ -279,14 +292,14 @@ export function handleOpenPaths(state: GameState): GameState {
 		},
 		`${drawn.length} caminho(s) revelado(s).`,
 	);
-	({ state: next } = emit(next, { type: "PathsRevealed", payload: { cards: drawn as string[] } }));
+	({ state: next } = emit(next, {
+		type: "PathsRevealed",
+		payload: { cards: drawn as string[] },
+	}));
 	return next;
 }
 
-export function handleChoosePath(
-	state: GameState,
-	cardId: string,
-): GameState {
+export function handleChoosePath(state: GameState, cardId: string): GameState {
 	if (!state.paths.includes(cardId)) return state;
 	return log(
 		{
@@ -332,15 +345,19 @@ export function handleCheckBossCondition(state: GameState): GameState {
 			"Condição do boss atendida! Boss revelado.",
 		);
 	}
-	return log(
-		{ ...s, status: "REVEAL_ROOM" },
-		"Avançando para próxima sala.",
-	);
+	return log({ ...s, status: "REVEAL_ROOM" }, "Avançando para próxima sala.");
 }
 
 // Descarta N cartas do topo do deck de dungeon. Utilitário compartilhado com handlers de skill.
-export function discardFromDungeonDeck(state: GameState, n: number, reason: "effect" | "extra" = "effect"): GameState {
-	if (state.flags.dungeonDiscardPrevented && !state.flags.discardDungeonLocked) {
+export function discardFromDungeonDeck(
+	state: GameState,
+	n: number,
+	reason: "effect" | "extra" = "effect",
+): GameState {
+	if (
+		state.flags.dungeonDiscardPrevented &&
+		!state.flags.discardDungeonLocked
+	) {
 		return log(
 			{ ...state, flags: { ...state.flags, dungeonDiscardPrevented: false } },
 			"Descarte de dungeon prevenido (Caminho Preservado).",

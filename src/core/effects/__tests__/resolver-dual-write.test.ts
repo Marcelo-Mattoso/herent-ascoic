@@ -1,19 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { getModifierTotal } from "../../ecs/world";
 import { syncEntityFromHero } from "../../ecs/sync";
+import { getModifierTotal } from "../../ecs/world";
 import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
-import { addPending, createEmptyEffectStack } from "../stack";
 import { drainStack } from "../resolver";
+import { addPending, createEmptyEffectStack } from "../stack";
 
 function makeHero(id = "hero_warrior"): HeroState {
 	return {
 		id,
 		cardId: "hero_unbreakable_bastion",
-			maxLife: 14,
+		maxLife: 14,
 		currentLife: 14,
 		damage: 4,
 		hitBonus: 1,
@@ -33,7 +33,7 @@ function makeEnemy(): EnemyState {
 	return {
 		id: "enemy_goblin",
 		cardId: "creature_dark_cave_goblin",
-			maxLife: 5,
+		maxLife: 5,
 		currentLife: 5,
 		damage: 2,
 		hitBonus: 0,
@@ -88,7 +88,14 @@ describe("add_modifier dual-write", () => {
 		const state = makeState();
 		const heroId = "hero_warrior";
 
-		const after = pushModifier(state, heroId, "damage_reduction", 1, "power_unbreakable_bastion_guard", "until_end_of_round");
+		const after = pushModifier(
+			state,
+			heroId,
+			"damage_reduction",
+			1,
+			"power_unbreakable_bastion_guard",
+			"until_end_of_round",
+		);
 
 		// ECS: damage_reduction DSL → damage_taken ECS, valor negativo (debuff de dano sofrido)
 		expect(getModifierTotal(after.world, heroId, "damage_taken")).toBe(-1);
@@ -98,7 +105,14 @@ describe("add_modifier dual-write", () => {
 		const state = makeState();
 		const heroId = "hero_warrior";
 
-		const after = pushModifier(state, heroId, "damage_bonus", 3, "skill_test_bonus", "once");
+		const after = pushModifier(
+			state,
+			heroId,
+			"damage_bonus",
+			3,
+			"skill_test_bonus",
+			"once",
+		);
 
 		// ECS: damage_bonus → damage_dealt
 		expect(getModifierTotal(after.world, heroId, "damage_dealt")).toBe(3);
@@ -108,7 +122,14 @@ describe("add_modifier dual-write", () => {
 		const state = makeState();
 		const heroId = "hero_warrior";
 
-		const after = pushModifier(state, heroId, "tohit_penalty", 2, "skill_scorching_heat", "until_end_of_combat");
+		const after = pushModifier(
+			state,
+			heroId,
+			"tohit_penalty",
+			2,
+			"skill_scorching_heat",
+			"until_end_of_combat",
+		);
 
 		// ECS: tohit_penalty → hit_bonus com valor negativo
 		expect(getModifierTotal(after.world, heroId, "hit_bonus")).toBe(-2);

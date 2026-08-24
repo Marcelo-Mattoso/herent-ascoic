@@ -4,8 +4,8 @@
 //
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
-import { getCardById } from "../data/cards";
 import { getCardName } from "../data/cardLocale";
+import { getCardById } from "../data/cards";
 import { getSkillName } from "../data/skillLocale";
 import type { ModifierComponent } from "../ecs/types";
 import type { PausedState } from "../effects/stack";
@@ -220,11 +220,13 @@ function resolveFromActor(skillId: string, state: GameState): InfluenceActor {
 		if (!card) continue;
 		if (card.type === "hero") {
 			const hero = state.heroes.find((h) => h.cardId === cardId);
-			if (hero) return { kind: "hero", id: hero.id, name: getCardName(card.id) };
+			if (hero)
+				return { kind: "hero", id: hero.id, name: getCardName(card.id) };
 		}
 		if (card.type === "creature" || card.type === "subboss") {
 			const enemy = state.activeEnemies.find((e) => e.cardId === cardId);
-			if (enemy) return { kind: "enemy", id: enemy.id, name: getCardName(card.id) };
+			if (enemy)
+				return { kind: "enemy", id: enemy.id, name: getCardName(card.id) };
 		}
 		if (card.type === "room" || card.type === "subboss_room") {
 			if (state.currentRoom?.cardId === cardId) {
@@ -246,11 +248,21 @@ function resolveToActor(
 ): InfluenceActor {
 	if (entityType === "hero") {
 		const hero = state.heroes.find((h) => h.id === entityId);
-		if (hero) return { kind: "hero", id: hero.id, name: getCardById(hero.cardId)?.name ?? hero.cardId };
+		if (hero)
+			return {
+				kind: "hero",
+				id: hero.id,
+				name: getCardById(hero.cardId)?.name ?? hero.cardId,
+			};
 	}
 	if (entityType === "enemy" || entityType === "subboss") {
 		const enemy = state.activeEnemies.find((e) => e.id === entityId);
-		if (enemy) return { kind: "enemy", id: enemy.id, name: getCardById(enemy.cardId)?.name ?? enemy.cardId };
+		if (enemy)
+			return {
+				kind: "enemy",
+				id: enemy.id,
+				name: getCardById(enemy.cardId)?.name ?? enemy.cardId,
+			};
 	}
 	if (entityType === "room") {
 		return { kind: "dungeon" };
@@ -288,34 +300,51 @@ function modifierKind(mod: ModifierComponent): "buff" | "debuff" | "neutral" {
 
 function modifierIcon(mod: ModifierComponent): string {
 	switch (mod.target) {
-		case "damage_dealt": return mod.value > 0 ? "⚔️" : "💀";
-		case "damage_taken": return mod.value < 0 ? "🛡️" : "🩸";
-		case "hit_bonus": return mod.value > 0 ? "🎯" : "🌫️";
-		case "dice_count": return mod.value > 0 ? "🎲" : "🎲";
-		case "healing_received": return "💚";
-		default: return "✨";
+		case "damage_dealt":
+			return mod.value > 0 ? "⚔️" : "💀";
+		case "damage_taken":
+			return mod.value < 0 ? "🛡️" : "🩸";
+		case "hit_bonus":
+			return mod.value > 0 ? "🎯" : "🌫️";
+		case "dice_count":
+			return mod.value > 0 ? "🎲" : "🎲";
+		case "healing_received":
+			return "💚";
+		default:
+			return "✨";
 	}
 }
 
 function modifierLabel(mod: ModifierComponent): string {
 	const abs = Math.abs(mod.value);
 	switch (mod.target) {
-		case "damage_dealt": return `${mod.value > 0 ? "+" : ""}${mod.value} dano causado`;
-		case "damage_taken": return mod.value < 0 ? `-${abs} dano sofrido` : `+${abs} dano sofrido`;
-		case "hit_bonus": return `${mod.value > 0 ? "+" : ""}${mod.value} acerto`;
-		case "dice_count": return `${mod.value > 0 ? "+" : ""}${mod.value} dado`;
-		case "healing_received": return `${mod.value > 0 ? "+" : ""}${mod.value} cura`;
-		default: return `${mod.value > 0 ? "+" : ""}${mod.value}`;
+		case "damage_dealt":
+			return `${mod.value > 0 ? "+" : ""}${mod.value} dano causado`;
+		case "damage_taken":
+			return mod.value < 0 ? `-${abs} dano sofrido` : `+${abs} dano sofrido`;
+		case "hit_bonus":
+			return `${mod.value > 0 ? "+" : ""}${mod.value} acerto`;
+		case "dice_count":
+			return `${mod.value > 0 ? "+" : ""}${mod.value} dado`;
+		case "healing_received":
+			return `${mod.value > 0 ? "+" : ""}${mod.value} cura`;
+		default:
+			return `${mod.value > 0 ? "+" : ""}${mod.value}`;
 	}
 }
 
 function durationText(d: ModifierComponent["duration"]): string {
 	switch (d.kind) {
-		case "permanent": return "passivo";
-		case "this_turn": return "até fim da rodada";
-		case "this_combat": return "até fim do combate";
-		case "once": return "próximo evento";
-		case "rounds": return `${d.remaining} rodada(s)`;
+		case "permanent":
+			return "passivo";
+		case "this_turn":
+			return "até fim da rodada";
+		case "this_combat":
+			return "até fim do combate";
+		case "once":
+			return "próximo evento";
+		case "rounds":
+			return `${d.remaining} rodada(s)`;
 	}
 }
 
@@ -324,12 +353,20 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 	const heroIds = new Set(state.heroes.map((h) => h.id));
 
 	// Collect all (entityId, modifier) pairs
-	type ModEntry = { entityId: string; entityType: string; modifier: ModifierComponent };
+	type ModEntry = {
+		entityId: string;
+		entityType: string;
+		modifier: ModifierComponent;
+	};
 	const allMods: ModEntry[] = [];
 	for (const entity of Object.values(world.entities)) {
 		for (const comp of entity.components) {
 			if (comp.type === "modifier") {
-				allMods.push({ entityId: entity.id, entityType: entity.type, modifier: comp as ModifierComponent });
+				allMods.push({
+					entityId: entity.id,
+					entityType: entity.type,
+					modifier: comp as ModifierComponent,
+				});
 			}
 		}
 	}
@@ -397,7 +434,11 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 	if (state.flags.dungeonDiscardPrevented) {
 		const ladino = state.heroes.find((h) => h.cardId === "hero_rift_rogue");
 		const from: InfluenceActor = ladino
-			? { kind: "hero", id: ladino.id, name: getCardById(ladino.cardId)?.name ?? ladino.cardId }
+			? {
+					kind: "hero",
+					id: ladino.id,
+					name: getCardById(ladino.cardId)?.name ?? ladino.cardId,
+				}
 			: { kind: "dungeon" };
 		influences.push({
 			id: "flag:dungeon-discard-prevented",
@@ -505,7 +546,11 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			if (combat.targetProtectionByHero[id]) {
 				influences.push({
 					id: `veil:${id}`,
-					from: { kind: "hero", id, name: getCardById(hero.cardId)?.name ?? hero.cardId },
+					from: {
+						kind: "hero",
+						id,
+						name: getCardById(hero.cardId)?.name ?? hero.cardId,
+					},
 					to: toActor,
 					kind: "buff",
 					icon: "✨",
@@ -520,7 +565,11 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			if (combat.fleeAttemptByHero[id]) {
 				influences.push({
 					id: `flee:${id}`,
-					from: { kind: "hero", id, name: getCardById(hero.cardId)?.name ?? hero.cardId },
+					from: {
+						kind: "hero",
+						id,
+						name: getCardById(hero.cardId)?.name ?? hero.cardId,
+					},
 					to: toActor,
 					kind: "neutral",
 					icon: "🏃",

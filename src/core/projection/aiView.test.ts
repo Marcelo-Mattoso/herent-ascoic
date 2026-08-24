@@ -206,4 +206,3 @@ describe("playerView — campos pós-ECS (passo 9)", () => {
 		expect(view.paused!.reason).toBe("skill_choice");
 	});
 });
-

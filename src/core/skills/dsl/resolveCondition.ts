@@ -62,9 +62,9 @@ export function resolveCondition(node: ConditionNode, ctx: EvalCtx): boolean {
 		default:
 			// any_of — atalho OR sem kind discriminator
 			if ("any_of" in node) {
-				return (node as { any_of: readonly import("./types").ConditionNode[] }).any_of.some(
-					(c) => resolveCondition(c, ctx),
-				);
+				return (
+					node as { any_of: readonly import("./types").ConditionNode[] }
+				).any_of.some((c) => resolveCondition(c, ctx));
 			}
 			return false;
 	}

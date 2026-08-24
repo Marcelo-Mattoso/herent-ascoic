@@ -1,13 +1,21 @@
 import { describe, expect, it } from "vitest";
 import { resolveEffect } from "../../effects/resolver";
-import type { ModifierComponent } from "../types";
-import { createEmptyWorld, createEntity, getComponents, upsertEntity } from "../world";
-import { createInitialGameState } from "../../state/gameState";
-import type { GameState } from "../../state/gameState";
 import type { PendingEffect } from "../../effects/stack";
+import type { GameState } from "../../state/gameState";
+import { createInitialGameState } from "../../state/gameState";
+import type { ModifierComponent } from "../types";
+import {
+	createEmptyWorld,
+	createEntity,
+	getComponents,
+	upsertEntity,
+} from "../world";
 
-function makeState(entityId: string, entityType: "hero" | "enemy" = "enemy"): GameState {
-	let state = createInitialGameState({ heroCardIds: [] });
+function makeState(
+	entityId: string,
+	entityType: "hero" | "enemy" = "enemy",
+): GameState {
+	const state = createInitialGameState({ heroCardIds: [] });
 	let world = createEmptyWorld();
 	world = upsertEntity(world, createEntity(entityId, entityType));
 	return { ...state, world };
@@ -41,11 +49,21 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 		const entityId = "enemy_1";
 		let state = makeState(entityId);
 
-		const pending = makeModifierPending(entityId, "s_damage_reduction", 2, entityId, "skill_charred_plate");
+		const pending = makeModifierPending(
+			entityId,
+			"s_damage_reduction",
+			2,
+			entityId,
+			"skill_charred_plate",
+		);
 		state = resolveEffect(state, pending);
 		state = resolveEffect(state, pending);
 
-		const mods = getComponents<ModifierComponent>(state.world, entityId, "modifier");
+		const mods = getComponents<ModifierComponent>(
+			state.world,
+			entityId,
+			"modifier",
+		);
 		expect(mods).toHaveLength(1);
 	});
 
@@ -53,12 +71,22 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 		const entityId = "enemy_1";
 		let state = makeState(entityId);
 
-		const pending = makeModifierPending(entityId, "s_hit_penalty", 3, entityId, "skill_gelatinous_body");
+		const pending = makeModifierPending(
+			entityId,
+			"s_hit_penalty",
+			3,
+			entityId,
+			"skill_gelatinous_body",
+		);
 		state = resolveEffect(state, pending);
 		state = resolveEffect(state, pending);
 		state = resolveEffect(state, pending);
 
-		const mods = getComponents<ModifierComponent>(state.world, entityId, "modifier");
+		const mods = getComponents<ModifierComponent>(
+			state.world,
+			entityId,
+			"modifier",
+		);
 		expect(mods).toHaveLength(1);
 		// s_hit_penalty vira valor negativo no ECS
 		expect(mods[0]!.value).toBe(-3);
@@ -68,10 +96,32 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 		const entityId = "hero_1";
 		let state = makeState(entityId, "hero");
 
-		state = resolveEffect(state, makeModifierPending(entityId, "s_damage_reduction", 2, "enemy_1", "skill_charred_plate"));
-		state = resolveEffect(state, makeModifierPending(entityId, "s_damage_reduction", 2, "enemy_2", "skill_charred_plate"));
+		state = resolveEffect(
+			state,
+			makeModifierPending(
+				entityId,
+				"s_damage_reduction",
+				2,
+				"enemy_1",
+				"skill_charred_plate",
+			),
+		);
+		state = resolveEffect(
+			state,
+			makeModifierPending(
+				entityId,
+				"s_damage_reduction",
+				2,
+				"enemy_2",
+				"skill_charred_plate",
+			),
+		);
 
-		const mods = getComponents<ModifierComponent>(state.world, entityId, "modifier");
+		const mods = getComponents<ModifierComponent>(
+			state.world,
+			entityId,
+			"modifier",
+		);
 		expect(mods).toHaveLength(2);
 	});
 
@@ -97,7 +147,11 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 		state = resolveEffect(state, pending);
 		state = resolveEffect(state, pending);
 
-		const mods = getComponents<ModifierComponent>(state.world, entityId, "modifier");
+		const mods = getComponents<ModifierComponent>(
+			state.world,
+			entityId,
+			"modifier",
+		);
 		expect(mods).toHaveLength(2);
 	});
 });

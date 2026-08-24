@@ -23,7 +23,9 @@ describe("fireTrigger", () => {
 	it("não explode quando chamado sem heróis ativos", () => {
 		const state = createInitialGameState(config);
 		expect(() =>
-			fireTrigger(state, "evt_combat_start", { triggeredBy: "evt_combat_start" }),
+			fireTrigger(state, "evt_combat_start", {
+				triggeredBy: "evt_combat_start",
+			}),
 		).not.toThrow();
 	});
 
@@ -45,7 +47,7 @@ describe("purpleEffect filter", () => {
 	const morcego: EnemyState = {
 		id: "e1",
 		cardId: "creature_black_ceiling_bat",
-			maxLife: 3,
+		maxLife: 3,
 		currentLife: 3,
 		damage: 1,
 		hitBonus: 0,
@@ -65,7 +67,7 @@ describe("purpleEffect filter", () => {
 				{
 					id: "h1",
 					cardId: "hero_crimson_barbarian",
-									maxLife: 10,
+					maxLife: 10,
 					currentLife: 10,
 					damage: 3,
 					hitBonus: 1,
@@ -96,7 +98,7 @@ describe("purpleEffect filter", () => {
 				{
 					id: "h1",
 					cardId: "hero_crimson_barbarian",
-									maxLife: 10,
+					maxLife: 10,
 					currentLife: 10,
 					damage: 3,
 					hitBonus: 1,

@@ -2,6 +2,7 @@
 // Patch 1: suporta 1 a 8 heróis; aplica heroOffset e despertarOffset da dificuldade.
 
 import { DIFFICULTY_PRESETS } from "../config/defaults";
+import { getCardName } from "../data/cardLocale";
 import {
 	getArtifacts,
 	getCardById,
@@ -9,13 +10,12 @@ import {
 	getItems,
 	getRooms,
 } from "../data/cards";
-import { getCardName } from "../data/cardLocale";
 import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncHeroesAndEnemies } from "../ecs/sync";
 import { createEmptyWorld } from "../ecs/world";
-import { cardSkills } from "../skills/lookup";
 import { createRng } from "../ports/random";
+import { cardSkills } from "../skills/lookup";
 import type { ColorIndex } from "../state/color";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameConfig, GameState } from "../state/gameState";

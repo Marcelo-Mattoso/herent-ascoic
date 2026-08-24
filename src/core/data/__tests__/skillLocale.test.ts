@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { SKILLS } from "../skills";
 import { SKILL_LOCALE } from "../skillLocale";
+import { SKILLS } from "../skills";
 
 describe("skills.locale.pt-BR — cobertura", () => {
 	it("toda skill.id em skills.yaml tem entrada no locale pt-BR", () => {

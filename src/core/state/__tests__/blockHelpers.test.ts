@@ -1,7 +1,11 @@
 import { describe, expect, it } from "vitest";
-import { tickBlockEntries, removeBlocksForSource, consumeOnceBlock } from "../blockHelpers";
-import { createInitialGameState } from "../gameState";
+import {
+	consumeOnceBlock,
+	removeBlocksForSource,
+	tickBlockEntries,
+} from "../blockHelpers";
 import type { GameState } from "../gameState";
+import { createInitialGameState } from "../gameState";
 
 function base(): GameState {
 	return createInitialGameState({ heroCardIds: [] });
@@ -15,7 +19,7 @@ function withHero(state: GameState, heroId: string): GameState {
 			{
 				id: heroId,
 				cardId: "test",
-							maxLife: 10,
+				maxLife: 10,
 				currentLife: 10,
 				damage: 1,
 				hitBonus: 0,
@@ -42,7 +46,12 @@ describe("tickBlockEntries — until_end_of_round", () => {
 			...state,
 			flags: { ...state.flags, fleeBlocked: true },
 			blocks: {
-				fleeBlocked: [{ source: "skill_crimson_chains", duration: { kind: "until_end_of_round" } }],
+				fleeBlocked: [
+					{
+						source: "skill_crimson_chains",
+						duration: { kind: "until_end_of_round" },
+					},
+				],
 			},
 		};
 
@@ -58,7 +67,9 @@ describe("tickBlockEntries — until_end_of_round", () => {
 			...state,
 			flags: { ...state.flags, fleeBlocked: true },
 			blocks: {
-				fleeBlocked: [{ source: "skill_sealed_door", duration: { kind: "permanent" } }],
+				fleeBlocked: [
+					{ source: "skill_sealed_door", duration: { kind: "permanent" } },
+				],
 			},
 		};
 
@@ -75,7 +86,10 @@ describe("tickBlockEntries — until_end_of_round", () => {
 			flags: { ...state.flags, fleeBlocked: true },
 			blocks: {
 				fleeBlocked: [
-					{ source: "skill_crimson_chains", duration: { kind: "until_end_of_round" } },
+					{
+						source: "skill_crimson_chains",
+						duration: { kind: "until_end_of_round" },
+					},
 					{ source: "skill_sealed_door", duration: { kind: "permanent" } },
 				],
 			},
@@ -91,16 +105,25 @@ describe("tickBlockEntries — until_end_of_round", () => {
 		let state = withHero(base(), "hero_1");
 		state = {
 			...state,
-			heroes: state.heroes.map((h) => (h.id === "hero_1" ? { ...h, healBlocked: true } : h)),
+			heroes: state.heroes.map((h) =>
+				h.id === "hero_1" ? { ...h, healBlocked: true } : h,
+			),
 			blocks: {
-				"hero_1::healBlocked": [{ source: "skill_forge_smoke", duration: { kind: "until_end_of_round" } }],
+				"hero_1::healBlocked": [
+					{
+						source: "skill_forge_smoke",
+						duration: { kind: "until_end_of_round" },
+					},
+				],
 			},
 		};
 
 		const after = tickBlockEntries(state, "end_of_round");
 
 		expect(after.blocks["hero_1::healBlocked"] ?? []).toHaveLength(0);
-		expect(after.heroes.find((h) => h.id === "hero_1")?.healBlocked).toBeFalsy();
+		expect(
+			after.heroes.find((h) => h.id === "hero_1")?.healBlocked,
+		).toBeFalsy();
 	});
 });
 
@@ -111,7 +134,9 @@ describe("tickBlockEntries — until_end_of_combat", () => {
 			...state,
 			flags: { ...state.flags, fleeBlocked: true },
 			blocks: {
-				fleeBlocked: [{ source: "some_skill", duration: { kind: "until_end_of_combat" } }],
+				fleeBlocked: [
+					{ source: "some_skill", duration: { kind: "until_end_of_combat" } },
+				],
 			},
 		};
 
@@ -132,7 +157,11 @@ describe("removeBlocksForSource — while_in_play", () => {
 			flags: { ...state.flags, fleeBlocked: true },
 			blocks: {
 				fleeBlocked: [
-					{ source: "purple_forge_chains", duration: { kind: "while_in_play" }, sourceEntityId: "enemy_1" },
+					{
+						source: "purple_forge_chains",
+						duration: { kind: "while_in_play" },
+						sourceEntityId: "enemy_1",
+					},
 				],
 			},
 		};
@@ -150,7 +179,11 @@ describe("removeBlocksForSource — while_in_play", () => {
 			flags: { ...state.flags, fleeBlocked: true },
 			blocks: {
 				fleeBlocked: [
-					{ source: "purple_forge_chains", duration: { kind: "while_in_play" }, sourceEntityId: "enemy_2" },
+					{
+						source: "purple_forge_chains",
+						duration: { kind: "while_in_play" },
+						sourceEntityId: "enemy_2",
+					},
 				],
 			},
 		};
@@ -169,27 +202,38 @@ describe("consumeOnceBlock", () => {
 		let state = withHero(base(), "hero_1");
 		state = {
 			...state,
-			heroes: state.heroes.map((h) => (h.id === "hero_1" ? { ...h, healBlocked: true } : h)),
+			heroes: state.heroes.map((h) =>
+				h.id === "hero_1" ? { ...h, healBlocked: true } : h,
+			),
 			blocks: {
-				"hero_1::healBlocked": [{ source: "purple_healing_rupture", duration: { kind: "once" } }],
+				"hero_1::healBlocked": [
+					{ source: "purple_healing_rupture", duration: { kind: "once" } },
+				],
 			},
 		};
 
 		const after = consumeOnceBlock(state, "hero_1::healBlocked");
 
 		expect(after.blocks["hero_1::healBlocked"] ?? []).toHaveLength(0);
-		expect(after.heroes.find((h) => h.id === "hero_1")?.healBlocked).toBeFalsy();
+		expect(
+			after.heroes.find((h) => h.id === "hero_1")?.healBlocked,
+		).toBeFalsy();
 	});
 
 	it("mantém outras entradas ao consumir o once", () => {
 		let state = withHero(base(), "hero_1");
 		state = {
 			...state,
-			heroes: state.heroes.map((h) => (h.id === "hero_1" ? { ...h, healBlocked: true } : h)),
+			heroes: state.heroes.map((h) =>
+				h.id === "hero_1" ? { ...h, healBlocked: true } : h,
+			),
 			blocks: {
 				"hero_1::healBlocked": [
 					{ source: "purple_healing_rupture", duration: { kind: "once" } },
-					{ source: "skill_forge_smoke", duration: { kind: "until_end_of_round" } },
+					{
+						source: "skill_forge_smoke",
+						duration: { kind: "until_end_of_round" },
+					},
 				],
 			},
 		};
@@ -197,7 +241,9 @@ describe("consumeOnceBlock", () => {
 		const after = consumeOnceBlock(state, "hero_1::healBlocked");
 
 		expect(after.blocks["hero_1::healBlocked"]).toHaveLength(1);
-		expect(after.heroes.find((h) => h.id === "hero_1")?.healBlocked).toBeTruthy();
+		expect(
+			after.heroes.find((h) => h.id === "hero_1")?.healBlocked,
+		).toBeTruthy();
 	});
 
 	it("não faz nada se não há entrada once", () => {

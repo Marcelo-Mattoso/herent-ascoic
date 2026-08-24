@@ -158,7 +158,9 @@ export function resolveEntityListRef(
 			// como proxy universal. Para scp_party_full/scp_room, o dispatcher preenche targetIds.
 			return ctx.targetIds.length > 0
 				? ctx.targetIds
-				: ctx.state.heroes.filter((h) => h.status === "active").map((h) => h.id);
+				: ctx.state.heroes
+						.filter((h) => h.status === "active")
+						.map((h) => h.id);
 		case "$targets":
 			return ctx.targetIds;
 		case "$source":

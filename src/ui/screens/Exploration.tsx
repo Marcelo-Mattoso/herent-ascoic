@@ -3,16 +3,16 @@
 
 import { useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
-import { getCardById } from "@/core/data/cards";
 import { getCardName } from "@/core/data/cardLocale";
+import { getCardById } from "@/core/data/cards";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
 import { Board } from "@/ui/components/Board";
 import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
-import { InfluencePanel } from "@/ui/components/InfluencePanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
+import { InfluencePanel } from "@/ui/components/InfluencePanel";
 import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
@@ -293,10 +293,7 @@ export function Exploration() {
 									padding: "4px 10px",
 								}}
 							>
-								<BuffBar
-									buffs={groupBuffs}
-									leadingLabel="🤝 Grupo:"
-								/>
+								<BuffBar buffs={groupBuffs} leadingLabel="🤝 Grupo:" />
 								<hr
 									style={{
 										border: "none",

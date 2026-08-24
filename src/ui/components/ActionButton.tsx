@@ -16,8 +16,12 @@ const VARIANT_STYLES: Record<
 	ButtonVariant,
 	{ bg: string; text: string; border: string }
 > = {
-	primary: { bg: UI.info.bg, text: UI.info.text, border: "#B3D4F0" },
-	secondary: { bg: UI.subpanelBg, text: UI.textSecondary, border: UI.border },
+	primary: { bg: "#1D4ED8", text: "#FFFFFF", border: "#1E40AF" },
+	secondary: {
+		bg: UI.subpanelBg,
+		text: UI.textSecondary,
+		border: UI.borderStrong,
+	},
 	danger: { bg: UI.danger.bg, text: UI.danger.text, border: "#F5C4C4" },
 };
 

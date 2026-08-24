@@ -12,7 +12,9 @@ import { evaluate } from "./dsl/evaluate";
 import { cardSkills } from "./lookup";
 
 export function isManuallyActivatable(def: SkillDefinition): boolean {
-	return def.operate_type === "op_active" || def.operate_type === "op_active_buff";
+	return (
+		def.operate_type === "op_active" || def.operate_type === "op_active_buff"
+	);
 }
 
 export interface UseSkillPayload {
@@ -49,7 +51,9 @@ export function fireOnUseSkill(
 		? cardSkills(sourceCardId).find(({ def: d }) => d.id === skillId)?.ref
 		: undefined;
 	const resolvedValue =
-		value !== undefined ? value : (cardRef?.params?.value ?? def.params?.value ?? null);
+		value !== undefined
+			? value
+			: (cardRef?.params?.value ?? def.params?.value ?? null);
 
 	const resolvedCtx: SkillContext = {
 		triggeredBy: "on_use",
@@ -89,15 +93,16 @@ export function fireOnUseSkill(
 		if (hp > 0) {
 			const hero = stateBeforeExec.heroes.find((h) => h.id === sourceId);
 			if (hero && hero.currentLife <= hp) {
-				return log(stateBeforeExec, `[AVISO] ${skillId}: custo de vida insuficiente`);
+				return log(
+					stateBeforeExec,
+					`[AVISO] ${skillId}: custo de vida insuficiente`,
+				);
 			}
 			stateBeforeExec = stateBeforeExec.heroes.some((h) => h.id === sourceId)
 				? {
 						...stateBeforeExec,
 						heroes: stateBeforeExec.heroes.map((h) =>
-							h.id === sourceId
-								? { ...h, currentLife: h.currentLife - hp }
-								: h,
+							h.id === sourceId ? { ...h, currentLife: h.currentLife - hp } : h,
 						),
 					}
 				: stateBeforeExec;
@@ -117,5 +122,8 @@ export function fireOnUseSkill(
 		return fn(buildScriptCtx(stateBeforeExec, resolvedCtx, params));
 	}
 
-	return log(stateBeforeExec, `[AVISO] Skill sem implementação (sem effect ou script): ${skillId}`);
+	return log(
+		stateBeforeExec,
+		`[AVISO] Skill sem implementação (sem effect ou script): ${skillId}`,
+	);
 }

@@ -110,7 +110,9 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 	});
 
 	it("rejeita entrada sem effect nem script", () => {
-		expect(SkillDefinitionV2Schema.safeParse(validBaseActive).success).toBe(false);
+		expect(SkillDefinitionV2Schema.safeParse(validBaseActive).success).toBe(
+			false,
+		);
 	});
 
 	it("aceita op_active_buff", () => {
@@ -147,7 +149,9 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 		expect(
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseTriggered,
-				conditions: [{ kind: "compare", op: "gte", left: "$dungeon.level", right: 3 }],
+				conditions: [
+					{ kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
+				],
 				effect: [{ kind: "i_noop" }],
 			}).success,
 		).toBe(true);
@@ -158,10 +162,12 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 			SkillDefinitionV2Schema.safeParse({
 				...validBaseTriggered,
 				conditions: [
-					{ any_of: [
-						{ kind: "compare", op: "eq", left: "$dungeon.level", right: 3 },
-						{ kind: "compare", op: "eq", left: "$dungeon.level", right: 4 },
-					]},
+					{
+						any_of: [
+							{ kind: "compare", op: "eq", left: "$dungeon.level", right: 3 },
+							{ kind: "compare", op: "eq", left: "$dungeon.level", right: 4 },
+						],
+					},
 				],
 				effect: [{ kind: "i_noop" }],
 			}).success,
@@ -191,4 +197,3 @@ describe("skills.yaml — todas as entradas passam no schema v2", () => {
 		});
 	}
 });
-

@@ -9,7 +9,10 @@ const HERO = "hero_crimson_barbarian";
 
 function buildState() {
 	const base = createInitialGameState({ heroCardIds: [HERO] });
-	return reducer(base, { type: "START_GAME", payload: { heroCardIds: [HERO] } });
+	return reducer(base, {
+		type: "START_GAME",
+		payload: { heroCardIds: [HERO] },
+	});
 }
 
 // Testa a lógica de debit de cost.hp isoladamente (sem depender de skill do catálogo).
@@ -70,7 +73,9 @@ describe("cost.hp — lógica de debit", () => {
 			? {
 					...state,
 					heroes: state.heroes.map((h) =>
-						h.id === heroId ? { ...h, currentLife: h.currentLife - (cost as any).hp } : h,
+						h.id === heroId
+							? { ...h, currentLife: h.currentLife - (cost as any).hp }
+							: h,
 					),
 				}
 			: state;

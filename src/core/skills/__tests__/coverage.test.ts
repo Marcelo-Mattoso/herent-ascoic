@@ -5,13 +5,13 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SKILLS } from "../../data/skills";
 import type { SkillContext, SkillDefinition } from "../../data/skillTypes";
 import { drainStack } from "../../effects/resolver";
+import { buildScriptCtx } from "../../scripts/context";
+import { getScript } from "../../scripts/registry";
+import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
-import { createEmptyCombatState } from "../../state/combatState";
 import type { HeroState } from "../../state/heroState";
-import { buildScriptCtx } from "../../scripts/context";
-import { getScript } from "../../scripts/registry";
 import { evaluate } from "../dsl/evaluate";
 import "../handlers/index"; // garante que continuações de script sejam registradas
 
@@ -21,7 +21,7 @@ function makeHero(): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 7,
 		damage: 3,
 		hitBonus: 0,
@@ -40,7 +40,7 @@ function makeEnemy(): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-			maxLife: 4,
+		maxLife: 4,
 		currentLife: 4,
 		damage: 1,
 		hitBonus: 0,
@@ -68,7 +68,7 @@ function baseState(): GameState {
 		activeEnemies: [makeEnemy()],
 		currentRoom: {
 			cardId: "dungeon_room_test",
-					exits: 2,
+			exits: 2,
 			currentEnemies: 1,
 			reward: 1,
 			rewardType: "item",
@@ -126,14 +126,24 @@ function pathOf(def: SkillDefinition): Row["path"] {
 // Snapshot do estado de jogo IGNORANDO eventLog e effectStack (sempre mudam por log/dreno).
 // Se o resto for idêntico antes/depois, a skill não teve efeito observável.
 function snapshot(s: GameState): string {
-	const { eventLog: _e, effectStack: _f, ...rest } = s as GameState & Record<string, unknown>;
+	const {
+		eventLog: _e,
+		effectStack: _f,
+		...rest
+	} = s as GameState & Record<string, unknown>;
 	return JSON.stringify(rest);
 }
 
 // Classifica o resultado: rodou + mudou estado = ok; rodou sem mudar = no-effect.
-function classify(before: GameState, after: GameState, id: string): { status: Status } {
+function classify(
+	before: GameState,
+	after: GameState,
+	id: string,
+): { status: Status } {
 	if (logHasUnimpl(after, id)) return { status: "unimplemented" };
-	return snapshot(after) !== snapshot(before) ? { status: "ok" } : { status: "no-effect" };
+	return snapshot(after) !== snapshot(before)
+		? { status: "ok" }
+		: { status: "no-effect" };
 }
 
 function runSkill(def: SkillDefinition): { status: Status; detail?: string } {
@@ -151,12 +161,15 @@ function runSkill(def: SkillDefinition): { status: Status; detail?: string } {
 	const params = { ...(def.params ?? {}), value: rawValue };
 	try {
 		if (def.effect) {
-			const out = drainStack(evaluate(def.effect, buildScriptCtx(state, ctx, params)));
+			const out = drainStack(
+				evaluate(def.effect, buildScriptCtx(state, ctx, params)),
+			);
 			return classify(state, out, def.id);
 		}
 		if (def.script) {
 			const fn = getScript(`${def.script}.run`);
-			if (!fn) return { status: "unimplemented", detail: "script não registrado" };
+			if (!fn)
+				return { status: "unimplemented", detail: "script não registrado" };
 			const out = drainStack(fn(buildScriptCtx(state, ctx, params)));
 			return classify(state, out, def.id);
 		}
@@ -177,7 +190,12 @@ describe("cobertura de skills — todas rodam no core", () => {
 
 	const rows: Row[] = SKILLS.abilities.map((def) => {
 		const r = runSkill(def);
-		return { id: def.id, path: pathOf(def), status: r.status, detail: r.detail };
+		return {
+			id: def.id,
+			path: pathOf(def),
+			status: r.status,
+			detail: r.detail,
+		};
 	});
 
 	it("relatório de cobertura (console)", () => {
@@ -185,7 +203,9 @@ describe("cobertura de skills — todas rodam no core", () => {
 		const summary = `COBERTURA: ${by("ok").length} ok · ${by("no-effect").length} no-effect · ${by("unimplemented").length} unimplemented · ${by("error").length} error · total ${rows.length}`;
 		process.stdout.write(`\n${summary}\n`);
 		for (const r of rows.filter((x) => x.status !== "ok")) {
-			process.stdout.write(`  [${r.status}] ${r.id} (${r.path}) ${r.detail ?? ""}\n`);
+			process.stdout.write(
+				`  [${r.status}] ${r.id} (${r.path}) ${r.detail ?? ""}\n`,
+			);
 		}
 		expect(rows.length).toBe(SKILLS.abilities.length);
 	});
@@ -205,10 +225,17 @@ describe("cobertura de skills — todas rodam no core", () => {
 		// Patch-16 Lote C removidos: skill_rekindled_forge, skill_opportunity_shot,
 		//   dungeon_skill_rekindled_forge, dungeon_skill_summon_guardian
 		const KNOWN_UNIMPLEMENTED = new Set<string>();
-		const unimpl = rows.filter((r) => r.status === "unimplemented").map((r) => r.id);
+		const unimpl = rows
+			.filter((r) => r.status === "unimplemented")
+			.map((r) => r.id);
 		const novos = unimpl.filter((id) => !KNOWN_UNIMPLEMENTED.has(id));
-		expect(novos, `Skills quebraram (fora do baseline): ${novos.join(", ")}`).toHaveLength(0);
-		const resolvidas = [...KNOWN_UNIMPLEMENTED].filter((id) => !unimpl.includes(id));
+		expect(
+			novos,
+			`Skills quebraram (fora do baseline): ${novos.join(", ")}`,
+		).toHaveLength(0);
+		const resolvidas = [...KNOWN_UNIMPLEMENTED].filter(
+			(id) => !unimpl.includes(id),
+		);
 		if (resolvidas.length > 0) {
 			process.stdout.write(
 				`\n✅ Skills migradas — remova do baseline: ${resolvidas.join(", ")}\n`,

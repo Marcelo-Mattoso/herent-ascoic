@@ -50,7 +50,9 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 }
 
 function makeState(overrides: Partial<GameState> = {}): GameState {
-	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+	const base = createInitialGameState({
+		heroCardIds: ["hero_crimson_barbarian"],
+	});
 	return {
 		...base,
 		heroes: [makeHero()],

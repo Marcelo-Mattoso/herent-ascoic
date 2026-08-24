@@ -1,5 +1,5 @@
-import { getCardById } from "@/core/data/cards";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
+import { getCardById } from "@/core/data/cards";
 import { getSkillName } from "@/core/data/skillLocale";
 import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";

@@ -19,7 +19,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 4,
 		hitBonus: 0,
@@ -40,7 +40,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "",
-			maxLife: 5,
+		maxLife: 5,
 		currentLife: 5,
 		damage: 2,
 		hitBonus: 0,
@@ -54,7 +54,9 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 }
 
 function baseState(extras: Partial<GameState> = {}): GameState {
-	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+	const base = createInitialGameState({
+		heroCardIds: ["hero_crimson_barbarian"],
+	});
 	return {
 		...base,
 		heroes: [makeHero()],
@@ -104,7 +106,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 		const hero: HeroState = {
 			id: "h1",
 			cardId: "hero_last_light_paladin",
-					maxLife: 8,
+			maxLife: 8,
 			currentLife: 8,
 			damage: 3,
 			hitBonus: 0,
@@ -137,13 +139,18 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 		// Patch-21 Lote B: conditions[] avaliadas no dispatch — guard declarativo.
 		// Com despertar=2 ($dungeon.level=2 < 3), a condition gte falha → skill não dispara.
 		const state = makeStateWithPaladino(2 as ColorIndex);
-		const result = drainStack(fireTrigger(state, "evt_combat_start", {
-			triggeredBy: "evt_combat_start",
-			sourceHeroId: "h1",
-			sourceEnemyId: "e1",
-		}));
-		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
-			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		const result = drainStack(
+			fireTrigger(state, "evt_combat_start", {
+				triggeredBy: "evt_combat_start",
+				sourceHeroId: "h1",
+				sourceEnemyId: "e1",
+			}),
+		);
+		const mods = getComponents<ModifierComponent>(
+			result.world,
+			"h1",
+			"modifier",
+		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
 		expect(mods.length).toBe(0);
 	});
 
@@ -157,8 +164,11 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			}),
 		);
 		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2 no ECS world
-		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
-			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		const mods = getComponents<ModifierComponent>(
+			result.world,
+			"h1",
+			"modifier",
+		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
 		expect(mods.length).toBeGreaterThanOrEqual(2);
 		expect(mods.every((m) => m.value === 2)).toBe(true);
 	});
@@ -172,8 +182,11 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 				sourceEnemyId: "e1",
 			}),
 		);
-		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
-			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		const mods = getComponents<ModifierComponent>(
+			result.world,
+			"h1",
+			"modifier",
+		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
 		expect(mods.length).toBeGreaterThanOrEqual(2);
 	});
 });
@@ -186,7 +199,7 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		const cultista: EnemyState = {
 			id: "e1",
 			cardId: "creature_hidden_flame_cultist",
-					maxLife: 3,
+			maxLife: 3,
 			currentLife: 3,
 			damage: 2,
 			hitBonus: 0,
@@ -215,7 +228,7 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		const cultista: EnemyState = {
 			id: "e1",
 			cardId: "creature_hidden_flame_cultist",
-					maxLife: 3,
+			maxLife: 3,
 			currentLife: 3,
 			damage: 2,
 			hitBonus: 0,
@@ -248,11 +261,13 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 
 describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)", () => {
 	function makeStateWithAdaga(despertar: ColorIndex): GameState {
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const hero: HeroState = {
 			id: "h1",
 			cardId: "hero_crimson_barbarian",
-					maxLife: 10,
+			maxLife: 10,
 			currentLife: 10,
 			damage: 4,
 			hitBonus: 0,
@@ -293,8 +308,11 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 				sourceEnemyId: "e1",
 			}),
 		);
-		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
-			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		const mods = getComponents<ModifierComponent>(
+			result.world,
+			"h1",
+			"modifier",
+		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
 		const total = mods.reduce((s, m) => s + m.value, 0);
 		expect(total).toBe(8); // 6 + 1 + 1 = 8
 		expect(mods.some((m) => m.value === 6)).toBe(true);
@@ -310,8 +328,11 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 				sourceEnemyId: "e1",
 			}),
 		);
-		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
-			.filter(m => m.target === "hit_bonus" || m.target === "damage_dealt");
+		const mods = getComponents<ModifierComponent>(
+			result.world,
+			"h1",
+			"modifier",
+		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
 		const total = mods.reduce((s, m) => s + m.value, 0);
 		expect(total).toBe(8);
 		expect(mods.some((m) => m.value === 6)).toBe(true);
@@ -340,4 +361,3 @@ describe("filtro combat_against_self em before_attack", () => {
 		).not.toThrow();
 	});
 });
-

@@ -6,7 +6,10 @@ import { playerView } from "../playerView";
 
 function buildStartedState(heroNames: string[]) {
 	const base = createInitialGameState({ heroCardIds: heroNames });
-	return reducer(base, { type: "START_GAME", payload: { heroCardIds: heroNames } });
+	return reducer(base, {
+		type: "START_GAME",
+		payload: { heroCardIds: heroNames },
+	});
 }
 
 describe("projectActiveInfluences", () => {
@@ -47,7 +50,11 @@ describe("projectActiveInfluences", () => {
 	});
 
 	it("colapsa fan-out de grupo quando mesmo modifier cobre todos os heróis", () => {
-		const heroes = ["hero_crimson_barbarian", "hero_broken_bastion_warrior", "hero_rift_rogue"];
+		const heroes = [
+			"hero_crimson_barbarian",
+			"hero_broken_bastion_warrior",
+			"hero_rift_rogue",
+		];
 		let state = buildStartedState(heroes);
 
 		// Injeta o mesmo modifier (power_unbreakable_bastion_guard) em todos os heróis
@@ -68,8 +75,8 @@ describe("projectActiveInfluences", () => {
 		state = { ...state, world };
 
 		const view = playerView(state);
-		const grouped = view.activeInfluences.filter(
-			(i) => i.source.includes("Inquebrável"),
+		const grouped = view.activeInfluences.filter((i) =>
+			i.source.includes("Inquebrável"),
 		);
 		// Deve colapsar em 1 entrada com to.kind = "group"
 		expect(grouped).toHaveLength(1);
@@ -97,8 +104,8 @@ describe("projectActiveInfluences", () => {
 		state = { ...state, world };
 
 		const view = playerView(state);
-		const grouped = view.activeInfluences.filter(
-			(i) => i.source.includes("Inquebrável"),
+		const grouped = view.activeInfluences.filter((i) =>
+			i.source.includes("Inquebrável"),
 		);
 		// Só um herói afetado → não colapsa
 		expect(grouped).toHaveLength(1);
@@ -123,8 +130,8 @@ describe("projectActiveInfluences", () => {
 		});
 		state = { ...state, world };
 
-		const inf = playerView(state).activeInfluences.find(
-			(i) => i.source.includes("Inquebrável"),
+		const inf = playerView(state).activeInfluences.find((i) =>
+			i.source.includes("Inquebrável"),
 		);
 		expect(inf!.kind).toBe("buff");
 		expect(inf!.duration).toBe("passivo");
@@ -171,8 +178,8 @@ describe("projectActiveInfluences", () => {
 		});
 		state = { ...state, world };
 
-		const inf = playerView(state).activeInfluences.find(
-			(i) => i.source.includes("Caçador"),
+		const inf = playerView(state).activeInfluences.find((i) =>
+			i.source.includes("Caçador"),
 		);
 		expect(inf).toBeDefined();
 		expect(inf!.scope).toBe("item_to_hero");

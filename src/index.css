@@ -1,7 +1,8 @@
 @import "tailwindcss";
 
 @keyframes die-eligible-pulse {
-	0%, 100% {
+	0%,
+	100% {
 		box-shadow:
 			0 0 0 0 rgba(245, 158, 11, 0.7),
 			0 0 0 0 rgba(245, 158, 11, 0.4);
@@ -22,10 +23,11 @@
 }
 
 @keyframes click-attention-pulse {
-	0%, 100% {
+	0%,
+	100% {
 		box-shadow:
 			0 0 0 0 rgba(245, 158, 11, 0.55),
-			0 0 0 0 rgba(245, 158, 11, 0.0);
+			0 0 0 0 rgba(245, 158, 11, 0);
 	}
 	50% {
 		box-shadow:
@@ -45,5 +47,89 @@
 	.click-attention {
 		animation: none;
 		box-shadow: 0 0 0 3px rgba(245, 158, 11, 0.6);
+	}
+}
+
+@keyframes title-glow {
+	0%,
+	100% {
+		text-shadow:
+			0 0 20px rgba(200, 151, 42, 0.25),
+			0 0 40px rgba(200, 151, 42, 0.1);
+	}
+	50% {
+		text-shadow:
+			0 0 30px rgba(200, 151, 42, 0.6),
+			0 0 60px rgba(200, 151, 42, 0.25),
+			0 0 100px rgba(200, 151, 42, 0.1);
+	}
+}
+
+@keyframes ember-float {
+	0% {
+		opacity: 0;
+		transform: translateY(0);
+	}
+	20% {
+		opacity: 1;
+	}
+	80% {
+		opacity: 0.6;
+	}
+	100% {
+		opacity: 0;
+		transform: translateY(-24px);
+	}
+}
+
+@keyframes panel-fade-in {
+	from {
+		opacity: 0;
+		transform: translateY(24px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes rune-spin {
+	from {
+		transform: translate(-50%, -50%) rotate(0deg);
+	}
+	to {
+		transform: translate(-50%, -50%) rotate(360deg);
+	}
+}
+
+@keyframes star-twinkle {
+	0%, 100% { opacity: 0.2; transform: scale(1); }
+	50%       { opacity: 1;   transform: scale(1.6); }
+}
+
+@keyframes divine-pulse {
+	0%, 100% { opacity: 0.12; }
+	50%       { opacity: 0.22; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.menu-title {
+		animation: none !important;
+	}
+	.menu-panel {
+		animation: none !important;
+	}
+	.menu-ember {
+		animation: none !important;
+		display: none;
+	}
+	.menu-rune {
+		animation: none !important;
+	}
+	.menu-star-bright {
+		animation: none !important;
+	}
+	.menu-divine-beam {
+		animation: none !important;
 	}
 }

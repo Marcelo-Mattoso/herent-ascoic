@@ -1,8 +1,8 @@
 // Renderiza label e texto de uma skill a partir do locale + params da carta.
 // Templates de copy vivem em src/data/skills.locale.pt-BR.yaml (patch-20).
 
-import { getSkillLocale } from "../data/skillLocale";
 import type { SkillRef } from "../data/cardTypes";
+import { getSkillLocale } from "../data/skillLocale";
 import { lookupSkillById } from "./lookup";
 
 function interpolate(
@@ -15,9 +15,7 @@ function interpolate(
 	});
 }
 
-function mergedParams(
-	ref: SkillRef,
-): Record<string, number | string> {
+function mergedParams(ref: SkillRef): Record<string, number | string> {
 	const def = lookupSkillById(ref.skillId);
 	return {
 		...((def?.params as Record<string, number | string> | undefined) ?? {}),

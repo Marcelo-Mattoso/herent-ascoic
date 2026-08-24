@@ -55,7 +55,9 @@ function makeState(
 	heroOverrides: Partial<HeroState> = {},
 	enemyOverrides?: Partial<EnemyState>,
 ): GameState {
-	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+	const base = createInitialGameState({
+		heroCardIds: ["hero_crimson_barbarian"],
+	});
 	return {
 		...base,
 		heroes: [makeHero(heroOverrides)],
@@ -419,7 +421,9 @@ describe("applyDamage ponta a ponta com TriggerComponent de armadura", () => {
 
 	it("armadura não interfere com dano de outro herói", () => {
 		// h1 tem armadura, mas e1 recebe o dano — sem redução
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const state: GameState = {
 			...base,
 			heroes: [makeHero({ currentLife: 8 })],

@@ -1,13 +1,13 @@
 // Resolve o target de uma habilidade para ids concretos no estado atual.
 // Targets que exigem escolha do jogador retornam { kind: "needs_selection" }.
 
+import { getCardById } from "../data/cards";
 import type {
 	SkillContext,
 	TargetCandidate,
 	TargetResolution,
 	TargetSpec,
 } from "../data/skillTypes";
-import { getCardById } from "../data/cards";
 import type { GameState } from "../state/gameState";
 
 export function resolveTarget(

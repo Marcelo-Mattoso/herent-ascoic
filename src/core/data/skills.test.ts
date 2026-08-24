@@ -20,11 +20,31 @@ describe("catálogo de skills (skills.json)", () => {
 		for (const ability of SKILLS.abilities) {
 			expect(typeof ability.id).toBe("string");
 			// operate_type obrigatório desde patch-21 Lote B
-			expect(["op_active", "op_active_buff", "op_triggered", "op_passive"]).toContain(ability.operate_type);
+			expect([
+				"op_active",
+				"op_active_buff",
+				"op_triggered",
+				"op_passive",
+			]).toContain(ability.operate_type);
 			// Targeting v2 obrigatório desde patch-21 Lote C
-			expect(["tgt_self", "tgt_target", "tgt_enemy", "tgt_item", "tgt_others", "tgt_none"]).toContain(ability.target_type);
-			expect(["scp_single", "scp_party_full", "scp_dead_party", "scp_room", "scp_none"]).toContain(ability.affect_scope);
-			expect(["obj_friend", "obj_not_friend", "obj_all"]).toContain(ability.affect_object);
+			expect([
+				"tgt_self",
+				"tgt_target",
+				"tgt_enemy",
+				"tgt_item",
+				"tgt_others",
+				"tgt_none",
+			]).toContain(ability.target_type);
+			expect([
+				"scp_single",
+				"scp_party_full",
+				"scp_dead_party",
+				"scp_room",
+				"scp_none",
+			]).toContain(ability.affect_scope);
+			expect(["obj_friend", "obj_not_friend", "obj_all"]).toContain(
+				ability.affect_object,
+			);
 			// usedBy foi removido (patch-13) — derivado de cards.yaml via skillUsedBy()
 			// name/labelTemplate/textTemplate movidos para locale (patch-20).
 			// trigger agora é objeto {event} ou undefined (patch-21 Lote B).

@@ -31,9 +31,7 @@ describe("cardSkills", () => {
 		const card = getCardById("hero_crimson_barbarian");
 		expect(card).not.toBeUndefined();
 		const skills = cardSkills(card!.id);
-		const efeito = skills.find(
-			({ def }) => def.category === "dungeon_skill",
-		);
+		const efeito = skills.find(({ def }) => def.category === "dungeon_skill");
 		expect(efeito).toBeUndefined();
 	});
 });

@@ -6,9 +6,9 @@
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
 import { removeEntity, removeModifiersForSource } from "../ecs/world";
-import { removeBlocksForSource } from "../state/blockHelpers";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
+import { removeBlocksForSource } from "../state/blockHelpers";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
@@ -90,14 +90,18 @@ export function applyDamage(
 
 	// Lote E: emite EnemyDestroyed ou HeroDefeated quando entidade é derrotada
 	let s4 = s3;
-	const defeatedHero = s4.heroes.find((h) => h.id === targetId && h.status === "defeated");
+	const defeatedHero = s4.heroes.find(
+		(h) => h.id === targetId && h.status === "defeated",
+	);
 	if (defeatedHero) {
 		({ state: s4 } = emit(s4, {
 			type: "HeroDefeated",
 			payload: { heroId: targetId, sourceId },
 		}));
 	}
-	const defeatedEnemy = s4.activeEnemies.find((e) => e.id === targetId && e.status === "defeated");
+	const defeatedEnemy = s4.activeEnemies.find(
+		(e) => e.id === targetId && e.status === "defeated",
+	);
 	if (defeatedEnemy) {
 		const roomFirstKill = s4.creaturesDefeated === 0;
 		({ state: s4 } = emit(s4, {

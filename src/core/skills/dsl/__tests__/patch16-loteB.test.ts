@@ -1,8 +1,8 @@
 ﻿// Testes de aceite Patch-16 Lote B — novos kinds DSL e skills #7-#20.
 
 import { describe, expect, it } from "vitest";
-import { getModifierTotal } from "../../../ecs/world";
 import { SKILLS } from "../../../data/skills";
+import { getModifierTotal } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { buildScriptCtx } from "../../../scripts/context";
@@ -19,7 +19,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -58,7 +58,11 @@ describe("prevent_next_damage (kinds #7 / #9)", () => {
 		const state = stateWithCombat();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_round_on_damage_taken", sourceHeroId: "h1", targetHeroIds: ["h1"] },
+			{
+				triggeredBy: "once_per_round_on_damage_taken",
+				sourceHeroId: "h1",
+				targetHeroIds: ["h1"],
+			},
 			{},
 		);
 		const result = drainStack(
@@ -71,10 +75,16 @@ describe("prevent_next_damage (kinds #7 / #9)", () => {
 		const state = stateWithCombat();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_round_on_damage_taken", sourceHeroId: "h1", targetHeroIds: ["h1"] },
+			{
+				triggeredBy: "once_per_round_on_damage_taken",
+				sourceHeroId: "h1",
+				targetHeroIds: ["h1"],
+			},
 			{},
 		);
-		const result = drainStack(evaluate(defEffect("skill_last_light_shield"), ctx));
+		const result = drainStack(
+			evaluate(defEffect("skill_last_light_shield"), ctx),
+		);
 		expect(result.flags["firstDamagePrevented::h1"]).toBe(true);
 	});
 
@@ -97,10 +107,15 @@ describe("ignore_next_targeting — skill_protective_veil (#10)", () => {
 		const state = stateWithCombat();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_room_on_targeted_by_effect", sourceHeroId: "h1" },
+			{
+				triggeredBy: "once_per_room_on_targeted_by_effect",
+				sourceHeroId: "h1",
+			},
 			{},
 		);
-		const result = drainStack(evaluate(defEffect("skill_protective_veil"), ctx));
+		const result = drainStack(
+			evaluate(defEffect("skill_protective_veil"), ctx),
+		);
 		expect(result.combat?.targetProtectionByHero["h1"]).toBe(true);
 	});
 });
@@ -161,7 +176,11 @@ describe("mark_target — skill_prey_mark (#13)", () => {
 		const state = stateWithCombat();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "start_of_combat", sourceHeroId: "h1", targetEnemyIds: ["e1"] },
+			{
+				triggeredBy: "start_of_combat",
+				sourceHeroId: "h1",
+				targetEnemyIds: ["e1"],
+			},
 			{ value: 1 },
 		);
 		const result = drainStack(evaluate(defEffect("skill_prey_mark"), ctx));
@@ -191,7 +210,9 @@ describe("draw_from — item_skill_mystic_draw (#14)", () => {
 			{ triggeredBy: "on_use", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(evaluate(defEffect("item_skill_mystic_draw"), ctx));
+		const result = drainStack(
+			evaluate(defEffect("item_skill_mystic_draw"), ctx),
+		);
 		expect(result.pendingRewards).toHaveLength(1);
 		expect(result.pendingRewards[0].type).toBe("artifact");
 		expect(result.pendingRewards[0].cardId).toBeTruthy(); // was cardName: "Amuleto Antigo");
@@ -297,7 +318,9 @@ describe("reveal_dungeon — skill_illuminate_path (#20)", () => {
 			{ triggeredBy: "on_reveal_paths", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(evaluate(defEffect("skill_illuminate_path"), ctx));
+		const result = drainStack(
+			evaluate(defEffect("skill_illuminate_path"), ctx),
+		);
 		expect(result.pendingSkillChoice).toBeDefined();
 		expect(
 			result.pendingSkillChoice?.options.some((o) => o.label === "Sala Oculta"),
@@ -306,4 +329,3 @@ describe("reveal_dungeon — skill_illuminate_path (#20)", () => {
 		expect(result.decks.dungeonDeck.available).toHaveLength(2);
 	});
 });
-
