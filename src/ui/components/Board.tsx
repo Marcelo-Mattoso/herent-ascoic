@@ -1,7 +1,7 @@
 // Tabuleiro coletivo da partida (Patch 3).
 // Layout: stacks centrais | arena | footer do grupo.
 
-import { useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { CombatRollResult } from "@/core/state/combatState";
@@ -16,6 +16,7 @@ import { ActionButton } from "./ActionButton";
 import { BoardFooter } from "./BoardFooter";
 import { ColorBar } from "./ColorBar";
 import { DiceDisplay } from "./DiceDisplay";
+import { type AnchorPoint, DiceRollOverlay } from "./DiceRollOverlay";
 import { HeroCard } from "./HeroCard";
 import { HpBar } from "./HpBar";
 import { Stack } from "./Stack";
@@ -50,6 +51,14 @@ const ACTIVE_DUNGEON_CARD = {
 const ACTIVE_CARD_SLOT_COUNT = 4;
 const CARD_CONTACT_SHADOW =
 	"0 7px 10px rgba(0, 0, 0, 0.34), 0 1px 2px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255,255,255,0.28)";
+const DICE_ROLL_ANIMATION_MS = 1450;
+
+interface DiceRollAnimationState {
+	readonly key: string;
+	readonly roll: CombatRollResult;
+	readonly heroAnchor: AnchorPoint;
+	readonly enemyAnchor: AnchorPoint;
+}
 
 function ActiveDungeonCard({
 	room,
@@ -333,6 +342,12 @@ export function Board({
 	cardImageUrls,
 }: BoardProps) {
 	const [draggingHeroId, setDraggingHeroId] = useState<string | null>(null);
+	const [diceRollAnimation, setDiceRollAnimation] =
+		useState<DiceRollAnimationState | null>(null);
+	const boardRef = useRef<HTMLDivElement | null>(null);
+	const heroCardRefs = useRef(new Map<string, HTMLDivElement>());
+	const enemyCardRefs = useRef(new Map<string, HTMLDivElement>());
+	const lastAnimatedRollRef = useRef<CombatRollResult | null>(null);
 
 	const heroesActed = view.combat?.heroesActed ?? [];
 	const selectedHeroId = view.combat?.selectedHeroId ?? null;
@@ -361,8 +376,55 @@ export function Board({
 		setDraggingHeroId(null);
 	}
 
+	const getCardAnchor = useCallback(
+		(
+			element: HTMLDivElement | undefined,
+			fallback: AnchorPoint,
+		): AnchorPoint => {
+			const boardElement = boardRef.current;
+			if (!boardElement || !element) return fallback;
+
+			const boardRect = boardElement.getBoundingClientRect();
+			const cardRect = element.getBoundingClientRect();
+
+			return {
+				x: cardRect.left - boardRect.left + cardRect.width / 2,
+				y: cardRect.top - boardRect.top + cardRect.height / 2,
+			};
+		},
+		[],
+	);
+
+	useEffect(() => {
+		if (status !== "RESOLVE_ATTACK" || !roll) return;
+		if (lastAnimatedRollRef.current === roll) return;
+
+		lastAnimatedRollRef.current = roll;
+		setDiceRollAnimation({
+			key: `${roll.heroId}-${roll.enemyId}-${Date.now()}`,
+			roll,
+			heroAnchor: getCardAnchor(heroCardRefs.current.get(roll.heroId), {
+				x: 420,
+				y: 510,
+			}),
+			enemyAnchor: getCardAnchor(enemyCardRefs.current.get(roll.enemyId), {
+				x: 520,
+				y: 260,
+			}),
+		});
+
+		const timer = window.setTimeout(
+			() => setDiceRollAnimation(null),
+			DICE_ROLL_ANIMATION_MS,
+		);
+
+		return () => window.clearTimeout(timer);
+	}, [getCardAnchor, roll, status]);
+
 	return (
 		<div
+			ref={boardRef}
+			className="game-board-root"
 			style={{
 				height: "100%",
 				minHeight: 0,
@@ -441,22 +503,46 @@ export function Board({
 						const isSelectable = !!enemy && isSelectingTarget;
 						const isDragOver = draggingHeroId !== null && isSelectable;
 						return (
-							<ActiveEnemyCard
+							<div
 								key={enemy?.id ?? `empty-enemy-slot-${index}`}
-								enemy={enemy}
-								isSelectable={isSelectable}
-								isDragOver={isDragOver}
-								imageUrl={
-									enemy
-										? getCardImageUrl(cardImageUrls, enemy.cardId)
-										: undefined
-								}
-								onDrop={handleEnemyDrop}
-								onClick={enemy ? () => onEnemyClick(enemy) : undefined}
-							/>
+								ref={(element) => {
+									if (!enemy) return;
+									if (element) {
+										enemyCardRefs.current.set(enemy.id, element);
+									} else {
+										enemyCardRefs.current.delete(enemy.id);
+									}
+								}}
+								style={{
+									width: ACTIVE_DUNGEON_CARD.width,
+									height: ACTIVE_DUNGEON_CARD.height,
+								}}
+							>
+								<ActiveEnemyCard
+									enemy={enemy}
+									isSelectable={isSelectable}
+									isDragOver={isDragOver}
+									imageUrl={
+										enemy
+											? getCardImageUrl(cardImageUrls, enemy.cardId)
+											: undefined
+									}
+									onDrop={handleEnemyDrop}
+									onClick={enemy ? () => onEnemyClick(enemy) : undefined}
+								/>
+							</div>
 						);
 					})}
 				</div>
+
+				{diceRollAnimation && (
+					<DiceRollOverlay
+						key={diceRollAnimation.key}
+						roll={diceRollAnimation.roll}
+						heroAnchor={diceRollAnimation.heroAnchor}
+						enemyAnchor={diceRollAnimation.enemyAnchor}
+					/>
+				)}
 
 				{/* Arena central */}
 				<div
@@ -641,7 +727,6 @@ export function Board({
 							width: "100%",
 							marginTop: "clamp(22px, 5vh, 70px)",
 						}}
-						onDragEnd={handleDragEnd}
 					>
 						{heroes.map((h) => {
 							const isFocused = h.id === focusedHeroId;
@@ -654,18 +739,32 @@ export function Board({
 								isInCombat;
 
 							return (
-								<HeroCard
+								<div
 									key={h.id}
-									hero={h}
-									isFocused={isFocused}
-									hasActed={hasActed}
-									isSelected={isSelected}
-									canAct={canAct}
-									size="board"
-									imageUrl={getCardImageUrl(cardImageUrls, h.cardId)}
-									onDragStart={handleDragStart}
-									onClick={() => onHeroClick(h)}
-								/>
+									ref={(element) => {
+										if (element) {
+											heroCardRefs.current.set(h.id, element);
+										} else {
+											heroCardRefs.current.delete(h.id);
+										}
+									}}
+									style={{
+										width: ACTIVE_DUNGEON_CARD.width,
+									}}
+								>
+									<HeroCard
+										hero={h}
+										isFocused={isFocused}
+										hasActed={hasActed}
+										isSelected={isSelected}
+										canAct={canAct}
+										size="board"
+										imageUrl={getCardImageUrl(cardImageUrls, h.cardId)}
+										onDragStart={handleDragStart}
+										onDragEnd={handleDragEnd}
+										onClick={() => onHeroClick(h)}
+									/>
+								</div>
 							);
 						})}
 					</div>

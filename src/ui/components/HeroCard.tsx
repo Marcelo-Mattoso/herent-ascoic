@@ -16,6 +16,7 @@ interface HeroCardProps {
 	size?: "compact" | "board";
 	imageUrl?: string;
 	onDragStart?: (heroId: string) => void;
+	onDragEnd?: () => void;
 	onClick: () => void;
 }
 
@@ -30,6 +31,7 @@ export function HeroCard({
 	size = "compact",
 	imageUrl,
 	onDragStart,
+	onDragEnd,
 	onClick,
 }: HeroCardProps) {
 	const isDefeated = hero.status === "defeated";
@@ -110,6 +112,7 @@ export function HeroCard({
 					e.dataTransfer.setData("heroId", hero.id);
 					onDragStart?.(hero.id);
 				}}
+				onDragEnd={onDragEnd}
 				style={{
 					width: card.width,
 					height: card.height,
