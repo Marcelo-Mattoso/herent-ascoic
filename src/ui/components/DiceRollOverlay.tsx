@@ -1,18 +1,14 @@
-import type { CSSProperties } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import type { CombatRollResult } from "@/core/state/combatState";
 
 interface DiceRollOverlayProps {
 	roll: CombatRollResult;
-	heroAnchor: AnchorPoint;
-	enemyAnchor: AnchorPoint;
-}
-
-export interface AnchorPoint {
-	readonly x: number;
-	readonly y: number;
+	onResolveAttack: () => void;
 }
 
 type DiceSide = "hero" | "enemy";
+const ROLLING_DURATION_MS = 1850;
+const ROLLING_TICK_MS = 92;
 
 const PIP_POSITIONS: Record<number, readonly [number, number][]> = {
 	1: [[2, 2]],
@@ -50,50 +46,90 @@ const PIP_POSITIONS: Record<number, readonly [number, number][]> = {
 
 export function DiceRollOverlay({
 	roll,
-	heroAnchor,
-	enemyAnchor,
+	onResolveAttack,
 }: DiceRollOverlayProps) {
+	const [canResolve, setCanResolve] = useState(false);
+	const [tick, setTick] = useState(0);
+
+	useEffect(() => {
+		const interval = window.setInterval(() => {
+			setTick((current) => current + 1);
+		}, ROLLING_TICK_MS);
+		const timer = window.setTimeout(() => {
+			window.clearInterval(interval);
+			setCanResolve(true);
+		}, ROLLING_DURATION_MS);
+
+		return () => {
+			window.clearInterval(interval);
+			window.clearTimeout(timer);
+		};
+	}, []);
+
 	return (
-		<div className="game-dice-roll-layer" aria-hidden="true">
-			<DiceCluster
-				side="enemy"
-				results={roll.enemyResults}
-				total={roll.enemyTotal}
-				anchor={enemyAnchor}
-			/>
-			<DiceCluster
-				side="hero"
-				results={roll.heroResults}
-				total={roll.heroTotal}
-				anchor={heroAnchor}
-			/>
+		<div className="game-dice-roll-layer">
+			<div
+				className="game-dice-roll-modal"
+				role="dialog"
+				aria-label="Resultado da rolagem de dados"
+			>
+				<div className="game-dice-roll-modal__body">
+					<DiceCluster
+						side="enemy"
+						label="Monstro"
+						results={roll.enemyResults}
+						total={roll.enemyTotal}
+						tick={tick}
+						isRolling={!canResolve}
+					/>
+					<div className="game-dice-roll-versus">vs</div>
+					<DiceCluster
+						side="hero"
+						label="Herói"
+						results={roll.heroResults}
+						total={roll.heroTotal}
+						tick={tick}
+						isRolling={!canResolve}
+					/>
+				</div>
+				<button
+					type="button"
+					className="game-dice-roll-action"
+					onClick={onResolveAttack}
+					disabled={!canResolve}
+					aria-label="Resolver ataque"
+				>
+					{canResolve ? "Resolver ataque" : "Rolando..."}
+				</button>
+			</div>
 		</div>
 	);
 }
 
 function DiceCluster({
 	side,
+	label,
 	results,
 	total,
-	anchor,
+	tick,
+	isRolling,
 }: {
 	side: DiceSide;
+	label: string;
 	results: readonly number[];
 	total: number;
-	anchor: AnchorPoint;
+	tick: number;
+	isRolling: boolean;
 }) {
-	const style = {
-		left: `${anchor.x}px`,
-		top: `${anchor.y}px`,
-	} satisfies CSSProperties;
+	const visibleResults = isRolling
+		? results.map((value, index) => getRollingValue(value, index, tick, side))
+		: results;
 
 	return (
-		<div
-			className={`game-dice-roll-cluster game-dice-roll-cluster--${side}`}
-			style={style}
-		>
+		<div className={`game-dice-roll-cluster game-dice-roll-cluster--${side}`}>
+			<div className="game-dice-roll-label">{label}</div>
 			<div className="game-dice-roll-row">
-				{results.map((value, index) => (
+				{visibleResults.map((value, index) => (
 					<DiceFace
 						key={`${side}-roll-die-${index}`}
 						value={value}
@@ -105,6 +141,16 @@ function DiceCluster({
 			<div className="game-dice-roll-total">{total}</div>
 		</div>
 	);
+}
+
+function getRollingValue(
+	finalValue: number,
+	index: number,
+	tick: number,
+	side: DiceSide,
+) {
+	const sideOffset = side === "hero" ? 2 : 5;
+	return ((finalValue + tick + index * sideOffset) % 6) + 1;
 }
 
 function DiceFace({
