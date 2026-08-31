@@ -135,7 +135,7 @@ export function CardDetailModal({
 							);
 						})()}
 
-					{card?.type === "room" &&
+					{(card?.type === "room" || card?.type === "subboss_room") &&
 						(() => {
 							const roomSkills = cardSkills(card.id);
 							const main = roomSkills[0];

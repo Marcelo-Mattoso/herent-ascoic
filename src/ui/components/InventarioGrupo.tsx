@@ -2,15 +2,21 @@
 // Substitui o modal de recompensa por uma tela completa de organização.
 // Drag & drop livre entre todas as zonas: mesa ↔ herói-slot ↔ herói-mochila.
 
-import { useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { getCardById } from "@/core/data/cards";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
+import { getCardImageUrl } from "@/ui/cardImages";
+import type { CardType } from "@/ui/components/Card";
+import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
+import { useCardImages } from "@/ui/hooks/useCardImages";
+import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
+import { getUiAssetUrl } from "@/ui/uiAssets";
 
 // ── Constantes de cor ─────────────────────────────────────────────────────────
 
@@ -74,6 +80,12 @@ type DragItem = {
 	name: string;
 	kind: "item" | "artefato";
 	from: InvFromZone;
+};
+
+type DetailCardTarget = {
+	cardId: string;
+	cardType: CardType;
+	heroId?: string;
 };
 
 // ── Slot visual ───────────────────────────────────────────────────────────────
@@ -147,8 +159,10 @@ function Slot({
 	}
 
 	return (
-		<div
+		<button
+			type="button"
 			draggable={draggable}
+			tabIndex={draggable ? 0 : undefined}
 			title={undefined}
 			data-item={draggable ? "true" : undefined}
 			onDragStart={onDragStart}
@@ -179,7 +193,7 @@ function Slot({
 			}}
 		>
 			{label}
-		</div>
+		</button>
 	);
 }
 
@@ -195,6 +209,7 @@ type TooltipTarget = {
 
 interface HeroColumnProps {
 	hero: HeroState;
+	imageUrl?: string;
 	dragging: DragItem | null;
 	hoverZone: string | null;
 	groupArtifacts: ReadonlyArray<{ cardId: string; carriedBy: string | null }>;
@@ -209,6 +224,7 @@ interface HeroColumnProps {
 
 function HeroColumn({
 	hero,
+	imageUrl,
 	dragging,
 	hoverZone,
 	groupArtifacts,
@@ -243,6 +259,7 @@ function HeroColumn({
 
 	const posseArt = groupArtifacts.find((a) => a.carriedBy === hero.id);
 	const isDragging = !!dragging;
+	const heroName = getCardName(hero.cardId);
 
 	function areaDropHandlers(zone: string, valid: boolean) {
 		return {
@@ -266,15 +283,9 @@ function HeroColumn({
 
 	return (
 		<div
+			className="inventory-hero-card"
 			style={{
-				width: 170,
-				flexShrink: 0,
-				border: `1px solid ${UI.border}`,
-				borderRadius: 8,
-				padding: 10,
-				background: UI.panelBg,
-				display: "flex",
-				flexDirection: "column",
+				width: 178,
 			}}
 		>
 			{/* 4 slots de equipamento — zona de drop inteira */}
@@ -362,21 +373,13 @@ function HeroColumn({
 				/>
 			</div>
 
-			{/* Arte placeholder */}
-			<div
-				style={{
-					border: `1px solid ${UI.border}`,
-					borderRadius: 4,
-					aspectRatio: "3/2",
-					marginBottom: 6,
-					display: "flex",
-					alignItems: "center",
-					justifyContent: "center",
-					background: UI.subpanelBg,
-					fontSize: 22,
-				}}
-			>
-				🧙
+			{/* Arte do herói */}
+			<div className="inventory-hero-card__image">
+				{imageUrl ? (
+					<img src={imageUrl} alt={heroName} />
+				) : (
+					<span>{heroName.slice(0, 1)}</span>
+				)}
 			</div>
 
 			{/* Status */}
@@ -482,7 +485,7 @@ function HeroColumn({
 				}}
 				title={getCardName(hero.cardId)}
 			>
-				{getCardName(hero.cardId).split(" ")[0]}
+				{heroName.split(" ")[0]}
 			</p>
 		</div>
 	);
@@ -492,6 +495,8 @@ function HeroColumn({
 
 export function InventarioGrupo() {
 	const { view, dispatch } = useGameStore();
+	const cardImageUrls = useCardImages();
+	const uiAssets = useUiAssets();
 
 	const mesaItens = view.pendingRewards.filter((r) => r.type === "item");
 	const mesaArtefatos = view.pendingRewards.filter(
@@ -504,6 +509,17 @@ export function InventarioGrupo() {
 	const [hoverZone, setHoverZone] = useState<string | null>(null);
 	const [confirmDiscard, setConfirmDiscard] = useState(false);
 	const [tooltip, setTooltip] = useState<TooltipTarget | null>(null);
+	const [detailCard, setDetailCard] = useState<DetailCardTarget | null>(null);
+
+	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
+	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
+	const logoUrl =
+		getUiAssetUrl(uiAssets, "logo-completa") ??
+		getUiAssetUrl(uiAssets, "newlogo");
+	const inventoryStyle = {
+		"--inventory-bg": backgroundUrl ? `url("${backgroundUrl}")` : undefined,
+		"--inventory-stone": stoneUrl ? `url("${stoneUrl}")` : undefined,
+	} as CSSProperties;
 
 	// Scroll horizontal com mouse
 	const scrollRef = useRef<HTMLDivElement>(null);
@@ -520,6 +536,7 @@ export function InventarioGrupo() {
 
 	// Resetar checkbox quando mesa muda
 	const totalMesa = mesaItens.length + mesaArtefatos.length;
+	// biome-ignore lint/correctness/useExhaustiveDependencies: reseta quando a quantidade de recompensas pendentes muda
 	useEffect(() => {
 		setConfirmDiscard(false);
 	}, [totalMesa]);
@@ -694,455 +711,333 @@ export function InventarioGrupo() {
 
 	return (
 		<>
-			<div
-				className="fixed inset-0 z-50 flex items-center justify-center p-4"
-				style={{ background: "rgba(0,0,0,0.45)" }}
-			>
+			<div className="inventory-overlay" style={inventoryStyle}>
 				<div
 					role="dialog"
 					aria-modal="true"
 					aria-label="Inventário do grupo"
-					style={{
-						background: UI.panelBg,
-						width: "100%",
-						maxWidth: 920,
-						borderRadius: 12,
-						padding: 24,
-						boxShadow: "0 20px 60px rgba(0,0,0,0.25)",
-						color: UI.textPrimary,
-					}}
+					className="inventory-dialog"
 				>
 					{/* Título */}
-					<div
-						style={{
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "baseline",
-							borderBottom: `1px solid ${UI.border}`,
-							paddingBottom: 12,
-							marginBottom: 20,
-						}}
-					>
-						<h1
-							style={{
-								fontSize: 18,
-								fontWeight: 500,
-								margin: 0,
-								color: UI.textPrimary,
-							}}
-						>
-							Inventário do grupo
-						</h1>
-						<span style={{ fontSize: 12, color: UI.textTertiary }}>
-							arraste itens entre as zonas
-						</span>
+					<div className="inventory-header">
+						<div className="inventory-title">
+							{logoUrl ? <img src={logoUrl} alt="" /> : null}
+							<div>
+								<h1>Inventário do grupo</h1>
+								<p>Arraste itens entre as zonas</p>
+							</div>
+						</div>
 					</div>
 
 					{/* ── MESA ──────────────────────────────────────────────────── */}
-					<p
-						style={{
-							fontSize: 12,
-							color: UI.textSecondary,
-							margin: "0 0 8px 0",
-						}}
-					>
-						Mesa · o que ficar aqui será descartado
-					</p>
-
-					<div style={{ display: "flex", gap: 16, marginBottom: 16 }}>
-						{/* Mesa — itens */}
-						<div
-							{...dropHandlers("mesa")}
-							style={{
-								flex: 1,
-								border: `1px ${mesaDropValid ? "dashed" : "dashed"} ${
-									mesaDropValid
-										? hoverZone === "mesa"
-											? "#0044AA"
-											: "#3B82F6"
-										: UI.border
-								}`,
-								borderRadius: 8,
-								padding: 10,
-								background:
-									mesaDropValid && hoverZone === "mesa"
-										? "#EFF6FF"
-										: "transparent",
-								transition: "background 0.1s, border-color 0.1s",
-							}}
-						>
-							<p
-								style={{
-									fontSize: 11,
-									color: UI.textSecondary,
-									margin: "0 0 6px 0",
-								}}
-							>
-								Itens
-							</p>
-							<div
-								style={{
-									display: "grid",
-									gridTemplateColumns: "repeat(auto-fill, 36px)",
-									gap: 4,
-									minHeight: 36,
-								}}
-							>
-								{mesaItens.map((r) => {
-									const col = itemColor(r.cardId);
-									const rName = getCardName(r.cardId);
-									const isMe =
-										dragging?.from.kind === "mesa" &&
-										dragging.name === r.cardId;
-									return (
-										<Slot
-											key={r.cardId}
-											label={shortLabel(rName)}
-											color={col}
-											filled
-											draggable
-											isDragging={isMe}
-											onDragStart={(e) => {
-												e.dataTransfer.setData("text/plain", r.cardId);
-												handleItemDragStart(r.cardId, { kind: "mesa" });
-											}}
-											onDragEnd={handleDragEnd}
-											onMouseEnter={(e) =>
-												showTooltip({
-													name: r.cardId,
-													kind: "item",
-													x: e.clientX,
-													y: e.clientY,
-												})
-											}
-											onMouseMove={(e) =>
-												showTooltip({
-													name: r.cardId,
-													kind: "item",
-													x: e.clientX,
-													y: e.clientY,
-												})
-											}
-											onMouseLeave={hideTooltip}
-										/>
-									);
-								})}
-								{mesaItens.length === 0 && (
-									<span
-										style={{
-											fontSize: 11,
-											color: UI.textTertiary,
-											alignSelf: "center",
-										}}
-									>
-										vazio
-									</span>
-								)}
-							</div>
+					<section className="inventory-section">
+						<div className="inventory-section__heading">
+							<h2>Mesa</h2>
+							<p>O que ficar aqui será descartado</p>
 						</div>
 
-						{/* Mesa — artefatos */}
-						<div
-							style={{
-								width: 220,
-								background: AMBER.bg,
-								border: `1px solid ${AMBER.border}`,
-								borderRadius: 8,
-								padding: 10,
-							}}
-						>
-							<p
-								style={{ fontSize: 11, color: AMBER.ink, margin: "0 0 6px 0" }}
-							>
-								Artefatos de grupo
-							</p>
+						<div className="inventory-table-row">
+							{/* Mesa — itens */}
 							<div
-								style={{
-									display: "grid",
-									gridTemplateColumns: "repeat(auto-fill, 36px)",
-									gap: 4,
-									minHeight: 36,
-								}}
+								{...dropHandlers("mesa")}
+								className="inventory-drop-panel inventory-drop-panel--items"
+								style={
+									{
+										"--inventory-drop-border": `${
+											mesaDropValid
+												? hoverZone === "mesa"
+													? "#0044AA"
+													: "#3B82F6"
+												: UI.border
+										}`,
+										background:
+											mesaDropValid && hoverZone === "mesa"
+												? "rgba(59, 130, 246, 0.18)"
+												: undefined,
+									} as CSSProperties
+								}
 							>
-								{mesaArtefatos.map((r) => {
-									const rName = getCardName(r.cardId);
-									const isMe =
-										dragging?.from.kind === "mesa" &&
-										dragging.name === r.cardId;
-									return (
-										<Slot
-											key={r.cardId}
-											amber
-											label={shortLabel(rName)}
-											filled
-											draggable
-											isDragging={isMe}
-											onDragStart={(e) => {
-												e.dataTransfer.setData("text/plain", r.cardId);
-												setTooltip(null);
-												setDragging({
-													name: r.cardId,
-													kind: "artefato",
-													from: { kind: "mesa" },
-												});
-											}}
-											onDragEnd={handleDragEnd}
-											onMouseEnter={(e) =>
-												showTooltip({
-													name: r.cardId,
-													kind: "artifact",
-													x: e.clientX,
-													y: e.clientY,
-												})
-											}
-											onMouseMove={(e) =>
-												showTooltip({
-													name: r.cardId,
-													kind: "artifact",
-													x: e.clientX,
-													y: e.clientY,
-												})
-											}
-											onMouseLeave={hideTooltip}
-										/>
-									);
-								})}
-								{mesaArtefatos.length === 0 && (
-									<span
-										style={{
-											fontSize: 11,
-											color: AMBER.ink,
-											opacity: 0.6,
-											alignSelf: "center",
-										}}
-									>
-										vazio
-									</span>
-								)}
+								<p className="inventory-drop-panel__label">Itens</p>
+								<div className="inventory-card-grid">
+									{mesaItens.map((r) => {
+										const col = itemColor(r.cardId);
+										const isMe =
+											dragging?.from.kind === "mesa" &&
+											dragging.name === r.cardId;
+										return (
+											<InventoryRewardCard
+												key={r.cardId}
+												cardId={r.cardId}
+												cardType="item"
+												imageUrl={getCardImageUrl(cardImageUrls, r.cardId)}
+												color={col}
+												isDragging={isMe}
+												onDragStart={(e) => {
+													e.dataTransfer.setData("text/plain", r.cardId);
+													handleItemDragStart(r.cardId, { kind: "mesa" });
+												}}
+												onDragEnd={handleDragEnd}
+												onInfo={() =>
+													setDetailCard({ cardId: r.cardId, cardType: "item" })
+												}
+												onMouseEnter={(e) =>
+													showTooltip({
+														name: r.cardId,
+														kind: "item",
+														x: e.clientX,
+														y: e.clientY,
+													})
+												}
+												onMouseMove={(e) =>
+													showTooltip({
+														name: r.cardId,
+														kind: "item",
+														x: e.clientX,
+														y: e.clientY,
+													})
+												}
+												onMouseLeave={hideTooltip}
+											/>
+										);
+									})}
+									{mesaItens.length === 0 && (
+										<span className="inventory-empty-state">vazio</span>
+									)}
+								</div>
+							</div>
+
+							{/* Mesa — artefatos */}
+							<div className="inventory-drop-panel inventory-drop-panel--artifacts">
+								<p className="inventory-drop-panel__label">
+									Artefatos de grupo
+								</p>
+								<div className="inventory-card-grid inventory-card-grid--artifacts">
+									{mesaArtefatos.map((r) => {
+										const isMe =
+											dragging?.from.kind === "mesa" &&
+											dragging.name === r.cardId;
+										return (
+											<InventoryRewardCard
+												key={r.cardId}
+												cardId={r.cardId}
+												cardType="artifact"
+												imageUrl={getCardImageUrl(cardImageUrls, r.cardId)}
+												amber
+												isDragging={isMe}
+												onDragStart={(e) => {
+													e.dataTransfer.setData("text/plain", r.cardId);
+													setTooltip(null);
+													setDragging({
+														name: r.cardId,
+														kind: "artefato",
+														from: { kind: "mesa" },
+													});
+												}}
+												onDragEnd={handleDragEnd}
+												onInfo={() =>
+													setDetailCard({
+														cardId: r.cardId,
+														cardType: "artifact",
+													})
+												}
+												onMouseEnter={(e) =>
+													showTooltip({
+														name: r.cardId,
+														kind: "artifact",
+														x: e.clientX,
+														y: e.clientY,
+													})
+												}
+												onMouseMove={(e) =>
+													showTooltip({
+														name: r.cardId,
+														kind: "artifact",
+														x: e.clientX,
+														y: e.clientY,
+													})
+												}
+												onMouseLeave={hideTooltip}
+											/>
+										);
+									})}
+									{mesaArtefatos.length === 0 && (
+										<span className="inventory-empty-state inventory-empty-state--amber">
+											vazio
+										</span>
+									)}
+								</div>
 							</div>
 						</div>
-					</div>
-
-					<hr
-						style={{
-							border: "none",
-							borderTop: `1px solid ${UI.border}`,
-							margin: "0 0 16px 0",
-						}}
-					/>
+					</section>
 
 					{/* ── ARTEFATOS ATIVOS DO GRUPO ─────────────────────────── */}
-					<p
-						style={{
-							fontSize: 12,
-							color: UI.textSecondary,
-							margin: "0 0 8px 0",
-						}}
-					>
-						Grupo · artefatos ativos ({grupoArtefatos.length}/2)
-					</p>
+					<section className="inventory-section">
+						<div className="inventory-section__heading">
+							<h2>Grupo</h2>
+							<p>Artefatos ativos ({grupoArtefatos.length}/2)</p>
+						</div>
 
-					<div
-						style={{
-							display: "grid",
-							gridTemplateColumns: "1fr 1fr",
-							gap: 12,
-							marginBottom: 16,
-						}}
-					>
-						{[0, 1].map((vagaIndex) => {
-							const art = grupoArtefatos[vagaIndex];
-							const zone = `grupo_vaga_${vagaIndex}`;
-							const valid = isValidZone(zone);
-							const isHov = hoverZone === zone;
+						<div className="inventory-artifact-grid">
+							{[0, 1].map((vagaIndex) => {
+								const art = grupoArtefatos[vagaIndex];
+								const zone = `grupo_vaga_${vagaIndex}`;
+								const valid = isValidZone(zone);
+								const isHov = hoverZone === zone;
 
-							if (!art) {
-								return (
-									<div
-										key={vagaIndex}
-										{...dropHandlers(zone)}
-										style={{
-											background: isHov ? "#FFF3CD" : AMBER.bg,
-											border: `1px dashed ${isHov ? "#996600" : AMBER.border}`,
-											borderRadius: 8,
-											padding: 12,
-											display: "flex",
-											justifyContent: "center",
-											alignItems: "center",
-											opacity: valid ? 1 : 0.55,
-											color: AMBER.ink,
-											fontSize: 12,
-											minHeight: 68,
-											transition: "background 0.1s",
-										}}
-									>
-										vaga {vagaIndex + 1} — vazia
-									</div>
-								);
-							}
-
-							const requiresBearer = artifactRequiresBearer(art.cardId);
-							const artName = getCardName(art.cardId);
-							return (
-								<div
-									key={vagaIndex}
-									style={{
-										background: AMBER.bg,
-										border: `1px solid ${AMBER.border}`,
-										borderRadius: 8,
-										padding: 12,
-										display: "flex",
-										gap: 12,
-										alignItems: "flex-start",
-										color: AMBER.ink,
-									}}
-								>
-									<div
-										style={{
-											width: 44,
-											height: 44,
-											border: `1px solid ${AMBER.border}`,
-											borderRadius: 4,
-											flexShrink: 0,
-											display: "flex",
-											alignItems: "center",
-											justifyContent: "center",
-											fontSize: 22,
-										}}
-									>
-										💎
-									</div>
-									<div style={{ flex: 1, minWidth: 0 }}>
-										<p
+								if (!art) {
+									return (
+										<div
+											key={vagaIndex}
+											{...dropHandlers(zone)}
+											className="inventory-active-artifact inventory-active-artifact--empty"
 											style={{
-												fontWeight: 500,
-												fontSize: 13,
-												margin: 0,
-												overflow: "hidden",
-												textOverflow: "ellipsis",
-												whiteSpace: "nowrap",
+												background: isHov ? "#FFF3CD" : AMBER.bg,
+												border: `1px dashed ${isHov ? "#996600" : AMBER.border}`,
+												opacity: valid ? 1 : 0.55,
 											}}
-											title={artName}
 										>
-											{artName}
-										</p>
-										{requiresBearer ? (
-											<div
-												style={{
-													display: "flex",
-													alignItems: "center",
-													gap: 6,
-													marginTop: 4,
-													fontSize: 11,
-												}}
-											>
-												<span>Portador:</span>
-												<select
-													value={art.carriedBy ?? ""}
-													onChange={(e) =>
-														dispatch({
-															type: "INV_SET_BEARER",
-															payload: {
-																vagaIndex,
-																heroId: e.target.value || null,
-															},
-														})
-													}
+											vaga {vagaIndex + 1} — vazia
+										</div>
+									);
+								}
+
+								const requiresBearer = artifactRequiresBearer(art.cardId);
+								const artName = getCardName(art.cardId);
+								return (
+									<div key={vagaIndex} className="inventory-active-artifact">
+										<div className="inventory-active-artifact__image">
+											{getCardImageUrl(cardImageUrls, art.cardId) ? (
+												<img
+													src={getCardImageUrl(cardImageUrls, art.cardId)}
+													alt=""
+												/>
+											) : (
+												<span>{artName.slice(0, 1)}</span>
+											)}
+										</div>
+										<div className="inventory-active-artifact__body">
+											<p title={artName}>{artName}</p>
+											{requiresBearer ? (
+												<div
 													style={{
-														flex: 1,
+														display: "flex",
+														alignItems: "center",
+														gap: 6,
+														marginTop: 4,
 														fontSize: 11,
-														padding: "2px 4px",
-														border: `1px solid ${AMBER.border}`,
-														borderRadius: 4,
-														background: "#fff",
-														color: AMBER.ink,
 													}}
 												>
-													<option value="">— sem portador —</option>
-													{heroes.map((h) => (
-														<option key={h.id} value={h.id}>
-															{
-																(getCardById(h.cardId)?.name ?? h.cardId).split(
-																	" ",
-																)[0]
-															}
-														</option>
-													))}
-												</select>
-											</div>
-										) : (
-											<p
-												style={{
-													fontSize: 11,
-													margin: "4px 0 0 0",
-													opacity: 0.7,
-												}}
-											>
-												Artefato passivo do grupo
-											</p>
-										)}
+													<span>Portador:</span>
+													<select
+														value={art.carriedBy ?? ""}
+														onChange={(e) =>
+															dispatch({
+																type: "INV_SET_BEARER",
+																payload: {
+																	vagaIndex,
+																	heroId: e.target.value || null,
+																},
+															})
+														}
+														style={{
+															flex: 1,
+															fontSize: 11,
+															padding: "2px 4px",
+															border: `1px solid ${AMBER.border}`,
+															borderRadius: 4,
+															background: "#fff",
+															color: AMBER.ink,
+														}}
+													>
+														<option value="">— sem portador —</option>
+														{heroes.map((h) => (
+															<option key={h.id} value={h.id}>
+																{getCardName(h.cardId).split(" ")[0]}
+															</option>
+														))}
+													</select>
+												</div>
+											) : (
+												<p
+													style={{
+														fontSize: 11,
+														margin: "4px 0 0 0",
+														opacity: 0.7,
+													}}
+												>
+													Artefato passivo do grupo
+												</p>
+											)}
+										</div>
+										<button
+											type="button"
+											className="inventory-info-button"
+											aria-label={`Informações de ${artName}`}
+											title={`Informações de ${artName}`}
+											onClick={() =>
+												setDetailCard({
+													cardId: art.cardId,
+													cardType: "artifact",
+												})
+											}
+										>
+											i
+										</button>
 									</div>
-								</div>
-							);
-						})}
-					</div>
-
-					<hr
-						style={{
-							border: "none",
-							borderTop: `1px solid ${UI.border}`,
-							margin: "0 0 16px 0",
-						}}
-					/>
+								);
+							})}
+						</div>
+					</section>
 
 					{/* ── HERÓIS ────────────────────────────────────────────── */}
-					<p
-						style={{
-							fontSize: 12,
-							color: UI.textSecondary,
-							margin: "0 0 8px 0",
-						}}
-					>
-						Heróis · {heroes.length} ativo{heroes.length !== 1 ? "s" : ""} ·
-						arraste lateral para ver todos
-					</p>
-
-					<div
-						ref={scrollRef}
-						onMouseDown={onScrollMouseDown}
-						onMouseMove={onScrollMouseMove}
-						onMouseUp={onScrollMouseUp}
-						onMouseLeave={onScrollMouseUp}
-						style={{
-							overflowX: "auto",
-							paddingBottom: 8,
-							cursor: scrollDown.current.active ? "grabbing" : "grab",
-						}}
-					>
-						<div style={{ display: "flex", gap: 12, width: "max-content" }}>
-							{heroes.map((hero) => (
-								<HeroColumn
-									key={hero.id}
-									hero={hero}
-									dragging={dragging}
-									hoverZone={hoverZone}
-									groupArtifacts={grupoArtefatos}
-									onDrop={handleZoneDrop}
-									onSetHover={setHoverZone}
-									onDragItemStart={handleItemDragStart}
-									onDragEnd={handleDragEnd}
-									onShowTooltip={showTooltip}
-									onHideTooltip={hideTooltip}
-									onUseItem={handleUseItemFromTooltip}
-								/>
-							))}
-							{heroes.length === 0 && (
-								<p style={{ fontSize: 13, color: UI.textTertiary }}>
-									Nenhum herói ativo.
-								</p>
-							)}
+					<section className="inventory-section">
+						<div className="inventory-section__heading">
+							<h2>Heróis</h2>
+							<p>
+								{heroes.length} ativo{heroes.length !== 1 ? "s" : ""} · arraste
+								lateral para ver todos
+							</p>
 						</div>
-					</div>
+
+						<section
+							ref={scrollRef}
+							aria-label="Lista de heróis do inventário"
+							onMouseDown={onScrollMouseDown}
+							onMouseMove={onScrollMouseMove}
+							onMouseUp={onScrollMouseUp}
+							onMouseLeave={onScrollMouseUp}
+							style={{
+								overflowX: "auto",
+								paddingBottom: 8,
+								cursor: scrollDown.current.active ? "grabbing" : "grab",
+							}}
+						>
+							<div style={{ display: "flex", gap: 12, width: "max-content" }}>
+								{heroes.map((hero) => (
+									<HeroColumn
+										key={hero.id}
+										hero={hero}
+										imageUrl={getCardImageUrl(cardImageUrls, hero.cardId)}
+										dragging={dragging}
+										hoverZone={hoverZone}
+										groupArtifacts={grupoArtefatos}
+										onDrop={handleZoneDrop}
+										onSetHover={setHoverZone}
+										onDragItemStart={handleItemDragStart}
+										onDragEnd={handleDragEnd}
+										onShowTooltip={showTooltip}
+										onHideTooltip={hideTooltip}
+										onUseItem={handleUseItemFromTooltip}
+									/>
+								))}
+								{heroes.length === 0 && (
+									<p style={{ fontSize: 13, color: UI.textTertiary }}>
+										Nenhum herói ativo.
+									</p>
+								)}
+							</div>
+						</section>
+					</section>
 
 					{/* ── RODAPÉ ────────────────────────────────────────────── */}
 					<div
@@ -1219,7 +1114,99 @@ export function InventarioGrupo() {
 					onMouseLeave={hideTooltip}
 				/>
 			)}
+
+			{detailCard && (
+				<CardDetailModal
+					cardId={detailCard.cardId}
+					cardType={detailCard.cardType}
+					imageUrl={getCardImageUrl(cardImageUrls, detailCard.cardId)}
+					onClose={() => setDetailCard(null)}
+					onUseItem={
+						detailCard.cardType === "item" && detailCard.heroId
+							? () => {
+									if (!detailCard.heroId) return;
+									handleUseItemFromTooltip(
+										detailCard.cardId,
+										detailCard.heroId,
+									);
+									setDetailCard(null);
+								}
+							: undefined
+					}
+				/>
+			)}
 		</>
+	);
+}
+
+function InventoryRewardCard({
+	cardId,
+	cardType,
+	imageUrl,
+	color,
+	amber,
+	isDragging,
+	onDragStart,
+	onDragEnd,
+	onInfo,
+	onMouseEnter,
+	onMouseMove,
+	onMouseLeave,
+}: {
+	cardId: string;
+	cardType: "item" | "artifact";
+	imageUrl?: string;
+	color?: { bg: string; border: string; text: string } | null;
+	amber?: boolean;
+	isDragging?: boolean;
+	onDragStart: (e: React.DragEvent<HTMLElement>) => void;
+	onDragEnd: () => void;
+	onInfo: () => void;
+	onMouseEnter: (e: React.MouseEvent) => void;
+	onMouseMove: (e: React.MouseEvent) => void;
+	onMouseLeave: () => void;
+}) {
+	const name = getCardName(cardId);
+	const accent = amber ? AMBER.border : (color?.border ?? "#d8a93f");
+
+	return (
+		<article
+			className={`inventory-card-tile${isDragging ? " inventory-card-tile--dragging" : ""}`}
+			data-item="true"
+			draggable
+			onDragStart={onDragStart}
+			onDragEnd={onDragEnd}
+			onMouseEnter={onMouseEnter}
+			onMouseMove={onMouseMove}
+			onMouseLeave={onMouseLeave}
+			style={{ "--inventory-card-accent": accent } as CSSProperties}
+		>
+			<span className="setup-card-thumb">
+				{imageUrl ? (
+					<img src={imageUrl} alt="" />
+				) : (
+					<span className="setup-card-fallback">{name.slice(0, 1)}</span>
+				)}
+			</span>
+			<span>{name}</span>
+			<button
+				type="button"
+				className="inventory-info-button"
+				aria-label={`Informações de ${name}`}
+				title={`Informações de ${name}`}
+				draggable={false}
+				onMouseDown={(e) => e.stopPropagation()}
+				onClick={(e) => {
+					e.stopPropagation();
+					onInfo();
+				}}
+			>
+				i
+			</button>
+			<span className="inventory-card-tile__type">
+				{cardType === "artifact" ? "Artefato" : "Item"}
+			</span>
+		</article>
 	);
 }
 
@@ -1257,6 +1244,7 @@ function ItemTooltipPanel({
 
 	return (
 		<div
+			role="tooltip"
 			onMouseEnter={onMouseEnter}
 			onMouseLeave={onMouseLeave}
 			style={{
@@ -1313,7 +1301,9 @@ function ItemTooltipPanel({
 			{isConsumable && (
 				<button
 					type="button"
-					onClick={() => onUseItem(target.name, target.heroId!)}
+					onClick={() => {
+						if (target.heroId) onUseItem(target.name, target.heroId);
+					}}
 					style={{
 						marginTop: 8,
 						width: "100%",

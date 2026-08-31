@@ -17,6 +17,10 @@ const cardSourceDir = path.resolve(__dirname, "imagedata/cards");
 const cardPublicDir = path.resolve(__dirname, "public/generated/cards");
 const cardAssetDir = path.join(cardPublicDir, "assets");
 const cardManifestPath = path.join(cardPublicDir, "manifest.json");
+const uiAssetSourceDir = path.resolve(__dirname, "imagedata/ui");
+const uiAssetPublicDir = path.resolve(__dirname, "public/generated/ui");
+const uiAssetDir = path.join(uiAssetPublicDir, "assets");
+const uiAssetManifestPath = path.join(uiAssetPublicDir, "manifest.json");
 const imageExtensions = new Set([
 	".apng",
 	".avif",
@@ -68,6 +72,20 @@ interface CardImageManifest {
 	readonly cards: readonly CardImageManifestEntry[];
 }
 
+interface UiAssetManifestEntry {
+	readonly id: string;
+	readonly name: string;
+	readonly fileName: string;
+	readonly url: string;
+	readonly sizeBytes: number;
+}
+
+interface UiAssetManifest {
+	readonly version: 1;
+	readonly source: "imagedata/ui";
+	readonly assets: readonly UiAssetManifestEntry[];
+}
+
 function toBoardId(relativeFile: string) {
 	return relativeFile
 		.replace(path.extname(relativeFile), "")
@@ -90,7 +108,7 @@ function toBoardName(relativeFile: string) {
 }
 
 function toPublicUrl(
-	kind: "boards" | "backcards" | "cards",
+	kind: "boards" | "backcards" | "cards" | "ui",
 	relativeFile: string,
 ) {
 	return `/generated/${kind}/assets/${relativeFile
@@ -214,22 +232,53 @@ function writeCardImageManifest() {
 	fs.writeFileSync(cardManifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
 }
 
+function writeUiAssetManifest() {
+	fs.mkdirSync(uiAssetDir, { recursive: true });
+
+	const assets = listImageFiles(uiAssetSourceDir).map((filePath) => {
+		const relativeFile = path.relative(uiAssetSourceDir, filePath);
+		const targetPath = path.join(uiAssetDir, relativeFile);
+		copyImageAsset(filePath, targetPath);
+
+		return {
+			id: toBoardId(relativeFile),
+			name: toBoardName(relativeFile),
+			fileName: relativeFile.split(path.sep).join("/"),
+			url: toPublicUrl("ui", relativeFile),
+			sizeBytes: fs.statSync(filePath).size,
+		};
+	});
+
+	const manifest: UiAssetManifest = {
+		version: 1,
+		source: "imagedata/ui",
+		assets,
+	};
+	fs.writeFileSync(
+		uiAssetManifestPath,
+		`${JSON.stringify(manifest, null, 2)}\n`,
+	);
+}
+
 function writeAssetManifests() {
 	writeBoardManifest();
 	writeBackCardManifest();
 	writeCardImageManifest();
+	writeUiAssetManifest();
 }
 
 function watchAssetSources(server: ViteDevServer) {
 	if (fs.existsSync(boardSourceDir)) server.watcher.add(boardSourceDir);
 	if (fs.existsSync(backCardSourceDir)) server.watcher.add(backCardSourceDir);
 	if (fs.existsSync(cardSourceDir)) server.watcher.add(cardSourceDir);
+	if (fs.existsSync(uiAssetSourceDir)) server.watcher.add(uiAssetSourceDir);
 	server.watcher.on("all", (_event, filePath) => {
 		const resolvedFilePath = path.resolve(filePath);
 		if (
 			!resolvedFilePath.startsWith(boardSourceDir) &&
 			!resolvedFilePath.startsWith(backCardSourceDir) &&
-			!resolvedFilePath.startsWith(cardSourceDir)
+			!resolvedFilePath.startsWith(cardSourceDir) &&
+			!resolvedFilePath.startsWith(uiAssetSourceDir)
 		) {
 			return;
 		}

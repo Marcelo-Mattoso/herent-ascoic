@@ -1,11 +1,12 @@
-import { useState } from "react";
+import { type CSSProperties, useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
 import { getCardById } from "@/core/data/cards";
-import { ActionButton } from "@/ui/components/ActionButton";
-import { Modal } from "@/ui/components/Modal";
-import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
+import { getCardImageUrl } from "@/ui/cardImages";
+import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
+import { useCardImages } from "@/ui/hooks/useCardImages";
+import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
-import { UI } from "@/ui/theme";
+import { getUiAssetUrl } from "@/ui/uiAssets";
 
 interface OpenPathsModalProps {
 	onClose: () => void;
@@ -14,8 +15,20 @@ interface OpenPathsModalProps {
 export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 	const { view, dispatch } = useGameStore();
 	const [selected, setSelected] = useState<string | null>(null);
+	const [detailCardId, setDetailCardId] = useState<string | null>(null);
+	const cardImageUrls = useCardImages();
+	const uiAssets = useUiAssets();
 
 	const paths = view.paths;
+	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
+	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
+	const logoUrl =
+		getUiAssetUrl(uiAssets, "logo-completa") ??
+		getUiAssetUrl(uiAssets, "newlogo");
+	const modalStyle = {
+		"--flow-modal-bg": backgroundUrl ? `url("${backgroundUrl}")` : undefined,
+		"--flow-modal-stone": stoneUrl ? `url("${stoneUrl}")` : undefined,
+	} as CSSProperties;
 
 	function confirmPath() {
 		if (!selected) return;
@@ -26,50 +39,90 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 	}
 
 	return (
-		<Modal title="Escolher próxima sala" maxWidth={640}>
-			<p className="text-sm mb-4" style={{ color: UI.textSecondary }}>
-				Escolha 1 caminho. As demais cartas serão descartadas.
-			</p>
+		<div className="flow-modal-overlay" style={modalStyle}>
+			<section
+				role="dialog"
+				aria-modal="true"
+				aria-label="Escolher próxima sala"
+				className="flow-modal-dialog flow-modal-dialog--paths"
+			>
+				<header className="flow-modal-header">
+					<div className="flow-modal-title">
+						{logoUrl ? <img src={logoUrl} alt="" /> : null}
+						<div>
+							<h1>Escolher próxima sala</h1>
+							<p>Escolha 1 caminho. As demais cartas serão descartadas.</p>
+						</div>
+					</div>
+				</header>
 
-			<div className="grid grid-cols-3 gap-3 mb-5">
-				{paths.map((cardId) => {
-					const card = getCardById(cardId);
-					const isSelected = selected === cardId;
-					return (
-						<button
-							key={cardId}
-							type="button"
-							onClick={() => setSelected(cardId)}
-							className="rounded-lg p-2 text-left transition-all"
-							style={{
-								background: isSelected ? UI.info.bg : UI.subpanelBg,
-								border: `1.5px solid ${isSelected ? "#185FA5" : UI.border}`,
-							}}
-						>
-							<PlaceholderArt cardType="room" size="sm" />
-							<p
-								className="text-xs font-medium mt-1"
-								style={{ color: UI.textPrimary }}
+				<div className="path-card-grid">
+					{paths.map((cardId) => {
+						const card = getCardById(cardId);
+						const isSelected = selected === cardId;
+						return (
+							<article
+								key={cardId}
+								className={`path-card${isSelected ? " path-card--selected" : ""}`}
 							>
-								{getCardName(cardId)}
-							</p>
-							{card?.type === "room" && (
-								<p className="text-xs" style={{ color: UI.textTertiary }}>
-									Saídas {card.exits} · XP {card.xp ?? 0}
-								</p>
-							)}
-						</button>
-					);
-				})}
-			</div>
+								<button
+									type="button"
+									className="path-card__select"
+									onClick={() => setSelected(cardId)}
+								>
+									<span className="setup-card-thumb">
+										{getCardImageUrl(cardImageUrls, cardId) ? (
+											<img
+												src={getCardImageUrl(cardImageUrls, cardId)}
+												alt=""
+											/>
+										) : (
+											<span className="setup-card-fallback">
+												{getCardName(cardId).slice(0, 1)}
+											</span>
+										)}
+									</span>
+									<span>{getCardName(cardId)}</span>
+									{(card?.type === "room" || card?.type === "subboss_room") && (
+										<small>
+											Saídas {card.exits} · XP {card.xp ?? 0}
+										</small>
+									)}
+								</button>
+								<button
+									type="button"
+									className="inventory-info-button"
+									aria-label={`Informações de ${getCardName(cardId)}`}
+									title={`Informações de ${getCardName(cardId)}`}
+									onClick={() => setDetailCardId(cardId)}
+								>
+									i
+								</button>
+							</article>
+						);
+					})}
+				</div>
 
-			<ActionButton
-				label="Confirmar escolha"
-				variant="primary"
-				disabled={!selected}
-				onClick={confirmPath}
-				fullWidth
-			/>
-		</Modal>
+				<footer className="flow-modal-footer">
+					<button
+						type="button"
+						className="ornate-action ornate-action--primary"
+						disabled={!selected}
+						onClick={confirmPath}
+					>
+						Confirmar escolha
+					</button>
+				</footer>
+			</section>
+
+			{detailCardId ? (
+				<CardDetailModal
+					cardId={detailCardId}
+					cardType="room"
+					imageUrl={getCardImageUrl(cardImageUrls, detailCardId)}
+					onClose={() => setDetailCardId(null)}
+				/>
+			) : null}
+		</div>
 	);
 }
