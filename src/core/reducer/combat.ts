@@ -3,10 +3,13 @@
 // Engajamento é 1-para-1 por rodada: um monstro só pode ser alvo de 1 herói.
 // Implementa efeitos de: item_rusty_dagger, item_cracked_shield, item_lesser_vigor_potion, hero_crimson_barbarian.
 
-import { getCardById } from "../data/cards";
 import { getCardName } from "../data/cardLocale";
-import { decrementRoundsModifiers, getModifierTotal, tickModifierDurations } from "../ecs/world";
-import { tickBlockEntries } from "../state/blockHelpers";
+import { getCardById } from "../data/cards";
+import {
+	decrementRoundsModifiers,
+	getModifierTotal,
+	tickModifierDurations,
+} from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import { calculateTotal, resolveAttack } from "../rules/combat";
@@ -14,6 +17,7 @@ import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
 import { cardSkills } from "../skills/lookup";
 import { fireOnUseSkill, isManuallyActivatable } from "../skills/useSkill";
+import { tickBlockEntries } from "../state/blockHelpers";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
@@ -37,7 +41,10 @@ export function handleStartCombat(state: GameState): GameState {
 		type: "CombatStarted",
 		payload: { roomId: next.currentRoom?.cardId ?? "" },
 	}));
-	({ state: next } = emit(next, { type: "RoundStarted", payload: { round: 1 } }));
+	({ state: next } = emit(next, {
+		type: "RoundStarted",
+		payload: { round: 1 },
+	}));
 	return log(next, "Combate iniciado.");
 }
 
@@ -71,7 +78,10 @@ export function handleDeclareFlee(state: GameState, heroId: string): GameState {
 	};
 	// Lote E: emite HeroFled ao declarar fuga
 	({ state: next } = emit(next, { type: "HeroFled", payload: { heroId } }));
-	return log(next, `${getCardName(hero.cardId)} declara fuga! O próximo confronto será uma tentativa de fuga.`);
+	return log(
+		next,
+		`${getCardName(hero.cardId)} declara fuga! O próximo confronto será uma tentativa de fuga.`,
+	);
 }
 
 // ─── CHOOSE_HERO_FOR_ROUND ────────────────────────────────────────────────────
@@ -157,11 +167,19 @@ export function handleChooseTarget(
 	const roomFirstTime = !state.flags[roomTargetKey];
 	let afterEmit = afterTrigger;
 	if (roomFirstTime) {
-		afterEmit = { ...afterEmit, flags: { ...afterEmit.flags, [roomTargetKey]: true } };
+		afterEmit = {
+			...afterEmit,
+			flags: { ...afterEmit.flags, [roomTargetKey]: true },
+		};
 	}
 	({ state: afterEmit } = emit(afterEmit, {
 		type: "TargetChosen",
-		payload: { sourceId: heroId, targetId: enemyId, sourceType: "hero", roomFirstTime },
+		payload: {
+			sourceId: heroId,
+			targetId: enemyId,
+			sourceType: "hero",
+			roomFirstTime,
+		},
 	}));
 
 	const pair = { heroId, enemyId };
@@ -186,7 +204,11 @@ function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 	const entity = state.world.entities[hero.id];
 	if (entity) {
 		for (const comp of entity.components) {
-			if (comp.type === "modifier" && (comp.target === "damage_dealt" || comp.target === "hit_bonus") && comp.value > 0) {
+			if (
+				comp.type === "modifier" &&
+				(comp.target === "damage_dealt" || comp.target === "hit_bonus") &&
+				comp.value > 0
+			) {
 				bonuses.push({ source: comp.source, value: comp.value });
 			}
 		}
@@ -195,7 +217,11 @@ function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
 	// Penalidade de acerto via ECS world (hit_bonus com valor negativo) — Lote C/D
 	if (entity) {
 		for (const comp of entity.components) {
-			if (comp.type === "modifier" && comp.target === "hit_bonus" && comp.value < 0) {
+			if (
+				comp.type === "modifier" &&
+				comp.target === "hit_bonus" &&
+				comp.value < 0
+			) {
 				bonuses.push({ source: comp.source, value: comp.value });
 			}
 		}
@@ -219,7 +245,11 @@ export function handleRollDice(state: GameState): GameState {
 	let preRoll = state;
 	({ state: preRoll } = emit(preRoll, {
 		type: "RollAboutToHappen",
-		payload: { heroId: hero.id, enemyId: enemy.id, round: preRoll.combat?.round ?? 0 },
+		payload: {
+			heroId: hero.id,
+			enemyId: enemy.id,
+			round: preRoll.combat?.round ?? 0,
+		},
 	}));
 	// Drena a stack de efeitos acumulados pelos TriggerComponents (modificadores de combate)
 	preRoll = drainStack(preRoll);
@@ -235,11 +265,16 @@ export function handleRollDice(state: GameState): GameState {
 
 	const heroBonuses = collectHeroBonuses(hero, preRoll);
 	// Bônus do inimigo — lê do ECS world (Lote C)
-	const enemyBonuses: BonusEntry[] = [{ source: "hitBonus", value: enemy.hitBonus }];
+	const enemyBonuses: BonusEntry[] = [
+		{ source: "hitBonus", value: enemy.hitBonus },
+	];
 	const enemyEntity = preRoll.world.entities[enemy.id];
 	if (enemyEntity) {
 		for (const comp of enemyEntity.components) {
-			if (comp.type === "modifier" && (comp.target === "damage_dealt" || comp.target === "hit_bonus")) {
+			if (
+				comp.type === "modifier" &&
+				(comp.target === "damage_dealt" || comp.target === "hit_bonus")
+			) {
 				enemyBonuses.push({ source: comp.source, value: comp.value });
 			}
 		}
@@ -353,7 +388,10 @@ export function handleResolveAttack(state: GameState): GameState {
 			heroes: next.heroes.filter((h) => h.id !== hero.id),
 			fledHeroes: [...next.fledHeroes, fledHero],
 		};
-		next = log(next, `${getCardName(hero.cardId)} fugiu do combate com sucesso!`);
+		next = log(
+			next,
+			`${getCardName(hero.cardId)} fugiu do combate com sucesso!`,
+		);
 		// Registrar herói como tendo agido e checar heróis restantes
 		const updatedActed = [...(next.combat?.heroesActed ?? []), roll.heroId];
 		next = {
@@ -419,7 +457,11 @@ export function handleResolveAttack(state: GameState): GameState {
 			hero.activeItems.armor === "item_cracked_shield";
 		const shieldUsed = next.combat?.shieldsUsedThisCombat[hero.id] ?? false;
 		// Redução via ECS world (Lote B: leitura migrada do legacy)
-		const engineReduction = -getModifierTotal(next.world, hero.id, "damage_taken");
+		const engineReduction = -getModifierTotal(
+			next.world,
+			hero.id,
+			"damage_taken",
+		);
 		let dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
 		dmg = Math.max(0, dmg - engineReduction);
 		const newShields =
@@ -634,21 +676,30 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 	// Lote E: emite RoundEnded para a rodada que terminou
 	const currentRound = state.combat?.round ?? 0;
 	let nextState: GameState = state;
-	({ state: nextState } = emit(nextState, { type: "RoundEnded", payload: { round: currentRound } }));
+	({ state: nextState } = emit(nextState, {
+		type: "RoundEnded",
+		payload: { round: currentRound },
+	}));
 
 	// Expirar modificadores ECS de duração "end_of_round" (this_turn) e decrementar rounds.
 	const worldAfterTick = decrementRoundsModifiers(
 		tickModifierDurations(nextState.world, "end_of_round"),
 	);
-	nextState = tickBlockEntries({
-		...nextState,
-		status: "HERO_ACTION",
-		combat: nextCombat,
-		world: worldAfterTick,
-	}, "end_of_round");
+	nextState = tickBlockEntries(
+		{
+			...nextState,
+			status: "HERO_ACTION",
+			combat: nextCombat,
+			world: worldAfterTick,
+		},
+		"end_of_round",
+	);
 
 	// Lote E+F: emit(RoundStarted) dispara TriggerComponents (inclui first_round_in_room via condição round===1)
-	({ state: nextState } = emit(nextState, { type: "RoundStarted", payload: { round: nextRound } }));
+	({ state: nextState } = emit(nextState, {
+		type: "RoundStarted",
+		payload: { round: nextRound },
+	}));
 
 	return log(nextState, `Rodada ${nextRound + 1} de combate.`);
 }
@@ -711,9 +762,16 @@ export function handleUseItem(
 				`${currentPairEnemyId}: Evasão das Fendas — efeito de item bloqueado.`,
 			);
 		}
-		const roomFirstTime = !withItemRemoved.flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
+		const roomFirstTime =
+			!withItemRemoved.flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
 		let afterItemEmit = roomFirstTime
-			? { ...withItemRemoved, flags: { ...withItemRemoved.flags, [`itemEffect::${currentPairEnemyId}::${heroId}`]: true } }
+			? {
+					...withItemRemoved,
+					flags: {
+						...withItemRemoved.flags,
+						[`itemEffect::${currentPairEnemyId}::${heroId}`]: true,
+					},
+				}
 			: withItemRemoved;
 		({ state: afterItemEmit } = emit(afterItemEmit, {
 			type: "ItemEffectAppliedTo",
@@ -813,7 +871,10 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 	}
 
 	if (state.combat.powersUsedThisRoom[heroId]) {
-		return log(state, `Poder de ${getCardName(hero.cardId)} já foi usado nesta sala.`);
+		return log(
+			state,
+			`Poder de ${getCardName(hero.cardId)} já foi usado nesta sala.`,
+		);
 	}
 
 	const heroCard = getCardById(hero.cardId);
@@ -822,7 +883,10 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 		: null;
 	const powerDef = powerEntry?.def ?? null;
 	if (!powerDef) {
-		return log(state, `[TODO] Poder não catalogado para: ${getCardName(hero.cardId)}`);
+		return log(
+			state,
+			`[TODO] Poder não catalogado para: ${getCardName(hero.cardId)}`,
+		);
 	}
 
 	// Marcar como usado nesta sala

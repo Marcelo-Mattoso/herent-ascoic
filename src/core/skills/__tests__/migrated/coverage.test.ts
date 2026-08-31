@@ -2,7 +2,10 @@
 // Falha se uma nova skill aparecer sem mapeamento — protege regressão.
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../../data/skills";
-import { hasTriggerCoverage, isPassiveTrigger } from "../../../ecs/installTriggers";
+import {
+	hasTriggerCoverage,
+	isPassiveTrigger,
+} from "../../../ecs/installTriggers";
 import { isManuallyActivatable } from "../../useSkill";
 
 describe("installTriggers coverage", () => {
@@ -16,10 +19,12 @@ describe("installTriggers coverage", () => {
 			seen.add(key);
 
 			if (isManuallyActivatable(def)) continue; // op_active / op_active_buff — OK
-			if (isPassiveTrigger(def)) continue;       // op_passive — OK
+			if (isPassiveTrigger(def)) continue; // op_passive — OK
 
 			if (!hasTriggerCoverage(def)) {
-				uncovered.push(`${def.id} (${def.operate_type} / ${def.trigger?.event ?? "no-event"})`);
+				uncovered.push(
+					`${def.id} (${def.operate_type} / ${def.trigger?.event ?? "no-event"})`,
+				);
 			}
 		}
 

@@ -1,10 +1,10 @@
-import { getCardById } from "@/core/data/cards";
 import { getCardName } from "@/core/data/cardLocale";
-import type { ScriptHandler } from "@/core/scripts/types";
-import { addComponent } from "@/core/ecs/world";
+import { getCardById } from "@/core/data/cards";
 import type { ModifierComponent } from "@/core/ecs/types";
-import { registerContinuation } from "@/core/skills/registry";
+import { addComponent } from "@/core/ecs/world";
 import { log } from "@/core/reducer/utils";
+import type { ScriptHandler } from "@/core/scripts/types";
+import { registerContinuation } from "@/core/skills/registry";
 
 // skill_focus_deflection — Desvio de Foco
 // Uma vez por sala, quando escolhido como alvo: redireciona para outro herói
@@ -53,9 +53,7 @@ registerContinuation(
 			const targetHeroId = choice.slice("redirect:".length);
 			// Redireciona o par de combate do herói-fonte para o herói-alvo
 			const updatedPairs = state.combat.pairs.map((p) =>
-				p.heroId === ctx.sourceHeroId
-					? { ...p, heroId: targetHeroId }
-					: p,
+				p.heroId === ctx.sourceHeroId ? { ...p, heroId: targetHeroId } : p,
 			);
 			return log(
 				{ ...state, combat: { ...state.combat, pairs: updatedPairs } },
@@ -66,8 +64,12 @@ registerContinuation(
 		// "tohit": bônus de acerto via ECS world (patch-18 Lote G)
 		const bonus = 2;
 		const mod: ModifierComponent = {
-			type: "modifier", target: "hit_bonus", operation: "add",
-			value: bonus, source: "skill_focus_deflection", duration: { kind: "once" },
+			type: "modifier",
+			target: "hit_bonus",
+			operation: "add",
+			value: bonus,
+			source: "skill_focus_deflection",
+			duration: { kind: "once" },
 		};
 		const newWorld = addComponent(state.world, ctx.sourceHeroId, mod);
 		return log(

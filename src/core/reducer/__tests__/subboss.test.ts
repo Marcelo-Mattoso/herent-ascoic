@@ -7,10 +7,15 @@ import { reducer } from "../index";
 import "../../skills/handlers/index"; // popula registry
 
 function makeState() {
-	let state = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+	let state = createInitialGameState({
+		heroCardIds: ["hero_crimson_barbarian"],
+	});
 	state = reducer(state, {
 		type: "START_GAME",
-		payload: { heroCardIds: ["hero_crimson_barbarian"], difficulty: "very_easy" },
+		payload: {
+			heroCardIds: ["hero_crimson_barbarian"],
+			difficulty: "very_easy",
+		},
 	});
 	return state;
 }
@@ -86,7 +91,10 @@ describe("F13 — Subchefes", () => {
 			...state,
 			despertar: 3 as import("../../state/color").ColorIndex,
 			subbosses: {
-				available: ["subboss_room_jailer_chamber", "subboss_room_cracked_abyss_chamber"],
+				available: [
+					"subboss_room_jailer_chamber",
+					"subboss_room_cracked_abyss_chamber",
+				],
 				defeated: [],
 			},
 			decks: {

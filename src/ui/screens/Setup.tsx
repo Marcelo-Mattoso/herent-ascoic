@@ -1,6 +1,6 @@
 import { useState } from "react";
-import { getBoss, getHeroes } from "@/core/data/cards";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
+import { getBoss, getHeroes } from "@/core/data/cards";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";

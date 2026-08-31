@@ -256,10 +256,7 @@ export type AffectScope =
 	| "scp_room"
 	| "scp_none";
 
-export type AffectObject =
-	| "obj_friend"
-	| "obj_not_friend"
-	| "obj_all";
+export type AffectObject = "obj_friend" | "obj_not_friend" | "obj_all";
 
 export interface AffectLimit {
 	readonly min: number;

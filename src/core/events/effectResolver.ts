@@ -4,14 +4,14 @@
 // Passo 8: push_to_stack — adia efeito para drenagem posterior (sem recursão direta).
 // Patch-18 Lote F: run_skill — executa efeito de skill via DSL/script.
 
+import { SKILLS } from "../data/skills";
+import type { SkillContext } from "../data/skillTypes";
 import type { EffectDescriptor, EntityId } from "../ecs/types";
 import { addPending } from "../effects/stack";
-import type { SkillContext } from "../data/skillTypes";
-import { SKILLS } from "../data/skills";
 import { buildScriptCtx } from "../scripts/context";
-import { resolveCondition } from "../skills/dsl/resolveCondition";
-import { evaluate } from "../skills/dsl/evaluate";
 import { getScript } from "../scripts/registry";
+import { evaluate } from "../skills/dsl/evaluate";
+import { resolveCondition } from "../skills/dsl/resolveCondition";
 import type { GameState } from "../state/gameState";
 import type { GameEvent } from "./types";
 
@@ -97,7 +97,10 @@ export function applyEffect(
 			// se torna alvo do próprio efeito reativo (ex: purple_ember_blood).
 			let eventHeroId: string | undefined;
 			let eventEnemyId: string | undefined;
-			if (event.type === "DamageDealt" || event.type === "DamageAboutToBeDealt") {
+			if (
+				event.type === "DamageDealt" ||
+				event.type === "DamageAboutToBeDealt"
+			) {
 				const dmgSource = payload["sourceId"] as string | undefined;
 				const dmgTarget = payload["targetId"] as string | undefined;
 				const otherParty = entityId === dmgTarget ? dmgSource : dmgTarget;
@@ -109,8 +112,12 @@ export function applyEffect(
 					}
 				}
 			} else {
-				eventHeroId = (payload["heroId"] ?? payload["targetId"]) as string | undefined;
-				eventEnemyId = (payload["enemyId"] ?? payload["sourceId"]) as string | undefined;
+				eventHeroId = (payload["heroId"] ?? payload["targetId"]) as
+					| string
+					| undefined;
+				eventEnemyId = (payload["enemyId"] ?? payload["sourceId"]) as
+					| string
+					| undefined;
 			}
 
 			const skillCtx: SkillContext = {
@@ -127,7 +134,9 @@ export function applyEffect(
 
 			// Checa def.conditions antes de avaliar — mesma semântica do path manual (dispatch.ts)
 			if (def.conditions && def.conditions.length > 0) {
-				const conditionsMet = def.conditions.every((c) => resolveCondition(c, evalCtx));
+				const conditionsMet = def.conditions.every((c) =>
+					resolveCondition(c, evalCtx),
+				);
 				if (!conditionsMet) return { state, event };
 			}
 

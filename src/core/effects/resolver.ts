@@ -6,7 +6,12 @@
 
 import eventRules from "../../data/event_rules.json";
 import type { EntityId, ModifierComponent } from "../ecs/types";
-import { addComponent, createEntity, removeComponent, upsertEntity } from "../ecs/world";
+import {
+	addComponent,
+	createEntity,
+	removeComponent,
+	upsertEntity,
+} from "../ecs/world";
 import { discardFromDungeonDeck } from "../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../reducer/utils";
 import type { ColorIndex } from "../state/color";
@@ -42,7 +47,7 @@ export function resolveEffect(
 		// ── Dano ─────────────────────────────────────────────────────────────
 
 		case "i_damage":
-case "apply_damage": {
+		case "apply_damage": {
 			if (!targetId) return state;
 			const amount = effect["amount"] as number;
 			return applyDamage(state, targetId, amount, {
@@ -54,20 +59,20 @@ case "apply_damage": {
 		// ── Cura ─────────────────────────────────────────────────────────────
 
 		case "i_heal":
-case "apply_heal": {
+		case "apply_heal": {
 			if (!targetId) return state;
 			const amount = effect["amount"] as number;
 			return applyHeal(state, targetId, amount);
 		}
 
 		case "i_full_heal":
-case "apply_full_heal": {
+		case "apply_full_heal": {
 			if (!targetId) return state;
 			return applyFullHeal(state, targetId);
 		}
 
 		case "i_prevent_destroy":
-case "prevent_destroy": {
+		case "prevent_destroy": {
 			if (!targetId) return state;
 			return applySurvive(state, targetId);
 		}
@@ -75,7 +80,7 @@ case "prevent_destroy": {
 		// ── Dungeon ───────────────────────────────────────────────────────────
 
 		case "i_advance_dungeon":
-case "advance_dungeon_level": {
+		case "advance_dungeon_level": {
 			const amount = (effect["amount"] as number) ?? 1;
 			const newLevel = Math.min(
 				MAX_DUNGEON_LEVEL,
@@ -88,7 +93,7 @@ case "advance_dungeon_level": {
 		}
 
 		case "i_discard":
-case "discard_from": {
+		case "discard_from": {
 			const pile = effect["pile"] as string;
 			const count = (effect["count"] as number) ?? 1;
 			if (pile === "dungeon") {
@@ -109,10 +114,14 @@ case "discard_from": {
 		// ── Flags de mecânica ─────────────────────────────────────────────────
 
 		case "p_block":
-case "block_action": {
+		case "block_action": {
 			const what = effect["what"] as string;
-			const durationNode = effect["duration"] as import("../skills/dsl/types").DurationNode | undefined;
-			const blockSourceEntityId = effect["sourceEntityId"] as string | undefined;
+			const durationNode = effect["duration"] as
+				| import("../skills/dsl/types").DurationNode
+				| undefined;
+			const blockSourceEntityId = effect["sourceEntityId"] as
+				| string
+				| undefined;
 			const entry: BlockEntry = {
 				source: pending.source ?? "unknown",
 				duration: durationNode ?? { kind: "permanent" },
@@ -125,7 +134,10 @@ case "block_action": {
 						{
 							...state,
 							flags: { ...state.flags, fleeBlocked: true },
-							blocks: { ...state.blocks, [key]: [...(state.blocks[key] ?? []), entry] },
+							blocks: {
+								...state.blocks,
+								[key]: [...(state.blocks[key] ?? []), entry],
+							},
 						},
 						"Fuga bloqueada.",
 					);
@@ -143,7 +155,13 @@ case "block_action": {
 					for (const heroId of targets) {
 						const key = `${heroId}::healBlocked`;
 						next = mapHero(next, heroId, (h) => ({ ...h, healBlocked: true }));
-						next = { ...next, blocks: { ...next.blocks, [key]: [...(next.blocks[key] ?? []), entry] } };
+						next = {
+							...next,
+							blocks: {
+								...next.blocks,
+								[key]: [...(next.blocks[key] ?? []), entry],
+							},
+						};
 					}
 					return log(next, "Cura bloqueada.");
 				}
@@ -153,7 +171,10 @@ case "block_action": {
 						{
 							...state,
 							flags: { ...state.flags, discardDungeonLocked: true },
-							blocks: { ...state.blocks, [key]: [...(state.blocks[key] ?? []), entry] },
+							blocks: {
+								...state.blocks,
+								[key]: [...(state.blocks[key] ?? []), entry],
+							},
 						},
 						"Prevenção de descarte de dungeon bloqueada.",
 					);
@@ -169,7 +190,7 @@ case "block_action": {
 		// ── Modificadores (dual-write: ECS world + legacy combat state) ─────────
 
 		case "p_modifier":
-case "add_modifier": {
+		case "add_modifier": {
 			const entityId = targetId ?? (effect["to"] as string | undefined);
 			if (!entityId) return state;
 			const stat = effect["stat"] as string;
@@ -203,14 +224,21 @@ case "add_modifier": {
 			): import("../ecs/types").Duration {
 				if (!d) return { kind: "this_combat" };
 				switch (d.kind) {
-					case "once": return { kind: "once" };
-					case "until_end_of_round": return { kind: "this_turn" };
-					case "until_end_of_combat": return { kind: "this_combat" };
-					case "while_in_play": return { kind: "while_source_in_play" };
+					case "once":
+						return { kind: "once" };
+					case "until_end_of_round":
+						return { kind: "this_turn" };
+					case "until_end_of_combat":
+						return { kind: "this_combat" };
+					case "while_in_play":
+						return { kind: "while_source_in_play" };
 					case "passive":
-					case "permanent": return { kind: "permanent" };
-					case "once_per_round": return { kind: "rounds", remaining: 1 };
-					default: return { kind: "this_combat" };
+					case "permanent":
+						return { kind: "permanent" };
+					case "once_per_round":
+						return { kind: "rounds", remaining: 1 };
+					default:
+						return { kind: "this_combat" };
 				}
 			}
 
@@ -218,10 +246,13 @@ case "add_modifier": {
 			let worldState = state;
 			if (ecsTarget) {
 				// damage_reduction e tohit_penalty/hit_penalty: negativo no ECS
-				const ecsValue = (
-					stat === "tohit_penalty" || stat === "damage_reduction" ||
-					stat === "s_hit_penalty" || stat === "s_damage_reduction"
-				) ? -value : value;
+				const ecsValue =
+					stat === "tohit_penalty" ||
+					stat === "damage_reduction" ||
+					stat === "s_hit_penalty" ||
+					stat === "s_damage_reduction"
+						? -value
+						: value;
 				const ecsDuration = mapDurationNode(durationNode);
 				const modComp: ModifierComponent = {
 					type: "modifier",
@@ -238,10 +269,17 @@ case "add_modifier": {
 				// Não recriar entidades removidas (inimigos derrotados) — evita modifier fantasma.
 				let world = worldState.world;
 				if (!world.entities[entityId]) {
-					const isActiveHero = worldState.heroes.some((h) => h.id === entityId && h.status === "active");
-					const isActiveEnemy = worldState.activeEnemies.some((e) => e.id === entityId && e.status === "active");
+					const isActiveHero = worldState.heroes.some(
+						(h) => h.id === entityId && h.status === "active",
+					);
+					const isActiveEnemy = worldState.activeEnemies.some(
+						(e) => e.id === entityId && e.status === "active",
+					);
 					if (!isActiveHero && !isActiveEnemy) return worldState;
-					world = upsertEntity(world, createEntity(entityId, isActiveHero ? "hero" : "enemy"));
+					world = upsertEntity(
+						world,
+						createEntity(entityId, isActiveHero ? "hero" : "enemy"),
+					);
 				}
 				// Dedup: trigger reativo com while_source_in_play não deve empilhar modifier
 				// ao disparar múltiplas vezes — substituir em vez de adicionar (B5).
@@ -278,7 +316,10 @@ case "add_modifier": {
 				case "s_purple_damage_reduction": {
 					// Corrige bug do handler antigo: armazena como número, não boolean
 					const key = `purpleDmgReduction::${entityId}`;
-					const prevPurple = worldState.flags[key] as number | boolean | undefined;
+					const prevPurple = worldState.flags[key] as
+						| number
+						| boolean
+						| undefined;
 					const prevNum = typeof prevPurple === "number" ? prevPurple : 0;
 					return {
 						...worldState,
@@ -297,7 +338,7 @@ case "add_modifier": {
 		// ── Misc ──────────────────────────────────────────────────────────────
 
 		case "i_set_no_reward":
-case "set_no_reward": {
+		case "set_no_reward": {
 			if (!targetId) return state;
 			return log(
 				mapEnemy(state, targetId, (e) => ({ ...e, noReward: true })),
@@ -306,13 +347,13 @@ case "set_no_reward": {
 		}
 
 		case "i_noop":
-case "noop":
+		case "noop":
 			return state;
 
 		// ── Patch-16 Lote B — novos kinds ────────────────────────────────────
 
 		case "i_prevent_next_damage":
-case "prevent_next_damage": {
+		case "prevent_next_damage": {
 			const entityId = targetId;
 			if (!entityId) return state;
 			return log(
@@ -328,7 +369,7 @@ case "prevent_next_damage": {
 		}
 
 		case "i_ignore_next_targeting":
-case "ignore_next_targeting": {
+		case "ignore_next_targeting": {
 			const heroId = targetId;
 			if (!heroId || !state.combat) return state;
 			return log(
@@ -347,7 +388,7 @@ case "ignore_next_targeting": {
 		}
 
 		case "i_recover_dungeon":
-case "recover_dungeon": {
+		case "recover_dungeon": {
 			const count = (effect["count"] as number) ?? 1;
 			const { discarded } = state.decks.dungeonDeck;
 			if (discarded.length === 0)
@@ -376,7 +417,7 @@ case "recover_dungeon": {
 		}
 
 		case "i_mark_target":
-case "mark_target": {
+		case "mark_target": {
 			const preyId = targetId;
 			if (!preyId || !state.combat) return state;
 			return log(
@@ -386,21 +427,24 @@ case "mark_target": {
 		}
 
 		case "i_prevent_dungeon_discard":
-case "prevent_dungeon_discard":
+		case "prevent_dungeon_discard":
 			return log(
 				{ ...state, flags: { ...state.flags, dungeonDiscardPrevented: true } },
 				"Próximo descarte de dungeon será prevenido.",
 			);
 
 		case "i_draw":
-case "draw_from": {
+		case "draw_from": {
 			const pile = effect["pile"] as string;
 			const count = (effect["count"] as number) ?? 1;
 			if (pile === "artifact_deck") {
 				const { available } = state.decks.artifactDeck;
 				const drawn = available.slice(0, count);
 				if (drawn.length === 0)
-					return log(state, "Deck de artefatos vazio — nenhum artefato sacado.");
+					return log(
+						state,
+						"Deck de artefatos vazio — nenhum artefato sacado.",
+					);
 				const newRewards: PendingReward[] = drawn.map((name) => ({
 					type: "artifact" as const,
 					cardId: name as string,
@@ -450,10 +494,11 @@ case "draw_from": {
 		}
 
 		case "i_draw_and_choose":
-case "draw_and_choose": {
+		case "draw_and_choose": {
 			const pile = effect["pile"] as string;
 			const reveal = (effect["reveal"] as number) ?? 2;
-			const skillId = (pending.source as string | undefined) ?? "draw_and_choose";
+			const skillId =
+				(pending.source as string | undefined) ?? "draw_and_choose";
 			const deckKey =
 				pile === "item_deck"
 					? "itemDeck"
@@ -496,12 +541,12 @@ case "draw_and_choose": {
 		}
 
 		case "i_reveal_dungeon":
-case "reveal_dungeon": {
+		case "reveal_dungeon": {
 			const count = (effect["count"] as number) ?? 1;
-			const skillId = (pending.source as string | undefined) ?? "reveal_dungeon";
+			const skillId =
+				(pending.source as string | undefined) ?? "reveal_dungeon";
 			const topCards = state.decks.dungeonDeck.available.slice(0, count);
-			if (topCards.length === 0)
-				return log(state, "Deck de dungeon vazio.");
+			if (topCards.length === 0) return log(state, "Deck de dungeon vazio.");
 			const options = [
 				...topCards.map((name, i) => ({
 					id: `card_${i}`,
@@ -520,10 +565,14 @@ case "reveal_dungeon": {
 		}
 
 		case "i_grant_reward":
-case "grant_pending_reward": {
+		case "grant_pending_reward": {
 			const cardId = (effect["cardId"] ?? effect["cardName"]) as string;
 			const rewardType = effect["rewardType"] as "item" | "artifact";
-			const reward: PendingReward = { type: rewardType, cardId, requiresBearer: false };
+			const reward: PendingReward = {
+				type: rewardType,
+				cardId,
+				requiresBearer: false,
+			};
 			return log(
 				{ ...state, pendingRewards: [...state.pendingRewards, reward] },
 				`${cardId} adicionado às recompensas pendentes.`,
@@ -567,7 +616,11 @@ case "grant_pending_reward": {
 				const heroHasMatch = state.combat.lastRoll.heroResults.some(
 					(v) => v === only_if_value,
 				);
-				if (!heroHasMatch) return log(state, `Nenhum dado com valor ${only_if_value} para rerolar.`);
+				if (!heroHasMatch)
+					return log(
+						state,
+						`Nenhum dado com valor ${only_if_value} para rerolar.`,
+					);
 			}
 			return {
 				...state,
@@ -618,12 +671,17 @@ case "grant_pending_reward": {
 				...e,
 				conditions: e.conditions.filter((c) => !c.startsWith(category)),
 			}));
-			return log({ ...state, heroes, activeEnemies }, `Dispel: categoria "${category}" removida.`);
+			return log(
+				{ ...state, heroes, activeEnemies },
+				`Dispel: categoria "${category}" removida.`,
+			);
 		}
 
 		case "i_remove_status": {
 			const status = effect["status"] as string;
-			const targetId = (effect["to"] ?? effect["targetId"]) as string | undefined;
+			const targetId = (effect["to"] ?? effect["targetId"]) as
+				| string
+				| undefined;
 			let next = state;
 			if (targetId) {
 				const hero = next.heroes.find((h) => h.id === targetId);
@@ -649,7 +707,10 @@ case "grant_pending_reward": {
 					};
 				}
 			}
-			return log(next, `Status "${status}" removido de ${targetId ?? "todos"}.`);
+			return log(
+				next,
+				`Status "${status}" removido de ${targetId ?? "todos"}.`,
+			);
 		}
 
 		default:
@@ -733,4 +794,3 @@ export function drainStack(state: GameState): GameState {
 
 	return state;
 }
-

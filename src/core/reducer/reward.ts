@@ -5,14 +5,14 @@
 import type { InvFromZone, InvToZone } from "../actions/types";
 import type { XpSpendOption } from "../config/defaults";
 import { XP_COSTS } from "../config/defaults";
-import { getCardById } from "../data/cards";
 import { getCardName } from "../data/cardLocale";
-import { calculateRewards } from "../rules/reward";
+import { getCardById } from "../data/cards";
 import { tickModifierDurations } from "../ecs/world";
-import { tickBlockEntries } from "../state/blockHelpers";
 import { emit } from "../events/bus";
+import { calculateRewards } from "../rules/reward";
 import { cardSkills } from "../skills/lookup";
 import { renderSkillLabel } from "../skills/renderLabel";
+import { tickBlockEntries } from "../state/blockHelpers";
 import type { GameState, PendingReward } from "../state/gameState";
 import { defaultItemDestination } from "../strategies/itemDistribution";
 import { handleDungeonExhaustedSpend } from "./exploration";
@@ -39,7 +39,10 @@ export function handleGrantRewards(state: GameState): GameState {
 			"end_of_combat",
 		),
 	};
-	next = tickBlockEntries(tickBlockEntries(next, "end_of_round"), "end_of_combat");
+	next = tickBlockEntries(
+		tickBlockEntries(next, "end_of_round"),
+		"end_of_combat",
+	);
 
 	const eligibleGraveyard = next.enemyGraveyard.filter((e) => !e.noReward);
 	const summary = calculateRewards(next.currentRoom!, eligibleGraveyard);
@@ -238,7 +241,9 @@ export function handleChooseArtifactBearer(
 		],
 	};
 
-	return advanceRewardPhase(log(next, `Artefato obtido: ${getCardName(reward.cardId)}.`));
+	return advanceRewardPhase(
+		log(next, `Artefato obtido: ${getCardName(reward.cardId)}.`),
+	);
 }
 
 // Quando a fila fica vazia, avança para XP_SPEND_PHASE.

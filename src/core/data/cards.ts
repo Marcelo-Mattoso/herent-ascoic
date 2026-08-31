@@ -16,7 +16,16 @@ import type {
 	SubbossRoomCard,
 } from "./cardTypes";
 
-const LOCALE_FIELDS = ["name", "style", "tags", "condition", "victory", "dice", "artifactBonus", "dungeonScaling"] as const;
+const LOCALE_FIELDS = [
+	"name",
+	"style",
+	"tags",
+	"condition",
+	"victory",
+	"dice",
+	"artifactBonus",
+	"dungeonScaling",
+] as const;
 
 // Valida que cada entrada tem apenas campos mecânicos (sem contaminação pt-BR)
 function validateRaw(raw: unknown[]): AnyCard[] {
@@ -31,14 +40,18 @@ function validateRaw(raw: unknown[]): AnyCard[] {
 		}
 		for (const field of LOCALE_FIELDS) {
 			if (field in (entry as object)) {
-				throw new Error(`Campo de locale "${field}" encontrado em carta mecânica: ${(entry as { id: string }).id}`);
+				throw new Error(
+					`Campo de locale "${field}" encontrado em carta mecânica: ${(entry as { id: string }).id}`,
+				);
 			}
 		}
 	}
 	return raw as AnyCard[];
 }
 
-const ALL_CARDS: readonly AnyCard[] = validateRaw(parse(cardsYaml) as unknown[]);
+const ALL_CARDS: readonly AnyCard[] = validateRaw(
+	parse(cardsYaml) as unknown[],
+);
 
 const _byId = new Map<string, AnyCard>(ALL_CARDS.map((c) => [c.id, c]));
 

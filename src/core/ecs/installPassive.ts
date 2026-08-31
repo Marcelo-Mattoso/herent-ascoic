@@ -1,14 +1,22 @@
 // Instala ModifierComponents permanentes para skills passivas (while_*, room_passive).
 // Patch-18 Lote F.
 
-import type { SkillDefinition } from "../data/skillTypes";
 import type { SkillRef } from "../data/cardTypes";
+import type { SkillDefinition } from "../data/skillTypes";
 import type { EntityId, ModifierComponent } from "./types";
 import { addComponent, removeComponent, type World } from "./world";
 
 // Remove todos os ModifierComponents instalados por uma skill específica
-export function removePassivesBySource(world: World, entityId: EntityId, skillId: string): World {
-	return removeComponent(world, entityId, (c) => c.type === "modifier" && (c as ModifierComponent).source === skillId);
+export function removePassivesBySource(
+	world: World,
+	entityId: EntityId,
+	skillId: string,
+): World {
+	return removeComponent(
+		world,
+		entityId,
+		(c) => c.type === "modifier" && (c as ModifierComponent).source === skillId,
+	);
 }
 
 export function installPassive(
@@ -31,9 +39,11 @@ export function installPassive(
 			typeof rawValue === "number"
 				? rawValue
 				: typeof rawValue === "string" && rawValue.startsWith("$")
-					? (typeof (ref.params as Record<string, unknown>)?.[rawValue.slice(1)] === "number"
+					? typeof (ref.params as Record<string, unknown>)?.[
+							rawValue.slice(1)
+						] === "number"
 						? (ref.params as Record<string, number>)[rawValue.slice(1)]!
-						: 0)
+						: 0
 					: 0;
 		const mod: ModifierComponent = {
 			type: "modifier",
@@ -55,16 +65,26 @@ function mapPassiveTarget(
 ): ModifierComponent["target"] | undefined {
 	switch (stat) {
 		// v1 legado
-		case "damage_bonus": return "damage_dealt";
-		case "damage_reduction": return "damage_taken";
-		case "tohit_bonus": return "hit_bonus";
-		case "tohit_penalty": return "hit_bonus";
-		case "dice_count": return "dice_count";
+		case "damage_bonus":
+			return "damage_dealt";
+		case "damage_reduction":
+			return "damage_taken";
+		case "tohit_bonus":
+			return "hit_bonus";
+		case "tohit_penalty":
+			return "hit_bonus";
+		case "dice_count":
+			return "dice_count";
 		// v2 (patch-21 Lote E)
-		case "s_damage_dealt": return "damage_dealt";
-		case "s_damage_reduction": return "damage_taken";
-		case "s_hit_bonus": return "hit_bonus";
-		case "s_hit_penalty": return "hit_bonus";
-		default: return undefined;
+		case "s_damage_dealt":
+			return "damage_dealt";
+		case "s_damage_reduction":
+			return "damage_taken";
+		case "s_hit_bonus":
+			return "hit_bonus";
+		case "s_hit_penalty":
+			return "hit_bonus";
+		default:
+			return undefined;
 	}
 }

@@ -16,7 +16,14 @@ const LOCALE_FIELDS_BY_TYPE = {
 	subboss_room: ["name"],
 	item: ["name", "tags"],
 	artifact: ["name"],
-	boss: ["name", "dice", "condition", "artifactBonus", "dungeonScaling", "victory"],
+	boss: [
+		"name",
+		"dice",
+		"condition",
+		"artifactBonus",
+		"dungeonScaling",
+		"victory",
+	],
 };
 
 const raw = readFileSync(YAML_PATH, "utf8");
@@ -49,7 +56,10 @@ function toFlowYaml(data) {
 	visit(doc, {
 		Seq(_, node) {
 			// Use flow style when all items are numbers
-			if (node.items.length > 0 && node.items.every((item) => typeof item.value === "number")) {
+			if (
+				node.items.length > 0 &&
+				node.items.every((item) => typeof item.value === "number")
+			) {
 				node.flow = true;
 			}
 		},

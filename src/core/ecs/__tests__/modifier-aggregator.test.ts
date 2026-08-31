@@ -1,6 +1,12 @@
 import { describe, expect, it } from "vitest";
 import type { ModifierComponent } from "../types";
-import { addComponent, createEmptyWorld, createEntity, getModifierTotal, upsertEntity } from "../world";
+import {
+	addComponent,
+	createEmptyWorld,
+	createEntity,
+	getModifierTotal,
+	upsertEntity,
+} from "../world";
 
 function makeWorld(entityId: string, mods: Omit<ModifierComponent, "type">[]) {
 	let world = createEmptyWorld();

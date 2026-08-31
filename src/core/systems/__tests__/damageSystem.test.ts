@@ -12,7 +12,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 4,
 		hitBonus: 0,
@@ -33,7 +33,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-			maxLife: 5,
+		maxLife: 5,
 		currentLife: 5,
 		damage: 2,
 		hitBonus: 0,
@@ -50,7 +50,9 @@ function makeState(
 	heroOverrides: Partial<HeroState> = {},
 	enemyOverrides?: Partial<EnemyState>,
 ): GameState {
-	const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+	const base = createInitialGameState({
+		heroCardIds: ["hero_crimson_barbarian"],
+	});
 	return {
 		...base,
 		heroes: [makeHero(heroOverrides)],
@@ -88,7 +90,9 @@ describe("applyDamage — herói", () => {
 	});
 
 	it("não altera outros heróis", () => {
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		const h2: HeroState = makeHero({ id: "h2", currentLife: 7 });
 		const state: GameState = {
 			...base,

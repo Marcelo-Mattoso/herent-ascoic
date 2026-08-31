@@ -7,10 +7,10 @@
 import { getSkillLocale } from "../../data/skillLocale";
 import { resolveCondition } from "./resolveCondition";
 import {
-	SkipEffect,
 	resolveEntityListRef,
 	resolveEntityRef,
 	resolveExpr,
+	SkipEffect,
 } from "./resolveExpr";
 import type { EffectNode, EvalCtx } from "./types";
 
@@ -271,10 +271,16 @@ function evaluateOne(
 		// ── Status (Lote F) ───────────────────────────────────────────────────
 
 		case "i_dispel":
-			return ctx.action.pushEffect({ kind: "i_dispel", category: node.category });
+			return ctx.action.pushEffect({
+				kind: "i_dispel",
+				category: node.category,
+			});
 
 		case "i_remove_status":
-			return ctx.action.pushEffect({ kind: "i_remove_status", status: node.status });
+			return ctx.action.pushEffect({
+				kind: "i_remove_status",
+				status: node.status,
+			});
 	}
 }
 
@@ -299,5 +305,3 @@ function mapDuration(d: DurationNode): Duration {
 			return { kind: "rounds", remaining: 1 };
 	}
 }
-
-

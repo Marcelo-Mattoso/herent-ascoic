@@ -14,7 +14,9 @@ function buildStartedState(heroNames = ["hero_crimson_barbarian"]) {
 
 describe("sincronização world após START_GAME", () => {
 	it("world começa vazio antes de START_GAME", () => {
-		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const base = createInitialGameState({
+			heroCardIds: ["hero_crimson_barbarian"],
+		});
 		expect(Object.keys(base.world.entities)).toHaveLength(0);
 	});
 
@@ -25,7 +27,10 @@ describe("sincronização world após START_GAME", () => {
 	});
 
 	it("world tem 2 entidades para 2 heróis", () => {
-		const state = buildStartedState(["hero_crimson_barbarian", "hero_crimson_barbarian"]);
+		const state = buildStartedState([
+			"hero_crimson_barbarian",
+			"hero_crimson_barbarian",
+		]);
 		const heroes = query(state.world, (e) => e.type === "hero");
 		expect(heroes).toHaveLength(2);
 	});

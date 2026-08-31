@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { ModifierComponent } from "../types";
-import { addComponent, createEmptyWorld, createEntity, decrementRoundsModifiers, getComponents, removeModifiersForSource, tickModifierDurations, upsertEntity } from "../world";
+import {
+	addComponent,
+	createEmptyWorld,
+	createEntity,
+	decrementRoundsModifiers,
+	getComponents,
+	removeModifiersForSource,
+	tickModifierDurations,
+	upsertEntity,
+} from "../world";
 
 function makeWorld(entityId: string, mods: Omit<ModifierComponent, "type">[]) {
 	let world = createEmptyWorld();
@@ -18,18 +27,40 @@ function modCount(world: ReturnType<typeof makeWorld>, entityId: string) {
 describe("tickModifierDurations", () => {
 	it("remove 'this_turn' (until_end_of_round) no end_of_round", () => {
 		const world = makeWorld("hero_1", [
-			{ target: "damage_taken", operation: "add", value: 1, source: "s1", duration: { kind: "this_turn" } },
-			{ target: "hit_bonus", operation: "add", value: 2, source: "s2", duration: { kind: "this_combat" } },
+			{
+				target: "damage_taken",
+				operation: "add",
+				value: 1,
+				source: "s1",
+				duration: { kind: "this_turn" },
+			},
+			{
+				target: "hit_bonus",
+				operation: "add",
+				value: 2,
+				source: "s2",
+				duration: { kind: "this_combat" },
+			},
 		]);
 		const after = tickModifierDurations(world, "end_of_round");
 		expect(modCount(after, "hero_1")).toBe(1);
-		const remaining = getComponents<ModifierComponent>(after, "hero_1", "modifier");
+		const remaining = getComponents<ModifierComponent>(
+			after,
+			"hero_1",
+			"modifier",
+		);
 		expect(remaining[0]?.duration.kind).toBe("this_combat");
 	});
 
 	it("mantém 'this_combat' no end_of_round", () => {
 		const world = makeWorld("hero_1", [
-			{ target: "damage_taken", operation: "add", value: 1, source: "s1", duration: { kind: "this_combat" } },
+			{
+				target: "damage_taken",
+				operation: "add",
+				value: 1,
+				source: "s1",
+				duration: { kind: "this_combat" },
+			},
 		]);
 		const after = tickModifierDurations(world, "end_of_round");
 		expect(modCount(after, "hero_1")).toBe(1);
@@ -37,7 +68,13 @@ describe("tickModifierDurations", () => {
 
 	it("mantém 'permanent' no end_of_round", () => {
 		const world = makeWorld("hero_1", [
-			{ target: "damage_taken", operation: "add", value: 1, source: "s1", duration: { kind: "permanent" } },
+			{
+				target: "damage_taken",
+				operation: "add",
+				value: 1,
+				source: "s1",
+				duration: { kind: "permanent" },
+			},
 		]);
 		const after = tickModifierDurations(world, "end_of_round");
 		expect(modCount(after, "hero_1")).toBe(1);
@@ -45,8 +82,20 @@ describe("tickModifierDurations", () => {
 
 	it("remove 'this_combat' no end_of_combat", () => {
 		const world = makeWorld("hero_1", [
-			{ target: "damage_taken", operation: "add", value: 1, source: "s1", duration: { kind: "this_combat" } },
-			{ target: "hit_bonus", operation: "add", value: 2, source: "s2", duration: { kind: "permanent" } },
+			{
+				target: "damage_taken",
+				operation: "add",
+				value: 1,
+				source: "s1",
+				duration: { kind: "this_combat" },
+			},
+			{
+				target: "hit_bonus",
+				operation: "add",
+				value: 2,
+				source: "s2",
+				duration: { kind: "permanent" },
+			},
 		]);
 		const after = tickModifierDurations(world, "end_of_combat");
 		expect(modCount(after, "hero_1")).toBe(1);
@@ -54,12 +103,28 @@ describe("tickModifierDurations", () => {
 
 	it("remove 'once' no once_consumed", () => {
 		const world = makeWorld("hero_1", [
-			{ target: "damage_dealt", operation: "add", value: 3, source: "s1", duration: { kind: "once" } },
-			{ target: "damage_taken", operation: "add", value: 1, source: "s2", duration: { kind: "this_combat" } },
+			{
+				target: "damage_dealt",
+				operation: "add",
+				value: 3,
+				source: "s1",
+				duration: { kind: "once" },
+			},
+			{
+				target: "damage_taken",
+				operation: "add",
+				value: 1,
+				source: "s2",
+				duration: { kind: "this_combat" },
+			},
 		]);
 		const after = tickModifierDurations(world, "once_consumed");
 		expect(modCount(after, "hero_1")).toBe(1);
-		const remaining = getComponents<ModifierComponent>(after, "hero_1", "modifier");
+		const remaining = getComponents<ModifierComponent>(
+			after,
+			"hero_1",
+			"modifier",
+		);
 		expect(remaining[0]?.duration.kind).toBe("this_combat");
 	});
 });
@@ -67,7 +132,13 @@ describe("tickModifierDurations", () => {
 describe("decrementRoundsModifiers", () => {
 	it("decrementa remaining de 2 para 1 após 1 tick de end_of_round", () => {
 		const world = makeWorld("hero_1", [
-			{ target: "damage_dealt", operation: "add", value: 5, source: "s1", duration: { kind: "rounds", remaining: 2 } },
+			{
+				target: "damage_dealt",
+				operation: "add",
+				value: 5,
+				source: "s1",
+				duration: { kind: "rounds", remaining: 2 },
+			},
 		]);
 		const after = decrementRoundsModifiers(world);
 		expect(modCount(after, "hero_1")).toBe(1);
@@ -79,8 +150,20 @@ describe("decrementRoundsModifiers", () => {
 
 	it("remove modifier com remaining === 1 após 1 tick (expira)", () => {
 		const world = makeWorld("hero_1", [
-			{ target: "damage_dealt", operation: "add", value: 5, source: "s1", duration: { kind: "rounds", remaining: 1 } },
-			{ target: "hit_bonus", operation: "add", value: 2, source: "s2", duration: { kind: "this_combat" } },
+			{
+				target: "damage_dealt",
+				operation: "add",
+				value: 5,
+				source: "s1",
+				duration: { kind: "rounds", remaining: 1 },
+			},
+			{
+				target: "hit_bonus",
+				operation: "add",
+				value: 2,
+				source: "s2",
+				duration: { kind: "this_combat" },
+			},
 		]);
 		const after = decrementRoundsModifiers(world);
 		expect(modCount(after, "hero_1")).toBe(1);

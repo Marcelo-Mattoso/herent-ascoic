@@ -29,7 +29,9 @@ export interface SkillDefinition {
 	/** Naturezas declarativas — sem efeito de motor em 21-D (resistências ficam para depois). */
 	readonly nature?: readonly import("../skills/dsl/types").Nature[];
 	readonly operate_type: import("../skills/dsl/types").OperateType;
-	readonly trigger?: { readonly event: import("../skills/dsl/types").EventName };
+	readonly trigger?: {
+		readonly event: import("../skills/dsl/types").EventName;
+	};
 	readonly conditions?: readonly import("../skills/dsl/types").ConditionNode[];
 	readonly cooldown?: import("../skills/dsl/types").CooldownNode;
 	// ── Targeting v2 (patch-21 Lote C) ──────────────────────────────────

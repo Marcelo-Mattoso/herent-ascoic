@@ -1,6 +1,6 @@
+import { log } from "@/core/reducer/utils";
 import type { ScriptHandler } from "@/core/scripts/types";
 import { registerContinuation } from "@/core/skills/registry";
-import { log } from "@/core/reducer/utils";
 import type { PendingReward } from "@/core/state/gameState";
 
 // skill_rekindled_forge — Forja Reacesa

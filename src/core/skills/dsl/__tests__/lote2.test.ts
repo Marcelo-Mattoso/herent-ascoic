@@ -2,7 +2,12 @@
 
 import { describe, expect, it } from "vitest";
 import type { ModifierComponent } from "../../../ecs/types";
-import { createEntity, getComponents, getModifierTotal, upsertEntity } from "../../../ecs/world";
+import {
+	createEntity,
+	getComponents,
+	getModifierTotal,
+	upsertEntity,
+} from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
@@ -18,7 +23,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -78,7 +83,10 @@ describe("add_modifier damage_bonus → bonusNextAttack", () => {
 describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 	it("adiciona bônus de acerto ao inimigo-fonte", () => {
 		const base = stateWithCombat();
-		const state = { ...base, world: upsertEntity(base.world, createEntity("e1", "creature", [])) };
+		const state = {
+			...base,
+			world: upsertEntity(base.world, createEntity("e1", "creature", [])),
+		};
 		const ctx = buildScriptCtx(
 			state,
 			{ triggeredBy: "combat_if_alone_in_room", sourceEnemyId: "e1" },
@@ -249,4 +257,3 @@ describe("for_each + add_modifier — power_unbreakable_bastion_guard", () => {
 		expect(getModifierTotal(result.world, "h2", "damage_taken")).toBe(-1);
 	});
 });
-

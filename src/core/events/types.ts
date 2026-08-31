@@ -4,7 +4,13 @@
 
 import type { EntityId } from "../ecs/types";
 
-export type DamageType = "physical" | "magical" | "direct" | "condition" | "attack" | "purple";
+export type DamageType =
+	| "physical"
+	| "magical"
+	| "direct"
+	| "condition"
+	| "attack"
+	| "purple";
 
 export type EventType =
 	| "DamageAboutToBeDealt"
@@ -87,7 +93,10 @@ export type GameEvent =
 			readonly type: "RoomEntered";
 			readonly payload: { readonly roomId: string };
 	  }
-	| { readonly type: "CombatStarted"; readonly payload: { readonly roomId: string } }
+	| {
+			readonly type: "CombatStarted";
+			readonly payload: { readonly roomId: string };
+	  }
 	| { readonly type: "CombatEnded"; readonly payload: Record<string, never> }
 	| {
 			readonly type: "TurnStarted";
@@ -103,12 +112,19 @@ export type GameEvent =
 	  }
 	| {
 			readonly type: "SkillUsed";
-			readonly payload: { readonly sourceId: EntityId; readonly skillId: string };
+			readonly payload: {
+				readonly sourceId: EntityId;
+				readonly skillId: string;
+			};
 	  }
 	// ── Lote E ────────────────────────────────────────────────────────────────
 	| {
 			readonly type: "RollAboutToHappen";
-			readonly payload: { readonly heroId: string; readonly enemyId: string; readonly round: number };
+			readonly payload: {
+				readonly heroId: string;
+				readonly enemyId: string;
+				readonly round: number;
+			};
 	  }
 	| {
 			readonly type: "RollResolved";
@@ -176,7 +192,10 @@ export type GameEvent =
 	  }
 	| {
 			readonly type: "DungeonCardDiscarded";
-			readonly payload: { readonly cardId: string; readonly reason: "effect" | "extra" };
+			readonly payload: {
+				readonly cardId: string;
+				readonly reason: "effect" | "extra";
+			};
 	  }
 	| {
 			readonly type: "ItemEffectAppliedTo";
@@ -203,5 +222,8 @@ export type GameEvent =
 	// Emitido quando uma entidade (criatura inicial ou spawn mid-combat) entra em jogo.
 	| {
 			readonly type: "EntityEnteredPlay";
-			readonly payload: { readonly entityId: string; readonly entityType: "enemy" };
+			readonly payload: {
+				readonly entityId: string;
+				readonly entityType: "enemy";
+			};
 	  };

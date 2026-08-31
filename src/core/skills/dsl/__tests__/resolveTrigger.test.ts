@@ -56,10 +56,9 @@ describe("resolveTrigger — when", () => {
 			on: "combat",
 			when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
 		};
-		const ctx = makeCtx(
-			createInitialGameState({ heroCardIds: [] }),
-			{ dungeonLevel: 3 },
-		);
+		const ctx = makeCtx(createInitialGameState({ heroCardIds: [] }), {
+			dungeonLevel: 3,
+		});
 		expect(resolveTrigger(trigger, ctx)).toBe(true);
 	});
 
@@ -68,10 +67,9 @@ describe("resolveTrigger — when", () => {
 			on: "combat",
 			when: { kind: "compare", op: "gte", left: "$dungeon.level", right: 3 },
 		};
-		const ctx = makeCtx(
-			createInitialGameState({ heroCardIds: [] }),
-			{ dungeonLevel: 1 },
-		);
+		const ctx = makeCtx(createInitialGameState({ heroCardIds: [] }), {
+			dungeonLevel: 1,
+		});
 		expect(resolveTrigger(trigger, ctx)).toBe(false);
 	});
 
@@ -156,17 +154,13 @@ describe("resolveTrigger — limit", () => {
 	});
 
 	it("once_per_combat: dispara quando não usado", () => {
-		const state = stateWithCombat(
-			createInitialGameState({ heroCardIds: [] }),
-		);
+		const state = stateWithCombat(createInitialGameState({ heroCardIds: [] }));
 		const trigger: TriggerObject = { on: "on_use", limit: "once_per_combat" };
 		expect(resolveTrigger(trigger, makeCtx(state))).toBe(true);
 	});
 
 	it("once_per_combat: não dispara quando já usado", () => {
-		const base = stateWithCombat(
-			createInitialGameState({ heroCardIds: [] }),
-		);
+		const base = stateWithCombat(createInitialGameState({ heroCardIds: [] }));
 		const state: GameState = {
 			...base,
 			combat: {
@@ -182,9 +176,7 @@ describe("resolveTrigger — limit", () => {
 	});
 
 	it("once_per_room: não dispara quando já usado", () => {
-		const base = stateWithCombat(
-			createInitialGameState({ heroCardIds: [] }),
-		);
+		const base = stateWithCombat(createInitialGameState({ heroCardIds: [] }));
 		const state: GameState = {
 			...base,
 			combat: {
@@ -230,9 +222,7 @@ describe("markLimitUsed", () => {
 	});
 
 	it("marca once_per_combat", () => {
-		const state = stateWithCombat(
-			createInitialGameState({ heroCardIds: [] }),
-		);
+		const state = stateWithCombat(createInitialGameState({ heroCardIds: [] }));
 		const next = markLimitUsed(
 			{ on: "on_use", limit: "once_per_combat" },
 			"test_skill",

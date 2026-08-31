@@ -66,8 +66,10 @@ export function CombatActionPanel({
 		return (
 			<div className="space-y-2">
 				<p className="text-xs text-center" style={{ color: UI.textSecondary }}>
-					<strong style={{ color: UI.textPrimary }}>{hero ? getCardName(hero.cardId) : ""}</strong> —
-					clique num inimigo ou escolha uma ação
+					<strong style={{ color: UI.textPrimary }}>
+						{hero ? getCardName(hero.cardId) : ""}
+					</strong>{" "}
+					— clique num inimigo ou escolha uma ação
 				</p>
 				<div className="flex gap-2 flex-wrap">
 					<ActionButton

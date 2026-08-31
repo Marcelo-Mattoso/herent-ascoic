@@ -387,7 +387,7 @@ export function Board({
 						gridTemplateColumns: "repeat(3, minmax(134px, 150px))",
 						justifyContent: "center",
 						alignItems: "start",
-						columnGap: "clamp(72px, 12vw, 190px)",
+						columnGap: "clamp(28px, 5vw, 76px)",
 						width: "100%",
 					}}
 				>

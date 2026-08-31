@@ -12,16 +12,13 @@
 // `priority?: number` em SkillDefinition (menor = executa primeiro).
 
 import type { SkillRef } from "../data/cardTypes";
-import type {
-	SkillContext,
-	SkillDefinition,
-} from "../data/skillTypes";
-import type { EventName } from "./dsl/types";
-import { resolveCondition } from "./dsl/resolveCondition";
+import type { SkillContext, SkillDefinition } from "../data/skillTypes";
 import { buildScriptCtx } from "../scripts/context";
 import { getScript } from "../scripts/registry";
 import type { GameState } from "../state/gameState";
 import { evaluate } from "./dsl/evaluate";
+import { resolveCondition } from "./dsl/resolveCondition";
+import type { EventName } from "./dsl/types";
 import { cardSkills } from "./lookup";
 
 interface ActiveSkill {
@@ -32,7 +29,10 @@ interface ActiveSkill {
 }
 
 /** @deprecated Legado — usava trigger string. Mantido para compat de testes. */
-export function parseTrigger(_trigger: string): { guard: string | null; base: string } {
+export function parseTrigger(_trigger: string): {
+	guard: string | null;
+	base: string;
+} {
 	return { guard: null, base: _trigger };
 }
 
@@ -47,10 +47,14 @@ export function guardPassed(
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
 
 	switch (cooldown.scope) {
-		case "game":    return !state.oncePer?.game?.[key];
-		case "room":    return !state.combat?.oncePer?.room?.[key];
-		case "combat":  return !state.combat?.oncePer?.combat?.[key];
-		case "round":   return !state.combat?.oncePer?.round?.[key];
+		case "game":
+			return !state.oncePer?.game?.[key];
+		case "room":
+			return !state.combat?.oncePer?.room?.[key];
+		case "combat":
+			return !state.combat?.oncePer?.combat?.[key];
+		case "round":
+			return !state.combat?.oncePer?.round?.[key];
 	}
 }
 

@@ -11,7 +11,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -123,10 +123,7 @@ describe("evaluate — apply_damage", () => {
 
 	it("respeita minimum quando amount < minimum", () => {
 		const ctx = makeMockCtx(makeState());
-		evaluate(
-			[{ kind: "i_damage", to: "$target", amount: 0, minimum: 1 }],
-			ctx,
-		);
+		evaluate([{ kind: "i_damage", to: "$target", amount: 0, minimum: 1 }], ctx);
 		expect(ctx.pushed[0]).toMatchObject({ kind: "i_damage", amount: 1 });
 	});
 
@@ -300,5 +297,3 @@ describe("evaluate — sequência encadeada", () => {
 		expect(ctx.pushed[1]).toMatchObject({ kind: "i_damage", amount: 6 });
 	});
 });
-
-

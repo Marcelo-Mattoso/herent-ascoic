@@ -45,12 +45,19 @@ export function emit(
 	let currentEvent = event;
 	for (const { entity, trigger } of matching) {
 		// Verificar condição opcional (com acesso ao evento e world).
-		if (trigger.condition && !trigger.condition(entity, currentEvent, currentState.world)) continue;
+		if (
+			trigger.condition &&
+			!trigger.condition(entity, currentEvent, currentState.world)
+		)
+			continue;
 
 		// consumeAfterFire com scope != "game": guarda no oncePer registry em vez de remover.
 		// O trigger fica instalado e volta a disparar quando o scope reseta.
 		if (trigger.consumeAfterFire && trigger.consumeAfterFire.scope !== "game") {
-			const scope = trigger.consumeAfterFire.scope as "room" | "combat" | "round";
+			const scope = trigger.consumeAfterFire.scope as
+				| "room"
+				| "combat"
+				| "round";
 			const key = `${trigger.source}::${entity.id}`;
 			if (currentState.combat?.oncePer?.[scope]?.[key]) continue; // já consumido neste scope
 		}
@@ -69,11 +76,18 @@ export function emit(
 				// Remoção permanente (uma vez por jogo — sem reset).
 				currentState = {
 					...currentState,
-					world: removeComponent(currentState.world, entity.id, (c) => c === trigger),
+					world: removeComponent(
+						currentState.world,
+						entity.id,
+						(c) => c === trigger,
+					),
 				};
 			} else {
 				// Marca no oncePer registry; o trigger é reinstalado automaticamente ao reset do scope.
-				const scope = trigger.consumeAfterFire.scope as "room" | "combat" | "round";
+				const scope = trigger.consumeAfterFire.scope as
+					| "room"
+					| "combat"
+					| "round";
 				const key = `${trigger.source}::${entity.id}`;
 				if (currentState.combat) {
 					currentState = {

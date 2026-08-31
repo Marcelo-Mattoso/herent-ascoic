@@ -1,8 +1,8 @@
 // Lógica de progressão: subir nível (Ímpeto), mudar Despertar da Masmorra.
 // Usada pelos handlers de SPEND_XP.
 
-import { getCardById, getSubbossRooms } from "../data/cards";
 import { getCardName } from "../data/cardLocale";
+import { getCardById, getSubbossRooms } from "../data/cards";
 import { nextColor, previousColor, valueAtColor } from "../rules/colorScale";
 import type { ColorIndex } from "../state/color";
 import type { GameState } from "../state/gameState";

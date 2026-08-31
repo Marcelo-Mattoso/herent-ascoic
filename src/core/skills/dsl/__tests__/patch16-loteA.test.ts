@@ -1,8 +1,8 @@
 // Testes de aceite Patch-16 Lote A — skills #1-#6 convertidas de type legado para DSL.
 
 import { describe, expect, it } from "vitest";
-import { getModifierTotal } from "../../../ecs/world";
 import { SKILLS } from "../../../data/skills";
+import { getModifierTotal } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
@@ -18,7 +18,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 8,
 		damage: 3,
 		hitBonus: 0,
@@ -129,7 +129,9 @@ describe("dungeon_skill_dead_torches — choose_one", () => {
 describe("power_mighty_crimson_fury — damage_bonus until_end_of_combat", () => {
 	it("adiciona damage_bonus de 6 ao herói-fonte válido até fim do combate", () => {
 		const state = stateWithCombat();
-		const def = SKILLS.abilities.find((s) => s.id === "power_mighty_crimson_fury");
+		const def = SKILLS.abilities.find(
+			(s) => s.id === "power_mighty_crimson_fury",
+		);
 		if (!def?.effect) throw new Error("skill sem effect");
 		const params = { ...(def.params ?? {}), value: null };
 		const ctx = buildScriptCtx(

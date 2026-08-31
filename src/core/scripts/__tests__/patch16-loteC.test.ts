@@ -4,13 +4,13 @@ import { describe, expect, it } from "vitest";
 import type { ModifierComponent } from "../../ecs/types";
 import { getComponents } from "../../ecs/world";
 import { drainStack } from "../../effects/resolver";
-import { buildScriptCtx } from "../context";
-import { getScript } from "../registry";
 import { createEmptyCombatState } from "../../state/combatState";
+import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
-import type { EnemyState } from "../../state/enemyState";
+import { buildScriptCtx } from "../context";
+import { getScript } from "../registry";
 
 // Importar scripts para registrá-los
 // skill_rift_rune, power_supreme_rift_rune, power_hunter_execution migrados para DSL (patch-21 Lote F)
@@ -29,7 +29,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -50,7 +50,7 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	return {
 		id: "e1",
 		cardId: "creature_dark_cave_goblin",
-			maxLife: 4,
+		maxLife: 4,
 		currentLife: 4,
 		damage: 1,
 		hitBonus: 0,
@@ -72,7 +72,10 @@ function baseState(extra: Partial<GameState> = {}): GameState {
 	};
 }
 
-function runScript(id: string, ctx: ReturnType<typeof buildScriptCtx>): GameState {
+function runScript(
+	id: string,
+	ctx: ReturnType<typeof buildScriptCtx>,
+): GameState {
 	const fn = getScript(`${id}.run`);
 	if (!fn) throw new Error(`Script ${id} não registrado`);
 	return fn(ctx);
@@ -87,19 +90,31 @@ describe("skill_rift_rune — i_modify_die (patch-21 Lote F)", () => {
 		const combat = {
 			...createEmptyCombatState(),
 			lastRoll: {
-				heroId: "h1", enemyId: "e1",
-				heroResults: [3], heroTotal: 3, heroBreakdown: [],
-				enemyResults: [2], enemyTotal: 2, enemyBreakdown: [],
+				heroId: "h1",
+				enemyId: "e1",
+				heroResults: [3],
+				heroTotal: 3,
+				heroBreakdown: [],
+				enemyResults: [2],
+				enemyTotal: 2,
+				enemyBreakdown: [],
 			},
 		};
 		const state = baseState({ combat });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "skill_rift_rune" },
+			{
+				triggeredBy: "evt_roll",
+				sourceHeroId: "h1",
+				skillId: "skill_rift_rune",
+			},
 			{ value: 2 },
 		);
 		const result = drainStack(
-			evaluate([{ kind: "i_modify_die", delta: "$value", die_side: "hero" }], ctx),
+			evaluate(
+				[{ kind: "i_modify_die", delta: "$value", die_side: "hero" }],
+				ctx,
+			),
 		);
 		expect(result.combat?.pendingDiceSelection).toBeDefined();
 		expect(result.combat?.pendingDiceSelection?.heroId).toBe("h1");
@@ -109,11 +124,18 @@ describe("skill_rift_rune — i_modify_die (patch-21 Lote F)", () => {
 		const state = baseState();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "skill_rift_rune" },
+			{
+				triggeredBy: "evt_roll",
+				sourceHeroId: "h1",
+				skillId: "skill_rift_rune",
+			},
 			{ value: 2 },
 		);
 		const result = drainStack(
-			evaluate([{ kind: "i_modify_die", delta: "$value", die_side: "hero" }], ctx),
+			evaluate(
+				[{ kind: "i_modify_die", delta: "$value", die_side: "hero" }],
+				ctx,
+			),
 		);
 		expect(result.combat?.pendingDiceSelection).toBeUndefined();
 	});
@@ -126,15 +148,24 @@ describe("power_supreme_rift_rune — i_set_die (patch-21 Lote F)", () => {
 		const combat = {
 			...createEmptyCombatState(),
 			lastRoll: {
-				heroId: "h1", enemyId: "e1",
-				heroResults: [2], heroTotal: 2, heroBreakdown: [],
-				enemyResults: [3], enemyTotal: 3, enemyBreakdown: [],
+				heroId: "h1",
+				enemyId: "e1",
+				heroResults: [2],
+				heroTotal: 2,
+				heroBreakdown: [],
+				enemyResults: [3],
+				enemyTotal: 3,
+				enemyBreakdown: [],
 			},
 		};
 		const state = baseState({ combat });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "power_supreme_rift_rune" },
+			{
+				triggeredBy: "evt_roll",
+				sourceHeroId: "h1",
+				skillId: "power_supreme_rift_rune",
+			},
 			{},
 		);
 		const result = drainStack(
@@ -155,25 +186,47 @@ describe("power_hunter_execution — p_modifier + i_set_die (patch-21 Lote F)", 
 			prey: "e1",
 			pairs: [{ heroId: "h1", enemyId: "e1" }],
 			lastRoll: {
-				heroId: "h1", enemyId: "e1",
-				heroResults: [3], heroTotal: 3, heroBreakdown: [],
-				enemyResults: [2], enemyTotal: 2, enemyBreakdown: [],
+				heroId: "h1",
+				enemyId: "e1",
+				heroResults: [3],
+				heroTotal: 3,
+				heroBreakdown: [],
+				enemyResults: [2],
+				enemyTotal: 2,
+				enemyBreakdown: [],
 			},
 		};
 		const state = baseState({ combat, activeEnemies: [makeEnemy()] });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "evt_roll", sourceHeroId: "h1", skillId: "power_hunter_execution" },
+			{
+				triggeredBy: "evt_roll",
+				sourceHeroId: "h1",
+				skillId: "power_hunter_execution",
+			},
 			{},
 		);
 		const result = drainStack(
-			evaluate([
-				{ kind: "p_modifier", to: "$source", stat: "s_damage_dealt", operation: "add", value: 1, duration: { kind: "once" } },
-				{ kind: "i_set_die", value: 6, die_side: "hero" },
-			], ctx),
+			evaluate(
+				[
+					{
+						kind: "p_modifier",
+						to: "$source",
+						stat: "s_damage_dealt",
+						operation: "add",
+						value: 1,
+						duration: { kind: "once" },
+					},
+					{ kind: "i_set_die", value: 6, die_side: "hero" },
+				],
+				ctx,
+			),
 		);
-		const mods = getComponents<ModifierComponent>(result.world, "h1", "modifier")
-			.filter(m => m.target === "damage_dealt");
+		const mods = getComponents<ModifierComponent>(
+			result.world,
+			"h1",
+			"modifier",
+		).filter((m) => m.target === "damage_dealt");
 		expect(mods.some((m) => m.value === 1)).toBe(true);
 		expect(result.combat?.pendingDiceSelection?.action).toBe("set_to");
 	});
@@ -186,12 +239,18 @@ describe("skill_focus_deflection (#24)", () => {
 		const state = baseState();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_room_on_targeted", sourceHeroId: "h1", skillId: "skill_focus_deflection" },
+			{
+				triggeredBy: "once_per_room_on_targeted",
+				sourceHeroId: "h1",
+				skillId: "skill_focus_deflection",
+			},
 			{ value: 2 },
 		);
 		const result = runScript("skill_focus_deflection", ctx);
 		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options.some((o) => o.id === "tohit")).toBe(true);
+		expect(
+			result.pendingSkillChoice?.options.some((o) => o.id === "tohit"),
+		).toBe(true);
 	});
 });
 
@@ -220,7 +279,11 @@ describe("skill_opportunity_shot (#25)", () => {
 		const state = baseState();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_combat_instead_of_attack", sourceHeroId: "h1", skillId: "skill_opportunity_shot" },
+			{
+				triggeredBy: "once_per_combat_instead_of_attack",
+				sourceHeroId: "h1",
+				skillId: "skill_opportunity_shot",
+			},
 			{},
 		);
 		const result = runScript("skill_opportunity_shot", ctx);
@@ -245,7 +308,11 @@ describe("skill_rekindled_forge (#26)", () => {
 		};
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "on_win_room", sourceHeroId: "h1", skillId: "skill_rekindled_forge" },
+			{
+				triggeredBy: "on_win_room",
+				sourceHeroId: "h1",
+				skillId: "skill_rekindled_forge",
+			},
 			{},
 		);
 		const result = runScript("skill_rekindled_forge", ctx);
@@ -257,7 +324,11 @@ describe("skill_rekindled_forge (#26)", () => {
 		const state = baseState();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "on_win_room", sourceHeroId: "h1", skillId: "skill_rekindled_forge" },
+			{
+				triggeredBy: "on_win_room",
+				sourceHeroId: "h1",
+				skillId: "skill_rekindled_forge",
+			},
 			{},
 		);
 		const result = runScript("skill_rekindled_forge", ctx);
@@ -282,7 +353,11 @@ describe("dungeon_skill_rekindled_forge (#27)", () => {
 		};
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "on_win_room", sourceHeroId: "h1", skillId: "dungeon_skill_rekindled_forge" },
+			{
+				triggeredBy: "on_win_room",
+				sourceHeroId: "h1",
+				skillId: "dungeon_skill_rekindled_forge",
+			},
 			{},
 		);
 		const result = runScript("dungeon_skill_rekindled_forge", ctx);
@@ -299,7 +374,11 @@ describe("skill_rift_evasion (#28)", () => {
 		const state = baseState({ activeEnemies: [makeEnemy()] });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "first_item_effect_received", sourceEnemyId: "e1", skillId: "skill_rift_evasion" },
+			{
+				triggeredBy: "first_item_effect_received",
+				sourceEnemyId: "e1",
+				skillId: "skill_rift_evasion",
+			},
 			{},
 		);
 		const result = runScript("skill_rift_evasion", ctx);
@@ -314,7 +393,11 @@ describe("skill_rift_evasion (#28)", () => {
 		const state = baseState({ activeEnemies: [makeEnemy()], combat });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "first_item_effect_received", sourceEnemyId: "e1", skillId: "skill_rift_evasion" },
+			{
+				triggeredBy: "first_item_effect_received",
+				sourceEnemyId: "e1",
+				skillId: "skill_rift_evasion",
+			},
 			{},
 		);
 		const result = runScript("skill_rift_evasion", ctx);
@@ -329,7 +412,10 @@ describe("dungeon_skill_summon_guardian (#29)", () => {
 		const state = baseState();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "on_room_reveal", skillId: "dungeon_skill_summon_guardian" },
+			{
+				triggeredBy: "on_room_reveal",
+				skillId: "dungeon_skill_summon_guardian",
+			},
 			{ value: "Carcereiro" },
 		);
 		const result = runScript("dungeon_skill_summon_guardian", ctx);
@@ -344,7 +430,11 @@ describe("power_deep_veil_echo (#30)", () => {
 		const state = baseState();
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_game_on_defeat_creature", sourceHeroId: "h1", skillId: "power_deep_veil_echo" },
+			{
+				triggeredBy: "once_per_game_on_defeat_creature",
+				sourceHeroId: "h1",
+				skillId: "power_deep_veil_echo",
+			},
 			{},
 		);
 		const result = runScript("power_deep_veil_echo", ctx);
@@ -356,7 +446,11 @@ describe("power_deep_veil_echo (#30)", () => {
 		const state = baseState({ combat });
 		const ctx = buildScriptCtx(
 			state,
-			{ triggeredBy: "once_per_game_on_defeat_creature", sourceHeroId: "h1", skillId: "power_deep_veil_echo" },
+			{
+				triggeredBy: "once_per_game_on_defeat_creature",
+				sourceHeroId: "h1",
+				skillId: "power_deep_veil_echo",
+			},
 			{},
 		);
 		const result = runScript("power_deep_veil_echo", ctx);

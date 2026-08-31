@@ -5,8 +5,8 @@
 import { syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
 import { emit } from "../events/bus";
-import type { GameState } from "../state/gameState";
 import { consumeOnceBlock } from "../state/blockHelpers";
+import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 
 function findHero(state: GameState, targetId: EntityId): HeroState | undefined {

@@ -46,13 +46,20 @@ function actorLabel(inf: InfluenceView): string {
 	const f = inf.from;
 	const t = inf.to;
 	const fromStr =
-		f.kind === "hero" || f.kind === "enemy" || f.kind === "room" || f.kind === "item" || f.kind === "self"
+		f.kind === "hero" ||
+		f.kind === "enemy" ||
+		f.kind === "room" ||
+		f.kind === "item" ||
+		f.kind === "self"
 			? f.name
 			: f.kind === "group"
 				? "Grupo"
 				: "Dungeon";
 	const toStr =
-		t.kind === "hero" || t.kind === "enemy" || t.kind === "room" || t.kind === "self"
+		t.kind === "hero" ||
+		t.kind === "enemy" ||
+		t.kind === "room" ||
+		t.kind === "self"
 			? t.name
 			: t.kind === "group"
 				? "Grupo"
@@ -87,9 +94,7 @@ function InfluenceChip({ influence: inf }: { influence: InfluenceView }) {
 					· {inf.source}
 				</span>
 			)}
-			{actor && (
-				<span style={{ opacity: 0.75 }}>· {actor}</span>
-			)}
+			{actor && <span style={{ opacity: 0.75 }}>· {actor}</span>}
 			<span style={{ opacity: 0.55, fontSize: 9 }}>· {inf.duration}</span>
 		</div>
 	);

@@ -17,7 +17,7 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
 		id: "h1",
 		cardId: "hero_crimson_barbarian",
-			maxLife: 10,
+		maxLife: 10,
 		currentLife: 10,
 		damage: 3,
 		hitBonus: 0,
@@ -281,4 +281,3 @@ describe("power_last_light_oath — for_each heal", () => {
 		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(10);
 	});
 });
-
