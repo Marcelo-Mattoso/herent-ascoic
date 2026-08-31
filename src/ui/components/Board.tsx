@@ -1,7 +1,7 @@
 // Tabuleiro coletivo da partida (Patch 3).
 // Layout: stacks centrais | arena | footer do grupo.
 
-import { useEffect, useRef, useState } from "react";
+import { type DragEvent, useEffect, useRef, useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { CombatRollResult } from "@/core/state/combatState";
@@ -32,12 +32,11 @@ interface BoardProps {
 	onCardDetail: (name: string, type: CardType) => void;
 	// Ações de grupo
 	onReveal: () => void;
-	onStartCombat: () => void;
 	onRevealBoss: () => void;
-	onRoll: () => void;
 	onResolve: () => void;
 	onSelectDie?: (side: "hero" | "enemy", index: number) => void;
 	roll: CombatRollResult | null;
+	combatAttackHintVisible?: boolean;
 	backCardUrls?: BackCardUrls;
 	cardImageUrls?: CardImageUrls;
 }
@@ -55,6 +54,21 @@ const CARD_CONTACT_SHADOW =
 interface DiceRollAnimationState {
 	readonly key: string;
 	readonly roll: CombatRollResult;
+}
+
+interface CombatDragPreviewState {
+	readonly heroId: string;
+	readonly name: string;
+	readonly imageUrl?: string;
+	readonly x: number;
+	readonly y: number;
+}
+
+interface CombatImpactState {
+	readonly key: string;
+	readonly enemyId: string;
+	readonly heroName: string;
+	readonly imageUrl?: string;
 }
 
 function ActiveDungeonCard({
@@ -211,13 +225,12 @@ function ActiveEnemyCard({
 			type="button"
 			className={isSelectable && !isDragOver ? "click-attention" : undefined}
 			onDragOver={(event) => {
-				if (!isSelectable) return;
 				event.preventDefault();
 				event.dataTransfer.dropEffect = "move";
 			}}
 			onDrop={(event) => {
 				event.preventDefault();
-				if (isSelectable) onDrop(enemy.id);
+				onDrop(enemy.id);
 			}}
 			onClick={onClick}
 			style={{
@@ -329,18 +342,23 @@ export function Board({
 	onRoomClick,
 	onCardDetail,
 	onReveal,
-	onStartCombat,
 	onRevealBoss,
-	onRoll,
 	onResolve,
 	onSelectDie,
 	roll,
+	combatAttackHintVisible = false,
 	backCardUrls,
 	cardImageUrls,
 }: BoardProps) {
 	const [draggingHeroId, setDraggingHeroId] = useState<string | null>(null);
 	const [diceRollAnimation, setDiceRollAnimation] =
 		useState<DiceRollAnimationState | null>(null);
+	const [combatDragPreview, setCombatDragPreview] =
+		useState<CombatDragPreviewState | null>(null);
+	const [combatImpact, setCombatImpact] = useState<CombatImpactState | null>(
+		null,
+	);
+	const draggingHeroIdRef = useRef<string | null>(null);
 	const lastAnimatedRollRef = useRef<CombatRollResult | null>(null);
 
 	const heroesActed = view.combat?.heroesActed ?? [];
@@ -356,19 +374,48 @@ export function Board({
 	const heroes = view.heroes;
 	const enemies = view.enemies.filter((e) => e.status === "active");
 
-	function handleDragStart(heroId: string) {
-		setDraggingHeroId(heroId);
-		onHeroDragStart(heroId);
+	function handleDragStart(
+		hero: HeroState,
+		event: DragEvent<HTMLButtonElement>,
+	) {
+		const imageUrl = getCardImageUrl(cardImageUrls, hero.cardId);
+		draggingHeroIdRef.current = hero.id;
+		setDraggingHeroId(hero.id);
+		setCombatDragPreview({
+			heroId: hero.id,
+			name: getCardName(hero.cardId),
+			imageUrl,
+			x: event.clientX,
+			y: event.clientY,
+		});
+		onHeroDragStart(hero.id);
 	}
 
 	function handleDragEnd() {
+		draggingHeroIdRef.current = null;
 		setDraggingHeroId(null);
+		setCombatDragPreview(null);
 	}
 
 	function handleEnemyDrop(enemyId: string) {
-		const heroId = draggingHeroId ?? selectedHeroId;
-		if (heroId) onEnemyDrop(heroId, enemyId);
+		const heroId =
+			draggingHeroIdRef.current ?? draggingHeroId ?? selectedHeroId;
+		if (heroId) {
+			const hero = heroes.find((h) => h.id === heroId);
+			setCombatImpact({
+				key: `${heroId}-${enemyId}-${Date.now()}`,
+				enemyId,
+				heroName: hero ? getCardName(hero.cardId) : "Herói",
+				imageUrl: hero
+					? getCardImageUrl(cardImageUrls, hero.cardId)
+					: undefined,
+			});
+			window.setTimeout(() => setCombatImpact(null), 560);
+			onEnemyDrop(heroId, enemyId);
+		}
+		draggingHeroIdRef.current = null;
 		setDraggingHeroId(null);
+		setCombatDragPreview(null);
 	}
 
 	useEffect(() => {
@@ -384,6 +431,26 @@ export function Board({
 			roll,
 		});
 	}, [pendingDiceSelection, roll, status]);
+
+	useEffect(() => {
+		if (!draggingHeroId) return;
+
+		function handleWindowDragOver(event: globalThis.DragEvent) {
+			if (event.clientX === 0 && event.clientY === 0) return;
+			setCombatDragPreview((current) =>
+				current
+					? {
+							...current,
+							x: event.clientX,
+							y: event.clientY,
+						}
+					: current,
+			);
+		}
+
+		window.addEventListener("dragover", handleWindowDragOver);
+		return () => window.removeEventListener("dragover", handleWindowDragOver);
+	}, [draggingHeroId]);
 
 	return (
 		<div
@@ -465,14 +532,23 @@ export function Board({
 						const enemy = enemies[index] ?? null;
 						const isSelectable = !!enemy && isSelectingTarget;
 						const isDragOver = draggingHeroId !== null && isSelectable;
+						const isImpacting = !!enemy && combatImpact?.enemyId === enemy.id;
 						return (
 							<div
 								key={enemy?.id ?? `empty-enemy-slot-${index}`}
+								className={isImpacting ? "combat-drop-impact" : undefined}
 								style={{
 									width: ACTIVE_DUNGEON_CARD.width,
 									height: ACTIVE_DUNGEON_CARD.height,
+									position: "relative",
 								}}
 							>
+								{isImpacting && combatImpact && (
+									<CombatImpactCard
+										imageUrl={combatImpact.imageUrl}
+										name={combatImpact.heroName}
+									/>
+								)}
 								<ActiveEnemyCard
 									enemy={enemy}
 									isSelectable={isSelectable}
@@ -627,21 +703,17 @@ export function Board({
 									attention
 								/>
 							) : status === "COMBAT_START" ? (
-								<ActionButton
-									label="Iniciar combate"
-									icon="⚔"
-									variant="primary"
-									onClick={onStartCombat}
-									attention
-								/>
+								<span className="combat-auto-roll-status">
+									Preparando combate...
+								</span>
 							) : status === "ROLL_DICE" ? (
-								<ActionButton
-									label="Rolar dados"
-									icon="🎲"
-									variant="primary"
-									onClick={onRoll}
-									attention
-								/>
+								<span className="combat-auto-roll-status">
+									Rolando dados...
+								</span>
+							) : combatAttackHintVisible ? (
+								<span className="combat-attack-hint" aria-live="polite">
+									Arraste e solte seu herói no inimigo
+								</span>
 							) : status === "BOSS_REVEAL" ? (
 								<ActionButton
 									label="Revelar chefe"
@@ -710,7 +782,7 @@ export function Board({
 										canAct={canAct}
 										size="board"
 										imageUrl={getCardImageUrl(cardImageUrls, h.cardId)}
-										onDragStart={handleDragStart}
+										onDragStart={(_, event) => handleDragStart(h, event)}
 										onDragEnd={handleDragEnd}
 										onClick={() => onHeroClick(h)}
 									/>
@@ -723,6 +795,64 @@ export function Board({
 
 			{/* Footer do grupo */}
 			<BoardFooter view={view} onArtifactClick={onCardDetail} />
+			{combatDragPreview && (
+				<CombatDragPreview
+					name={combatDragPreview.name}
+					imageUrl={combatDragPreview.imageUrl}
+					x={combatDragPreview.x}
+					y={combatDragPreview.y}
+				/>
+			)}
+		</div>
+	);
+}
+
+function CombatDragPreview({
+	name,
+	imageUrl,
+	x,
+	y,
+}: {
+	name: string;
+	imageUrl?: string;
+	x: number;
+	y: number;
+}) {
+	return (
+		<div
+			className="combat-drag-preview"
+			style={{
+				left: x,
+				top: y,
+				backgroundImage: imageUrl
+					? `linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06) 48%, rgba(246, 240, 229, 0.68) 74%, rgba(238, 232, 219, 0.9)), url("${imageUrl}")`
+					: undefined,
+			}}
+		>
+			{!imageUrl && <span className="combat-drag-preview__icon">🧙</span>}
+			<span className="combat-drag-preview__label">{name}</span>
+		</div>
+	);
+}
+
+function CombatImpactCard({
+	name,
+	imageUrl,
+}: {
+	name: string;
+	imageUrl?: string;
+}) {
+	return (
+		<div
+			className="combat-impact-card"
+			style={{
+				backgroundImage: imageUrl
+					? `linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06) 48%, rgba(246, 240, 229, 0.68) 74%, rgba(238, 232, 219, 0.9)), url("${imageUrl}")`
+					: undefined,
+			}}
+		>
+			{!imageUrl && <span className="combat-drag-preview__icon">🧙</span>}
+			<span className="combat-drag-preview__label">{name}</span>
 		</div>
 	);
 }

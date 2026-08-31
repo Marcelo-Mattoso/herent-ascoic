@@ -6,6 +6,7 @@ import type { Action } from "@/core/actions/types";
 import { getCardName } from "@/core/data/cardLocale";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
+import { getCardImageUrl } from "@/ui/cardImages";
 import { Board } from "@/ui/components/Board";
 import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
@@ -19,7 +20,6 @@ import { FleeReconfigureModal } from "@/ui/components/modals/FleeReconfigureModa
 import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
 import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
-import { getCardImageUrl } from "@/ui/cardImages";
 import { useBackCards } from "@/ui/hooks/useBackCards";
 import { useBoardBackgrounds } from "@/ui/hooks/useBoardBackgrounds";
 import { useCardImages } from "@/ui/hooks/useCardImages";
@@ -31,6 +31,8 @@ import { UI } from "@/ui/theme";
 const AUTO_ADVANCE: Partial<Record<string, Action>> = {
 	ROOM_EFFECT: { type: "RESOLVE_ROOM_EFFECT" },
 	SPAWN_ENEMIES: { type: "SPAWN_ENEMIES" },
+	COMBAT_START: { type: "START_COMBAT" },
+	ROLL_DICE: { type: "ROLL_DICE" },
 	CHECK_COMBAT_END: { type: "CHECK_COMBAT_END" },
 	DIRECT_DAMAGE: { type: "DIRECT_DAMAGE" },
 };
@@ -56,6 +58,8 @@ export function Exploration() {
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showHeroFocus, setShowHeroFocus] = useState(false);
 	const [actionLogMode, setActionLogMode] = useState<ActionLogMode>("open");
+	const [combatAttackHintVisible, setCombatAttackHintVisible] = useState(false);
+	const [hasShownFirstAttackHint, setHasShownFirstAttackHint] = useState(false);
 	const { boards, selectedBoard, selectedBoardId, setSelectedBoardId } =
 		useBoardBackgrounds();
 	const backCardUrls = useBackCards();
@@ -65,6 +69,25 @@ export function Exploration() {
 	const combat = view.combat;
 	const focusedHero = selectFocusedHero(view, ui.focusedHeroId);
 	const heroActions = heroActionsFor(focusedHero?.id ?? "");
+	const activeEnemyIds = view.enemies
+		.filter((enemy) => enemy.status === "active")
+		.map((enemy) => enemy.id)
+		.join("|");
+	const heroesActedIds = combat?.heroesActed.join("|") ?? "";
+	const canPromptAttack =
+		(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
+		(combat?.phase === "selecting_hero" ||
+			combat?.phase === "selecting_target") &&
+		activeEnemyIds.length > 0;
+	const attackPromptTrigger = canPromptAttack
+		? [
+				status,
+				combat?.phase,
+				combat?.selectedHeroId ?? "",
+				heroesActedIds,
+				activeEnemyIds,
+			].join(":")
+		: null;
 
 	const modal: ModalType = (() => {
 		if (detailCard) return "card_detail";
@@ -82,6 +105,23 @@ export function Exploration() {
 		const t = setTimeout(() => dispatch(action), 400);
 		return () => clearTimeout(t);
 	}, [status, dispatch]);
+
+	useEffect(() => {
+		if (!attackPromptTrigger) {
+			setCombatAttackHintVisible(false);
+			return;
+		}
+
+		if (!hasShownFirstAttackHint) {
+			setHasShownFirstAttackHint(true);
+			setCombatAttackHintVisible(true);
+			return;
+		}
+
+		setCombatAttackHintVisible(false);
+		const t = setTimeout(() => setCombatAttackHintVisible(true), 3000);
+		return () => clearTimeout(t);
+	}, [attackPromptTrigger, hasShownFirstAttackHint]);
 
 	// Segundo dispatch do OPEN_PATHS
 	useEffect(() => {
@@ -105,6 +145,7 @@ export function Exploration() {
 			combat?.phase === "selecting_hero" &&
 			!combat.heroesActed.includes(h.id)
 		) {
+			setCombatAttackHintVisible(false);
 			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
 		}
 	}
@@ -112,6 +153,7 @@ export function Exploration() {
 	// Drag do herói: garante que o herói seja selecionado para a rodada
 	function handleHeroDragStart(heroId: string) {
 		setFocusedHero(heroId);
+		setCombatAttackHintVisible(false);
 		if (
 			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
 			combat?.phase === "selecting_hero" &&
@@ -123,6 +165,7 @@ export function Exploration() {
 
 	// Drop de herói sobre inimigo → ataca
 	function handleEnemyDrop(heroId: string, enemyId: string) {
+		setCombatAttackHintVisible(false);
 		dispatch({
 			type: "CHOOSE_TARGET",
 			payload: { heroId, enemyId },
@@ -136,6 +179,7 @@ export function Exploration() {
 			combat?.phase === "selecting_target" &&
 			combat.selectedHeroId
 		) {
+			setCombatAttackHintVisible(false);
 			dispatch({
 				type: "CHOOSE_TARGET",
 				payload: { heroId: combat.selectedHeroId, enemyId: e.id },
@@ -151,6 +195,7 @@ export function Exploration() {
 		if (!selectedHeroId) return;
 		const target = view.enemies.find((e) => e.status === "active");
 		if (!target) return;
+		setCombatAttackHintVisible(false);
 		dispatch({
 			type: "CHOOSE_TARGET",
 			payload: { heroId: selectedHeroId, enemyId: target.id },
@@ -160,30 +205,31 @@ export function Exploration() {
 	function handlePass() {
 		const selectedHeroId = combat?.selectedHeroId;
 		if (!selectedHeroId) return;
+		setCombatAttackHintVisible(false);
 		dispatch({ type: "PASS_HERO_ACTION", payload: { heroId: selectedHeroId } });
 	}
 
 	function handleCancelSelection() {
+		setCombatAttackHintVisible(false);
 		dispatch({ type: "CANCEL_HERO_SELECTION" });
 	}
 
-	function handleRollDice() {
-		dispatch({ type: "ROLL_DICE" });
-	}
-
 	function handleResolveAttack() {
+		setCombatAttackHintVisible(false);
 		dispatch({ type: "RESOLVE_ATTACK" });
 	}
 
 	function handleUsePower() {
 		const heroId = combat?.selectedHeroId ?? focusedHero?.id;
 		if (!heroId) return;
+		setCombatAttackHintVisible(false);
 		dispatch({ type: "USE_POWER", payload: { heroId } });
 	}
 
 	function handleFlee() {
 		const heroId = combat?.selectedHeroId ?? focusedHero?.id;
 		if (!heroId) return;
+		setCombatAttackHintVisible(false);
 		dispatch({ type: "DECLARE_FLEE", payload: { heroId } });
 	}
 
@@ -291,6 +337,7 @@ export function Exploration() {
 								view={view}
 								focusedHeroId={ui.focusedHeroId}
 								roll={roll ?? null}
+								combatAttackHintVisible={combatAttackHintVisible}
 								onHeroClick={handleHeroClick}
 								onHeroDragStart={handleHeroDragStart}
 								onEnemyDrop={handleEnemyDrop}
@@ -301,9 +348,7 @@ export function Exploration() {
 								}
 								onCardDetail={openCardDetail}
 								onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
-								onStartCombat={() => dispatch({ type: "START_COMBAT" })}
 								onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
-								onRoll={handleRollDice}
 								onResolve={handleResolveAttack}
 								onSelectDie={(side, index) =>
 									dispatch({ type: "SELECT_DIE", payload: { side, index } })
@@ -382,14 +427,14 @@ export function Exploration() {
 					</div>
 
 					{showHeroFocus && focusedHero && (
-						<div
-							className="game-hero-focus-layer"
-							onMouseDown={() => setShowHeroFocus(false)}
-						>
-							<div
-								className="game-hero-focus-popover"
-								onMouseDown={(event) => event.stopPropagation()}
-							>
+						<div className="game-hero-focus-layer">
+							<button
+								type="button"
+								className="game-hero-focus-backdrop"
+								onClick={() => setShowHeroFocus(false)}
+								aria-label="Fechar herói em foco"
+							/>
+							<div className="game-hero-focus-popover">
 								<HeroFocusPanel
 									hero={focusedHero}
 									view={view}
@@ -424,11 +469,13 @@ export function Exploration() {
 							onUseItem={
 								detailCard.heroId
 									? () => {
+											const heroId = detailCard.heroId;
+											if (!heroId) return;
 											dispatch({
 												type: "USE_ITEM",
 												payload: {
 													itemId: detailCard.id,
-													heroId: detailCard.heroId!,
+													heroId,
 												},
 											});
 											setDetailCard(null);

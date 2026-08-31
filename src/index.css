@@ -77,6 +77,165 @@ body {
 	position: relative;
 }
 
+.combat-drag-preview {
+	position: fixed;
+	z-index: 9;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	width: 124px;
+	height: 172px;
+	padding: 10px;
+	border: 2px solid rgba(47, 118, 184, 0.9);
+	border-radius: 10px;
+	background:
+		linear-gradient(
+			160deg,
+			rgba(241, 239, 232, 0.96),
+			rgba(225, 219, 207, 0.94)
+		)
+		center / 100% 100% no-repeat;
+	box-shadow:
+		0 22px 28px rgba(0, 0, 0, 0.44),
+		0 6px 10px rgba(0, 0, 0, 0.34),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.28);
+	opacity: 0.96;
+	overflow: hidden;
+	pointer-events: none;
+	transform: translate(-50%, -62%) rotate(-5deg) scale(1.04);
+	transform-origin: center;
+	will-change: left, top, transform;
+}
+
+.combat-drag-preview__icon {
+	position: absolute;
+	inset: 0;
+	display: grid;
+	place-items: center;
+	color: rgba(0, 0, 0, 0.62);
+	font-size: 38px;
+}
+
+.combat-drag-preview__label {
+	position: relative;
+	z-index: 1;
+	display: -webkit-box;
+	padding: 6px;
+	border-radius: 7px;
+	background: rgba(246, 240, 229, 0.84);
+	color: #1f1a15;
+	font-size: 12px;
+	font-weight: 800;
+	line-height: 1.12;
+	overflow: hidden;
+	-webkit-box-orient: vertical;
+	-webkit-line-clamp: 2;
+}
+
+.combat-drop-impact {
+	z-index: 2;
+	animation: combat-target-shake 0.42s ease-out;
+}
+
+.combat-auto-roll-status {
+	border: 1px solid rgba(47, 118, 184, 0.28);
+	border-radius: 8px;
+	background: rgba(241, 239, 232, 0.86);
+	color: #195f99;
+	padding: 6px 12px;
+	font-size: 12px;
+	font-weight: 800;
+	line-height: 1.2;
+	box-shadow: 0 8px 14px rgba(0, 0, 0, 0.16);
+}
+
+.combat-attack-hint {
+	border: 1px solid rgba(231, 186, 92, 0.45);
+	border-radius: 8px;
+	background: rgba(31, 26, 21, 0.68);
+	color: rgba(255, 244, 214, 0.96);
+	padding: 7px 14px;
+	font-size: 12px;
+	font-weight: 800;
+	line-height: 1.2;
+	letter-spacing: 0;
+	box-shadow:
+		0 8px 14px rgba(0, 0, 0, 0.18),
+		inset 0 0 0 1px rgba(255, 255, 255, 0.08);
+	backdrop-filter: blur(5px);
+	animation: combat-attack-hint-in 0.22s ease-out;
+}
+
+.combat-impact-card {
+	position: absolute;
+	inset: 0;
+	z-index: 3;
+	display: flex;
+	flex-direction: column;
+	justify-content: flex-end;
+	padding: 10px;
+	border: 2px solid rgba(47, 118, 184, 0.92);
+	border-radius: 10px;
+	background:
+		linear-gradient(
+			160deg,
+			rgba(241, 239, 232, 0.96),
+			rgba(225, 219, 207, 0.94)
+		)
+		center / 100% 100% no-repeat;
+	box-shadow:
+		0 12px 16px rgba(0, 0, 0, 0.38),
+		0 2px 4px rgba(0, 0, 0, 0.32);
+	pointer-events: none;
+	transform-origin: center;
+	animation: combat-card-impact 0.42s ease-out forwards;
+}
+
+@keyframes combat-card-impact {
+	0% {
+		opacity: 0.98;
+		transform: translate3d(-46px, 22px, 0) rotate(-8deg) scale(1.02);
+	}
+	48% {
+		opacity: 1;
+		transform: translate3d(0, 0, 0) rotate(0deg) scale(1.08);
+	}
+	100% {
+		opacity: 0;
+		transform: translate3d(8px, -4px, 0) rotate(3deg) scale(1);
+	}
+}
+
+@keyframes combat-attack-hint-in {
+	from {
+		opacity: 0;
+		transform: translateY(4px);
+	}
+	to {
+		opacity: 1;
+		transform: translateY(0);
+	}
+}
+
+@keyframes combat-target-shake {
+	0%,
+	100% {
+		transform: translate3d(0, 0, 0) rotate(0deg);
+	}
+	18% {
+		transform: translate3d(4px, -2px, 0) rotate(1.5deg);
+	}
+	36% {
+		transform: translate3d(-5px, 2px, 0) rotate(-1.5deg);
+	}
+	54% {
+		transform: translate3d(3px, 1px, 0) rotate(1deg);
+	}
+	72% {
+		transform: translate3d(-2px, -1px, 0) rotate(-0.6deg);
+	}
+}
+
 .game-dice-roll-layer {
 	position: absolute;
 	inset: 0;
@@ -433,7 +592,17 @@ body {
 	position: absolute;
 	inset: 0;
 	z-index: 8;
+}
+
+.game-hero-focus-backdrop {
+	position: absolute;
+	inset: 0;
+	width: 100%;
+	height: 100%;
+	border: 0;
 	background: rgba(0, 0, 0, 0.04);
+	padding: 0;
+	cursor: default;
 }
 
 .game-hero-focus-popover {

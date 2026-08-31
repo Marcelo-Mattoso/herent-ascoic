@@ -1,6 +1,7 @@
 // Card mini de herói (~64px). Usado no tabuleiro.
 // Suporta drag-and-drop nativo HTML5 para iniciar combate.
 
+import type { DragEvent } from "react";
 import { getCardName } from "@/core/data/cardLocale";
 import type { HeroState } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";
@@ -15,7 +16,7 @@ interface HeroCardProps {
 	canAct: boolean;
 	size?: "compact" | "board";
 	imageUrl?: string;
-	onDragStart?: (heroId: string) => void;
+	onDragStart?: (heroId: string, event: DragEvent<HTMLButtonElement>) => void;
 	onDragEnd?: () => void;
 	onClick: () => void;
 }
@@ -110,7 +111,11 @@ export function HeroCard({
 					}
 					e.dataTransfer.effectAllowed = "move";
 					e.dataTransfer.setData("heroId", hero.id);
-					onDragStart?.(hero.id);
+					const dragImage = new Image();
+					dragImage.src =
+						"data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
+					e.dataTransfer.setDragImage(dragImage, 0, 0);
+					onDragStart?.(hero.id, e);
 				}}
 				onDragEnd={onDragEnd}
 				style={{
