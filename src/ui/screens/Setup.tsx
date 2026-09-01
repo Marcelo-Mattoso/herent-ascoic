@@ -1,11 +1,10 @@
-import { type CSSProperties, useState } from "react";
+import { type CSSProperties, type ReactNode, useState } from "react";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { getBoss, getHeroes } from "@/core/data/cards";
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
 import { getSkillLocale, getSkillName } from "@/core/data/skillLocale";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
 import { getCardImageUrl } from "@/ui/cardImages";
-import { Modal } from "@/ui/components/Modal";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
@@ -49,6 +48,7 @@ export function Setup({ onBack }: SetupProps) {
 	const [mode, setMode] = useState<GameMode>("cooperative");
 	const [selectedHeroes, setSelectedHeroes] = useState<string[]>([]);
 	const [heroInfoId, setHeroInfoId] = useState<string | null>(null);
+	const [bossInfoOpen, setBossInfoOpen] = useState(false);
 	const cardImageUrls = useCardImages();
 	const uiAssets = useUiAssets();
 
@@ -71,6 +71,7 @@ export function Setup({ onBack }: SetupProps) {
 	const ornateBorderUrl = getUiAssetUrl(uiAssets, "ornate-border");
 	const heroIconUrl = getUiAssetUrl(uiAssets, "hero-icon");
 	const monsterIconUrl = getUiAssetUrl(uiAssets, "monster-icon");
+	const diceIconUrl = getUiAssetUrl(uiAssets, "dice-token");
 	const bossImageUrl =
 		cardImageUrls.azhakardragaofornalhasombria ??
 		cardImageUrls.Azhakardragaofornalhasombria ??
@@ -80,6 +81,10 @@ export function Setup({ onBack }: SetupProps) {
 		"--setup-bg": backgroundUrl ? `url("${backgroundUrl}")` : undefined,
 		"--setup-stone": stoneUrl ? `url("${stoneUrl}")` : undefined,
 		"--setup-border": ornateBorderUrl ? `url("${ornateBorderUrl}")` : undefined,
+	} as CSSProperties;
+	const modalStyle = {
+		"--flow-modal-bg": backgroundUrl ? `url("${backgroundUrl}")` : undefined,
+		"--flow-modal-stone": stoneUrl ? `url("${stoneUrl}")` : undefined,
 	} as CSSProperties;
 
 	function toggleHero(id: string) {
@@ -116,14 +121,7 @@ export function Setup({ onBack }: SetupProps) {
 						</p>
 					</div>
 				</div>
-				<button
-					type="button"
-					className="ornate-action ornate-action--primary setup-start-button"
-					onClick={startGame}
-					disabled={!canStart}
-				>
-					Iniciar partida
-				</button>
+				<div className="setup-header-spacer" aria-hidden="true" />
 			</header>
 
 			<div className="setup-layout">
@@ -132,7 +130,12 @@ export function Setup({ onBack }: SetupProps) {
 					aria-labelledby="setup-focus-title"
 				>
 					{boss ? (
-						<DungeonMasterCard boss={boss} imageUrl={bossImageUrl} />
+						<DungeonMasterCard
+							boss={boss}
+							imageUrl={bossImageUrl}
+							iconUrl={monsterIconUrl}
+							onInfo={() => setBossInfoOpen(true)}
+						/>
 					) : null}
 				</section>
 
@@ -183,7 +186,7 @@ export function Setup({ onBack }: SetupProps) {
 
 				<aside className="setup-rules-panel">
 					<div className="setup-section-heading">
-						{monsterIconUrl ? <img src={monsterIconUrl} alt="" /> : null}
+						{diceIconUrl ? <img src={diceIconUrl} alt="" /> : null}
 						<div>
 							<h2>Configuração</h2>
 							<p>Modo e desafio</p>
@@ -227,23 +230,32 @@ export function Setup({ onBack }: SetupProps) {
 						</div>
 					</div>
 
-					{boss ? (
-						<div className="setup-boss-panel">
-							<CardThumb imageUrl={bossImageUrl} name={getCardName(boss.id)} />
-							<div>
-								<p>Chefe final</p>
-								<h3>{getCardName(boss.id)}</h3>
-								<span>{getCardLocale(boss.id)?.condition}</span>
-							</div>
-						</div>
-					) : null}
+					<button
+						type="button"
+						className="ornate-action ornate-action--primary setup-start-button"
+						onClick={startGame}
+						disabled={!canStart}
+					>
+						Iniciar partida
+					</button>
 				</aside>
 			</div>
 			{heroInfo ? (
 				<HeroStatsModal
 					hero={heroInfo}
 					imageUrl={getCardImageUrl(cardImageUrls, heroInfo.id)}
+					logoUrl={logoUrl}
+					modalStyle={modalStyle}
 					onClose={() => setHeroInfoId(null)}
+				/>
+			) : null}
+			{bossInfoOpen && boss ? (
+				<BossInfoModal
+					boss={boss}
+					imageUrl={bossImageUrl}
+					logoUrl={logoUrl}
+					modalStyle={modalStyle}
+					onClose={() => setBossInfoOpen(false)}
 				/>
 			) : null}
 		</main>
@@ -253,14 +265,35 @@ export function Setup({ onBack }: SetupProps) {
 function DungeonMasterCard({
 	boss,
 	imageUrl,
+	iconUrl,
+	onInfo,
 }: {
 	boss: BossCard;
 	imageUrl?: string;
+	iconUrl?: string;
+	onInfo: () => void;
 }) {
 	const locale = getCardLocale(boss.id);
+	const diceText = locale?.dice ?? "Dados especiais";
 
 	return (
-		<div className="setup-dungeon-master">
+		<div className="setup-dungeon-master setup-dungeon-master-panel">
+			<div className="setup-section-heading setup-dungeon-master__heading">
+				{iconUrl ? <img src={iconUrl} alt="" /> : null}
+				<div>
+					<h2 id="setup-focus-title">Mestre da Masmorra</h2>
+					<p>Chefe final</p>
+				</div>
+				<button
+					type="button"
+					className="setup-heading-info-button"
+					aria-label={`Informações de ${getCardName(boss.id)}`}
+					title={`Informações de ${getCardName(boss.id)}`}
+					onClick={onInfo}
+				>
+					i
+				</button>
+			</div>
 			<div className="setup-dungeon-master__image">
 				{imageUrl ? (
 					<img src={imageUrl} alt={getCardName(boss.id)} />
@@ -268,27 +301,128 @@ function DungeonMasterCard({
 					<CardFallback name={getCardName(boss.id)} />
 				)}
 			</div>
-			<div className="setup-dungeon-master__caption">
-				<p>Mestre da Masmorra</p>
-				<h2 id="setup-focus-title">{getCardName(boss.id)}</h2>
+			<div className="setup-dungeon-master__summary">
+				<h3>{getCardName(boss.id)}</h3>
 				<div className="setup-dungeon-master__stats">
 					<span>Vida {boss.lifeBase}</span>
 					<span>Acerto +{boss.hitBonusBase}</span>
 					<span>Dano {boss.damage}</span>
+					<span>{diceText}</span>
 				</div>
-				<span>{locale?.condition}</span>
+				{locale?.condition ? <p>{locale.condition}</p> : null}
 			</div>
 		</div>
+	);
+}
+
+function BossInfoModal({
+	boss,
+	imageUrl,
+	logoUrl,
+	modalStyle,
+	onClose,
+}: {
+	boss: BossCard;
+	imageUrl?: string;
+	logoUrl?: string;
+	modalStyle: CSSProperties;
+	onClose: () => void;
+}) {
+	const locale = getCardLocale(boss.id);
+	const skillEntries = boss.skills.map((skill) => {
+		const skillLocale = getSkillLocale(skill.skillId);
+		return {
+			id: skill.skillId,
+			name: getSkillName(skill.skillId),
+			text: formatSkillDescription(
+				skillLocale.text ?? skillLocale.label ?? skill.skillId,
+				skill.params,
+			),
+		};
+	});
+
+	return (
+		<SetupInfoModal
+			title={getCardName(boss.id)}
+			subtitle="Mestre da Masmorra"
+			logoUrl={logoUrl}
+			modalStyle={modalStyle}
+			onClose={onClose}
+			variant="boss"
+		>
+			<div className="setup-boss-modal">
+				<div className="setup-boss-modal__image">
+					{imageUrl ? (
+						<img src={imageUrl} alt={getCardName(boss.id)} />
+					) : (
+						<CardFallback name={getCardName(boss.id)} />
+					)}
+				</div>
+				<div className="setup-boss-modal__content">
+					<div className="setup-boss-modal__facts">
+						<strong>
+							<span>Vida base</span>
+							{boss.lifeBase}
+						</strong>
+						<strong>
+							<span>Acerto base</span>+{boss.hitBonusBase}
+						</strong>
+						<strong>
+							<span>Dano</span>
+							{boss.damage}
+						</strong>
+						<strong>
+							<span>Dados</span>
+							{locale?.dice ?? "Especial"}
+						</strong>
+					</div>
+
+					<div className="setup-boss-modal__sections">
+						<BossInfoSection title="Invocação" text={locale?.condition} />
+						<BossInfoSection title="Artefatos" text={locale?.artifactBonus} />
+						<BossInfoSection
+							title="Escalonamento"
+							text={locale?.dungeonScaling}
+						/>
+						<BossInfoSection title="Vitória" text={locale?.victory} />
+					</div>
+
+					<div className="setup-boss-modal__skills">
+						<h3>Habilidades</h3>
+						{skillEntries.map((skill) => (
+							<div key={skill.id}>
+								<h4>{skill.name}</h4>
+								<p>{skill.text}</p>
+							</div>
+						))}
+					</div>
+				</div>
+			</div>
+		</SetupInfoModal>
+	);
+}
+
+function BossInfoSection({ title, text }: { title: string; text?: string }) {
+	if (!text) return null;
+	return (
+		<section>
+			<h3>{title}</h3>
+			<p>{text}</p>
+		</section>
 	);
 }
 
 function HeroStatsModal({
 	hero,
 	imageUrl,
+	logoUrl,
+	modalStyle,
 	onClose,
 }: {
 	hero: HeroCard;
 	imageUrl?: string;
+	logoUrl?: string;
+	modalStyle: CSSProperties;
 	onClose: () => void;
 }) {
 	const skillEntries = hero.skills.map((skill) => ({
@@ -298,7 +432,14 @@ function HeroStatsModal({
 	}));
 
 	return (
-		<Modal title={getCardName(hero.id)} onClose={onClose} maxWidth={680}>
+		<SetupInfoModal
+			title={getCardName(hero.id)}
+			subtitle="Ficha do Herói"
+			logoUrl={logoUrl}
+			modalStyle={modalStyle}
+			onClose={onClose}
+			variant="hero"
+		>
 			<div className="setup-hero-modal">
 				<div className="setup-hero-modal__image">
 					{imageUrl ? (
@@ -330,7 +471,56 @@ function HeroStatsModal({
 					</div>
 				</div>
 			</div>
-		</Modal>
+		</SetupInfoModal>
+	);
+}
+
+function SetupInfoModal({
+	title,
+	subtitle,
+	logoUrl,
+	modalStyle,
+	onClose,
+	variant,
+	children,
+}: {
+	title: string;
+	subtitle: string;
+	logoUrl?: string;
+	modalStyle: CSSProperties;
+	onClose: () => void;
+	variant: "hero" | "boss";
+	children: ReactNode;
+}) {
+	return (
+		<div className="flow-modal-overlay" style={modalStyle}>
+			<section
+				role="dialog"
+				aria-modal="true"
+				aria-labelledby={`setup-${variant}-modal-title`}
+				className={`flow-modal-dialog setup-info-modal setup-info-modal--${variant}`}
+				onKeyDown={(event) => event.key === "Escape" && onClose()}
+			>
+				<header className="flow-modal-header setup-info-modal__header">
+					<div className="flow-modal-title">
+						{logoUrl ? <img src={logoUrl} alt="" /> : null}
+						<div>
+							<h1 id={`setup-${variant}-modal-title`}>{title}</h1>
+							<p>{subtitle}</p>
+						</div>
+					</div>
+					<button
+						type="button"
+						className="setup-info-close-button"
+						onClick={onClose}
+						aria-label="Fechar"
+					>
+						X
+					</button>
+				</header>
+				<div className="setup-info-modal__body">{children}</div>
+			</section>
+		</div>
 	);
 }
 
@@ -363,4 +553,15 @@ function CardThumb({ imageUrl, name }: { imageUrl?: string; name: string }) {
 
 function CardFallback({ name }: { name: string }) {
 	return <span className="setup-card-fallback">{name.slice(0, 1)}</span>;
+}
+
+function formatSkillDescription(
+	text: string,
+	params?: Readonly<Record<string, number | string>>,
+) {
+	if (!params) return text;
+	return Object.entries(params).reduce(
+		(result, [key, value]) => result.replaceAll(`{${key}}`, String(value)),
+		text,
+	);
 }

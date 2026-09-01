@@ -24,13 +24,7 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 		<main className="menu-screen" style={style}>
 			<div className="menu-screen__vignette" />
 			<div className="menu-brand-shell">
-				<div className="menu-brand-shell__art" aria-hidden="true">
-					{cardUrl ? (
-						<img src={cardUrl} alt="" className="menu-brand-shell__card" />
-					) : (
-						<div className="menu-brand-shell__card-fallback" />
-					)}
-				</div>
+
 
 				<section className="menu-brand-panel" aria-labelledby="main-menu-title">
 					{logoUrl ? (
@@ -41,8 +35,6 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 						/>
 					) : null}
 					<div className="menu-brand-panel__title-block">
-						<h1 id="main-menu-title">Ascensão Heróica</h1>
-						<p>Fornalha Sombria</p>
 					</div>
 					<div className="menu-brand-panel__actions">
 						<button

@@ -1,10 +1,9 @@
-// Footer do tabuleiro: XP do grupo · Despertar · Artefatos · Condição do chefe.
+// Footer do tabuleiro: XP do grupo · Artefatos · Condição do chefe.
 
 import { getCardName } from "@/core/data/cardLocale";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
-import { ColorBar } from "./ColorBar";
 
 interface BoardFooterProps {
 	view: PlayerView;
@@ -18,7 +17,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 		<div
 			style={{
 				display: "grid",
-				gridTemplateColumns: "1fr 1fr 1fr 1fr",
+				gridTemplateColumns: "1fr 1fr 1fr",
 				gap: 16,
 				padding: "8px 12px",
 				borderTop: `0.5px solid ${UI.border}`,
@@ -71,14 +70,6 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 						</p>
 					</>
 				)}
-			</div>
-
-			{/* Despertar */}
-			<div style={{ textAlign: "center" }}>
-				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 3 }}>
-					Despertar
-				</p>
-				<ColorBar current={view.despertar} />
 			</div>
 
 			{/* Artefatos */}
