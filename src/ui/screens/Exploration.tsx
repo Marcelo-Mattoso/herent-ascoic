@@ -1,7 +1,7 @@
 // Tela de Exploração — Patch 3.
 // Layout: TopBar · Board (tabuleiro coletivo) · HeroFocusPanel (herói em foco).
 
-import { useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
 import { getCardName } from "@/core/data/cardLocale";
 import type { EnemyState } from "@/core/state/enemyState";
@@ -52,6 +52,39 @@ interface CardDetailState {
 }
 
 type ActionLogMode = "open" | "collapsed" | "hidden";
+
+const AWAKENING_LEVELS = [
+	{
+		name: "Branco",
+		bg: "#f7ead2",
+		border: "#caa15a",
+		text: "#2f2417",
+	},
+	{
+		name: "Amarelo",
+		bg: "#f5cc24",
+		border: "#d29310",
+		text: "#2f2100",
+	},
+	{
+		name: "Laranja",
+		bg: "#f07b18",
+		border: "#c34b0b",
+		text: "#2d1000",
+	},
+	{
+		name: "Vermelho",
+		bg: "#d71318",
+		border: "#8e0d11",
+		text: "#210305",
+	},
+	{
+		name: "Roxo",
+		bg: "#a71fe2",
+		border: "#6810a3",
+		text: "#190221",
+	},
+] as const;
 
 export function Exploration() {
 	const { view, ui, dispatch, setFocusedHero, heroActionsFor } = useGameStore();
@@ -359,7 +392,10 @@ export function Exploration() {
 						</div>
 
 						<aside className="game-influence-chat">
-							<InfluencePanel influences={view.activeInfluences} />
+							<DungeonAwakeningMarker current={view.despertar} />
+							<div className="game-influence-panel">
+								<InfluencePanel influences={view.activeInfluences} />
+							</div>
 							{actionLogMode === "hidden" ? (
 								<button
 									type="button"
@@ -490,5 +526,55 @@ export function Exploration() {
 			{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}
 			{status === "REWARD_PHASE" && <InventarioGrupo />}
 		</>
+	);
+}
+
+function DungeonAwakeningMarker({
+	current,
+}: {
+	current: PlayerView["despertar"];
+}) {
+	const active = AWAKENING_LEVELS[current];
+	const markerStyle = {
+		"--awakening-bg": active.bg,
+		"--awakening-border": active.border,
+		"--awakening-text": active.text,
+	} as CSSProperties;
+
+	return (
+		<section className="game-awakening-marker" style={markerStyle}>
+			<div className="game-awakening-marker__heading">
+				<span>Despertar da Masmorra</span>
+				<strong>Nível {current + 1}</strong>
+			</div>
+			<div className="game-awakening-marker__rule">Efeitos dos níveis</div>
+			<ul
+				className="game-awakening-marker__levels"
+				aria-label="Níveis do despertar"
+			>
+				{AWAKENING_LEVELS.map((level, index) => {
+					const isCurrent = index === current;
+					return (
+						<li
+							key={level.name}
+							className={`game-awakening-marker__level${
+								isCurrent ? " is-current" : ""
+							}`}
+							style={
+								{
+									"--level-bg": level.bg,
+									"--level-border": level.border,
+									"--level-text": level.text,
+								} as CSSProperties
+							}
+							title={`${index + 1} · ${level.name}`}
+						>
+							<span>{index + 1}</span>
+							<small>{level.name}</small>
+						</li>
+					);
+				})}
+			</ul>
+		</section>
 	);
 }
