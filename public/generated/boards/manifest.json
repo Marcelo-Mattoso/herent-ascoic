@@ -1,0 +1,20 @@
+{
+  "version": 1,
+  "source": "imagedata/tabuleiros",
+  "boards": [
+    {
+      "id": "basic",
+      "name": "Basic",
+      "fileName": "basic.png",
+      "url": "/generated/boards/assets/basic.png",
+      "sizeBytes": 2730122
+    },
+    {
+      "id": "terras_aridas",
+      "name": "Terras Aridas",
+      "fileName": "terras_aridas.png",
+      "url": "/generated/boards/assets/terras_aridas.png",
+      "sizeBytes": 2920707
+    }
+  ]
+}
