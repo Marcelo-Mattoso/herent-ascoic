@@ -48,7 +48,12 @@ export type Action =
 	| { type: "DIRECT_DAMAGE" }
 	| {
 			type: "USE_ITEM";
-			payload: { itemId: string; heroId: string; targetHeroId?: string };
+			payload: {
+				itemId: string;
+				heroId: string;
+				targetHeroId?: string;
+				targetEnemyId?: string;
+			};
 	  }
 	| { type: "USE_POWER"; payload: { heroId: string } }
 	| { type: "GRANT_REWARDS" }

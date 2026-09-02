@@ -3,6 +3,8 @@
 // Patch 2: phase controla o micro-estado do turno; selectedHeroId é o herói aguardando alvo.
 // Patch 5: engajamento 1-para-1 removido (v2 §8.8); múltiplos heróis podem atacar o mesmo inimigo.
 
+import type { ActivationLocks } from "./activation";
+
 export interface BonusEntry {
 	readonly source: string;
 	readonly value: number;
@@ -92,6 +94,7 @@ export interface CombatState {
 		readonly combat: Readonly<Record<string, boolean>>;
 		readonly round: Readonly<Record<string, boolean>>;
 	};
+	readonly disabled: ActivationLocks;
 }
 
 export function createEmptyCombatState(): CombatState {
@@ -108,6 +111,7 @@ export function createEmptyCombatState(): CombatState {
 		bossFirstDamageReduced: false,
 		temporaryEffects: [],
 		oncePer: { room: {}, combat: {}, round: {} },
+		disabled: {},
 		prey: null,
 		ecoTokens: {},
 		fleeAttemptByHero: {},

@@ -2,6 +2,13 @@
 
 export type { Color, ColorIndex } from "./color";
 export { COLORS } from "./color";
+export { ActivationTracker } from "./activation";
+export type {
+	ActivationLock,
+	ActivationLocks,
+	ActivationScope,
+	ActivationSubjectKind,
+} from "./activation";
 export type {
 	BonusEntry,
 	CombatPair,

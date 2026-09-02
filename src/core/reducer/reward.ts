@@ -8,8 +8,8 @@ import { XP_COSTS } from "../config/defaults";
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
 import { tickModifierDurations } from "../ecs/world";
-import { emit } from "../events/bus";
 import { calculateRewards } from "../rules/reward";
+import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { tickBlockEntries } from "../state/blockHelpers";
 import type { GameState, PendingReward } from "../state/gameState";
 import { defaultItemDestination } from "../strategies/itemDistribution";
@@ -28,9 +28,17 @@ export function handleGrantRewards(state: GameState): GameState {
 	// Evitar processar duas vezes (fila já preenchida)
 	if (state.pendingRewards.length > 0) return state;
 
-	// on_win_room: via TriggerComponents (emit CombatEnded — Lote G)
 	let next = state;
-	({ state: next } = emit(next, { type: "CombatEnded", payload: {} }));
+	next = resolveSkillWindow(next, {
+		event: "evt_combat_end",
+		ctx: {
+			triggeredBy: "evt_combat_end",
+			targetHeroIds: next.heroes
+				.filter((hero) => hero.status === "active")
+				.map((hero) => hero.id),
+		},
+	});
+	if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
 	// Expira modificadores ECS com duração this_combat/this_turn ao fechar o combate
 	// (cobre sala limpa, onde RoundEnded/end_of_round tick não rodou).
 	next = {

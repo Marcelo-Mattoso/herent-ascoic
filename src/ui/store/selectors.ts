@@ -3,6 +3,7 @@ import { type PlayerView, playerView } from "@/core/projection/playerView";
 import { isSkillGuardConsumed } from "@/core/skills/dispatch";
 import { cardSkills } from "@/core/skills/lookup";
 import { isManuallyActivatable } from "@/core/skills/useSkill";
+import { ActivationTracker } from "@/core/state/activation";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { GameState } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
@@ -209,14 +210,21 @@ export function selectHeroCombatActions(
 	const isSelectingTarget =
 		combat?.phase === "selecting_target" && combat.selectedHeroId === heroId;
 	const hasActiveEnemies = view.enemies.some((e) => e.status === "active");
+	const heroDisabled =
+		hero === null || ActivationTracker.isHeroDisabledThisRound(state, heroId);
 
-	const canAttack = isSelectingTarget && hasActiveEnemies;
-	const canPass = isSelectingTarget;
+	const canAttack = isSelectingTarget && hasActiveEnemies && !heroDisabled;
+	const canPass = isSelectingTarget && !heroDisabled;
 	const canCancel = isSelectingTarget;
 	const canUsePower =
-		isSelectingTarget && !(combat?.powersUsedThisRoom[heroId] ?? false);
+		isSelectingTarget &&
+		!heroDisabled &&
+		!(combat?.powersUsedThisRoom[heroId] ?? false);
 	const canFlee =
-		hero !== null && hero.currentLife === 1 && !state.flags["fleeBlocked"];
+		hero !== null &&
+		!heroDisabled &&
+		hero.currentLife === 1 &&
+		!state.flags["fleeBlocked"];
 
 	// Skill: habilidade manual do herói (category === "habilidade")
 	const habilidadeEntry = hero
@@ -226,7 +234,8 @@ export function selectHeroCombatActions(
 		? {
 				skillId: habilidadeEntry.def.id,
 				activatable: isManuallyActivatable(habilidadeEntry.def),
-				alreadyUsed: isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
+				alreadyUsed:
+					heroDisabled || isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
 			}
 		: null;
 

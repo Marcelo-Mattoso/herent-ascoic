@@ -6,8 +6,15 @@ import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { getCardById } from "@/core/data/cards";
+import {
+	collectHeroDamageBonusesFromItems,
+	collectHeroDamageReductionsFromItems,
+	collectHeroHitBonusesFromItems,
+	totalItemValue,
+} from "@/core/rules/itemEffects";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
+import type { GameState } from "@/core/state/gameState";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import { getCardImageUrl, type CardImageUrls } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
@@ -78,6 +85,32 @@ function artifactRequiresBearer(cardId: string): boolean {
 	const main = cardSkills(card.id)[0];
 	if (!main) return false;
 	return renderSkillLabel(main.ref).toLowerCase().includes("portador");
+}
+
+function signed(value: number): string {
+	return `${value >= 0 ? "+" : ""}${value}`;
+}
+
+function heroItemStats(hero: HeroState, state: GameState) {
+	const hitBonus = totalItemValue(collectHeroHitBonusesFromItems(hero, state));
+	const damageBonus = totalItemValue(
+		collectHeroDamageBonusesFromItems(hero, state, undefined, 4),
+	);
+	const protectionEntries = collectHeroDamageReductionsFromItems(hero, state);
+	const protection = totalItemValue(protectionEntries);
+	return {
+		hit: hero.hitBonus + hitBonus,
+		hitBonus,
+		damage: hero.damage + damageBonus,
+		damageBonus,
+		protection,
+		protectionText:
+			protection > 0
+				? protectionEntries
+						.map((entry) => `${entry.source} -${entry.value}`)
+						.join(", ")
+				: "",
+	};
 }
 
 // ── Tipo do item em voo ───────────────────────────────────────────────────────
@@ -226,6 +259,7 @@ interface HeroColumnProps {
 	onHideTooltip: () => void;
 	onUseItem: (itemId: string, heroId: string) => void;
 	onHeroDetail: (hero: HeroState) => void;
+	gameState: GameState;
 }
 
 function HeroColumn({
@@ -241,6 +275,7 @@ function HeroColumn({
 	onHideTooltip,
 	onUseItem: _onUseItem,
 	onHeroDetail,
+	gameState,
 }: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
@@ -266,6 +301,7 @@ function HeroColumn({
 
 	const isDragging = !!dragging;
 	const heroName = getCardName(hero.cardId);
+	const effectiveStats = heroItemStats(hero, gameState);
 	const backpackDropActive = canMochilaDrag();
 
 	function areaDropHandlers(zone: string, valid: boolean) {
@@ -395,6 +431,9 @@ function HeroColumn({
 				</span>
 				<span>
 					<strong>Acerto</strong>+{hero.hitBonus}
+					{effectiveStats.hitBonus
+						? ` (${signed(effectiveStats.hitBonus)} item)`
+						: ""}
 				</span>
 				<span>
 					<strong>Dados</strong>
@@ -402,7 +441,14 @@ function HeroColumn({
 				</span>
 				<span>
 					<strong>Dano</strong>
-					{hero.damage}
+					{effectiveStats.damage}
+					{effectiveStats.damageBonus
+						? ` (${signed(effectiveStats.damageBonus)} item)`
+						: ""}
+				</span>
+				<span>
+					<strong>Proteção</strong>
+					{effectiveStats.protection}
 				</span>
 			</div>
 
@@ -539,7 +585,7 @@ function HeroColumn({
 // ── Componente principal ──────────────────────────────────────────────────────
 
 export function InventarioGrupo() {
-	const { view, dispatch } = useGameStore();
+	const { view, state, dispatch } = useGameStore();
 	const cardImageUrls = useCardImages();
 	const uiAssets = useUiAssets();
 
@@ -977,6 +1023,7 @@ export function InventarioGrupo() {
 										onHideTooltip={hideTooltip}
 										onUseItem={handleUseItemFromTooltip}
 										onHeroDetail={setFocusedHero}
+										gameState={state}
 									/>
 								))}
 								{heroes.length === 0 && (
@@ -1017,6 +1064,7 @@ export function InventarioGrupo() {
 			{focusedHero && (
 				<HeroInventoryModal
 					hero={focusedHero}
+					gameState={state}
 					cardImageUrls={cardImageUrls}
 					onClose={() => setFocusedHero(null)}
 					onItemDetail={(itemId) => {
@@ -1066,11 +1114,13 @@ export function InventarioGrupo() {
 
 function HeroInventoryModal({
 	hero,
+	gameState,
 	cardImageUrls,
 	onClose,
 	onItemDetail,
 }: {
 	hero: HeroState;
+	gameState: GameState;
 	cardImageUrls: CardImageUrls;
 	onClose: () => void;
 	onItemDetail: (itemId: string) => void;
@@ -1078,12 +1128,14 @@ function HeroInventoryModal({
 	const heroName = getCardName(hero.cardId);
 	const heroImage = getCardImageUrl(cardImageUrls, hero.cardId);
 	const passive = getPrimarySkillText(hero.cardId);
+	const effectiveStats = heroItemStats(hero, gameState);
 	const blockText =
-		hero.conditions.length > 0
+		effectiveStats.protectionText ||
+		(hero.conditions.length > 0
 			? hero.conditions.join(", ")
 			: hero.healBlocked
 				? "Cura bloqueada"
-				: "Sem bloqueios";
+				: "Sem bloqueios");
 
 	return (
 		<div
@@ -1133,6 +1185,9 @@ function HeroInventoryModal({
 								</span>
 								<span>
 									<strong>Acerto</strong>+{hero.hitBonus}
+									{effectiveStats.hitBonus
+										? ` (${signed(effectiveStats.hitBonus)} item)`
+										: ""}
 								</span>
 								<span>
 									<strong>Dados</strong>
@@ -1140,10 +1195,13 @@ function HeroInventoryModal({
 								</span>
 								<span>
 									<strong>Dano efetivo</strong>
-									{hero.damage}
+									{effectiveStats.damage}
+									{effectiveStats.damageBonus
+										? ` (${signed(effectiveStats.damageBonus)} item)`
+										: ""}
 								</span>
 								<span>
-									<strong>Bloqueio</strong>
+									<strong>Proteção</strong>
 									{blockText}
 								</span>
 								<span>

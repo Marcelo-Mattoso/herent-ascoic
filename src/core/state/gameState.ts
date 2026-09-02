@@ -9,6 +9,8 @@ import { createEmptyEffectStack } from "../effects/stack";
 import type { RngState } from "../ports/random";
 import { createRng } from "../ports/random";
 import type { PendingTriggerInterrupt } from "../triggers/engine";
+import type { PendingSkillWindow } from "../skills/resolveSkillWindow";
+import type { ActivationLocks } from "./activation";
 import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
 import { createEmptyCombatState } from "./combatState";
@@ -113,6 +115,10 @@ export interface GameState {
 		readonly game: Readonly<Record<string, boolean>>;
 	};
 
+	// Estado genérico de ativação/desativação fora do combate.
+	// Bloqueios de rodada/combate vivem em CombatState.disabled.
+	readonly disabled: ActivationLocks;
+
 	// Flags globais de mecânicas (ex: discardDungeonLocked)
 	readonly flags: Readonly<Record<string, boolean>>;
 
@@ -152,6 +158,7 @@ export interface GameState {
 	// Interrupção de trigger aguardando decisão do jogador.
 	// Gerada por habilidades/itens/inimigos que reagem a uma fase do jogo.
 	pendingTriggerInterrupt?: PendingTriggerInterrupt;
+	pendingSkillWindow?: PendingSkillWindow;
 
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
@@ -222,6 +229,8 @@ export function createInitialGameState(config: GameConfig): GameState {
 		pendingRewards: [],
 
 		oncePer: { game: {} },
+
+		disabled: {},
 
 		flags: {},
 

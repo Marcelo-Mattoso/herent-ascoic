@@ -89,7 +89,12 @@ export interface SubbossRoomCard {
 
 // --- Item ---
 
-export type ItemClass = "equipment" | "consumable" | "utility" | "special";
+export type ItemClass =
+	| "equipment"
+	| "consumable"
+	| "utility"
+	| "special"
+	| "charm";
 
 export interface ItemCard {
 	readonly type: "item";

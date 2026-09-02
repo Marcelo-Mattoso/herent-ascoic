@@ -37,5 +37,6 @@ export const ITEM_CLASS_TO_SLOT = {
 	equipment: "weapon",
 	utility: "utility",
 	special: "special",
+	charm: "special",
 	consumable: null,
 } as const;

@@ -38,6 +38,7 @@ export function HeroCard({
 	const isDefeated = hero.status === "defeated";
 	const hasFled = hero.status === "fled";
 	const isActive = hero.status === "active";
+	const isRoundDisabled = isActive && hasActed;
 	const isCritical =
 		hero.maxLife > 0 && hero.currentLife / hero.maxLife <= 0.25;
 
@@ -52,11 +53,11 @@ export function HeroCard({
 	const opacity =
 		isDefeated || hasFled
 			? 0.45
+			: isRoundDisabled
+				? 0.42
 			: isCritical
 				? 0.55
-				: hasActed && !isFocused
-					? 0.65
-					: 1;
+				: 1;
 
 	const heroName = getCardName(hero.cardId);
 	const firstName = heroName.split(",")[0]?.split(" ")[0] ?? heroName;
@@ -102,7 +103,8 @@ export function HeroCard({
 		>
 			<button
 				type="button"
-				draggable={isActive}
+				draggable={isActive && canAct}
+				aria-disabled={isRoundDisabled}
 				className={canAct ? "click-attention" : undefined}
 				onDragStart={(e) => {
 					if (!isActive || !canAct) {
@@ -133,7 +135,14 @@ export function HeroCard({
 					backgroundClip: "border-box",
 					border: `${borderWidth} solid ${borderColor}`,
 					opacity,
-					cursor: isActive ? (canAct ? "grab" : "pointer") : "default",
+					cursor: isRoundDisabled
+						? "not-allowed"
+						: isActive
+							? canAct
+								? "grab"
+								: "pointer"
+							: "default",
+					filter: isRoundDisabled ? "grayscale(0.88) saturate(0.22)" : undefined,
 					borderRadius: card.radius,
 					padding: card.padding,
 					textAlign: "left",
@@ -146,7 +155,9 @@ export function HeroCard({
 							? "0 7px 10px rgba(0, 0, 0, 0.34), 0 1px 2px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255,255,255,0.28)"
 							: undefined,
 				}}
-				onClick={onClick}
+				onClick={() => {
+					if (!isRoundDisabled) onClick();
+				}}
 			>
 				{/* Arte placeholder */}
 				{!useCardImage && (

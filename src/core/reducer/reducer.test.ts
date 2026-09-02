@@ -6,9 +6,13 @@ import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
+import { getModifierTotal } from "../ecs/world";
 import { reducer, reducerCore } from "./index";
 
 const HERO = "hero_crimson_barbarian";
+const CLERIC = "hero_eternal_rest_cleric";
+const PALADIN = "hero_last_light_paladin";
+const WARRIOR = "hero_broken_bastion_warrior";
 const BOSS_NAME = "boss_azhakar";
 
 function rollDiceWithApprovals(state: GameState): GameState {
@@ -83,6 +87,51 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 	};
 }
 
+function stateWithHeroesAndEnemy(heroCardIds: string[]): GameState {
+	const base = createInitialGameState({ heroCardIds });
+	const started = reducer(base, {
+		type: "START_GAME",
+		payload: { heroCardIds },
+	});
+
+	const enemy: EnemyState = {
+		id: "e1",
+		cardId: "creature_deep_rift_rat",
+		maxLife: 8,
+		currentLife: 8,
+		damage: 1,
+		hitBonus: 0,
+		dice: 1,
+		tokens: { xp: 1, reward_item: 0, reward_artifact: 0 },
+		conditions: [],
+		firstDamageTakenThisTurn: false,
+		status: "active",
+	};
+
+	const room: RoomState = {
+		cardId: "room_dungeon_room",
+		exits: 2,
+		currentEnemies: 1,
+		reward: 0,
+		rewardType: "item",
+		effect: "",
+		xp: 1,
+		status: "active",
+	};
+
+	return {
+		...started,
+		heroes: started.heroes.map((h) => ({
+			...h,
+			currentLife: h.maxLife,
+			hitBonus: 100,
+		})),
+		currentRoom: room,
+		activeEnemies: [enemy],
+		status: "COMBAT_START",
+	};
+}
+
 // ─── Testes de setup ─────────────────────────────────────────────────────────
 
 describe("START_GAME", () => {
@@ -123,7 +172,29 @@ describe("START_GAME", () => {
 // ─── Testes de itens ─────────────────────────────────────────────────────────
 
 describe("USE_ITEM", () => {
-	it("Saque Místico descarta o item da mochila e gera recompensa de artefato", () => {
+	it("Caminho Preservado pode ser usado manualmente por item consumível", () => {
+		const base = createInitialGameState({ heroCardIds: [HERO] });
+		const started = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardIds: [HERO] },
+		});
+		const hero = started.heroes[0];
+		if (!hero) throw new Error("no hero");
+		const itemId = "item_worn_explorer_rope";
+
+		const result = reducer(
+			{
+				...started,
+				heroes: [{ ...hero, backpack: [itemId] }],
+			},
+			{ type: "USE_ITEM", payload: { itemId, heroId: hero.id } },
+		);
+
+		expect(result.heroes[0]?.backpack).not.toContain(itemId);
+		expect(result.flags.dungeonDiscardPrevented).toBe(true);
+	});
+
+	it("Saque Místico descarta o item da mochila e ativa o artefato no grupo", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const started = reducer(base, {
 			type: "START_GAME",
@@ -154,10 +225,10 @@ describe("USE_ITEM", () => {
 		});
 
 		expect(result.heroes[0]?.backpack).not.toContain(itemId);
-		expect(result.pendingRewards).toContainEqual({
-			type: "artifact",
+		expect(result.pendingRewards).toHaveLength(0);
+		expect(result.groupArtifacts).toContainEqual({
 			cardId: artifactId,
-			requiresBearer: false,
+			carriedBy: null,
 		});
 		expect(result.decks.artifactDeck.available).not.toContain(artifactId);
 	});
@@ -199,10 +270,257 @@ describe("USE_ITEM", () => {
 		});
 
 		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
-		expect(result.pendingRewards[0]).toMatchObject({
-			type: "artifact",
+		expect(result.pendingRewards).toHaveLength(0);
+		expect(result.groupArtifacts[0]).toMatchObject({
 			cardId: artifactId,
+			carriedBy: null,
 		});
+	});
+
+	it("usar item manual em combate desativa o herói até a próxima rodada", () => {
+		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		if (!hero) throw new Error("no hero");
+		const itemId = "item_ancient_iron_key";
+		const artifactId = "artifact_crimson_jailer_chain";
+		s = {
+			...s,
+			heroes: [{ ...hero, backpack: [itemId] }, ...s.heroes.slice(1)],
+			decks: {
+				...s.decks,
+				artifactDeck: {
+					available: [artifactId],
+					discarded: [],
+					removed: [],
+				},
+			},
+		};
+		s = reducer(s, {
+			type: "CHOOSE_HERO_FOR_ROUND",
+			payload: { heroId: hero.id },
+		});
+
+		const result = reducer(s, {
+			type: "USE_ITEM",
+			payload: { itemId, heroId: hero.id },
+		});
+
+		expect(result.combat?.heroesActed).toContain(hero.id);
+		expect(result.combat?.disabled[`hero:${hero.id}`]).toMatchObject({
+			kind: "hero",
+			scope: "round",
+		});
+		expect(result.status).toBe("HERO_ACTION");
+		expect(result.combat?.phase).toBe("selecting_hero");
+		expect(result.groupArtifacts).toContainEqual({
+			cardId: artifactId,
+			carriedBy: null,
+		});
+	});
+
+	it("usar habilidade manual desativa o herói e impede nova seleção na rodada", () => {
+		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		if (!hero) throw new Error("no hero");
+		s = reducer(s, {
+			type: "CHOOSE_HERO_FOR_ROUND",
+			payload: { heroId: hero.id },
+		});
+
+		const afterSkill = reducer(s, {
+			type: "USE_SKILL",
+			payload: {
+				skillId: "skill_last_light_healing",
+				sourceId: hero.id,
+				targetIds: [hero.id],
+			},
+		});
+		const blocked = reducer(afterSkill, {
+			type: "CHOOSE_HERO_FOR_ROUND",
+			payload: { heroId: hero.id },
+		});
+
+		expect(afterSkill.combat?.heroesActed).toContain(hero.id);
+		expect(afterSkill.combat?.disabled[`hero:${hero.id}`]).toMatchObject({
+			kind: "hero",
+			scope: "round",
+		});
+		expect(blocked.eventLog.at(-1)).toContain("já agiu nesta rodada");
+	});
+
+	it("nova rodada reativa heróis desativados por rodada", () => {
+		let s = stateWithHeroesAndEnemy([CLERIC]);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		if (!hero) throw new Error("no hero");
+		s = reducer(s, {
+			type: "CHOOSE_HERO_FOR_ROUND",
+			payload: { heroId: hero.id },
+		});
+		s = reducer(s, {
+			type: "USE_SKILL",
+			payload: {
+				skillId: "skill_last_light_healing",
+				sourceId: hero.id,
+				targetIds: [hero.id],
+			},
+		});
+
+		const nextRound = reducer(s, { type: "CHECK_COMBAT_END" });
+
+		expect(nextRound.combat?.heroesActed).toHaveLength(0);
+		expect(nextRound.combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
+		expect(nextRound.status).toBe("HERO_ACTION");
+		expect(nextRound.combat?.phase).toBe("selecting_hero");
+	});
+
+	it("habilidade do Paladino dispara automaticamente no início do combate em dungeon 3+", () => {
+		let s = stateWithHeroesAndEnemy([PALADIN]);
+		const hero = s.heroes[0];
+		if (!hero) throw new Error("no hero");
+
+		s = reducer({ ...s, despertar: 3 }, { type: "START_COMBAT" });
+
+		expect(s.pendingTriggerInterrupt).toBeUndefined();
+		expect(getModifierTotal(s.world, hero.id, "hit_bonus")).toBe(2);
+		expect(getModifierTotal(s.world, hero.id, "damage_dealt")).toBe(2);
+	});
+
+	it("habilidade do Guerreiro pode proteger aliado antes do dano e desativa o Guerreiro", () => {
+		let s = stateWithHeroesAndEnemy([WARRIOR, CLERIC]);
+		s = reducer(s, { type: "START_COMBAT" });
+		const warrior = s.heroes.find((h) => h.cardId === WARRIOR);
+		const cleric = s.heroes.find((h) => h.cardId === CLERIC);
+		const enemy = s.activeEnemies[0];
+		if (!warrior || !cleric || !enemy || !s.combat) {
+			throw new Error("invalid combat");
+		}
+
+		s = {
+			...s,
+			status: "RESOLVE_ATTACK",
+			combat: {
+				...s.combat,
+				phase: "resolving",
+				selectedHeroId: cleric.id,
+				pairs: [{ heroId: cleric.id, enemyId: enemy.id }],
+				lastRoll: {
+					heroId: cleric.id,
+					enemyId: enemy.id,
+					heroResults: [1],
+					heroTotal: 1,
+					heroBreakdown: [],
+					enemyResults: [6],
+					enemyTotal: 6,
+					enemyBreakdown: [],
+				},
+			},
+			heroes: s.heroes.map((hero) =>
+				hero.id === cleric.id ? { ...hero, currentLife: 10 } : hero,
+			),
+			activeEnemies: [{ ...enemy, damage: 5 }],
+		};
+
+		const interrupted = reducer(s, { type: "RESOLVE_ATTACK" });
+		expect(interrupted.pendingTriggerInterrupt).toMatchObject({
+			skillId: "skill_bastion_guard",
+			sourceHeroId: warrior.id,
+			targetHeroIds: [cleric.id],
+		});
+
+		const result = reducer(interrupted, {
+			type: "APPLY_TRIGGER_INTERRUPT",
+			payload: { interruptId: interrupted.pendingTriggerInterrupt?.id },
+		});
+
+		const updatedCleric = result.heroes.find((h) => h.id === cleric.id);
+		expect(updatedCleric?.currentLife).toBe(10 - (6 - 3));
+		expect(result.combat?.disabled[`hero:${warrior.id}`]).toMatchObject({
+			kind: "hero",
+			scope: "round",
+		});
+	});
+
+	it("item equipado de bloqueio reduz o dano sofrido pelo herói", () => {
+		let s = stateWithRoomAndEnemy(12, 8);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		const enemy = s.activeEnemies[0];
+		if (!hero || !enemy || !s.combat) throw new Error("invalid combat");
+
+		const result = reducer(
+			{
+				...s,
+				status: "RESOLVE_ATTACK",
+				heroes: [
+					{
+						...hero,
+						currentLife: 12,
+						hitBonus: 0,
+						activeItems: { armor: "item_ancient_metal_armor" },
+					},
+				],
+				activeEnemies: [{ ...enemy, damage: 5, currentLife: 8 }],
+				combat: {
+					...s.combat,
+					lastRoll: {
+						heroId: hero.id,
+						enemyId: enemy.id,
+						heroResults: [1],
+						heroTotal: 1,
+						heroBreakdown: [],
+						enemyResults: [6],
+						enemyTotal: 6,
+						enemyBreakdown: [],
+					},
+				},
+			},
+			{ type: "RESOLVE_ATTACK" },
+		);
+
+		expect(result.heroes[0]?.currentLife).toBe(8);
+		expect(result.eventLog.at(-1)).toContain("Armadura de Metal Antigo -2");
+	});
+
+	it("item equipado de dano aumenta o dano efetivo quando a margem da rolagem permite", () => {
+		let s = stateWithRoomAndEnemy(12, 10);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		const enemy = s.activeEnemies[0];
+		if (!hero || !enemy || !s.combat) throw new Error("invalid combat");
+
+		const result = reducer(
+			{
+				...s,
+				status: "RESOLVE_ATTACK",
+				heroes: [
+					{
+						...hero,
+						activeItems: { weapon: "item_broken_stone_hammer" },
+					},
+				],
+				activeEnemies: [{ ...enemy, currentLife: 10 }],
+				combat: {
+					...s.combat,
+					lastRoll: {
+						heroId: hero.id,
+						enemyId: enemy.id,
+						heroResults: [6],
+						heroTotal: 10,
+						heroBreakdown: [],
+						enemyResults: [2],
+						enemyTotal: 6,
+						enemyBreakdown: [],
+					},
+				},
+			},
+			{ type: "RESOLVE_ATTACK" },
+		);
+
+		expect(result.activeEnemies[0]?.currentLife).toBe(10 - hero.damage - 2);
+		expect(result.eventLog.join("\n")).toContain("Martelo de Pedra Quebrada +2");
 	});
 });
 
