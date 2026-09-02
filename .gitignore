@@ -13,8 +13,7 @@ package.json
 package-lock.json
 
 # Local image source and generated public assets
-imagedata/
-public/generated/
+
 
 dist
 dist-ssr
