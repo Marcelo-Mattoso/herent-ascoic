@@ -12,6 +12,7 @@ import { evaluate } from "../skills/dsl/evaluate";
 import { resolveCondition } from "../skills/dsl/resolveCondition";
 import type { EventName } from "../skills/dsl/types";
 import { cardSkills } from "../skills/lookup";
+import { ActivationTracker } from "../state/activation";
 import type { GameState } from "../state/gameState";
 
 export type TriggerWindow =
@@ -189,15 +190,26 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 	const sources: TriggerSource[] = [];
 
 	for (const hero of state.heroes.filter((h) => h.status === "active")) {
-		sources.push({
-			kind: "hero",
-			cardId: hero.cardId,
-			entityId: hero.id,
-			sourceHeroId: hero.id,
-		});
+		if (!ActivationTracker.isDisabled(state, "hero", hero.id)) {
+			sources.push({
+				kind: "hero",
+				cardId: hero.cardId,
+				entityId: hero.id,
+				sourceHeroId: hero.id,
+			});
+		}
 
 		for (const itemId of Object.values(hero.activeItems)) {
 			if (!itemId) continue;
+			if (
+				ActivationTracker.isDisabled(
+					state,
+					"item",
+					`${hero.id}:${itemId}`,
+				)
+			) {
+				continue;
+			}
 			sources.push({
 				kind: "item",
 				cardId: itemId,
@@ -213,8 +225,10 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 					enemy.status === "active" || enemy.status === "defeated"
 			: (enemy: { status: string }) => enemy.status === "active";
 	for (const enemy of state.activeEnemies.filter(enemyFilter)) {
+		const kind = enemy.id === "boss" ? "boss" : "enemy";
+		if (ActivationTracker.isDisabled(state, kind, enemy.id)) continue;
 		sources.push({
-			kind: enemy.id === "boss" ? "boss" : "enemy",
+			kind,
 			cardId: enemy.cardId,
 			entityId: enemy.id,
 			sourceEnemyId: enemy.id,
@@ -222,14 +236,21 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 	}
 
 	if (state.currentRoom) {
-		sources.push({
-			kind: "room",
-			cardId: state.currentRoom.cardId,
-			entityId: state.currentRoom.cardId,
-		});
+		if (
+			!ActivationTracker.isDisabled(state, "room", state.currentRoom.cardId)
+		) {
+			sources.push({
+				kind: "room",
+				cardId: state.currentRoom.cardId,
+				entityId: state.currentRoom.cardId,
+			});
+		}
 	}
 
 	for (const artifact of state.groupArtifacts) {
+		if (ActivationTracker.isDisabled(state, "artifact", artifact.cardId)) {
+			continue;
+		}
 		sources.push({
 			kind: "artifact",
 			cardId: artifact.cardId,
@@ -407,7 +428,7 @@ function resolveSkillParams(
 	};
 }
 
-function candidateCanFire(
+export function candidateCanFire(
 	state: GameState,
 	candidate: TriggerCandidate,
 	ctx: SkillContext,
@@ -436,7 +457,7 @@ function candidateCanFire(
 	return true;
 }
 
-function executeTriggerCandidate(
+export function executeTriggerCandidate(
 	state: GameState,
 	candidate: TriggerCandidate,
 	ctx: SkillContext,

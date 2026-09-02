@@ -57,7 +57,7 @@ abilities:
     category: hero_skill
     effect:
       - kind: p_modifier
-        to: $source
+        to: $target
         stat: s_damage_reduction
         operation: add
         value: $value

@@ -25,12 +25,15 @@ import {
 	handleStartCombat,
 	handleUseItem,
 	handleUsePower,
+	handleUseSkill,
+	advanceAfterHeroDisabledForRound,
 } from "./combat";
 import {
 	handleCheckBossCondition,
 	handleContinueExplorationAfterBossOffer,
 	handleChoosePath,
 	handleDiscardPaths,
+	discardFromDungeonDeck,
 	handleOpenPaths,
 	handleResolveRoomEffect,
 	handleRestartDungeon,
@@ -56,8 +59,12 @@ import { buildScriptCtx } from "../scripts/context";
 import { evaluate } from "../skills/dsl/evaluate";
 import { lookupSkillById } from "../skills/lookup";
 import { getContinuation } from "../skills/registry";
-import { fireOnUseSkill } from "../skills/useSkill";
 import { fireTriggerDecision, triggerDecisionFlag } from "../triggers/engine";
+import {
+	applySkillWindowDecision,
+	skipSkillWindowDecision,
+	type PendingSkillWindow,
+} from "../skills/resolveSkillWindow";
 import { handleStartGame } from "./setup";
 import { log } from "./utils";
 
@@ -83,6 +90,30 @@ function resumeAfterTriggerDecision(
 		return handleRollDice(state);
 	}
 	return state;
+}
+
+function resumeAfterSkillWindow(
+	state: GameState,
+	window: PendingSkillWindow | undefined,
+): GameState {
+	if (!window || state.pendingTriggerInterrupt || state.pendingSkillChoice) {
+		return state;
+	}
+	switch (window.resume.type) {
+		case "roll_dice":
+			return handleRollDice(state);
+		case "resolve_attack":
+			return handleResolveAttack(state);
+		case "discard_dungeon":
+			return discardFromDungeonDeck(
+				state,
+				window.resume.count,
+				window.resume.reason,
+				true,
+			);
+		case "none":
+			return state;
+	}
 }
 
 function dispatch(state: GameState, action: Action): GameState {
@@ -172,6 +203,7 @@ function dispatch(state: GameState, action: Action): GameState {
 				action.payload.itemId,
 				action.payload.heroId,
 				action.payload.targetHeroId,
+				action.payload.targetEnemyId,
 			);
 
 		case "USE_POWER":
@@ -226,12 +258,19 @@ function dispatch(state: GameState, action: Action): GameState {
 			return handleInvDescartarMesa(state);
 
 		case "USE_SKILL":
-			return fireOnUseSkill(state, action.payload);
+			return handleUseSkill(state, action.payload);
 
 		case "SKILL_CHOICE": {
 			const pending = state.pendingSkillChoice;
 			if (!pending) return state;
 			const cleared = { ...state, pendingSkillChoice: undefined };
+			const shouldAdvanceHeroUse =
+				!!pending.sourceHeroId &&
+				(state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") &&
+				state.combat?.phase === "selecting_target" &&
+				state.combat.heroesActed.includes(pending.sourceHeroId);
+			const finishChoice = (next: GameState) =>
+				shouldAdvanceHeroUse ? advanceAfterHeroDisabledForRound(next) : next;
 
 			// ── DSL choose_one path (Patch-12 Lote 3+) ───────────────────────────
 			const chosenOption = pending.options.find(
@@ -249,7 +288,7 @@ function dispatch(state: GameState, action: Action): GameState {
 					},
 					chosenOption.params ?? {},
 				);
-				return drainStack(evaluate(chosenOption.effect, ctx));
+				return finishChoice(drainStack(evaluate(chosenOption.effect, ctx)));
 			}
 
 			// ── Legacy handler continuation (type) ou script continuation (id) ──
@@ -258,21 +297,24 @@ function dispatch(state: GameState, action: Action): GameState {
 				?.type;
 			const cont =
 				getContinuation(legacyDefType ?? "") ?? getContinuation(pending.skillId);
-			if (!cont) return cleared;
-			return cont(
-				cleared,
-				{
-					triggeredBy: "on_use",
-					skillId: pending.skillId,
-					sourceHeroId: pending.sourceHeroId,
-				},
-				action.payload.choice,
+			if (!cont) return finishChoice(cleared);
+			return finishChoice(
+				cont(
+					cleared,
+					{
+						triggeredBy: "on_use",
+						skillId: pending.skillId,
+						sourceHeroId: pending.sourceHeroId,
+					},
+					action.payload.choice,
+				),
 			);
 		}
 
 		case "APPLY_TRIGGER_INTERRUPT": {
 			const pending = state.pendingTriggerInterrupt;
 			if (!pending) return state;
+			const skillWindow = state.pendingSkillWindow;
 			if (
 				action.payload?.interruptId &&
 				action.payload.interruptId !== pending.id
@@ -280,17 +322,23 @@ function dispatch(state: GameState, action: Action): GameState {
 				return state;
 			}
 
-			const cleared = {
-				...state,
-				pendingTriggerInterrupt: undefined,
-				flags: {
-					...state.flags,
-					[triggerDecisionFlag(pending.id)]: true,
-				},
-			};
-			const applied = fireTriggerDecision(cleared, pending);
+			const applied = skillWindow
+				? applySkillWindowDecision(state, pending, skillWindow)
+				: fireTriggerDecision(
+						{
+							...state,
+							pendingTriggerInterrupt: undefined,
+							flags: {
+								...state.flags,
+								[triggerDecisionFlag(pending.id)]: true,
+							},
+						},
+						pending,
+					);
 			return log(
-				resumeAfterTriggerDecision(applied, pending.window),
+				skillWindow
+					? resumeAfterSkillWindow(applied, skillWindow)
+					: resumeAfterTriggerDecision(applied, pending.window),
 				`Interrupção aplicada: ${getSkillName(pending.skillId)}`,
 			);
 		}
@@ -298,6 +346,7 @@ function dispatch(state: GameState, action: Action): GameState {
 		case "SKIP_TRIGGER_INTERRUPT": {
 			const pending = state.pendingTriggerInterrupt;
 			if (!pending) return state;
+			const skillWindow = state.pendingSkillWindow;
 			if (
 				action.payload?.interruptId &&
 				action.payload.interruptId !== pending.id
@@ -305,17 +354,21 @@ function dispatch(state: GameState, action: Action): GameState {
 				return state;
 			}
 
-			const skipped = {
-				...state,
-				pendingTriggerInterrupt: undefined,
-				flags: {
-					...state.flags,
-					[triggerDecisionFlag(pending.id)]: true,
-				},
-			};
+			const skipped = skillWindow
+				? skipSkillWindowDecision(state, pending, skillWindow)
+				: {
+						...state,
+						pendingTriggerInterrupt: undefined,
+						flags: {
+							...state.flags,
+							[triggerDecisionFlag(pending.id)]: true,
+						},
+					};
 
 			return log(
-				resumeAfterTriggerDecision(skipped, pending.window),
+				skillWindow
+					? resumeAfterSkillWindow(skipped, skillWindow)
+					: resumeAfterTriggerDecision(skipped, pending.window),
 				`Interrupção ignorada: ${getSkillName(pending.skillId)}`,
 			);
 		}

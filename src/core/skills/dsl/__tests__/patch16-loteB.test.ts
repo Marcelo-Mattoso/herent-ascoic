@@ -193,7 +193,7 @@ describe("mark_target — skill_prey_mark (#13)", () => {
 // ── draw_from — resolver case (#14) ──────────────────────────────────────────
 
 describe("draw_from — item_skill_mystic_draw (#14)", () => {
-	it("move 1 artefato do deck para pendingRewards", () => {
+	it("move 1 artefato do deck para os artefatos ativos do grupo", () => {
 		const state = {
 			...stateWithCombat(),
 			decks: {
@@ -213,9 +213,10 @@ describe("draw_from — item_skill_mystic_draw (#14)", () => {
 		const result = drainStack(
 			evaluate(defEffect("item_skill_mystic_draw"), ctx),
 		);
-		expect(result.pendingRewards).toHaveLength(1);
-		expect(result.pendingRewards[0].type).toBe("artifact");
-		expect(result.pendingRewards[0].cardId).toBeTruthy(); // was cardName: "Amuleto Antigo");
+		expect(result.pendingRewards).toHaveLength(0);
+		expect(result.groupArtifacts).toHaveLength(1);
+		expect(result.groupArtifacts[0].cardId).toBeTruthy(); // was cardName: "Amuleto Antigo");
+		expect(result.groupArtifacts[0].carriedBy).toBeNull();
 		expect(result.decks.artifactDeck.available).toHaveLength(1);
 	});
 });

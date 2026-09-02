@@ -171,8 +171,12 @@ describe("DSL add_modifier tohit_penalty", () => {
 			...createEmptyCombatState(),
 			pairs: [{ heroId: "h1", enemyId: "e1" }],
 		};
-		const hero = makeHero();
-		const base = makeState({ combat, activeEnemies: [makeEnemy()] });
+		const hero = makeHero({ cardId: "hero_eternal_rest_cleric" });
+		const base = makeState({
+			combat,
+			heroes: [hero],
+			activeEnemies: [makeEnemy()],
+		});
 		// Popula ECS world com o modifier de penalidade
 		const penMod: ModifierComponent = {
 			type: "modifier",

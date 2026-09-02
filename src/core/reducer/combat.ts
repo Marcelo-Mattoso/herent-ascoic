@@ -7,16 +7,37 @@ import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
 import {
 	decrementRoundsModifiers,
-	getModifierTotal,
 	tickModifierDurations,
 } from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
+import type { DamageType } from "../events/types";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
-import { applyShield } from "../rules/shield";
-import { cardSkills } from "../skills/lookup";
-import { fireOnUseSkill, isManuallyActivatable } from "../skills/useSkill";
+import {
+	collectHeroDamageBonusesFromItems,
+	collectHeroDamageReductionsFromItems,
+	collectHeroHitBonusesFromItems,
+	collectHeroLifeDrainFromItems,
+	findHeroItemLocation,
+	formatItemBreakdown,
+	itemActivationId,
+	itemCanBeUsedManually,
+	itemShouldBeConsumed,
+	itemUseTargetIds,
+	removeHeroItem,
+	totalItemValue,
+} from "../rules/itemEffects";
+import { ActivationTracker } from "../state/activation";
+import { cardSkills, lookupSkillById } from "../skills/lookup";
+import {
+	fireOnUseSkill,
+	isManuallyActivatable,
+	type UseSkillPayload,
+} from "../skills/useSkill";
+import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import { buildScriptCtx } from "../scripts/context";
+import { evaluate } from "../skills/dsl/evaluate";
 import { tickBlockEntries } from "../state/blockHelpers";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
@@ -25,7 +46,90 @@ import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
 import { applyDamage } from "../systems/damageSystem";
-import { log, mapHero, shuffleRng } from "./utils";
+import { applyHeal } from "../systems/healSystem";
+import { log, shuffleRng } from "./utils";
+
+function isManualCombatActivationWindow(state: GameState): boolean {
+	return (
+		(state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") &&
+		state.combat?.phase === "selecting_target"
+	);
+}
+
+function activeHeroesPendingActivation(state: GameState): HeroState[] {
+	return state.heroes.filter(
+		(h) =>
+			h.status === "active" &&
+			!ActivationTracker.isHeroDisabledThisRound(state, h.id),
+	);
+}
+
+export function advanceAfterHeroDisabledForRound(state: GameState): GameState {
+	if (!state.combat) return state;
+	const pendingHeroes = activeHeroesPendingActivation(state);
+
+	if (pendingHeroes.length > 0) {
+		const livingEnemies = state.activeEnemies.filter(
+			(e) => e.status === "active",
+		);
+		if (livingEnemies.length === 0) {
+			return {
+				...state,
+				status: "DIRECT_DAMAGE" as const,
+				combat: {
+					...state.combat,
+					phase: "direct_damage" as const,
+					selectedHeroId: null,
+				},
+			};
+		}
+		return log(
+			{
+				...state,
+				status: (state.status === "BOSS_COMBAT"
+					? "BOSS_COMBAT"
+					: "HERO_ACTION") as "BOSS_COMBAT" | "HERO_ACTION",
+				combat: {
+					...state.combat,
+					phase: "selecting_hero" as const,
+					selectedHeroId: null,
+				},
+			},
+			`Aguardando ação de ${pendingHeroes.length} herói(s).`,
+		);
+	}
+
+	return {
+		...state,
+		status: "DIRECT_DAMAGE" as const,
+		combat: {
+			...state.combat,
+			phase: "direct_damage" as const,
+			selectedHeroId: null,
+		},
+	};
+}
+
+function disableHeroForRoundAndAdvance(
+	state: GameState,
+	heroId: string,
+	reason: string,
+): GameState {
+	const disabled = ActivationTracker.disableHeroForRound(state, heroId, reason);
+	return advanceAfterHeroDisabledForRound(disabled);
+}
+
+function finishManualHeroUse(
+	beforeUse: GameState,
+	afterUse: GameState,
+	heroId: string,
+	reason: string,
+): GameState {
+	if (!isManualCombatActivationWindow(beforeUse)) return afterUse;
+	const disabled = ActivationTracker.disableHeroForRound(afterUse, heroId, reason);
+	if (disabled.pendingSkillChoice) return disabled;
+	return advanceAfterHeroDisabledForRound(disabled);
+}
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
 
@@ -35,18 +139,30 @@ export function handleStartCombat(state: GameState): GameState {
 		status: "HERO_ACTION",
 		combat: { ...createEmptyCombatState(), phase: "selecting_hero" },
 	};
-	// start_of_combat / on_enter_combat: agora via TriggerComponents (emit CombatStarted abaixo)
-	// while_in_play: passivo via installPassive — fireTrigger mantido durante transição
-	// Lote E: emite CombatStarted + RoundStarted(1) para triggers reativos ECS
-	({ state: next } = emit(next, {
-		type: "CombatStarted",
-		payload: { roomId: next.currentRoom?.cardId ?? "" },
-	}));
+	const targetEnemyIds = next.activeEnemies
+		.filter((enemy) => enemy.status === "active")
+		.map((enemy) => enemy.id);
+	const targetHeroIds = next.heroes
+		.filter((hero) => hero.status === "active")
+		.map((hero) => hero.id);
+	next = resolveSkillWindow(next, {
+		event: "evt_combat_start",
+		ctx: {
+			triggeredBy: "evt_combat_start",
+			targetEnemyIds,
+			targetHeroIds,
+		},
+	});
 	if (next.pendingTriggerInterrupt) return next;
-	({ state: next } = emit(next, {
-		type: "RoundStarted",
-		payload: { round: 1 },
-	}));
+	next = resolveSkillWindow(next, {
+		event: "evt_round_start",
+		ctx: {
+			triggeredBy: "evt_round_start",
+			round: 1,
+			targetHeroIds,
+			targetEnemyIds,
+		},
+	});
 	if (next.pendingTriggerInterrupt) return next;
 	return log(next, "Combate iniciado.");
 }
@@ -94,7 +210,7 @@ export function handleChooseHeroForRound(
 	heroId: string,
 ): GameState {
 	if (!state.combat) return state;
-	if (state.combat.heroesActed.includes(heroId)) {
+	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
 	const hero = state.heroes.find(
@@ -123,27 +239,43 @@ export function handlePassHeroAction(
 ): GameState {
 	if (!state.combat) return state;
 	const hero = state.heroes.find((h) => h.id === heroId);
-	const updatedActed = [...state.combat.heroesActed, heroId];
-	const activeHeroes = state.heroes.filter((h) => h.status === "active");
-	const pendingHeroes = activeHeroes.filter(
-		(h) => !updatedActed.includes(h.id),
+	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
+		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
+	}
+	const next = ActivationTracker.disableHeroForRound(
+		state,
+		heroId,
+		"passou a rodada",
 	);
-
-	const nextCombat = {
-		...state.combat,
-		heroesActed: updatedActed,
-		selectedHeroId: null,
-		phase: (pendingHeroes.length > 0 ? "selecting_hero" : "direct_damage") as
-			| "selecting_hero"
-			| "direct_damage",
-	};
-	const next = { ...state, combat: nextCombat };
+	const pendingHeroes = activeHeroesPendingActivation(next);
 
 	if (pendingHeroes.length > 0) {
-		return log(next, `${getCardName(hero?.cardId ?? heroId)} passou a rodada.`);
+		return log(
+			{
+				...next,
+				combat: next.combat
+					? {
+							...next.combat,
+							selectedHeroId: null,
+							phase: "selecting_hero" as const,
+						}
+					: null,
+			},
+			`${getCardName(hero?.cardId ?? heroId)} passou a rodada.`,
+		);
 	}
 	return log(
-		{ ...next, status: "DIRECT_DAMAGE" },
+		{
+			...next,
+			status: "DIRECT_DAMAGE",
+			combat: next.combat
+				? {
+						...next.combat,
+						selectedHeroId: null,
+						phase: "direct_damage" as const,
+					}
+				: null,
+		},
 		"Todos os heróis agiram. Dano direto.",
 	);
 }
@@ -158,7 +290,7 @@ export function handleChooseTarget(
 	if (!state.combat) return state;
 
 	// Validação: herói não pode agir duas vezes na mesma rodada
-	if (state.combat.heroesActed.includes(heroId)) {
+	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
 
@@ -200,35 +332,28 @@ export function handleChooseTarget(
 
 // ─── ROLL_DICE ───────────────────────────────────────────────────────────────
 
-function collectHeroBonuses(hero: HeroState, state: GameState): BonusEntry[] {
+function collectHeroBonuses(
+	hero: HeroState,
+	state: GameState,
+	enemy?: EnemyState,
+): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
 
-	// Bônus de dano/acerto — lê do ECS world (Lote C)
+	// Bônus de acerto — lê do ECS world (Lote C)
 	const entity = state.world.entities[hero.id];
 	if (entity) {
 		for (const comp of entity.components) {
 			if (
 				comp.type === "modifier" &&
-				(comp.target === "damage_dealt" || comp.target === "hit_bonus") &&
-				comp.value > 0
+				comp.target === "hit_bonus" &&
+				comp.value !== 0
 			) {
 				bonuses.push({ source: comp.source, value: comp.value });
 			}
 		}
 	}
 
-	// Penalidade de acerto via ECS world (hit_bonus com valor negativo) — Lote C/D
-	if (entity) {
-		for (const comp of entity.components) {
-			if (
-				comp.type === "modifier" &&
-				comp.target === "hit_bonus" &&
-				comp.value < 0
-			) {
-				bonuses.push({ source: comp.source, value: comp.value });
-			}
-		}
-	}
+	bonuses.push(...collectHeroHitBonusesFromItems(hero, state, enemy));
 
 	return bonuses;
 }
@@ -240,13 +365,173 @@ function collectEnemyBonuses(enemy: EnemyState, state: GameState): BonusEntry[] 
 		for (const comp of enemyEntity.components) {
 			if (
 				comp.type === "modifier" &&
-				(comp.target === "damage_dealt" || comp.target === "hit_bonus")
+				comp.target === "hit_bonus" &&
+				comp.value !== 0
 			) {
 				bonuses.push({ source: comp.source, value: comp.value });
 			}
 		}
 	}
 	return bonuses;
+}
+
+function collectWorldModifierEntries(
+	state: GameState,
+	entityId: string,
+	target: "damage_dealt" | "damage_taken",
+): Array<{ source: string; value: number }> {
+	const entity = state.world.entities[entityId];
+	if (!entity) return [];
+	const entries: Array<{ source: string; value: number }> = [];
+	for (const comp of entity.components) {
+		if (comp.type === "modifier" && comp.target === target && comp.value !== 0) {
+			entries.push({ source: comp.source, value: comp.value });
+		}
+	}
+	return entries;
+}
+
+function effectiveHeroDamage(
+	hero: HeroState,
+	state: GameState,
+	enemy: EnemyState | undefined,
+	rollMargin: number,
+): { damage: number; breakdown: readonly { source: string; value: number }[] } {
+	const worldEntries = collectWorldModifierEntries(
+		state,
+		hero.id,
+		"damage_dealt",
+	);
+	const itemEntries = collectHeroDamageBonusesFromItems(
+		hero,
+		state,
+		enemy,
+		rollMargin,
+	);
+	const breakdown = [...worldEntries, ...itemEntries];
+	return {
+		damage: Math.max(0, hero.damage + totalItemValue(breakdown)),
+		breakdown,
+	};
+}
+
+function effectiveEnemyDamage(
+	enemy: EnemyState,
+	state: GameState,
+): { damage: number; breakdown: readonly { source: string; value: number }[] } {
+	const breakdown = collectWorldModifierEntries(state, enemy.id, "damage_dealt");
+	return {
+		damage: Math.max(0, enemy.damage + totalItemValue(breakdown)),
+		breakdown,
+	};
+}
+
+function reduceHeroDamage(
+	state: GameState,
+	hero: HeroState,
+	amount: number,
+	damageType: DamageType = "physical",
+): { damage: number; breakdown: string[] } {
+	const worldEntries = collectWorldModifierEntries(
+		state,
+		hero.id,
+		"damage_taken",
+	);
+	const worldReduction = -totalItemValue(worldEntries);
+	const itemEntries = collectHeroDamageReductionsFromItems(hero, state, damageType);
+	const itemReduction = totalItemValue(itemEntries);
+	const finalDamage = Math.max(0, amount - worldReduction - itemReduction);
+	const breakdown = [
+		...formatItemBreakdown(itemEntries, "-"),
+		...(worldReduction > 0
+			? [`redução -${worldReduction}`]
+			: worldReduction < 0
+				? [`vulnerabilidade +${Math.abs(worldReduction)}`]
+				: []),
+	];
+	return { damage: finalDamage, breakdown };
+}
+
+function logItemLifeDrain(
+	state: GameState,
+	hero: HeroState,
+): GameState {
+	const drains = collectHeroLifeDrainFromItems(hero, state);
+	const amount = totalItemValue(drains);
+	if (amount <= 0) return state;
+	const healed = applyHeal(state, hero.id, amount);
+	const sources = drains.map((d) => d.source).join(", ");
+	return log(
+		healed,
+		`${getCardName(hero.cardId)} recuperou ${amount} de vida (${sources}).`,
+	);
+}
+
+function formatDamageBonusNote(
+	baseDamage: number,
+	effectiveDamageValue: number,
+	breakdown: readonly { source: string; value: number }[],
+): string {
+	if (effectiveDamageValue === baseDamage || breakdown.length === 0) return "";
+	const parts = breakdown
+		.filter((entry) => entry.value !== 0)
+		.map((entry) => `${entry.source} ${entry.value > 0 ? "+" : ""}${entry.value}`);
+	return parts.length
+		? ` [dano ${baseDamage}→${effectiveDamageValue}: ${parts.join(", ")}]`
+		: "";
+}
+
+function runItemSkill(
+	state: GameState,
+	skillDef: NonNullable<ReturnType<typeof lookupSkillById>>,
+	heroId: string,
+	targetIds: string[],
+	value: number | string | null | undefined,
+	params: Readonly<Record<string, unknown>>,
+): GameState {
+	if (isManuallyActivatable(skillDef)) {
+		return fireOnUseSkill(state, {
+			skillId: skillDef.id,
+			sourceId: heroId,
+			targetIds,
+			value,
+		});
+	}
+
+	if (!skillDef.effect) return state;
+	const ctx = buildScriptCtx(
+		state,
+		{
+			triggeredBy: "on_use",
+			sourceHeroId: heroId,
+			targetHeroIds: targetIds.filter((id) =>
+				state.heroes.some((h) => h.id === id),
+			),
+			targetEnemyIds: targetIds.filter((id) =>
+				state.activeEnemies.some((e) => e.id === id),
+			),
+			skillId: skillDef.id,
+			value: (value ?? null) as number | string | null,
+		},
+		params,
+	);
+	return drainStack(evaluate(skillDef.effect, ctx));
+}
+
+function maybeDisableReusableItem(
+	state: GameState,
+	heroId: string,
+	itemId: string,
+	consumed: boolean,
+): GameState {
+	if (consumed || !state.combat) return state;
+	return ActivationTracker.disable(state, {
+		kind: "item",
+		id: itemActivationId(heroId, itemId),
+		scope: "combat",
+		sourceId: heroId,
+		reason: "item usado",
+	});
 }
 
 export function handleRollDice(state: GameState): GameState {
@@ -259,17 +544,18 @@ export function handleRollDice(state: GameState): GameState {
 	const enemy = state.activeEnemies.find((e) => e.id === pair.enemyId);
 	if (!hero || !enemy) return state;
 
-	// Lote E+F: emit(RollAboutToHappen) dispara TriggerComponents instalados
-	// (before_attack, combat_*, when_half_life_or_less via condições no world)
-	let preRoll = state;
-	({ state: preRoll } = emit(preRoll, {
-		type: "RollAboutToHappen",
-		payload: {
-			heroId: hero.id,
-			enemyId: enemy.id,
-			round: preRoll.combat?.round ?? 0,
+	let preRoll = resolveSkillWindow(state, {
+		event: "evt_attack_declared",
+		resume: { type: "roll_dice" },
+		ctx: {
+			triggeredBy: "evt_attack_declared",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+			targetHeroIds: [hero.id],
+			targetEnemyIds: [enemy.id],
+			round: state.combat?.round ?? 0,
 		},
-	}));
+	});
 	if (preRoll.pendingTriggerInterrupt) {
 		return { ...preRoll, status: "ROLL_DICE" };
 	}
@@ -285,7 +571,7 @@ export function handleRollDice(state: GameState): GameState {
 	const { result: enemyRollResult, next: rng2 } = rollDiceRng(enemy.dice, rng1);
 	preRoll = { ...preRoll, rng: rng2 };
 
-	const heroBonuses = collectHeroBonuses(hero, preRoll);
+	const heroBonuses = collectHeroBonuses(hero, preRoll, enemy);
 	const enemyBonuses = collectEnemyBonuses(enemy, preRoll);
 
 	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);
@@ -302,25 +588,24 @@ export function handleRollDice(state: GameState): GameState {
 		enemyBreakdown: enemyBonuses,
 	};
 
-	// after_roll: via TriggerComponents (emit RollResolved abaixo)
 	let postRoll: GameState = {
 		...preRoll,
 		status: "RESOLVE_ATTACK",
 		combat: preRoll.combat ? { ...preRoll.combat, lastRoll: roll } : null,
 	};
 
-	// Lote E: emite RollResolved
-	({ state: postRoll } = emit(postRoll, {
-		type: "RollResolved",
-		payload: {
-			heroId: hero.id,
-			enemyId: enemy.id,
-			heroTotal: heroCalc.total,
-			enemyTotal: enemyCalc.total,
-			heroResults: heroRollResult.results,
-			enemyResults: enemyRollResult.results,
+	postRoll = resolveSkillWindow(postRoll, {
+		event: "evt_roll",
+		ctx: {
+			triggeredBy: "evt_roll",
+			sourceHeroId: hero.id,
+			sourceEnemyId: enemy.id,
+			targetHeroIds: [hero.id],
+			targetEnemyIds: [enemy.id],
+			value: heroCalc.total - enemyCalc.total,
+			round: postRoll.combat?.round ?? 0,
 		},
-	}));
+	});
 	if (postRoll.pendingTriggerInterrupt) return postRoll;
 
 	return log(
@@ -365,15 +650,33 @@ export function handleResolveAttack(state: GameState): GameState {
 	const enemy = state.activeEnemies.find((e) => e.id === roll.enemyId);
 	if (!hero || !enemy) return state;
 
+	const rollMargin = roll.heroTotal - roll.enemyTotal;
+	const heroDamage = effectiveHeroDamage(hero, state, enemy, rollMargin);
+	const enemyDamage = effectiveEnemyDamage(enemy, state);
 	const result = resolveAttack(
 		roll.heroTotal,
 		roll.enemyTotal,
-		hero.damage,
-		enemy.damage,
+		heroDamage.damage,
+		enemyDamage.damage,
 	);
 
 	const isFleeAttempt = !!state.combat.fleeAttemptByHero?.[hero.id];
-	let next = state;
+	let next =
+		result.heroDamageTaken > 0
+			? resolveSkillWindow(state, {
+					event: "evt_damage_taken",
+					resume: { type: "resolve_attack" },
+					ctx: {
+						triggeredBy: "evt_damage_taken",
+						sourceEnemyId: enemy.id,
+						targetHeroIds: [hero.id],
+						targetEnemyIds: [enemy.id],
+						value: result.heroDamageTaken,
+						round: state.combat?.round ?? 0,
+					},
+				})
+			: state;
+	if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
 
 	// Limpar flag de fuga independente do resultado
 	if (isFleeAttempt && next.combat) {
@@ -401,45 +704,7 @@ export function handleResolveAttack(state: GameState): GameState {
 			next,
 			`${getCardName(hero.cardId)} fugiu do combate com sucesso!`,
 		);
-		// Registrar herói como tendo agido e checar heróis restantes
-		const updatedActed = [...(next.combat?.heroesActed ?? []), roll.heroId];
-		next = {
-			...next,
-			combat: next.combat
-				? { ...next.combat, heroesActed: updatedActed }
-				: null,
-		};
-		const activeHeroes = next.heroes.filter((h) => h.status === "active");
-		const pendingHeroes = activeHeroes.filter(
-			(h) => !updatedActed.includes(h.id),
-		);
-		if (pendingHeroes.length > 0) {
-			return log(
-				{
-					...next,
-					status: "HERO_ACTION" as const,
-					combat: next.combat
-						? {
-								...next.combat,
-								phase: "selecting_hero" as const,
-								selectedHeroId: null,
-							}
-						: null,
-				},
-				`Aguardando ação de ${pendingHeroes.length} herói(s).`,
-			);
-		}
-		return {
-			...next,
-			status: "DIRECT_DAMAGE" as const,
-			combat: next.combat
-				? {
-						...next.combat,
-						phase: "direct_damage" as const,
-						selectedHeroId: null,
-					}
-				: null,
-		};
+		return disableHeroForRoundAndAdvance(next, roll.heroId, "fugiu");
 	}
 
 	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
@@ -447,57 +712,40 @@ export function handleResolveAttack(state: GameState): GameState {
 		const dmg = result.enemyDamageTaken;
 		next = applyDamage(next, enemy.id, dmg);
 		if (next.pendingTriggerInterrupt) return next;
+		next = logItemLifeDrain(next, hero);
 		const heroRollStr = fmtRoll(
 			roll.heroResults,
 			roll.heroBreakdown,
 			roll.heroTotal,
 		);
 		const tieNote = result.outcome === "tie" ? " (empate)" : "";
+		const damageNote = formatDamageBonusNote(
+			hero.damage,
+			heroDamage.damage,
+			heroDamage.breakdown,
+		);
 		next = log(
 			next,
-			`${getCardName(enemy.cardId)} sofreu ${dmg} de dano${tieNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
+			`${getCardName(enemy.cardId)} sofreu ${dmg} de dano${tieNote}${damageNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
 		);
 
 		// on_destroy_creature_with_attack + on_destroyed: via TriggerComponents (emit EnemyDestroyed)
 	}
 
 	if (result.heroDamageTaken > 0) {
-		const hasShield =
-			hero.activeItems.weapon === "item_cracked_shield" ||
-			hero.activeItems.armor === "item_cracked_shield";
-		const shieldUsed = next.combat?.shieldsUsedThisCombat[hero.id] ?? false;
-		// Redução via ECS world (Lote B: leitura migrada do legacy)
-		const engineReduction = -getModifierTotal(
-			next.world,
-			hero.id,
-			"damage_taken",
-		);
-		let dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
-		dmg = Math.max(0, dmg - engineReduction);
-		const newShields =
-			hasShield && !shieldUsed
-				? { ...next.combat!.shieldsUsedThisCombat, [hero.id]: true }
-				: next.combat!.shieldsUsedThisCombat;
+		const reduced = reduceHeroDamage(next, hero, result.heroDamageTaken);
+		const dmg = reduced.damage;
 
 		next = applyDamage(next, hero.id, dmg);
 		if (next.pendingTriggerInterrupt) return next;
-		next = {
-			...next,
-			combat: next.combat
-				? { ...next.combat, shieldsUsedThisCombat: newShields }
-				: null,
-		};
 		const enemyRollStr = fmtRoll(
 			roll.enemyResults,
 			roll.enemyBreakdown,
 			roll.enemyTotal,
 		);
 		const tieNoteHero = result.outcome === "tie" ? " (empate)" : "";
-		const reductionParts: string[] = [];
-		if (hasShield && !shieldUsed) reductionParts.push("escudo −1");
-		if (engineReduction > 0) reductionParts.push(`redução −${engineReduction}`);
-		const reductionStr = reductionParts.length
-			? ` [${reductionParts.join(", ")}]`
+		const reductionStr = reduced.breakdown.length
+			? ` [${reduced.breakdown.join(", ")}]`
 			: "";
 		next = log(
 			next,
@@ -508,68 +756,7 @@ export function handleResolveAttack(state: GameState): GameState {
 	// Consumir modificadores "once" após o ataque ser resolvido (Lote C)
 	next = { ...next, world: tickModifierDurations(next.world, "once_consumed") };
 
-	// Registrar herói como tendo agido nesta rodada
-	const updatedActed = [...(next.combat?.heroesActed ?? []), roll.heroId];
-	next = {
-		...next,
-		combat: next.combat ? { ...next.combat, heroesActed: updatedActed } : null,
-	};
-
-	// Verificar se ainda há heróis ativos que não agiram
-	const activeHeroes = next.heroes.filter((h) => h.status === "active");
-	const pendingHeroes = activeHeroes.filter(
-		(h) => !updatedActed.includes(h.id),
-	);
-
-	if (pendingHeroes.length > 0) {
-		const livingEnemies = next.activeEnemies.filter(
-			(e) => e.status === "active",
-		);
-		if (livingEnemies.length === 0) {
-			// Inimigos todos derrotados — pula heróis restantes e vai para dano direto
-			return {
-				...next,
-				status: "DIRECT_DAMAGE" as const,
-				combat: next.combat
-					? {
-							...next.combat,
-							phase: "direct_damage" as const,
-							selectedHeroId: null,
-						}
-					: null,
-			};
-		}
-		// Há heróis que ainda não agiram — voltar para seleção de herói
-		const withPhase = {
-			...next,
-			status: "HERO_ACTION" as const,
-			combat: next.combat
-				? {
-						...next.combat,
-						phase: "selecting_hero" as const,
-						selectedHeroId: null,
-					}
-				: null,
-		};
-		return log(
-			withPhase,
-			`Aguardando ação de ${pendingHeroes.length} herói(s).`,
-		);
-	}
-
-	// Todos os heróis ativos agiram — passar para dano direto
-	const withPhase = {
-		...next,
-		status: "DIRECT_DAMAGE" as const,
-		combat: next.combat
-			? {
-					...next.combat,
-					phase: "direct_damage" as const,
-					selectedHeroId: null,
-				}
-			: null,
-	};
-	return withPhase;
+	return disableHeroForRoundAndAdvance(next, roll.heroId, "atacou");
 }
 
 // ─── DIRECT_DAMAGE ───────────────────────────────────────────────────────────
@@ -583,15 +770,44 @@ function resolveExtraEnemyCombatRoll(
 
 	let next = state;
 
-	({ state: next } = emit(next, {
-		type: "RollAboutToHappen",
-		payload: {
-			heroId: target.id,
-			enemyId: enemy.id,
+	next = resolveSkillWindow(next, {
+		event: "evt_targeted",
+		ctx: {
+			triggeredBy: "evt_targeted",
+			sourceEnemyId: enemy.id,
+			targetHeroIds: [target.id],
 			round: next.combat?.round ?? 0,
-			sourceType: "enemy",
 		},
-	}));
+	});
+	if (next.pendingTriggerInterrupt) return next;
+
+	if (next.combat?.targetProtectionByHero[target.id]) {
+		return log(
+			{
+				...next,
+				combat: {
+					...next.combat,
+					targetProtectionByHero: {
+						...next.combat.targetProtectionByHero,
+						[target.id]: false,
+					},
+				},
+			},
+			`${getCardName(target.cardId)} ignorou o efeito que o escolheria como alvo.`,
+		);
+	}
+
+	next = resolveSkillWindow(next, {
+		event: "evt_attack_declared",
+		ctx: {
+			triggeredBy: "evt_attack_declared",
+			sourceEnemyId: enemy.id,
+			targetHeroIds: [target.id],
+			targetEnemyIds: [enemy.id],
+			round: next.combat?.round ?? 0,
+		},
+	});
+	if (next.pendingTriggerInterrupt) return next;
 	next = drainStack(next);
 
 	const currentTarget = next.heroes.find(
@@ -612,22 +828,23 @@ function resolveExtraEnemyCombatRoll(
 	);
 	next = { ...next, rng: rng2 };
 
-	const heroBonuses = collectHeroBonuses(currentTarget, next);
+	const heroBonuses = collectHeroBonuses(currentTarget, next, currentEnemy);
 	const enemyBonuses = collectEnemyBonuses(currentEnemy, next);
 	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);
 	const enemyCalc = calculateTotal(enemyRollResult.results, enemyBonuses);
 
-	({ state: next } = emit(next, {
-		type: "RollResolved",
-		payload: {
-			heroId: currentTarget.id,
-			enemyId: currentEnemy.id,
-			heroTotal: heroCalc.total,
-			enemyTotal: enemyCalc.total,
-			heroResults: heroRollResult.results,
-			enemyResults: enemyRollResult.results,
+	next = resolveSkillWindow(next, {
+		event: "evt_roll",
+		ctx: {
+			triggeredBy: "evt_roll",
+			sourceEnemyId: currentEnemy.id,
+			targetHeroIds: [currentTarget.id],
+			targetEnemyIds: [currentEnemy.id],
+			value: heroCalc.total - enemyCalc.total,
+			round: next.combat?.round ?? 0,
 		},
-	}));
+	});
+	if (next.pendingTriggerInterrupt) return next;
 
 	if (enemyCalc.total <= heroCalc.total) {
 		return log(
@@ -636,45 +853,23 @@ function resolveExtraEnemyCombatRoll(
 		);
 	}
 
-	const hasShield =
-		currentTarget.activeItems.weapon === "item_cracked_shield" ||
-		currentTarget.activeItems.armor === "item_cracked_shield";
-	const shieldUsed =
-		next.combat?.shieldsUsedThisCombat[currentTarget.id] ?? false;
-	const engineReduction = -getModifierTotal(
-		next.world,
-		currentTarget.id,
-		"damage_taken",
-	);
-	let dmg = applyShield(currentEnemy.damage, !shieldUsed, hasShield);
-	dmg = Math.max(0, dmg - engineReduction);
-	const newShields =
-		hasShield && !shieldUsed
-			? { ...next.combat!.shieldsUsedThisCombat, [currentTarget.id]: true }
-			: next.combat!.shieldsUsedThisCombat;
+	const enemyDamage = effectiveEnemyDamage(currentEnemy, next);
+	const reduced = reduceHeroDamage(next, currentTarget, enemyDamage.damage, "attack");
+	const dmg = reduced.damage;
 
 	next = applyDamage(next, currentTarget.id, dmg, {
 		sourceId: currentEnemy.id,
 		damageType: "attack",
 	});
 	if (next.pendingTriggerInterrupt) return next;
-	next = {
-		...next,
-		combat: next.combat
-			? { ...next.combat, shieldsUsedThisCombat: newShields }
-			: null,
-	};
 
 	const enemyRollStr = fmtRoll(
 		enemyRollResult.results,
 		enemyBonuses,
 		enemyCalc.total,
 	);
-	const reductionParts: string[] = [];
-	if (hasShield && !shieldUsed) reductionParts.push("escudo −1");
-	if (engineReduction > 0) reductionParts.push(`redução −${engineReduction}`);
-	const reductionStr = reductionParts.length
-		? ` [${reductionParts.join(", ")}]`
+	const reductionStr = reduced.breakdown.length
+		? ` [${reduced.breakdown.join(", ")}]`
 		: "";
 
 	return log(
@@ -763,6 +958,7 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 							round: next.combat.round + 1,
 							pairs: [],
 							heroesActed: [],
+							disabled: {},
 						}
 					: null,
 			},
@@ -781,19 +977,25 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 				pairs: [],
 				heroesActed: [],
 				lastRoll: null,
+				disabled: ActivationTracker.clearLocks(
+					state.combat.disabled,
+					"round",
+				),
 				oncePer: {
 					...state.combat.oncePer,
 					round: {}, // reset por rodada
 				},
 			}
 		: createEmptyCombatState();
-	// Lote E: emite RoundEnded para a rodada que terminou
 	const currentRound = state.combat?.round ?? 0;
-	let nextState: GameState = state;
-	({ state: nextState } = emit(nextState, {
-		type: "RoundEnded",
-		payload: { round: currentRound },
-	}));
+	let nextState = resolveSkillWindow(state, {
+		event: "evt_round_end",
+		ctx: {
+			triggeredBy: "evt_round_end",
+			round: currentRound,
+		},
+	});
+	if (nextState.pendingTriggerInterrupt) return nextState;
 
 	// Expirar modificadores ECS de duração "end_of_round" (this_turn) e decrementar rounds.
 	const worldAfterTick = decrementRoundsModifiers(
@@ -809,45 +1011,31 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 		"end_of_round",
 	);
 
-	// Lote E+F: emit(RoundStarted) dispara TriggerComponents (inclui first_round_in_room via condição round===1)
-	({ state: nextState } = emit(nextState, {
-		type: "RoundStarted",
-		payload: { round: nextRound },
-	}));
+	nextState = resolveSkillWindow(nextState, {
+		event: "evt_round_start",
+		ctx: {
+			triggeredBy: "evt_round_start",
+			round: nextRound,
+			targetHeroIds: nextState.heroes
+				.filter((hero) => hero.status === "active")
+				.map((hero) => hero.id),
+			targetEnemyIds: nextState.activeEnemies
+				.filter((enemy) => enemy.status === "active")
+				.map((enemy) => enemy.id),
+		},
+	});
 
 	return log(nextState, `Rodada ${nextRound + 1} de combate.`);
 }
 
 // ─── USE_ITEM ─────────────────────────────────────────────────────────────────
 
-function discardMysticDrawItem(
-	state: GameState,
-	heroId: string,
-	itemId: string,
-): GameState {
-	return mapHero(state, heroId, (h) => {
-		const activeItems = { ...h.activeItems };
-		for (const slot of Object.keys(activeItems) as Array<
-			keyof typeof activeItems
-		>) {
-			if (activeItems[slot] === itemId) {
-				delete activeItems[slot];
-			}
-		}
-
-		return {
-			...h,
-			activeItems,
-			backpack: h.backpack.filter((i) => i !== itemId),
-		};
-	});
-}
-
 export function handleUseItem(
 	state: GameState,
 	itemId: string,
 	heroId: string,
 	targetHeroId?: string,
+	targetEnemyId?: string,
 ): GameState {
 	// Resolve a skill do item via catálogo
 	const itemCard = getCardById(itemId);
@@ -858,31 +1046,50 @@ export function handleUseItem(
 		return log(state, `[TODO] Efeito de item não catalogado: ${itemName}`);
 	}
 
-	// Skill do item não é ativável manualmente (ex: trigger before_attack).
-	// Não consumir — sinaliza ao jogador que o item não pode ser usado dessa forma.
-	if (!isManuallyActivatable(skillDef)) {
+	// Alguns itens reativos tambem podem ser acionados manualmente pelo jogador
+	// (ex: prevenir o proximo descarte de dungeon).
+	if (!itemCanBeUsedManually(skillDef)) {
 		return log(
 			state,
 			`${itemName} não pode ser usado agora (efeito: ${skillDef.trigger}).`,
 		);
 	}
 
-	// Consumir o item da mochila antes de executar o efeito
 	const hero = state.heroes.find((h) => h.id === heroId);
+	if (!hero || hero.status !== "active") {
+		return log(state, `[AVISO] Herói ${heroId} inválido ou inativo.`);
+	}
+	if (!findHeroItemLocation(hero, itemId)) {
+		return log(
+			state,
+			`[AVISO] ${getCardName(hero.cardId)} não possui ${itemName}.`,
+		);
+	}
+	if (
+		isManualCombatActivationWindow(state) &&
+		ActivationTracker.isHeroDisabledThisRound(state, heroId)
+	) {
+		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
+	}
+	if (ActivationTracker.isDisabled(state, "item", itemActivationId(heroId, itemId))) {
+		return log(state, `[AVISO] ${itemName} já foi usado neste combate.`);
+	}
+
+	const params = {
+		...(skillDef.params ?? {}),
+		...(itemSkillRef?.ref.params ?? {}),
+	};
 	const heroName = hero ? getCardName(hero.cardId) : heroId;
-	const isMysticDraw = skillDef.id === "item_skill_mystic_draw";
-	const withItemRemoved: GameState = log(
-		isMysticDraw
-			? discardMysticDrawItem(state, heroId, itemId)
-			: mapHero(state, heroId, (h) => ({
-					...h,
-					backpack: h.backpack.filter((i) => i !== itemId),
-				})),
-		isMysticDraw
-			? `${heroName} descartou ${itemName} para ativar Saque Místico.`
+	const consumed = itemShouldBeConsumed(itemId, skillDef.id);
+	const withItemCost: GameState = log(
+		consumed ? removeHeroItem(state, heroId, itemId) : state,
+		consumed
+			? `${heroName} descartou ${itemName} para ativar o efeito.`
 			: `${heroName} usou ${itemName}.`,
 	);
-	const itemSkillValue = itemSkillRef?.ref.params?.value;
+	const itemSkillValue =
+		(itemSkillRef?.ref.params?.value as number | string | undefined) ??
+		(skillDef.params?.value as number | string | undefined);
 
 	// itemControl: inimigo do par atual pode ignorar o 1º efeito de item
 	const currentPairEnemyId = state.combat?.pairs.find(
@@ -890,52 +1097,86 @@ export function handleUseItem(
 	)?.enemyId;
 	if (currentPairEnemyId) {
 		// itemControl: inimigo do par atual pode ignorar o 1º efeito de item (Evasão das Fendas)
-		if (withItemRemoved.combat?.itemControlByEnemy[currentPairEnemyId]) {
-			return log(
-				{
-					...withItemRemoved,
-					combat: {
-						...withItemRemoved.combat!,
-						itemControlByEnemy: {
-							...withItemRemoved.combat!.itemControlByEnemy,
-							[currentPairEnemyId]: false,
+		if (withItemCost.combat?.itemControlByEnemy[currentPairEnemyId]) {
+			const blocked = log(
+					{
+						...withItemCost,
+						combat: {
+							...withItemCost.combat!,
+							itemControlByEnemy: {
+								...withItemCost.combat!.itemControlByEnemy,
+								[currentPairEnemyId]: false,
+							},
 						},
 					},
-				},
-				`${currentPairEnemyId}: Evasão das Fendas — efeito de item bloqueado.`,
+					`${currentPairEnemyId}: Evasão das Fendas — efeito de item bloqueado.`,
+			);
+			return finishManualHeroUse(
+				state,
+				maybeDisableReusableItem(blocked, heroId, itemId, consumed),
+				heroId,
+				`usou ${itemName}`,
 			);
 		}
 		const roomFirstTime =
-			!withItemRemoved.flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
+			!withItemCost.flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
 		let afterItemEmit = roomFirstTime
 			? {
-					...withItemRemoved,
+					...withItemCost,
 					flags: {
-						...withItemRemoved.flags,
+						...withItemCost.flags,
 						[`itemEffect::${currentPairEnemyId}::${heroId}`]: true,
 					},
 				}
-			: withItemRemoved;
+			: withItemCost;
 		({ state: afterItemEmit } = emit(afterItemEmit, {
 			type: "ItemEffectAppliedTo",
 			payload: { heroId, itemId, sourceId: currentPairEnemyId, roomFirstTime },
 		}));
-		const targetIds = targetHeroId ? [targetHeroId] : [heroId];
-		return fireOnUseSkill(afterItemEmit, {
-			skillId: skillDef.id,
-			sourceId: heroId,
+		const targetIds = itemUseTargetIds(
+			state,
+			skillDef,
+			heroId,
+			targetHeroId,
+			targetEnemyId,
+		);
+		const afterUse = runItemSkill(
+			afterItemEmit,
+			skillDef,
+			heroId,
 			targetIds,
-			value: itemSkillValue,
-		});
+			itemSkillValue,
+			params,
+		);
+		return finishManualHeroUse(
+			state,
+			maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
+			heroId,
+			`usou ${itemName}`,
+		);
 	}
 
-	const targetIds = targetHeroId ? [targetHeroId] : [heroId];
-	return fireOnUseSkill(withItemRemoved, {
-		skillId: skillDef.id,
-		sourceId: heroId,
+	const targetIds = itemUseTargetIds(
+		state,
+		skillDef,
+		heroId,
+		targetHeroId,
+		targetEnemyId,
+	);
+	const afterUse = runItemSkill(
+		withItemCost,
+		skillDef,
+		heroId,
 		targetIds,
-		value: itemSkillValue,
-	});
+		itemSkillValue,
+		params,
+	);
+	return finishManualHeroUse(
+		state,
+		maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
+		heroId,
+		`usou ${itemName}`,
+	);
 }
 
 // ─── USE_POWER ────────────────────────────────────────────────────────────────
@@ -943,6 +1184,9 @@ export function handleUseItem(
 export function handleUsePower(state: GameState, heroId: string): GameState {
 	const hero = state.heroes.find((h) => h.id === heroId);
 	if (!hero || !state.combat) return state;
+	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
+		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
+	}
 
 	// Verificar se algum item equipado tem trigger once_per_combat_instead_of_attack
 	const equippedItems = Object.values(hero.activeItems).filter(
@@ -952,7 +1196,19 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 		const equippedCard = getCardById(itemId);
 		const itemSkillEntry = equippedCard ? cardSkills(equippedCard.id)[0] : null;
 		const itemSkill = itemSkillEntry?.def ?? null;
-		if (itemSkill?.trigger?.event === "evt_attack_declared") {
+		if (itemSkill?.id === "skill_opportunity_shot") {
+			if (
+				ActivationTracker.isDisabled(
+					state,
+					"item",
+					itemActivationId(heroId, itemId),
+				)
+			) {
+				return log(
+					state,
+					`${getCardName(itemId)} já foi usado neste combate.`,
+				);
+			}
 			const guardKey = `${itemSkill.id}::${heroId}`;
 			if (state.combat.oncePer.combat[guardKey]) {
 				return log(
@@ -989,29 +1245,11 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 				next,
 				`${getCardName(hero.cardId)} — Tiro de Oportunidade: ${getCardName(enemy.cardId)} sofreu ${dmg} de dano direto.`,
 			);
-			// Marcar herói como tendo agido nesta rodada
-			const updatedActed = [...next.combat!.heroesActed, heroId];
-			next = {
-				...next,
-				combat: {
-					...next.combat!,
-					heroesActed: updatedActed,
-					selectedHeroId: null,
-					phase: "selecting_hero" as const,
-				},
-			};
-			const activeHeroes = next.heroes.filter((h) => h.status === "active");
-			const pendingHeroes = activeHeroes.filter(
-				(h) => !updatedActed.includes(h.id),
+			return disableHeroForRoundAndAdvance(
+				maybeDisableReusableItem(next, heroId, itemId, false),
+				heroId,
+				`usou ${getCardName(itemId)}`,
 			);
-			if (pendingHeroes.length === 0) {
-				return {
-					...next,
-					status: "DIRECT_DAMAGE" as const,
-					combat: { ...next.combat!, phase: "direct_damage" as const },
-				};
-			}
-			return { ...next, status: "HERO_ACTION" as const };
 		}
 	}
 
@@ -1046,7 +1284,43 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 		},
 	};
 
-	return fireOnUseSkill(withMark, { skillId: powerDef.id, sourceId: heroId });
+	const afterUse = fireOnUseSkill(withMark, {
+		skillId: powerDef.id,
+		sourceId: heroId,
+	});
+	return finishManualHeroUse(
+		state,
+		afterUse,
+		heroId,
+		`usou poder ${powerDef.id}`,
+	);
+}
+
+export function handleUseSkill(state: GameState, payload: UseSkillPayload): GameState {
+	const hero = state.heroes.find(
+		(h) => h.id === payload.sourceId && h.status === "active",
+	);
+	if (!hero) return fireOnUseSkill(state, payload);
+
+	const skillDef = lookupSkillById(payload.skillId);
+	if (!skillDef || !isManuallyActivatable(skillDef)) {
+		return fireOnUseSkill(state, payload);
+	}
+
+	if (
+		isManualCombatActivationWindow(state) &&
+		ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId)
+	) {
+		return log(state, `[AVISO] Herói ${payload.sourceId} já agiu nesta rodada.`);
+	}
+
+	const afterUse = fireOnUseSkill(state, payload);
+	return finishManualHeroUse(
+		state,
+		afterUse,
+		payload.sourceId,
+		`usou habilidade ${payload.skillId}`,
+	);
 }
 
 // ─── SELECT_DIE ──────────────────────────────────────────────────────────────
@@ -1138,7 +1412,7 @@ export function handleChooseHero(state: GameState, heroId?: string): GameState {
 		if (!hero) {
 			return log(state, `[AVISO] Herói ${heroId} não está ativo.`);
 		}
-		if (state.combat?.heroesActed.includes(heroId)) {
+		if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 			return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 		}
 	}

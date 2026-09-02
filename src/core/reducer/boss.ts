@@ -5,13 +5,94 @@ import { getCardName } from "../data/cardLocale";
 import { getBoss } from "../data/cards";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
-import { applyShield } from "../rules/shield";
+import {
+	collectHeroDamageBonusesFromItems,
+	collectHeroDamageReductionsFromItems,
+	collectHeroHitBonusesFromItems,
+	formatItemBreakdown,
+	totalItemValue,
+} from "../rules/itemEffects";
+import { ActivationTracker } from "../state/activation";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
+import type { HeroState } from "../state/heroState";
 import { applyDamage } from "../systems/damageSystem";
 import { log } from "./utils";
+
+function collectWorldModifierEntries(
+	state: GameState,
+	entityId: string,
+	target: "damage_dealt" | "damage_taken" | "hit_bonus",
+): Array<{ source: string; value: number }> {
+	const entity = state.world.entities[entityId];
+	if (!entity) return [];
+	const entries: Array<{ source: string; value: number }> = [];
+	for (const comp of entity.components) {
+		if (comp.type === "modifier" && comp.target === target && comp.value !== 0) {
+			entries.push({ source: comp.source, value: comp.value });
+		}
+	}
+	return entries;
+}
+
+function effectiveHeroDamage(
+	hero: HeroState,
+	state: GameState,
+	boss: EnemyState,
+	rollMargin: number,
+): { damage: number; breakdown: readonly { source: string; value: number }[] } {
+	const breakdown = [
+		...collectWorldModifierEntries(state, hero.id, "damage_dealt"),
+		...collectHeroDamageBonusesFromItems(hero, state, boss, rollMargin),
+	];
+	return {
+		damage: Math.max(0, hero.damage + totalItemValue(breakdown)),
+		breakdown,
+	};
+}
+
+function effectiveEnemyDamage(enemy: EnemyState, state: GameState): number {
+	return Math.max(
+		0,
+		enemy.damage +
+			totalItemValue(collectWorldModifierEntries(state, enemy.id, "damage_dealt")),
+	);
+}
+
+function reduceHeroDamage(
+	state: GameState,
+	hero: HeroState,
+	amount: number,
+): { damage: number; breakdown: string[] } {
+	const worldReduction = -totalItemValue(
+		collectWorldModifierEntries(state, hero.id, "damage_taken"),
+	);
+	const itemEntries = collectHeroDamageReductionsFromItems(hero, state, "attack");
+	const finalDamage = Math.max(0, amount - worldReduction - totalItemValue(itemEntries));
+	const breakdown = [
+		...formatItemBreakdown(itemEntries, "-"),
+		...(worldReduction > 0
+			? [`redução -${worldReduction}`]
+			: worldReduction < 0
+				? [`vulnerabilidade +${Math.abs(worldReduction)}`]
+				: []),
+	];
+	return { damage: finalDamage, breakdown };
+}
+
+function formatDamageBonusNote(
+	baseDamage: number,
+	damage: number,
+	breakdown: readonly { source: string; value: number }[],
+): string {
+	if (damage === baseDamage || breakdown.length === 0) return "";
+	const parts = breakdown.map(
+		(entry) => `${entry.source} ${entry.value > 0 ? "+" : ""}${entry.value}`,
+	);
+	return ` [dano ${baseDamage}→${damage}: ${parts.join(", ")}]`;
+}
 
 // ─── REVEAL_BOSS ─────────────────────────────────────────────────────────────
 
@@ -70,11 +151,17 @@ export function handleBossResolveAttack(state: GameState): GameState {
 		next = log(next, "Ascensão Final ativada: +2 no acerto do boss.");
 	}
 
+	const heroDamage = effectiveHeroDamage(
+		hero,
+		state,
+		boss,
+		roll.heroTotal - enemyTotal,
+	);
 	const result = resolveAttack(
 		roll.heroTotal,
 		enemyTotal,
-		hero.damage,
-		boss.damage,
+		heroDamage.damage,
+		effectiveEnemyDamage(boss, state),
 	);
 
 	if (result.enemyDamageTaken > 0) {
@@ -92,19 +179,27 @@ export function handleBossResolveAttack(state: GameState): GameState {
 		}
 		const newLife = Math.max(0, boss.currentLife - dmg);
 		next = applyDamage(next, "boss", dmg);
-		next = log(next, `Boss sofreu ${dmg} de dano. Vida restante: ${newLife}.`);
+		const damageNote = formatDamageBonusNote(
+			hero.damage,
+			heroDamage.damage,
+			heroDamage.breakdown,
+		);
+		next = log(
+			next,
+			`Boss sofreu ${dmg} de dano${damageNote}. Vida restante: ${newLife}.`,
+		);
 	}
 
 	if (result.heroDamageTaken > 0) {
-		const hasShield =
-			hero.activeItems.weapon === "item_cracked_shield" ||
-			hero.activeItems.armor === "item_cracked_shield";
-		const shieldUsed = state.combat.shieldsUsedThisCombat[hero.id] ?? false;
-		const dmg = applyShield(result.heroDamageTaken, !shieldUsed, hasShield);
+		const reduced = reduceHeroDamage(next, hero, result.heroDamageTaken);
+		const dmg = reduced.damage;
 		next = applyDamage(next, hero.id, dmg);
+		const reductionStr = reduced.breakdown.length
+			? ` [${reduced.breakdown.join(", ")}]`
+			: "";
 		next = log(
 			next,
-			`${getCardName(hero.cardId)} sofreu ${dmg} de dano do boss.`,
+			`${getCardName(hero.cardId)} sofreu ${dmg} de dano do boss${reductionStr}.`,
 		);
 	}
 
@@ -147,6 +242,10 @@ function checkBossEnd(state: GameState): GameState {
 				heroesActed: [],
 				lastRoll: null,
 				bossFirstDamageReduced: false,
+				disabled: ActivationTracker.clearLocks(
+					state.combat.disabled,
+					"round",
+				),
 			}
 		: createEmptyCombatState();
 
@@ -173,9 +272,12 @@ export function buildBossRoll(
 
 	const heroBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: hero.hitBonus },
+		...collectWorldModifierEntries(state, hero.id, "hit_bonus"),
+		...collectHeroHitBonusesFromItems(hero, state, boss),
 	];
 	const bossBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: boss.hitBonus },
+		...collectWorldModifierEntries(state, boss.id, "hit_bonus"),
 	];
 
 	const heroCalc = calculateTotal(heroRoll.results, heroBonuses);

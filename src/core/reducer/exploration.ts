@@ -18,6 +18,7 @@ import { createEmptyEffectStack } from "../effects/stack";
 import { emit } from "../events/bus";
 import { checkBossCondition } from "../rules/conditions";
 import { cardSkills } from "../skills/lookup";
+import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { renderSkillLabel } from "../skills/renderLabel";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
@@ -101,11 +102,37 @@ function enterDungeonRoom(
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
 		},
 	};
-	({ state: next } = emit(next, {
-		type: "RoomEntered",
-		payload: { roomId: room.cardId },
-	}));
+	next = resolveRoomEntryWindows(next, room.cardId);
 	return log(next, `${logPrefix}: ${getCardName(card.id)}.`);
+}
+
+function resolveRoomEntryWindows(state: GameState, roomId: string): GameState {
+	const targetHeroIds = state.heroes
+		.filter((hero) => hero.status === "active")
+		.map((hero) => hero.id);
+	const targetEnemyIds = state.activeEnemies
+		.filter((enemy) => enemy.status === "active")
+		.map((enemy) => enemy.id);
+	let next = resolveSkillWindow(state, {
+		event: "evt_room_reveal",
+		ctx: {
+			triggeredBy: "evt_room_reveal",
+			targetHeroIds,
+			targetEnemyIds,
+			value: roomId,
+		},
+	});
+	if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+	next = resolveSkillWindow(next, {
+		event: "evt_room_enter",
+		ctx: {
+			triggeredBy: "evt_room_enter",
+			targetHeroIds,
+			targetEnemyIds,
+			value: roomId,
+		},
+	});
+	return next;
 }
 
 function handleRevealSubbossRoom(
@@ -142,9 +169,19 @@ function handleRevealSubbossRoom(
 		state.rng,
 	);
 
-	const next: GameState = {
+	let worldWithSubboss = syncEntityFromEnemy(state.world, enemy);
+	const skills = cardSkills(subbossCard.id);
+	worldWithSubboss = installSkillTriggers(worldWithSubboss, enemy.id, skills);
+	for (const { def, ref } of skills) {
+		if (def.operate_type === "op_passive") {
+			worldWithSubboss = installPassive(worldWithSubboss, enemy.id, def, ref);
+		}
+	}
+
+	let next: GameState = {
 		...state,
 		rng,
+		world: worldWithSubboss,
 		currentRoom: room,
 		status: "COMBAT_START",
 		activeEnemies: [enemy],
@@ -155,6 +192,7 @@ function handleRevealSubbossRoom(
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
 		},
 	};
+	next = resolveRoomEntryWindows(next, room.cardId);
 	return log(
 		next,
 		`${logPrefix}: ${getCardName(card.id)}. ${getCardName(subbossCard.id)} aparece!`,
@@ -296,10 +334,15 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		},
 	};
 	for (const enemy of enemies) {
-		({ state: next } = emit(next, {
-			type: "EntityEnteredPlay",
-			payload: { entityId: enemy.id, entityType: "enemy" },
-		}));
+		next = resolveSkillWindow(next, {
+			event: "evt_enter_play",
+			ctx: {
+				triggeredBy: "evt_enter_play",
+				sourceEnemyId: enemy.id,
+				targetEnemyIds: [enemy.id],
+			},
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
 	}
 	const enemyNames = enemies.map((e) => getCardName(e.cardId));
 	return log(
@@ -326,29 +369,32 @@ export function handleDiscardPaths(state: GameState): GameState {
 export function handleCheckBossCondition(state: GameState): GameState {
 	const roomId = state.currentRoom?.cardId ?? "";
 	const roomExits = state.currentRoom?.exits ?? 1;
+	let beforeLeave = state;
+	if (roomId) {
+		beforeLeave = resolveSkillWindow(beforeLeave, {
+			event: "evt_room_leave",
+			ctx: { triggeredBy: "evt_room_leave", value: roomId },
+		});
+		if (beforeLeave.pendingTriggerInterrupt || beforeLeave.pendingSkillChoice) {
+			return beforeLeave;
+		}
+	}
 	let s: GameState = {
-		...state,
+		...beforeLeave,
 		paths: [],
 		currentRoom: null,
 		activeEnemies: [],
 		combat: createEmptyCombatState(),
 		decks: roomId
 			? {
-					...state.decks,
+					...beforeLeave.decks,
 					dungeonDeck: {
-						...state.decks.dungeonDeck,
-						discarded: [...state.decks.dungeonDeck.discarded, roomId],
+						...beforeLeave.decks.dungeonDeck,
+						discarded: [...beforeLeave.decks.dungeonDeck.discarded, roomId],
 					},
 				}
-			: state.decks,
+			: beforeLeave.decks,
 	};
-	if (roomId) {
-		({ state: s } = emit(s, { type: "RoomLeft", payload: { roomId } }));
-		({ state: s } = emit(s, {
-			type: "DungeonCardDiscarded",
-			payload: { cardId: roomId, reason: "extra" },
-		}));
-	}
 
 	if (checkBossCondition(s, s.bossCardId)) {
 		return log(
@@ -452,7 +498,23 @@ export function discardFromDungeonDeck(
 	state: GameState,
 	n: number,
 	reason: "effect" | "extra" = "effect",
+	skipWindow = false,
 ): GameState {
+	if (!skipWindow) {
+		const opened = resolveSkillWindow(state, {
+			event: "evt_dungeon_discard",
+			resume: { type: "discard_dungeon", count: n, reason },
+			ctx: {
+				triggeredBy: "evt_dungeon_discard",
+				value: n,
+			},
+		});
+		if (opened.pendingTriggerInterrupt || opened.pendingSkillChoice) {
+			return opened;
+		}
+		state = opened;
+	}
+
 	if (
 		state.flags.dungeonDiscardPrevented &&
 		!state.flags.discardDungeonLocked
@@ -478,12 +540,6 @@ export function discardFromDungeonDeck(
 			},
 		},
 	};
-	for (const cardId of toDiscard) {
-		({ state: next } = emit(next, {
-			type: "DungeonCardDiscarded",
-			payload: { cardId: cardId as string, reason },
-		}));
-	}
 	return next;
 }
 

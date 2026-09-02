@@ -1,0 +1,139 @@
+import type { GameState } from "./gameState";
+
+export type ActivationSubjectKind =
+	| "hero"
+	| "enemy"
+	| "boss"
+	| "room"
+	| "item"
+	| "artifact"
+	| "card";
+
+export type ActivationScope = "round" | "combat" | "room" | "game";
+
+export interface ActivationLock {
+	readonly kind: ActivationSubjectKind;
+	readonly id: string;
+	readonly scope: ActivationScope;
+	readonly sourceId?: string;
+	readonly reason?: string;
+}
+
+export type ActivationLocks = Readonly<Record<string, ActivationLock>>;
+
+export class ActivationTracker {
+	static key(kind: ActivationSubjectKind, id: string): string {
+		return `${kind}:${id}`;
+	}
+
+	static isDisabled(
+		state: GameState,
+		kind: ActivationSubjectKind,
+		id: string,
+	): boolean {
+		const key = ActivationTracker.key(kind, id);
+		return Boolean(state.combat?.disabled?.[key] ?? state.disabled?.[key]);
+	}
+
+	static isHeroDisabledThisRound(state: GameState, heroId: string): boolean {
+		return (
+			ActivationTracker.isDisabled(state, "hero", heroId) ||
+			!!state.combat?.heroesActed.includes(heroId)
+		);
+	}
+
+	static disable(
+		state: GameState,
+		lock: ActivationLock,
+	): GameState {
+		const key = ActivationTracker.key(lock.kind, lock.id);
+
+		if (lock.scope === "round" || lock.scope === "combat") {
+			if (!state.combat) return state;
+			const heroesActed =
+				lock.kind === "hero" &&
+				lock.scope === "round" &&
+				!state.combat.heroesActed.includes(lock.id)
+					? [...state.combat.heroesActed, lock.id]
+					: state.combat.heroesActed;
+
+			return {
+				...state,
+				combat: {
+					...state.combat,
+					heroesActed,
+					disabled: { ...(state.combat.disabled ?? {}), [key]: lock },
+				},
+			};
+		}
+
+		return {
+			...state,
+			disabled: { ...(state.disabled ?? {}), [key]: lock },
+		};
+	}
+
+	static enable(
+		state: GameState,
+		kind: ActivationSubjectKind,
+		id: string,
+	): GameState {
+		const key = ActivationTracker.key(kind, id);
+		const { [key]: _global, ...disabled } = state.disabled ?? {};
+		const combatDisabled = state.combat
+			? (() => {
+					const { [key]: _combat, ...remaining } =
+						state.combat?.disabled ?? {};
+					return remaining;
+				})()
+			: null;
+
+		return {
+			...state,
+			disabled,
+			combat:
+				state.combat && combatDisabled
+					? { ...state.combat, disabled: combatDisabled }
+					: state.combat,
+		};
+	}
+
+	static clearScope(state: GameState, scope: ActivationScope): GameState {
+		const disabled = ActivationTracker.clearLocks(state.disabled ?? {}, scope);
+		const combatDisabled = state.combat
+			? ActivationTracker.clearLocks(state.combat.disabled ?? {}, scope)
+			: null;
+
+		return {
+			...state,
+			disabled,
+			combat:
+				state.combat && combatDisabled
+					? { ...state.combat, disabled: combatDisabled }
+					: state.combat,
+		};
+	}
+
+	static clearLocks(
+		locks: ActivationLocks,
+		scope: ActivationScope,
+	): ActivationLocks {
+		return Object.fromEntries(
+			Object.entries(locks).filter(([, lock]) => lock.scope !== scope),
+		);
+	}
+
+	static disableHeroForRound(
+		state: GameState,
+		heroId: string,
+		reason: string,
+	): GameState {
+		return ActivationTracker.disable(state, {
+			kind: "hero",
+			id: heroId,
+			scope: "round",
+			sourceId: heroId,
+			reason,
+		});
+	}
+}

@@ -36,9 +36,10 @@ export const useItem = (
 	itemId: string,
 	heroId: string,
 	targetHeroId?: string,
+	targetEnemyId?: string,
 ): Action => ({
 	type: "USE_ITEM",
-	payload: { itemId, heroId, targetHeroId },
+	payload: { itemId, heroId, targetHeroId, targetEnemyId },
 });
 
 export const usePower = (heroId: string): Action => ({

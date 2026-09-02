@@ -29,6 +29,7 @@ import { type HeroCombatActions, selectHeroCombatActions } from "./selectors";
 
 interface GameStore {
 	readonly view: PlayerView;
+	readonly state: GameState;
 	readonly ui: UiState;
 	readonly dispatch: (action: Action) => void;
 	readonly setFocusedHero: (heroId: string | null) => void;
@@ -155,6 +156,7 @@ function reset(): void {
 let cachedElfProps = gameElfStore.getValue();
 let cachedSnapshot: GameStore = {
 	view: playerView(cachedElfProps.gameState),
+	state: cachedElfProps.gameState,
 	ui: cachedElfProps.ui,
 	dispatch,
 	setFocusedHero,
@@ -169,6 +171,7 @@ function getSnapshot(): GameStore {
 	cachedElfProps = props;
 	cachedSnapshot = {
 		view: playerView(props.gameState),
+		state: props.gameState,
 		ui: props.ui,
 		dispatch,
 		setFocusedHero,
