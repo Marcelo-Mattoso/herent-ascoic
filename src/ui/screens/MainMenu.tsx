@@ -11,7 +11,6 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 	const logoUrl =
 		getUiAssetUrl(uiAssets, "logo-completa") ??
 		getUiAssetUrl(uiAssets, "newlogo");
-	const cardUrl = getUiAssetUrl(uiAssets, "newcard");
 	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
 	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
 

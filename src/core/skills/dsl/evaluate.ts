@@ -282,6 +282,7 @@ function evaluateOne(
 				status: node.status,
 			});
 	}
+	return ctx.state;
 }
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
@@ -299,6 +300,7 @@ function mapDuration(d: DurationNode): Duration {
 			return { kind: "this_combat" };
 		case "while_in_play":
 			return { kind: "while_source_in_play" };
+		case "permanent":
 		case "passive":
 			return { kind: "permanent" };
 		case "once_per_round":

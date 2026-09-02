@@ -2,6 +2,7 @@
 // Nunca muta o estado — sempre retorna novo objeto.
 
 import type { Action } from "../actions/types";
+import { getSkillName } from "../data/skillLocale";
 import { drainStack } from "../effects/resolver";
 import type { GameState } from "../state/gameState";
 import {
@@ -27,6 +28,7 @@ import {
 } from "./combat";
 import {
 	handleCheckBossCondition,
+	handleContinueExplorationAfterBossOffer,
 	handleChoosePath,
 	handleDiscardPaths,
 	handleOpenPaths,
@@ -55,7 +57,9 @@ import { evaluate } from "../skills/dsl/evaluate";
 import { lookupSkillById } from "../skills/lookup";
 import { getContinuation } from "../skills/registry";
 import { fireOnUseSkill } from "../skills/useSkill";
+import { fireTriggerDecision, triggerDecisionFlag } from "../triggers/engine";
 import { handleStartGame } from "./setup";
+import { log } from "./utils";
 
 function applyAndValidate(
 	prev: GameState,
@@ -70,7 +74,26 @@ function applyAndValidate(
 	return next;
 }
 
+function resumeAfterTriggerDecision(
+	state: GameState,
+	pendingWindow: string,
+): GameState {
+	if (state.pendingTriggerInterrupt) return state;
+	if (pendingWindow === "before_attack_roll" && state.status === "ROLL_DICE") {
+		return handleRollDice(state);
+	}
+	return state;
+}
+
 function dispatch(state: GameState, action: Action): GameState {
+	if (
+		state.pendingTriggerInterrupt &&
+		action.type !== "APPLY_TRIGGER_INTERRUPT" &&
+		action.type !== "SKIP_TRIGGER_INTERRUPT"
+	) {
+		return state;
+	}
+
 	switch (action.type) {
 		case "START_GAME":
 			return handleStartGame(state, action.payload);
@@ -231,8 +254,10 @@ function dispatch(state: GameState, action: Action): GameState {
 
 			// ── Legacy handler continuation (type) ou script continuation (id) ──
 			const def = lookupSkillById(pending.skillId);
+			const legacyDefType = (def as { readonly type?: string } | undefined)
+				?.type;
 			const cont =
-				getContinuation(def?.type ?? "") ?? getContinuation(pending.skillId);
+				getContinuation(legacyDefType ?? "") ?? getContinuation(pending.skillId);
 			if (!cont) return cleared;
 			return cont(
 				cleared,
@@ -242,6 +267,56 @@ function dispatch(state: GameState, action: Action): GameState {
 					sourceHeroId: pending.sourceHeroId,
 				},
 				action.payload.choice,
+			);
+		}
+
+		case "APPLY_TRIGGER_INTERRUPT": {
+			const pending = state.pendingTriggerInterrupt;
+			if (!pending) return state;
+			if (
+				action.payload?.interruptId &&
+				action.payload.interruptId !== pending.id
+			) {
+				return state;
+			}
+
+			const cleared = {
+				...state,
+				pendingTriggerInterrupt: undefined,
+				flags: {
+					...state.flags,
+					[triggerDecisionFlag(pending.id)]: true,
+				},
+			};
+			const applied = fireTriggerDecision(cleared, pending);
+			return log(
+				resumeAfterTriggerDecision(applied, pending.window),
+				`Interrupção aplicada: ${getSkillName(pending.skillId)}`,
+			);
+		}
+
+		case "SKIP_TRIGGER_INTERRUPT": {
+			const pending = state.pendingTriggerInterrupt;
+			if (!pending) return state;
+			if (
+				action.payload?.interruptId &&
+				action.payload.interruptId !== pending.id
+			) {
+				return state;
+			}
+
+			const skipped = {
+				...state,
+				pendingTriggerInterrupt: undefined,
+				flags: {
+					...state.flags,
+					[triggerDecisionFlag(pending.id)]: true,
+				},
+			};
+
+			return log(
+				resumeAfterTriggerDecision(skipped, pending.window),
+				`Interrupção ignorada: ${getSkillName(pending.skillId)}`,
 			);
 		}
 
@@ -270,6 +345,9 @@ function dispatch(state: GameState, action: Action): GameState {
 
 		case "REVEAL_BOSS":
 			return handleRevealBoss(state);
+
+		case "CONTINUE_EXPLORATION":
+			return handleContinueExplorationAfterBossOffer(state);
 
 		case "START_BOSS_COMBAT":
 			return { ...state, status: "BOSS_COMBAT" };

@@ -159,6 +159,10 @@ export function CardDetailModal({
 						(() => {
 							const itemSkills = cardSkills(card.id);
 							const main = itemSkills[0];
+							const canUseItem =
+								!!onUseItem &&
+								(card.itemClass === "consumable" ||
+									main?.ref.skillId === "item_skill_mystic_draw");
 							return (
 								<>
 									<Row label="Tipo" value={card.itemClass} />
@@ -167,7 +171,7 @@ export function CardDetailModal({
 											{renderSkillLabel(main.ref)}
 										</p>
 									)}
-									{onUseItem && card.itemClass === "consumable" && (
+									{canUseItem && (
 										<button
 											type="button"
 											onClick={onUseItem}
@@ -204,7 +208,7 @@ export function CardDetailModal({
 
 					{card?.type === "boss" && (
 						<>
-							<Row label="Condição" value={getCardLocale(card.id)?.condition} />
+							<Row label="Condição" value={getCardLocale(card.id)?.condition ?? "—"} />
 							{card.skills.map((ref) => {
 								const def = lookupSkillById(ref.skillId);
 								if (!def) return null;

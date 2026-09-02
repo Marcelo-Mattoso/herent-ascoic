@@ -9,7 +9,7 @@ import { getCardById } from "@/core/data/cards";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { HeroState, ItemSlotType } from "@/core/state/heroState";
-import { getCardImageUrl } from "@/ui/cardImages";
+import { getCardImageUrl, type CardImageUrls } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { useCardImages } from "@/ui/hooks/useCardImages";
@@ -59,6 +59,12 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 	utility: "utl",
 	special: "esp",
 };
+const SLOT_TITLES: Record<ItemSlotType, string> = {
+	weapon: "Arma",
+	armor: "Defesa",
+	utility: "Utilidade",
+	special: "Especial",
+};
 const MAX_BACKPACK = 8;
 
 function shortLabel(name: string): string {
@@ -78,7 +84,7 @@ function artifactRequiresBearer(cardId: string): boolean {
 
 type DragItem = {
 	name: string;
-	kind: "item" | "artefato";
+	kind: "item";
 	from: InvFromZone;
 };
 
@@ -212,7 +218,6 @@ interface HeroColumnProps {
 	imageUrl?: string;
 	dragging: DragItem | null;
 	hoverZone: string | null;
-	groupArtifacts: ReadonlyArray<{ cardId: string; carriedBy: string | null }>;
 	onDrop: (zone: string) => void;
 	onSetHover: (zone: string | null) => void;
 	onDragItemStart: (name: string, from: InvFromZone) => void;
@@ -220,6 +225,7 @@ interface HeroColumnProps {
 	onShowTooltip: (t: TooltipTarget) => void;
 	onHideTooltip: () => void;
 	onUseItem: (itemId: string, heroId: string) => void;
+	onHeroDetail: (hero: HeroState) => void;
 }
 
 function HeroColumn({
@@ -227,7 +233,6 @@ function HeroColumn({
 	imageUrl,
 	dragging,
 	hoverZone,
-	groupArtifacts,
 	onDrop,
 	onSetHover,
 	onDragItemStart,
@@ -235,9 +240,11 @@ function HeroColumn({
 	onShowTooltip,
 	onHideTooltip,
 	onUseItem: _onUseItem,
+	onHeroDetail,
 }: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
+	const [backpackOpen, setBackpackOpen] = useState(false);
 
 	function canEquipDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
@@ -257,9 +264,9 @@ function HeroColumn({
 		return effectiveCount < MAX_BACKPACK;
 	}
 
-	const posseArt = groupArtifacts.find((a) => a.carriedBy === hero.id);
 	const isDragging = !!dragging;
 	const heroName = getCardName(hero.cardId);
+	const backpackDropActive = canMochilaDrag();
 
 	function areaDropHandlers(zone: string, valid: boolean) {
 		return {
@@ -279,7 +286,7 @@ function HeroColumn({
 	}
 
 	const canEquip = canEquipDrag();
-	const canMochila = canMochilaDrag();
+	const canMochila = backpackDropActive;
 
 	return (
 		<div
@@ -288,6 +295,17 @@ function HeroColumn({
 				width: 178,
 			}}
 		>
+			<button
+				type="button"
+				className="inventory-hero-info-button"
+				data-item="true"
+				aria-label={`Detalhes de ${heroName}`}
+				title={`Detalhes de ${heroName}`}
+				onClick={() => onHeroDetail(hero)}
+			>
+				i
+			</button>
+
 			{/* 4 slots de equipamento — zona de drop inteira */}
 			<div
 				{...areaDropHandlers(equipZone, canEquip)}
@@ -361,18 +379,6 @@ function HeroColumn({
 				})}
 			</div>
 
-			{/* Slot âmbar de posse (artefato carregado) */}
-			<div style={{ marginBottom: 8 }}>
-				<Slot
-					amber
-					label={posseArt ? shortLabel(getCardName(posseArt.cardId)) : ""}
-					title={
-						posseArt ? getCardName(posseArt.cardId) : "sem artefato em posse"
-					}
-					filled={!!posseArt}
-				/>
-			</div>
-
 			{/* Arte do herói */}
 			<div className="inventory-hero-card__image">
 				{imageUrl ? (
@@ -382,93 +388,132 @@ function HeroColumn({
 				)}
 			</div>
 
-			{/* Status */}
-			<div
-				style={{
-					border: `1px dashed ${UI.border}`,
-					borderRadius: 4,
-					padding: "4px 6px",
-					marginBottom: 8,
-					fontSize: 11,
-					color: UI.textSecondary,
-					minHeight: 36,
-				}}
-			>
-				<div>
-					❤ {hero.currentLife}/{hero.maxLife}
-				</div>
-				<div>⚔ {hero.damage} dmg</div>
+			<div className="inventory-hero-stats">
+				<span>
+					<strong>Vida</strong>
+					{hero.currentLife}/{hero.maxLife}
+				</span>
+				<span>
+					<strong>Acerto</strong>+{hero.hitBonus}
+				</span>
+				<span>
+					<strong>Dados</strong>
+					{hero.dice}d
+				</span>
+				<span>
+					<strong>Dano</strong>
+					{hero.damage}
+				</span>
 			</div>
 
-			{/* Mochila 4×2 — zona de drop inteira */}
+			{/* Mochila em stack — zona de drop inteira */}
 			<div
 				{...areaDropHandlers(mochilaZone, canMochila)}
-				style={{
-					display: "grid",
-					gridTemplateColumns: "repeat(4, 36px)",
-					gap: 4,
-					marginBottom: 6,
-					borderRadius: 4,
-					padding: 2,
-					border: isDragging
-						? canMochila
-							? `1px dashed ${hoverZone === mochilaZone ? "#0044AA" : "#3B82F6"}`
-							: "1px dashed transparent"
-						: "1px solid transparent",
-					background:
-						canMochila && hoverZone === mochilaZone ? "#BFDBFE" : "transparent",
-					transition: "background 0.1s",
+				className="inventory-backpack-wrap"
+				data-item="true"
+				onMouseEnter={() => setBackpackOpen(true)}
+				onMouseLeave={() => {
+					if (!dragging) setBackpackOpen(false);
+					onHideTooltip();
 				}}
+				style={
+					{
+						"--inventory-stack-border": isDragging
+							? canMochila
+								? hoverZone === mochilaZone
+									? "#0044AA"
+									: "#3B82F6"
+								: "transparent"
+							: UI.border,
+						"--inventory-stack-bg":
+							canMochila && hoverZone === mochilaZone
+								? "#BFDBFE"
+								: "rgba(3, 11, 23, 0.42)",
+					} as CSSProperties
+				}
 			>
-				{Array.from({ length: MAX_BACKPACK }, (_, i) => {
-					const name = hero.backpack[i];
-					const col = name ? itemColor(name) : null;
-					const isThisItemDragging =
-						dragging?.from.kind === "hero_backpack" &&
-						dragging.from.heroId === hero.id &&
-						dragging.from.index === i;
+				<button
+					type="button"
+					className="inventory-backpack-stack"
+					onClick={() => setBackpackOpen((v) => !v)}
+					aria-expanded={backpackOpen}
+					aria-label={`Mochila de ${heroName}, ${hero.backpack.length} de ${MAX_BACKPACK} itens`}
+				>
+					<span className="inventory-backpack-stack__cards" aria-hidden="true">
+						<span />
+						<span />
+						<span />
+					</span>
+					<span className="inventory-backpack-stack__body">
+						<strong>Mochila</strong>
+						<small>
+							{hero.backpack.length}/{MAX_BACKPACK} itens
+						</small>
+					</span>
+				</button>
 
-					return name ? (
-						<Slot
-							key={i}
-							label={shortLabel(name)}
-							color={col}
-							filled
-							draggable
-							isDragging={isThisItemDragging}
-							onDragStart={(e) => {
-								e.dataTransfer.setData("text/plain", name);
-								onDragItemStart(name, {
-									kind: "hero_backpack",
-									heroId: hero.id,
-									index: i,
-								});
-							}}
-							onDragEnd={onDragEnd}
-							onMouseEnter={(e) =>
-								onShowTooltip({
-									name,
-									kind: "item",
-									x: e.clientX,
-									y: e.clientY,
-									heroId: hero.id,
-								})
-							}
-							onMouseMove={(e) =>
-								onShowTooltip({
-									name,
-									kind: "item",
-									x: e.clientX,
-									y: e.clientY,
-									heroId: hero.id,
-								})
-							}
-							onMouseLeave={onHideTooltip}
-						/>
-					) : (
-						<Slot key={i} />
-					);
-				})}
+				{backpackOpen && (
+					<div className="inventory-backpack-popover">
+						{hero.backpack.length === 0 ? (
+							<span className="inventory-backpack-empty">vazia</span>
+						) : (
+							hero.backpack.map((name, i) => {
+								const col = itemColor(name);
+								const itemName = getCardName(name);
+								const isThisItemDragging =
+									dragging?.from.kind === "hero_backpack" &&
+									dragging.from.heroId === hero.id &&
+									dragging.from.index === i;
+
+								return (
+									<div
+										key={`${name}-${i}`}
+										className="inventory-backpack-item"
+										data-item="true"
+										draggable
+										onDragStart={(e) => {
+											e.dataTransfer.setData("text/plain", name);
+											onDragItemStart(name, {
+												kind: "hero_backpack",
+												heroId: hero.id,
+												index: i,
+											});
+										}}
+										onDragEnd={onDragEnd}
+										onMouseEnter={(e) =>
+											onShowTooltip({
+												name,
+												kind: "item",
+												x: e.clientX,
+												y: e.clientY,
+												heroId: hero.id,
+											})
+										}
+										onMouseMove={(e) =>
+											onShowTooltip({
+												name,
+												kind: "item",
+												x: e.clientX,
+												y: e.clientY,
+												heroId: hero.id,
+											})
+										}
+										onMouseLeave={onHideTooltip}
+										style={{
+											"--inventory-item-bg": col?.bg ?? "#F1EFE8",
+											"--inventory-item-border": col?.border ?? UI.border,
+											"--inventory-item-text": col?.text ?? UI.textPrimary,
+											opacity: isThisItemDragging ? 0.35 : 1,
+										} as CSSProperties}
+									>
+										<span aria-hidden="true" />
+										<strong title={itemName}>{itemName}</strong>
+									</div>
+								);
+							})
+						)}
+					</div>
+				)}
 			</div>
 
 			{/* Nome */}
@@ -507,9 +552,9 @@ export function InventarioGrupo() {
 
 	const [dragging, setDragging] = useState<DragItem | null>(null);
 	const [hoverZone, setHoverZone] = useState<string | null>(null);
-	const [confirmDiscard, setConfirmDiscard] = useState(false);
 	const [tooltip, setTooltip] = useState<TooltipTarget | null>(null);
 	const [detailCard, setDetailCard] = useState<DetailCardTarget | null>(null);
+	const [focusedHero, setFocusedHero] = useState<HeroState | null>(null);
 
 	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
 	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
@@ -534,24 +579,27 @@ export function InventarioGrupo() {
 		}
 	}, []);
 
-	// Resetar checkbox quando mesa muda
-	const totalMesa = mesaItens.length + mesaArtefatos.length;
-	// biome-ignore lint/correctness/useExhaustiveDependencies: reseta quando a quantidade de recompensas pendentes muda
+	const pendingArtifactIds = mesaArtefatos.map((r) => r.cardId).join("|");
+	// Compatibilidade com partidas já abertas antes da mudança de UX.
+	// biome-ignore lint/correctness/useExhaustiveDependencies: depende da assinatura dos IDs pendentes
 	useEffect(() => {
-		setConfirmDiscard(false);
-	}, [totalMesa]);
+		if (!pendingArtifactIds) return;
+		mesaArtefatos.forEach((reward, index) => {
+			dispatch({
+				type: "INV_ASSIGN_ARTIFACT",
+				payload: {
+					artifactId: reward.cardId,
+					vagaIndex: grupoArtefatos.length + index,
+					heroId: null,
+				},
+			});
+		});
+	}, [pendingArtifactIds, dispatch]);
 
 	// ── Validação de zona ────────────────────────────────────────────────────
 
 	function isValidZone(zone: string): boolean {
 		if (!dragging) return false;
-
-		// Artefatos só vão para vagas do grupo
-		if (dragging.kind === "artefato") {
-			if (zone === "grupo_vaga_0") return grupoArtefatos.length === 0;
-			if (zone === "grupo_vaga_1") return grupoArtefatos.length === 1;
-			return false;
-		}
 
 		// Itens
 		if (dragging.kind === "item") {
@@ -642,12 +690,6 @@ export function InventarioGrupo() {
 				type: "INV_MOVE",
 				payload: { itemId: dragging.name, from: dragging.from, to },
 			});
-		} else if (dragging.kind === "artefato") {
-			const vagaIndex = zone === "grupo_vaga_0" ? 0 : (1 as 0 | 1);
-			dispatch({
-				type: "INV_ASSIGN_ARTIFACT",
-				payload: { artifactId: dragging.name, vagaIndex, heroId: null },
-			});
 		}
 
 		setDragging(null);
@@ -706,7 +748,6 @@ export function InventarioGrupo() {
 	// ── Mesa — zona de drop (itens voltando de heróis) ────────────────────────
 
 	const mesaDropValid = isValidZone("mesa");
-
 	// ── Render ────────────────────────────────────────────────────────────────
 
 	return (
@@ -718,29 +759,21 @@ export function InventarioGrupo() {
 					aria-label="Inventário do grupo"
 					className="inventory-dialog"
 				>
-					{/* Título */}
 					<div className="inventory-header">
 						<div className="inventory-title">
 							{logoUrl ? <img src={logoUrl} alt="" /> : null}
 							<div>
 								<h1>Inventário do grupo</h1>
-								<p>Arraste itens entre as zonas</p>
+								<p>Arrume recompensas antes da próxima fase</p>
 							</div>
 						</div>
 					</div>
 
-					{/* ── MESA ──────────────────────────────────────────────────── */}
 					<section className="inventory-section">
-						<div className="inventory-section__heading">
-							<h2>Mesa</h2>
-							<p>O que ficar aqui será descartado</p>
-						</div>
-
 						<div className="inventory-table-row">
-							{/* Mesa — itens */}
 							<div
 								{...dropHandlers("mesa")}
-								className="inventory-drop-panel inventory-drop-panel--items"
+								className="inventory-drop-panel inventory-drop-panel--items inventory-drop-panel--discard"
 								style={
 									{
 										"--inventory-drop-border": `${
@@ -757,7 +790,7 @@ export function InventarioGrupo() {
 									} as CSSProperties
 								}
 							>
-								<p className="inventory-drop-panel__label">Itens</p>
+								<p className="inventory-drop-panel__label">Itens não guardados</p>
 								<div className="inventory-card-grid">
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
@@ -801,68 +834,8 @@ export function InventarioGrupo() {
 										);
 									})}
 									{mesaItens.length === 0 && (
-										<span className="inventory-empty-state">vazio</span>
-									)}
-								</div>
-							</div>
-
-							{/* Mesa — artefatos */}
-							<div className="inventory-drop-panel inventory-drop-panel--artifacts">
-								<p className="inventory-drop-panel__label">
-									Artefatos de grupo
-								</p>
-								<div className="inventory-card-grid inventory-card-grid--artifacts">
-									{mesaArtefatos.map((r) => {
-										const isMe =
-											dragging?.from.kind === "mesa" &&
-											dragging.name === r.cardId;
-										return (
-											<InventoryRewardCard
-												key={r.cardId}
-												cardId={r.cardId}
-												cardType="artifact"
-												imageUrl={getCardImageUrl(cardImageUrls, r.cardId)}
-												amber
-												isDragging={isMe}
-												onDragStart={(e) => {
-													e.dataTransfer.setData("text/plain", r.cardId);
-													setTooltip(null);
-													setDragging({
-														name: r.cardId,
-														kind: "artefato",
-														from: { kind: "mesa" },
-													});
-												}}
-												onDragEnd={handleDragEnd}
-												onInfo={() =>
-													setDetailCard({
-														cardId: r.cardId,
-														cardType: "artifact",
-													})
-												}
-												onMouseEnter={(e) =>
-													showTooltip({
-														name: r.cardId,
-														kind: "artifact",
-														x: e.clientX,
-														y: e.clientY,
-													})
-												}
-												onMouseMove={(e) =>
-													showTooltip({
-														name: r.cardId,
-														kind: "artifact",
-														x: e.clientX,
-														y: e.clientY,
-													})
-												}
-												onMouseLeave={hideTooltip}
-											/>
-										);
-									})}
-									{mesaArtefatos.length === 0 && (
-										<span className="inventory-empty-state inventory-empty-state--amber">
-											vazio
+										<span className="inventory-empty-state">
+											sem itens para descartar
 										</span>
 									)}
 								</div>
@@ -870,37 +843,12 @@ export function InventarioGrupo() {
 						</div>
 					</section>
 
-					{/* ── ARTEFATOS ATIVOS DO GRUPO ─────────────────────────── */}
 					<section className="inventory-section">
-						<div className="inventory-section__heading">
-							<h2>Grupo</h2>
-							<p>Artefatos ativos ({grupoArtefatos.length}/2)</p>
-						</div>
-
-						<div className="inventory-artifact-grid">
-							{[0, 1].map((vagaIndex) => {
-								const art = grupoArtefatos[vagaIndex];
-								const zone = `grupo_vaga_${vagaIndex}`;
-								const valid = isValidZone(zone);
-								const isHov = hoverZone === zone;
-
-								if (!art) {
-									return (
-										<div
-											key={vagaIndex}
-											{...dropHandlers(zone)}
-											className="inventory-active-artifact inventory-active-artifact--empty"
-											style={{
-												background: isHov ? "#FFF3CD" : AMBER.bg,
-												border: `1px dashed ${isHov ? "#996600" : AMBER.border}`,
-												opacity: valid ? 1 : 0.55,
-											}}
-										>
-											vaga {vagaIndex + 1} — vazia
-										</div>
-									);
-								}
-
+						<p className="inventory-strip-label">
+							Artefatos ativos · {grupoArtefatos.length}
+						</p>
+						<div className="inventory-artifact-grid inventory-artifact-grid--open">
+							{grupoArtefatos.map((art, vagaIndex) => {
 								const requiresBearer = artifactRequiresBearer(art.cardId);
 								const artName = getCardName(art.cardId);
 								return (
@@ -986,18 +934,19 @@ export function InventarioGrupo() {
 									</div>
 								);
 							})}
+							{grupoArtefatos.length === 0 && (
+								<div className="inventory-active-artifact inventory-active-artifact--empty">
+									sem artefatos ativos
+								</div>
+							)}
 						</div>
 					</section>
 
-					{/* ── HERÓIS ────────────────────────────────────────────── */}
 					<section className="inventory-section">
-						<div className="inventory-section__heading">
-							<h2>Heróis</h2>
-							<p>
-								{heroes.length} ativo{heroes.length !== 1 ? "s" : ""} · arraste
-								lateral para ver todos
-							</p>
-						</div>
+						<p className="inventory-strip-label">
+							{heroes.length} herói{heroes.length !== 1 ? "s" : ""} ativo
+							{heroes.length !== 1 ? "s" : ""}
+						</p>
 
 						<section
 							ref={scrollRef}
@@ -1020,7 +969,6 @@ export function InventarioGrupo() {
 										imageUrl={getCardImageUrl(cardImageUrls, hero.cardId)}
 										dragging={dragging}
 										hoverZone={hoverZone}
-										groupArtifacts={grupoArtefatos}
 										onDrop={handleZoneDrop}
 										onSetHover={setHoverZone}
 										onDragItemStart={handleItemDragStart}
@@ -1028,6 +976,7 @@ export function InventarioGrupo() {
 										onShowTooltip={showTooltip}
 										onHideTooltip={hideTooltip}
 										onUseItem={handleUseItemFromTooltip}
+										onHeroDetail={setFocusedHero}
 									/>
 								))}
 								{heroes.length === 0 && (
@@ -1039,71 +988,47 @@ export function InventarioGrupo() {
 						</section>
 					</section>
 
-					{/* ── RODAPÉ ────────────────────────────────────────────── */}
 					<div
+						className="inventory-footer"
 						style={{
 							borderTop: `1px solid ${UI.border}`,
-							marginTop: 20,
-							paddingTop: 14,
-							display: "flex",
-							justifyContent: "space-between",
-							alignItems: "center",
 						}}
 					>
-						<div>
-							{totalMesa > 0 ? (
-								<label
-									style={{
-										display: "flex",
-										alignItems: "center",
-										gap: 8,
-										fontSize: 13,
-										color: UI.textPrimary,
-										cursor: "pointer",
-									}}
-								>
-									<input
-										type="checkbox"
-										checked={confirmDiscard}
-										onChange={(e) => setConfirmDiscard(e.target.checked)}
-										style={{ width: 16, height: 16 }}
-									/>
-									Confirmo descartar {totalMesa} item
-									{totalMesa !== 1 ? "s" : ""} da mesa
-								</label>
-							) : (
-								<span style={{ fontSize: 13, color: UI.textTertiary }}>
-									Mesa vazia
-								</span>
-							)}
-						</div>
-
 						<button
 							type="button"
 							onClick={handleSair}
-							disabled={totalMesa > 0 && !confirmDiscard}
 							style={{
 								padding: "8px 20px",
 								border: `1px solid ${UI.border}`,
 								borderRadius: 6,
-								background:
-									totalMesa > 0 && !confirmDiscard ? UI.subpanelBg : UI.panelBg,
+								background: UI.panelBg,
 								fontSize: 13,
-								cursor:
-									totalMesa > 0 && !confirmDiscard ? "not-allowed" : "pointer",
-								color:
-									totalMesa > 0 && !confirmDiscard
-										? UI.textTertiary
-										: UI.textPrimary,
-								opacity: totalMesa > 0 && !confirmDiscard ? 0.45 : 1,
+								cursor: "pointer",
+								color: UI.textPrimary,
 								transition: "opacity 0.15s",
 							}}
 						>
-							{totalMesa > 0 ? "Descartar e sair" : "Sair"}
+							Finalizar arrumação
 						</button>
 					</div>
 				</div>
 			</div>
+
+			{focusedHero && (
+				<HeroInventoryModal
+					hero={focusedHero}
+					cardImageUrls={cardImageUrls}
+					onClose={() => setFocusedHero(null)}
+					onItemDetail={(itemId) => {
+						setFocusedHero(null);
+						setDetailCard({
+							cardId: itemId,
+							cardType: "item",
+							heroId: focusedHero.id,
+						});
+					}}
+				/>
+			)}
 
 			{/* ── TOOLTIP ──────────────────────────────────────────────── */}
 			{tooltip && (
@@ -1137,6 +1062,157 @@ export function InventarioGrupo() {
 			)}
 		</>
 	);
+}
+
+function HeroInventoryModal({
+	hero,
+	cardImageUrls,
+	onClose,
+	onItemDetail,
+}: {
+	hero: HeroState;
+	cardImageUrls: CardImageUrls;
+	onClose: () => void;
+	onItemDetail: (itemId: string) => void;
+}) {
+	const heroName = getCardName(hero.cardId);
+	const heroImage = getCardImageUrl(cardImageUrls, hero.cardId);
+	const passive = getPrimarySkillText(hero.cardId);
+	const blockText =
+		hero.conditions.length > 0
+			? hero.conditions.join(", ")
+			: hero.healBlocked
+				? "Cura bloqueada"
+				: "Sem bloqueios";
+
+	return (
+		<div
+			className="inventory-hero-modal-overlay"
+			role="dialog"
+			aria-modal="true"
+			aria-label={`Detalhes de ${heroName}`}
+			onMouseDown={(e) => {
+				if (e.target === e.currentTarget) onClose();
+			}}
+		>
+			<div className="inventory-hero-modal">
+				<button
+					type="button"
+					className="inventory-hero-modal__close"
+					aria-label="Fechar detalhes"
+					onClick={onClose}
+				>
+					×
+				</button>
+
+				<div className="inventory-hero-modal__stage">
+					{SLOT_TYPES.map((slotType) => (
+						<HeroEquipmentCard
+							key={slotType}
+							slotType={slotType}
+							itemId={hero.activeItems[slotType]}
+							cardImageUrls={cardImageUrls}
+							onItemDetail={onItemDetail}
+						/>
+					))}
+
+					<section className="inventory-hero-modal__hero">
+						<div className="inventory-hero-modal__portrait">
+							{heroImage ? (
+								<img src={heroImage} alt="" />
+							) : (
+								<span>{heroName.slice(0, 1)}</span>
+							)}
+						</div>
+						<div className="inventory-hero-modal__copy">
+							<h2>{heroName}</h2>
+							<div className="inventory-hero-modal__stats">
+								<span>
+									<strong>Vida</strong>
+									{hero.currentLife}/{hero.maxLife}
+								</span>
+								<span>
+									<strong>Acerto</strong>+{hero.hitBonus}
+								</span>
+								<span>
+									<strong>Dados</strong>
+									{hero.dice}d
+								</span>
+								<span>
+									<strong>Dano efetivo</strong>
+									{hero.damage}
+								</span>
+								<span>
+									<strong>Bloqueio</strong>
+									{blockText}
+								</span>
+								<span>
+									<strong>Ímpeto</strong>
+									{hero.impeto}
+								</span>
+							</div>
+							<div className="inventory-hero-modal__passive">
+								<strong>Passiva</strong>
+								<p>{passive || "Sem habilidade passiva listada."}</p>
+							</div>
+						</div>
+					</section>
+				</div>
+			</div>
+		</div>
+	);
+}
+
+function HeroEquipmentCard({
+	slotType,
+	itemId,
+	cardImageUrls,
+	onItemDetail,
+}: {
+	slotType: ItemSlotType;
+	itemId?: string;
+	cardImageUrls: CardImageUrls;
+	onItemDetail: (itemId: string) => void;
+}) {
+	const slotName = SLOT_TITLES[slotType];
+	const itemName = itemId ? getCardName(itemId) : "";
+	const imageUrl = itemId ? getCardImageUrl(cardImageUrls, itemId) : undefined;
+	const effect = itemId ? getPrimarySkillText(itemId) : "";
+
+	if (!itemId) {
+		return (
+			<div
+				className={`inventory-hero-modal__equipment inventory-hero-modal__equipment--${slotType} inventory-hero-modal__equipment--empty`}
+			>
+				<span>{slotName}</span>
+				<p>vazio</p>
+			</div>
+		);
+	}
+
+	return (
+		<button
+			type="button"
+			className={`inventory-hero-modal__equipment inventory-hero-modal__equipment--${slotType}`}
+			onClick={() => onItemDetail(itemId)}
+		>
+			<span className="inventory-hero-modal__slot-label">{slotName}</span>
+			<div className="inventory-hero-modal__item-image">
+				{imageUrl ? (
+					<img src={imageUrl} alt="" />
+				) : (
+					<span>{itemName.slice(0, 1)}</span>
+				)}
+			</div>
+			<strong title={itemName}>{itemName}</strong>
+			<p>{effect}</p>
+		</button>
+	);
+}
+
+function getPrimarySkillText(cardId: string): string {
+	const entry = cardSkills(cardId)[0];
+	return entry ? renderSkillLabel(entry.ref) : "";
 }
 
 function InventoryRewardCard({
@@ -1239,8 +1315,11 @@ function ItemTooltipPanel({
 	const effect = effectEntry ? renderSkillLabel(effectEntry.ref) : "";
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
-	const isConsumable =
-		isItem && card.itemClass === "consumable" && !!target.heroId;
+	const canUseItem =
+		isItem &&
+		!!target.heroId &&
+		(card.itemClass === "consumable" ||
+			effectEntry?.ref.skillId === "item_skill_mystic_draw");
 
 	return (
 		<div
@@ -1297,8 +1376,8 @@ function ItemTooltipPanel({
 			/>
 			{/* Efeito */}
 			<p style={{ margin: "0 0 0 0", color: "#CCCAC4" }}>{effect}</p>
-			{/* Botão Usar — só consumíveis na mochila de um herói */}
-			{isConsumable && (
+			{/* Botão Usar — consumíveis e itens ativos especiais */}
+			{canUseItem && (
 				<button
 					type="button"
 					onClick={() => {

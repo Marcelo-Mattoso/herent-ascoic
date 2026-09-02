@@ -71,6 +71,7 @@ const DurationNodeSchema = z.discriminatedUnion("kind", [
 	z.object({ kind: z.literal("until_end_of_combat") }),
 	z.object({ kind: z.literal("while_in_play") }),
 	z.object({ kind: z.literal("permanent") }),
+	z.object({ kind: z.literal("passive") }),
 	z.object({ kind: z.literal("once_per_round") }),
 ]);
 
@@ -116,6 +117,7 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 			value: ExprNodeSchema,
 			duration: DurationNodeSchema,
 			condition: ConditionNodeSchema.optional(),
+			sourceEntityId: z.string().optional(),
 		}),
 		z.object({
 			kind: z.literal("add_trigger"),
@@ -187,7 +189,9 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 				.array(
 					z.object({
 						id: z.string().regex(/^[a-z_][a-z0-9_]*$/),
-						params: z.record(z.union([z.number(), z.string()])).optional(),
+						params: z
+							.record(z.string(), z.union([z.number(), z.string()]))
+							.optional(),
 						effect: z.array(EffectNodeSchema),
 					}),
 				)
@@ -274,7 +278,38 @@ const EventNameSchema = z.enum([
 	"evt_targeted",
 ]);
 
-const TriggerV2Schema = z.object({ event: EventNameSchema });
+const TriggerWindowSchema = z.enum([
+	"room_enter",
+	"paths_open",
+	"before_combat",
+	"round_start",
+	"hero_action",
+	"before_attack_roll",
+	"after_roll_before_result",
+	"before_damage",
+	"after_damage",
+	"on_destroy",
+	"combat_end",
+	"room_leave",
+	"dungeon_discard",
+	"round_end",
+	"entity_enter_play",
+	"hero_leave_play",
+	"targeted",
+]);
+
+const TriggerV2Schema = z.object({
+	event: EventNameSchema,
+	window: TriggerWindowSchema.optional(),
+});
+
+const InterruptSchema = z
+	.object({
+		mode: z.enum(["auto", "prompt", "passive"]).optional(),
+		priority: z.number().optional(),
+		prompt: z.string().optional(),
+	})
+	.optional();
 
 const CooldownSchema = z
 	.object({
@@ -334,6 +369,7 @@ export const SkillDefinitionV2Schema = z
 		nature: z.array(NatureSchema).optional(),
 		operate_type: OperateTypeSchema,
 		trigger: TriggerV2Schema.optional(),
+		interrupt: InterruptSchema,
 		conditions: z.array(ConditionNodeSchema).optional(),
 		cooldown: CooldownSchema,
 		// Targeting v2 (Lote C)

@@ -4,6 +4,7 @@
 import { type CSSProperties, useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
 import { getCardName } from "@/core/data/cardLocale";
+import type { PlayerView } from "@/core/projection/playerView";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
 import { getCardImageUrl } from "@/ui/cardImages";
@@ -17,8 +18,8 @@ import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
 import { FleeReconfigureModal } from "@/ui/components/modals/FleeReconfigureModal";
-import { OpenPathsModal } from "@/ui/components/modals/OpenPathsModal";
 import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
+import { TriggerInterruptModal } from "@/ui/components/modals/TriggerInterruptModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { useBackCards } from "@/ui/hooks/useBackCards";
 import { useBoardBackgrounds } from "@/ui/hooks/useBoardBackgrounds";
@@ -29,6 +30,7 @@ import { UI } from "@/ui/theme";
 
 // Estados mecânicos auto-avançados sem decisão do jogador
 const AUTO_ADVANCE: Partial<Record<string, Action>> = {
+	REVEAL_ROOM: { type: "REVEAL_ROOM" },
 	ROOM_EFFECT: { type: "RESOLVE_ROOM_EFFECT" },
 	SPAWN_ENEMIES: { type: "SPAWN_ENEMIES" },
 	COMBAT_START: { type: "START_COMBAT" },
@@ -39,7 +41,6 @@ const AUTO_ADVANCE: Partial<Record<string, Action>> = {
 
 type ModalType =
 	| "xp_spend"
-	| "open_paths"
 	| "dungeon_exhausted"
 	| "flee_restart"
 	| "card_detail"
@@ -125,7 +126,6 @@ export function Exploration() {
 	const modal: ModalType = (() => {
 		if (detailCard) return "card_detail";
 		if (status === "XP_SPEND_PHASE") return "xp_spend";
-		if (status === "CHOOSE_PATH") return "open_paths";
 		if (status === "DUNGEON_EXHAUSTED") return "dungeon_exhausted";
 		if (status === "DUNGEON_RESTART_PROMPT") return "flee_restart";
 		return null;
@@ -155,14 +155,6 @@ export function Exploration() {
 		const t = setTimeout(() => setCombatAttackHintVisible(true), 3000);
 		return () => clearTimeout(t);
 	}, [attackPromptTrigger, hasShownFirstAttackHint]);
-
-	// Segundo dispatch do OPEN_PATHS
-	useEffect(() => {
-		if (status === "OPEN_PATHS") {
-			const t = setTimeout(() => dispatch({ type: "OPEN_PATHS" }), 200);
-			return () => clearTimeout(t);
-		}
-	}, [status, dispatch]);
 
 	function openCardDetail(id: string, cardType: CardType) {
 		setDetailCard({ id, cardType });
@@ -380,8 +372,10 @@ export function Exploration() {
 									openCardDetail(view.currentRoom.cardId, "room")
 								}
 								onCardDetail={openCardDetail}
-								onReveal={() => dispatch({ type: "REVEAL_ROOM" })}
 								onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
+								onContinueExploration={() =>
+									dispatch({ type: "CONTINUE_EXPLORATION" })
+								}
 								onResolve={handleResolveAttack}
 								onSelectDie={(side, index) =>
 									dispatch({ type: "SELECT_DIE", payload: { side, index } })
@@ -492,10 +486,10 @@ export function Exploration() {
 
 					{/* Modais */}
 					{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
-					{modal === "open_paths" && <OpenPathsModal onClose={() => {}} />}
 					{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
 					{modal === "flee_restart" && <FleeReconfigureModal />}
 					{view.pendingSkillChoice && <SkillChoiceModal />}
+					{view.pendingTriggerInterrupt && <TriggerInterruptModal />}
 					{modal === "card_detail" && detailCard && (
 						<CardDetailModal
 							cardId={detailCard.id}

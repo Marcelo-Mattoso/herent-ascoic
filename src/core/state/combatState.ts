@@ -36,7 +36,7 @@ export type CombatPhase =
 	| "selecting_target" // herói selecionado, aguardando escolha de monstro
 	| "resolving" // par herói↔monstro formado, aguardando rolar/resolver
 	| "between_heroes" // resolução concluída, transição para próximo herói
-	| "direct_damage" // monstros sem oponente causam dano direto
+	| "direct_damage" // inimigos excedentes fazem rolagens extras de combate
 	| "round_end"; // fim de rodada, limpeza antes da próxima
 
 // Bônus de skill individual para o próximo ataque (label = nome da skill, value = valor)
@@ -78,6 +78,7 @@ export interface CombatState {
 		readonly filter?: { readonly value?: number; readonly minValue?: number };
 		readonly action: "reroll" | "set_to";
 		readonly setToValue?: number;
+		readonly deltaMax?: number;
 	};
 	// tohitPenaltyByHero migrado para ECS (patch-18 Lote G)
 	// → ModifierComponent target="hit_bonus" com valor negativo

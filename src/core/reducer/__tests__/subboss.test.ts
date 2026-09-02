@@ -89,6 +89,8 @@ describe("F13 — Subchefes", () => {
 		// Injetar salas de subchefe manualmente no topo do deck
 		state = {
 			...state,
+			currentRoom: null,
+			status: "REVEAL_ROOM",
 			despertar: 3 as import("../../state/color").ColorIndex,
 			subbosses: {
 				available: [
@@ -101,10 +103,7 @@ describe("F13 — Subchefes", () => {
 				...state.decks,
 				dungeonDeck: {
 					...state.decks.dungeonDeck,
-					available: [
-						"subboss_room_jailer_chamber",
-						...state.decks.dungeonDeck.available,
-					],
+					available: ["subboss_room_jailer_chamber"],
 				},
 			},
 		};

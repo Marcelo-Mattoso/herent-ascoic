@@ -1,5 +1,4 @@
 import { getCardName } from "@/core/data/cardLocale";
-import { getCardById } from "@/core/data/cards";
 import type { ModifierComponent } from "@/core/ecs/types";
 import { addComponent } from "@/core/ecs/world";
 import { log } from "@/core/reducer/utils";

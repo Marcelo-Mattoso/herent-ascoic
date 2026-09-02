@@ -8,6 +8,7 @@ import type { EffectStack, PausedState } from "../effects/stack";
 import { createEmptyEffectStack } from "../effects/stack";
 import type { RngState } from "../ports/random";
 import { createRng } from "../ports/random";
+import type { PendingTriggerInterrupt } from "../triggers/engine";
 import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
 import { createEmptyCombatState } from "./combatState";
@@ -147,6 +148,10 @@ export interface GameState {
 		readonly targetHeroIds?: readonly string[];
 		readonly targetEnemyIds?: readonly string[];
 	};
+
+	// Interrupção de trigger aguardando decisão do jogador.
+	// Gerada por habilidades/itens/inimigos que reagem a uma fase do jogo.
+	pendingTriggerInterrupt?: PendingTriggerInterrupt;
 
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];

@@ -9,9 +9,9 @@ export const run: ScriptHandler = (ctx) => {
 	const bonus = (ctx.params.value as number) ?? 0;
 	if (!bonus || !ctx.sourceId || !ctx.state.combat) return ctx.state;
 	return ctx.action.pushEffect({
-		kind: "add_modifier",
+		kind: "p_modifier",
 		to: ctx.sourceId,
-		stat: "tohit_bonus",
+		stat: "s_hit_bonus",
 		operation: "add",
 		value: bonus,
 		duration: { kind: "once" },

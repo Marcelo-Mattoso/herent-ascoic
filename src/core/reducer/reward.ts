@@ -10,17 +10,18 @@ import { getCardById } from "../data/cards";
 import { tickModifierDurations } from "../ecs/world";
 import { emit } from "../events/bus";
 import { calculateRewards } from "../rules/reward";
-import { cardSkills } from "../skills/lookup";
-import { renderSkillLabel } from "../skills/renderLabel";
 import { tickBlockEntries } from "../state/blockHelpers";
 import type { GameState, PendingReward } from "../state/gameState";
 import { defaultItemDestination } from "../strategies/itemDistribution";
-import { handleDungeonExhaustedSpend } from "./exploration";
+import {
+	handleCheckBossCondition,
+	handleDungeonExhaustedSpend,
+} from "./exploration";
 import { levelUpHero, lowerDespertar } from "./progression";
 import { getActiveHero, log, mapHero, shuffleRng } from "./utils";
 
 // ─── GRANT_REWARDS ────────────────────────────────────────────────────────────
-// Calcula XP, monta fila de itens/artefatos pendentes e mantém status REWARD_PHASE.
+// Calcula XP, monta fila de itens pendentes e ativa artefatos no grupo.
 
 export function handleGrantRewards(state: GameState): GameState {
 	if (!state.currentRoom) return state;
@@ -108,7 +109,7 @@ export function handleGrantRewards(state: GameState): GameState {
 		});
 	}
 
-	// Enfileirar artefatos
+	// Ativar artefatos direto no grupo
 	for (let i = 0; i < summary.artifacts; i++) {
 		const available = next.decks.artifactDeck.available;
 		if (available.length === 0) break;
@@ -120,19 +121,13 @@ export function handleGrantRewards(state: GameState): GameState {
 				artifactDeck: { ...next.decks.artifactDeck, available: rest },
 			},
 		};
-		// Verificar se o artefato tem portador ("portador" no label renderizado)
-		const artCard = getCardById(artName as string);
-		const artSkillEntry =
-			artCard?.type === "artifact" ? cardSkills(artCard.id)[0] : null;
-		const requiresBearer =
-			artCard?.type === "artifact" &&
-			!!artSkillEntry &&
-			renderSkillLabel(artSkillEntry.ref).toLowerCase().includes("portador");
-		queue.push({
-			type: "artifact",
-			cardId: artName as string,
-			requiresBearer,
-		});
+		next = {
+			...next,
+			groupArtifacts: [
+				...next.groupArtifacts,
+				{ cardId: artName as string, carriedBy: null },
+			],
+		};
 	}
 
 	next = {
@@ -144,8 +139,9 @@ export function handleGrantRewards(state: GameState): GameState {
 		pendingRewards: queue,
 	};
 
-	// Se não há recompensas físicas, avançar diretamente para XP_SPEND_PHASE
-	if (queue.length === 0) {
+	// Se não há recompensas físicas, avançar diretamente para XP_SPEND_PHASE.
+	// Artefatos entram ativos, mas ainda podem pedir escolha de portador na tela.
+	if (queue.length === 0 && summary.artifacts === 0) {
 		return log(
 			{ ...next, status: "XP_SPEND_PHASE" },
 			`Recompensas: +${summary.xp} XP. Sem itens ou artefatos.`,
@@ -357,7 +353,7 @@ export function handleSpendXp(
 // ─── Transição de XP_SPEND_PHASE → OPEN_PATHS ────────────────────────────────
 
 export function handleOpenPathsFromXpPhase(state: GameState): GameState {
-	return { ...state, status: "OPEN_PATHS" };
+	return handleCheckBossCondition(state);
 }
 
 // ─── INV_MOVE ────────────────────────────────────────────────────────────────
@@ -591,19 +587,18 @@ export function handleInvAssignItem(
 }
 
 // ─── INV_ASSIGN_ARTIFACT ─────────────────────────────────────────────────────
-// Move artefato da mesa para a vaga do grupo. Máx 2 artefatos ativos.
+// Move artefato da mesa para os artefatos ativos do grupo.
 
 export function handleInvAssignArtifact(
 	state: GameState,
 	artifactId: string,
-	_vagaIndex: 0 | 1,
+	_vagaIndex: number,
 	heroId: string | null,
 ): GameState {
 	const reward = state.pendingRewards.find(
 		(r) => r.cardId === artifactId && r.type === "artifact",
 	);
 	if (!reward) return state;
-	if (state.groupArtifacts.length >= 2) return state;
 
 	const remaining = state.pendingRewards.filter((r) => r !== reward);
 	const artifactName = getCardName(artifactId);

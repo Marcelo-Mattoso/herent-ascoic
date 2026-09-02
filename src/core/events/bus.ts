@@ -70,6 +70,7 @@ export function emit(
 		);
 		currentState = result.state;
 		currentEvent = result.event;
+		if (currentState.pendingTriggerInterrupt) break;
 
 		if (trigger.consumeAfterFire) {
 			if (trigger.consumeAfterFire.scope === "game") {

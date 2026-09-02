@@ -10,7 +10,7 @@ import {
 	getRooms,
 	getSubbosses,
 } from "../data/cards";
-import type { SubbossRoomCard } from "../data/cardTypes";
+import type { RoomCard, SubbossRoomCard } from "../data/cardTypes";
 import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncEntityFromEnemy } from "../ecs/sync";
@@ -25,7 +25,22 @@ import type { RoomState } from "../state/roomState";
 import { applyFullHeal } from "../systems/healSystem";
 import { createEnemyFromCard, log, shuffleRng } from "./utils";
 
+const DUNGEON_ROOM_COPIES = 2;
+
+export function buildDungeonRoomDeck(): string[] {
+	return getRooms().flatMap((card) =>
+		Array.from({ length: DUNGEON_ROOM_COPIES }, () => card.id),
+	);
+}
+
 export function handleRevealRoom(state: GameState): GameState {
+	return drawRandomDungeonRoom(state, "Sala sorteada");
+}
+
+function drawRandomDungeonRoom(
+	state: GameState,
+	logPrefix: "Sala sorteada" | "Sala revelada",
+): GameState {
 	const { available, discarded } = state.decks.dungeonDeck;
 
 	if (available.length === 0) {
@@ -41,16 +56,24 @@ export function handleRevealRoom(state: GameState): GameState {
 		);
 	}
 
-	const [roomId, ...remaining] = available;
+	const { value: shuffled, next: rng } = shuffleRng(available, state.rng);
+	const [roomId, ...remaining] = shuffled;
 	const card = getCardById(roomId as string);
 	if (!card || (card.type !== "room" && card.type !== "subboss_room"))
 		return state;
 
-	// Sala de subchefe: spawna diretamente o subchefe vinculado
-	if (card.type === "subboss_room") {
-		return handleRevealSubbossRoom(state, card, remaining);
-	}
+	return enterDungeonRoom({ ...state, rng }, card, remaining, logPrefix);
+}
 
+function enterDungeonRoom(
+	state: GameState,
+	card: RoomCard | SubbossRoomCard,
+	remainingDeck: readonly string[],
+	logPrefix: "Sala sorteada" | "Sala revelada",
+): GameState {
+	if (card.type === "subboss_room") {
+		return handleRevealSubbossRoom(state, card, remainingDeck, logPrefix);
+	}
 	const room: RoomState = {
 		cardId: card.id,
 		exits: card.exits,
@@ -70,22 +93,26 @@ export function handleRevealRoom(state: GameState): GameState {
 		...state,
 		currentRoom: room,
 		status: "ROOM_EFFECT",
+		activeEnemies: [],
+		enemyGraveyard: [],
+		combat: createEmptyCombatState(),
 		decks: {
 			...state.decks,
-			dungeonDeck: { ...state.decks.dungeonDeck, available: remaining },
+			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
 		},
 	};
 	({ state: next } = emit(next, {
 		type: "RoomEntered",
 		payload: { roomId: room.cardId },
 	}));
-	return log(next, `Sala revelada: ${getCardName(card.id)}.`);
+	return log(next, `${logPrefix}: ${getCardName(card.id)}.`);
 }
 
 function handleRevealSubbossRoom(
 	state: GameState,
 	card: SubbossRoomCard,
 	remainingDeck: readonly string[],
+	logPrefix: "Sala sorteada" | "Sala revelada",
 ): GameState {
 	const subbossCard = getSubbosses().find((s) => s.id === card.linkedSubbossId);
 	if (!subbossCard)
@@ -121,6 +148,7 @@ function handleRevealSubbossRoom(
 		currentRoom: room,
 		status: "COMBAT_START",
 		activeEnemies: [enemy],
+		enemyGraveyard: [],
 		combat: createEmptyCombatState(),
 		decks: {
 			...state.decks,
@@ -129,7 +157,21 @@ function handleRevealSubbossRoom(
 	};
 	return log(
 		next,
-		`Sala de subchefe revelada: ${getCardName(card.id)}. ${getCardName(subbossCard.id)} aparece!`,
+		`${logPrefix}: ${getCardName(card.id)}. ${getCardName(subbossCard.id)} aparece!`,
+	);
+}
+
+function handleDungeonDeckEmpty(state: GameState): GameState {
+	const { discarded } = state.decks.dungeonDeck;
+	if (state.groupXp >= DUNGEON_EXHAUSTION_COST && discarded.length > 0) {
+		return log(
+			{ ...state, status: "DUNGEON_EXHAUSTED" },
+			"Deck de dungeon esgotado. Gaste 5 XP para continuar.",
+		);
+	}
+	return log(
+		{ ...state, status: "DEFEAT" },
+		"Derrota: deck de dungeon esgotado sem recursos.",
 	);
 }
 
@@ -267,85 +309,142 @@ export function handleSpawnEnemies(state: GameState): GameState {
 }
 
 export function handleOpenPaths(state: GameState): GameState {
-	if (!state.currentRoom) return state;
-	const exits = state.currentRoom.exits;
-	const { available } = state.decks.dungeonDeck;
-	const drawn = available.slice(0, exits);
-	const remaining = available.slice(exits);
-
-	if (drawn.length === 0) {
-		return log(
-			{ ...state, status: "DUNGEON_EXHAUSTED" },
-			"Sem caminhos disponíveis — masmorra esgotada.",
-		);
-	}
-
-	let next: GameState = log(
-		{
-			...state,
-			paths: drawn,
-			status: "CHOOSE_PATH",
-			decks: {
-				...state.decks,
-				dungeonDeck: { ...state.decks.dungeonDeck, available: remaining },
-			},
-		},
-		`${drawn.length} caminho(s) revelado(s).`,
-	);
-	({ state: next } = emit(next, {
-		type: "PathsRevealed",
-		payload: { cards: drawn as string[] },
-	}));
-	return next;
+	return state.currentRoom
+		? handleCheckBossCondition(state)
+		: advanceToRandomDungeonRoom(state);
 }
 
 export function handleChoosePath(state: GameState, cardId: string): GameState {
-	if (!state.paths.includes(cardId)) return state;
-	return log(
-		{
-			...state,
-			status: "DISCARD_PATHS",
-			decks: {
-				...state.decks,
-				dungeonDeck: {
-					...state.decks.dungeonDeck,
-					available: [cardId, ...state.decks.dungeonDeck.available],
-				},
-			},
-		},
-		`Caminho escolhido: ${getCardName(cardId)}.`,
-	);
+	if (!state.paths.includes(cardId)) return handleOpenPaths(state);
+	return handleOpenPaths({ ...state, paths: [] });
 }
 
 export function handleDiscardPaths(state: GameState): GameState {
-	const chosenId = state.decks.dungeonDeck.available[0];
-	const toDiscard = state.paths.filter((p) => p !== chosenId);
-	const newDiscarded = [...state.decks.dungeonDeck.discarded, ...toDiscard];
-
-	const next = {
-		...state,
-		paths: [],
-		status: "CHECK_BOSS_CONDITION" as const,
-		decks: {
-			...state.decks,
-			dungeonDeck: { ...state.decks.dungeonDeck, discarded: newDiscarded },
-		},
-	};
-	return log(next, `${toDiscard.length} caminho(s) descartado(s).`);
+	return handleCheckBossCondition(state);
 }
 
 export function handleCheckBossCondition(state: GameState): GameState {
 	const roomId = state.currentRoom?.cardId ?? "";
-	let s = state;
-	({ state: s } = emit(s, { type: "RoomLeft", payload: { roomId } }));
+	const roomExits = state.currentRoom?.exits ?? 1;
+	let s: GameState = {
+		...state,
+		paths: [],
+		currentRoom: null,
+		activeEnemies: [],
+		combat: createEmptyCombatState(),
+		decks: roomId
+			? {
+					...state.decks,
+					dungeonDeck: {
+						...state.decks.dungeonDeck,
+						discarded: [...state.decks.dungeonDeck.discarded, roomId],
+					},
+				}
+			: state.decks,
+	};
+	if (roomId) {
+		({ state: s } = emit(s, { type: "RoomLeft", payload: { roomId } }));
+		({ state: s } = emit(s, {
+			type: "DungeonCardDiscarded",
+			payload: { cardId: roomId, reason: "extra" },
+		}));
+	}
 
 	if (checkBossCondition(s, s.bossCardId)) {
 		return log(
 			{ ...s, status: "BOSS_REVEAL" },
-			"Condição do boss atendida! Boss revelado.",
+			"Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
 		);
 	}
-	return log({ ...s, status: "REVEAL_ROOM" }, "Avançando para próxima sala.");
+	return advanceToRandomDungeonRoom(s, roomExits);
+}
+
+export function handleContinueExplorationAfterBossOffer(
+	state: GameState,
+): GameState {
+	return advanceToRandomDungeonRoom(
+		log(state, "O grupo adia o confronto final e continua explorando."),
+	);
+}
+
+function advanceToRandomDungeonRoom(
+	state: GameState,
+	exitsOverride?: number,
+): GameState {
+	const exits = Math.max(1, exitsOverride ?? state.currentRoom?.exits ?? 1);
+	const { available, discarded, removed } = state.decks.dungeonDeck;
+	if (available.length === 0) return handleDungeonDeckEmpty(state);
+
+	let rng = state.rng;
+	const { value: shuffledAvailable, next: afterPathDraw } = shuffleRng(
+		available,
+		rng,
+	);
+	rng = afterPathDraw;
+
+	const drawn = shuffledAvailable.slice(0, exits);
+	const afterDraw = shuffledAvailable.slice(exits);
+	if (drawn.length === 0) return handleDungeonDeckEmpty(state);
+
+	const { value: shuffledDrawn, next: afterChoice } = shuffleRng(drawn, rng);
+	rng = afterChoice;
+
+	const [chosenId, ...unchosen] = shuffledDrawn;
+	const discardTarget = exits >= 5 ? 2 : exits > 1 ? 1 : 0;
+	const discardCount =
+		state.flags.dungeonDiscardPrevented && !state.flags.discardDungeonLocked
+			? 0
+			: Math.min(discardTarget, unchosen.length);
+	const discardedPaths = unchosen.slice(0, discardCount);
+	const returningPaths = unchosen.slice(discardCount);
+
+	const { value: nextAvailable, next: afterReturnShuffle } = shuffleRng(
+		[...afterDraw, ...returningPaths],
+		rng,
+	);
+	rng = afterReturnShuffle;
+
+	const card = getCardById(chosenId as string);
+	if (!card || (card.type !== "room" && card.type !== "subboss_room"))
+		return state;
+
+	let next: GameState = {
+		...state,
+		rng,
+		paths: [],
+		flags:
+			state.flags.dungeonDiscardPrevented && !state.flags.discardDungeonLocked
+				? { ...state.flags, dungeonDiscardPrevented: false }
+				: state.flags,
+		decks: {
+			...state.decks,
+			dungeonDeck: {
+				available: nextAvailable,
+				discarded: [...discarded, ...discardedPaths],
+				removed,
+			},
+		},
+	};
+
+	for (const cardId of discardedPaths) {
+		({ state: next } = emit(next, {
+			type: "DungeonCardDiscarded",
+			payload: { cardId: cardId as string, reason: "extra" },
+		}));
+	}
+
+	if (
+		state.flags.dungeonDiscardPrevented &&
+		!state.flags.discardDungeonLocked
+	) {
+		next = log(next, "Descarte de caminho prevenido (Caminho Preservado).");
+	}
+
+	next = log(
+		next,
+		`Caminho sorteado em segredo: ${drawn.length} carta(s), ${discardedPaths.length} descarte(s).`,
+	);
+	return enterDungeonRoom(next, card, nextAvailable, "Sala sorteada");
 }
 
 // Descarta N cartas do topo do deck de dungeon. Utilitário compartilhado com handlers de skill.
@@ -395,7 +494,7 @@ export function handleRestartDungeon(
 	state: GameState,
 	keepEquipment: boolean,
 ): GameState {
-	const roomIds = getRooms().map((c) => c.id);
+	const roomIds = buildDungeonRoomDeck();
 	const creatureIds = getCreatures().map((c) => c.id);
 	const itemIds = getItems().map((c) => c.id);
 	const artifactIds = getArtifacts().map((c) => c.id);
@@ -456,18 +555,17 @@ export function handleRestartDungeon(
 	for (const h of restoredHeroes) {
 		next = applyFullHeal(next, h.id);
 	}
-	return next;
+	return handleRevealRoom(next);
 }
 
 export function handleDungeonExhaustedSpend(state: GameState): GameState {
 	const { discarded } = state.decks.dungeonDeck;
 	const { value: reshuffled, next: rng } = shuffleRng(discarded, state.rng);
-	return log(
+	const next = log(
 		{
 			...state,
 			rng,
 			groupXp: state.groupXp - DUNGEON_EXHAUSTION_COST,
-			status: "REVEAL_ROOM",
 			decks: {
 				...state.decks,
 				dungeonDeck: {
@@ -479,4 +577,5 @@ export function handleDungeonExhaustedSpend(state: GameState): GameState {
 		},
 		"5 XP gastos. Deck de dungeon reembaralhado.",
 	);
+	return handleRevealRoom(next);
 }

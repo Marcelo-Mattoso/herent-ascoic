@@ -15,7 +15,7 @@ export const run: ScriptHandler = (ctx) => {
 	if (!enemy || enemy.status !== "active") return ctx.state;
 
 	return ctx.action.pushEffect({
-		kind: "apply_damage",
+		kind: "i_damage",
 		to: enemyId,
 		amount: hero.damage,
 	});

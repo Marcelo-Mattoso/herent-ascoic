@@ -50,10 +50,16 @@ export function fireOnUseSkill(
 	const cardRef = sourceCardId
 		? cardSkills(sourceCardId).find(({ def: d }) => d.id === skillId)?.ref
 		: undefined;
-	const resolvedValue =
+	const rawResolvedValue =
 		value !== undefined
 			? value
 			: (cardRef?.params?.value ?? def.params?.value ?? null);
+	const resolvedValue =
+		typeof rawResolvedValue === "number" ||
+		typeof rawResolvedValue === "string" ||
+		rawResolvedValue === null
+			? rawResolvedValue
+			: null;
 
 	const resolvedCtx: SkillContext = {
 		triggeredBy: "on_use",

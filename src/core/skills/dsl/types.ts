@@ -63,6 +63,7 @@ export type DurationNode =
 	| { readonly kind: "until_end_of_combat" }
 	| { readonly kind: "while_in_play" }
 	| { readonly kind: "permanent" }
+	| { readonly kind: "passive" }
 	| { readonly kind: "once_per_round" };
 
 // ── Effects ──────────────────────────────────────────────────────────────────
@@ -115,6 +116,7 @@ export type EffectNode =
 			readonly value: ExprNode;
 			readonly duration: DurationNode;
 			readonly condition?: ConditionNode;
+			readonly sourceEntityId?: string;
 	  }
 	| {
 			readonly kind: "add_trigger";
@@ -191,16 +193,22 @@ export type EffectNode =
 			readonly kind: "i_modify_die";
 			readonly delta: ExprNode;
 			readonly die_side: "hero" | "enemy" | "any";
+			readonly hero_id?: string;
+			readonly skill_id?: string;
 	  }
 	| {
 			readonly kind: "i_reroll";
 			readonly die_side: "hero" | "enemy" | "any";
 			readonly only_if_value?: ExprNode;
+			readonly hero_id?: string;
+			readonly skill_id?: string;
 	  }
 	| {
 			readonly kind: "i_set_die";
 			readonly value: ExprNode;
 			readonly die_side: "hero" | "enemy" | "any";
+			readonly hero_id?: string;
+			readonly skill_id?: string;
 	  }
 	// ── Status (patch-21 Lote F) ─────────────────────────────────────────────────
 	| {

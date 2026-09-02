@@ -223,7 +223,7 @@ export function decrementRoundsModifiers(world: World): World {
 				c.type === "modifier" && c.duration.kind === "rounds",
 		);
 		if (!hasRounds) continue;
-		const newComponents = entity.components.flatMap((c) => {
+		const newComponents = entity.components.flatMap<Component>((c) => {
 			if (c.type !== "modifier") return [c];
 			const mod = c as ModifierComponent;
 			if (mod.duration.kind !== "rounds") return [c];

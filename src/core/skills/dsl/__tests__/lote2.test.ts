@@ -1,10 +1,8 @@
 ﻿// Testes de aceite Lote 2 (Patch-12 Fase 4) — DSL com add_modifier.
 
 import { describe, expect, it } from "vitest";
-import type { ModifierComponent } from "../../../ecs/types";
 import {
 	createEntity,
-	getComponents,
 	getModifierTotal,
 	upsertEntity,
 } from "../../../ecs/world";
@@ -85,7 +83,7 @@ describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 		const base = stateWithCombat();
 		const state = {
 			...base,
-			world: upsertEntity(base.world, createEntity("e1", "creature", [])),
+			world: upsertEntity(base.world, createEntity("e1", "enemy", [])),
 		};
 		const ctx = buildScriptCtx(
 			state,

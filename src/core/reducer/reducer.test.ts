@@ -1,4 +1,4 @@
-﻿// Testes de integração do reducer.
+// Testes de integração do reducer.
 // Cada teste percorre um caminho completo do loop de jogo.
 
 import { describe, expect, it } from "vitest";
@@ -10,6 +10,24 @@ import { reducer, reducerCore } from "./index";
 
 const HERO = "hero_crimson_barbarian";
 const BOSS_NAME = "boss_azhakar";
+
+function rollDiceWithApprovals(state: GameState): GameState {
+	let next = reducer(state, { type: "ROLL_DICE" });
+	let guard = 0;
+	while (next.pendingTriggerInterrupt && guard < 10) {
+		const interruptedStatus = next.status;
+		const interruptId = next.pendingTriggerInterrupt.id;
+		next = reducer(next, {
+			type: "APPLY_TRIGGER_INTERRUPT",
+			payload: { interruptId },
+		});
+		if (interruptedStatus === "ROLL_DICE" && next.status === "ROLL_DICE") {
+			next = reducer(next, { type: "ROLL_DICE" });
+		}
+		guard += 1;
+	}
+	return next;
+}
 
 // Constrói um estado com sala e inimigo pré-definidos para evitar aleatoriedade
 function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
@@ -76,7 +94,8 @@ describe("START_GAME", () => {
 		});
 		expect(s.heroes).toHaveLength(1);
 		expect(s.heroes[0]?.cardId).toBe(HERO);
-		expect(s.status).toBe("REVEAL_ROOM");
+		expect(s.status).toBe("ROOM_EFFECT");
+		expect(s.currentRoom).not.toBeNull();
 		expect(s.decks.dungeonDeck.available.length).toBeGreaterThan(0);
 	});
 
@@ -101,6 +120,92 @@ describe("START_GAME", () => {
 	});
 });
 
+// ─── Testes de itens ─────────────────────────────────────────────────────────
+
+describe("USE_ITEM", () => {
+	it("Saque Místico descarta o item da mochila e gera recompensa de artefato", () => {
+		const base = createInitialGameState({ heroCardIds: [HERO] });
+		const started = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardIds: [HERO] },
+		});
+		const hero = started.heroes[0];
+		if (!hero) throw new Error("no hero");
+
+		const itemId = "item_ancient_iron_key";
+		const artifactId = "artifact_crimson_jailer_chain";
+		const state: GameState = {
+			...started,
+			heroes: [{ ...hero, backpack: [itemId] }],
+			decks: {
+				...started.decks,
+				artifactDeck: {
+					available: [artifactId],
+					discarded: [],
+					removed: [],
+				},
+			},
+			pendingRewards: [],
+		};
+
+		const result = reducer(state, {
+			type: "USE_ITEM",
+			payload: { itemId, heroId: hero.id },
+		});
+
+		expect(result.heroes[0]?.backpack).not.toContain(itemId);
+		expect(result.pendingRewards).toContainEqual({
+			type: "artifact",
+			cardId: artifactId,
+			requiresBearer: false,
+		});
+		expect(result.decks.artifactDeck.available).not.toContain(artifactId);
+	});
+
+	it("Saque Místico descarta o item mesmo quando ele está equipado no slot especial", () => {
+		const base = createInitialGameState({ heroCardIds: [HERO] });
+		const started = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardIds: [HERO] },
+		});
+		const hero = started.heroes[0];
+		if (!hero) throw new Error("no hero");
+
+		const itemId = "item_torn_depths_map";
+		const artifactId = "artifact_ancient_ember_heart";
+		const state: GameState = {
+			...started,
+			heroes: [
+				{
+					...hero,
+					activeItems: { ...hero.activeItems, special: itemId },
+					backpack: [],
+				},
+			],
+			decks: {
+				...started.decks,
+				artifactDeck: {
+					available: [artifactId],
+					discarded: [],
+					removed: [],
+				},
+			},
+			pendingRewards: [],
+		};
+
+		const result = reducer(state, {
+			type: "USE_ITEM",
+			payload: { itemId, heroId: hero.id },
+		});
+
+		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
+		expect(result.pendingRewards[0]).toMatchObject({
+			type: "artifact",
+			cardId: artifactId,
+		});
+	});
+});
+
 // ─── Testes de exploração ────────────────────────────────────────────────────
 
 describe("REVEAL_ROOM", () => {
@@ -111,6 +216,7 @@ describe("REVEAL_ROOM", () => {
 			payload: { heroCardIds: [HERO] },
 		});
 		const deckSizeBefore = s.decks.dungeonDeck.available.length;
+		s = { ...s, currentRoom: null, status: "REVEAL_ROOM" };
 		s = reducer(s, { type: "REVEAL_ROOM" });
 		expect(s.currentRoom).not.toBeNull();
 		expect(s.decks.dungeonDeck.available.length).toBe(deckSizeBefore - 1);
@@ -126,6 +232,8 @@ describe("REVEAL_ROOM", () => {
 		s = {
 			...s,
 			groupXp: 10,
+			currentRoom: null,
+			status: "REVEAL_ROOM",
 			decks: {
 				...s.decks,
 				dungeonDeck: {
@@ -148,6 +256,8 @@ describe("REVEAL_ROOM", () => {
 		s = {
 			...s,
 			groupXp: 0,
+			currentRoom: null,
+			status: "REVEAL_ROOM",
 			decks: {
 				...s.decks,
 				dungeonDeck: { available: [], discarded: [], removed: [] },
@@ -174,7 +284,7 @@ describe("loop de sala completo", () => {
 		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 		expect(s.status).toBe("ROLL_DICE");
 
-		s = reducer(s, { type: "ROLL_DICE" });
+		s = rollDiceWithApprovals(s);
 		expect(s.status).toBe("RESOLVE_ATTACK");
 
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
@@ -185,7 +295,7 @@ describe("loop de sala completo", () => {
 		if (s.status === "HERO_ACTION") {
 			// Inimigo sobreviveu — faz mais uma rodada
 			s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
-			s = reducer(s, { type: "ROLL_DICE" });
+			s = rollDiceWithApprovals(s);
 			s = reducer(s, { type: "RESOLVE_ATTACK" });
 			s = reducer(s, { type: "CHECK_COMBAT_END" });
 		}
@@ -197,22 +307,59 @@ describe("loop de sala completo", () => {
 		expect(s.status).toBe("XP_SPEND_PHASE");
 		expect(s.groupXp).toBeGreaterThan(0);
 
-		// Pular gasto de XP, abrir caminhos
-		s = reducer(s, { type: "OPEN_PATHS" });
-		expect(s.status).toBe("OPEN_PATHS");
-		s = reducer(s, { type: "OPEN_PATHS" });
-		expect(s.status).toBe("CHOOSE_PATH");
-		expect(s.paths.length).toBeGreaterThan(0);
-
-		// Escolher caminho
-		const path = s.paths[0] as string;
-		s = reducer(s, { type: "CHOOSE_PATH", payload: { cardId: path } });
-		s = reducer(s, { type: "DISCARD_PATHS" });
+		// Pular gasto de XP avança por sorteio oculto da próxima sala
 		s = reducer(s, { type: "CHECK_BOSS_CONDITION" });
 
 		// Sem artefatos suficientes → avança para REVEAL_ROOM
-		expect(s.status).toBe("REVEAL_ROOM");
+		expect(s.status).toBe("ROOM_EFFECT");
+		expect(s.currentRoom).not.toBeNull();
+		expect(s.paths).toHaveLength(0);
 		expect(s.roomsCleared).toBe(1);
+	});
+
+	it("habilidade reativa de herói pede aprovação antes da rolagem", () => {
+		let s = stateWithRoomAndEnemy();
+		s = reducer(s, { type: "START_COMBAT" });
+
+		const heroId = s.heroes[0]?.id ?? "";
+		const enemyId = s.activeEnemies[0]?.id ?? "";
+		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+
+		s = reducer(s, { type: "ROLL_DICE" });
+		expect(s.status).toBe("ROLL_DICE");
+		expect(s.pendingTriggerInterrupt).toMatchObject({
+			skillId: "skill_crimson_fury",
+			sourceKind: "hero",
+			sourceHeroId: heroId,
+		});
+
+		const interruptId = s.pendingTriggerInterrupt?.id ?? "";
+		s = reducer(s, {
+			type: "APPLY_TRIGGER_INTERRUPT",
+			payload: { interruptId },
+		});
+
+		expect(s.pendingTriggerInterrupt).toBeUndefined();
+		expect(s.status).toBe("RESOLVE_ATTACK");
+	});
+
+	it("ignorar habilidade reativa de herói também retoma a rolagem", () => {
+		let s = stateWithRoomAndEnemy();
+		s = reducer(s, { type: "START_COMBAT" });
+
+		const heroId = s.heroes[0]?.id ?? "";
+		const enemyId = s.activeEnemies[0]?.id ?? "";
+		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+		s = reducer(s, { type: "ROLL_DICE" });
+
+		const interruptId = s.pendingTriggerInterrupt?.id ?? "";
+		s = reducer(s, {
+			type: "SKIP_TRIGGER_INTERRUPT",
+			payload: { interruptId },
+		});
+
+		expect(s.pendingTriggerInterrupt).toBeUndefined();
+		expect(s.status).toBe("RESOLVE_ATTACK");
 	});
 });
 
@@ -238,7 +385,7 @@ describe("derrota por herói", () => {
 		};
 
 		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
-		s = reducer(s, { type: "ROLL_DICE" });
+		s = rollDiceWithApprovals(s);
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
 
 		// Após damage, herói deve estar com vida <= 0
@@ -262,6 +409,8 @@ describe("derrota por deck esgotado", () => {
 		s = {
 			...s,
 			groupXp: 0,
+			currentRoom: null,
+			status: "REVEAL_ROOM",
 			decks: {
 				...s.decks,
 				dungeonDeck: { available: [], discarded: [], removed: [] },
@@ -280,6 +429,8 @@ describe("derrota por deck esgotado", () => {
 		s = {
 			...s,
 			groupXp: 10,
+			currentRoom: null,
+			status: "REVEAL_ROOM",
 			decks: {
 				...s.decks,
 				dungeonDeck: {
@@ -296,9 +447,10 @@ describe("derrota por deck esgotado", () => {
 			type: "SPEND_XP",
 			payload: { option: "recover_dungeon" },
 		});
-		expect(s.status).toBe("REVEAL_ROOM");
+		expect(s.status).toBe("ROOM_EFFECT");
+		expect(s.currentRoom).not.toBeNull();
 		expect(s.groupXp).toBe(5);
-		expect(s.decks.dungeonDeck.available.length).toBe(2);
+		expect(s.decks.dungeonDeck.available.length).toBe(1);
 	});
 });
 
@@ -315,7 +467,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 
 		const enemy: EnemyState = {
 			id: "e1",
-			cardId: "creature_deep_rift_rat",
+			cardId: "test_training_enemy",
 			maxLife: 99,
 			currentLife: 99,
 			damage: 1,
@@ -362,7 +514,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		expect(s.status).toBe("ROLL_DICE");
 
 		// Rola e resolve o combate do herói 1
-		s = reducer(s, { type: "ROLL_DICE" });
+		s = rollDiceWithApprovals(s);
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
 
 		// Agora herói 2 deve poder selecionar o MESMO inimigo — v2 permite
@@ -374,13 +526,13 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		expect(s.status).toBe("ROLL_DICE");
 	});
 
-	it("criatura sem atacante aplica dano completo num único herói", () => {
+	it("criatura sem atacante não age se não houver inimigo excedente", () => {
 		let s = stateWithTwoHeroesOneEnemy();
 
-		// Segundo inimigo que não será atacado
+		// Segundo inimigo que não será atacado, mas há dois heróis para dois inimigos.
 		const unattacked: EnemyState = {
 			id: "e2",
-			cardId: "creature_deep_rift_rat",
+			cardId: "test_unengaged_enemy",
 			maxLife: 5,
 			currentLife: 5,
 			damage: 3,
@@ -402,23 +554,83 @@ describe("combate múltiplo v2 (§8.8)", () => {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero1!.id, enemyId: attackedId },
 		});
-		s = reducer(s, { type: "ROLL_DICE" });
+		s = rollDiceWithApprovals(s);
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
 
 		s = reducer(s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero2!.id, enemyId: attackedId },
 		});
-		s = reducer(s, { type: "ROLL_DICE" });
+		s = rollDiceWithApprovals(s);
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
 
-		// Fase de dano direto: e2 não foi atacado → aplica 3 de dano num herói
+		// Sem inimigo excedente numérico, e2 não faz rolagem extra.
 		const totalLifeBefore = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
 		s = reducer(s, { type: "DIRECT_DAMAGE" });
 		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
 
-		// Dano de 3 deve ter sido aplicado (inteiro, num herói só)
+		expect(totalLifeAfter).toBe(totalLifeBefore);
+	});
+
+	it("inimigo excedente rola combate e só causa dano se vencer", () => {
+		let s = stateWithTwoHeroesOneEnemy();
+
+		const extraEnemies: EnemyState[] = [
+			{
+				id: "e2",
+				cardId: "test_extra_enemy_wins",
+				maxLife: 5,
+				currentLife: 5,
+				damage: 3,
+				hitBonus: 1000,
+				dice: 1,
+				tokens: { xp: 1, reward_item: 0, reward_artifact: 0 },
+				conditions: [],
+				firstDamageTakenThisTurn: false,
+				status: "active",
+			},
+			{
+				id: "e3",
+				cardId: "test_extra_enemy_waits",
+				maxLife: 5,
+				currentLife: 5,
+				damage: 3,
+				hitBonus: 0,
+				dice: 1,
+				tokens: { xp: 1, reward_item: 0, reward_artifact: 0 },
+				conditions: [],
+				firstDamageTakenThisTurn: false,
+				status: "active",
+			},
+		];
+		s = { ...s, activeEnemies: [...s.activeEnemies, ...extraEnemies] };
+
+		s = reducer(s, { type: "START_COMBAT" });
+		const [hero1, hero2] = s.heroes;
+		const attackedId = "e1";
+
+		s = reducer(s, {
+			type: "CHOOSE_TARGET",
+			payload: { heroId: hero1!.id, enemyId: attackedId },
+		});
+		s = rollDiceWithApprovals(s);
+		s = reducer(s, { type: "RESOLVE_ATTACK" });
+
+		s = reducer(s, {
+			type: "CHOOSE_TARGET",
+			payload: { heroId: hero2!.id, enemyId: attackedId },
+		});
+		s = rollDiceWithApprovals(s);
+		s = reducer(s, { type: "RESOLVE_ATTACK" });
+
+		const totalLifeBefore = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
+		s = reducer(s, { type: "DIRECT_DAMAGE" });
+		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
+
 		expect(totalLifeBefore - totalLifeAfter).toBe(3);
+		expect(
+			s.eventLog.some((entry) => entry.includes("Ataque extra")),
+		).toBe(true);
 	});
 });
 
@@ -468,7 +680,7 @@ describe("vitória contra boss", () => {
 			type: "CHOOSE_TARGET",
 			payload: { heroId, enemyId: "boss" },
 		});
-		s = reducer(s, { type: "ROLL_DICE" });
+		s = rollDiceWithApprovals(s);
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
 
 		expect(s.status).toBe("VICTORY");
@@ -517,7 +729,7 @@ describe("boss sobrevive a uma rodada", () => {
 			type: "CHOOSE_TARGET",
 			payload: { heroId, enemyId: "boss" },
 		});
-		s = reducer(s, { type: "ROLL_DICE" });
+		s = rollDiceWithApprovals(s);
 		s = reducer(s, { type: "RESOLVE_ATTACK" });
 
 		expect(s.status).toBe("BOSS_COMBAT");
@@ -668,3 +880,4 @@ describe("determinismo via seed", () => {
 		expect(c2).toBeGreaterThanOrEqual(c1);
 	});
 });
+

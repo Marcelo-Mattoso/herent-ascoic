@@ -1,7 +1,7 @@
 // Resolve o target de uma habilidade para ids concretos no estado atual.
 // Targets que exigem escolha do jogador retornam { kind: "needs_selection" }.
 
-import { getCardById } from "../data/cards";
+import { getCardName } from "../data/cardLocale";
 import type {
 	SkillContext,
 	TargetCandidate,
@@ -35,7 +35,7 @@ export function resolveTarget(
 				candidates: activeHeroes.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: getCardById(h.cardId)?.name ?? h.cardId,
+					label: getCardName(h.cardId),
 				})),
 			};
 		}
@@ -54,7 +54,7 @@ export function resolveTarget(
 				.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: getCardById(h.cardId)?.name ?? h.cardId,
+					label: getCardName(h.cardId),
 				}));
 			if (candidates.length === 1)
 				return { kind: "resolved", heroIds: [candidates[0]!.id] };
@@ -69,7 +69,7 @@ export function resolveTarget(
 				candidates: activeHeroes.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: getCardById(h.cardId)?.name ?? h.cardId,
+					label: getCardName(h.cardId),
 				})),
 			};
 		}
@@ -87,7 +87,7 @@ export function resolveTarget(
 				candidates: activeEnemies.map<TargetCandidate>((e) => ({
 					kind: "enemy",
 					id: e.id,
-					label: getCardById(e.cardId)?.name ?? e.cardId,
+					label: getCardName(e.cardId),
 				})),
 			};
 		}

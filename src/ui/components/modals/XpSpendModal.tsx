@@ -30,7 +30,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 	}
 
 	function continuar() {
-		dispatch({ type: "OPEN_PATHS" });
+		dispatch({ type: "CHECK_BOSS_CONDITION" });
 		onClose();
 	}
 
@@ -47,7 +47,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 						{logoUrl ? <img src={logoUrl} alt="" /> : null}
 						<div>
 							<h1>Gastar XP</h1>
-							<p>Prepare o grupo antes dos próximos caminhos</p>
+							<p>Prepare o grupo antes da próxima sala</p>
 						</div>
 					</div>
 					<div className="xp-total-badge">
@@ -98,7 +98,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 function getXpOptionHint(option: XpSpendOption) {
 	switch (option) {
 		case "recover_dungeon":
-			return "Reembaralha o descarte da masmorra para prolongar a expedição.";
+			return "Reembaralha o descarte da masmorra para manter a expedição viva.";
 		case "level_up":
 			return "Aumenta o nível de ímpeto de um herói disponível.";
 		case "buy_item":

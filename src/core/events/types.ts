@@ -124,6 +124,7 @@ export type GameEvent =
 				readonly heroId: string;
 				readonly enemyId: string;
 				readonly round: number;
+				readonly sourceType?: "hero" | "enemy";
 			};
 	  }
 	| {

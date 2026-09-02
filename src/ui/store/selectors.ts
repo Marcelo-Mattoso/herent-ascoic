@@ -27,6 +27,7 @@ export type AvailableAction =
 	| "choose_path"
 	| "reveal_room"
 	| "reveal_boss"
+	| "continue_exploration"
 	| "spend_xp"
 	| "start_combat"
 	| "roll_dice"
@@ -59,14 +60,9 @@ export function selectAvailableActions(view: PlayerView): AvailableAction[] {
 		case "REWARD_PHASE":
 			return ["grant_rewards"];
 		case "XP_SPEND_PHASE":
-			return ["open_paths", "spend_xp"];
-		case "OPEN_PATHS":
-		case "CHOOSE_PATH":
-			return ["choose_path"];
-		case "REVEAL_ROOM":
-			return ["reveal_room"];
+			return ["spend_xp"];
 		case "BOSS_REVEAL":
-			return ["reveal_boss"];
+			return ["reveal_boss", "continue_exploration"];
 		case "DUNGEON_EXHAUSTED":
 			return ["spend_xp"];
 		default:
