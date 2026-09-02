@@ -38,7 +38,7 @@ describe("dispatch", () => {
 
 		// Não usamos await — o estado já deve estar atualizado
 		adapter.dispatch(START_ACTION);
-		expect(adapter.getState().status).toBe("REVEAL_ROOM");
+		expect(adapter.getState().status).toBe("ROOM_EFFECT");
 	});
 
 	it("múltiplos dispatches encadeiam o estado corretamente", async () => {
@@ -66,7 +66,7 @@ describe("getState", () => {
 		const adapter = createInProcessAdapter(initial);
 
 		await adapter.dispatch(START_ACTION);
-		expect(adapter.getState().status).toBe("REVEAL_ROOM");
+		expect(adapter.getState().status).toBe("ROOM_EFFECT");
 		expect(adapter.getState()).not.toBe(initial);
 	});
 });
@@ -97,7 +97,7 @@ describe("subscribe", () => {
 		await adapter.dispatch(START_ACTION);
 
 		expect(capturedState).not.toBeNull();
-		expect(capturedState!.status).toBe("REVEAL_ROOM");
+		expect(capturedState!.status).toBe("ROOM_EFFECT");
 	});
 
 	it("múltiplos subscribers são todos chamados no dispatch", async () => {

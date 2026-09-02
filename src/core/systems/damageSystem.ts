@@ -77,6 +77,7 @@ export function applyDamage(
 		type: "DamageAboutToBeDealt",
 		payload: { sourceId, targetId, damageType, amount },
 	});
+	if (s1.pendingTriggerInterrupt) return s1;
 	const finalAmount = (modified.payload as { amount: number }).amount;
 
 	// Aplicar o dano com o valor modificado.
@@ -87,6 +88,7 @@ export function applyDamage(
 		type: "DamageDealt",
 		payload: { sourceId, targetId, damageType, amount: finalAmount },
 	});
+	if (s3.pendingTriggerInterrupt) return s3;
 
 	// Lote E: emite EnemyDestroyed ou HeroDefeated quando entidade é derrotada
 	let s4 = s3;

@@ -31,6 +31,7 @@ export type { Difficulty, GameMode };
 import type { HeroState } from "../state/heroState";
 import type { RoomState } from "../state/roomState";
 import type { GameStatus } from "../state/status";
+import type { PendingTriggerInterrupt } from "../triggers/engine";
 
 // Aliases estruturais — iguais ao shape interno por enquanto.
 // Mudam quando ECS entra plenamente: a projeção reconstruirá HeroView a partir de componentes.
@@ -97,6 +98,7 @@ export interface PlayerView {
 	readonly groupArtifacts: readonly GroupArtifact[];
 	readonly roomsCleared: number;
 	readonly creaturesDefeated: number;
+	readonly bossCardId: string;
 	readonly bossCardName: string; // derivado de getCardById(bossCardId).name
 	readonly winner: string | undefined;
 	readonly paths: readonly string[];
@@ -136,6 +138,7 @@ export interface PlayerView {
 		}[];
 		readonly sourceHeroId?: string;
 	} | null;
+	readonly pendingTriggerInterrupt: PendingTriggerInterrupt | null;
 }
 
 export function playerView(state: GameState): PlayerView {
@@ -181,7 +184,8 @@ export function playerView(state: GameState): PlayerView {
 		groupArtifacts: state.groupArtifacts,
 		roomsCleared: state.roomsCleared,
 		creaturesDefeated: state.creaturesDefeated,
-		bossCardName: getCardById(state.bossCardId)?.name ?? state.bossCardId,
+		bossCardId: state.bossCardId,
+		bossCardName: getCardName(state.bossCardId),
 		winner: state.winner,
 		paths: state.paths,
 		pendingRewards: state.pendingRewards,
@@ -207,6 +211,7 @@ export function playerView(state: GameState): PlayerView {
 		},
 		paused: state.paused,
 		pendingSkillChoice: state.pendingSkillChoice ?? null,
+		pendingTriggerInterrupt: state.pendingTriggerInterrupt ?? null,
 		activeInfluences,
 	};
 }
@@ -252,7 +257,7 @@ function resolveToActor(
 			return {
 				kind: "hero",
 				id: hero.id,
-				name: getCardById(hero.cardId)?.name ?? hero.cardId,
+				name: getCardName(hero.cardId),
 			};
 	}
 	if (entityType === "enemy" || entityType === "subboss") {
@@ -261,7 +266,7 @@ function resolveToActor(
 			return {
 				kind: "enemy",
 				id: enemy.id,
-				name: getCardById(enemy.cardId)?.name ?? enemy.cardId,
+				name: getCardName(enemy.cardId),
 			};
 	}
 	if (entityType === "room") {
@@ -346,6 +351,7 @@ function durationText(d: ModifierComponent["duration"]): string {
 		case "rounds":
 			return `${d.remaining} rodada(s)`;
 	}
+	return "temporário";
 }
 
 function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
@@ -437,7 +443,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			? {
 					kind: "hero",
 					id: ladino.id,
-					name: getCardById(ladino.cardId)?.name ?? ladino.cardId,
+					name: getCardName(ladino.cardId),
 				}
 			: { kind: "dungeon" };
 		influences.push({
@@ -488,9 +494,9 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			? state.activeEnemies.find((e) => e.id === combat.prey)
 			: null;
 		if (preyEnemy) {
-			const preyName = getCardById(preyEnemy.cardId)?.name ?? preyEnemy.cardId;
+			const preyName = getCardName(preyEnemy.cardId);
 			for (const hero of state.heroes) {
-				const heroName = getCardById(hero.cardId)?.name ?? hero.cardId;
+				const heroName = getCardName(hero.cardId);
 				influences.push({
 					id: `prey:${hero.id}`,
 					from: { kind: "hero", id: hero.id, name: heroName },
@@ -507,7 +513,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 
 		for (const hero of state.heroes) {
 			const id = hero.id;
-			const heroName = getCardById(hero.cardId)?.name ?? hero.cardId;
+			const heroName = getCardName(hero.cardId);
 			const toActor: InfluenceActor = { kind: "hero", id, name: heroName };
 
 			// Dado extra
@@ -549,7 +555,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 					from: {
 						kind: "hero",
 						id,
-						name: getCardById(hero.cardId)?.name ?? hero.cardId,
+						name: getCardName(hero.cardId),
 					},
 					to: toActor,
 					kind: "buff",
@@ -568,7 +574,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 					from: {
 						kind: "hero",
 						id,
-						name: getCardById(hero.cardId)?.name ?? hero.cardId,
+						name: getCardName(hero.cardId),
 					},
 					to: toActor,
 					kind: "neutral",
@@ -587,9 +593,9 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			for (const itemId of equippedItems) {
 				const itemCard = getCardById(itemId);
 				if (!itemCard) continue;
-				const itemName = itemCard.name;
+				const itemName = getCardName(itemCard.id);
 				for (const { def } of cardSkills(itemCard.id)) {
-					if (def.trigger !== "while_equipped") continue;
+					if (def.operate_type !== "op_passive") continue;
 					influences.push({
 						id: `equipped:${itemId}:${def.id}`,
 						from: { kind: "item", id: itemCard.id, name: itemName },

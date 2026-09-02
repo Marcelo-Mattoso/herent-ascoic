@@ -16,7 +16,7 @@ export const run: ScriptHandler = (ctx) => {
 		a.currentLife <= b.currentLife ? a : b,
 	);
 	return ctx.action.pushEffect({
-		kind: "apply_damage",
+		kind: "i_damage",
 		to: target.id,
 		amount: 1,
 	});

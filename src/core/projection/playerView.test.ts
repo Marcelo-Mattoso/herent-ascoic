@@ -86,11 +86,11 @@ describe("selectors via projeção — spot-checks", () => {
 		expect(hero?.cardId).toBe(HERO);
 	});
 
-	it("selectAvailableActions em REVEAL_ROOM retorna ['reveal_room']", () => {
+	it("selectAvailableActions em ROOM_EFFECT não oferece revelar sala", () => {
 		const state = buildStartedState();
 		const view = playerView(state);
-		expect(view.status).toBe("REVEAL_ROOM");
-		expect(selectAvailableActions(view)).toEqual(["reveal_room"]);
+		expect(view.status).toBe("ROOM_EFFECT");
+		expect(selectAvailableActions(view)).toEqual([]);
 	});
 
 	it("selectXpSpendOptions retorna entradas para todas as opções", () => {

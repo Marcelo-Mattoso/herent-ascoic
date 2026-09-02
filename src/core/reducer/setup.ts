@@ -8,7 +8,6 @@ import {
 	getCardById,
 	getCreatures,
 	getItems,
-	getRooms,
 } from "../data/cards";
 import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
@@ -21,6 +20,7 @@ import { createEmptyCombatState } from "../state/combatState";
 import type { GameConfig, GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
+import { buildDungeonRoomDeck, handleRevealRoom } from "./exploration";
 import { createHeroFromCard, log, shuffleRng } from "./utils";
 
 export function handleStartGame(
@@ -68,7 +68,7 @@ export function handleStartGame(
 
 	const bossId = payload.bossCardId ?? selectBoss();
 
-	const roomIds = getRooms().map((c) => c.id);
+	const roomIds = buildDungeonRoomDeck();
 	const creatureIds = getCreatures().map((c) => c.id);
 	const itemIds = getItems().map((c) => c.id);
 	const artifactIds = getArtifacts().map((c) => c.id);
@@ -102,7 +102,6 @@ export function handleStartGame(
 	}
 
 	const heroNames = heroes.map((h) => getCardName(h.cardId));
-	const bossCard = getCardById(bossId);
 
 	const next: GameState = {
 		...state,
@@ -145,5 +144,5 @@ export function handleStartGame(
 		// START_GAME reinicia o actionLog (feito pelo wrapper em reducer/index.ts)
 	};
 
-	return next;
+	return handleRevealRoom(next);
 }

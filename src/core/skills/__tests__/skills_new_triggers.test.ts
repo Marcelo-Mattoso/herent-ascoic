@@ -8,6 +8,7 @@ import { drainStack } from "../../effects/resolver";
 import { handleStartCombat } from "../../reducer/combat";
 import { createEmptyCombatState } from "../../state/combatState";
 import { createInitialGameState } from "../../state/gameState";
+import { fireTriggerDecision } from "../../triggers/engine";
 import { fireTrigger } from "../dispatch";
 import "../handlers/index"; // popula registry
 import type { ColorIndex } from "../../state/color";
@@ -64,6 +65,15 @@ function baseState(extras: Partial<GameState> = {}): GameState {
 		despertar: 4 as ColorIndex,
 		...extras,
 	};
+}
+
+function approvePendingTrigger(state: GameState): GameState {
+	const pending = state.pendingTriggerInterrupt;
+	expect(pending).toBeDefined();
+	if (!pending) return state;
+	return drainStack(
+		fireTriggerDecision({ ...state, pendingTriggerInterrupt: undefined }, pending),
+	);
 }
 
 // ── while_in_play dispara em handleStartCombat ─────────────────────────────────
@@ -156,13 +166,12 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
 		const state = makeStateWithPaladino(3 as ColorIndex);
-		const result = drainStack(
-			fireTrigger(state, "evt_combat_start", {
+		const prompted = fireTrigger(state, "evt_combat_start", {
 				triggeredBy: "evt_combat_start",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
-			}),
-		);
+		});
+		const result = approvePendingTrigger(prompted);
 		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2 no ECS world
 		const mods = getComponents<ModifierComponent>(
 			result.world,
@@ -175,13 +184,12 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 
 	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
 		const state = makeStateWithPaladino(4 as ColorIndex);
-		const result = drainStack(
-			fireTrigger(state, "evt_combat_start", {
+		const prompted = fireTrigger(state, "evt_combat_start", {
 				triggeredBy: "evt_combat_start",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
-			}),
-		);
+		});
+		const result = approvePendingTrigger(prompted);
 		const mods = getComponents<ModifierComponent>(
 			result.world,
 			"h1",
@@ -301,13 +309,12 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		// skill_crimson_fury → damage_bonus +6 → damage_dealt +6
 		// item_skill_deadly_edge → tohit_bonus +1 + damage_bonus +1 → hit_bonus +1 + damage_dealt +1
 		const state = makeStateWithAdaga(1 as ColorIndex);
-		const result = drainStack(
-			fireTrigger(state, "evt_attack_declared", {
+		const prompted = fireTrigger(state, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
-			}),
-		);
+		});
+		const result = approvePendingTrigger(prompted);
 		const mods = getComponents<ModifierComponent>(
 			result.world,
 			"h1",
@@ -321,13 +328,12 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
 		const state = makeStateWithAdaga(4 as ColorIndex);
-		const result = drainStack(
-			fireTrigger(state, "evt_attack_declared", {
+		const prompted = fireTrigger(state, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
-			}),
-		);
+		});
+		const result = approvePendingTrigger(prompted);
 		const mods = getComponents<ModifierComponent>(
 			result.world,
 			"h1",

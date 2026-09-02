@@ -11,7 +11,6 @@ import { evaluate } from "../../dsl/evaluate";
 import "../index";
 import { reducer } from "../../../reducer";
 import { createEmptyCombatState } from "../../../state/combatState";
-import type { EnemyState } from "../../../state/enemyState";
 import type { GameState } from "../../../state/gameState";
 import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
@@ -33,23 +32,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		status: "active",
 		playerIndex: 0,
 		xp: 0,
-		...overrides,
-	};
-}
-
-function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
-	return {
-		id: "e1",
-		cardId: "creature_dark_cave_bat",
-		maxLife: 3,
-		currentLife: 3,
-		damage: 1,
-		hitBonus: 0,
-		dice: 1,
-		tokens: {},
-		conditions: [],
-		firstDamageTakenThisTurn: false,
-		status: "active",
 		...overrides,
 	};
 }

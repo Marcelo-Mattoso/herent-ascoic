@@ -31,6 +31,12 @@ export interface SkillDefinition {
 	readonly operate_type: import("../skills/dsl/types").OperateType;
 	readonly trigger?: {
 		readonly event: import("../skills/dsl/types").EventName;
+		readonly window?: import("../triggers/engine").TriggerWindow;
+	};
+	readonly interrupt?: {
+		readonly mode?: import("../triggers/engine").TriggerMode;
+		readonly priority?: number;
+		readonly prompt?: string;
 	};
 	readonly conditions?: readonly import("../skills/dsl/types").ConditionNode[];
 	readonly cooldown?: import("../skills/dsl/types").CooldownNode;
@@ -71,6 +77,7 @@ export interface SkillContext {
 	readonly targetEnemyIds?: readonly string[];
 	readonly damageAmount?: number;
 	readonly dieIndices?: readonly number[];
+	readonly round?: number;
 	readonly skillId?: string;
 	readonly value?: number | string | null;
 	// Flags contextuais

@@ -6,6 +6,10 @@ import { resolveEntityRef, resolveExpr } from "./resolveExpr";
 import type { ConditionNode, EvalCtx } from "./types";
 
 export function resolveCondition(node: ConditionNode, ctx: EvalCtx): boolean {
+	if ("any_of" in node) {
+		return node.any_of.some((c: ConditionNode) => resolveCondition(c, ctx));
+	}
+
 	switch (node.kind) {
 		case "has_skill": {
 			const entityId = resolveEntityRef(node.of, ctx);
@@ -48,6 +52,7 @@ export function resolveCondition(node: ConditionNode, ctx: EvalCtx): boolean {
 				case "gt":
 					return l > r;
 			}
+			return false;
 		}
 
 		case "and":
@@ -59,14 +64,6 @@ export function resolveCondition(node: ConditionNode, ctx: EvalCtx): boolean {
 		case "not":
 			return !resolveCondition(node.child, ctx);
 
-		default:
-			// any_of — atalho OR sem kind discriminator
-			if ("any_of" in node) {
-				return (
-					node as { any_of: readonly import("./types").ConditionNode[] }
-				).any_of.some((c) => resolveCondition(c, ctx));
-			}
-			return false;
 	}
 }
 

@@ -1,7 +1,7 @@
 // Resolução de ExprNode → number | string.
 // Pura — sem efeitos colaterais.
 
-import type { EvalCtx, ExprNode } from "./types";
+import type { ArithExpr, EvalCtx, ExprNode } from "./types";
 
 /** Sentinela: ExprNode resolveu para null (array-por-cor em despertar sem efeito). */
 export class SkipEffect extends Error {
@@ -32,10 +32,11 @@ export function resolveExpr(node: ExprNode, ctx: EvalCtx): number {
 	}
 
 	// ArithExpr
-	const [a, b] = node.args;
+	const expr = node as ArithExpr;
+	const [a, b] = expr.args;
 	const left = resolveExpr(a, ctx);
 	const right = resolveExpr(b, ctx);
-	switch (node.op) {
+	switch (expr.op) {
 		case "add":
 			return left + right;
 		case "sub":
@@ -49,6 +50,7 @@ export function resolveExpr(node: ExprNode, ctx: EvalCtx): number {
 		case "max":
 			return Math.max(left, right);
 	}
+	return 0;
 }
 
 /**

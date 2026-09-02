@@ -44,7 +44,7 @@ describe("elfStore — operações básicas", () => {
 		const newState = adapter.getState();
 
 		setElfStoreProps({ gameState: newState });
-		expect(getElfGameState().status).toBe("REVEAL_ROOM");
+		expect(getElfGameState().status).toBe("ROOM_EFFECT");
 		expect(getElfGameState().heroes).toHaveLength(1);
 	});
 

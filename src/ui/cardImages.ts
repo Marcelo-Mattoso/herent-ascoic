@@ -36,9 +36,13 @@ export function getCardImageUrl(
 	cardId: string,
 ) {
 	if (!cardImageUrls) return undefined;
+	const aliases: Partial<Record<string, string>> = {
+		boss_azhakar: "azhakardragaofornalhasombria",
+	};
 	const localizedName = getCardName(cardId);
 	return (
 		cardImageUrls[normalizeCardImageKey(localizedName)] ??
+		(aliases[cardId] ? cardImageUrls[aliases[cardId]] : undefined) ??
 		cardImageUrls[normalizeCardImageKey(cardId)] ??
 		cardImageUrls[cardId]
 	);

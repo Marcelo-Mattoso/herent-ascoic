@@ -5,7 +5,7 @@ import type { ScriptHandler } from "./types";
 const modules = import.meta.glob<Record<string, ScriptHandler>>(
 	"/src/data/scripts/*.ts",
 	{ eager: true },
-);
+) as Record<string, Record<string, ScriptHandler>>;
 
 const cache = new Map<string, ScriptHandler>();
 const warnedMissing = new Set<string>();
@@ -15,7 +15,6 @@ for (const [path, mod] of Object.entries(modules)) {
 	if (!match?.[1]) continue;
 	const cardKey = match[1];
 	for (const [exportName, fn] of Object.entries(mod)) {
-		if (typeof fn !== "function") continue;
 		cache.set(`${cardKey}.${exportName}`, fn);
 	}
 }

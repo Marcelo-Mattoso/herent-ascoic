@@ -445,11 +445,6 @@ export function resolveEffect(
 						state,
 						"Deck de artefatos vazio — nenhum artefato sacado.",
 					);
-				const newRewards: PendingReward[] = drawn.map((name) => ({
-					type: "artifact" as const,
-					cardId: name as string,
-					requiresBearer: false,
-				}));
 				return log(
 					{
 						...state,
@@ -460,9 +455,15 @@ export function resolveEffect(
 								available: available.slice(count),
 							},
 						},
-						pendingRewards: [...state.pendingRewards, ...newRewards],
+						groupArtifacts: [
+							...state.groupArtifacts,
+							...drawn.map((name) => ({
+								cardId: name as string,
+								carriedBy: null,
+							})),
+						],
 					},
-					`${drawn.length} artefato(s) sacado(s).`,
+					`${drawn.length} artefato(s) sacado(s) e ativado(s) no grupo.`,
 				);
 			}
 			if (pile === "item_deck") {
@@ -517,7 +518,7 @@ export function resolveEffect(
 				label: name as string,
 				effect: [
 					{
-						kind: "grant_pending_reward" as const,
+						kind: "i_grant_reward" as const,
 						rewardType,
 						cardId: name as string,
 					},
@@ -568,6 +569,18 @@ export function resolveEffect(
 		case "grant_pending_reward": {
 			const cardId = (effect["cardId"] ?? effect["cardName"]) as string;
 			const rewardType = effect["rewardType"] as "item" | "artifact";
+			if (rewardType === "artifact") {
+				return log(
+					{
+						...state,
+						groupArtifacts: [
+							...state.groupArtifacts,
+							{ cardId, carriedBy: null },
+						],
+					},
+					`${cardId} ativado como artefato do grupo.`,
+				);
+			}
 			const reward: PendingReward = {
 				type: rewardType,
 				cardId,

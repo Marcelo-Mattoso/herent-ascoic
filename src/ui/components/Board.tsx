@@ -4,8 +4,11 @@
 import { type DragEvent, useEffect, useRef, useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
 import type { PlayerView } from "@/core/projection/playerView";
+import { cardSkills } from "@/core/skills/lookup";
+import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CombatRollResult } from "@/core/state/combatState";
 import type { EnemyState } from "@/core/state/enemyState";
+import type { GroupArtifact } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
 import type { BackCardUrls } from "@/ui/backCards";
 import type { CardImageUrls } from "@/ui/cardImages";
@@ -31,8 +34,8 @@ interface BoardProps {
 	onRoomClick: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	// Ações de grupo
-	onReveal: () => void;
 	onRevealBoss: () => void;
+	onContinueExploration: () => void;
 	onResolve: () => void;
 	onSelectDie?: (side: "hero" | "enemy", index: number) => void;
 	roll: CombatRollResult | null;
@@ -48,6 +51,11 @@ const ACTIVE_DUNGEON_CARD = {
 };
 
 const ACTIVE_CARD_SLOT_COUNT = 4;
+const BOSS_CARD = {
+	width: 180,
+	height: 252,
+	radius: 12,
+};
 const CARD_CONTACT_SHADOW =
 	"0 7px 10px rgba(0, 0, 0, 0.34), 0 1px 2px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255,255,255,0.28)";
 
@@ -332,6 +340,261 @@ function ActiveEnemyCard({
 	);
 }
 
+function BossEncounterCard({
+	bossCardId,
+	bossName,
+	enemy,
+	isSelectable,
+	isDragOver,
+	imageUrl,
+	onDrop,
+	onClick,
+}: {
+	bossCardId: string;
+	bossName: string;
+	enemy: EnemyState | null;
+	isSelectable: boolean;
+	isDragOver: boolean;
+	imageUrl?: string;
+	onDrop: (enemyId: string) => void;
+	onClick: () => void;
+}) {
+	let borderColor: string = UI.borderStrong;
+	let borderWidth = "2px";
+	if (isDragOver && isSelectable) {
+		borderColor = UI.info.text;
+		borderWidth = "4px";
+	} else if (isSelectable) {
+		borderColor = UI.info.text;
+		borderWidth = "3px";
+	}
+
+	return (
+		<button
+			type="button"
+			className={isSelectable && !isDragOver ? "click-attention" : undefined}
+			onDragOver={(event) => {
+				if (!enemy) return;
+				event.preventDefault();
+				event.dataTransfer.dropEffect = "move";
+			}}
+			onDrop={(event) => {
+				if (!enemy) return;
+				event.preventDefault();
+				onDrop(enemy.id);
+			}}
+			onClick={onClick}
+			style={{
+				width: BOSS_CARD.width,
+				height: BOSS_CARD.height,
+				border: `${borderWidth} solid ${borderColor}`,
+				borderRadius: BOSS_CARD.radius,
+				background: imageUrl
+					? `linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 56%, rgba(247, 232, 199, 0.72) 78%, rgba(230, 200, 135, 0.96)), url("${imageUrl}")`
+					: "linear-gradient(160deg, rgba(44, 18, 12, 0.98), rgba(7, 7, 8, 0.96))",
+				backgroundPosition: "center",
+				backgroundRepeat: "no-repeat",
+				backgroundSize: imageUrl ? "100% 100%" : "cover",
+				backgroundOrigin: "border-box",
+				backgroundClip: "border-box",
+				boxShadow:
+					"0 14px 22px rgba(0, 0, 0, 0.42), 0 2px 4px rgba(0, 0, 0, 0.45), inset 0 0 0 1px rgba(255,255,255,0.25)",
+				cursor: isSelectable ? "pointer" : "default",
+				display: "flex",
+				flexDirection: "column",
+				justifyContent: "flex-end",
+				overflow: "hidden",
+				padding: 12,
+				position: "relative",
+				textAlign: "left",
+				transition: "border-color 0.1s, border-width 0.1s, transform 0.16s",
+			}}
+		>
+			<div
+				style={{
+					background: "rgba(248, 232, 195, 0.9)",
+					border: "1px solid rgba(120, 72, 14, 0.52)",
+					borderRadius: 8,
+					boxShadow: "0 3px 10px rgba(0, 0, 0, 0.28)",
+					padding: "8px 9px",
+				}}
+			>
+				<p
+					style={{
+						color: UI.textPrimary,
+						fontSize: 13,
+						fontWeight: 800,
+						lineHeight: 1.08,
+						marginBottom: 7,
+					}}
+				>
+					{bossName}
+				</p>
+				{enemy ? (
+					<>
+						<HpBar current={enemy.currentLife} max={enemy.maxLife} height={6} />
+						<p
+							style={{
+								color: UI.textSecondary,
+								fontSize: 11,
+								fontWeight: 700,
+								marginTop: 6,
+								lineHeight: 1,
+							}}
+						>
+							{enemy.currentLife}/{enemy.maxLife} Vida · +{enemy.hitBonus} · D
+							{enemy.damage}
+						</p>
+					</>
+				) : (
+					<p
+						style={{
+							color: UI.textSecondary,
+							fontSize: 11,
+							fontWeight: 700,
+							lineHeight: 1.2,
+						}}
+					>
+						Confronto final disponível
+					</p>
+				)}
+			</div>
+			<span
+				style={{
+					position: "absolute",
+					top: 10,
+					left: 10,
+					borderRadius: 999,
+					background: "rgba(12, 10, 8, 0.74)",
+					border: "1px solid rgba(239, 198, 95, 0.72)",
+					color: "#F7D884",
+					fontSize: 10,
+					fontWeight: 800,
+					letterSpacing: 0,
+					padding: "3px 7px",
+					textTransform: "uppercase",
+				}}
+			>
+				Mestre
+			</span>
+			<span style={{ display: "none" }}>{bossCardId}</span>
+		</button>
+	);
+}
+
+function ArtifactDisplayCard({
+	artifact,
+	imageUrl,
+	heroes,
+	onClick,
+}: {
+	artifact: GroupArtifact | null;
+	imageUrl?: string;
+	heroes: readonly HeroState[];
+	onClick: () => void;
+}) {
+	if (!artifact) {
+		return (
+			<div
+				style={{
+					width: ACTIVE_DUNGEON_CARD.width,
+					height: ACTIVE_DUNGEON_CARD.height,
+					border: "1.5px dashed rgba(255, 255, 255, 0.32)",
+					borderRadius: ACTIVE_DUNGEON_CARD.radius,
+					background: "rgba(12, 11, 10, 0.22)",
+					boxShadow: "inset 0 0 0 1px rgba(255,255,255,0.06)",
+					display: "flex",
+					alignItems: "center",
+					justifyContent: "center",
+					padding: 12,
+					textAlign: "center",
+				}}
+			>
+				<span style={{ color: "rgba(255,255,255,0.68)", fontSize: 11 }}>
+					sem artefato
+				</span>
+			</div>
+		);
+	}
+
+	const skills = cardSkills(artifact.cardId);
+	const bonusText = skills[0] ? renderSkillLabel(skills[0].ref) : "Artefato ativo";
+	const bearer = artifact.carriedBy
+		? heroes.find((hero) => hero.id === artifact.carriedBy)
+		: null;
+	const bearerName = bearer ? getCardName(bearer.cardId) : "Grupo";
+
+	return (
+		<button
+			type="button"
+			onClick={onClick}
+			style={{
+				width: ACTIVE_DUNGEON_CARD.width,
+				height: ACTIVE_DUNGEON_CARD.height,
+				border: `1.5px solid ${UI.borderStrong}`,
+				borderRadius: ACTIVE_DUNGEON_CARD.radius,
+				background: imageUrl
+					? `linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.05) 44%, rgba(246, 240, 229, 0.74) 68%, rgba(238, 232, 219, 0.94)), url("${imageUrl}")`
+					: "linear-gradient(160deg, rgba(253, 248, 239, 0.94), rgba(241, 239, 232, 0.9))",
+				backgroundPosition: "center",
+				backgroundRepeat: "no-repeat",
+				backgroundSize: imageUrl ? "100% 100%" : "cover",
+				backgroundOrigin: "border-box",
+				backgroundClip: "border-box",
+				boxShadow: CARD_CONTACT_SHADOW,
+				cursor: "pointer",
+				display: "flex",
+				flexDirection: "column",
+				justifyContent: "flex-end",
+				overflow: "hidden",
+				padding: 8,
+				textAlign: "left",
+			}}
+		>
+			<div
+				style={{
+					background: "rgba(246, 240, 229, 0.86)",
+					borderRadius: 7,
+					padding: "6px",
+				}}
+			>
+				<p
+					style={{
+						color: UI.textPrimary,
+						fontSize: 11,
+						fontWeight: 800,
+						lineHeight: 1.08,
+						marginBottom: 4,
+						overflow: "hidden",
+						display: "-webkit-box",
+						WebkitBoxOrient: "vertical",
+						WebkitLineClamp: 2,
+					}}
+				>
+					{getCardName(artifact.cardId)}
+				</p>
+				<p style={{ color: UI.textTertiary, fontSize: 9, marginBottom: 4 }}>
+					{bearerName}
+				</p>
+				<p
+					style={{
+						color: UI.textSecondary,
+						fontSize: 9,
+						fontWeight: 600,
+						lineHeight: 1.12,
+						overflow: "hidden",
+						display: "-webkit-box",
+						WebkitBoxOrient: "vertical",
+						WebkitLineClamp: 3,
+					}}
+				>
+					{bonusText}
+				</p>
+			</div>
+		</button>
+	);
+}
+
 export function Board({
 	view,
 	focusedHeroId,
@@ -341,8 +604,8 @@ export function Board({
 	onEnemyClick,
 	onRoomClick,
 	onCardDetail,
-	onReveal,
 	onRevealBoss,
+	onContinueExploration,
 	onResolve,
 	onSelectDie,
 	roll,
@@ -368,11 +631,13 @@ export function Board({
 	const pendingDiceSelection = view.combat?.pendingDiceSelection;
 
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
+	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL";
 	const isSelectingTarget =
 		isInCombat && phase === "selecting_target" && !!selectedHeroId;
 
 	const heroes = view.heroes;
 	const enemies = view.enemies.filter((e) => e.status === "active");
+	const bossEnemy = enemies.find((e) => e.id === "boss") ?? null;
 
 	function handleDragStart(
 		hero: HeroState,
@@ -472,99 +737,155 @@ export function Board({
 					padding: "9.5vh 12vw 3vh",
 				}}
 			>
-				{/* Pilhas principais */}
-				<div
-					style={{
-						display: "grid",
-						gridTemplateColumns: "repeat(3, minmax(134px, 150px))",
-						justifyContent: "center",
-						alignItems: "start",
-						columnGap: "clamp(28px, 5vw, 76px)",
-						width: "100%",
-					}}
-				>
-					<Stack
-						name="Masmorra"
-						count={view.decks.dungeonDeck.available}
-						discardCount={view.decks.dungeonDeck.discarded.length}
-						size="board"
-						imageUrl={backCardUrls?.verso_dungeon}
-					/>
-					<Stack
-						name="Monstros"
-						count={view.decks.enemyDeck.available}
-						discardCount={view.decks.enemyDeck.discarded}
-						size="board"
-						imageUrl={backCardUrls?.verso_criatura}
-					/>
-					<Stack
-						name="Itens"
-						count={view.decks.itemDeck.available.length}
-						discardCount={view.decks.itemDeck.discarded}
-						size="board"
-						imageUrl={backCardUrls?.verso_tesouro}
-					/>
-				</div>
+				{/* Pilhas principais / chefe final */}
+				{isBossEncounter ? (
+					<div
+						style={{
+							display: "flex",
+							justifyContent: "center",
+							alignItems: "start",
+							width: "100%",
+						}}
+					>
+						<BossEncounterCard
+							bossCardId={view.bossCardId}
+							bossName={view.bossCardName}
+							enemy={bossEnemy}
+							isSelectable={!!bossEnemy && isSelectingTarget}
+							isDragOver={draggingHeroId !== null && !!bossEnemy && isSelectingTarget}
+							imageUrl={getCardImageUrl(cardImageUrls, view.bossCardId)}
+							onDrop={handleEnemyDrop}
+							onClick={() =>
+								bossEnemy ? onEnemyClick(bossEnemy) : onCardDetail(view.bossCardId, "boss")
+							}
+						/>
+					</div>
+				) : (
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: "repeat(3, minmax(134px, 150px))",
+							justifyContent: "center",
+							alignItems: "start",
+							columnGap: "clamp(28px, 5vw, 76px)",
+							width: "100%",
+						}}
+					>
+						<Stack
+							name="Masmorra"
+							count={view.decks.dungeonDeck.available}
+							discardCount={view.decks.dungeonDeck.discarded.length}
+							size="board"
+							imageUrl={backCardUrls?.verso_dungeon}
+						/>
+						<Stack
+							name="Monstros"
+							count={view.decks.enemyDeck.available}
+							discardCount={view.decks.enemyDeck.discarded}
+							size="board"
+							imageUrl={backCardUrls?.verso_criatura}
+						/>
+						<Stack
+							name="Itens"
+							count={view.decks.itemDeck.available.length}
+							discardCount={view.decks.itemDeck.discarded}
+							size="board"
+							imageUrl={backCardUrls?.verso_tesouro}
+						/>
+					</div>
+				)}
 
-				{/* Cartas ativas: sala + até 4 criaturas */}
-				<div
-					style={{
-						display: "grid",
-						gridTemplateColumns: `${ACTIVE_DUNGEON_CARD.width}px clamp(24px, 3vw, 54px) repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}px)`,
-						justifyContent: "center",
-						alignItems: "start",
-						columnGap: "clamp(12px, 1.8vw, 26px)",
-						width: "100%",
-					}}
-				>
-					<ActiveDungeonCard
-						room={view.currentRoom}
-						despertar={view.despertar}
-						imageUrl={
-							view.currentRoom
-								? getCardImageUrl(cardImageUrls, view.currentRoom.cardId)
-								: undefined
-						}
-						onClick={onRoomClick}
-					/>
-					<div />
-					{Array.from({ length: ACTIVE_CARD_SLOT_COUNT }, (_, index) => {
-						const enemy = enemies[index] ?? null;
-						const isSelectable = !!enemy && isSelectingTarget;
-						const isDragOver = draggingHeroId !== null && isSelectable;
-						const isImpacting = !!enemy && combatImpact?.enemyId === enemy.id;
-						return (
-							<div
-								key={enemy?.id ?? `empty-enemy-slot-${index}`}
-								className={isImpacting ? "combat-drop-impact" : undefined}
-								style={{
-									width: ACTIVE_DUNGEON_CARD.width,
-									height: ACTIVE_DUNGEON_CARD.height,
-									position: "relative",
-								}}
-							>
-								{isImpacting && combatImpact && (
-									<CombatImpactCard
-										imageUrl={combatImpact.imageUrl}
-										name={combatImpact.heroName}
-									/>
-								)}
-								<ActiveEnemyCard
-									enemy={enemy}
-									isSelectable={isSelectable}
-									isDragOver={isDragOver}
+				{/* Cartas ativas: sala + criaturas / artefatos no encontro final */}
+				{isBossEncounter ? (
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: `repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}px)`,
+							justifyContent: "center",
+							alignItems: "start",
+							columnGap: "clamp(12px, 1.8vw, 26px)",
+							width: "100%",
+						}}
+					>
+						{Array.from({ length: ACTIVE_CARD_SLOT_COUNT }, (_, index) => {
+							const artifact = view.groupArtifacts[index] ?? null;
+							return (
+								<ArtifactDisplayCard
+									key={artifact?.cardId ?? `empty-artifact-slot-${index}`}
+									artifact={artifact}
+									heroes={heroes}
 									imageUrl={
-										enemy
-											? getCardImageUrl(cardImageUrls, enemy.cardId)
+										artifact
+											? getCardImageUrl(cardImageUrls, artifact.cardId)
 											: undefined
 									}
-									onDrop={handleEnemyDrop}
-									onClick={enemy ? () => onEnemyClick(enemy) : undefined}
+									onClick={() =>
+										artifact && onCardDetail(artifact.cardId, "artifact")
+									}
 								/>
-							</div>
-						);
-					})}
-				</div>
+							);
+						})}
+					</div>
+				) : (
+					<div
+						style={{
+							display: "grid",
+							gridTemplateColumns: `${ACTIVE_DUNGEON_CARD.width}px clamp(24px, 3vw, 54px) repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}px)`,
+							justifyContent: "center",
+							alignItems: "start",
+							columnGap: "clamp(12px, 1.8vw, 26px)",
+							width: "100%",
+						}}
+					>
+						<ActiveDungeonCard
+							room={view.currentRoom}
+							despertar={view.despertar}
+							imageUrl={
+								view.currentRoom
+									? getCardImageUrl(cardImageUrls, view.currentRoom.cardId)
+									: undefined
+							}
+							onClick={onRoomClick}
+						/>
+						<div />
+						{Array.from({ length: ACTIVE_CARD_SLOT_COUNT }, (_, index) => {
+							const enemy = enemies[index] ?? null;
+							const isSelectable = !!enemy && isSelectingTarget;
+							const isDragOver = draggingHeroId !== null && isSelectable;
+							const isImpacting = !!enemy && combatImpact?.enemyId === enemy.id;
+							return (
+								<div
+									key={enemy?.id ?? `empty-enemy-slot-${index}`}
+									className={isImpacting ? "combat-drop-impact" : undefined}
+									style={{
+										width: ACTIVE_DUNGEON_CARD.width,
+										height: ACTIVE_DUNGEON_CARD.height,
+										position: "relative",
+									}}
+								>
+									{isImpacting && combatImpact && (
+										<CombatImpactCard
+											imageUrl={combatImpact.imageUrl}
+											name={combatImpact.heroName}
+										/>
+									)}
+									<ActiveEnemyCard
+										enemy={enemy}
+										isSelectable={isSelectable}
+										isDragOver={isDragOver}
+										imageUrl={
+											enemy
+												? getCardImageUrl(cardImageUrls, enemy.cardId)
+												: undefined
+										}
+										onDrop={handleEnemyDrop}
+										onClick={enemy ? () => onEnemyClick(enemy) : undefined}
+									/>
+								</div>
+							);
+						})}
+					</div>
+				)}
 
 				{diceRollAnimation && (
 					<DiceRollOverlay
@@ -695,13 +1016,9 @@ export function Board({
 							{status === "REVEAL_ROOM" ||
 							status === "ROOM_EFFECT" ||
 							status === "SPAWN_ENEMIES" ? (
-								<ActionButton
-									label="Revelar sala"
-									icon="🚪"
-									variant="primary"
-									onClick={onReveal}
-									attention
-								/>
+								<span className="combat-auto-roll-status">
+									Preparando sala...
+								</span>
 							) : status === "COMBAT_START" ? (
 								<span className="combat-auto-roll-status">
 									Preparando combate...
@@ -715,13 +1032,20 @@ export function Board({
 									Arraste e solte seu herói no inimigo
 								</span>
 							) : status === "BOSS_REVEAL" ? (
-								<ActionButton
-									label="Revelar chefe"
-									icon="🐲"
-									variant="danger"
-									onClick={onRevealBoss}
-									attention
-								/>
+								<div style={{ display: "flex", gap: 8 }}>
+									<ActionButton
+										label="Enfrentar chefe"
+										icon="🐲"
+										variant="danger"
+										onClick={onRevealBoss}
+										attention
+									/>
+									<ActionButton
+										label="Continuar explorando"
+										icon="🧭"
+										onClick={onContinueExploration}
+									/>
+								</div>
 							) : (
 								<span
 									style={{

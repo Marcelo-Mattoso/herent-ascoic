@@ -70,6 +70,7 @@ export type Action =
 	| { type: "DISCARD_PATHS" }
 	| { type: "CHECK_BOSS_CONDITION" }
 	| { type: "REVEAL_BOSS" }
+	| { type: "CONTINUE_EXPLORATION" }
 	| { type: "START_BOSS_COMBAT" }
 	| { type: "DUNGEON_EXHAUSTED" }
 	| { type: "VICTORY" }
@@ -92,7 +93,7 @@ export type Action =
 			type: "INV_ASSIGN_ARTIFACT";
 			payload: {
 				artifactId: string;
-				vagaIndex: 0 | 1;
+				vagaIndex: number;
 				heroId: string | null;
 			};
 	  }
@@ -113,6 +114,9 @@ export type Action =
 	  }
 	// ── Escolha de habilidade (Patch 8) ──────────────────────────────────────────
 	| { type: "SKILL_CHOICE"; payload: { skillId: string; choice: string } }
+	// ── Interrupção de trigger (habilidade/item/inimigo em uma fase) ───────────
+	| { type: "APPLY_TRIGGER_INTERRUPT"; payload?: { interruptId?: string } }
+	| { type: "SKIP_TRIGGER_INTERRUPT"; payload?: { interruptId?: string } }
 	// ── Fuga (Patch 8 F3) ────────────────────────────────────────────────────────
 	| { type: "DECLARE_FLEE"; payload: { heroId: string } }
 	| { type: "RESTART_DUNGEON"; payload: { keepEquipment: boolean } }

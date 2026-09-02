@@ -2,7 +2,7 @@
 // Implementa: Trono Vivo (reduz 1 no primeiro dano do turno), Ascensão Final (+2 hit abaixo da metade).
 
 import { getCardName } from "../data/cardLocale";
-import { getBoss, getCardById } from "../data/cards";
+import { getBoss } from "../data/cards";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
 import { applyShield } from "../rules/shield";
