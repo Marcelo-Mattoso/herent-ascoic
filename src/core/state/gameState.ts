@@ -2,6 +2,7 @@
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
 import type { LoggedAction } from "../actions/types";
+import type { TargetCandidate } from "../data/skillTypes";
 import type { World } from "../ecs/world";
 import { createEmptyWorld } from "../ecs/world";
 import type { EffectStack, PausedState } from "../effects/stack";
@@ -140,6 +141,14 @@ export interface GameState {
 	>;
 
 	// Escolha pendente de skill aguardando input do jogador
+	pendingSkillTarget?: {
+		readonly skillId: string;
+		readonly sourceId: string;
+		readonly prompt: string;
+		readonly candidates: readonly TargetCandidate[];
+	};
+
+	// Escolha pendente de opção de skill aguardando input do jogador
 	pendingSkillChoice?: {
 		readonly skillId: string;
 		readonly prompt: string;

@@ -373,6 +373,7 @@ function ActionSection({
 	hero,
 	isInCombat,
 	isSelectingHero,
+	isSelectingTarget,
 	isFocusedHeroSelected,
 	onAttack,
 	onPass,
@@ -399,12 +400,38 @@ function ActionSection({
 		canPass,
 		canCancel,
 		canUsePower,
+		canUseSkill,
 		canFlee,
 		fleeAlreadyDeclared,
 		skill,
+		power,
 	} = heroActions;
 
-	if (!isInCombat) return null;
+	if (!isInCombat) {
+		if (!skill?.activatable && !power?.activatable) return null;
+		return (
+			<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+				{skill?.activatable && (
+					<ActionButton
+						label="Usar habilidade"
+						icon="✨"
+						variant="secondary"
+						disabled={!canUseSkill}
+						onClick={() => onUseSkill?.(skill.skillId, hero.id)}
+					/>
+				)}
+				{power?.activatable && (
+					<ActionButton
+						label="Usar poder"
+						icon="⚡"
+						variant="secondary"
+						disabled={!canUsePower}
+						onClick={onPower}
+					/>
+				)}
+			</div>
+		);
+	}
 
 	if (isSelectingHero) {
 		const heroesActedHint = isFocusedHeroSelected
@@ -434,7 +461,7 @@ function ActionSection({
 						label="Usar poder"
 						icon="⚡"
 						variant="secondary"
-						disabled
+						disabled={!canUsePower}
 						onClick={onPower}
 					/>
 					<ActionButton
@@ -477,17 +504,21 @@ function ActionSection({
 					label="Usar habilidade"
 					icon="✨"
 					variant="secondary"
-					disabled={!isFocusedHeroSelected || skill.alreadyUsed}
+					disabled={
+						!isFocusedHeroSelected || !isSelectingTarget || !canUseSkill
+					}
 					onClick={() => onUseSkill?.(skill.skillId, hero.id)}
 				/>
 			)}
-			<ActionButton
-				label="Usar poder"
-				icon="⚡"
-				variant="secondary"
-				disabled={!canUsePower}
-				onClick={onPower}
-			/>
+			{power?.activatable && (
+				<ActionButton
+					label="Usar poder"
+					icon="⚡"
+					variant="secondary"
+					disabled={!canUsePower}
+					onClick={onPower}
+				/>
+			)}
 			<ActionButton
 				label="Passar rodada"
 				icon="⏭"

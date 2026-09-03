@@ -201,13 +201,7 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 
 		for (const itemId of Object.values(hero.activeItems)) {
 			if (!itemId) continue;
-			if (
-				ActivationTracker.isDisabled(
-					state,
-					"item",
-					`${hero.id}:${itemId}`,
-				)
-			) {
+			if (ActivationTracker.isDisabled(state, "item", `${hero.id}:${itemId}`)) {
 				continue;
 			}
 			sources.push({
@@ -343,7 +337,7 @@ export function isSkillGuardConsumed(
 	return !guardPassed(state, skill, sourceHeroId);
 }
 
-function markGuardUsed(
+export function markSkillGuardUsed(
 	state: GameState,
 	skill: SkillDefinition,
 	sourceHeroId?: string,
@@ -479,7 +473,7 @@ export function executeTriggerCandidate(
 		}
 	}
 
-	return markGuardUsed(
+	return markSkillGuardUsed(
 		current,
 		candidate.definition,
 		candidate.source.sourceHeroId,

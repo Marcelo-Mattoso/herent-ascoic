@@ -8,6 +8,7 @@ import { log } from "../reducer/utils";
 import { buildScriptCtx } from "../scripts/context";
 import { getScript } from "../scripts/registry";
 import type { GameState } from "../state/gameState";
+import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
 import { evaluate } from "./dsl/evaluate";
 import { cardSkills } from "./lookup";
 
@@ -41,6 +42,10 @@ export function fireOnUseSkill(
 			state,
 			`[AVISO] Skill ${skillId} não é ativável manualmente (trigger: ${def.trigger})`,
 		);
+	}
+
+	if (!guardPassed(state, def, sourceId)) {
+		return log(state, `[AVISO] Skill ${skillId} já foi usada neste escopo.`);
 	}
 
 	// Resolve value: payload.value tem prioridade, fallback para params da carta ou defaultValue.
@@ -117,7 +122,11 @@ export function fireOnUseSkill(
 
 	if (def.effect) {
 		const evalCtx = buildScriptCtx(stateBeforeExec, resolvedCtx, params);
-		return evaluate(def.effect, evalCtx);
+		return markSkillGuardUsed(
+			evaluate(def.effect, evalCtx),
+			def,
+			resolvedCtx.sourceHeroId,
+		);
 	}
 
 	if (def.script) {
@@ -125,7 +134,11 @@ export function fireOnUseSkill(
 		if (!fn) {
 			return log(stateBeforeExec, `[SCRIPT NÃO ENCONTRADO: ${def.script}.run]`);
 		}
-		return fn(buildScriptCtx(stateBeforeExec, resolvedCtx, params));
+		return markSkillGuardUsed(
+			fn(buildScriptCtx(stateBeforeExec, resolvedCtx, params)),
+			def,
+			resolvedCtx.sourceHeroId,
+		);
 	}
 
 	return log(

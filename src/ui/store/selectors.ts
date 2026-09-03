@@ -188,9 +188,15 @@ export interface HeroCombatActions {
 	readonly canPass: boolean;
 	readonly canCancel: boolean;
 	readonly canUsePower: boolean;
+	readonly canUseSkill: boolean;
 	readonly canFlee: boolean;
 	readonly fleeAlreadyDeclared: boolean;
 	readonly skill: {
+		readonly skillId: string;
+		readonly activatable: boolean;
+		readonly alreadyUsed: boolean;
+	} | null;
+	readonly power: {
 		readonly skillId: string;
 		readonly activatable: boolean;
 		readonly alreadyUsed: boolean;
@@ -206,20 +212,19 @@ export function selectHeroCombatActions(
 	const view = playerView(state);
 	const hero = view.heroes.find((h) => h.id === heroId) ?? null;
 	const combat = view.combat;
+	const isInCombat =
+		state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT";
 
 	const isSelectingTarget =
 		combat?.phase === "selecting_target" && combat.selectedHeroId === heroId;
 	const hasActiveEnemies = view.enemies.some((e) => e.status === "active");
 	const heroDisabled =
-		hero === null || ActivationTracker.isHeroDisabledThisRound(state, heroId);
+		hero === null ||
+		(isInCombat && ActivationTracker.isHeroDisabledThisRound(state, heroId));
 
 	const canAttack = isSelectingTarget && hasActiveEnemies && !heroDisabled;
 	const canPass = isSelectingTarget && !heroDisabled;
 	const canCancel = isSelectingTarget;
-	const canUsePower =
-		isSelectingTarget &&
-		!heroDisabled &&
-		!(combat?.powersUsedThisRoom[heroId] ?? false);
 	const canFlee =
 		hero !== null &&
 		!heroDisabled &&
@@ -235,9 +240,31 @@ export function selectHeroCombatActions(
 				skillId: habilidadeEntry.def.id,
 				activatable: isManuallyActivatable(habilidadeEntry.def),
 				alreadyUsed:
-					heroDisabled || isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
+					heroDisabled ||
+					isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
 			}
 		: null;
+	const powerEntry = hero
+		? cardSkills(hero.cardId).find(({ def }) => def.category === "hero_power")
+		: null;
+	const power = powerEntry
+		? {
+				skillId: powerEntry.def.id,
+				activatable: isManuallyActivatable(powerEntry.def),
+				alreadyUsed:
+					heroDisabled ||
+					!!combat?.powersUsedThisRoom[heroId] ||
+					isSkillGuardConsumed(state, powerEntry.def, heroId),
+			}
+		: null;
+	const canUseSkill =
+		!!skill?.activatable &&
+		!skill.alreadyUsed &&
+		(isSelectingTarget || !isInCombat);
+	const canUsePower =
+		!!power?.activatable &&
+		!power.alreadyUsed &&
+		(isSelectingTarget || !isInCombat);
 
 	const fleeAlreadyDeclared =
 		state.combat?.fleeAttemptByHero?.[heroId] ?? false;
@@ -247,8 +274,10 @@ export function selectHeroCombatActions(
 		canPass,
 		canCancel,
 		canUsePower,
+		canUseSkill,
 		canFlee,
 		fleeAlreadyDeclared,
 		skill,
+		power,
 	};
 }

@@ -1,6 +1,8 @@
-# Ascensão Heróica Digital — MVP 1
+# Ascensão Heróica Digital
 
-Jogo de cartas solo dungeon-crawler. Um herói contra a masmorra, um boss ao final.
+Jogo de cartas dungeon-crawler cooperativo. Um grupo de heróis explora salas,
+enfrenta criaturas, organiza itens e artefatos entre combates e tenta derrotar
+Azhakar antes que a masmorra desperte por completo.
 
 ## Requisitos
 
@@ -45,7 +47,7 @@ src/
 │   └── scripts/        # Scripts de carta (lógica de skill que não cabe em DSL)
 ├── ui/
 │   ├── components/     # Reutilizáveis (Board, HeroFocusPanel, BuffBar, EventLogPanel…)
-│   │   └── modals/     # Modais (XpSpend, OpenPaths, CardDetail, SkillChoice…)
+│   │   └── modals/     # Modais (XpSpend, CardDetail, SkillChoice, SkillTarget…)
 │   ├── screens/        # Telas (MainMenu, Setup, Exploration, Victory, Defeat)
 │   └── store/          # Elf store, seletores, persistência e adapter pro core
 └── main.tsx
@@ -65,17 +67,37 @@ A regra de separação é dura: **a UI consome o core via projeção; nunca dupl
 
 ## Como jogar
 
-1. **Nova partida** — escolha um herói e uma dificuldade.
-2. **Exploração** — uma carta de sala é revelada a cada turno.
-3. **Combate** — role os dados, aplique dano, derrote os inimigos.
-4. **Recompensa** — ganhe itens e XP ao limpar a sala.
-5. **Caminhos** — escolha a próxima sala entre as cartas reveladas.
-6. **Boss** — ao obter 2 artefatos, Azhakar aparece. Derrote-o para vencer.
+1. **Nova partida** — escolha os heróis do grupo e a dificuldade.
+2. **Exploração** — revele uma sala, aplique seu efeito e encontre criaturas.
+3. **Combate** — escolha qual herói ativo age, defina o alvo, use habilidades,
+   itens ou poderes quando disponíveis, role os dados e aplique o resultado.
+4. **Recompensa** — ao limpar a sala, receba XP, itens e artefatos.
+5. **Arrumação** — organize o inventário do grupo: equipe itens nos heróis,
+   guarde cartas na mochila, ative artefatos do grupo ou descarte excessos.
+6. **Caminhos** — gaste XP se quiser, abra caminhos e escolha a próxima sala.
+7. **Boss** — ao cumprir a condição de chefe, Azhakar aparece. Derrote-o para vencer.
 
 ## Condições de derrota
 
-- O herói chega a 0 de vida.
+- Todos os heróis ficam derrotados ou indisponíveis para continuar.
 - O deck de dungeon esgota e você recusa pagar 5 XP para continuar.
+
+## Habilidades, Alvos E Ativação
+
+O motor separa habilidades automáticas, habilidades ativas e poderes:
+
+- Habilidades e poderes ativos usam `USE_SKILL` / `USE_POWER`.
+- Quando há mais de um alvo válido, a UI abre `SkillTargetModal` e o core aguarda
+  `SELECT_SKILL_TARGET`.
+- Alvos são validados por `resolveManualSkillTarget`: cura e proteção só aceitam
+  heróis válidos, efeitos ofensivos aceitam inimigos ativos, e efeitos pessoais
+  resolvem no próprio herói.
+- Habilidades ativas também podem ser usadas fora do combate quando a carta permite.
+- Durante combate, usar habilidade, poder ou item manual consome a ação do herói
+  naquela rodada. O herói fica desativado até a próxima rodada de upkeep.
+- Bloqueios usam a camada genérica `ActivationTracker`, então heróis, itens,
+  artefatos e outras entidades podem ser desativados por rodada, combate, sala
+  ou jogo sem duplicar regra na UI.
 
 ## Ferramentas de desenvolvimento em jogo
 
@@ -112,10 +134,11 @@ Cada chip carrega `kind: "buff" | "debuff" | "neutral"` (cor: âmbar / magenta /
 A UI marca o **próximo clique esperado** com um pulso âmbar (`.click-attention` em [src/index.css](src/index.css)):
 
 - Botão central do tabuleiro (Revelar sala / Iniciar combate / Rolar dados / Revelar chefe / Resolver ataque).
-- Botões "Atacar" e "Usar poder" no painel do herói quando habilitados.
+- Botões "Atacar", "Usar habilidade" e "Usar poder" no painel do herói quando habilitados.
 - Cards de herói quando `phase = selecting_hero`.
 - Cards de inimigo quando `phase = selecting_target`.
 - Dados elegíveis quando há `pendingDiceSelection` (animação mais enfática `.die-eligible`).
+- Opções em modais de habilidade quando existe `pendingSkillChoice` ou `pendingSkillTarget`.
 
 Respeita `prefers-reduced-motion` — em modo reduzido, vira anel estático sem pulsar.
 
@@ -152,6 +175,14 @@ d({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 d({ type: "ROLL_DICE" });
 g().combat?.lastRoll;       // { heroTotal, enemyTotal, heroBreakdown, ... }
 d({ type: "RESOLVE_ATTACK" });
+
+// Usa habilidade ativa; se houver múltiplos alvos, abre pendingSkillTarget:
+d({ type: "USE_SKILL", payload: { skillId: "skill_last_light_healing", sourceId: heroId } });
+g().pendingSkillTarget?.candidates;
+
+// Resolve o alvo escolhido:
+const targetId = g().pendingSkillTarget?.candidates[0]?.id;
+if (targetId) d({ type: "SELECT_SKILL_TARGET", payload: { targetId } });
 
 // EventLog: feedback textual de tudo que aconteceu
 g().eventLog.slice(-5);

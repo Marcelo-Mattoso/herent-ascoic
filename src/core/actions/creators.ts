@@ -47,6 +47,15 @@ export const usePower = (heroId: string): Action => ({
 	payload: { heroId },
 });
 
+export const selectSkillTarget = (targetId: string): Action => ({
+	type: "SELECT_SKILL_TARGET",
+	payload: { targetId },
+});
+
+export const cancelSkillTarget = (): Action => ({
+	type: "CANCEL_SKILL_TARGET",
+});
+
 export const grantRewards = (): Action => ({ type: "GRANT_REWARDS" });
 
 export const gainXp = (amount: number): Action => ({

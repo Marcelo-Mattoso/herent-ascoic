@@ -19,6 +19,7 @@ import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
 import { FleeReconfigureModal } from "@/ui/components/modals/FleeReconfigureModal";
 import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
+import { SkillTargetModal } from "@/ui/components/modals/SkillTargetModal";
 import { TriggerInterruptModal } from "@/ui/components/modals/TriggerInterruptModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { useBackCards } from "@/ui/hooks/useBackCards";
@@ -259,11 +260,9 @@ export function Exploration() {
 	}
 
 	function handleUseSkill(skillId: string, sourceId: string) {
-		// Por ora auto-alvo: o herói usa a habilidade em si mesmo.
-		// Habilidades que exigem seleção de alvo serão tratadas numa camada de targeting futura.
 		dispatch({
 			type: "USE_SKILL",
-			payload: { skillId, sourceId, targetIds: [sourceId] },
+			payload: { skillId, sourceId },
 		});
 	}
 
@@ -489,6 +488,7 @@ export function Exploration() {
 					{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
 					{modal === "flee_restart" && <FleeReconfigureModal />}
 					{view.pendingSkillChoice && <SkillChoiceModal />}
+					{view.pendingSkillTarget && <SkillTargetModal />}
 					{view.pendingTriggerInterrupt && <TriggerInterruptModal />}
 					{modal === "card_detail" && detailCard && (
 						<CardDetailModal

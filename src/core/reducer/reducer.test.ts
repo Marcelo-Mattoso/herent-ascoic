@@ -350,6 +350,83 @@ describe("USE_ITEM", () => {
 		expect(blocked.eventLog.at(-1)).toContain("já agiu nesta rodada");
 	});
 
+	it("habilidade manual com múltiplos alvos abre seleção e resolve no alvo escolhido", () => {
+		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
+		s = reducer(s, { type: "START_COMBAT" });
+		const cleric = s.heroes.find((h) => h.cardId === CLERIC);
+		const ally = s.heroes.find((h) => h.cardId === HERO);
+		if (!cleric || !ally) throw new Error("invalid heroes");
+
+		s = {
+			...s,
+			heroes: s.heroes.map((h) =>
+				h.id === ally.id ? { ...h, currentLife: 5 } : h,
+			),
+		};
+		s = reducer(s, {
+			type: "CHOOSE_HERO_FOR_ROUND",
+			payload: { heroId: cleric.id },
+		});
+
+		const pending = reducer(s, {
+			type: "USE_SKILL",
+			payload: {
+				skillId: "skill_last_light_healing",
+				sourceId: cleric.id,
+			},
+		});
+		expect(pending.pendingSkillTarget).toMatchObject({
+			skillId: "skill_last_light_healing",
+			sourceId: cleric.id,
+		});
+		expect(pending.pendingSkillTarget?.candidates.map((c) => c.id)).toEqual(
+			expect.arrayContaining([cleric.id, ally.id]),
+		);
+
+		const result = reducer(pending, {
+			type: "SELECT_SKILL_TARGET",
+			payload: { targetId: ally.id },
+		});
+
+		expect(result.pendingSkillTarget).toBeUndefined();
+		expect(result.heroes.find((h) => h.id === ally.id)?.currentLife).toBe(8);
+		expect(result.combat?.heroesActed).toContain(cleric.id);
+		expect(result.combat?.disabled[`hero:${cleric.id}`]).toMatchObject({
+			kind: "hero",
+			scope: "round",
+		});
+	});
+
+	it("habilidade ativa pode ser usada fora de combate sem consumir ação de rodada", () => {
+		const s = stateWithHeroesAndEnemy([CLERIC, HERO]);
+		const cleric = s.heroes.find((h) => h.cardId === CLERIC);
+		const ally = s.heroes.find((h) => h.cardId === HERO);
+		if (!cleric || !ally) throw new Error("invalid heroes");
+
+		const result = reducer(
+			{
+				...s,
+				status: "XP_SPEND_PHASE",
+				combat: null,
+				heroes: s.heroes.map((h) =>
+					h.id === ally.id ? { ...h, currentLife: 5 } : h,
+				),
+			},
+			{
+				type: "USE_SKILL",
+				payload: {
+					skillId: "skill_last_light_healing",
+					sourceId: cleric.id,
+					targetIds: [ally.id],
+				},
+			},
+		);
+
+		expect(result.heroes.find((h) => h.id === ally.id)?.currentLife).toBe(8);
+		expect(result.combat).toBeNull();
+		expect(result.status).toBe("XP_SPEND_PHASE");
+	});
+
 	it("nova rodada reativa heróis desativados por rodada", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC]);
 		s = reducer(s, { type: "START_COMBAT" });
@@ -520,7 +597,9 @@ describe("USE_ITEM", () => {
 		);
 
 		expect(result.activeEnemies[0]?.currentLife).toBe(10 - hero.damage - 2);
-		expect(result.eventLog.join("\n")).toContain("Martelo de Pedra Quebrada +2");
+		expect(result.eventLog.join("\n")).toContain(
+			"Martelo de Pedra Quebrada +2",
+		);
 	});
 });
 
@@ -946,9 +1025,9 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
 
 		expect(totalLifeBefore - totalLifeAfter).toBe(3);
-		expect(
-			s.eventLog.some((entry) => entry.includes("Ataque extra")),
-		).toBe(true);
+		expect(s.eventLog.some((entry) => entry.includes("Ataque extra"))).toBe(
+			true,
+		);
 	});
 });
 
@@ -1198,4 +1277,3 @@ describe("determinismo via seed", () => {
 		expect(c2).toBeGreaterThanOrEqual(c1);
 	});
 });
-

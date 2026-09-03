@@ -62,7 +62,10 @@ function isCombatStatus(state: GameState): boolean {
 	);
 }
 
-function effectNeedsPlayerDecision(effect: EffectNode, event: EventName): boolean {
+function effectNeedsPlayerDecision(
+	effect: EffectNode,
+	event: EventName,
+): boolean {
 	if (
 		effect.kind === "i_prevent_dungeon_discard" ||
 		effect.kind === "i_ignore_next_targeting" ||
@@ -86,7 +89,9 @@ function effectNeedsPlayerDecision(effect: EffectNode, event: EventName): boolea
 	if (effect.kind === "i_if") {
 		return (
 			effect.then.some((child) => effectNeedsPlayerDecision(child, event)) ||
-			Boolean(effect.else?.some((child) => effectNeedsPlayerDecision(child, event)))
+			Boolean(
+				effect.else?.some((child) => effectNeedsPlayerDecision(child, event)),
+			)
 		);
 	}
 	if (effect.kind === "i_for_each") {
@@ -177,7 +182,13 @@ export function resolveSkillWindow(
 	state: GameState,
 	request: SkillWindowRequest,
 ): GameState {
-	if (state.pendingTriggerInterrupt || state.pendingSkillChoice) return state;
+	if (
+		state.pendingTriggerInterrupt ||
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget
+	) {
+		return state;
+	}
 
 	const ctx = requestCtx(request);
 	const resume = request.resume ?? { type: "none" as const };
@@ -205,7 +216,11 @@ export function resolveSkillWindow(
 
 		current = executeTriggerCandidate(current, candidate, ctx);
 		current = drainStack(current);
-		if (current.pendingTriggerInterrupt || current.pendingSkillChoice) {
+		if (
+			current.pendingTriggerInterrupt ||
+			current.pendingSkillChoice ||
+			current.pendingSkillTarget
+		) {
 			return current;
 		}
 	}

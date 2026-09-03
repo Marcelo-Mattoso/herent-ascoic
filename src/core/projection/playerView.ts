@@ -7,6 +7,7 @@
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
 import { getSkillName } from "../data/skillLocale";
+import type { TargetCandidate } from "../data/skillTypes";
 import type { ModifierComponent } from "../ecs/types";
 import type { PausedState } from "../effects/stack";
 import { cardSkills, lookupSkillById, skillUsedBy } from "../skills/lookup";
@@ -138,6 +139,12 @@ export interface PlayerView {
 		}[];
 		readonly sourceHeroId?: string;
 	} | null;
+	readonly pendingSkillTarget: {
+		readonly skillId: string;
+		readonly sourceId: string;
+		readonly prompt: string;
+		readonly candidates: readonly TargetCandidate[];
+	} | null;
 	readonly pendingTriggerInterrupt: PendingTriggerInterrupt | null;
 }
 
@@ -211,6 +218,7 @@ export function playerView(state: GameState): PlayerView {
 		},
 		paused: state.paused,
 		pendingSkillChoice: state.pendingSkillChoice ?? null,
+		pendingSkillTarget: state.pendingSkillTarget ?? null,
 		pendingTriggerInterrupt: state.pendingTriggerInterrupt ?? null,
 		activeInfluences,
 	};

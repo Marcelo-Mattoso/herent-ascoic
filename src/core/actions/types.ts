@@ -117,6 +117,8 @@ export type Action =
 				value?: number | string | null;
 			};
 	  }
+	| { type: "SELECT_SKILL_TARGET"; payload: { targetId: string } }
+	| { type: "CANCEL_SKILL_TARGET" }
 	// ── Escolha de habilidade (Patch 8) ──────────────────────────────────────────
 	| { type: "SKILL_CHOICE"; payload: { skillId: string; choice: string } }
 	// ── Interrupção de trigger (habilidade/item/inimigo em uma fase) ───────────
