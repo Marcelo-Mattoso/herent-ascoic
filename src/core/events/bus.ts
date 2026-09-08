@@ -90,7 +90,19 @@ export function emit(
 					| "combat"
 					| "round";
 				const key = `${trigger.source}::${entity.id}`;
-				if (currentState.combat) {
+				if (scope === "room") {
+					currentState = {
+						...currentState,
+						oncePer: {
+							...currentState.oncePer,
+							room: {
+								...(currentState.oncePer.room ??
+									currentState.combat?.oncePer.room),
+								[key]: true,
+							},
+						},
+					};
+				} else if (currentState.combat) {
 					currentState = {
 						...currentState,
 						combat: {

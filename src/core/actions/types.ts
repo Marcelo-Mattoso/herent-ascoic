@@ -128,4 +128,7 @@ export type Action =
 	| { type: "DECLARE_FLEE"; payload: { heroId: string } }
 	| { type: "RESTART_DUNGEON"; payload: { keepEquipment: boolean } }
 	// ── Seleção de dado (Patch 8 F8) ─────────────────────────────────────────────
-	| { type: "SELECT_DIE"; payload: { side: "hero" | "enemy"; index: number } };
+	| {
+			type: "SELECT_DIE";
+			payload: { side: "hero" | "enemy"; index: number; value?: number };
+	  };

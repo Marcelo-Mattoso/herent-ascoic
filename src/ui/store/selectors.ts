@@ -1,5 +1,7 @@
 import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
 import { type PlayerView, playerView } from "@/core/projection/playerView";
+import { canStartHeroAttack } from "@/core/rules/attackAvailability";
+import { manualItemOptions } from "@/core/rules/itemEffects";
 import { isSkillGuardConsumed } from "@/core/skills/dispatch";
 import { cardSkills } from "@/core/skills/lookup";
 import { isManuallyActivatable } from "@/core/skills/useSkill";
@@ -184,6 +186,9 @@ export function selectFocusedHero(
 }
 
 export interface HeroCombatActions {
+	readonly canStartAttack?: boolean;
+	readonly usableItems?: ReturnType<typeof manualItemOptions>;
+	readonly attackBlocked?: boolean;
 	readonly canAttack: boolean;
 	readonly canPass: boolean;
 	readonly canCancel: boolean;
@@ -217,12 +222,13 @@ export function selectHeroCombatActions(
 
 	const isSelectingTarget =
 		combat?.phase === "selecting_target" && combat.selectedHeroId === heroId;
-	const hasActiveEnemies = view.enemies.some((e) => e.status === "active");
 	const heroDisabled =
 		hero === null ||
 		(isInCombat && ActivationTracker.isHeroDisabledThisRound(state, heroId));
 
-	const canAttack = isSelectingTarget && hasActiveEnemies && !heroDisabled;
+	const attackBlocked = !!state.combat?.attackBlockedByHero?.[heroId];
+	const canStartAttack = canStartHeroAttack(state, heroId);
+	const canAttack = isSelectingTarget && canStartAttack;
 	const canPass = isSelectingTarget && !heroDisabled;
 	const canCancel = isSelectingTarget;
 	const canFlee =
@@ -271,6 +277,9 @@ export function selectHeroCombatActions(
 
 	return {
 		canAttack,
+		canStartAttack,
+		attackBlocked,
+		usableItems: manualItemOptions(state, heroId),
 		canPass,
 		canCancel,
 		canUsePower,

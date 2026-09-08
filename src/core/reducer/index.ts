@@ -428,7 +428,12 @@ function dispatch(state: GameState, action: Action): GameState {
 			return { ...state, status: "BOSS_COMBAT" };
 
 		case "SELECT_DIE":
-			return handleSelectDie(state, action.payload.side, action.payload.index);
+			return handleSelectDie(
+				state,
+				action.payload.side,
+				action.payload.index,
+				action.payload.value,
+			);
 
 		case "DECLARE_FLEE":
 			return handleDeclareFlee(state, action.payload.heroId);

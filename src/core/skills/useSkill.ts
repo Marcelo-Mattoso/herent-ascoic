@@ -23,6 +23,7 @@ export interface UseSkillPayload {
 	sourceId: string;
 	targetIds?: string[];
 	value?: number | string | null;
+	params?: Readonly<Record<string, unknown>>;
 }
 
 export function fireOnUseSkill(
@@ -88,6 +89,7 @@ export function fireOnUseSkill(
 	const params: Record<string, unknown> = {
 		...(def.params ?? {}),
 		...(cardRef?.params ?? {}),
+		...(payload.params ?? {}),
 		value: resolvedValue,
 	};
 

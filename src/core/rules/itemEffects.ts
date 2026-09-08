@@ -4,6 +4,8 @@ import { getCardById } from "../data/cards";
 import type { SkillDefinition } from "../data/skillTypes";
 import type { DamageType } from "../events/types";
 import { cardSkills } from "../skills/lookup";
+import { resolveManualSkillTarget } from "../skills/targeting";
+import { guardPassed } from "../triggers/engine";
 import type { ConditionNode, EffectNode, ExprNode } from "../skills/dsl/types";
 import { ActivationTracker } from "../state/activation";
 import type { BonusEntry } from "../state/combatState";
@@ -32,6 +34,79 @@ interface ItemSkillSource {
 
 export function itemActivationId(heroId: string, itemId: string): string {
 	return `${heroId}:${itemId}`;
+}
+
+export function manualItemUnavailableReason(
+	state: GameState,
+	heroId: string,
+	itemId: string,
+): string | null {
+	const hero = state.heroes.find(
+		(h) => h.id === heroId && h.status === "active",
+	);
+	if (!hero) return "Herói inválido ou inativo.";
+	if (findHeroItemLocation(hero, itemId)?.kind !== "active")
+		return "Equipe o item antes de usá-lo; itens na mochila estão inativos.";
+	if (
+		state.paused ||
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget ||
+		state.pendingTriggerInterrupt
+	)
+		return "Conclua a escolha pendente primeiro.";
+	if (state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") {
+		if (
+			state.combat?.phase !== "selecting_target" ||
+			state.combat.selectedHeroId !== heroId ||
+			ActivationTracker.isHeroDisabledThisRound(state, heroId)
+		)
+			return "Selecione um herói que ainda pode agir nesta rodada.";
+	} else if (
+		![
+			"REVEAL_ROOM",
+			"ROOM_EFFECT",
+			"COMBAT_START",
+			"REWARD_PHASE",
+			"XP_SPEND_PHASE",
+			"OPEN_PATHS",
+			"DUNGEON_EXHAUSTED",
+		].includes(state.status)
+	) {
+		return "Aguarde uma janela de ação para usar o item.";
+	}
+	const def = cardSkills(itemId)[0]?.def;
+	if (!def || !itemCanBeUsedManually(def))
+		return "Este item não tem ativação manual.";
+	if (
+		ActivationTracker.isDisabled(
+			state,
+			"item",
+			itemActivationId(heroId, itemId),
+		)
+	)
+		return "Este item já foi usado neste escopo.";
+	if (!guardPassed(state, def, heroId))
+		return "O limite de uso deste efeito já foi atingido.";
+	if (hero.currentLife <= (def.cost?.hp ?? 0))
+		return "Vida insuficiente para pagar o custo.";
+	const target = resolveManualSkillTarget(state, def, heroId);
+	return target.kind === "unavailable" ? target.reason : null;
+}
+
+export function manualItemOptions(state: GameState, heroId: string) {
+	const hero = state.heroes.find((h) => h.id === heroId);
+	return Object.values(hero?.activeItems ?? {}).flatMap((itemId) => {
+		if (!itemId || manualItemUnavailableReason(state, heroId, itemId))
+			return [];
+		const def = cardSkills(itemId)[0]!.def;
+		return [
+			{
+				itemId,
+				name: getCardName(itemId),
+				target: resolveManualSkillTarget(state, def, heroId),
+			},
+		];
+	});
 }
 
 export function findHeroItemLocation(
@@ -80,16 +155,16 @@ export function isSingleUseSpecialItem(skillId: string): boolean {
 }
 
 export function itemCanBeUsedManually(def: SkillDefinition): boolean {
-	if (def.operate_type === "op_active" || def.operate_type === "op_active_buff") {
+	if (
+		def.operate_type === "op_active" ||
+		def.operate_type === "op_active_buff"
+	) {
 		return true;
 	}
 	return Boolean(def.effect?.some(isManualItemEffect));
 }
 
-export function itemShouldBeConsumed(
-	itemId: string,
-	skillId: string,
-): boolean {
+export function itemShouldBeConsumed(itemId: string, skillId: string): boolean {
 	return isConsumableItem(itemId) || isSingleUseSpecialItem(skillId);
 }
 
@@ -101,10 +176,12 @@ export function itemUseTargetIds(
 	targetEnemyId?: string,
 ): string[] {
 	if (def.target_type === "tgt_enemy") {
-		const pairedEnemyId = state.combat?.pairs.find((p) => p.heroId === heroId)
-			?.enemyId;
-		const fallbackEnemyId = state.activeEnemies.find((e) => e.status === "active")
-			?.id;
+		const pairedEnemyId = state.combat?.pairs.find(
+			(p) => p.heroId === heroId,
+		)?.enemyId;
+		const fallbackEnemyId = state.activeEnemies.find(
+			(e) => e.status === "active",
+		)?.id;
 		const enemyId = targetEnemyId ?? pairedEnemyId ?? fallbackEnemyId;
 		return enemyId ? [enemyId] : [];
 	}
@@ -164,7 +241,9 @@ export function collectHeroLifeDrainFromItems(
 	state: GameState,
 ): ItemModifierBreakdown[] {
 	return itemSkillSourcesForHero(hero, state)
-		.filter((source) => source.def.id === "item_skill_drain_life_and_deadly_edge")
+		.filter(
+			(source) => source.def.id === "item_skill_drain_life_and_deadly_edge",
+		)
 		.map((source) => ({ source: sourceLabel(source), value: 1 }));
 }
 
@@ -203,15 +282,13 @@ function itemSkillSourcesForHero(
 
 	for (const itemId of Object.values(hero.activeItems)) {
 		if (!itemId) continue;
-		if (ActivationTracker.isDisabled(state, "item", itemActivationId(hero.id, itemId))) {
-			continue;
-		}
 		sources.push(...skillSourcesForCard(itemId, "item", itemId, hero.id));
 	}
 
 	for (const artifact of state.groupArtifacts) {
 		if (artifact.carriedBy && artifact.carriedBy !== hero.id) continue;
-		if (ActivationTracker.isDisabled(state, "artifact", artifact.cardId)) continue;
+		if (ActivationTracker.isDisabled(state, "artifact", artifact.cardId))
+			continue;
 		sources.push(
 			...skillSourcesForCard(
 				artifact.cardId,

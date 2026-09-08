@@ -114,6 +114,7 @@ export interface GameState {
 	// Flags de uso por escopo "once_per_game" (key = skillId ou "skillId::heroId")
 	readonly oncePer: {
 		readonly game: Readonly<Record<string, boolean>>;
+		readonly room?: Readonly<Record<string, boolean>>;
 	};
 
 	// Estado genérico de ativação/desativação fora do combate.

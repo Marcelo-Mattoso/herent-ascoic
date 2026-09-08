@@ -20,6 +20,7 @@ import { checkBossCondition } from "../rules/conditions";
 import { cardSkills } from "../skills/lookup";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { renderSkillLabel } from "../skills/renderLabel";
+import { ActivationTracker } from "../state/activation";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
@@ -381,6 +382,8 @@ export function handleCheckBossCondition(state: GameState): GameState {
 	}
 	let s: GameState = {
 		...beforeLeave,
+		oncePer: { ...beforeLeave.oncePer, room: {} },
+		disabled: ActivationTracker.clearLocks(beforeLeave.disabled ?? {}, "room"),
 		paths: [],
 		currentRoom: null,
 		activeEnemies: [],

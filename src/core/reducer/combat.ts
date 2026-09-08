@@ -10,21 +10,23 @@ import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
 import { calculateTotal, resolveAttack } from "../rules/combat";
+import { isEligibleDie, dieReplacementValues } from "../rules/diceSelection";
+import { canStartHeroAttack } from "../rules/attackAvailability";
 import { rollDiceRng } from "../rules/dice";
 import {
 	collectHeroDamageBonusesFromItems,
 	collectHeroDamageReductionsFromItems,
 	collectHeroHitBonusesFromItems,
 	collectHeroLifeDrainFromItems,
-	findHeroItemLocation,
+	manualItemUnavailableReason,
 	formatItemBreakdown,
 	itemActivationId,
 	itemCanBeUsedManually,
 	itemShouldBeConsumed,
-	itemUseTargetIds,
 	removeHeroItem,
 	totalItemValue,
 } from "../rules/itemEffects";
+import { guardPassed } from "../triggers/engine";
 import { ActivationTracker } from "../state/activation";
 import { cardSkills, lookupSkillById } from "../skills/lookup";
 import {
@@ -117,20 +119,18 @@ function disableHeroForRoundAndAdvance(
 	return advanceAfterHeroDisabledForRound(disabled);
 }
 
-function finishManualHeroUse(
-	beforeUse: GameState,
-	afterUse: GameState,
-	heroId: string,
-	reason: string,
-): GameState {
-	if (!isManualCombatActivationWindow(beforeUse)) return afterUse;
-	const disabled = ActivationTracker.disableHeroForRound(
-		afterUse,
-		heroId,
-		reason,
-	);
-	if (disabled.pendingSkillChoice) return disabled;
-	return advanceAfterHeroDisabledForRound(disabled);
+function blockAttackAfterSkill(state: GameState, heroId: string): GameState {
+	if (!isManualCombatActivationWindow(state) || !state.combat) return state;
+	return {
+		...state,
+		combat: {
+			...state.combat,
+			attackBlockedByHero: {
+				...state.combat.attackBlockedByHero,
+				[heroId]: true,
+			},
+		},
+	};
 }
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
@@ -139,6 +139,10 @@ export function handleStartCombat(state: GameState): GameState {
 	let next: GameState = {
 		...state,
 		status: "HERO_ACTION",
+		oncePer: {
+			...state.oncePer,
+			room: state.oncePer.room ?? state.combat?.oncePer.room ?? {},
+		},
 		combat: { ...createEmptyCombatState(), phase: "selecting_hero" },
 	};
 	const targetEnemyIds = next.activeEnemies
@@ -294,6 +298,19 @@ export function handleChooseTarget(
 	// Validação: herói não pode agir duas vezes na mesma rodada
 	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
+	}
+
+	if (state.combat.attackBlockedByHero?.[heroId]) {
+		return log(
+			state,
+			"[AVISO] Habilidade/poder já usado: use um item ou passe a rodada.",
+		);
+	}
+	if (!canStartHeroAttack(state, heroId, enemyId)) {
+		return log(
+			state,
+			"[AVISO] Herói, inimigo ou momento inválido para iniciar ataque.",
+		);
 	}
 
 	// on_targeted: removido em Lote G (semântica incorreta; HeroTargeted emitido via bus se necessário)
@@ -511,6 +528,7 @@ function runItemSkill(
 			sourceId: heroId,
 			targetIds,
 			value,
+			params,
 		});
 	}
 
@@ -540,11 +558,11 @@ function maybeDisableReusableItem(
 	itemId: string,
 	consumed: boolean,
 ): GameState {
-	if (consumed || !state.combat) return state;
+	if (consumed) return state;
 	return ActivationTracker.disable(state, {
 		kind: "item",
 		id: itemActivationId(heroId, itemId),
-		scope: "combat",
+		scope: cardSkills(itemId)[0]?.def.cooldown?.scope ?? "room",
 		sourceId: heroId,
 		reason: "item usado",
 	});
@@ -985,6 +1003,7 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 							round: next.combat.round + 1,
 							pairs: [],
 							heroesActed: [],
+							attackBlockedByHero: {},
 							disabled: {},
 						}
 					: null,
@@ -1003,6 +1022,7 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
+				attackBlockedByHero: {},
 				lastRoll: null,
 				disabled: ActivationTracker.clearLocks(state.combat.disabled, "round"),
 				oncePer: {
@@ -1079,30 +1099,22 @@ export function handleUseItem(
 		);
 	}
 
-	const hero = state.heroes.find((h) => h.id === heroId);
-	if (!hero || hero.status !== "active") {
-		return log(state, `[AVISO] Herói ${heroId} inválido ou inativo.`);
-	}
-	if (!findHeroItemLocation(hero, itemId)) {
+	const unavailable = manualItemUnavailableReason(state, heroId, itemId);
+	if (unavailable) return log(state, `[AVISO] ${unavailable}`);
+	const hero = state.heroes.find((h) => h.id === heroId)!;
+	const selection = resolveManualSkillTarget(
+		state,
+		skillDef,
+		heroId,
+		targetHeroId || targetEnemyId
+			? [targetHeroId ?? targetEnemyId!]
+			: undefined,
+	);
+	if (selection.kind !== "ready") {
 		return log(
 			state,
-			`[AVISO] ${getCardName(hero.cardId)} não possui ${itemName}.`,
+			selection.kind === "unavailable" ? selection.reason : selection.prompt,
 		);
-	}
-	if (
-		isManualCombatActivationWindow(state) &&
-		ActivationTracker.isHeroDisabledThisRound(state, heroId)
-	) {
-		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
-	}
-	if (
-		ActivationTracker.isDisabled(
-			state,
-			"item",
-			itemActivationId(heroId, itemId),
-		)
-	) {
-		return log(state, `[AVISO] ${itemName} já foi usado neste combate.`);
 	}
 
 	const params = {
@@ -1111,8 +1123,22 @@ export function handleUseItem(
 	};
 	const heroName = hero ? getCardName(hero.cardId) : heroId;
 	const consumed = itemShouldBeConsumed(itemId, skillDef.id);
+	const afterCost = consumed ? removeHeroItem(state, heroId, itemId) : state;
+	const itemPile =
+		skillDef.id === "item_skill_mystic_draw" ? "removed" : "discarded";
 	const withItemCost: GameState = log(
-		consumed ? removeHeroItem(state, heroId, itemId) : state,
+		consumed
+			? {
+					...afterCost,
+					decks: {
+						...afterCost.decks,
+						itemDeck: {
+							...afterCost.decks.itemDeck,
+							[itemPile]: [...afterCost.decks.itemDeck[itemPile], itemId],
+						},
+					},
+				}
+			: state,
 		consumed
 			? `${heroName} descartou ${itemName} para ativar o efeito.`
 			: `${heroName} usou ${itemName}.`,
@@ -1122,9 +1148,9 @@ export function handleUseItem(
 		(skillDef.params?.value as number | string | undefined);
 
 	// itemControl: inimigo do par atual pode ignorar o 1º efeito de item
-	const currentPairEnemyId = state.combat?.pairs.find(
-		(p) => p.heroId === heroId,
-	)?.enemyId;
+	const currentPairEnemyId = selection.targetIds.find((id) =>
+		state.activeEnemies.some((enemy) => enemy.id === id),
+	);
 	if (currentPairEnemyId) {
 		// itemControl: inimigo do par atual pode ignorar o 1º efeito de item (Evasão das Fendas)
 		if (withItemCost.combat?.itemControlByEnemy[currentPairEnemyId]) {
@@ -1141,12 +1167,7 @@ export function handleUseItem(
 				},
 				`${currentPairEnemyId}: Evasão das Fendas — efeito de item bloqueado.`,
 			);
-			return finishManualHeroUse(
-				state,
-				maybeDisableReusableItem(blocked, heroId, itemId, consumed),
-				heroId,
-				`usou ${itemName}`,
-			);
+			return maybeDisableReusableItem(blocked, heroId, itemId, consumed);
 		}
 		const roomFirstTime =
 			!withItemCost.flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
@@ -1163,13 +1184,7 @@ export function handleUseItem(
 			type: "ItemEffectAppliedTo",
 			payload: { heroId, itemId, sourceId: currentPairEnemyId, roomFirstTime },
 		}));
-		const targetIds = itemUseTargetIds(
-			state,
-			skillDef,
-			heroId,
-			targetHeroId,
-			targetEnemyId,
-		);
+		const targetIds = [...selection.targetIds];
 		const afterUse = runItemSkill(
 			afterItemEmit,
 			skillDef,
@@ -1178,21 +1193,10 @@ export function handleUseItem(
 			itemSkillValue,
 			params,
 		);
-		return finishManualHeroUse(
-			state,
-			maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
-			heroId,
-			`usou ${itemName}`,
-		);
+		return maybeDisableReusableItem(afterUse, heroId, itemId, consumed);
 	}
 
-	const targetIds = itemUseTargetIds(
-		state,
-		skillDef,
-		heroId,
-		targetHeroId,
-		targetEnemyId,
-	);
+	const targetIds = [...selection.targetIds];
 	const afterUse = runItemSkill(
 		withItemCost,
 		skillDef,
@@ -1201,12 +1205,7 @@ export function handleUseItem(
 		itemSkillValue,
 		params,
 	);
-	return finishManualHeroUse(
-		state,
-		maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
-		heroId,
-		`usou ${itemName}`,
-	);
+	return maybeDisableReusableItem(afterUse, heroId, itemId, consumed);
 }
 
 // ─── USE_POWER ────────────────────────────────────────────────────────────────
@@ -1318,6 +1317,21 @@ export function handleUseSkill(
 	if (!skillDef || !isManuallyActivatable(skillDef)) {
 		return fireOnUseSkill(state, payload);
 	}
+	if (
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget ||
+		state.pendingTriggerInterrupt ||
+		state.paused
+	) {
+		return log(state, "[AVISO] Conclua a escolha pendente primeiro.");
+	}
+	if (
+		(state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") &&
+		(!isManualCombatActivationWindow(state) ||
+			state.combat?.selectedHeroId !== hero.id)
+	) {
+		return log(state, "[AVISO] Selecione o herói antes de usar a habilidade.");
+	}
 
 	if (
 		skillDef.category === "hero_power" &&
@@ -1336,6 +1350,19 @@ export function handleUseSkill(
 		return log(
 			state,
 			`[AVISO] Herói ${payload.sourceId} já agiu nesta rodada.`,
+		);
+	}
+
+	if (!cardSkills(hero.cardId).some(({ def }) => def.id === skillDef.id)) {
+		return log(state, "[AVISO] Esta habilidade não pertence ao herói.");
+	}
+	if (
+		!guardPassed(state, skillDef, hero.id) ||
+		hero.currentLife <= (skillDef.cost?.hp ?? 0)
+	) {
+		return log(
+			state,
+			"[AVISO] Habilidade indisponível: limite de uso ou custo de vida.",
 		);
 	}
 
@@ -1378,12 +1405,7 @@ export function handleUseSkill(
 		...payload,
 		targetIds: [...target.targetIds],
 	});
-	return finishManualHeroUse(
-		state,
-		afterUse,
-		payload.sourceId,
-		`usou habilidade ${payload.skillId}`,
-	);
+	return blockAttackAfterSkill(afterUse, payload.sourceId);
 }
 
 export function handleSelectSkillTarget(
@@ -1416,6 +1438,7 @@ export function handleSelectDie(
 	state: GameState,
 	side: "hero" | "enemy",
 	index: number,
+	value?: number,
 ): GameState {
 	const sel = state.combat?.pendingDiceSelection;
 	if (!sel || !state.combat?.lastRoll) return state;
@@ -1427,20 +1450,25 @@ export function handleSelectDie(
 	const dieValue = results[index];
 	if (dieValue === undefined)
 		return log(state, "[AVISO] Índice de dado inválido.");
-	if (sel.filter?.value !== undefined && dieValue !== sel.filter.value) {
+	if (!isEligibleDie(sel, side, index, results)) {
 		return log(state, "[AVISO] Este dado não é elegível para a ação.");
 	}
 
-	// Aplicar ação
 	let newValue: number;
 	let stateAfterRng = state;
-	if (sel.action === "reroll") {
+	if (sel.deltaMax !== undefined || sel.action === "set_to") {
+		const allowed = dieReplacementValues(sel, dieValue);
+		const chosen = sel.deltaMax !== undefined ? value : (sel.setToValue ?? 6);
+		if (chosen === undefined || !allowed.includes(chosen)) {
+			return log(state, "[AVISO] Escolha um valor permitido pela habilidade.");
+		}
+		newValue = chosen;
+	} else {
 		const { result, next: rngNext } = rollDiceRng(1, state.rng);
 		newValue = result.results[0] ?? 1;
 		stateAfterRng = { ...state, rng: rngNext };
-	} else {
-		newValue = sel.setToValue ?? 6;
 	}
+
 	results[index] = newValue;
 
 	// Recalcular total

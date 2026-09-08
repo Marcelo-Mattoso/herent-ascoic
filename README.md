@@ -87,17 +87,26 @@ A regra de separação é dura: **a UI consome o core via projeção; nunca dupl
 O motor separa habilidades automáticas, habilidades ativas e poderes:
 
 - Habilidades e poderes ativos usam `USE_SKILL` / `USE_POWER`.
+- Para atacar, arraste o herói e solte sobre um inimigo válido: os dados são
+  rolados automaticamente. Cliques e arrastes cancelados não iniciam ataque.
 - Quando há mais de um alvo válido, a UI abre `SkillTargetModal` e o core aguarda
   `SELECT_SKILL_TARGET`.
 - Alvos são validados por `resolveManualSkillTarget`: cura e proteção só aceitam
   heróis válidos, efeitos ofensivos aceitam inimigos ativos, e efeitos pessoais
   resolvem no próprio herói.
 - Habilidades ativas também podem ser usadas fora do combate quando a carta permite.
-- Durante combate, usar habilidade, poder ou item manual consome a ação do herói
-  naquela rodada. O herói fica desativado até a próxima rodada de upkeep.
+- Durante combate, usar habilidade ou poder manual bloqueia o ataque naquela
+  rodada, mas permite usar item e passar. Usar item não encerra o turno.
+- O botão “Usar item” lista apenas itens ativos disponíveis e pede alvo quando
+  necessário. Itens na mochila não podem ser usados. Consumíveis vão ao descarte;
+  itens reutilizáveis ficam bloqueados por sala, salvo limite específico da carta.
+- O limite “uma vez por sala” também vale fora de combate e se renova na saída
+  da sala, após recompensas e reorganização.
 - Bloqueios usam a camada genérica `ActivationTracker`, então heróis, itens,
   artefatos e outras entidades podem ser desativados por rodada, combate, sala
   ou jogo sem duplicar regra na UI.
+
+Decisões e fontes: [alinhamento de ações](docs/issues/alinhamento-acoes-2026-09-08.md).
 
 ## Ferramentas de desenvolvimento em jogo
 

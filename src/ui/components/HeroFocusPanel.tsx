@@ -26,6 +26,7 @@ interface HeroFocusPanelProps {
 	onPower: () => void;
 	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
+	onUseItem?: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	onItemDetail: (itemName: string, heroId: string) => void;
 }
@@ -40,6 +41,7 @@ export function HeroFocusPanel({
 	onPower,
 	onFlee,
 	onUseSkill,
+	onUseItem,
 	onCardDetail,
 	onItemDetail,
 }: HeroFocusPanelProps) {
@@ -332,6 +334,12 @@ export function HeroFocusPanel({
 						</div>
 					)}
 
+					{heroActions.attackBlocked && (
+						<p className="text-sm">
+							Ataque indisponível nesta rodada. Você ainda pode usar item ou
+							passar.
+						</p>
+					)}
 					{/* Botões de ação individuais */}
 					<ActionSection
 						heroActions={heroActions}
@@ -346,6 +354,7 @@ export function HeroFocusPanel({
 						onPower={onPower}
 						onFlee={onFlee}
 						onUseSkill={onUseSkill}
+						onUseItem={onUseItem}
 					/>
 				</div>
 			) : (
@@ -381,6 +390,7 @@ function ActionSection({
 	onPower,
 	onFlee,
 	onUseSkill,
+	onUseItem,
 }: {
 	heroActions: HeroCombatActions;
 	hero: HeroState;
@@ -394,6 +404,7 @@ function ActionSection({
 	onPower: () => void;
 	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
+	onUseItem?: () => void;
 }) {
 	const {
 		canAttack,
@@ -408,9 +419,21 @@ function ActionSection({
 	} = heroActions;
 
 	if (!isInCombat) {
-		if (!skill?.activatable && !power?.activatable) return null;
+		if (
+			!skill?.activatable &&
+			!power?.activatable &&
+			!heroActions.usableItems?.length
+		)
+			return null;
 		return (
 			<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+				<ActionButton
+					label="Usar item"
+					icon="🎒"
+					variant="secondary"
+					disabled={!heroActions.usableItems?.length}
+					onClick={onUseItem}
+				/>
 				{skill?.activatable && (
 					<ActionButton
 						label="Usar habilidade"
@@ -454,8 +477,8 @@ function ActionSection({
 						label="Usar item"
 						icon="🎒"
 						variant="secondary"
-						disabled
-						onClick={() => {}}
+						disabled={!heroActions.usableItems?.length}
+						onClick={onUseItem}
 					/>
 					<ActionButton
 						label="Usar poder"
@@ -496,8 +519,8 @@ function ActionSection({
 				label="Usar item"
 				icon="🎒"
 				variant="secondary"
-				disabled
-				onClick={() => {}}
+				disabled={!heroActions.usableItems?.length}
+				onClick={onUseItem}
 			/>
 			{skill?.activatable && (
 				<ActionButton

@@ -89,6 +89,7 @@ export interface CombatState {
 	// Herói ignora 1º efeito que o escolha como alvo (Véu Protetor)
 	readonly targetProtectionByHero: Readonly<Record<string, boolean>>;
 	// Flags de uso por escopo (guards once_per_*)
+	readonly attackBlockedByHero?: Readonly<Record<string, boolean>>;
 	readonly oncePer: {
 		readonly room: Readonly<Record<string, boolean>>;
 		readonly combat: Readonly<Record<string, boolean>>;

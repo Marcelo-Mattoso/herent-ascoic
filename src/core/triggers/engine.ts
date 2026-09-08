@@ -321,7 +321,7 @@ export function guardPassed(
 		case "game":
 			return !state.oncePer?.game?.[key];
 		case "room":
-			return !state.combat?.oncePer?.room?.[key];
+			return !(state.oncePer.room ?? state.combat?.oncePer?.room)?.[key];
 		case "combat":
 			return !state.combat?.oncePer?.combat?.[key];
 		case "round":
@@ -347,6 +347,18 @@ export function markSkillGuardUsed(
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
 
+	if (cooldown.scope === "room") {
+		return {
+			...state,
+			oncePer: {
+				...state.oncePer,
+				room: {
+					...(state.oncePer.room ?? state.combat?.oncePer.room),
+					[key]: true,
+				},
+			},
+		};
+	}
 	if (cooldown.scope === "game") {
 		return {
 			...state,
