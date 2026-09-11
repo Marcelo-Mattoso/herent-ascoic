@@ -498,25 +498,21 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 		const combat = state.combat;
 
 		// Marca da Presa
-		const preyEnemy = combat.prey
-			? state.activeEnemies.find((e) => e.id === combat.prey)
-			: null;
-		if (preyEnemy) {
-			const preyName = getCardName(preyEnemy.cardId);
-			for (const hero of state.heroes) {
-				const heroName = getCardName(hero.cardId);
-				influences.push({
-					id: `prey:${hero.id}`,
-					from: { kind: "hero", id: hero.id, name: heroName },
-					to: { kind: "enemy", id: preyEnemy.id, name: preyName },
-					kind: "buff",
-					icon: "🎯",
-					label: `Marca: ${preyName}`,
-					source: "Caçador",
-					duration: "até matar a presa",
-					scope: "hero_to_enemy",
-				});
-			}
+		for (const [heroId, preyId] of Object.entries(combat.preyByHero)) {
+			const hero = state.heroes.find((entry) => entry.id === heroId);
+			const preyEnemy = state.activeEnemies.find((entry) => entry.id === preyId);
+			if (!hero || !preyEnemy) continue;
+			influences.push({
+				id: `prey:${hero.id}`,
+				from: { kind: "hero", id: hero.id, name: getCardName(hero.cardId) },
+				to: { kind: "enemy", id: preyEnemy.id, name: getCardName(preyEnemy.cardId) },
+				kind: "buff",
+				icon: "🎯",
+				label: `Marca: ${getCardName(preyEnemy.cardId)}`,
+				source: "Caçador",
+				duration: "até matar a presa",
+				scope: "hero_to_enemy",
+			});
 		}
 
 		for (const hero of state.heroes) {

@@ -45,8 +45,8 @@ export function manualItemUnavailableReason(
 		(h) => h.id === heroId && h.status === "active",
 	);
 	if (!hero) return "Herói inválido ou inativo.";
-	if (findHeroItemLocation(hero, itemId)?.kind !== "active")
-		return "Equipe o item antes de usá-lo; itens na mochila estão inativos.";
+	const location = findHeroItemLocation(hero, itemId);
+	if (!location) return "Este item não pertence ao herói.";
 	if (
 		state.paused ||
 		state.pendingSkillChoice ||
@@ -95,7 +95,12 @@ export function manualItemUnavailableReason(
 
 export function manualItemOptions(state: GameState, heroId: string) {
 	const hero = state.heroes.find((h) => h.id === heroId);
-	return Object.values(hero?.activeItems ?? {}).flatMap((itemId) => {
+	// Itens de ativação manual podem estar equipados ou na mochila.
+	const itemIds = [
+		...Object.values(hero?.activeItems ?? {}),
+		...(hero?.backpack ?? []),
+	];
+	return itemIds.flatMap((itemId) => {
 		if (!itemId || manualItemUnavailableReason(state, heroId, itemId))
 			return [];
 		const def = cardSkills(itemId)[0]!.def;
@@ -132,14 +137,17 @@ export function removeHeroItem(
 		...state,
 		heroes: state.heroes.map((hero) => {
 			if (hero.id !== heroId) return hero;
+			const location = findHeroItemLocation(hero, itemId);
+			if (!location) return hero;
 			const activeItems = { ...hero.activeItems };
-			for (const slot of Object.keys(activeItems) as ItemSlotType[]) {
-				if (activeItems[slot] === itemId) delete activeItems[slot];
-			}
+			if (location.kind === "active") delete activeItems[location.slot];
 			return {
 				...hero,
 				activeItems,
-				backpack: hero.backpack.filter((id) => id !== itemId),
+				backpack:
+					location.kind === "backpack"
+						? hero.backpack.filter((_, index) => index !== location.index)
+						: hero.backpack,
 			};
 		}),
 	};

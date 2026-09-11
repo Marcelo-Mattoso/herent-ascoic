@@ -312,7 +312,10 @@ export function guardPassed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): boolean {
-	const cooldown = skill.cooldown;
+	const cooldown =
+		skill.category === "hero_power"
+			? { scope: "game" as const, charges: 1 }
+			: skill.cooldown;
 	if (!cooldown) return true;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
@@ -342,7 +345,10 @@ export function markSkillGuardUsed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): GameState {
-	const cooldown = skill.cooldown;
+	const cooldown =
+		skill.category === "hero_power"
+			? { scope: "game" as const, charges: 1 }
+			: skill.cooldown;
 	if (!cooldown) return state;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;

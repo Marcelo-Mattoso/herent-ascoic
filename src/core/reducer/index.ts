@@ -36,6 +36,7 @@ import {
 	handleChoosePath,
 	handleDiscardPaths,
 	discardFromDungeonDeck,
+	resumeDungeonAdvance,
 	handleOpenPaths,
 	handleResolveRoomEffect,
 	handleRestartDungeon,
@@ -111,6 +112,8 @@ function resumeAfterSkillWindow(
 			return handleRollDice(state);
 		case "resolve_attack":
 			return handleResolveAttack(state);
+		case "advance_dungeon":
+			return resumeDungeonAdvance(state, window.resume.exits);
 		case "discard_dungeon":
 			return discardFromDungeonDeck(
 				state,

@@ -10,6 +10,7 @@ import {
 	collectHeroDamageBonusesFromItems,
 	collectHeroDamageReductionsFromItems,
 	collectHeroHitBonusesFromItems,
+	manualItemOptions,
 	totalItemValue,
 } from "@/core/rules/itemEffects";
 import { cardSkills } from "@/core/skills/lookup";
@@ -19,6 +20,7 @@ import type { HeroState, ItemSlotType } from "@/core/state/heroState";
 import { getCardImageUrl, type CardImageUrls } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
+import { UseItemModal } from "@/ui/components/modals/UseItemModal";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
@@ -147,6 +149,7 @@ interface SlotProps {
 	onMouseEnter?: (e: React.MouseEvent) => void;
 	onMouseMove?: (e: React.MouseEvent) => void;
 	onMouseLeave?: () => void;
+	onClick?: () => void;
 }
 
 function Slot({
@@ -167,6 +170,7 @@ function Slot({
 	onMouseEnter,
 	onMouseMove,
 	onMouseLeave,
+	onClick,
 }: SlotProps) {
 	// Cor base: prioridade color > amber > default
 	const baseBg = color ? color.bg : amber ? AMBER.bg : "transparent";
@@ -212,6 +216,7 @@ function Slot({
 			onMouseEnter={onMouseEnter}
 			onMouseMove={onMouseMove}
 			onMouseLeave={onMouseLeave}
+			onClick={onClick}
 			style={{
 				width: 36,
 				height: 36,
@@ -258,6 +263,7 @@ interface HeroColumnProps {
 	onShowTooltip: (t: TooltipTarget) => void;
 	onHideTooltip: () => void;
 	onUseItem: (itemId: string, heroId: string) => void;
+	onItemDetail: (itemId: string, heroId: string) => void;
 	onHeroDetail: (hero: HeroState) => void;
 	gameState: GameState;
 }
@@ -273,13 +279,17 @@ function HeroColumn({
 	onDragEnd,
 	onShowTooltip,
 	onHideTooltip,
-	onUseItem: _onUseItem,
+	onUseItem,
+	onItemDetail,
 	onHeroDetail,
 	gameState,
 }: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
 	const [backpackOpen, setBackpackOpen] = useState(false);
+	const usableItemIds = new Set(
+		manualItemOptions(gameState, hero.id).map((item) => item.itemId),
+	);
 
 	function canEquipDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
@@ -373,42 +383,33 @@ function HeroColumn({
 						dragging.from.slotType === slotType;
 
 					return name ? (
-						<Slot
-							key={slotType}
-							label={shortLabel(name)}
-							color={col}
-							filled
-							draggable
-							isDragging={isThisItemDragging}
-							onDragStart={(e) => {
-								e.dataTransfer.setData("text/plain", name);
-								onDragItemStart(name, {
-									kind: "hero_slot",
-									heroId: hero.id,
-									slotType,
-								});
-							}}
-							onDragEnd={onDragEnd}
-							onMouseEnter={(e) =>
-								onShowTooltip({
-									name,
-									kind: "item",
-									x: e.clientX,
-									y: e.clientY,
-									heroId: hero.id,
-								})
-							}
-							onMouseMove={(e) =>
-								onShowTooltip({
-									name,
-									kind: "item",
-									x: e.clientX,
-									y: e.clientY,
-									heroId: hero.id,
-								})
-							}
-							onMouseLeave={onHideTooltip}
-						/>
+						<div key={slotType} style={{ display: "grid", gap: 2 }}>
+							<Slot
+								label={shortLabel(name)}
+								color={col}
+								filled
+								draggable
+								isDragging={isThisItemDragging}
+								onClick={() => onItemDetail(name, hero.id)}
+								onDragStart={(e) => {
+									e.dataTransfer.setData("text/plain", name);
+									onDragItemStart(name, {
+										kind: "hero_slot",
+										heroId: hero.id,
+										slotType,
+									});
+								}}
+								onDragEnd={onDragEnd}
+								onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
+								onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
+								onMouseLeave={onHideTooltip}
+							/>
+							{usableItemIds.has(name) && (
+								<button type="button" onClick={() => onUseItem(name, hero.id)} style={{ fontSize: 10, padding: "1px 0" }}>
+									Usar
+								</button>
+							)}
+						</div>
 					) : (
 						<Slot key={slotType} label={SLOT_LABELS[slotType]} />
 					);
@@ -457,11 +458,7 @@ function HeroColumn({
 				{...areaDropHandlers(mochilaZone, canMochila)}
 				className="inventory-backpack-wrap"
 				data-item="true"
-				onMouseEnter={() => setBackpackOpen(true)}
-				onMouseLeave={() => {
-					if (!dragging) setBackpackOpen(false);
-					onHideTooltip();
-				}}
+				onMouseLeave={onHideTooltip}
 				style={
 					{
 						"--inventory-stack-border": isDragging
@@ -510,13 +507,15 @@ function HeroColumn({
 									dragging?.from.kind === "hero_backpack" &&
 									dragging.from.heroId === hero.id &&
 									dragging.from.index === i;
+								const canUse = usableItemIds.has(name);
 
 								return (
 									<div
 										key={`${name}-${i}`}
 										className="inventory-backpack-item"
-										data-item="true"
-										draggable
+									data-item="true"
+									draggable
+									onClick={() => onItemDetail(name, hero.id)}
 										onDragStart={(e) => {
 											e.dataTransfer.setData("text/plain", name);
 											onDragItemStart(name, {
@@ -554,6 +553,19 @@ function HeroColumn({
 									>
 										<span aria-hidden="true" />
 										<strong title={itemName}>{itemName}</strong>
+										{canUse && (
+											<button
+												type="button"
+												onMouseDown={(event) => event.stopPropagation()}
+												onClick={(event) => {
+													event.stopPropagation();
+													onUseItem(name, hero.id);
+												}}
+												style={{ marginLeft: "auto", fontSize: 10 }}
+											>
+												Usar
+											</button>
+										)}
 									</div>
 								);
 							})
@@ -601,6 +613,10 @@ export function InventarioGrupo() {
 	const [tooltip, setTooltip] = useState<TooltipTarget | null>(null);
 	const [detailCard, setDetailCard] = useState<DetailCardTarget | null>(null);
 	const [focusedHero, setFocusedHero] = useState<HeroState | null>(null);
+	const [itemUse, setItemUse] = useState<{
+		heroId: string;
+		itemId?: string;
+	} | null>(null);
 
 	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
 	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
@@ -697,8 +713,8 @@ export function InventarioGrupo() {
 	}
 
 	function handleUseItemFromTooltip(itemId: string, heroId: string) {
-		dispatch({ type: "USE_ITEM", payload: { itemId, heroId } });
 		setTooltip(null);
+		setItemUse({ heroId, itemId });
 	}
 
 	// ── Drag handlers ─────────────────────────────────────────────────────────
@@ -1022,6 +1038,9 @@ export function InventarioGrupo() {
 										onShowTooltip={showTooltip}
 										onHideTooltip={hideTooltip}
 										onUseItem={handleUseItemFromTooltip}
+										onItemDetail={(itemId, heroId) =>
+											setDetailCard({ cardId: itemId, cardType: "item", heroId })
+										}
 										onHeroDetail={setFocusedHero}
 										gameState={state}
 									/>
@@ -1106,6 +1125,14 @@ export function InventarioGrupo() {
 								}
 							: undefined
 					}
+				/>
+			)}
+
+			{itemUse && (
+				<UseItemModal
+					heroId={itemUse.heroId}
+					initialItemId={itemUse.itemId}
+					onClose={() => setItemUse(null)}
 				/>
 			)}
 		</>

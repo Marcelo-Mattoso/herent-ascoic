@@ -53,6 +53,21 @@ export function removeBlocksForSource(
 	return next;
 }
 
+/** Remove todos os bloqueios produzidos por uma fonte que foi desativada. */
+export function removeBlocksAppliedBySource(
+	state: GameState,
+	sourceEntityId: string,
+): GameState {
+	let next = state;
+	for (const [key, entries] of Object.entries(state.blocks)) {
+		const remaining = entries.filter((entry) => entry.sourceEntityId !== sourceEntityId);
+		if (remaining.length === entries.length) continue;
+		next = { ...next, blocks: { ...next.blocks, [key]: remaining } };
+		if (remaining.length === 0) next = clearBlockFlag(next, key);
+	}
+	return next;
+}
+
 // Consome a primeira entrada `once` do bloco indicado.
 // Chamado em healSystem quando a cura é bloqueada por um bloco `once`.
 export function consumeOnceBlock(state: GameState, key: string): GameState {

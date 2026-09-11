@@ -110,13 +110,13 @@ export function advanceAfterHeroDisabledForRound(state: GameState): GameState {
 	};
 }
 
-function disableHeroForRoundAndAdvance(
+function endHeroTurnAndAdvance(
 	state: GameState,
 	heroId: string,
-	reason: string,
+	_reason: string,
 ): GameState {
-	const disabled = ActivationTracker.disableHeroForRound(state, heroId, reason);
-	return advanceAfterHeroDisabledForRound(disabled);
+	const afterTurn = ActivationTracker.endHeroTurn(state, heroId);
+	return advanceAfterHeroDisabledForRound(afterTurn);
 }
 
 function blockAttackAfterSkill(state: GameState, heroId: string): GameState {
@@ -248,11 +248,7 @@ export function handlePassHeroAction(
 	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
-	const next = ActivationTracker.disableHeroForRound(
-		state,
-		heroId,
-		"passou a rodada",
-	);
+	const next = ActivationTracker.endHeroTurn(state, heroId);
 	const pendingHeroes = activeHeroesPendingActivation(next);
 
 	if (pendingHeroes.length > 0) {
@@ -369,6 +365,16 @@ function collectHeroBonuses(
 			) {
 				bonuses.push({ source: comp.source, value: comp.value });
 			}
+		}
+	}
+
+	if (state.combat?.preyByHero[hero.id] === enemy?.id) {
+		const preyMark = cardSkills(hero.cardId).find(
+			({ def }) => def.id === "skill_prey_mark",
+		);
+		const value = preyMark?.ref.params?.value;
+		if (typeof value === "number" && value !== 0) {
+			bonuses.push({ source: "Marca da Presa", value });
 		}
 	}
 
@@ -738,7 +744,7 @@ export function handleResolveAttack(state: GameState): GameState {
 			next,
 			`${getCardName(hero.cardId)} fugiu do combate com sucesso!`,
 		);
-		return disableHeroForRoundAndAdvance(next, roll.heroId, "fugiu");
+		return endHeroTurnAndAdvance(next, roll.heroId, "fugiu");
 	}
 
 	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
@@ -790,7 +796,7 @@ export function handleResolveAttack(state: GameState): GameState {
 	// Consumir modificadores "once" após o ataque ser resolvido (Lote C)
 	next = { ...next, world: tickModifierDurations(next.world, "once_consumed") };
 
-	return disableHeroForRoundAndAdvance(next, roll.heroId, "atacou");
+	return endHeroTurnAndAdvance(next, roll.heroId, "atacou");
 }
 
 // ─── DIRECT_DAMAGE ───────────────────────────────────────────────────────────
@@ -1280,7 +1286,7 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 					next,
 					`${getCardName(hero.cardId)} — Tiro de Oportunidade: ${getCardName(enemy.cardId)} sofreu ${dmg} de dano direto.`,
 				);
-				return disableHeroForRoundAndAdvance(
+				return endHeroTurnAndAdvance(
 					maybeDisableReusableItem(next, heroId, itemId, false),
 					heroId,
 					`usou ${getCardName(itemId)}`,
@@ -1317,6 +1323,7 @@ export function handleUseSkill(
 	if (!skillDef || !isManuallyActivatable(skillDef)) {
 		return fireOnUseSkill(state, payload);
 	}
+	const isPreyMark = skillDef.id === "skill_prey_mark";
 	if (
 		state.pendingSkillChoice ||
 		state.pendingSkillTarget ||
@@ -1327,24 +1334,16 @@ export function handleUseSkill(
 	}
 	if (
 		(state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") &&
-		(!isManualCombatActivationWindow(state) ||
-			state.combat?.selectedHeroId !== hero.id)
+		(!isPreyMark &&
+			(!isManualCombatActivationWindow(state) ||
+				state.combat?.selectedHeroId !== hero.id))
 	) {
 		return log(state, "[AVISO] Selecione o herói antes de usar a habilidade.");
 	}
 
 	if (
-		skillDef.category === "hero_power" &&
-		state.combat?.powersUsedThisRoom[payload.sourceId]
-	) {
-		return log(
-			state,
-			`Poder de ${getCardName(hero.cardId)} já foi usado nesta sala.`,
-		);
-	}
-
-	if (
 		isManualCombatActivationWindow(state) &&
+		!isPreyMark &&
 		ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId)
 	) {
 		return log(
@@ -1355,6 +1354,16 @@ export function handleUseSkill(
 
 	if (!cardSkills(hero.cardId).some(({ def }) => def.id === skillDef.id)) {
 		return log(state, "[AVISO] Esta habilidade não pertence ao herói.");
+	}
+	const currentPreyId = state.combat?.preyByHero[hero.id];
+	const currentPrey = state.activeEnemies.find(
+		(enemy) => enemy.id === currentPreyId && enemy.status === "active",
+	);
+	if (isPreyMark && currentPrey) {
+		return log(
+			state,
+			"A Presa atual deve ser derrotada antes de marcar outro inimigo.",
+		);
 	}
 	if (
 		!guardPassed(state, skillDef, hero.id) ||
@@ -1387,25 +1396,11 @@ export function handleUseSkill(
 		};
 	}
 
-	const withPowerMark =
-		skillDef.category === "hero_power" && state.combat
-			? {
-					...state,
-					combat: {
-						...state.combat,
-						powersUsedThisRoom: {
-							...state.combat.powersUsedThisRoom,
-							[payload.sourceId]: true,
-						},
-					},
-				}
-			: state;
-
-	const afterUse = fireOnUseSkill(withPowerMark, {
+	const afterUse = fireOnUseSkill(state, {
 		...payload,
 		targetIds: [...target.targetIds],
 	});
-	return blockAttackAfterSkill(afterUse, payload.sourceId);
+	return isPreyMark ? afterUse : blockAttackAfterSkill(afterUse, payload.sourceId);
 }
 
 export function handleSelectSkillTarget(

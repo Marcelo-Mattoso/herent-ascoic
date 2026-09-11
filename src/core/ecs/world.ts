@@ -245,6 +245,32 @@ export function decrementRoundsModifiers(world: World): World {
 
 // Remove todos os modifiers cujo sourceEntityId aponta para uma entidade removida.
 // Chamado após removeEntity em damageSystem para limpar while_source_in_play órfãos.
+/** Remove todos os modificadores aplicados por uma entidade desativada. */
+export function removeModifiersAppliedBySource(
+	world: World,
+	sourceEntityId: EntityId,
+): World {
+	let updated = world;
+	for (const entity of Object.values(world.entities)) {
+		if (
+			!entity.components.some(
+				(c) =>
+					c.type === "modifier" &&
+					(c as ModifierComponent).sourceEntityId === sourceEntityId,
+			)
+		)
+			continue;
+		updated = removeComponent(
+			updated,
+			entity.id,
+			(c) =>
+				c.type === "modifier" &&
+				(c as ModifierComponent).sourceEntityId === sourceEntityId,
+		);
+	}
+	return updated;
+}
+
 export function removeModifiersForSource(
 	world: World,
 	sourceEntityId: EntityId,

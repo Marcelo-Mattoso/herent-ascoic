@@ -222,18 +222,20 @@ export function selectHeroCombatActions(
 
 	const isSelectingTarget =
 		combat?.phase === "selecting_target" && combat.selectedHeroId === heroId;
-	const heroDisabled =
+	const heroActionUnavailable =
 		hero === null ||
 		(isInCombat && ActivationTracker.isHeroDisabledThisRound(state, heroId));
+	const heroEffectsDisabled =
+		hero === null || ActivationTracker.hasHeroEffectsDisabled(state, heroId);
 
 	const attackBlocked = !!state.combat?.attackBlockedByHero?.[heroId];
 	const canStartAttack = canStartHeroAttack(state, heroId);
 	const canAttack = isSelectingTarget && canStartAttack;
-	const canPass = isSelectingTarget && !heroDisabled;
+	const canPass = isSelectingTarget && !heroActionUnavailable;
 	const canCancel = isSelectingTarget;
 	const canFlee =
 		hero !== null &&
-		!heroDisabled &&
+		!heroActionUnavailable &&
 		hero.currentLife === 1 &&
 		!state.flags["fleeBlocked"];
 
@@ -246,7 +248,7 @@ export function selectHeroCombatActions(
 				skillId: habilidadeEntry.def.id,
 				activatable: isManuallyActivatable(habilidadeEntry.def),
 				alreadyUsed:
-					heroDisabled ||
+					heroEffectsDisabled ||
 					isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
 			}
 		: null;
@@ -258,15 +260,16 @@ export function selectHeroCombatActions(
 				skillId: powerEntry.def.id,
 				activatable: isManuallyActivatable(powerEntry.def),
 				alreadyUsed:
-					heroDisabled ||
-					!!combat?.powersUsedThisRoom[heroId] ||
+					heroEffectsDisabled ||
 					isSkillGuardConsumed(state, powerEntry.def, heroId),
 			}
 		: null;
 	const canUseSkill =
 		!!skill?.activatable &&
 		!skill.alreadyUsed &&
-		(isSelectingTarget || !isInCombat);
+		(skill.skillId === "skill_prey_mark"
+			? isInCombat && !state.combat?.preyByHero[heroId]
+			: isSelectingTarget || !isInCombat);
 	const canUsePower =
 		!!power?.activatable &&
 		!power.alreadyUsed &&

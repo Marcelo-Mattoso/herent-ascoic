@@ -5,10 +5,17 @@
 
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
-import { removeEntity, removeModifiersForSource } from "../ecs/world";
+import {
+	removeEntity,
+	removeModifiersAppliedBySource,
+	removeModifiersForSource,
+} from "../ecs/world";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
-import { removeBlocksForSource } from "../state/blockHelpers";
+import {
+	removeBlocksAppliedBySource,
+	removeBlocksForSource,
+} from "../state/blockHelpers";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
@@ -100,11 +107,32 @@ export function applyDamage(
 			type: "HeroDefeated",
 			payload: { heroId: targetId, sourceId },
 		}));
+		// Efeitos ativos emitidos pelo herói deixam de valer ao ser derrotado.
+		s4 = {
+			...s4,
+			world: removeModifiersAppliedBySource(s4.world, targetId),
+		};
+		s4 = removeBlocksAppliedBySource(s4, targetId);
 	}
 	const defeatedEnemy = s4.activeEnemies.find(
 		(e) => e.id === targetId && e.status === "defeated",
 	);
 	if (defeatedEnemy) {
+		const preyByHero = Object.fromEntries(
+			Object.entries(s4.combat?.preyByHero ?? {}).filter(
+				([, preyId]) => preyId !== targetId,
+			),
+		);
+		if (s4.combat) {
+			s4 = {
+				...s4,
+				combat: {
+					...s4.combat,
+					prey: s4.combat.prey === targetId ? null : s4.combat.prey,
+					preyByHero,
+				},
+			};
+		}
 		const roomFirstKill = s4.creaturesDefeated === 0;
 		({ state: s4 } = emit(s4, {
 			type: "EnemyDestroyed",

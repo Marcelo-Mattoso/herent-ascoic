@@ -152,7 +152,11 @@ export type EffectNode =
 	| { readonly kind: "i_prevent_next_damage"; readonly to: string }
 	| { readonly kind: "i_ignore_next_targeting"; readonly to: string }
 	| { readonly kind: "i_recover_dungeon"; readonly count: ExprNode }
-	| { readonly kind: "i_mark_target"; readonly to: string }
+	| {
+			readonly kind: "i_mark_target";
+			readonly to: string;
+			readonly hero_id?: string;
+	  }
 	| { readonly kind: "i_prevent_dungeon_discard" }
 	| {
 			readonly kind: "i_draw_and_choose";

@@ -18,6 +18,7 @@ export type SkillWindowResume =
 	| { readonly type: "none" }
 	| { readonly type: "roll_dice" }
 	| { readonly type: "resolve_attack" }
+	| { readonly type: "advance_dungeon"; readonly exits: number }
 	| {
 			readonly type: "discard_dungeon";
 			readonly count: number;
@@ -141,20 +142,12 @@ function applyActivationCost(
 	const inCombat = isCombatStatus(state);
 
 	if (pending.sourceKind === "hero" && pending.sourceHeroId && inCombat) {
-		next = ActivationTracker.disableHeroForRound(
-			next,
-			pending.sourceHeroId,
-			`usou ${pending.skillId}`,
-		);
+		next = ActivationTracker.endHeroTurn(next, pending.sourceHeroId);
 	}
 
 	if (pending.sourceKind === "item" && pending.sourceHeroId) {
 		if (inCombat) {
-			next = ActivationTracker.disableHeroForRound(
-				next,
-				pending.sourceHeroId,
-				`usou item ${pending.sourceCardId}`,
-			);
+			next = ActivationTracker.endHeroTurn(next, pending.sourceHeroId);
 		}
 		next = ActivationTracker.disable(next, {
 			kind: "item",
