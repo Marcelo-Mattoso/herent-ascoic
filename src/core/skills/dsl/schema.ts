@@ -162,7 +162,11 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		z.object({ kind: z.literal("i_prevent_next_damage"), to: z.string() }),
 		z.object({ kind: z.literal("i_ignore_next_targeting"), to: z.string() }),
 		z.object({ kind: z.literal("i_recover_dungeon"), count: ExprNodeSchema }),
-		z.object({ kind: z.literal("i_mark_target"), to: z.string() }),
+		z.object({
+			kind: z.literal("i_mark_target"),
+			to: z.string(),
+			hero_id: z.string().optional(),
+		}),
 		z.object({ kind: z.literal("i_prevent_dungeon_discard") }),
 		z.object({
 			kind: z.literal("i_draw_and_choose"),

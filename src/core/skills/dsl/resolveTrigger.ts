@@ -43,7 +43,7 @@ function limitPassed(
 		case "once_per_game":
 			return !state.oncePer.game[key];
 		case "once_per_room":
-			return !state.combat?.oncePer.room[key];
+			return !(state.oncePer.room ?? state.combat?.oncePer.room)?.[key];
 		case "once_per_combat":
 			return !state.combat?.oncePer.combat[key];
 		case "once_per_round":
@@ -75,14 +75,13 @@ export function markLimitUsed(
 				},
 			};
 		case "once_per_room":
-			if (!state.combat) return state;
 			return {
 				...state,
-				combat: {
-					...state.combat,
-					oncePer: {
-						...state.combat.oncePer,
-						room: { ...state.combat.oncePer.room, [key]: true },
+				oncePer: {
+					...state.oncePer,
+					room: {
+						...(state.oncePer.room ?? state.combat?.oncePer.room),
+						[key]: true,
 					},
 				},
 			};

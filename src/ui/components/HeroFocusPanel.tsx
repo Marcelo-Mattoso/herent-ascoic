@@ -26,6 +26,7 @@ interface HeroFocusPanelProps {
 	onPower: () => void;
 	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
+	onUseItem?: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	onItemDetail: (itemName: string, heroId: string) => void;
 }
@@ -40,6 +41,7 @@ export function HeroFocusPanel({
 	onPower,
 	onFlee,
 	onUseSkill,
+	onUseItem,
 	onCardDetail,
 	onItemDetail,
 }: HeroFocusPanelProps) {
@@ -47,9 +49,7 @@ export function HeroFocusPanel({
 	const phase = view.combat?.phase ?? null;
 
 	const heroCard = hero ? getCardById(hero.cardId) : null;
-	const powerUsed = hero
-		? (view.combat?.powersUsedThisRoom[hero.id] ?? false)
-		: false;
+	const powerUsed = heroActions.power?.alreadyUsed ?? false;
 
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isSelectingHero = isInCombat && phase === "selecting_hero";
@@ -332,6 +332,12 @@ export function HeroFocusPanel({
 						</div>
 					)}
 
+					{heroActions.attackBlocked && (
+						<p className="text-sm">
+							Ataque indisponível nesta rodada. Você ainda pode usar item ou
+							passar.
+						</p>
+					)}
 					{/* Botões de ação individuais */}
 					<ActionSection
 						heroActions={heroActions}
@@ -346,6 +352,7 @@ export function HeroFocusPanel({
 						onPower={onPower}
 						onFlee={onFlee}
 						onUseSkill={onUseSkill}
+						onUseItem={onUseItem}
 					/>
 				</div>
 			) : (
@@ -373,6 +380,7 @@ function ActionSection({
 	hero,
 	isInCombat,
 	isSelectingHero,
+	isSelectingTarget,
 	isFocusedHeroSelected,
 	onAttack,
 	onPass,
@@ -380,6 +388,7 @@ function ActionSection({
 	onPower,
 	onFlee,
 	onUseSkill,
+	onUseItem,
 }: {
 	heroActions: HeroCombatActions;
 	hero: HeroState;
@@ -393,18 +402,57 @@ function ActionSection({
 	onPower: () => void;
 	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
+	onUseItem?: () => void;
 }) {
 	const {
 		canAttack,
 		canPass,
 		canCancel,
 		canUsePower,
+		canUseSkill,
 		canFlee,
 		fleeAlreadyDeclared,
 		skill,
+		power,
 	} = heroActions;
 
-	if (!isInCombat) return null;
+	if (!isInCombat) {
+		if (
+			!skill &&
+			!power &&
+			!heroActions.usableItems?.length
+		)
+			return null;
+		return (
+			<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
+				<ActionButton
+					label="Usar item"
+					icon="🎒"
+					variant="secondary"
+					disabled={!heroActions.usableItems?.length}
+					onClick={onUseItem}
+				/>
+				{skill && (
+					<ActionButton
+						label="Habilidade"
+						icon="✨"
+						variant="secondary"
+						disabled={!canUseSkill}
+						onClick={() => onUseSkill?.(skill.skillId, hero.id)}
+					/>
+				)}
+				{power && (
+					<ActionButton
+						label="Poder"
+						icon="⚡"
+						variant="secondary"
+						disabled={!canUsePower}
+						onClick={onPower}
+					/>
+				)}
+			</div>
+		);
+	}
 
 	if (isSelectingHero) {
 		const heroesActedHint = isFocusedHeroSelected
@@ -427,16 +475,27 @@ function ActionSection({
 						label="Usar item"
 						icon="🎒"
 						variant="secondary"
-						disabled
-						onClick={() => {}}
+						disabled={!heroActions.usableItems?.length}
+						onClick={onUseItem}
 					/>
+					{skill && (
+						<ActionButton
+							label="Habilidade"
+							icon="✨"
+							variant="secondary"
+							disabled={!canUseSkill}
+							onClick={() => onUseSkill?.(skill.skillId, hero.id)}
+						/>
+					)}
+					{power && (
 					<ActionButton
-						label="Usar poder"
+						label="Poder"
 						icon="⚡"
 						variant="secondary"
-						disabled
+						disabled={!canUsePower}
 						onClick={onPower}
 					/>
+					)}
 					<ActionButton
 						label="Passar rodada"
 						icon="⏭"
@@ -469,25 +528,29 @@ function ActionSection({
 				label="Usar item"
 				icon="🎒"
 				variant="secondary"
-				disabled
-				onClick={() => {}}
+				disabled={!heroActions.usableItems?.length}
+				onClick={onUseItem}
 			/>
-			{skill?.activatable && (
+			{skill && (
 				<ActionButton
-					label="Usar habilidade"
+					label="Habilidade"
 					icon="✨"
 					variant="secondary"
-					disabled={!isFocusedHeroSelected || skill.alreadyUsed}
+					disabled={
+						!isFocusedHeroSelected || !isSelectingTarget || !canUseSkill
+					}
 					onClick={() => onUseSkill?.(skill.skillId, hero.id)}
 				/>
 			)}
-			<ActionButton
-				label="Usar poder"
-				icon="⚡"
-				variant="secondary"
-				disabled={!canUsePower}
-				onClick={onPower}
-			/>
+			{power && (
+				<ActionButton
+					label="Poder"
+					icon="⚡"
+					variant="secondary"
+					disabled={!canUsePower}
+					onClick={onPower}
+				/>
+			)}
 			<ActionButton
 				label="Passar rodada"
 				icon="⏭"

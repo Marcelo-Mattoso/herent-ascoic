@@ -64,6 +64,15 @@ describe("trigger engine", () => {
 		});
 	});
 
+	it("não oferece habilidade de ataque do herói durante ataque inimigo", () => {
+		const result = fireTrigger(stateWithBarbarianAndDagger(), "evt_attack_declared", {
+			triggeredBy: "evt_attack_declared",
+			sourceEnemyId: "e1",
+		});
+
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
+	});
+
 	it("pausa em uma interrupção quando o trigger é prompt", () => {
 		const state = stateWithBarbarianAndDagger();
 		const candidate = collectTriggerCandidates(

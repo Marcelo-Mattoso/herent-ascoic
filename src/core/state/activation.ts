@@ -1,3 +1,5 @@
+import { removeModifiersAppliedBySource } from "../ecs/world";
+import { removeBlocksAppliedBySource } from "./blockHelpers";
 import type { GameState } from "./gameState";
 
 export type ActivationSubjectKind =
@@ -42,22 +44,43 @@ export class ActivationTracker {
 		);
 	}
 
+	static hasHeroEffectsDisabled(state: GameState, heroId: string): boolean {
+		const hero = state.heroes.find((entry) => entry.id === heroId);
+		return (
+			!hero ||
+			hero.status !== "active" ||
+			ActivationTracker.isDisabled(state, "hero", heroId)
+		);
+	}
+
+	/** Marca só o fim da ação da rodada; efeitos ativos continuam válidos. */
+	static endHeroTurn(state: GameState, heroId: string): GameState {
+		if (!state.combat || state.combat.heroesActed.includes(heroId)) return state;
+		return {
+			...state,
+			combat: {
+				...state.combat,
+				heroesActed: [...state.combat.heroesActed, heroId],
+			},
+		};
+	}
+
 	static disable(
 		state: GameState,
 		lock: ActivationLock,
 	): GameState {
 		const key = ActivationTracker.key(lock.kind, lock.id);
 
+		let next: GameState;
 		if (lock.scope === "round" || lock.scope === "combat") {
 			if (!state.combat) return state;
 			const heroesActed =
 				lock.kind === "hero" &&
-				lock.scope === "round" &&
 				!state.combat.heroesActed.includes(lock.id)
 					? [...state.combat.heroesActed, lock.id]
 					: state.combat.heroesActed;
 
-			return {
+			next = {
 				...state,
 				combat: {
 					...state.combat,
@@ -65,12 +88,19 @@ export class ActivationTracker {
 					disabled: { ...(state.combat.disabled ?? {}), [key]: lock },
 				},
 			};
+		} else {
+			next = {
+				...state,
+				disabled: { ...(state.disabled ?? {}), [key]: lock },
+			};
 		}
 
-		return {
-			...state,
-			disabled: { ...(state.disabled ?? {}), [key]: lock },
+		if (lock.kind !== "hero") return next;
+		const withoutEffects = {
+			...next,
+			world: removeModifiersAppliedBySource(next.world, lock.id),
 		};
+		return removeBlocksAppliedBySource(withoutEffects, lock.id);
 	}
 
 	static enable(

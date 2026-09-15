@@ -26,6 +26,8 @@ import {
 	handleUseItem,
 	handleUsePower,
 	handleUseSkill,
+	handleSelectSkillTarget,
+	handleCancelSkillTarget,
 	advanceAfterHeroDisabledForRound,
 } from "./combat";
 import {
@@ -34,6 +36,7 @@ import {
 	handleChoosePath,
 	handleDiscardPaths,
 	discardFromDungeonDeck,
+	resumeDungeonAdvance,
 	handleOpenPaths,
 	handleResolveRoomEffect,
 	handleRestartDungeon,
@@ -96,7 +99,12 @@ function resumeAfterSkillWindow(
 	state: GameState,
 	window: PendingSkillWindow | undefined,
 ): GameState {
-	if (!window || state.pendingTriggerInterrupt || state.pendingSkillChoice) {
+	if (
+		!window ||
+		state.pendingTriggerInterrupt ||
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget
+	) {
 		return state;
 	}
 	switch (window.resume.type) {
@@ -104,6 +112,8 @@ function resumeAfterSkillWindow(
 			return handleRollDice(state);
 		case "resolve_attack":
 			return handleResolveAttack(state);
+		case "advance_dungeon":
+			return resumeDungeonAdvance(state, window.resume.exits);
 		case "discard_dungeon":
 			return discardFromDungeonDeck(
 				state,
@@ -121,6 +131,14 @@ function dispatch(state: GameState, action: Action): GameState {
 		state.pendingTriggerInterrupt &&
 		action.type !== "APPLY_TRIGGER_INTERRUPT" &&
 		action.type !== "SKIP_TRIGGER_INTERRUPT"
+	) {
+		return state;
+	}
+
+	if (
+		state.pendingSkillTarget &&
+		action.type !== "SELECT_SKILL_TARGET" &&
+		action.type !== "CANCEL_SKILL_TARGET"
 	) {
 		return state;
 	}
@@ -260,6 +278,12 @@ function dispatch(state: GameState, action: Action): GameState {
 		case "USE_SKILL":
 			return handleUseSkill(state, action.payload);
 
+		case "SELECT_SKILL_TARGET":
+			return handleSelectSkillTarget(state, action.payload.targetId);
+
+		case "CANCEL_SKILL_TARGET":
+			return handleCancelSkillTarget(state);
+
 		case "SKILL_CHOICE": {
 			const pending = state.pendingSkillChoice;
 			if (!pending) return state;
@@ -296,7 +320,8 @@ function dispatch(state: GameState, action: Action): GameState {
 			const legacyDefType = (def as { readonly type?: string } | undefined)
 				?.type;
 			const cont =
-				getContinuation(legacyDefType ?? "") ?? getContinuation(pending.skillId);
+				getContinuation(legacyDefType ?? "") ??
+				getContinuation(pending.skillId);
 			if (!cont) return finishChoice(cleared);
 			return finishChoice(
 				cont(
@@ -406,7 +431,12 @@ function dispatch(state: GameState, action: Action): GameState {
 			return { ...state, status: "BOSS_COMBAT" };
 
 		case "SELECT_DIE":
-			return handleSelectDie(state, action.payload.side, action.payload.index);
+			return handleSelectDie(
+				state,
+				action.payload.side,
+				action.payload.index,
+				action.payload.value,
+			);
 
 		case "DECLARE_FLEE":
 			return handleDeclareFlee(state, action.payload.heroId);

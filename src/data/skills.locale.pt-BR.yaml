@@ -63,8 +63,8 @@ skill_forge_spoils:
   text: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon.
 skill_prey_mark:
   name: Marca da Presa
-  label: "Marca da Presa ({value}): no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto."
-  text: no início de cada combate, escolha 1 criatura da sala como Presa. Contra ela, receba +{value} no acerto.
+  label: "Marca da Presa ({value}): escolha 1 criatura como Presa. Contra ela, receba +{value} no acerto até derrotá-la."
+  text: escolha 1 criatura como Presa. Contra ela, receba +{value} no acerto até derrotá-la.
 skill_return_rite:
   name: Rito de Retorno
   label: "Rito de Retorno ({value}): uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck."

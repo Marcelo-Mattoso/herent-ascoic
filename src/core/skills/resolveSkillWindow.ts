@@ -18,6 +18,7 @@ export type SkillWindowResume =
 	| { readonly type: "none" }
 	| { readonly type: "roll_dice" }
 	| { readonly type: "resolve_attack" }
+	| { readonly type: "advance_dungeon"; readonly exits: number }
 	| {
 			readonly type: "discard_dungeon";
 			readonly count: number;
@@ -35,6 +36,35 @@ export interface SkillWindowRequest {
 	readonly ctx?: SkillContext;
 	readonly resume?: SkillWindowResume;
 }
+
+/**
+ * Contrato entre o catálogo de skills e os fluxos reais do jogo.
+ * Cada evento que pode constar em `skills.yaml` precisa ter ao menos um ponto
+ * que chama `resolveSkillWindow`; o teste de integração valida o catálogo
+ * contra este registro para evitar triggers declarados, porém inalcançáveis.
+ */
+export const TRIGGER_EVENT_EMITTERS: Readonly<
+	Record<EventName, readonly string[]>
+> = {
+	evt_attack_declared: ["reducer/combat.handleRollDice", "reducer/combat.resolveExtraEnemyCombatRoll"],
+	evt_roll: ["reducer/combat.handleRollDice", "reducer/combat.resolveExtraEnemyCombatRoll"],
+	evt_hit: ["systems/damageSystem.applyDamage"],
+	evt_damage_dealt: ["systems/damageSystem.applyDamage"],
+	evt_damage_taken: ["reducer/combat.handleResolveAttack"],
+	evt_destroy: ["systems/damageSystem.applyDamage"],
+	evt_kill: ["systems/damageSystem.applyDamage"],
+	evt_combat_start: ["reducer/combat.handleStartCombat"],
+	evt_combat_end: ["reducer/reward.handleGrantRewards"],
+	evt_round_start: ["reducer/combat.handleStartCombat", "reducer/combat.handleAdvanceRound"],
+	evt_round_end: ["reducer/combat.handleAdvanceRound"],
+	evt_room_reveal: ["reducer/exploration.handleRevealRoom"],
+	evt_room_enter: ["reducer/exploration.handleRevealRoom"],
+	evt_room_leave: ["reducer/exploration.handleCheckBossCondition"],
+	evt_dungeon_discard: ["reducer/exploration.resumeDungeonAdvance", "reducer/exploration.discardFromDungeonDeck"],
+	evt_enter_play: ["reducer/exploration.handleSpawnEnemies"],
+	evt_leave_play: ["reducer/combat.handleResolveAttack"],
+	evt_targeted: ["reducer/combat.resolveExtraEnemyCombatRoll"],
+};
 
 const ITEM_STATS_HANDLED_BY_EQUIPMENT = new Set([
 	"item_skill_deadly_edge",
@@ -62,7 +92,10 @@ function isCombatStatus(state: GameState): boolean {
 	);
 }
 
-function effectNeedsPlayerDecision(effect: EffectNode, event: EventName): boolean {
+function effectNeedsPlayerDecision(
+	effect: EffectNode,
+	event: EventName,
+): boolean {
 	if (
 		effect.kind === "i_prevent_dungeon_discard" ||
 		effect.kind === "i_ignore_next_targeting" ||
@@ -86,7 +119,9 @@ function effectNeedsPlayerDecision(effect: EffectNode, event: EventName): boolea
 	if (effect.kind === "i_if") {
 		return (
 			effect.then.some((child) => effectNeedsPlayerDecision(child, event)) ||
-			Boolean(effect.else?.some((child) => effectNeedsPlayerDecision(child, event)))
+			Boolean(
+				effect.else?.some((child) => effectNeedsPlayerDecision(child, event)),
+			)
 		);
 	}
 	if (effect.kind === "i_for_each") {
@@ -136,20 +171,12 @@ function applyActivationCost(
 	const inCombat = isCombatStatus(state);
 
 	if (pending.sourceKind === "hero" && pending.sourceHeroId && inCombat) {
-		next = ActivationTracker.disableHeroForRound(
-			next,
-			pending.sourceHeroId,
-			`usou ${pending.skillId}`,
-		);
+		next = ActivationTracker.endHeroTurn(next, pending.sourceHeroId);
 	}
 
 	if (pending.sourceKind === "item" && pending.sourceHeroId) {
 		if (inCombat) {
-			next = ActivationTracker.disableHeroForRound(
-				next,
-				pending.sourceHeroId,
-				`usou item ${pending.sourceCardId}`,
-			);
+			next = ActivationTracker.endHeroTurn(next, pending.sourceHeroId);
 		}
 		next = ActivationTracker.disable(next, {
 			kind: "item",
@@ -177,7 +204,13 @@ export function resolveSkillWindow(
 	state: GameState,
 	request: SkillWindowRequest,
 ): GameState {
-	if (state.pendingTriggerInterrupt || state.pendingSkillChoice) return state;
+	if (
+		state.pendingTriggerInterrupt ||
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget
+	) {
+		return state;
+	}
 
 	const ctx = requestCtx(request);
 	const resume = request.resume ?? { type: "none" as const };
@@ -205,7 +238,11 @@ export function resolveSkillWindow(
 
 		current = executeTriggerCandidate(current, candidate, ctx);
 		current = drainStack(current);
-		if (current.pendingTriggerInterrupt || current.pendingSkillChoice) {
+		if (
+			current.pendingTriggerInterrupt ||
+			current.pendingSkillChoice ||
+			current.pendingSkillTarget
+		) {
 			return current;
 		}
 	}
