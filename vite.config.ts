@@ -309,5 +309,17 @@ export default defineConfig({
 	test: {
 		environment: "node",
 		passWithNoTests: true,
+		coverage: {
+			provider: "v8",
+			reporter: ["text", "json-summary"],
+			include: ["src/core/**/*.ts"],
+			exclude: ["src/core/index.ts"],
+			thresholds: {
+				branches: 80,
+				functions: 80,
+				lines: 80,
+				statements: 80,
+			},
+		},
 	},
 });

@@ -396,22 +396,37 @@ function triggerContextMatches(
 ): boolean {
 	const { event, source } = candidate;
 
-	if (
-		event === "evt_attack_declared" &&
-		source.sourceHeroId &&
-		ctx.sourceHeroId &&
-		source.sourceHeroId !== ctx.sourceHeroId
-	) {
-		return false;
+	if (event === "evt_attack_declared") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
+		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
+			return false;
 	}
 
-	if (
-		event === "evt_attack_declared" &&
-		source.sourceEnemyId &&
-		ctx.sourceEnemyId &&
-		source.sourceEnemyId !== ctx.sourceEnemyId
-	) {
-		return false;
+	// Eventos pós-dano pertencem ao agressor; caso contrário, um poder de um
+	// segundo herói poderia reagir ao dano causado pelo primeiro.
+	if (event === "evt_damage_dealt" || event === "evt_kill") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
+		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
+			return false;
+	}
+
+	// Acerto e destruição pertencem à criatura atingida/derrotada. Salas e
+	// artefatos permanecem globais e não possuem sourceEnemyId.
+	if (event === "evt_hit" || event === "evt_destroy") {
+		if (
+			source.sourceEnemyId &&
+			!ctx.targetEnemyIds?.includes(source.sourceEnemyId)
+		)
+			return false;
+	}
+
+	if (event === "evt_leave_play") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
+		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
+			return false;
 	}
 
 	return true;

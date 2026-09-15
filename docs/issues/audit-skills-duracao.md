@@ -1,12 +1,60 @@
-# Auditoria de Durações — 88 Skills (patch-23 Lote 0)
+# Auditoria de Durações — 88 Skills
 
-> **Snapshot pré-patch-23.** Status pós-patch-23 e pós-patch-25 registrado abaixo.
-> B1–B4, B6–B7 fechados em patch-23. B5 e PD-1 a PD-6 fechados em patch-25.
-> Todos os buracos desta auditoria estão resolvidos. Próxima auditoria: quando nova rodada de problemas for identificada.
+> **Atualizada em 2026-09-15.** A tabela detalhada abaixo é o snapshot
+> histórico pré-patch-23; ela foi preservada para rastreabilidade, mas não deve
+> ser lida como o estado atual de cada linha. `skills.yaml`, o reducer e os
+> testes são a fonte de verdade para o comportamento presente.
 
-Gerado em 2026-06-03. Fonte da verdade: `src/data/skills.yaml` + `src/data/skills.locale.pt-BR.yaml`.
+## Estado atual
 
-## Buracos de referência
+Os buracos históricos de duração B1–B7 e PD-1–PD-6 foram fechados pelos
+patches 23 e 25. Em particular, passivos são instalados no setup/spawn,
+modificadores e blocos expiram nos ticks corretos, cooldowns usam guards por
+escopo e `once` é consumido após o ataque.
+
+Desde a auditoria original, o motor também ganhou o contrato
+`TRIGGER_EVENT_EMITTERS` e um teste catálogo → emissor. Todo `evt_*` declarado
+em `skills.yaml` precisa ter um fluxo real que abra `resolveSkillWindow`.
+`evt_damage_dealt`, `evt_hit`, `evt_destroy`, `evt_kill` e `evt_leave_play`
+passaram a ter ponte explícita; os quatro primeiros são emitidos pelo sistema
+de dano e fuga do herói é emitida pelo combate.
+
+### Pendências reais
+
+| Id | Estado | Impacto | Próxima ação |
+|---|---|---|---|
+| P1 | Aberto | `skill_cowardly_flee` só faz sentido quando uma **criatura** deixa o jogo. Hoje há emissor para fuga de herói, mas não existe transição de fuga de criatura. | Implementar a ação/efeito de retirada de criatura e emitir `evt_leave_play` com `sourceEnemyId`. |
+| P2 | Aberto | Um trigger pós-dano que pede decisão pode pausar `applyDamage` depois da derrota e antes da limpeza final da entidade ECS. | Adicionar uma continuação `damage_pipeline` a `PendingSkillWindow`, para retomar a limpeza após decidir/recusar o trigger. |
+| P3 | Documentação histórica | A linha de `skill_prey_mark` na tabela antiga diz `op_triggered` / `evt_combat_start`; o catálogo atual a define como `op_active`, sem trigger. | Tratar o YAML atual como decisão vigente; atualizar a tabela histórica somente se ela deixar de ser necessária como registro. |
+
+### Skills órfãs: suportadas para a próxima expansão
+
+Há 23 skills válidas no catálogo sem `SkillRef` em `cards.yaml`. Elas **não são
+implementações mortas**: continuam cobertas pelo schema, pelo harness que
+executa as 88 skills e pelo contrato de emissor quando reativas. Devem
+permanecer funcionais até serem ligadas às cartas da expansão.
+
+`skill_last_light_shield`, `skill_rekindled_forge`,
+`skill_rift_second_chance`, `skill_perfect_rune`,
+`skill_last_light_miracle`, `skill_piercing_strike`, `skill_forge_spoils`,
+`skill_scorching_heat`, `skill_crimson_chains`, `skill_choking_ashes`,
+`skill_forge_awakening`, `skill_sealed_door`, `skill_ruined_floor`,
+`skill_forge_smoke`, `skill_dark_tribute`, `skill_chains_prison`,
+`skill_life_drain`, `skill_last_light_ward`, `purple_raging_flames`,
+`purple_forge_chains`, `purple_crimson_plate`, `purple_dark_awakening` e
+`purple_depths_seal`.
+
+### Harness de execução
+
+O teste de cobertura roda as 88 skills e não encontra skill sem implementação
+ou exceção. As entradas classificadas como `no-effect` são cenários que a
+fixture genérica não ativa; não devem ser promovidas a defeito sem teste de
+integração específico.
+
+Gerado originalmente em 2026-06-03. Fonte da verdade atual:
+`src/data/skills.yaml` + `src/data/skills.locale.pt-BR.yaml` + reducer.
+
+## Buracos de referência (histórico)
 
 | Id | Descrição curta |
 |---|---|
@@ -26,7 +74,7 @@ Gerado em 2026-06-03. Fonte da verdade: `src/data/skills.yaml` + `src/data/skill
 
 ---
 
-## Tabela completa (88 skills)
+## Tabela completa (88 skills, snapshot histórico pré-patch-23)
 
 | # | id | category | operate_type | label (pt-BR resumido) | duration(efeito) | trigger | buracos | recomendação |
 |---|---|---|---|---|---|---|---|---|

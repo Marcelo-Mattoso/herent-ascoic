@@ -2,7 +2,6 @@
 
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../../data/skills";
-import { getModifierTotal } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { buildScriptCtx } from "../../../scripts/context";
@@ -172,7 +171,7 @@ describe("i_recover_dungeon", () => {
 // ── mark_target (#13) ─────────────────────────────────────────────────────────
 
 describe("mark_target — skill_prey_mark (#13)", () => {
-	it("define prey no combat e adiciona tohit_bonus no fonte", () => {
+	it("define prey global e por herói", () => {
 		const state = stateWithCombat();
 		const ctx = buildScriptCtx(
 			state,
@@ -185,8 +184,7 @@ describe("mark_target — skill_prey_mark (#13)", () => {
 		);
 		const result = drainStack(evaluate(defEffect("skill_prey_mark"), ctx));
 		expect(result.combat?.prey).toBe("e1");
-		// Patch-18 Lote G: tohit_bonus → hit_bonus no ECS world
-		expect(getModifierTotal(result.world, "h1", "hit_bonus")).toBe(1);
+		expect(result.combat?.preyByHero).toEqual({ h1: "e1" });
 	});
 });
 

@@ -277,7 +277,7 @@ describe("USE_ITEM", () => {
 		});
 	});
 
-	it("usar item manual em combate desativa o herói até a próxima rodada", () => {
+	it("usar item manual em combate preserva a ação e o ataque do herói", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
 		s = reducer(s, { type: "START_COMBAT" });
 		const hero = s.heroes[0];
@@ -306,20 +306,17 @@ describe("USE_ITEM", () => {
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.combat?.heroesActed).toContain(hero.id);
-		expect(result.combat?.disabled[`hero:${hero.id}`]).toMatchObject({
-			kind: "hero",
-			scope: "round",
-		});
+		expect(result.combat?.heroesActed).not.toContain(hero.id);
+		expect(result.combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
 		expect(result.status).toBe("HERO_ACTION");
-		expect(result.combat?.phase).toBe("selecting_hero");
+		expect(result.combat?.phase).toBe("selecting_target");
 		expect(result.groupArtifacts).toContainEqual({
 			cardId: artifactId,
 			carriedBy: null,
 		});
 	});
 
-	it("usar habilidade manual desativa o herói e impede nova seleção na rodada", () => {
+	it("usar habilidade manual bloqueia o ataque sem encerrar a ação", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
 		s = reducer(s, { type: "START_COMBAT" });
 		const hero = s.heroes[0];
@@ -338,16 +335,14 @@ describe("USE_ITEM", () => {
 			},
 		});
 		const blocked = reducer(afterSkill, {
-			type: "CHOOSE_HERO_FOR_ROUND",
-			payload: { heroId: hero.id },
+			type: "CHOOSE_TARGET",
+			payload: { heroId: hero.id, enemyId: s.activeEnemies[0]!.id },
 		});
 
-		expect(afterSkill.combat?.heroesActed).toContain(hero.id);
-		expect(afterSkill.combat?.disabled[`hero:${hero.id}`]).toMatchObject({
-			kind: "hero",
-			scope: "round",
-		});
-		expect(blocked.eventLog.at(-1)).toContain("já agiu nesta rodada");
+		expect(afterSkill.combat?.heroesActed).not.toContain(hero.id);
+		expect(afterSkill.combat?.attackBlockedByHero?.[hero.id]).toBe(true);
+		expect(afterSkill.combat?.phase).toBe("selecting_target");
+		expect(blocked.eventLog.at(-1)).toContain("Habilidade/poder já usado");
 	});
 
 	it("habilidade manual com múltiplos alvos abre seleção e resolve no alvo escolhido", () => {
@@ -390,11 +385,8 @@ describe("USE_ITEM", () => {
 
 		expect(result.pendingSkillTarget).toBeUndefined();
 		expect(result.heroes.find((h) => h.id === ally.id)?.currentLife).toBe(8);
-		expect(result.combat?.heroesActed).toContain(cleric.id);
-		expect(result.combat?.disabled[`hero:${cleric.id}`]).toMatchObject({
-			kind: "hero",
-			scope: "round",
-		});
+		expect(result.combat?.heroesActed).not.toContain(cleric.id);
+		expect(result.combat?.attackBlockedByHero?.[cleric.id]).toBe(true);
 	});
 
 	it("habilidade ativa pode ser usada fora de combate sem consumir ação de rodada", () => {
@@ -465,7 +457,7 @@ describe("USE_ITEM", () => {
 		expect(getModifierTotal(s.world, hero.id, "damage_dealt")).toBe(2);
 	});
 
-	it("habilidade do Guerreiro pode proteger aliado antes do dano e desativa o Guerreiro", () => {
+	it("habilidade do Guerreiro pode proteger aliado antes do dano sem desativá-lo", () => {
 		let s = stateWithHeroesAndEnemy([WARRIOR, CLERIC]);
 		s = reducer(s, { type: "START_COMBAT" });
 		const warrior = s.heroes.find((h) => h.cardId === WARRIOR);
@@ -514,10 +506,7 @@ describe("USE_ITEM", () => {
 
 		const updatedCleric = result.heroes.find((h) => h.id === cleric.id);
 		expect(updatedCleric?.currentLife).toBe(10 - (6 - 3));
-		expect(result.combat?.disabled[`hero:${warrior.id}`]).toMatchObject({
-			kind: "hero",
-			scope: "round",
-		});
+		expect(result.combat?.disabled[`hero:${warrior.id}`]).toBeUndefined();
 	});
 
 	it("item equipado de bloqueio reduz o dano sofrido pelo herói", () => {
@@ -855,7 +844,7 @@ describe("derrota por deck esgotado", () => {
 
 describe("combate múltiplo v2 (§8.8)", () => {
 	function stateWithTwoHeroesOneEnemy(): GameState {
-		const HERO2 = "hero_broken_bastion_warrior";
+		const HERO2 = PALADIN;
 		const base = createInitialGameState({ heroCardIds: [HERO, HERO2] });
 		const s = reducer(base, {
 			type: "START_GAME",
@@ -1024,6 +1013,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		s = reducer(s, { type: "DIRECT_DAMAGE" });
 		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
 
+		expect(s.pendingTriggerInterrupt).toBeUndefined();
 		expect(totalLifeBefore - totalLifeAfter).toBe(3);
 		expect(s.eventLog.some((entry) => entry.includes("Ataque extra"))).toBe(
 			true,

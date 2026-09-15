@@ -740,6 +740,16 @@ export function handleResolveAttack(state: GameState): GameState {
 			heroes: next.heroes.filter((h) => h.id !== hero.id),
 			fledHeroes: [...next.fledHeroes, fledHero],
 		};
+		next = resolveSkillWindow(next, {
+			event: "evt_leave_play",
+			ctx: {
+				triggeredBy: "evt_leave_play",
+				sourceHeroId: hero.id,
+				targetHeroIds: [hero.id],
+				round: next.combat?.round ?? 0,
+			},
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
 		next = log(
 			next,
 			`${getCardName(hero.cardId)} fugiu do combate com sucesso!`,

@@ -37,6 +37,35 @@ export interface SkillWindowRequest {
 	readonly resume?: SkillWindowResume;
 }
 
+/**
+ * Contrato entre o catálogo de skills e os fluxos reais do jogo.
+ * Cada evento que pode constar em `skills.yaml` precisa ter ao menos um ponto
+ * que chama `resolveSkillWindow`; o teste de integração valida o catálogo
+ * contra este registro para evitar triggers declarados, porém inalcançáveis.
+ */
+export const TRIGGER_EVENT_EMITTERS: Readonly<
+	Record<EventName, readonly string[]>
+> = {
+	evt_attack_declared: ["reducer/combat.handleRollDice", "reducer/combat.resolveExtraEnemyCombatRoll"],
+	evt_roll: ["reducer/combat.handleRollDice", "reducer/combat.resolveExtraEnemyCombatRoll"],
+	evt_hit: ["systems/damageSystem.applyDamage"],
+	evt_damage_dealt: ["systems/damageSystem.applyDamage"],
+	evt_damage_taken: ["reducer/combat.handleResolveAttack"],
+	evt_destroy: ["systems/damageSystem.applyDamage"],
+	evt_kill: ["systems/damageSystem.applyDamage"],
+	evt_combat_start: ["reducer/combat.handleStartCombat"],
+	evt_combat_end: ["reducer/reward.handleGrantRewards"],
+	evt_round_start: ["reducer/combat.handleStartCombat", "reducer/combat.handleAdvanceRound"],
+	evt_round_end: ["reducer/combat.handleAdvanceRound"],
+	evt_room_reveal: ["reducer/exploration.handleRevealRoom"],
+	evt_room_enter: ["reducer/exploration.handleRevealRoom"],
+	evt_room_leave: ["reducer/exploration.handleCheckBossCondition"],
+	evt_dungeon_discard: ["reducer/exploration.resumeDungeonAdvance", "reducer/exploration.discardFromDungeonDeck"],
+	evt_enter_play: ["reducer/exploration.handleSpawnEnemies"],
+	evt_leave_play: ["reducer/combat.handleResolveAttack"],
+	evt_targeted: ["reducer/combat.resolveExtraEnemyCombatRoll"],
+};
+
 const ITEM_STATS_HANDLED_BY_EQUIPMENT = new Set([
 	"item_skill_deadly_edge",
 	"item_skill_drain_life_and_deadly_edge",
