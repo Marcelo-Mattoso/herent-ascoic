@@ -97,9 +97,12 @@ export function Setup({ onBack }: SetupProps) {
 
 	function startGame() {
 		if (!canStart) return;
+		const seedValues = new Uint32Array(1);
+		globalThis.crypto?.getRandomValues?.(seedValues);
+		const seed = seedValues[0] || Date.now();
 		dispatch({
 			type: "START_GAME",
-			payload: { heroCardIds: selectedHeroes, difficulty, mode },
+			payload: { heroCardIds: selectedHeroes, difficulty, mode, seed },
 		});
 	}
 

@@ -1,6 +1,7 @@
 // Tela de Exploração — Patch 3.
 // Layout: TopBar · Board (tabuleiro coletivo) · HeroFocusPanel (herói em foco).
 
+import { UseItemModal } from "@/ui/components/modals/UseItemModal";
 import { type CSSProperties, useEffect, useState } from "react";
 import type { Action } from "@/core/actions/types";
 import { getCardName } from "@/core/data/cardLocale";
@@ -19,6 +20,7 @@ import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { DungeonExhaustedModal } from "@/ui/components/modals/DungeonExhaustedModal";
 import { FleeReconfigureModal } from "@/ui/components/modals/FleeReconfigureModal";
 import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
+import { SkillTargetModal } from "@/ui/components/modals/SkillTargetModal";
 import { TriggerInterruptModal } from "@/ui/components/modals/TriggerInterruptModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { useBackCards } from "@/ui/hooks/useBackCards";
@@ -88,6 +90,10 @@ const AWAKENING_LEVELS = [
 ] as const;
 
 export function Exploration() {
+	const [itemUse, setItemUse] = useState<{
+		heroId: string;
+		itemId?: string;
+	} | null>(null);
 	const { view, ui, dispatch, setFocusedHero, heroActionsFor } = useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showHeroFocus, setShowHeroFocus] = useState(false);
@@ -175,56 +181,32 @@ export function Exploration() {
 		}
 	}
 
-	// Drag do herói: garante que o herói seja selecionado para a rodada
 	function handleHeroDragStart(heroId: string) {
 		setFocusedHero(heroId);
-		setCombatAttackHintVisible(false);
-		if (
-			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
-			combat?.phase === "selecting_hero" &&
-			!combat.heroesActed.includes(heroId)
-		) {
-			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
-		}
+		setShowHeroFocus(false);
+		setCombatAttackHintVisible(true);
 	}
 
-	// Drop de herói sobre inimigo → ataca
 	function handleEnemyDrop(heroId: string, enemyId: string) {
+		if (
+			!heroActionsFor(heroId).canStartAttack ||
+			!view.enemies.some(
+				(enemy) => enemy.id === enemyId && enemy.status === "active",
+			)
+		)
+			return;
+		setShowHeroFocus(false);
 		setCombatAttackHintVisible(false);
-		dispatch({
-			type: "CHOOSE_TARGET",
-			payload: { heroId, enemyId },
-		});
+		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 	}
 
-	// Clique em inimigo: seleciona alvo em selecting_target, ou abre detalhe
 	function handleEnemyClick(e: EnemyState) {
-		if (
-			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
-			combat?.phase === "selecting_target" &&
-			combat.selectedHeroId
-		) {
-			setCombatAttackHintVisible(false);
-			dispatch({
-				type: "CHOOSE_TARGET",
-				payload: { heroId: combat.selectedHeroId, enemyId: e.id },
-			});
-			return;
-		}
 		openCardDetail(e.cardId, e.id === "boss" ? "boss" : "enemy");
 	}
 
-	// Botão "Atacar" no painel: usa selectedHeroId + primeiro inimigo ativo
 	function handleAttack() {
-		const selectedHeroId = combat?.selectedHeroId;
-		if (!selectedHeroId) return;
-		const target = view.enemies.find((e) => e.status === "active");
-		if (!target) return;
-		setCombatAttackHintVisible(false);
-		dispatch({
-			type: "CHOOSE_TARGET",
-			payload: { heroId: selectedHeroId, enemyId: target.id },
-		});
+		setShowHeroFocus(false);
+		setCombatAttackHintVisible(true);
 	}
 
 	function handlePass() {
@@ -259,11 +241,9 @@ export function Exploration() {
 	}
 
 	function handleUseSkill(skillId: string, sourceId: string) {
-		// Por ora auto-alvo: o herói usa a habilidade em si mesmo.
-		// Habilidades que exigem seleção de alvo serão tratadas numa camada de targeting futura.
 		dispatch({
 			type: "USE_SKILL",
-			payload: { skillId, sourceId, targetIds: [sourceId] },
+			payload: { skillId, sourceId },
 		});
 	}
 
@@ -365,6 +345,9 @@ export function Exploration() {
 								combatAttackHintVisible={combatAttackHintVisible}
 								onHeroClick={handleHeroClick}
 								onHeroDragStart={handleHeroDragStart}
+								canHeroAttack={(heroId) =>
+									!!heroActionsFor(heroId).canStartAttack
+								}
 								onEnemyDrop={handleEnemyDrop}
 								onEnemyClick={handleEnemyClick}
 								onRoomClick={() =>
@@ -377,8 +360,11 @@ export function Exploration() {
 									dispatch({ type: "CONTINUE_EXPLORATION" })
 								}
 								onResolve={handleResolveAttack}
-								onSelectDie={(side, index) =>
-									dispatch({ type: "SELECT_DIE", payload: { side, index } })
+								onSelectDie={(side, index, value) =>
+									dispatch({
+										type: "SELECT_DIE",
+										payload: { side, index, value },
+									})
 								}
 								backCardUrls={backCardUrls}
 								cardImageUrls={cardImageUrls}
@@ -475,6 +461,7 @@ export function Exploration() {
 									onPower={handleUsePower}
 									onFlee={handleFlee}
 									onUseSkill={handleUseSkill}
+									onUseItem={() => setItemUse({ heroId: focusedHero.id })}
 									onCardDetail={openCardDetail}
 									onItemDetail={(itemId, heroId) =>
 										setDetailCard({ id: itemId, cardType: "item", heroId })
@@ -485,10 +472,18 @@ export function Exploration() {
 					)}
 
 					{/* Modais */}
+					{itemUse && (
+						<UseItemModal
+							heroId={itemUse.heroId}
+							initialItemId={itemUse.itemId}
+							onClose={() => setItemUse(null)}
+						/>
+					)}
 					{modal === "xp_spend" && <XpSpendModal onClose={() => {}} />}
 					{modal === "dungeon_exhausted" && <DungeonExhaustedModal />}
 					{modal === "flee_restart" && <FleeReconfigureModal />}
 					{view.pendingSkillChoice && <SkillChoiceModal />}
+					{view.pendingSkillTarget && <SkillTargetModal />}
 					{view.pendingTriggerInterrupt && <TriggerInterruptModal />}
 					{modal === "card_detail" && detailCard && (
 						<CardDetailModal
@@ -497,16 +492,14 @@ export function Exploration() {
 							imageUrl={getCardImageUrl(cardImageUrls, detailCard.id)}
 							onClose={() => setDetailCard(null)}
 							onUseItem={
-								detailCard.heroId
+								detailCard.heroId &&
+								heroActionsFor(detailCard.heroId).usableItems?.some(
+									(item) => item.itemId === detailCard.id,
+								)
 									? () => {
-											const heroId = detailCard.heroId;
-											if (!heroId) return;
-											dispatch({
-												type: "USE_ITEM",
-												payload: {
-													itemId: detailCard.id,
-													heroId,
-												},
+											setItemUse({
+												heroId: detailCard.heroId!,
+												itemId: detailCard.id,
 											});
 											setDetailCard(null);
 										}

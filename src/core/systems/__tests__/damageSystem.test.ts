@@ -7,6 +7,7 @@ import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { applyDamage, applyDamageMin1 } from "../damageSystem";
+import { collectTriggerCandidates } from "../../triggers/engine";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
@@ -137,6 +138,38 @@ describe("applyDamage — inimigo", () => {
 		const health = getComponent<HealthComponent>(result.world, "e1", "health");
 		expect(health).toBeDefined();
 		expect(health?.current).toBe(3);
+	});
+
+	it("abre a janela evt_hit para a criatura atingida, não para as outras", () => {
+		const state = {
+			...makeState({ cardId: "hero_silver_warrior", currentLife: 10 }, {
+				cardId: "creature_wet_stone_slime",
+				currentLife: 5,
+			}),
+			despertar: 4 as const,
+		};
+		const result = applyDamage(state, "e1", 1, { sourceId: "h1" });
+		expect(collectTriggerCandidates(state, "evt_hit").map((x) => x.definition.id)).toContain("purple_veil_retaliation");
+		// Retaliação do Véu causa 1 de dano no herói agressor, além do dano no slime.
+		expect(result.activeEnemies[0]!.currentLife).toBe(4);
+		expect(result.heroes[0]!.currentLife).toBe(9);
+	});
+
+	it("abre evt_destroy para a criatura derrotada", () => {
+		const state = {
+			...makeState({ cardId: "hero_silver_warrior" }, {
+				cardId: "creature_dead_passage_thief",
+				currentLife: 1,
+			}),
+			despertar: 4 as const,
+			decks: {
+				...makeState().decks,
+				dungeonDeck: { available: ["room_a", "room_b"], discarded: [], removed: [] },
+			},
+		};
+		const result = applyDamage(state, "e1", 1, { sourceId: "h1" });
+		expect(result.activeEnemies[0]!.status).toBe("defeated");
+		expect(result.decks.dungeonDeck.available).toEqual(["room_b"]);
 	});
 });
 

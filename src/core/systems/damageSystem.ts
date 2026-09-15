@@ -5,10 +5,18 @@
 
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
-import { removeEntity, removeModifiersForSource } from "../ecs/world";
+import {
+	removeEntity,
+	removeModifiersAppliedBySource,
+	removeModifiersForSource,
+} from "../ecs/world";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
-import { removeBlocksForSource } from "../state/blockHelpers";
+import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import {
+	removeBlocksAppliedBySource,
+	removeBlocksForSource,
+} from "../state/blockHelpers";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
@@ -16,6 +24,34 @@ import type { HeroState } from "../state/heroState";
 export interface DamageOptions {
 	readonly sourceId?: EntityId;
 	readonly damageType?: DamageType;
+}
+
+function damageTriggerContext(
+	state: GameState,
+	sourceId: EntityId,
+	targetId: EntityId,
+	amount: number,
+) {
+	const sourceHeroId = state.heroes.some((hero) => hero.id === sourceId)
+		? sourceId
+		: undefined;
+	const sourceEnemyId = state.activeEnemies.some((enemy) => enemy.id === sourceId)
+		? sourceId
+		: undefined;
+	const targetHeroIds = state.heroes.some((hero) => hero.id === targetId)
+		? [targetId]
+		: [];
+	const targetEnemyIds = state.activeEnemies.some((enemy) => enemy.id === targetId)
+		? [targetId]
+		: [];
+	return {
+		sourceHeroId,
+		sourceEnemyId,
+		targetHeroIds,
+		targetEnemyIds,
+		value: amount,
+		round: state.combat?.round ?? 0,
+	};
 }
 
 // Aplica dano bruto sem passar pelo bus (usado internamente após o bus resolver o amount).
@@ -69,6 +105,12 @@ export function applyDamage(
 	amount: number,
 	opts?: DamageOptions,
 ): GameState {
+	if (
+		!state.heroes.some((hero) => hero.id === targetId) &&
+		!state.activeEnemies.some((enemy) => enemy.id === targetId)
+	) {
+		return state;
+	}
 	const sourceId = opts?.sourceId ?? "system";
 	const damageType = opts?.damageType ?? "physical";
 
@@ -90,8 +132,29 @@ export function applyDamage(
 	});
 	if (s3.pendingTriggerInterrupt) return s3;
 
+	const ctx = damageTriggerContext(s3, sourceId, targetId, finalAmount);
+	let s4 = resolveSkillWindow(s3, {
+		event: "evt_damage_dealt",
+		ctx: { triggeredBy: "evt_damage_dealt", ...ctx },
+	});
+	if (s4.pendingTriggerInterrupt || s4.pendingSkillChoice) return s4;
+
+	// "Acerto" é especificamente dano de um herói contra uma criatura.
+	if (ctx.sourceHeroId && ctx.targetEnemyIds.length > 0) {
+		s4 = resolveSkillWindow(s4, {
+			event: "evt_hit",
+			// O alvo do contra-ataque é o agressor; o inimigo atingido continua
+			// em targetEnemyIds para filtrar a reação correta no TriggerEngine.
+			ctx: {
+				triggeredBy: "evt_hit",
+				...ctx,
+				targetHeroIds: [ctx.sourceHeroId],
+			},
+		});
+		if (s4.pendingTriggerInterrupt || s4.pendingSkillChoice) return s4;
+	}
+
 	// Lote E: emite EnemyDestroyed ou HeroDefeated quando entidade é derrotada
-	let s4 = s3;
 	const defeatedHero = s4.heroes.find(
 		(h) => h.id === targetId && h.status === "defeated",
 	);
@@ -100,11 +163,45 @@ export function applyDamage(
 			type: "HeroDefeated",
 			payload: { heroId: targetId, sourceId },
 		}));
+		// Efeitos ativos emitidos pelo herói deixam de valer ao ser derrotado.
+		s4 = {
+			...s4,
+			world: removeModifiersAppliedBySource(s4.world, targetId),
+		};
+		s4 = removeBlocksAppliedBySource(s4, targetId);
 	}
 	const defeatedEnemy = s4.activeEnemies.find(
 		(e) => e.id === targetId && e.status === "defeated",
 	);
 	if (defeatedEnemy) {
+		const defeatCtx = damageTriggerContext(s4, sourceId, targetId, finalAmount);
+		s4 = resolveSkillWindow(s4, {
+			event: "evt_destroy",
+			ctx: { triggeredBy: "evt_destroy", ...defeatCtx },
+		});
+		if (s4.pendingTriggerInterrupt || s4.pendingSkillChoice) return s4;
+		if (defeatCtx.sourceHeroId) {
+			s4 = resolveSkillWindow(s4, {
+				event: "evt_kill",
+				ctx: { triggeredBy: "evt_kill", ...defeatCtx },
+			});
+			if (s4.pendingTriggerInterrupt || s4.pendingSkillChoice) return s4;
+		}
+		const preyByHero = Object.fromEntries(
+			Object.entries(s4.combat?.preyByHero ?? {}).filter(
+				([, preyId]) => preyId !== targetId,
+			),
+		);
+		if (s4.combat) {
+			s4 = {
+				...s4,
+				combat: {
+					...s4.combat,
+					prey: s4.combat.prey === targetId ? null : s4.combat.prey,
+					preyByHero,
+				},
+			};
+		}
 		const roomFirstKill = s4.creaturesDefeated === 0;
 		({ state: s4 } = emit(s4, {
 			type: "EnemyDestroyed",

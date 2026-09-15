@@ -117,6 +117,8 @@ export type Action =
 				value?: number | string | null;
 			};
 	  }
+	| { type: "SELECT_SKILL_TARGET"; payload: { targetId: string } }
+	| { type: "CANCEL_SKILL_TARGET" }
 	// ── Escolha de habilidade (Patch 8) ──────────────────────────────────────────
 	| { type: "SKILL_CHOICE"; payload: { skillId: string; choice: string } }
 	// ── Interrupção de trigger (habilidade/item/inimigo em uma fase) ───────────
@@ -126,4 +128,7 @@ export type Action =
 	| { type: "DECLARE_FLEE"; payload: { heroId: string } }
 	| { type: "RESTART_DUNGEON"; payload: { keepEquipment: boolean } }
 	// ── Seleção de dado (Patch 8 F8) ─────────────────────────────────────────────
-	| { type: "SELECT_DIE"; payload: { side: "hero" | "enemy"; index: number } };
+	| {
+			type: "SELECT_DIE";
+			payload: { side: "hero" | "enemy"; index: number; value?: number };
+	  };

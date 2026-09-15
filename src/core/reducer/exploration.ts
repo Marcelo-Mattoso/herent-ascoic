@@ -15,11 +15,11 @@ import { installPassive } from "../ecs/installPassive";
 import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncEntityFromEnemy } from "../ecs/sync";
 import { createEmptyEffectStack } from "../effects/stack";
-import { emit } from "../events/bus";
 import { checkBossCondition } from "../rules/conditions";
 import { cardSkills } from "../skills/lookup";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { renderSkillLabel } from "../skills/renderLabel";
+import { ActivationTracker } from "../state/activation";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
@@ -381,6 +381,8 @@ export function handleCheckBossCondition(state: GameState): GameState {
 	}
 	let s: GameState = {
 		...beforeLeave,
+		oncePer: { ...beforeLeave.oncePer, room: {} },
+		disabled: ActivationTracker.clearLocks(beforeLeave.disabled ?? {}, "room"),
 		paths: [],
 		currentRoom: null,
 		activeEnemies: [],
@@ -420,6 +422,25 @@ function advanceToRandomDungeonRoom(
 	const exits = Math.max(1, exitsOverride ?? state.currentRoom?.exits ?? 1);
 	const { available, discarded, removed } = state.decks.dungeonDeck;
 	if (available.length === 0) return handleDungeonDeckEmpty(state);
+	const discardTarget = exits >= 5 ? 2 : exits > 1 ? 1 : 0;
+
+	// A prevenção precisa ser escolhida antes de remover cartas do baralho.
+	// O resumo guarda a continuação para que a ação seja retomada após o modal.
+	if (discardTarget > 0 && !state.flags.discardDungeonLocked) {
+		const opened = resolveSkillWindow(state, {
+			event: "evt_dungeon_discard",
+			resume: { type: "advance_dungeon", exits },
+			ctx: { triggeredBy: "evt_dungeon_discard", value: discardTarget },
+		});
+		if (
+			opened.pendingTriggerInterrupt ||
+			opened.pendingSkillChoice ||
+			opened.pendingSkillTarget
+		) {
+			return opened;
+		}
+		state = opened;
+	}
 
 	let rng = state.rng;
 	const { value: shuffledAvailable, next: afterPathDraw } = shuffleRng(
@@ -436,7 +457,6 @@ function advanceToRandomDungeonRoom(
 	rng = afterChoice;
 
 	const [chosenId, ...unchosen] = shuffledDrawn;
-	const discardTarget = exits >= 5 ? 2 : exits > 1 ? 1 : 0;
 	const discardCount =
 		state.flags.dungeonDiscardPrevented && !state.flags.discardDungeonLocked
 			? 0
@@ -472,13 +492,6 @@ function advanceToRandomDungeonRoom(
 		},
 	};
 
-	for (const cardId of discardedPaths) {
-		({ state: next } = emit(next, {
-			type: "DungeonCardDiscarded",
-			payload: { cardId: cardId as string, reason: "extra" },
-		}));
-	}
-
 	if (
 		state.flags.dungeonDiscardPrevented &&
 		!state.flags.discardDungeonLocked
@@ -491,6 +504,14 @@ function advanceToRandomDungeonRoom(
 		`Caminho sorteado em segredo: ${drawn.length} carta(s), ${discardedPaths.length} descarte(s).`,
 	);
 	return enterDungeonRoom(next, card, nextAvailable, "Sala sorteada");
+}
+
+/** Retoma a abertura de caminhos depois de uma interrupção de descarte. */
+export function resumeDungeonAdvance(
+	state: GameState,
+	exits: number,
+): GameState {
+	return advanceToRandomDungeonRoom(state, exits);
 }
 
 // Descarta N cartas do topo do deck de dungeon. Utilitário compartilhado com handlers de skill.

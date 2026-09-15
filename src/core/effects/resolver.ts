@@ -419,10 +419,18 @@ export function resolveEffect(
 		case "i_mark_target":
 		case "mark_target": {
 			const preyId = targetId;
-			if (!preyId || !state.combat) return state;
+			const heroId = effect["hero_id"] as string | undefined;
+			if (!preyId || !heroId || !state.combat) return state;
 			return log(
-				{ ...state, combat: { ...state.combat, prey: preyId } },
-				`${preyId} marcado como Presa.`,
+				{
+					...state,
+					combat: {
+						...state.combat,
+						prey: preyId,
+						preyByHero: { ...state.combat.preyByHero, [heroId]: preyId },
+					},
+				},
+				`${heroId} marcou ${preyId} como Presa.`,
 			);
 		}
 

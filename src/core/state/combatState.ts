@@ -68,6 +68,8 @@ export interface CombatState {
 	// damageReduction → ModifierComponent target="damage_taken"
 	// Presa do Caçador: id do inimigo marcado como alvo preferencial
 	prey: string | null;
+	// Presa por herói. A marca só beneficia quem a designou.
+	readonly preyByHero: Readonly<Record<string, string>>;
 	// Token do Necromante (Eco): 0 = sem eco, 1 = eco disponível
 	readonly ecoTokens: Readonly<Record<string, number>>;
 	// Herói declarou tentativa de fuga — o próximo confronto resolve a fuga
@@ -89,6 +91,7 @@ export interface CombatState {
 	// Herói ignora 1º efeito que o escolha como alvo (Véu Protetor)
 	readonly targetProtectionByHero: Readonly<Record<string, boolean>>;
 	// Flags de uso por escopo (guards once_per_*)
+	readonly attackBlockedByHero?: Readonly<Record<string, boolean>>;
 	readonly oncePer: {
 		readonly room: Readonly<Record<string, boolean>>;
 		readonly combat: Readonly<Record<string, boolean>>;
@@ -113,6 +116,7 @@ export function createEmptyCombatState(): CombatState {
 		oncePer: { room: {}, combat: {}, round: {} },
 		disabled: {},
 		prey: null,
+		preyByHero: {},
 		ecoTokens: {},
 		fleeAttemptByHero: {},
 		itemControlByEnemy: {},

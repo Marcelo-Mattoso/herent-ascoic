@@ -64,11 +64,11 @@ Núcleo de regras do **Ascensão Heróica**. Puro TypeScript: sem React, sem DOM
 
 ## Fluxo de uma action
 
-Exemplo: jogador clica em "Usar poder" do Guerreiro.
+Exemplo: jogador clica em "Poder" do Guerreiro.
 
 1. **UI** chama `dispatch({ type: "USE_POWER", payload: { heroId } })`.
 2. **`reducer/index.ts`** roteia para `handleUsePower(state, heroId)` em [`reducer/combat.ts`](reducer/combat.ts).
-3. Handler valida (em combate? poder já usado nesta sala?), marca `powersUsedThisRoom`, e chama `fireOnUseSkill({ skillId, sourceId })`.
+3. Handler valida a janela de combate e chama `fireOnUseSkill({ skillId, sourceId })`. Todo `hero_power` usa guarda de escopo `game`, portanto só pode ser ativado uma vez por partida.
 4. **`skills/useSkill.ts`** verifica `isManuallyActivatable(def)`. Se o trigger não é manual (ex: `before_attack`, `_on_*`, `_after_*`), loga aviso e retorna sem efeito.
 5. Skill manualmente ativável dispara o `effect` (DSL) ou `script`:
    - **DSL** ([`skills/dsl/evaluate.ts`](skills/dsl/evaluate.ts)) percorre os nós e chama `ctx.action.pushEffect(...)` para cada `EffectDescriptor` produzido.
@@ -78,6 +78,10 @@ Exemplo: jogador clica em "Usar poder" do Guerreiro.
 8. Estado novo volta ao adapter; UI re-renderiza a partir da projeção.
 
 Tudo isso é síncrono.
+
+### Ação da rodada e desativação
+
+Encerrar a ação de combate de um herói só o inclui em `combat.heroesActed`; isso não encerra os seus efeitos ativos. Morte ou uma desativação explícita do herói cria um lock em `ActivationTracker`, desabilita habilidade e poder e remove os modificadores e bloqueios mantidos por aquela fonte.
 
 ---
 

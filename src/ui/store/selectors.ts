@@ -1,5 +1,7 @@
 import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
 import { type PlayerView, playerView } from "@/core/projection/playerView";
+import { canStartHeroAttack } from "@/core/rules/attackAvailability";
+import { manualItemOptions } from "@/core/rules/itemEffects";
 import { isSkillGuardConsumed } from "@/core/skills/dispatch";
 import { cardSkills } from "@/core/skills/lookup";
 import { isManuallyActivatable } from "@/core/skills/useSkill";
@@ -184,13 +186,22 @@ export function selectFocusedHero(
 }
 
 export interface HeroCombatActions {
+	readonly canStartAttack?: boolean;
+	readonly usableItems?: ReturnType<typeof manualItemOptions>;
+	readonly attackBlocked?: boolean;
 	readonly canAttack: boolean;
 	readonly canPass: boolean;
 	readonly canCancel: boolean;
 	readonly canUsePower: boolean;
+	readonly canUseSkill: boolean;
 	readonly canFlee: boolean;
 	readonly fleeAlreadyDeclared: boolean;
 	readonly skill: {
+		readonly skillId: string;
+		readonly activatable: boolean;
+		readonly alreadyUsed: boolean;
+	} | null;
+	readonly power: {
 		readonly skillId: string;
 		readonly activatable: boolean;
 		readonly alreadyUsed: boolean;
@@ -206,23 +217,25 @@ export function selectHeroCombatActions(
 	const view = playerView(state);
 	const hero = view.heroes.find((h) => h.id === heroId) ?? null;
 	const combat = view.combat;
+	const isInCombat =
+		state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT";
 
 	const isSelectingTarget =
 		combat?.phase === "selecting_target" && combat.selectedHeroId === heroId;
-	const hasActiveEnemies = view.enemies.some((e) => e.status === "active");
-	const heroDisabled =
-		hero === null || ActivationTracker.isHeroDisabledThisRound(state, heroId);
+	const heroActionUnavailable =
+		hero === null ||
+		(isInCombat && ActivationTracker.isHeroDisabledThisRound(state, heroId));
+	const heroEffectsDisabled =
+		hero === null || ActivationTracker.hasHeroEffectsDisabled(state, heroId);
 
-	const canAttack = isSelectingTarget && hasActiveEnemies && !heroDisabled;
-	const canPass = isSelectingTarget && !heroDisabled;
+	const attackBlocked = !!state.combat?.attackBlockedByHero?.[heroId];
+	const canStartAttack = canStartHeroAttack(state, heroId);
+	const canAttack = isSelectingTarget && canStartAttack;
+	const canPass = isSelectingTarget && !heroActionUnavailable;
 	const canCancel = isSelectingTarget;
-	const canUsePower =
-		isSelectingTarget &&
-		!heroDisabled &&
-		!(combat?.powersUsedThisRoom[heroId] ?? false);
 	const canFlee =
 		hero !== null &&
-		!heroDisabled &&
+		!heroActionUnavailable &&
 		hero.currentLife === 1 &&
 		!state.flags["fleeBlocked"];
 
@@ -235,20 +248,48 @@ export function selectHeroCombatActions(
 				skillId: habilidadeEntry.def.id,
 				activatable: isManuallyActivatable(habilidadeEntry.def),
 				alreadyUsed:
-					heroDisabled || isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
+					heroEffectsDisabled ||
+					isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
 			}
 		: null;
+	const powerEntry = hero
+		? cardSkills(hero.cardId).find(({ def }) => def.category === "hero_power")
+		: null;
+	const power = powerEntry
+		? {
+				skillId: powerEntry.def.id,
+				activatable: isManuallyActivatable(powerEntry.def),
+				alreadyUsed:
+					heroEffectsDisabled ||
+					isSkillGuardConsumed(state, powerEntry.def, heroId),
+			}
+		: null;
+	const canUseSkill =
+		!!skill?.activatable &&
+		!skill.alreadyUsed &&
+		(skill.skillId === "skill_prey_mark"
+			? isInCombat && !state.combat?.preyByHero[heroId]
+			: isSelectingTarget || !isInCombat);
+	const canUsePower =
+		!!power?.activatable &&
+		!power.alreadyUsed &&
+		(isSelectingTarget || !isInCombat);
 
 	const fleeAlreadyDeclared =
 		state.combat?.fleeAttemptByHero?.[heroId] ?? false;
 
 	return {
 		canAttack,
+		canStartAttack,
+		attackBlocked,
+		usableItems: manualItemOptions(state, heroId),
 		canPass,
 		canCancel,
 		canUsePower,
+		canUseSkill,
 		canFlee,
 		fleeAlreadyDeclared,
 		skill,
+		power,
 	};
 }

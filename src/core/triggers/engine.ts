@@ -201,13 +201,7 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 
 		for (const itemId of Object.values(hero.activeItems)) {
 			if (!itemId) continue;
-			if (
-				ActivationTracker.isDisabled(
-					state,
-					"item",
-					`${hero.id}:${itemId}`,
-				)
-			) {
+			if (ActivationTracker.isDisabled(state, "item", `${hero.id}:${itemId}`)) {
 				continue;
 			}
 			sources.push({
@@ -318,7 +312,10 @@ export function guardPassed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): boolean {
-	const cooldown = skill.cooldown;
+	const cooldown =
+		skill.category === "hero_power"
+			? { scope: "game" as const, charges: 1 }
+			: skill.cooldown;
 	if (!cooldown) return true;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
@@ -327,7 +324,7 @@ export function guardPassed(
 		case "game":
 			return !state.oncePer?.game?.[key];
 		case "room":
-			return !state.combat?.oncePer?.room?.[key];
+			return !(state.oncePer.room ?? state.combat?.oncePer?.room)?.[key];
 		case "combat":
 			return !state.combat?.oncePer?.combat?.[key];
 		case "round":
@@ -343,16 +340,31 @@ export function isSkillGuardConsumed(
 	return !guardPassed(state, skill, sourceHeroId);
 }
 
-function markGuardUsed(
+export function markSkillGuardUsed(
 	state: GameState,
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): GameState {
-	const cooldown = skill.cooldown;
+	const cooldown =
+		skill.category === "hero_power"
+			? { scope: "game" as const, charges: 1 }
+			: skill.cooldown;
 	if (!cooldown) return state;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
 
+	if (cooldown.scope === "room") {
+		return {
+			...state,
+			oncePer: {
+				...state.oncePer,
+				room: {
+					...(state.oncePer.room ?? state.combat?.oncePer.room),
+					[key]: true,
+				},
+			},
+		};
+	}
 	if (cooldown.scope === "game") {
 		return {
 			...state,
@@ -384,22 +396,37 @@ function triggerContextMatches(
 ): boolean {
 	const { event, source } = candidate;
 
-	if (
-		event === "evt_attack_declared" &&
-		source.sourceHeroId &&
-		ctx.sourceHeroId &&
-		source.sourceHeroId !== ctx.sourceHeroId
-	) {
-		return false;
+	if (event === "evt_attack_declared") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
+		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
+			return false;
 	}
 
-	if (
-		event === "evt_attack_declared" &&
-		source.sourceEnemyId &&
-		ctx.sourceEnemyId &&
-		source.sourceEnemyId !== ctx.sourceEnemyId
-	) {
-		return false;
+	// Eventos pós-dano pertencem ao agressor; caso contrário, um poder de um
+	// segundo herói poderia reagir ao dano causado pelo primeiro.
+	if (event === "evt_damage_dealt" || event === "evt_kill") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
+		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
+			return false;
+	}
+
+	// Acerto e destruição pertencem à criatura atingida/derrotada. Salas e
+	// artefatos permanecem globais e não possuem sourceEnemyId.
+	if (event === "evt_hit" || event === "evt_destroy") {
+		if (
+			source.sourceEnemyId &&
+			!ctx.targetEnemyIds?.includes(source.sourceEnemyId)
+		)
+			return false;
+	}
+
+	if (event === "evt_leave_play") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
+		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
+			return false;
 	}
 
 	return true;
@@ -479,7 +506,7 @@ export function executeTriggerCandidate(
 		}
 	}
 
-	return markGuardUsed(
+	return markSkillGuardUsed(
 		current,
 		candidate.definition,
 		candidate.source.sourceHeroId,

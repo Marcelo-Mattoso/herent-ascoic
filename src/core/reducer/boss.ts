@@ -30,7 +30,11 @@ function collectWorldModifierEntries(
 	if (!entity) return [];
 	const entries: Array<{ source: string; value: number }> = [];
 	for (const comp of entity.components) {
-		if (comp.type === "modifier" && comp.target === target && comp.value !== 0) {
+		if (
+			comp.type === "modifier" &&
+			comp.target === target &&
+			comp.value !== 0
+		) {
 			entries.push({ source: comp.source, value: comp.value });
 		}
 	}
@@ -57,7 +61,9 @@ function effectiveEnemyDamage(enemy: EnemyState, state: GameState): number {
 	return Math.max(
 		0,
 		enemy.damage +
-			totalItemValue(collectWorldModifierEntries(state, enemy.id, "damage_dealt")),
+			totalItemValue(
+				collectWorldModifierEntries(state, enemy.id, "damage_dealt"),
+			),
 	);
 }
 
@@ -69,8 +75,15 @@ function reduceHeroDamage(
 	const worldReduction = -totalItemValue(
 		collectWorldModifierEntries(state, hero.id, "damage_taken"),
 	);
-	const itemEntries = collectHeroDamageReductionsFromItems(hero, state, "attack");
-	const finalDamage = Math.max(0, amount - worldReduction - totalItemValue(itemEntries));
+	const itemEntries = collectHeroDamageReductionsFromItems(
+		hero,
+		state,
+		"attack",
+	);
+	const finalDamage = Math.max(
+		0,
+		amount - worldReduction - totalItemValue(itemEntries),
+	);
 	const breakdown = [
 		...formatItemBreakdown(itemEntries, "-"),
 		...(worldReduction > 0
@@ -240,12 +253,10 @@ function checkBossEnd(state: GameState): GameState {
 				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
+				attackBlockedByHero: {},
 				lastRoll: null,
 				bossFirstDamageReduced: false,
-				disabled: ActivationTracker.clearLocks(
-					state.combat.disabled,
-					"round",
-				),
+				disabled: ActivationTracker.clearLocks(state.combat.disabled, "round"),
 			}
 		: createEmptyCombatState();
 

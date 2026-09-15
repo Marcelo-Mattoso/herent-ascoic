@@ -265,16 +265,7 @@ abilities:
     effect:
       - kind: i_mark_target
         to: $target
-      - kind: p_modifier
-        to: $source
-        stat: s_hit_bonus
-        operation: add
-        value: $value
-        duration:
-          kind: until_end_of_combat
-    operate_type: op_triggered
-    trigger:
-      event: evt_combat_start
+    operate_type: op_active
     nature:
       - nat_physical
     target_type: tgt_enemy

@@ -1,0 +1,24 @@
+{
+  "version": 1,
+  "source": "imagedata/backcard",
+  "backCards": [
+    {
+      "id": "verso_criatura",
+      "fileName": "verso_criatura.png",
+      "url": "/generated/backcards/assets/verso_criatura.png",
+      "sizeBytes": 1300888
+    },
+    {
+      "id": "verso_dungeon",
+      "fileName": "verso_dungeon.png",
+      "url": "/generated/backcards/assets/verso_dungeon.png",
+      "sizeBytes": 1297870
+    },
+    {
+      "id": "verso_tesouro",
+      "fileName": "verso_tesouro.png",
+      "url": "/generated/backcards/assets/verso_tesouro.png",
+      "sizeBytes": 1447087
+    }
+  ]
+}

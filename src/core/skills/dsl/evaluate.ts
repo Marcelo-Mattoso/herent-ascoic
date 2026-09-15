@@ -106,7 +106,12 @@ function evaluateOne(
 		}
 
 		case "p_block":
-			return ctx.action.pushEffect({ kind: "p_block", what: node.what });
+			return ctx.action.pushEffect({
+				kind: "p_block",
+				what: node.what,
+				duration: node.duration,
+				sourceEntityId: ctx.sourceId ?? undefined,
+			});
 
 		// ── Decks ─────────────────────────────────────────────────────────────
 
@@ -161,7 +166,11 @@ function evaluateOne(
 
 		case "i_mark_target": {
 			const to = resolveEntityRef(node.to, ctx) ?? node.to;
-			return ctx.action.pushEffect({ kind: "i_mark_target", to });
+			return ctx.action.pushEffect({
+				kind: "i_mark_target",
+				to,
+				hero_id: ctx.sourceId ?? undefined,
+			});
 		}
 
 		case "i_prevent_dungeon_discard":

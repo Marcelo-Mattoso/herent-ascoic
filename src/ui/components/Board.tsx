@@ -18,7 +18,7 @@ import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
 import { BoardFooter } from "./BoardFooter";
 import { ColorBar } from "./ColorBar";
-import { DiceDisplay } from "./DiceDisplay";
+import { DiceSelectionPanel } from "./DiceSelectionPanel";
 import { DiceRollOverlay } from "./DiceRollOverlay";
 import { HeroCard } from "./HeroCard";
 import { HpBar } from "./HpBar";
@@ -29,6 +29,7 @@ interface BoardProps {
 	focusedHeroId: string | null;
 	onHeroClick: (hero: HeroState) => void;
 	onHeroDragStart: (heroId: string) => void;
+	canHeroAttack: (heroId: string) => boolean;
 	onEnemyDrop: (heroId: string, enemyId: string) => void;
 	onEnemyClick: (enemy: EnemyState) => void;
 	onRoomClick: () => void;
@@ -37,7 +38,7 @@ interface BoardProps {
 	onRevealBoss: () => void;
 	onContinueExploration: () => void;
 	onResolve: () => void;
-	onSelectDie?: (side: "hero" | "enemy", index: number) => void;
+	onSelectDie?: (side: "hero" | "enemy", index: number, value?: number) => void;
 	roll: CombatRollResult | null;
 	combatAttackHintVisible?: boolean;
 	backCardUrls?: BackCardUrls;
@@ -233,10 +234,12 @@ function ActiveEnemyCard({
 			type="button"
 			className={isSelectable && !isDragOver ? "click-attention" : undefined}
 			onDragOver={(event) => {
+				if (!isSelectable) return;
 				event.preventDefault();
 				event.dataTransfer.dropEffect = "move";
 			}}
 			onDrop={(event) => {
+				if (!isSelectable) return;
 				event.preventDefault();
 				onDrop(enemy.id);
 			}}
@@ -374,12 +377,12 @@ function BossEncounterCard({
 			type="button"
 			className={isSelectable && !isDragOver ? "click-attention" : undefined}
 			onDragOver={(event) => {
-				if (!enemy) return;
+				if (!enemy || !isSelectable) return;
 				event.preventDefault();
 				event.dataTransfer.dropEffect = "move";
 			}}
 			onDrop={(event) => {
-				if (!enemy) return;
+				if (!enemy || !isSelectable) return;
 				event.preventDefault();
 				onDrop(enemy.id);
 			}}
@@ -518,7 +521,9 @@ function ArtifactDisplayCard({
 	}
 
 	const skills = cardSkills(artifact.cardId);
-	const bonusText = skills[0] ? renderSkillLabel(skills[0].ref) : "Artefato ativo";
+	const bonusText = skills[0]
+		? renderSkillLabel(skills[0].ref)
+		: "Artefato ativo";
 	const bearer = artifact.carriedBy
 		? heroes.find((hero) => hero.id === artifact.carriedBy)
 		: null;
@@ -600,6 +605,7 @@ export function Board({
 	focusedHeroId,
 	onHeroClick,
 	onHeroDragStart,
+	canHeroAttack,
 	onEnemyDrop,
 	onEnemyClick,
 	onRoomClick,
@@ -626,14 +632,12 @@ export function Board({
 
 	const heroesActed = view.combat?.heroesActed ?? [];
 	const selectedHeroId = view.combat?.selectedHeroId ?? null;
-	const phase = view.combat?.phase ?? null;
 	const status = view.status;
 	const pendingDiceSelection = view.combat?.pendingDiceSelection;
 
-	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL";
-	const isSelectingTarget =
-		isInCombat && phase === "selecting_target" && !!selectedHeroId;
+	const canDropAttack =
+		draggingHeroId !== null && canHeroAttack(draggingHeroId);
 
 	const heroes = view.heroes;
 	const enemies = view.enemies.filter((e) => e.status === "active");
@@ -643,6 +647,10 @@ export function Board({
 		hero: HeroState,
 		event: DragEvent<HTMLButtonElement>,
 	) {
+		if (!canHeroAttack(hero.id)) {
+			event.preventDefault();
+			return;
+		}
 		const imageUrl = getCardImageUrl(cardImageUrls, hero.cardId);
 		draggingHeroIdRef.current = hero.id;
 		setDraggingHeroId(hero.id);
@@ -663,9 +671,12 @@ export function Board({
 	}
 
 	function handleEnemyDrop(enemyId: string) {
-		const heroId =
-			draggingHeroIdRef.current ?? draggingHeroId ?? selectedHeroId;
-		if (heroId) {
+		const heroId = draggingHeroIdRef.current;
+		if (
+			heroId &&
+			canHeroAttack(heroId) &&
+			enemies.some((enemy) => enemy.id === enemyId)
+		) {
 			const hero = heroes.find((h) => h.id === heroId);
 			setCombatImpact({
 				key: `${heroId}-${enemyId}-${Date.now()}`,
@@ -751,12 +762,16 @@ export function Board({
 							bossCardId={view.bossCardId}
 							bossName={view.bossCardName}
 							enemy={bossEnemy}
-							isSelectable={!!bossEnemy && isSelectingTarget}
-							isDragOver={draggingHeroId !== null && !!bossEnemy && isSelectingTarget}
+							isSelectable={!!bossEnemy && canDropAttack}
+							isDragOver={
+								draggingHeroId !== null && !!bossEnemy && canDropAttack
+							}
 							imageUrl={getCardImageUrl(cardImageUrls, view.bossCardId)}
 							onDrop={handleEnemyDrop}
 							onClick={() =>
-								bossEnemy ? onEnemyClick(bossEnemy) : onCardDetail(view.bossCardId, "boss")
+								bossEnemy
+									? onEnemyClick(bossEnemy)
+									: onCardDetail(view.bossCardId, "boss")
 							}
 						/>
 					</div>
@@ -850,7 +865,7 @@ export function Board({
 						<div />
 						{Array.from({ length: ACTIVE_CARD_SLOT_COUNT }, (_, index) => {
 							const enemy = enemies[index] ?? null;
-							const isSelectable = !!enemy && isSelectingTarget;
+							const isSelectable = !!enemy && canDropAttack;
 							const isDragOver = draggingHeroId !== null && isSelectable;
 							const isImpacting = !!enemy && combatImpact?.enemyId === enemy.id;
 							return (
@@ -910,93 +925,32 @@ export function Board({
 				>
 					{/* Linha de combate — dock para todas as ações de grupo */}
 					{status === "RESOLVE_ATTACK" && roll ? (
-						<div style={{ display: "flex", flexDirection: "column", gap: 4 }}>
-							{(() => {
-								const sel = pendingDiceSelection;
-								const heroEligible =
-									sel?.side === "hero" || sel?.side === "any"
-										? new Set(
-												roll.heroResults.reduce<number[]>((acc, v, i) => {
-													if (
-														sel.filter?.value === undefined ||
-														v === sel.filter.value
-													)
-														acc.push(i);
-													return acc;
-												}, []),
-											)
-										: undefined;
-								const enemyEligible =
-									sel?.side === "enemy" || sel?.side === "any"
-										? new Set(
-												roll.enemyResults.reduce<number[]>((acc, v, i) => {
-													if (
-														sel.filter?.value === undefined ||
-														v === sel.filter.value
-													)
-														acc.push(i);
-													return acc;
-												}, []),
-											)
-										: undefined;
-								return (
-									<>
-										{sel && (
-											<DiceDisplay
-												results={roll.enemyResults}
-												total={roll.enemyTotal}
-												bonuses={roll.enemyBreakdown}
-												side="enemy"
-												horizontal
-												eligibleIndices={enemyEligible}
-												onDieClick={(i) => onSelectDie?.("enemy", i)}
-											/>
-										)}
-										<div
-											style={{
-												display: "flex",
-												alignItems: "center",
-												margin: "2px 0",
-											}}
-										>
-											<div
-												style={{
-													flex: 1,
-													height: 1,
-													borderTop: `1px dashed ${UI.border}`,
-												}}
-											/>
-											<ActionButton
-												label="Resolver ataque"
-												icon="💥"
-												variant="primary"
-												onClick={onResolve}
-												disabled={!!sel}
-												attention={!sel}
-											/>
-											<div
-												style={{
-													flex: 1,
-													height: 1,
-													borderTop: `1px dashed ${UI.border}`,
-												}}
-											/>
-										</div>
-										{sel && (
-											<DiceDisplay
-												results={roll.heroResults}
-												total={roll.heroTotal}
-												bonuses={roll.heroBreakdown}
-												side="hero"
-												horizontal
-												eligibleIndices={heroEligible}
-												onDieClick={(i) => onSelectDie?.("hero", i)}
-											/>
-										)}
-									</>
-								);
-							})()}
-						</div>
+						pendingDiceSelection ? (
+							<DiceSelectionPanel
+								key={`${pendingDiceSelection.skillId}:${pendingDiceSelection.heroId}:${roll.heroResults.join(",")}:${roll.enemyResults.join(",")}`}
+								selection={pendingDiceSelection}
+								roll={roll}
+								heroName={getCardName(
+									view.heroes.find((hero) => hero.id === roll.heroId)?.cardId ??
+										"",
+								)}
+								enemyName={getCardName(
+									view.enemies.find((enemy) => enemy.id === roll.enemyId)
+										?.cardId ?? "",
+								)}
+								onConfirm={(side, index, value) =>
+									onSelectDie?.(side, index, value)
+								}
+							/>
+						) : (
+							<ActionButton
+								label="Resolver ataque"
+								icon="💥"
+								variant="primary"
+								onClick={onResolve}
+								attention
+							/>
+						)
 					) : (
 						<div
 							style={{
@@ -1029,7 +983,7 @@ export function Board({
 								</span>
 							) : combatAttackHintVisible ? (
 								<span className="combat-attack-hint" aria-live="polite">
-									Arraste e solte seu herói no inimigo
+									Solte seu herói sobre um inimigo para atacar e rolar os dados
 								</span>
 							) : status === "BOSS_REVEAL" ? (
 								<div style={{ display: "flex", gap: 8 }}>
@@ -1085,11 +1039,7 @@ export function Board({
 							const isFocused = h.id === focusedHeroId;
 							const hasActed = heroesActed.includes(h.id);
 							const isSelected = h.id === selectedHeroId;
-							const canAct =
-								h.status === "active" &&
-								!hasActed &&
-								phase === "selecting_hero" &&
-								isInCombat;
+							const canAct = canHeroAttack(h.id);
 
 							return (
 								<div

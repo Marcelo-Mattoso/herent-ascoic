@@ -69,7 +69,7 @@ function buildSelectingTargetState(heroName: string): {
 }
 
 describe("selectHeroCombatActions — selecting_target", () => {
-	it("herói selecionado com inimigo ativo → canAttack/canPass/canCancel/canUsePower true", () => {
+	it("herói selecionado com inimigo ativo → pode atacar, passar e cancelar", () => {
 		const { state, heroId } = buildSelectingTargetState(BARBARO);
 		expect(state.combat?.phase).toBe("selecting_target");
 
@@ -77,7 +77,7 @@ describe("selectHeroCombatActions — selecting_target", () => {
 		expect(actions.canAttack).toBe(true);
 		expect(actions.canPass).toBe(true);
 		expect(actions.canCancel).toBe(true);
-		expect(actions.canUsePower).toBe(true);
+		expect(actions.canUsePower).toBe(false);
 	});
 
 	it("herói NÃO selecionado → todas as ações de alvo desabilitadas", () => {

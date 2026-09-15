@@ -7,6 +7,7 @@
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
 import { getSkillName } from "../data/skillLocale";
+import type { TargetCandidate } from "../data/skillTypes";
 import type { ModifierComponent } from "../ecs/types";
 import type { PausedState } from "../effects/stack";
 import { cardSkills, lookupSkillById, skillUsedBy } from "../skills/lookup";
@@ -138,6 +139,12 @@ export interface PlayerView {
 		}[];
 		readonly sourceHeroId?: string;
 	} | null;
+	readonly pendingSkillTarget: {
+		readonly skillId: string;
+		readonly sourceId: string;
+		readonly prompt: string;
+		readonly candidates: readonly TargetCandidate[];
+	} | null;
 	readonly pendingTriggerInterrupt: PendingTriggerInterrupt | null;
 }
 
@@ -211,6 +218,7 @@ export function playerView(state: GameState): PlayerView {
 		},
 		paused: state.paused,
 		pendingSkillChoice: state.pendingSkillChoice ?? null,
+		pendingSkillTarget: state.pendingSkillTarget ?? null,
 		pendingTriggerInterrupt: state.pendingTriggerInterrupt ?? null,
 		activeInfluences,
 	};
@@ -490,25 +498,21 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 		const combat = state.combat;
 
 		// Marca da Presa
-		const preyEnemy = combat.prey
-			? state.activeEnemies.find((e) => e.id === combat.prey)
-			: null;
-		if (preyEnemy) {
-			const preyName = getCardName(preyEnemy.cardId);
-			for (const hero of state.heroes) {
-				const heroName = getCardName(hero.cardId);
-				influences.push({
-					id: `prey:${hero.id}`,
-					from: { kind: "hero", id: hero.id, name: heroName },
-					to: { kind: "enemy", id: preyEnemy.id, name: preyName },
-					kind: "buff",
-					icon: "🎯",
-					label: `Marca: ${preyName}`,
-					source: "Caçador",
-					duration: "até matar a presa",
-					scope: "hero_to_enemy",
-				});
-			}
+		for (const [heroId, preyId] of Object.entries(combat.preyByHero)) {
+			const hero = state.heroes.find((entry) => entry.id === heroId);
+			const preyEnemy = state.activeEnemies.find((entry) => entry.id === preyId);
+			if (!hero || !preyEnemy) continue;
+			influences.push({
+				id: `prey:${hero.id}`,
+				from: { kind: "hero", id: hero.id, name: getCardName(hero.cardId) },
+				to: { kind: "enemy", id: preyEnemy.id, name: getCardName(preyEnemy.cardId) },
+				kind: "buff",
+				icon: "🎯",
+				label: `Marca: ${getCardName(preyEnemy.cardId)}`,
+				source: "Caçador",
+				duration: "até matar a presa",
+				scope: "hero_to_enemy",
+			});
 		}
 
 		for (const hero of state.heroes) {
