@@ -2864,6 +2864,121 @@ body {
 	position: relative;
 }
 
+/* Primitivo reutilizável: a carta vencedora avança, colide e retorna ao lugar. */
+.card-attack-animation {
+	position: fixed;
+	inset: 0;
+	z-index: 100;
+	pointer-events: none;
+}
+
+.card-attack-animation__card {
+	position: absolute;
+	display: grid;
+	place-items: end center;
+	border: 2px solid rgba(255, 236, 161, 0.92);
+	border-radius: 10px;
+	background:
+		linear-gradient(160deg, #f6f0df, #9d7d4e) center / cover no-repeat;
+	background-position: center;
+	background-repeat: no-repeat;
+	background-size: cover;
+	box-shadow:
+		0 15px 25px rgba(0, 0, 0, 0.5),
+		0 0 18px rgba(255, 221, 112, 0.7);
+	overflow: hidden;
+	transform-origin: center;
+	will-change: transform, filter;
+	animation: card-attack-lunge 640ms cubic-bezier(0.2, 0.8, 0.18, 1) both;
+}
+
+.card-attack-animation__fallback {
+	margin: 8px;
+	border-radius: 6px;
+	background: rgba(7, 13, 24, 0.82);
+	color: #fff2be;
+	padding: 5px 7px;
+	font-size: 0.7rem;
+	font-weight: 900;
+	line-height: 1.1;
+	text-align: center;
+}
+
+.card-attack-animation__impact {
+	position: absolute;
+	width: 18px;
+	height: 18px;
+	border: 3px solid rgba(255, 242, 180, 0.95);
+	border-radius: 50%;
+	background: rgba(255, 174, 40, 0.72);
+	box-shadow: 0 0 22px 8px rgba(255, 126, 20, 0.76);
+	opacity: 0;
+	transform: translate(-50%, -50%) scale(0.2);
+	animation: card-attack-impact 640ms ease-out both;
+}
+
+@keyframes card-attack-lunge {
+	0% {
+		filter: brightness(1);
+		transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+	}
+	38% {
+		filter: brightness(1.14);
+		transform: translate3d(
+			calc(var(--attack-travel-x) * 0.78),
+			calc(var(--attack-travel-y) * 0.78),
+			0
+		) rotate(-2deg) scale(1.06);
+	}
+	48% {
+		filter: brightness(1.45);
+		transform: translate3d(
+			var(--attack-travel-x),
+			var(--attack-travel-y),
+			0
+		) rotate(1deg) scale(1.1);
+	}
+	60% {
+		filter: brightness(1.05);
+		transform: translate3d(
+			calc(var(--attack-travel-x) * 0.84),
+			calc(var(--attack-travel-y) * 0.84),
+			0
+		) rotate(-1deg) scale(1.02);
+	}
+	100% {
+		filter: brightness(1);
+		transform: translate3d(0, 0, 0) rotate(0deg) scale(1);
+	}
+}
+
+@keyframes card-attack-impact {
+	0%,
+	34% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(0.2);
+	}
+	48% {
+		opacity: 1;
+		transform: translate(-50%, -50%) scale(1.5);
+	}
+	64% {
+		opacity: 0.68;
+		transform: translate(-50%, -50%) scale(4.8);
+	}
+	100% {
+		opacity: 0;
+		transform: translate(-50%, -50%) scale(6.2);
+	}
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.card-attack-animation__card,
+	.card-attack-animation__impact {
+		animation-duration: 1ms;
+	}
+}
+
 .combat-drag-preview {
 	position: fixed;
 	z-index: 9;
@@ -2919,11 +3034,6 @@ body {
 	-webkit-line-clamp: 2;
 }
 
-.combat-drop-impact {
-	z-index: 2;
-	animation: combat-target-shake 0.42s ease-out;
-}
-
 .combat-auto-roll-status {
 	border: 1px solid rgba(47, 118, 184, 0.28);
 	border-radius: 8px;
@@ -2951,46 +3061,6 @@ body {
 		inset 0 0 0 1px rgba(255, 255, 255, 0.08);
 	backdrop-filter: blur(5px);
 	animation: combat-attack-hint-in 0.22s ease-out;
-}
-
-.combat-impact-card {
-	position: absolute;
-	inset: 0;
-	z-index: 3;
-	display: flex;
-	flex-direction: column;
-	justify-content: flex-end;
-	padding: 10px;
-	border: 2px solid rgba(47, 118, 184, 0.92);
-	border-radius: 10px;
-	background:
-		linear-gradient(
-			160deg,
-			rgba(241, 239, 232, 0.96),
-			rgba(225, 219, 207, 0.94)
-		)
-		center / 100% 100% no-repeat;
-	box-shadow:
-		0 12px 16px rgba(0, 0, 0, 0.38),
-		0 2px 4px rgba(0, 0, 0, 0.32);
-	pointer-events: none;
-	transform-origin: center;
-	animation: combat-card-impact 0.42s ease-out forwards;
-}
-
-@keyframes combat-card-impact {
-	0% {
-		opacity: 0.98;
-		transform: translate3d(-46px, 22px, 0) rotate(-8deg) scale(1.02);
-	}
-	48% {
-		opacity: 1;
-		transform: translate3d(0, 0, 0) rotate(0deg) scale(1.08);
-	}
-	100% {
-		opacity: 0;
-		transform: translate3d(8px, -4px, 0) rotate(3deg) scale(1);
-	}
 }
 
 @keyframes combat-attack-hint-in {

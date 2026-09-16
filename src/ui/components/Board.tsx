@@ -17,6 +17,7 @@ import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
 import { BoardFooter } from "./BoardFooter";
+import { CardAttackAnimation } from "./CardAttackAnimation";
 import { ColorBar } from "./ColorBar";
 import { DiceSelectionPanel } from "./DiceSelectionPanel";
 import { DiceRollOverlay } from "./DiceRollOverlay";
@@ -73,11 +74,11 @@ interface CombatDragPreviewState {
 	readonly y: number;
 }
 
-interface CombatImpactState {
+interface AttackAnimationState {
 	readonly key: string;
-	readonly enemyId: string;
-	readonly heroName: string;
-	readonly imageUrl?: string;
+	readonly attacker: { readonly name: string; readonly imageUrl?: string };
+	readonly sourceRect: DOMRect;
+	readonly targetRect: DOMRect;
 }
 
 function ActiveDungeonCard({
@@ -188,7 +189,6 @@ function ActiveDungeonCard({
 		</button>
 	);
 }
-
 function ActiveEnemyCard({
 	enemy,
 	isSelectable,
@@ -624,11 +624,12 @@ export function Board({
 		useState<DiceRollAnimationState | null>(null);
 	const [combatDragPreview, setCombatDragPreview] =
 		useState<CombatDragPreviewState | null>(null);
-	const [combatImpact, setCombatImpact] = useState<CombatImpactState | null>(
-		null,
-	);
+	const [attackAnimation, setAttackAnimation] =
+		useState<AttackAnimationState | null>(null);
 	const draggingHeroIdRef = useRef<string | null>(null);
 	const lastAnimatedRollRef = useRef<CombatRollResult | null>(null);
+	const heroCardRefs = useRef(new Map<string, HTMLDivElement>());
+	const enemyCardRefs = useRef(new Map<string, HTMLDivElement>());
 
 	const heroesActed = view.combat?.heroesActed ?? [];
 	const selectedHeroId = view.combat?.selectedHeroId ?? null;
@@ -681,21 +682,52 @@ export function Board({
 			canHeroAttack(heroId) &&
 			enemies.some((enemy) => enemy.id === enemyId)
 		) {
-			const hero = heroes.find((h) => h.id === heroId);
-			setCombatImpact({
-				key: `${heroId}-${enemyId}-${Date.now()}`,
-				enemyId,
-				heroName: hero ? getCardName(hero.cardId) : "Herói",
-				imageUrl: hero
-					? getCardImageUrl(cardImageUrls, hero.cardId)
-					: undefined,
-			});
-			window.setTimeout(() => setCombatImpact(null), 560);
 			onEnemyDrop(heroId, enemyId);
 		}
 		draggingHeroIdRef.current = null;
 		setDraggingHeroId(null);
 		setCombatDragPreview(null);
+	}
+
+	function resolveAttackWithAnimation() {
+		if (!roll || attackAnimation) return;
+
+		const heroWon = roll.heroTotal > roll.enemyTotal;
+		const enemyWon = roll.enemyTotal > roll.heroTotal;
+		if (!heroWon && !enemyWon) {
+			setDiceRollAnimation(null);
+			onResolve();
+			return;
+		}
+
+		const winnerId = heroWon ? roll.heroId : roll.enemyId;
+		const loserId = heroWon ? roll.enemyId : roll.heroId;
+		const source = heroWon
+			? heroCardRefs.current.get(winnerId)
+			: enemyCardRefs.current.get(winnerId);
+		const target = heroWon
+			? enemyCardRefs.current.get(loserId)
+			: heroCardRefs.current.get(loserId);
+		const winner = heroWon
+			? heroes.find((hero) => hero.id === winnerId)
+			: enemies.find((enemy) => enemy.id === winnerId);
+
+		if (!source || !target || !winner) {
+			setDiceRollAnimation(null);
+			onResolve();
+			return;
+		}
+
+		setDiceRollAnimation(null);
+		setAttackAnimation({
+			key: `${winnerId}-${loserId}-${Date.now()}`,
+			attacker: {
+				name: getCardName(winner.cardId),
+				imageUrl: getCardImageUrl(cardImageUrls, winner.cardId),
+			},
+			sourceRect: source.getBoundingClientRect(),
+			targetRect: target.getBoundingClientRect(),
+		});
 	}
 
 	useEffect(() => {
@@ -764,22 +796,30 @@ export function Board({
 							width: "100%",
 						}}
 					>
-						<BossEncounterCard
-							bossCardId={view.bossCardId}
-							bossName={view.bossCardName}
-							enemy={bossEnemy}
-							isSelectable={!!bossEnemy && (canDropAttack || canTapTarget)}
-							isDragOver={
-								draggingHeroId !== null && !!bossEnemy && canDropAttack
-							}
-							imageUrl={getCardImageUrl(cardImageUrls, view.bossCardId)}
-							onDrop={handleEnemyDrop}
-							onClick={() =>
-								bossEnemy
-									? onEnemyClick(bossEnemy)
-									: onCardDetail(view.bossCardId, "boss")
-							}
-						/>
+						<div
+							ref={(node) => {
+								if (!bossEnemy) return;
+								if (node) enemyCardRefs.current.set(bossEnemy.id, node);
+								else enemyCardRefs.current.delete(bossEnemy.id);
+							}}
+						>
+							<BossEncounterCard
+								bossCardId={view.bossCardId}
+								bossName={view.bossCardName}
+								enemy={bossEnemy}
+								isSelectable={!!bossEnemy && (canDropAttack || canTapTarget)}
+								isDragOver={
+									draggingHeroId !== null && !!bossEnemy && canDropAttack
+								}
+								imageUrl={getCardImageUrl(cardImageUrls, view.bossCardId)}
+								onDrop={handleEnemyDrop}
+								onClick={() =>
+									bossEnemy
+										? onEnemyClick(bossEnemy)
+										: onCardDetail(view.bossCardId, "boss")
+								}
+							/>
+						</div>
 					</div>
 				) : (
 					<div
@@ -876,23 +916,20 @@ export function Board({
 							const enemy = enemies[index] ?? null;
 							const isSelectable = !!enemy && (canDropAttack || canTapTarget);
 							const isDragOver = draggingHeroId !== null && isSelectable;
-							const isImpacting = !!enemy && combatImpact?.enemyId === enemy.id;
 							return (
 								<div
 									key={enemy?.id ?? `empty-enemy-slot-${index}`}
-									className={isImpacting ? "combat-drop-impact" : undefined}
+									ref={(node) => {
+										if (!enemy) return;
+										if (node) enemyCardRefs.current.set(enemy.id, node);
+										else enemyCardRefs.current.delete(enemy.id);
+									}}
 									style={{
 										width: ACTIVE_DUNGEON_CARD.width,
 										height: ACTIVE_DUNGEON_CARD.height,
 										position: "relative",
 									}}
 								>
-									{isImpacting && combatImpact && (
-										<CombatImpactCard
-											imageUrl={combatImpact.imageUrl}
-											name={combatImpact.heroName}
-										/>
-									)}
 									<ActiveEnemyCard
 										enemy={enemy}
 										isSelectable={isSelectable}
@@ -915,10 +952,7 @@ export function Board({
 					<DiceRollOverlay
 						key={diceRollAnimation.key}
 						roll={diceRollAnimation.roll}
-						onResolveAttack={() => {
-							setDiceRollAnimation(null);
-							onResolve();
-						}}
+						onResolveAttack={resolveAttackWithAnimation}
 					/>
 				)}
 
@@ -957,7 +991,7 @@ export function Board({
 								label="Resolver ataque"
 								icon="💥"
 								variant="primary"
-								onClick={onResolve}
+								onClick={resolveAttackWithAnimation}
 								attention
 							/>
 						)
@@ -1056,6 +1090,10 @@ export function Board({
 							return (
 								<div
 									key={h.id}
+									ref={(node) => {
+										if (node) heroCardRefs.current.set(h.id, node);
+										else heroCardRefs.current.delete(h.id);
+									}}
 									style={{
 										width: ACTIVE_DUNGEON_CARD.width,
 									}}
@@ -1081,6 +1119,18 @@ export function Board({
 
 			{/* Footer do grupo */}
 			<BoardFooter view={view} onArtifactClick={onCardDetail} />
+			{attackAnimation && (
+				<CardAttackAnimation
+					key={attackAnimation.key}
+					attacker={attackAnimation.attacker}
+					sourceRect={attackAnimation.sourceRect}
+					targetRect={attackAnimation.targetRect}
+					onFinish={() => {
+						setAttackAnimation(null);
+						onResolve();
+					}}
+				/>
+			)}
 			{combatDragPreview && (
 				<CombatDragPreview
 					name={combatDragPreview.name}
@@ -1110,28 +1160,6 @@ function CombatDragPreview({
 			style={{
 				left: x,
 				top: y,
-				backgroundImage: imageUrl
-					? `linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06) 48%, rgba(246, 240, 229, 0.68) 74%, rgba(238, 232, 219, 0.9)), url("${imageUrl}")`
-					: undefined,
-			}}
-		>
-			{!imageUrl && <span className="combat-drag-preview__icon">🧙</span>}
-			<span className="combat-drag-preview__label">{name}</span>
-		</div>
-	);
-}
-
-function CombatImpactCard({
-	name,
-	imageUrl,
-}: {
-	name: string;
-	imageUrl?: string;
-}) {
-	return (
-		<div
-			className="combat-impact-card"
-			style={{
 				backgroundImage: imageUrl
 					? `linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06) 48%, rgba(246, 240, 229, 0.68) 74%, rgba(238, 232, 219, 0.9)), url("${imageUrl}")`
 					: undefined,
