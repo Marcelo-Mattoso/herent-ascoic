@@ -2439,6 +2439,59 @@ body {
 	font-size: 0.72rem;
 }
 
+.xp-level-choice {
+	grid-column: 1 / -1;
+	border-top: 1px solid rgba(227, 172, 55, 0.24);
+	padding-top: 10px;
+}
+
+.xp-level-choice > p {
+	margin: 0 0 8px;
+	color: #f2d995;
+	font-size: 0.8rem;
+	font-weight: 800;
+}
+
+.xp-level-choice__grid {
+	display: grid;
+	grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
+	gap: 8px;
+}
+
+.xp-level-choice__hero {
+	min-height: 44px;
+	border: 1px solid rgba(227, 172, 55, 0.44);
+	border-radius: 6px;
+	background: rgba(246, 240, 229, 0.94);
+	padding: 7px 9px;
+	color: #10233a;
+	text-align: left;
+	cursor: pointer;
+}
+
+.xp-level-choice__hero:hover,
+.xp-level-choice__hero:focus-visible {
+	border-color: #ffe17a;
+	background: #fff9e7;
+	outline: none;
+}
+
+.xp-level-choice__hero strong,
+.xp-level-choice__hero span {
+	display: block;
+}
+
+.xp-level-choice__hero strong {
+	font-size: 0.78rem;
+}
+
+.xp-level-choice__hero span {
+	margin-top: 2px;
+	color: #6b4e11;
+	font-size: 0.7rem;
+	font-weight: 800;
+}
+
 .path-card-grid {
 	position: relative;
 	z-index: 1;

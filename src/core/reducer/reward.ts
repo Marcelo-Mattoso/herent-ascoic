@@ -328,6 +328,21 @@ export function handleSpendXp(
 		);
 	}
 
+	// Subir de nível é uma decisão do grupo. Não assumir o primeiro herói
+	// ativo evita gastar XP no alvo errado quando há mais de um herói elegível.
+	if (option === "level_up") {
+		if (!heroId) {
+			return log(state, "Escolha qual herói receberá o nível de Ímpeto.");
+		}
+		const hero = state.heroes.find((candidate) => candidate.id === heroId);
+		if (!hero || hero.status !== "active") {
+			return log(state, "O herói escolhido não está disponível para subir de nível.");
+		}
+		if (hero.impeto >= 4) {
+			return log(state, `${getCardName(hero.cardId)} já está no nível máximo.`);
+		}
+	}
+
 	let next: GameState = { ...state, groupXp: state.groupXp - cost };
 
 	switch (option) {
@@ -349,9 +364,7 @@ export function handleSpendXp(
 			return log(next, "5 XP: deck de dungeon reembaralhado.");
 		}
 		case "level_up": {
-			const hId = heroId ?? getActiveHero(state)?.id;
-			if (!hId) return state;
-			return levelUpHero(next, hId);
+			return levelUpHero(next, heroId!);
 		}
 		case "buy_item": {
 			const { available, discarded, removed } = next.decks.itemDeck;

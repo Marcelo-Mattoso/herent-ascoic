@@ -188,4 +188,23 @@ describe("recompensas e inventário", () => {
 		expect(bought.pendingRewards[0]?.cardId).toBe(DAGGER);
 		expect(distributeItemAuto({ ...state(), status: "HERO_ACTION" }, DAGGER).heroes[0]?.activeItems.weapon).toBe(DAGGER);
 	});
+
+	it("exige a escolha do herói antes de gastar XP para subir de nível", () => {
+		const base = state();
+		const secondHero: HeroState = {
+			...base.heroes[0]!,
+			id: "h2",
+			cardId: "hero_eternal_rest_cleric",
+			impeto: 1,
+		};
+		const withXp = { ...base, groupXp: 20, heroes: [...base.heroes, secondHero] };
+
+		const withoutTarget = handleSpendXp(withXp, "level_up");
+		expect(withoutTarget.groupXp).toBe(20);
+		expect(withoutTarget.heroes.map((hero) => hero.impeto)).toEqual([0, 1]);
+
+		const levelled = handleSpendXp(withXp, "level_up", "h2");
+		expect(levelled.groupXp).toBe(10);
+		expect(levelled.heroes.map((hero) => hero.impeto)).toEqual([0, 2]);
+	});
 });

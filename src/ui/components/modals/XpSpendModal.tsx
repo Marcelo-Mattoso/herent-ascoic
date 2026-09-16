@@ -1,5 +1,6 @@
-import type { CSSProperties } from "react";
+import { useState, type CSSProperties } from "react";
 import type { XpSpendOption } from "@/core/config/defaults";
+import { getCardName } from "@/core/data/cardLocale";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
 import { selectXpSpendOptions } from "@/ui/store/selectors";
@@ -13,6 +14,10 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 	const { view, dispatch } = useGameStore();
 	const options = selectXpSpendOptions(view);
 	const uiAssets = useUiAssets();
+	const [isChoosingLevelTarget, setIsChoosingLevelTarget] = useState(false);
+	const levelEligibleHeroes = view.heroes.filter(
+		(hero) => hero.status === "active" && hero.impeto < 4,
+	);
 
 	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
 	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
@@ -26,7 +31,16 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 	} as CSSProperties;
 
 	function spend(option: XpSpendOption) {
+		if (option === "level_up") {
+			setIsChoosingLevelTarget(true);
+			return;
+		}
 		dispatch({ type: "SPEND_XP", payload: { option } });
+	}
+
+	function levelUp(heroId: string) {
+		dispatch({ type: "SPEND_XP", payload: { option: "level_up", heroId } });
+		setIsChoosingLevelTarget(false);
 	}
 
 	function continuar() {
@@ -76,11 +90,37 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 									type="button"
 									className="ornate-action ornate-action--primary"
 									disabled={!opt.available}
-									onClick={() => spend(opt.option)}
+									onClick={() =>
+										opt.option === "level_up" && isChoosingLevelTarget
+											? setIsChoosingLevelTarget(false)
+											: spend(opt.option)
+									}
 								>
-									Gastar
+									{opt.option === "level_up" && isChoosingLevelTarget
+										? "Cancelar"
+										: opt.option === "level_up"
+											? "Escolher"
+											: "Gastar"}
 								</button>
 							</div>
+							{opt.option === "level_up" && isChoosingLevelTarget ? (
+								<div className="xp-level-choice">
+									<p>Qual herói recebe este nível?</p>
+									<div className="xp-level-choice__grid">
+										{levelEligibleHeroes.map((hero) => (
+											<button
+												key={hero.id}
+												type="button"
+												className="xp-level-choice__hero"
+												onClick={() => levelUp(hero.id)}
+											>
+												<strong>{getCardName(hero.cardId)}</strong>
+												<span>Nível {hero.impeto + 1} → {hero.impeto + 2}</span>
+											</button>
+										))}
+									</div>
+								</div>
+							) : null}
 						</article>
 					))}
 				</div>
@@ -100,7 +140,7 @@ function getXpOptionHint(option: XpSpendOption) {
 		case "recover_dungeon":
 			return "Reembaralha o descarte da masmorra para manter a expedição viva.";
 		case "level_up":
-			return "Aumenta o nível de ímpeto de um herói disponível.";
+			return "Escolha um herói disponível para aumentar seu nível de ímpeto.";
 		case "buy_item":
 			return "Compra um item novo para a próxima organização do grupo.";
 		case "lower_despertar":

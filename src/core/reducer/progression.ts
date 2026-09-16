@@ -53,7 +53,7 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 
 	return log(
 		next,
-		`${getCardName(hero.cardId)} subiu para nível ${newImpeto}. Despertar avança.`,
+		`${getCardName(hero.cardId)} subiu para nível ${newImpeto + 1}. Despertar avança.`,
 	);
 }
 
