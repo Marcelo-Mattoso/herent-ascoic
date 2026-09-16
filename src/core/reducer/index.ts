@@ -28,6 +28,7 @@ import {
 	handleUseSkill,
 	handleSelectSkillTarget,
 	handleCancelSkillTarget,
+	advanceAfterEnemyDefeat,
 	advanceAfterHeroDisabledForRound,
 } from "./combat";
 import {
@@ -135,11 +136,11 @@ function resumeAfterSkillWindow(
 		case "finish_rewards":
 			return finishGrantRewards(continued);
 		case "apply_damage":
-			return applyDamage(continued, window.resume.targetId, window.resume.amount, {
+			return advanceAfterEnemyDefeat(applyDamage(continued, window.resume.targetId, window.resume.amount, {
 				sourceId: window.resume.sourceId,
 				damageType: window.resume.damageType,
 				skipWouldBeDestroyed: true,
-			});
+			}));
 		case "advance_dungeon":
 			return resumeDungeonAdvance(continued, window.resume.exits);
 		case "discard_dungeon":
@@ -150,7 +151,7 @@ function resumeAfterSkillWindow(
 				true,
 			);
 		case "none":
-			return continued;
+			return advanceAfterEnemyDefeat(continued);
 	}
 }
 

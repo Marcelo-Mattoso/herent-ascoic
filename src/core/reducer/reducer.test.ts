@@ -316,6 +316,40 @@ describe("USE_ITEM", () => {
 		});
 	});
 
+	it("item que derrota a última criatura encaminha o combate para recompensa", () => {
+		let s = stateWithRoomAndEnemy(10, 1);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		const enemy = s.activeEnemies[0];
+		if (!hero || !enemy) throw new Error("estado de combate inválido");
+		s = reducer(s, {
+			type: "CHOOSE_HERO_FOR_ROUND",
+			payload: { heroId: hero.id },
+		});
+		s = {
+			...s,
+			heroes: [
+				{ ...hero, backpack: ["item_living_ember_potion"] },
+			],
+			activeEnemies: [{ ...enemy, currentLife: 1 }],
+		};
+
+		const afterItem = reducer(s, {
+			type: "USE_ITEM",
+			payload: {
+				itemId: "item_living_ember_potion",
+				heroId: hero.id,
+				targetEnemyId: enemy.id,
+			},
+		});
+
+		expect(afterItem.activeEnemies[0]?.status).toBe("defeated");
+		expect(afterItem.status).toBe("CHECK_COMBAT_END");
+		const completed = reducer(afterItem, { type: "CHECK_COMBAT_END" });
+		expect(completed.status).toBe("REWARD_PHASE");
+		expect(completed.activeEnemies).toEqual([]);
+	});
+
 	it("usar habilidade manual bloqueia o ataque sem encerrar a ação", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
 		s = reducer(s, { type: "START_COMBAT" });

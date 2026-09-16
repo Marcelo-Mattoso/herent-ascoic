@@ -123,6 +123,36 @@ function endHeroTurnAndAdvance(
 	return advanceAfterHeroDisabledForRound(afterTurn);
 }
 
+/**
+ * Itens de uso rápido não consomem a ação do herói. Se um deles eliminar a
+ * última criatura, porém, ainda é preciso entrar no estado auto-avançável que
+ * encerra o combate; caso contrário a tela permanece em HERO_ACTION sem alvo.
+ */
+export function advanceAfterEnemyDefeat(state: GameState): GameState {
+	if (
+		state.pendingTriggerInterrupt ||
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget ||
+		!state.combat ||
+		(state.status !== "HERO_ACTION" &&
+			state.status !== "RESOLVE_ATTACK" &&
+			state.status !== "DIRECT_DAMAGE" &&
+			state.status !== "CHECK_COMBAT_END") ||
+		state.activeEnemies.some((enemy) => enemy.status === "active")
+	) {
+		return state;
+	}
+	return {
+		...state,
+		status: "CHECK_COMBAT_END",
+		combat: {
+			...state.combat,
+			phase: "direct_damage",
+			selectedHeroId: null,
+		},
+	};
+}
+
 function blockAttackAfterSkill(state: GameState, heroId: string): GameState {
 	if (!isManualCombatActivationWindow(state) || !state.combat) return state;
 	return {
@@ -1172,12 +1202,12 @@ export function handleUseItem(
 				selection.kind === "unavailable" ? selection.reason : selection.prompt,
 			);
 		}
-		return executeAbilityGrant(state, {
+		return advanceAfterEnemyDefeat(executeAbilityGrant(state, {
 			source,
 			grant: explicitGrant,
 			triggeredBy: "manual",
 			targetIds: selection.targetIds,
-		});
+		}));
 	}
 	const itemSkillRef = itemCard ? cardSkills(itemCard.id)[0] : null;
 	const skillDef = itemSkillRef?.def ?? null;
@@ -1289,7 +1319,9 @@ export function handleUseItem(
 			itemSkillValue,
 			params,
 		);
-		return maybeDisableReusableItem(afterUse, heroId, itemId, consumed);
+		return advanceAfterEnemyDefeat(
+			maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
+		);
 	}
 
 	const targetIds = [...selection.targetIds];
@@ -1301,7 +1333,9 @@ export function handleUseItem(
 		itemSkillValue,
 		params,
 	);
-	return maybeDisableReusableItem(afterUse, heroId, itemId, consumed);
+	return advanceAfterEnemyDefeat(
+		maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
+	);
 }
 
 // ─── USE_POWER ────────────────────────────────────────────────────────────────
