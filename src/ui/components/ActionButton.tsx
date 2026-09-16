@@ -41,7 +41,7 @@ export function ActionButton({
 			type="button"
 			onClick={onClick}
 			disabled={disabled}
-			className={`flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity ${fullWidth ? "w-full" : ""} ${disabled ? "opacity-40 cursor-not-allowed" : "hover:opacity-80 cursor-pointer"}${showAttention ? " click-attention" : ""}`}
+			className={`action-button flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity ${fullWidth ? "w-full" : ""} ${disabled ? "opacity-40 cursor-not-allowed" : "hover:opacity-80 cursor-pointer"}${showAttention ? " click-attention" : ""}`}
 			style={{
 				background: style.bg,
 				color: style.text,

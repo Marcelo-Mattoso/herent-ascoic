@@ -1,4 +1,4 @@
-import { useEffect, useState } from "react";
+import { type ReactNode, useEffect, useState } from "react";
 import { Defeat } from "@/ui/screens/Defeat";
 import { Exploration } from "@/ui/screens/Exploration";
 import { MainMenu } from "@/ui/screens/MainMenu";
@@ -26,17 +26,46 @@ function App() {
 		return () => window.removeEventListener("keydown", handleKeyDown);
 	}, []);
 
+	let screen: ReactNode;
+
 	if (showReplay) {
-		return <Replay onClose={() => setShowReplay(false)} />;
+		screen = <Replay onClose={() => setShowReplay(false)} />;
+	} else if (status === "VICTORY") {
+		screen = <Victory />;
+	} else if (status === "DEFEAT") {
+		screen = <Defeat />;
+	} else if (status !== "MAIN_MENU") {
+		screen = <Exploration />;
+	} else if (uiScreen === "setup") {
+		screen = <Setup onBack={() => setUiScreen("menu")} />;
+	} else {
+		screen = <MainMenu onNewGame={() => setUiScreen("setup")} />;
 	}
 
-	if (status === "VICTORY") return <Victory />;
-	if (status === "DEFEAT") return <Defeat />;
-	if (status !== "MAIN_MENU") return <Exploration />;
+	return (
+		<>
+			{screen}
+			<OrientationGate />
+		</>
+	);
+}
 
-	if (uiScreen === "setup") return <Setup onBack={() => setUiScreen("menu")} />;
-
-	return <MainMenu onNewGame={() => setUiScreen("setup")} />;
+function OrientationGate() {
+	return (
+		<section
+			className="orientation-gate"
+			aria-label="O jogo requer orientação horizontal"
+			aria-live="polite"
+		>
+			<div className="orientation-gate__card">
+				<span className="orientation-gate__icon" aria-hidden="true">
+					↻
+				</span>
+				<h1>Gire o dispositivo para jogar</h1>
+				<p>Ascensão Heróica funciona apenas no modo horizontal.</p>
+			</div>
+		</section>
+	);
 }
 
 export default App;

@@ -638,6 +638,10 @@ export function Board({
 	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL";
 	const canDropAttack =
 		draggingHeroId !== null && canHeroAttack(draggingHeroId);
+	const canTapTarget =
+		(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
+		view.combat?.phase === "selecting_target" &&
+		selectedHeroId !== null;
 
 	const heroes = view.heroes;
 	const enemies = view.enemies.filter((e) => e.status === "active");
@@ -739,6 +743,7 @@ export function Board({
 		>
 			{/* Área principal: stacks centrais + arena */}
 			<div
+				className="game-board-content"
 				style={{
 					display: "flex",
 					flexDirection: "column",
@@ -751,6 +756,7 @@ export function Board({
 				{/* Pilhas principais / chefe final */}
 				{isBossEncounter ? (
 					<div
+						className="game-board-boss"
 						style={{
 							display: "flex",
 							justifyContent: "center",
@@ -762,7 +768,7 @@ export function Board({
 							bossCardId={view.bossCardId}
 							bossName={view.bossCardName}
 							enemy={bossEnemy}
-							isSelectable={!!bossEnemy && canDropAttack}
+							isSelectable={!!bossEnemy && (canDropAttack || canTapTarget)}
 							isDragOver={
 								draggingHeroId !== null && !!bossEnemy && canDropAttack
 							}
@@ -777,6 +783,7 @@ export function Board({
 					</div>
 				) : (
 					<div
+						className="game-board-stacks"
 						style={{
 							display: "grid",
 							gridTemplateColumns: "repeat(3, minmax(134px, 150px))",
@@ -813,6 +820,7 @@ export function Board({
 				{/* Cartas ativas: sala + criaturas / artefatos no encontro final */}
 				{isBossEncounter ? (
 					<div
+						className="game-board-active-cards"
 						style={{
 							display: "grid",
 							gridTemplateColumns: `repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}px)`,
@@ -843,6 +851,7 @@ export function Board({
 					</div>
 				) : (
 					<div
+						className="game-board-active-cards"
 						style={{
 							display: "grid",
 							gridTemplateColumns: `${ACTIVE_DUNGEON_CARD.width}px clamp(24px, 3vw, 54px) repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}px)`,
@@ -865,7 +874,7 @@ export function Board({
 						<div />
 						{Array.from({ length: ACTIVE_CARD_SLOT_COUNT }, (_, index) => {
 							const enemy = enemies[index] ?? null;
-							const isSelectable = !!enemy && canDropAttack;
+							const isSelectable = !!enemy && (canDropAttack || canTapTarget);
 							const isDragOver = draggingHeroId !== null && isSelectable;
 							const isImpacting = !!enemy && combatImpact?.enemyId === enemy.id;
 							return (
@@ -915,6 +924,7 @@ export function Board({
 
 				{/* Arena central */}
 				<div
+					className="game-board-arena"
 					style={{
 						display: "flex",
 						flex: 1,
@@ -953,6 +963,7 @@ export function Board({
 						)
 					) : (
 						<div
+							className="game-board-action-line"
 							style={{
 								position: "relative",
 								display: "flex",
@@ -1025,6 +1036,7 @@ export function Board({
 
 					{/* Heróis */}
 					<div
+						className="game-board-hero-strip"
 						style={{
 							display: "grid",
 							gridTemplateColumns: `repeat(${Math.min(Math.max(heroes.length, 1), 8)}, ${ACTIVE_DUNGEON_CARD.width}px)`,

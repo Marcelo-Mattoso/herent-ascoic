@@ -55,6 +55,7 @@ interface CardDetailState {
 }
 
 type ActionLogMode = "open" | "collapsed" | "hidden";
+type PortableDrawer = "awakening" | "influences" | "log" | null;
 
 const AWAKENING_LEVELS = [
 	{
@@ -98,10 +99,10 @@ export function Exploration() {
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showHeroFocus, setShowHeroFocus] = useState(false);
 	const [actionLogMode, setActionLogMode] = useState<ActionLogMode>("open");
+	const [portableDrawer, setPortableDrawer] = useState<PortableDrawer>(null);
 	const [combatAttackHintVisible, setCombatAttackHintVisible] = useState(false);
 	const [hasShownFirstAttackHint, setHasShownFirstAttackHint] = useState(false);
-	const { boards, selectedBoard, selectedBoardId, setSelectedBoardId } =
-		useBoardBackgrounds();
+	const { selectedBoard } = useBoardBackgrounds();
 	const backCardUrls = useBackCards();
 	const cardImageUrls = useCardImages();
 
@@ -170,15 +171,18 @@ export function Exploration() {
 	function handleHeroClick(h: HeroState) {
 		if (h.status !== "active") return;
 		setFocusedHero(h.id);
-		setShowHeroFocus(true);
 		if (
 			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
 			combat?.phase === "selecting_hero" &&
 			!combat.heroesActed.includes(h.id)
 		) {
+			// Toque é o caminho principal: primeiro escolhe o herói, depois o alvo.
+			setShowHeroFocus(false);
 			setCombatAttackHintVisible(false);
 			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
+			return;
 		}
+		setShowHeroFocus(true);
 	}
 
 	function handleHeroDragStart(heroId: string) {
@@ -201,6 +205,21 @@ export function Exploration() {
 	}
 
 	function handleEnemyClick(e: EnemyState) {
+		const selectedHeroId = combat?.selectedHeroId;
+		if (
+			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
+			combat?.phase === "selecting_target" &&
+			selectedHeroId &&
+			e.status === "active"
+		) {
+			setShowHeroFocus(false);
+			setCombatAttackHintVisible(false);
+			dispatch({
+				type: "CHOOSE_TARGET",
+				payload: { heroId: selectedHeroId, enemyId: e.id },
+			});
+			return;
+		}
 		openCardDetail(e.cardId, e.id === "boss" ? "boss" : "enemy");
 	}
 
@@ -264,78 +283,6 @@ export function Exploration() {
 				>
 					<div className="game-table-vignette" />
 					<div className="game-play-space">
-						{/* Barra de status topo */}
-						<div
-							className="game-topbar flex items-center justify-between text-sm"
-							style={{ background: "rgba(241, 239, 232, 0.88)" }}
-						>
-							<div className="flex gap-5 flex-wrap">
-								<span style={{ color: UI.textSecondary }}>
-									Sala:{" "}
-									<strong style={{ color: UI.textPrimary }}>
-										{view.roomsCleared}
-									</strong>
-								</span>
-								<span style={{ color: UI.textSecondary }}>
-									Heróis:{" "}
-									<strong style={{ color: UI.textPrimary }}>
-										{view.heroes.filter((h) => h.status === "active").length}
-									</strong>{" "}
-									ativos
-								</span>
-								{view.combat?.round ? (
-									<span style={{ color: UI.textSecondary }}>
-										Rodada:{" "}
-										<strong style={{ color: UI.textPrimary }}>
-											{view.combat.round}
-										</strong>
-									</span>
-								) : null}
-							</div>
-							<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
-								{boards.length > 0 && (
-									<label
-										style={{
-											display: "flex",
-											alignItems: "center",
-											gap: 4,
-											fontSize: 11,
-											color: UI.textSecondary,
-										}}
-									>
-										<span>Tabuleiro</span>
-										<select
-											value={selectedBoardId ?? ""}
-											onChange={(event) =>
-												setSelectedBoardId(event.currentTarget.value || null)
-											}
-											style={{
-												fontSize: 11,
-												borderRadius: 6,
-												border: `1px solid ${UI.border}`,
-												background: UI.panelBg,
-												color: UI.textPrimary,
-												padding: "2px 6px",
-												maxWidth: 150,
-											}}
-										>
-											{boards.map((board) => (
-												<option key={board.id} value={board.id}>
-													{board.name}
-												</option>
-											))}
-										</select>
-									</label>
-								)}
-								<span
-									className="text-xs px-2 py-0.5 rounded"
-									style={{ background: UI.panelBg, color: UI.textTertiary }}
-								>
-									{status}
-								</span>
-							</div>
-						</div>
-
 						{/* TABULEIRO */}
 						<div className="game-board-surface">
 							<Board
@@ -403,6 +350,26 @@ export function Exploration() {
 						</aside>
 
 						<div className="game-bottom-dock">
+							<div className="game-portable-action-bar" aria-label="Ações da partida">
+								<button
+									type="button"
+									onClick={() => setPortableDrawer("awakening")}
+								>
+									<span aria-hidden="true">⚡</span> Despertar
+								</button>
+								<button
+									type="button"
+									onClick={() => setPortableDrawer("influences")}
+								>
+									<span aria-hidden="true">✦</span> Influências
+								</button>
+								<button
+									type="button"
+									onClick={() => setPortableDrawer("log")}
+								>
+									<span aria-hidden="true">☷</span> Log
+								</button>
+							</div>
 							{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
 							{(() => {
 								const heroBuffs = focusedHero
@@ -413,6 +380,7 @@ export function Exploration() {
 									return null;
 								return (
 									<div
+										className="game-buff-dock"
 										style={{
 											background: UI.panelBg,
 											border: `1px solid ${UI.border}`,
@@ -471,6 +439,16 @@ export function Exploration() {
 						</div>
 					)}
 
+					{portableDrawer && (
+						<PortableGameDrawer
+							type={portableDrawer}
+							despertar={view.despertar}
+							influences={view.activeInfluences}
+							entries={view.eventLog}
+							onClose={() => setPortableDrawer(null)}
+						/>
+					)}
+
 					{/* Modais */}
 					{itemUse && (
 						<UseItemModal
@@ -513,6 +491,69 @@ export function Exploration() {
 			{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}
 			{status === "REWARD_PHASE" && <InventarioGrupo />}
 		</>
+	);
+}
+
+function PortableGameDrawer({
+	type,
+	despertar,
+	influences,
+	entries,
+	onClose,
+}: {
+	type: Exclude<PortableDrawer, null>;
+	despertar: PlayerView["despertar"];
+	influences: PlayerView["activeInfluences"];
+	entries: PlayerView["eventLog"];
+	onClose: () => void;
+}) {
+	const title =
+		type === "awakening"
+			? "Despertar"
+			: type === "influences"
+				? "Influências"
+				: "Log da partida";
+
+	return (
+		<div className="game-portable-drawer-layer">
+			<button
+				type="button"
+				className="game-portable-drawer-backdrop"
+				onClick={onClose}
+				aria-label={`Fechar ${title}`}
+			/>
+			<section
+				className="game-portable-drawer"
+				role="dialog"
+				aria-modal="true"
+				aria-label={title}
+			>
+				<header>
+					<h2>{title}</h2>
+					<button type="button" onClick={onClose} aria-label={`Fechar ${title}`}>
+						×
+					</button>
+				</header>
+				<div className="game-portable-drawer__body">
+					{type === "awakening" ? (
+						<DungeonAwakeningMarker current={despertar} />
+					) : null}
+					{type === "influences" ? (
+						<InfluencePanel influences={influences} />
+					) : null}
+					{type === "log" ? (
+						<EventLogPanel
+							entries={entries}
+							title="Log da partida"
+							maxHeight="none"
+							collapsed={false}
+							onToggleCollapsed={() => {}}
+							onClose={onClose}
+						/>
+					) : null}
+				</div>
+			</section>
+		</div>
 	);
 }
 
