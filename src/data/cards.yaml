@@ -424,6 +424,20 @@
   itemClass: consumable
   skills:
     - skillId: skill_preserved_path
+  grants:
+    - id: worn_rope_prevent_discard
+      abilityId: skill_preserved_path
+      activation:
+        kind: event
+        event: evt_dungeon_discard
+        window: dungeon_discard
+        decision: optional
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_item
+          affectScope: scp_none
+          affectObject: obj_all
 - id: item_rusty_dagger
   type: item
   itemClass: equipment
@@ -445,6 +459,18 @@
     - skillId: skill_last_light_healing
       params:
         value: 2
+  grants:
+    - id: lesser_vigor_restore_life
+      abilityId: skill_last_light_healing
+      params: { value: 2 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_target
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_incendiary_oil_flask
   type: item
   itemClass: consumable
@@ -452,6 +478,18 @@
     - skillId: skill_living_ember_oil
       params:
         value: item_incendiary_oil_flask.livingEmber
+  grants:
+    - id: incendiary_oil_damage
+      abilityId: skill_living_ember_oil
+      params: { value: item_incendiary_oil_flask.livingEmber }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_enemy
+          affectScope: scp_single
+          affectObject: obj_not_friend
 - id: item_ancient_iron_key
   type: item
   itemClass: special
@@ -543,6 +581,21 @@
     - skillId: skill_crimson_fury
       params:
         value: 2
+  grants:
+    - id: fury_before_attack
+      abilityId: skill_crimson_fury
+      params: { value: 2 }
+      activation:
+        kind: event
+        event: evt_attack_declared
+        window: before_attack_roll
+        decision: optional
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_self
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_precision_potion
   type: item
   itemClass: consumable
@@ -550,13 +603,38 @@
     - skillId: skill_hunter_focus
       params:
         value: 4
+  grants:
+    - id: precision_before_attack
+      abilityId: ability_hit_bonus_once
+      params: { value: 4 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_self
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_stoneskin_potion
   type: item
   itemClass: consumable
+  useTiming: pre_combat
   skills:
-    - skillId: item_skill_block
+    - skillId: item_skill_potion_stoneskin
       params:
         value: 3
+  grants:
+    - id: stoneskin_pre_combat
+      abilityId: item_skill_potion_stoneskin
+      params: { value: 3 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_self
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_return_potion
   type: item
   itemClass: consumable
@@ -564,6 +642,18 @@
     - skillId: power_restored_path
       params:
         value: 1
+  grants:
+    - id: return_recover_dungeon
+      abilityId: power_restored_path
+      params: { value: 1 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_item
+          affectScope: scp_none
+          affectObject: obj_all
 - id: item_living_ember_potion
   type: item
   itemClass: consumable
@@ -571,6 +661,18 @@
     - skillId: skill_living_ember
       params:
         value: 3
+  grants:
+    - id: living_ember_damage
+      abilityId: skill_living_ember
+      params: { value: 3 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_enemy
+          affectScope: scp_single
+          affectObject: obj_not_friend
 - id: item_greater_vigor_potion
   type: item
   itemClass: consumable
@@ -578,11 +680,38 @@
     - skillId: skill_last_light_healing
       params:
         value: 4
+  grants:
+    - id: greater_vigor_restore_life
+      abilityId: skill_last_light_healing
+      params: { value: 4 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: discard
+        targeting:
+          targetType: tgt_target
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_silent_dungeon_charm
   type: item
   itemClass: charm
   skills:
     - skillId: skill_path_safeguard
+  grants:
+    - id: silent_dungeon_prevent_discard
+      abilityId: skill_path_safeguard
+      activation:
+        kind: event
+        event: evt_dungeon_discard
+        window: dungeon_discard
+        decision: optional
+        actionCost: none
+        consumeSource: none
+        limit: { scope: room, maxUses: 1 }
+        targeting:
+          targetType: tgt_item
+          affectScope: scp_none
+          affectObject: obj_all
 - id: item_low_flame_charm
   type: item
   itemClass: charm
@@ -590,23 +719,80 @@
     - skillId: skill_hunter_focus
       params:
         value: 2
+  grants:
+    - id: low_flame_equipped_hit_bonus
+      abilityId: ability_hit_bonus_while_equipped
+      params: { value: 2 }
+      activation:
+        kind: continuous
+        targeting:
+          targetType: tgt_self
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_warm_blood_charm
   type: item
   itemClass: charm
+  useTiming: damage_response
   skills:
     - skillId: item_skill_block
       params:
         value: 10
+  grants:
+    - id: warm_blood_damage_response
+      abilityId: ability_reduce_current_damage
+      params: { value: 10 }
+      activation:
+        kind: event
+        event: evt_damage_taken
+        window: before_damage
+        decision: optional
+        actionCost: none
+        consumeSource: none
+        limit: { scope: combat, maxUses: 1 }
+        targeting:
+          targetType: tgt_self
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_safe_path_charm
   type: item
   itemClass: charm
   skills:
     - skillId: skill_illuminate_path
+  grants:
+    - id: safe_path_reveal
+      abilityId: skill_illuminate_path
+      activation:
+        kind: event
+        event: evt_room_reveal
+        window: room_enter
+        decision: optional
+        actionCost: none
+        consumeSource: none
+        limit: { scope: room, maxUses: 1 }
+        targeting:
+          targetType: tgt_item
+          affectScope: scp_none
+          affectObject: obj_all
 - id: item_last_defense_charm
   type: item
   itemClass: charm
   skills:
     - skillId: power_greater_last_light_miracle
+  grants:
+    - id: last_defense_prevent_destruction
+      abilityId: ability_prevent_current_destruction
+      activation:
+        kind: event
+        event: evt_would_be_destroyed
+        window: before_destroy
+        decision: optional
+        actionCost: none
+        consumeSource: none
+        limit: { scope: combat, maxUses: 1 }
+        targeting:
+          targetType: tgt_self
+          affectScope: scp_single
+          affectObject: obj_friend
 - id: item_last_chord_lute
   type: item
   itemClass: equipment

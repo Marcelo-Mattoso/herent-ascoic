@@ -153,6 +153,9 @@ export interface GameState {
 	pendingSkillChoice?: {
 		readonly skillId: string;
 		readonly prompt: string;
+		/** Escolha de cartas reveladas: permite guardar uma ou descartar individualmente. */
+		readonly kind?: "draw_and_choose";
+		readonly discardDeck?: "itemDeck" | "artifactDeck";
 		readonly options: readonly {
 			readonly id: string;
 			readonly label: string;

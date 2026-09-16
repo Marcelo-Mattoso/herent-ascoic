@@ -21,7 +21,7 @@ interface HeroCardProps {
 	onClick: () => void;
 }
 
-const SLOTS = ["weapon", "armor", "utility", "special"] as const;
+const SLOTS = ["weapon", "utility", "consumable", "special"] as const;
 
 export function HeroCard({
 	hero,

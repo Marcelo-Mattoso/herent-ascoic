@@ -4,7 +4,6 @@
 
 import { useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
-import { getCardById } from "@/core/data/cards";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -186,10 +185,6 @@ export function RewardModal({ onClose }: RewardModalProps) {
 	// Etapa 2: destino do item
 	const hero =
 		activeHeroes.find((h) => h.id === selectedHeroId) ?? activeHeroes[0];
-	const itemCard = getCardById(reward.cardId);
-	const isConsumable =
-		itemCard?.type === "item" && itemCard.itemClass === "consumable";
-
 	return (
 		<Modal title={`Item: ${rewardName}`} maxWidth={380}>
 			<div className="space-y-4">
@@ -211,26 +206,21 @@ export function RewardModal({ onClose }: RewardModalProps) {
 				</div>
 
 				<div className="flex flex-col gap-2">
-					{!isConsumable && (
-						<ActionButton
-							label="Equipar"
-							variant="primary"
-							fullWidth
-							onClick={() => {
-								dispatch({
-									type: "CHOOSE_ITEM_DESTINATION",
-									payload: {
-										heroId: selectedHeroId,
-										destination: "equip",
-									},
-								});
-								onClose();
-							}}
-						/>
-					)}
+					<ActionButton
+						label="Equipar"
+						variant="primary"
+						fullWidth
+						onClick={() => {
+							dispatch({
+								type: "CHOOSE_ITEM_DESTINATION",
+								payload: { heroId: selectedHeroId, destination: "equip" },
+							});
+							onClose();
+						}}
+					/>
 					<ActionButton
 						label="Guardar na mochila"
-						variant={isConsumable ? "primary" : "secondary"}
+						variant="secondary"
 						fullWidth
 						onClick={() => {
 							dispatch({

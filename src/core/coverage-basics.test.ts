@@ -86,7 +86,7 @@ describe("helpers puros sem fluxo de UI", () => {
 		const hero: HeroState = { id: "h1", maxLife: 10, currentLife: 6, activeItems: {}, cardId: "hero_crimson_barbarian", damage: 4, hitBonus: 5, dice: 1, impeto: 0, backpack: [], usedPowers: {}, conditions: [], status: "active", playerIndex: 0, xp: 0 };
 		expect(defaultItemDestination(hero, "equipment")).toBe("equip");
 		expect(defaultItemDestination({ ...hero, activeItems: { weapon: "item_rusty_dagger" } }, "equipment")).toBe("backpack");
-		expect(defaultItemDestination(hero, "consumable")).toBe("backpack");
+		expect(defaultItemDestination(hero, "consumable")).toBe("equip");
 		expect(tiebreakHero([hero, { ...hero, id: "h2", currentLife: 5, maxLife: 10 }]).id).toBe("h2");
 		const start: LoggedAction = { seq: 0, action: { type: "START_GAME", payload: { heroCardIds: [] } } };
 		expect(isLogIntact([start, { ...start, seq: 1, action: { type: "REVEAL_ROOM" } }])).toBe(true);

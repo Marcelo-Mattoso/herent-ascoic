@@ -1,6 +1,8 @@
 // Tipos TypeScript que espelham o schema do cards.yaml.
 // Cada variante é discriminada pelo campo `type`.
 
+import type { AbilityGrant } from "./abilityTypes";
+
 // --- Compartilhados ---
 
 export type CardRewardType = "item" | "artifact";
@@ -18,6 +20,9 @@ export interface SkillRef {
 	readonly requiresAwakening?: boolean;
 }
 
+/** @deprecated Migração vNext: prefira grants[]. Mantido para cards.yaml atual. */
+export type LegacySkillRef = SkillRef;
+
 // --- Hero ---
 
 export interface HeroCard {
@@ -27,7 +32,9 @@ export interface HeroCard {
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
 	readonly damage: number;
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 }
 
 // --- Creature ---
@@ -42,7 +49,9 @@ export interface CreatureCard {
 	readonly xp: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 }
 
 // --- Subboss ---
@@ -57,7 +66,9 @@ export interface SubbossCard {
 	readonly xp: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 }
 
 // --- Room ---
@@ -70,7 +81,9 @@ export interface RoomCard {
 	readonly enemiesByPlayers: readonly [number, number, number, number];
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 	readonly xp?: number;
 	readonly specialCreatureId?: string;
 }
@@ -82,7 +95,9 @@ export interface SubbossRoomCard {
 	readonly exits: number;
 	readonly reward: number;
 	readonly rewardType: CardRewardType;
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 	readonly xp?: number;
 	readonly linkedSubbossId: string;
 }
@@ -100,7 +115,10 @@ export interface ItemCard {
 	readonly type: "item";
 	readonly id: string;
 	readonly itemClass: ItemClass;
+	readonly useTiming?: "pre_combat" | "damage_response";
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 }
 
 // --- Artifact ---
@@ -109,7 +127,9 @@ export interface ArtifactCard {
 	readonly type: "artifact";
 	readonly id: string;
 	readonly countsAs: "artifact";
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 }
 
 // --- Boss ---
@@ -120,7 +140,9 @@ export interface BossCard {
 	readonly lifeBase: number;
 	readonly hitBonusBase: number;
 	readonly damage: number;
+	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
 }
 
 // --- União discriminada ---

@@ -26,6 +26,7 @@ const WINDOW_LABEL: Record<TriggerWindow, string> = {
 	before_attack_roll: "Antes da rolagem de ataque",
 	before_combat: "Antes do combate",
 	before_damage: "Antes do dano",
+	before_destroy: "Antes da destruição",
 	combat_end: "Fim do combate",
 	dungeon_discard: "Descarte da masmorra",
 	entity_enter_play: "Entrada em jogo",

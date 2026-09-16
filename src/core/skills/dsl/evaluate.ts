@@ -184,6 +184,7 @@ function evaluateOne(
 				pile: node.pile,
 				reveal,
 				keep,
+				replace_room_loot: node.replace_room_loot,
 			});
 		}
 

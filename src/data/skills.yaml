@@ -167,7 +167,7 @@ abilities:
     script: skill_rekindled_forge
     operate_type: op_triggered
     trigger: &a1
-      event: evt_room_leave
+      event: evt_room_won
     nature:
       - nat_fire
     target_type: tgt_target
@@ -253,6 +253,7 @@ abilities:
         pile: item_deck
         reveal: 2
         keep: 1
+        replace_room_loot: true
     operate_type: op_triggered
     trigger: *a1
     nature:
@@ -1275,6 +1276,20 @@ abilities:
     target_type: tgt_self
     affect_scope: scp_single
     affect_object: obj_friend
+  - id: item_skill_potion_stoneskin
+    category: item_skill
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_reduction
+        operation: add
+        value: $value
+        duration:
+          kind: until_end_of_combat
+    operate_type: op_active_buff
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: item_skill_mystic_draw
     category: item_skill
     effect:
@@ -1397,6 +1412,7 @@ abilities:
         pile: item_deck
         reveal: 2
         keep: 1
+        replace_room_loot: true
     operate_type: op_triggered
     trigger: *a1
     nature:

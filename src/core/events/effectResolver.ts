@@ -5,6 +5,8 @@
 // Patch-18 Lote F: run_skill — executa efeito de skill via DSL/script.
 
 import { SKILLS } from "../data/skills";
+import { awakeningRequirementMet } from "../rules/awakening";
+import { cardSkills } from "../skills/lookup";
 import type { SkillContext } from "../data/skillTypes";
 import type { EffectDescriptor, EntityId } from "../ecs/types";
 import { addPending } from "../effects/stack";
@@ -20,6 +22,27 @@ import {
 	triggerDecisionFlag,
 } from "../triggers/engine";
 import type { GameEvent } from "./types";
+
+/**
+ * Defesa de última linha para componentes ECS persistidos/restaurados: a
+ * instalação já filtra referências Roxas, mas um componente criado antes de
+ * uma transição de Despertar não pode burlar a regra ao receber um evento.
+ */
+function sourceSkillIsAwakened(
+	state: GameState,
+	entityId: EntityId,
+	skillId: string,
+): boolean {
+	const cardId =
+		state.heroes.find((hero) => hero.id === entityId)?.cardId ??
+		state.activeEnemies.find((enemy) => enemy.id === entityId)?.cardId;
+	if (!cardId) return true;
+	const refs = cardSkills(cardId).filter(({ def }) => def.id === skillId);
+	if (refs.length === 0) return true;
+	return refs.some(({ ref }) =>
+		awakeningRequirementMet(state.despertar, ref.requiresAwakening),
+	);
+}
 
 function skillContextFromEvent(
 	state: GameState,
@@ -139,6 +162,8 @@ export function applyEffect(
 			const triggerEvent = effect["triggerEvent"] as EventName | undefined;
 			const params = (effect["params"] as Record<string, unknown>) ?? {};
 			if (!skillId || !triggerEvent) return { state, event };
+			if (!sourceSkillIsAwakened(state, entityId, skillId))
+				return { state, event };
 
 			const skillCtx = skillContextFromEvent(
 				state,
@@ -172,6 +197,8 @@ export function applyEffect(
 
 			const def = SKILLS.abilities.find((a) => a.id === skillId);
 			if (!def) return { state, event };
+			if (!sourceSkillIsAwakened(state, entityId, skillId))
+				return { state, event };
 
 			const skillCtx = skillContextFromEvent(
 				state,

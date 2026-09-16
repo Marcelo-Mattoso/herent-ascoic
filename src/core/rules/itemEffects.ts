@@ -1,6 +1,7 @@
 import type { SkillRef } from "../data/cardTypes";
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
+import { lookupAbilityById } from "../data/abilities";
 import type { SkillDefinition } from "../data/skillTypes";
 import type { DamageType } from "../events/types";
 import { cardSkills } from "../skills/lookup";
@@ -73,6 +74,21 @@ export function manualItemUnavailableReason(
 		].includes(state.status)
 	) {
 		return "Aguarde uma janela de ação para usar o item.";
+	}
+	const card = getCardById(itemId);
+	const manualGrant = card?.grants?.find(
+		(grant) => grant.activation.kind === "manual",
+	);
+	if (card?.grants?.length) {
+		if (!manualGrant) return "Este item reage a uma janela do jogo.";
+		const grantLockId = `${heroId}:${itemId}:${manualGrant.id}`;
+		if (manualGrant.activation.limit?.maxUses === 1 &&
+			ActivationTracker.isDisabled(state, "item", grantLockId)) {
+			return "Este item já foi usado neste escopo.";
+		}
+		if (hero.currentLife <= (manualGrant.activation.cost?.hp ?? 0))
+			return "Vida insuficiente para pagar o custo.";
+		return null;
 	}
 	const def = cardSkills(itemId)[0]?.def;
 	if (!def || !itemCanBeUsedManually(def))
@@ -204,14 +220,35 @@ export function collectHeroHitBonusesFromItems(
 	state: GameState,
 	enemy?: EnemyState,
 ): BonusEntry[] {
-	return itemSkillSourcesForHero(hero, state).flatMap((source) => {
+	const continuousGrants = Object.values(hero.activeItems).flatMap((itemId) => {
+		if (!itemId) return [];
+		const item = getCardById(itemId);
+		if (item?.type !== "item") return [];
+		return (item.grants ?? []).flatMap((grant) => {
+			if (grant.activation.kind !== "continuous") return [];
+			if (!conditionsApply(grant.activation.conditions, state, hero, enemy))
+				return [];
+			const ability = lookupAbilityById(grant.abilityId);
+			const params = { ...ability?.defaultParams, ...grant.params };
+			return (ability?.effect ?? []).flatMap((effect) => {
+				if (effect.kind !== "p_modifier" || effect.stat !== "s_hit_bonus")
+					return [];
+				const value = resolveNumber(effect.value, params, state.despertar);
+				return value ? [{ source: getCardName(itemId), value }] : [];
+			});
+		});
+	});
+	return [
+		...continuousGrants,
+		...itemSkillSourcesForHero(hero, state).flatMap((source) => {
 		if (!skillAffectsAttackRoll(source.def)) return [];
 		if (!conditionsApply(source.def.conditions, state, hero, enemy)) return [];
 		if (source.def.id === "skill_hunter_focus") {
 			return bonusEntry(source, numericParam(source.params, "value"));
 		}
 		return modifierEntries(source, state, "hit");
-	});
+		}),
+	];
 }
 
 export function collectHeroDamageBonusesFromItems(
@@ -290,6 +327,11 @@ function itemSkillSourcesForHero(
 
 	for (const itemId of Object.values(hero.activeItems)) {
 		if (!itemId) continue;
+		const item = getCardById(itemId);
+		if (item?.type === "item" && item.useTiming) continue;
+		// Grants explícitos já descrevem todo o comportamento da carta. Os
+		// SkillRefs ficam apenas para compatibilidade e não devem duplicá-lo.
+		if (item?.type === "item" && item.grants?.length) continue;
 		sources.push(...skillSourcesForCard(itemId, "item", itemId, hero.id));
 	}
 

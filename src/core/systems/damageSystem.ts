@@ -13,6 +13,7 @@ import {
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import { destructionPreventionFlag } from "../rules/destruction";
 import {
 	removeBlocksAppliedBySource,
 	removeBlocksForSource,
@@ -24,6 +25,26 @@ import type { HeroState } from "../state/heroState";
 export interface DamageOptions {
 	readonly sourceId?: EntityId;
 	readonly damageType?: DamageType;
+	/** Interno: evita reabrir a mesma janela ao retomar uma decisão pendente. */
+	readonly skipWouldBeDestroyed?: boolean;
+}
+
+function currentLife(state: GameState, targetId: EntityId): number | null {
+	return (
+		state.heroes.find((hero) => hero.id === targetId)?.currentLife ??
+		state.activeEnemies.find((enemy) => enemy.id === targetId)?.currentLife ??
+		null
+	);
+}
+
+function consumeDestructionPrevention(
+	state: GameState,
+	targetId: EntityId,
+): { readonly state: GameState; readonly minimumLife: number } {
+	const flag = destructionPreventionFlag(targetId);
+	if (!state.flags[flag]) return { state, minimumLife: 0 };
+	const { [flag]: _used, ...flags } = state.flags;
+	return { state: { ...state, flags }, minimumLife: 1 };
 }
 
 function damageTriggerContext(
@@ -115,15 +136,50 @@ export function applyDamage(
 	const damageType = opts?.damageType ?? "physical";
 
 	// Janela pré: listeners podem reduzir/aumentar o dano.
-	const { state: s1, event: modified } = emit(state, {
+	let { state: s1, event: modified } = emit(state, {
 		type: "DamageAboutToBeDealt",
 		payload: { sourceId, targetId, damageType, amount },
 	});
 	if (s1.pendingTriggerInterrupt) return s1;
 	const finalAmount = (modified.payload as { amount: number }).amount;
+	const lifeBeforeDamage = currentLife(s1, targetId);
+	if (
+		!opts?.skipWouldBeDestroyed &&
+		finalAmount > 0 &&
+		lifeBeforeDamage !== null &&
+		finalAmount >= lifeBeforeDamage
+	) {
+		const { state: sBeforeDestroy } = emit(s1, {
+			type: "EntityWouldBeDestroyed",
+			payload: { sourceId, targetId, damageType, amount: finalAmount },
+		});
+		const pending = resolveSkillWindow(sBeforeDestroy, {
+			event: "evt_would_be_destroyed",
+			ctx: {
+				triggeredBy: "evt_would_be_destroyed",
+				...damageTriggerContext(sBeforeDestroy, sourceId, targetId, finalAmount),
+			},
+			resume: {
+				type: "apply_damage",
+				targetId,
+				amount,
+				sourceId,
+				damageType,
+			},
+		});
+		if (pending.pendingTriggerInterrupt || pending.pendingSkillChoice)
+			return pending;
+		s1 = pending;
+	}
+	const protection = consumeDestructionPrevention(s1, targetId);
 
 	// Aplicar o dano com o valor modificado.
-	const s2 = applyDamageRaw(s1, targetId, finalAmount, 0);
+	const s2 = applyDamageRaw(
+		protection.state,
+		targetId,
+		finalAmount,
+		protection.minimumLife,
+	);
 
 	// Janela pós: listeners reagem ao dano já aplicado.
 	const { state: s3 } = emit(s2, {

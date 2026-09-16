@@ -22,6 +22,7 @@ import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
 import { buildDungeonRoomDeck, handleRevealRoom } from "./exploration";
 import { createHeroFromCard, log, shuffleRng } from "./utils";
+import { awakeningRequirementMet } from "../rules/awakening";
 
 export function handleStartGame(
 	state: GameState,
@@ -91,7 +92,9 @@ export function handleStartGame(
 	for (const hero of heroes) {
 		const heroCard = getCardById(hero.cardId);
 		if (heroCard) {
-			const skills = cardSkills(heroCard.id);
+			const skills = cardSkills(heroCard.id).filter(({ ref }) =>
+				awakeningRequirementMet(despertarIndex, ref.requiresAwakening),
+			);
 			world = installSkillTriggers(world, hero.id, skills);
 			for (const { def, ref } of skills) {
 				if (def.operate_type === "op_passive") {

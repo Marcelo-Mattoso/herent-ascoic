@@ -11,6 +11,15 @@ import type {
 } from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
 
+/** Contrato mínimo compartilhado por SkillDefinition legado e AbilityGrant. */
+export interface TargetingDefinition {
+	readonly script?: string;
+	readonly effect?: readonly unknown[];
+	readonly target_type: SkillDefinition["target_type"];
+	readonly affect_scope: SkillDefinition["affect_scope"];
+	readonly affect_object: SkillDefinition["affect_object"];
+}
+
 export type ManualSkillTargetResolution =
 	| {
 			readonly kind: "ready";
@@ -33,7 +42,7 @@ function effectUsesExplicitTarget(effect: unknown): boolean {
 	return false;
 }
 
-function manualSkillNeedsTarget(def: SkillDefinition): boolean {
+function manualSkillNeedsTarget(def: TargetingDefinition): boolean {
 	if (def.script) {
 		return def.target_type === "tgt_enemy" || def.target_type === "tgt_target";
 	}
@@ -71,7 +80,7 @@ function activeEnemyCandidates(state: GameState): TargetCandidate[] {
 
 function manualTargetCandidates(
 	state: GameState,
-	def: SkillDefinition,
+	def: TargetingDefinition,
 	sourceId: string,
 ): TargetCandidate[] {
 	if (
@@ -89,7 +98,7 @@ function manualTargetCandidates(
 
 function filterAllowedTargetIds(
 	state: GameState,
-	def: SkillDefinition,
+	def: TargetingDefinition,
 	sourceId: string,
 	targetIds: readonly string[],
 ): readonly string[] {
@@ -123,7 +132,7 @@ function filterAllowedTargetIds(
 
 export function resolveManualSkillTarget(
 	state: GameState,
-	def: SkillDefinition,
+	def: TargetingDefinition,
 	sourceId: string,
 	targetIds?: readonly string[],
 ): ManualSkillTargetResolution {

@@ -8,7 +8,7 @@ interface ItemTileProps {
 
 const SLOT_COLORS: Record<ItemSlotType, { bg: string; border: string }> = {
 	weapon: { bg: "#FAC775", border: "#BA7517" },
-	armor: { bg: "#B5D4F4", border: "#185FA5" },
+	consumable: { bg: "#B5D4F4", border: "#185FA5" },
 	utility: { bg: "#C0DD97", border: "#3B6D11" },
 	special: { bg: "#ED93B1", border: "#8B1A4A" },
 };

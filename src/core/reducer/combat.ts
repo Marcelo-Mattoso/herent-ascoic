@@ -5,6 +5,10 @@
 
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
+import {
+	executeAbilityGrant,
+	resolveManualGrantTarget,
+} from "../abilities/executor";
 import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
@@ -757,10 +761,52 @@ export function handleResolveAttack(state: GameState): GameState {
 		return endHeroTurnAndAdvance(next, roll.heroId, "fugiu");
 	}
 
+	// A destruição precisa ser decidida antes de qualquer dano deste ataque ser
+	// aplicado. Assim, uma escolha no Encanto da Última Defesa pode retomar o
+	// ataque inteiro sem repetir o dano que já foi aplicado ao outro lado.
+	const reducedHeroDamage =
+		result.heroDamageTaken > 0
+			? reduceHeroDamage(next, hero, result.heroDamageTaken)
+			: null;
+	if (result.enemyDamageTaken >= enemy.currentLife && result.enemyDamageTaken > 0) {
+		next = resolveSkillWindow(next, {
+			event: "evt_would_be_destroyed",
+			resume: { type: "resolve_attack" },
+			ctx: {
+				triggeredBy: "evt_would_be_destroyed",
+				sourceHeroId: hero.id,
+				targetHeroIds: [],
+				targetEnemyIds: [enemy.id],
+				value: result.enemyDamageTaken,
+				round: next.combat?.round ?? 0,
+			},
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+	}
+	if (
+		reducedHeroDamage &&
+		reducedHeroDamage.damage >= hero.currentLife &&
+		reducedHeroDamage.damage > 0
+	) {
+		next = resolveSkillWindow(next, {
+			event: "evt_would_be_destroyed",
+			resume: { type: "resolve_attack" },
+			ctx: {
+				triggeredBy: "evt_would_be_destroyed",
+				sourceEnemyId: enemy.id,
+				targetHeroIds: [hero.id],
+				targetEnemyIds: [enemy.id],
+				value: reducedHeroDamage.damage,
+				round: next.combat?.round ?? 0,
+			},
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+	}
+
 	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
 	if (result.enemyDamageTaken > 0) {
 		const dmg = result.enemyDamageTaken;
-		next = applyDamage(next, enemy.id, dmg);
+		next = applyDamage(next, enemy.id, dmg, { skipWouldBeDestroyed: true });
 		if (next.pendingTriggerInterrupt) return next;
 		next = logItemLifeDrain(next, hero);
 		const heroRollStr = fmtRoll(
@@ -782,11 +828,11 @@ export function handleResolveAttack(state: GameState): GameState {
 		// on_destroy_creature_with_attack + on_destroyed: via TriggerComponents (emit EnemyDestroyed)
 	}
 
-	if (result.heroDamageTaken > 0) {
-		const reduced = reduceHeroDamage(next, hero, result.heroDamageTaken);
+	if (reducedHeroDamage) {
+		const reduced = reducedHeroDamage;
 		const dmg = reduced.damage;
 
-		next = applyDamage(next, hero.id, dmg);
+		next = applyDamage(next, hero.id, dmg, { skipWouldBeDestroyed: true });
 		if (next.pendingTriggerInterrupt) return next;
 		const enemyRollStr = fmtRoll(
 			roll.enemyResults,
@@ -1099,6 +1145,40 @@ export function handleUseItem(
 ): GameState {
 	// Resolve a skill do item via catálogo
 	const itemCard = getCardById(itemId);
+	const explicitGrant = itemCard?.grants?.find(
+		(grant) => grant.activation.kind === "manual",
+	);
+	if (itemCard?.grants?.length) {
+		if (!explicitGrant) {
+			return log(
+				state,
+				`${getCardName(itemId)} reage a uma janela do jogo e não pode ser usado manualmente.`,
+			);
+		}
+		const unavailable = manualItemUnavailableReason(state, heroId, itemId);
+		if (unavailable) return log(state, `[AVISO] ${unavailable}`);
+		const source = { kind: "item" as const, cardId: itemId, sourceHeroId: heroId };
+		const selection = resolveManualGrantTarget(
+			state,
+			source,
+			explicitGrant,
+			targetHeroId || targetEnemyId
+				? [targetHeroId ?? targetEnemyId!]
+				: undefined,
+		);
+		if (selection.kind !== "ready") {
+			return log(
+				state,
+				selection.kind === "unavailable" ? selection.reason : selection.prompt,
+			);
+		}
+		return executeAbilityGrant(state, {
+			source,
+			grant: explicitGrant,
+			triggeredBy: "manual",
+			targetIds: selection.targetIds,
+		});
+	}
 	const itemSkillRef = itemCard ? cardSkills(itemCard.id)[0] : null;
 	const skillDef = itemSkillRef?.def ?? null;
 	const itemName = getCardName(itemId);

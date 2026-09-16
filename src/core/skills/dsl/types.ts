@@ -163,6 +163,8 @@ export type EffectNode =
 			readonly pile: DrawPile;
 			readonly reveal: ExprNode;
 			readonly keep: ExprNode;
+			/** A escolha substitui o saque normal da sala vencida. */
+			readonly replace_room_loot?: boolean;
 	  }
 	| { readonly kind: "i_reveal_dungeon"; readonly count: ExprNode }
 	| {
@@ -288,6 +290,7 @@ export type EventName =
 	| "evt_hit"
 	| "evt_damage_dealt"
 	| "evt_damage_taken"
+	| "evt_would_be_destroyed"
 	| "evt_destroy"
 	| "evt_kill"
 	// Ciclo
@@ -298,6 +301,7 @@ export type EventName =
 	// Sala
 	| "evt_room_reveal"
 	| "evt_room_enter"
+	| "evt_room_won"
 	| "evt_room_leave"
 	| "evt_dungeon_discard"
 	// Entidade

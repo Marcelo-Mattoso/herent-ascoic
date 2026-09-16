@@ -137,6 +137,33 @@ describe("emit — world vazio", () => {
 	});
 });
 
+describe("emit — guarda de Despertar Roxo", () => {
+	it("não executa Tributo Sombrio de um componente Roxo antigo fora do Roxo", () => {
+		let state = makeState({}, {});
+		let world = upsertEntity(state.world, createEntity("e1", "enemy"));
+		world = addComponent(world, "e1", {
+			type: "trigger",
+			on: "CombatStarted",
+			effect: {
+				type: "run_skill",
+				skillId: "purple_dark_tribute",
+				params: { value: 1 },
+			},
+			source: "purple_dark_tribute",
+			duration: { kind: "this_combat" },
+			priority: 0,
+		});
+		state = { ...state, despertar: 3, world };
+
+		const result = emit(state, {
+			type: "CombatStarted",
+			payload: { roomId: "room_dungeon_room" },
+		});
+
+		expect(result.state.pendingSkillChoice).toBeUndefined();
+	});
+});
+
 // ── emit — accumulator pattern ────────────────────────────────────────────────
 
 describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {

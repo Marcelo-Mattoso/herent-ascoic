@@ -3,6 +3,7 @@
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../../data/skills";
 import { drainStack } from "../../../effects/resolver";
+import { reducer } from "../../../reducer";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
@@ -294,6 +295,64 @@ describe("draw_and_choose — skill_forge_spoils (#18)", () => {
 		expect(result.pendingSkillChoice).toBeDefined();
 		expect(result.pendingSkillChoice?.options).toHaveLength(2);
 		expect(result.pendingSkillChoice?.options[0].effect).toBeDefined();
+	});
+
+	it("descarta uma revelada sem fechar a escolha e guarda a outra", () => {
+		const state = {
+			...stateWithCombat(),
+			decks: {
+				...createInitialGameState(CFG).decks,
+				itemDeck: { available: [], discarded: [], removed: [] as string[] },
+			},
+			pendingSkillChoice: {
+				skillId: "skill_forge_spoils",
+				prompt: "Escolha 1 carta para ficar",
+				kind: "draw_and_choose" as const,
+				discardDeck: "itemDeck" as const,
+				options: [
+					{
+						id: "item_rusty_dagger",
+						label: "item_rusty_dagger",
+						effect: [
+							{
+								kind: "i_grant_reward" as const,
+								rewardType: "item" as const,
+								cardId: "item_rusty_dagger",
+							},
+						],
+					},
+					{
+						id: "item_cracked_shield",
+						label: "item_cracked_shield",
+						effect: [
+							{
+								kind: "i_grant_reward" as const,
+								rewardType: "item" as const,
+								cardId: "item_cracked_shield",
+							},
+						],
+					},
+				],
+			},
+		};
+		const afterDiscard = reducer(state, {
+			type: "SKILL_CHOICE",
+			payload: {
+				skillId: "skill_forge_spoils",
+				choice: "__discard__:item_rusty_dagger",
+			},
+		});
+		expect(afterDiscard.pendingSkillChoice?.options).toHaveLength(1);
+		expect(afterDiscard.decks.itemDeck.discarded).toContain("item_rusty_dagger");
+
+		const afterKeep = reducer(afterDiscard, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "skill_forge_spoils", choice: "item_cracked_shield" },
+		});
+		expect(afterKeep.pendingSkillChoice).toBeUndefined();
+		expect(afterKeep.pendingRewards.map((reward) => reward.cardId)).toContain(
+			"item_cracked_shield",
+		);
 	});
 });
 

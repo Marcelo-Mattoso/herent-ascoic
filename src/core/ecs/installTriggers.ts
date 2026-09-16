@@ -108,6 +108,7 @@ function defaultEntityCondition(
 		case "evt_round_end":
 		case "evt_room_reveal":
 		case "evt_room_enter":
+		case "evt_room_won":
 		case "evt_room_leave":
 		case "evt_dungeon_discard":
 		case "evt_enter_play":

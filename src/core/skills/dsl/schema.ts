@@ -173,6 +173,7 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 			pile: z.enum(["dungeon", "item_deck", "artifact_deck"]),
 			reveal: ExprNodeSchema,
 			keep: ExprNodeSchema,
+			replace_room_loot: z.boolean().optional(),
 		}),
 		z.object({ kind: z.literal("i_reveal_dungeon"), count: ExprNodeSchema }),
 		z.object({
@@ -267,6 +268,7 @@ const EventNameSchema = z.enum([
 	"evt_hit",
 	"evt_damage_dealt",
 	"evt_damage_taken",
+	"evt_would_be_destroyed",
 	"evt_destroy",
 	"evt_kill",
 	"evt_combat_start",
@@ -275,6 +277,7 @@ const EventNameSchema = z.enum([
 	"evt_round_end",
 	"evt_room_reveal",
 	"evt_room_enter",
+	"evt_room_won",
 	"evt_room_leave",
 	"evt_dungeon_discard",
 	"evt_enter_play",
@@ -291,6 +294,7 @@ const TriggerWindowSchema = z.enum([
 	"before_attack_roll",
 	"after_roll_before_result",
 	"before_damage",
+	"before_destroy",
 	"after_damage",
 	"on_destroy",
 	"combat_end",
@@ -409,10 +413,134 @@ export const SkillDefinitionV2Schema = z
 
 export type SkillDefinitionV2 = z.infer<typeof SkillDefinitionV2Schema>;
 
+// ── Ability + AbilityGrant vNext ────────────────────────────────────────────
+// A ability contém exclusivamente o efeito. As regras de ativação pertencem ao
+// grant que a fonte (hero/item/sala/etc.) declara.
+
+const AbilityParameterSchema = z
+	.object({
+		type: z.enum(["integer", "number", "string", "boolean"]),
+		minimum: z.number().optional(),
+		maximum: z.number().optional(),
+		required: z.boolean().optional(),
+	})
+	.strict();
+
+export const AbilityDefinitionSchema = z
+	.object({
+		id: z.string().min(1),
+		nature: z.array(NatureSchema).optional(),
+		parameters: z.record(z.string(), AbilityParameterSchema).optional(),
+		defaultParams: z.record(z.string(), z.unknown()).optional(),
+		targetContract: z.object({ required: z.boolean().optional() }).strict().optional(),
+		effect: z.array(EffectNodeSchema).optional(),
+		script: z.string().min(1).optional(),
+	})
+	.strict()
+	.refine((d) => (d.effect !== undefined) !== (d.script !== undefined), {
+		message:
+			"Cada ability deve ter exatamente um de `effect` ou `script` — sem metadados de ativação.",
+	});
+
+const AbilityTargetingSchema = z
+	.object({
+		targetType: z.enum([
+			"tgt_self",
+			"tgt_target",
+			"tgt_enemy",
+			"tgt_item",
+			"tgt_others",
+			"tgt_none",
+		]),
+		affectScope: z.enum([
+			"scp_single",
+			"scp_party_full",
+			"scp_dead_party",
+			"scp_room",
+			"scp_none",
+		]),
+		affectObject: z.enum(["obj_friend", "obj_not_friend", "obj_all"]),
+		affectLimit: z.object({ min: z.number(), max: z.number() }).optional(),
+	})
+	.strict();
+
+const AbilityActivationSchema = z
+	.object({
+		kind: z.enum(["manual", "event", "continuous", "on_enter_play"]),
+		event: EventNameSchema.optional(),
+		window: TriggerWindowSchema.optional(),
+		decision: z.enum(["automatic", "optional", "required"]).optional(),
+		priority: z.number().optional(),
+		conditions: z.array(ConditionNodeSchema).optional(),
+		limit: z
+			.object({
+				scope: z.enum(["game", "room", "combat", "round"]),
+				maxUses: z.number().int().positive(),
+			})
+			.strict()
+			.optional(),
+		cost: z
+			.object({ hp: z.number().optional(), mp: z.number().optional() })
+			.strict()
+			.optional(),
+		actionCost: z.enum(["none", "consume_hero_action"]).optional(),
+		consumeSource: z.enum(["none", "discard", "remove"]).optional(),
+		targeting: AbilityTargetingSchema.optional(),
+	})
+	.strict()
+	.superRefine((activation, ctx) => {
+		if (activation.kind === "event" && !activation.event) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["event"],
+				message: "activation.kind = event requer event.",
+			});
+		}
+		if (activation.kind !== "event" && activation.event) {
+			ctx.addIssue({
+				code: z.ZodIssueCode.custom,
+				path: ["event"],
+				message: "event só pode ser declarado quando activation.kind = event.",
+			});
+		}
+	});
+
+export const AbilityGrantSchema = z
+	.object({
+		id: z.string().min(1),
+		abilityId: z.string().min(1),
+		params: z.record(z.string(), z.unknown()).optional(),
+		requiresAwakening: z.boolean().optional(),
+		activation: AbilityActivationSchema,
+	})
+	.strict();
+
+export const AbilityCatalogSchema = z
+	.object({
+		version: z.string().min(1),
+		abilities: z.array(AbilityDefinitionSchema),
+	})
+	.strict()
+	.superRefine((catalog, ctx) => {
+		const seen = new Set<string>();
+		for (const [index, ability] of catalog.abilities.entries()) {
+			if (seen.has(ability.id)) {
+				ctx.addIssue({
+					code: z.ZodIssueCode.custom,
+					path: ["abilities", index, "id"],
+					message: `Ability id duplicado: ${ability.id}.`,
+				});
+			}
+			seen.add(ability.id);
+		}
+	});
+
 // ── Exports dos schemas atômicos (para testes unitários) ─────────────────────
 
 export {
 	ConditionNodeSchema,
+	AbilityActivationSchema,
+	AbilityParameterSchema,
 	DurationNodeSchema,
 	EffectNodeSchema,
 	EventNameSchema,

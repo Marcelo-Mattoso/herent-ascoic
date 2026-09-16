@@ -3,7 +3,9 @@
 
 import { describe, expect, it } from "vitest";
 import { createInitialGameState } from "../../state/gameState";
+import { syncEntityFromEnemy } from "../../ecs/sync";
 import { reducer } from "../index";
+import { lowerDespertar } from "../progression";
 import "../../skills/handlers/index"; // popula registry
 
 function makeState() {
@@ -81,6 +83,52 @@ describe("F13 — Subchefes", () => {
 		expect(state.subbosses.available.length).toBeLessThanOrEqual(
 			availableAfterFirst.length,
 		);
+	});
+
+	it("ativa e remove componentes Roxos quando o Despertar entra e sai do Roxo", () => {
+		let state = makeState();
+		const heroId = state.heroes[0]!.id;
+		const enemy = {
+			id: "e-purple",
+			cardId: "creature_dark_cave_goblin",
+			maxLife: 8,
+			currentLife: 8,
+			damage: 2,
+			hitBonus: 0,
+			dice: 1,
+			tokens: {},
+			conditions: [],
+			firstDamageTakenThisTurn: false,
+			status: "active" as const,
+		};
+		state = {
+			...state,
+			groupXp: 10,
+			despertar: 3 as import("../../state/color").ColorIndex,
+			activeEnemies: [enemy],
+			world: syncEntityFromEnemy(state.world, enemy),
+		};
+
+		state = reducer(state, {
+			type: "SPEND_XP",
+			payload: { option: "level_up", heroId },
+		});
+		expect(state.despertar).toBe(4);
+		expect(
+			state.world.entities[enemy.id]?.components.some(
+				(component) =>
+					"source" in component && component.source === "purple_dark_tribute",
+			),
+		).toBe(true);
+
+		state = lowerDespertar(state);
+		expect(state.despertar).toBe(3);
+		expect(
+			state.world.entities[enemy.id]?.components.some(
+				(component) =>
+					"source" in component && component.source === "purple_dark_tribute",
+			),
+		).toBe(false);
 	});
 
 	it("revelar sala de subchefe spawna o subchefe correto (sem desenhar do enemyDeck)", () => {

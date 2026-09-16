@@ -307,7 +307,7 @@ export function HeroFocusPanel({
 							</p>
 							<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
 								{(
-									["weapon", "armor", "utility", "special"] as ItemSlotType[]
+									["weapon", "utility", "consumable", "special"] as ItemSlotType[]
 								).map((slot) => {
 									const item = hero.activeItems[slot];
 									if (!item) return null;

@@ -535,6 +535,9 @@ export function resolveEffect(
 			return log(
 				{
 					...state,
+					flags: effect["replace_room_loot"]
+						? { ...state.flags, roomLootReplaced: true }
+						: state.flags,
 					decks: {
 						...state.decks,
 						[deckKey]: { ...deck, available: deck.available.slice(reveal) },
@@ -542,6 +545,8 @@ export function resolveEffect(
 					pendingSkillChoice: {
 						skillId,
 						prompt: "Escolha 1 carta para ficar (as outras são descartadas):",
+						kind: "draw_and_choose",
+						discardDeck: deckKey,
 						options,
 					},
 				},

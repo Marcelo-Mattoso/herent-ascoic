@@ -301,6 +301,10 @@ item_skill_block:
   name: Bloqueio
   label: "Bloqueio ({value}): reduza em {value} o dano sofrido por este herói."
   text: reduza em {value} o dano sofrido por este herói.
+item_skill_potion_stoneskin:
+  name: Pele de Pedra
+  label: "Pele de Pedra ({value}): até o fim deste combate, reduza em {value} o dano sofrido por este herói."
+  text: até o fim deste combate, reduza em {value} o dano sofrido por este herói.
 item_skill_mystic_draw:
   name: Saque Místico
   label: "Saque Místico: saque 1 carta de Artefato da pilha de artefatos."

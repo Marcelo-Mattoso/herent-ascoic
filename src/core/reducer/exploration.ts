@@ -25,6 +25,7 @@ import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
 import { applyFullHeal } from "../systems/healSystem";
 import { createEnemyFromCard, log, shuffleRng } from "./utils";
+import { awakeningRequirementMet } from "../rules/awakening";
 
 const DUNGEON_ROOM_COPIES = 2;
 
@@ -170,7 +171,9 @@ function handleRevealSubbossRoom(
 	);
 
 	let worldWithSubboss = syncEntityFromEnemy(state.world, enemy);
-	const skills = cardSkills(subbossCard.id);
+	const skills = cardSkills(subbossCard.id).filter(({ ref }) =>
+		awakeningRequirementMet(state.despertar, ref.requiresAwakening),
+	);
 	worldWithSubboss = installSkillTriggers(worldWithSubboss, enemy.id, skills);
 	for (const { def, ref } of skills) {
 		if (def.operate_type === "op_passive") {
@@ -299,7 +302,9 @@ export function handleSpawnEnemies(state: GameState): GameState {
 		worldWithEnemies = syncEntityFromEnemy(worldWithEnemies, enemy);
 		const enemyCard = getCardById(enemy.cardId);
 		if (enemyCard) {
-			const skills = cardSkills(enemyCard.id);
+			const skills = cardSkills(enemyCard.id).filter(({ ref }) =>
+				awakeningRequirementMet(state.despertar, ref.requiresAwakening),
+			);
 			worldWithEnemies = installSkillTriggers(
 				worldWithEnemies,
 				enemy.id,
@@ -379,8 +384,14 @@ export function handleCheckBossCondition(state: GameState): GameState {
 			return beforeLeave;
 		}
 	}
+	const {
+		roomLootReplaced: _roomLootReplaced,
+		roomVictoryRewardsGranted: _roomVictoryRewardsGranted,
+		...flagsAfterRoom
+	} = beforeLeave.flags;
 	let s: GameState = {
 		...beforeLeave,
+		flags: flagsAfterRoom,
 		oncePer: { ...beforeLeave.oncePer, room: {} },
 		disabled: ActivationTracker.clearLocks(beforeLeave.disabled ?? {}, "room"),
 		paths: [],

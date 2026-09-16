@@ -172,7 +172,7 @@ describe("START_GAME", () => {
 // ─── Testes de itens ─────────────────────────────────────────────────────────
 
 describe("USE_ITEM", () => {
-	it("Caminho Preservado pode ser usado manualmente por item consumível", () => {
+	it("Caminho Preservado aguarda a janela de descarte de dungeon", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const started = reducer(base, {
 			type: "START_GAME",
@@ -190,8 +190,8 @@ describe("USE_ITEM", () => {
 			{ type: "USE_ITEM", payload: { itemId, heroId: hero.id } },
 		);
 
-		expect(result.heroes[0]?.backpack).not.toContain(itemId);
-		expect(result.flags.dungeonDiscardPrevented).toBe(true);
+		expect(result.heroes[0]?.backpack).toContain(itemId);
+		expect(result.flags.dungeonDiscardPrevented).not.toBe(true);
 	});
 
 	it("Saque Místico descarta o item da mochila e ativa o artefato no grupo", () => {
@@ -525,7 +525,7 @@ describe("USE_ITEM", () => {
 						...hero,
 						currentLife: 12,
 						hitBonus: 0,
-						activeItems: { armor: "item_ancient_metal_armor" },
+						activeItems: { weapon: "item_ancient_metal_armor" },
 					},
 				],
 				activeEnemies: [{ ...enemy, damage: 5, currentLife: 8 }],

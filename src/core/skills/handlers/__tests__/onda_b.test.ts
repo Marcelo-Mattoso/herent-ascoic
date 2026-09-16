@@ -181,4 +181,19 @@ describe("reducer SKILL_CHOICE", () => {
 		});
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
+
+	it("permite passar uma habilidade sem executar nenhuma opção", () => {
+		const state = makeState({
+			pendingSkillChoice: {
+				skillId: "skill_dark_tribute",
+				prompt: "p",
+				options: [{ id: "discard_item", label: "Descartar item" }],
+			},
+		});
+		const result = reducer(state, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "skill_dark_tribute", choice: "__skip__" },
+		});
+		expect(result.pendingSkillChoice).toBeUndefined();
+	});
 });

@@ -14,6 +14,7 @@ export type DamageType =
 
 export type EventType =
 	| "DamageAboutToBeDealt"
+	| "EntityWouldBeDestroyed"
 	| "DamageDealt"
 	| "HealAboutToBeApplied"
 	| "HealApplied"
@@ -21,6 +22,7 @@ export type EventType =
 	| "RoomEntered"
 	| "CombatStarted"
 	| "CombatEnded"
+	| "RoomWon"
 	| "TurnStarted"
 	| "TurnEnded"
 	| "CardDrawn"
@@ -60,6 +62,13 @@ export interface DamageDealtPayload {
 	readonly amount: number; // valor final após modificações
 }
 
+export interface EntityWouldBeDestroyedPayload {
+	readonly sourceId: EntityId;
+	readonly targetId: EntityId;
+	readonly damageType: DamageType;
+	readonly amount: number;
+}
+
 export interface HealAboutToBeAppliedPayload {
 	readonly targetId: EntityId;
 	readonly amount: number; // accumulator
@@ -82,6 +91,10 @@ export type GameEvent =
 			readonly type: "DamageAboutToBeDealt";
 			readonly payload: DamageAboutToBeDealtPayload;
 	  }
+	| {
+			readonly type: "EntityWouldBeDestroyed";
+			readonly payload: EntityWouldBeDestroyedPayload;
+	  }
 	| { readonly type: "DamageDealt"; readonly payload: DamageDealtPayload }
 	| {
 			readonly type: "HealAboutToBeApplied";
@@ -98,6 +111,7 @@ export type GameEvent =
 			readonly payload: { readonly roomId: string };
 	  }
 	| { readonly type: "CombatEnded"; readonly payload: Record<string, never> }
+	| { readonly type: "RoomWon"; readonly payload: { readonly roomId: string } }
 	| {
 			readonly type: "TurnStarted";
 			readonly payload: { readonly heroId: EntityId };

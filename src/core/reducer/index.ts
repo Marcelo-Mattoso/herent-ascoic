@@ -44,6 +44,8 @@ import {
 	handleSpawnEnemies,
 } from "./exploration";
 import {
+	continueRewardsAfterRoomWin,
+	finishGrantRewards,
 	handleChooseArtifactBearer,
 	handleChooseItemDestination,
 	handleGainXp,
@@ -65,10 +67,12 @@ import { getContinuation } from "../skills/registry";
 import { fireTriggerDecision, triggerDecisionFlag } from "../triggers/engine";
 import {
 	applySkillWindowDecision,
+	resolveSkillWindow,
 	skipSkillWindowDecision,
 	type PendingSkillWindow,
 } from "../skills/resolveSkillWindow";
 import { handleStartGame } from "./setup";
+import { applyDamage } from "../systems/damageSystem";
 import { log } from "./utils";
 
 function applyAndValidate(
@@ -107,22 +111,46 @@ function resumeAfterSkillWindow(
 	) {
 		return state;
 	}
+	const resumedWindow = {
+		...state,
+		pendingSkillWindow: undefined,
+	};
+	const continued = state.pendingSkillWindow
+		? resolveSkillWindow(resumedWindow, window)
+		: resumedWindow;
+	if (
+		continued.pendingTriggerInterrupt ||
+		continued.pendingSkillChoice ||
+		continued.pendingSkillTarget
+	) {
+		return continued;
+	}
 	switch (window.resume.type) {
 		case "roll_dice":
-			return handleRollDice(state);
+			return handleRollDice(continued);
 		case "resolve_attack":
-			return handleResolveAttack(state);
+			return handleResolveAttack(continued);
+		case "continue_rewards_after_room_win":
+			return continueRewardsAfterRoomWin(continued);
+		case "finish_rewards":
+			return finishGrantRewards(continued);
+		case "apply_damage":
+			return applyDamage(continued, window.resume.targetId, window.resume.amount, {
+				sourceId: window.resume.sourceId,
+				damageType: window.resume.damageType,
+				skipWouldBeDestroyed: true,
+			});
 		case "advance_dungeon":
-			return resumeDungeonAdvance(state, window.resume.exits);
+			return resumeDungeonAdvance(continued, window.resume.exits);
 		case "discard_dungeon":
 			return discardFromDungeonDeck(
-				state,
+				continued,
 				window.resume.count,
 				window.resume.reason,
 				true,
 			);
 		case "none":
-			return state;
+			return continued;
 	}
 }
 
@@ -286,15 +314,72 @@ function dispatch(state: GameState, action: Action): GameState {
 
 		case "SKILL_CHOICE": {
 			const pending = state.pendingSkillChoice;
+			const skillWindow = state.pendingSkillWindow;
 			if (!pending) return state;
-			const cleared = { ...state, pendingSkillChoice: undefined };
+			const clearPendingChoice = (next: GameState): GameState => ({
+				...next,
+				pendingSkillChoice: undefined,
+			});
+			const discardDrawChoiceCards = (
+				next: GameState,
+				cardIds: readonly string[],
+			): GameState => {
+				if (pending.kind !== "draw_and_choose" || !pending.discardDeck)
+					return next;
+				const deck = next.decks[pending.discardDeck];
+				return {
+					...next,
+					decks: {
+						...next.decks,
+						[pending.discardDeck]: {
+							...deck,
+							discarded: [...deck.discarded, ...cardIds],
+						},
+					},
+				};
+			};
 			const shouldAdvanceHeroUse =
 				!!pending.sourceHeroId &&
 				(state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") &&
 				state.combat?.phase === "selecting_target" &&
 				state.combat.heroesActed.includes(pending.sourceHeroId);
-			const finishChoice = (next: GameState) =>
-				shouldAdvanceHeroUse ? advanceAfterHeroDisabledForRound(next) : next;
+			const finishChoice = (next: GameState) => {
+				const afterHeroUse = shouldAdvanceHeroUse
+					? advanceAfterHeroDisabledForRound(next)
+					: next;
+				return resumeAfterSkillWindow(afterHeroUse, skillWindow);
+			};
+			// Escolhas opcionais podem ser dispensadas sem executar uma opção.
+			if (action.payload.choice === "__skip__") {
+				return finishChoice(
+					clearPendingChoice(
+						discardDrawChoiceCards(state, pending.options.map((option) => option.id)),
+					),
+				);
+			}
+			if (
+				pending.kind === "draw_and_choose" &&
+				action.payload.choice.startsWith("__discard__:")
+			) {
+				const cardId = action.payload.choice.slice("__discard__:".length);
+				if (!pending.options.some((option) => option.id === cardId)) return state;
+				const remaining = pending.options.filter((option) => option.id !== cardId);
+				const discarded = discardDrawChoiceCards(state, [cardId]);
+				return remaining.length === 0
+					? finishChoice(clearPendingChoice(discarded))
+					: { ...discarded, pendingSkillChoice: { ...pending, options: remaining } };
+			}
+
+			const cleared = clearPendingChoice(
+				pending.kind === "draw_and_choose"
+					? discardDrawChoiceCards(
+							state,
+							pending.options
+								.filter((option) => option.id !== action.payload.choice)
+								.map((option) => option.id),
+						)
+					: state,
+			);
 
 			// ── DSL choose_one path (Patch-12 Lote 3+) ───────────────────────────
 			const chosenOption = pending.options.find(
