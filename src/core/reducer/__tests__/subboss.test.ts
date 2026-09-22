@@ -85,7 +85,7 @@ describe("F13 — Subchefes", () => {
 		);
 	});
 
-	it("ativa e remove componentes Roxos quando o Despertar entra e sai do Roxo", () => {
+	it("não instala cópias ECS dos gatilhos Roxos de catálogo", () => {
 		let state = makeState();
 		const heroId = state.heroes[0]!.id;
 		const enemy = {
@@ -119,7 +119,7 @@ describe("F13 — Subchefes", () => {
 				(component) =>
 					"source" in component && component.source === "purple_dark_tribute",
 			),
-		).toBe(true);
+		).toBe(false);
 
 		state = lowerDespertar(state);
 		expect(state.despertar).toBe(3);

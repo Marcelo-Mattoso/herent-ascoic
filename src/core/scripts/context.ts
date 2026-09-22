@@ -24,7 +24,12 @@ export function buildScriptCtx(
 	params: Readonly<Record<string, unknown>> = {},
 ): ScriptCtx {
 	const skillId = skillCtx.skillId ?? "unknown";
-	const sourceId = skillCtx.sourceHeroId ?? skillCtx.sourceEnemyId ?? null;
+	const sourceId =
+		skillCtx.sourceHeroId ??
+		skillCtx.sourceEnemyId ??
+		skillCtx.sourceEntityId ??
+		skillCtx.sourceCardId ??
+		null;
 	const targetId =
 		skillCtx.targetHeroIds?.[0] ?? skillCtx.targetEnemyIds?.[0] ?? null;
 	const targetIds: readonly string[] = [
@@ -89,20 +94,25 @@ export function buildScriptCtx(
 				return appendLog(state, `[emit:${event.type}] source=${skillId}`);
 			},
 
-			requestChoice(options) {
+			requestChoice(options, choiceOptions) {
 				return {
 					...state,
 					pendingSkillChoice: {
 						skillId,
 						prompt: "Escolha uma opção:",
+						allowSkip: choiceOptions?.allowSkip === true,
 						options: options.map((o) => ({
 							id: o.id,
 							label: o.label,
 							...(o.effect ? { effect: o.effect } : {}),
 						})),
 						sourceHeroId: skillCtx.sourceHeroId,
+						sourceEnemyId: skillCtx.sourceEnemyId,
+						sourceCardId: skillCtx.sourceCardId,
+						sourceEntityId: skillCtx.sourceEntityId,
 						targetHeroIds: skillCtx.targetHeroIds,
 						targetEnemyIds: skillCtx.targetEnemyIds,
+						context: skillCtx,
 					},
 				};
 			},
@@ -115,7 +125,10 @@ export function buildScriptCtx(
 			dealDamage(tId, amount) {
 				const enemy = state.activeEnemies.find((e) => e.id === tId);
 				if (enemy?.status === "active") {
-					const next = applyDamage(state, tId, amount);
+					const next = applyDamage(state, tId, amount, {
+						sourceId: sourceId ?? undefined,
+						damageType: "direct",
+					});
 					return appendLog(
 						next,
 						`Dano direto: ${getCardName(enemy.cardId)} sofreu ${amount}.`,
@@ -123,7 +136,10 @@ export function buildScriptCtx(
 				}
 				const hero = state.heroes.find((h) => h.id === tId);
 				if (hero?.status === "active") {
-					const next = applyDamage(state, tId, amount);
+					const next = applyDamage(state, tId, amount, {
+						sourceId: sourceId ?? undefined,
+						damageType: "direct",
+					});
 					return appendLog(
 						next,
 						`Dano direto: ${getCardName(hero.cardId)} sofreu ${amount}.`,

@@ -181,6 +181,8 @@ export type EffectNode =
 	  }
 	| {
 			readonly kind: "i_choose_one";
+			/** Por padrão a escolha é obrigatória; use true somente para decisões voluntárias. */
+			readonly allow_skip?: boolean;
 			readonly options: ReadonlyArray<{
 				readonly id: string;
 				readonly params?: Readonly<Record<string, number | string>>;
@@ -361,7 +363,13 @@ export interface EvalCtx {
 		pushEffect(node: EffectNode): GameState;
 		addComponent(entityId: string, component: Component): GameState;
 		requestChoice(
-			options: ReadonlyArray<{ readonly id: string; readonly label: string }>,
+			options: ReadonlyArray<{
+				readonly id: string;
+				readonly label: string;
+				readonly params?: Readonly<Record<string, number | string>>;
+				readonly effect?: readonly EffectNode[];
+			}>,
+			config?: { readonly allowSkip?: boolean },
 		): GameState;
 		log(msg: string): GameState;
 	};

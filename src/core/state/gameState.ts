@@ -153,6 +153,8 @@ export interface GameState {
 	pendingSkillChoice?: {
 		readonly skillId: string;
 		readonly prompt: string;
+		/** Só escolhas explicitamente opcionais podem usar __skip__. */
+		readonly allowSkip?: boolean;
 		/** Escolha de cartas reveladas: permite guardar uma ou descartar individualmente. */
 		readonly kind?: "draw_and_choose";
 		readonly discardDeck?: "itemDeck" | "artifactDeck";
@@ -164,8 +166,13 @@ export interface GameState {
 			readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
 		}[];
 		readonly sourceHeroId?: string;
+		readonly sourceEnemyId?: string;
+		readonly sourceCardId?: string;
+		readonly sourceEntityId?: string;
 		readonly targetHeroIds?: readonly string[];
 		readonly targetEnemyIds?: readonly string[];
+		/** Snapshot completo do contexto que abriu a escolha. */
+		readonly context?: import("../data/skillTypes").SkillContext;
 	};
 
 	// Interrupção de trigger aguardando decisão do jogador.

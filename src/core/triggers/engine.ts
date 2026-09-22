@@ -450,6 +450,8 @@ function resolveSkillContext(
 	return {
 		...ctx,
 		triggeredBy: candidate.event,
+		sourceCardId: candidate.source.cardId,
+		sourceEntityId: candidate.source.entityId,
 		sourceHeroId: candidate.source.sourceHeroId ?? ctx.sourceHeroId,
 		sourceEnemyId: candidate.source.sourceEnemyId ?? ctx.sourceEnemyId,
 		skillId: candidate.definition.id,
@@ -614,6 +616,8 @@ export function fireTriggerDecision(
 	const ctx: SkillContext = {
 		triggeredBy: decision.event,
 		skillId: decision.skillId,
+		sourceCardId: decision.sourceCardId,
+		sourceEntityId: decision.sourceEntityId,
 		sourceHeroId: decision.sourceHeroId,
 		sourceEnemyId: decision.sourceEnemyId,
 		targetHeroIds: decision.targetHeroIds,

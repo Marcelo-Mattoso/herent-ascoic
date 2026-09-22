@@ -4,6 +4,7 @@ import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../../data/skills";
 import { getModifierTotal } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
+import { reducer } from "../../../reducer";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
 import type { GameState } from "../../../state/gameState";
@@ -121,6 +122,57 @@ describe("dungeon_skill_dead_torches — choose_one", () => {
 		const result = evaluate(defEffect("dungeon_skill_dead_torches"), ctx);
 		expect(result.pendingSkillChoice).toBeDefined();
 		expect(result.pendingSkillChoice?.options.length).toBe(2);
+	});
+
+	it("é obrigatória, preserva a origem da sala e aplica -1 somente a todos os heróis", () => {
+		const firstHero = makeHero({ id: "h1" });
+		const secondHero = makeHero({
+			id: "h2",
+			cardId: "hero_last_light_paladin",
+		});
+		const state = stateWithCombat({ heroes: [firstHero, secondHero] });
+		const ctx = buildScriptCtx(
+			state,
+			{
+				triggeredBy: "evt_combat_start",
+				skillId: "dungeon_skill_dead_torches",
+				sourceCardId: "room_dead_torches",
+				sourceEntityId: "room_dead_torches",
+				targetHeroIds: ["h1", "h2"],
+				round: 7,
+				damageAmount: 1,
+			},
+			{},
+		);
+		const pending = evaluate(defEffect("dungeon_skill_dead_torches"), ctx);
+
+		expect(pending.pendingSkillChoice).toMatchObject({
+			allowSkip: false,
+			sourceCardId: "room_dead_torches",
+			sourceEntityId: "room_dead_torches",
+			context: {
+				triggeredBy: "evt_combat_start",
+				sourceCardId: "room_dead_torches",
+				sourceEntityId: "room_dead_torches",
+				targetHeroIds: ["h1", "h2"],
+				round: 7,
+				damageAmount: 1,
+			},
+		});
+
+		const skipped = reducer(pending, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "dungeon_skill_dead_torches", choice: "__skip__" },
+		});
+		expect(skipped.pendingSkillChoice).toBeDefined();
+
+		const resolved = reducer(pending, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "dungeon_skill_dead_torches", choice: "hit_penalty" },
+		});
+		expect(getModifierTotal(resolved.world, "h1", "hit_bonus")).toBe(-1);
+		expect(getModifierTotal(resolved.world, "h2", "hit_bonus")).toBe(-1);
+		expect(getModifierTotal(resolved.world, "room_dead_torches", "hit_bonus")).toBe(0);
 	});
 });
 

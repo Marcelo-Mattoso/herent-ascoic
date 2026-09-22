@@ -208,6 +208,7 @@ abilities:
     category: hero_skill
     effect:
       - kind: i_choose_one
+        allow_skip: true
         options:
           - id: heal
             params: { value: 2 }
@@ -783,6 +784,7 @@ abilities:
     category: hero_power
     effect:
       - kind: i_choose_one
+        allow_skip: true
         options:
           - id: full_heal
             effect:
@@ -884,6 +886,7 @@ abilities:
     category: hero_power
     effect:
       - kind: i_choose_one
+        allow_skip: true
         options:
           - id: heal_all
             params: { value: 5 }
@@ -1359,13 +1362,17 @@ abilities:
           - id: hit_penalty
             params: { value: 1 }
             effect:
-              - kind: p_modifier
-                to: $source
-                stat: s_hit_penalty
-                operation: add
-                value: 1
-                duration:
-                  kind: until_end_of_combat
+              - kind: i_for_each
+                over: all_heroes
+                as: $hero
+                do:
+                  - kind: p_modifier
+                    to: $target
+                    stat: s_hit_penalty
+                    operation: add
+                    value: 1
+                    duration:
+                      kind: until_end_of_combat
     operate_type: op_triggered
     trigger: *a10
     cooldown: *a11

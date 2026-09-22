@@ -139,10 +139,10 @@ describe("add_modifier damage_reduction → damageReduction", () => {
 	});
 });
 
-// ── add_modifier stat:"s_purple_damage_reduction" → flags (fix bug) ────────────
+// ── add_modifier stat:"s_purple_damage_reduction" → ECS (fix bug) ─────────────
 
 describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fix)", () => {
-	it("armazena valor numérico correto nas flags (não boolean)", () => {
+	it("armazena redução roxa no ECS, sem usar flags booleanas", () => {
 		const state = stateWithCombat();
 		const ctx = buildScriptCtx(
 			state,
@@ -164,7 +164,9 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 				ctx,
 			),
 		);
-		expect(result.flags["purpleDmgReduction::h1"]).toBe(2);
+		expect(getModifierTotal(result.world, "h1", "purple_damage_taken")).toBe(
+			-2,
+		);
 	});
 
 	it("acumula corretamente em múltiplas aplicações", () => {
@@ -209,7 +211,9 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 				ctx2,
 			),
 		);
-		expect(r2.flags["purpleDmgReduction::h1"]).toBe(2);
+		expect(getModifierTotal(r2.world, "h1", "purple_damage_taken")).toBe(
+			-2,
+		);
 	});
 });
 

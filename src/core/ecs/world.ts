@@ -9,6 +9,7 @@ import type {
 	EntityId,
 	EntityType,
 	ModifierComponent,
+	TriggerComponent,
 } from "./types";
 
 export interface World {
@@ -292,6 +293,32 @@ export function removeModifiersForSource(
 				mod.sourceEntityId === sourceEntityId
 			);
 		});
+	}
+	return updated;
+}
+
+/** Remove gatilhos runtime instalados por uma entidade que saiu de jogo. */
+export function removeTriggersAppliedBySource(
+	world: World,
+	sourceEntityId: EntityId,
+): World {
+	let updated = world;
+	for (const entity of Object.values(world.entities)) {
+		if (
+			!entity.components.some(
+				(component) =>
+					component.type === "trigger" &&
+					(component as TriggerComponent).sourceEntityId === sourceEntityId,
+			)
+		)
+			continue;
+		updated = removeComponent(
+			updated,
+			entity.id,
+			(component) =>
+				component.type === "trigger" &&
+				(component as TriggerComponent).sourceEntityId === sourceEntityId,
+		);
 	}
 	return updated;
 }

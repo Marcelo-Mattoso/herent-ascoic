@@ -28,6 +28,7 @@ function sourceCardId(
 	state: GameState,
 	pending: NonNullable<GameState["pendingSkillChoice"]>,
 ): string | null {
+	if (pending.sourceCardId) return pending.sourceCardId;
 	const usedBy = skillUsedBy(pending.skillId);
 	const hero = pending.sourceHeroId
 		? state.heroes.find((candidate) => candidate.id === pending.sourceHeroId)
@@ -134,7 +135,9 @@ export function SkillChoiceModal() {
 						</div>
 					</section>
 
-					<ActionButton label="Passar esta habilidade" variant="secondary" fullWidth onClick={() => choose("__skip__")} />
+					{pending.allowSkip && (
+						<ActionButton label="Passar esta habilidade" variant="secondary" fullWidth onClick={() => choose("__skip__")} />
+					)}
 				</div>
 			</Modal>
 

@@ -3,6 +3,8 @@
 
 import { getCardName } from "../data/cardLocale";
 import { getBoss } from "../data/cards";
+import { syncEntityFromEnemy } from "../ecs/sync";
+import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { rollDiceRng } from "../rules/dice";
 import {
@@ -13,12 +15,14 @@ import {
 	totalItemValue,
 } from "../rules/itemEffects";
 import { ActivationTracker } from "../state/activation";
+import { tickBlockEntries } from "../state/blockHelpers";
 import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { applyDamage } from "../systems/damageSystem";
+import { discardFromDungeonDeck } from "./exploration";
 import { log } from "./utils";
 
 function collectWorldModifierEntries(
@@ -136,6 +140,7 @@ export function handleRevealBoss(state: GameState): GameState {
 		{
 			...state,
 			activeEnemies: [bossEnemy],
+			world: syncEntityFromEnemy(state.world, bossEnemy),
 			status: "BOSS_COMBAT",
 			combat: createEmptyCombatState(),
 		},
@@ -191,7 +196,10 @@ export function handleBossResolveAttack(state: GameState): GameState {
 			next = log(next, "Trono Vivo: dano ao boss reduzido em 1.");
 		}
 		const newLife = Math.max(0, boss.currentLife - dmg);
-		next = applyDamage(next, "boss", dmg);
+		next = applyDamage(next, "boss", dmg, {
+			sourceId: hero.id,
+			damageType: "attack",
+		});
 		const damageNote = formatDamageBonusNote(
 			hero.damage,
 			heroDamage.damage,
@@ -206,7 +214,10 @@ export function handleBossResolveAttack(state: GameState): GameState {
 	if (result.heroDamageTaken > 0) {
 		const reduced = reduceHeroDamage(next, hero, result.heroDamageTaken);
 		const dmg = reduced.damage;
-		next = applyDamage(next, hero.id, dmg);
+		next = applyDamage(next, hero.id, dmg, {
+			sourceId: boss.id,
+			damageType: "attack",
+		});
 		const reductionStr = reduced.breakdown.length
 			? ` [${reduced.breakdown.join(", ")}]`
 			: "";
@@ -244,11 +255,30 @@ function checkBossEnd(state: GameState): GameState {
 		);
 	}
 
+	// O boss é dono de suas três regras (Trono Vivo, Ascensão Final e Pressão
+	// da Forja). A janela genérica ignora boss_skill para não somá-las em dobro.
+	let afterRoundEnd = state;
+
+	if (afterRoundEnd.despertar >= 4) {
+		afterRoundEnd = discardFromDungeonDeck(afterRoundEnd, 1);
+		if (
+			afterRoundEnd.pendingTriggerInterrupt ||
+			afterRoundEnd.pendingSkillChoice ||
+			afterRoundEnd.pendingSkillTarget
+		) {
+			return afterRoundEnd;
+		}
+		afterRoundEnd = log(
+			afterRoundEnd,
+			"Pressão da Forja Sombria: 1 carta de masmorra descartada.",
+		);
+	}
+
 	// Próxima rodada de boss
 	const nextCombat = state.combat
 		? {
-				...state.combat,
-				round: state.combat.round + 1,
+				...afterRoundEnd.combat!,
+				round: afterRoundEnd.combat!.round + 1,
 				phase: "selecting_hero" as const,
 				selectedHeroId: null,
 				pairs: [],
@@ -256,12 +286,28 @@ function checkBossEnd(state: GameState): GameState {
 				attackBlockedByHero: {},
 				lastRoll: null,
 				bossFirstDamageReduced: false,
-				disabled: ActivationTracker.clearLocks(state.combat.disabled, "round"),
+				disabled: ActivationTracker.clearLocks(
+					afterRoundEnd.combat!.disabled,
+					"round",
+				),
+				oncePer: { ...afterRoundEnd.combat!.oncePer, round: {} },
 			}
 		: createEmptyCombatState();
 
+	const worldAfterTick = decrementRoundsModifiers(
+		tickModifierDurations(afterRoundEnd.world, "end_of_round"),
+	);
+	afterRoundEnd = tickBlockEntries(
+		{
+			...afterRoundEnd,
+			status: "BOSS_COMBAT",
+			combat: nextCombat,
+			world: worldAfterTick,
+		},
+		"end_of_round",
+	);
 	return log(
-		{ ...state, status: "BOSS_COMBAT", combat: nextCombat },
+		afterRoundEnd,
 		"Boss sobreviveu. Próxima rodada.",
 	);
 }

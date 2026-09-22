@@ -152,6 +152,10 @@ function effectNeedsPlayerDecision(
 }
 
 function shouldSkipCandidate(candidate: TriggerCandidate): boolean {
+	// O combate de boss tem janelas e regras próprias em reducer/boss.ts.
+	// Não permitir que os mesmos efeitos do catálogo rodem também aqui evita
+	// duplicar Trono Vivo/Ascensão Final.
+	if (candidate.definition.category === "boss_skill") return true;
 	const item =
 		candidate.source.kind === "item"
 			? getCardById(candidate.source.cardId)

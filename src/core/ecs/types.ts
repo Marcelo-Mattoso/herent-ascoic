@@ -90,6 +90,7 @@ export interface ModifierComponent {
 	readonly target:
 		| "damage_dealt"
 		| "damage_taken"
+		| "purple_damage_taken"
 		| "healing_received"
 		| "dice_count"
 		| "hit_bonus";
@@ -110,6 +111,8 @@ export interface TriggerComponent {
 	readonly condition?: ComponentPredicate;
 	readonly effect: EffectDescriptor;
 	readonly source: EntityId;
+	/** Entidade que instalou o gatilho em runtime, para limpeza ao sair de jogo. */
+	readonly sourceEntityId?: EntityId;
 	readonly duration: Duration;
 	readonly priority: number;
 	// consumeAfterFire: remove o trigger após disparar uma vez (once_per_*)

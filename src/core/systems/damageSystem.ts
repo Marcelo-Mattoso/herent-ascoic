@@ -7,8 +7,11 @@ import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import type { EntityId } from "../ecs/types";
 import {
 	removeEntity,
+	removeComponent,
 	removeModifiersAppliedBySource,
 	removeModifiersForSource,
+	removeTriggersAppliedBySource,
+	getModifierTotal,
 } from "../ecs/world";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
@@ -141,7 +144,12 @@ export function applyDamage(
 		payload: { sourceId, targetId, damageType, amount },
 	});
 	if (s1.pendingTriggerInterrupt) return s1;
-	const finalAmount = (modified.payload as { amount: number }).amount;
+	const amountAfterBus = (modified.payload as { amount: number }).amount;
+	const purpleReduction =
+		damageType === "purple"
+			? Math.max(0, -getModifierTotal(s1.world, targetId, "purple_damage_taken"))
+			: 0;
+	const finalAmount = Math.max(0, amountAfterBus - purpleReduction);
 	const lifeBeforeDamage = currentLife(s1, targetId);
 	if (
 		!opts?.skipWouldBeDestroyed &&
@@ -222,7 +230,14 @@ export function applyDamage(
 		// Efeitos ativos emitidos pelo herói deixam de valer ao ser derrotado.
 		s4 = {
 			...s4,
-			world: removeModifiersAppliedBySource(s4.world, targetId),
+			world: removeTriggersAppliedBySource(
+				removeComponent(
+					removeModifiersAppliedBySource(s4.world, targetId),
+					targetId,
+					(component) => component.type === "trigger",
+				),
+				targetId,
+			),
 		};
 		s4 = removeBlocksAppliedBySource(s4, targetId);
 	}
@@ -266,7 +281,13 @@ export function applyDamage(
 		// Remove entidade ECS do inimigo derrotado e limpa modifiers/blocks while_source_in_play
 		// que esta entidade tenha aplicado em outras entidades (ex: gelatinous_body, forge_chains).
 		const worldAfterRemove = removeEntity(s4.world, targetId);
-		s4 = { ...s4, world: removeModifiersForSource(worldAfterRemove, targetId) };
+		s4 = {
+			...s4,
+			world: removeTriggersAppliedBySource(
+				removeModifiersForSource(worldAfterRemove, targetId),
+				targetId,
+			),
+		};
 		s4 = removeBlocksForSource(s4, targetId);
 	}
 

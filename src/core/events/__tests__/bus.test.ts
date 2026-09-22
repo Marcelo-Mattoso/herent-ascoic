@@ -164,6 +164,37 @@ describe("emit — guarda de Despertar Roxo", () => {
 	});
 });
 
+describe("emit — fronteira da pipeline de gatilhos", () => {
+	it("ignora cópia ECS antiga de skill de catálogo para não duplicar o TriggerEngine", () => {
+		const state = makeState({}, {});
+		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		world = addComponent(world, "h1", {
+			type: "trigger",
+			on: "DamageDealt",
+			effect: {
+				type: "queue_trigger_interrupt",
+				skillId: "skill_crimson_fury",
+				triggerEvent: "evt_damage_dealt",
+			},
+			source: "skill_crimson_fury",
+			duration: { kind: "this_combat" },
+			priority: 0,
+		});
+
+		const result = emit({ ...state, world }, {
+			type: "DamageDealt",
+			payload: {
+				sourceId: "h1",
+				targetId: "e1",
+				damageType: "attack",
+				amount: 2,
+			},
+		});
+
+		expect(result.state.pendingTriggerInterrupt).toBeUndefined();
+	});
+});
+
 // ── emit — accumulator pattern ────────────────────────────────────────────────
 
 describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {

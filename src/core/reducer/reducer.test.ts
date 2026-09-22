@@ -75,6 +75,13 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 		currentRoom: room,
 		activeEnemies: [enemy],
 		status: "COMBAT_START",
+		oncePer: {
+			...s.oncePer,
+			game: {
+				...s.oncePer.game,
+				[`power_mighty_crimson_fury::${hero.id}`]: true,
+			},
+		},
 		decks: {
 			...s.decks,
 			dungeonDeck: {
@@ -624,6 +631,49 @@ describe("USE_ITEM", () => {
 			"Martelo de Pedra Quebrada +2",
 		);
 	});
+
+	it("ataque normal preserva o herói como fonte para gatilhos após acertar", () => {
+		let s = stateWithRoomAndEnemy(12, 5);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		const enemy = s.activeEnemies[0];
+		if (!hero || !enemy || !s.combat) throw new Error("invalid combat");
+
+		const result = reducer(
+			{
+				...s,
+				despertar: 4,
+				oncePer: { ...s.oncePer, game: {} },
+				status: "RESOLVE_ATTACK",
+				activeEnemies: [
+					{
+						...enemy,
+						cardId: "creature_wet_stone_slime",
+						maxLife: 5,
+						currentLife: 5,
+					},
+				],
+				combat: {
+					...s.combat,
+					lastRoll: {
+						heroId: hero.id,
+						enemyId: enemy.id,
+						heroResults: [6],
+						heroTotal: 10,
+						heroBreakdown: [],
+						enemyResults: [2],
+						enemyTotal: 6,
+						enemyBreakdown: [],
+					},
+				},
+			},
+			{ type: "RESOLVE_ATTACK" },
+		);
+		expect(result.pendingTriggerInterrupt).toMatchObject({
+			skillId: "power_mighty_crimson_fury",
+			sourceHeroId: hero.id,
+		});
+	});
 });
 
 // ─── Testes de exploração ────────────────────────────────────────────────────
@@ -916,6 +966,13 @@ describe("combate múltiplo v2 (§8.8)", () => {
 			currentRoom: room,
 			activeEnemies: [enemy],
 			status: "COMBAT_START",
+			oncePer: {
+				...s.oncePer,
+				game: {
+					...s.oncePer.game,
+					[`power_mighty_crimson_fury::${s.heroes[0]?.id ?? ""}`]: true,
+				},
+			},
 		};
 	}
 

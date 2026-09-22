@@ -190,6 +190,7 @@ const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
 		}),
 		z.object({
 			kind: z.literal("i_choose_one"),
+			allow_skip: z.boolean().optional(),
 			options: z
 				.array(
 					z.object({

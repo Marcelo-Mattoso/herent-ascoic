@@ -9,7 +9,13 @@ import {
 	executeAbilityGrant,
 	resolveManualGrantTarget,
 } from "../abilities/executor";
-import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
+import {
+	decrementRoundsModifiers,
+	removeEntity,
+	removeModifiersForSource,
+	removeTriggersAppliedBySource,
+	tickModifierDurations,
+} from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
@@ -366,15 +372,22 @@ export function handleChooseTarget(
 		},
 	}));
 
+	if (
+		afterEmit.pendingTriggerInterrupt ||
+		afterEmit.pendingSkillChoice ||
+		afterEmit.pendingSkillTarget
+	) {
+		return afterEmit;
+	}
 	const pair = { heroId, enemyId };
 	return {
 		...afterEmit,
 		status: "ROLL_DICE",
 		combat: {
-			...afterTrigger.combat!,
+			...afterEmit.combat!,
 			phase: "resolving",
 			selectedHeroId: heroId,
-			pairs: [...(afterTrigger.combat?.pairs ?? []), pair],
+			pairs: [...(afterEmit.combat?.pairs ?? []), pair],
 		},
 	};
 }
@@ -773,6 +786,10 @@ export function handleResolveAttack(state: GameState): GameState {
 			...next,
 			heroes: next.heroes.filter((h) => h.id !== hero.id),
 			fledHeroes: [...next.fledHeroes, fledHero],
+			world: removeTriggersAppliedBySource(
+				removeModifiersForSource(removeEntity(next.world, hero.id), hero.id),
+				hero.id,
+			),
 		};
 		next = resolveSkillWindow(next, {
 			event: "evt_leave_play",
@@ -836,7 +853,10 @@ export function handleResolveAttack(state: GameState): GameState {
 	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
 	if (result.enemyDamageTaken > 0) {
 		const dmg = result.enemyDamageTaken;
-		next = applyDamage(next, enemy.id, dmg, { skipWouldBeDestroyed: true });
+		next = applyDamage(next, enemy.id, dmg, {
+			sourceId: hero.id,
+			skipWouldBeDestroyed: true,
+		});
 		if (next.pendingTriggerInterrupt) return next;
 		next = logItemLifeDrain(next, hero);
 		const heroRollStr = fmtRoll(
@@ -862,7 +882,11 @@ export function handleResolveAttack(state: GameState): GameState {
 		const reduced = reducedHeroDamage;
 		const dmg = reduced.damage;
 
-		next = applyDamage(next, hero.id, dmg, { skipWouldBeDestroyed: true });
+		next = applyDamage(next, hero.id, dmg, {
+			sourceId: enemy.id,
+			damageType: "attack",
+			skipWouldBeDestroyed: true,
+		});
 		if (next.pendingTriggerInterrupt) return next;
 		const enemyRollStr = fmtRoll(
 			roll.enemyResults,
@@ -1343,6 +1367,9 @@ export function handleUseItem(
 export function handleUsePower(state: GameState, heroId: string): GameState {
 	const hero = state.heroes.find((h) => h.id === heroId);
 	if (!hero) return state;
+	if (state.flags.powerUseBlocked) {
+		return log(state, "Uso de poder bloqueado nesta sala.");
+	}
 	if (
 		isManualCombatActivationWindow(state) &&
 		ActivationTracker.isHeroDisabledThisRound(state, heroId)
@@ -1405,7 +1432,10 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 						},
 					},
 				};
-				next = applyDamage(next, targetEnemyId, dmg);
+				next = applyDamage(next, targetEnemyId, dmg, {
+					sourceId: heroId,
+					damageType: "direct",
+				});
 				next = log(
 					next,
 					`${getCardName(hero.cardId)} — Tiro de Oportunidade: ${getCardName(enemy.cardId)} sofreu ${dmg} de dano direto.`,

@@ -4,13 +4,14 @@
 import { getCardName } from "../data/cardLocale";
 import { getCardById, getSubbossRooms } from "../data/cards";
 import { installPassive } from "../ecs/installPassive";
-import { installSkillTriggers } from "../ecs/installTriggers";
 import { removeComponent } from "../ecs/world";
 import { nextColor, previousColor, valueAtColor } from "../rules/colorScale";
 import { PURPLE_AWAKENING } from "../rules/awakening";
 import { cardSkills } from "../skills/lookup";
+import { applyDeclaredPassiveBlocks } from "../skills/applyPassiveBlocks";
 import type { ColorIndex } from "../state/color";
 import type { GameState } from "../state/gameState";
+import { removeBlocksForSource } from "../state/blockHelpers";
 import { applyLifeGain } from "../systems/healSystem";
 import { log, mapHero, shuffleRng } from "./utils";
 
@@ -86,6 +87,9 @@ function injectSubbossRooms(state: GameState): GameState {
 }
 
 export function lowerDespertar(state: GameState): GameState {
+	if (state.flags.dungeonLevelReductionBlocked) {
+		return log(state, "A redução do Despertar está bloqueada.");
+	}
 	const newDespertar = previousColor(state.despertar);
 	const next =
 		state.despertar === PURPLE_AWAKENING && newDespertar !== PURPLE_AWAKENING
@@ -100,6 +104,7 @@ export function lowerDespertar(state: GameState): GameState {
 /** Instala/remove somente componentes originados por referências Roxas. */
 function refreshPurpleComponents(state: GameState, enabled: boolean): GameState {
 	let world = state.world;
+	let next = state;
 	const sources = [
 		...state.heroes.map((hero) => ({ entityId: hero.id, cardId: hero.cardId })),
 		...state.activeEnemies.map((enemy) => ({
@@ -113,12 +118,20 @@ function refreshPurpleComponents(state: GameState, enabled: boolean): GameState 
 		);
 		if (purpleSkills.length === 0) continue;
 		if (enabled) {
-			world = installSkillTriggers(world, source.entityId, purpleSkills);
 			for (const { def, ref } of purpleSkills) {
 				if (def.operate_type === "op_passive") {
 					world = installPassive(world, source.entityId, def, ref);
 				}
 			}
+			next = { ...next, world };
+			next = applyDeclaredPassiveBlocks(next, {
+				cardId: source.cardId,
+				entityId: source.entityId,
+				...(state.heroes.some((hero) => hero.id === source.entityId)
+					? { sourceHeroId: source.entityId }
+					: { sourceEnemyId: source.entityId }),
+			});
+			world = next.world;
 			continue;
 		}
 		const ids = new Set(purpleSkills.map(({ def }) => def.id));
@@ -130,6 +143,8 @@ function refreshPurpleComponents(state: GameState, enabled: boolean): GameState 
 				"source" in component &&
 				ids.has(component.source),
 		);
+		next = removeBlocksForSource({ ...next, world }, source.entityId);
+		world = next.world;
 	}
-	return { ...state, world };
+	return { ...next, world };
 }

@@ -350,8 +350,9 @@ function dispatch(state: GameState, action: Action): GameState {
 					: next;
 				return resumeAfterSkillWindow(afterHeroUse, skillWindow);
 			};
-			// Escolhas opcionais podem ser dispensadas sem executar uma opção.
+			// Apenas escolhas explicitamente opcionais podem ser dispensadas.
 			if (action.payload.choice === "__skip__") {
+				if (!pending.allowSkip) return state;
 				return finishChoice(
 					clearPendingChoice(
 						discardDrawChoiceCards(state, pending.options.map((option) => option.id)),
@@ -387,14 +388,21 @@ function dispatch(state: GameState, action: Action): GameState {
 				(o) => o.id === action.payload.choice,
 			);
 			if (chosenOption?.effect) {
+				const choiceContext = pending.context ?? {
+					triggeredBy: "on_use",
+					skillId: pending.skillId,
+					sourceHeroId: pending.sourceHeroId,
+					sourceEnemyId: pending.sourceEnemyId,
+					sourceCardId: pending.sourceCardId,
+					sourceEntityId: pending.sourceEntityId,
+					targetHeroIds: pending.targetHeroIds,
+					targetEnemyIds: pending.targetEnemyIds,
+				};
 				const ctx = buildScriptCtx(
 					cleared,
 					{
-						triggeredBy: "on_use",
+						...choiceContext,
 						skillId: pending.skillId,
-						sourceHeroId: pending.sourceHeroId,
-						targetHeroIds: pending.targetHeroIds,
-						targetEnemyIds: pending.targetEnemyIds,
 					},
 					chosenOption.params ?? {},
 				);
@@ -413,9 +421,14 @@ function dispatch(state: GameState, action: Action): GameState {
 				cont(
 					cleared,
 					{
-						triggeredBy: "on_use",
+						...(pending.context ?? { triggeredBy: "on_use" }),
 						skillId: pending.skillId,
 						sourceHeroId: pending.sourceHeroId,
+						sourceEnemyId: pending.sourceEnemyId,
+						sourceCardId: pending.sourceCardId,
+						sourceEntityId: pending.sourceEntityId,
+						targetHeroIds: pending.targetHeroIds,
+						targetEnemyIds: pending.targetEnemyIds,
 					},
 					action.payload.choice,
 				),
