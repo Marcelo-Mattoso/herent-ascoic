@@ -87,8 +87,9 @@ A regra de separação é dura: **a UI consome o core via projeção; nunca dupl
 O motor separa habilidades automáticas, habilidades ativas e poderes:
 
 - Habilidades e poderes ativos usam `USE_SKILL` / `USE_POWER`.
-- Para atacar, arraste o herói e solte sobre um inimigo válido: os dados são
-  rolados automaticamente. Cliques e arrastes cancelados não iniciam ataque.
+- No PC, arraste o herói e solte sobre um inimigo válido para atacar. Clique no
+  herói e depois no inimigo é o mesmo fluxo e é a alternativa obrigatória para
+  touch/mobile. Cliques e arrastes cancelados não iniciam ataque.
 - Quando há mais de um alvo válido, a UI abre `SkillTargetModal` e o core aguarda
   `SELECT_SKILL_TARGET`.
 - Alvos são validados por `resolveManualSkillTarget`: cura e proteção só aceitam
@@ -97,9 +98,13 @@ O motor separa habilidades automáticas, habilidades ativas e poderes:
 - Habilidades ativas também podem ser usadas fora do combate quando a carta permite.
 - Durante combate, usar habilidade ou poder manual bloqueia o ataque naquela
   rodada, mas permite usar item e passar. Usar item não encerra o turno.
-- O botão “Usar item” lista apenas itens ativos disponíveis e pede alvo quando
-  necessário. Itens na mochila não podem ser usados. Consumíveis vão ao descarte;
-  itens reutilizáveis ficam bloqueados por sala, salvo limite específico da carta.
+- O botão “Usar item” lista apenas itens equipados disponíveis e pede alvo quando
+  necessário. Item guardado na mochila só pode ser ativado na organização de
+  espólios; fora dela, primeiro equipe-o. Consumíveis vão ao descarte; itens
+  reutilizáveis ficam bloqueados por sala, salvo limite específico da carta.
+- Cancelar a seleção de alvo ou pular uma escolha voluntária consome o uso quando
+  a habilidade tem cooldown (poderes sempre contam como uso único); não cobra HP
+  nem aplica o efeito cancelado.
 - O limite “uma vez por sala” também vale fora de combate e se renova na saída
   da sala, após recompensas e reorganização.
 - Bloqueios usam a camada genérica `ActivationTracker`, então heróis, itens,

@@ -48,6 +48,12 @@ export function manualItemUnavailableReason(
 	if (!hero) return "Herói inválido ou inativo.";
 	const location = findHeroItemLocation(hero, itemId);
 	if (!location) return "Este item não pertence ao herói.";
+	// A mochila é uma área de organização, não um slot de uso durante a
+	// exploração/combate. Itens nela podem ser ativados somente enquanto a
+	// bancada de espólios está aberta.
+	if (location.kind === "backpack" && state.status !== "REWARD_PHASE") {
+		return "Itens guardados na mochila só podem ser usados na organização de espólios.";
+	}
 	if (
 		state.paused ||
 		state.pendingSkillChoice ||
@@ -111,7 +117,8 @@ export function manualItemUnavailableReason(
 
 export function manualItemOptions(state: GameState, heroId: string) {
 	const hero = state.heroes.find((h) => h.id === heroId);
-	// Itens de ativação manual podem estar equipados ou na mochila.
+	// Itens equipados podem ser usados nas janelas normais; os da mochila só
+	// entram nesta lista durante a organização de espólios (validação acima).
 	const itemIds = [
 		...Object.values(hero?.activeItems ?? {}),
 		...(hero?.backpack ?? []),

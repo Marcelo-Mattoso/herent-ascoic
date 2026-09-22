@@ -27,7 +27,7 @@ describe("executeAbilityGrant", () => {
 		const hero = started.heroes[0]!;
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, currentLife: hero.currentLife - 3, backpack: ["item_lesser_vigor_potion"] }],
+			heroes: [{ ...hero, currentLife: hero.currentLife - 3, activeItems: { consumable: "item_lesser_vigor_potion" } }],
 		};
 
 		const result = reducer(state, {
@@ -40,7 +40,7 @@ describe("executeAbilityGrant", () => {
 		});
 
 		expect(result.heroes[0]?.currentLife).toBe(hero.currentLife - 1);
-		expect(result.heroes[0]?.backpack).not.toContain("item_lesser_vigor_potion");
+		expect(result.heroes[0]?.activeItems.consumable).toBeUndefined();
 		expect(result.decks.itemDeck.discarded).toContain("item_lesser_vigor_potion");
 		expect(result.combat?.heroesActed).not.toContain(hero.id);
 	});
@@ -171,7 +171,7 @@ describe("executeAbilityGrant", () => {
 		const hero = started.heroes[0]!;
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, backpack: ["item_precision_potion"] }],
+			heroes: [{ ...hero, activeItems: { consumable: "item_precision_potion" } }],
 		};
 
 		const result = reducer(state, {

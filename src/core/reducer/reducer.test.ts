@@ -201,7 +201,7 @@ describe("USE_ITEM", () => {
 		expect(result.flags.dungeonDiscardPrevented).not.toBe(true);
 	});
 
-	it("Saque Místico descarta o item da mochila e ativa o artefato no grupo", () => {
+	it("Saque Místico equipado descarta o item e ativa o artefato no grupo", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const started = reducer(base, {
 			type: "START_GAME",
@@ -214,7 +214,7 @@ describe("USE_ITEM", () => {
 		const artifactId = "artifact_crimson_jailer_chain";
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, backpack: [itemId] }],
+			heroes: [{ ...hero, activeItems: { special: itemId } }],
 			decks: {
 				...started.decks,
 				artifactDeck: {
@@ -231,7 +231,7 @@ describe("USE_ITEM", () => {
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.heroes[0]?.backpack).not.toContain(itemId);
+		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
 		expect(result.pendingRewards).toHaveLength(0);
 		expect(result.groupArtifacts).toContainEqual({
 			cardId: artifactId,
@@ -284,7 +284,7 @@ describe("USE_ITEM", () => {
 		});
 	});
 
-	it("usar item manual em combate preserva a ação e o ataque do herói", () => {
+	it("não permite usar item guardado na mochila durante o combate", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
 		s = reducer(s, { type: "START_COMBAT" });
 		const hero = s.heroes[0];
@@ -313,14 +313,12 @@ describe("USE_ITEM", () => {
 			payload: { itemId, heroId: hero.id },
 		});
 
+		expect(result.heroes[0]?.backpack).toContain(itemId);
 		expect(result.combat?.heroesActed).not.toContain(hero.id);
 		expect(result.combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
 		expect(result.status).toBe("HERO_ACTION");
 		expect(result.combat?.phase).toBe("selecting_target");
-		expect(result.groupArtifacts).toContainEqual({
-			cardId: artifactId,
-			carriedBy: null,
-		});
+		expect(result.groupArtifacts).toHaveLength(0);
 	});
 
 	it("item que derrota a última criatura encaminha o combate para recompensa", () => {
@@ -336,7 +334,7 @@ describe("USE_ITEM", () => {
 		s = {
 			...s,
 			heroes: [
-				{ ...hero, backpack: ["item_living_ember_potion"] },
+				{ ...hero, activeItems: { consumable: "item_living_ember_potion" } },
 			],
 			activeEnemies: [{ ...enemy, currentLife: 1 }],
 		};
@@ -673,6 +671,38 @@ describe("USE_ITEM", () => {
 			skillId: "power_mighty_crimson_fury",
 			sourceHeroId: hero.id,
 		});
+	});
+});
+
+describe("cancelamento de habilidade voluntária", () => {
+	it("consome o uso de um poder ao cancelar a seleção de alvo", () => {
+		const started = reducer(createInitialGameState({ heroCardIds: [HERO] }), {
+			type: "START_GAME",
+			payload: { heroCardIds: [HERO] },
+		});
+		const hero = started.heroes[0]!;
+		const state: GameState = {
+			...started,
+			status: "HERO_ACTION",
+			combat: {
+				...started.combat!,
+				phase: "selecting_target",
+				selectedHeroId: hero.id,
+			},
+			pendingSkillTarget: {
+				skillId: "skill_rift_second_chance",
+				sourceId: hero.id,
+				prompt: "Escolha um alvo",
+				candidates: [{ id: "e1", label: "Inimigo", type: "enemy" }],
+			},
+		};
+
+		const result = reducer(state, { type: "CANCEL_SKILL_TARGET" });
+		expect(result.pendingSkillTarget).toBeUndefined();
+		expect(
+			result.combat?.oncePer.combat[`skill_rift_second_chance::${hero.id}`],
+		).toBe(true);
+		expect(result.combat?.attackBlockedByHero[hero.id]).toBe(true);
 	});
 });
 

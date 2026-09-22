@@ -18,6 +18,15 @@ export function isManuallyActivatable(def: SkillDefinition): boolean {
 	);
 }
 
+/**
+ * Um cancelamento não deve virar uma tentativa gratuita de habilidades com
+ * limite. Poderes sempre têm uso único por partida; para as demais, o
+ * cooldown declarado define se o uso é consumível.
+ */
+export function voluntarySkillConsumesUse(def: SkillDefinition): boolean {
+	return def.category === "hero_power" || def.cooldown !== undefined;
+}
+
 export interface UseSkillPayload {
 	skillId: string;
 	sourceId: string;

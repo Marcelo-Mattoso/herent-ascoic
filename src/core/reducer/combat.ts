@@ -36,12 +36,13 @@ import {
 	removeHeroItem,
 	totalItemValue,
 } from "../rules/itemEffects";
-import { guardPassed } from "../triggers/engine";
+import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
 import { ActivationTracker } from "../state/activation";
 import { cardSkills, lookupSkillById } from "../skills/lookup";
 import {
 	fireOnUseSkill,
 	isManuallyActivatable,
+	voluntarySkillConsumesUse,
 	type UseSkillPayload,
 } from "../skills/useSkill";
 import { resolveManualSkillTarget } from "../skills/targeting";
@@ -1577,8 +1578,22 @@ export function handleSelectSkillTarget(
 }
 
 export function handleCancelSkillTarget(state: GameState): GameState {
-	if (!state.pendingSkillTarget) return state;
-	return { ...state, pendingSkillTarget: undefined };
+	const pending = state.pendingSkillTarget;
+	if (!pending) return state;
+	const cleared = { ...state, pendingSkillTarget: undefined };
+	const skill = lookupSkillById(pending.skillId);
+	if (
+		!skill ||
+		!isManuallyActivatable(skill) ||
+		!voluntarySkillConsumesUse(skill)
+	) {
+		return log(cleared, "Seleção de alvo cancelada sem consumir uso.");
+	}
+	const consumed = markSkillGuardUsed(cleared, skill, pending.sourceId);
+	return blockAttackAfterSkill(
+		log(consumed, `${pending.skillId}: seleção cancelada; uso consumido.`),
+		pending.sourceId,
+	);
 }
 
 // ─── SELECT_DIE ──────────────────────────────────────────────────────────────

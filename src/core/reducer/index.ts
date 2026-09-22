@@ -65,7 +65,12 @@ import { buildScriptCtx } from "../scripts/context";
 import { evaluate } from "../skills/dsl/evaluate";
 import { lookupSkillById } from "../skills/lookup";
 import { getContinuation } from "../skills/registry";
-import { fireTriggerDecision, triggerDecisionFlag } from "../triggers/engine";
+import {
+	fireTriggerDecision,
+	markSkillGuardUsed,
+	triggerDecisionFlag,
+} from "../triggers/engine";
+import { voluntarySkillConsumesUse } from "../skills/useSkill";
 import {
 	applySkillWindowDecision,
 	resolveSkillWindow,
@@ -353,9 +358,19 @@ function dispatch(state: GameState, action: Action): GameState {
 			// Apenas escolhas explicitamente opcionais podem ser dispensadas.
 			if (action.payload.choice === "__skip__") {
 				if (!pending.allowSkip) return state;
+				const definition = lookupSkillById(pending.skillId);
+				const afterSkipUse =
+					definition &&
+					pending.context?.triggeredBy === "on_use" &&
+					voluntarySkillConsumesUse(definition)
+						? markSkillGuardUsed(state, definition, pending.sourceHeroId)
+						: state;
 				return finishChoice(
 					clearPendingChoice(
-						discardDrawChoiceCards(state, pending.options.map((option) => option.id)),
+						discardDrawChoiceCards(
+							afterSkipUse,
+							pending.options.map((option) => option.id),
+						),
 					),
 				);
 			}
