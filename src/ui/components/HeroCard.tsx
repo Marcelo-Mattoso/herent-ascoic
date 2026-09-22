@@ -161,6 +161,7 @@ export function HeroCard({
 				}}
 			>
 				<span
+					role="img"
 					aria-label={`Nível ${hero.impeto + 1}`}
 					title={`Nível ${hero.impeto + 1}`}
 					style={{

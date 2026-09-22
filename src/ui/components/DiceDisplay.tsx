@@ -1,3 +1,4 @@
+import type { KeyboardEvent } from "react";
 import { UI } from "@/ui/theme";
 
 interface DiceDisplayProps {
@@ -28,7 +29,6 @@ export function DiceDisplay({
 		.filter((b) => b.value !== 0)
 		.map((b) => `${b.source} ${b.value >= 0 ? "+" : ""}${b.value}`)
 		.join(" · ");
-
 	if (horizontal) {
 		return (
 			<div style={{ display: "flex", alignItems: "center", gap: 6 }}>
@@ -43,21 +43,15 @@ export function DiceDisplay({
 					{results.map((val, i) => {
 						const eligible = eligibleIndices?.has(i) ?? false;
 						return (
-							<div
+							<DieValue
 								key={`die-${i}`}
-								className={`w-6 h-6 flex items-center justify-center rounded text-xs font-bold${eligible ? " die-eligible" : ""}`}
-								onClick={eligible ? () => onDieClick?.(i) : undefined}
-								style={{
-									background: eligible
-										? (UI.warning?.bg ?? "#FEF3C7")
-										: dieColor.bg,
-									color: eligible ? "#92400E" : dieColor.text,
-									border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
-									cursor: eligible ? "pointer" : "default",
-								}}
-							>
-								{val}
-							</div>
+								value={val}
+								index={i}
+								eligible={eligible}
+								onClick={onDieClick}
+								className="w-6 h-6 flex items-center justify-center rounded text-xs font-bold"
+								color={dieColor}
+							/>
 						);
 					})}
 				</div>
@@ -93,21 +87,15 @@ export function DiceDisplay({
 				{results.map((val, i) => {
 					const eligible = eligibleIndices?.has(i) ?? false;
 					return (
-						<div
+						<DieValue
 							key={`die-${i}`}
-							className={`w-7 h-7 flex items-center justify-center rounded text-sm font-bold${eligible ? " die-eligible" : ""}`}
-							onClick={eligible ? () => onDieClick?.(i) : undefined}
-							style={{
-								background: eligible
-									? (UI.warning?.bg ?? "#FEF3C7")
-									: dieColor.bg,
-								color: eligible ? "#92400E" : dieColor.text,
-								border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
-								cursor: eligible ? "pointer" : "default",
-							}}
-						>
-							{val}
-						</div>
+							value={val}
+							index={i}
+							eligible={eligible}
+							onClick={onDieClick}
+							className="w-7 h-7 flex items-center justify-center rounded text-sm font-bold"
+							color={dieColor}
+						/>
 					);
 				})}
 			</div>
@@ -123,5 +111,49 @@ export function DiceDisplay({
 				total {total}
 			</p>
 		</div>
+	);
+}
+
+function DieValue({
+	value,
+	index,
+	eligible,
+	onClick,
+	className,
+	color,
+}: {
+	value: number;
+	index: number;
+	eligible: boolean;
+	onClick?: (index: number) => void;
+	className: string;
+	color: { bg: string; text: string };
+}) {
+	const style = {
+		background: eligible ? (UI.warning?.bg ?? "#FEF3C7") : color.bg,
+		color: eligible ? "#92400E" : color.text,
+		border: `2px solid ${eligible ? "#F59E0B" : UI.border}`,
+		cursor: eligible ? "pointer" : "default",
+	};
+
+	if (!eligible) return <div className={className} style={style}>{value}</div>;
+
+	function handleKeyDown(event: KeyboardEvent<HTMLButtonElement>) {
+		if (event.key !== "Enter" && event.key !== " ") return;
+		event.preventDefault();
+		onClick?.(index);
+	}
+
+	return (
+		<button
+			type="button"
+			className={`${className} die-eligible`}
+			aria-label={`Selecionar dado ${index + 1}: ${value}`}
+			onClick={() => onClick?.(index)}
+			onKeyDown={handleKeyDown}
+			style={style}
+		>
+			{value}
+		</button>
 	);
 }

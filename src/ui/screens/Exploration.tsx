@@ -350,7 +350,11 @@ export function Exploration() {
 						</aside>
 
 						<div className="game-bottom-dock">
-							<div className="game-portable-action-bar" aria-label="Ações da partida">
+							<div
+								className="game-portable-action-bar"
+								role="group"
+								aria-label="Ações da partida"
+							>
 								<button
 									type="button"
 									onClick={() => setPortableDrawer("awakening")}

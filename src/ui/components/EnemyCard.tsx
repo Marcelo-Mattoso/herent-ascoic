@@ -38,6 +38,9 @@ export function EnemyCard({
 
 	return (
 		<div
+			role="button"
+			tabIndex={0}
+			aria-label={`Selecionar ${getCardName(enemy.cardId)}`}
 			className={isSelectable && !isDragOver ? "click-attention" : undefined}
 			style={{
 				width: 88,
@@ -60,6 +63,12 @@ export function EnemyCard({
 				if (isSelectable) onDrop?.(enemy.id);
 			}}
 			onClick={onClick}
+			onKeyDown={(event) => {
+				if (event.key === "Enter" || event.key === " ") {
+					event.preventDefault();
+					onClick();
+				}
+			}}
 		>
 			{/* Arte placeholder */}
 			<div

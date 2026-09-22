@@ -51,12 +51,10 @@ registerContinuation(
 	(state, ctx, choice): ReturnType<typeof log> => {
 		if (!ctx.sourceHeroId || !state.combat) return state;
 
+		const tokensAfterUse = (state.combat.ecoTokens[ctx.sourceHeroId] ?? 0) - 1;
 		const ecoTokens = {
 			...state.combat.ecoTokens,
-			[ctx.sourceHeroId]: Math.max(
-				0,
-				(state.combat.ecoTokens[ctx.sourceHeroId] ?? 0) - 1,
-			),
+			[ctx.sourceHeroId]: tokensAfterUse > 0 ? tokensAfterUse : 0,
 		};
 
 		if (choice === "tohit") {

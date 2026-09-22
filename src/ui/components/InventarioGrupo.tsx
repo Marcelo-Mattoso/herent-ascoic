@@ -457,6 +457,8 @@ function HeroColumn({
 
 			{/* Mochila em stack — zona de drop inteira */}
 			<div
+				role="group"
+				aria-label={`Mochila de ${heroName}`}
 				{...areaDropHandlers(mochilaZone, canMochila)}
 				className="inventory-backpack-wrap"
 				data-item="true"
@@ -517,9 +519,18 @@ function HeroColumn({
 									<div
 										key={`${name}-${i}`}
 										className="inventory-backpack-item"
+										role="button"
+										tabIndex={0}
+										aria-label={`Detalhes de ${itemName}`}
 									data-item="true"
-									draggable
-									onClick={() => onItemDetail(name, hero.id)}
+										draggable
+										onClick={() => onItemDetail(name, hero.id)}
+										onKeyDown={(event) => {
+											if (event.key === "Enter" || event.key === " ") {
+												event.preventDefault();
+												onItemDetail(name, hero.id);
+											}
+										}}
 										onDragStart={(e) => {
 											e.dataTransfer.setData("text/plain", name);
 											onDragItemStart(name, {

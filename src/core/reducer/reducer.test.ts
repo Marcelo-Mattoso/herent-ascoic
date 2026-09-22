@@ -693,7 +693,7 @@ describe("cancelamento de habilidade voluntária", () => {
 				skillId: "skill_rift_second_chance",
 				sourceId: hero.id,
 				prompt: "Escolha um alvo",
-				candidates: [{ id: "e1", label: "Inimigo", type: "enemy" }],
+				candidates: [{ id: "e1", label: "Inimigo", kind: "enemy" }],
 			},
 		};
 
@@ -702,7 +702,7 @@ describe("cancelamento de habilidade voluntária", () => {
 		expect(
 			result.combat?.oncePer.combat[`skill_rift_second_chance::${hero.id}`],
 		).toBe(true);
-		expect(result.combat?.attackBlockedByHero[hero.id]).toBe(true);
+		expect(result.combat?.attackBlockedByHero?.[hero.id]).toBe(true);
 	});
 });
 
