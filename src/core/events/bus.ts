@@ -12,9 +12,36 @@
 
 import type { Entity, TriggerComponent } from "../ecs/types";
 import { removeComponent } from "../ecs/world";
+import { cardSkills } from "../skills/lookup";
 import type { GameState } from "../state/gameState";
 import { applyEffect } from "./effectResolver";
 import type { GameEvent } from "./types";
+
+/**
+ * Saves anteriores à pipeline canônica podem conter cópias ECS de gatilhos
+ * declarados no catálogo. O TriggerEngine é o dono desses gatilhos; o bus só
+ * executa componentes criados em runtime. Sem essa guarda, uma mesma skill
+ * seria executada uma vez por cada pipeline.
+ */
+function isCatalogTriggerComponent(
+	state: GameState,
+	entityId: string,
+	trigger: TriggerComponent,
+): boolean {
+	const effectType = trigger.effect["type"];
+	if (effectType !== "run_skill" && effectType !== "queue_trigger_interrupt") {
+		return false;
+	}
+	const skillId = trigger.effect["skillId"];
+	if (typeof skillId !== "string") return false;
+	const cardId =
+		state.heroes.find((hero) => hero.id === entityId)?.cardId ??
+		state.activeEnemies.find((enemy) => enemy.id === entityId)?.cardId;
+	if (!cardId) return false;
+	return cardSkills(cardId).some(
+		({ def }) => def.id === skillId && def.operate_type === "op_triggered",
+	);
+}
 
 export function emit(
 	state: GameState,
@@ -44,6 +71,8 @@ export function emit(
 	let currentState = state;
 	let currentEvent = event;
 	for (const { entity, trigger } of matching) {
+		if (isCatalogTriggerComponent(currentState, entity.id, trigger)) continue;
+
 		// Verificar condição opcional (com acesso ao evento e world).
 		if (
 			trigger.condition &&

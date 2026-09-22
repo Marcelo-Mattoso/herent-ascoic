@@ -10,7 +10,6 @@ import {
 	getItems,
 } from "../data/cards";
 import { installPassive } from "../ecs/installPassive";
-import { installSkillTriggers } from "../ecs/installTriggers";
 import { syncHeroesAndEnemies } from "../ecs/sync";
 import { createEmptyWorld } from "../ecs/world";
 import { createRng } from "../ports/random";
@@ -22,6 +21,7 @@ import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
 import { buildDungeonRoomDeck, handleRevealRoom } from "./exploration";
 import { createHeroFromCard, log, shuffleRng } from "./utils";
+import { awakeningRequirementMet } from "../rules/awakening";
 
 export function handleStartGame(
 	state: GameState,
@@ -87,12 +87,13 @@ export function handleStartGame(
 	({ value: shuffledArtifacts, next: rng } = shuffleRng(artifactIds, rng));
 
 	let world = syncHeroesAndEnemies(createEmptyWorld(), heroes, []);
-	// Lote F: instala TriggerComponents e ModifierComponents passivos das habilidades de cada herói
+	// Passivos pertencem ao ECS; gatilhos de catálogo são resolvidos pelo TriggerEngine.
 	for (const hero of heroes) {
 		const heroCard = getCardById(hero.cardId);
 		if (heroCard) {
-			const skills = cardSkills(heroCard.id);
-			world = installSkillTriggers(world, hero.id, skills);
+			const skills = cardSkills(heroCard.id).filter(({ ref }) =>
+				awakeningRequirementMet(despertarIndex, ref.requiresAwakening),
+			);
 			for (const { def, ref } of skills) {
 				if (def.operate_type === "op_passive") {
 					world = installPassive(world, hero.id, def, ref);

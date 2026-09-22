@@ -13,6 +13,7 @@ import { resolveCondition } from "../skills/dsl/resolveCondition";
 import type { EventName } from "../skills/dsl/types";
 import { cardSkills } from "../skills/lookup";
 import { ActivationTracker } from "../state/activation";
+import { awakeningRequirementMet } from "../rules/awakening";
 import type { GameState } from "../state/gameState";
 
 export type TriggerWindow =
@@ -24,6 +25,7 @@ export type TriggerWindow =
 	| "before_attack_roll"
 	| "after_roll_before_result"
 	| "before_damage"
+	| "before_destroy"
 	| "after_damage"
 	| "on_destroy"
 	| "combat_end"
@@ -76,6 +78,8 @@ export interface TriggerDecision {
 
 export interface PendingTriggerInterrupt extends TriggerDecision {
 	readonly id: string;
+	/** Identifica uma AbilityGrant vNext; ausente para TriggerCandidate legado. */
+	readonly grantId?: string;
 	readonly sourceKind: TriggerSourceKind;
 	readonly sourceCardId: string;
 	readonly window: TriggerWindow;
@@ -89,6 +93,7 @@ const EVENT_TO_WINDOW: Record<EventName, TriggerWindow> = {
 	evt_hit: "after_damage",
 	evt_damage_dealt: "after_damage",
 	evt_damage_taken: "before_damage",
+	evt_would_be_destroyed: "before_destroy",
 	evt_destroy: "on_destroy",
 	evt_kill: "on_destroy",
 	evt_combat_start: "before_combat",
@@ -97,6 +102,7 @@ const EVENT_TO_WINDOW: Record<EventName, TriggerWindow> = {
 	evt_round_end: "round_end",
 	evt_room_reveal: "room_enter",
 	evt_room_enter: "room_enter",
+	evt_room_won: "combat_end",
 	evt_room_leave: "room_leave",
 	evt_dungeon_discard: "dungeon_discard",
 	evt_enter_play: "entity_enter_play",
@@ -110,6 +116,7 @@ export const TRIGGER_EVENT_TO_GAME_EVENT: Record<EventName, EventType> = {
 	evt_hit: "DamageDealt",
 	evt_damage_dealt: "DamageDealt",
 	evt_damage_taken: "DamageAboutToBeDealt",
+	evt_would_be_destroyed: "EntityWouldBeDestroyed",
 	evt_destroy: "EnemyDestroyed",
 	evt_kill: "EnemyDestroyed",
 	evt_combat_start: "CombatStarted",
@@ -118,6 +125,7 @@ export const TRIGGER_EVENT_TO_GAME_EVENT: Record<EventName, EventType> = {
 	evt_round_end: "RoundEnded",
 	evt_room_reveal: "RoomEntered",
 	evt_room_enter: "RoomEntered",
+	evt_room_won: "RoomWon",
 	evt_room_leave: "RoomLeft",
 	evt_dungeon_discard: "DungeonCardDiscarded",
 	evt_enter_play: "EntityEnteredPlay",
@@ -131,6 +139,7 @@ const TRIGGER_EVENT_DURATION: Record<EventName, Duration> = {
 	evt_hit: { kind: "this_combat" },
 	evt_damage_dealt: { kind: "this_combat" },
 	evt_damage_taken: { kind: "this_combat" },
+	evt_would_be_destroyed: { kind: "this_combat" },
 	evt_destroy: { kind: "this_combat" },
 	evt_kill: { kind: "this_combat" },
 	evt_combat_start: { kind: "this_combat" },
@@ -139,6 +148,7 @@ const TRIGGER_EVENT_DURATION: Record<EventName, Duration> = {
 	evt_round_end: { kind: "this_combat" },
 	evt_room_reveal: { kind: "permanent" },
 	evt_room_enter: { kind: "permanent" },
+	evt_room_won: { kind: "this_combat" },
 	evt_room_leave: { kind: "permanent" },
 	evt_dungeon_discard: { kind: "permanent" },
 	evt_enter_play: { kind: "permanent" },
@@ -264,7 +274,8 @@ export function collectTriggerCandidates(
 
 	for (const source of inPlaySources(state, event)) {
 		for (const { def, ref } of cardSkills(source.cardId)) {
-			if (ref.requiresAwakening && state.despertar !== 4) continue;
+			if (!awakeningRequirementMet(state.despertar, ref.requiresAwakening))
+				continue;
 			if (def.operate_type !== "op_triggered") continue;
 			if (def.trigger?.event !== event) continue;
 			candidates.push({
@@ -439,6 +450,8 @@ function resolveSkillContext(
 	return {
 		...ctx,
 		triggeredBy: candidate.event,
+		sourceCardId: candidate.source.cardId,
+		sourceEntityId: candidate.source.entityId,
 		sourceHeroId: candidate.source.sourceHeroId ?? ctx.sourceHeroId,
 		sourceEnemyId: candidate.source.sourceEnemyId ?? ctx.sourceEnemyId,
 		skillId: candidate.definition.id,
@@ -603,6 +616,8 @@ export function fireTriggerDecision(
 	const ctx: SkillContext = {
 		triggeredBy: decision.event,
 		skillId: decision.skillId,
+		sourceCardId: decision.sourceCardId,
+		sourceEntityId: decision.sourceEntityId,
 		sourceHeroId: decision.sourceHeroId,
 		sourceEnemyId: decision.sourceEnemyId,
 		targetHeroIds: decision.targetHeroIds,

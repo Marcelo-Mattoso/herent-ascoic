@@ -34,6 +34,22 @@ export function evaluate(
 	return cur.state;
 }
 
+/**
+ * Uma referência simbólica só é útil enquanto o contexto que a alimenta
+ * existir. Nunca a encaminhamos como texto (por exemplo, "$source") para a
+ * pilha de efeitos, porque isso mascara uma habilidade inválida durante a
+ * partida.
+ */
+function unresolvedEntityRef(
+	ctx: EvalCtx,
+	effectKind: string,
+	ref: string,
+): import("../../state/gameState").GameState {
+	return ctx.action.log(
+		`[ERRO] ${effectKind}: referência de entidade "${ref}" não resolveu para a habilidade "${ctx.skillId}".`,
+	);
+}
+
 function evaluateOne(
 	node: EffectNode,
 	ctx: EvalCtx,
@@ -42,7 +58,8 @@ function evaluateOne(
 		// ── Dano / cura ───────────────────────────────────────────────────────
 
 		case "i_damage": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			const amount = resolveExpr(node.amount, ctx);
 			const clamped =
 				node.minimum !== undefined ? Math.max(node.minimum, amount) : amount;
@@ -54,25 +71,29 @@ function evaluateOne(
 		}
 
 		case "i_heal": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			const amount = resolveExpr(node.amount, ctx);
 			return ctx.action.pushEffect({ kind: "i_heal", to, amount });
 		}
 
 		case "i_full_heal": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			return ctx.action.pushEffect({ kind: "i_full_heal", to });
 		}
 
 		case "i_prevent_destroy": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			return ctx.action.pushEffect({ kind: "i_prevent_destroy", to });
 		}
 
 		// ── Modificadores / componentes ECS ───────────────────────────────────
 
 		case "p_modifier": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			const value = resolveExpr(node.value, ctx);
 			// Vai para o drainStack que faz dual-write (ECS world + legacy combat state)
 			// sourceEntityId propagado para permitir limpeza de while_source_in_play.
@@ -89,16 +110,14 @@ function evaluateOne(
 
 		case "add_trigger": {
 			const entityId = resolveEntityRef(node.to, ctx);
-			if (!entityId)
-				return ctx.action.log(
-					`[evaluate] add_trigger: alvo "${node.to}" não resolveu`,
-				);
+			if (!entityId) return unresolvedEntityRef(ctx, node.kind, node.to);
 			return ctx.action.addComponent(entityId, {
 				type: "trigger",
 				on: node.on,
 				effect:
 					node.effect as unknown as import("../../ecs/types").EffectDescriptor,
 				source: ctx.skillId,
+				sourceEntityId: ctx.sourceId ?? undefined,
 				duration: mapDuration(node.duration),
 				priority: node.priority ?? 0,
 				condition: undefined,
@@ -143,19 +162,22 @@ function evaluateOne(
 		// ── Misc ──────────────────────────────────────────────────────────────
 
 		case "i_set_no_reward": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			return ctx.action.pushEffect({ kind: "i_set_no_reward", to });
 		}
 
 		// ── Patch-16 Lote B ───────────────────────────────────────────────────
 
 		case "i_prevent_next_damage": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			return ctx.action.pushEffect({ kind: "i_prevent_next_damage", to });
 		}
 
 		case "i_ignore_next_targeting": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			return ctx.action.pushEffect({ kind: "i_ignore_next_targeting", to });
 		}
 
@@ -165,7 +187,8 @@ function evaluateOne(
 		}
 
 		case "i_mark_target": {
-			const to = resolveEntityRef(node.to, ctx) ?? node.to;
+			const to = resolveEntityRef(node.to, ctx);
+			if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 			return ctx.action.pushEffect({
 				kind: "i_mark_target",
 				to,
@@ -184,6 +207,7 @@ function evaluateOne(
 				pile: node.pile,
 				reveal,
 				keep,
+				replace_room_loot: node.replace_room_loot,
 			});
 		}
 
@@ -216,7 +240,9 @@ function evaluateOne(
 				);
 				return { id: opt.id, label, params: opt.params, effect: opt.effect };
 			});
-			return ctx.action.requestChoice(options);
+			return ctx.action.requestChoice(options, {
+				allowSkip: node.allow_skip === true,
+			});
 		}
 
 		case "i_for_each": {

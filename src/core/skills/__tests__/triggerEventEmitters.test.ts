@@ -1,15 +1,24 @@
 import { describe, expect, it } from "vitest";
-import { SKILLS } from "../../data/skills";
+import { getAllCards } from "../../data/cards";
+import { cardAbilityGrants } from "../../data/abilities";
 import type { EventName } from "../dsl/types";
 import { TRIGGER_EVENT_EMITTERS } from "../resolveSkillWindow";
 
 describe("contrato catálogo → emissor de trigger", () => {
-	it("todo evt_* declarado por uma skill possui emissor real registrado", () => {
-		const declared = new Set<EventName>(
-			SKILLS.abilities.flatMap((skill) =>
-				skill.trigger?.event ? [skill.trigger.event] : [],
+	function declaredEvents(): Set<EventName> {
+		return new Set<EventName>([
+			...getAllCards().flatMap((card) =>
+				cardAbilityGrants(card.id).flatMap((grant) =>
+					grant.activation.kind === "event" && grant.activation.event
+						? [grant.activation.event]
+						: [],
+				),
 			),
-		);
+		]);
+	}
+
+	it("todo evt_* declarado por uma skill possui emissor real registrado", () => {
+		const declared = declaredEvents();
 
 		for (const event of declared) {
 			expect(
@@ -20,16 +29,9 @@ describe("contrato catálogo → emissor de trigger", () => {
 		}
 	});
 
-	it("não mantém emissor para evento fora do vocabulário DSL", () => {
-		const vocabulary = new Set<EventName>(
-			SKILLS.abilities.flatMap((skill) =>
-				skill.trigger?.event ? [skill.trigger.event] : [],
-			),
-		);
-		for (const event of Object.keys(TRIGGER_EVENT_EMITTERS) as EventName[]) {
-			expect(vocabulary.has(event), `${event} não é declarado no catálogo.`).toBe(
-				true,
-			);
+	it("mantém emissores para janelas reservadas mesmo antes de uma fonte usá-las", () => {
+		for (const [event, emitters] of Object.entries(TRIGGER_EVENT_EMITTERS)) {
+			expect(emitters, `${event} deve ter um emissor concreto`).not.toHaveLength(0);
 		}
 	});
 });

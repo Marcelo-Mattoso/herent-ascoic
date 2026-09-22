@@ -62,8 +62,10 @@ export interface ScriptCtx {
 			options: ReadonlyArray<{
 				readonly id: string;
 				readonly label: string;
+				readonly params?: Readonly<Record<string, number | string>>;
 				readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
 			}>,
+			config?: { readonly allowSkip?: boolean },
 		): GameState;
 
 		/** Acrescenta mensagem ao eventLog. */

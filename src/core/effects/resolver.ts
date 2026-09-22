@@ -5,6 +5,7 @@
 // `kind` (DSL) e `type` (legado) são tratados como equivalentes.
 
 import eventRules from "../../data/event_rules.json";
+import { lookupSkillById } from "../skills/lookup";
 import type { EntityId, ModifierComponent } from "../ecs/types";
 import {
 	addComponent,
@@ -50,9 +51,11 @@ export function resolveEffect(
 		case "apply_damage": {
 			if (!targetId) return state;
 			const amount = effect["amount"] as number;
+			const sourceSkill = lookupSkillById(pending.source);
 			return applyDamage(state, targetId, amount, {
 				sourceId: pending.source,
-				damageType: "physical",
+				damageType:
+					sourceSkill?.category === "monster_purple" ? "purple" : "physical",
 			});
 		}
 
@@ -127,20 +130,27 @@ export function resolveEffect(
 				duration: durationNode ?? { kind: "permanent" },
 				...(blockSourceEntityId ? { sourceEntityId: blockSourceEntityId } : {}),
 			};
+			const appendBlock = (key: string, flag: string, message: string) => {
+				const entries = state.blocks[key] ?? [];
+				const alreadyPresent = entries.some(
+					(existing) =>
+						existing.source === entry.source &&
+						existing.sourceEntityId === entry.sourceEntityId &&
+						existing.duration.kind === entry.duration.kind,
+				);
+				if (alreadyPresent) return state;
+				return log(
+					{
+						...state,
+						flags: { ...state.flags, [flag]: true },
+						blocks: { ...state.blocks, [key]: [...entries, entry] },
+					},
+					message,
+				);
+			};
 			switch (what) {
 				case "flee": {
-					const key = "fleeBlocked";
-					return log(
-						{
-							...state,
-							flags: { ...state.flags, fleeBlocked: true },
-							blocks: {
-								...state.blocks,
-								[key]: [...(state.blocks[key] ?? []), entry],
-							},
-						},
-						"Fuga bloqueada.",
-					);
+					return appendBlock("fleeBlocked", "fleeBlocked", "Fuga bloqueada.");
 				}
 				case "heal": {
 					// Aplica a todos os heróis ativos (behavior de forge_smoke/healing_rupture)
@@ -166,23 +176,20 @@ export function resolveEffect(
 					return log(next, "Cura bloqueada.");
 				}
 				case "dungeon_discard": {
-					const key = "discardDungeonLocked";
-					return log(
-						{
-							...state,
-							flags: { ...state.flags, discardDungeonLocked: true },
-							blocks: {
-								...state.blocks,
-								[key]: [...(state.blocks[key] ?? []), entry],
-							},
-						},
+					return appendBlock(
+						"discardDungeonLocked",
+						"discardDungeonLocked",
 						"Prevenção de descarte de dungeon bloqueada.",
 					);
 				}
 				case "power_use":
+					return appendBlock("powerUseBlocked", "powerUseBlocked", "Uso de poder bloqueado.");
 				case "dungeon_level_reduction":
-					// Implementado via flags — adicionado quando ECS estiver wired (Fase 7)
-					return log(state, `[block_action:${what}] — aguarda Fase 7.`);
+					return appendBlock(
+						"dungeonLevelReductionBlocked",
+						"dungeonLevelReductionBlocked",
+						"Redução do Despertar bloqueada.",
+					);
 			}
 			return state;
 		}
@@ -211,6 +218,7 @@ export function resolveEffect(
 				dice_count: "dice_count",
 				// v2 (patch-21 Lote E)
 				s_damage_reduction: "damage_taken",
+				s_purple_damage_reduction: "purple_damage_taken",
 				s_damage_dealt: "damage_dealt",
 				s_hit_bonus: "hit_bonus",
 				s_hit_penalty: "hit_bonus",
@@ -250,7 +258,8 @@ export function resolveEffect(
 					stat === "tohit_penalty" ||
 					stat === "damage_reduction" ||
 					stat === "s_hit_penalty" ||
-					stat === "s_damage_reduction"
+					stat === "s_damage_reduction" ||
+					stat === "s_purple_damage_reduction"
 						? -value
 						: value;
 				const ecsDuration = mapDurationNode(durationNode);
@@ -281,9 +290,14 @@ export function resolveEffect(
 						createEntity(entityId, isActiveHero ? "hero" : "enemy"),
 					);
 				}
-				// Dedup: trigger reativo com while_source_in_play não deve empilhar modifier
-				// ao disparar múltiplas vezes — substituir em vez de adicionar (B5).
-				if (ecsDuration.kind === "while_source_in_play" && sourceEntityId) {
+				// Reavaliações de passivos substituem o modifier anterior. A guarda
+				// reativa contra roxo é deliberadamente cumulativa: cada disparo
+				// concede sua própria camada de redução.
+				if (
+					ecsTarget !== "purple_damage_taken" &&
+					ecsDuration.kind === "while_source_in_play" &&
+					sourceEntityId
+				) {
 					world = removeComponent(world, entityId, (c) => {
 						if (c.type !== "modifier") return false;
 						const m = c as ModifierComponent;
@@ -309,26 +323,12 @@ export function resolveEffect(
 				case "s_hit_bonus":
 				case "s_hit_penalty":
 				case "s_damage_reduction":
+				case "s_purple_damage_reduction":
 				case "s_damage_penalty":
 					return worldState;
 
 				case "purple_damage_reduction":
-				case "s_purple_damage_reduction": {
-					// Corrige bug do handler antigo: armazena como número, não boolean
-					const key = `purpleDmgReduction::${entityId}`;
-					const prevPurple = worldState.flags[key] as
-						| number
-						| boolean
-						| undefined;
-					const prevNum = typeof prevPurple === "number" ? prevPurple : 0;
-					return {
-						...worldState,
-						flags: {
-							...worldState.flags,
-							[key]: (prevNum + value) as unknown as boolean,
-						},
-					};
-				}
+					return worldState;
 				default:
 					// Stat desconhecido: apenas no ECS world
 					return worldState;
@@ -535,6 +535,9 @@ export function resolveEffect(
 			return log(
 				{
 					...state,
+					flags: effect["replace_room_loot"]
+						? { ...state.flags, roomLootReplaced: true }
+						: state.flags,
 					decks: {
 						...state.decks,
 						[deckKey]: { ...deck, available: deck.available.slice(reveal) },
@@ -542,6 +545,8 @@ export function resolveEffect(
 					pendingSkillChoice: {
 						skillId,
 						prompt: "Escolha 1 carta para ficar (as outras são descartadas):",
+						kind: "draw_and_choose",
+						discardDeck: deckKey,
 						options,
 					},
 				},

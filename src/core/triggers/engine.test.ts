@@ -1,7 +1,15 @@
 import { describe, expect, it } from "vitest";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
-import { collectTriggerCandidates, fireTrigger } from "./engine";
+import { installSkillTriggers } from "../ecs/installTriggers";
+import { createEmptyWorld, createEntity, upsertEntity } from "../ecs/world";
+import { cardSkills, lookupSkillById } from "../skills/lookup";
+import {
+	collectTriggerCandidates,
+	fireTrigger,
+	guardPassed,
+	markSkillGuardUsed,
+} from "./engine";
 
 function stateWithBarbarianAndDagger(): GameState {
 	return {
@@ -31,6 +39,21 @@ function stateWithBarbarianAndDagger(): GameState {
 }
 
 describe("trigger engine", () => {
+	it("mantém gatilhos de catálogo fora do bus ECS para não executar duas vezes", () => {
+		const world = upsertEntity(
+			createEmptyWorld(),
+			createEntity("h1", "hero"),
+		);
+		const installed = installSkillTriggers(
+			world,
+			"h1",
+			cardSkills("hero_crimson_barbarian"),
+		);
+
+		expect(installed).toBe(world);
+		expect(installed.entities.h1?.components).toHaveLength(0);
+	});
+
 	it("coleta triggers de qualquer fonte em jogo para a mesma janela", () => {
 		const candidates = collectTriggerCandidates(
 			stateWithBarbarianAndDagger(),
@@ -113,5 +136,81 @@ describe("trigger engine", () => {
 				}
 			).interrupt = originalInterrupt;
 		}
+	});
+
+	it("atribui damage_taken ao herói atingido, preservando o inimigo agressor", () => {
+		const state: GameState = {
+			...stateWithBarbarianAndDagger(),
+			heroes: [
+				{
+					...stateWithBarbarianAndDagger().heroes[0]!,
+					cardId: "hero_broken_bastion_warrior",
+				},
+			],
+		};
+
+		const result = fireTrigger(state, "evt_damage_taken", {
+			triggeredBy: "evt_damage_taken",
+			sourceEnemyId: "e1",
+			targetHeroIds: ["h1"],
+			targetEnemyIds: ["e1"],
+			value: 2,
+		});
+
+		expect(result.pendingTriggerInterrupt).toMatchObject({
+			skillId: "skill_bastion_guard",
+			sourceHeroId: "h1",
+			sourceEnemyId: "e1",
+			targetHeroIds: ["h1"],
+		});
+	});
+
+	it("atribui kill somente ao herói que causou o dano", () => {
+		const base = stateWithBarbarianAndDagger();
+		const state: GameState = {
+			...base,
+			heroes: [
+				{
+					...base.heroes[0]!,
+					cardId: "hero_deep_veil_necromancer",
+				},
+			],
+		};
+
+		const anotherHeroKill = fireTrigger(state, "evt_kill", {
+			triggeredBy: "evt_kill",
+			sourceHeroId: "h2",
+			targetEnemyIds: ["e1"],
+		});
+		expect(anotherHeroKill.pendingTriggerInterrupt).toBeUndefined();
+
+		const ownKill = fireTrigger(state, "evt_kill", {
+			triggeredBy: "evt_kill",
+			sourceHeroId: "h1",
+			targetEnemyIds: ["e1"],
+		});
+		expect(ownKill.pendingTriggerInterrupt).toMatchObject({
+			skillId: "power_deep_veil_echo",
+			sourceHeroId: "h1",
+		});
+	});
+
+	it("mantém cooldown de sala até a sala encerrar e permite novo uso na próxima", () => {
+		const skill = lookupSkillById("skill_preserved_path");
+		expect(skill).toBeDefined();
+		if (!skill) return;
+
+		const used = markSkillGuardUsed(
+			stateWithBarbarianAndDagger(),
+			skill,
+			"h1",
+		);
+		expect(guardPassed(used, skill, "h1")).toBe(false);
+
+		const nextRoom = {
+			...used,
+			oncePer: { ...used.oncePer, room: {} },
+		};
+		expect(guardPassed(nextRoom, skill, "h1")).toBe(true);
 	});
 });

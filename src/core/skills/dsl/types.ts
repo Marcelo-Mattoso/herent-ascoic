@@ -163,6 +163,8 @@ export type EffectNode =
 			readonly pile: DrawPile;
 			readonly reveal: ExprNode;
 			readonly keep: ExprNode;
+			/** A escolha substitui o saque normal da sala vencida. */
+			readonly replace_room_loot?: boolean;
 	  }
 	| { readonly kind: "i_reveal_dungeon"; readonly count: ExprNode }
 	| {
@@ -179,6 +181,8 @@ export type EffectNode =
 	  }
 	| {
 			readonly kind: "i_choose_one";
+			/** Por padrão a escolha é obrigatória; use true somente para decisões voluntárias. */
+			readonly allow_skip?: boolean;
 			readonly options: ReadonlyArray<{
 				readonly id: string;
 				readonly params?: Readonly<Record<string, number | string>>;
@@ -288,6 +292,7 @@ export type EventName =
 	| "evt_hit"
 	| "evt_damage_dealt"
 	| "evt_damage_taken"
+	| "evt_would_be_destroyed"
 	| "evt_destroy"
 	| "evt_kill"
 	// Ciclo
@@ -298,6 +303,7 @@ export type EventName =
 	// Sala
 	| "evt_room_reveal"
 	| "evt_room_enter"
+	| "evt_room_won"
 	| "evt_room_leave"
 	| "evt_dungeon_discard"
 	// Entidade
@@ -357,7 +363,13 @@ export interface EvalCtx {
 		pushEffect(node: EffectNode): GameState;
 		addComponent(entityId: string, component: Component): GameState;
 		requestChoice(
-			options: ReadonlyArray<{ readonly id: string; readonly label: string }>,
+			options: ReadonlyArray<{
+				readonly id: string;
+				readonly label: string;
+				readonly params?: Readonly<Record<string, number | string>>;
+				readonly effect?: readonly EffectNode[];
+			}>,
+			config?: { readonly allowSkip?: boolean },
 		): GameState;
 		log(msg: string): GameState;
 	};

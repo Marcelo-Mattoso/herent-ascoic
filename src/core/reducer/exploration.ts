@@ -12,19 +12,29 @@ import {
 } from "../data/cards";
 import type { RoomCard, SubbossRoomCard } from "../data/cardTypes";
 import { installPassive } from "../ecs/installPassive";
-import { installSkillTriggers } from "../ecs/installTriggers";
-import { syncEntityFromEnemy } from "../ecs/sync";
+import { syncEntityFromEnemy, syncHeroesAndEnemies } from "../ecs/sync";
+import {
+	createEmptyWorld,
+	createEntity,
+	removeEntity,
+	removeModifiersForSource,
+	removeTriggersAppliedBySource,
+	upsertEntity,
+} from "../ecs/world";
 import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
 import { cardSkills } from "../skills/lookup";
+import { applyDeclaredPassiveBlocks } from "../skills/applyPassiveBlocks";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { renderSkillLabel } from "../skills/renderLabel";
 import { ActivationTracker } from "../state/activation";
+import { removeBlocksForSource } from "../state/blockHelpers";
 import { createEmptyCombatState } from "../state/combatState";
 import type { GameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
 import { applyFullHeal } from "../systems/healSystem";
 import { createEnemyFromCard, log, shuffleRng } from "./utils";
+import { awakeningRequirementMet } from "../rules/awakening";
 
 const DUNGEON_ROOM_COPIES = 2;
 
@@ -92,6 +102,7 @@ function enterDungeonRoom(
 
 	let next: GameState = {
 		...state,
+		world: upsertEntity(state.world, createEntity(room.cardId, "room")),
 		currentRoom: room,
 		status: "ROOM_EFFECT",
 		activeEnemies: [],
@@ -102,6 +113,10 @@ function enterDungeonRoom(
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
 		},
 	};
+	next = applyDeclaredPassiveBlocks(next, {
+		cardId: room.cardId,
+		entityId: room.cardId,
+	});
 	next = resolveRoomEntryWindows(next, room.cardId);
 	return log(next, `${logPrefix}: ${getCardName(card.id)}.`);
 }
@@ -170,8 +185,9 @@ function handleRevealSubbossRoom(
 	);
 
 	let worldWithSubboss = syncEntityFromEnemy(state.world, enemy);
-	const skills = cardSkills(subbossCard.id);
-	worldWithSubboss = installSkillTriggers(worldWithSubboss, enemy.id, skills);
+	const skills = cardSkills(subbossCard.id).filter(({ ref }) =>
+		awakeningRequirementMet(state.despertar, ref.requiresAwakening),
+	);
 	for (const { def, ref } of skills) {
 		if (def.operate_type === "op_passive") {
 			worldWithSubboss = installPassive(worldWithSubboss, enemy.id, def, ref);
@@ -192,6 +208,15 @@ function handleRevealSubbossRoom(
 			dungeonDeck: { ...state.decks.dungeonDeck, available: remainingDeck },
 		},
 	};
+	next = applyDeclaredPassiveBlocks(next, {
+		cardId: room.cardId,
+		entityId: room.cardId,
+	});
+	next = applyDeclaredPassiveBlocks(next, {
+		cardId: enemy.cardId,
+		entityId: enemy.id,
+		sourceEnemyId: enemy.id,
+	});
 	next = resolveRoomEntryWindows(next, room.cardId);
 	return log(
 		next,
@@ -293,17 +318,14 @@ export function handleSpawnEnemies(state: GameState): GameState {
 	}
 	state = { ...state, rng };
 
-	// Lote F: instala TriggerComponents e ModifierComponents passivos dos inimigos
+	// Passivos ficam no ECS; gatilhos de catálogo seguem o TriggerEngine.
 	let worldWithEnemies = state.world;
 	for (const enemy of enemies) {
 		worldWithEnemies = syncEntityFromEnemy(worldWithEnemies, enemy);
 		const enemyCard = getCardById(enemy.cardId);
 		if (enemyCard) {
-			const skills = cardSkills(enemyCard.id);
-			worldWithEnemies = installSkillTriggers(
-				worldWithEnemies,
-				enemy.id,
-				skills,
+			const skills = cardSkills(enemyCard.id).filter(({ ref }) =>
+				awakeningRequirementMet(state.despertar, ref.requiresAwakening),
 			);
 			for (const { def, ref } of skills) {
 				if (def.operate_type === "op_passive") {
@@ -333,6 +355,13 @@ export function handleSpawnEnemies(state: GameState): GameState {
 			},
 		},
 	};
+	for (const enemy of enemies) {
+		next = applyDeclaredPassiveBlocks(next, {
+			cardId: enemy.cardId,
+			entityId: enemy.id,
+			sourceEnemyId: enemy.id,
+		});
+	}
 	for (const enemy of enemies) {
 		next = resolveSkillWindow(next, {
 			event: "evt_enter_play",
@@ -379,8 +408,14 @@ export function handleCheckBossCondition(state: GameState): GameState {
 			return beforeLeave;
 		}
 	}
+	const {
+		roomLootReplaced: _roomLootReplaced,
+		roomVictoryRewardsGranted: _roomVictoryRewardsGranted,
+		...flagsAfterRoom
+	} = beforeLeave.flags;
 	let s: GameState = {
 		...beforeLeave,
+		flags: flagsAfterRoom,
 		oncePer: { ...beforeLeave.oncePer, room: {} },
 		disabled: ActivationTracker.clearLocks(beforeLeave.disabled ?? {}, "room"),
 		paths: [],
@@ -397,6 +432,16 @@ export function handleCheckBossCondition(state: GameState): GameState {
 				}
 			: beforeLeave.decks,
 	};
+	if (roomId) {
+		s = removeBlocksForSource(s, roomId);
+		s = {
+			...s,
+			world: removeTriggersAppliedBySource(
+				removeModifiersForSource(removeEntity(s.world, roomId), roomId),
+				roomId,
+			),
+		};
+	}
 
 	if (checkBossCondition(s, s.bossCardId)) {
 		return log(
@@ -612,6 +657,8 @@ export function handleRestartDungeon(
 			paused: null,
 			pendingRewards: [],
 			flags: {},
+			blocks: {},
+			disabled: {},
 			tokens: {},
 			subbosses: { available: [], defeated: [] },
 			oncePer: { game: state.oncePer.game },
@@ -625,6 +672,7 @@ export function handleRestartDungeon(
 					removed: [],
 				},
 			},
+			world: syncHeroesAndEnemies(createEmptyWorld(), restoredHeroes, []),
 		},
 		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,
 	);

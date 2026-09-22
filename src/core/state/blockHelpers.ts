@@ -93,6 +93,15 @@ function clearBlockFlag(state: GameState, key: string): GameState {
 	if (key === "discardDungeonLocked") {
 		return { ...state, flags: { ...state.flags, discardDungeonLocked: false } };
 	}
+	if (key === "powerUseBlocked") {
+		return { ...state, flags: { ...state.flags, powerUseBlocked: false } };
+	}
+	if (key === "dungeonLevelReductionBlocked") {
+		return {
+			...state,
+			flags: { ...state.flags, dungeonLevelReductionBlocked: false },
+		};
+	}
 	if (key.endsWith("::healBlocked")) {
 		const heroId = key.slice(0, -"::healBlocked".length);
 		return {

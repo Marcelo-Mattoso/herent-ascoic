@@ -1,0 +1,51 @@
+# Catálogo vNext de efeitos puros. Durante a migração ele pode coexistir com
+# skills.yaml: habilidades ainda legadas são normalizadas pelo adaptador.
+version: "1.0"
+abilities:
+  # Concede bônus diretamente ao total de acerto. Não altera os dados rolados.
+  - id: ability_hit_bonus_once
+    parameters:
+      value: { type: integer, minimum: 1, required: true }
+    targetContract: { required: true }
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_hit_bonus
+        operation: add
+        value: $value
+        duration: { kind: once }
+
+  # Bônus passivo enquanto a fonte permanece equipada.
+  - id: ability_hit_bonus_while_equipped
+    parameters:
+      value: { type: integer, minimum: 1, required: true }
+    targetContract: { required: true }
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_hit_bonus
+        operation: add
+        value: $value
+        duration: { kind: while_in_play }
+
+  # Só tem efeito na janela evt_would_be_destroyed: o executor marca o alvo
+  # para sobreviver ao dano pendente com 1 de vida.
+  - id: ability_prevent_current_destruction
+    targetContract: { required: true }
+    effect:
+      - kind: i_prevent_destroy
+        to: $source
+
+  # Reduz somente o dano que está prestes a ser aplicado; diferente de uma
+  # armadura passiva e da Poção de Pele de Pedra, que dura o combate inteiro.
+  - id: ability_reduce_current_damage
+    parameters:
+      value: { type: integer, minimum: 1, required: true }
+    targetContract: { required: false }
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_reduction
+        operation: add
+        value: $value
+        duration: { kind: once }

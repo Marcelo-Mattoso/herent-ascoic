@@ -1,6 +1,15 @@
 import { describe, expect, it } from "vitest";
-import type { HealthComponent } from "../../ecs/types";
-import { getComponent } from "../../ecs/world";
+import type {
+	HealthComponent,
+	ModifierComponent,
+	TriggerComponent,
+} from "../../ecs/types";
+import {
+	addComponent,
+	createEntity,
+	getComponent,
+	upsertEntity,
+} from "../../ecs/world";
 import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
@@ -116,6 +125,64 @@ describe("applyDamage — herói", () => {
 		const health = getComponent<HealthComponent>(result.world, "h1", "health");
 		expect(health).toBeDefined();
 		expect(health?.current).toBe(5);
+	});
+
+	it("aplica redução exclusiva a dano roxo", () => {
+		const state = makeState();
+		const ward: ModifierComponent = {
+			type: "modifier",
+			target: "purple_damage_taken",
+			operation: "add",
+			value: -2,
+			source: "skill_last_light_ward",
+			duration: { kind: "while_source_in_play" },
+			sourceEntityId: "h1",
+		};
+		const worldWithHero = upsertEntity(
+			state.world,
+			createEntity("h1", "hero"),
+		);
+		const withWard = { ...state, world: addComponent(worldWithHero, "h1", ward) };
+		expect(
+			applyDamage(withWard, "h1", 5, {
+				sourceId: "e1",
+				damageType: "purple",
+			}).heroes[0]!.currentLife,
+		).toBe(7);
+		expect(
+			applyDamage(withWard, "h1", 5, {
+				sourceId: "e1",
+				damageType: "physical",
+			}).heroes[0]!.currentLife,
+		).toBe(5);
+	});
+
+	it("limpa gatilhos ECS do herói derrotado e os que ele instalou", () => {
+		let state = makeState({ currentLife: 2 }, { id: "e1" });
+		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		world = upsertEntity(world, createEntity("e1", "enemy"));
+		const ownTrigger: TriggerComponent = {
+			type: "trigger",
+			on: "DamageDealt",
+			effect: { type: "push_to_stack", innerEffect: { kind: "i_noop" } },
+			source: "test_own_trigger",
+			sourceEntityId: "h1",
+			duration: { kind: "while_source_in_play" },
+			priority: 0,
+		};
+		const appliedTrigger: TriggerComponent = {
+			...ownTrigger,
+			source: "test_applied_trigger",
+		};
+		world = addComponent(world, "h1", ownTrigger);
+		world = addComponent(world, "e1", appliedTrigger);
+		state = { ...state, world };
+
+		const result = applyDamage(state, "h1", 2, { sourceId: "e1" });
+
+		expect(result.heroes[0]?.status).toBe("defeated");
+		expect(result.world.entities.h1?.components.some((c) => c.type === "trigger")).toBe(false);
+		expect(result.world.entities.e1?.components.some((c) => c.type === "trigger")).toBe(false);
 	});
 });
 

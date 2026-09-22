@@ -188,6 +188,7 @@ export function Setup({ onBack }: SetupProps) {
 				</section>
 
 				<aside className="setup-rules-panel">
+					<div className="setup-rules-panel__scroll">
 					<div className="setup-section-heading">
 						{diceIconUrl ? <img src={diceIconUrl} alt="" /> : null}
 						<div>
@@ -233,14 +234,18 @@ export function Setup({ onBack }: SetupProps) {
 						</div>
 					</div>
 
-					<button
-						type="button"
-						className="ornate-action ornate-action--primary setup-start-button"
-						onClick={startGame}
-						disabled={!canStart}
-					>
-						Iniciar partida
-					</button>
+					</div>
+
+					<div className="setup-rules-panel__footer">
+						<button
+							type="button"
+							className="ornate-action ornate-action--primary setup-start-button"
+							onClick={startGame}
+							disabled={!canStart}
+						>
+							Iniciar partida
+						</button>
+					</div>
 				</aside>
 			</div>
 			{heroInfo ? (
