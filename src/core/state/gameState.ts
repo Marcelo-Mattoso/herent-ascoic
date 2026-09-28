@@ -195,8 +195,10 @@ export interface PendingReward {
 	readonly requiresBearer: boolean;
 }
 
+export const MAX_HEROES = 4;
+
 export interface GameConfig {
-	// Suporta 1 a 8 heróis. Mantido como array; UI garante pelo menos 1 elemento.
+	// Suporta de 1 a 4 heróis. Mantido como array; UI garante pelo menos 1 elemento.
 	heroCardIds: string[];
 	difficulty?: Difficulty;
 	bossCardId?: string;

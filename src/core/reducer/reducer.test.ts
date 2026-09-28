@@ -155,6 +155,25 @@ describe("START_GAME", () => {
 		expect(s.decks.dungeonDeck.available.length).toBeGreaterThan(0);
 	});
 
+	it("rejeita partidas com mais de quatro heróis", () => {
+		const heroCardIds = [
+			HERO,
+			CLERIC,
+			PALADIN,
+			WARRIOR,
+			"hero_rift_rogue",
+		];
+		const base = createInitialGameState({ heroCardIds });
+		const s = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardIds },
+		});
+
+		expect(s.heroes).toHaveLength(0);
+		expect(s.status).toBe("MAIN_MENU");
+		expect(s.eventLog.at(-1)).toBe("[ERRO] Selecione no máximo 4 heróis.");
+	});
+
 	it("inicia Guerreiro do Bastião Partido com bônus de acerto base 5 no normal", () => {
 		const warrior = "hero_broken_bastion_warrior";
 		const base = createInitialGameState({ heroCardIds: [warrior] });

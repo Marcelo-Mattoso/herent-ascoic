@@ -252,15 +252,13 @@ export function handleResolveRoomEffect(state: GameState): GameState {
 	return { ...state, status: "SPAWN_ENEMIES" };
 }
 
-// Patch 2: contagem dinâmica de inimigos baseada no número de heróis ativos.
+// Contagem dinâmica de inimigos para grupos de 1 a 4 heróis ativos.
 function getEnemyCount(
 	enemiesByPlayers: readonly [number, number, number, number],
 	activeHeroesCount: number,
 ): number {
-	if (activeHeroesCount <= 2) return enemiesByPlayers[0];
-	if (activeHeroesCount <= 4) return enemiesByPlayers[1];
-	if (activeHeroesCount <= 6) return enemiesByPlayers[2];
-	return enemiesByPlayers[3];
+	const playerIndex = Math.min(Math.max(activeHeroesCount, 1), 4) - 1;
+	return enemiesByPlayers[playerIndex]!;
 }
 
 export function handleSpawnEnemies(state: GameState): GameState {

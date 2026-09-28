@@ -1,5 +1,5 @@
 // Handler de START_GAME: monta estado inicial, embaralha decks, cria heróis ativos.
-// Patch 1: suporta 1 a 8 heróis; aplica heroOffset e despertarOffset da dificuldade.
+// Suporta de 1 a 4 heróis; aplica heroOffset e despertarOffset da dificuldade.
 
 import { DIFFICULTY_PRESETS } from "../config/defaults";
 import { getCardName } from "../data/cardLocale";
@@ -16,7 +16,7 @@ import { createRng } from "../ports/random";
 import { cardSkills } from "../skills/lookup";
 import type { ColorIndex } from "../state/color";
 import { createEmptyCombatState } from "../state/combatState";
-import type { GameConfig, GameState } from "../state/gameState";
+import { MAX_HEROES, type GameConfig, type GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
 import { buildDungeonRoomDeck, handleRevealRoom } from "./exploration";
@@ -32,6 +32,9 @@ export function handleStartGame(
 
 	if (heroIds.length === 0) {
 		return log(state, "[ERRO] Nenhum herói selecionado.");
+	}
+	if (heroIds.length > MAX_HEROES) {
+		return log(state, `[ERRO] Selecione no máximo ${MAX_HEROES} heróis.`);
 	}
 
 	// Seed e gameId vêm do payload (injetados pela UI ou testes).

@@ -4,6 +4,7 @@ import { getBoss, getHeroes } from "@/core/data/cards";
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
 import { getSkillLocale, getSkillName } from "@/core/data/skillLocale";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
+import { MAX_HEROES } from "@/core/state/gameState";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
@@ -90,7 +91,7 @@ export function Setup({ onBack }: SetupProps) {
 	function toggleHero(id: string) {
 		setSelectedHeroes((prev) => {
 			if (prev.includes(id)) return prev.filter((heroId) => heroId !== id);
-			if (prev.length >= 8) return prev;
+			if (prev.length >= MAX_HEROES) return prev;
 			return [...prev, id];
 		});
 	}
@@ -150,7 +151,7 @@ export function Setup({ onBack }: SetupProps) {
 						{heroIconUrl ? <img src={heroIconUrl} alt="" /> : null}
 						<div>
 							<h2 id="setup-heroes-title">Heróis</h2>
-							<p>1 a 8 participantes</p>
+							<p>1 a 4 participantes</p>
 						</div>
 					</div>
 					<div className="setup-hero-grid">

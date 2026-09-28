@@ -8,7 +8,7 @@ import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CombatRollResult } from "@/core/state/combatState";
 import type { EnemyState } from "@/core/state/enemyState";
-import type { GroupArtifact } from "@/core/state/gameState";
+import { MAX_HEROES, type GroupArtifact } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
 import type { BackCardUrls } from "@/ui/backCards";
 import type { CardImageUrls } from "@/ui/cardImages";
@@ -1073,7 +1073,7 @@ export function Board({
 						className="game-board-hero-strip"
 						style={{
 							display: "grid",
-							gridTemplateColumns: `repeat(${Math.min(Math.max(heroes.length, 1), 8)}, ${ACTIVE_DUNGEON_CARD.width}px)`,
+							gridTemplateColumns: `repeat(${Math.min(Math.max(heroes.length, 1), MAX_HEROES)}, ${ACTIVE_DUNGEON_CARD.width}px)`,
 							gap: "clamp(10px, 1.25vw, 18px)",
 							justifyContent: "center",
 							alignItems: "start",
