@@ -17,6 +17,7 @@ import {
 import { ActivationTracker } from "../state/activation";
 import type { GameState } from "../state/gameState";
 import { log } from "../reducer/utils";
+import { setItemReadiness } from "../strategies/itemDistribution";
 import type { SkillContext } from "../data/skillTypes";
 import type { EventName } from "../skills/dsl/types";
 
@@ -178,6 +179,21 @@ export function executeAbilityGrant(
 	const params = { ...ability.defaultParams, ...grant.params };
 	const value = request.value ?? (params.value as number | string | null | undefined) ?? null;
 	let next = consumeSource(state, source, grant);
+	if (
+		source.kind === "item" &&
+		source.sourceHeroId &&
+		triggeredBy === "manual" &&
+		grant.activation.consumeSource === "none"
+	) {
+		next = {
+			...next,
+			heroes: next.heroes.map((hero) =>
+				hero.id === source.sourceHeroId
+					? setItemReadiness(hero, source.cardId, "exhausted")
+					: hero,
+			),
+		};
+	}
 	const hpCost = grant.activation.cost?.hp ?? 0;
 	if (hpCost > 0 && source.sourceHeroId) {
 		const hero = next.heroes.find((entry) => entry.id === source.sourceHeroId);
@@ -272,7 +288,7 @@ export function collectEventAbilityGrantCandidates(
 			{ kind: "hero", cardId: hero.cardId, sourceHeroId: hero.id },
 			event,
 		);
-		for (const itemId of Object.values(hero.activeItems)) {
+		for (const itemId of new Set(Object.values(hero.activeItems))) {
 			if (!itemId) continue;
 			addEventGrants(
 				candidates,
