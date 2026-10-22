@@ -75,6 +75,13 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 		currentRoom: room,
 		activeEnemies: [enemy],
 		status: "COMBAT_START",
+		oncePer: {
+			...s.oncePer,
+			game: {
+				...s.oncePer.game,
+				[`power_mighty_crimson_fury::${hero.id}`]: true,
+			},
+		},
 		decks: {
 			...s.decks,
 			dungeonDeck: {
@@ -148,6 +155,25 @@ describe("START_GAME", () => {
 		expect(s.decks.dungeonDeck.available.length).toBeGreaterThan(0);
 	});
 
+	it("rejeita partidas com mais de quatro heróis", () => {
+		const heroCardIds = [
+			HERO,
+			CLERIC,
+			PALADIN,
+			WARRIOR,
+			"hero_rift_rogue",
+		];
+		const base = createInitialGameState({ heroCardIds });
+		const s = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardIds },
+		});
+
+		expect(s.heroes).toHaveLength(0);
+		expect(s.status).toBe("MAIN_MENU");
+		expect(s.eventLog.at(-1)).toBe("[ERRO] Selecione no máximo 4 heróis.");
+	});
+
 	it("inicia Guerreiro do Bastião Partido com bônus de acerto base 5 no normal", () => {
 		const warrior = "hero_broken_bastion_warrior";
 		const base = createInitialGameState({ heroCardIds: [warrior] });
@@ -172,7 +198,7 @@ describe("START_GAME", () => {
 // ─── Testes de itens ─────────────────────────────────────────────────────────
 
 describe("USE_ITEM", () => {
-	it("Caminho Preservado pode ser usado manualmente por item consumível", () => {
+	it("Caminho Preservado aguarda a janela de descarte de dungeon", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const started = reducer(base, {
 			type: "START_GAME",
@@ -190,11 +216,11 @@ describe("USE_ITEM", () => {
 			{ type: "USE_ITEM", payload: { itemId, heroId: hero.id } },
 		);
 
-		expect(result.heroes[0]?.backpack).not.toContain(itemId);
-		expect(result.flags.dungeonDiscardPrevented).toBe(true);
+		expect(result.heroes[0]?.backpack).toContain(itemId);
+		expect(result.flags.dungeonDiscardPrevented).not.toBe(true);
 	});
 
-	it("Saque Místico descarta o item da mochila e ativa o artefato no grupo", () => {
+	it("Saque Místico equipado descarta o item e ativa o artefato no grupo", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const started = reducer(base, {
 			type: "START_GAME",
@@ -207,7 +233,7 @@ describe("USE_ITEM", () => {
 		const artifactId = "artifact_crimson_jailer_chain";
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, backpack: [itemId] }],
+			heroes: [{ ...hero, activeItems: { special: itemId } }],
 			decks: {
 				...started.decks,
 				artifactDeck: {
@@ -224,7 +250,7 @@ describe("USE_ITEM", () => {
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.heroes[0]?.backpack).not.toContain(itemId);
+		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
 		expect(result.pendingRewards).toHaveLength(0);
 		expect(result.groupArtifacts).toContainEqual({
 			cardId: artifactId,
@@ -277,7 +303,7 @@ describe("USE_ITEM", () => {
 		});
 	});
 
-	it("usar item manual em combate preserva a ação e o ataque do herói", () => {
+	it("não permite usar item guardado na mochila durante o combate", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
 		s = reducer(s, { type: "START_COMBAT" });
 		const hero = s.heroes[0];
@@ -306,14 +332,46 @@ describe("USE_ITEM", () => {
 			payload: { itemId, heroId: hero.id },
 		});
 
+		expect(result.heroes[0]?.backpack).toContain(itemId);
 		expect(result.combat?.heroesActed).not.toContain(hero.id);
 		expect(result.combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
 		expect(result.status).toBe("HERO_ACTION");
 		expect(result.combat?.phase).toBe("selecting_target");
-		expect(result.groupArtifacts).toContainEqual({
-			cardId: artifactId,
-			carriedBy: null,
+		expect(result.groupArtifacts).toHaveLength(0);
+	});
+
+	it("item que derrota a última criatura encaminha o combate para recompensa", () => {
+		let s = stateWithRoomAndEnemy(10, 1);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		const enemy = s.activeEnemies[0];
+		if (!hero || !enemy) throw new Error("estado de combate inválido");
+		s = reducer(s, {
+			type: "CHOOSE_HERO_FOR_ROUND",
+			payload: { heroId: hero.id },
 		});
+		s = {
+			...s,
+			heroes: [
+				{ ...hero, activeItems: { consumable: "item_living_ember_potion" } },
+			],
+			activeEnemies: [{ ...enemy, currentLife: 1 }],
+		};
+
+		const afterItem = reducer(s, {
+			type: "USE_ITEM",
+			payload: {
+				itemId: "item_living_ember_potion",
+				heroId: hero.id,
+				targetEnemyId: enemy.id,
+			},
+		});
+
+		expect(afterItem.activeEnemies[0]?.status).toBe("defeated");
+		expect(afterItem.status).toBe("CHECK_COMBAT_END");
+		const completed = reducer(afterItem, { type: "CHECK_COMBAT_END" });
+		expect(completed.status).toBe("REWARD_PHASE");
+		expect(completed.activeEnemies).toEqual([]);
 	});
 
 	it("usar habilidade manual bloqueia o ataque sem encerrar a ação", () => {
@@ -525,7 +583,7 @@ describe("USE_ITEM", () => {
 						...hero,
 						currentLife: 12,
 						hitBonus: 0,
-						activeItems: { armor: "item_ancient_metal_armor" },
+						activeItems: { weapon: "item_ancient_metal_armor" },
 					},
 				],
 				activeEnemies: [{ ...enemy, damage: 5, currentLife: 8 }],
@@ -589,6 +647,81 @@ describe("USE_ITEM", () => {
 		expect(result.eventLog.join("\n")).toContain(
 			"Martelo de Pedra Quebrada +2",
 		);
+	});
+
+	it("ataque normal preserva o herói como fonte para gatilhos após acertar", () => {
+		let s = stateWithRoomAndEnemy(12, 5);
+		s = reducer(s, { type: "START_COMBAT" });
+		const hero = s.heroes[0];
+		const enemy = s.activeEnemies[0];
+		if (!hero || !enemy || !s.combat) throw new Error("invalid combat");
+
+		const result = reducer(
+			{
+				...s,
+				despertar: 4,
+				oncePer: { ...s.oncePer, game: {} },
+				status: "RESOLVE_ATTACK",
+				activeEnemies: [
+					{
+						...enemy,
+						cardId: "creature_wet_stone_slime",
+						maxLife: 5,
+						currentLife: 5,
+					},
+				],
+				combat: {
+					...s.combat,
+					lastRoll: {
+						heroId: hero.id,
+						enemyId: enemy.id,
+						heroResults: [6],
+						heroTotal: 10,
+						heroBreakdown: [],
+						enemyResults: [2],
+						enemyTotal: 6,
+						enemyBreakdown: [],
+					},
+				},
+			},
+			{ type: "RESOLVE_ATTACK" },
+		);
+		expect(result.pendingTriggerInterrupt).toMatchObject({
+			skillId: "power_mighty_crimson_fury",
+			sourceHeroId: hero.id,
+		});
+	});
+});
+
+describe("cancelamento de habilidade voluntária", () => {
+	it("consome o uso de um poder ao cancelar a seleção de alvo", () => {
+		const started = reducer(createInitialGameState({ heroCardIds: [HERO] }), {
+			type: "START_GAME",
+			payload: { heroCardIds: [HERO] },
+		});
+		const hero = started.heroes[0]!;
+		const state: GameState = {
+			...started,
+			status: "HERO_ACTION",
+			combat: {
+				...started.combat!,
+				phase: "selecting_target",
+				selectedHeroId: hero.id,
+			},
+			pendingSkillTarget: {
+				skillId: "skill_rift_second_chance",
+				sourceId: hero.id,
+				prompt: "Escolha um alvo",
+				candidates: [{ id: "e1", label: "Inimigo", kind: "enemy" }],
+			},
+		};
+
+		const result = reducer(state, { type: "CANCEL_SKILL_TARGET" });
+		expect(result.pendingSkillTarget).toBeUndefined();
+		expect(
+			result.combat?.oncePer.combat[`skill_rift_second_chance::${hero.id}`],
+		).toBe(true);
+		expect(result.combat?.attackBlockedByHero?.[hero.id]).toBe(true);
 	});
 });
 
@@ -882,6 +1015,13 @@ describe("combate múltiplo v2 (§8.8)", () => {
 			currentRoom: room,
 			activeEnemies: [enemy],
 			status: "COMBAT_START",
+			oncePer: {
+				...s.oncePer,
+				game: {
+					...s.oncePer.game,
+					[`power_mighty_crimson_fury::${s.heroes[0]?.id ?? ""}`]: true,
+				},
+			},
 		};
 	}
 

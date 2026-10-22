@@ -133,6 +133,7 @@ export interface PlayerView {
 	readonly pendingSkillChoice: {
 		readonly skillId: string;
 		readonly prompt: string;
+		readonly allowSkip?: boolean;
 		readonly options: readonly {
 			readonly id: string;
 			readonly label: string;

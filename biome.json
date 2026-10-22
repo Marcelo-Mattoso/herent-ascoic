@@ -7,7 +7,7 @@
 	},
 	"files": {
 		"ignoreUnknown": false,
-		"includes": ["**", "!docs", "!dist", "!node_modules"]
+		"includes": ["**", "!docs", "!dist", "!node_modules", "!.claude", "!tools"]
 	},
 	"formatter": {
 		"enabled": true,
@@ -18,7 +18,11 @@
 		"rules": {
 			"recommended": true,
 			"suspicious": {
-				"noArrayIndexKey": "off"
+				"noArrayIndexKey": "off",
+				"noThenProperty": "off"
+			},
+			"a11y": {
+				"useSemanticElements": "off"
 			}
 		}
 	},

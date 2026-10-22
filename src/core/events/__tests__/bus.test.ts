@@ -137,6 +137,64 @@ describe("emit — world vazio", () => {
 	});
 });
 
+describe("emit — guarda de Despertar Roxo", () => {
+	it("não executa Tributo Sombrio de um componente Roxo antigo fora do Roxo", () => {
+		let state = makeState({}, {});
+		let world = upsertEntity(state.world, createEntity("e1", "enemy"));
+		world = addComponent(world, "e1", {
+			type: "trigger",
+			on: "CombatStarted",
+			effect: {
+				type: "run_skill",
+				skillId: "purple_dark_tribute",
+				params: { value: 1 },
+			},
+			source: "purple_dark_tribute",
+			duration: { kind: "this_combat" },
+			priority: 0,
+		});
+		state = { ...state, despertar: 3, world };
+
+		const result = emit(state, {
+			type: "CombatStarted",
+			payload: { roomId: "room_dungeon_room" },
+		});
+
+		expect(result.state.pendingSkillChoice).toBeUndefined();
+	});
+});
+
+describe("emit — fronteira da pipeline de gatilhos", () => {
+	it("ignora cópia ECS antiga de skill de catálogo para não duplicar o TriggerEngine", () => {
+		const state = makeState({}, {});
+		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		world = addComponent(world, "h1", {
+			type: "trigger",
+			on: "DamageDealt",
+			effect: {
+				type: "queue_trigger_interrupt",
+				skillId: "skill_crimson_fury",
+				triggerEvent: "evt_damage_dealt",
+			},
+			source: "skill_crimson_fury",
+			duration: { kind: "this_combat" },
+			priority: 0,
+		});
+
+		const result = emit({ ...state, world }, {
+			type: "DamageDealt",
+			payload: {
+				sourceId: "h1",
+				targetId: "e1",
+				damageType: "attack",
+				amount: 2,
+			},
+		});
+
+		expect(result.state.pendingTriggerInterrupt).toBeUndefined();
+	});
+});
+
 // ── emit — accumulator pattern ────────────────────────────────────────────────
 
 describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {

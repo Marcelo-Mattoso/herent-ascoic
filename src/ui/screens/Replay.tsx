@@ -128,6 +128,7 @@ export function Replay({ onClose }: ReplayProps) {
 					DEV
 				</span>
 				<button
+					type="button"
 					onClick={onClose}
 					className="ml-auto px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm"
 				>
@@ -138,6 +139,7 @@ export function Replay({ onClose }: ReplayProps) {
 			{/* Controles de carregamento */}
 			<div className="flex flex-wrap gap-2 mb-4 flex-shrink-0">
 				<button
+					type="button"
 					onClick={handleReplayCurrent}
 					className="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded text-sm"
 				>
@@ -154,6 +156,7 @@ export function Replay({ onClose }: ReplayProps) {
 					/>
 				</label>
 				<button
+					type="button"
 					onClick={handleExportCurrent}
 					className="px-3 py-1.5 bg-yellow-700 hover:bg-yellow-600 rounded text-sm"
 				>
@@ -171,6 +174,7 @@ export function Replay({ onClose }: ReplayProps) {
 			{hasStates && (
 				<div className="flex items-center gap-3 mb-4 flex-shrink-0">
 					<button
+						type="button"
 						onClick={() => goTo(0)}
 						disabled={cursor === 0}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"
@@ -178,6 +182,7 @@ export function Replay({ onClose }: ReplayProps) {
 						|◀ Início
 					</button>
 					<button
+						type="button"
 						onClick={() => goTo(cursor - 1)}
 						disabled={cursor === 0}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"
@@ -185,6 +190,7 @@ export function Replay({ onClose }: ReplayProps) {
 						◀ Anterior
 					</button>
 					<button
+						type="button"
 						onClick={handlePlay}
 						disabled={!hasStates || cursor >= states.length - 1}
 						className="px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 disabled:opacity-40 rounded text-sm"
@@ -192,6 +198,7 @@ export function Replay({ onClose }: ReplayProps) {
 						{playing ? "⏸ Pausar" : "▶ Play"}
 					</button>
 					<button
+						type="button"
 						onClick={() => goTo(cursor + 1)}
 						disabled={cursor >= states.length - 1}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"
@@ -199,6 +206,7 @@ export function Replay({ onClose }: ReplayProps) {
 						Próximo ▶
 					</button>
 					<button
+						type="button"
 						onClick={() => goTo(states.length - 1)}
 						disabled={cursor >= states.length - 1}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"

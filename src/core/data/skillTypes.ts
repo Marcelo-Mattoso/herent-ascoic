@@ -71,6 +71,10 @@ export interface SkillCatalog {
 // Campos opcionais — cada trigger preenche o que for relevante.
 export interface SkillContext {
 	readonly triggeredBy: string; // EventName | legacy string
+	/** Carta que originou a habilidade, inclusive salas e itens sem entidade ECS. */
+	readonly sourceCardId?: string;
+	/** Entidade em jogo que originou a habilidade, quando existir. */
+	readonly sourceEntityId?: string;
 	readonly sourceHeroId?: string;
 	readonly sourceEnemyId?: string;
 	readonly targetHeroIds?: readonly string[];

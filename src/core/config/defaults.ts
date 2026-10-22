@@ -38,5 +38,5 @@ export const ITEM_CLASS_TO_SLOT = {
 	utility: "utility",
 	special: "special",
 	charm: "special",
-	consumable: null,
+	consumable: "consumable",
 } as const;

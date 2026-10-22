@@ -3,7 +3,8 @@
 
 import type { ColorIndex } from "./color";
 
-export type ItemSlotType = "weapon" | "armor" | "utility" | "special";
+// Os quatro slots seguem o manual: Equipável, Utilitário, Consumível e Especial.
+export type ItemSlotType = "weapon" | "utility" | "consumable" | "special";
 
 export type HeroStatus = "active" | "defeated" | "fled";
 

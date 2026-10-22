@@ -307,7 +307,7 @@ export function HeroFocusPanel({
 							</p>
 							<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
 								{(
-									["weapon", "armor", "utility", "special"] as ItemSlotType[]
+									["weapon", "utility", "consumable", "special"] as ItemSlotType[]
 								).map((slot) => {
 									const item = hero.activeItems[slot];
 									if (!item) return null;
@@ -457,7 +457,7 @@ function ActionSection({
 	if (isSelectingHero) {
 		const heroesActedHint = isFocusedHeroSelected
 			? "Este herói já agiu nesta rodada."
-			: "Arraste o herói até um inimigo para atacar.";
+			: "Arraste o herói até um inimigo, ou toque/clique no herói e depois no alvo.";
 		return (
 			<div>
 				<p style={{ color: UI.textTertiary, fontSize: 11, marginBottom: 6 }}>
@@ -465,7 +465,7 @@ function ActionSection({
 				</p>
 				<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 					<ActionButton
-						label="Atacar (arraste)"
+					label="Atacar (arraste ou clique)"
 						icon="⚔"
 						variant="primary"
 						disabled
@@ -518,7 +518,7 @@ function ActionSection({
 	return (
 		<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 			<ActionButton
-				label="Atacar (arraste)"
+				label="Atacar (arraste ou clique)"
 				icon="⚔"
 				variant="primary"
 				disabled={!canAttack}

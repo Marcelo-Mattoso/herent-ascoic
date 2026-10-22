@@ -73,6 +73,7 @@ export function EventLogPanel({
 	const bottomRef = useRef<HTMLDivElement>(null);
 
 	// Scroll para a entrada mais recente sempre que o log crescer
+	// biome-ignore lint/correctness/useExhaustiveDependencies: o comprimento é o gatilho semântico deste efeito.
 	useEffect(() => {
 		bottomRef.current?.scrollIntoView({ behavior: "smooth" });
 	}, [entries.length]);

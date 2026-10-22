@@ -167,7 +167,7 @@ abilities:
     script: skill_rekindled_forge
     operate_type: op_triggered
     trigger: &a1
-      event: evt_room_leave
+      event: evt_room_won
     nature:
       - nat_fire
     target_type: tgt_target
@@ -208,6 +208,7 @@ abilities:
     category: hero_skill
     effect:
       - kind: i_choose_one
+        allow_skip: true
         options:
           - id: heal
             params: { value: 2 }
@@ -253,6 +254,7 @@ abilities:
         pile: item_deck
         reveal: 2
         keep: 1
+        replace_room_loot: true
     operate_type: op_triggered
     trigger: *a1
     nature:
@@ -782,6 +784,7 @@ abilities:
     category: hero_power
     effect:
       - kind: i_choose_one
+        allow_skip: true
         options:
           - id: full_heal
             effect:
@@ -883,6 +886,7 @@ abilities:
     category: hero_power
     effect:
       - kind: i_choose_one
+        allow_skip: true
         options:
           - id: heal_all
             params: { value: 5 }
@@ -1275,6 +1279,20 @@ abilities:
     target_type: tgt_self
     affect_scope: scp_single
     affect_object: obj_friend
+  - id: item_skill_potion_stoneskin
+    category: item_skill
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_reduction
+        operation: add
+        value: $value
+        duration:
+          kind: until_end_of_combat
+    operate_type: op_active_buff
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
   - id: item_skill_mystic_draw
     category: item_skill
     effect:
@@ -1344,13 +1362,17 @@ abilities:
           - id: hit_penalty
             params: { value: 1 }
             effect:
-              - kind: p_modifier
-                to: $source
-                stat: s_hit_penalty
-                operation: add
-                value: 1
-                duration:
-                  kind: until_end_of_combat
+              - kind: i_for_each
+                over: all_heroes
+                as: $hero
+                do:
+                  - kind: p_modifier
+                    to: $target
+                    stat: s_hit_penalty
+                    operation: add
+                    value: 1
+                    duration:
+                      kind: until_end_of_combat
     operate_type: op_triggered
     trigger: *a10
     cooldown: *a11
@@ -1397,6 +1419,7 @@ abilities:
         pile: item_deck
         reveal: 2
         keep: 1
+        replace_room_loot: true
     operate_type: op_triggered
     trigger: *a1
     nature:

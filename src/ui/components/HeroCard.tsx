@@ -21,7 +21,7 @@ interface HeroCardProps {
 	onClick: () => void;
 }
 
-const SLOTS = ["weapon", "armor", "utility", "special"] as const;
+const SLOTS = ["weapon", "utility", "consumable", "special"] as const;
 
 export function HeroCard({
 	hero,
@@ -144,6 +144,7 @@ export function HeroCard({
 							: "default",
 					filter: isRoundDisabled ? "grayscale(0.88) saturate(0.22)" : undefined,
 					borderRadius: card.radius,
+					position: "relative",
 					padding: card.padding,
 					textAlign: "left",
 					display: "flex",
@@ -159,6 +160,32 @@ export function HeroCard({
 					if (!isRoundDisabled) onClick();
 				}}
 			>
+				<span
+					role="img"
+					aria-label={`Nível ${hero.impeto + 1}`}
+					title={`Nível ${hero.impeto + 1}`}
+					style={{
+						position: "absolute",
+						top: size === "board" ? 8 : 3,
+						right: size === "board" ? 8 : 3,
+						zIndex: 2,
+						display: "grid",
+						placeItems: "center",
+						width: size === "board" ? 26 : 18,
+						height: size === "board" ? 26 : 18,
+						border: "1px solid rgba(255, 225, 122, 0.9)",
+						borderRadius: "50%",
+						background: "rgba(9, 24, 42, 0.92)",
+						boxShadow: "0 2px 4px rgba(0, 0, 0, 0.42)",
+						color: "#ffe17a",
+						fontSize: size === "board" ? 13 : 10,
+						fontWeight: 900,
+						lineHeight: 1,
+						pointerEvents: "none",
+					}}
+				>
+					{hero.impeto + 1}
+				</span>
 				{/* Arte placeholder */}
 				{!useCardImage && (
 					<div

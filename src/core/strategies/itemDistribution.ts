@@ -7,12 +7,19 @@ import type { HeroState, ItemSlotType } from "../state/heroState";
 
 export type ItemDestination = "equip" | "backpack" | "discard";
 
+/** Retorna o slot compatível com a classe do item, ou null se uma classe futura não tiver slot. */
+export function getItemEquipmentSlot(
+	itemClass: ItemClass,
+): ItemSlotType | null {
+	return ITEM_CLASS_TO_SLOT[itemClass] as ItemSlotType | null;
+}
+
 export function defaultItemDestination(
 	hero: HeroState,
 	itemClass: ItemClass,
 ): ItemDestination {
-	const slot = ITEM_CLASS_TO_SLOT[itemClass] as ItemSlotType | null;
-	if (!slot) return "backpack"; // consumíveis sempre vão para mochila
+	const slot = getItemEquipmentSlot(itemClass);
+	if (!slot) return "backpack";
 	if (!hero.activeItems[slot]) return "equip";
 	return "backpack";
 }

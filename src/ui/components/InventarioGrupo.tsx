@@ -31,13 +31,13 @@ import { getUiAssetUrl } from "@/ui/uiAssets";
 
 const AMBER = { bg: "#FAEEDA", border: "#BA7517", ink: "#633806" } as const;
 
-// Mesma paleta do ItemTile (board): weapon=ouro, armor=azul, utility=verde, special=rosa
+// Mesma paleta do ItemTile (board): weapon=ouro, consumable=azul, utility=verde, special=rosa
 const SLOT_COLORS_INV: Record<
 	string,
 	{ bg: string; border: string; text: string }
 > = {
 	weapon: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
-	armor: { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" },
+	consumable: { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" },
 	utility: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" },
 	special: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" },
 };
@@ -48,8 +48,8 @@ const ITEM_COLORS: Record<
 	{ bg: string; border: string; text: string }
 > = {
 	equipment: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" }, // ouro (weapon)
-	consumable: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" }, // verde (utility)
-	utility: { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" }, // azul (armor)
+	consumable: { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" }, // azul
+	utility: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" }, // verde
 	special: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" }, // rosa (special)
 };
 
@@ -61,16 +61,16 @@ function itemColor(itemId: string) {
 
 // ── Outros helpers ────────────────────────────────────────────────────────────
 
-const SLOT_TYPES: ItemSlotType[] = ["weapon", "armor", "utility", "special"];
+const SLOT_TYPES: ItemSlotType[] = ["weapon", "utility", "consumable", "special"];
 const SLOT_LABELS: Record<ItemSlotType, string> = {
 	weapon: "arm",
-	armor: "esc",
+	consumable: "con",
 	utility: "utl",
 	special: "esp",
 };
 const SLOT_TITLES: Record<ItemSlotType, string> = {
 	weapon: "Arma",
-	armor: "Defesa",
+	consumable: "Consumível",
 	utility: "Utilidade",
 	special: "Especial",
 };
@@ -263,6 +263,7 @@ interface HeroColumnProps {
 	onShowTooltip: (t: TooltipTarget) => void;
 	onHideTooltip: () => void;
 	onUseItem: (itemId: string, heroId: string) => void;
+	onEquipFromBackpack: (itemId: string, heroId: string, index: number) => void;
 	onItemDetail: (itemId: string, heroId: string) => void;
 	onHeroDetail: (hero: HeroState) => void;
 	gameState: GameState;
@@ -280,6 +281,7 @@ function HeroColumn({
 	onShowTooltip,
 	onHideTooltip,
 	onUseItem,
+	onEquipFromBackpack,
 	onItemDetail,
 	onHeroDetail,
 	gameState,
@@ -294,7 +296,7 @@ function HeroColumn({
 	function canEquipDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
 		const card = getCardById(dragging.name);
-		return card?.type === "item" && card.itemClass !== "consumable";
+		return card?.type === "item";
 	}
 
 	function canMochilaDrag(): boolean {
@@ -455,6 +457,8 @@ function HeroColumn({
 
 			{/* Mochila em stack — zona de drop inteira */}
 			<div
+				role="group"
+				aria-label={`Mochila de ${heroName}`}
 				{...areaDropHandlers(mochilaZone, canMochila)}
 				className="inventory-backpack-wrap"
 				data-item="true"
@@ -503,19 +507,30 @@ function HeroColumn({
 							hero.backpack.map((name, i) => {
 								const col = itemColor(name);
 								const itemName = getCardName(name);
+								const itemCard = getCardById(name);
 								const isThisItemDragging =
 									dragging?.from.kind === "hero_backpack" &&
 									dragging.from.heroId === hero.id &&
 									dragging.from.index === i;
 								const canUse = usableItemIds.has(name);
+								const canEquip = itemCard?.type === "item";
 
 								return (
 									<div
 										key={`${name}-${i}`}
 										className="inventory-backpack-item"
+										role="button"
+										tabIndex={0}
+										aria-label={`Detalhes de ${itemName}`}
 									data-item="true"
-									draggable
-									onClick={() => onItemDetail(name, hero.id)}
+										draggable
+										onClick={() => onItemDetail(name, hero.id)}
+										onKeyDown={(event) => {
+											if (event.key === "Enter" || event.key === " ") {
+												event.preventDefault();
+												onItemDetail(name, hero.id);
+											}
+										}}
 										onDragStart={(e) => {
 											e.dataTransfer.setData("text/plain", name);
 											onDragItemStart(name, {
@@ -564,6 +579,19 @@ function HeroColumn({
 												style={{ marginLeft: "auto", fontSize: 10 }}
 											>
 												Usar
+											</button>
+										)}
+										{canEquip && (
+											<button
+												type="button"
+												onMouseDown={(event) => event.stopPropagation()}
+												onClick={(event) => {
+													event.stopPropagation();
+													onEquipFromBackpack(name, hero.id, i);
+												}}
+												style={{ marginLeft: "auto", fontSize: 10 }}
+											>
+												Equipar
 											</button>
 										)}
 									</div>
@@ -669,10 +697,10 @@ export function InventarioGrupo() {
 			if (zone === "mesa") {
 				return dragging.from.kind !== "mesa";
 			}
-			// Equip: aceita qualquer item não-consumível
+			// Equip: todo item possui um dos quatro slots do manual.
 			if (zone.startsWith("hero_equip_")) {
 				const card = getCardById(dragging.name);
-				return card?.type === "item" && card.itemClass !== "consumable";
+				return card?.type === "item";
 			}
 			// Mochila: aceita se tiver espaço
 			if (zone.startsWith("hero_mochila_")) {
@@ -727,6 +755,17 @@ export function InventarioGrupo() {
 	function handleDragEnd() {
 		setDragging(null);
 		setHoverZone(null);
+	}
+
+	function handleEquipFromBackpack(itemId: string, heroId: string, index: number) {
+		dispatch({
+			type: "INV_MOVE",
+			payload: {
+				itemId,
+				from: { kind: "hero_backpack", heroId, index },
+				to: { kind: "hero_equip", heroId },
+			},
+		});
 	}
 
 	// ── Drop ─────────────────────────────────────────────────────────────────
@@ -1038,6 +1077,7 @@ export function InventarioGrupo() {
 										onShowTooltip={showTooltip}
 										onHideTooltip={hideTooltip}
 										onUseItem={handleUseItemFromTooltip}
+										onEquipFromBackpack={handleEquipFromBackpack}
 										onItemDetail={(itemId, heroId) =>
 											setDetailCard({ cardId: itemId, cardType: "item", heroId })
 										}

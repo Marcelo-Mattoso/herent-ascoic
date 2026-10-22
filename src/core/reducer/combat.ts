@@ -5,7 +5,17 @@
 
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
-import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
+import {
+	executeAbilityGrant,
+	resolveManualGrantTarget,
+} from "../abilities/executor";
+import {
+	decrementRoundsModifiers,
+	removeEntity,
+	removeModifiersForSource,
+	removeTriggersAppliedBySource,
+	tickModifierDurations,
+} from "../ecs/world";
 import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
@@ -26,12 +36,13 @@ import {
 	removeHeroItem,
 	totalItemValue,
 } from "../rules/itemEffects";
-import { guardPassed } from "../triggers/engine";
+import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
 import { ActivationTracker } from "../state/activation";
 import { cardSkills, lookupSkillById } from "../skills/lookup";
 import {
 	fireOnUseSkill,
 	isManuallyActivatable,
+	voluntarySkillConsumesUse,
 	type UseSkillPayload,
 } from "../skills/useSkill";
 import { resolveManualSkillTarget } from "../skills/targeting";
@@ -117,6 +128,36 @@ function endHeroTurnAndAdvance(
 ): GameState {
 	const afterTurn = ActivationTracker.endHeroTurn(state, heroId);
 	return advanceAfterHeroDisabledForRound(afterTurn);
+}
+
+/**
+ * Itens de uso rápido não consomem a ação do herói. Se um deles eliminar a
+ * última criatura, porém, ainda é preciso entrar no estado auto-avançável que
+ * encerra o combate; caso contrário a tela permanece em HERO_ACTION sem alvo.
+ */
+export function advanceAfterEnemyDefeat(state: GameState): GameState {
+	if (
+		state.pendingTriggerInterrupt ||
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget ||
+		!state.combat ||
+		(state.status !== "HERO_ACTION" &&
+			state.status !== "RESOLVE_ATTACK" &&
+			state.status !== "DIRECT_DAMAGE" &&
+			state.status !== "CHECK_COMBAT_END") ||
+		state.activeEnemies.some((enemy) => enemy.status === "active")
+	) {
+		return state;
+	}
+	return {
+		...state,
+		status: "CHECK_COMBAT_END",
+		combat: {
+			...state.combat,
+			phase: "direct_damage",
+			selectedHeroId: null,
+		},
+	};
 }
 
 function blockAttackAfterSkill(state: GameState, heroId: string): GameState {
@@ -332,15 +373,22 @@ export function handleChooseTarget(
 		},
 	}));
 
+	if (
+		afterEmit.pendingTriggerInterrupt ||
+		afterEmit.pendingSkillChoice ||
+		afterEmit.pendingSkillTarget
+	) {
+		return afterEmit;
+	}
 	const pair = { heroId, enemyId };
 	return {
 		...afterEmit,
 		status: "ROLL_DICE",
 		combat: {
-			...afterTrigger.combat!,
+			...afterEmit.combat!,
 			phase: "resolving",
 			selectedHeroId: heroId,
-			pairs: [...(afterTrigger.combat?.pairs ?? []), pair],
+			pairs: [...(afterEmit.combat?.pairs ?? []), pair],
 		},
 	};
 }
@@ -739,6 +787,10 @@ export function handleResolveAttack(state: GameState): GameState {
 			...next,
 			heroes: next.heroes.filter((h) => h.id !== hero.id),
 			fledHeroes: [...next.fledHeroes, fledHero],
+			world: removeTriggersAppliedBySource(
+				removeModifiersForSource(removeEntity(next.world, hero.id), hero.id),
+				hero.id,
+			),
 		};
 		next = resolveSkillWindow(next, {
 			event: "evt_leave_play",
@@ -757,10 +809,55 @@ export function handleResolveAttack(state: GameState): GameState {
 		return endHeroTurnAndAdvance(next, roll.heroId, "fugiu");
 	}
 
+	// A destruição precisa ser decidida antes de qualquer dano deste ataque ser
+	// aplicado. Assim, uma escolha no Encanto da Última Defesa pode retomar o
+	// ataque inteiro sem repetir o dano que já foi aplicado ao outro lado.
+	const reducedHeroDamage =
+		result.heroDamageTaken > 0
+			? reduceHeroDamage(next, hero, result.heroDamageTaken)
+			: null;
+	if (result.enemyDamageTaken >= enemy.currentLife && result.enemyDamageTaken > 0) {
+		next = resolveSkillWindow(next, {
+			event: "evt_would_be_destroyed",
+			resume: { type: "resolve_attack" },
+			ctx: {
+				triggeredBy: "evt_would_be_destroyed",
+				sourceHeroId: hero.id,
+				targetHeroIds: [],
+				targetEnemyIds: [enemy.id],
+				value: result.enemyDamageTaken,
+				round: next.combat?.round ?? 0,
+			},
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+	}
+	if (
+		reducedHeroDamage &&
+		reducedHeroDamage.damage >= hero.currentLife &&
+		reducedHeroDamage.damage > 0
+	) {
+		next = resolveSkillWindow(next, {
+			event: "evt_would_be_destroyed",
+			resume: { type: "resolve_attack" },
+			ctx: {
+				triggeredBy: "evt_would_be_destroyed",
+				sourceEnemyId: enemy.id,
+				targetHeroIds: [hero.id],
+				targetEnemyIds: [enemy.id],
+				value: reducedHeroDamage.damage,
+				round: next.combat?.round ?? 0,
+			},
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+	}
+
 	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
 	if (result.enemyDamageTaken > 0) {
 		const dmg = result.enemyDamageTaken;
-		next = applyDamage(next, enemy.id, dmg);
+		next = applyDamage(next, enemy.id, dmg, {
+			sourceId: hero.id,
+			skipWouldBeDestroyed: true,
+		});
 		if (next.pendingTriggerInterrupt) return next;
 		next = logItemLifeDrain(next, hero);
 		const heroRollStr = fmtRoll(
@@ -782,11 +879,15 @@ export function handleResolveAttack(state: GameState): GameState {
 		// on_destroy_creature_with_attack + on_destroyed: via TriggerComponents (emit EnemyDestroyed)
 	}
 
-	if (result.heroDamageTaken > 0) {
-		const reduced = reduceHeroDamage(next, hero, result.heroDamageTaken);
+	if (reducedHeroDamage) {
+		const reduced = reducedHeroDamage;
 		const dmg = reduced.damage;
 
-		next = applyDamage(next, hero.id, dmg);
+		next = applyDamage(next, hero.id, dmg, {
+			sourceId: enemy.id,
+			damageType: "attack",
+			skipWouldBeDestroyed: true,
+		});
 		if (next.pendingTriggerInterrupt) return next;
 		const enemyRollStr = fmtRoll(
 			roll.enemyResults,
@@ -1099,6 +1200,40 @@ export function handleUseItem(
 ): GameState {
 	// Resolve a skill do item via catálogo
 	const itemCard = getCardById(itemId);
+	const explicitGrant = itemCard?.grants?.find(
+		(grant) => grant.activation.kind === "manual",
+	);
+	if (itemCard?.grants?.length) {
+		if (!explicitGrant) {
+			return log(
+				state,
+				`${getCardName(itemId)} reage a uma janela do jogo e não pode ser usado manualmente.`,
+			);
+		}
+		const unavailable = manualItemUnavailableReason(state, heroId, itemId);
+		if (unavailable) return log(state, `[AVISO] ${unavailable}`);
+		const source = { kind: "item" as const, cardId: itemId, sourceHeroId: heroId };
+		const selection = resolveManualGrantTarget(
+			state,
+			source,
+			explicitGrant,
+			targetHeroId || targetEnemyId
+				? [targetHeroId ?? targetEnemyId!]
+				: undefined,
+		);
+		if (selection.kind !== "ready") {
+			return log(
+				state,
+				selection.kind === "unavailable" ? selection.reason : selection.prompt,
+			);
+		}
+		return advanceAfterEnemyDefeat(executeAbilityGrant(state, {
+			source,
+			grant: explicitGrant,
+			triggeredBy: "manual",
+			targetIds: selection.targetIds,
+		}));
+	}
 	const itemSkillRef = itemCard ? cardSkills(itemCard.id)[0] : null;
 	const skillDef = itemSkillRef?.def ?? null;
 	const itemName = getCardName(itemId);
@@ -1209,7 +1344,9 @@ export function handleUseItem(
 			itemSkillValue,
 			params,
 		);
-		return maybeDisableReusableItem(afterUse, heroId, itemId, consumed);
+		return advanceAfterEnemyDefeat(
+			maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
+		);
 	}
 
 	const targetIds = [...selection.targetIds];
@@ -1221,7 +1358,9 @@ export function handleUseItem(
 		itemSkillValue,
 		params,
 	);
-	return maybeDisableReusableItem(afterUse, heroId, itemId, consumed);
+	return advanceAfterEnemyDefeat(
+		maybeDisableReusableItem(afterUse, heroId, itemId, consumed),
+	);
 }
 
 // ─── USE_POWER ────────────────────────────────────────────────────────────────
@@ -1229,6 +1368,9 @@ export function handleUseItem(
 export function handleUsePower(state: GameState, heroId: string): GameState {
 	const hero = state.heroes.find((h) => h.id === heroId);
 	if (!hero) return state;
+	if (state.flags.powerUseBlocked) {
+		return log(state, "Uso de poder bloqueado nesta sala.");
+	}
 	if (
 		isManualCombatActivationWindow(state) &&
 		ActivationTracker.isHeroDisabledThisRound(state, heroId)
@@ -1291,7 +1433,10 @@ export function handleUsePower(state: GameState, heroId: string): GameState {
 						},
 					},
 				};
-				next = applyDamage(next, targetEnemyId, dmg);
+				next = applyDamage(next, targetEnemyId, dmg, {
+					sourceId: heroId,
+					damageType: "direct",
+				});
 				next = log(
 					next,
 					`${getCardName(hero.cardId)} — Tiro de Oportunidade: ${getCardName(enemy.cardId)} sofreu ${dmg} de dano direto.`,
@@ -1433,8 +1578,22 @@ export function handleSelectSkillTarget(
 }
 
 export function handleCancelSkillTarget(state: GameState): GameState {
-	if (!state.pendingSkillTarget) return state;
-	return { ...state, pendingSkillTarget: undefined };
+	const pending = state.pendingSkillTarget;
+	if (!pending) return state;
+	const cleared = { ...state, pendingSkillTarget: undefined };
+	const skill = lookupSkillById(pending.skillId);
+	if (
+		!skill ||
+		!isManuallyActivatable(skill) ||
+		!voluntarySkillConsumesUse(skill)
+	) {
+		return log(cleared, "Seleção de alvo cancelada sem consumir uso.");
+	}
+	const consumed = markSkillGuardUsed(cleared, skill, pending.sourceId);
+	return blockAttackAfterSkill(
+		log(consumed, `${pending.skillId}: seleção cancelada; uso consumido.`),
+		pending.sourceId,
+	);
 }
 
 // ─── SELECT_DIE ──────────────────────────────────────────────────────────────

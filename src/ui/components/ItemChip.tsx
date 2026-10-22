@@ -11,7 +11,7 @@ interface ItemChipProps {
 
 const SLOT_LABELS: Record<ItemSlotType, string> = {
 	weapon: "equipável",
-	armor: "consumível",
+	consumable: "consumível",
 	utility: "utilitário",
 	special: "especial",
 };

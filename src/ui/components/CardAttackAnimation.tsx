@@ -1,0 +1,73 @@
+import { type CSSProperties } from "react";
+import { createPortal } from "react-dom";
+
+export interface CardAttackActor {
+	name: string;
+	imageUrl?: string;
+}
+
+export interface CardAttackRect {
+	left: number;
+	top: number;
+	width: number;
+	height: number;
+}
+
+interface CardAttackAnimationProps {
+	attacker: CardAttackActor;
+	sourceRect: CardAttackRect;
+	targetRect: CardAttackRect;
+	onFinish?: () => void;
+}
+
+/**
+ * Primitivo visual para ataques entre quaisquer cartas.
+ *
+ * O chamador fornece as posições já renderizadas de atacante e alvo. A regra de
+ * combate continua independente: este componente apenas encena a investida,
+ * impacto e retorno da carta vencedora.
+ */
+export function CardAttackAnimation({
+	attacker,
+	sourceRect,
+	targetRect,
+	onFinish,
+}: CardAttackAnimationProps) {
+	const sourceCenterX = sourceRect.left + sourceRect.width / 2;
+	const sourceCenterY = sourceRect.top + sourceRect.height / 2;
+	const targetCenterX = targetRect.left + targetRect.width / 2;
+	const targetCenterY = targetRect.top + targetRect.height / 2;
+	const travelX = (targetCenterX - sourceCenterX) * 0.82;
+	const travelY = (targetCenterY - sourceCenterY) * 0.82;
+
+	return createPortal(
+		<div className="card-attack-animation" aria-hidden="true">
+			<div
+				className="card-attack-animation__impact"
+				style={{ left: targetCenterX, top: targetCenterY }}
+			/>
+			<div
+				className="card-attack-animation__card"
+				style={
+					{
+						left: sourceRect.left,
+						top: sourceRect.top,
+						width: sourceRect.width,
+						height: sourceRect.height,
+						"--attack-travel-x": `${travelX}px`,
+						"--attack-travel-y": `${travelY}px`,
+						backgroundImage: attacker.imageUrl
+							? `linear-gradient(180deg, rgba(255, 255, 255, 0.08), rgba(8, 9, 13, 0.2)), url("${attacker.imageUrl}")`
+							: undefined,
+					} as CSSProperties
+				}
+				onAnimationEnd={onFinish}
+			>
+				{attacker.imageUrl ? null : (
+					<span className="card-attack-animation__fallback">{attacker.name}</span>
+				)}
+			</div>
+		</div>,
+		document.body,
+	);
+}

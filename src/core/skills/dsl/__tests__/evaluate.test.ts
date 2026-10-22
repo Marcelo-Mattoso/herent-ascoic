@@ -2,6 +2,7 @@
 import type { GameState } from "../../../state/gameState";
 import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
+import { buildScriptCtx } from "../../../scripts/context";
 import { evaluate } from "../evaluate";
 import type { EffectNode, EvalCtx } from "../types";
 
@@ -104,6 +105,53 @@ describe("evaluate — noop", () => {
 		const ctx = makeMockCtx(state);
 		const result = evaluate([], ctx);
 		expect(result).toBe(state);
+	});
+});
+
+describe("evaluate — referências de entidade não resolvidas", () => {
+	it("interrompe $source não resolvido e o registra no log da partida", () => {
+		const state = makeState();
+		const ctx = buildScriptCtx(state, {
+			skillId: "skill_contexto_invalido",
+			triggeredBy: "test",
+		});
+
+		const result = evaluate(
+			[
+				{
+					kind: "p_modifier",
+					to: "$source",
+					stat: "s_hit_penalty",
+					operation: "add",
+					value: 1,
+					duration: { kind: "once" },
+				},
+			],
+			ctx,
+		);
+
+		expect(result.effectStack.pending).toHaveLength(0);
+		expect(result.eventLog.at(-1)).toContain(
+			'[ERRO] p_modifier: referência de entidade "$source" não resolveu',
+		);
+	});
+
+	it("interrompe $target não resolvido e o registra no log da partida", () => {
+		const state = makeState();
+		const ctx = buildScriptCtx(state, {
+			skillId: "skill_contexto_invalido",
+			triggeredBy: "test",
+		});
+
+		const result = evaluate(
+			[{ kind: "i_damage", to: "$target", amount: 3 }],
+			ctx,
+		);
+
+		expect(result.effectStack.pending).toHaveLength(0);
+		expect(result.eventLog.at(-1)).toContain(
+			'[ERRO] i_damage: referência de entidade "$target" não resolveu',
+		);
 	});
 });
 

@@ -50,6 +50,7 @@ export function SkillTargetModal() {
 						<button
 							key={candidate.id}
 							type="button"
+							className="skill-target-option"
 							onClick={() => choose(candidate.id)}
 							style={{
 								display: "grid",

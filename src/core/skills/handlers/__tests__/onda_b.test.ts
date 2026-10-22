@@ -181,4 +181,35 @@ describe("reducer SKILL_CHOICE", () => {
 		});
 		expect(result.pendingSkillChoice).toBeUndefined();
 	});
+
+	it("não permite pular uma escolha obrigatória", () => {
+		const state = makeState({
+			pendingSkillChoice: {
+				skillId: "skill_dark_tribute",
+				prompt: "p",
+				options: [{ id: "discard_item", label: "Descartar item" }],
+			},
+		});
+		const result = reducer(state, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "skill_dark_tribute", choice: "__skip__" },
+		});
+		expect(result.pendingSkillChoice).toEqual(state.pendingSkillChoice);
+	});
+
+	it("permite pular apenas uma escolha marcada como opcional", () => {
+		const state = makeState({
+			pendingSkillChoice: {
+				skillId: "power_last_light_oath",
+				prompt: "p",
+				allowSkip: true,
+				options: [{ id: "heal_all", label: "Curar todos" }],
+			},
+		});
+		const result = reducer(state, {
+			type: "SKILL_CHOICE",
+			payload: { skillId: "power_last_light_oath", choice: "__skip__" },
+		});
+		expect(result.pendingSkillChoice).toBeUndefined();
+	});
 });

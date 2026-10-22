@@ -12,7 +12,10 @@ import { calculateRewards } from "../rules/reward";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { tickBlockEntries } from "../state/blockHelpers";
 import type { GameState, PendingReward } from "../state/gameState";
-import { defaultItemDestination } from "../strategies/itemDistribution";
+import {
+	defaultItemDestination,
+	getItemEquipmentSlot,
+} from "../strategies/itemDistribution";
 import {
 	handleCheckBossCondition,
 	handleDungeonExhaustedSpend,
@@ -28,17 +31,66 @@ export function handleGrantRewards(state: GameState): GameState {
 	// Evitar processar duas vezes (fila já preenchida)
 	if (state.pendingRewards.length > 0) return state;
 
-	let next = state;
-	next = resolveSkillWindow(next, {
-		event: "evt_combat_end",
+	const afterRoomWin = resolveSkillWindow(state, {
+		event: "evt_room_won",
 		ctx: {
-			triggeredBy: "evt_combat_end",
-			targetHeroIds: next.heroes
+			triggeredBy: "evt_room_won",
+			targetHeroIds: state.heroes
 				.filter((hero) => hero.status === "active")
 				.map((hero) => hero.id),
 		},
+		resume: { type: "continue_rewards_after_room_win" },
 	});
-	if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+	if (
+		afterRoomWin.pendingTriggerInterrupt ||
+		afterRoomWin.pendingSkillChoice ||
+		afterRoomWin.pendingSkillTarget
+	) {
+		return afterRoomWin;
+	}
+	return continueRewardsAfterRoomWin(afterRoomWin);
+}
+
+/** Continua o fluxo normal somente depois de todas as habilidades de vitória. */
+export function continueRewardsAfterRoomWin(state: GameState): GameState {
+	if (!state.currentRoom) return state;
+	const withVictoryRewards =
+		state.pendingRewards.length > 0
+			? {
+					...state,
+					flags: { ...state.flags, roomVictoryRewardsGranted: true },
+				}
+			: state;
+	const afterCombatEnd = resolveSkillWindow(withVictoryRewards, {
+		event: "evt_combat_end",
+		ctx: {
+			triggeredBy: "evt_combat_end",
+			targetHeroIds: state.heroes
+				.filter((hero) => hero.status === "active")
+				.map((hero) => hero.id),
+		},
+		resume: { type: "finish_rewards" },
+	});
+	if (
+		afterCombatEnd.pendingTriggerInterrupt ||
+		afterCombatEnd.pendingSkillChoice ||
+		afterCombatEnd.pendingSkillTarget
+	) {
+		return afterCombatEnd;
+	}
+	return finishGrantRewards(afterCombatEnd);
+}
+
+/** Materializa XP e saque após todas as janelas de vitória/encerramento. */
+export function finishGrantRewards(state: GameState): GameState {
+	const replacesRoomLoot = state.flags.roomLootReplaced === true;
+	const hasVictoryRewards = state.flags.roomVictoryRewardsGranted === true;
+	if (
+		!state.currentRoom ||
+		(state.pendingRewards.length > 0 && !replacesRoomLoot && !hasVictoryRewards)
+	)
+		return state;
+	let next = state;
 	// Expira modificadores ECS com duração this_combat/this_turn ao fechar o combate
 	// (cobre sala limpa, onde RoundEnded/end_of_round tick não rodou).
 	next = {
@@ -99,7 +151,7 @@ export function handleGrantRewards(state: GameState): GameState {
 	const queue: PendingReward[] = [];
 
 	// Enfileirar itens
-	for (let i = 0; i < summary.items; i++) {
+	for (let i = 0; i < (replacesRoomLoot ? 0 : summary.items); i++) {
 		const available = next.decks.itemDeck.available;
 		if (available.length === 0) break;
 		const [itemName, ...rest] = available;
@@ -118,7 +170,7 @@ export function handleGrantRewards(state: GameState): GameState {
 	}
 
 	// Ativar artefatos direto no grupo
-	for (let i = 0; i < summary.artifacts; i++) {
+	for (let i = 0; i < (replacesRoomLoot ? 0 : summary.artifacts); i++) {
 		const available = next.decks.artifactDeck.available;
 		if (available.length === 0) break;
 		const [artName, ...rest] = available;
@@ -144,12 +196,15 @@ export function handleGrantRewards(state: GameState): GameState {
 			? { ...next.currentRoom, status: "cleared" }
 			: null,
 		roomsCleared: next.roomsCleared + 1,
-		pendingRewards: queue,
+		pendingRewards: [...next.pendingRewards, ...queue],
 	};
 
 	// Se não há recompensas físicas, avançar diretamente para XP_SPEND_PHASE.
 	// Artefatos entram ativos, mas ainda podem pedir escolha de portador na tela.
-	if (queue.length === 0 && summary.artifacts === 0) {
+	if (
+		next.pendingRewards.length === 0 &&
+		(replacesRoomLoot || summary.artifacts === 0)
+	) {
 		return log(
 			{ ...next, status: "XP_SPEND_PHASE" },
 			`Recompensas: +${summary.xp} XP. Sem itens ou artefatos.`,
@@ -158,7 +213,7 @@ export function handleGrantRewards(state: GameState): GameState {
 
 	return log(
 		next,
-		`Recompensas: +${summary.xp} XP, ${summary.items} item(ns), ${summary.artifacts} artefato(s). Resolvendo...`,
+		`Recompensas: +${summary.xp} XP, ${replacesRoomLoot ? 0 : summary.items} item(ns), ${replacesRoomLoot ? 0 : summary.artifacts} artefato(s). Resolvendo...`,
 	);
 }
 
@@ -182,31 +237,17 @@ export function handleChooseItemDestination(
 		const card = getCardById(itemId);
 		if (card && card.type === "item") {
 			if (destination === "equip") {
-				if (card.itemClass === "consumable") {
-					// Consumíveis não ocupam slot de equipamento — vão para a mochila
-					next = mapHero(next, heroId, (h) => ({
+				const slot = getItemEquipmentSlot(card.itemClass);
+				if (!slot) return state;
+				next = mapHero(next, heroId, (h) => {
+					const displaced = h.activeItems[slot];
+					return {
 						...h,
-						backpack: [...h.backpack, itemId],
-					}));
-					next = log(next, `${itemName} guardado na mochila de ${heroId}.`);
-				} else {
-					const slot =
-						card.itemClass === "equipment"
-							? "weapon"
-							: card.itemClass === "utility"
-								? "utility"
-								: "special";
-					next = mapHero(next, heroId, (h) => {
-						// Item anterior do mesmo slot vai para a mochila
-						const displaced = h.activeItems[slot];
-						return {
-							...h,
-							activeItems: { ...h.activeItems, [slot]: itemId },
-							backpack: displaced ? [...h.backpack, displaced] : h.backpack,
-						};
-					});
-					next = log(next, `${itemName} equipado por ${heroId}.`);
-				}
+						activeItems: { ...h.activeItems, [slot]: itemId },
+						backpack: displaced ? [...h.backpack, displaced] : h.backpack,
+					};
+				});
+				next = log(next, `${itemName} equipado por ${heroId}.`);
 			} else {
 				// backpack
 				next = mapHero(next, heroId, (h) => ({
@@ -287,6 +328,21 @@ export function handleSpendXp(
 		);
 	}
 
+	// Subir de nível é uma decisão do grupo. Não assumir o primeiro herói
+	// ativo evita gastar XP no alvo errado quando há mais de um herói elegível.
+	if (option === "level_up") {
+		if (!heroId) {
+			return log(state, "Escolha qual herói receberá o nível de Ímpeto.");
+		}
+		const hero = state.heroes.find((candidate) => candidate.id === heroId);
+		if (!hero || hero.status !== "active") {
+			return log(state, "O herói escolhido não está disponível para subir de nível.");
+		}
+		if (hero.impeto >= 4) {
+			return log(state, `${getCardName(hero.cardId)} já está no nível máximo.`);
+		}
+	}
+
 	let next: GameState = { ...state, groupXp: state.groupXp - cost };
 
 	switch (option) {
@@ -308,9 +364,7 @@ export function handleSpendXp(
 			return log(next, "5 XP: deck de dungeon reembaralhado.");
 		}
 		case "level_up": {
-			const hId = heroId ?? getActiveHero(state)?.id;
-			if (!hId) return state;
-			return levelUpHero(next, hId);
+			return levelUpHero(next, heroId!);
 		}
 		case "buy_item": {
 			const { available, discarded, removed } = next.decks.itemDeck;
@@ -392,14 +446,10 @@ export function handleInvMove(
 		};
 	} else if (to.kind === "hero_equip") {
 		const card = getCardById(itemId);
-		if (!card || card.type !== "item" || card.itemClass === "consumable")
+		if (!card || card.type !== "item")
 			return state;
-		const slot =
-			card.itemClass === "equipment"
-				? "weapon"
-				: card.itemClass === "utility"
-					? "utility"
-					: "special";
+		const slot = getItemEquipmentSlot(card.itemClass);
+		if (!slot) return state;
 		const hero = next.heroes.find((h) => h.id === to.heroId);
 		displaced = hero?.activeItems[slot] ?? null;
 		next = mapHero(next, to.heroId, (h) => ({
@@ -537,48 +587,25 @@ export function handleInvAssignItem(
 	if (destination === "equip") {
 		const card = getCardById(itemId);
 		if (card && card.type === "item") {
-			if (card.itemClass === "consumable") {
-				// Consumíveis não ocupam slot de equipamento — vão para a mochila
-				const hero = state.heroes.find((h) => h.id === heroId);
-				if ((hero?.backpack.length ?? 8) >= 8) return state;
-				next = mapHero(next, heroId, (h) => ({
-					...h,
-					backpack: [...h.backpack, itemId],
-				}));
-				next = log(next, `${itemName} na mochila de ${heroId}.`);
-			} else {
-				const slot =
-					card.itemClass === "equipment"
-						? "weapon"
-						: card.itemClass === "utility"
-							? "utility"
-							: "special";
-				next = mapHero(next, heroId, (h) => ({
-					...h,
-					activeItems: { ...h.activeItems, [slot]: itemId },
-					backpack: h.backpack,
-				}));
-				// Se o slot estava ocupado, item deslocado volta para a mesa
-				const hero = state.heroes.find((h) => h.id === heroId);
-				const displaced =
-					hero?.activeItems[
-						card.itemClass === "equipment"
-							? "weapon"
-							: card.itemClass === "utility"
-								? "utility"
-								: "special"
-					];
-				if (displaced) {
-					next = {
-						...next,
-						pendingRewards: [
-							...next.pendingRewards,
-							{ type: "item", cardId: displaced, requiresBearer: false },
-						],
-					};
-				}
-				next = log(next, `${itemName} equipado por ${heroId}.`);
+			const slot = getItemEquipmentSlot(card.itemClass);
+			if (!slot) return state;
+			next = mapHero(next, heroId, (h) => ({
+				...h,
+				activeItems: { ...h.activeItems, [slot]: itemId },
+				backpack: h.backpack,
+			}));
+			const hero = state.heroes.find((h) => h.id === heroId);
+			const displaced = hero?.activeItems[slot];
+			if (displaced) {
+				next = {
+					...next,
+					pendingRewards: [
+						...next.pendingRewards,
+						{ type: "item", cardId: displaced, requiresBearer: false },
+					],
+				};
 			}
+			next = log(next, `${itemName} equipado por ${heroId}.`);
 		}
 	} else {
 		// backpack — falha silenciosa se cheia (máx 8)
@@ -672,12 +699,8 @@ export function distributeItemAuto(
 	const heroName = getCardName(hero.cardId);
 
 	if (dest === "equip") {
-		const slot =
-			card.itemClass === "equipment"
-				? "weapon"
-				: card.itemClass === "utility"
-					? "utility"
-					: "special";
+		const slot = getItemEquipmentSlot(card.itemClass);
+		if (!slot) return state;
 		return mapHero(
 			log(state, `${itemName} equipado em ${heroName}.`),
 			hero.id,
