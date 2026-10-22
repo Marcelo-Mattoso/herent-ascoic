@@ -6,6 +6,7 @@ import {
 	type UiAssetManifest,
 	type UiAssetUrls,
 } from "@/ui/uiAssets";
+import { publicAssetUrl } from "@/ui/publicAssetUrl";
 
 function isUiAssetManifest(value: unknown): value is UiAssetManifest {
 	if (!value || typeof value !== "object") return false;
@@ -46,9 +47,10 @@ export function useUiAssets(): UiAssetUrls {
 	return useMemo(() => {
 		const urls: UiAssetUrls = {};
 		for (const asset of manifest.assets) {
-			urls[asset.id] = asset.url;
-			urls[normalizeUiAssetKey(asset.id)] = asset.url;
-			urls[normalizeUiAssetKey(asset.fileName)] = asset.url;
+			const url = publicAssetUrl(asset.url);
+			urls[asset.id] = url;
+			urls[normalizeUiAssetKey(asset.id)] = url;
+			urls[normalizeUiAssetKey(asset.fileName)] = url;
 		}
 		return urls;
 	}, [manifest.assets]);

@@ -6,6 +6,7 @@ import {
 	type BackCardUrls,
 	EMPTY_BACK_CARD_MANIFEST,
 } from "@/ui/backCards";
+import { publicAssetUrl } from "@/ui/publicAssetUrl";
 
 const EXPECTED_BACK_CARD_IDS: readonly BackCardId[] = [
 	"verso_criatura",
@@ -58,7 +59,7 @@ export function useBackCards(): BackCardUrls {
 	return useMemo(() => {
 		const urls: BackCardUrls = {};
 		for (const backCard of manifest.backCards) {
-			if (isBackCardId(backCard.id)) urls[backCard.id] = backCard.url;
+			if (isBackCardId(backCard.id)) urls[backCard.id] = publicAssetUrl(backCard.url);
 		}
 		return urls;
 	}, [manifest.backCards]);

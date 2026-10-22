@@ -29,11 +29,13 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 					{logoUrl ? (
 						<img
 							src={logoUrl}
-							alt="Ascensão Heróica"
+							alt=""
 							className="menu-brand-panel__logo"
 						/>
 					) : null}
 					<div className="menu-brand-panel__title-block">
+						<h1 id="main-menu-title">Ascensão Heróica</h1>
+						<p>A Fornalha Sombria</p>
 					</div>
 					<div className="menu-brand-panel__actions">
 						<button
@@ -41,18 +43,11 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 							className="ornate-action ornate-action--primary"
 							onClick={onNewGame}
 						>
-							Nova partida
-						</button>
-						<button type="button" className="ornate-action" disabled>
-							Biblioteca
-						</button>
-						<button type="button" className="ornate-action" disabled>
-							Configurações
+							JOGAR
 						</button>
 					</div>
 				</section>
 			</div>
-			<p className="menu-version">MVP 1 · v0.9.132</p>
 		</main>
 	);
 }

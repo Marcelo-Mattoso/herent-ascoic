@@ -6,18 +6,18 @@ import { Replay } from "@/ui/screens/Replay";
 import { Setup } from "@/ui/screens/Setup";
 import { Victory } from "@/ui/screens/Victory";
 import { useGameStore } from "@/ui/store/gameStore";
+import { publicAssetUrl } from "@/ui/publicAssetUrl";
 
 type UiScreen = "menu" | "setup";
 
 function App() {
 	const status = useGameStore((s) => s.view.status);
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");
-	// Passo 13: Replay Viewer atrás de atalho de teclado (Ctrl+Shift+R)
 	const [showReplay, setShowReplay] = useState(false);
 
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
-			if (e.ctrlKey && e.shiftKey && e.key === "R") {
+			if (import.meta.env.DEV && e.ctrlKey && e.shiftKey && e.key === "R") {
 				e.preventDefault();
 				setShowReplay((v) => !v);
 			}
@@ -28,7 +28,7 @@ function App() {
 
 	let screen: ReactNode;
 
-	if (showReplay) {
+	if (import.meta.env.DEV && showReplay) {
 		screen = <Replay onClose={() => setShowReplay(false)} />;
 	} else if (status === "VICTORY") {
 		screen = <Victory />;
@@ -45,8 +45,19 @@ function App() {
 	return (
 		<>
 			{screen}
-			<OrientationGate />
+			<RulesAccess />
+			{status !== "MAIN_MENU" && <OrientationGate />}
 		</>
+	);
+}
+
+function RulesAccess() {
+	const manualUrl = publicAssetUrl("rules/ascensao-heroica-manual.pdf");
+	return (
+		<nav className="rules-access" aria-label="Manual de regras">
+			<a href={manualUrl} target="_blank" rel="noopener noreferrer">? Regras</a>
+			<a href={manualUrl} download="ascensao-heroica-manual.pdf" aria-label="Baixar manual em PDF">↓ PDF</a>
+		</nav>
 	);
 }
 
@@ -63,6 +74,7 @@ function OrientationGate() {
 				</span>
 				<h1>Gire o dispositivo para jogar</h1>
 				<p>Ascensão Heróica funciona apenas no modo horizontal.</p>
+				<a href={publicAssetUrl("rules/ascensao-heroica-manual.pdf")} target="_blank" rel="noopener noreferrer">Ler regras</a>
 			</div>
 		</section>
 	);

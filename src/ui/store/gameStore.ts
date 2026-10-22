@@ -55,7 +55,7 @@ type ReduxDevToolsExtension = {
 };
 
 function connectDevTools(initialState: GameState) {
-	if (typeof window === "undefined") return null;
+	if (typeof window === "undefined" || !import.meta.env.DEV) return null;
 	const ext = (
 		window as { __REDUX_DEVTOOLS_EXTENSION__?: ReduxDevToolsExtension }
 	).__REDUX_DEVTOOLS_EXTENSION__;
@@ -96,7 +96,7 @@ let adapter = makeAdapter();
 let devTools = connectDevTools(getElfGameState());
 
 // Debug: expõe dispatch no window pra inspeção via DevTools/preview.
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && import.meta.env.DEV) {
 	(window as unknown as { __dispatch: (action: Action) => void }).__dispatch = (
 		action: Action,
 	) => dispatch(action);

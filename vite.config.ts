@@ -300,6 +300,7 @@ function assetManifestsPlugin(): Plugin {
 }
 
 export default defineConfig({
+	base: process.env.PAGES_BASE_PATH || "/",
 	plugins: [assetManifestsPlugin(), react(), tailwindcss()],
 	resolve: {
 		alias: {

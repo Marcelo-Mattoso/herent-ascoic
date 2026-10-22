@@ -4,7 +4,7 @@ import { lookupAbilityById } from "../data/abilities";
 import type { AbilityGrant } from "../data/abilityTypes";
 import { getCardById } from "../data/cards";
 import { drainStack } from "../effects/resolver";
-import { removeHeroItem } from "../rules/itemEffects";
+import { findHeroItemLocation, removeHeroItem } from "../rules/itemEffects";
 import { destructionPreventionFlag } from "../rules/destruction";
 import { awakeningRequirementMet } from "../rules/awakening";
 import { buildScriptCtx } from "../scripts/context";
@@ -17,7 +17,6 @@ import {
 import { ActivationTracker } from "../state/activation";
 import type { GameState } from "../state/gameState";
 import { log } from "../reducer/utils";
-import { setItemReadiness } from "../strategies/itemDistribution";
 import type { SkillContext } from "../data/skillTypes";
 import type { EventName } from "../skills/dsl/types";
 
@@ -117,16 +116,28 @@ function consumeSource(
 ): GameState {
 	if (grant.activation.consumeSource === "none") return state;
 	if (source.kind !== "item" || !source.sourceHeroId) return state;
-	const withoutItem = removeHeroItem(state, source.sourceHeroId, source.cardId);
-	if (withoutItem === state) return state;
+	const owner = state.heroes.find((hero) => hero.id === source.sourceHeroId);
+	const owned = owner ? findHeroItemLocation(owner, source.cardId) !== null : false;
+	const withoutItem = owned
+		? removeHeroItem(state, source.sourceHeroId, source.cardId)
+		: state;
+	const pendingIndex = owned ? -1 : state.pendingRewards.findIndex(
+		(reward) => reward.type === "item" && reward.cardId === source.cardId,
+	);
+	const withoutPending = pendingIndex < 0
+		? withoutItem
+		: {
+			...withoutItem,
+			pendingRewards: state.pendingRewards.filter((_, index) => index !== pendingIndex),
+		};
 	const pile = grant.activation.consumeSource === "remove" ? "removed" : "discarded";
 	return {
-		...withoutItem,
+		...withoutPending,
 		decks: {
-			...withoutItem.decks,
+			...withoutPending.decks,
 			itemDeck: {
-				...withoutItem.decks.itemDeck,
-				[pile]: [...withoutItem.decks.itemDeck[pile], source.cardId],
+				...withoutPending.decks.itemDeck,
+				[pile]: [...withoutPending.decks.itemDeck[pile], source.cardId],
 			},
 		},
 	};
@@ -179,21 +190,6 @@ export function executeAbilityGrant(
 	const params = { ...ability.defaultParams, ...grant.params };
 	const value = request.value ?? (params.value as number | string | null | undefined) ?? null;
 	let next = consumeSource(state, source, grant);
-	if (
-		source.kind === "item" &&
-		source.sourceHeroId &&
-		triggeredBy === "manual" &&
-		grant.activation.consumeSource === "none"
-	) {
-		next = {
-			...next,
-			heroes: next.heroes.map((hero) =>
-				hero.id === source.sourceHeroId
-					? setItemReadiness(hero, source.cardId, "exhausted")
-					: hero,
-			),
-		};
-	}
 	const hpCost = grant.activation.cost?.hp ?? 0;
 	if (hpCost > 0 && source.sourceHeroId) {
 		const hero = next.heroes.find((entry) => entry.id === source.sourceHeroId);

@@ -246,6 +246,7 @@ export function Setup({ onBack }: SetupProps) {
 						>
 							Iniciar partida
 						</button>
+						<p className="setup-save-note">A partida não é salva ao sair da página.</p>
 					</div>
 				</aside>
 			</div>

@@ -1,3 +1,5 @@
+import { publicAssetUrl } from "./publicAssetUrl";
+
 export interface BoardBackground {
 	readonly id: string;
 	readonly name: string;
@@ -12,7 +14,7 @@ export interface BoardBackgroundManifest {
 	readonly boards: readonly BoardBackground[];
 }
 
-export const BOARD_BACKGROUND_MANIFEST_URL = "/generated/boards/manifest.json";
+export const BOARD_BACKGROUND_MANIFEST_URL = publicAssetUrl("generated/boards/manifest.json");
 export const BOARD_BACKGROUND_STORAGE_KEY =
 	"ascensao.heroica.boardBackgroundId";
 

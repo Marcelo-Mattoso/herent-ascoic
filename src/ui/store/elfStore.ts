@@ -34,7 +34,7 @@ export const gameElfStore = createStore(
 
 // Debug: expõe o store no window pra inspeção via DevTools/preview.
 // Não tem efeito em produção (window não existe em SSR).
-if (typeof window !== "undefined") {
+if (typeof window !== "undefined" && import.meta.env.DEV) {
 	(window as unknown as { __elfStore: typeof gameElfStore }).__elfStore =
 		gameElfStore;
 }

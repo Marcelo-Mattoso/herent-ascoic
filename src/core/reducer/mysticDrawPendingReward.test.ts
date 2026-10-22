@@ -43,4 +43,23 @@ describe("Saque Místico pendente", () => {
 			carriedBy: null,
 		});
 	});
+
+	it("consome apenas a cópia equipada quando há outra recompensa igual na mesa", () => {
+		const initial = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
+		const started = reducer(initial, {
+			type: "START_GAME",
+			payload: { heroCardIds: ["hero_crimson_barbarian"] },
+		});
+		const hero = started.heroes[0]!;
+		const itemId = "item_ancient_iron_key";
+		const state = {
+			...started,
+			status: "REWARD_PHASE" as const,
+			heroes: [{ ...hero, activeItems: { special: itemId } }],
+			pendingRewards: [{ type: "item" as const, cardId: itemId, requiresBearer: false }],
+		};
+		const result = reducer(state, { type: "USE_ITEM", payload: { itemId, heroId: hero.id } });
+		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
+		expect(result.pendingRewards).toEqual(state.pendingRewards);
+	});
 });

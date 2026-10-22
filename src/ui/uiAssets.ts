@@ -1,3 +1,5 @@
+import { publicAssetUrl } from "./publicAssetUrl";
+
 export interface UiAsset {
 	readonly id: string;
 	readonly name: string;
@@ -14,7 +16,7 @@ export interface UiAssetManifest {
 
 export type UiAssetUrls = Partial<Record<string, string>>;
 
-export const UI_ASSET_MANIFEST_URL = "/generated/ui/manifest.json";
+export const UI_ASSET_MANIFEST_URL = publicAssetUrl("generated/ui/manifest.json");
 
 export const EMPTY_UI_ASSET_MANIFEST: UiAssetManifest = {
 	version: 1,

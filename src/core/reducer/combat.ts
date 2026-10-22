@@ -1273,10 +1273,8 @@ export function handleUseItem(
 		...(itemSkillRef?.ref.params ?? {}),
 	};
 	const heroName = hero ? getCardName(hero.cardId) : heroId;
-	const consumed = itemShouldBeConsumed(itemId, skillDef.id);
+	const consumed = itemShouldBeConsumed(itemId);
 	const afterCost = consumed ? removeHeroItem(state, heroId, itemId) : state;
-	const itemPile =
-		skillDef.id === "item_skill_mystic_draw" ? "removed" : "discarded";
 	const withItemCost: GameState = log(
 		consumed
 			? {
@@ -1285,7 +1283,7 @@ export function handleUseItem(
 						...afterCost.decks,
 						itemDeck: {
 							...afterCost.decks.itemDeck,
-							[itemPile]: [...afterCost.decks.itemDeck[itemPile], itemId],
+							discarded: [...afterCost.decks.itemDeck.discarded, itemId],
 						},
 					},
 				}

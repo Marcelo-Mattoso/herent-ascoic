@@ -6,13 +6,13 @@ Azhakar antes que a masmorra desperte por completo.
 
 ## Requisitos
 
-- Node.js 20+
+- Node.js 24
 - npm 10+
 
 ## Rodar localmente
 
 ```bash
-npm install
+npm ci
 npm run dev
 ```
 
@@ -24,10 +24,44 @@ Acesse `http://localhost:5173` no navegador.
 |---|---|
 | `npm run dev` | Servidor de desenvolvimento com HMR |
 | `npm run build` | Build de produção em `dist/` |
+| `npm run verify:build` | Confere HTML, imagens, manifestos e PDF do build |
 | `npm run preview` | Servir o build de produção localmente |
 | `npm test` | Rodar todos os testes (Vitest) |
+| `npm run test:coverage` | Rodar testes com limiares de cobertura |
+| `npm run test:e2e` | Testar o fluxo inicial no Chromium (instalar com `npx playwright install chromium`) |
 | `npm run lint` | Lint + format check (Biome) |
 | `npm run script tools/dev-scripts/<arquivo>.ts` | Executar script avulso com acesso ao core via `@/` |
+
+## Alpha web e publicação
+
+O jogo é estático e pode ser servido no GitHub Pages. A branch remota principal é
+`main`. O workflow [CI and GitHub Pages](.github/workflows/ci.yml) executa lint,
+testes, cobertura, build, verificação dos assets e testes de navegador. Em push
+para `main`, o deploy só ocorre se todos esses passos passarem.
+
+Antes do primeiro deploy, configure **Settings → Pages → Build and deployment →
+Source: GitHub Actions** no repositório GitHub. Depois, abra um pull request com
+estas mudanças, confira os checks e incorpore em `main` quando desejar publicar.
+Nenhum push ou deploy é feito pelos comandos locais deste guia.
+
+Para conferir localmente o mesmo caminho-base usado no Pages:
+
+```powershell
+$env:PAGES_BASE_PATH='/herent-ascoic/'
+npm run build
+npm run verify:build -- --base /herent-ascoic/
+npm run preview
+Remove-Item Env:PAGES_BASE_PATH
+```
+
+Após o deploy, abra [a alpha web](https://println.github.io/herent-ascoic/),
+confirme que **JOGAR** abre a escolha de heróis, que cartas e tabuleiro carregam
+com imagens e que **Regras** abre o PDF. O endereço direto do manual será
+`https://println.github.io/herent-ascoic/rules/ascensao-heroica-manual.pdf`.
+O Pages precisa estar público para amigos sem acesso ao repositório poderem jogar.
+
+As partidas ainda não sobrevivem ao fechamento ou recarregamento da página.
+Consulte [a auditoria da alpha](docs/WEB_PLAYTEST_AUDIT.md) antes de compartilhar.
 
 ## Stack
 

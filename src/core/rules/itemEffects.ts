@@ -47,11 +47,14 @@ export function manualItemUnavailableReason(
 	);
 	if (!hero) return "Herói inválido ou inativo.";
 	const location = findHeroItemLocation(hero, itemId);
-	if (!location) return "Este item não pertence ao herói.";
+	const onRewardTable =
+		state.status === "REWARD_PHASE" &&
+		state.pendingRewards.some((reward) => reward.type === "item" && reward.cardId === itemId);
+	if (!location && !onRewardTable) return "Este item não pertence ao herói.";
 	// A mochila é uma área de organização, não um slot de uso durante a
 	// exploração/combate. Itens nela podem ser ativados somente enquanto a
 	// bancada de espólios está aberta.
-	if (location.kind === "backpack" && state.status !== "REWARD_PHASE") {
+	if (location?.kind === "backpack" && state.status !== "REWARD_PHASE") {
 		return "Itens guardados na mochila só podem ser usados na organização de espólios.";
 	}
 	if (
@@ -181,10 +184,6 @@ export function isConsumableItem(itemId: string): boolean {
 	return card?.type === "item" && card.itemClass === "consumable";
 }
 
-export function isSingleUseSpecialItem(skillId: string): boolean {
-	return skillId === "item_skill_mystic_draw";
-}
-
 export function itemCanBeUsedManually(def: SkillDefinition): boolean {
 	if (
 		def.operate_type === "op_active" ||
@@ -195,8 +194,8 @@ export function itemCanBeUsedManually(def: SkillDefinition): boolean {
 	return Boolean(def.effect?.some(isManualItemEffect));
 }
 
-export function itemShouldBeConsumed(itemId: string, skillId: string): boolean {
-	return isConsumableItem(itemId) || isSingleUseSpecialItem(skillId);
+export function itemShouldBeConsumed(itemId: string): boolean {
+	return isConsumableItem(itemId);
 }
 
 export function itemUseTargetIds(

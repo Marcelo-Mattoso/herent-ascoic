@@ -1,11 +1,17 @@
-name: CI
+name: CI and GitHub Pages
 
 on:
   push:
+    branches: [main]
   pull_request:
+  workflow_dispatch:
 
 permissions:
   contents: read
+
+concurrency:
+  group: pages-${{ github.ref }}
+  cancel-in-progress: true
 
 jobs:
   quality:
@@ -21,6 +27,13 @@ jobs:
       - run: npm test
       - run: npm run test:coverage
       - run: npm run build
+        env:
+          PAGES_BASE_PATH: /herent-ascoic/
+      - run: npm run verify:build -- --base /herent-ascoic/
+      - uses: actions/upload-pages-artifact@v3
+        if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+        with:
+          path: dist
 
   e2e:
     needs: quality
@@ -34,3 +47,17 @@ jobs:
       - run: npm ci
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e
+
+  deploy:
+    if: github.event_name == 'push' && github.ref == 'refs/heads/main'
+    needs: [quality, e2e]
+    runs-on: ubuntu-latest
+    environment:
+      name: github-pages
+      url: ${{ steps.deployment.outputs.page_url }}
+    permissions:
+      pages: write
+      id-token: write
+    steps:
+      - id: deployment
+        uses: actions/deploy-pages@v4
