@@ -1,3 +1,5 @@
+import { publicAssetUrl } from "./publicAssetUrl";
+
 export type BackCardId = "verso_criatura" | "verso_dungeon" | "verso_tesouro";
 
 export interface BackCard {
@@ -15,7 +17,7 @@ export interface BackCardManifest {
 
 export type BackCardUrls = Partial<Record<BackCardId, string>>;
 
-export const BACK_CARD_MANIFEST_URL = "/generated/backcards/manifest.json";
+export const BACK_CARD_MANIFEST_URL = publicAssetUrl("generated/backcards/manifest.json");
 
 export const EMPTY_BACK_CARD_MANIFEST: BackCardManifest = {
 	version: 1,

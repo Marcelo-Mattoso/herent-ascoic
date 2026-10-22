@@ -19,6 +19,7 @@ public/generated/
 dist
 dist-ssr
 coverage/
+test-results/
 *.local
 
 # Editor directories and files

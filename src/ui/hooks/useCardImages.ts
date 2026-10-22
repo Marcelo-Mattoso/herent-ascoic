@@ -6,6 +6,7 @@ import {
 	EMPTY_CARD_IMAGE_MANIFEST,
 	normalizeCardImageKey,
 } from "@/ui/cardImages";
+import { publicAssetUrl } from "@/ui/publicAssetUrl";
 
 function isCardImageManifest(value: unknown): value is CardImageManifest {
 	if (!value || typeof value !== "object") return false;
@@ -48,9 +49,10 @@ export function useCardImages(): CardImageUrls {
 	return useMemo(() => {
 		const urls: CardImageUrls = {};
 		for (const card of manifest.cards) {
-			urls[card.id] = card.url;
-			urls[normalizeCardImageKey(card.id)] = card.url;
-			urls[normalizeCardImageKey(card.fileName)] = card.url;
+			const url = publicAssetUrl(card.url);
+			urls[card.id] = url;
+			urls[normalizeCardImageKey(card.id)] = url;
+			urls[normalizeCardImageKey(card.fileName)] = url;
 		}
 		return urls;
 	}, [manifest.cards]);

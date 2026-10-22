@@ -6,6 +6,7 @@ import {
 	type BoardBackgroundManifest,
 	EMPTY_BOARD_BACKGROUND_MANIFEST,
 } from "@/ui/boardBackgrounds";
+import { publicAssetUrl } from "@/ui/publicAssetUrl";
 
 function readStoredBoardId() {
 	try {
@@ -67,11 +68,12 @@ export function useBoardBackgrounds() {
 
 	const selectedBoard = useMemo<BoardBackground | null>(() => {
 		if (manifest.boards.length === 0) return null;
-		return (
+		const board = (
 			manifest.boards.find((board) => board.id === selectedBoardId) ??
 			manifest.boards[0] ??
 			null
 		);
+		return board ? { ...board, url: publicAssetUrl(board.url) } : null;
 	}, [manifest.boards, selectedBoardId]);
 
 	function setSelectedBoardId(boardId: string | null) {

@@ -1,4 +1,5 @@
 import { getCardName } from "@/core/data/cardLocale";
+import { publicAssetUrl } from "./publicAssetUrl";
 
 export interface CardImage {
 	readonly id: string;
@@ -15,7 +16,7 @@ export interface CardImageManifest {
 
 export type CardImageUrls = Partial<Record<string, string>>;
 
-export const CARD_IMAGE_MANIFEST_URL = "/generated/cards/manifest.json";
+export const CARD_IMAGE_MANIFEST_URL = publicAssetUrl("generated/cards/manifest.json");
 
 export const EMPTY_CARD_IMAGE_MANIFEST: CardImageManifest = {
 	version: 1,

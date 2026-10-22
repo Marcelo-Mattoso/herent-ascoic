@@ -6,6 +6,7 @@ import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { getCardById } from "@/core/data/cards";
+import { cardAbilityGrants } from "@/core/data/abilities";
 import {
 	collectHeroDamageBonusesFromItems,
 	collectHeroDamageReductionsFromItems,
@@ -1443,8 +1444,7 @@ function ItemTooltipPanel({
 	const canUseItem =
 		isItem &&
 		!!target.heroId &&
-		(card.itemClass === "consumable" ||
-			effectEntry?.ref.skillId === "item_skill_mystic_draw");
+		cardAbilityGrants(card.id).some((grant) => grant.activation.kind === "manual");
 
 	return (
 		<div

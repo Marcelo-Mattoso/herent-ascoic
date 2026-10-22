@@ -4,7 +4,7 @@ import { createInitialGameState } from "../state/gameState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import {
-	findHeroItemLocation, formatItemBreakdown, isSingleUseSpecialItem,
+	findHeroItemLocation, formatItemBreakdown,
 	itemActivationId, itemCanBeUsedManually, itemShouldBeConsumed, itemUseTargetIds,
 	manualItemUnavailableReason, removeHeroItem, totalItemValue,
 } from "./itemEffects";
@@ -35,8 +35,8 @@ describe("efeitos de itens — utilidades", () => {
 		expect(itemUseTargetIds(s, enemyDef, "h1")).toEqual(["e1"]);
 		expect(itemUseTargetIds(s, selfDef, "h1", "h2")).toEqual(["h2"]);
 		expect(itemUseTargetIds(s, noTarget, "h1")).toEqual([]);
-		expect(isSingleUseSpecialItem("item_skill_mystic_draw")).toBe(true);
-		expect(itemShouldBeConsumed("missing", "item_skill_mystic_draw")).toBe(true);
+		expect(itemShouldBeConsumed("item_lesser_vigor_potion")).toBe(true);
+		expect(itemShouldBeConsumed("item_ancient_iron_key")).toBe(false);
 		expect(itemCanBeUsedManually({ operate_type: "op_active" } as never)).toBe(true);
 		expect(itemCanBeUsedManually({ operate_type: "op_triggered", effect: [{ kind: "i_draw", pile: "dungeon", count: 1 }] } as never)).toBe(true);
 	});

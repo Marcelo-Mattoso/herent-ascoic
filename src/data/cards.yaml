@@ -497,6 +497,18 @@
     - skillId: item_skill_mystic_draw
       params:
         value: 1
+  grants:
+    - id: ancient_key_mystic_draw
+      abilityId: item_skill_mystic_draw
+      params: { value: 1 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: remove
+        targeting:
+          targetType: tgt_item
+          affectScope: scp_none
+          affectObject: obj_all
 - id: item_tunnel_hood
   type: item
   itemClass: equipment
@@ -810,6 +822,18 @@
     - skillId: item_skill_mystic_draw
       params:
         value: 1
+  grants:
+    - id: torn_map_mystic_draw
+      abilityId: item_skill_mystic_draw
+      params: { value: 1 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: remove
+        targeting:
+          targetType: tgt_item
+          affectScope: scp_none
+          affectObject: obj_all
 - id: item_hidden_forge_chest
   type: item
   itemClass: special
@@ -817,6 +841,18 @@
     - skillId: item_skill_mystic_draw
       params:
         value: 1
+  grants:
+    - id: hidden_chest_mystic_draw
+      abilityId: item_skill_mystic_draw
+      params: { value: 1 }
+      activation:
+        kind: manual
+        actionCost: none
+        consumeSource: remove
+        targeting:
+          targetType: tgt_item
+          affectScope: scp_none
+          affectObject: obj_all
 - id: artifact_crimson_jailer_chain
   type: artifact
   countsAs: artifact
