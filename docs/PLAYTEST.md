@@ -13,7 +13,7 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 | Prioridade | Estado | Consequência / próximo teste |
 |---|---|---|
 | P1 | `enableSave = false`. | Recarregar ou fechar a aba perde a partida; avise os participantes antes de começar. |
-| P1 | Orientação vertical tem suporte limitado. | Preferir desktop ou celular na horizontal; validar legibilidade em aparelhos reais. |
+| P1 | O tabuleiro agora cabe em retrato e paisagem sem rolagem da arena nos viewports automatizados. | Confirmar legibilidade, safe areas e barras dinâmicas em aparelhos reais antes da publicação. |
 | P1 | O harness marcou sete casos `no-effect` em cenários sintéticos: `skill_rift_evasion`, `skill_cowardly_flee`, `skill_opportunity_shot`, `skill_minor_rune`, `boss_skill_dark_forge_pressure`, `dungeon_skill_subboss_room`, `dungeon_skill_empty_room`. | Fazer partidas dirigidas e reproduzir uma falha antes de mudar regras. Não há skill classificada como sem implementação ou erro pelo harness anterior. |
 | P1 | Fuga de criatura para `skill_cowardly_flee` ainda não tem transição/emissor próprios. | Testar a carta em uma situação real e definir comportamento com o autor. |
 | P2 | Uma escolha reativa após dano pode interromper a limpeza de entidade ECS. | Validar janelas pós-dano com derrota; implementar continuação do pipeline em entrega separada. |
@@ -25,7 +25,7 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 
 ## Validação automatizada
 
-O CI executa `npm ci`, lint sem alterações, Vitest, cobertura com os limiares de `vite.config.ts`, build para `/herent-ascoic/`, verificação de HTML/assets/manifestos/PDF e Playwright. Os três testes de navegador cobrem menu, seleção de herói, entrada no tabuleiro e resposta do PDF. Eles **não** percorrem combate completo, progressão de salas, vitória/derrota nem todos os 404 e erros de console possíveis durante uma partida longa. Os testes do core cobrem partes desses fluxos, mas o roteiro humano abaixo continua necessário.
+O CI executa `npm ci`, lint sem alterações, Vitest, cobertura com os limiares de `vite.config.ts`, build para `/herent-ascoic/`, verificação de HTML/assets/manifestos/PDF e Playwright. Os testes de navegador cobrem menu, seleção de herói, entrada no tabuleiro, manual, toque para atacar, recompensa e equipamentos, escolha visual de habilidade e geometria da arena em 12 resoluções com até 4 heróis, até 4 criaturas e chefe. A arena não deve ter overflow nem hitboxes encobertas. Ainda é necessária uma partida humana longa para validar progressão completa e legibilidade em aparelhos reais.
 
 Validação local do sistema de equipamentos: lint e tipos passaram; 694 testes Vitest passaram com `--maxWorkers=2 --testTimeout=15000`; cobertura passou (76,56% instruções, 66,53% ramos, 84,59% funções, 80,29% linhas); build e `verify:build` passaram com base `/herent-ascoic/`; os 3 testes Playwright de início de partida e PDF passaram. Um preview do build compilado iniciou com 4 heróis, abriu o tabuleiro e o PDF, sem erro JavaScript ou resposta HTTP 4xx no percurso. O fluxo completo de vitória ainda precisa de partida dirigida na interface publicada.
 
@@ -38,7 +38,7 @@ Validação local do sistema de equipamentos: lint e tipos passaram; 694 testes 
 - [ ] Revelar sala, iniciar e concluir combate com ataque e item; organizar recompensa, gastar XP e abrir caminho até outra sala.
 - [ ] Testar habilidade/poder, cancelamento de alvo, chefe, vitória e derrota em sessões dirigidas.
 - [ ] Abrir **Regras** e baixar o PDF sem cadastro; confirmar com o autor qual versão é oficial antes de divulgar como definitiva.
-- [ ] Registrar feedback e avisar sobre perda da sessão e orientação vertical.
+- [ ] Registrar feedback e avisar sobre perda da sessão; testar retrato e paisagem no aparelho dos participantes.
 
 ## Cinco perguntas para os amigos
 

@@ -67,13 +67,13 @@ export function HeroCard({
 	const card =
 		size === "board"
 			? {
-					width: 124,
-					height: 172,
-					artHeight: 68,
-					radius: 10,
-					padding: "10px",
-					nameFont: 12,
-					statFont: 10,
+					width: "var(--game-card-width, 124px)",
+					height: "var(--game-card-height, 172px)",
+					artHeight: "var(--game-placeholder-art-height, 68px)",
+					radius: "var(--game-card-radius, 10px)",
+					padding: "var(--game-card-padding, 10px)",
+					nameFont: "var(--game-card-name-size, 12px)",
+					statFont: "var(--game-card-meta-size, 10px)",
 					iconFont: 32,
 					hpHeight: 5,
 					equipmentInside: true,
@@ -106,7 +106,7 @@ export function HeroCard({
 				type="button"
 				draggable={isActive && canAct}
 				aria-disabled={isRoundDisabled}
-				className={canAct ? "click-attention" : undefined}
+				className={`${size === "board" ? "game-card game-card--hero" : ""}${canAct ? " click-attention" : ""}`}
 				onDragStart={(e) => {
 					if (!isActive || !canAct) {
 						e.preventDefault();
@@ -171,19 +171,20 @@ export function HeroCard({
 					title={`Nível ${hero.impeto + 1}`}
 					style={{
 						position: "absolute",
-						top: size === "board" ? 8 : 3,
-						right: size === "board" ? 8 : 3,
+						top: size === "board" ? "var(--game-level-offset, 8px)" : 3,
+						right: size === "board" ? "var(--game-level-offset, 8px)" : 3,
 						zIndex: 2,
 						display: "grid",
 						placeItems: "center",
-						width: size === "board" ? 26 : 18,
-						height: size === "board" ? 26 : 18,
+						width: size === "board" ? "var(--game-level-size, 26px)" : 18,
+						height: size === "board" ? "var(--game-level-size, 26px)" : 18,
 						border: "1px solid rgba(255, 225, 122, 0.9)",
 						borderRadius: "50%",
 						background: "rgba(9, 24, 42, 0.92)",
 						boxShadow: "0 2px 4px rgba(0, 0, 0, 0.42)",
 						color: "#ffe17a",
-						fontSize: size === "board" ? 13 : 10,
+						fontSize:
+							size === "board" ? "var(--game-level-font-size, 13px)" : 10,
 						fontWeight: 900,
 						lineHeight: 1,
 						pointerEvents: "none",
@@ -201,7 +202,8 @@ export function HeroCard({
 							display: "flex",
 							alignItems: "center",
 							justifyContent: "center",
-							marginBottom: size === "board" ? 8 : 3,
+							marginBottom:
+								size === "board" ? "var(--game-card-inner-gap, 8px)" : 3,
 							flexShrink: 0,
 						}}
 					>
@@ -212,7 +214,9 @@ export function HeroCard({
 					style={{
 						background: useCardImage ? "rgba(246, 240, 229, 0.82)" : undefined,
 						borderRadius: useCardImage ? 7 : undefined,
-						padding: useCardImage ? "6px" : undefined,
+						padding: useCardImage
+							? "var(--game-card-info-padding, 6px)"
+							: undefined,
 					}}
 				>
 					{/* Nome curto */}
@@ -227,8 +231,12 @@ export function HeroCard({
 							display: size === "board" ? "-webkit-box" : undefined,
 							WebkitBoxOrient: size === "board" ? "vertical" : undefined,
 							WebkitLineClamp: size === "board" ? 2 : undefined,
-							lineHeight: size === "board" ? 1.12 : 1.2,
-							marginBottom: size === "board" ? 7 : undefined,
+							lineHeight:
+								size === "board" ? "var(--game-card-line-height, 1.12)" : 1.2,
+							marginBottom:
+								size === "board"
+									? "var(--game-card-text-margin, 7px)"
+									: undefined,
 						}}
 					>
 						{displayName}
@@ -244,8 +252,10 @@ export function HeroCard({
 						style={{
 							color: UI.textTertiary,
 							fontSize: card.statFont,
-							marginTop: size === "board" ? 5 : 1,
-							lineHeight: 1,
+							marginTop:
+								size === "board" ? "var(--game-card-text-margin, 5px)" : 1,
+							lineHeight:
+								size === "board" ? "var(--game-card-line-height, 1)" : 1,
 						}}
 					>
 						{hero.currentLife}/{hero.maxLife}
@@ -253,7 +263,7 @@ export function HeroCard({
 					{card.equipmentInside && (
 						<div
 							style={{
-								display: "flex",
+								display: "var(--game-equipment-display, flex)",
 								gap: 3,
 								marginTop: "auto",
 								justifyContent: "center",

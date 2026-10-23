@@ -81,7 +81,9 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 			.toBe(true);
 		await expect(page.locator(".game-board-stacks")).toHaveCount(0);
 		await expect(page.locator(".orientation-gate")).toHaveCount(0);
-		await expect(page.getByRole("link", { name: /Regras/ })).toBeVisible();
+		await expect(
+			page.getByRole("link", { name: /regras/i }).first(),
+		).toBeVisible();
 
 		if (viewport.width <= 900) {
 			await expect(
@@ -89,19 +91,17 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 			).toBeVisible();
 			const surface = page.locator(".game-board-surface");
 			const dimensions = await surface.evaluate((element) => ({
-				content: element.scrollWidth,
-				visible: element.clientWidth,
+				contentWidth: element.scrollWidth,
+				visibleWidth: element.clientWidth,
+				contentHeight: element.scrollHeight,
+				visibleHeight: element.clientHeight,
 			}));
-			expect(dimensions.content).toBeGreaterThan(dimensions.visible);
-			await surface.evaluate((element) => {
-				element.scrollLeft = element.scrollWidth;
-			});
-			await expect
-				.poll(() => surface.evaluate((element) => element.scrollLeft))
-				.toBeGreaterThan(0);
-			await surface.evaluate((element) => {
-				element.scrollLeft = 0;
-			});
+			expect(dimensions.contentWidth).toBeLessThanOrEqual(
+				dimensions.visibleWidth + 1,
+			);
+			expect(dimensions.contentHeight).toBeLessThanOrEqual(
+				dimensions.visibleHeight + 1,
+			);
 			if (viewport.width <= 600 && viewport.height > viewport.width) {
 				const bounds = await hero.boundingBox();
 				expect(bounds).not.toBeNull();
@@ -122,7 +122,7 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 		.poll(() =>
 			page
 				.locator(".game-board-surface")
-				.evaluate((element) => element.scrollWidth > element.clientWidth),
+				.evaluate((element) => element.scrollWidth <= element.clientWidth + 1),
 		)
 		.toBe(true);
 	await page.setViewportSize({ width: 1366, height: 768 });
@@ -207,7 +207,114 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 		expect(diceBounds!.x).toBeGreaterThanOrEqual(0);
 		expect(diceBounds!.x + diceBounds!.width).toBeLessThanOrEqual(390);
 		await page.screenshot({ path: "test-results/layout-dice-portrait.png" });
+		const attackGeometry = await page.evaluate(async () => {
+			const modulePath = "/src/ui/store/elfStore.ts";
+			const { getElfGameState } = await import(modulePath);
+			const roll = getElfGameState().combat.lastRoll;
+			if (!roll || roll.heroTotal === roll.enemyTotal) return null;
+			const source = document
+				.querySelector(
+					roll.heroTotal > roll.enemyTotal
+						? ".game-card--hero"
+						: ".game-card--enemy",
+				)
+				?.getBoundingClientRect();
+			const target = document
+				.querySelector(
+					roll.heroTotal > roll.enemyTotal
+						? ".game-card--enemy"
+						: ".game-card--hero",
+				)
+				?.getBoundingClientRect();
+			if (!source || !target) throw new Error("Attack cards have no bounds");
+			const geometry = {
+				source: {
+					left: source.left,
+					top: source.top,
+					width: source.width,
+					height: source.height,
+				},
+				target: {
+					x: target.left + target.width / 2,
+					y: target.top + target.height / 2,
+				},
+			};
+			const observer = new MutationObserver(() => {
+				const card = document.querySelector<HTMLElement>(
+					".card-attack-animation__card",
+				);
+				if (!card) return;
+				(
+					window as unknown as { __attackCoordinates: unknown }
+				).__attackCoordinates = {
+					left: Number.parseFloat(card.style.left),
+					top: Number.parseFloat(card.style.top),
+					width: Number.parseFloat(card.style.width),
+					height: Number.parseFloat(card.style.height),
+					x: Number.parseFloat(
+						card.style.getPropertyValue("--attack-travel-x"),
+					),
+					y: Number.parseFloat(
+						card.style.getPropertyValue("--attack-travel-y"),
+					),
+				};
+				observer.disconnect();
+			});
+			observer.observe(document.body, { childList: true, subtree: true });
+			return geometry;
+		});
+		expect(attackGeometry).not.toBeNull();
 		await dice.getByRole("button", { name: "Resolver ataque" }).tap();
+		if (attackGeometry) {
+			await expect
+				.poll(() =>
+					page.evaluate(
+						() =>
+							(window as unknown as { __attackCoordinates?: unknown })
+								.__attackCoordinates,
+					),
+				)
+				.toBeTruthy();
+			const rendered = await page.evaluate(
+				() =>
+					(
+						window as unknown as {
+							__attackCoordinates: {
+								left: number;
+								top: number;
+								width: number;
+								height: number;
+								x: number;
+								y: number;
+							};
+						}
+					).__attackCoordinates,
+			);
+			expect(Math.abs(rendered.left - attackGeometry.source.left)).toBeLessThan(
+				2,
+			);
+			expect(Math.abs(rendered.top - attackGeometry.source.top)).toBeLessThan(
+				2,
+			);
+			expect(
+				Math.abs(rendered.width - attackGeometry.source.width),
+			).toBeLessThan(2);
+			expect(
+				Math.abs(rendered.height - attackGeometry.source.height),
+			).toBeLessThan(2);
+			const expectedX =
+				(attackGeometry.target.x -
+					attackGeometry.source.left -
+					attackGeometry.source.width / 2) *
+				0.82;
+			const expectedY =
+				(attackGeometry.target.y -
+					attackGeometry.source.top -
+					attackGeometry.source.height / 2) *
+				0.82;
+			expect(Math.abs(rendered.x - expectedX)).toBeLessThan(2);
+			expect(Math.abs(rendered.y - expectedY)).toBeLessThan(2);
+		}
 		await expect(dice).toHaveCount(0);
 		await expect
 			.poll(async () =>

@@ -24,7 +24,7 @@ Abra `http://localhost:5173/`. Comandos disponíveis:
 | `npm run test:coverage` | Testes e limiares de cobertura. |
 | `npm run build` | TypeScript e build Vite em `dist/`. |
 | `npm run verify:build` | Confere HTML, imagens, manifestos e manual no build. |
-| `npm run test:e2e` | Fluxo inicial no Chromium; antes, `npx playwright install chromium`. |
+| `npm run test:e2e` | Fluxos de jogo e matriz responsiva no Chromium; antes, `npx playwright install chromium`. |
 | `npm run preview` | Serve o build localmente. |
 
 Para simular o subdiretório do Pages em PowerShell:

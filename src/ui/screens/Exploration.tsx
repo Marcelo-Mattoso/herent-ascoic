@@ -10,6 +10,7 @@ import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { Board } from "@/ui/components/Board";
+import { BoardFooter } from "@/ui/components/BoardFooter";
 import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
@@ -25,7 +26,9 @@ import { TriggerInterruptModal } from "@/ui/components/modals/TriggerInterruptMo
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
 import { useBoardBackgrounds } from "@/ui/hooks/useBoardBackgrounds";
 import { useCardImages } from "@/ui/hooks/useCardImages";
+import { useGameViewport } from "@/ui/hooks/useGameViewport";
 import { useGameStore } from "@/ui/store/gameStore";
+import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { selectFocusedHero } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 
@@ -98,14 +101,28 @@ export function Exploration() {
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showHeroFocus, setShowHeroFocus] = useState(false);
 	const [actionLogMode, setActionLogMode] = useState<ActionLogMode>("open");
-	const [portableDrawer, setPortableDrawer] = useState<PortableDrawer>(null);
+	const [portableDrawer, setPortableDrawer] = useState<{
+		type: Exclude<PortableDrawer, null>;
+		phaseKey: string;
+	} | null>(null);
 	const [combatAttackHintVisible, setCombatAttackHintVisible] = useState(false);
 	const [hasShownFirstAttackHint, setHasShownFirstAttackHint] = useState(false);
 	const { selectedBoard } = useBoardBackgrounds();
 	const cardImageUrls = useCardImages();
+	const gameGeometry = useGameViewport();
 
 	const status = view.status;
 	const combat = view.combat;
+	const phaseKey = `${status}:${combat?.phase ?? ""}`;
+	const activePortableDrawer =
+		portableDrawer?.phaseKey === phaseKey ? portableDrawer.type : null;
+	function togglePortableDrawer(type: Exclude<PortableDrawer, null>) {
+		setPortableDrawer((current) =>
+			current?.type === type && current.phaseKey === phaseKey
+				? null
+				: { type, phaseKey },
+		);
+	}
 	const focusedHero = selectFocusedHero(view, ui.focusedHeroId);
 	const heroActions = heroActionsFor(focusedHero?.id ?? "");
 	const activeEnemyIds = view.enemies
@@ -271,7 +288,16 @@ export function Exploration() {
 
 	return (
 		<>
-			<div className="game-viewport">
+			<div
+				className="game-viewport"
+				data-game-layout={gameGeometry.mode}
+				style={
+					{
+						"--game-card-width": `min(${gameGeometry.cardWidth}px, calc((100dvw - env(safe-area-inset-left) - env(safe-area-inset-right) - 48px) / 5))`,
+						"--game-card-height": "calc(var(--game-card-width) * 172 / 124)",
+					} as CSSProperties
+				}
+			>
 				<div
 					className="game-landscape-stage"
 					style={{
@@ -354,19 +380,30 @@ export function Exploration() {
 							>
 								<button
 									type="button"
-									onClick={() => setPortableDrawer("awakening")}
+									onClick={() => togglePortableDrawer("awakening")}
 								>
-									<span aria-hidden="true">⚡</span> Despertar
+									<span aria-hidden="true">⚡</span> Grupo
 								</button>
 								<button
 									type="button"
-									onClick={() => setPortableDrawer("influences")}
+									onClick={() => togglePortableDrawer("influences")}
 								>
 									<span aria-hidden="true">✦</span> Influências
 								</button>
-								<button type="button" onClick={() => setPortableDrawer("log")}>
+								<button
+									type="button"
+									onClick={() => togglePortableDrawer("log")}
+								>
 									<span aria-hidden="true">☷</span> Log
 								</button>
+								<a
+									href={publicAssetUrl("rules/ascensao-heroica-manual.pdf")}
+									target="_blank"
+									rel="noopener noreferrer"
+									aria-label="Abrir manual de regras em PDF"
+								>
+									<span aria-hidden="true">?</span> Regras
+								</a>
 							</div>
 							{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
 							{(() => {
@@ -437,12 +474,14 @@ export function Exploration() {
 						</div>
 					)}
 
-					{portableDrawer && (
+					{activePortableDrawer && (
 						<PortableGameDrawer
-							type={portableDrawer}
+							type={activePortableDrawer}
 							despertar={view.despertar}
 							influences={view.activeInfluences}
 							entries={view.eventLog}
+							view={view}
+							onArtifactClick={openCardDetail}
 							onClose={() => setPortableDrawer(null)}
 						/>
 					)}
@@ -497,17 +536,21 @@ function PortableGameDrawer({
 	despertar,
 	influences,
 	entries,
+	view,
+	onArtifactClick,
 	onClose,
 }: {
 	type: Exclude<PortableDrawer, null>;
 	despertar: PlayerView["despertar"];
 	influences: PlayerView["activeInfluences"];
 	entries: PlayerView["eventLog"];
+	view: PlayerView;
+	onArtifactClick: (id: string, type: CardType) => void;
 	onClose: () => void;
 }) {
 	const title =
 		type === "awakening"
-			? "Despertar"
+			? "Grupo e Despertar"
 			: type === "influences"
 				? "Influências"
 				: "Log da partida";
@@ -538,7 +581,10 @@ function PortableGameDrawer({
 				</header>
 				<div className="game-portable-drawer__body">
 					{type === "awakening" ? (
-						<DungeonAwakeningMarker current={despertar} />
+						<>
+							<DungeonAwakeningMarker current={despertar} />
+							<BoardFooter view={view} onArtifactClick={onArtifactClick} />
+						</>
 					) : null}
 					{type === "influences" ? (
 						<InfluencePanel influences={influences} />

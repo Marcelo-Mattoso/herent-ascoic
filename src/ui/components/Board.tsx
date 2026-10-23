@@ -44,16 +44,16 @@ interface BoardProps {
 }
 
 const ACTIVE_DUNGEON_CARD = {
-	width: 124,
-	height: 172,
-	radius: 10,
+	width: "var(--game-card-width, 124px)",
+	height: "var(--game-card-height, 172px)",
+	radius: "var(--game-card-radius, 10px)",
 };
 
 const ACTIVE_CARD_SLOT_COUNT = 4;
 const BOSS_CARD = {
-	width: 180,
-	height: 252,
-	radius: 12,
+	width: "var(--game-boss-width, 180px)",
+	height: "var(--game-boss-height, 252px)",
+	radius: "var(--game-card-radius, 12px)",
 };
 const CARD_CONTACT_SHADOW =
 	"0 7px 10px rgba(0, 0, 0, 0.34), 0 1px 2px rgba(0, 0, 0, 0.42), inset 0 0 0 1px rgba(255,255,255,0.28)";
@@ -115,6 +115,7 @@ function ActiveDungeonCard({
 	return (
 		<button
 			type="button"
+			className="game-card game-card--room"
 			onClick={onClick}
 			style={{
 				width: ACTIVE_DUNGEON_CARD.width,
@@ -133,10 +134,10 @@ function ActiveDungeonCard({
 				cursor: "pointer",
 				display: "flex",
 				flexDirection: "column",
-				gap: 8,
+				gap: "var(--game-card-inner-gap, 8px)",
 				justifyContent: imageUrl ? "flex-end" : undefined,
 				overflow: "hidden",
-				padding: "12px 10px",
+				padding: "var(--game-card-padding, 12px 10px)",
 				textAlign: "left",
 			}}
 		>
@@ -148,7 +149,7 @@ function ActiveDungeonCard({
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
-						height: 62,
+						height: "var(--game-placeholder-art-height, 62px)",
 						flexShrink: 0,
 					}}
 				>
@@ -160,16 +161,16 @@ function ActiveDungeonCard({
 					minWidth: 0,
 					background: imageUrl ? "rgba(246, 240, 229, 0.82)" : undefined,
 					borderRadius: imageUrl ? 7 : undefined,
-					padding: imageUrl ? "6px" : undefined,
+					padding: imageUrl ? "var(--game-card-info-padding, 6px)" : undefined,
 				}}
 			>
 				<p
 					style={{
 						color: UI.textPrimary,
-						fontSize: 12,
+						fontSize: "var(--game-card-name-size, 12px)",
 						fontWeight: 700,
-						lineHeight: 1.15,
-						marginBottom: 6,
+						lineHeight: "var(--game-card-line-height, 1.15)",
+						marginBottom: "var(--game-card-text-margin, 6px)",
 						overflow: "hidden",
 						display: "-webkit-box",
 						WebkitBoxOrient: "vertical",
@@ -178,7 +179,14 @@ function ActiveDungeonCard({
 				>
 					{getCardName(room.cardId)}
 				</p>
-				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 7 }}>
+				<p
+					className="game-card__room-meta"
+					style={{
+						color: UI.textSecondary,
+						fontSize: "var(--game-card-meta-size, 10px)",
+						marginBottom: "var(--game-card-text-margin, 7px)",
+					}}
+				>
 					Saídas {room.exits} · XP {room.xp}
 				</p>
 				<ColorBar current={despertar} />
@@ -229,7 +237,7 @@ function ActiveEnemyCard({
 	return (
 		<button
 			type="button"
-			className={isSelectable && !isDragOver ? "click-attention" : undefined}
+			className={`game-card game-card--enemy${isSelectable && !isDragOver ? " click-attention" : ""}`}
 			onDragOver={(event) => {
 				if (!isSelectable) return;
 				event.preventDefault();
@@ -260,7 +268,7 @@ function ActiveEnemyCard({
 				flexDirection: "column",
 				justifyContent: imageUrl ? "flex-end" : undefined,
 				overflow: "hidden",
-				padding: "10px",
+				padding: "var(--game-card-padding, 10px)",
 				position: "relative",
 				textAlign: "left",
 				transition: "border-color 0.1s, border-width 0.1s",
@@ -270,13 +278,13 @@ function ActiveEnemyCard({
 				<div
 					style={{
 						position: "relative",
-						height: 68,
+						height: "var(--game-placeholder-art-height, 68px)",
 						borderRadius: 7,
 						background: "rgba(0, 0, 0, 0.16)",
 						display: "flex",
 						alignItems: "center",
 						justifyContent: "center",
-						marginBottom: 8,
+						marginBottom: "var(--game-card-inner-gap, 8px)",
 						flexShrink: 0,
 					}}
 				>
@@ -305,16 +313,16 @@ function ActiveEnemyCard({
 				style={{
 					background: imageUrl ? "rgba(246, 240, 229, 0.82)" : undefined,
 					borderRadius: 7,
-					padding: imageUrl ? "6px" : undefined,
+					padding: imageUrl ? "var(--game-card-info-padding, 6px)" : undefined,
 				}}
 			>
 				<p
 					style={{
 						color: UI.textPrimary,
-						fontSize: 12,
+						fontSize: "var(--game-card-name-size, 12px)",
 						fontWeight: 700,
-						lineHeight: 1.12,
-						marginBottom: 7,
+						lineHeight: "var(--game-card-line-height, 1.12)",
+						marginBottom: "var(--game-card-text-margin, 7px)",
 						overflow: "hidden",
 						display: "-webkit-box",
 						WebkitBoxOrient: "vertical",
@@ -327,9 +335,9 @@ function ActiveEnemyCard({
 				<p
 					style={{
 						color: UI.textTertiary,
-						fontSize: 10,
-						marginTop: 5,
-						lineHeight: 1,
+						fontSize: "var(--game-card-meta-size, 10px)",
+						marginTop: "var(--game-card-text-margin, 5px)",
+						lineHeight: "var(--game-card-line-height, 1)",
 					}}
 				>
 					{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · D
@@ -372,7 +380,7 @@ function BossEncounterCard({
 	return (
 		<button
 			type="button"
-			className={isSelectable && !isDragOver ? "click-attention" : undefined}
+			className={`game-card game-card--boss${isSelectable && !isDragOver ? " click-attention" : ""}`}
 			onDragOver={(event) => {
 				if (!enemy || !isSelectable) return;
 				event.preventDefault();
@@ -404,7 +412,7 @@ function BossEncounterCard({
 				flexDirection: "column",
 				justifyContent: "flex-end",
 				overflow: "hidden",
-				padding: 12,
+				padding: "var(--game-card-padding, 12px)",
 				position: "relative",
 				textAlign: "left",
 				transition: "border-color 0.1s, border-width 0.1s, transform 0.16s",
@@ -416,16 +424,16 @@ function BossEncounterCard({
 					border: "1px solid rgba(120, 72, 14, 0.52)",
 					borderRadius: 8,
 					boxShadow: "0 3px 10px rgba(0, 0, 0, 0.28)",
-					padding: "8px 9px",
+					padding: "var(--game-card-info-padding, 8px 9px)",
 				}}
 			>
 				<p
 					style={{
 						color: UI.textPrimary,
-						fontSize: 13,
+						fontSize: "var(--game-card-name-size, 13px)",
 						fontWeight: 800,
-						lineHeight: 1.08,
-						marginBottom: 7,
+						lineHeight: "var(--game-card-line-height, 1.08)",
+						marginBottom: "var(--game-card-text-margin, 7px)",
 					}}
 				>
 					{bossName}
@@ -436,10 +444,10 @@ function BossEncounterCard({
 						<p
 							style={{
 								color: UI.textSecondary,
-								fontSize: 11,
+								fontSize: "var(--game-card-meta-size, 11px)",
 								fontWeight: 700,
-								marginTop: 6,
-								lineHeight: 1,
+								marginTop: "var(--game-card-text-margin, 6px)",
+								lineHeight: "var(--game-card-line-height, 1)",
 							}}
 						>
 							{enemy.currentLife}/{enemy.maxLife} Vida · +{enemy.hitBonus} · D
@@ -450,9 +458,9 @@ function BossEncounterCard({
 					<p
 						style={{
 							color: UI.textSecondary,
-							fontSize: 11,
+							fontSize: "var(--game-card-meta-size, 11px)",
 							fontWeight: 700,
-							lineHeight: 1.2,
+							lineHeight: "var(--game-card-line-height, 1.2)",
 						}}
 					>
 						Confronto final disponível
@@ -529,6 +537,7 @@ function ArtifactDisplayCard({
 	return (
 		<button
 			type="button"
+			className="game-card game-card--artifact"
 			onClick={onClick}
 			style={{
 				width: ACTIVE_DUNGEON_CARD.width,
@@ -549,7 +558,7 @@ function ArtifactDisplayCard({
 				flexDirection: "column",
 				justifyContent: "flex-end",
 				overflow: "hidden",
-				padding: 8,
+				padding: "var(--game-card-padding, 8px)",
 				textAlign: "left",
 			}}
 		>
@@ -557,16 +566,16 @@ function ArtifactDisplayCard({
 				style={{
 					background: "rgba(246, 240, 229, 0.86)",
 					borderRadius: 7,
-					padding: "6px",
+					padding: "var(--game-card-info-padding, 6px)",
 				}}
 			>
 				<p
 					style={{
 						color: UI.textPrimary,
-						fontSize: 11,
+						fontSize: "var(--game-card-name-size, 11px)",
 						fontWeight: 800,
-						lineHeight: 1.08,
-						marginBottom: 4,
+						lineHeight: "var(--game-card-line-height, 1.08)",
+						marginBottom: "var(--game-card-text-margin, 4px)",
 						overflow: "hidden",
 						display: "-webkit-box",
 						WebkitBoxOrient: "vertical",
@@ -575,15 +584,21 @@ function ArtifactDisplayCard({
 				>
 					{getCardName(artifact.cardId)}
 				</p>
-				<p style={{ color: UI.textTertiary, fontSize: 9, marginBottom: 4 }}>
+				<p
+					style={{
+						color: UI.textTertiary,
+						fontSize: "var(--game-card-meta-size, 9px)",
+						marginBottom: "var(--game-card-text-margin, 4px)",
+					}}
+				>
 					{bearerName}
 				</p>
 				<p
 					style={{
 						color: UI.textSecondary,
-						fontSize: 9,
+						fontSize: "var(--game-card-meta-size, 9px)",
 						fontWeight: 600,
-						lineHeight: 1.12,
+						lineHeight: "var(--game-card-line-height, 1.12)",
 						overflow: "hidden",
 						display: "-webkit-box",
 						WebkitBoxOrient: "vertical",
@@ -771,28 +786,31 @@ export function Board({
 		>
 			{/* Área principal: cartas ativas + arena */}
 			<div
-				className="game-board-content"
+				className={`game-board-content${isBossEncounter ? " game-board-content--boss" : ""}`}
 				style={{
 					display: "flex",
 					flexDirection: "column",
-					gap: "clamp(10px, 2vh, 22px)",
-					height: "calc(100% - 48px)",
+					gap: "var(--game-region-gap, clamp(10px, 2vh, 22px))",
+					height: "var(--game-content-height, calc(100% - 48px))",
 					minHeight: 0,
-					padding: "9.5vh 12vw 3vh",
+					padding: "var(--game-arena-padding, 9.5vh 12vw 3vh)",
 				}}
 			>
-				{/* Chefe final */}
-				{isBossEncounter && (
+				{/* Cartas ativas: sala + criaturas / artefatos no encontro final */}
+				{isBossEncounter ? (
 					<div
-						className="game-board-boss"
+						className="game-board-active-cards"
 						style={{
-							display: "flex",
+							display: "grid",
+							gridTemplateColumns: `var(--game-boss-columns, ${BOSS_CARD.width} repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}))`,
 							justifyContent: "center",
 							alignItems: "start",
+							columnGap: "var(--game-card-gap, clamp(12px, 1.8vw, 26px))",
 							width: "100%",
 						}}
 					>
 						<div
+							className="game-board-boss"
 							ref={(node) => {
 								if (!bossEnemy) return;
 								if (node) enemyCardRefs.current.set(bossEnemy.id, node);
@@ -816,22 +834,6 @@ export function Board({
 								}
 							/>
 						</div>
-					</div>
-				)}
-
-				{/* Cartas ativas: sala + criaturas / artefatos no encontro final */}
-				{isBossEncounter ? (
-					<div
-						className="game-board-active-cards"
-						style={{
-							display: "grid",
-							gridTemplateColumns: `repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}px)`,
-							justifyContent: "center",
-							alignItems: "start",
-							columnGap: "clamp(12px, 1.8vw, 26px)",
-							width: "100%",
-						}}
-					>
 						{Array.from({ length: ACTIVE_CARD_SLOT_COUNT }, (_, index) => {
 							const artifact = view.groupArtifacts[index] ?? null;
 							return (
@@ -856,10 +858,10 @@ export function Board({
 						className="game-board-active-cards"
 						style={{
 							display: "grid",
-							gridTemplateColumns: `${ACTIVE_DUNGEON_CARD.width}px clamp(24px, 3vw, 54px) repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}px)`,
+							gridTemplateColumns: `var(--game-encounter-columns, ${ACTIVE_DUNGEON_CARD.width} clamp(24px, 3vw, 54px) repeat(${ACTIVE_CARD_SLOT_COUNT}, ${ACTIVE_DUNGEON_CARD.width}))`,
 							justifyContent: "center",
 							alignItems: "start",
-							columnGap: "clamp(12px, 1.8vw, 26px)",
+							columnGap: "var(--game-card-gap, clamp(12px, 1.8vw, 26px))",
 							width: "100%",
 						}}
 					>
@@ -1035,12 +1037,12 @@ export function Board({
 						className="game-board-hero-strip"
 						style={{
 							display: "grid",
-							gridTemplateColumns: `repeat(${Math.min(Math.max(heroes.length, 1), MAX_HEROES)}, ${ACTIVE_DUNGEON_CARD.width}px)`,
-							gap: "clamp(10px, 1.25vw, 18px)",
+							gridTemplateColumns: `repeat(${Math.min(Math.max(heroes.length, 1), MAX_HEROES)}, ${ACTIVE_DUNGEON_CARD.width})`,
+							gap: "var(--game-card-gap, clamp(10px, 1.25vw, 18px))",
 							justifyContent: "center",
 							alignItems: "start",
 							width: "100%",
-							marginTop: "clamp(22px, 5vh, 70px)",
+							marginTop: "var(--game-hero-margin, clamp(22px, 5vh, 70px))",
 						}}
 					>
 						{heroes.map((h) => {
