@@ -37,6 +37,17 @@ export function itemActivationId(heroId: string, itemId: string): string {
 	return `${heroId}:${itemId}`;
 }
 
+export function itemIsExhausted(
+	state: GameState,
+	heroId: string,
+	itemId: string,
+): boolean {
+	const prefix = `item:${itemActivationId(heroId, itemId)}`;
+	return Object.keys({ ...state.disabled, ...state.combat?.disabled }).some(
+		(key) => key === prefix || key.startsWith(`${prefix}:`),
+	);
+}
+
 export function manualItemUnavailableReason(
 	state: GameState,
 	heroId: string,
@@ -49,13 +60,13 @@ export function manualItemUnavailableReason(
 	const location = findHeroItemLocation(hero, itemId);
 	const onRewardTable =
 		state.status === "REWARD_PHASE" &&
-		state.pendingRewards.some((reward) => reward.type === "item" && reward.cardId === itemId);
+		state.pendingRewards.some(
+			(reward) => reward.type === "item" && reward.cardId === itemId,
+		);
 	if (!location && !onRewardTable) return "Este item não pertence ao herói.";
-	// A mochila é uma área de organização, não um slot de uso durante a
-	// exploração/combate. Itens nela podem ser ativados somente enquanto a
-	// bancada de espólios está aberta.
-	if (location?.kind === "backpack" && state.status !== "REWARD_PHASE") {
-		return "Itens guardados na mochila só podem ser usados na organização de espólios.";
+	const card = getCardById(itemId);
+	if (location?.kind === "backpack") {
+		return "Equipe este item para ativá-lo.";
 	}
 	if (
 		state.paused ||
@@ -84,15 +95,16 @@ export function manualItemUnavailableReason(
 	) {
 		return "Aguarde uma janela de ação para usar o item.";
 	}
-	const card = getCardById(itemId);
 	const manualGrant = card?.grants?.find(
 		(grant) => grant.activation.kind === "manual",
 	);
 	if (card?.grants?.length) {
 		if (!manualGrant) return "Este item reage a uma janela do jogo.";
 		const grantLockId = `${heroId}:${itemId}:${manualGrant.id}`;
-		if (manualGrant.activation.limit?.maxUses === 1 &&
-			ActivationTracker.isDisabled(state, "item", grantLockId)) {
+		if (
+			manualGrant.activation.limit?.maxUses === 1 &&
+			ActivationTracker.isDisabled(state, "item", grantLockId)
+		) {
 			return "Este item já foi usado neste escopo.";
 		}
 		if (hero.currentLife <= (manualGrant.activation.cost?.hp ?? 0))
@@ -247,12 +259,13 @@ export function collectHeroHitBonusesFromItems(
 	return [
 		...continuousGrants,
 		...itemSkillSourcesForHero(hero, state).flatMap((source) => {
-		if (!skillAffectsAttackRoll(source.def)) return [];
-		if (!conditionsApply(source.def.conditions, state, hero, enemy)) return [];
-		if (source.def.id === "skill_hunter_focus") {
-			return bonusEntry(source, numericParam(source.params, "value"));
-		}
-		return modifierEntries(source, state, "hit");
+			if (!skillAffectsAttackRoll(source.def)) return [];
+			if (!conditionsApply(source.def.conditions, state, hero, enemy))
+				return [];
+			if (source.def.id === "skill_hunter_focus") {
+				return bonusEntry(source, numericParam(source.params, "value"));
+			}
+			return modifierEntries(source, state, "hit");
 		}),
 	];
 }

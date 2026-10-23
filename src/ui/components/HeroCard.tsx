@@ -3,6 +3,7 @@
 
 import type { DragEvent } from "react";
 import { getCardName } from "@/core/data/cardLocale";
+import { EQUIPMENT_SLOTS, equippedItemAt } from "@/core/rules/equipment";
 import type { HeroState } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";
 import { HpBar } from "./HpBar";
@@ -21,7 +22,7 @@ interface HeroCardProps {
 	onClick: () => void;
 }
 
-const SLOTS = ["weapon", "utility", "consumable", "special"] as const;
+const SLOTS = EQUIPMENT_SLOTS;
 
 export function HeroCard({
 	hero,
@@ -55,9 +56,9 @@ export function HeroCard({
 			? 0.45
 			: isRoundDisabled
 				? 0.42
-			: isCritical
-				? 0.55
-				: 1;
+				: isCritical
+					? 0.55
+					: 1;
 
 	const heroName = getCardName(hero.cardId);
 	const firstName = heroName.split(",")[0]?.split(" ")[0] ?? heroName;
@@ -123,11 +124,13 @@ export function HeroCard({
 				style={{
 					width: card.width,
 					height: card.height,
-					background: useCardImage
+					backgroundImage: useCardImage
 						? `linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06) 48%, rgba(246, 240, 229, 0.68) 74%, rgba(238, 232, 219, 0.9)), url("${imageUrl}")`
 						: size === "board"
 							? "linear-gradient(160deg, rgba(241, 239, 232, 0.96), rgba(225, 219, 207, 0.94))"
-							: UI.subpanelBg,
+							: undefined,
+					backgroundColor:
+						!useCardImage && size !== "board" ? UI.subpanelBg : undefined,
 					backgroundPosition: "center",
 					backgroundRepeat: "no-repeat",
 					backgroundSize: useCardImage ? "100% 100%" : "cover",
@@ -142,7 +145,9 @@ export function HeroCard({
 								? "grab"
 								: "pointer"
 							: "default",
-					filter: isRoundDisabled ? "grayscale(0.88) saturate(0.22)" : undefined,
+					filter: isRoundDisabled
+						? "grayscale(0.88) saturate(0.22)"
+						: undefined,
 					borderRadius: card.radius,
 					position: "relative",
 					padding: card.padding,
@@ -259,8 +264,8 @@ export function HeroCard({
 								<ItemTile
 									key={slot}
 									slot={slot}
-									filled={!!hero.activeItems[slot]}
-									item={hero.activeItems[slot]}
+									filled={!!equippedItemAt(hero, slot)}
+									item={equippedItemAt(hero, slot)}
 								/>
 							))}
 						</div>
@@ -274,8 +279,8 @@ export function HeroCard({
 						<ItemTile
 							key={slot}
 							slot={slot}
-							filled={!!hero.activeItems[slot]}
-							item={hero.activeItems[slot]}
+							filled={!!equippedItemAt(hero, slot)}
+							item={equippedItemAt(hero, slot)}
 						/>
 					))}
 				</div>

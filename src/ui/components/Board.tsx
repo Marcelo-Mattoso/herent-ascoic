@@ -124,7 +124,7 @@ function ActiveDungeonCard({
 				height: ACTIVE_DUNGEON_CARD.height,
 				border: `1.5px solid ${UI.borderStrong}`,
 				borderRadius: ACTIVE_DUNGEON_CARD.radius,
-				background: imageUrl
+				backgroundImage: imageUrl
 					? `linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06) 48%, rgba(246, 240, 229, 0.68) 74%, rgba(238, 232, 219, 0.9)), url("${imageUrl}")`
 					: "linear-gradient(160deg, rgba(253, 248, 239, 0.94), rgba(241, 239, 232, 0.9))",
 				backgroundPosition: "center",
@@ -249,7 +249,7 @@ function ActiveEnemyCard({
 				height: ACTIVE_DUNGEON_CARD.height,
 				border: `${borderWidth} solid ${borderColor}`,
 				borderRadius: ACTIVE_DUNGEON_CARD.radius,
-				background: imageUrl
+				backgroundImage: imageUrl
 					? `linear-gradient(180deg, rgba(255, 255, 255, 0.04), rgba(255, 255, 255, 0.06) 48%, rgba(246, 240, 229, 0.68) 74%, rgba(238, 232, 219, 0.9)), url("${imageUrl}")`
 					: "linear-gradient(160deg, rgba(241, 239, 232, 0.96), rgba(225, 219, 207, 0.94))",
 				backgroundPosition: "center",
@@ -392,7 +392,7 @@ function BossEncounterCard({
 				height: BOSS_CARD.height,
 				border: `${borderWidth} solid ${borderColor}`,
 				borderRadius: BOSS_CARD.radius,
-				background: imageUrl
+				backgroundImage: imageUrl
 					? `linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.02) 56%, rgba(247, 232, 199, 0.72) 78%, rgba(230, 200, 135, 0.96)), url("${imageUrl}")`
 					: "linear-gradient(160deg, rgba(44, 18, 12, 0.98), rgba(7, 7, 8, 0.96))",
 				backgroundPosition: "center",
@@ -538,7 +538,7 @@ function ArtifactDisplayCard({
 				height: ACTIVE_DUNGEON_CARD.height,
 				border: `1.5px solid ${UI.borderStrong}`,
 				borderRadius: ACTIVE_DUNGEON_CARD.radius,
-				background: imageUrl
+				backgroundImage: imageUrl
 					? `linear-gradient(180deg, rgba(255,255,255,0.04), rgba(255,255,255,0.05) 44%, rgba(246, 240, 229, 0.74) 68%, rgba(238, 232, 219, 0.94)), url("${imageUrl}")`
 					: "linear-gradient(160deg, rgba(253, 248, 239, 0.94), rgba(241, 239, 232, 0.9))",
 				backgroundPosition: "center",

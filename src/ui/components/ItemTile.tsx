@@ -7,10 +7,11 @@ interface ItemTileProps {
 }
 
 const SLOT_COLORS: Record<ItemSlotType, { bg: string; border: string }> = {
-	weapon: { bg: "#FAC775", border: "#BA7517" },
-	consumable: { bg: "#B5D4F4", border: "#185FA5" },
-	utility: { bg: "#C0DD97", border: "#3B6D11" },
-	special: { bg: "#ED93B1", border: "#8B1A4A" },
+	clothing1: { bg: "#C0DD97", border: "#3B6D11" },
+	clothing2: { bg: "#C0DD97", border: "#3B6D11" },
+	hand1: { bg: "#FAC775", border: "#BA7517" },
+	hand2: { bg: "#FAC775", border: "#BA7517" },
+	amulet: { bg: "#ED93B1", border: "#8B1A4A" },
 };
 
 export function ItemTile({ slot, filled, item }: ItemTileProps) {

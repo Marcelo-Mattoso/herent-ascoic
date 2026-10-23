@@ -55,11 +55,11 @@ describe("Saque Místico pendente", () => {
 		const state = {
 			...started,
 			status: "REWARD_PHASE" as const,
-			heroes: [{ ...hero, activeItems: { special: itemId } }],
+			heroes: [{ ...hero, activeItems: { amulet: itemId } }],
 			pendingRewards: [{ type: "item" as const, cardId: itemId, requiresBearer: false }],
 		};
 		const result = reducer(state, { type: "USE_ITEM", payload: { itemId, heroId: hero.id } });
-		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
+		expect(result.heroes[0]?.activeItems.amulet).toBeUndefined();
 		expect(result.pendingRewards).toEqual(state.pendingRewards);
 	});
 });

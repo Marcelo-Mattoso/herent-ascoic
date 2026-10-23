@@ -1,6 +1,6 @@
 # Playtest da Alpha Web
 
-Estado local em 23/10/2026. A publicação depende de integrar o workflow em `main`, selecionar **GitHub Actions** em Settings → Pages → Build and deployment → Source e verificar o deploy. O site público ainda não foi validado nesta tarefa.
+Estado local em 23/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200; a atualização de equipamentos desta branch ainda não foi publicada. O workflow publica a partir de `main` após os checks.
 
 ## O que testar
 
@@ -27,7 +27,7 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 
 O CI executa `npm ci`, lint sem alterações, Vitest, cobertura com os limiares de `vite.config.ts`, build para `/herent-ascoic/`, verificação de HTML/assets/manifestos/PDF e Playwright. Os três testes de navegador cobrem menu, seleção de herói, entrada no tabuleiro e resposta do PDF. Eles **não** percorrem combate completo, progressão de salas, vitória/derrota nem todos os 404 e erros de console possíveis durante uma partida longa. Os testes do core cobrem partes desses fluxos, mas o roteiro humano abaixo continua necessário.
 
-Validação local desta limpeza: lint passou; 684 testes Vitest passaram com `--maxWorkers=2 --testTimeout=15000`; cobertura passou (75,39% instruções, 65,32% ramos, 83,15% funções, 79,11% linhas); build e `verify:build` passaram; os 3 testes Playwright passaram. Um preview do `dist/` com base `/herent-ascoic/` carregou **JOGAR → seleção → tabuleiro**, PDF HTTP 200 e nenhum 404 ou erro JavaScript observado nesse percurso. O site remoto ainda responde 404 antes da publicação.
+Validação local do sistema de equipamentos: lint e tipos passaram; 694 testes Vitest passaram com `--maxWorkers=2 --testTimeout=15000`; cobertura passou (76,56% instruções, 66,53% ramos, 84,59% funções, 80,29% linhas); build e `verify:build` passaram com base `/herent-ascoic/`; os 3 testes Playwright de início de partida e PDF passaram. Um preview do build compilado iniciou com 4 heróis, abriu o tabuleiro e o PDF, sem erro JavaScript ou resposta HTTP 4xx no percurso. O fluxo completo de vitória ainda precisa de partida dirigida na interface publicada.
 
 ## Checklist para liberação
 

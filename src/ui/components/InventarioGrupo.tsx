@@ -6,11 +6,20 @@ import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { getCardById } from "@/core/data/cards";
+import {
+	BACKPACK_CAPACITY,
+	EQUIPMENT_SLOTS,
+	equippedItemAt,
+	itemAllowedForHero,
+	itemFitsSlot,
+} from "@/core/rules/equipment";
+import { moveInventoryItem } from "@/core/rules/inventoryMoves";
 import { cardAbilityGrants } from "@/core/data/abilities";
 import {
 	collectHeroDamageBonusesFromItems,
 	collectHeroDamageReductionsFromItems,
 	collectHeroHitBonusesFromItems,
+	itemIsExhausted,
 	manualItemOptions,
 	totalItemValue,
 } from "@/core/rules/itemEffects";
@@ -37,10 +46,11 @@ const SLOT_COLORS_INV: Record<
 	string,
 	{ bg: string; border: string; text: string }
 > = {
-	weapon: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
-	consumable: { bg: "#B5D4F4", border: "#185FA5", text: "#0D3A6E" },
-	utility: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" },
-	special: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" },
+	clothing1: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" },
+	clothing2: { bg: "#C0DD97", border: "#3B6D11", text: "#1B4500" },
+	hand1: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
+	hand2: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
+	amulet: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" },
 };
 
 // itemClass → cor mais próxima da paleta de slots
@@ -62,20 +72,22 @@ function itemColor(itemId: string) {
 
 // ── Outros helpers ────────────────────────────────────────────────────────────
 
-const SLOT_TYPES: ItemSlotType[] = ["weapon", "utility", "consumable", "special"];
+const SLOT_TYPES = EQUIPMENT_SLOTS;
 const SLOT_LABELS: Record<ItemSlotType, string> = {
-	weapon: "arm",
-	consumable: "con",
-	utility: "utl",
-	special: "esp",
+	clothing1: "ves1",
+	clothing2: "ves2",
+	hand1: "mão1",
+	hand2: "mão2",
+	amulet: "amu",
 };
 const SLOT_TITLES: Record<ItemSlotType, string> = {
-	weapon: "Arma",
-	consumable: "Consumível",
-	utility: "Utilidade",
-	special: "Especial",
+	clothing1: "Vestimenta 1",
+	clothing2: "Vestimenta 2",
+	hand1: "Mão 1",
+	hand2: "Mão 2",
+	amulet: "Amuleto",
 };
-const MAX_BACKPACK = 8;
+const MAX_BACKPACK = BACKPACK_CAPACITY;
 
 function shortLabel(name: string): string {
 	const word = name.split(" ")[0] ?? name;
@@ -264,7 +276,12 @@ interface HeroColumnProps {
 	onShowTooltip: (t: TooltipTarget) => void;
 	onHideTooltip: () => void;
 	onUseItem: (itemId: string, heroId: string) => void;
-	onEquipFromBackpack: (itemId: string, heroId: string, index: number) => void;
+	onEquipFromBackpack: (
+		itemId: string,
+		heroId: string,
+		index: number,
+		slotType?: ItemSlotType,
+	) => void;
 	onItemDetail: (itemId: string, heroId: string) => void;
 	onHeroDetail: (hero: HeroState) => void;
 	gameState: GameState;
@@ -290,6 +307,13 @@ function HeroColumn({
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
 	const [backpackOpen, setBackpackOpen] = useState(false);
+	const [selectedBackpackItem, setSelectedBackpackItem] = useState<{
+		itemId: string;
+		index: number;
+	} | null>(null);
+	const [selectionFeedback, setSelectionFeedback] = useState<string | null>(
+		null,
+	);
 	const usableItemIds = new Set(
 		manualItemOptions(gameState, hero.id).map((item) => item.itemId),
 	);
@@ -297,7 +321,45 @@ function HeroColumn({
 	function canEquipDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
 		const card = getCardById(dragging.name);
-		return card?.type === "item";
+		return (
+			card?.type === "item" &&
+			!!card.equipmentSlot &&
+			itemAllowedForHero(card, hero) &&
+			!!moveInventoryItem(gameState, dragging.name, dragging.from, {
+				kind: "hero_equip",
+				heroId: hero.id,
+			})
+		);
+	}
+
+	function slotDropHandlers(slotType: ItemSlotType) {
+		const zone = `${equipZone}:${slotType}`;
+		const card = dragging ? getCardById(dragging.name) : null;
+		const valid =
+			!!dragging &&
+			card?.type === "item" &&
+			itemFitsSlot(card, slotType) &&
+			!!moveInventoryItem(gameState, dragging.name, dragging.from, {
+				kind: "hero_equip",
+				heroId: hero.id,
+				slotType,
+			});
+		return {
+			isValidDrop: dragging ? valid : undefined,
+			isHover: hoverZone === zone,
+			onDragOver: (event: React.DragEvent) => {
+				event.stopPropagation();
+				event.preventDefault();
+				onSetHover(zone);
+			},
+			onDragLeave: () => onSetHover(null),
+			onDrop: (event: React.DragEvent) => {
+				event.preventDefault();
+				event.stopPropagation();
+				onSetHover(null);
+				onDrop(zone);
+			},
+		};
 	}
 
 	function canMochilaDrag(): boolean {
@@ -317,19 +379,41 @@ function HeroColumn({
 	const effectiveStats = heroItemStats(hero, gameState);
 	const backpackDropActive = canMochilaDrag();
 
-	function areaDropHandlers(zone: string, valid: boolean) {
+	function chooseEquipmentSlot(slotType: ItemSlotType) {
+		if (!selectedBackpackItem) return;
+		const from = {
+			kind: "hero_backpack" as const,
+			heroId: hero.id,
+			index: selectedBackpackItem.index,
+		};
+		const to = { kind: "hero_equip" as const, heroId: hero.id, slotType };
+		if (!moveInventoryItem(gameState, selectedBackpackItem.itemId, from, to)) {
+			setSelectionFeedback(
+				"Espaço incompatível ou sem destino para o item substituído.",
+			);
+			return;
+		}
+		onEquipFromBackpack(
+			selectedBackpackItem.itemId,
+			hero.id,
+			selectedBackpackItem.index,
+			slotType,
+		);
+		setSelectedBackpackItem(null);
+		setSelectionFeedback(null);
+	}
+
+	function areaDropHandlers(zone: string) {
 		return {
 			onDragOver: (e: React.DragEvent) => {
-				if (valid) {
-					e.preventDefault();
-					onSetHover(zone);
-				}
+				e.preventDefault();
+				onSetHover(zone);
 			},
 			onDragLeave: () => onSetHover(null),
 			onDrop: (e: React.DragEvent) => {
 				e.preventDefault();
 				onSetHover(null);
-				if (valid) onDrop(zone);
+				onDrop(zone);
 			},
 		};
 	}
@@ -341,7 +425,7 @@ function HeroColumn({
 		<div
 			className="inventory-hero-card"
 			style={{
-				width: 178,
+				width: 208,
 			}}
 		>
 			<button
@@ -355,12 +439,23 @@ function HeroColumn({
 				i
 			</button>
 
-			{/* 4 slots de equipamento — zona de drop inteira */}
+			{/* Espaços de equipamento — zona de drop inteira */}
+			{selectedBackpackItem && (
+				<p style={{ fontSize: 10, color: "#f2dfad" }}>
+					Toque no espaço para trocar {getCardName(selectedBackpackItem.itemId)}
+					.
+				</p>
+			)}
+			{selectionFeedback && (
+				<p role="alert" style={{ fontSize: 10, color: "#FCA5A5" }}>
+					{selectionFeedback}
+				</p>
+			)}
 			<div
-				{...areaDropHandlers(equipZone, canEquip)}
+				{...areaDropHandlers(equipZone)}
 				style={{
 					display: "grid",
-					gridTemplateColumns: "repeat(4, 36px)",
+					gridTemplateColumns: "repeat(5, 36px)",
 					gap: 4,
 					marginBottom: 6,
 					borderRadius: 4,
@@ -376,7 +471,10 @@ function HeroColumn({
 				}}
 			>
 				{SLOT_TYPES.map((slotType) => {
-					const name = hero.activeItems[slotType];
+					const name = equippedItemAt(hero, slotType);
+					const isTwoHandOverlay =
+						slotType === "hand2" && !!name && !hero.activeItems.hand2;
+					const exhausted = !!name && itemIsExhausted(gameState, hero.id, name);
 					const col = name
 						? (SLOT_COLORS_INV[slotType] ?? itemColor(name))
 						: null;
@@ -385,15 +483,24 @@ function HeroColumn({
 						dragging.from.heroId === hero.id &&
 						dragging.from.slotType === slotType;
 
-					return name ? (
+					return name && !isTwoHandOverlay ? (
 						<div key={slotType} style={{ display: "grid", gap: 2 }}>
 							<Slot
-								label={shortLabel(name)}
-								color={col}
+								{...slotDropHandlers(slotType)}
+								label={shortLabel(getCardName(name))}
+								color={
+									exhausted
+										? { bg: "#B8B8B8", border: "#777", text: "#333" }
+										: col
+								}
 								filled
 								draggable
 								isDragging={isThisItemDragging}
-								onClick={() => onItemDetail(name, hero.id)}
+								onClick={() =>
+									selectedBackpackItem
+										? chooseEquipmentSlot(slotType)
+										: onItemDetail(name, hero.id)
+								}
 								onDragStart={(e) => {
 									e.dataTransfer.setData("text/plain", name);
 									onDragItemStart(name, {
@@ -403,18 +510,44 @@ function HeroColumn({
 									});
 								}}
 								onDragEnd={onDragEnd}
-								onMouseEnter={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
-								onMouseMove={(e) => onShowTooltip({ name, kind: "item", x: e.clientX, y: e.clientY, heroId: hero.id })}
+								onMouseEnter={(e) =>
+									onShowTooltip({
+										name,
+										kind: "item",
+										x: e.clientX,
+										y: e.clientY,
+										heroId: hero.id,
+									})
+								}
+								onMouseMove={(e) =>
+									onShowTooltip({
+										name,
+										kind: "item",
+										x: e.clientX,
+										y: e.clientY,
+										heroId: hero.id,
+									})
+								}
 								onMouseLeave={onHideTooltip}
 							/>
 							{usableItemIds.has(name) && (
-								<button type="button" onClick={() => onUseItem(name, hero.id)} style={{ fontSize: 10, padding: "1px 0" }}>
+								<button
+									type="button"
+									onClick={() => onUseItem(name, hero.id)}
+									style={{ fontSize: 10, padding: "1px 0" }}
+								>
 									Usar
 								</button>
 							)}
 						</div>
 					) : (
-						<Slot key={slotType} label={SLOT_LABELS[slotType]} />
+						<Slot
+							key={slotType}
+							{...slotDropHandlers(slotType)}
+							label={isTwoHandOverlay ? "2 mãos" : SLOT_LABELS[slotType]}
+							filled={isTwoHandOverlay}
+							onClick={() => chooseEquipmentSlot(slotType)}
+						/>
 					);
 				})}
 			</div>
@@ -460,7 +593,7 @@ function HeroColumn({
 			<div
 				role="group"
 				aria-label={`Mochila de ${heroName}`}
-				{...areaDropHandlers(mochilaZone, canMochila)}
+				{...areaDropHandlers(mochilaZone)}
 				className="inventory-backpack-wrap"
 				data-item="true"
 				onMouseLeave={onHideTooltip}
@@ -514,7 +647,16 @@ function HeroColumn({
 									dragging.from.heroId === hero.id &&
 									dragging.from.index === i;
 								const canUse = usableItemIds.has(name);
-								const canEquip = itemCard?.type === "item";
+								const canChooseSlot =
+									itemCard?.type === "item" && !!itemCard.equipmentSlot;
+								const canEquip =
+									canChooseSlot &&
+									!!moveInventoryItem(
+										gameState,
+										name,
+										{ kind: "hero_backpack", heroId: hero.id, index: i },
+										{ kind: "hero_equip", heroId: hero.id },
+									);
 
 								return (
 									<div
@@ -523,7 +665,7 @@ function HeroColumn({
 										role="button"
 										tabIndex={0}
 										aria-label={`Detalhes de ${itemName}`}
-									data-item="true"
+										data-item="true"
 										draggable
 										onClick={() => onItemDetail(name, hero.id)}
 										onKeyDown={(event) => {
@@ -560,12 +702,14 @@ function HeroColumn({
 											})
 										}
 										onMouseLeave={onHideTooltip}
-										style={{
-											"--inventory-item-bg": col?.bg ?? "#F1EFE8",
-											"--inventory-item-border": col?.border ?? UI.border,
-											"--inventory-item-text": col?.text ?? UI.textPrimary,
-											opacity: isThisItemDragging ? 0.35 : 1,
-										} as CSSProperties}
+										style={
+											{
+												"--inventory-item-bg": col?.bg ?? "#F1EFE8",
+												"--inventory-item-border": col?.border ?? UI.border,
+												"--inventory-item-text": col?.text ?? UI.textPrimary,
+												opacity: isThisItemDragging ? 0.35 : 1,
+											} as CSSProperties
+										}
 									>
 										<span aria-hidden="true" />
 										<strong title={itemName}>{itemName}</strong>
@@ -593,6 +737,21 @@ function HeroColumn({
 												style={{ marginLeft: "auto", fontSize: 10 }}
 											>
 												Equipar
+											</button>
+										)}
+										{canChooseSlot && !canEquip && (
+											<button
+												type="button"
+												onMouseDown={(event) => event.stopPropagation()}
+												onClick={(event) => {
+													event.stopPropagation();
+													setSelectedBackpackItem({ itemId: name, index: i });
+													setBackpackOpen(false);
+													setSelectionFeedback(null);
+												}}
+												style={{ marginLeft: "auto", fontSize: 10 }}
+											>
+												Trocar
 											</button>
 										)}
 									</div>
@@ -646,6 +805,9 @@ export function InventarioGrupo() {
 		heroId: string;
 		itemId?: string;
 	} | null>(null);
+	const [inventoryFeedback, setInventoryFeedback] = useState<string | null>(
+		null,
+	);
 
 	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
 	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
@@ -698,10 +860,16 @@ export function InventarioGrupo() {
 			if (zone === "mesa") {
 				return dragging.from.kind !== "mesa";
 			}
-			// Equip: todo item possui um dos quatro slots do manual.
+			// Equipamento: a regra do core valida espaço, classe e conflitos.
 			if (zone.startsWith("hero_equip_")) {
-				const card = getCardById(dragging.name);
-				return card?.type === "item";
+				const [heroId, slotType] = zone
+					.slice("hero_equip_".length)
+					.split(":") as [string, ItemSlotType | undefined];
+				return !!moveInventoryItem(state, dragging.name, dragging.from, {
+					kind: "hero_equip",
+					heroId,
+					slotType,
+				});
 			}
 			// Mochila: aceita se tiver espaço
 			if (zone.startsWith("hero_mochila_")) {
@@ -758,13 +926,18 @@ export function InventarioGrupo() {
 		setHoverZone(null);
 	}
 
-	function handleEquipFromBackpack(itemId: string, heroId: string, index: number) {
+	function handleEquipFromBackpack(
+		itemId: string,
+		heroId: string,
+		index: number,
+		slotType?: ItemSlotType,
+	) {
 		dispatch({
 			type: "INV_MOVE",
 			payload: {
 				itemId,
 				from: { kind: "hero_backpack", heroId, index },
-				to: { kind: "hero_equip", heroId },
+				to: { kind: "hero_equip", heroId, slotType },
 			},
 		});
 	}
@@ -772,14 +945,24 @@ export function InventarioGrupo() {
 	// ── Drop ─────────────────────────────────────────────────────────────────
 
 	function handleZoneDrop(zone: string) {
-		if (!dragging || !isValidZone(zone)) return;
+		if (!dragging) return;
+		if (!isValidZone(zone)) {
+			setInventoryFeedback(
+				"Movimento inválido: confira o espaço, a classe e a capacidade da mochila.",
+			);
+			return;
+		}
+		setInventoryFeedback(null);
 
 		if (dragging.kind === "item") {
 			let to: InvToZone;
 			if (zone === "mesa") {
 				to = { kind: "mesa" };
 			} else if (zone.startsWith("hero_equip_")) {
-				to = { kind: "hero_equip", heroId: zone.replace("hero_equip_", "") };
+				const [heroId, slotType] = zone
+					.slice("hero_equip_".length)
+					.split(":") as [string, ItemSlotType | undefined];
+				to = { kind: "hero_equip", heroId, slotType };
 			} else if (zone.startsWith("hero_mochila_")) {
 				to = {
 					kind: "hero_backpack",
@@ -870,6 +1053,11 @@ export function InventarioGrupo() {
 							</div>
 						</div>
 					</div>
+					{inventoryFeedback && (
+						<p role="alert" style={{ color: "#FCA5A5", margin: "4px 12px" }}>
+							{inventoryFeedback}
+						</p>
+					)}
 
 					<section className="inventory-section">
 						<div className="inventory-table-row">
@@ -892,7 +1080,9 @@ export function InventarioGrupo() {
 									} as CSSProperties
 								}
 							>
-								<p className="inventory-drop-panel__label">Itens não guardados</p>
+								<p className="inventory-drop-panel__label">
+									Itens não guardados
+								</p>
 								<div className="inventory-card-grid">
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
@@ -1080,7 +1270,11 @@ export function InventarioGrupo() {
 										onUseItem={handleUseItemFromTooltip}
 										onEquipFromBackpack={handleEquipFromBackpack}
 										onItemDetail={(itemId, heroId) =>
-											setDetailCard({ cardId: itemId, cardType: "item", heroId })
+											setDetailCard({
+												cardId: itemId,
+												cardType: "item",
+												heroId,
+											})
 										}
 										onHeroDetail={setFocusedHero}
 										gameState={state}
@@ -1230,7 +1424,16 @@ function HeroInventoryModal({
 						<HeroEquipmentCard
 							key={slotType}
 							slotType={slotType}
-							itemId={hero.activeItems[slotType]}
+							itemId={equippedItemAt(hero, slotType)}
+							occupiedByTwoHands={
+								slotType === "hand2" &&
+								!!equippedItemAt(hero, slotType) &&
+								!hero.activeItems.hand2
+							}
+							exhausted={
+								!!hero.activeItems[slotType] &&
+								itemIsExhausted(gameState, hero.id, hero.activeItems[slotType])
+							}
 							cardImageUrls={cardImageUrls}
 							onItemDetail={onItemDetail}
 						/>
@@ -1278,11 +1481,37 @@ function HeroInventoryModal({
 								</span>
 							</div>
 							<div className="inventory-hero-modal__passive">
-								<strong>Passiva</strong>
-								<p>{passive || "Sem habilidade passiva listada."}</p>
+								<strong>Habilidades e poderes</strong>
+								{cardSkills(hero.cardId).length > 0 ? (
+									cardSkills(hero.cardId).map(({ def, ref }) => (
+										<p key={def.id}>{renderSkillLabel(ref)}</p>
+									))
+								) : (
+									<p>{passive || "Sem habilidade listada."}</p>
+								)}
 							</div>
 						</div>
 					</section>
+					<div className="inventory-hero-modal__backpack">
+						<strong>
+							Mochila ({hero.backpack.length}/{BACKPACK_CAPACITY})
+						</strong>
+						<div className="inventory-hero-modal__backpack-slots">
+							{Array.from({ length: BACKPACK_CAPACITY }, (_, index) => {
+								const itemId = hero.backpack[index];
+								return (
+									<button
+										key={index}
+										type="button"
+										disabled={!itemId}
+										onClick={() => itemId && onItemDetail(itemId)}
+									>
+										{itemId ? getCardName(itemId) : `Vazio ${index + 1}`}
+									</button>
+								);
+							})}
+						</div>
+					</div>
 				</div>
 			</div>
 		</div>
@@ -1292,11 +1521,15 @@ function HeroInventoryModal({
 function HeroEquipmentCard({
 	slotType,
 	itemId,
+	occupiedByTwoHands,
+	exhausted,
 	cardImageUrls,
 	onItemDetail,
 }: {
 	slotType: ItemSlotType;
 	itemId?: string;
+	occupiedByTwoHands?: boolean;
+	exhausted?: boolean;
 	cardImageUrls: CardImageUrls;
 	onItemDetail: (itemId: string) => void;
 }) {
@@ -1304,6 +1537,16 @@ function HeroEquipmentCard({
 	const itemName = itemId ? getCardName(itemId) : "";
 	const imageUrl = itemId ? getCardImageUrl(cardImageUrls, itemId) : undefined;
 	const effect = itemId ? getPrimarySkillText(itemId) : "";
+	if (occupiedByTwoHands) {
+		return (
+			<div
+				className={`inventory-hero-modal__equipment inventory-hero-modal__equipment--${slotType}`}
+			>
+				<span>{slotName}</span>
+				<p>Ocupado por {itemName} (duas mãos)</p>
+			</div>
+		);
+	}
 
 	if (!itemId) {
 		return (
@@ -1320,6 +1563,7 @@ function HeroEquipmentCard({
 		<button
 			type="button"
 			className={`inventory-hero-modal__equipment inventory-hero-modal__equipment--${slotType}`}
+			style={exhausted ? { filter: "grayscale(1)", opacity: 0.65 } : undefined}
 			onClick={() => onItemDetail(itemId)}
 		>
 			<span className="inventory-hero-modal__slot-label">{slotName}</span>
@@ -1331,6 +1575,7 @@ function HeroEquipmentCard({
 				)}
 			</div>
 			<strong title={itemName}>{itemName}</strong>
+			{exhausted && <small>EXHAUSTED</small>}
 			<p>{effect}</p>
 		</button>
 	);
@@ -1444,7 +1689,9 @@ function ItemTooltipPanel({
 	const canUseItem =
 		isItem &&
 		!!target.heroId &&
-		cardAbilityGrants(card.id).some((grant) => grant.activation.kind === "manual");
+		cardAbilityGrants(card.id).some(
+			(grant) => grant.activation.kind === "manual",
+		);
 
 	return (
 		<div

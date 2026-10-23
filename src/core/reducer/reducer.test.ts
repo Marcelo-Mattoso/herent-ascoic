@@ -233,7 +233,7 @@ describe("USE_ITEM", () => {
 		const artifactId = "artifact_crimson_jailer_chain";
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, activeItems: { special: itemId } }],
+			heroes: [{ ...hero, activeItems: { amulet: itemId } }],
 			decks: {
 				...started.decks,
 				artifactDeck: {
@@ -250,7 +250,7 @@ describe("USE_ITEM", () => {
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
+		expect(result.heroes[0]?.activeItems.amulet).toBeUndefined();
 		expect(result.pendingRewards).toHaveLength(0);
 		expect(result.groupArtifacts).toContainEqual({
 			cardId: artifactId,
@@ -275,7 +275,7 @@ describe("USE_ITEM", () => {
 			heroes: [
 				{
 					...hero,
-					activeItems: { ...hero.activeItems, special: itemId },
+					activeItems: { ...hero.activeItems, amulet: itemId },
 					backpack: [],
 				},
 			],
@@ -295,7 +295,7 @@ describe("USE_ITEM", () => {
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.heroes[0]?.activeItems.special).toBeUndefined();
+		expect(result.heroes[0]?.activeItems.amulet).toBeUndefined();
 		expect(result.pendingRewards).toHaveLength(0);
 		expect(result.groupArtifacts[0]).toMatchObject({
 			cardId: artifactId,
@@ -353,7 +353,7 @@ describe("USE_ITEM", () => {
 		s = {
 			...s,
 			heroes: [
-				{ ...hero, activeItems: { consumable: "item_living_ember_potion" } },
+				{ ...hero, activeItems: { hand1: "item_living_ember_potion" } },
 			],
 			activeEnemies: [{ ...enemy, currentLife: 1 }],
 		};
@@ -583,7 +583,7 @@ describe("USE_ITEM", () => {
 						...hero,
 						currentLife: 12,
 						hitBonus: 0,
-						activeItems: { weapon: "item_ancient_metal_armor" },
+						activeItems: { hand1: "item_ancient_metal_armor" },
 					},
 				],
 				activeEnemies: [{ ...enemy, damage: 5, currentLife: 8 }],
@@ -622,7 +622,7 @@ describe("USE_ITEM", () => {
 				heroes: [
 					{
 						...hero,
-						activeItems: { weapon: "item_broken_stone_hammer" },
+						activeItems: { hand1: "item_broken_stone_hammer" },
 					},
 				],
 				activeEnemies: [{ ...enemy, currentLife: 10 }],

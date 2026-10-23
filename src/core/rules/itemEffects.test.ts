@@ -11,7 +11,7 @@ import {
 
 function state(): GameState {
 	const base = createInitialGameState({ heroCardIds: [] });
-	const hero: HeroState = { id: "h1", cardId: "hero_crimson_barbarian", maxLife: 10, currentLife: 8, damage: 3, hitBonus: 0, dice: 2, impeto: 0, activeItems: { weapon: "item_rusty_dagger" }, backpack: ["item_lesser_vigor_potion"], usedPowers: {}, conditions: [], status: "active", playerIndex: 0, xp: 0 };
+	const hero: HeroState = { id: "h1", cardId: "hero_crimson_barbarian", maxLife: 10, currentLife: 8, damage: 3, hitBonus: 0, dice: 2, impeto: 0, activeItems: { hand1: "item_rusty_dagger" }, backpack: ["item_lesser_vigor_potion"], usedPowers: {}, conditions: [], status: "active", playerIndex: 0, xp: 0 };
 	return { ...base, heroes: [hero], activeEnemies: [{ id: "e1", cardId: "creature_dark_cave_goblin", maxLife: 5, currentLife: 5, damage: 1, hitBonus: 0, dice: 1, tokens: {}, conditions: [], firstDamageTakenThisTurn: false, status: "active" }], combat: { ...createEmptyCombatState(), pairs: [{ heroId: "h1", enemyId: "e1" }] } };
 }
 
@@ -20,10 +20,10 @@ describe("efeitos de itens — utilidades", () => {
 		const s = state();
 		const hero = s.heroes[0]!;
 		expect(itemActivationId("h1", "x")).toBe("h1:x");
-		expect(findHeroItemLocation(hero, "item_rusty_dagger")).toEqual({ kind: "active", slot: "weapon" });
+		expect(findHeroItemLocation(hero, "item_rusty_dagger")).toEqual({ kind: "active", slot: "hand1" });
 		expect(findHeroItemLocation(hero, "item_lesser_vigor_potion")).toEqual({ kind: "backpack", index: 0 });
 		expect(findHeroItemLocation(hero, "missing")).toBeNull();
-		expect(removeHeroItem(s, "h1", "item_rusty_dagger").heroes[0]?.activeItems.weapon).toBeUndefined();
+		expect(removeHeroItem(s, "h1", "item_rusty_dagger").heroes[0]?.activeItems.hand1).toBeUndefined();
 		expect(removeHeroItem(s, "h1", "item_lesser_vigor_potion").heroes[0]?.backpack).toEqual([]);
 	});
 
@@ -41,7 +41,7 @@ describe("efeitos de itens — utilidades", () => {
 		expect(itemCanBeUsedManually({ operate_type: "op_triggered", effect: [{ kind: "i_draw", pile: "dungeon", count: 1 }] } as never)).toBe(true);
 	});
 
-	it("só libera item da mochila durante a organização de espólios", () => {
+	it("item da mochila precisa ser equipado antes de ativar", () => {
 		const outsideRewards = state();
 		expect(
 			manualItemUnavailableReason(
@@ -49,14 +49,14 @@ describe("efeitos de itens — utilidades", () => {
 				"h1",
 				"item_lesser_vigor_potion",
 			),
-		).toContain("organização de espólios");
+		).toContain("Equipe este item");
 		expect(
 			manualItemUnavailableReason(
 				{ ...outsideRewards, status: "REWARD_PHASE" },
 				"h1",
 				"item_lesser_vigor_potion",
 			),
-		).toBeNull();
+		).toContain("Equipe este item");
 	});
 
 	it("soma e formata somente modificadores relevantes", () => {

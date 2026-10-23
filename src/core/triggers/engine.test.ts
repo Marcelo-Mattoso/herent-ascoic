@@ -26,7 +26,7 @@ function stateWithBarbarianAndDagger(): GameState {
 				hitBonus: 5,
 				dice: 1,
 				impeto: 0,
-				activeItems: { weapon: "item_rusty_dagger" },
+				activeItems: { hand1: "item_rusty_dagger" },
 				backpack: [],
 				usedPowers: {},
 				conditions: [],

@@ -579,6 +579,7 @@ export function reducerCore(state: GameState, action: Action): GameState {
 
 export function reducer(state: GameState, action: Action): GameState {
 	const next = reducerCore(state, action);
+	if (next === state && (action.type === "INV_MOVE" || action.type === "INV_ASSIGN_ITEM" || action.type === "CHOOSE_ITEM_DESTINATION")) return state;
 	const newEntry = { seq: 0, action };
 	if (action.type === "START_GAME") {
 		return { ...next, actionLog: [newEntry] };

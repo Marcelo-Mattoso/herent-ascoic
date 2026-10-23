@@ -1,4 +1,4 @@
-﻿// Testes para triggers adicionados: while_in_play, combat_if_dungeon_red_or_purple,
+// Testes para triggers adicionados: while_in_play, combat_if_dungeon_red_or_purple,
 // on_destroyed, combat (Fio Mortal), e filtro combat_against_self.
 
 import { describe, expect, it } from "vitest";
@@ -281,7 +281,7 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			hitBonus: 0,
 			dice: 2,
 			impeto: 0,
-			activeItems: { weapon: "item_rusty_dagger" },
+			activeItems: { hand1: "item_rusty_dagger" },
 			backpack: [],
 			usedPowers: {},
 			conditions: [],

@@ -30,13 +30,3 @@ export const FEATURE_FLAGS = {
 	enableSubBosses: false,
 	enableSave: false,
 } as const;
-
-// Mapeamento de itemClass → slot de equipamento no HeroState.
-// É um mapeamento estrutural (não é dado de balanceamento), fica aqui.
-export const ITEM_CLASS_TO_SLOT = {
-	equipment: "weapon",
-	utility: "utility",
-	special: "special",
-	charm: "special",
-	consumable: "consumable",
-} as const;

@@ -1901,9 +1901,10 @@ body {
 .inventory-hero-modal__stage {
 	display: grid;
 	grid-template-areas:
-		". weapon ."
-		"armor hero utility"
-		". special .";
+		"clothing1 hero hand1"
+		"clothing2 hero hand2"
+		". amulet ."
+		"backpack backpack backpack";
 	grid-template-columns: minmax(160px, 1fr) minmax(230px, 290px) minmax(
 			160px,
 			1fr
@@ -2024,25 +2025,14 @@ body {
 	outline: none;
 }
 
-.inventory-hero-modal__equipment--weapon {
-	grid-area: weapon;
-	justify-self: center;
-	max-width: 220px;
-}
-
-.inventory-hero-modal__equipment--armor {
-	grid-area: armor;
-}
-
-.inventory-hero-modal__equipment--utility {
-	grid-area: utility;
-}
-
-.inventory-hero-modal__equipment--special {
-	grid-area: special;
-	justify-self: center;
-	max-width: 220px;
-}
+.inventory-hero-modal__equipment--clothing1 { grid-area: clothing1; }
+.inventory-hero-modal__equipment--clothing2 { grid-area: clothing2; }
+.inventory-hero-modal__equipment--hand1 { grid-area: hand1; }
+.inventory-hero-modal__equipment--hand2 { grid-area: hand2; }
+.inventory-hero-modal__equipment--amulet { grid-area: amulet; justify-self: center; max-width: 220px; }
+.inventory-hero-modal__backpack { grid-area: backpack; color: #f2dfad; }
+.inventory-hero-modal__backpack-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+.inventory-hero-modal__backpack-slots button { min-height: 44px; border: 1px dashed rgba(227, 172, 55, 0.42); border-radius: 5px; background: rgba(5, 15, 29, 0.64); color: #f2dfad; padding: 6px; }
 
 .inventory-hero-modal__equipment--empty {
 	min-height: 96px;
@@ -2638,16 +2628,17 @@ body {
 	.inventory-hero-modal__stage {
 		grid-template-areas:
 			"hero"
-			"weapon"
-			"armor"
-			"utility"
-			"special";
+			"clothing1"
+			"clothing2"
+			"hand1"
+			"hand2"
+			"amulet"
+			"backpack";
 		grid-template-columns: 1fr;
 		min-height: 0;
 	}
 
-	.inventory-hero-modal__equipment--weapon,
-	.inventory-hero-modal__equipment--special {
+	.inventory-hero-modal__equipment--amulet {
 		max-width: none;
 	}
 

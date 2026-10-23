@@ -13,7 +13,8 @@ O [manual em PDF](../public/rules/ascensao-heroica-manual.pdf) é a referência 
 - Decisão do autor: usar habilidade ou poder manual em combate bloqueia o ataque daquele herói **na rodada**, sem encerrar sua oportunidade de usar item ou passar. O manual posterior citado pelo autor não estabelece esse bloqueio geral; preserve a decisão digital até revisão explícita.
 - No computador, arrastar o herói ao inimigo e selecionar herói seguido de inimigo executam o mesmo ataque. A sequência por clique também serve ao touch. Um gesto cancelado não inicia ataque.
 - O core valida alvos: cura/proteção em heróis válidos, efeitos ofensivos em inimigos ativos e efeitos pessoais no próprio herói. Com vários alvos, a escolha fica pendente no modal.
-- Usar item não encerra o turno. Itens equipados podem ser usados na janela adequada; item na mochila só pode ser ativado durante a organização de espólios, ou deve ser equipado primeiro. Consumíveis vão ao descarte; o item especial de obtenção de artefato é removido; reutilizáveis respeitam o limite da carta, com sala como padrão. Virar um item não cancela seus bônus passivos.
+- Cada herói tem duas vestimentas, duas mãos, um amuleto e três espaços de mochila. O `equipmentSlot` explícito da carta define onde ela pode ser equipada; itens de duas mãos bloqueiam ambas. Cartas sem `equipmentSlot` não recebem um espaço pela categoria. Movimentação e trocas só ocorrem na fase de espólios, sem perda de cartas quando um destino está cheio.
+- Usar item não encerra o turno. Itens na mochila devem ser equipados antes de ativar efeitos; consumíveis equipados vão ao descarte ao usar. O item especial de obtenção de artefato é removido; reutilizáveis respeitam o limite da carta, com sala como padrão. Exaurir um item impede nova ativação até a recuperação do escopo, sem desequipá-lo ou cancelar bônus passivos.
 - Cancelar a escolha de alvo ou pular opção voluntária consome o uso quando há cooldown; poderes contam como uso único. O cancelamento não aplica o efeito nem paga HP.
 - O limite por sala vale também fora de combate, é preservado ao iniciar combate e se renova ao sair da sala após os efeitos de saída. `ActivationTracker` é a base comum dos bloqueios por escopo.
 - Gatilhos reativos mantêm suas janelas e custos próprios. Não converta uma habilidade reativa em botão manual só por causa de seu texto.
@@ -21,7 +22,7 @@ O [manual em PDF](../public/rules/ascensao-heroica-manual.pdf) é a referência 
 ## Pontos a confirmar
 
 - O PDF entregue no site é a cópia de 25 páginas da especificação v2. Em `Downloads` há um arquivo posterior, `Ascensão Heróica - regras e faq.pdf`, com 39 páginas e bytes diferentes, citado em decisões de agosto/setembro de 2026. Ele **não está no repositório**. A troca do manual e a reconciliação de regras dependem de confirmação do autor; o asset público atual foi preservado.
-- O manual v2 diz que itens na mochila não estão ativos, salvo texto de carta. A janela digital de organização permite seu uso na fase de recompensa; essa interpretação deve ser confirmada.
+- O manual v2 diz que itens na mochila não estão ativos, salvo texto de carta. A Alpha exige equipá-los para uso; efeitos que mencionam exceções de mochila ainda precisam de validação dirigida.
 - Habilidades com valores em pares `a/b` no caminho DSL reativo usam hoje o primeiro valor para ambos os modificadores. Pares assimétricos precisam de auditoria antes de alteração de regra ou formato.
 
 Consulte [PLAYTEST.md](PLAYTEST.md) para limitações e cenários ainda sem validação dirigida.

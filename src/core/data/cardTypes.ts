@@ -111,10 +111,14 @@ export type ItemClass =
 	| "special"
 	| "charm";
 
+export type EquipmentSlot = "clothing" | "one_hand" | "two_hands" | "amulet";
+
 export interface ItemCard {
 	readonly type: "item";
 	readonly id: string;
 	readonly itemClass: ItemClass;
+	readonly equipmentSlot?: EquipmentSlot;
+	readonly allowedHeroIds?: readonly string[];
 	readonly useTiming?: "pre_combat" | "damage_response";
 	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];

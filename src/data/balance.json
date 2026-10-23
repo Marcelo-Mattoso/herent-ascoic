@@ -14,5 +14,5 @@
 		"hard": { "heroOffset": 0, "despertarOffset": 1 },
 		"nightmare": { "heroOffset": 0, "despertarOffset": 2 }
 	},
-	"backpackLimit": null
+	"backpackLimit": 3
 }
