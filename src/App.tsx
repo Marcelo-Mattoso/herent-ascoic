@@ -45,15 +45,22 @@ function App() {
 	return (
 		<>
 			{screen}
-			<RulesAccess />
+			<RulesAccess
+				inGame={
+					status !== "MAIN_MENU" && status !== "VICTORY" && status !== "DEFEAT"
+				}
+			/>
 		</>
 	);
 }
 
-function RulesAccess() {
+function RulesAccess({ inGame }: { inGame: boolean }) {
 	const manualUrl = publicAssetUrl("rules/ascensao-heroica-manual.pdf");
 	return (
-		<nav className="rules-access" aria-label="Manual de regras">
+		<nav
+			className={`rules-access${inGame ? " rules-access--in-game" : ""}`}
+			aria-label="Manual de regras"
+		>
 			<a href={manualUrl} target="_blank" rel="noopener noreferrer">
 				? Regras
 			</a>

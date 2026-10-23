@@ -1,3 +1,4 @@
+import { useEffect, useRef } from "react";
 import { UI } from "@/ui/theme";
 
 interface ModalProps {
@@ -13,6 +14,17 @@ export function Modal({
 	onClose,
 	maxWidth = 520,
 }: ModalProps) {
+	const dialogRef = useRef<HTMLDivElement>(null);
+	useEffect(() => {
+		const previous =
+			document.activeElement instanceof HTMLElement
+				? document.activeElement
+				: null;
+		dialogRef.current?.focus({ preventScroll: true });
+		return () => {
+			if (previous?.isConnected) previous.focus({ preventScroll: true });
+		};
+	}, []);
 	return (
 		// biome-ignore lint/a11y/noStaticElementInteractions: overlay backdrop for modal dismiss
 		// biome-ignore lint/a11y/useKeyWithClickEvents: Escape handled on inner dialog element
@@ -22,6 +34,8 @@ export function Modal({
 			onClick={onClose}
 		>
 			<div
+				ref={dialogRef}
+				tabIndex={-1}
 				role="dialog"
 				aria-modal="true"
 				aria-label={title}

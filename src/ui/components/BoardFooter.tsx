@@ -15,11 +15,12 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 
 	return (
 		<div
+			className="game-board-footer"
 			style={{
-				display: "grid",
+				display: "var(--game-footer-display, grid)",
 				gridTemplateColumns: "1fr 1fr 1fr",
-				gap: 16,
-				padding: "8px 12px",
+				gap: "var(--game-footer-gap, 16px)",
+				padding: "var(--game-footer-padding, 8px 12px)",
 				borderTop: `0.5px solid ${UI.border}`,
 				alignItems: "center",
 			}}
