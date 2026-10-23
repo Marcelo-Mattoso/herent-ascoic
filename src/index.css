@@ -12,6 +12,17 @@ body {
 	overflow: hidden;
 }
 
+.victory-screen {
+	height: 100dvh;
+	overflow: auto;
+}
+
+@media (max-height: 600px) {
+	.victory-screen {
+		justify-content: flex-start;
+	}
+}
+
 .menu-screen,
 .setup-screen,
 .end-screen {
@@ -421,8 +432,7 @@ body {
 	text-align: center;
 }
 
-.rules-access a,
-.orientation-gate a {
+.rules-access a {
 	display: inline-flex;
 	align-items: center;
 	min-height: 38px;
@@ -435,16 +445,9 @@ body {
 }
 
 .rules-access a:hover,
-.rules-access a:focus-visible,
-.orientation-gate a:hover,
-.orientation-gate a:focus-visible {
+.rules-access a:focus-visible {
 	outline: 2px solid #ffe6a1;
 	outline-offset: 2px;
-}
-
-.orientation-gate a {
-	justify-content: center;
-	margin-top: 18px;
 }
 
 .setup-screen {
@@ -1372,6 +1375,26 @@ body {
 	grid-template-columns: repeat(auto-fill, minmax(92px, 1fr));
 }
 
+.inventory-reward-target {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	margin-bottom: 10px;
+	color: #f2dfad;
+	font-size: 0.75rem;
+}
+
+.inventory-reward-target select {
+	min-width: 0;
+	max-width: 100%;
+	min-height: 40px;
+	border: 1px solid rgba(227, 172, 55, 0.64);
+	border-radius: 6px;
+	background: #07182d;
+	color: #f2dfad;
+	padding: 6px;
+}
+
 .inventory-card-tile {
 	position: relative;
 	display: grid;
@@ -1391,6 +1414,21 @@ body {
 		border-color 0.16s ease,
 		background 0.16s ease,
 		opacity 0.16s ease;
+}
+
+.inventory-card-tile--collect {
+	grid-template-rows: minmax(0, 1fr) 32px auto;
+}
+
+.inventory-reward-collect {
+	min-height: 40px;
+	border: 1px solid rgba(227, 172, 55, 0.76);
+	border-radius: 6px;
+	background: #12345b;
+	color: #f2dfad;
+	font-size: 0.72rem;
+	font-weight: 800;
+	cursor: pointer;
 }
 
 .inventory-card-tile:hover,
@@ -1901,9 +1939,10 @@ body {
 .inventory-hero-modal__stage {
 	display: grid;
 	grid-template-areas:
-		". weapon ."
-		"armor hero utility"
-		". special .";
+		"clothing1 hero hand1"
+		"clothing2 hero hand2"
+		". amulet ."
+		"backpack backpack backpack";
 	grid-template-columns: minmax(160px, 1fr) minmax(230px, 290px) minmax(
 			160px,
 			1fr
@@ -2024,25 +2063,14 @@ body {
 	outline: none;
 }
 
-.inventory-hero-modal__equipment--weapon {
-	grid-area: weapon;
-	justify-self: center;
-	max-width: 220px;
-}
-
-.inventory-hero-modal__equipment--armor {
-	grid-area: armor;
-}
-
-.inventory-hero-modal__equipment--utility {
-	grid-area: utility;
-}
-
-.inventory-hero-modal__equipment--special {
-	grid-area: special;
-	justify-self: center;
-	max-width: 220px;
-}
+.inventory-hero-modal__equipment--clothing1 { grid-area: clothing1; }
+.inventory-hero-modal__equipment--clothing2 { grid-area: clothing2; }
+.inventory-hero-modal__equipment--hand1 { grid-area: hand1; }
+.inventory-hero-modal__equipment--hand2 { grid-area: hand2; }
+.inventory-hero-modal__equipment--amulet { grid-area: amulet; justify-self: center; max-width: 220px; }
+.inventory-hero-modal__backpack { grid-area: backpack; color: #f2dfad; }
+.inventory-hero-modal__backpack-slots { display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; margin-top: 6px; }
+.inventory-hero-modal__backpack-slots button { min-height: 44px; border: 1px dashed rgba(227, 172, 55, 0.42); border-radius: 5px; background: rgba(5, 15, 29, 0.64); color: #f2dfad; padding: 6px; }
 
 .inventory-hero-modal__equipment--empty {
 	min-height: 96px;
@@ -2638,16 +2666,17 @@ body {
 	.inventory-hero-modal__stage {
 		grid-template-areas:
 			"hero"
-			"weapon"
-			"armor"
-			"utility"
-			"special";
+			"clothing1"
+			"clothing2"
+			"hand1"
+			"hand2"
+			"amulet"
+			"backpack";
 		grid-template-columns: 1fr;
 		min-height: 0;
 	}
 
-	.inventory-hero-modal__equipment--weapon,
-	.inventory-hero-modal__equipment--special {
+	.inventory-hero-modal__equipment--amulet {
 		max-width: none;
 	}
 
@@ -2909,6 +2938,8 @@ body {
 .game-viewport {
 	position: fixed;
 	inset: 0;
+	width: 100vw;
+	height: 100dvh;
 	overflow: hidden;
 	background: #11100e;
 }
@@ -2916,8 +2947,8 @@ body {
 .game-landscape-stage {
 	position: absolute;
 	inset: 0;
-	width: 100vw;
-	height: 100vh;
+	width: 100%;
+	height: 100%;
 	overflow: hidden;
 	background-position: center;
 	background-repeat: no-repeat;
@@ -3191,9 +3222,9 @@ body {
 }
 
 .game-dice-roll-layer {
-	position: absolute;
+	position: fixed;
 	inset: 0;
-	z-index: 6;
+	z-index: 60;
 	display: grid;
 	place-items: center;
 	padding: 24px;
@@ -3234,6 +3265,25 @@ body {
 	box-shadow:
 		inset 0 12px 20px rgba(255, 255, 255, 0.04),
 		inset 0 -16px 24px rgba(0, 0, 0, 0.18);
+}
+
+@media (max-width: 600px) {
+	.game-dice-roll-layer {
+		padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
+	}
+
+	.game-dice-roll-modal {
+		width: min(100%, 560px);
+		max-height: 100%;
+		overflow: auto;
+		gap: 10px;
+		padding: 12px;
+	}
+
+	.game-dice-roll-modal__body {
+		gap: 7px;
+		padding: 8px;
+	}
 }
 
 .game-dice-roll-cluster {
@@ -3783,10 +3833,6 @@ body {
 		0 8px 18px rgba(0, 0, 0, 0.42);
 }
 
-.orientation-gate {
-	display: none;
-}
-
 @media (orientation: portrait) {
 	.menu-screen {
 		overflow: auto;
@@ -3806,53 +3852,6 @@ body {
 		width: min(28vh, 210px);
 	}
 
-	.orientation-gate {
-		position: fixed;
-		inset: 0;
-		z-index: 10000;
-		display: grid;
-		place-items: center;
-		box-sizing: border-box;
-		overflow: hidden;
-		padding: 24px;
-		background:
-			radial-gradient(circle at 50% 22%, rgba(86, 163, 255, 0.2), transparent 42%),
-			linear-gradient(145deg, #07111f, #101d32 58%, #070c17);
-		color: #f4f7ff;
-		text-align: center;
-	}
-
-	.orientation-gate__card {
-		max-width: 320px;
-		padding: 32px 26px;
-		border: 1px solid rgba(153, 202, 255, 0.38);
-		border-radius: 20px;
-		background: rgba(9, 21, 40, 0.88);
-		box-shadow: 0 20px 55px rgba(0, 0, 0, 0.45);
-	}
-
-	.orientation-gate__icon {
-		display: block;
-		margin-bottom: 18px;
-		color: #8bc5ff;
-		font-size: 64px;
-		font-weight: 700;
-		line-height: 1;
-	}
-
-	.orientation-gate h1 {
-		margin: 0;
-		font-family: Cinzel, Georgia, serif;
-		font-size: clamp(1.35rem, 6vw, 1.8rem);
-		line-height: 1.2;
-	}
-
-	.orientation-gate p {
-		margin: 14px 0 0;
-		color: #b8c9df;
-		font-size: 1rem;
-		line-height: 1.45;
-	}
 }
 
 @media (max-width: 1100px) {
@@ -3871,43 +3870,140 @@ body {
 	}
 }
 
-/* Portátil em paisagem: composição independente do tabuleiro de desktop. */
-@media (orientation: landscape) and (max-height: 500px) {
+@media (max-width: 600px) {
+	.setup-screen,
+	.end-screen {
+		overflow: auto;
+	}
+
+	.end-screen {
+		place-items: start center;
+	}
+
+	.setup-header {
+		grid-template-columns: 1fr;
+		height: auto;
+		min-height: 104px;
+		gap: 8px;
+		padding: max(8px, env(safe-area-inset-top)) 10px 8px;
+	}
+
+	.setup-header-spacer {
+		display: none;
+	}
+
+	.setup-back-button {
+		justify-self: start;
+		min-height: 44px;
+		padding: 8px;
+		font-size: 0.65rem;
+	}
+
+	.setup-title {
+		gap: 6px;
+		justify-content: center;
+	}
+
+	.setup-title img {
+		width: 32px;
+		height: 32px;
+	}
+
+	.setup-title h1 {
+		font-size: clamp(1rem, 4.7vw, 1.35rem);
+	}
+
+	.setup-title p {
+		font-size: 0.68rem;
+	}
+
+	.setup-layout {
+		display: flex;
+		flex-direction: column;
+		height: auto;
+		min-height: calc(100dvh - 104px);
+		gap: 12px;
+		padding: 10px 10px max(18px, env(safe-area-inset-bottom));
+	}
+
+	.setup-selection-panel,
+	.setup-rules-panel {
+		flex: 0 0 auto;
+		min-height: 0;
+	}
+
+	.setup-hero-grid {
+		grid-template-columns: repeat(2, minmax(0, 1fr));
+		grid-auto-rows: 88px;
+		grid-template-rows: none;
+		overflow: visible;
+	}
+
+	.setup-hero-select-button > span:last-child {
+		font-size: 0.73rem;
+	}
+
+	.setup-rules-panel__scroll {
+		overflow: visible;
+	}
+
+	.setup-start-button {
+		min-height: 48px;
+	}
+
+	.end-card {
+		max-height: none;
+		padding-top: 56px;
+	}
+
+	.inventory-dialog {
+		padding-top: 56px;
+	}
+}
+
+@media (max-width: 440px) {
+	.setup-hero-grid {
+		grid-template-columns: 1fr;
+		grid-auto-rows: 72px;
+	}
+
+	.setup-hero-select-button > span:last-child {
+		font-size: 0.85rem;
+	}
+}
+
+/* Viewports compactos preservam o tabuleiro em tamanho legível e permitem
+   navegar pela arena com o dedo, em retrato ou paisagem. */
+@media (max-width: 900px), (max-height: 500px) {
+	.game-landscape-stage {
+		overflow: visible;
+	}
+
 	.game-play-space {
-		gap: 4px;
-		padding: 5px 7px 56px;
+		padding: max(5px, env(safe-area-inset-top)) max(7px, env(safe-area-inset-right)) calc(58px + env(safe-area-inset-bottom)) max(7px, env(safe-area-inset-left));
 	}
 
 	.game-board-surface {
 		position: relative;
 		min-height: 0;
-		overflow: hidden;
+		overflow: auto;
+		overscroll-behavior: contain;
+		touch-action: pan-x pan-y;
+		scrollbar-width: thin;
+	}
+
+	.game-board-root {
+		min-width: 920px;
+		min-height: 550px !important;
 	}
 
 	.game-board-content {
-		width: 161.3% !important;
-		height: 161.3% !important;
-		margin-left: -30.65%;
-		padding: 1vh 1vw 0 !important;
-		gap: 6px !important;
-		transform: scale(0.62);
-		transform-origin: top center;
+		padding: clamp(54px, 8vh, 76px) 30px 12px !important;
+		gap: 12px !important;
 	}
 
 	.game-board-hero-strip {
-		grid-auto-flow: column;
-		grid-template-columns: repeat(auto-fit, 124px) !important;
-		justify-content: start !important;
-		width: auto !important;
-		margin-top: 10px !important;
-		overflow-x: auto;
-		overflow-y: hidden;
-		padding: 2px 8px 10px;
-		scroll-snap-type: x proximity;
-	}
-
-	.game-board-hero-strip > div {
-		scroll-snap-align: start;
+		margin-top: clamp(14px, 3vh, 32px) !important;
 	}
 
 	.game-influence-chat {
@@ -3915,9 +4011,9 @@ body {
 	}
 
 	.game-bottom-dock {
-		right: 7px;
-		bottom: 5px;
-		left: 7px;
+		right: max(7px, env(safe-area-inset-right));
+		bottom: max(5px, env(safe-area-inset-bottom));
+		left: max(7px, env(safe-area-inset-left));
 		z-index: 7;
 		display: block;
 		max-height: none;
@@ -3961,15 +4057,15 @@ body {
 	}
 
 	.game-portable-drawer {
-		right: 7px;
-		bottom: 51px;
-		left: 7px;
-		max-height: calc(100% - 90px);
+		right: max(7px, env(safe-area-inset-right));
+		bottom: calc(51px + env(safe-area-inset-bottom));
+		left: max(7px, env(safe-area-inset-left));
+		max-height: calc(100% - 90px - env(safe-area-inset-bottom));
 		border-radius: 10px;
 	}
 
 	.game-portable-drawer__body {
-		max-height: calc(100vh - 140px);
+		max-height: calc(100dvh - 140px - env(safe-area-inset-bottom));
 		padding: 9px;
 	}
 
@@ -4010,14 +4106,14 @@ body {
 		min-height: 44px;
 	}
 
-.modal-layer {
+	.modal-layer {
 		align-items: flex-end;
-		padding: 6px;
+		padding: max(6px, env(safe-area-inset-top)) max(6px, env(safe-area-inset-right)) max(6px, env(safe-area-inset-bottom)) max(6px, env(safe-area-inset-left));
 	}
 
 	.modal-dialog {
 		width: min(100%, 680px) !important;
-		max-height: calc(100vh - 12px) !important;
+		max-height: calc(100dvh - 12px - env(safe-area-inset-top) - env(safe-area-inset-bottom)) !important;
 		padding: 14px !important;
 		border-radius: 12px 12px 8px 8px !important;
 	}
@@ -4040,7 +4136,7 @@ body {
 	.flow-modal-dialog,
 	.trigger-interrupt-modal {
 		width: min(100%, 760px);
-		max-height: calc(100vh - 12px);
+		max-height: calc(100dvh - 12px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
 		padding: 14px;
 		border-radius: 12px 12px 8px 8px;
 	}
@@ -4091,10 +4187,10 @@ body {
 	}
 }
 
-/* Portáteis muito estreitos: prioriza cartas em jogo e ações sobre os baralhos. */
-@media (orientation: landscape) and (max-width: 470px) {
-	.game-board-stacks {
-		display: none !important;
+@media (max-width: 600px) and (orientation: portrait) {
+	.game-board-hero-strip {
+		justify-content: start !important;
+		padding-left: 80px;
 	}
 }
 
@@ -4276,29 +4372,40 @@ body {
 .dice-choice__muted { font-size: 12px; line-height: 1.5; color: #62594f; }
 @media (max-width: 520px) { .dice-choice__sides { grid-template-columns: 1fr; } }
 
-.skill-choice-effect,
-.skill-choice-source,
-.skill-choice-option {
+.skill-choice-layout { display: grid; gap: 16px; }
+.skill-choice-effect, .skill-choice-source, .skill-choice-option {
 	border: 1px solid #cbbf9e;
 	border-radius: 8px;
 	background: #f7f1e4;
 }
 .skill-choice-effect { padding: 12px; }
-.skill-choice-effect p,
-.skill-choice-source p,
-.skill-choice-option p { margin: 0; font-size: 11px; color: #6c5b36; }
+.skill-choice-effect p, .skill-choice-source p { margin: 0; font-size: 11px; color: #6c5b36; }
 .skill-choice-effect strong { display: block; margin-top: 4px; color: #30291f; font-size: 13px; line-height: 1.45; }
 .skill-choice-source { display: flex; align-items: center; gap: 10px; padding: 8px; }
 .skill-choice-source__art { width: 34px; height: 46px; overflow: hidden; border-radius: 4px; flex: 0 0 auto; }
-.skill-choice-source__art img { width: 100%; height: 100%; object-fit: cover; }
+.skill-choice-source__art img { width: 100%; height: 100%; object-fit: contain; }
 .skill-choice-source > div:nth-child(2) { flex: 1; }
-.skill-choice-source > button { width: 34px; height: 34px; border: 1px solid #a5873b; border-radius: 50%; background: #fffaf0; color: #624c16; font-weight: 800; cursor: pointer; }
-.skill-choice-prompt { margin: 0 0 8px; font-size: 13px; color: #51442d; }
-.skill-choice-options { display: grid; gap: 8px; }
-.skill-choice-option { display: flex; align-items: center; gap: 8px; padding: 8px; }
-.skill-choice-option__art { width: 30px; height: 38px; padding: 0; border: 0; background: transparent; cursor: pointer; overflow: hidden; border-radius: 4px; }
-.skill-choice-option__art img { width: 100%; height: 100%; object-fit: cover; }
-.skill-choice-option__text { flex: 1; min-width: 0; display: grid; gap: 2px; }
-.skill-choice-option__text strong { color: #30291f; font-size: 13px; }
-.skill-choice-option__text span { color: #6c5b36; font-size: 11px; }
-.skill-choice-option__actions { display: flex; gap: 5px; }
+.skill-choice-source > button { padding: 6px 10px; border: 1px solid #a5873b; border-radius: 6px; background: #fffaf0; color: #624c16; font-size: 12px; font-weight: 700; cursor: pointer; }
+.skill-choice-prompt { margin: 0 0 10px; font-size: 14px; color: #51442d; line-height: 1.4; }
+.skill-choice-options { display: grid; gap: 12px; max-height: min(60vh, 600px); overflow-y: auto; padding: 3px; }
+.skill-choice-options--cards { grid-template-columns: repeat(auto-fit, minmax(min(100%, 165px), 205px)); justify-content: center; }
+.skill-choice-options--text { grid-template-columns: 1fr; }
+.skill-choice-option--card { min-width: 0; display: grid; grid-template-rows: auto 1fr auto; gap: 8px; padding: 10px; transition: border-color .18s, box-shadow .18s; }
+.skill-choice-option--card:hover { border-color: #a5873b; box-shadow: 0 3px 12px #5b431827; }
+.skill-choice-option__art { display: flex; align-items: center; justify-content: center; width: 100%; aspect-ratio: 3 / 4; padding: 0; border: 0; border-radius: 5px; background: #e8dcc7; cursor: zoom-in; overflow: hidden; }
+.skill-choice-option__art img { width: 100%; height: 100%; object-fit: contain; }
+.skill-choice-option__art > div { height: 100%; }
+.skill-choice-option__art:focus-visible, .skill-choice-source > button:focus-visible { outline: 3px solid #946115; outline-offset: 2px; }
+.skill-choice-option__name { color: #30291f; font-size: 13px; line-height: 1.3; text-align: center; }
+.skill-choice-option__actions { display: flex; flex-wrap: wrap; justify-content: center; gap: 6px; }
+.skill-choice-option__actions .action-button { flex: 1 1 auto; padding: 6px 8px; }
+.skill-choice-option--text { display: flex; align-items: center; justify-content: space-between; gap: 10px; padding: 10px; color: #30291f; font-size: 13px; }
+.card-detail-content { display: flex; gap: 16px; }
+.card-detail-art { width: min(42%, 210px); flex: 0 0 auto; }
+@media (max-width: 420px) {
+	.skill-choice-options--cards { grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 7px; }
+	.skill-choice-option--card { padding: 7px; }
+	.skill-choice-option__actions .action-button { font-size: 11px; }
+	.card-detail-content { flex-direction: column; }
+	.card-detail-art { width: min(100%, 210px); align-self: center; }
+}

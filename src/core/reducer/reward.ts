@@ -8,14 +8,13 @@ import { XP_COSTS } from "../config/defaults";
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
 import { tickModifierDurations } from "../ecs/world";
+import { moveInventoryItem } from "../rules/inventoryMoves";
+import { BACKPACK_CAPACITY, placeEquipment } from "../rules/equipment";
 import { calculateRewards } from "../rules/reward";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { tickBlockEntries } from "../state/blockHelpers";
 import type { GameState, PendingReward } from "../state/gameState";
-import {
-	defaultItemDestination,
-	getItemEquipmentSlot,
-} from "../strategies/itemDistribution";
+import { defaultItemDestination } from "../strategies/itemDistribution";
 import {
 	handleCheckBossCondition,
 	handleDungeonExhaustedSpend,
@@ -225,43 +224,31 @@ export function handleChooseItemDestination(
 	heroId: string,
 	destination: "equip" | "backpack" | "discard",
 ): GameState {
+	if (state.status !== "REWARD_PHASE") return state;
 	const reward = state.pendingRewards[0];
 	if (!reward || reward.type !== "item") return state;
 
 	const itemId = reward.cardId;
 	const itemName = getCardName(itemId);
-	const remainingRewards = state.pendingRewards.slice(1);
-	let next: GameState = { ...state, pendingRewards: remainingRewards };
-
-	if (destination !== "discard") {
-		const card = getCardById(itemId);
-		if (card && card.type === "item") {
-			if (destination === "equip") {
-				const slot = getItemEquipmentSlot(card.itemClass);
-				if (!slot) return state;
-				next = mapHero(next, heroId, (h) => {
-					const displaced = h.activeItems[slot];
-					return {
-						...h,
-						activeItems: { ...h.activeItems, [slot]: itemId },
-						backpack: displaced ? [...h.backpack, displaced] : h.backpack,
-					};
-				});
-				next = log(next, `${itemName} equipado por ${heroId}.`);
-			} else {
-				// backpack
-				next = mapHero(next, heroId, (h) => ({
-					...h,
-					backpack: [...h.backpack, itemId],
-				}));
-				next = log(next, `${itemName} guardado na mochila de ${heroId}.`);
-			}
-		}
-	} else {
-		next = log(next, `${itemName} descartado.`);
+	if (destination === "discard") {
+		return advanceRewardPhase(
+			log(
+				{ ...state, pendingRewards: state.pendingRewards.slice(1) },
+				`${itemName} descartado.`,
+			),
+		);
 	}
-
-	return advanceRewardPhase(next);
+	const moved = moveInventoryItem(
+		state,
+		itemId,
+		{ kind: "mesa" },
+		destination === "equip"
+			? { kind: "hero_equip", heroId }
+			: { kind: "hero_backpack", heroId },
+	);
+	return moved
+		? advanceRewardPhase(log(moved, `${itemName} atribuído a ${heroId}.`))
+		: state;
 }
 
 // ─── CHOOSE_ARTIFACT_BEARER ───────────────────────────────────────────────────
@@ -336,7 +323,10 @@ export function handleSpendXp(
 		}
 		const hero = state.heroes.find((candidate) => candidate.id === heroId);
 		if (!hero || hero.status !== "active") {
-			return log(state, "O herói escolhido não está disponível para subir de nível.");
+			return log(
+				state,
+				"O herói escolhido não está disponível para subir de nível.",
+			);
 		}
 		if (hero.impeto >= 4) {
 			return log(state, `${getCardName(hero.cardId)} já está no nível máximo.`);
@@ -428,146 +418,11 @@ export function handleInvMove(
 	from: InvFromZone,
 	to: InvToZone,
 ): GameState {
-	if (!verifyAtSource(state, itemId, from)) return state;
-
-	// 1. Remove da origem
-	let next = removeFromZone(state, itemId, from);
-
-	// 2. Coloca no destino; captura deslocado, se houver
-	let displaced: string | null = null;
-
-	if (to.kind === "mesa") {
-		next = {
-			...next,
-			pendingRewards: [
-				...next.pendingRewards,
-				{ type: "item", cardId: itemId, requiresBearer: false },
-			],
-		};
-	} else if (to.kind === "hero_equip") {
-		const card = getCardById(itemId);
-		if (!card || card.type !== "item")
-			return state;
-		const slot = getItemEquipmentSlot(card.itemClass);
-		if (!slot) return state;
-		const hero = next.heroes.find((h) => h.id === to.heroId);
-		displaced = hero?.activeItems[slot] ?? null;
-		next = mapHero(next, to.heroId, (h) => ({
-			...h,
-			activeItems: { ...h.activeItems, [slot]: itemId },
-		}));
-	} else if (to.kind === "hero_backpack") {
-		const hero = next.heroes.find((h) => h.id === to.heroId);
-		if ((hero?.backpack.length ?? 8) >= 8) return state;
-		next = mapHero(next, to.heroId, (h) => ({
-			...h,
-			backpack: [...h.backpack, itemId],
-		}));
-	}
-
-	// 3. Devolver deslocado para a origem (swap)
-	if (displaced) {
-		next = returnToZone(next, displaced, from);
-	}
-
-	const itemName = getCardName(itemId);
-	return log(next, `${itemName}: ${zoneLabel(from)} → ${zoneLabel(to)}`);
+	const moved = moveInventoryItem(state, itemId, from, to);
+	return moved
+		? log(moved, `${getCardName(itemId)} movido no inventário.`)
+		: state;
 }
-
-function verifyAtSource(
-	state: GameState,
-	itemId: string,
-	from: InvFromZone,
-): boolean {
-	if (from.kind === "mesa")
-		return state.pendingRewards.some(
-			(r) => r.cardId === itemId && r.type === "item",
-		);
-	if (from.kind === "hero_slot") {
-		const h = state.heroes.find((h) => h.id === from.heroId);
-		return h?.activeItems[from.slotType] === itemId;
-	}
-	if (from.kind === "hero_backpack") {
-		const h = state.heroes.find((h) => h.id === from.heroId);
-		return h?.backpack[from.index] === itemId;
-	}
-	return false;
-}
-
-function removeFromZone(
-	state: GameState,
-	itemId: string,
-	from: InvFromZone,
-): GameState {
-	if (from.kind === "mesa") {
-		let removed = false;
-		return {
-			...state,
-			pendingRewards: state.pendingRewards.filter((r) => {
-				if (!removed && r.cardId === itemId && r.type === "item") {
-					removed = true;
-					return false;
-				}
-				return true;
-			}),
-		};
-	}
-	if (from.kind === "hero_slot") {
-		return mapHero(state, from.heroId, (h) => {
-			const { [from.slotType]: _removed, ...rest } = h.activeItems;
-			return { ...h, activeItems: rest };
-		});
-	}
-	if (from.kind === "hero_backpack") {
-		return mapHero(state, from.heroId, (h) => ({
-			...h,
-			backpack: h.backpack.filter((_, i) => i !== from.index),
-		}));
-	}
-	return state;
-}
-
-function returnToZone(
-	state: GameState,
-	itemId: string,
-	zone: InvFromZone,
-): GameState {
-	if (zone.kind === "mesa") {
-		return {
-			...state,
-			pendingRewards: [
-				...state.pendingRewards,
-				{ type: "item", cardId: itemId, requiresBearer: false },
-			],
-		};
-	}
-	if (zone.kind === "hero_slot") {
-		return mapHero(state, zone.heroId, (h) => ({
-			...h,
-			activeItems: { ...h.activeItems, [zone.slotType]: itemId },
-		}));
-	}
-	if (zone.kind === "hero_backpack") {
-		return mapHero(state, zone.heroId, (h) => {
-			const bp = [...h.backpack];
-			bp.splice(zone.index, 0, itemId);
-			return { ...h, backpack: bp };
-		});
-	}
-	return state;
-}
-
-function zoneLabel(zone: InvFromZone | InvToZone): string {
-	if (zone.kind === "mesa") return "mesa";
-	if (zone.kind === "hero_slot") return `slot(${zone.heroId})`;
-	if (zone.kind === "hero_backpack") return `mochila(${zone.heroId})`;
-	if (zone.kind === "hero_equip") return `equip(${zone.heroId})`;
-	return "?";
-}
-
-// ─── INV_ASSIGN_ITEM ──────────────────────────────────────────────────────────
-// Move um item específico da mesa (pendingRewards) para o herói (equip ou mochila).
-// Se o slot de equip já está ocupado, o item deslocado volta para a mesa.
 
 export function handleInvAssignItem(
 	state: GameState,
@@ -575,52 +430,15 @@ export function handleInvAssignItem(
 	heroId: string,
 	destination: "equip" | "backpack",
 ): GameState {
-	const reward = state.pendingRewards.find(
-		(r) => r.cardId === itemId && r.type === "item",
+	return handleInvMove(
+		state,
+		itemId,
+		{ kind: "mesa" },
+		destination === "equip"
+			? { kind: "hero_equip", heroId }
+			: { kind: "hero_backpack", heroId },
 	);
-	if (!reward) return state;
-
-	const remaining = state.pendingRewards.filter((r) => r !== reward);
-	let next: GameState = { ...state, pendingRewards: remaining };
-	const itemName = getCardName(itemId);
-
-	if (destination === "equip") {
-		const card = getCardById(itemId);
-		if (card && card.type === "item") {
-			const slot = getItemEquipmentSlot(card.itemClass);
-			if (!slot) return state;
-			next = mapHero(next, heroId, (h) => ({
-				...h,
-				activeItems: { ...h.activeItems, [slot]: itemId },
-				backpack: h.backpack,
-			}));
-			const hero = state.heroes.find((h) => h.id === heroId);
-			const displaced = hero?.activeItems[slot];
-			if (displaced) {
-				next = {
-					...next,
-					pendingRewards: [
-						...next.pendingRewards,
-						{ type: "item", cardId: displaced, requiresBearer: false },
-					],
-				};
-			}
-			next = log(next, `${itemName} equipado por ${heroId}.`);
-		}
-	} else {
-		// backpack — falha silenciosa se cheia (máx 8)
-		const hero = state.heroes.find((h) => h.id === heroId);
-		if ((hero?.backpack.length ?? 8) >= 8) return state;
-		next = mapHero(next, heroId, (h) => ({
-			...h,
-			backpack: [...h.backpack, itemId],
-		}));
-		next = log(next, `${itemName} na mochila de ${heroId}.`);
-	}
-
-	return next;
 }
-
 // ─── INV_ASSIGN_ARTIFACT ─────────────────────────────────────────────────────
 // Move artefato da mesa para os artefatos ativos do grupo.
 
@@ -693,23 +511,22 @@ export function distributeItemAuto(
 
 	const card = getCardById(itemId);
 	if (!card || card.type !== "item") return state;
+	if (Object.values(hero.activeItems).includes(itemId) || hero.backpack.includes(itemId)) return state;
 
-	const dest = defaultItemDestination(hero, card.itemClass);
+	const dest = defaultItemDestination(hero, card);
 	const itemName = getCardName(itemId);
 	const heroName = getCardName(hero.cardId);
 
 	if (dest === "equip") {
-		const slot = getItemEquipmentSlot(card.itemClass);
-		if (!slot) return state;
+		const equipped = placeEquipment(hero, card);
+		if (!equipped) return state;
 		return mapHero(
 			log(state, `${itemName} equipado em ${heroName}.`),
 			hero.id,
-			(h) => ({
-				...h,
-				activeItems: { ...h.activeItems, [slot]: itemId },
-			}),
+			() => equipped.hero,
 		);
 	}
+	if (hero.backpack.length >= BACKPACK_CAPACITY) return state;
 
 	return mapHero(
 		log(state, `${itemName} foi para a mochila de ${heroName}.`),

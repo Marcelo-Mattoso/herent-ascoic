@@ -1,6 +1,5 @@
-// Decisão contextual de habilidade: mostra origem, efeito e cartas/opções disponíveis.
-
-import { useMemo, useState } from "react";
+// Escolha contextual: a arte abre detalhes, e apenas os botões confirmam.
+import { useRef, useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
 import { getCardById } from "@/core/data/cards";
 import { getSkillName } from "@/core/data/skillLocale";
@@ -8,13 +7,16 @@ import { cardSkills, skillUsedBy } from "@/core/skills/lookup";
 import { renderSkillText } from "@/core/skills/renderLabel";
 import type { GameState } from "@/core/state/gameState";
 import { getCardImageUrl } from "@/ui/cardImages";
-import type { CardType } from "@/ui/components/Card";
 import { ActionButton } from "@/ui/components/ActionButton";
+import type { CardType } from "@/ui/components/Card";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useGameStore } from "@/ui/store/gameStore";
+
+type PendingChoice = NonNullable<GameState["pendingSkillChoice"]>;
+type ChoiceOption = PendingChoice["options"][number];
 
 function cardTypeForModal(cardId: string): CardType | null {
 	const card = getCardById(cardId);
@@ -24,65 +26,97 @@ function cardTypeForModal(cardId: string): CardType | null {
 	return card.type;
 }
 
-function sourceCardId(
+// Para escolhas da dungeon, card_0/card_1 são IDs de decisão. O rótulo
+// contém o ID real, validado contra o trecho do baralho que o efeito revelou.
+export function choiceCardId(
 	state: GameState,
-	pending: NonNullable<GameState["pendingSkillChoice"]>,
+	pending: PendingChoice,
+	option: ChoiceOption,
 ): string | null {
-	if (pending.sourceCardId) return pending.sourceCardId;
-	const usedBy = skillUsedBy(pending.skillId);
-	const hero = pending.sourceHeroId
-		? state.heroes.find((candidate) => candidate.id === pending.sourceHeroId)
-		: undefined;
-	const carriedCards = hero
-		? [hero.cardId, ...Object.values(hero.activeItems), ...hero.backpack]
-		: [];
-	return carriedCards.find(
-		(cardId): cardId is string => !!cardId && usedBy.includes(cardId),
-	) ?? usedBy[0] ?? null;
+	if (getCardById(option.id)) return option.id;
+	const match = /^card_(\d+)$/.exec(option.id);
+	if (!match) return null;
+	const index = Number(match[1]);
+	const revealedCount = pending.options.filter((candidate) =>
+		/^card_\d+$/.test(candidate.id),
+	).length;
+	return index < revealedCount &&
+		state.decks.dungeonDeck.available[index] === option.label &&
+		getCardById(option.label)
+		? option.label
+		: null;
+}
+
+export function choiceSourceCardId(
+	state: GameState,
+	pending: PendingChoice,
+): string | null {
+	if (pending.sourceCardId && getCardById(pending.sourceCardId))
+		return pending.sourceCardId;
+	const owners = new Set(skillUsedBy(pending.skillId));
+	const candidates = new Set<string>();
+	if (state.currentRoom && owners.has(state.currentRoom.cardId))
+		candidates.add(state.currentRoom.cardId);
+	const enemy = state.activeEnemies.find(
+		(candidate) => candidate.id === pending.sourceEnemyId,
+	);
+	if (enemy && owners.has(enemy.cardId)) candidates.add(enemy.cardId);
+	const hero = state.heroes.find(
+		(candidate) => candidate.id === pending.sourceHeroId,
+	);
+	if (hero) {
+		for (const cardId of [
+			hero.cardId,
+			...Object.values(hero.activeItems),
+			...hero.backpack,
+		]) {
+			if (cardId && owners.has(cardId)) candidates.add(cardId);
+		}
+	}
+	return candidates.size === 1 ? [...candidates][0] : null;
 }
 
 export function SkillChoiceModal() {
-	const { state, view, dispatch } = useGameStore();
+	const { state, dispatch } = useGameStore();
 	const cardImageUrls = useCardImages();
 	const [detailCardId, setDetailCardId] = useState<string | null>(null);
-	const pending = view.pendingSkillChoice;
-	const choiceKind = state.pendingSkillChoice?.kind;
-	const sourceId = useMemo(
-		() => (pending ? sourceCardId(state, pending) : null),
-		[pending, state],
-	);
-
+	const submittedFor = useRef<PendingChoice | null>(null);
+	const pending = state.pendingSkillChoice;
 	if (!pending) return null;
 
+	const sourceId = choiceSourceCardId(state, pending);
 	const sourceSkill = sourceId
 		? cardSkills(sourceId).find(({ ref }) => ref.skillId === pending.skillId)
 		: undefined;
-	const effectText = sourceSkill
-		? renderSkillText(sourceSkill.ref)
-		: pending.prompt;
 	const sourceType = sourceId ? cardTypeForModal(sourceId) : null;
+	const cardOptions = pending.options.map((option) => ({
+		option,
+		cardId: choiceCardId(state, pending, option),
+	}));
+	const hasCards = cardOptions.some(({ cardId }) => !!cardId);
+	const detailType = detailCardId ? cardTypeForModal(detailCardId) : null;
 
 	function choose(choiceId: string) {
+		// A store despacha sincronamente, mas dois cliques podem chegar antes do novo render.
 		if (!pending) return;
+		if (submittedFor.current === pending) return;
+		submittedFor.current = pending;
 		dispatch({
 			type: "SKILL_CHOICE",
 			payload: { skillId: pending.skillId, choice: choiceId },
 		});
 	}
 
-	function discard(cardId: string) {
-		choose(`__discard__:${cardId}`);
-	}
-
 	return (
 		<>
-			<Modal title={getSkillName(pending.skillId)} maxWidth={560}>
-				<div className="space-y-4">
-					<section className="skill-choice-effect">
-						<p>Habilidade ativada</p>
-						<strong>{effectText}</strong>
-					</section>
-
+			<Modal title={getSkillName(pending.skillId)} maxWidth={760}>
+				<div className="skill-choice-layout">
+					{sourceSkill && (
+						<section className="skill-choice-effect">
+							<p>Habilidade ativada</p>
+							<strong>{renderSkillText(sourceSkill.ref)}</strong>
+						</section>
+					)}
 					{sourceId && sourceType && (
 						<section className="skill-choice-source">
 							<div className="skill-choice-source__art">
@@ -93,56 +127,109 @@ export function SkillChoiceModal() {
 								)}
 							</div>
 							<div>
-								<p>Origem</p>
+								<p>Carta de origem</p>
 								<strong>{getCardName(sourceId)}</strong>
 							</div>
-							<button type="button" onClick={() => setDetailCardId(sourceId)} aria-label={`Ver carta completa: ${getCardName(sourceId)}`}>i</button>
+							<button
+								type="button"
+								onClick={() => setDetailCardId(sourceId)}
+								aria-label={`Examinar carta de origem: ${getCardName(sourceId)}`}
+							>
+								Examinar
+							</button>
 						</section>
 					)}
-
 					<section>
 						<p className="skill-choice-prompt">{pending.prompt}</p>
-						<div className="skill-choice-options">
-							{pending.options.map((option) => {
-								const optionType = cardTypeForModal(option.id);
-								const optionIsCard = !!optionType;
-								return (
-									<div key={option.id} className="skill-choice-option">
-										{optionIsCard && (
-											<button type="button" className="skill-choice-option__art" onClick={() => setDetailCardId(option.id)} aria-label={`Ver carta completa: ${getCardName(option.id)}`}>
-												{getCardImageUrl(cardImageUrls, option.id) ? (
-													<img src={getCardImageUrl(cardImageUrls, option.id)} alt="" />
-												) : (
-													<PlaceholderArt cardType={optionType} size="sm" />
-												)}
-											</button>
-										)}
-										<div className="skill-choice-option__text">
-											<strong>{optionIsCard ? getCardName(option.id) : option.label}</strong>
-											{optionIsCard && <span>{option.label}</span>}
+						<div
+							className={
+								hasCards
+									? "skill-choice-options skill-choice-options--cards"
+									: "skill-choice-options skill-choice-options--text"
+							}
+						>
+							{cardOptions.map(({ option, cardId }) => {
+								const cardType = cardId ? cardTypeForModal(cardId) : null;
+								if (!cardId || !cardType) {
+									return (
+										<div
+											key={option.id}
+											className="skill-choice-option skill-choice-option--text"
+										>
+											<span>{option.label}</span>
+											<ActionButton
+												label="Escolher"
+												variant="primary"
+												onClick={() => choose(option.id)}
+											/>
 										</div>
-										{optionIsCard && choiceKind === "draw_and_choose" ? (
-											<div className="skill-choice-option__actions">
-												<ActionButton label="Guardar" variant="primary" onClick={() => choose(option.id)} />
-												<ActionButton label="Descartar" variant="secondary" onClick={() => discard(option.id)} />
-											</div>
-										) : (
-											<ActionButton label={optionIsCard ? "Usar" : "Escolher"} variant="primary" onClick={() => choose(option.id)} />
-										)}
-									</div>
+									);
+								}
+								const imageUrl = getCardImageUrl(cardImageUrls, cardId);
+								return (
+									<article
+										key={option.id}
+										className="skill-choice-option skill-choice-option--card"
+									>
+										<button
+											type="button"
+											className="skill-choice-option__art"
+											onClick={() => setDetailCardId(cardId)}
+											aria-label={`Examinar carta: ${getCardName(cardId)}`}
+										>
+											{imageUrl ? (
+												<img src={imageUrl} alt={getCardName(cardId)} />
+											) : (
+												<PlaceholderArt cardType={cardType} size="lg" />
+											)}
+										</button>
+										<strong className="skill-choice-option__name">
+											{getCardName(cardId)}
+										</strong>
+										<div className="skill-choice-option__actions">
+											{pending.kind === "draw_and_choose" ? (
+												<>
+													<ActionButton
+														label="Guardar"
+														variant="primary"
+														onClick={() => choose(option.id)}
+													/>
+													<ActionButton
+														label="Descartar"
+														variant="secondary"
+														onClick={() => choose(`__discard__:${option.id}`)}
+													/>
+												</>
+											) : (
+												<ActionButton
+													label="Escolher"
+													variant="primary"
+													onClick={() => choose(option.id)}
+												/>
+											)}
+										</div>
+									</article>
 								);
 							})}
 						</div>
 					</section>
-
 					{pending.allowSkip && (
-						<ActionButton label="Passar esta habilidade" variant="secondary" fullWidth onClick={() => choose("__skip__")} />
+						<ActionButton
+							label="Passar esta habilidade"
+							variant="secondary"
+							fullWidth
+							onClick={() => choose("__skip__")}
+						/>
 					)}
 				</div>
 			</Modal>
-
-			{detailCardId && cardTypeForModal(detailCardId) && (
-				<CardDetailModal cardId={detailCardId} cardType={cardTypeForModal(detailCardId)!} imageUrl={getCardImageUrl(cardImageUrls, detailCardId)} onClose={() => setDetailCardId(null)} />
+			{detailCardId && detailType && (
+				<CardDetailModal
+					cardId={detailCardId}
+					cardType={detailType}
+					imageUrl={getCardImageUrl(cardImageUrls, detailCardId)}
+					onClose={() => setDetailCardId(null)}
+				/>
 			)}
 		</>
 	);

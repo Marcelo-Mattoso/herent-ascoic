@@ -415,6 +415,7 @@
 - id: item_pitch_torch
   type: item
   itemClass: utility
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_illuminate_path
       params:
@@ -422,6 +423,7 @@
 - id: item_worn_explorer_rope
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_preserved_path
   grants:
@@ -441,6 +443,7 @@
 - id: item_rusty_dagger
   type: item
   itemClass: equipment
+  equipmentSlot: one_hand
   skills:
     - skillId: item_skill_deadly_edge
       params:
@@ -448,6 +451,7 @@
 - id: item_cracked_shield
   type: item
   itemClass: equipment
+  equipmentSlot: one_hand
   skills:
     - skillId: item_skill_block
       params:
@@ -455,6 +459,7 @@
 - id: item_lesser_vigor_potion
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_last_light_healing
       params:
@@ -474,6 +479,7 @@
 - id: item_incendiary_oil_flask
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_living_ember_oil
       params:
@@ -493,6 +499,7 @@
 - id: item_ancient_iron_key
   type: item
   itemClass: special
+  equipmentSlot: one_hand
   skills:
     - skillId: item_skill_mystic_draw
       params:
@@ -512,6 +519,7 @@
 - id: item_tunnel_hood
   type: item
   itemClass: equipment
+  equipmentSlot: clothing
   skills:
     - skillId: skill_focus_deflection
       params:
@@ -519,11 +527,13 @@
 - id: item_light_stone_boots
   type: item
   itemClass: equipment
+  equipmentSlot: clothing
   skills:
     - skillId: skill_rift_light_step
 - id: item_crimson_rune_staff
   type: item
   itemClass: equipment
+  equipmentSlot: two_hands
   skills:
     - skillId: skill_minor_rune
       params:
@@ -531,11 +541,13 @@
 - id: item_last_light_sword
   type: item
   itemClass: equipment
+  equipmentSlot: one_hand
   skills:
     - skillId: item_skill_last_light_blade
 - id: item_deep_veil_scythe
   type: item
   itemClass: equipment
+  equipmentSlot: two_hands
   skills:
     - skillId: item_skill_drain_life_and_deadly_edge
       params:
@@ -543,6 +555,7 @@
 - id: item_ruined_hall_axe
   type: item
   itemClass: equipment
+  equipmentSlot: two_hands
   skills:
     - skillId: item_skill_deadly_edge
       params:
@@ -550,6 +563,7 @@
 - id: item_broken_stone_hammer
   type: item
   itemClass: equipment
+  equipmentSlot: two_hands
   skills:
     - skillId: item_skill_deadly_edge
       params:
@@ -557,11 +571,13 @@
 - id: item_rift_bow
   type: item
   itemClass: equipment
+  equipmentSlot: two_hands
   skills:
     - skillId: skill_opportunity_shot
 - id: item_reinforced_leather_armor
   type: item
   itemClass: equipment
+  equipmentSlot: clothing
   skills:
     - skillId: item_skill_block
       params:
@@ -569,6 +585,7 @@
 - id: item_ancient_metal_armor
   type: item
   itemClass: equipment
+  equipmentSlot: clothing
   skills:
     - skillId: item_skill_block
       params:
@@ -576,6 +593,7 @@
 - id: item_forge_magic_armor
   type: item
   itemClass: equipment
+  equipmentSlot: clothing
   skills:
     - skillId: item_skill_block_and_last_light_ward
       params:
@@ -584,11 +602,13 @@
 - id: item_broken_veil_cloak
   type: item
   itemClass: equipment
+  equipmentSlot: clothing
   skills:
     - skillId: skill_protective_veil
 - id: item_fury_potion
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_crimson_fury
       params:
@@ -611,6 +631,7 @@
 - id: item_precision_potion
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_hunter_focus
       params:
@@ -630,6 +651,7 @@
 - id: item_stoneskin_potion
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   useTiming: pre_combat
   skills:
     - skillId: item_skill_potion_stoneskin
@@ -650,6 +672,7 @@
 - id: item_return_potion
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: power_restored_path
       params:
@@ -669,6 +692,7 @@
 - id: item_living_ember_potion
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_living_ember
       params:
@@ -688,6 +712,7 @@
 - id: item_greater_vigor_potion
   type: item
   itemClass: consumable
+  equipmentSlot: one_hand
   skills:
     - skillId: skill_last_light_healing
       params:
@@ -707,6 +732,7 @@
 - id: item_silent_dungeon_charm
   type: item
   itemClass: charm
+  equipmentSlot: amulet
   skills:
     - skillId: skill_path_safeguard
   grants:
@@ -727,6 +753,7 @@
 - id: item_low_flame_charm
   type: item
   itemClass: charm
+  equipmentSlot: amulet
   skills:
     - skillId: skill_hunter_focus
       params:
@@ -744,6 +771,7 @@
 - id: item_warm_blood_charm
   type: item
   itemClass: charm
+  equipmentSlot: amulet
   useTiming: damage_response
   skills:
     - skillId: item_skill_block
@@ -768,6 +796,7 @@
 - id: item_safe_path_charm
   type: item
   itemClass: charm
+  equipmentSlot: amulet
   skills:
     - skillId: skill_illuminate_path
   grants:
@@ -788,6 +817,7 @@
 - id: item_last_defense_charm
   type: item
   itemClass: charm
+  equipmentSlot: amulet
   skills:
     - skillId: power_greater_last_light_miracle
   grants:
@@ -808,16 +838,19 @@
 - id: item_last_chord_lute
   type: item
   itemClass: equipment
+  equipmentSlot: two_hands
   skills:
     - skillId: skill_protective_veil
 - id: item_narrow_exit_cloak
   type: item
   itemClass: equipment
+  equipmentSlot: clothing
   skills:
     - skillId: skill_illuminate_path
 - id: item_torn_depths_map
   type: item
   itemClass: special
+  equipmentSlot: one_hand
   skills:
     - skillId: item_skill_mystic_draw
       params:
@@ -837,6 +870,7 @@
 - id: item_hidden_forge_chest
   type: item
   itemClass: special
+  equipmentSlot: two_hands
   skills:
     - skillId: item_skill_mystic_draw
       params:

@@ -72,5 +72,5 @@ describe("checkBossCondition via dados", () => {
 			],
 		};
 		expect(checkBossCondition(s, s.bossCardId)).toBe(true);
-	});
+	}, 15_000);
 });

@@ -11,7 +11,7 @@ export function Victory() {
 
 	return (
 		<div
-			className="min-h-screen flex flex-col items-center justify-center py-12 px-4"
+			className="victory-screen min-h-screen flex flex-col items-center justify-center py-12 px-4"
 			style={{ background: UI.pageBg }}
 		>
 			<div style={{ width: "100%", maxWidth: 560 }}>

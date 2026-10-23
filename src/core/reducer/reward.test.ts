@@ -30,7 +30,7 @@ describe("recompensas e inventário", () => {
 	it("atribui item para mochila, equipa e conclui a fase", () => {
 		const base = { ...state(), pendingRewards: [{ type: "item" as const, cardId: DAGGER, requiresBearer: false }] };
 		const equipped = handleChooseItemDestination(base, "h1", "equip");
-		expect(equipped.heroes[0]?.activeItems.weapon).toBe(DAGGER);
+		expect(equipped.heroes[0]?.activeItems.hand1).toBe(DAGGER);
 		expect(equipped.status).toBe("XP_SPEND_PHASE");
 		const backpack = handleChooseItemDestination(base, "h1", "backpack");
 		expect(backpack.heroes[0]?.backpack).toContain(DAGGER);
@@ -52,7 +52,7 @@ describe("recompensas e inventário", () => {
 		const backpack = handleInvMove(base, DAGGER, { kind: "mesa" }, { kind: "hero_backpack", heroId: "h1" });
 		expect(backpack.heroes[0]?.backpack).toContain(DAGGER);
 		const equipped = handleInvMove(backpack, DAGGER, { kind: "hero_backpack", heroId: "h1", index: 0 }, { kind: "hero_equip", heroId: "h1" });
-		expect(equipped.heroes[0]?.activeItems.weapon).toBe(DAGGER);
+		expect(equipped.heroes[0]?.activeItems.hand1).toBe(DAGGER);
 		expect(handleInvMove(base, DAGGER, { kind: "hero_backpack", heroId: "h1", index: 0 }, { kind: "mesa" })).toBe(base);
 	});
 
@@ -64,10 +64,10 @@ describe("recompensas e inventário", () => {
 			],
 		};
 		const equippedFromReward = handleChooseItemDestination(reward, "h1", "equip");
-		expect(equippedFromReward.heroes[0]?.activeItems.utility).toBe(
+		expect(equippedFromReward.heroes[0]?.activeItems.hand1).toBe(
 			PITCH_TORCH,
 		);
-		expect(equippedFromReward.heroes[0]?.activeItems.weapon).toBeUndefined();
+		expect(equippedFromReward.heroes[0]?.activeItems.hand2).toBeUndefined();
 
 		const backpackState = state();
 		const hero = backpackState.heroes[0];
@@ -82,13 +82,13 @@ describe("recompensas e inventário", () => {
 			{ kind: "hero_backpack", heroId: "h1", index: 0 },
 			{ kind: "hero_equip", heroId: "h1" },
 		);
-		expect(equippedFromBackpack.heroes[0]?.activeItems.utility).toBe(
+		expect(equippedFromBackpack.heroes[0]?.activeItems.hand1).toBe(
 			PITCH_TORCH,
 		);
 		expect(equippedFromBackpack.heroes[0]?.backpack).toEqual([]);
 	});
 
-	it("equipa poção no slot de consumível em vez de enviá-la à mochila", () => {
+	it("poção com espaço de uma mão pode ser equipada ou guardada", () => {
 		const reward = {
 			...state(),
 			pendingRewards: [
@@ -96,8 +96,9 @@ describe("recompensas e inventário", () => {
 			],
 		};
 		const equipped = handleChooseItemDestination(reward, "h1", "equip");
-		expect(equipped.heroes[0]?.activeItems.consumable).toBe(VIGOR_POTION);
-		expect(equipped.heroes[0]?.backpack).toEqual([]);
+		expect(equipped.heroes[0]?.activeItems.hand1).toBe(VIGOR_POTION);
+		const stored = handleChooseItemDestination(reward, "h1", "backpack");
+		expect(stored.heroes[0]?.backpack).toEqual([VIGOR_POTION]);
 	});
 
 	it("resolve Espólios da Fornalha na vitória e substitui o saque normal", () => {
@@ -186,7 +187,7 @@ describe("recompensas e inventário", () => {
 		const deck = { ...gained, decks: { ...gained.decks, itemDeck: { ...gained.decks.itemDeck, available: [DAGGER] } } };
 		const bought = handleSpendXp(deck, "buy_item");
 		expect(bought.pendingRewards[0]?.cardId).toBe(DAGGER);
-		expect(distributeItemAuto({ ...state(), status: "HERO_ACTION" }, DAGGER).heroes[0]?.activeItems.weapon).toBe(DAGGER);
+		expect(distributeItemAuto({ ...state(), status: "HERO_ACTION" }, DAGGER).heroes[0]?.activeItems.hand1).toBe(DAGGER);
 	});
 
 	it("exige a escolha do herói antes de gastar XP para subir de nível", () => {

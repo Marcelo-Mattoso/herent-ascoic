@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import * as actions from "./actions/creators";
 import { dieReplacementValues, isEligibleDie } from "./rules/diceSelection";
 import { defaultItemDestination } from "./strategies/itemDistribution";
+import { getCardById } from "./data/cards";
 import { compareEffectOrder } from "./strategies/effectOrder";
 import { tiebreakHero } from "./strategies/tiebreak";
 import {
@@ -84,9 +85,12 @@ describe("helpers puros sem fluxo de UI", () => {
 	it("aplica estratégias de ordem, distribuição, desempate e integridade", () => {
 		expect(compareEffectOrder("room", "boss")).toBeLessThan(0);
 		const hero: HeroState = { id: "h1", maxLife: 10, currentLife: 6, activeItems: {}, cardId: "hero_crimson_barbarian", damage: 4, hitBonus: 5, dice: 1, impeto: 0, backpack: [], usedPowers: {}, conditions: [], status: "active", playerIndex: 0, xp: 0 };
-		expect(defaultItemDestination(hero, "equipment")).toBe("equip");
-		expect(defaultItemDestination({ ...hero, activeItems: { weapon: "item_rusty_dagger" } }, "equipment")).toBe("backpack");
-		expect(defaultItemDestination(hero, "consumable")).toBe("equip");
+		const dagger = getCardById("item_rusty_dagger");
+		const potion = getCardById("item_lesser_vigor_potion");
+		if (dagger?.type !== "item" || potion?.type !== "item") throw new Error("Item ausente");
+		expect(defaultItemDestination(hero, dagger)).toBe("equip");
+		expect(defaultItemDestination({ ...hero, activeItems: { hand1: "item_rusty_dagger" } }, dagger)).toBe("backpack");
+		expect(defaultItemDestination(hero, potion)).toBe("equip");
 		expect(tiebreakHero([hero, { ...hero, id: "h2", currentLife: 5, maxLife: 10 }]).id).toBe("h2");
 		const start: LoggedAction = { seq: 0, action: { type: "START_GAME", payload: { heroCardIds: [] } } };
 		expect(isLogIntact([start, { ...start, seq: 1, action: { type: "REVEAL_ROOM" } }])).toBe(true);

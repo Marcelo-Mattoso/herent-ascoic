@@ -19,7 +19,7 @@ export type InvFromZone =
 
 export type InvToZone =
 	| { kind: "mesa" }
-	| { kind: "hero_equip"; heroId: string } // auto-slot pelo itemClass
+	| { kind: "hero_equip"; heroId: string; slotType?: ItemSlotType }
 	| { kind: "hero_backpack"; heroId: string };
 
 export type { XpSpendOption };

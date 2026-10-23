@@ -27,26 +27,28 @@ export function CardDetailModal({
 	const cardName = getCardName(cardId);
 
 	return (
-		<Modal title={cardName} onClose={onClose} maxWidth={480}>
-			<div className="flex gap-4">
-				<div style={{ width: 120, flexShrink: 0 }}>
+		<Modal title={cardName} onClose={onClose} maxWidth={580}>
+			<div className="card-detail-content">
+				<div className="card-detail-art">
 					<div
 						style={{
-							width: 120,
-							height: 168,
+							width: "100%",
+							aspectRatio: "3 / 4",
 							borderRadius: 8,
 							overflow: "hidden",
-							backgroundImage: imageUrl ? `url("${imageUrl}")` : undefined,
-							backgroundPosition: "center",
-							backgroundRepeat: "no-repeat",
-							backgroundSize: imageUrl ? "100% 100%" : "cover",
-							backgroundOrigin: "border-box",
-							backgroundClip: "border-box",
 							boxShadow:
 								"0 7px 10px rgba(0, 0, 0, 0.3), 0 1px 2px rgba(0, 0, 0, 0.38)",
 						}}
 					>
-						{!imageUrl && <PlaceholderArt cardType={cardType} size="lg" />}
+						{imageUrl ? (
+							<img
+								src={imageUrl}
+								alt={cardName}
+								style={{ width: "100%", height: "100%", objectFit: "contain" }}
+							/>
+						) : (
+							<PlaceholderArt cardType={cardType} size="lg" />
+						)}
 					</div>
 				</div>
 				<div className="flex-1 space-y-2 text-sm">
@@ -208,7 +210,10 @@ export function CardDetailModal({
 
 					{card?.type === "boss" && (
 						<>
-							<Row label="Condição" value={getCardLocale(card.id)?.condition ?? "—"} />
+							<Row
+								label="Condição"
+								value={getCardLocale(card.id)?.condition ?? "—"}
+							/>
 							{card.skills.map((ref) => {
 								const def = lookupSkillById(ref.skillId);
 								if (!def) return null;

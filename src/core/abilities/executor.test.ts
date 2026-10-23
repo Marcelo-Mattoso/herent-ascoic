@@ -27,7 +27,7 @@ describe("executeAbilityGrant", () => {
 		const hero = started.heroes[0]!;
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, currentLife: hero.currentLife - 3, activeItems: { consumable: "item_lesser_vigor_potion" } }],
+			heroes: [{ ...hero, currentLife: hero.currentLife - 3, activeItems: { hand1: "item_lesser_vigor_potion" } }],
 		};
 
 		const result = reducer(state, {
@@ -40,7 +40,7 @@ describe("executeAbilityGrant", () => {
 		});
 
 		expect(result.heroes[0]?.currentLife).toBe(hero.currentLife - 1);
-		expect(result.heroes[0]?.activeItems.consumable).toBeUndefined();
+		expect(result.heroes[0]?.activeItems.hand1).toBeUndefined();
 		expect(result.decks.itemDeck.discarded).toContain("item_lesser_vigor_potion");
 		expect(result.combat?.heroesActed).not.toContain(hero.id);
 	});
@@ -143,7 +143,7 @@ describe("executeAbilityGrant", () => {
 					...hero,
 					activeItems: {
 						...hero.activeItems,
-						consumable: "item_worn_explorer_rope",
+						hand1: "item_worn_explorer_rope",
 					},
 				},
 			],
@@ -161,7 +161,7 @@ describe("executeAbilityGrant", () => {
 			pending,
 			waiting.pendingSkillWindow,
 		);
-		expect(result.heroes[0]?.activeItems.consumable).toBeUndefined();
+		expect(result.heroes[0]?.activeItems.hand1).toBeUndefined();
 		expect(result.decks.itemDeck.discarded).toContain("item_worn_explorer_rope");
 		expect(result.flags.dungeonDiscardPrevented).toBe(true);
 	});
@@ -171,7 +171,7 @@ describe("executeAbilityGrant", () => {
 		const hero = started.heroes[0]!;
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, activeItems: { consumable: "item_precision_potion" } }],
+			heroes: [{ ...hero, activeItems: { hand1: "item_precision_potion" } }],
 		};
 
 		const result = reducer(state, {
@@ -192,7 +192,7 @@ describe("executeAbilityGrant", () => {
 			heroes: [
 				{
 					...hero,
-					activeItems: { ...hero.activeItems, special: "item_low_flame_charm" },
+					activeItems: { ...hero.activeItems, amulet: "item_low_flame_charm" },
 				},
 			],
 		};
@@ -212,7 +212,7 @@ describe("executeAbilityGrant", () => {
 				{
 					...hero,
 					currentLife: 2,
-					activeItems: { ...hero.activeItems, special: "item_last_defense_charm" },
+					activeItems: { ...hero.activeItems, amulet: "item_last_defense_charm" },
 				},
 			],
 		};
@@ -238,7 +238,7 @@ describe("executeAbilityGrant", () => {
 				{
 					...hero,
 					currentLife: 2,
-					activeItems: { ...hero.activeItems, special: "item_last_defense_charm" },
+					activeItems: { ...hero.activeItems, amulet: "item_last_defense_charm" },
 				},
 			],
 			activeEnemies: [

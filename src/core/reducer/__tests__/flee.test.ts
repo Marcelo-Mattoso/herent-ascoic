@@ -235,7 +235,7 @@ describe("RESTART_DUNGEON", () => {
 		const hero = makeHero({
 			currentLife: 1,
 			status: "fled",
-			activeItems: { weapon: "item_rusty_dagger" },
+			activeItems: { hand1: "item_rusty_dagger" },
 			backpack: ["item_lesser_vigor_potion"],
 		});
 		const state: GameState = {
@@ -248,7 +248,7 @@ describe("RESTART_DUNGEON", () => {
 			type: "RESTART_DUNGEON",
 			payload: { keepEquipment: true },
 		});
-		expect(result.heroes[0].activeItems.weapon).toBe("item_rusty_dagger");
+		expect(result.heroes[0].activeItems.hand1).toBe("item_rusty_dagger");
 		expect(result.heroes[0].backpack).toContain("item_lesser_vigor_potion");
 	});
 
@@ -256,7 +256,7 @@ describe("RESTART_DUNGEON", () => {
 		const hero = makeHero({
 			currentLife: 1,
 			status: "fled",
-			activeItems: { weapon: "item_rusty_dagger" },
+			activeItems: { hand1: "item_rusty_dagger" },
 			backpack: ["item_lesser_vigor_potion"],
 		});
 		const state: GameState = {

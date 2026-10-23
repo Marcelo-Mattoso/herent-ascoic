@@ -10,10 +10,11 @@ interface ItemChipProps {
 }
 
 const SLOT_LABELS: Record<ItemSlotType, string> = {
-	weapon: "equipável",
-	consumable: "consumível",
-	utility: "utilitário",
-	special: "especial",
+	clothing1: "vestimenta",
+	clothing2: "vestimenta",
+	hand1: "mão",
+	hand2: "mão",
+	amulet: "amuleto",
 };
 
 export function ItemChip({ item, slot, onClick }: ItemChipProps) {

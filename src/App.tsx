@@ -46,7 +46,6 @@ function App() {
 		<>
 			{screen}
 			<RulesAccess />
-			{status !== "MAIN_MENU" && <OrientationGate />}
 		</>
 	);
 }
@@ -55,28 +54,17 @@ function RulesAccess() {
 	const manualUrl = publicAssetUrl("rules/ascensao-heroica-manual.pdf");
 	return (
 		<nav className="rules-access" aria-label="Manual de regras">
-			<a href={manualUrl} target="_blank" rel="noopener noreferrer">? Regras</a>
-			<a href={manualUrl} download="ascensao-heroica-manual.pdf" aria-label="Baixar manual em PDF">↓ PDF</a>
+			<a href={manualUrl} target="_blank" rel="noopener noreferrer">
+				? Regras
+			</a>
+			<a
+				href={manualUrl}
+				download="ascensao-heroica-manual.pdf"
+				aria-label="Baixar manual em PDF"
+			>
+				↓ PDF
+			</a>
 		</nav>
-	);
-}
-
-function OrientationGate() {
-	return (
-		<section
-			className="orientation-gate"
-			aria-label="O jogo requer orientação horizontal"
-			aria-live="polite"
-		>
-			<div className="orientation-gate__card">
-				<span className="orientation-gate__icon" aria-hidden="true">
-					↻
-				</span>
-				<h1>Gire o dispositivo para jogar</h1>
-				<p>Ascensão Heróica funciona apenas no modo horizontal.</p>
-				<a href={publicAssetUrl("rules/ascensao-heroica-manual.pdf")} target="_blank" rel="noopener noreferrer">Ler regras</a>
-			</div>
-		</section>
 	);
 }
 
