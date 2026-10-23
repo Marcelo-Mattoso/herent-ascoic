@@ -100,6 +100,12 @@ if (typeof window !== "undefined" && import.meta.env.DEV) {
 	(window as unknown as { __dispatch: (action: Action) => void }).__dispatch = (
 		action: Action,
 	) => dispatch(action);
+	(
+		window as unknown as { __loadGameState: (state: GameState) => void }
+	).__loadGameState = (state: GameState) => {
+		adapter = createInProcessAdapter(state);
+		setElfStoreProps({ gameState: state });
+	};
 }
 
 // ── Ações estáveis (referências module-level, nunca recriadas) ───────────────

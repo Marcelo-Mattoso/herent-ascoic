@@ -1,4 +1,5 @@
 import { type CSSProperties, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { CombatRollResult } from "@/core/state/combatState";
 
 interface DiceRollOverlayProps {
@@ -66,7 +67,7 @@ export function DiceRollOverlay({
 		};
 	}, []);
 
-	return (
+	return createPortal(
 		<div className="game-dice-roll-layer">
 			<div
 				className="game-dice-roll-modal"
@@ -102,7 +103,8 @@ export function DiceRollOverlay({
 					{canResolve ? "Resolver ataque" : "Rolando..."}
 				</button>
 			</div>
-		</div>
+		</div>,
+		document.body,
 	);
 }
 

@@ -23,7 +23,6 @@ import { SkillChoiceModal } from "@/ui/components/modals/SkillChoiceModal";
 import { SkillTargetModal } from "@/ui/components/modals/SkillTargetModal";
 import { TriggerInterruptModal } from "@/ui/components/modals/TriggerInterruptModal";
 import { XpSpendModal } from "@/ui/components/modals/XpSpendModal";
-import { useBackCards } from "@/ui/hooks/useBackCards";
 import { useBoardBackgrounds } from "@/ui/hooks/useBoardBackgrounds";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useGameStore } from "@/ui/store/gameStore";
@@ -103,7 +102,6 @@ export function Exploration() {
 	const [combatAttackHintVisible, setCombatAttackHintVisible] = useState(false);
 	const [hasShownFirstAttackHint, setHasShownFirstAttackHint] = useState(false);
 	const { selectedBoard } = useBoardBackgrounds();
-	const backCardUrls = useBackCards();
 	const cardImageUrls = useCardImages();
 
 	const status = view.status;
@@ -313,7 +311,6 @@ export function Exploration() {
 										payload: { side, index, value },
 									})
 								}
-								backCardUrls={backCardUrls}
 								cardImageUrls={cardImageUrls}
 							/>
 						</div>
@@ -367,10 +364,7 @@ export function Exploration() {
 								>
 									<span aria-hidden="true">✦</span> Influências
 								</button>
-								<button
-									type="button"
-									onClick={() => setPortableDrawer("log")}
-								>
+								<button type="button" onClick={() => setPortableDrawer("log")}>
 									<span aria-hidden="true">☷</span> Log
 								</button>
 							</div>
@@ -534,7 +528,11 @@ function PortableGameDrawer({
 			>
 				<header>
 					<h2>{title}</h2>
-					<button type="button" onClick={onClose} aria-label={`Fechar ${title}`}>
+					<button
+						type="button"
+						onClick={onClose}
+						aria-label={`Fechar ${title}`}
+					>
 						×
 					</button>
 				</header>

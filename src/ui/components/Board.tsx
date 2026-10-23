@@ -1,5 +1,5 @@
 // Tabuleiro coletivo da partida (Patch 3).
-// Layout: stacks centrais | arena | footer do grupo.
+// Layout: cartas ativas | arena | footer do grupo.
 
 import { type DragEvent, useEffect, useRef, useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
@@ -10,7 +10,6 @@ import type { CombatRollResult } from "@/core/state/combatState";
 import type { EnemyState } from "@/core/state/enemyState";
 import { MAX_HEROES, type GroupArtifact } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
-import type { BackCardUrls } from "@/ui/backCards";
 import type { CardImageUrls } from "@/ui/cardImages";
 import { getCardImageUrl } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
@@ -23,7 +22,6 @@ import { DiceSelectionPanel } from "./DiceSelectionPanel";
 import { DiceRollOverlay } from "./DiceRollOverlay";
 import { HeroCard } from "./HeroCard";
 import { HpBar } from "./HpBar";
-import { Stack } from "./Stack";
 
 interface BoardProps {
 	view: PlayerView;
@@ -42,7 +40,6 @@ interface BoardProps {
 	onSelectDie?: (side: "hero" | "enemy", index: number, value?: number) => void;
 	roll: CombatRollResult | null;
 	combatAttackHintVisible?: boolean;
-	backCardUrls?: BackCardUrls;
 	cardImageUrls?: CardImageUrls;
 }
 
@@ -616,7 +613,6 @@ export function Board({
 	onSelectDie,
 	roll,
 	combatAttackHintVisible = false,
-	backCardUrls,
 	cardImageUrls,
 }: BoardProps) {
 	const [draggingHeroId, setDraggingHeroId] = useState<string | null>(null);
@@ -773,7 +769,7 @@ export function Board({
 				overflow: "visible",
 			}}
 		>
-			{/* Área principal: stacks centrais + arena */}
+			{/* Área principal: cartas ativas + arena */}
 			<div
 				className="game-board-content"
 				style={{
@@ -785,8 +781,8 @@ export function Board({
 					padding: "9.5vh 12vw 3vh",
 				}}
 			>
-				{/* Pilhas principais / chefe final */}
-				{isBossEncounter ? (
+				{/* Chefe final */}
+				{isBossEncounter && (
 					<div
 						className="game-board-boss"
 						style={{
@@ -820,40 +816,6 @@ export function Board({
 								}
 							/>
 						</div>
-					</div>
-				) : (
-					<div
-						className="game-board-stacks"
-						style={{
-							display: "grid",
-							gridTemplateColumns: "repeat(3, minmax(134px, 150px))",
-							justifyContent: "center",
-							alignItems: "start",
-							columnGap: "clamp(28px, 5vw, 76px)",
-							width: "100%",
-						}}
-					>
-						<Stack
-							name="Masmorra"
-							count={view.decks.dungeonDeck.available}
-							discardCount={view.decks.dungeonDeck.discarded.length}
-							size="board"
-							imageUrl={backCardUrls?.verso_dungeon}
-						/>
-						<Stack
-							name="Monstros"
-							count={view.decks.enemyDeck.available}
-							discardCount={view.decks.enemyDeck.discarded}
-							size="board"
-							imageUrl={backCardUrls?.verso_criatura}
-						/>
-						<Stack
-							name="Itens"
-							count={view.decks.itemDeck.available.length}
-							discardCount={view.decks.itemDeck.discarded}
-							size="board"
-							imageUrl={backCardUrls?.verso_tesouro}
-						/>
 					</div>
 				)}
 

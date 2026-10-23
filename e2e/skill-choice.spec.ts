@@ -60,14 +60,19 @@ test("o jogador examina duas cartas reveladas antes de confirmar uma", async ({
 			.evaluate((grid) => grid.scrollWidth <= grid.clientWidth),
 	).toBe(true);
 	await page.screenshot({ path: "test-results/skill-choice-small.png" });
-	await page.setViewportSize({ width: 1280, height: 720 });
+	await page.setViewportSize({ width: 360, height: 800 });
+	await expect(cards).toHaveCount(2);
+	await page.screenshot({ path: "test-results/skill-choice-portrait.png" });
 
 	await page
 		.getByRole("button", { name: "Examinar carta: Adaga Enferrujada" })
 		.click();
-	await expect(
-		page.getByRole("dialog", { name: "Adaga Enferrujada" }),
-	).toBeVisible();
+	const detail = page.getByRole("dialog", { name: "Adaga Enferrujada" });
+	await expect(detail).toBeVisible();
+	const detailBounds = await detail.boundingBox();
+	expect(detailBounds).not.toBeNull();
+	expect(detailBounds!.x).toBeGreaterThanOrEqual(0);
+	expect(detailBounds!.x + detailBounds!.width).toBeLessThanOrEqual(360);
 	await page
 		.getByRole("dialog", { name: "Adaga Enferrujada" })
 		.locator(".modal-close")
@@ -78,5 +83,6 @@ test("o jogador examina duas cartas reveladas antes de confirmar uma", async ({
 	await expect(cards).toHaveCount(2);
 	await cards.first().getByRole("button", { name: "Guardar" }).click();
 	await expect(cards).toHaveCount(0);
+	await page.setViewportSize({ width: 1280, height: 720 });
 	expect(errors).toEqual([]);
 });

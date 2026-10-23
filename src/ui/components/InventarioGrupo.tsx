@@ -808,6 +808,9 @@ export function InventarioGrupo() {
 	const [inventoryFeedback, setInventoryFeedback] = useState<string | null>(
 		null,
 	);
+	const [rewardHeroId, setRewardHeroId] = useState<string | null>(null);
+	const rewardHero =
+		heroes.find((hero) => hero.id === rewardHeroId) ?? heroes[0];
 
 	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
 	const stoneUrl = getUiAssetUrl(uiAssets, "stonebackground");
@@ -891,6 +894,7 @@ export function InventarioGrupo() {
 	// ── Tooltip ───────────────────────────────────────────────────────────────
 
 	function showTooltip(t: TooltipTarget) {
+		if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
 		if (hideTimeoutRef.current) {
 			clearTimeout(hideTimeoutRef.current);
 			hideTimeoutRef.current = null;
@@ -1030,6 +1034,18 @@ export function InventarioGrupo() {
 		dispatch({ type: "INV_DISCARD_MESA" });
 	}
 
+	function handleCollectReward(itemId: string) {
+		if (!rewardHero) return;
+		const from = { kind: "mesa" as const };
+		const to = { kind: "hero_backpack" as const, heroId: rewardHero.id };
+		if (!moveInventoryItem(state, itemId, from, to)) {
+			setInventoryFeedback("Mochila cheia ou destino inválido para este item.");
+			return;
+		}
+		setInventoryFeedback(null);
+		dispatch({ type: "INV_MOVE", payload: { itemId, from, to } });
+	}
+
 	// ── Mesa — zona de drop (itens voltando de heróis) ────────────────────────
 
 	const mesaDropValid = isValidZone("mesa");
@@ -1083,6 +1099,21 @@ export function InventarioGrupo() {
 								<p className="inventory-drop-panel__label">
 									Itens não guardados
 								</p>
+								{heroes.length > 1 && (
+									<label className="inventory-reward-target">
+										Guardar com
+										<select
+											value={rewardHero?.id ?? ""}
+											onChange={(event) => setRewardHeroId(event.target.value)}
+										>
+											{heroes.map((hero) => (
+												<option key={hero.id} value={hero.id}>
+													{getCardName(hero.cardId)}
+												</option>
+											))}
+										</select>
+									</label>
+								)}
 								<div className="inventory-card-grid">
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
@@ -1104,6 +1135,11 @@ export function InventarioGrupo() {
 												onDragEnd={handleDragEnd}
 												onInfo={() =>
 													setDetailCard({ cardId: r.cardId, cardType: "item" })
+												}
+												onCollect={
+													rewardHero
+														? () => handleCollectReward(r.cardId)
+														: undefined
 												}
 												onMouseEnter={(e) =>
 													showTooltip({
@@ -1596,6 +1632,7 @@ function InventoryRewardCard({
 	onDragStart,
 	onDragEnd,
 	onInfo,
+	onCollect,
 	onMouseEnter,
 	onMouseMove,
 	onMouseLeave,
@@ -1609,6 +1646,7 @@ function InventoryRewardCard({
 	onDragStart: (e: React.DragEvent<HTMLElement>) => void;
 	onDragEnd: () => void;
 	onInfo: () => void;
+	onCollect?: () => void;
 	onMouseEnter: (e: React.MouseEvent) => void;
 	onMouseMove: (e: React.MouseEvent) => void;
 	onMouseLeave: () => void;
@@ -1618,7 +1656,7 @@ function InventoryRewardCard({
 
 	return (
 		<article
-			className={`inventory-card-tile${isDragging ? " inventory-card-tile--dragging" : ""}`}
+			className={`inventory-card-tile${isDragging ? " inventory-card-tile--dragging" : ""}${onCollect ? " inventory-card-tile--collect" : ""}`}
 			data-item="true"
 			draggable
 			onDragStart={onDragStart}
@@ -1636,6 +1674,15 @@ function InventoryRewardCard({
 				)}
 			</span>
 			<span>{name}</span>
+			{onCollect && (
+				<button
+					type="button"
+					className="inventory-reward-collect"
+					onClick={onCollect}
+				>
+					Guardar
+				</button>
+			)}
 			<button
 				type="button"
 				className="inventory-info-button"
