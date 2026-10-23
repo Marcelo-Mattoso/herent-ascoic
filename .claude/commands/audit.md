@@ -1,9 +1,8 @@
 ---
-description: Verifica se há arquivos dentro de docs/spec/v*
+description: Audita dependências sem alterar o repositório
 model: haiku
 ---
-seu objetivo é atualizar as dependências do projeto e corrigir vulnerabilidades de segurança. Para isso, siga os passos abaixo:
+Seu objetivo é identificar dependências vulneráveis ou desatualizadas. Para isso:
 
-1. run `npm audit`
-2. run `npm audit fix`
-3. run tests and verify the updates do not break the project
+1. Execute `npm audit`.
+2. Relate os achados e proponha atualizações separadamente; não altere dependências sem pedido de implementação.

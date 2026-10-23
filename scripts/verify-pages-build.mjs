@@ -16,6 +16,7 @@ const file = (relativePath) => {
 };
 
 const html = fs.readFileSync(file("index.html"), "utf8");
+file(".nojekyll");
 for (const match of html.matchAll(/(?:src|href)="([^"]+)"/g)) {
 	const url = match[1];
 	if (!url.startsWith("/")) continue;

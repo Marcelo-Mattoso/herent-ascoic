@@ -199,7 +199,7 @@ npm run script tools/dev-scripts/exemplo.ts   # script avulso com acesso ao core
 
 | Documento | Conteúdo |
 |---|---|
-| [`docs/arquitetura-mvp1.md`](../../docs/arquitetura-mvp1.md) | Decisões de arquitetura do MVP 1 |
-| [`docs/engine/v2/`](../../docs/engine/v2/) | Design detalhado do motor v2 (ECS, DSL, event bus) |
-| [`docs/patches/`](../../docs/patches/) | Histórico de patches — contexto de cada mudança |
+| [`docs/ARCHITECTURE.md`](../../docs/ARCHITECTURE.md) | Arquitetura atual e convenções de extensão |
+| [`docs/GAME_RULES.md`](../../docs/GAME_RULES.md) | Decisões de regra da implementação digital |
+| [`docs/PLAYTEST.md`](../../docs/PLAYTEST.md) | Limitações da Alpha e validação |
 | [`src/data/README.md`](../data/README.md) | Formato de `cards.yaml`, `skills.yaml` e locale |
