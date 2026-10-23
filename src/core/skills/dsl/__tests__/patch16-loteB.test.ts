@@ -343,7 +343,9 @@ describe("draw_and_choose — skill_forge_spoils (#18)", () => {
 			},
 		});
 		expect(afterDiscard.pendingSkillChoice?.options).toHaveLength(1);
-		expect(afterDiscard.decks.itemDeck.discarded).toContain("item_rusty_dagger");
+		expect(afterDiscard.decks.itemDeck.discarded).toContain(
+			"item_rusty_dagger",
+		);
 
 		const afterKeep = reducer(afterDiscard, {
 			type: "SKILL_CHOICE",
@@ -353,6 +355,33 @@ describe("draw_and_choose — skill_forge_spoils (#18)", () => {
 		expect(afterKeep.pendingRewards.map((reward) => reward.cardId)).toContain(
 			"item_cracked_shield",
 		);
+	});
+
+	it("recusa opção ou skillId inválidos sem consumir a escolha pendente", () => {
+		const state: GameState = {
+			...stateWithCombat(),
+			pendingSkillChoice: {
+				skillId: "skill_forge_spoils",
+				prompt: "Escolha um item",
+				kind: "draw_and_choose",
+				discardDeck: "itemDeck",
+				options: [{ id: "item_rusty_dagger", label: "item_rusty_dagger" }],
+			},
+		};
+		for (const [skillId, choice] of [
+			["outra_skill", "item_rusty_dagger"],
+			["skill_forge_spoils", "item_cracked_shield"],
+			["skill_forge_spoils", "__discard__:item_cracked_shield"],
+			["skill_forge_spoils", "__skip__"],
+		]) {
+			const result = reducer(state, {
+				type: "SKILL_CHOICE",
+				payload: { skillId, choice },
+			});
+			expect(result.pendingSkillChoice).toEqual(state.pendingSkillChoice);
+			expect(result.decks).toEqual(state.decks);
+			expect(result.pendingRewards).toEqual(state.pendingRewards);
+		}
 	});
 });
 

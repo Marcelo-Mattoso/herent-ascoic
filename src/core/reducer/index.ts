@@ -141,11 +141,13 @@ function resumeAfterSkillWindow(
 		case "finish_rewards":
 			return finishGrantRewards(continued);
 		case "apply_damage":
-			return advanceAfterEnemyDefeat(applyDamage(continued, window.resume.targetId, window.resume.amount, {
-				sourceId: window.resume.sourceId,
-				damageType: window.resume.damageType,
-				skipWouldBeDestroyed: true,
-			}));
+			return advanceAfterEnemyDefeat(
+				applyDamage(continued, window.resume.targetId, window.resume.amount, {
+					sourceId: window.resume.sourceId,
+					damageType: window.resume.damageType,
+					skipWouldBeDestroyed: true,
+				}),
+			);
 		case "advance_dungeon":
 			return resumeDungeonAdvance(continued, window.resume.exits);
 		case "discard_dungeon":
@@ -322,6 +324,23 @@ function dispatch(state: GameState, action: Action): GameState {
 			const pending = state.pendingSkillChoice;
 			const skillWindow = state.pendingSkillWindow;
 			if (!pending) return state;
+			if (action.payload.skillId !== pending.skillId) return state;
+			const choice = action.payload.choice;
+			const validOption = pending.options.some(
+				(option) => option.id === choice,
+			);
+			const validDiscard =
+				pending.kind === "draw_and_choose" &&
+				choice.startsWith("__discard__:") &&
+				pending.options.some(
+					(option) => option.id === choice.slice("__discard__:".length),
+				);
+			if (
+				!validOption &&
+				!validDiscard &&
+				!(choice === "__skip__" && pending.allowSkip)
+			)
+				return state;
 			const clearPendingChoice = (next: GameState): GameState => ({
 				...next,
 				pendingSkillChoice: undefined,
@@ -379,12 +398,18 @@ function dispatch(state: GameState, action: Action): GameState {
 				action.payload.choice.startsWith("__discard__:")
 			) {
 				const cardId = action.payload.choice.slice("__discard__:".length);
-				if (!pending.options.some((option) => option.id === cardId)) return state;
-				const remaining = pending.options.filter((option) => option.id !== cardId);
+				if (!pending.options.some((option) => option.id === cardId))
+					return state;
+				const remaining = pending.options.filter(
+					(option) => option.id !== cardId,
+				);
 				const discarded = discardDrawChoiceCards(state, [cardId]);
 				return remaining.length === 0
 					? finishChoice(clearPendingChoice(discarded))
-					: { ...discarded, pendingSkillChoice: { ...pending, options: remaining } };
+					: {
+							...discarded,
+							pendingSkillChoice: { ...pending, options: remaining },
+						};
 			}
 
 			const cleared = clearPendingChoice(
@@ -579,7 +604,13 @@ export function reducerCore(state: GameState, action: Action): GameState {
 
 export function reducer(state: GameState, action: Action): GameState {
 	const next = reducerCore(state, action);
-	if (next === state && (action.type === "INV_MOVE" || action.type === "INV_ASSIGN_ITEM" || action.type === "CHOOSE_ITEM_DESTINATION")) return state;
+	if (
+		next === state &&
+		(action.type === "INV_MOVE" ||
+			action.type === "INV_ASSIGN_ITEM" ||
+			action.type === "CHOOSE_ITEM_DESTINATION")
+	)
+		return state;
 	const newEntry = { seq: 0, action };
 	if (action.type === "START_GAME") {
 		return { ...next, actionLog: [newEntry] };
