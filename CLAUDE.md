@@ -9,7 +9,10 @@ npm run dev          # Vite dev server em localhost:5173
 npm run build        # tsc -b + Vite → dist/
 npm test             # Vitest (one-shot, todos os testes)
 npm run test:ui      # Vitest com UI interativa no browser
-npm run lint         # Biome check --write (lint + format)
+npm run lint         # Biome lint sem modificar arquivos
+npm run test:coverage # Vitest + limiares de cobertura
+npm run verify:build # Confere assets, manifestos e PDF em dist/
+npm run test:e2e     # Playwright (Chromium)
 npm run format       # Biome format --write
 npm run script <f>   # vite-node em tools/dev-scripts/<f> (acesso ao core via @/)
 ```
@@ -60,7 +63,7 @@ UI dispatch(action)
 
 ### Especificação e motivações
 
-`docs/spec/` (versões v1, v2, v3) contém as especificações brutas do projeto: casos de uso, user stories e motivações de design. Consultar sempre que precisar entender o **porquê** de uma feature antes de implementar.
+Leia `docs/ARCHITECTURE.md` para o sistema implementado, `docs/GAME_RULES.md` para decisões digitais do autor e `docs/PLAYTEST.md` para limites da Alpha. O manual publicado está em `public/rules/ascensao-heroica-manual.pdf`; propostas antigas permanecem no histórico Git. Para comportamento presente, o código e os catálogos de `src/data/` são a fonte de verdade.
 
 ### Dados (src/data/)
 
@@ -97,8 +100,8 @@ UI dispatch(action)
 - Exceções: explicação de arquitetura quando explicitamente pedida em profundidade, ou erro técnico que precisa contexto. Mesmo aí, cortar tudo que não agrega.
 
 ### Patches
-- **"Fazer patch-*" significa escrever o documento do patch**, não executar. Criar em `docs/patches/patch-<id>.md` com escopo, lotes, critério de aceite, riscos. Nada de código.
-- Execução só quando o usuário pedir explicitamente ("executa", "implementa", "roda o patch") — aí entra o modo econômico do Sonnet ([.claude/skills/patch-execution/SKILL.md](.claude/skills/patch-execution/SKILL.md)).
+- **"Fazer patch-*" significa planejar, não executar, salvo pedido explícito de implementação.** Registre planos necessários de forma concisa nos documentos vivos ou na conversa; não recrie uma pasta de patches históricos.
+- Para execução explicitamente solicitada, siga as convenções de implementação em [`.claude/skills/patch-execution/SKILL.md`](.claude/skills/patch-execution/SKILL.md).
 
 ### Comentários
 - Não adicionar comentários por padrão. Comentar apenas quando o **porquê** não é óbvio: restrição oculta, invariante sutil, workaround para bug específico, comportamento surpreendente.
