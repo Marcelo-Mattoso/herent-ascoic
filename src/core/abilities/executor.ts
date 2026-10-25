@@ -293,7 +293,10 @@ export function collectEventAbilityGrantCandidates(
 			);
 		}
 	}
-	for (const enemy of state.activeEnemies.filter((entry) => entry.status === "active")) {
+	for (const enemy of state.activeEnemies.filter((entry) =>
+		entry.status === "active" ||
+		((event === "evt_destroy" || event === "evt_kill") && entry.status === "defeated"),
+	)) {
 		addEventGrants(
 			candidates,
 			{
@@ -328,6 +331,18 @@ export function eventGrantMatchesContext(
 	ctx: SkillContext,
 ): boolean {
 	const heroId = candidate.source.sourceHeroId;
+	const enemyId = candidate.source.sourceEnemyId;
+	if (enemyId) {
+		if (
+			event === "evt_hit" || event === "evt_destroy" ||
+			event === "evt_would_be_destroyed" || event === "evt_damage_taken"
+		) return !(event === "evt_damage_taken" && ctx.targetHeroIds?.length) &&
+			(ctx.targetEnemyIds?.includes(enemyId) ?? false);
+		if (
+			event === "evt_attack_declared" || event === "evt_roll" ||
+			event === "evt_damage_dealt" || event === "evt_kill" || event === "evt_targeted"
+		) return enemyId === ctx.sourceEnemyId;
+	}
 	if (!heroId) return true;
 	if (
 		event === "evt_attack_declared" ||

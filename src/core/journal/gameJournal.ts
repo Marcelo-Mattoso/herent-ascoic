@@ -145,6 +145,14 @@ export interface JournalEntry {
 	readonly messages: readonly string[];
 	readonly changes: readonly string[];
 	readonly roll: CombatRollResult | null;
+	readonly interrupt?: {
+		readonly id: string;
+		readonly skillId: string;
+		readonly event: string;
+		readonly sourceCardId: string;
+		readonly decision: "opened" | "applied" | "skipped";
+		readonly continuation: string;
+	};
 	readonly before: JournalStateSnapshot;
 	readonly after: JournalStateSnapshot;
 }
@@ -449,7 +457,9 @@ export function projectJournalState(
 			state.pendingSkillTarget
 				? `${state.pendingSkillTarget.prompt}: ${state.pendingSkillTarget.candidates.map((candidate) => candidate.label).join(", ")}`
 				: undefined,
-			state.pendingTriggerInterrupt?.description,
+			state.pendingTriggerInterrupt
+				? `Interrupção: ${getSkillName(state.pendingTriggerInterrupt.skillId)} (${getCardName(state.pendingTriggerInterrupt.sourceCardId)}) — ${state.pendingTriggerInterrupt.reason}`
+				: undefined,
 		].filter(
 			(value): value is string => typeof value === "string" && value.length > 0,
 		),
@@ -594,6 +604,11 @@ function actionSummary(
 	changes: readonly string[],
 	after: JournalStateSnapshot,
 ): string {
+	if (
+		action.type === "APPLY_TRIGGER_INTERRUPT" ||
+		action.type === "SKIP_TRIGGER_INTERRUPT"
+	)
+		return `${action.type === "APPLY_TRIGGER_INTERRUPT" ? "Interrupção aplicada" : "Interrupção ignorada"}: ${action.payload?.interruptId ?? "sem ID"}`;
 	if (action.type === "INV_MOVE" || action.type === "INV_ASSIGN_ITEM")
 		return `Movimento: ${getCardName(action.payload.itemId)}`;
 	if (action.type === "USE_ITEM")
@@ -674,7 +689,34 @@ export function createGameJournal(
 				timestamp,
 				actionId: `${afterState.gameId}:${sequence}`,
 				actionType: action.type,
-				summary: actionSummary(action, changes, after),
+				interrupt: (() => {
+					const decision =
+						action.type === "APPLY_TRIGGER_INTERRUPT"
+							? ("applied" as const)
+							: action.type === "SKIP_TRIGGER_INTERRUPT"
+								? ("skipped" as const)
+								: ("opened" as const);
+					const pending =
+						decision === "opened"
+							? afterState.pendingTriggerInterrupt
+							: beforeState.pendingTriggerInterrupt;
+					return pending
+						? {
+								id: pending.id,
+								skillId: pending.skillId,
+								event: pending.event,
+								sourceCardId: pending.sourceCardId,
+								decision,
+								continuation:
+									(decision === "opened" ? afterState : beforeState)
+										.pendingSkillWindow?.resume.type ?? "none",
+							}
+						: undefined;
+				})(),
+				summary: beforeState.pendingTriggerInterrupt &&
+					(action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT")
+					? `${action.type === "APPLY_TRIGGER_INTERRUPT" ? "Interrupção aplicada" : "Interrupção ignorada"}: ${getSkillName(beforeState.pendingTriggerInterrupt.skillId)}`
+					: actionSummary(action, changes, after),
 				messages: [...messages],
 				changes,
 				roll: roll
@@ -807,6 +849,10 @@ export function exportJournalText(journal: GameJournal): string {
 		lines.push(
 			`[${new Date(entry.timestamp).toLocaleTimeString("pt-BR")}] #${entry.sequence} ${entry.summary}`,
 		);
+		if (entry.interrupt)
+			lines.push(
+				`  Trigger ${entry.interrupt.id} · ${entry.interrupt.decision} · ${entry.interrupt.event} · continuação ${entry.interrupt.continuation}`,
+			);
 		for (const change of entry.changes) lines.push(`  ${change}`);
 		for (const message of entry.messages) lines.push(`  Motor: ${message}`);
 		if (entry.roll) {

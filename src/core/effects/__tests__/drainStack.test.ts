@@ -129,6 +129,33 @@ describe("addPending", () => {
 	});
 });
 
+describe("pausa de interrupção", () => {
+	it("não resolve efeitos restantes antes da escolha do jogador", () => {
+		const base = makeState(makeEnemy("e1"));
+		const pending = {
+			id: "test-interrupt", skillId: "power_mighty_crimson_fury",
+			event: "evt_damage_dealt" as const, window: "after_damage" as const,
+			sourceKind: "hero" as const, sourceCardId: "hero_crimson_barbarian",
+			reason: "Escolha", description: "power_mighty_crimson_fury",
+		};
+		const interrupted: GameState = {
+			...base,
+			pendingTriggerInterrupt: pending,
+			effectStack: addPending(base.effectStack, {
+				cause: "DamageDealt", effect: { type: "apply_damage", targetId: "h1", amount: 2 }, source: "system",
+			}),
+		};
+		const paused = drainStack(interrupted);
+		expect(paused.heroes[0]?.currentLife).toBe(10);
+		expect(paused.effectStack.pending).toHaveLength(1);
+		const continued = reducer(paused, {
+			type: "SKIP_TRIGGER_INTERRUPT", payload: { interruptId: pending.id },
+		});
+		expect(continued.heroes[0]?.currentLife).toBe(8);
+		expect(continued.effectStack.pending).toHaveLength(0);
+	});
+});
+
 // ── drainStack — básico ───────────────────────────────────────────────────────
 
 describe("drainStack — básico", () => {

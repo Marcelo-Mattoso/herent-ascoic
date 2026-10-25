@@ -1,6 +1,6 @@
 # Playtest da Alpha Web
 
-Estado local em 23/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200; a atualização de equipamentos desta branch ainda não foi publicada. O workflow publica a partir de `main` após os checks.
+Estado local em 24/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as correções de interrupção desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
 
 ## O que testar
 
@@ -16,7 +16,7 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 | P1 | O tabuleiro agora cabe em retrato e paisagem sem rolagem da arena nos viewports automatizados. | Confirmar legibilidade, safe areas e barras dinâmicas em aparelhos reais antes da publicação. |
 | P1 | O harness marcou sete casos `no-effect` em cenários sintéticos: `skill_rift_evasion`, `skill_cowardly_flee`, `skill_opportunity_shot`, `skill_minor_rune`, `boss_skill_dark_forge_pressure`, `dungeon_skill_subboss_room`, `dungeon_skill_empty_room`. | Fazer partidas dirigidas e reproduzir uma falha antes de mudar regras. Não há skill classificada como sem implementação ou erro pelo harness anterior. |
 | P1 | Fuga de criatura para `skill_cowardly_flee` ainda não tem transição/emissor próprios. | Testar a carta em uma situação real e definir comportamento com o autor. |
-| P2 | Uma escolha reativa após dano pode interromper a limpeza de entidade ECS. | Validar janelas pós-dano com derrota; implementar continuação do pipeline em entrega separada. |
+| Resolvido localmente | Uma escolha reativa após dano interrompia a limpeza de entidade ECS. | Testes de aplicação e recusa cobrem dano letal e retomada do ataque. Repetir em uma partida dirigida antes de publicar. |
 | P2 | `enableSubBosses = false`. | Conteúdo de subchefes fica fora do escopo atual. |
 | P2 | Bundle JS acima do aviso de 500 kB do Vite. | Medir carregamento em rede móvel antes de dividir chunks. |
 | P2 | Manual publicado de 25 páginas difere de PDF posterior de 39 páginas fora do repositório. | Confirmar versão oficial e divergências com o autor antes de substituir. |
@@ -28,6 +28,8 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 O CI executa `npm ci`, lint sem alterações, Vitest, cobertura com os limiares de `vite.config.ts`, build para `/herent-ascoic/`, verificação de HTML/assets/manifestos/PDF e Playwright. Os testes de navegador cobrem menu, seleção de herói, entrada no tabuleiro, manual, toque para atacar, recompensa e equipamentos, escolha visual de habilidade e geometria da arena em 12 resoluções com até 4 heróis, até 4 criaturas e chefe. A arena não deve ter overflow nem hitboxes encobertas. Ainda é necessária uma partida humana longa para validar progressão completa e legibilidade em aparelhos reais.
 
 Validação local do sistema de equipamentos: lint e tipos passaram; 694 testes Vitest passaram com `--maxWorkers=2 --testTimeout=15000`; cobertura passou (76,56% instruções, 66,53% ramos, 84,59% funções, 80,29% linhas); build e `verify:build` passaram com base `/herent-ascoic/`; os 3 testes Playwright de início de partida e PDF passaram. Um preview do build compilado iniciou com 4 heróis, abriu o tabuleiro e o PDF, sem erro JavaScript ou resposta HTTP 4xx no percurso. O fluxo completo de vitória ainda precisa de partida dirigida na interface publicada.
+
+Validação local da recuperação de interrupções em 24/10/2026: 718 testes Vitest, 14 testes Playwright, lint, tipos, build e `verify:build` passaram. A cobertura passou com 76,18% de instruções, 66,6% de ramos, 82,61% de funções e 79,55% de linhas. O teste de catálogo encontrou 82 habilidades com efeito observável, 7 `no-effect` contextuais, nenhuma sem implementação e nenhum erro. Ainda falta uma partida humana longa no site publicado; esta verificação não equivale à publicação da branch.
 
 ## Checklist para liberação
 

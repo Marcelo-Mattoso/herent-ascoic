@@ -46,7 +46,10 @@ import {
 	type UseSkillPayload,
 } from "../skills/useSkill";
 import { resolveManualSkillTarget } from "../skills/targeting";
-import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import {
+	resolveSkillWindow,
+	type AttackResume,
+} from "../skills/resolveSkillWindow";
 import { buildScriptCtx } from "../scripts/context";
 import { evaluate } from "../skills/dsl/evaluate";
 import { tickBlockEntries } from "../state/blockHelpers";
@@ -816,7 +819,10 @@ export function handleResolveAttack(state: GameState): GameState {
 		result.heroDamageTaken > 0
 			? reduceHeroDamage(next, hero, result.heroDamageTaken)
 			: null;
-	if (result.enemyDamageTaken >= enemy.currentLife && result.enemyDamageTaken > 0) {
+	if (
+		result.enemyDamageTaken >= enemy.currentLife &&
+		result.enemyDamageTaken > 0
+	) {
 		next = resolveSkillWindow(next, {
 			event: "evt_would_be_destroyed",
 			resume: { type: "resolve_attack" },
@@ -851,63 +857,84 @@ export function handleResolveAttack(state: GameState): GameState {
 		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
 	}
 
+	const enemyDamageLog =
+		result.enemyDamageTaken > 0
+			? `${getCardName(enemy.cardId)} sofreu ${result.enemyDamageTaken} de dano${result.outcome === "tie" ? " (empate)" : ""}${formatDamageBonusNote(hero.damage, heroDamage.damage, heroDamage.breakdown)}. Herói: ${fmtRoll(roll.heroResults, roll.heroBreakdown, roll.heroTotal)} vs inimigo: ${roll.enemyTotal}.`
+			: undefined;
+	const heroDamageLog = reducedHeroDamage
+		? `${getCardName(hero.cardId)} sofreu ${reducedHeroDamage.damage} de dano${result.outcome === "tie" ? " (empate)" : ""}${reducedHeroDamage.breakdown.length ? ` [${reducedHeroDamage.breakdown.join(", ")}]` : ""}. Inimigo: ${fmtRoll(roll.enemyResults, roll.enemyBreakdown, roll.enemyTotal)} vs herói: ${roll.heroTotal}.`
+		: undefined;
+	const attackResume: AttackResume = {
+		stage: "after_enemy_damage",
+		heroId: hero.id,
+		enemyId: enemy.id,
+		heroDamageAmount: reducedHeroDamage?.damage ?? 0,
+		enemyDamageLog,
+		heroDamageLog,
+	};
+
 	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
 	if (result.enemyDamageTaken > 0) {
-		const dmg = result.enemyDamageTaken;
-		next = applyDamage(next, enemy.id, dmg, {
+		next = applyDamage(next, enemy.id, result.enemyDamageTaken, {
 			sourceId: hero.id,
-			skipWouldBeDestroyed: true,
-		});
-		if (next.pendingTriggerInterrupt) return next;
-		next = logItemLifeDrain(next, hero);
-		const heroRollStr = fmtRoll(
-			roll.heroResults,
-			roll.heroBreakdown,
-			roll.heroTotal,
-		);
-		const tieNote = result.outcome === "tie" ? " (empate)" : "";
-		const damageNote = formatDamageBonusNote(
-			hero.damage,
-			heroDamage.damage,
-			heroDamage.breakdown,
-		);
-		next = log(
-			next,
-			`${getCardName(enemy.cardId)} sofreu ${dmg} de dano${tieNote}${damageNote}. Herói: ${heroRollStr} vs inimigo: ${roll.enemyTotal}.`,
-		);
-
-		// on_destroy_creature_with_attack + on_destroyed: via TriggerComponents (emit EnemyDestroyed)
-	}
-
-	if (reducedHeroDamage) {
-		const reduced = reducedHeroDamage;
-		const dmg = reduced.damage;
-
-		next = applyDamage(next, hero.id, dmg, {
-			sourceId: enemy.id,
 			damageType: "attack",
 			skipWouldBeDestroyed: true,
 		});
-		if (next.pendingTriggerInterrupt) return next;
-		const enemyRollStr = fmtRoll(
-			roll.enemyResults,
-			roll.enemyBreakdown,
-			roll.enemyTotal,
-		);
-		const tieNoteHero = result.outcome === "tie" ? " (empate)" : "";
-		const reductionStr = reduced.breakdown.length
-			? ` [${reduced.breakdown.join(", ")}]`
-			: "";
-		next = log(
-			next,
-			`${getCardName(hero.cardId)} sofreu ${dmg} de dano${tieNoteHero}${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${roll.heroTotal}.`,
-		);
+		if (
+			next.pendingTriggerInterrupt ||
+			next.pendingSkillChoice ||
+			next.pendingSkillTarget
+		)
+			return attachAttackResume(next, attackResume);
 	}
+	return resumeAttackAfterDamage(next, attackResume);
+}
 
-	// Consumir modificadores "once" após o ataque ser resolvido (Lote C)
+function attachAttackResume(state: GameState, attack: AttackResume): GameState {
+	const window = state.pendingSkillWindow;
+	if (!window || window.resume.type !== "continue_damage") return state;
+	return {
+		...state,
+		pendingSkillWindow: {
+			...window,
+			resume: { ...window.resume, afterAttack: attack },
+		},
+	};
+}
+
+export function resumeAttackAfterDamage(
+	state: GameState,
+	attack: AttackResume,
+): GameState {
+	let next = state;
+	if (attack.stage === "after_enemy_damage") {
+		const hero = next.heroes.find((entry) => entry.id === attack.heroId);
+		if (attack.enemyDamageLog) {
+			if (hero) next = logItemLifeDrain(next, hero);
+			next = log(next, attack.enemyDamageLog);
+		}
+		if (attack.heroDamageAmount > 0) {
+			next = applyDamage(next, attack.heroId, attack.heroDamageAmount, {
+				sourceId: attack.enemyId,
+				damageType: "attack",
+				skipWouldBeDestroyed: true,
+			});
+			if (
+				next.pendingTriggerInterrupt ||
+				next.pendingSkillChoice ||
+				next.pendingSkillTarget
+			)
+				return attachAttackResume(next, {
+					...attack,
+					stage: "after_hero_damage",
+				});
+		}
+	}
+	if (attack.heroDamageLog) next = log(next, attack.heroDamageLog);
 	next = { ...next, world: tickModifierDurations(next.world, "once_consumed") };
-
-	return endHeroTurnAndAdvance(next, roll.heroId, "atacou");
+	return advanceAfterEnemyDefeat(
+		endHeroTurnAndAdvance(next, attack.heroId, "atacou"),
+	);
 }
 
 // ─── DIRECT_DAMAGE ───────────────────────────────────────────────────────────
@@ -1212,7 +1239,11 @@ export function handleUseItem(
 		}
 		const unavailable = manualItemUnavailableReason(state, heroId, itemId);
 		if (unavailable) return log(state, `[AVISO] ${unavailable}`);
-		const source = { kind: "item" as const, cardId: itemId, sourceHeroId: heroId };
+		const source = {
+			kind: "item" as const,
+			cardId: itemId,
+			sourceHeroId: heroId,
+		};
 		const selection = resolveManualGrantTarget(
 			state,
 			source,
@@ -1227,12 +1258,14 @@ export function handleUseItem(
 				selection.kind === "unavailable" ? selection.reason : selection.prompt,
 			);
 		}
-		return advanceAfterEnemyDefeat(executeAbilityGrant(state, {
-			source,
-			grant: explicitGrant,
-			triggeredBy: "manual",
-			targetIds: selection.targetIds,
-		}));
+		return advanceAfterEnemyDefeat(
+			executeAbilityGrant(state, {
+				source,
+				grant: explicitGrant,
+				triggeredBy: "manual",
+				targetIds: selection.targetIds,
+			}),
+		);
 	}
 	const itemSkillRef = itemCard ? cardSkills(itemCard.id)[0] : null;
 	const skillDef = itemSkillRef?.def ?? null;
@@ -1487,9 +1520,9 @@ export function handleUseSkill(
 	}
 	if (
 		(state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") &&
-		(!isPreyMark &&
-			(!isManualCombatActivationWindow(state) ||
-				state.combat?.selectedHeroId !== hero.id))
+		!isPreyMark &&
+		(!isManualCombatActivationWindow(state) ||
+			state.combat?.selectedHeroId !== hero.id)
 	) {
 		return log(state, "[AVISO] Selecione o herói antes de usar a habilidade.");
 	}
@@ -1553,7 +1586,9 @@ export function handleUseSkill(
 		...payload,
 		targetIds: [...target.targetIds],
 	});
-	return isPreyMark ? afterUse : blockAttackAfterSkill(afterUse, payload.sourceId);
+	return isPreyMark
+		? afterUse
+		: blockAttackAfterSkill(afterUse, payload.sourceId);
 }
 
 export function handleSelectSkillTarget(

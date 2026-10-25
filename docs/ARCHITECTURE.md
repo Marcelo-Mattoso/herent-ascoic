@@ -18,6 +18,10 @@ O core não depende de React, DOM ou rede. Dados aleatórios passam pelo gerador
 
 O combate escolhe herói e alvo, aplica usos manuais ou eventos reativos, rola dados pela fonte determinística, resolve defesa/dano e avança para recompensas ou próxima rodada. Guardas de alvo, custo e uso pertencem ao core. A UI apenas apresenta ações disponíveis e escolhas projetadas. O limite de profundidade da pilha de efeitos protege contra ciclos.
 
+`resolveSkillWindow` reúne grants declarativos e referências legadas de cartas presentes. Habilidades `op_active` entram por ações manuais, `op_passive` permanecem vinculadas à fonte e `op_triggered` reagem ao evento declarado; apenas reações opcionais abrem `pendingTriggerInterrupt`. `TRIGGER_EVENT_EMITTERS` relaciona os eventos `evt_*` aos fluxos emissores, e o teste de catálogo cobre tanto grants quanto `SkillRef`.
+
+Ao abrir uma decisão, `pendingSkillWindow.resume` guarda o ponto de continuação. Para dano, a continuação registra a etapa pós-dano ainda não executada: acerto de ataque, destruição, eliminação e limpeza de componentes ECS. Uma escolha dentro do efeito mantém a janela pendente até a resposta; se o efeito abrir outra interrupção, `parent` preserva a janela externa e a pilha de efeitos aguarda a decisão. O reducer retoma a resolução sem aplicar o dano novamente; no ataque, também conclui o dano da outra parte e encerra a ação. O diário registra o ID do trigger, evento, decisão e tipo de continuação a partir do estado real.
+
 ## Catálogos e assets
 
 Os catálogos executados ficam em `src/data/`:

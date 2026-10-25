@@ -7,7 +7,6 @@ import {
 	executeAbilityGrant,
 	canExecuteAbilityGrant,
 } from "../abilities/executor";
-import { ActivationTracker } from "../state/activation";
 import type { SkillContext } from "../data/skillTypes";
 import type { EventName, EffectNode } from "./dsl/types";
 import {
@@ -28,6 +27,19 @@ export type SkillWindowResume =
 	| { readonly type: "continue_rewards_after_room_win" }
 	| { readonly type: "finish_rewards" }
 	| {
+			readonly type: "continue_damage";
+			readonly stage:
+				| "after_dealt"
+				| "after_hit"
+				| "after_destroy"
+				| "after_kill";
+			readonly targetId: string;
+			readonly sourceId: string;
+			readonly amount: number;
+			readonly attackHit: boolean;
+			readonly afterAttack?: AttackResume;
+	  }
+	| {
 			readonly type: "apply_damage";
 			readonly targetId: string;
 			readonly amount: number;
@@ -41,10 +53,21 @@ export type SkillWindowResume =
 			readonly reason: "effect" | "extra";
 	  };
 
+export interface AttackResume {
+	readonly stage: "after_enemy_damage" | "after_hero_damage";
+	readonly heroId: string;
+	readonly enemyId: string;
+	readonly heroDamageAmount: number;
+	readonly enemyDamageLog?: string;
+	readonly heroDamageLog?: string;
+}
+
 export interface PendingSkillWindow {
 	readonly event: EventName;
 	readonly ctx: SkillContext;
 	readonly resume: SkillWindowResume;
+	/** Janela interrompida por um efeito que abriu outra decisão. */
+	readonly parent?: PendingSkillWindow;
 	/** Candidatas automáticas já executadas antes de uma escolha interromper a janela. */
 	readonly resolvedCandidateIds?: readonly string[];
 }
@@ -54,6 +77,7 @@ export interface SkillWindowRequest {
 	readonly ctx?: SkillContext;
 	readonly resume?: SkillWindowResume;
 	readonly resolvedCandidateIds?: readonly string[];
+	readonly parent?: PendingSkillWindow;
 }
 
 /**
@@ -65,8 +89,14 @@ export interface SkillWindowRequest {
 export const TRIGGER_EVENT_EMITTERS: Readonly<
 	Record<EventName, readonly string[]>
 > = {
-	evt_attack_declared: ["reducer/combat.handleRollDice", "reducer/combat.resolveExtraEnemyCombatRoll"],
-	evt_roll: ["reducer/combat.handleRollDice", "reducer/combat.resolveExtraEnemyCombatRoll"],
+	evt_attack_declared: [
+		"reducer/combat.handleRollDice",
+		"reducer/combat.resolveExtraEnemyCombatRoll",
+	],
+	evt_roll: [
+		"reducer/combat.handleRollDice",
+		"reducer/combat.resolveExtraEnemyCombatRoll",
+	],
 	evt_hit: ["systems/damageSystem.applyDamage"],
 	evt_damage_dealt: ["systems/damageSystem.applyDamage"],
 	evt_damage_taken: ["reducer/combat.handleResolveAttack"],
@@ -75,13 +105,19 @@ export const TRIGGER_EVENT_EMITTERS: Readonly<
 	evt_kill: ["systems/damageSystem.applyDamage"],
 	evt_combat_start: ["reducer/combat.handleStartCombat"],
 	evt_combat_end: ["reducer/reward.handleGrantRewards"],
-	evt_round_start: ["reducer/combat.handleStartCombat", "reducer/combat.handleAdvanceRound"],
+	evt_round_start: [
+		"reducer/combat.handleStartCombat",
+		"reducer/combat.handleAdvanceRound",
+	],
 	evt_round_end: ["reducer/combat.handleAdvanceRound"],
 	evt_room_reveal: ["reducer/exploration.handleRevealRoom"],
 	evt_room_enter: ["reducer/exploration.handleRevealRoom"],
 	evt_room_won: ["reducer/reward.handleGrantRewards"],
 	evt_room_leave: ["reducer/exploration.handleCheckBossCondition"],
-	evt_dungeon_discard: ["reducer/exploration.resumeDungeonAdvance", "reducer/exploration.discardFromDungeonDeck"],
+	evt_dungeon_discard: [
+		"reducer/exploration.resumeDungeonAdvance",
+		"reducer/exploration.discardFromDungeonDeck",
+	],
 	evt_enter_play: ["reducer/exploration.handleSpawnEnemies"],
 	evt_leave_play: ["reducer/combat.handleResolveAttack"],
 	evt_targeted: ["reducer/combat.resolveExtraEnemyCombatRoll"],
@@ -100,17 +136,6 @@ function requestCtx(request: SkillWindowRequest): SkillContext {
 		triggeredBy: request.event,
 		...(request.ctx ?? {}),
 	};
-}
-
-function isCombatStatus(state: GameState): boolean {
-	return (
-		state.status === "HERO_ACTION" ||
-		state.status === "ROLL_DICE" ||
-		state.status === "RESOLVE_ATTACK" ||
-		state.status === "DIRECT_DAMAGE" ||
-		state.status === "CHECK_COMBAT_END" ||
-		state.status === "BOSS_COMBAT"
-	);
 }
 
 function effectNeedsPlayerDecision(
@@ -172,6 +197,12 @@ function shouldSkipCandidate(candidate: TriggerCandidate): boolean {
 }
 
 function shouldPromptCandidate(candidate: TriggerCandidate): boolean {
+	if (
+		candidate.definition.interrupt?.mode === "auto" ||
+		candidate.mode === "passive"
+	)
+		return false;
+	if (candidate.definition.interrupt?.mode === "prompt") return true;
 	if (candidate.source.kind === "hero") {
 		if (candidate.definition.category === "hero_power") return true;
 		if (candidate.definition.script) return true;
@@ -194,44 +225,6 @@ function shouldPromptCandidate(candidate: TriggerCandidate): boolean {
 	return false;
 }
 
-function applyActivationCost(
-	state: GameState,
-	pending: PendingTriggerInterrupt,
-): GameState {
-	let next = state;
-	const inCombat = isCombatStatus(state);
-
-	if (pending.sourceKind === "hero" && pending.sourceHeroId && inCombat) {
-		next = ActivationTracker.endHeroTurn(next, pending.sourceHeroId);
-	}
-
-	if (pending.sourceKind === "item" && pending.sourceHeroId) {
-		const item = getCardById(pending.sourceCardId);
-		if (inCombat && item?.type !== "item") {
-			next = ActivationTracker.endHeroTurn(next, pending.sourceHeroId);
-		}
-		next = ActivationTracker.disable(next, {
-			kind: "item",
-			id: `${pending.sourceHeroId}:${pending.sourceCardId}`,
-			scope: inCombat ? "combat" : "room",
-			sourceId: pending.sourceHeroId,
-			reason: `usou ${pending.skillId}`,
-		});
-	}
-
-	if (pending.sourceKind === "artifact" && pending.sourceCardId) {
-		next = ActivationTracker.disable(next, {
-			kind: "artifact",
-			id: pending.sourceCardId,
-			scope: inCombat ? "combat" : "room",
-			sourceId: pending.sourceHeroId,
-			reason: `usou ${pending.skillId}`,
-		});
-	}
-
-	return next;
-}
-
 export function resolveSkillWindow(
 	state: GameState,
 	request: SkillWindowRequest,
@@ -249,7 +242,10 @@ export function resolveSkillWindow(
 	const resolvedCandidateIds = new Set(request.resolvedCandidateIds ?? []);
 	const candidates = collectTriggerCandidates(state, request.event);
 	let current = state;
-	const grantCandidates = collectEventAbilityGrantCandidates(current, request.event);
+	const grantCandidates = collectEventAbilityGrantCandidates(
+		current,
+		request.event,
+	);
 
 	for (const candidate of grantCandidates) {
 		if (!eventGrantMatchesContext(candidate, request.event, ctx)) continue;
@@ -265,7 +261,9 @@ export function resolveSkillWindow(
 		const pendingId = [
 			"grant",
 			request.event,
-			candidate.source.sourceHeroId ?? candidate.source.sourceEnemyId ?? "group",
+			candidate.source.sourceHeroId ??
+				candidate.source.sourceEnemyId ??
+				"group",
 			candidate.source.cardId,
 			candidate.grant.id,
 		].join(":");
@@ -294,6 +292,7 @@ export function resolveSkillWindow(
 					event: request.event,
 					ctx,
 					resume,
+					parent: request.parent,
 					resolvedCandidateIds: [...resolvedCandidateIds],
 				},
 			};
@@ -305,6 +304,20 @@ export function resolveSkillWindow(
 			targetIds: [...(ctx.targetHeroIds ?? []), ...(ctx.targetEnemyIds ?? [])],
 			value: ctx.value,
 		});
+		if (current.pendingTriggerInterrupt) {
+			resolvedCandidateIds.add(pendingId);
+			const parent: PendingSkillWindow = {
+				event: request.event, ctx, resume, parent: request.parent,
+				resolvedCandidateIds: [...resolvedCandidateIds],
+			};
+			return {
+				...current,
+				flags: { ...current.flags, [triggerDecisionFlag(pendingId)]: true },
+				pendingSkillWindow: current.pendingSkillWindow
+					? { ...current.pendingSkillWindow, parent }
+					: parent,
+			};
+		}
 		if (current.pendingSkillChoice || current.pendingSkillTarget) {
 			resolvedCandidateIds.add(pendingId);
 			return {
@@ -317,6 +330,7 @@ export function resolveSkillWindow(
 					event: request.event,
 					ctx,
 					resume,
+					parent: request.parent,
 					resolvedCandidateIds: [...resolvedCandidateIds],
 				},
 			};
@@ -340,6 +354,7 @@ export function resolveSkillWindow(
 					event: request.event,
 					ctx,
 					resume,
+					parent: request.parent,
 					resolvedCandidateIds: [...resolvedCandidateIds],
 				},
 			};
@@ -353,18 +368,19 @@ export function resolveSkillWindow(
 			current.pendingSkillTarget
 		) {
 			resolvedCandidateIds.add(pending.id);
+			const parent: PendingSkillWindow = {
+				event: request.event, ctx, resume, parent: request.parent,
+				resolvedCandidateIds: [...resolvedCandidateIds],
+			};
 			return {
 				...current,
 				flags: {
 					...current.flags,
 					[triggerDecisionFlag(pending.id)]: true,
 				},
-				pendingSkillWindow: {
-					event: request.event,
-					ctx,
-					resume,
-					resolvedCandidateIds: [...resolvedCandidateIds],
-				},
+				pendingSkillWindow: current.pendingTriggerInterrupt && current.pendingSkillWindow
+					? { ...current.pendingSkillWindow, parent }
+					: parent,
 			};
 		}
 		resolvedCandidateIds.add(pending.id);
@@ -388,7 +404,10 @@ export function applySkillWindowDecision(
 		},
 	};
 	if (pending.grantId) {
-		const candidate = collectEventAbilityGrantCandidates(cleared, pending.event).find(
+		const candidate = collectEventAbilityGrantCandidates(
+			cleared,
+			pending.event,
+		).find(
 			(entry) =>
 				entry.grant.id === pending.grantId &&
 				entry.source.cardId === pending.sourceCardId &&
@@ -407,13 +426,30 @@ export function applySkillWindowDecision(
 			value: pending.value,
 		});
 		if (!window) return applied;
+		if (applied.pendingTriggerInterrupt)
+			return {
+				...applied,
+				pendingSkillWindow: applied.pendingSkillWindow
+					? { ...applied.pendingSkillWindow, parent: window }
+					: window,
+			};
+		if (applied.pendingSkillChoice || applied.pendingSkillTarget)
+			return { ...applied, pendingSkillWindow: window };
 		return resolveSkillWindow(applied, window);
 	}
 	let applied = fireTriggerDecision(cleared, pending);
 	applied = drainStack(applied);
-	applied = applyActivationCost(applied, pending);
 
 	if (!window) return applied;
+	if (applied.pendingTriggerInterrupt)
+		return {
+			...applied,
+			pendingSkillWindow: applied.pendingSkillWindow
+				? { ...applied.pendingSkillWindow, parent: window }
+				: window,
+		};
+	if (applied.pendingSkillChoice || applied.pendingSkillTarget)
+		return { ...applied, pendingSkillWindow: window };
 	return resolveSkillWindow(applied, window);
 }
 

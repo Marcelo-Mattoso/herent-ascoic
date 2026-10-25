@@ -796,7 +796,12 @@ export function drainStack(state: GameState): GameState {
 			);
 		}
 
-		if (state.paused !== null) break;
+		if (
+			state.paused !== null ||
+			state.pendingTriggerInterrupt ||
+			state.pendingSkillChoice ||
+			state.pendingSkillTarget
+		) break;
 
 		const rule = ruleFor(state.effectStack.pending[0]!.cause);
 		const ordered = orderPending(state.effectStack.pending, rule);

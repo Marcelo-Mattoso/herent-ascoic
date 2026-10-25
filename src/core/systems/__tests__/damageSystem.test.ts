@@ -17,6 +17,8 @@ import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { applyDamage, applyDamageMin1 } from "../damageSystem";
 import { collectTriggerCandidates } from "../../triggers/engine";
+import { reducerCore } from "../../reducer";
+import { handleResolveAttack } from "../../reducer/combat";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
@@ -138,11 +140,11 @@ describe("applyDamage — herói", () => {
 			duration: { kind: "while_source_in_play" },
 			sourceEntityId: "h1",
 		};
-		const worldWithHero = upsertEntity(
-			state.world,
-			createEntity("h1", "hero"),
-		);
-		const withWard = { ...state, world: addComponent(worldWithHero, "h1", ward) };
+		const worldWithHero = upsertEntity(state.world, createEntity("h1", "hero"));
+		const withWard = {
+			...state,
+			world: addComponent(worldWithHero, "h1", ward),
+		};
 		expect(
 			applyDamage(withWard, "h1", 5, {
 				sourceId: "e1",
@@ -181,12 +183,22 @@ describe("applyDamage — herói", () => {
 		const result = applyDamage(state, "h1", 2, { sourceId: "e1" });
 
 		expect(result.heroes[0]?.status).toBe("defeated");
-		expect(result.world.entities.h1?.components.some((c) => c.type === "trigger")).toBe(false);
-		expect(result.world.entities.e1?.components.some((c) => c.type === "trigger")).toBe(false);
+		expect(
+			result.world.entities.h1?.components.some((c) => c.type === "trigger"),
+		).toBe(false);
+		expect(
+			result.world.entities.e1?.components.some((c) => c.type === "trigger"),
+		).toBe(false);
 	});
 });
 
 describe("applyDamage — inimigo", () => {
+	it("não emite dano causado quando o valor final é zero", () => {
+		const state = makeState({}, { currentLife: 5 });
+		const result = applyDamage(state, "e1", 0, { sourceId: "h1", damageType: "attack" });
+		expect(result.activeEnemies[0]!.currentLife).toBe(5);
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
+	});
 	it("reduz vida do inimigo pelo valor do dano", () => {
 		const state = makeState({}, { currentLife: 5 });
 		const result = applyDamage(state, "e1", 2);
@@ -209,29 +221,118 @@ describe("applyDamage — inimigo", () => {
 
 	it("abre a janela evt_hit para a criatura atingida, não para as outras", () => {
 		const state = {
-			...makeState({ cardId: "hero_silver_warrior", currentLife: 10 }, {
-				cardId: "creature_wet_stone_slime",
-				currentLife: 5,
-			}),
+			...makeState(
+				{ cardId: "hero_silver_warrior", currentLife: 10 },
+				{
+					cardId: "creature_wet_stone_slime",
+					currentLife: 5,
+				},
+			),
 			despertar: 4 as const,
 		};
-		const result = applyDamage(state, "e1", 1, { sourceId: "h1" });
-		expect(collectTriggerCandidates(state, "evt_hit").map((x) => x.definition.id)).toContain("purple_veil_retaliation");
+		const result = applyDamage(state, "e1", 1, {
+			sourceId: "h1",
+			damageType: "attack",
+		});
+		expect(
+			collectTriggerCandidates(state, "evt_hit").map((x) => x.definition.id),
+		).toContain("purple_veil_retaliation");
 		// Retaliação do Véu causa 1 de dano no herói agressor, além do dano no slime.
 		expect(result.activeEnemies[0]!.currentLife).toBe(4);
 		expect(result.heroes[0]!.currentLife).toBe(9);
 	});
 
+	it("não trata dano direto como acerto de ataque", () => {
+		const state = {
+			...makeState(
+				{ cardId: "hero_silver_warrior" },
+				{
+					cardId: "creature_wet_stone_slime",
+				},
+			),
+			despertar: 4 as const,
+		};
+		const result = applyDamage(state, "e1", 1, { sourceId: "h1" });
+		expect(result.heroes[0]!.currentLife).toBe(10);
+	});
+
+	it.each([
+		"APPLY_TRIGGER_INTERRUPT",
+		"SKIP_TRIGGER_INTERRUPT",
+	] as const)("retoma a limpeza da criatura após %s em dano letal", (actionType) => {
+		let state = makeState({}, { currentLife: 1 });
+		state = {
+			...state,
+			status: "HERO_ACTION",
+			world: upsertEntity(state.world, createEntity("e1", "enemy")),
+		};
+		const interrupted = applyDamage(state, "e1", 1, { sourceId: "h1" });
+		expect(interrupted.pendingTriggerInterrupt?.skillId).toBe(
+			"power_mighty_crimson_fury",
+		);
+		expect(interrupted.activeEnemies[0]?.status).toBe("defeated");
+		const resumed = reducerCore(interrupted, {
+			type: actionType,
+			payload: { interruptId: interrupted.pendingTriggerInterrupt!.id },
+		});
+		expect(resumed.pendingTriggerInterrupt).toBeUndefined();
+		expect(resumed.world.entities.e1).toBeUndefined();
+		expect(resumed.combat?.heroesActed).toEqual([]);
+	});
+
+	it.each([
+		"APPLY_TRIGGER_INTERRUPT",
+		"SKIP_TRIGGER_INTERRUPT",
+	] as const)("conclui o ataque após %s no dano causado", (actionType) => {
+		const base = makeState({}, { currentLife: 2 });
+		const state: GameState = {
+			...base,
+			status: "RESOLVE_ATTACK",
+			combat: {
+				...base.combat!,
+				phase: "resolving",
+				lastRoll: {
+					heroId: "h1",
+					enemyId: "e1",
+					heroResults: [6],
+					heroTotal: 10,
+					heroBreakdown: [],
+					enemyResults: [1],
+					enemyTotal: 1,
+					enemyBreakdown: [],
+				},
+			},
+		};
+		const interrupted = handleResolveAttack(state);
+		expect(interrupted.pendingTriggerInterrupt?.skillId).toBe(
+			"power_mighty_crimson_fury",
+		);
+		const resumed = reducerCore(interrupted, {
+			type: actionType,
+			payload: { interruptId: interrupted.pendingTriggerInterrupt!.id },
+		});
+		expect(resumed.pendingTriggerInterrupt).toBeUndefined();
+		expect(resumed.combat?.heroesActed).toContain("h1");
+		expect(resumed.status).toBe("CHECK_COMBAT_END");
+	});
+
 	it("abre evt_destroy para a criatura derrotada", () => {
 		const state = {
-			...makeState({ cardId: "hero_silver_warrior" }, {
-				cardId: "creature_dead_passage_thief",
-				currentLife: 1,
-			}),
+			...makeState(
+				{ cardId: "hero_silver_warrior" },
+				{
+					cardId: "creature_dead_passage_thief",
+					currentLife: 1,
+				},
+			),
 			despertar: 4 as const,
 			decks: {
 				...makeState().decks,
-				dungeonDeck: { available: ["room_a", "room_b"], discarded: [], removed: [] },
+				dungeonDeck: {
+					available: ["room_a", "room_b"],
+					discarded: [],
+					removed: [],
+				},
 			},
 		};
 		const result = applyDamage(state, "e1", 1, { sourceId: "h1" });

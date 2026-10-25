@@ -2381,7 +2381,8 @@ body {
 }
 
 .trigger-interrupt-modal__source {
-	display: grid;
+	display: flex;
+	align-items: center;
 	gap: 6px;
 	border: 1px solid rgba(227, 172, 55, 0.34);
 	border-radius: 8px;
@@ -2391,6 +2392,40 @@ body {
 		#f7dfaa;
 	padding: 12px 14px;
 	box-shadow: inset 0 0 0 1px rgba(255, 255, 255, 0.24);
+}
+
+.trigger-interrupt-modal__source > div {
+	display: grid;
+	gap: 6px;
+	min-width: 0;
+}
+
+.trigger-interrupt-modal__art {
+	width: 56px;
+	height: 76px;
+	flex: 0 0 auto;
+	padding: 0;
+	border: 1px solid #9b762b;
+	border-radius: 5px;
+	background: #201408;
+	overflow: hidden;
+	cursor: pointer;
+}
+
+.trigger-interrupt-modal__art img {
+	display: block;
+	width: 100%;
+	height: 100%;
+	object-fit: contain;
+}
+
+.trigger-interrupt-modal__art:focus-visible {
+	outline: 3px solid #946115;
+	outline-offset: 2px;
+}
+
+.trigger-interrupt-detail .modal-layer {
+	z-index: 70;
 }
 
 .trigger-interrupt-modal__source span {

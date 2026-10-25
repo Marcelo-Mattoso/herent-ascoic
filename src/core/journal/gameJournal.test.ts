@@ -4,6 +4,8 @@ import { addComponent, createEntity, upsertEntity } from "../ecs/world";
 import { reducer } from "../reducer";
 import { createInitialGameState } from "../state/gameState";
 import type { GameState } from "../state/gameState";
+import { createEmptyCombatState } from "../state/combatState";
+import { applyDamage } from "../systems/damageSystem";
 import {
 	createGameJournal,
 	exportJournalJson,
@@ -23,6 +25,55 @@ function started(): GameState {
 }
 
 describe("diário da partida", () => {
+	it("correlaciona abertura e recusa de trigger com a continuação real", () => {
+		const base = started();
+		const before: GameState = {
+			...base,
+			status: "HERO_ACTION",
+			combat: createEmptyCombatState(),
+			activeEnemies: [
+				{
+					id: "e1",
+					cardId: "creature_dark_cave_goblin",
+					maxLife: 5,
+					currentLife: 5,
+					damage: 2,
+					hitBonus: 0,
+					dice: 1,
+					tokens: {},
+					conditions: [],
+					firstDamageTakenThisTurn: false,
+					status: "active",
+				},
+			],
+		};
+		const journal = createGameJournal(before);
+		const pending = applyDamage(before, "e1", 1, {
+			sourceId: before.heroes[0]!.id,
+		});
+		const openingAction = { type: "DIRECT_DAMAGE" as const };
+		journal.record(openingAction, before, pending);
+		const skipAction = {
+			type: "SKIP_TRIGGER_INTERRUPT" as const,
+			payload: { interruptId: pending.pendingTriggerInterrupt!.id },
+		};
+		const resumed = reducer(pending, skipAction);
+		journal.record(skipAction, pending, resumed);
+		const [opened, skipped] = journal.get().entries;
+		expect(opened?.interrupt).toMatchObject({
+			decision: "opened",
+			event: "evt_damage_dealt",
+			continuation: "continue_damage",
+		});
+		expect(skipped?.interrupt).toMatchObject({
+			id: opened?.interrupt?.id,
+			decision: "skipped",
+			continuation: "continue_damage",
+		});
+		expect(exportJournalText(journal.get())).toContain(
+			`Trigger ${opened?.interrupt?.id}`,
+		);
+	});
 	it("projeta equipamento de duas mãos uma vez, mochila e exaustão do motor", () => {
 		const state = started();
 		const hero = state.heroes[0];

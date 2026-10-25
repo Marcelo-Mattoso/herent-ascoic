@@ -18,6 +18,7 @@ O [manual em PDF](../public/rules/ascensao-heroica-manual.pdf) é a referência 
 - Cancelar a escolha de alvo ou pular opção voluntária consome o uso quando há cooldown; poderes contam como uso único. O cancelamento não aplica o efeito nem paga HP.
 - O limite por sala vale também fora de combate, é preservado ao iniciar combate e se renova ao sair da sala após os efeitos de saída. `ActivationTracker` é a base comum dos bloqueios por escopo.
 - Gatilhos reativos mantêm suas janelas e custos próprios. Não converta uma habilidade reativa em botão manual só por causa de seu texto.
+- Uma reação opcional pode ser aplicada ou ignorada na janela apresentada; ignorar não paga HP nem executa o efeito. Uma reação legada não consome automaticamente a ação do herói: apenas um custo de ação declarado pelo grant pode fazê-lo. Dano direto não conta como `evt_hit`; esse evento requer acerto de ataque contra criatura.
 
 ## Pontos a confirmar
 

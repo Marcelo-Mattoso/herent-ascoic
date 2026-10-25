@@ -15,6 +15,7 @@ import { cardSkills } from "../skills/lookup";
 import { ActivationTracker } from "../state/activation";
 import { awakeningRequirementMet } from "../rules/awakening";
 import type { GameState } from "../state/gameState";
+import { syncEntityFromHero } from "../ecs/sync";
 
 export type TriggerWindow =
 	| "room_enter"
@@ -407,7 +408,7 @@ function triggerContextMatches(
 ): boolean {
 	const { event, source } = candidate;
 
-	if (event === "evt_attack_declared") {
+	if (event === "evt_attack_declared" || event === "evt_roll") {
 		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
 			return false;
 		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
@@ -425,7 +426,33 @@ function triggerContextMatches(
 
 	// Acerto e destruição pertencem à criatura atingida/derrotada. Salas e
 	// artefatos permanecem globais e não possuem sourceEnemyId.
+	if (
+		event === "evt_damage_taken" ||
+		event === "evt_would_be_destroyed" ||
+		event === "evt_targeted"
+	) {
+		if (
+			source.sourceHeroId &&
+			candidate.definition.target_type === "tgt_self" &&
+			!ctx.targetHeroIds?.includes(source.sourceHeroId)
+		)
+			return false;
+		if (
+			source.sourceEnemyId &&
+			event === "evt_damage_taken" &&
+			ctx.targetHeroIds?.length
+		)
+			return false;
+		if (
+			source.sourceEnemyId &&
+			!ctx.targetEnemyIds?.includes(source.sourceEnemyId)
+		)
+			return false;
+	}
+
 	if (event === "evt_hit" || event === "evt_destroy") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
 		if (
 			source.sourceEnemyId &&
 			!ctx.targetEnemyIds?.includes(source.sourceEnemyId)
@@ -479,6 +506,13 @@ export function candidateCanFire(
 	) {
 		return false;
 	}
+	const hpCost = candidate.definition.cost?.hp ?? 0;
+	if (hpCost > 0 && candidate.source.sourceHeroId) {
+		const hero = state.heroes.find(
+			(entry) => entry.id === candidate.source.sourceHeroId,
+		);
+		if (!hero || hero.currentLife <= hpCost) return false;
+	}
 
 	if (
 		candidate.definition.conditions &&
@@ -503,6 +537,21 @@ export function executeTriggerCandidate(
 	ctx: SkillContext,
 ): GameState {
 	let current = state;
+	const hpCost = candidate.definition.cost?.hp ?? 0;
+	if (hpCost > 0 && candidate.source.sourceHeroId) {
+		const hero = current.heroes.find(
+			(entry) => entry.id === candidate.source.sourceHeroId,
+		);
+		if (!hero || hero.currentLife <= hpCost) return state;
+		const paidHero = { ...hero, currentLife: hero.currentLife - hpCost };
+		current = {
+			...current,
+			heroes: current.heroes.map((entry) =>
+				entry.id === hero.id ? paidHero : entry,
+			),
+			world: syncEntityFromHero(current.world, paidHero),
+		};
+	}
 
 	if (candidate.definition.effect) {
 		const resolvedCtx = resolveSkillContext(candidate, ctx);

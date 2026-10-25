@@ -3,10 +3,18 @@ import { getAllCards } from "../../data/cards";
 import { cardAbilityGrants } from "../../data/abilities";
 import type { EventName } from "../dsl/types";
 import { TRIGGER_EVENT_EMITTERS } from "../resolveSkillWindow";
+import { cardSkills } from "../lookup";
 
 describe("contrato catálogo → emissor de trigger", () => {
 	function declaredEvents(): Set<EventName> {
 		return new Set<EventName>([
+			...getAllCards().flatMap((card) =>
+				cardSkills(card.id).flatMap(({ def }) =>
+					def.operate_type === "op_triggered" && def.trigger?.event
+						? [def.trigger.event]
+						: [],
+				),
+			),
 			...getAllCards().flatMap((card) =>
 				cardAbilityGrants(card.id).flatMap((grant) =>
 					grant.activation.kind === "event" && grant.activation.event
@@ -31,7 +39,10 @@ describe("contrato catálogo → emissor de trigger", () => {
 
 	it("mantém emissores para janelas reservadas mesmo antes de uma fonte usá-las", () => {
 		for (const [event, emitters] of Object.entries(TRIGGER_EVENT_EMITTERS)) {
-			expect(emitters, `${event} deve ter um emissor concreto`).not.toHaveLength(0);
+			expect(
+				emitters,
+				`${event} deve ter um emissor concreto`,
+			).not.toHaveLength(0);
 		}
 	});
 });

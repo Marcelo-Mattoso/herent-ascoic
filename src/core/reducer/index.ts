@@ -30,6 +30,7 @@ import {
 	handleCancelSkillTarget,
 	advanceAfterEnemyDefeat,
 	advanceAfterHeroDisabledForRound,
+	resumeAttackAfterDamage,
 } from "./combat";
 import {
 	handleCheckBossCondition,
@@ -78,7 +79,7 @@ import {
 	type PendingSkillWindow,
 } from "../skills/resolveSkillWindow";
 import { handleStartGame } from "./setup";
-import { applyDamage } from "../systems/damageSystem";
+import { applyDamage, continueDamage } from "../systems/damageSystem";
 import { log } from "./utils";
 
 function applyAndValidate(
@@ -108,6 +109,7 @@ function resumeAfterTriggerDecision(
 function resumeAfterSkillWindow(
 	state: GameState,
 	window: PendingSkillWindow | undefined,
+	forceResolve = false,
 ): GameState {
 	if (
 		!window ||
@@ -121,45 +123,71 @@ function resumeAfterSkillWindow(
 		...state,
 		pendingSkillWindow: undefined,
 	};
-	const continued = state.pendingSkillWindow
+	const continued = state.pendingSkillWindow || forceResolve
 		? resolveSkillWindow(resumedWindow, window)
 		: resumedWindow;
+	const afterStack = drainStack(continued);
+	const attachParent = (next: GameState): GameState =>
+		window.parent && (next.pendingTriggerInterrupt || next.pendingSkillChoice || next.pendingSkillTarget)
+			? {
+				...next,
+				pendingSkillWindow: next.pendingSkillWindow
+					? { ...next.pendingSkillWindow, parent: window.parent }
+					: window.parent,
+			}
+			: next;
 	if (
-		continued.pendingTriggerInterrupt ||
-		continued.pendingSkillChoice ||
-		continued.pendingSkillTarget
+		afterStack.pendingTriggerInterrupt ||
+		afterStack.pendingSkillChoice ||
+		afterStack.pendingSkillTarget
 	) {
-		return continued;
+		return attachParent(afterStack);
 	}
-	switch (window.resume.type) {
+	const result: GameState = (() => { switch (window.resume.type) {
 		case "roll_dice":
-			return handleRollDice(continued);
+			return handleRollDice(afterStack);
 		case "resolve_attack":
-			return handleResolveAttack(continued);
+			return handleResolveAttack(afterStack);
 		case "continue_rewards_after_room_win":
-			return continueRewardsAfterRoomWin(continued);
+			return continueRewardsAfterRoomWin(afterStack);
 		case "finish_rewards":
-			return finishGrantRewards(continued);
+			return finishGrantRewards(afterStack);
+		case "continue_damage": {
+			const afterDamage = continueDamage(afterStack, window.resume);
+			if (
+				afterDamage.pendingTriggerInterrupt ||
+				afterDamage.pendingSkillChoice ||
+				afterDamage.pendingSkillTarget
+			)
+				return afterDamage;
+			return window.resume.afterAttack
+				? resumeAttackAfterDamage(afterDamage, window.resume.afterAttack)
+				: advanceAfterEnemyDefeat(afterDamage);
+		}
 		case "apply_damage":
 			return advanceAfterEnemyDefeat(
-				applyDamage(continued, window.resume.targetId, window.resume.amount, {
+				applyDamage(afterStack, window.resume.targetId, window.resume.amount, {
 					sourceId: window.resume.sourceId,
 					damageType: window.resume.damageType,
 					skipWouldBeDestroyed: true,
+					resolvedAmount: window.resume.amount,
 				}),
 			);
 		case "advance_dungeon":
-			return resumeDungeonAdvance(continued, window.resume.exits);
+			return resumeDungeonAdvance(afterStack, window.resume.exits);
 		case "discard_dungeon":
 			return discardFromDungeonDeck(
-				continued,
+				afterStack,
 				window.resume.count,
 				window.resume.reason,
 				true,
 			);
 		case "none":
-			return advanceAfterEnemyDefeat(continued);
-	}
+			return advanceAfterEnemyDefeat(afterStack);
+	} })();
+	if (result.pendingTriggerInterrupt || result.pendingSkillChoice || result.pendingSkillTarget)
+		return attachParent(result);
+	return window.parent ? resumeAfterSkillWindow(result, window.parent, true) : result;
 }
 
 function dispatch(state: GameState, action: Action): GameState {
@@ -596,7 +624,29 @@ function dispatch(state: GameState, action: Action): GameState {
 
 // reducerCore: executa dispatch + valida transição + drena effect stack.
 export function reducerCore(state: GameState, action: Action): GameState {
-	const dispatched = dispatch(state, action);
+	// As decisões evitam repetir a mesma reação durante a continuação desta
+	// ação. Depois que a janela terminou, uma nova ação pode emitir o mesmo
+	// evento novamente (inclusive na mesma rodada, se não houver cooldown).
+	const ready =
+		Object.keys(state.flags).some((key) =>
+			key.startsWith("triggerInterruptResolved::"),
+		) &&
+		!state.pendingTriggerInterrupt &&
+		!state.pendingSkillWindow &&
+		!state.pendingSkillChoice &&
+		!state.pendingSkillTarget &&
+		action.type !== "APPLY_TRIGGER_INTERRUPT" &&
+		action.type !== "SKIP_TRIGGER_INTERRUPT"
+			? {
+					...state,
+					flags: Object.fromEntries(
+						Object.entries(state.flags).filter(
+							([key]) => !key.startsWith("triggerInterruptResolved::"),
+						),
+					),
+				}
+			: state;
+	const dispatched = dispatch(ready, action);
 	const validated = applyAndValidate(state, action, dispatched);
 	// Drenar a stack ao fim de cada action — toda cadeia de efeitos resolve aqui.
 	return drainStack(validated);
