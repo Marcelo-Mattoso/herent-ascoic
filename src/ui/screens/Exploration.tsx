@@ -3,6 +3,7 @@
 
 import { UseItemModal } from "@/ui/components/modals/UseItemModal";
 import { type CSSProperties, useEffect, useState } from "react";
+import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
 import { getCardName } from "@/core/data/cardLocale";
 import type { PlayerView } from "@/core/projection/playerView";
@@ -15,6 +16,7 @@ import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
+import { JournalPanel } from "@/ui/components/JournalPanel";
 import { InfluencePanel } from "@/ui/components/InfluencePanel";
 import { InventarioGrupo } from "@/ui/components/InventarioGrupo";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
@@ -97,10 +99,12 @@ export function Exploration() {
 		heroId: string;
 		itemId?: string;
 	} | null>(null);
-	const { view, ui, dispatch, setFocusedHero, heroActionsFor } = useGameStore();
+	const { view, ui, journal, dispatch, setFocusedHero, heroActionsFor } =
+		useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showHeroFocus, setShowHeroFocus] = useState(false);
 	const [actionLogMode, setActionLogMode] = useState<ActionLogMode>("open");
+	const [showJournal, setShowJournal] = useState(false);
 	const [portableDrawer, setPortableDrawer] = useState<{
 		type: Exclude<PortableDrawer, null>;
 		phaseKey: string;
@@ -346,6 +350,13 @@ export function Exploration() {
 							<div className="game-influence-panel">
 								<InfluencePanel influences={view.activeInfluences} />
 							</div>
+							<button
+								type="button"
+								className="game-journal-open"
+								onClick={() => setShowJournal(true)}
+							>
+								📖 Diário da partida
+							</button>
 							{actionLogMode === "hidden" ? (
 								<button
 									type="button"
@@ -390,11 +401,8 @@ export function Exploration() {
 								>
 									<span aria-hidden="true">✦</span> Influências
 								</button>
-								<button
-									type="button"
-									onClick={() => togglePortableDrawer("log")}
-								>
-									<span aria-hidden="true">☷</span> Log
+								<button type="button" onClick={() => setShowJournal(true)}>
+									<span aria-hidden="true">📖</span> Diário
 								</button>
 								<a
 									href={publicAssetUrl("rules/ascensao-heroica-manual.pdf")}
@@ -485,6 +493,23 @@ export function Exploration() {
 							onClose={() => setPortableDrawer(null)}
 						/>
 					)}
+
+					{showJournal &&
+						createPortal(
+							<div className="journal-layer">
+								<button
+									type="button"
+									className="journal-layer__backdrop"
+									onClick={() => setShowJournal(false)}
+									aria-label="Fechar diário"
+								/>
+								<JournalPanel
+									journal={journal}
+									onClose={() => setShowJournal(false)}
+								/>
+							</div>,
+							document.body,
+						)}
 
 					{/* Modais */}
 					{itemUse && (

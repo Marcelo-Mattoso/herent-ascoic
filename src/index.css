@@ -3527,6 +3527,155 @@ body {
 	display: none;
 }
 
+.game-journal-open {
+	border: 1px solid rgba(230, 177, 65, 0.5);
+	border-radius: 7px;
+	background: #0b1d33;
+	color: #f2d995;
+	padding: 7px 10px;
+	cursor: pointer;
+}
+
+.journal-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 1000;
+	display: flex;
+	justify-content: flex-end;
+	padding: 12px;
+}
+
+.journal-layer__backdrop {
+	position: absolute;
+	inset: 0;
+	border: 0;
+	background: rgba(0, 0, 0, 0.62);
+}
+
+.journal-panel {
+	position: relative;
+	display: flex;
+	flex-direction: column;
+	width: min(660px, 100%);
+	max-height: 100%;
+	border: 1px solid rgba(230, 177, 65, 0.6);
+	border-radius: 12px;
+	background: #0b1d33;
+	color: #f6e9cf;
+	box-shadow: 0 22px 54px rgba(0, 0, 0, 0.58);
+	overflow: hidden;
+}
+
+.journal-panel__header,
+.journal-panel__footer,
+.journal-panel__tabs {
+	display: flex;
+	align-items: center;
+	gap: 8px;
+	padding: 10px 14px;
+	border-bottom: 1px solid rgba(230, 177, 65, 0.28);
+}
+
+.journal-panel__header {
+	justify-content: space-between;
+}
+.journal-panel__header h2 {
+	margin: 0;
+	font:
+		600 1.1rem Georgia,
+		serif;
+}
+.journal-panel button {
+	cursor: pointer;
+}
+.journal-panel__header button,
+.journal-panel__tabs button,
+.journal-panel__footer button {
+	border: 1px solid rgba(230, 177, 65, 0.5);
+	border-radius: 6px;
+	background: #152d48;
+	color: #f6e9cf;
+	padding: 6px 10px;
+}
+.journal-panel__tabs button[aria-current="page"] {
+	background: #705428;
+}
+.journal-panel__body {
+	flex: 1;
+	min-height: 0;
+	overflow: auto;
+	padding: 12px 14px;
+}
+.journal-panel__footer {
+	border-bottom: 0;
+	border-top: 1px solid rgba(230, 177, 65, 0.28);
+}
+.journal-entry,
+.journal-card {
+	margin-bottom: 8px;
+	border: 1px solid rgba(230, 177, 65, 0.25);
+	border-radius: 7px;
+	background: rgba(255, 255, 255, 0.04);
+}
+.journal-entry > summary,
+.journal-card > summary {
+	padding: 9px;
+	cursor: pointer;
+}
+.journal-entry__body,
+.journal-card__body {
+	padding: 0 10px 10px;
+}
+.journal-state section {
+	margin: 0 0 18px;
+}
+.journal-state h3 {
+	margin: 10px 0;
+	color: #f2d995;
+}
+.journal-state h4 {
+	margin: 12px 0 5px;
+	color: #f2d995;
+}
+.journal-state p,
+.journal-entry p {
+	margin: 6px 0;
+	line-height: 1.45;
+}
+.journal-list {
+	padding-left: 22px;
+	margin: 6px 0;
+}
+.journal-list li {
+	margin: 4px 0;
+}
+.journal-panel small {
+	opacity: 0.78;
+}
+.journal-panel details details {
+	margin: 6px 0;
+	padding: 5px;
+	border-left: 2px solid rgba(230, 177, 65, 0.35);
+}
+.journal-roll {
+	padding: 4px 8px;
+	border-left: 2px solid #e6b141;
+}
+
+@media (max-width: 700px) {
+	.game-journal-open {
+		display: none;
+	}
+	.journal-layer {
+		padding: max(5px, env(safe-area-inset-top))
+			max(5px, env(safe-area-inset-right)) max(5px, env(safe-area-inset-bottom))
+			max(5px, env(safe-area-inset-left));
+	}
+	.journal-panel {
+		width: 100%;
+	}
+}
+
 .game-portable-drawer-layer {
 	position: absolute;
 	inset: 0;
