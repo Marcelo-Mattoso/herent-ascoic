@@ -1,4 +1,5 @@
 import { type CSSProperties, type ReactNode, useState } from "react";
+import { createPortal } from "react-dom";
 import { getCardLocale, getCardName } from "@/core/data/cardLocale";
 import { getBoss, getHeroes } from "@/core/data/cards";
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
@@ -41,9 +42,17 @@ const DIFFICULTIES: { value: Difficulty; label: string; hint: string }[] = [
 
 interface SetupProps {
 	onBack: () => void;
+	tutorialSeed?: number;
+	deferInitialRoomReveal?: boolean;
+	onSelectionChange?: (ids: string[]) => void;
 }
 
-export function Setup({ onBack }: SetupProps) {
+export function Setup({
+	onBack,
+	tutorialSeed,
+	deferInitialRoomReveal = false,
+	onSelectionChange,
+}: SetupProps) {
 	const dispatch = useGameStore((s) => s.dispatch);
 	const [difficulty, setDifficulty] = useState<Difficulty>("normal");
 	const [mode, setMode] = useState<GameMode>("cooperative");
@@ -89,21 +98,29 @@ export function Setup({ onBack }: SetupProps) {
 	} as CSSProperties;
 
 	function toggleHero(id: string) {
-		setSelectedHeroes((prev) => {
-			if (prev.includes(id)) return prev.filter((heroId) => heroId !== id);
-			if (prev.length >= MAX_HEROES) return prev;
-			return [...prev, id];
-		});
+		if (!selectedHeroes.includes(id) && selectedHeroes.length >= MAX_HEROES)
+			return;
+		const next = selectedHeroes.includes(id)
+			? selectedHeroes.filter((heroId) => heroId !== id)
+			: [...selectedHeroes, id];
+		setSelectedHeroes(next);
+		onSelectionChange?.(next);
 	}
 
 	function startGame() {
 		if (!canStart) return;
 		const seedValues = new Uint32Array(1);
 		globalThis.crypto?.getRandomValues?.(seedValues);
-		const seed = seedValues[0] || Date.now();
+		const seed = tutorialSeed ?? (seedValues[0] || Date.now());
 		dispatch({
 			type: "START_GAME",
-			payload: { heroCardIds: selectedHeroes, difficulty, mode, seed },
+			payload: {
+				heroCardIds: selectedHeroes,
+				difficulty,
+				mode,
+				seed,
+				...(deferInitialRoomReveal ? { deferInitialRoomReveal: true } : {}),
+			},
 		});
 	}
 
@@ -118,7 +135,7 @@ export function Setup({ onBack }: SetupProps) {
 					{logoUrl ? <img src={logoUrl} alt="" /> : null}
 					<div>
 						<h1>Preparar Expedição</h1>
-						<p>
+						<p data-tutorial-anchor="setup.selected-heroes">
 							{selectedHeroes.length === 0
 								? "Escolha seus heróis"
 								: selectedCountLabel}
@@ -154,7 +171,10 @@ export function Setup({ onBack }: SetupProps) {
 							<p>1 a 4 participantes</p>
 						</div>
 					</div>
-					<div className="setup-hero-grid">
+					<div
+						className="setup-hero-grid"
+						data-tutorial-anchor="setup.hero-selection"
+					>
 						{heroes.map((hero) => {
 							const selected = selectedHeroes.includes(hero.id);
 							return (
@@ -190,63 +210,65 @@ export function Setup({ onBack }: SetupProps) {
 
 				<aside className="setup-rules-panel">
 					<div className="setup-rules-panel__scroll">
-					<div className="setup-section-heading">
-						{diceIconUrl ? <img src={diceIconUrl} alt="" /> : null}
-						<div>
-							<h2>Configuração</h2>
-							<p>Modo e desafio</p>
+						<div className="setup-section-heading">
+							{diceIconUrl ? <img src={diceIconUrl} alt="" /> : null}
+							<div>
+								<h2>Configuração</h2>
+								<p>Modo e desafio</p>
+							</div>
 						</div>
-					</div>
 
-					<div className="setup-control-group">
-						<p>Modo</p>
-						<div className="setup-segmented-control">
-							{(["cooperative", "competitive"] as GameMode[]).map(
-								(gameMode) => (
+						<div className="setup-control-group">
+							<p>Modo</p>
+							<div className="setup-segmented-control">
+								{(["cooperative", "competitive"] as GameMode[]).map(
+									(gameMode) => (
+										<button
+											key={gameMode}
+											type="button"
+											className={mode === gameMode ? "is-selected" : undefined}
+											onClick={() => setMode(gameMode)}
+										>
+											{gameMode === "cooperative" ? "Coop" : "Competitivo"}
+										</button>
+									),
+								)}
+							</div>
+						</div>
+
+						<div className="setup-control-group">
+							<p>Dificuldade</p>
+							<div className="setup-difficulty-list">
+								{DIFFICULTIES.map((item) => (
 									<button
-										key={gameMode}
+										key={item.value}
 										type="button"
-										className={mode === gameMode ? "is-selected" : undefined}
-										onClick={() => setMode(gameMode)}
+										className={
+											difficulty === item.value ? "is-selected" : undefined
+										}
+										onClick={() => setDifficulty(item.value)}
 									>
-										{gameMode === "cooperative" ? "Coop" : "Competitivo"}
+										<span>{item.label}</span>
+										<small>{item.hint}</small>
 									</button>
-								),
-							)}
+								))}
+							</div>
 						</div>
-					</div>
-
-					<div className="setup-control-group">
-						<p>Dificuldade</p>
-						<div className="setup-difficulty-list">
-							{DIFFICULTIES.map((item) => (
-								<button
-									key={item.value}
-									type="button"
-									className={
-										difficulty === item.value ? "is-selected" : undefined
-									}
-									onClick={() => setDifficulty(item.value)}
-								>
-									<span>{item.label}</span>
-									<small>{item.hint}</small>
-								</button>
-							))}
-						</div>
-					</div>
-
 					</div>
 
 					<div className="setup-rules-panel__footer">
 						<button
 							type="button"
 							className="ornate-action ornate-action--primary setup-start-button"
+							data-tutorial-anchor="setup.start-expedition"
 							onClick={startGame}
 							disabled={!canStart}
 						>
 							Iniciar partida
 						</button>
-						<p className="setup-save-note">A partida não é salva ao sair da página.</p>
+						<p className="setup-save-note">
+							A partida não é salva ao sair da página.
+						</p>
 					</div>
 				</aside>
 			</div>
@@ -502,7 +524,7 @@ function SetupInfoModal({
 	variant: "hero" | "boss";
 	children: ReactNode;
 }) {
-	return (
+	return createPortal(
 		<div className="flow-modal-overlay" style={modalStyle}>
 			<section
 				role="dialog"
@@ -530,7 +552,8 @@ function SetupInfoModal({
 				</header>
 				<div className="setup-info-modal__body">{children}</div>
 			</section>
-		</div>
+		</div>,
+		document.body,
 	);
 }
 

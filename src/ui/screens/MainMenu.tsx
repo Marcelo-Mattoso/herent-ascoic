@@ -4,9 +4,10 @@ import { getUiAssetUrl } from "@/ui/uiAssets";
 
 interface MainMenuProps {
 	onNewGame: () => void;
+	onTutorial: () => void;
 }
 
-export function MainMenu({ onNewGame }: MainMenuProps) {
+export function MainMenu({ onNewGame, onTutorial }: MainMenuProps) {
 	const uiAssets = useUiAssets();
 	const logoUrl =
 		getUiAssetUrl(uiAssets, "logo-completa") ??
@@ -23,15 +24,9 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 		<main className="menu-screen" style={style}>
 			<div className="menu-screen__vignette" />
 			<div className="menu-brand-shell">
-
-
 				<section className="menu-brand-panel" aria-labelledby="main-menu-title">
 					{logoUrl ? (
-						<img
-							src={logoUrl}
-							alt=""
-							className="menu-brand-panel__logo"
-						/>
+						<img src={logoUrl} alt="" className="menu-brand-panel__logo" />
 					) : null}
 					<div className="menu-brand-panel__title-block">
 						<h1 id="main-menu-title">Ascensão Heróica</h1>
@@ -44,6 +39,13 @@ export function MainMenu({ onNewGame }: MainMenuProps) {
 							onClick={onNewGame}
 						>
 							JOGAR
+						</button>
+						<button
+							type="button"
+							className="ornate-action"
+							onClick={onTutorial}
+						>
+							TUTORIAL
 						</button>
 					</div>
 				</section>

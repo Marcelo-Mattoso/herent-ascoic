@@ -27,7 +27,11 @@ export type { XpSpendOption };
 export type Action =
 	| {
 			type: "START_GAME";
-			payload: GameConfig & { seed?: number; gameId?: string };
+			payload: GameConfig & {
+				seed?: number;
+				gameId?: string;
+				deferInitialRoomReveal?: boolean;
+			};
 	  }
 	| { type: "REVEAL_ROOM" }
 	| { type: "RESOLVE_ROOM_EFFECT" }

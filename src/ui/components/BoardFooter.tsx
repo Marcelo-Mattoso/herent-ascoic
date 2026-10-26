@@ -16,6 +16,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 	return (
 		<div
 			className="game-board-footer"
+			data-tutorial-anchor="board.progression"
 			style={{
 				display: "var(--game-footer-display, grid)",
 				gridTemplateColumns: "1fr 1fr 1fr",

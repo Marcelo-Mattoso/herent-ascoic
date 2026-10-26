@@ -24,6 +24,9 @@ import { HeroCard } from "./HeroCard";
 import { HpBar } from "./HpBar";
 
 interface BoardProps {
+	tutorialMode?: boolean;
+	tutorialRevealEnabled?: boolean;
+	onTutorialReveal?: () => void;
 	view: PlayerView;
 	focusedHeroId: string | null;
 	onHeroClick: (hero: HeroState) => void;
@@ -613,6 +616,9 @@ function ArtifactDisplayCard({
 }
 
 export function Board({
+	tutorialMode = false,
+	tutorialRevealEnabled = false,
+	onTutorialReveal,
 	view,
 	focusedHeroId,
 	onHeroClick,
@@ -865,16 +871,18 @@ export function Board({
 							width: "100%",
 						}}
 					>
-						<ActiveDungeonCard
-							room={view.currentRoom}
-							despertar={view.despertar}
-							imageUrl={
-								view.currentRoom
-									? getCardImageUrl(cardImageUrls, view.currentRoom.cardId)
-									: undefined
-							}
-							onClick={onRoomClick}
-						/>
+						<div data-tutorial-anchor="board.current-room">
+							<ActiveDungeonCard
+								room={view.currentRoom}
+								despertar={view.despertar}
+								imageUrl={
+									view.currentRoom
+										? getCardImageUrl(cardImageUrls, view.currentRoom.cardId)
+										: undefined
+								}
+								onClick={onRoomClick}
+							/>
+						</div>
 						<div />
 						{Array.from({ length: ACTIVE_CARD_SLOT_COUNT }, (_, index) => {
 							const enemy = enemies[index] ?? null;
@@ -883,6 +891,9 @@ export function Board({
 							return (
 								<div
 									key={enemy?.id ?? `empty-enemy-slot-${index}`}
+									data-tutorial-anchor={
+										index === 0 ? "board.active-enemies" : undefined
+									}
 									ref={(node) => {
 										if (!enemy) return;
 										if (node) enemyCardRefs.current.set(enemy.id, node);
@@ -962,6 +973,7 @@ export function Board({
 					) : (
 						<div
 							className="game-board-action-line"
+							data-tutorial-anchor="board.main-action"
 							style={{
 								position: "relative",
 								display: "flex",
@@ -976,9 +988,18 @@ export function Board({
 									borderTop: `1px dashed ${UI.border}`,
 								}}
 							/>
-							{status === "REVEAL_ROOM" ||
-							status === "ROOM_EFFECT" ||
-							status === "SPAWN_ENEMIES" ? (
+							{tutorialMode && status === "REVEAL_ROOM" ? (
+								<ActionButton
+									label="Revelar sala"
+									icon="🚪"
+									variant="primary"
+									onClick={onTutorialReveal}
+									disabled={!tutorialRevealEnabled}
+									attention={tutorialRevealEnabled}
+								/>
+							) : status === "REVEAL_ROOM" ||
+								status === "ROOM_EFFECT" ||
+								status === "SPAWN_ENEMIES" ? (
 								<span className="combat-auto-roll-status">
 									Preparando sala...
 								</span>
@@ -1035,6 +1056,7 @@ export function Board({
 					{/* Heróis */}
 					<div
 						className="game-board-hero-strip"
+						data-tutorial-anchor="board.heroes"
 						style={{
 							display: "grid",
 							gridTemplateColumns: `repeat(${Math.min(Math.max(heroes.length, 1), MAX_HEROES)}, ${ACTIVE_DUNGEON_CARD.width})`,

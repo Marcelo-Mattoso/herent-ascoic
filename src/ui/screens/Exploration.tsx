@@ -94,7 +94,13 @@ const AWAKENING_LEVELS = [
 	},
 ] as const;
 
-export function Exploration() {
+export function Exploration({
+	tutorialMode = false,
+	tutorialRevealEnabled = false,
+}: {
+	tutorialMode?: boolean;
+	tutorialRevealEnabled?: boolean;
+}) {
 	const [itemUse, setItemUse] = useState<{
 		heroId: string;
 		itemId?: string;
@@ -159,11 +165,13 @@ export function Exploration() {
 
 	// Auto-avança estados mecânicos
 	useEffect(() => {
+		if (tutorialMode && (status === "REVEAL_ROOM" || status === "COMBAT_START"))
+			return;
 		const action = AUTO_ADVANCE[status];
 		if (!action) return;
 		const t = setTimeout(() => dispatch(action), 400);
 		return () => clearTimeout(t);
-	}, [status, dispatch]);
+	}, [status, dispatch, tutorialMode]);
 
 	useEffect(() => {
 		if (!attackPromptTrigger) {
@@ -314,6 +322,9 @@ export function Exploration() {
 						{/* TABULEIRO */}
 						<div className="game-board-surface">
 							<Board
+								tutorialMode={tutorialMode}
+								tutorialRevealEnabled={tutorialRevealEnabled}
+								onTutorialReveal={() => dispatch({ type: "REVEAL_ROOM" })}
 								view={view}
 								focusedHeroId={ui.focusedHeroId}
 								roll={roll ?? null}

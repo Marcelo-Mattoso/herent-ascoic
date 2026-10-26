@@ -4730,3 +4730,79 @@ body {
 	.card-detail-content { flex-direction: column; }
 	.card-detail-art { width: min(100%, 210px); align-self: center; }
 }
+.tutorial-hub {
+	position: fixed;
+	inset: 0;
+	z-index: 35;
+	display: grid;
+	place-items: center;
+	padding: max(12px, env(safe-area-inset-top)) max(12px, env(safe-area-inset-right)) max(12px, env(safe-area-inset-bottom)) max(12px, env(safe-area-inset-left));
+	background: rgba(7, 15, 27, .76);
+	color: #f4e5c0;
+}
+.tutorial-hub__content { width: min(1100px, 100%); max-height: 100%; overflow: auto; padding: clamp(16px, 3vw, 30px); border: 1px solid #aa8959; border-radius: 14px; background: linear-gradient(145deg, #071322, #1a2030 60%, #091423); box-shadow: 0 20px 70px rgba(0, 0, 0, .55); }
+.tutorial-hub__heading { display: flex; align-items: start; gap: 24px; }
+.tutorial-hub__heading button, .tutorial-hub__module button, .tutorial-hub__audit, .tutorial-panel button {
+	border: 1px solid #aa8959;
+	border-radius: 7px;
+	background: #182e42;
+	color: #f4e5c0;
+	padding: 9px 14px;
+	cursor: pointer;
+}
+.tutorial-hub__heading p, .tutorial-panel__speaker { color: #d4a968; text-transform: uppercase; letter-spacing: .12em; font-size: .75rem; }
+.tutorial-hub h2, .tutorial-panel h2 { font-family: Georgia, serif; color: #f1d184; }
+.tutorial-hub__intro { max-width: 55ch; }
+.tutorial-hub__modules { display: grid; grid-template-columns: repeat(auto-fit, minmax(min(100%, 230px), 1fr)); gap: 16px; max-width: 1100px; margin-top: 28px; }
+.tutorial-hub__module { display: flex; flex-direction: column; min-height: 220px; padding: 20px; border: 1px solid #745936; border-radius: 12px; background: rgba(19, 34, 49, .94); }
+.tutorial-hub__module h3 { font-family: Georgia, serif; margin: 0; color: #f2d894; }
+.tutorial-hub__module p { color: #dfd3bc; }
+.tutorial-hub__module button { margin-top: auto; }
+.tutorial-hub__audit { margin-top: 18px; }
+.tutorial-hub button:disabled, .tutorial-panel button:disabled { opacity: .5; cursor: not-allowed; }
+
+.tutorial-layer { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
+.tutorial-mask { position: absolute; background: rgba(25, 25, 25, .55); pointer-events: auto; }
+.tutorial-spotlight { position: absolute; border: 2px solid #f1d184; border-radius: 9px; box-shadow: 0 0 0 3px rgba(241, 209, 132, .25), 0 0 20px #d4a968; pointer-events: none; }
+.tutorial-spotlight-shield { position: absolute; pointer-events: auto; }
+.tutorial-panel {
+	position: fixed;
+	left: max(12px, env(safe-area-inset-left));
+	width: min(450px, calc(100vw - 24px));
+	max-height: min(42vh, 360px);
+	overflow: auto;
+	pointer-events: auto;
+	padding: 15px 18px;
+	border: 1px solid #c9a769;
+	border-radius: 12px;
+	background: #0b1a2b;
+	box-shadow: 0 16px 50px rgba(0, 0, 0, .65);
+	color: #f4e5c0;
+	font-size: .87rem;
+	line-height: 1.38;
+}
+.tutorial-panel--top { top: max(12px, env(safe-area-inset-top)); }
+.tutorial-panel--bottom { bottom: max(12px, env(safe-area-inset-bottom)); }
+.tutorial-panel__meta { display: flex; flex-wrap: wrap; gap: 3px 14px; justify-content: space-between; padding-right: 30px; color: #d4a968; font-size: .72rem; }
+.tutorial-panel__close { position: absolute; top: 7px; right: 7px; padding: 2px 8px !important; font-size: 1.2rem; }
+.tutorial-panel h2 { margin: 5px 0 8px; font-size: 1.25rem; }
+.tutorial-panel p { margin: 6px 0; }
+.tutorial-panel__speaker { margin-top: 10px !important; }
+.tutorial-panel__instruction { border-left: 3px solid #dfb76f; padding: 7px 9px; background: rgba(241, 209, 132, .1); }
+.tutorial-panel__count, .tutorial-panel__waiting { color: #cfb681; font-size: .78rem; }
+.tutorial-panel__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 10px; }
+.tutorial-panel__primary { background: #735026 !important; }
+.tutorial-panel__audit { margin-top: 10px; border-top: 1px solid #735f42; padding-top: 5px; color: #cfc4af; font-size: .75rem; }
+.tutorial-panel__audit summary { cursor: pointer; }
+.tutorial-panel__audit ol { padding-left: 20px; max-height: 100px; overflow: auto; }
+.tutorial-panel--completion { max-height: min(70dvh, 480px); }
+.tutorial-panel button:focus-visible, .tutorial-hub button:focus-visible { outline: 3px solid #f5d488; outline-offset: 2px; }
+@media (max-width: 600px) {
+	.tutorial-hub__heading { gap: 10px; }
+	.tutorial-hub__modules { grid-template-columns: 1fr; }
+	.tutorial-hub__module { min-height: 170px; }
+	.tutorial-panel { max-height: 36dvh; font-size: .78rem; padding: 10px 12px; }
+	.tutorial-panel--completion { max-height: 70dvh; }
+	.tutorial-panel h2 { font-size: 1.08rem; }
+	.tutorial-panel__actions button { padding: 6px 8px; }
+}
