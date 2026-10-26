@@ -4762,6 +4762,7 @@ body {
 .tutorial-hub button:disabled, .tutorial-panel button:disabled { opacity: .5; cursor: not-allowed; }
 
 .tutorial-layer { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
+.tutorial-layer--dice { z-index: 65; }
 .tutorial-mask { position: absolute; background: rgba(25, 25, 25, .55); pointer-events: auto; }
 .tutorial-spotlight { position: absolute; border: 2px solid #f1d184; border-radius: 9px; box-shadow: 0 0 0 3px rgba(241, 209, 132, .25), 0 0 20px #d4a968; pointer-events: none; }
 .tutorial-spotlight-shield { position: absolute; pointer-events: auto; }
@@ -4789,6 +4790,7 @@ body {
 .tutorial-panel p { margin: 6px 0; }
 .tutorial-panel__speaker { margin-top: 10px !important; }
 .tutorial-panel__instruction { border-left: 3px solid #dfb76f; padding: 7px 9px; background: rgba(241, 209, 132, .1); }
+.tutorial-panel__combat-detail { border: 1px solid rgba(241, 209, 132, .45); border-radius: 7px; padding: 5px 8px; background: rgba(241, 209, 132, .08); }
 .tutorial-panel__count, .tutorial-panel__waiting { color: #cfb681; font-size: .78rem; }
 .tutorial-panel__actions { display: flex; flex-wrap: wrap; align-items: center; gap: 7px; margin-top: 10px; }
 .tutorial-panel__primary { background: #735026 !important; }

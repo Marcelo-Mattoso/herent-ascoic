@@ -241,6 +241,7 @@ function ActiveEnemyCard({
 		<button
 			type="button"
 			className={`game-card game-card--enemy${isSelectable && !isDragOver ? " click-attention" : ""}`}
+			data-tutorial-anchor="combat.enemy"
 			onDragOver={(event) => {
 				if (!isSelectable) return;
 				event.preventDefault();
@@ -334,18 +335,20 @@ function ActiveEnemyCard({
 				>
 					{getCardName(enemy.cardId)}
 				</p>
-				<HpBar current={enemy.currentLife} max={enemy.maxLife} height={5} />
-				<p
-					style={{
-						color: UI.textTertiary,
-						fontSize: "var(--game-card-meta-size, 10px)",
-						marginTop: "var(--game-card-text-margin, 5px)",
-						lineHeight: "var(--game-card-line-height, 1)",
-					}}
-				>
-					{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · D
-					{enemy.damage}
-				</p>
+				<div data-tutorial-anchor="combat.enemy-life">
+					<HpBar current={enemy.currentLife} max={enemy.maxLife} height={5} />
+					<p
+						style={{
+							color: UI.textTertiary,
+							fontSize: "var(--game-card-meta-size, 10px)",
+							marginTop: "var(--game-card-text-margin, 5px)",
+							lineHeight: "var(--game-card-line-height, 1)",
+						}}
+					>
+						{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · D
+						{enemy.damage}
+					</p>
+				</div>
 			</div>
 		</button>
 	);
@@ -1076,6 +1079,9 @@ export function Board({
 							return (
 								<div
 									key={h.id}
+									data-tutorial-anchor={
+										h.id === heroes[0]?.id ? "combat.hero" : undefined
+									}
 									ref={(node) => {
 										if (node) heroCardRefs.current.set(h.id, node);
 										else heroCardRefs.current.delete(h.id);

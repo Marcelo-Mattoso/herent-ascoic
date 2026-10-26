@@ -71,6 +71,7 @@ export function DiceRollOverlay({
 		<div className="game-dice-roll-layer">
 			<div
 				className="game-dice-roll-modal"
+				data-tutorial-anchor="combat.dice"
 				role="dialog"
 				aria-label="Resultado da rolagem de dados"
 			>

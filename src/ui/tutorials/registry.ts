@@ -1,5 +1,10 @@
 import type { Action } from "@/core/actions/types";
 import type { PlayerView } from "@/core/projection/playerView";
+import {
+	canReuseCombatBoard,
+	COMBAT_DEFAULT_HERO,
+	prepareCombatEntry,
+} from "./combatScenario";
 
 export type TutorialModuleId =
 	| "archive-one"
@@ -20,6 +25,7 @@ export type TutorialEntry =
 	  }
 	| {
 			readonly kind: "prepared-board";
+			readonly defaultHeroCardIds?: readonly string[];
 			readonly canReuseBoard?: (context: TutorialEntryContext) => boolean;
 			readonly prepareActions?: (
 				context: TutorialEntryContext,
@@ -36,6 +42,11 @@ export type TutorialAdvance =
 	| "hero-selected"
 	| "game-started"
 	| "room-revealed"
+	| "combat-hero-selected"
+	| "combat-first-resolved"
+	| "combat-second-declared"
+	| "combat-second-resolved"
+	| "combat-ended"
 	| "complete";
 
 export interface TutorialHighlight {
@@ -51,6 +62,7 @@ export interface TutorialStep {
 	readonly instruction: string;
 	readonly advance: TutorialAdvance;
 	readonly anchor?: string;
+	readonly anchors?: readonly string[];
 	readonly highlights?: readonly TutorialHighlight[];
 	readonly skippable?: boolean;
 }
@@ -210,6 +222,144 @@ const archiveOneSteps: readonly TutorialStep[] = [
 	},
 ];
 
+const archiveTwoSteps: readonly TutorialStep[] = [
+	{
+		id: "combat-opening",
+		title: "O encontro",
+		kind: "narration",
+		advance: "manual",
+		narration: [
+			"Algumas presenças guardam os caminhos da Fornalha. Outras parecem ter nascido das próprias fissuras do Véu.",
+			"Nem sempre há passagem sem confronto.",
+		],
+		instruction:
+			"Neste arquivo, você aprenderá a enfrentar as criaturas encontradas na masmorra.",
+	},
+	{
+		id: "combat-participants",
+		title: "Reconhecendo os envolvidos",
+		kind: "observation",
+		advance: "manual",
+		narration: [
+			"De um lado, aqueles que decidiram avançar. Do outro, aquilo que se ergue para impedi-los.",
+		],
+		instruction:
+			"Observe seu herói e a criatura. A vida diminui conforme o dano aplicado.",
+		highlights: [
+			{
+				anchor: "combat.hero",
+				instruction: "Esta carta representa o herói disponível para agir.",
+			},
+			{
+				anchor: "combat.enemy",
+				instruction: "Esta é a criatura que impede a passagem.",
+			},
+			{
+				anchor: "combat.enemy-life",
+				instruction: "A vida atual e máxima da criatura aparece aqui.",
+			},
+			{
+				anchor: "combat.hero-attributes",
+				instruction:
+					"A carta do herói mostra sua vida e os recursos relevantes para o combate.",
+			},
+		],
+	},
+	{
+		id: "combat-select-hero",
+		title: "Selecionando o herói",
+		kind: "interaction",
+		advance: "combat-hero-selected",
+		anchor: "combat.hero",
+		narration: [
+			"Uma decisão precisa de alguém que a execute. Antes do golpe, há aquele que o escolhe.",
+		],
+		instruction: "Selecione o seu herói para iniciar um ataque.",
+	},
+	{
+		id: "combat-select-target",
+		title: "Escolhendo o alvo",
+		kind: "interaction",
+		advance: "combat-first-resolved",
+		anchor: "combat.enemy",
+		narration: ["A força sem direção nada decide. Um golpe exige um destino."],
+		instruction:
+			"Selecione a criatura. Acompanhe a rolagem e use Resolver ataque para concluir esta primeira ação.",
+	},
+	{
+		id: "combat-drag",
+		title: "Arrastar e soltar",
+		kind: "interaction",
+		advance: "combat-second-declared",
+		anchors: ["combat.hero", "combat.enemy"],
+		narration: [
+			"Há caminhos diferentes para alcançar o mesmo destino. A intenção permanece. Apenas o gesto muda.",
+		],
+		instruction:
+			"Arraste a carta do herói até a criatura. Em dispositivos de toque, selecione as duas cartas novamente.",
+	},
+	{
+		id: "combat-dice",
+		title: "Os dados",
+		kind: "interaction",
+		advance: "combat-second-resolved",
+		anchor: "combat.dice",
+		narration: [
+			"Nem toda intenção encontra seu destino. Mesmo o golpe mais preciso atravessa um instante de incerteza.",
+		],
+		instruction:
+			"Observe os dados e seus modificadores reais. Quando a animação terminar, use Resolver ataque.",
+	},
+	{
+		id: "combat-result",
+		title: "Acerto e dano",
+		kind: "observation",
+		advance: "manual",
+		anchor: "board.active-enemies",
+		narration: [
+			"Nem todo golpe alcança seu alvo. E nem todo golpe que alcança produz a mesma consequência.",
+		],
+		instruction:
+			"Compare o resultado registrado no Diário com a vida anterior e atual da criatura.",
+		highlights: [
+			{
+				anchor: "board.active-enemies",
+				instruction:
+					"A criatura derrotada saiu da área de inimigos ativos. A vida final está no quadro do Arquivista.",
+			},
+			{
+				anchor: "combat.hero-life",
+				instruction: "Aqui está a vida restante do herói.",
+			},
+		],
+	},
+	{
+		id: "combat-action",
+		title: "A conclusão da ação",
+		kind: "observation",
+		advance: "combat-ended",
+		anchor: "combat.hero",
+		narration: [
+			"Um ato concluído não pode ser repetido apenas porque seu resultado desagradou àquele que o escolheu.",
+			"Cada oportunidade utilizada altera o que ainda pode acontecer.",
+		],
+		instruction:
+			"Observe quem atacou e teve a oportunidade de ataque consumida. Estar em foco, usar uma habilidade ou exaurir um item não significa, por si só, ter atacado.",
+	},
+	{
+		id: "combat-completion",
+		title: "Arquivo II concluído — O Combate",
+		kind: "completion",
+		advance: "complete",
+		narration: [
+			"Um confronto termina. Suas consequências permanecem.",
+			"Daquilo que foi perdido ou preservado nasce o próximo registro.",
+		],
+		instruction:
+			"As condições de encerramento foram confirmadas pelo motor. Escolha como prosseguir.",
+	},
+];
+
 export const TUTORIAL_MODULES: readonly TutorialModule[] = [
 	{
 		id: "archive-one",
@@ -223,11 +373,16 @@ export const TUTORIAL_MODULES: readonly TutorialModule[] = [
 	{
 		id: "archive-two",
 		title: "Arquivo II — O Combate",
-		subtitle: "Em breve",
+		subtitle: "Seleção, rolagem e resolução",
 		summary: "Seleção, rolagens, ataque e dano.",
-		available: false,
-		entry: { kind: "prepared-board" },
-		steps: [],
+		available: true,
+		entry: {
+			kind: "prepared-board",
+			defaultHeroCardIds: [COMBAT_DEFAULT_HERO],
+			canReuseBoard: canReuseCombatBoard,
+			prepareActions: prepareCombatEntry,
+		},
+		steps: archiveTwoSteps,
 	},
 	{
 		id: "archive-three",

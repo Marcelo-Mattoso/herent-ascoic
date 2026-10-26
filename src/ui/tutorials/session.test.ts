@@ -63,6 +63,8 @@ describe("sessão do Arquivo I", () => {
 	});
 
 	it("recusa módulos futuros até que declarem etapas", () => {
-		expect(() => startTutorial("archive-two")).toThrow("Arquivo indisponível");
+		expect(() => startTutorial("archive-three")).toThrow(
+			"Arquivo indisponível",
+		);
 	});
 });
