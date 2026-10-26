@@ -211,6 +211,9 @@ export function HeroCard({
 					</div>
 				)}
 				<div
+					data-tutorial-anchor={
+						size === "board" ? "combat.hero-attributes" : undefined
+					}
 					style={{
 						background: useCardImage ? "rgba(246, 240, 229, 0.82)" : undefined,
 						borderRadius: useCardImage ? 7 : undefined,
@@ -242,24 +245,30 @@ export function HeroCard({
 						{displayName}
 					</p>
 					{/* Barra de vida */}
-					<HpBar
-						current={hero.currentLife}
-						max={hero.maxLife}
-						height={card.hpHeight}
-					/>
-					{/* Vida numérica */}
-					<p
-						style={{
-							color: UI.textTertiary,
-							fontSize: card.statFont,
-							marginTop:
-								size === "board" ? "var(--game-card-text-margin, 5px)" : 1,
-							lineHeight:
-								size === "board" ? "var(--game-card-line-height, 1)" : 1,
-						}}
+					<div
+						data-tutorial-anchor={
+							size === "board" ? "combat.hero-life" : undefined
+						}
 					>
-						{hero.currentLife}/{hero.maxLife}
-					</p>
+						<HpBar
+							current={hero.currentLife}
+							max={hero.maxLife}
+							height={card.hpHeight}
+						/>
+						{/* Vida numérica */}
+						<p
+							style={{
+								color: UI.textTertiary,
+								fontSize: card.statFont,
+								marginTop:
+									size === "board" ? "var(--game-card-text-margin, 5px)" : 1,
+								lineHeight:
+									size === "board" ? "var(--game-card-line-height, 1)" : 1,
+							}}
+						>
+							{hero.currentLife}/{hero.maxLife}
+						</p>
+					</div>
 					{card.equipmentInside && (
 						<div
 							style={{

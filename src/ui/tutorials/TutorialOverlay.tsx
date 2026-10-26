@@ -2,6 +2,7 @@ import {
 	type CSSProperties,
 	useEffect,
 	useLayoutEffect,
+	useMemo,
 	useState,
 } from "react";
 import { createPortal } from "react-dom";
@@ -12,10 +13,13 @@ import {
 import { downloadTutorialAudit } from "./audit";
 import { currentTutorialStep, type TutorialSession } from "./session";
 import { getTutorialModule, type TutorialModule } from "./registry";
+import type { PlayerView } from "@/core/projection/playerView";
+import type { BonusEntry } from "@/core/state/combatState";
 
 interface Props {
 	session: TutorialSession;
 	journal: GameJournal;
+	view: PlayerView;
 	nextModule?: TutorialModule;
 	onNext: () => void;
 	onContinue: () => void;
@@ -29,9 +33,25 @@ interface Props {
 
 type Rect = { top: number; left: number; right: number; bottom: number };
 
+function bonusDescription(entries: readonly BonusEntry[]): string {
+	return (
+		entries
+			.map(
+				({ source, value }) =>
+					`${source === "hitBonus" ? "bônus de ataque" : source} ${value >= 0 ? "+" : ""}${value}`,
+			)
+			.join(", ") || "nenhum"
+	);
+}
+
+function diceDescription(results: readonly number[]): string {
+	return `${results.join(" + ")} (soma ${results.reduce((sum, value) => sum + value, 0)})`;
+}
+
 export function TutorialOverlay({
 	session,
 	journal,
+	view,
 	nextModule,
 	onNext,
 	onContinue,
@@ -44,9 +64,22 @@ export function TutorialOverlay({
 }: Props) {
 	const module = getTutorialModule(session.moduleId);
 	const step = currentTutorialStep(session);
+	const previousStep = module.steps[session.stepIndex - 1];
+	const canBack =
+		session.highlightIndex > 0 ||
+		(previousStep?.advance === "manual" &&
+			(step.advance === "manual" ||
+				step.kind === "completion" ||
+				step.id === "combat-action"));
 	const highlight = step.highlights?.[session.highlightIndex];
-	const anchor = highlight?.anchor ?? step.anchor;
-	const [rect, setRect] = useState<Rect | null>(null);
+	const anchors = useMemo(
+		() =>
+			highlight
+				? [highlight.anchor]
+				: (step.anchors ?? (step.anchor ? [step.anchor] : [])),
+		[highlight, step.anchors, step.anchor],
+	);
+	const [rects, setRects] = useState<Rect[]>([]);
 	const [viewport, setViewport] = useState({
 		width: window.innerWidth,
 		height: window.innerHeight,
@@ -55,48 +88,70 @@ export function TutorialOverlay({
 	useLayoutEffect(() => {
 		const update = () => {
 			setViewport({ width: window.innerWidth, height: window.innerHeight });
-			const target = anchor
-				? document.querySelector<HTMLElement>(
+			setRects(
+				anchors.flatMap((anchor) => {
+					const target = document.querySelector<HTMLElement>(
 						`[data-tutorial-anchor="${anchor}"]`,
-					)
-				: null;
-			if (!target) {
-				setRect(null);
-				return;
-			}
-			const bounds = target.getBoundingClientRect();
-			const pad = 5;
-			setRect({
-				top: Math.max(0, bounds.top - pad),
-				left: Math.max(0, bounds.left - pad),
-				right: Math.min(window.innerWidth, bounds.right + pad),
-				bottom: Math.min(window.innerHeight, bounds.bottom + pad),
-			});
+					);
+					if (!target) return [];
+					const bounds = target.getBoundingClientRect();
+					const pad = 5;
+					return [
+						{
+							top: Math.max(0, bounds.top - pad),
+							left: Math.max(0, bounds.left - pad),
+							right: Math.min(window.innerWidth, bounds.right + pad),
+							bottom: Math.min(window.innerHeight, bounds.bottom + pad),
+						},
+					];
+				}),
+			);
 		};
-		update();
+		if (view.status) update();
 		const observer = new ResizeObserver(update);
-		const target = anchor
-			? document.querySelector<HTMLElement>(
-					`[data-tutorial-anchor="${anchor}"]`,
+		for (const anchor of anchors) {
+			const target = document.querySelector<HTMLElement>(
+				`[data-tutorial-anchor="${anchor}"]`,
+			);
+			if (target) observer.observe(target);
+		}
+		const mutationObserver = new MutationObserver(() => {
+			if (
+				anchors.every((anchor) =>
+					document.querySelector(`[data-tutorial-anchor="${anchor}"]`),
 				)
-			: null;
-		if (target) observer.observe(target);
+			) {
+				mutationObserver.disconnect();
+				update();
+			}
+		});
+		if (
+			anchors.some(
+				(anchor) =>
+					!document.querySelector(`[data-tutorial-anchor="${anchor}"]`),
+			)
+		)
+			mutationObserver.observe(document.body, {
+				childList: true,
+				subtree: true,
+			});
 		window.addEventListener("resize", update);
 		window.addEventListener("scroll", update, true);
 		window.visualViewport?.addEventListener("resize", update);
 		window.visualViewport?.addEventListener("scroll", update);
 		return () => {
 			observer.disconnect();
+			mutationObserver.disconnect();
 			window.removeEventListener("resize", update);
 			window.removeEventListener("scroll", update, true);
 			window.visualViewport?.removeEventListener("resize", update);
 			window.visualViewport?.removeEventListener("scroll", update);
 		};
-	}, [anchor]);
+	}, [anchors, view.status]);
 
 	useEffect(() => {
-		const selector = anchor
-			? `[data-tutorial-anchor="${anchor}"] button:not([disabled]), button[data-tutorial-anchor="${anchor}"]:not([disabled])`
+		const selector = anchors[0]
+			? `[data-tutorial-anchor="${anchors[0]}"] button:not([disabled]), button[data-tutorial-anchor="${anchors[0]}"]:not([disabled])`
 			: "";
 		const target =
 			step.kind === "interaction" && selector
@@ -105,9 +160,9 @@ export function TutorialOverlay({
 		const primary = document.querySelector<HTMLElement>(
 			".tutorial-panel__primary",
 		);
-		if (!document.querySelector(".flow-modal-overlay"))
+		if (!document.querySelector(".flow-modal-overlay, .game-dice-roll-layer"))
 			(target ?? primary)?.focus({ preventScroll: true });
-	}, [anchor, step.kind]);
+	}, [anchors, step.kind]);
 
 	useEffect(() => {
 		function trapTab(event: KeyboardEvent) {
@@ -115,17 +170,29 @@ export function TutorialOverlay({
 			const selector =
 				"button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex='-1'])";
 			const panel = document.querySelector(".tutorial-panel");
-			const target =
-				anchor && (step.kind === "interaction" || step.id === "group")
-					? document.querySelector(`[data-tutorial-anchor="${anchor}"]`)
-					: null;
-			const modal = document.querySelector(".flow-modal-overlay");
+			const targets =
+				step.kind === "interaction" || step.id === "group"
+					? anchors
+							.map((anchor) =>
+								document.querySelector(`[data-tutorial-anchor="${anchor}"]`),
+							)
+							.filter((target) => target !== null)
+					: [];
+			const modal = document.querySelector(
+				".flow-modal-overlay, .game-dice-roll-layer",
+			);
+			const close = panel?.querySelector<HTMLElement>(".tutorial-panel__close");
 			const allowed = (
 				modal
-					? [...modal.querySelectorAll<HTMLElement>(selector)]
+					? [
+							...modal.querySelectorAll<HTMLElement>(selector),
+							...(close ? [close] : []),
+						]
 					: [
-							...(target?.matches(selector) ? [target as HTMLElement] : []),
-							...(target?.querySelectorAll<HTMLElement>(selector) ?? []),
+							...targets.flatMap((target) => [
+								...(target.matches(selector) ? [target as HTMLElement] : []),
+								...target.querySelectorAll<HTMLElement>(selector),
+							]),
 							...(panel?.querySelectorAll<HTMLElement>(selector) ?? []),
 						]
 			).filter((element) => element.getClientRects().length > 0);
@@ -141,7 +208,7 @@ export function TutorialOverlay({
 		}
 		document.addEventListener("keydown", trapTab);
 		return () => document.removeEventListener("keydown", trapTab);
-	}, [anchor, step.kind, step.id]);
+	}, [anchors, step.kind, step.id]);
 
 	const mask = (
 		top: number,
@@ -161,39 +228,77 @@ export function TutorialOverlay({
 			}}
 		/>
 	);
-	const masks = rect
-		? [
-				mask(0, 0, viewport.width, rect.top, "top"),
-				mask(
-					rect.bottom,
-					0,
-					viewport.width,
-					viewport.height - rect.bottom,
-					"bottom",
-				),
-				mask(rect.top, 0, rect.left, rect.bottom - rect.top, "left"),
-				mask(
-					rect.top,
-					rect.right,
-					viewport.width - rect.right,
-					rect.bottom - rect.top,
-					"right",
-				),
-			]
-		: [mask(0, 0, viewport.width, viewport.height, "all")];
+	const xCuts = [
+		...new Set([
+			0,
+			viewport.width,
+			...rects.flatMap((rect) => [rect.left, rect.right]),
+		]),
+	].sort((a, b) => a - b);
+	const yCuts = [
+		...new Set([
+			0,
+			viewport.height,
+			...rects.flatMap((rect) => [rect.top, rect.bottom]),
+		]),
+	].sort((a, b) => a - b);
+	const masks = xCuts.flatMap((x, xi) =>
+		yCuts.flatMap((y, yi) => {
+			const nextX = xCuts[xi + 1];
+			const nextY = yCuts[yi + 1];
+			if (nextX === undefined || nextY === undefined) return [];
+			const centerX = (x + nextX) / 2;
+			const centerY = (y + nextY) / 2;
+			if (
+				rects.some(
+					(rect) =>
+						centerX >= rect.left &&
+						centerX <= rect.right &&
+						centerY >= rect.top &&
+						centerY <= rect.bottom,
+				)
+			)
+				return [];
+			return [mask(y, x, nextX - x, nextY - y, `${xi}-${yi}`)];
+		}),
+	);
+	const rect = rects.length
+		? {
+				top: Math.min(...rects.map((item) => item.top)),
+				left: Math.min(...rects.map((item) => item.left)),
+				right: Math.max(...rects.map((item) => item.right)),
+				bottom: Math.max(...rects.map((item) => item.bottom)),
+			}
+		: null;
 	const panelPlacement =
-		step.id === "choose-hero" || (rect && rect.bottom < viewport.height * 0.55)
-			? "bottom"
-			: "top";
-	const instruction = highlight?.instruction ?? step.instruction;
+		step.id === "combat-drag" && session.combatInput === "tap"
+			? view.combat?.phase === "selecting_target"
+				? "bottom"
+				: "top"
+			: step.id === "choose-hero" ||
+					(rect && rect.bottom < viewport.height * 0.55)
+				? "bottom"
+				: "top";
+	const instruction =
+		step.id === "combat-drag" && session.combatInput === "tap"
+			? "Toque no herói e depois na criatura para declarar o ataque."
+			: (highlight?.instruction ?? step.instruction);
+	const visibleRoll = step.id === "combat-dice" ? view.combat?.lastRoll : null;
+	const result = session.finalAttack;
+	const damageMessage = result?.messages.find(
+		(message) =>
+			message.includes(result.enemyName) && message.includes("sofreu"),
+	);
 	const leftSpace = rect?.left ?? 0;
 	const rightSpace = rect ? viewport.width - rect.right : 0;
 	const side =
-		viewport.width > 800 && leftSpace > 285
-			? "left"
-			: viewport.width > 800 && rightSpace > 285
-				? "right"
-				: null;
+		step.id === "combat-result"
+			? null
+			: viewport.width > 800 && leftSpace > 285
+				? "left"
+				: viewport.width > 800 && rightSpace > 285
+					? "right"
+					: null;
 	const panelStyle = side
 		? ({
 				width: Math.min(450, (side === "left" ? leftSpace : rightSpace) - 24),
@@ -209,30 +314,39 @@ export function TutorialOverlay({
 	}
 
 	return createPortal(
-		<div className="tutorial-layer" data-tutorial-step={step.id}>
+		<div
+			className={`tutorial-layer${step.id === "combat-dice" ? " tutorial-layer--dice" : ""}`}
+			data-tutorial-step={step.id}
+		>
 			{masks}
-			{rect && (
+			{rects.map((spotlight, index) => (
 				<div
+					key={index}
 					className="tutorial-spotlight"
 					aria-hidden="true"
 					style={{
-						top: rect.top,
-						left: rect.left,
-						width: rect.right - rect.left,
-						height: rect.bottom - rect.top,
+						top: spotlight.top,
+						left: spotlight.left,
+						width: spotlight.right - spotlight.left,
+						height: spotlight.bottom - spotlight.top,
 					}}
 				/>
-			)}
-			{rect && step.kind !== "interaction" && step.id !== "group" && (
-				<div
-					className="tutorial-spotlight-shield"
-					style={{
-						top: rect.top,
-						left: rect.left,
-						width: rect.right - rect.left,
-						height: rect.bottom - rect.top,
-					}}
-				/>
+			))}
+			{rects.map(
+				(spotlight, index) =>
+					step.kind !== "interaction" &&
+					step.id !== "group" && (
+						<div
+							key={index}
+							className="tutorial-spotlight-shield"
+							style={{
+								top: spotlight.top,
+								left: spotlight.left,
+								width: spotlight.right - spotlight.left,
+								height: spotlight.bottom - spotlight.top,
+							}}
+						/>
+					),
 			)}
 			<section
 				className={`tutorial-panel tutorial-panel--${panelPlacement}${step.kind === "completion" ? " tutorial-panel--completion" : ""}`}
@@ -260,6 +374,94 @@ export function TutorialOverlay({
 					<p key={paragraph}>{paragraph}</p>
 				))}
 				<p className="tutorial-panel__instruction">{instruction}</p>
+				{step.id === "combat-drag" && session.firstAttack && (
+					<p className="tutorial-panel__combat-detail">
+						Primeiro ataque: {session.firstAttack.roll.heroTotal} contra{" "}
+						{session.firstAttack.roll.enemyTotal} —{" "}
+						{session.firstAttack.roll.heroTotal >
+						session.firstAttack.roll.enemyTotal
+							? "acerto do herói"
+							: session.firstAttack.roll.heroTotal <
+									session.firstAttack.roll.enemyTotal
+								? "ataque do herói falhou"
+								: "empate"}
+						. {session.firstAttack.enemyName}:{" "}
+						{session.firstAttack.enemyLifeBefore} →{" "}
+						{session.firstAttack.enemyLifeAfter} de vida.{" "}
+						{session.firstAttack.heroName}: {session.firstAttack.heroLifeBefore}{" "}
+						→ {session.firstAttack.heroLifeAfter} de vida.
+					</p>
+				)}
+				{visibleRoll && (
+					<div
+						className="tutorial-panel__combat-detail"
+						role="region"
+						aria-label="Resultado real da rolagem"
+					>
+						<p>
+							Herói: dados {diceDescription(visibleRoll.heroResults)} ·
+							modificadores {bonusDescription(visibleRoll.heroBreakdown)} ·
+							total {visibleRoll.heroTotal}
+						</p>
+						<p>
+							Criatura: dados {diceDescription(visibleRoll.enemyResults)} ·
+							modificadores {bonusDescription(visibleRoll.enemyBreakdown)} ·
+							total {visibleRoll.enemyTotal}
+						</p>
+					</div>
+				)}
+				{(step.id === "combat-result" ||
+					step.id === "combat-action" ||
+					step.kind === "completion") &&
+					result && (
+						<div
+							className="tutorial-panel__combat-detail"
+							role="region"
+							aria-label="Resultado registrado do ataque"
+						>
+							<p>
+								{result.roll.heroTotal > result.roll.enemyTotal
+									? "Acerto do herói"
+									: result.roll.heroTotal < result.roll.enemyTotal
+										? "Golpe da criatura"
+										: "Empate: ambos podem sofrer dano"}
+								. {result.enemyName}: {result.enemyLifeBefore} →{" "}
+								{result.enemyLifeAfter} de vida. Perda de vida observada:{" "}
+								{Math.max(0, result.enemyLifeBefore - result.enemyLifeAfter)}.
+							</p>
+							<p>
+								Vida do herói: {result.heroLifeBefore} → {result.heroLifeAfter}.
+								Ataque consumido:{" "}
+								{result.heroesActed.includes(result.roll.heroId)
+									? "sim"
+									: "não"}
+								.
+							</p>
+							<p>
+								{result.heroName}: dados{" "}
+								{diceDescription(result.roll.heroResults)} · modificadores{" "}
+								{bonusDescription(result.roll.heroBreakdown)} · total{" "}
+								{result.roll.heroTotal}.
+							</p>
+							<p>
+								{result.enemyName}: dados{" "}
+								{diceDescription(result.roll.enemyResults)} · modificadores{" "}
+								{bonusDescription(result.roll.enemyBreakdown)} · total{" "}
+								{result.roll.enemyTotal}.
+							</p>
+							{damageMessage && <p>Resolução do motor: {damageMessage}</p>}
+							{result.messages.length > 0 && (
+								<details>
+									<summary>Detalhes da resolução no Diário</summary>
+									<ul>
+										{result.messages.map((message, index) => (
+											<li key={`${index}-${message}`}>{message}</li>
+										))}
+									</ul>
+								</details>
+							)}
+						</div>
+					)}
 				{step.highlights && (
 					<p className="tutorial-panel__count">
 						Ponto {session.highlightIndex + 1} de {step.highlights.length}
@@ -288,7 +490,7 @@ export function TutorialOverlay({
 						</>
 					) : (
 						<>
-							{step.advance === "manual" && (
+							{(step.advance === "manual" || step.id === "combat-action") && (
 								<button
 									type="button"
 									className="tutorial-panel__primary"
@@ -301,7 +503,9 @@ export function TutorialOverlay({
 									{step.highlights &&
 									session.highlightIndex < step.highlights.length - 1
 										? "Próximo ponto"
-										: "Continuar"}
+										: step.id === "combat-action"
+											? "Concluir combate"
+											: "Continuar"}
 								</button>
 							)}
 							{step.skippable && (
@@ -309,7 +513,7 @@ export function TutorialOverlay({
 									Pular observação
 								</button>
 							)}
-							{(session.highlightIndex > 0 || session.stepIndex >= 7) && (
+							{canBack && (
 								<button type="button" onClick={onBack}>
 									Voltar
 								</button>

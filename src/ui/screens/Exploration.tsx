@@ -97,9 +97,15 @@ const AWAKENING_LEVELS = [
 export function Exploration({
 	tutorialMode = false,
 	tutorialRevealEnabled = false,
+	tutorialCombatMode = false,
+	tutorialCombatMethod = null,
+	onTutorialAttackInput,
 }: {
 	tutorialMode?: boolean;
 	tutorialRevealEnabled?: boolean;
+	tutorialCombatMode?: boolean;
+	tutorialCombatMethod?: "drag" | "tap" | null;
+	onTutorialAttackInput?: (method: "drag" | "tap") => void;
 }) {
 	const [itemUse, setItemUse] = useState<{
 		heroId: string;
@@ -167,11 +173,16 @@ export function Exploration({
 	useEffect(() => {
 		if (tutorialMode && (status === "REVEAL_ROOM" || status === "COMBAT_START"))
 			return;
+		if (
+			tutorialCombatMode &&
+			(status === "DIRECT_DAMAGE" || status === "CHECK_COMBAT_END")
+		)
+			return;
 		const action = AUTO_ADVANCE[status];
 		if (!action) return;
 		const t = setTimeout(() => dispatch(action), 400);
 		return () => clearTimeout(t);
-	}, [status, dispatch, tutorialMode]);
+	}, [status, dispatch, tutorialMode, tutorialCombatMode]);
 
 	useEffect(() => {
 		if (!attackPromptTrigger) {
@@ -228,6 +239,7 @@ export function Exploration({
 			return;
 		setShowHeroFocus(false);
 		setCombatAttackHintVisible(false);
+		onTutorialAttackInput?.("drag");
 		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 	}
 
@@ -239,8 +251,10 @@ export function Exploration({
 			selectedHeroId &&
 			e.status === "active"
 		) {
+			if (tutorialCombatMethod === "drag") return;
 			setShowHeroFocus(false);
 			setCombatAttackHintVisible(false);
+			onTutorialAttackInput?.("tap");
 			dispatch({
 				type: "CHOOSE_TARGET",
 				payload: { heroId: selectedHeroId, enemyId: e.id },
@@ -562,7 +576,7 @@ export function Exploration({
 			</div>
 
 			{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}
-			{status === "REWARD_PHASE" && <InventarioGrupo />}
+			{status === "REWARD_PHASE" && !tutorialCombatMode && <InventarioGrupo />}
 		</>
 	);
 }

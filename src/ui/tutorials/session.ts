@@ -1,4 +1,6 @@
 import type { PlayerView } from "@/core/projection/playerView";
+import type { CombatRollResult } from "@/core/state/combatState";
+import type { GameJournal, JournalEntry } from "@/core/journal/gameJournal";
 import { getTutorialModule, type TutorialModuleId } from "./registry";
 
 export interface TutorialEvent {
@@ -7,6 +9,10 @@ export interface TutorialEvent {
 		| "hero-selected"
 		| "game-started"
 		| "room-revealed"
+		| "combat-checkpoint"
+		| "combat-attack-input"
+		| "combat-attack-resolved"
+		| "combat-ended"
 		| "step"
 		| "step-completed"
 		| "completed"
@@ -14,6 +20,20 @@ export interface TutorialEvent {
 	readonly source: "tutorial-ui" | "game-observation";
 	readonly stepId: string;
 	readonly detail?: string;
+}
+
+export interface CombatObservation {
+	readonly actionId: string;
+	readonly heroCardId: string;
+	readonly heroName: string;
+	readonly enemyName: string;
+	readonly roll: CombatRollResult;
+	readonly heroLifeBefore: number;
+	readonly heroLifeAfter: number;
+	readonly enemyLifeBefore: number;
+	readonly enemyLifeAfter: number;
+	readonly heroesActed: readonly string[];
+	readonly messages: readonly string[];
 }
 
 export interface TutorialSession {
@@ -28,11 +48,18 @@ export interface TutorialSession {
 	readonly highlightIndex: number;
 	readonly selectedHeroCardIds: readonly string[];
 	readonly events: readonly TutorialEvent[];
+	readonly combatInput: "drag" | "tap";
+	readonly checkpointReady: boolean;
+	readonly attackMethodIntent: "drag" | "tap" | null;
+	readonly attackIntentSequence: number;
+	readonly firstAttack?: CombatObservation;
+	readonly finalAttack?: CombatObservation;
 }
 
 export function startTutorial(
 	moduleId: TutorialModuleId,
 	selectedHeroCardIds: readonly string[] = [],
+	combatInput: "drag" | "tap" = "drag",
 ): TutorialSession {
 	const module = getTutorialModule(moduleId);
 	if (!module.available || module.steps.length === 0)
@@ -44,6 +71,10 @@ export function startTutorial(
 		stepIndex: 0,
 		highlightIndex: 0,
 		selectedHeroCardIds: [...selectedHeroCardIds],
+		combatInput,
+		checkpointReady: false,
+		attackMethodIntent: null,
+		attackIntentSequence: 0,
 		events: [
 			{
 				type: "started",
@@ -52,6 +83,85 @@ export function startTutorial(
 				detail: moduleId,
 			},
 			{ type: "step", source: "tutorial-ui", stepId: module.steps[0].id },
+		],
+	};
+}
+
+function observedAttack(entry: JournalEntry): CombatObservation | null {
+	if (entry.actionType !== "RESOLVE_ATTACK" || !entry.roll) return null;
+	const { heroId, enemyId } = entry.roll;
+	const beforeHero = entry.before.heroes.find((hero) => hero.id === heroId);
+	const afterHero = entry.after.heroes.find((hero) => hero.id === heroId);
+	const beforeEnemy = entry.before.enemies.find(
+		(enemy) => enemy.id === enemyId,
+	);
+	const afterEnemy = [
+		...entry.after.enemies,
+		...entry.after.defeatedEnemies,
+	].find((enemy) => enemy.id === enemyId);
+	if (!beforeHero || !afterHero || !beforeEnemy || !afterEnemy) return null;
+	return {
+		actionId: entry.actionId,
+		heroCardId: beforeHero.cardId,
+		heroName: beforeHero.name,
+		enemyName: beforeEnemy.name,
+		roll: entry.roll,
+		heroLifeBefore: beforeHero.life,
+		heroLifeAfter: afterHero.life,
+		enemyLifeBefore: beforeEnemy.life,
+		enemyLifeAfter: afterEnemy.life,
+		heroesActed: entry.after.heroesActed,
+		messages: entry.messages,
+	};
+}
+
+export function markCombatCheckpointReady(
+	session: TutorialSession,
+): TutorialSession {
+	if (
+		session.moduleId !== "archive-two" ||
+		currentTutorialStep(session).id !== "combat-drag" ||
+		session.checkpointReady
+	)
+		return session;
+	return {
+		...session,
+		checkpointReady: true,
+		events: [
+			...session.events,
+			{
+				type: "combat-checkpoint",
+				source: "tutorial-ui",
+				stepId: "combat-drag",
+				detail: "valid seeded encounter",
+			},
+		],
+	};
+}
+
+export function recordCombatAttackInput(
+	session: TutorialSession,
+	method: "drag" | "tap",
+	afterSequence: number,
+): TutorialSession {
+	if (
+		session.moduleId !== "archive-two" ||
+		currentTutorialStep(session).id !== "combat-drag" ||
+		!session.checkpointReady
+	)
+		return session;
+	return {
+		...session,
+		attackMethodIntent: method,
+		attackIntentSequence: afterSequence,
+		events: [
+			...session.events,
+			{
+				type: "combat-attack-input",
+				source: "tutorial-ui",
+				stepId: "combat-drag",
+				detail: method,
+			},
 		],
 	};
 }
@@ -122,8 +232,70 @@ export function selectTutorialHeroes(
 export function reconcileTutorial(
 	session: TutorialSession,
 	view: PlayerView,
+	journal?: GameJournal,
 ): TutorialSession {
 	const advance = currentTutorialStep(session).advance;
+	if (session.moduleId === "archive-two") {
+		const latest = journal?.entries.at(-1);
+		if (
+			advance === "combat-hero-selected" &&
+			latest?.actionType === "CHOOSE_HERO_FOR_ROUND" &&
+			view.combat?.phase === "selecting_target"
+		)
+			return nextStep(session);
+		if (advance === "combat-first-resolved" && latest) {
+			const firstAttack = observedAttack(latest);
+			if (firstAttack) return nextStep({ ...session, firstAttack });
+		}
+		if (
+			advance === "combat-second-declared" &&
+			session.checkpointReady &&
+			session.attackMethodIntent &&
+			(session.combatInput === "tap" ||
+				session.attackMethodIntent === "drag") &&
+			journal?.entries.some(
+				(entry) =>
+					entry.sequence > session.attackIntentSequence &&
+					entry.actionType === "CHOOSE_TARGET",
+			) &&
+			(view.status === "ROLL_DICE" || view.status === "RESOLVE_ATTACK")
+		)
+			return nextStep(session);
+		if (advance === "combat-second-resolved" && latest) {
+			const finalAttack = observedAttack(latest);
+			if (finalAttack)
+				return nextStep({
+					...session,
+					finalAttack,
+					events: [
+						...session.events,
+						{
+							type: "combat-attack-resolved",
+							source: "game-observation",
+							stepId: "combat-dice",
+							detail: finalAttack.actionId,
+						},
+					],
+				});
+		}
+		if (
+			advance === "combat-ended" &&
+			latest?.actionType === "CHECK_COMBAT_END" &&
+			view.status === "REWARD_PHASE"
+		)
+			return nextStep({
+				...session,
+				events: [
+					...session.events,
+					{
+						type: "combat-ended",
+						source: "game-observation",
+						stepId: "combat-action",
+						detail: latest.actionId,
+					},
+				],
+			});
+	}
 	if (
 		advance === "game-started" &&
 		view.status !== "MAIN_MENU" &&
@@ -187,7 +359,9 @@ export function backTutorialObservation(
 	if (
 		previous &&
 		previous.advance === "manual" &&
-		(step.advance === "manual" || step.kind === "completion")
+		(step.advance === "manual" ||
+			step.kind === "completion" ||
+			step.id === "combat-action")
 	) {
 		return {
 			...session,

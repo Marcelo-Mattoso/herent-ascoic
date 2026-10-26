@@ -1,4 +1,4 @@
-import { type ReactNode, useEffect, useState } from "react";
+import { type ReactNode, useEffect, useRef, useState } from "react";
 import { exportJournalJson } from "@/core/journal/gameJournal";
 import { Defeat } from "@/ui/screens/Defeat";
 import { Exploration } from "@/ui/screens/Exploration";
@@ -10,6 +10,7 @@ import { useGameStore } from "@/ui/store/gameStore";
 import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
 import { TutorialOverlay } from "@/ui/tutorials/TutorialOverlay";
+import { prepareCombatCheckpoint } from "@/ui/tutorials/combatScenario";
 import type { TutorialAuditSnapshot } from "@/ui/tutorials/audit";
 import {
 	getTutorialModule,
@@ -21,6 +22,8 @@ import {
 	continueTutorial,
 	currentTutorialStep,
 	finishTutorial,
+	markCombatCheckpointReady,
+	recordCombatAttackInput,
 	reconcileTutorial,
 	selectTutorialHeroes,
 	skipTutorialObservation,
@@ -38,6 +41,8 @@ function App() {
 	const [lastTutorialAudit, setLastTutorialAudit] =
 		useState<TutorialAuditSnapshot | null>(null);
 	const [showReplay, setShowReplay] = useState(false);
+	const preparedCheckpoints = useRef(new Set<string>());
+	const tutorialRevision = tutorial?.events.length ?? 0;
 
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
@@ -51,17 +56,46 @@ function App() {
 	}, []);
 
 	useEffect(() => {
+		if (tutorialRevision === 0) return;
 		setTutorial((current) =>
-			current ? reconcileTutorial(current, view) : current,
+			current ? reconcileTutorial(current, view, journal) : current,
 		);
-	}, [view]);
+	}, [view, journal, tutorialRevision]);
+
+	useEffect(() => {
+		if (
+			!tutorial ||
+			tutorial.moduleId !== "archive-two" ||
+			currentTutorialStep(tutorial).id !== "combat-drag" ||
+			tutorial.checkpointReady ||
+			!tutorial.firstAttack ||
+			preparedCheckpoints.current.has(tutorial.id)
+		)
+			return;
+		preparedCheckpoints.current.add(tutorial.id);
+		reset();
+		for (const action of prepareCombatCheckpoint(
+			tutorial.firstAttack.heroCardId,
+		))
+			dispatch(action);
+		setTutorial((current) =>
+			current ? markCombatCheckpointReady(current) : current,
+		);
+	}, [tutorial, reset, dispatch]);
 
 	function startModule(id: TutorialModuleId) {
 		const module = getTutorialModule(id);
 		const entry = module.entry;
 		const selectedHeroCardIds =
-			tutorial?.selectedHeroCardIds ??
-			lastTutorialAudit?.session.selectedHeroCardIds ??
+			(tutorial?.selectedHeroCardIds.length
+				? tutorial.selectedHeroCardIds
+				: null) ??
+			(lastTutorialAudit?.session.selectedHeroCardIds.length
+				? lastTutorialAudit.session.selectedHeroCardIds
+				: null) ??
+			(entry.kind === "prepared-board"
+				? entry.defaultHeroCardIds
+				: undefined) ??
 			[];
 		if (entry.kind === "setup") {
 			reset();
@@ -70,14 +104,17 @@ function App() {
 			return;
 		}
 		const context = { view, selectedHeroCardIds };
-		if (!entry.canReuseBoard?.(context)) {
-			if (!entry.prepareActions)
-				throw new Error(`Arquivo sem preparação: ${id}`);
-			const actions = entry.prepareActions(context);
-			reset();
-			for (const action of actions) dispatch(action);
-		}
-		setTutorial(startTutorial(id, selectedHeroCardIds));
+		if (!entry.prepareActions) throw new Error(`Arquivo sem preparação: ${id}`);
+		const actions = entry.prepareActions(context);
+		if (!entry.canReuseBoard?.(context)) reset();
+		for (const action of actions) dispatch(action);
+		setTutorial(
+			startTutorial(
+				id,
+				selectedHeroCardIds,
+				window.matchMedia("(pointer: fine)").matches ? "drag" : "tap",
+			),
+		);
 		setUiScreen("menu");
 	}
 
@@ -113,6 +150,24 @@ function App() {
 		screen = (
 			<Exploration
 				tutorialMode={!!tutorial || uiScreen === "tutorialHub"}
+				tutorialCombatMode={tutorial?.moduleId === "archive-two"}
+				tutorialCombatMethod={
+					tutorial?.moduleId === "archive-two" &&
+					currentTutorialStep(tutorial).id === "combat-drag"
+						? tutorial.combatInput
+						: null
+				}
+				onTutorialAttackInput={(method) =>
+					setTutorial((current) =>
+						current
+							? recordCombatAttackInput(
+									current,
+									method,
+									journal.entries.at(-1)?.sequence ?? 0,
+								)
+							: current,
+					)
+				}
 				tutorialRevealEnabled={
 					tutorial ? currentTutorialStep(tutorial).id === "reveal" : false
 				}
@@ -164,13 +219,17 @@ function App() {
 				<TutorialOverlay
 					session={tutorial}
 					journal={journal}
+					view={view}
 					nextModule={nextModule?.available ? nextModule : undefined}
 					onNext={() => nextModule && startModule(nextModule.id)}
-					onContinue={() =>
-						setTutorial((current) =>
-							current ? continueTutorial(current) : current,
-						)
-					}
+					onContinue={() => {
+						if (currentTutorialStep(tutorial).id === "combat-action")
+							dispatch({ type: "CHECK_COMBAT_END" });
+						else
+							setTutorial((current) =>
+								current ? continueTutorial(current) : current,
+							);
+					}}
 					onSkip={() =>
 						setTutorial((current) =>
 							current ? skipTutorialObservation(current) : current,

@@ -10,8 +10,12 @@ async function openArchive(page: Page) {
 	await expect(page.locator(".tutorial-hub__module")).toHaveCount(4);
 	await expect(
 		page.locator(".tutorial-hub__module button:disabled"),
-	).toHaveCount(3);
-	await page.getByRole("button", { name: "Iniciar arquivo" }).click();
+	).toHaveCount(2);
+	await page
+		.locator(".tutorial-hub__module")
+		.first()
+		.getByRole("button", { name: "Iniciar arquivo" })
+		.click();
 	await expect(page.locator('[data-tutorial-step="opening"]')).toBeVisible();
 }
 
@@ -71,8 +75,8 @@ test("menu, ações reais e conclusão do Arquivo I", async ({ page }) => {
 	).toBe(true);
 	expect(audit.gameJournal).toBeTruthy();
 	await expect(
-		page.getByRole("button", { name: "Próximo arquivo — em breve" }),
-	).toBeDisabled();
+		page.getByRole("button", { name: /Próximo arquivo — Arquivo II/ }),
+	).toBeEnabled();
 	await page.getByRole("button", { name: "Repetir arquivo" }).click();
 	await expect(page.locator('[data-tutorial-step="opening"]')).toBeVisible();
 	await page.getByRole("button", { name: "Sair do tutorial" }).click();
