@@ -6,6 +6,8 @@ Estado local em 26/10/2026. O [site público](https://marcelo-mattoso.github.io/
 
 A Alpha abre sem cadastro. Escolha **JOGAR**, selecione de 1 a 4 heróis, modo e dificuldade e inicie a expedição. Revele salas, enfrente criaturas, use ataque, habilidades, poderes e itens, organize espólios, gaste XP, abra caminhos e avance até Azhakar. **Regras** abre o manual PDF; há link para baixar. Vitória e derrota têm telas próprias.
 
+**TUTORIAL** abre quatro arquivos. O Arquivo I guia a seleção de heróis, o reconhecimento do tabuleiro e a revelação de uma sala real; os demais indicam “Em breve”. O Arquivista narra em uma caixa sobre a interface. Use os controles destacados, **Continuar** nas observações, ou **Sair do tutorial** a qualquer momento. No fim, é possível repetir, escolher arquivo ou começar JOGAR sem recarregar. O registro do treinamento pode ser baixado em JSON junto com o diário da partida.
+
 Para relatar um problema, anote carta, herói, sala, ação, resultado esperado e observado e as últimas mensagens do log. O replay determinístico e as ferramentas de console ficam disponíveis apenas no modo de desenvolvimento.
 
 ## Limitações e pendências
@@ -21,6 +23,7 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 | P2 | `enableSubBosses = false`. | Conteúdo de subchefes fica fora do escopo atual. |
 | P2 | Bundle JS acima do aviso de 500 kB do Vite. | Medir carregamento em rede móvel antes de dividir chunks. |
 | P2 | Manual publicado de 25 páginas difere de PDF posterior de 39 páginas fora do repositório. | Confirmar versão oficial e divergências com o autor antes de substituir. |
+| Futuro | Arquivos II–IV do tutorial estão indisponíveis. | Definir etapas e preparação válida de cada cenário; Arquivo II deve ensinar combate sem alterar o motor. |
 | Futuro | `category` ainda compõe a definição de habilidade; algumas skills sem carta referenciada permanecem no catálogo para expansão. | Preservar esses IDs e contratos; revisar modelagem apenas em refatoração própria. |
 | Futuro | Algumas ações de dungeon e descoberta de habilidades tiveram propostas de UI em documentos antigos. | Validar o fluxo atual em partidas antes de abrir trabalho novo; os diagnósticos antigos podem estar superados. |
 
@@ -35,6 +38,8 @@ Validação local da recuperação de interrupções em 24/10/2026: 718 testes V
 Na branch atual, o catálogo estrutural contém 80 cartas, 89 skills, 93 abilities (incluindo adaptações legadas), 34 itens e 8 heróis. Os cenários dirigidos cobrem Marca da Presa com duas criaturas, Fúria preparada, poção e item reativo, posse de recompensa e disponibilidade dos oito poderes. O harness continua com 82 casos `ok` e 7 `no-effect` contextuais; essa contagem não equivale à validação de comportamento de todas as cartas. O combate normal não abre confirmação para reações opcionais: o jogador prepara antes do evento, e escolhas necessárias dentro de efeitos continuam visíveis.
 
 Validação local desta branch em 26/10/2026: 736 testes Vitest em 79 arquivos passaram, com cobertura de 75,62% das instruções, 65,28% dos ramos, 82,6% das funções e 78,89% das linhas. Os limiares configurados foram atendidos. Os 14 testes Playwright passaram, incluindo o toque que prepara Fúria antes de escolher a criatura. Lint, tipos, build de produção e `verify:build` com base `/herent-ascoic/` passaram. O bundle JS ainda gera o aviso de tamanho do Vite. Esta validação é local e não equivale a uma partida humana longa nem à publicação.
+
+Validação local do Arquivo I em 26/10/2026: 741 testes Vitest em 80 arquivos e 21 testes Playwright passaram; cobertura 75,62% das instruções, 65,3% dos ramos, 82,6% das funções e 78,89% das linhas. Os testes novos percorrem os nove passos, revelação pela action real, bloqueio de clique fora do destaque, inspeção de carta, exportação do registro, repetição, escolha de outro arquivo, saída, toque e mudança de orientação. A seed foi verificada para os oito heróis. O spotlight foi verificado em 360×800, 390×844, 844×390, 768×1024 e 1366×768; o tabuleiro guiado foi percorrido em 360×800 e 1366×768. Lint, build e `verify:build` passaram. As capturas desktop e mobile ficam em `test-results/tutorial-*.png` após a suíte local. O Arquivo I ainda precisa de playtest humano em aparelho real antes da publicação.
 
 ## Checklist para liberação
 

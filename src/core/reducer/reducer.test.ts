@@ -2,6 +2,7 @@
 // Cada teste percorre um caminho completo do loop de jogo.
 
 import { describe, expect, it } from "vitest";
+import { getHeroes } from "../data/cards";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
@@ -142,6 +143,47 @@ function stateWithHeroesAndEnemy(heroCardIds: string[]): GameState {
 // ─── Testes de setup ─────────────────────────────────────────────────────────
 
 describe("START_GAME", () => {
+	it("seed do tutorial oferece um encontro válido a cada herói disponível", () => {
+		for (const hero of getHeroes()) {
+			let state = reducer(createInitialGameState({ heroCardIds: [hero.id] }), {
+				type: "START_GAME",
+				payload: {
+					heroCardIds: [hero.id],
+					seed: 2,
+					deferInitialRoomReveal: true,
+				},
+			});
+			state = reducer(state, { type: "REVEAL_ROOM" });
+			if (state.status === "ROOM_EFFECT")
+				state = reducer(state, { type: "RESOLVE_ROOM_EFFECT" });
+			if (state.status === "SPAWN_ENEMIES")
+				state = reducer(state, { type: "SPAWN_ENEMIES" });
+			expect(state.status, hero.id).toBe("COMBAT_START");
+			expect(state.currentRoom, hero.id).not.toBeNull();
+			expect(state.activeEnemies.length, hero.id).toBeGreaterThan(0);
+			expect(state.pendingSkillChoice, hero.id).toBeFalsy();
+		}
+	});
+
+	it("pode aguardar a primeira revelação sem alterar o fluxo normal", () => {
+		const base = createInitialGameState({ heroCardIds: [HERO] });
+		const prepared = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardIds: [HERO], seed: 2, deferInitialRoomReveal: true },
+		});
+		expect(prepared.status).toBe("REVEAL_ROOM");
+		expect(prepared.currentRoom).toBeNull();
+		expect(prepared.decks.dungeonDeck.available.length).toBeGreaterThan(0);
+		const revealed = reducer(prepared, { type: "REVEAL_ROOM" });
+		expect(revealed.status).toBe("ROOM_EFFECT");
+		expect(revealed.currentRoom).not.toBeNull();
+		const normal = reducer(base, {
+			type: "START_GAME",
+			payload: { heroCardIds: [HERO], seed: 2 },
+		});
+		expect(normal.currentRoom?.cardId).toBe(revealed.currentRoom?.cardId);
+	});
+
 	it("cria herói e embaralha decks", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
 		const s = reducer(base, {
@@ -156,13 +198,7 @@ describe("START_GAME", () => {
 	});
 
 	it("rejeita partidas com mais de quatro heróis", () => {
-		const heroCardIds = [
-			HERO,
-			CLERIC,
-			PALADIN,
-			WARRIOR,
-			"hero_rift_rogue",
-		];
+		const heroCardIds = [HERO, CLERIC, PALADIN, WARRIOR, "hero_rift_rogue"];
 		const base = createInitialGameState({ heroCardIds });
 		const s = reducer(base, {
 			type: "START_GAME",
@@ -352,9 +388,7 @@ describe("USE_ITEM", () => {
 		});
 		s = {
 			...s,
-			heroes: [
-				{ ...hero, activeItems: { hand1: "item_living_ember_potion" } },
-			],
+			heroes: [{ ...hero, activeItems: { hand1: "item_living_ember_potion" } }],
 			activeEnemies: [{ ...enemy, currentLife: 1 }],
 		};
 
@@ -523,9 +557,13 @@ describe("USE_ITEM", () => {
 		if (!warrior || !cleric || !enemy || !s.combat) {
 			throw new Error("invalid combat");
 		}
-		s = reducer(s, { type: "USE_SKILL", payload: {
-			skillId: "skill_bastion_guard", sourceId: warrior.id,
-		} });
+		s = reducer(s, {
+			type: "USE_SKILL",
+			payload: {
+				skillId: "skill_bastion_guard",
+				sourceId: warrior.id,
+			},
+		});
 		expect(s.preparedAbilities).toBeDefined();
 
 		s = {
@@ -833,7 +871,10 @@ describe("loop de sala completo", () => {
 
 		const heroId = s.heroes[0]?.id ?? "";
 		const enemyId = s.activeEnemies[0]?.id ?? "";
-		s = reducer(s, { type: "USE_SKILL", payload: { skillId: "skill_crimson_fury", sourceId: heroId } });
+		s = reducer(s, {
+			type: "USE_SKILL",
+			payload: { skillId: "skill_crimson_fury", sourceId: heroId },
+		});
 		expect(Object.values(s.preparedAbilities ?? {})).toHaveLength(1);
 		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 

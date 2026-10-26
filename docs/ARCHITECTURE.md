@@ -8,6 +8,14 @@ Esta página descreve o código atual. `src/core/README.md` e `src/data/README.m
 
 O core não depende de React, DOM ou rede. Dados aleatórios passam pelo gerador com seed, para que `actionLog` possa ser reproduzido em `src/core/replay/`. `FEATURE_FLAGS.enableSave` permanece desligada: replay e portas de persistência existem, mas a sessão web não é retomada após recarregar.
 
+## Tutoriais interativos
+
+`src/ui/tutorials/registry.ts` declara os arquivos e suas etapas: narrativa, instrução, anchor semântico, condição de avanço e permissão para pular. `session.ts` é o controlador puro da sessão, com identificador, etapa, ponto destacado, heróis escolhidos e eventos de interface. `TutorialHub` permite entrar no Arquivo I; os Arquivos II–IV permanecem visíveis e indisponíveis. `TutorialOverlay` mede os elementos reais por `data-tutorial-anchor` e `getBoundingClientRect()`, reposiciona a máscara em resize/scroll e mantém o alvo acessível por clique, toque e teclado. A caixa do Arquivista separa a narração das instruções.
+
+`App` observa `playerView` para confirmar início de partida e revelação. A seleção de heróis é confirmada pelo estado da tela de preparação. O controlador não modifica `GameState`. O Arquivo I usa seed `2` e `START_GAME` com `deferInitialRoomReveal: true`: o motor prepara o estado válido `REVEAL_ROOM` sem sortear a sala; o comando guiado despacha a action existente `REVEAL_ROOM`. O fluxo normal de `START_GAME` continua revelando a sala imediatamente. A exploração automática resolve efeito e surgimento da criatura, mas pausa antes de `START_COMBAT` na sessão de treinamento. A seed gera uma sala e uma criatura para os oito heróis disponíveis.
+
+Ao repetir, sair ou iniciar JOGAR após o tutorial, a store é reiniciada; a sessão não é persistida como partida normal. O painel oferece um registro separado com eventos de interface e observações do jogo, além de exportação JSON junto com o diário do motor. O registro de abandono permanece disponível no seletor de arquivos. O contrato `entry` do catálogo aceita preparação por tela de heróis ou por actions válidas do motor; `canReuseBoard` permite ao arquivo seguinte aceitar o tabuleiro atual, e `prepareActions` prepara uma entrada independente quando necessário. Os heróis escolhidos são passados ao módulo seguinte. Os Arquivos II–IV ainda precisam declarar etapas, pré-condições e actions próprias antes de serem habilitados.
+
 ## Regras e efeitos
 
 - `state/` define estado e limites; `rules/` contém cálculos puros e máquina de estados.

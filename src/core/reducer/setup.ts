@@ -16,7 +16,11 @@ import { createRng } from "../ports/random";
 import { cardSkills } from "../skills/lookup";
 import type { ColorIndex } from "../state/color";
 import { createEmptyCombatState } from "../state/combatState";
-import { MAX_HEROES, type GameConfig, type GameState } from "../state/gameState";
+import {
+	MAX_HEROES,
+	type GameConfig,
+	type GameState,
+} from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
 import { buildDungeonRoomDeck, handleRevealRoom } from "./exploration";
@@ -25,7 +29,11 @@ import { awakeningRequirementMet } from "../rules/awakening";
 
 export function handleStartGame(
 	state: GameState,
-	payload: GameConfig & { seed?: number; gameId?: string },
+	payload: GameConfig & {
+		seed?: number;
+		gameId?: string;
+		deferInitialRoomReveal?: boolean;
+	},
 ): GameState {
 	const heroIds: string[] =
 		payload.heroCardIds.length > 0 ? payload.heroCardIds : [];
@@ -148,5 +156,7 @@ export function handleStartGame(
 		// START_GAME reinicia o actionLog (feito pelo wrapper em reducer/index.ts)
 	};
 
-	return handleRevealRoom(next);
+	// O treinamento pode apresentar a primeira sala como uma ação real do jogador.
+	// A partida normal mantém a revelação imediata existente.
+	return payload.deferInitialRoomReveal ? next : handleRevealRoom(next);
 }
