@@ -2,9 +2,6 @@ import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
 import { type PlayerView, playerView } from "@/core/projection/playerView";
 import { canStartHeroAttack } from "@/core/rules/attackAvailability";
 import { manualItemOptions } from "@/core/rules/itemEffects";
-import { isSkillGuardConsumed } from "@/core/skills/dispatch";
-import { cardSkills } from "@/core/skills/lookup";
-import { isManuallyActivatable } from "@/core/skills/useSkill";
 import { ActivationTracker } from "@/core/state/activation";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { GameState } from "@/core/state/gameState";
@@ -188,7 +185,6 @@ export function selectFocusedHero(
 export interface HeroCombatActions {
 	readonly canStartAttack?: boolean;
 	readonly usableItems?: ReturnType<typeof manualItemOptions>;
-	readonly attackBlocked?: boolean;
 	readonly canAttack: boolean;
 	readonly canPass: boolean;
 	readonly canCancel: boolean;
@@ -200,11 +196,17 @@ export interface HeroCombatActions {
 		readonly skillId: string;
 		readonly activatable: boolean;
 		readonly alreadyUsed: boolean;
+		readonly prepared: boolean;
+		readonly preparable: boolean;
+		readonly reason?: string;
 	} | null;
 	readonly power: {
 		readonly skillId: string;
 		readonly activatable: boolean;
 		readonly alreadyUsed: boolean;
+		readonly prepared: boolean;
+		readonly preparable: boolean;
+		readonly reason?: string;
 	} | null;
 }
 
@@ -225,10 +227,7 @@ export function selectHeroCombatActions(
 	const heroActionUnavailable =
 		hero === null ||
 		(isInCombat && ActivationTracker.isHeroDisabledThisRound(state, heroId));
-	const heroEffectsDisabled =
-		hero === null || ActivationTracker.hasHeroEffectsDisabled(state, heroId);
 
-	const attackBlocked = !!state.combat?.attackBlockedByHero?.[heroId];
 	const canStartAttack = canStartHeroAttack(state, heroId);
 	const canAttack = isSelectingTarget && canStartAttack;
 	const canPass = isSelectingTarget && !heroActionUnavailable;
@@ -239,41 +238,30 @@ export function selectHeroCombatActions(
 		hero.currentLife === 1 &&
 		!state.flags["fleeBlocked"];
 
-	// Skill: habilidade manual do herói (category === "habilidade")
-	const habilidadeEntry = hero
-		? cardSkills(hero.cardId).find(({ def }) => def.category === "hero_skill")
-		: null;
-	const skill = habilidadeEntry
+	const skillAction = view.abilityActionsByHero[heroId]?.find((action) => action.kind === "skill");
+	const skill = skillAction
 		? {
-				skillId: habilidadeEntry.def.id,
-				activatable: isManuallyActivatable(habilidadeEntry.def),
-				alreadyUsed:
-					heroEffectsDisabled ||
-					isSkillGuardConsumed(state, habilidadeEntry.def, heroId),
+				skillId: skillAction.abilityId,
+				activatable: skillAction.activation !== "passive",
+				alreadyUsed: skillAction.status === "exhausted" || skillAction.status === "unavailable",
+				prepared: skillAction.status === "prepared",
+				preparable: skillAction.activation === "prepare",
+				reason: skillAction.reason,
 			}
 		: null;
-	const powerEntry = hero
-		? cardSkills(hero.cardId).find(({ def }) => def.category === "hero_power")
-		: null;
-	const power = powerEntry
+	const powerAction = view.abilityActionsByHero[heroId]?.find((action) => action.kind === "power");
+	const power = powerAction
 		? {
-				skillId: powerEntry.def.id,
-				activatable: isManuallyActivatable(powerEntry.def),
-				alreadyUsed:
-					heroEffectsDisabled ||
-					isSkillGuardConsumed(state, powerEntry.def, heroId),
+				skillId: powerAction.abilityId,
+				activatable: powerAction.activation !== "passive",
+				alreadyUsed: powerAction.status === "exhausted" || powerAction.status === "unavailable",
+				prepared: powerAction.status === "prepared",
+				preparable: powerAction.activation === "prepare",
+				reason: powerAction.reason,
 			}
 		: null;
-	const canUseSkill =
-		!!skill?.activatable &&
-		!skill.alreadyUsed &&
-		(skill.skillId === "skill_prey_mark"
-			? isInCombat && !state.combat?.preyByHero[heroId]
-			: isSelectingTarget || !isInCombat);
-	const canUsePower =
-		!!power?.activatable &&
-		!power.alreadyUsed &&
-		(isSelectingTarget || !isInCombat);
+	const canUseSkill = Boolean(skillAction && (skillAction.status === "available" || skillAction.status === "prepared"));
+	const canUsePower = Boolean(powerAction && (powerAction.status === "available" || powerAction.status === "prepared"));
 
 	const fleeAlreadyDeclared =
 		state.combat?.fleeAttemptByHero?.[heroId] ?? false;
@@ -281,7 +269,6 @@ export function selectHeroCombatActions(
 	return {
 		canAttack,
 		canStartAttack,
-		attackBlocked,
 		usableItems: manualItemOptions(state, heroId),
 		canPass,
 		canCancel,

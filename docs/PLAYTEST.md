@@ -1,6 +1,6 @@
 # Playtest da Alpha Web
 
-Estado local em 24/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as correções de interrupção desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
+Estado local em 26/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as mudanças desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
 
 ## O que testar
 
@@ -15,6 +15,7 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 | P1 | `enableSave = false`. | Recarregar ou fechar a aba perde a partida; avise os participantes antes de começar. |
 | P1 | O tabuleiro agora cabe em retrato e paisagem sem rolagem da arena nos viewports automatizados. | Confirmar legibilidade, safe areas e barras dinâmicas em aparelhos reais antes da publicação. |
 | P1 | O harness marcou sete casos `no-effect` em cenários sintéticos: `skill_rift_evasion`, `skill_cowardly_flee`, `skill_opportunity_shot`, `skill_minor_rune`, `boss_skill_dark_forge_pressure`, `dungeon_skill_subboss_room`, `dungeon_skill_empty_room`. | Fazer partidas dirigidas e reproduzir uma falha antes de mudar regras. Não há skill classificada como sem implementação ou erro pelo harness anterior. |
+| P1 | O motor de habilidades foi consolidado localmente: uso manual preserva o ataque e reação opcional exige preparação anterior ao evento. | Validar Caçador, Fúria, poderes e itens em aparelhos reais; observar se estado preparado, custo, efeito e diário ficam claros. |
 | P1 | Fuga de criatura para `skill_cowardly_flee` ainda não tem transição/emissor próprios. | Testar a carta em uma situação real e definir comportamento com o autor. |
 | Resolvido localmente | Uma escolha reativa após dano interrompia a limpeza de entidade ECS. | Testes de aplicação e recusa cobrem dano letal e retomada do ataque. Repetir em uma partida dirigida antes de publicar. |
 | P2 | `enableSubBosses = false`. | Conteúdo de subchefes fica fora do escopo atual. |
@@ -31,6 +32,10 @@ Validação local do sistema de equipamentos: lint e tipos passaram; 694 testes 
 
 Validação local da recuperação de interrupções em 24/10/2026: 718 testes Vitest, 14 testes Playwright, lint, tipos, build e `verify:build` passaram. A cobertura passou com 76,18% de instruções, 66,6% de ramos, 82,61% de funções e 79,55% de linhas. O teste de catálogo encontrou 82 habilidades com efeito observável, 7 `no-effect` contextuais, nenhuma sem implementação e nenhum erro. Ainda falta uma partida humana longa no site publicado; esta verificação não equivale à publicação da branch.
 
+Na branch atual, o catálogo estrutural contém 80 cartas, 89 skills, 93 abilities (incluindo adaptações legadas), 34 itens e 8 heróis. Os cenários dirigidos cobrem Marca da Presa com duas criaturas, Fúria preparada, poção e item reativo, posse de recompensa e disponibilidade dos oito poderes. O harness continua com 82 casos `ok` e 7 `no-effect` contextuais; essa contagem não equivale à validação de comportamento de todas as cartas. O combate normal não abre confirmação para reações opcionais: o jogador prepara antes do evento, e escolhas necessárias dentro de efeitos continuam visíveis.
+
+Validação local desta branch em 26/10/2026: 736 testes Vitest em 79 arquivos passaram, com cobertura de 75,62% das instruções, 65,28% dos ramos, 82,6% das funções e 78,89% das linhas. Os limiares configurados foram atendidos. Os 14 testes Playwright passaram, incluindo o toque que prepara Fúria antes de escolher a criatura. Lint, tipos, build de produção e `verify:build` com base `/herent-ascoic/` passaram. O bundle JS ainda gera o aviso de tamanho do Vite. Esta validação é local e não equivale a uma partida humana longa nem à publicação.
+
 ## Checklist para liberação
 
 - [ ] Checks do pull request passam; push em `main` publica apenas `dist/` pelo workflow.
@@ -38,7 +43,7 @@ Validação local da recuperação de interrupções em 24/10/2026: 718 testes V
 - [ ] No site publicado, JS, CSS, manifestos, imagens, cartas, fontes e PDF carregam sob `/herent-ascoic/`, sem 404 ou erros inesperados no console.
 - [ ] **JOGAR** abre preparação; iniciar com 1 e com 4 heróis chega ao tabuleiro.
 - [ ] Revelar sala, iniciar e concluir combate com ataque e item; organizar recompensa, gastar XP e abrir caminho até outra sala.
-- [ ] Testar habilidade/poder, cancelamento de alvo, chefe, vitória e derrota em sessões dirigidas.
+- [ ] Testar Marca da Presa com duas criaturas; usar Fúria e poder preparados antes do ataque; cancelar preparação; usar item equipado, cancelar alvo, enfrentar chefe, vencer e perder em sessões dirigidas.
 - [ ] Abrir **Regras** e baixar o PDF sem cadastro; confirmar com o autor qual versão é oficial antes de divulgar como definitiva.
 - [ ] Registrar feedback e avisar sobre perda da sessão; testar retrato e paisagem no aparelho dos participantes.
 

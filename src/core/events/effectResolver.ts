@@ -16,10 +16,10 @@ import { evaluate } from "../skills/dsl/evaluate";
 import { resolveCondition } from "../skills/dsl/resolveCondition";
 import type { EventName } from "../skills/dsl/types";
 import type { GameState } from "../state/gameState";
+import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
 import {
 	collectPromptTriggers,
-	createPendingTriggerInterrupt,
-	triggerDecisionFlag,
+	executeTriggerCandidate,
 } from "../triggers/engine";
 import type { GameEvent } from "./types";
 
@@ -179,15 +179,14 @@ export function applyEffect(
 			);
 			if (!candidate) return { state, event };
 
-			const pending = createPendingTriggerInterrupt(candidate, skillCtx);
-			if (state.flags[triggerDecisionFlag(pending.id)]) {
+			const sourceHeroId = candidate.source.sourceHeroId;
+			if (!sourceHeroId ||
+				(candidate.source.kind !== "hero" && candidate.source.kind !== "item" && candidate.source.kind !== "artifact"))
 				return { state, event };
-			}
-
-			return {
-				state: { ...state, pendingTriggerInterrupt: pending },
-				event,
-			};
+			const key = preparedAbilityKey(candidate.source.kind, sourceHeroId,
+				candidate.source.cardId, candidate.definition.id);
+			if (!isAbilityPrepared(state, key)) return { state, event };
+			return { state: removePreparedAbility(executeTriggerCandidate(state, candidate, skillCtx), key), event };
 		}
 
 		// Lote F: run_skill — executa skill DSL/script em resposta a um evento do bus

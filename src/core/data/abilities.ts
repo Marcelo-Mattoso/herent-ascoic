@@ -11,6 +11,7 @@ import type { AnyCard, SkillRef } from "./cardTypes";
 import { SKILLS } from "./skills";
 import type { SkillDefinition } from "./skillTypes";
 import { AbilityCatalogSchema, AbilityGrantSchema } from "../skills/dsl/schema";
+import { isVoluntaryTrigger } from "../skills/activationMode";
 
 const authoredCatalog = AbilityCatalogSchema.parse(
 	parse(abilitiesYaml),
@@ -59,10 +60,10 @@ function legacyActivation(
 			kind: "event",
 			event: definition.trigger!.event,
 			window: definition.trigger?.window,
-			decision:
-				definition.interrupt?.mode === "prompt" || card.type === "hero"
-					? "optional"
-					: "automatic",
+			decision: isVoluntaryTrigger(definition,
+				card.type === "creature" ? "enemy" : card.type === "subboss" ? "enemy" :
+				card.type === "subboss_room" ? "room" : card.type,
+				definition.trigger!.event) ? "optional" : "automatic",
 			priority: definition.interrupt?.priority,
 			actionCost: "none",
 			consumeSource:
@@ -76,7 +77,7 @@ function legacyActivation(
 	return {
 		kind: "manual",
 		decision: "required",
-		actionCost: card.type === "hero" ? "consume_hero_action" : "none",
+		actionCost: "none",
 		consumeSource:
 			card.type === "item" && card.itemClass === "consumable"
 				? "discard"

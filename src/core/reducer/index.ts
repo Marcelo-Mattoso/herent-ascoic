@@ -66,12 +66,11 @@ import { buildScriptCtx } from "../scripts/context";
 import { evaluate } from "../skills/dsl/evaluate";
 import { lookupSkillById } from "../skills/lookup";
 import { getContinuation } from "../skills/registry";
+import { prunePreparedAbilities } from "../abilities/prepared";
 import {
 	fireTriggerDecision,
-	markSkillGuardUsed,
 	triggerDecisionFlag,
 } from "../triggers/engine";
-import { voluntarySkillConsumesUse } from "../skills/useSkill";
 import {
 	applySkillWindowDecision,
 	resolveSkillWindow,
@@ -405,17 +404,10 @@ function dispatch(state: GameState, action: Action): GameState {
 			// Apenas escolhas explicitamente opcionais podem ser dispensadas.
 			if (action.payload.choice === "__skip__") {
 				if (!pending.allowSkip) return state;
-				const definition = lookupSkillById(pending.skillId);
-				const afterSkipUse =
-					definition &&
-					pending.context?.triggeredBy === "on_use" &&
-					voluntarySkillConsumesUse(definition)
-						? markSkillGuardUsed(state, definition, pending.sourceHeroId)
-						: state;
 				return finishChoice(
 					clearPendingChoice(
 						discardDrawChoiceCards(
-							afterSkipUse,
+							state,
 							pending.options.map((option) => option.id),
 						),
 					),
@@ -649,7 +641,7 @@ export function reducerCore(state: GameState, action: Action): GameState {
 	const dispatched = dispatch(ready, action);
 	const validated = applyAndValidate(state, action, dispatched);
 	// Drenar a stack ao fim de cada action — toda cadeia de efeitos resolve aqui.
-	return drainStack(validated);
+	return prunePreparedAbilities(drainStack(validated), state);
 }
 
 export function reducer(state: GameState, action: Action): GameState {

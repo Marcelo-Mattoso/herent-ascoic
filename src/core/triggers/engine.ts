@@ -16,6 +16,8 @@ import { ActivationTracker } from "../state/activation";
 import { awakeningRequirementMet } from "../rules/awakening";
 import type { GameState } from "../state/gameState";
 import { syncEntityFromHero } from "../ecs/sync";
+import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
+import { isVoluntaryTrigger } from "../skills/activationMode";
 
 export type TriggerWindow =
 	| "room_enter"
@@ -324,10 +326,7 @@ export function guardPassed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): boolean {
-	const cooldown =
-		skill.category === "hero_power"
-			? { scope: "game" as const, charges: 1 }
-			: skill.cooldown;
+	const cooldown = skill.cooldown;
 	if (!cooldown) return true;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
@@ -357,10 +356,7 @@ export function markSkillGuardUsed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): GameState {
-	const cooldown =
-		skill.category === "hero_power"
-			? { scope: "game" as const, charges: 1 }
-			: skill.cooldown;
+	const cooldown = skill.cooldown;
 	if (!cooldown) return state;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
@@ -687,16 +683,18 @@ export function fireTrigger(
 	if (current.pendingTriggerInterrupt) return current;
 
 	for (const candidate of candidates) {
-		if (candidate.mode === "prompt") {
+		if (isVoluntaryTrigger(candidate.definition, candidate.source.kind, event)) {
 			if (!candidateCanFire(current, candidate, ctx)) continue;
-			const pending = createPendingTriggerInterrupt(candidate, ctx);
-			if (current.flags[triggerDecisionFlag(pending.id)]) continue;
-			return {
-				...current,
-				pendingTriggerInterrupt: pending,
-			};
+			const sourceHeroId = candidate.source.sourceHeroId;
+			if (!sourceHeroId ||
+				(candidate.source.kind !== "hero" && candidate.source.kind !== "item" && candidate.source.kind !== "artifact")) continue;
+			const key = preparedAbilityKey(candidate.source.kind, sourceHeroId,
+				candidate.source.cardId, candidate.definition.id);
+			if (!isAbilityPrepared(current, key)) continue;
+			current = removePreparedAbility(executeTriggerCandidate(current, candidate, ctx), key);
+			continue;
 		}
-		if (candidate.mode !== "auto") continue;
+		if (candidate.definition.operate_type === "op_passive") continue;
 		if (!candidateCanFire(current, candidate, ctx)) continue;
 
 		current = executeTriggerCandidate(current, candidate, ctx);

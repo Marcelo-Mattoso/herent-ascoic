@@ -1,8 +1,11 @@
 // Executor vNext: separa o efeito da ability do ciclo de vida da fonte.
 
-import { lookupAbilityById } from "../data/abilities";
-import type { AbilityGrant } from "../data/abilityTypes";
+import { cardAbilityGrants, lookupAbilityById } from "../data/abilities";
 import { getCardById } from "../data/cards";
+import { lookupSkillById } from "../skills/lookup";
+import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
+import { emit } from "../events/bus";
+import type { AbilityGrant } from "../data/abilityTypes";
 import { drainStack } from "../effects/resolver";
 import { findHeroItemLocation, removeHeroItem } from "../rules/itemEffects";
 import { destructionPreventionFlag } from "../rules/destruction";
@@ -10,6 +13,7 @@ import { awakeningRequirementMet } from "../rules/awakening";
 import { buildScriptCtx } from "../scripts/context";
 import { getScript } from "../scripts/registry";
 import { evaluate } from "../skills/dsl/evaluate";
+import { resolveCondition } from "../skills/dsl/resolveCondition";
 import {
 	resolveManualSkillTarget,
 	type TargetingDefinition,
@@ -41,6 +45,7 @@ export interface AbilityGrantExecution {
 	readonly triggeredBy: string;
 	readonly targetIds?: readonly string[];
 	readonly value?: number | string | null;
+	readonly context?: SkillContext;
 }
 
 export interface EventAbilityGrantCandidate {
@@ -56,7 +61,7 @@ export function abilityGrantLockId(
 }
 
 function sourceKind(source: AbilityGrantSource) {
-	return source.kind === "boss" ? "boss" : source.kind;
+	return source.kind === "hero" ? "card" : source.kind === "boss" ? "boss" : source.kind;
 }
 
 function targeting(grant: AbilityGrant): TargetingDefinition {
@@ -89,9 +94,47 @@ export function canExecuteAbilityGrant(
 	source: AbilityGrantSource,
 	grant: AbilityGrant,
 	triggeredBy: string,
+	context?: SkillContext,
+	targetIds?: readonly string[],
 ): string | null {
+	const ability = lookupAbilityById(grant.abilityId);
+	if (!ability) return "Habilidade inexistente.";
+	if (ability.script && !getScript(`${ability.script}.run`)) return "Script da habilidade não encontrado.";
+	if (!ability.effect && !ability.script) return "Habilidade sem efeito implementado.";
+	const card = getCardById(source.cardId);
+	if (!card) return "Carta de origem inexistente.";
+	if (source.kind === "hero" &&
+		!state.heroes.some((hero) => hero.id === source.sourceHeroId &&
+			hero.cardId === source.cardId && hero.status === "active"))
+		return "Herói de origem não está em jogo.";
+	if (source.kind === "item") {
+		const owner = state.heroes.find((hero) => hero.id === source.sourceHeroId && hero.status === "active");
+		const equipped = owner && Object.values(owner.activeItems).includes(source.cardId);
+		const mysticDrawReward = state.status === "REWARD_PHASE" &&
+			grant.abilityId === "item_skill_mystic_draw" &&
+			state.pendingRewards.some((reward) => reward.type === "item" && reward.cardId === source.cardId);
+		if (!equipped && !mysticDrawReward) return "Item não equipado por este herói.";
+	}
+	if (source.kind === "artifact" &&
+		!state.groupArtifacts.some((artifact) => artifact.cardId === source.cardId))
+		return "Artefato não está em jogo.";
+	if (source.sourceHeroId && (grant.activation.cost?.hp ?? 0) > 0) {
+		const hero = state.heroes.find((entry) => entry.id === source.sourceHeroId);
+		if (!hero || hero.currentLife <= (grant.activation.cost?.hp ?? 0))
+			return "Vida insuficiente para ativar a habilidade.";
+	}
 	if (!awakeningRequirementMet(state.despertar, grant.requiresAwakening))
 		return "Esta concessão exige Despertar 4.";
+	if (source.sourceHeroId && ActivationTracker.isDisabled(state, "hero", source.sourceHeroId))
+		return "A fonte está incapacitada.";
+	if (source.kind === "item" && source.sourceHeroId &&
+		ActivationTracker.isDisabled(state, "item", `${source.sourceHeroId}:${source.cardId}`))
+		return "Este item está exaurido.";
+	if (grant.id.startsWith("legacy:")) {
+		const definition = lookupSkillById(grant.abilityId);
+		if (!definition || !guardPassed(state, definition, source.sourceHeroId))
+			return "O limite de uso deste efeito já foi atingido.";
+	}
 	if (
 		grant.activation.kind === "event" &&
 		grant.activation.event !== triggeredBy
@@ -106,6 +149,28 @@ export function canExecuteAbilityGrant(
 		)
 	)
 		return "Esta concessão já foi usada neste escopo.";
+	if (grant.activation.conditions?.length && context) {
+		const params = { ...ability?.defaultParams, ...grant.params };
+		const evalCtx = buildScriptCtx(state, {
+			...context, sourceHeroId: source.sourceHeroId ?? context.sourceHeroId,
+			sourceEnemyId: source.sourceEnemyId ?? context.sourceEnemyId,
+			skillId: grant.abilityId,
+		}, params);
+		if (!grant.activation.conditions.every((condition) => resolveCondition(condition, evalCtx)))
+			return "Condições da concessão não atendidas.";
+	}
+	if (targetIds) {
+		const targetType = grant.activation.targeting?.targetType;
+		if ((targetType === "tgt_enemy" || targetType === "tgt_target" || targetType === "tgt_others") &&
+			targetIds.length === 0)
+			return "Esta habilidade precisa de um alvo válido.";
+		if (targetIds.some((id) => !state.heroes.some((hero) => hero.id === id && hero.status === "active") &&
+			!state.activeEnemies.some((enemy) => enemy.id === id && enemy.status === "active")))
+			return "Alvo inválido para esta habilidade.";
+		if (targetType === "tgt_enemy" && targetIds.some((id) =>
+			!state.activeEnemies.some((enemy) => enemy.id === id && enemy.status === "active")))
+			return "Esta habilidade exige uma criatura como alvo.";
+	}
 	return null;
 }
 
@@ -148,6 +213,10 @@ function markGrantUsed(
 	source: AbilityGrantSource,
 	grant: AbilityGrant,
 ): GameState {
+	if (grant.id.startsWith("legacy:")) {
+		const definition = lookupSkillById(grant.abilityId);
+		return definition ? markSkillGuardUsed(state, definition, source.sourceHeroId) : state;
+	}
 	const limit = grant.activation.limit;
 	if (!limit || limit.maxUses !== 1) return state;
 	return ActivationTracker.disable(state, {
@@ -183,14 +252,41 @@ export function executeAbilityGrant(
 	const { source, grant, triggeredBy } = request;
 	const ability = lookupAbilityById(grant.abilityId);
 	if (!ability) return log(state, `[AVISO] Ability não encontrada: ${grant.abilityId}`);
-	const unavailable = canExecuteAbilityGrant(state, source, grant, triggeredBy);
+	const requestedTargetIds = defaultTargetIds(source, grant, request.targetIds);
+	const context: SkillContext = request.context ?? {
+		triggeredBy,
+		sourceHeroId: source.sourceHeroId,
+		sourceEnemyId: source.sourceEnemyId,
+		targetHeroIds: requestedTargetIds.filter((id) => state.heroes.some((hero) => hero.id === id)),
+		targetEnemyIds: requestedTargetIds.filter((id) => state.activeEnemies.some((enemy) => enemy.id === id)),
+		value: request.value,
+	};
+	const unavailable = canExecuteAbilityGrant(state, source, grant, triggeredBy, context, requestedTargetIds);
 	if (unavailable) return log(state, `[AVISO] ${unavailable}`);
+	const script = ability.script ? getScript(`${ability.script}.run`) : null;
+	if (ability.script && !script)
+		return log(state, `[SCRIPT NÃO ENCONTRADO: ${ability.script}.run]`);
+	if (!ability.effect && !script)
+		return log(state, `[AVISO] Ability sem implementação: ${ability.id}`);
+	const hpCost = grant.activation.cost?.hp ?? 0;
+	if (hpCost > 0 && source.sourceHeroId) {
+		const hero = state.heroes.find((entry) => entry.id === source.sourceHeroId);
+		if (!hero || hero.currentLife <= hpCost)
+			return log(state, "[AVISO] Vida insuficiente para ativar a habilidade.");
+	}
 
-	const targetIds = defaultTargetIds(source, grant, request.targetIds);
+	const targetIds = requestedTargetIds;
 	const params = { ...ability.defaultParams, ...grant.params };
 	const value = request.value ?? (params.value as number | string | null | undefined) ?? null;
-	let next = consumeSource(state, source, grant);
-	const hpCost = grant.activation.cost?.hp ?? 0;
+	const parameterValue = triggeredBy === "manual" && request.value != null
+		? request.value
+		: (params.value as number | string | null | undefined) ?? request.value ?? null;
+	let next = state;
+	if (triggeredBy === "manual" && source.sourceHeroId)
+		({ state: next } = emit(next, { type: "SkillUsed", payload: {
+			sourceId: source.sourceHeroId, skillId: ability.id,
+		} }));
+	next = consumeSource(next, source, grant);
 	if (hpCost > 0 && source.sourceHeroId) {
 		const hero = next.heroes.find((entry) => entry.id === source.sourceHeroId);
 		if (!hero || hero.currentLife <= hpCost)
@@ -204,6 +300,7 @@ export function executeAbilityGrant(
 	}
 
 	const skillCtx = {
+		...context,
 		triggeredBy,
 		sourceHeroId: source.sourceHeroId,
 		sourceEnemyId: source.sourceEnemyId,
@@ -214,12 +311,10 @@ export function executeAbilityGrant(
 		skillId: ability.id,
 		value,
 	};
-	const ctx = buildScriptCtx(next, skillCtx, { ...params, value });
+	const ctx = buildScriptCtx(next, skillCtx, { ...params, value: parameterValue });
 	if (ability.effect) next = evaluate(ability.effect, ctx);
 	if (ability.script) {
-		const script = getScript(`${ability.script}.run`);
-		if (!script) return log(next, `[SCRIPT NÃO ENCONTRADO: ${ability.script}.run]`);
-		next = script(ctx);
+		next = script!(ctx);
 	}
 	next = drainStack(next);
 	// Antes da destruição, i_prevent_destroy não pode curar uma entidade que
@@ -264,15 +359,14 @@ function addEventGrants(
 	source: AbilityGrantSource,
 	event: EventName,
 ): void {
-	const card = getCardById(source.cardId);
-	for (const grant of card?.grants ?? []) {
+	for (const grant of cardAbilityGrants(source.cardId)) {
 		if (grant.activation.kind !== "event" || grant.activation.event !== event)
 			continue;
 		candidates.push({ source, grant });
 	}
 }
 
-/** Retorna somente grants explícitos; SkillRefs legadas seguem no trigger engine. */
+/** Descoberta única de grants explícitos e SkillRefs normalizadas. */
 export function collectEventAbilityGrantCandidates(
 	state: GameState,
 	event: EventName,
@@ -321,7 +415,13 @@ export function collectEventAbilityGrantCandidates(
 			event,
 		);
 	}
-	return candidates;
+	const sourcePriority = { room: 10, artifact: 20, item: 30, hero: 40, enemy: 50, boss: 60 };
+	return candidates.sort((a, b) => {
+		const priorityA = a.grant.activation.priority ?? sourcePriority[a.source.kind];
+		const priorityB = b.grant.activation.priority ?? sourcePriority[b.source.kind];
+		return priorityA - priorityB ||
+			`${a.source.cardId}:${a.grant.id}`.localeCompare(`${b.source.cardId}:${b.grant.id}`);
+	});
 }
 
 /** Impede que um item de um herói reaja ao combate/dano de outro. */
@@ -347,12 +447,16 @@ export function eventGrantMatchesContext(
 	if (
 		event === "evt_attack_declared" ||
 		event === "evt_roll" ||
+		event === "evt_hit" ||
 		event === "evt_damage_dealt" ||
+		event === "evt_destroy" ||
 		event === "evt_kill"
 	) {
 		return heroId === ctx.sourceHeroId;
 	}
 	if (event === "evt_damage_taken" || event === "evt_would_be_destroyed")
-		return ctx.targetHeroIds?.includes(heroId) ?? false;
+		return candidate.grant.activation.targeting?.targetType === "tgt_self"
+			? (ctx.targetHeroIds?.includes(heroId) ?? false)
+			: Boolean(ctx.targetHeroIds?.length || ctx.targetEnemyIds?.length);
 	return true;
 }

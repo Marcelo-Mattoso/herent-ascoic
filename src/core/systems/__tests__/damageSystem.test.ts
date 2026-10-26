@@ -17,7 +17,7 @@ import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { applyDamage, applyDamageMin1 } from "../damageSystem";
 import { collectTriggerCandidates } from "../../triggers/engine";
-import { reducerCore } from "../../reducer";
+import { preparedAbilityKey } from "../../abilities/prepared";
 import { handleResolveAttack } from "../../reducer/combat";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
@@ -256,34 +256,26 @@ describe("applyDamage — inimigo", () => {
 		expect(result.heroes[0]!.currentLife).toBe(10);
 	});
 
-	it.each([
-		"APPLY_TRIGGER_INTERRUPT",
-		"SKIP_TRIGGER_INTERRUPT",
-	] as const)("retoma a limpeza da criatura após %s em dano letal", (actionType) => {
+	it.each([false, true])("limpa criatura após dano letal com poder preparado=%s", (prepared) => {
 		let state = makeState({}, { currentLife: 1 });
 		state = {
 			...state,
 			status: "HERO_ACTION",
 			world: upsertEntity(state.world, createEntity("e1", "enemy")),
 		};
-		const interrupted = applyDamage(state, "e1", 1, { sourceId: "h1" });
-		expect(interrupted.pendingTriggerInterrupt?.skillId).toBe(
-			"power_mighty_crimson_fury",
-		);
-		expect(interrupted.activeEnemies[0]?.status).toBe("defeated");
-		const resumed = reducerCore(interrupted, {
-			type: actionType,
-			payload: { interruptId: interrupted.pendingTriggerInterrupt!.id },
-		});
-		expect(resumed.pendingTriggerInterrupt).toBeUndefined();
-		expect(resumed.world.entities.e1).toBeUndefined();
-		expect(resumed.combat?.heroesActed).toEqual([]);
+		const key = preparedAbilityKey("hero", "h1", "hero_crimson_barbarian", "power_mighty_crimson_fury");
+		if (prepared) state = { ...state, preparedAbilities: { [key]: {
+			key, sourceKind: "hero", sourceHeroId: "h1", sourceCardId: "hero_crimson_barbarian",
+			abilityId: "power_mighty_crimson_fury", event: "evt_damage_dealt",
+		} } };
+		const result = applyDamage(state, "e1", 1, { sourceId: "h1" });
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
+		expect(result.world.entities.e1).toBeUndefined();
+		expect(result.combat?.heroesActed).toEqual([]);
+		expect(result.preparedAbilities?.[key]).toBeUndefined();
 	});
 
-	it.each([
-		"APPLY_TRIGGER_INTERRUPT",
-		"SKIP_TRIGGER_INTERRUPT",
-	] as const)("conclui o ataque após %s no dano causado", (actionType) => {
+	it.each([false, true])("conclui ataque com poder preparado=%s", (prepared) => {
 		const base = makeState({}, { currentLife: 2 });
 		const state: GameState = {
 			...base,
@@ -303,17 +295,15 @@ describe("applyDamage — inimigo", () => {
 				},
 			},
 		};
-		const interrupted = handleResolveAttack(state);
-		expect(interrupted.pendingTriggerInterrupt?.skillId).toBe(
-			"power_mighty_crimson_fury",
-		);
-		const resumed = reducerCore(interrupted, {
-			type: actionType,
-			payload: { interruptId: interrupted.pendingTriggerInterrupt!.id },
-		});
-		expect(resumed.pendingTriggerInterrupt).toBeUndefined();
-		expect(resumed.combat?.heroesActed).toContain("h1");
-		expect(resumed.status).toBe("CHECK_COMBAT_END");
+		const key = preparedAbilityKey("hero", "h1", "hero_crimson_barbarian", "power_mighty_crimson_fury");
+		const ready = prepared ? { ...state, preparedAbilities: { [key]: {
+			key, sourceKind: "hero" as const, sourceHeroId: "h1", sourceCardId: "hero_crimson_barbarian",
+			abilityId: "power_mighty_crimson_fury", event: "evt_damage_dealt" as const,
+		} } } : state;
+		const result = handleResolveAttack(ready);
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
+		expect(result.combat?.heroesActed).toContain("h1");
+		expect(result.status).toBe("CHECK_COMBAT_END");
 	});
 
 	it("abre evt_destroy para a criatura derrotada", () => {

@@ -187,6 +187,12 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 		await expect
 			.poll(async () => (await readState()).phase)
 			.toBe("selecting_target");
+		await hero.tap({ timeout: 5_000 });
+		await page.getByRole("button", { name: "Preparar habilidade" }).tap({ timeout: 5_000 });
+		await expect(page.getByRole("button", { name: "Cancelar preparação" })).toBeVisible({ timeout: 5_000 });
+		await page.getByRole("button", { name: "Fechar herói em foco" }).tap({
+			position: { x: 5, y: 5 }, timeout: 5_000,
+		});
 		const enemy = page.locator(".game-board-active-cards button").nth(1);
 		await enemy.tap();
 		await expect
@@ -194,10 +200,7 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 				(await readState()).actionTypes.includes("CHOOSE_TARGET"),
 			)
 			.toBe(true);
-		await page
-			.getByRole("dialog", { name: "Fúria Rubra" })
-			.getByRole("button", { name: "Ignorar" })
-			.tap();
+		await expect(page.getByRole("dialog", { name: "Fúria Rubra" })).toHaveCount(0);
 		const dice = page.getByRole("dialog", {
 			name: "Resultado da rolagem de dados",
 		});

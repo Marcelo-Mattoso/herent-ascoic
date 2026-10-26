@@ -53,7 +53,6 @@ export function HeroFocusPanel({
 
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isSelectingHero = isInCombat && phase === "selecting_hero";
-	const isSelectingTarget = isInCombat && phase === "selecting_target";
 	const isFocusedHeroSelected =
 		!!hero && view.combat?.selectedHeroId === hero.id;
 
@@ -166,6 +165,12 @@ export function HeroFocusPanel({
 							const poder = heroSkills.find(
 								({ def }) => def.category === "hero_power",
 							);
+							const skillStatus = view.abilityActionsByHero[hero.id]?.find(
+								(action) => action.abilityId === habilidade?.def.id,
+							)?.status;
+							const powerStatus = view.abilityActionsByHero[hero.id]?.find(
+								(action) => action.abilityId === poder?.def.id,
+							)?.status;
 							return (
 								<div
 									style={{
@@ -201,7 +206,10 @@ export function HeroFocusPanel({
 														fontSize: 9,
 													}}
 												>
-													ativa
+													{skillStatus === "prepared" ? "preparada" :
+														skillStatus === "active" ? "ativa" :
+														skillStatus === "available" ? "disponível" :
+														skillStatus === "exhausted" ? "usada" : "indisponível"}
 												</span>
 											</p>
 											<p
@@ -246,7 +254,10 @@ export function HeroFocusPanel({
 														fontSize: 9,
 													}}
 												>
-													{powerUsed ? "usado" : "disponível"}
+													{powerStatus === "prepared" ? "preparado" :
+														powerStatus === "active" ? "ativo" :
+														powerStatus === "available" ? "disponível" :
+														powerStatus === "exhausted" || powerUsed ? "usado" : "indisponível"}
 												</span>
 											</p>
 											<p
@@ -332,19 +343,12 @@ export function HeroFocusPanel({
 						</div>
 					)}
 
-					{heroActions.attackBlocked && (
-						<p className="text-sm">
-							Ataque indisponível nesta rodada. Você ainda pode usar item ou
-							passar.
-						</p>
-					)}
 					{/* Botões de ação individuais */}
 					<ActionSection
 						heroActions={heroActions}
 						hero={hero}
 						isInCombat={isInCombat}
 						isSelectingHero={isSelectingHero}
-						isSelectingTarget={isSelectingTarget}
 						isFocusedHeroSelected={isFocusedHeroSelected}
 						onAttack={onAttack}
 						onPass={onPass}
@@ -380,7 +384,6 @@ function ActionSection({
 	hero,
 	isInCombat,
 	isSelectingHero,
-	isSelectingTarget,
 	isFocusedHeroSelected,
 	onAttack,
 	onPass,
@@ -394,7 +397,6 @@ function ActionSection({
 	hero: HeroState;
 	isInCombat: boolean;
 	isSelectingHero: boolean;
-	isSelectingTarget: boolean;
 	isFocusedHeroSelected: boolean;
 	onAttack: () => void;
 	onPass: () => void;
@@ -434,18 +436,20 @@ function ActionSection({
 				/>
 				{skill && (
 					<ActionButton
-						label="Habilidade"
+						label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+						title={skill.reason}
 						icon="✨"
-						variant="secondary"
+						variant={skill.prepared ? "primary" : "secondary"}
 						disabled={!canUseSkill}
 						onClick={() => onUseSkill?.(skill.skillId, hero.id)}
 					/>
 				)}
 				{power && (
 					<ActionButton
-						label="Poder"
+						label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
+						title={power.reason}
 						icon="⚡"
-						variant="secondary"
+						variant={power.prepared ? "primary" : "secondary"}
 						disabled={!canUsePower}
 						onClick={onPower}
 					/>
@@ -480,18 +484,20 @@ function ActionSection({
 					/>
 					{skill && (
 						<ActionButton
-							label="Habilidade"
+							label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+							title={skill.reason}
 							icon="✨"
-							variant="secondary"
+							variant={skill.prepared ? "primary" : "secondary"}
 							disabled={!canUseSkill}
 							onClick={() => onUseSkill?.(skill.skillId, hero.id)}
 						/>
 					)}
 					{power && (
 					<ActionButton
-						label="Poder"
+							label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
+							title={power.reason}
 						icon="⚡"
-						variant="secondary"
+							variant={power.prepared ? "primary" : "secondary"}
 						disabled={!canUsePower}
 						onClick={onPower}
 					/>
@@ -533,20 +539,20 @@ function ActionSection({
 			/>
 			{skill && (
 				<ActionButton
-					label="Habilidade"
+				label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+				title={skill.reason}
 					icon="✨"
-					variant="secondary"
-					disabled={
-						!isFocusedHeroSelected || !isSelectingTarget || !canUseSkill
-					}
+					variant={skill.prepared ? "primary" : "secondary"}
+				disabled={!canUseSkill}
 					onClick={() => onUseSkill?.(skill.skillId, hero.id)}
 				/>
 			)}
 			{power && (
 				<ActionButton
-					label="Poder"
+				label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
+				title={power.reason}
 					icon="⚡"
-					variant="secondary"
+					variant={power.prepared ? "primary" : "secondary"}
 					disabled={!canUsePower}
 					onClick={onPower}
 				/>

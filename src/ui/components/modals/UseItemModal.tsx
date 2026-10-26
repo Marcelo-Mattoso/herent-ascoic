@@ -60,7 +60,8 @@ export function UseItemModal({
 					(selected ? [selected] : items).map((item) => (
 						<ActionButton
 							key={item.itemId}
-							label={`Usar ${item.name}`}
+							label={item.prepared ? `Cancelar preparação: ${item.name}` :
+								item.activation === "prepare" ? `Preparar ${item.name}` : `Usar ${item.name}`}
 							variant="secondary"
 							onClick={() =>
 								item.target.kind === "needs_selection"

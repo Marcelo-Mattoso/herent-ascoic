@@ -5,7 +5,7 @@ import { installSkillTriggers } from "../ecs/installTriggers";
 import { createEmptyWorld, createEntity, upsertEntity } from "../ecs/world";
 import { cardSkills, lookupSkillById } from "../skills/lookup";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
-import { reducerCore } from "../reducer";
+import { preparedAbilityKey } from "../abilities/prepared";
 import {
 	collectTriggerCandidates,
 	collectPromptTriggers,
@@ -71,20 +71,15 @@ describe("trigger engine", () => {
 		expect(candidates.map((c) => c.mode)).toEqual(["auto", "prompt"]);
 	});
 
-	it("habilidade reativa de herói sempre pede aprovação", () => {
+	it("habilidade reativa não preparada segue sem confirmação", () => {
 		const state = stateWithBarbarianAndDagger();
 		const result = fireTrigger(state, "evt_attack_declared", {
 			triggeredBy: "evt_attack_declared",
 			sourceHeroId: "h1",
 		});
 
-		expect(result.pendingTriggerInterrupt).toMatchObject({
-			skillId: "skill_crimson_fury",
-			sourceKind: "hero",
-			sourceCardId: "hero_crimson_barbarian",
-			sourceHeroId: "h1",
-			window: "before_attack_roll",
-		});
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
+		expect(result.heroes[0]?.currentLife).toBe(state.heroes[0]?.currentLife);
 	});
 
 	it("não oferece habilidade de ataque do herói durante ataque inimigo", () => {
@@ -100,7 +95,7 @@ describe("trigger engine", () => {
 		expect(result.pendingTriggerInterrupt).toBeUndefined();
 	});
 
-	it("pausa em uma interrupção quando o trigger é prompt", () => {
+	it("trigger voluntário de item exige preparação e não pausa", () => {
 		const state = stateWithBarbarianAndDagger();
 		const candidate = collectTriggerCandidates(
 			state,
@@ -120,19 +115,17 @@ describe("trigger engine", () => {
 		};
 
 		try {
-			const result = fireTrigger(state, "evt_attack_declared", {
+			const key = preparedAbilityKey("item", "h1", "item_rusty_dagger", "item_skill_deadly_edge");
+			const result = fireTrigger({ ...state, preparedAbilities: { [key]: {
+				key, sourceKind: "item", sourceHeroId: "h1", sourceCardId: "item_rusty_dagger",
+				abilityId: "item_skill_deadly_edge", event: "evt_attack_declared",
+			} } }, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 			});
 
-			expect(result.pendingTriggerInterrupt).toMatchObject({
-				skillId: "item_skill_deadly_edge",
-				sourceKind: "item",
-				sourceCardId: "item_rusty_dagger",
-				sourceHeroId: "h1",
-				window: "before_attack_roll",
-				reason: "A Adaga Enferrujada pode alterar esta rolagem.",
-			});
+			expect(result.pendingTriggerInterrupt).toBeUndefined();
+			expect(result.preparedAbilities?.[key]).toBeUndefined();
 		} finally {
 			(
 				candidate.definition as {
@@ -153,7 +146,11 @@ describe("trigger engine", () => {
 			],
 		};
 
-		const result = fireTrigger(state, "evt_damage_taken", {
+		const key = preparedAbilityKey("hero", "h1", "hero_broken_bastion_warrior", "skill_bastion_guard");
+		const result = fireTrigger({ ...state, preparedAbilities: { [key]: {
+			key, sourceKind: "hero", sourceHeroId: "h1", sourceCardId: "hero_broken_bastion_warrior",
+			abilityId: "skill_bastion_guard", event: "evt_damage_taken",
+		} } }, "evt_damage_taken", {
 			triggeredBy: "evt_damage_taken",
 			sourceEnemyId: "e1",
 			targetHeroIds: ["h1"],
@@ -161,12 +158,9 @@ describe("trigger engine", () => {
 			value: 2,
 		});
 
-		expect(result.pendingTriggerInterrupt).toMatchObject({
-			skillId: "skill_bastion_guard",
-			sourceHeroId: "h1",
-			sourceEnemyId: "e1",
-			targetHeroIds: ["h1"],
-		});
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
+		expect(result.preparedAbilities?.[key]).toBeUndefined();
+		expect(result.effectStack.pending.length).toBeGreaterThan(0);
 	});
 
 	it("permite proteger aliado e não oferece a runa de outro herói", () => {
@@ -224,15 +218,17 @@ describe("trigger engine", () => {
 		});
 		expect(anotherHeroKill.pendingTriggerInterrupt).toBeUndefined();
 
-		const ownKill = fireTrigger(state, "evt_kill", {
+		const key = preparedAbilityKey("hero", "h1", "hero_deep_veil_necromancer", "power_deep_veil_echo");
+		const ownKill = fireTrigger({ ...state, preparedAbilities: { [key]: {
+			key, sourceKind: "hero", sourceHeroId: "h1", sourceCardId: "hero_deep_veil_necromancer",
+			abilityId: "power_deep_veil_echo", event: "evt_kill",
+		} } }, "evt_kill", {
 			triggeredBy: "evt_kill",
 			sourceHeroId: "h1",
 			targetEnemyIds: ["e1"],
 		});
-		expect(ownKill.pendingTriggerInterrupt).toMatchObject({
-			skillId: "power_deep_veil_echo",
-			sourceHeroId: "h1",
-		});
+		expect(ownKill.pendingTriggerInterrupt).toBeUndefined();
+		expect(ownKill.preparedAbilities?.[key]).toBeUndefined();
 	});
 
 	it("mantém cooldown de sala até a sala encerrar e permite novo uso na próxima", () => {
@@ -250,33 +246,33 @@ describe("trigger engine", () => {
 		expect(guardPassed(nextRoom, skill, "h1")).toBe(true);
 	});
 
-	it("uma reação sem cooldown volta a ficar disponível em outro evento da mesma rodada", () => {
+	it("reação sem cooldown exige nova preparação para outro evento", () => {
 		const ctx = {
 			triggeredBy: "evt_attack_declared",
 			sourceHeroId: "h1",
 			round: 1,
 		};
-		const first = resolveSkillWindow(stateWithBarbarianAndDagger(), {
+		const base = stateWithBarbarianAndDagger();
+		const key = preparedAbilityKey("hero", "h1", base.heroes[0]!.cardId, "skill_crimson_fury");
+		const prepared: GameState = { ...base, preparedAbilities: { [key]: {
+			key, sourceKind: "hero", sourceHeroId: "h1", sourceCardId: base.heroes[0]!.cardId,
+			abilityId: "skill_crimson_fury", event: "evt_attack_declared",
+		} } };
+		const first = resolveSkillWindow(prepared, {
 			event: "evt_attack_declared",
 			ctx,
 		});
-		expect(first.pendingTriggerInterrupt?.skillId).toBe("skill_crimson_fury");
-		const skipped = reducerCore(first, {
-			type: "SKIP_TRIGGER_INTERRUPT",
-			payload: { interruptId: first.pendingTriggerInterrupt!.id },
-		});
-		const later = reducerCore(skipped, {
-			type: "GAIN_XP",
-			payload: { amount: 0 },
-		});
-		const second = resolveSkillWindow(later, {
+		expect(first.pendingTriggerInterrupt).toBeUndefined();
+		expect(first.preparedAbilities?.[key]).toBeUndefined();
+		const second = resolveSkillWindow(first, {
 			event: "evt_attack_declared",
 			ctx,
 		});
-		expect(second.pendingTriggerInterrupt?.skillId).toBe("skill_crimson_fury");
+		expect(second.pendingTriggerInterrupt).toBeUndefined();
+		expect(second.heroes[0]?.currentLife).toBe(first.heroes[0]?.currentLife);
 	});
 
-	it("retoma a janela externa depois de uma reação aberta pelo efeito interno", () => {
+	it("resolve reação aninhada preparada sem pedir confirmação", () => {
 		const base = stateWithBarbarianAndDagger();
 		const state: GameState = {
 			...base,
@@ -289,22 +285,23 @@ describe("trigger engine", () => {
 				dungeonDeck: { available: ["room_narrow_corridor", "room_dungeon_room"], discarded: [], removed: [] },
 			},
 		};
-		const outer = resolveSkillWindow(state, {
+		const furyKey = preparedAbilityKey("hero", "h1", state.heroes[0]!.cardId, "skill_crimson_fury");
+		const charmKey = preparedAbilityKey("item", "h1", "item_last_defense_charm",
+			"ability_prevent_current_destruction", "last_defense_prevent_destruction");
+		const armed: GameState = { ...state, preparedAbilities: {
+			[furyKey]: { key: furyKey, sourceKind: "hero", sourceHeroId: "h1",
+				sourceCardId: state.heroes[0]!.cardId, abilityId: "skill_crimson_fury", event: "evt_attack_declared" },
+			[charmKey]: { key: charmKey, sourceKind: "item", sourceHeroId: "h1",
+				sourceCardId: "item_last_defense_charm", abilityId: "ability_prevent_current_destruction",
+				grantId: "last_defense_prevent_destruction", event: "evt_would_be_destroyed" },
+		} };
+		const outer = resolveSkillWindow(armed, {
 			event: "evt_attack_declared",
 			ctx: { triggeredBy: "evt_attack_declared", sourceHeroId: "h1", round: 1 },
-			resume: { type: "discard_dungeon", count: 1, reason: "effect" },
 		});
-		expect(outer.pendingTriggerInterrupt?.skillId).toBe("skill_crimson_fury");
-		const inner = reducerCore(outer, {
-			type: "APPLY_TRIGGER_INTERRUPT", payload: { interruptId: outer.pendingTriggerInterrupt!.id },
-		});
-		expect(inner.pendingTriggerInterrupt?.event).toBe("evt_would_be_destroyed");
-		expect(inner.pendingSkillWindow?.parent?.event).toBe("evt_attack_declared");
-		const resumed = reducerCore(inner, {
-			type: "APPLY_TRIGGER_INTERRUPT", payload: { interruptId: inner.pendingTriggerInterrupt!.id },
-		});
-		expect(resumed.pendingTriggerInterrupt).toBeUndefined();
-		expect(resumed.heroes[0]?.currentLife).toBe(1);
-		expect(resumed.decks.dungeonDeck.available).toHaveLength(1);
+		expect(outer.pendingTriggerInterrupt).toBeUndefined();
+		expect(outer.heroes[0]?.currentLife).toBe(1);
+		expect(outer.preparedAbilities?.[furyKey]).toBeUndefined();
+		expect(outer.preparedAbilities?.[charmKey]).toBeUndefined();
 	});
 });

@@ -3,10 +3,10 @@ import { reducer } from "../reducer";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
 import {
-	applySkillWindowDecision,
 	resolveSkillWindow,
 } from "../skills/resolveSkillWindow";
 import { executeAbilityGrant } from "./executor";
+import { preparedAbilityKey } from "./prepared";
 import { collectHeroHitBonusesFromItems } from "../rules/itemEffects";
 import { getModifierTotal } from "../ecs/world";
 import { applyDamage } from "../systems/damageSystem";
@@ -45,12 +45,37 @@ describe("executeAbilityGrant", () => {
 		expect(result.combat?.heroesActed).not.toContain(hero.id);
 	});
 
+	it("alvo inválido não consome a poção nem o limite de uso", () => {
+		const started = startedState();
+		const hero = started.heroes[0]!;
+		const state: GameState = {
+			...started,
+			heroes: [{ ...hero, activeItems: { hand1: "item_lesser_vigor_potion" } }],
+		};
+		const grant = {
+			id: "invalid_target_heal", abilityId: "skill_last_light_healing",
+			activation: {
+				kind: "manual" as const, consumeSource: "discard" as const,
+				targeting: { targetType: "tgt_target" as const,
+					affectScope: "scp_single" as const, affectObject: "obj_friend" as const },
+			},
+		};
+		const result = executeAbilityGrant(state, {
+			source: { kind: "item", cardId: "item_lesser_vigor_potion", sourceHeroId: hero.id },
+			grant, triggeredBy: "manual", targetIds: ["missing-hero"],
+		});
+		expect(result.heroes[0]?.activeItems.hand1).toBe("item_lesser_vigor_potion");
+		expect(result.decks.itemDeck.discarded).toEqual(state.decks.itemDeck.discarded);
+		expect(result.disabled).toEqual(state.disabled);
+	});
+
 	it("aplica o limite da concessão à fonte, não à ability compartilhada", () => {
 		const started = startedState();
 		const hero = started.heroes[0]!;
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, currentLife: hero.currentLife - 6 }],
+			heroes: [{ ...hero, currentLife: hero.currentLife - 6,
+				activeItems: { ...hero.activeItems, hand1: "item_silent_dungeon_charm" } }],
 		};
 		const grant = {
 			id: "test_once_per_combat_heal",
@@ -93,7 +118,8 @@ describe("executeAbilityGrant", () => {
 		const hero = started.heroes[0]!;
 		const state: GameState = {
 			...started,
-			heroes: [{ ...hero, currentLife: hero.currentLife - 6 }],
+			heroes: [{ ...hero, currentLife: hero.currentLife - 6,
+				activeItems: { ...hero.activeItems, hand1: "item_silent_dungeon_charm", amulet: "item_worn_explorer_rope" } }],
 		};
 		const activation = {
 			kind: "event" as const,
@@ -107,10 +133,10 @@ describe("executeAbilityGrant", () => {
 		};
 		const sourceA = {
 			kind: "item" as const,
-			cardId: "test_source_a",
+			cardId: "item_silent_dungeon_charm",
 			sourceHeroId: hero.id,
 		};
-		const sourceB = { ...sourceA, cardId: "test_source_b" };
+		const sourceB = { ...sourceA, cardId: "item_worn_explorer_rope" };
 		const grantA = {
 			id: "shared_heal_a",
 			abilityId: "skill_last_light_healing",
@@ -133,7 +159,7 @@ describe("executeAbilityGrant", () => {
 		expect(afterB.heroes[0]?.currentLife).toBe(hero.currentLife - 2);
 	});
 
-	it("abre e aplica uma reação de grant na janela de descarte da dungeon", () => {
+	it("executa grant preparado na janela de descarte da dungeon", () => {
 		const started = startedState();
 		const hero = started.heroes[0]!;
 		const state: GameState = {
@@ -148,19 +174,15 @@ describe("executeAbilityGrant", () => {
 				},
 			],
 		};
-		const waiting = resolveSkillWindow(state, {
+		const armed = reducer(state, { type: "USE_ITEM", payload: {
+			itemId: "item_worn_explorer_rope", heroId: hero.id,
+		} });
+		expect(Object.values(armed.preparedAbilities ?? {})).toHaveLength(1);
+		const result = resolveSkillWindow(armed, {
 			event: "evt_dungeon_discard",
 			ctx: { triggeredBy: "evt_dungeon_discard" },
 		});
-		const pending = waiting.pendingTriggerInterrupt;
-		if (!pending) throw new Error("grant reativo não abriu interrupção");
-		expect(pending.grantId).toBe("worn_rope_prevent_discard");
-
-		const result = applySkillWindowDecision(
-			waiting,
-			pending,
-			waiting.pendingSkillWindow,
-		);
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
 		expect(result.heroes[0]?.activeItems.hand1).toBeUndefined();
 		expect(result.decks.itemDeck.discarded).toContain("item_worn_explorer_rope");
 		expect(result.flags.dungeonDiscardPrevented).toBe(true);
@@ -217,12 +239,14 @@ describe("executeAbilityGrant", () => {
 			],
 		};
 
-		const waiting = applyDamage(state, hero.id, 5);
-		expect(waiting.pendingTriggerInterrupt?.event).toBe("evt_would_be_destroyed");
-		const result = reducer(waiting, {
-			type: "APPLY_TRIGGER_INTERRUPT",
-			payload: { interruptId: waiting.pendingTriggerInterrupt?.id },
-		});
+		const key = preparedAbilityKey("item", hero.id, "item_last_defense_charm",
+			"ability_prevent_current_destruction", "last_defense_prevent_destruction");
+		const result = applyDamage({ ...state, preparedAbilities: { [key]: {
+			key, sourceKind: "item", sourceHeroId: hero.id, sourceCardId: "item_last_defense_charm",
+			abilityId: "ability_prevent_current_destruction", grantId: "last_defense_prevent_destruction",
+			event: "evt_would_be_destroyed",
+		} } }, hero.id, 5);
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
 
 		expect(result.heroes[0]?.currentLife).toBe(1);
 		expect(result.heroes[0]?.status).toBe("active");
@@ -273,12 +297,14 @@ describe("executeAbilityGrant", () => {
 			},
 		};
 
-		const waiting = reducer(state, { type: "RESOLVE_ATTACK" });
-		expect(waiting.pendingTriggerInterrupt?.event).toBe("evt_would_be_destroyed");
-		const result = reducer(waiting, {
-			type: "APPLY_TRIGGER_INTERRUPT",
-			payload: { interruptId: waiting.pendingTriggerInterrupt?.id },
-		});
+		const key = preparedAbilityKey("item", hero.id, "item_last_defense_charm",
+			"ability_prevent_current_destruction", "last_defense_prevent_destruction");
+		const result = reducer({ ...state, preparedAbilities: { [key]: {
+			key, sourceKind: "item", sourceHeroId: hero.id, sourceCardId: "item_last_defense_charm",
+			abilityId: "ability_prevent_current_destruction", grantId: "last_defense_prevent_destruction",
+			event: "evt_would_be_destroyed",
+		} } }, { type: "RESOLVE_ATTACK" });
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
 
 		expect(result.heroes[0]?.currentLife).toBe(1);
 		expect(result.heroes[0]?.status).toBe("active");

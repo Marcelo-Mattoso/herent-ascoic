@@ -5,7 +5,7 @@ import { reducer } from "../reducer";
 import { createInitialGameState } from "../state/gameState";
 import type { GameState } from "../state/gameState";
 import { createEmptyCombatState } from "../state/combatState";
-import { applyDamage } from "../systems/damageSystem";
+import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import {
 	createGameJournal,
 	exportJournalJson,
@@ -25,7 +25,7 @@ function started(): GameState {
 }
 
 describe("diário da partida", () => {
-	it("correlaciona abertura e recusa de trigger com a continuação real", () => {
+	it("registra preparação, disparo e efeito da reação", () => {
 		const base = started();
 		const before: GameState = {
 			...base,
@@ -48,31 +48,24 @@ describe("diário da partida", () => {
 			],
 		};
 		const journal = createGameJournal(before);
-		const pending = applyDamage(before, "e1", 1, {
-			sourceId: before.heroes[0]!.id,
+		const heroId = before.heroes[0]!.id;
+		const prepareAction = { type: "USE_SKILL" as const,
+			payload: { skillId: "skill_crimson_fury", sourceId: heroId } };
+		const prepared = reducer(before, prepareAction);
+		journal.record(prepareAction, before, prepared);
+		const resolved = resolveSkillWindow(prepared, {
+			event: "evt_attack_declared",
+			ctx: { triggeredBy: "evt_attack_declared", sourceHeroId: heroId,
+				targetEnemyIds: ["e1"] },
 		});
-		const openingAction = { type: "DIRECT_DAMAGE" as const };
-		journal.record(openingAction, before, pending);
-		const skipAction = {
-			type: "SKIP_TRIGGER_INTERRUPT" as const,
-			payload: { interruptId: pending.pendingTriggerInterrupt!.id },
-		};
-		const resumed = reducer(pending, skipAction);
-		journal.record(skipAction, pending, resumed);
-		const [opened, skipped] = journal.get().entries;
-		expect(opened?.interrupt).toMatchObject({
-			decision: "opened",
-			event: "evt_damage_dealt",
-			continuation: "continue_damage",
-		});
-		expect(skipped?.interrupt).toMatchObject({
-			id: opened?.interrupt?.id,
-			decision: "skipped",
-			continuation: "continue_damage",
-		});
-		expect(exportJournalText(journal.get())).toContain(
-			`Trigger ${opened?.interrupt?.id}`,
-		);
+		journal.record({ type: "ROLL_DICE" }, prepared, resolved);
+		const [armed, fired] = journal.get().entries;
+		expect(armed?.summary).toBe("Preparada: Fúria Rubra");
+		expect(armed?.changes).toContain("Fúria Rubra preparado para evt_attack_declared");
+		expect(fired?.changes).toContain("Fúria Rubra: preparação encerrada");
+		expect(fired?.messages).toContain("Fúria Rubra ativada automaticamente em evt_attack_declared.");
+		expect(fired?.changes.some((change) => change.includes("vida"))).toBe(true);
+		expect(exportJournalText(journal.get())).toContain("Fúria Rubra");
 	});
 	it("projeta equipamento de duas mãos uma vez, mochila e exaustão do motor", () => {
 		const state = started();

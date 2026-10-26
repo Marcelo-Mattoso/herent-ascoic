@@ -283,7 +283,6 @@ function checkBossEnd(state: GameState): GameState {
 				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
-				attackBlockedByHero: {},
 				lastRoll: null,
 				bossFirstDamageReduced: false,
 				disabled: ActivationTracker.clearLocks(

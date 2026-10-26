@@ -8,7 +8,7 @@ import { drainStack } from "../../effects/resolver";
 import { handleStartCombat } from "../../reducer/combat";
 import { createEmptyCombatState } from "../../state/combatState";
 import { createInitialGameState } from "../../state/gameState";
-import { fireTriggerDecision } from "../../triggers/engine";
+import { preparedAbilityKey } from "../../abilities/prepared";
 import { fireTrigger } from "../dispatch";
 import "../handlers/index"; // popula registry
 import type { ColorIndex } from "../../state/color";
@@ -68,12 +68,16 @@ function baseState(extras: Partial<GameState> = {}): GameState {
 }
 
 function approvePendingTrigger(state: GameState): GameState {
-	const pending = state.pendingTriggerInterrupt;
-	expect(pending).toBeDefined();
-	if (!pending) return state;
-	return drainStack(
-		fireTriggerDecision({ ...state, pendingTriggerInterrupt: undefined }, pending),
-	);
+	expect(state.pendingTriggerInterrupt).toBeUndefined();
+	return drainStack(state);
+}
+
+function prepareFury(state: GameState): GameState {
+	const key = preparedAbilityKey("hero", "h1", "hero_crimson_barbarian", "skill_crimson_fury");
+	return { ...state, preparedAbilities: { [key]: {
+		key, sourceKind: "hero", sourceHeroId: "h1", sourceCardId: "hero_crimson_barbarian",
+		abilityId: "skill_crimson_fury", event: "evt_attack_declared",
+	} } };
 }
 
 // ── while_in_play dispara em handleStartCombat ─────────────────────────────────
@@ -308,7 +312,7 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		// Patch-18 Lote G: modifiers agora no ECS world (damage_dealt + hit_bonus).
 		// skill_crimson_fury → damage_bonus +6 → damage_dealt +6
 		// item_skill_deadly_edge → tohit_bonus +1 + damage_bonus +1 → hit_bonus +1 + damage_dealt +1
-		const state = makeStateWithAdaga(1 as ColorIndex);
+		const state = prepareFury(makeStateWithAdaga(1 as ColorIndex));
 		const prompted = fireTrigger(state, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
@@ -327,7 +331,7 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 	});
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
-		const state = makeStateWithAdaga(4 as ColorIndex);
+		const state = prepareFury(makeStateWithAdaga(4 as ColorIndex));
 		const prompted = fireTrigger(state, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",

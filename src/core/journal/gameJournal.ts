@@ -99,6 +99,12 @@ export interface JournalStateSnapshot {
 	readonly selectedHeroId: string | null;
 	readonly combatPairs: readonly { heroId: string; enemyId: string }[];
 	readonly heroesActed: readonly string[];
+	readonly preparedAbilities: readonly {
+		readonly key: string;
+		readonly abilityId: string;
+		readonly sourceCardId: string;
+		readonly event: string;
+	}[];
 	readonly groupXp: number;
 	readonly despertar: number;
 	readonly roomsCleared: number;
@@ -394,6 +400,10 @@ export function projectJournalState(
 		selectedHeroId: state.combat?.selectedHeroId ?? null,
 		combatPairs: state.combat?.pairs.map((pair) => ({ ...pair })) ?? [],
 		heroesActed: [...(state.combat?.heroesActed ?? [])],
+		preparedAbilities: Object.values(state.preparedAbilities ?? {}).map((entry) => ({
+			key: entry.key, abilityId: entry.abilityId,
+			sourceCardId: entry.sourceCardId, event: entry.event,
+		})),
 		groupXp: state.groupXp,
 		despertar: state.despertar,
 		roomsCleared: state.roomsCleared,
@@ -501,6 +511,14 @@ function changed(
 		changes.push("Alvos de combate alterados");
 	if (JSON.stringify(before.heroesActed) !== JSON.stringify(after.heroesActed))
 		changes.push("Ações da rodada alteradas");
+	for (const entry of after.preparedAbilities) {
+		if (!before.preparedAbilities.some((old) => old.key === entry.key))
+			changes.push(`${getSkillName(entry.abilityId)} preparado para ${entry.event}`);
+	}
+	for (const entry of before.preparedAbilities) {
+		if (!after.preparedAbilities.some((current) => current.key === entry.key))
+			changes.push(`${getSkillName(entry.abilityId)}: preparação encerrada`);
+	}
 	if (before.room?.card.id !== after.room?.card.id)
 		changes.push(
 			`Sala: ${before.room?.card.name ?? "—"} → ${after.room?.card.name ?? "—"}`,
@@ -602,8 +620,17 @@ function changed(
 function actionSummary(
 	action: Action,
 	changes: readonly string[],
+	before: JournalStateSnapshot,
 	after: JournalStateSnapshot,
 ): string {
+	if (action.type === "USE_ITEM" || action.type === "USE_SKILL" || action.type === "USE_POWER") {
+		const added = after.preparedAbilities.find((entry) =>
+			!before.preparedAbilities.some((previous) => previous.key === entry.key));
+		if (added) return `Preparada: ${getSkillName(added.abilityId)}`;
+		const removed = before.preparedAbilities.find((entry) =>
+			!after.preparedAbilities.some((current) => current.key === entry.key));
+		if (removed) return `Preparação cancelada: ${getSkillName(removed.abilityId)}`;
+	}
 	if (
 		action.type === "APPLY_TRIGGER_INTERRUPT" ||
 		action.type === "SKIP_TRIGGER_INTERRUPT"
@@ -716,7 +743,7 @@ export function createGameJournal(
 				summary: beforeState.pendingTriggerInterrupt &&
 					(action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT")
 					? `${action.type === "APPLY_TRIGGER_INTERRUPT" ? "Interrupção aplicada" : "Interrupção ignorada"}: ${getSkillName(beforeState.pendingTriggerInterrupt.skillId)}`
-					: actionSummary(action, changes, after),
+					: actionSummary(action, changes, before, after),
 				messages: [...messages],
 				changes,
 				roll: roll

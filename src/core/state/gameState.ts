@@ -11,6 +11,7 @@ import type { RngState } from "../ports/random";
 import { createRng } from "../ports/random";
 import type { PendingTriggerInterrupt } from "../triggers/engine";
 import type { PendingSkillWindow } from "../skills/resolveSkillWindow";
+import type { PreparedAbility } from "../abilities/prepared";
 import type { ActivationLocks } from "./activation";
 import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
@@ -120,6 +121,8 @@ export interface GameState {
 	// Estado genérico de ativação/desativação fora do combate.
 	// Bloqueios de rodada/combate vivem em CombatState.disabled.
 	readonly disabled: ActivationLocks;
+	/** Voluntary reactions armed before their event, including exploration reactions. */
+	readonly preparedAbilities?: Readonly<Record<string, PreparedAbility>>;
 
 	// Flags globais de mecânicas (ex: discardDungeonLocked)
 	readonly flags: Readonly<Record<string, boolean>>;
