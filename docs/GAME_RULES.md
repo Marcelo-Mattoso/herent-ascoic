@@ -10,14 +10,14 @@ O [manual em PDF](../public/rules/ascensao-heroica-manual.pdf) é a referência 
 
 ## Ações, itens e habilidades
 
-- Decisão do autor: usar habilidade ou poder manual em combate bloqueia o ataque daquele herói **na rodada**, sem encerrar sua oportunidade de usar item ou passar. O manual posterior citado pelo autor não estabelece esse bloqueio geral; preserve a decisão digital até revisão explícita.
+- Habilidade, poder ou item manual não consome o ataque do herói. Só custos e limites declarados pela própria habilidade ou carta restringem uma nova ativação. O ataque continua disponível até ser resolvido ou até o herói encerrar sua ação.
 - No computador, arrastar o herói ao inimigo e selecionar herói seguido de inimigo executam o mesmo ataque. A sequência por clique também serve ao touch. Um gesto cancelado não inicia ataque.
 - O core valida alvos: cura/proteção em heróis válidos, efeitos ofensivos em inimigos ativos e efeitos pessoais no próprio herói. Com vários alvos, a escolha fica pendente no modal.
 - Cada herói tem duas vestimentas, duas mãos, um amuleto e três espaços de mochila. O `equipmentSlot` explícito da carta define onde ela pode ser equipada; itens de duas mãos bloqueiam ambas. Cartas sem `equipmentSlot` não recebem um espaço pela categoria. Movimentação e trocas só ocorrem na fase de espólios, sem perda de cartas quando um destino está cheio.
-- Usar item não encerra o turno. Itens na mochila devem ser equipados antes de ativar efeitos; consumíveis equipados vão ao descarte ao usar. O item especial de obtenção de artefato é removido; reutilizáveis respeitam o limite da carta, com sala como padrão. Exaurir um item impede nova ativação até a recuperação do escopo, sem desequipá-lo ou cancelar bônus passivos.
-- Cancelar a escolha de alvo ou pular opção voluntária consome o uso quando há cooldown; poderes contam como uso único. O cancelamento não aplica o efeito nem paga HP.
+- Usar item não encerra o turno. Itens na mochila devem ser equipados antes de ativar efeitos; consumíveis equipados vão ao descarte ao usar. Itens de Saque Místico podem ser usados diretamente da mesa de recompensas e são removidos; outros itens pendentes precisam ser adquiridos e equipados. Reutilizáveis respeitam o limite da carta, com sala como padrão. Exaurir um item impede nova ativação até a recuperação do escopo, sem desequipá-lo ou cancelar bônus passivos.
+- Cancelar uma escolha de alvo antes da execução não consome uso nem paga HP. Uma escolha interna ao efeito já iniciado segue o limite da ativação. Poderes com uso único bloqueiam apenas o próprio poder.
 - O limite por sala vale também fora de combate, é preservado ao iniciar combate e se renova ao sair da sala após os efeitos de saída. `ActivationTracker` é a base comum dos bloqueios por escopo.
-- Gatilhos reativos mantêm suas janelas e custos próprios. Não converta uma habilidade reativa em botão manual só por causa de seu texto.
+- Gatilhos reativos mantêm suas janelas e custos próprios. O botão de uma reação opcional prepara ou cancela sua preparação antes do evento; no evento, ela dispara automaticamente se a origem e as condições ainda forem válidas. Uma reação não preparada é ignorada sem custo. O diário mostra a preparação e sua execução. Dano direto não conta como `evt_hit`; esse evento requer acerto de ataque contra criatura.
 
 ## Pontos a confirmar
 

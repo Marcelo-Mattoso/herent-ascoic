@@ -18,6 +18,13 @@ export function resolveCondition(node: ConditionNode, ctx: EvalCtx): boolean {
 		}
 
 		case "has_condition": {
+			if (node.conditionType === "marked") {
+				const sourceHeroId = ctx.sourceId;
+				const enemyId = ctx.targetIds.find((id) =>
+					ctx.state.activeEnemies.some((enemy) => enemy.id === id));
+				if (sourceHeroId && enemyId &&
+					ctx.state.combat?.preyByHero[sourceHeroId] === enemyId) return true;
+			}
 			const entityId = resolveEntityRef(node.of, ctx);
 			if (!entityId) return false;
 			// Verificar nas conditions do herói ou inimigo

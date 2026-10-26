@@ -12,6 +12,10 @@
 import { useSyncExternalStore } from "react";
 import type { Action } from "@/core/actions/types";
 import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
+import {
+	createGameJournal,
+	type GameJournal,
+} from "@/core/journal/gameJournal";
 import { type PlayerView, playerView } from "@/core/projection/playerView";
 import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
@@ -31,6 +35,7 @@ interface GameStore {
 	readonly view: PlayerView;
 	readonly state: GameState;
 	readonly ui: UiState;
+	readonly journal: GameJournal;
 	readonly dispatch: (action: Action) => void;
 	readonly setFocusedHero: (heroId: string | null) => void;
 	readonly heroActionsFor: (heroId: string) => HeroCombatActions;
@@ -93,6 +98,7 @@ function makeAdapter() {
 }
 
 let adapter = makeAdapter();
+let journalRecorder = createGameJournal(adapter.getState());
 let devTools = connectDevTools(getElfGameState());
 
 // Debug: expõe dispatch no window pra inspeção via DevTools/preview.
@@ -104,6 +110,7 @@ if (typeof window !== "undefined" && import.meta.env.DEV) {
 		window as unknown as { __loadGameState: (state: GameState) => void }
 	).__loadGameState = (state: GameState) => {
 		adapter = createInProcessAdapter(state);
+		journalRecorder.sync(state);
 		setElfStoreProps({ gameState: state });
 	};
 }
@@ -111,8 +118,10 @@ if (typeof window !== "undefined" && import.meta.env.DEV) {
 // ── Ações estáveis (referências module-level, nunca recriadas) ───────────────
 
 function dispatch(action: Action): void {
+	const beforeState = adapter.getState();
 	adapter.dispatch(action); // síncrono
 	const nextState = adapter.getState();
+	journalRecorder.record(action, beforeState, nextState);
 
 	const currentFocus = getElfUiState().focusedHeroId;
 	const activeHeroes = nextState.heroes.filter((h) => h.status === "active");
@@ -152,6 +161,7 @@ function resolveSkillChoice(choice: string): void {
 function reset(): void {
 	// Nova instância do adapter = nova partida, novo log.
 	adapter = makeAdapter();
+	journalRecorder = createGameJournal(adapter.getState());
 	resetElfStore();
 	devTools = connectDevTools(getElfGameState());
 }
@@ -164,6 +174,7 @@ let cachedSnapshot: GameStore = {
 	view: playerView(cachedElfProps.gameState),
 	state: cachedElfProps.gameState,
 	ui: cachedElfProps.ui,
+	journal: journalRecorder.get(),
 	dispatch,
 	setFocusedHero,
 	heroActionsFor,
@@ -179,6 +190,7 @@ function getSnapshot(): GameStore {
 		view: playerView(props.gameState),
 		state: props.gameState,
 		ui: props.ui,
+		journal: journalRecorder.get(),
 		dispatch,
 		setFocusedHero,
 		heroActionsFor,

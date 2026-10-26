@@ -374,7 +374,7 @@ describe("USE_ITEM", () => {
 		expect(completed.activeEnemies).toEqual([]);
 	});
 
-	it("usar habilidade manual bloqueia o ataque sem encerrar a ação", () => {
+	it("usar habilidade manual preserva o ataque", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
 		s = reducer(s, { type: "START_COMBAT" });
 		const hero = s.heroes[0];
@@ -392,15 +392,14 @@ describe("USE_ITEM", () => {
 				targetIds: [hero.id],
 			},
 		});
-		const blocked = reducer(afterSkill, {
+		const attack = reducer(afterSkill, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero.id, enemyId: s.activeEnemies[0]!.id },
 		});
 
 		expect(afterSkill.combat?.heroesActed).not.toContain(hero.id);
-		expect(afterSkill.combat?.attackBlockedByHero?.[hero.id]).toBe(true);
 		expect(afterSkill.combat?.phase).toBe("selecting_target");
-		expect(blocked.eventLog.at(-1)).toContain("Habilidade/poder já usado");
+		expect(attack.status).toBe("ROLL_DICE");
 	});
 
 	it("habilidade manual com múltiplos alvos abre seleção e resolve no alvo escolhido", () => {
@@ -444,7 +443,7 @@ describe("USE_ITEM", () => {
 		expect(result.pendingSkillTarget).toBeUndefined();
 		expect(result.heroes.find((h) => h.id === ally.id)?.currentLife).toBe(8);
 		expect(result.combat?.heroesActed).not.toContain(cleric.id);
-		expect(result.combat?.attackBlockedByHero?.[cleric.id]).toBe(true);
+		expect(result.combat?.phase).toBe("selecting_target");
 	});
 
 	it("habilidade ativa pode ser usada fora de combate sem consumir ação de rodada", () => {
@@ -524,12 +523,16 @@ describe("USE_ITEM", () => {
 		if (!warrior || !cleric || !enemy || !s.combat) {
 			throw new Error("invalid combat");
 		}
+		s = reducer(s, { type: "USE_SKILL", payload: {
+			skillId: "skill_bastion_guard", sourceId: warrior.id,
+		} });
+		expect(s.preparedAbilities).toBeDefined();
 
 		s = {
 			...s,
 			status: "RESOLVE_ATTACK",
 			combat: {
-				...s.combat,
+				...s.combat!,
 				phase: "resolving",
 				selectedHeroId: cleric.id,
 				pairs: [{ heroId: cleric.id, enemyId: enemy.id }],
@@ -550,17 +553,8 @@ describe("USE_ITEM", () => {
 			activeEnemies: [{ ...enemy, damage: 5 }],
 		};
 
-		const interrupted = reducer(s, { type: "RESOLVE_ATTACK" });
-		expect(interrupted.pendingTriggerInterrupt).toMatchObject({
-			skillId: "skill_bastion_guard",
-			sourceHeroId: warrior.id,
-			targetHeroIds: [cleric.id],
-		});
-
-		const result = reducer(interrupted, {
-			type: "APPLY_TRIGGER_INTERRUPT",
-			payload: { interruptId: interrupted.pendingTriggerInterrupt?.id },
-		});
+		const result = reducer(s, { type: "RESOLVE_ATTACK" });
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
 
 		const updatedCleric = result.heroes.find((h) => h.id === cleric.id);
 		expect(updatedCleric?.currentLife).toBe(10 - (6 - 3));
@@ -686,15 +680,12 @@ describe("USE_ITEM", () => {
 			},
 			{ type: "RESOLVE_ATTACK" },
 		);
-		expect(result.pendingTriggerInterrupt).toMatchObject({
-			skillId: "power_mighty_crimson_fury",
-			sourceHeroId: hero.id,
-		});
+		expect(result.pendingTriggerInterrupt).toBeUndefined();
 	});
 });
 
 describe("cancelamento de habilidade voluntária", () => {
-	it("consome o uso de um poder ao cancelar a seleção de alvo", () => {
+	it("cancelar seleção de alvo preserva uso e ataque", () => {
 		const started = reducer(createInitialGameState({ heroCardIds: [HERO] }), {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
@@ -720,8 +711,8 @@ describe("cancelamento de habilidade voluntária", () => {
 		expect(result.pendingSkillTarget).toBeUndefined();
 		expect(
 			result.combat?.oncePer.combat[`skill_rift_second_chance::${hero.id}`],
-		).toBe(true);
-		expect(result.combat?.attackBlockedByHero?.[hero.id]).toBe(true);
+		).toBeUndefined();
+		expect(result.combat?.heroesActed).not.toContain(hero.id);
 	});
 });
 
@@ -836,33 +827,24 @@ describe("loop de sala completo", () => {
 		expect(s.roomsCleared).toBe(1);
 	});
 
-	it("habilidade reativa de herói pede aprovação antes da rolagem", () => {
+	it("habilidade preparada resolve sem confirmação antes da rolagem", () => {
 		let s = stateWithRoomAndEnemy();
 		s = reducer(s, { type: "START_COMBAT" });
 
 		const heroId = s.heroes[0]?.id ?? "";
 		const enemyId = s.activeEnemies[0]?.id ?? "";
+		s = reducer(s, { type: "USE_SKILL", payload: { skillId: "skill_crimson_fury", sourceId: heroId } });
+		expect(Object.values(s.preparedAbilities ?? {})).toHaveLength(1);
 		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 
 		s = reducer(s, { type: "ROLL_DICE" });
-		expect(s.status).toBe("ROLL_DICE");
-		expect(s.pendingTriggerInterrupt).toMatchObject({
-			skillId: "skill_crimson_fury",
-			sourceKind: "hero",
-			sourceHeroId: heroId,
-		});
-
-		const interruptId = s.pendingTriggerInterrupt?.id ?? "";
-		s = reducer(s, {
-			type: "APPLY_TRIGGER_INTERRUPT",
-			payload: { interruptId },
-		});
-
 		expect(s.pendingTriggerInterrupt).toBeUndefined();
 		expect(s.status).toBe("RESOLVE_ATTACK");
+		expect(s.heroes[0]?.currentLife).toBeLessThan(12);
+		expect(Object.values(s.preparedAbilities ?? {})).toHaveLength(0);
 	});
 
-	it("ignorar habilidade reativa de herói também retoma a rolagem", () => {
+	it("habilidade não preparada não interrompe a rolagem", () => {
 		let s = stateWithRoomAndEnemy();
 		s = reducer(s, { type: "START_COMBAT" });
 
@@ -870,12 +852,6 @@ describe("loop de sala completo", () => {
 		const enemyId = s.activeEnemies[0]?.id ?? "";
 		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 		s = reducer(s, { type: "ROLL_DICE" });
-
-		const interruptId = s.pendingTriggerInterrupt?.id ?? "";
-		s = reducer(s, {
-			type: "SKIP_TRIGGER_INTERRUPT",
-			payload: { interruptId },
-		});
 
 		expect(s.pendingTriggerInterrupt).toBeUndefined();
 		expect(s.status).toBe("RESOLVE_ATTACK");

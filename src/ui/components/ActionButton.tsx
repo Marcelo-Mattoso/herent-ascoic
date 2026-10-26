@@ -10,6 +10,7 @@ interface ActionButtonProps {
 	variant?: ButtonVariant;
 	fullWidth?: boolean;
 	attention?: boolean;
+	title?: string;
 }
 
 const VARIANT_STYLES: Record<
@@ -33,15 +34,17 @@ export function ActionButton({
 	variant = "secondary",
 	fullWidth,
 	attention,
+	title,
 }: ActionButtonProps) {
 	const style = VARIANT_STYLES[variant];
 	const showAttention = !!attention && !disabled;
 	return (
 		<button
 			type="button"
-			onClick={onClick}
+			onClick={(event) => { event.stopPropagation(); onClick?.(); }}
 			disabled={disabled}
 			className={`action-button flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity ${fullWidth ? "w-full" : ""} ${disabled ? "opacity-40 cursor-not-allowed" : "hover:opacity-80 cursor-pointer"}${showAttention ? " click-attention" : ""}`}
+			title={title}
 			style={{
 				background: style.bg,
 				color: style.text,

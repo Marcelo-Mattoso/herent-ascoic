@@ -15,6 +15,9 @@ import { cardSkills } from "../skills/lookup";
 import { ActivationTracker } from "../state/activation";
 import { awakeningRequirementMet } from "../rules/awakening";
 import type { GameState } from "../state/gameState";
+import { syncEntityFromHero } from "../ecs/sync";
+import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
+import { isVoluntaryTrigger } from "../skills/activationMode";
 
 export type TriggerWindow =
 	| "room_enter"
@@ -323,10 +326,7 @@ export function guardPassed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): boolean {
-	const cooldown =
-		skill.category === "hero_power"
-			? { scope: "game" as const, charges: 1 }
-			: skill.cooldown;
+	const cooldown = skill.cooldown;
 	if (!cooldown) return true;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
@@ -356,10 +356,7 @@ export function markSkillGuardUsed(
 	skill: SkillDefinition,
 	sourceHeroId?: string,
 ): GameState {
-	const cooldown =
-		skill.category === "hero_power"
-			? { scope: "game" as const, charges: 1 }
-			: skill.cooldown;
+	const cooldown = skill.cooldown;
 	if (!cooldown) return state;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
@@ -407,7 +404,7 @@ function triggerContextMatches(
 ): boolean {
 	const { event, source } = candidate;
 
-	if (event === "evt_attack_declared") {
+	if (event === "evt_attack_declared" || event === "evt_roll") {
 		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
 			return false;
 		if (source.sourceEnemyId && source.sourceEnemyId !== ctx.sourceEnemyId)
@@ -425,7 +422,33 @@ function triggerContextMatches(
 
 	// Acerto e destruição pertencem à criatura atingida/derrotada. Salas e
 	// artefatos permanecem globais e não possuem sourceEnemyId.
+	if (
+		event === "evt_damage_taken" ||
+		event === "evt_would_be_destroyed" ||
+		event === "evt_targeted"
+	) {
+		if (
+			source.sourceHeroId &&
+			candidate.definition.target_type === "tgt_self" &&
+			!ctx.targetHeroIds?.includes(source.sourceHeroId)
+		)
+			return false;
+		if (
+			source.sourceEnemyId &&
+			event === "evt_damage_taken" &&
+			ctx.targetHeroIds?.length
+		)
+			return false;
+		if (
+			source.sourceEnemyId &&
+			!ctx.targetEnemyIds?.includes(source.sourceEnemyId)
+		)
+			return false;
+	}
+
 	if (event === "evt_hit" || event === "evt_destroy") {
+		if (source.sourceHeroId && source.sourceHeroId !== ctx.sourceHeroId)
+			return false;
 		if (
 			source.sourceEnemyId &&
 			!ctx.targetEnemyIds?.includes(source.sourceEnemyId)
@@ -479,6 +502,13 @@ export function candidateCanFire(
 	) {
 		return false;
 	}
+	const hpCost = candidate.definition.cost?.hp ?? 0;
+	if (hpCost > 0 && candidate.source.sourceHeroId) {
+		const hero = state.heroes.find(
+			(entry) => entry.id === candidate.source.sourceHeroId,
+		);
+		if (!hero || hero.currentLife <= hpCost) return false;
+	}
 
 	if (
 		candidate.definition.conditions &&
@@ -503,6 +533,21 @@ export function executeTriggerCandidate(
 	ctx: SkillContext,
 ): GameState {
 	let current = state;
+	const hpCost = candidate.definition.cost?.hp ?? 0;
+	if (hpCost > 0 && candidate.source.sourceHeroId) {
+		const hero = current.heroes.find(
+			(entry) => entry.id === candidate.source.sourceHeroId,
+		);
+		if (!hero || hero.currentLife <= hpCost) return state;
+		const paidHero = { ...hero, currentLife: hero.currentLife - hpCost };
+		current = {
+			...current,
+			heroes: current.heroes.map((entry) =>
+				entry.id === hero.id ? paidHero : entry,
+			),
+			world: syncEntityFromHero(current.world, paidHero),
+		};
+	}
 
 	if (candidate.definition.effect) {
 		const resolvedCtx = resolveSkillContext(candidate, ctx);
@@ -638,16 +683,18 @@ export function fireTrigger(
 	if (current.pendingTriggerInterrupt) return current;
 
 	for (const candidate of candidates) {
-		if (candidate.mode === "prompt") {
+		if (isVoluntaryTrigger(candidate.definition, candidate.source.kind, event)) {
 			if (!candidateCanFire(current, candidate, ctx)) continue;
-			const pending = createPendingTriggerInterrupt(candidate, ctx);
-			if (current.flags[triggerDecisionFlag(pending.id)]) continue;
-			return {
-				...current,
-				pendingTriggerInterrupt: pending,
-			};
+			const sourceHeroId = candidate.source.sourceHeroId;
+			if (!sourceHeroId ||
+				(candidate.source.kind !== "hero" && candidate.source.kind !== "item" && candidate.source.kind !== "artifact")) continue;
+			const key = preparedAbilityKey(candidate.source.kind, sourceHeroId,
+				candidate.source.cardId, candidate.definition.id);
+			if (!isAbilityPrepared(current, key)) continue;
+			current = removePreparedAbility(executeTriggerCandidate(current, candidate, ctx), key);
+			continue;
 		}
-		if (candidate.mode !== "auto") continue;
+		if (candidate.definition.operate_type === "op_passive") continue;
 		if (!candidateCanFire(current, candidate, ctx)) continue;
 
 		current = executeTriggerCandidate(current, candidate, ctx);

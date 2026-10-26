@@ -2,11 +2,13 @@ import type { SkillRef } from "../data/cardTypes";
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
 import { lookupAbilityById } from "../data/abilities";
+import { resolveManualGrantTarget } from "../abilities/executor";
 import type { SkillDefinition } from "../data/skillTypes";
 import type { DamageType } from "../events/types";
 import { cardSkills } from "../skills/lookup";
 import { resolveManualSkillTarget } from "../skills/targeting";
 import { guardPassed } from "../triggers/engine";
+import { isVoluntaryTrigger } from "../skills/activationMode";
 import type { ConditionNode, EffectNode, ExprNode } from "../skills/dsl/types";
 import { ActivationTracker } from "../state/activation";
 import type { BonusEntry } from "../state/combatState";
@@ -58,13 +60,12 @@ export function manualItemUnavailableReason(
 	);
 	if (!hero) return "Herói inválido ou inativo.";
 	const location = findHeroItemLocation(hero, itemId);
-	const onRewardTable =
-		state.status === "REWARD_PHASE" &&
-		state.pendingRewards.some(
-			(reward) => reward.type === "item" && reward.cardId === itemId,
-		);
-	if (!location && !onRewardTable) return "Este item não pertence ao herói.";
 	const card = getCardById(itemId);
+	const mysticDrawReward = state.status === "REWARD_PHASE" &&
+		card?.grants?.some((grant) => grant.activation.kind === "manual" &&
+			grant.abilityId === "item_skill_mystic_draw") &&
+		state.pendingRewards.some((reward) => reward.type === "item" && reward.cardId === itemId);
+	if (!location && !mysticDrawReward) return "Este item não pertence ao herói.";
 	if (location?.kind === "backpack") {
 		return "Equipe este item para ativá-lo.";
 	}
@@ -77,8 +78,8 @@ export function manualItemUnavailableReason(
 		return "Conclua a escolha pendente primeiro.";
 	if (state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") {
 		if (
-			state.combat?.phase !== "selecting_target" ||
-			state.combat.selectedHeroId !== heroId ||
+			!(["selecting_hero", "selecting_target"].includes(state.combat?.phase ?? "")) ||
+			(state.combat?.phase === "selecting_target" && state.combat.selectedHeroId !== heroId) ||
 			ActivationTracker.isHeroDisabledThisRound(state, heroId)
 		)
 			return "Selecione um herói que ainda pode agir nesta rodada.";
@@ -98,21 +99,34 @@ export function manualItemUnavailableReason(
 	const manualGrant = card?.grants?.find(
 		(grant) => grant.activation.kind === "manual",
 	);
+	const preparableGrant = card?.grants?.find(
+		(grant) => grant.activation.kind === "event" && grant.activation.decision === "optional",
+	);
 	if (card?.grants?.length) {
-		if (!manualGrant) return "Este item reage a uma janela do jogo.";
-		const grantLockId = `${heroId}:${itemId}:${manualGrant.id}`;
+		const grant = manualGrant ?? preparableGrant;
+		if (!grant) return "Este item reage automaticamente a uma janela do jogo.";
+		const grantLockId = `${heroId}:${itemId}:${grant.id}`;
 		if (
-			manualGrant.activation.limit?.maxUses === 1 &&
+			grant.activation.limit?.maxUses === 1 &&
 			ActivationTracker.isDisabled(state, "item", grantLockId)
 		) {
 			return "Este item já foi usado neste escopo.";
 		}
-		if (hero.currentLife <= (manualGrant.activation.cost?.hp ?? 0))
+		if (hero.currentLife <= (grant.activation.cost?.hp ?? 0))
 			return "Vida insuficiente para pagar o custo.";
+		if (manualGrant) {
+			const target = resolveManualGrantTarget(state,
+				{ kind: "item", cardId: itemId, sourceHeroId: heroId }, grant);
+			if (target.kind === "unavailable") return target.reason;
+		}
 		return null;
 	}
 	const def = cardSkills(itemId)[0]?.def;
-	if (!def || !itemCanBeUsedManually(def))
+	const preparableLegacy = def?.operate_type === "op_triggered" &&
+		isVoluntaryTrigger(def, "item", def.trigger!.event);
+	if (def?.operate_type === "op_triggered" && !preparableLegacy)
+		return "Este item reage automaticamente ao evento da carta.";
+	if (!def || (!itemCanBeUsedManually(def) && !preparableLegacy))
 		return "Este item não tem ativação manual.";
 	if (
 		ActivationTracker.isDisabled(
@@ -126,14 +140,13 @@ export function manualItemUnavailableReason(
 		return "O limite de uso deste efeito já foi atingido.";
 	if (hero.currentLife <= (def.cost?.hp ?? 0))
 		return "Vida insuficiente para pagar o custo.";
-	const target = resolveManualSkillTarget(state, def, heroId);
-	return target.kind === "unavailable" ? target.reason : null;
+	const target = preparableLegacy ? null : resolveManualSkillTarget(state, def, heroId);
+	return target?.kind === "unavailable" ? target.reason : null;
 }
 
 export function manualItemOptions(state: GameState, heroId: string) {
 	const hero = state.heroes.find((h) => h.id === heroId);
-	// Itens equipados podem ser usados nas janelas normais; os da mochila só
-	// entram nesta lista durante a organização de espólios (validação acima).
+	// A lista de ações só inclui itens do herói que passaram pela validação de equipamento.
 	const itemIds = [
 		...Object.values(hero?.activeItems ?? {}),
 		...(hero?.backpack ?? []),
@@ -141,12 +154,25 @@ export function manualItemOptions(state: GameState, heroId: string) {
 	return itemIds.flatMap((itemId) => {
 		if (!itemId || manualItemUnavailableReason(state, heroId, itemId))
 			return [];
-		const def = cardSkills(itemId)[0]!.def;
+		const card = getCardById(itemId);
+		const grant = card?.grants?.find((entry) => entry.activation.kind === "manual" ||
+			(entry.activation.kind === "event" && entry.activation.decision === "optional"));
+		const def = cardSkills(itemId)[0]?.def;
+		const target = grant
+			? grant.activation.kind === "event"
+				? { kind: "ready" as const, targetIds: [] as readonly string[] }
+				: resolveManualGrantTarget(state,
+					{ kind: "item", cardId: itemId, sourceHeroId: heroId }, grant)
+			: def?.operate_type === "op_triggered"
+				? { kind: "ready" as const, targetIds: [] as readonly string[] }
+				: resolveManualSkillTarget(state, def!, heroId);
 		return [
 			{
 				itemId,
 				name: getCardName(itemId),
-				target: resolveManualSkillTarget(state, def, heroId),
+				target,
+				prepared: Boolean(state.preparedAbilities?.[`item:${heroId}:${itemId}:${grant?.id ?? def?.id}`]),
+				activation: grant?.activation.kind === "event" || def?.operate_type === "op_triggered" ? "prepare" as const : "manual" as const,
 			},
 		];
 	});
@@ -178,7 +204,11 @@ export function removeHeroItem(
 			const location = findHeroItemLocation(hero, itemId);
 			if (!location) return hero;
 			const activeItems = { ...hero.activeItems };
-			if (location.kind === "active") delete activeItems[location.slot];
+			if (location.kind === "active") {
+				for (const slot of Object.keys(activeItems) as ItemSlotType[]) {
+					if (activeItems[slot] === itemId) delete activeItems[slot];
+				}
+			}
 			return {
 				...hero,
 				activeItems,

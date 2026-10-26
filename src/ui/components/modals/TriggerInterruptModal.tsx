@@ -1,5 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useRef, useState } from "react";
 import { getCardName } from "@/core/data/cardLocale";
+import { getCardById } from "@/core/data/cards";
 import { getSkillName } from "@/core/data/skillLocale";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
@@ -10,6 +11,11 @@ import type {
 	TriggerWindow,
 } from "@/core/triggers/engine";
 import { useGameStore } from "@/ui/store/gameStore";
+import { getCardImageUrl } from "@/ui/cardImages";
+import { useCardImages } from "@/ui/hooks/useCardImages";
+import { CardDetailModal } from "./CardDetailModal";
+import { PlaceholderArt } from "../PlaceholderArt";
+import type { CardType } from "../Card";
 
 const SOURCE_KIND_LABEL: Record<TriggerSourceKind, string> = {
 	artifact: "Artefato",
@@ -82,14 +88,27 @@ function sourceText(
 
 export function TriggerInterruptModal() {
 	const { view, dispatch } = useGameStore();
+	const cardImageUrls = useCardImages();
+	const [showSourceDetail, setShowSourceDetail] = useState(false);
+	const submittedFor = useRef<PendingTriggerInterrupt | null>(null);
 	const pending = view.pendingTriggerInterrupt;
+	const sourceCard = pending ? getCardById(pending.sourceCardId) : null;
+	const sourceType: CardType | null = sourceCard
+		? sourceCard.type === "creature" || sourceCard.type === "subboss"
+			? "enemy"
+			: sourceCard.type === "subboss_room"
+				? "room"
+				: sourceCard.type
+		: null;
 
 	useEffect(() => {
 		if (!pending) return;
 		const interruptId = pending.id;
 
 		function handleKeyDown(event: KeyboardEvent) {
-			if (event.key !== "Escape") return;
+			if (event.key !== "Escape" || showSourceDetail) return;
+			if (submittedFor.current === pending) return;
+			submittedFor.current = pending;
 			dispatch({
 				type: "SKIP_TRIGGER_INTERRUPT",
 				payload: { interruptId },
@@ -98,7 +117,7 @@ export function TriggerInterruptModal() {
 
 		window.addEventListener("keydown", handleKeyDown);
 		return () => window.removeEventListener("keydown", handleKeyDown);
-	}, [dispatch, pending]);
+	}, [dispatch, pending, showSourceDetail]);
 
 	if (!pending) return null;
 
@@ -111,6 +130,9 @@ export function TriggerInterruptModal() {
 	const reason = activeInterrupt.reason || `Janela ativa: ${windowName}.`;
 
 	function apply() {
+		if (submittedFor.current === activeInterrupt) return;
+		submittedFor.current = activeInterrupt;
+		setShowSourceDetail(false);
 		dispatch({
 			type: "APPLY_TRIGGER_INTERRUPT",
 			payload: { interruptId: activeInterrupt.id },
@@ -118,6 +140,9 @@ export function TriggerInterruptModal() {
 	}
 
 	function skip() {
+		if (submittedFor.current === activeInterrupt) return;
+		submittedFor.current = activeInterrupt;
+		setShowSourceDetail(false);
 		dispatch({
 			type: "SKIP_TRIGGER_INTERRUPT",
 			payload: { interruptId: activeInterrupt.id },
@@ -125,54 +150,94 @@ export function TriggerInterruptModal() {
 	}
 
 	return (
-		<div
-			className="trigger-interrupt-layer"
-			role="presentation"
-			aria-label="Interrupção de habilidade"
-		>
-			<section
-				className="trigger-interrupt-modal"
-				role="dialog"
-				aria-modal="true"
-				aria-labelledby="trigger-interrupt-title"
+		<>
+			<div
+				className="trigger-interrupt-layer"
+				role="presentation"
+				aria-label="Interrupção de habilidade"
 			>
-				<header className="trigger-interrupt-modal__header">
-					<div>
-						<p>Interrupção de habilidade</p>
-						<h1 id="trigger-interrupt-title">{skillName}</h1>
+				<section
+					className="trigger-interrupt-modal"
+					role="dialog"
+					aria-modal="true"
+					aria-labelledby="trigger-interrupt-title"
+				>
+					<header className="trigger-interrupt-modal__header">
+						<div>
+							<p>Interrupção de habilidade</p>
+							<h1 id="trigger-interrupt-title">{skillName}</h1>
+						</div>
+						<span>{windowName}</span>
+					</header>
+
+					<div className="trigger-interrupt-modal__source">
+						{sourceType && (
+							<button
+								type="button"
+								className="trigger-interrupt-modal__art"
+								onClick={() => setShowSourceDetail(true)}
+								aria-label={`Ver carta ${source}`}
+							>
+								{getCardImageUrl(
+									cardImageUrls,
+									activeInterrupt.sourceCardId,
+								) ? (
+									<img
+										src={getCardImageUrl(
+											cardImageUrls,
+											activeInterrupt.sourceCardId,
+										)}
+										alt=""
+									/>
+								) : (
+									<PlaceholderArt cardType={sourceType} size="sm" />
+								)}
+							</button>
+						)}
+						<div>
+							<span>{sourceKind}</span>
+							<strong>{source}</strong>
+						</div>
 					</div>
-					<span>{windowName}</span>
-				</header>
 
-				<div className="trigger-interrupt-modal__source">
-					<span>{sourceKind}</span>
-					<strong>{source}</strong>
+					<div className="trigger-interrupt-modal__body">
+						<section>
+							<h2>Motivo</h2>
+							<p>{reason}</p>
+						</section>
+						<section>
+							<h2>Efeito</h2>
+							<p>{description}</p>
+						</section>
+					</div>
+
+					<footer className="trigger-interrupt-modal__actions">
+						<button type="button" className="ornate-action" onClick={skip}>
+							Ignorar
+						</button>
+						<button
+							type="button"
+							className="ornate-action ornate-action--primary"
+							onClick={apply}
+						>
+							Aplicar habilidade
+						</button>
+					</footer>
+				</section>
+			</div>
+			{showSourceDetail && sourceType && (
+				<div className="trigger-interrupt-detail">
+					<CardDetailModal
+						cardId={activeInterrupt.sourceCardId}
+						cardType={sourceType}
+						imageUrl={getCardImageUrl(
+							cardImageUrls,
+							activeInterrupt.sourceCardId,
+						)}
+						onClose={() => setShowSourceDetail(false)}
+					/>
 				</div>
-
-				<div className="trigger-interrupt-modal__body">
-					<section>
-						<h2>Motivo</h2>
-						<p>{reason}</p>
-					</section>
-					<section>
-						<h2>Efeito</h2>
-						<p>{description}</p>
-					</section>
-				</div>
-
-				<footer className="trigger-interrupt-modal__actions">
-					<button type="button" className="ornate-action" onClick={skip}>
-						Ignorar
-					</button>
-					<button
-						type="button"
-						className="ornate-action ornate-action--primary"
-						onClick={apply}
-					>
-						Aplicar habilidade
-					</button>
-				</footer>
-			</section>
-		</div>
+			)}
+		</>
 	);
 }

@@ -18,7 +18,6 @@ export function canStartHeroAttack(
 			(hero) => hero.id === heroId && hero.status === "active",
 		) &&
 		!ActivationTracker.isHeroDisabledThisRound(state, heroId) &&
-		!state.combat?.attackBlockedByHero?.[heroId] &&
 		state.activeEnemies.some(
 			(enemy) =>
 				enemy.status === "active" && (!enemyId || enemy.id === enemyId),

@@ -77,7 +77,7 @@ describe("selectHeroCombatActions — selecting_target", () => {
 		expect(actions.canAttack).toBe(true);
 		expect(actions.canPass).toBe(true);
 		expect(actions.canCancel).toBe(true);
-		expect(actions.canUsePower).toBe(false);
+		expect(actions.canUsePower).toBe(true);
 	});
 
 	it("herói NÃO selecionado → todas as ações de alvo desabilitadas", () => {
@@ -94,21 +94,20 @@ describe("selectHeroCombatActions — selecting_target", () => {
 		const { state, heroId } = buildSelectingTargetState(BARBARO);
 		const withPowerUsed: GameState = {
 			...state,
-			combat: {
-				...state.combat!,
-				powersUsedThisRoom: { [heroId]: true },
-			},
+			oncePer: { ...state.oncePer, game: {
+				...state.oncePer.game, [`power_mighty_crimson_fury::${heroId}`]: true,
+			} },
 		};
 		const actions = selectHeroCombatActions(withPowerUsed, heroId);
 		expect(actions.canUsePower).toBe(false);
 		expect(actions.canAttack).toBe(true);
 	});
 
-	it("Ladino das Fendas → skill.activatable false", () => {
+	it("Ladino das Fendas → habilidade reativa pode ser preparada", () => {
 		const { state, heroId } = buildSelectingTargetState(LADINO);
 		const actions = selectHeroCombatActions(state, heroId);
 		expect(actions.skill).not.toBeNull();
-		expect(actions.skill?.activatable).toBe(false);
+		expect(actions.skill?.activatable).toBe(true);
 	});
 
 	it("Clérigo → skill.activatable true; antes de usar alreadyUsed false", () => {

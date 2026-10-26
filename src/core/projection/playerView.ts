@@ -5,6 +5,7 @@
 // Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
 
 import { getCardName } from "../data/cardLocale";
+import { projectAbilityActionsForHero, type AbilityActionView } from "./abilityActions";
 import { getCardById } from "../data/cards";
 import { getSkillName } from "../data/skillLocale";
 import type { TargetCandidate } from "../data/skillTypes";
@@ -82,6 +83,7 @@ export interface PlayerView {
 	readonly status: GameStatus;
 	readonly mode: GameMode;
 	readonly heroes: readonly HeroView[];
+	readonly abilityActionsByHero: Readonly<Record<string, readonly AbilityActionView[]>>;
 	readonly enemies: readonly EnemyView[];
 	readonly currentRoom: RoomView | null;
 	readonly combat: {
@@ -173,6 +175,9 @@ export function playerView(state: GameState): PlayerView {
 		status: state.status,
 		mode: state.mode,
 		heroes: state.heroes,
+		abilityActionsByHero: Object.fromEntries(state.heroes.map((hero) => [
+			hero.id, projectAbilityActionsForHero(state, hero.id),
+		])),
 		enemies: state.activeEnemies,
 		currentRoom: state.currentRoom,
 		combat: state.combat
