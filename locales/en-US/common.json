@@ -30,7 +30,7 @@
   "screens": {
     "mainMenu": {
       "text001": "Ascensão Heróica",
-      "text002": "A Fornalha Sombria",
+      "text002": "The Dark Forge",
       "text003": "PLAY",
       "text004": "TUTORIAL"
     }
@@ -41,5 +41,5 @@
     "loading": "Loading language…",
     "loadError": "Could not load the language. The previous language was kept."
   },
-  "pageTitle": "Ascensão Heróica — A Fornalha Sombria"
+  "pageTitle": "Ascensão Heróica — The Dark Forge"
 }

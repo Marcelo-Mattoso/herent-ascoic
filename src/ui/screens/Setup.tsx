@@ -345,7 +345,7 @@ function BossInfoModal({
 	return (
 		<SetupInfoModal
 			title={getCardName(boss.id)}
-			subtitle="Mestre da Masmorra"
+			subtitle={translate("game:screens.setup.text011")}
 			logoUrl={logoUrl}
 			modalStyle={modalStyle}
 			onClose={onClose}

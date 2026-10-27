@@ -407,7 +407,7 @@
     "name": "Cracked Abyss"
   },
   "boss_azhakar": {
-    "name": "Azhakar, Dragon of the Fornalha Sombria",
+    "name": "Azhakar, Dragon of the Dark Forge",
     "dice": "3 red dice",
     "condition": "the group must have at least 3 Artifacts.",
     "artifactBonus": "if the group has the Crimson Jailer’s Chain, Heart of the Ancient Ember, and Hammer of the Lost Forge, Azhakar starts the fight with 16 Health instead of 20.",

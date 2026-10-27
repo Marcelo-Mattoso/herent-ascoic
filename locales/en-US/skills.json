@@ -440,8 +440,8 @@
     "text": "the first damage Azhakar takes each round is reduced by 1."
   },
   "boss_skill_dark_forge_pressure": {
-    "name": "Pressure of the Fornalha Sombria",
-    "label": "Pressure of the Fornalha Sombria (1): after each combat round, if Dungeon Awakening is at Purple level, discard the top card of the dungeon deck.",
+    "name": "Pressure of the Dark Forge",
+    "label": "Pressure of the Dark Forge (1): after each combat round, if Dungeon Awakening is at Purple level, discard the top card of the dungeon deck.",
     "text": "after each combat round, if Dungeon Awakening is at Purple level, discard the top card of the dungeon deck."
   },
   "boss_skill_azhakar_ascension": {
