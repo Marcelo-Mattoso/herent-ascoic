@@ -1,9 +1,10 @@
+import { translate } from "@/i18n";
 // Modal de distribuição de recompensa. Patch 1.
 // Itens: etapa 1 (escolher herói, ignorada se 1 herói) → etapa 2 (equip/mochila/descartar).
 // Artefatos: confirmação direta (ou escolha de portador se requiresBearer).
 
 import { useState } from "react";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
@@ -50,9 +51,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 									{rewardName}
 								</p>
 								<p className="text-xs mt-1" style={{ color: UI.textSecondary }}>
-									Este artefato requer um portador. Escolha o herói que o
-									carregará.
-								</p>
+									{translate("game:components.modals.rewardModal.text001")}{" "}</p>
 							</div>
 						</div>
 
@@ -72,8 +71,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 								>
 									{getCardName(h.cardId)}{" "}
 									<span style={{ color: UI.textSecondary }}>
-										({h.currentLife}/{h.maxLife} vida)
-									</span>
+										({h.currentLife}/{h.maxLife} {translate("game:components.modals.rewardModal.text002")}{" "}</span>
 								</button>
 							))}
 						</div>
@@ -97,7 +95,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 
 		// Artefato sem portador — confirmação simples
 		return (
-			<Modal title="Artefato obtido!" maxWidth={380}>
+			<Modal title={translate("game:components.modals.rewardModal.title003")} maxWidth={380}>
 				<div className="space-y-4">
 					<div className="flex gap-3 items-center">
 						<PlaceholderArt cardType="artifact" size="sm" />
@@ -109,8 +107,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 						</p>
 					</div>
 					<p className="text-xs" style={{ color: UI.textSecondary }}>
-						O artefato foi adicionado à área do grupo.
-					</p>
+						{translate("game:components.modals.rewardModal.text004")}{" "}</p>
 					<ActionButton
 						label="OK"
 						variant="primary"
@@ -143,8 +140,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 								{rewardName}
 							</p>
 							<p className="text-xs mt-1" style={{ color: UI.textSecondary }}>
-								Escolha o herói que vai receber este item.
-							</p>
+								{translate("game:components.modals.rewardModal.text005")}{" "}</p>
 						</div>
 					</div>
 
@@ -164,8 +160,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 							>
 								{getCardName(h.cardId)}{" "}
 								<span style={{ color: UI.textSecondary }}>
-									({h.currentLife}/{h.maxLife} vida)
-								</span>
+									({h.currentLife}/{h.maxLife} {translate("game:components.modals.rewardModal.text006")}{" "}</span>
 							</button>
 						))}
 					</div>
@@ -199,7 +194,7 @@ export function RewardModal({ onClose }: RewardModalProps) {
 						</p>
 						{hero && (
 							<p className="text-xs" style={{ color: UI.textSecondary }}>
-								Para: {getCardName(hero.cardId)}
+								{translate("game:components.modals.rewardModal.text007")}{" "}{getCardName(hero.cardId)}
 							</p>
 						)}
 					</div>

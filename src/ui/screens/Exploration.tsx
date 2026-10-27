@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 // Tela de Exploração — Patch 3.
 // Layout: TopBar · Board (tabuleiro coletivo) · HeroFocusPanel (herói em foco).
 
@@ -5,7 +6,7 @@ import { UseItemModal } from "@/ui/components/modals/UseItemModal";
 import { type CSSProperties, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { EnemyState } from "@/core/state/enemyState";
 import type { HeroState } from "@/core/state/heroState";
@@ -408,8 +409,7 @@ export function Exploration({
 										disabled={!tutorialInventoryHeroSelected}
 										onClick={onTutorialInventoryOpen}
 									>
-										🎒 Abrir inventário
-									</button>
+										{translate("game:screens.exploration.text001")}{" "}</button>
 								)}
 							<DungeonAwakeningMarker current={view.despertar} />
 							<div className="game-influence-panel">
@@ -423,22 +423,20 @@ export function Exploration({
 								}
 								onClick={() => setShowJournal(true)}
 							>
-								📖 Diário da partida
-							</button>
+								{translate("game:screens.exploration.text002")}{" "}</button>
 							{actionLogMode === "hidden" ? (
 								<button
 									type="button"
 									className="event-log-reopen"
 									onClick={() => setActionLogMode("open")}
-									title="Mostrar log da partida"
-									aria-label="Mostrar log da partida"
+									title={translate("game:screens.exploration.title003")}
+									aria-label={translate("game:screens.exploration.ariaLabel004")}
 								>
-									📋 Log
-								</button>
+									{translate("game:screens.exploration.text005")}{" "}</button>
 							) : (
 								<EventLogPanel
 									entries={view.eventLog}
-									title="Log da partida"
+									title={translate("game:screens.exploration.title006")}
 									maxHeight="var(--action-log-body-max-height)"
 									collapsed={actionLogMode === "collapsed"}
 									onToggleCollapsed={() =>
@@ -455,7 +453,7 @@ export function Exploration({
 							<div
 								className="game-portable-action-bar"
 								role="group"
-								aria-label="Ações da partida"
+								aria-label={translate("game:screens.exploration.ariaLabel007")}
 							>
 								{tutorialInventoryMode &&
 									status === "REWARD_PHASE" &&
@@ -467,21 +465,18 @@ export function Exploration({
 											disabled={!tutorialInventoryHeroSelected}
 											onClick={onTutorialInventoryOpen}
 										>
-											🎒 Abrir inventário
-										</button>
+											{translate("game:screens.exploration.text008")}{" "}</button>
 									)}
 								<button
 									type="button"
 									onClick={() => togglePortableDrawer("awakening")}
 								>
-									<span aria-hidden="true">⚡</span> Grupo
-								</button>
+									<span aria-hidden="true">⚡</span> {translate("game:screens.exploration.text009")}{" "}</button>
 								<button
 									type="button"
 									onClick={() => togglePortableDrawer("influences")}
 								>
-									<span aria-hidden="true">✦</span> Influências
-								</button>
+									<span aria-hidden="true">✦</span> {translate("game:screens.exploration.text010")}{" "}</button>
 								<button
 									type="button"
 									data-tutorial-anchor={
@@ -489,8 +484,7 @@ export function Exploration({
 									}
 									onClick={() => setShowJournal(true)}
 								>
-									<span aria-hidden="true">📖</span> Diário
-								</button>
+									<span aria-hidden="true">📖</span> {translate("game:screens.exploration.text011")}{" "}</button>
 							</div>
 							{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
 							{(() => {
@@ -538,7 +532,7 @@ export function Exploration({
 								type="button"
 								className="game-hero-focus-backdrop"
 								onClick={() => setShowHeroFocus(false)}
-								aria-label="Fechar herói em foco"
+								aria-label={translate("game:screens.exploration.ariaLabel012")}
 							/>
 							<div className="game-hero-focus-popover">
 								<HeroFocusPanel
@@ -580,7 +574,7 @@ export function Exploration({
 									type="button"
 									className="journal-layer__backdrop"
 									onClick={() => setShowJournal(false)}
-									aria-label="Fechar diário"
+									aria-label={translate("game:screens.exploration.ariaLabel013")}
 								/>
 								<JournalPanel
 									journal={journal}
@@ -658,10 +652,10 @@ function PortableGameDrawer({
 }) {
 	const title =
 		type === "awakening"
-			? "Grupo e Despertar"
+			? translate("game:screens.exploration.groupDrawer")
 			: type === "influences"
-				? "Influências"
-				: "Log da partida";
+				? translate("game:screens.exploration.influencesDrawer")
+				: translate("game:screens.exploration.logDrawer");
 
 	return (
 		<div className="game-portable-drawer-layer">
@@ -669,7 +663,7 @@ function PortableGameDrawer({
 				type="button"
 				className="game-portable-drawer-backdrop"
 				onClick={onClose}
-				aria-label={`Fechar ${title}`}
+				aria-label={translate("game:screens.exploration.closeDrawer", { title })}
 			/>
 			<section
 				className="game-portable-drawer"
@@ -700,7 +694,7 @@ function PortableGameDrawer({
 					{type === "log" ? (
 						<EventLogPanel
 							entries={entries}
-							title="Log da partida"
+							title={translate("game:screens.exploration.title014")}
 							maxHeight="none"
 							collapsed={false}
 							onToggleCollapsed={() => {}}
@@ -728,13 +722,13 @@ function DungeonAwakeningMarker({
 	return (
 		<section className="game-awakening-marker" style={markerStyle}>
 			<div className="game-awakening-marker__heading">
-				<span>Despertar da Masmorra</span>
-				<strong>Nível {current + 1}</strong>
+				<span>{translate("game:screens.exploration.text015")}</span>
+				<strong>{translate("game:screens.exploration.text016")}{" "}{current + 1}</strong>
 			</div>
-			<div className="game-awakening-marker__rule">Efeitos dos níveis</div>
+			<div className="game-awakening-marker__rule">{translate("game:screens.exploration.text017")}</div>
 			<ul
 				className="game-awakening-marker__levels"
-				aria-label="Níveis do despertar"
+				aria-label={translate("game:screens.exploration.ariaLabel018")}
 			>
 				{AWAKENING_LEVELS.map((level, index) => {
 					const isCurrent = index === current;

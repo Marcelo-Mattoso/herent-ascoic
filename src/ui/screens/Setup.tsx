@@ -1,9 +1,10 @@
+import { translate } from "@/i18n";
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
-import { getCardLocale, getCardName } from "@/core/data/cardLocale";
+import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getBoss, getHeroes } from "@/core/data/cards";
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
-import { getSkillLocale, getSkillName } from "@/core/data/skillLocale";
+import { displaySkillLocale as getSkillLocale, displaySkillName as getSkillName } from "@/i18n/catalogs";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
 import { MAX_HEROES } from "@/core/state/gameState";
 import { getCardImageUrl } from "@/ui/cardImages";
@@ -12,33 +13,7 @@ import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
 import { getUiAssetUrl } from "@/ui/uiAssets";
 
-const DIFFICULTIES: { value: Difficulty; label: string; hint: string }[] = [
-	{
-		value: "very_easy",
-		label: "Muito fácil",
-		hint: "Herói +2, Masmorra +0",
-	},
-	{
-		value: "easy",
-		label: "Fácil",
-		hint: "Herói +1, Masmorra +0",
-	},
-	{
-		value: "normal",
-		label: "Padrão",
-		hint: "Herói +0, Masmorra +0",
-	},
-	{
-		value: "hard",
-		label: "Difícil",
-		hint: "Herói +0, Masmorra +1",
-	},
-	{
-		value: "nightmare",
-		label: "Pesadelo",
-		hint: "Herói +0, Masmorra +2",
-	},
-];
+const DIFFICULTIES: Difficulty[] = ["very_easy", "easy", "normal", "hard", "nightmare"];
 
 interface SetupProps {
 	onBack: () => void;
@@ -65,10 +40,7 @@ export function Setup({
 	const heroes = getHeroes();
 	const boss = getBoss();
 	const heroInfo = heroes.find((hero) => hero.id === heroInfoId) ?? null;
-	const selectedCountLabel =
-		selectedHeroes.length === 1
-			? "1 herói selecionado"
-			: `${selectedHeroes.length} heróis selecionados`;
+	const selectedCountLabel = translate("game:screens.setup.selectedHeroes", { count: selectedHeroes.length });
 	const canStart =
 		selectedHeroes.length > 0 &&
 		(mode === "cooperative" || selectedHeroes.length >= 2);
@@ -129,15 +101,14 @@ export function Setup({
 			<div className="setup-screen__vignette" />
 			<header className="setup-header">
 				<button type="button" className="setup-back-button" onClick={onBack}>
-					Voltar
-				</button>
+					{translate("game:screens.setup.text001")}{" "}</button>
 				<div className="setup-title">
 					{logoUrl ? <img src={logoUrl} alt="" /> : null}
 					<div>
-						<h1>Preparar Expedição</h1>
+						<h1>{translate("game:screens.setup.text002")}</h1>
 						<p data-tutorial-anchor="setup.selected-heroes">
 							{selectedHeroes.length === 0
-								? "Escolha seus heróis"
+								? translate("game:screens.setup.dynamic001")
 								: selectedCountLabel}
 						</p>
 					</div>
@@ -167,8 +138,8 @@ export function Setup({
 					<div className="setup-section-heading">
 						{heroIconUrl ? <img src={heroIconUrl} alt="" /> : null}
 						<div>
-							<h2 id="setup-heroes-title">Heróis</h2>
-							<p>1 a 4 participantes</p>
+							<h2 id="setup-heroes-title">{translate("game:screens.setup.text003")}</h2>
+							<p>{translate("game:screens.setup.text004")}</p>
 						</div>
 					</div>
 					<div
@@ -213,13 +184,13 @@ export function Setup({
 						<div className="setup-section-heading">
 							{diceIconUrl ? <img src={diceIconUrl} alt="" /> : null}
 							<div>
-								<h2>Configuração</h2>
-								<p>Modo e desafio</p>
+								<h2>{translate("game:screens.setup.text005")}</h2>
+								<p>{translate("game:screens.setup.text006")}</p>
 							</div>
 						</div>
 
 						<div className="setup-control-group">
-							<p>Modo</p>
+							<p>{translate("game:screens.setup.text007")}</p>
 							<div className="setup-segmented-control">
 								{(["cooperative", "competitive"] as GameMode[]).map(
 									(gameMode) => (
@@ -229,7 +200,7 @@ export function Setup({
 											className={mode === gameMode ? "is-selected" : undefined}
 											onClick={() => setMode(gameMode)}
 										>
-											{gameMode === "cooperative" ? "Coop" : "Competitivo"}
+											{translate(`game:screens.setup.mode.${gameMode}`)}
 										</button>
 									),
 								)}
@@ -237,19 +208,19 @@ export function Setup({
 						</div>
 
 						<div className="setup-control-group">
-							<p>Dificuldade</p>
+							<p>{translate("game:screens.setup.text008")}</p>
 							<div className="setup-difficulty-list">
 								{DIFFICULTIES.map((item) => (
 									<button
-										key={item.value}
+										key={item}
 										type="button"
 										className={
-											difficulty === item.value ? "is-selected" : undefined
+											difficulty === item ? "is-selected" : undefined
 										}
-										onClick={() => setDifficulty(item.value)}
+										onClick={() => setDifficulty(item)}
 									>
-										<span>{item.label}</span>
-										<small>{item.hint}</small>
+										<span>{translate(`game:screens.setup.difficulty.${item}.label`)}</span>
+										<small>{translate(`game:screens.setup.difficulty.${item}.hint`)}</small>
 									</button>
 								))}
 							</div>
@@ -264,11 +235,9 @@ export function Setup({
 							onClick={startGame}
 							disabled={!canStart}
 						>
-							Iniciar partida
-						</button>
+							{translate("game:screens.setup.text009")}{" "}</button>
 						<p className="setup-save-note">
-							A partida não é salva ao sair da página.
-						</p>
+							{translate("game:screens.setup.text010")}{" "}</p>
 					</div>
 				</aside>
 			</div>
@@ -306,15 +275,15 @@ function DungeonMasterCard({
 	onInfo: () => void;
 }) {
 	const locale = getCardLocale(boss.id);
-	const diceText = locale?.dice ?? "Dados especiais";
+	const diceText = locale?.dice ?? translate("game:screens.setup.specialDice");
 
 	return (
 		<div className="setup-dungeon-master setup-dungeon-master-panel">
 			<div className="setup-section-heading setup-dungeon-master__heading">
 				{iconUrl ? <img src={iconUrl} alt="" /> : null}
 				<div>
-					<h2 id="setup-focus-title">Mestre da Masmorra</h2>
-					<p>Chefe final</p>
+					<h2 id="setup-focus-title">{translate("game:screens.setup.text011")}</h2>
+					<p>{translate("game:screens.setup.text012")}</p>
 				</div>
 				<button
 					type="button"
@@ -336,9 +305,9 @@ function DungeonMasterCard({
 			<div className="setup-dungeon-master__summary">
 				<h3>{getCardName(boss.id)}</h3>
 				<div className="setup-dungeon-master__stats">
-					<span>Vida {boss.lifeBase}</span>
-					<span>Acerto +{boss.hitBonusBase}</span>
-					<span>Dano {boss.damage}</span>
+					<span>{translate("game:screens.setup.text013")}{" "}{boss.lifeBase}</span>
+					<span>{translate("game:screens.setup.text014")}{boss.hitBonusBase}</span>
+					<span>{translate("game:screens.setup.text015")}{" "}{boss.damage}</span>
 					<span>{diceText}</span>
 				</div>
 				{locale?.condition ? <p>{locale.condition}</p> : null}
@@ -393,34 +362,34 @@ function BossInfoModal({
 				<div className="setup-boss-modal__content">
 					<div className="setup-boss-modal__facts">
 						<strong>
-							<span>Vida base</span>
+							<span>{translate("game:screens.setup.text016")}</span>
 							{boss.lifeBase}
 						</strong>
 						<strong>
-							<span>Acerto base</span>+{boss.hitBonusBase}
+							<span>{translate("game:screens.setup.text017")}</span>+{boss.hitBonusBase}
 						</strong>
 						<strong>
-							<span>Dano</span>
+							<span>{translate("game:screens.setup.text018")}</span>
 							{boss.damage}
 						</strong>
 						<strong>
-							<span>Dados</span>
+							<span>{translate("game:screens.setup.text019")}</span>
 							{locale?.dice ?? "Especial"}
 						</strong>
 					</div>
 
 					<div className="setup-boss-modal__sections">
-						<BossInfoSection title="Invocação" text={locale?.condition} />
-						<BossInfoSection title="Artefatos" text={locale?.artifactBonus} />
+						<BossInfoSection title={translate("game:screens.setup.title020")} text={locale?.condition} />
+						<BossInfoSection title={translate("game:screens.setup.title021")} text={locale?.artifactBonus} />
 						<BossInfoSection
-							title="Escalonamento"
+							title={translate("game:screens.setup.title022")}
 							text={locale?.dungeonScaling}
 						/>
-						<BossInfoSection title="Vitória" text={locale?.victory} />
+						<BossInfoSection title={translate("game:screens.setup.title023")} text={locale?.victory} />
 					</div>
 
 					<div className="setup-boss-modal__skills">
-						<h3>Habilidades</h3>
+						<h3>{translate("game:screens.setup.text024")}</h3>
 						{skillEntries.map((skill) => (
 							<div key={skill.id}>
 								<h4>{skill.name}</h4>
@@ -489,7 +458,7 @@ function HeroStatsModal({
 						<StatRow label="Acerto" values={hero.hitBonus} prefix="+" />
 						<StatRow label="Dados" values={hero.diceByColor} />
 						<div className="setup-hero-modal__damage">
-							<span>Dano</span>
+							<span>{translate("game:screens.setup.text025")}</span>
 							<strong>{hero.damage}</strong>
 						</div>
 					</div>
@@ -545,7 +514,7 @@ function SetupInfoModal({
 						type="button"
 						className="setup-info-close-button"
 						onClick={onClose}
-						aria-label="Fechar"
+						aria-label={translate("game:screens.setup.ariaLabel026")}
 					>
 						X
 					</button>

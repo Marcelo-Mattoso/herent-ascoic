@@ -28,6 +28,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - run: npm run i18n:validate
+      - run: npm run i18n:audit -- --check
       - run: npm run lint
       - run: npm test -- --maxWorkers=2 --testTimeout=15000
       - run: npm run test:coverage -- --maxWorkers=2 --testTimeout=15000

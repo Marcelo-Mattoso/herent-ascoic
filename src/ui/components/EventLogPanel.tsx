@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 // Painel de log de eventos da partida.
 // Mostra as entradas do state.eventLog com color-coding por tipo.
 // Pode ser usado como HUD persistente, recolhível ou ocultável.
@@ -65,7 +66,7 @@ export function EventLogPanel({
 	entries,
 	onClose,
 	onToggleCollapsed,
-	title = "Log de eventos",
+	title = translate("game:components.eventLogPanel.defaultTitle"),
 	maxHeight = 160,
 	collapsed = false,
 	className,
@@ -116,7 +117,7 @@ export function EventLogPanel({
 							fontWeight: 400,
 						}}
 					>
-						{entries.length} entrada{entries.length !== 1 ? "s" : ""}
+						{entries.length} {translate("game:components.eventLogPanel.text001")}{entries.length !== 1 ? "s" : ""}
 					</span>
 				</span>
 				{(onToggleCollapsed || onClose) && (
@@ -135,8 +136,8 @@ export function EventLogPanel({
 									padding: "0 3px",
 									lineHeight: 1,
 								}}
-								title={collapsed ? "Expandir log" : "Recolher log"}
-								aria-label={collapsed ? "Expandir log" : "Recolher log"}
+								title={collapsed ? translate("game:components.eventLogPanel.dynamic001") : translate("game:components.eventLogPanel.dynamic002")}
+								aria-label={collapsed ? translate("game:components.eventLogPanel.dynamic003") : translate("game:components.eventLogPanel.dynamic004")}
 							>
 								{collapsed ? "▾" : "▴"}
 							</button>
@@ -155,8 +156,8 @@ export function EventLogPanel({
 									padding: "0 3px",
 									lineHeight: 1,
 								}}
-								title="Ocultar log"
-								aria-label="Ocultar log"
+								title={translate("game:components.eventLogPanel.title002")}
+								aria-label={translate("game:components.eventLogPanel.ariaLabel003")}
 							>
 								✕
 							</button>
@@ -187,8 +188,7 @@ export function EventLogPanel({
 								padding: "8px 0",
 							}}
 						>
-							Nenhum evento ainda.
-						</p>
+							{translate("game:components.eventLogPanel.text004")}{" "}</p>
 					) : (
 						entries.map((msg, i) => {
 							const kind = classifyEntry(msg);

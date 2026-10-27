@@ -25,6 +25,8 @@ const musicSourceDir = path.resolve(__dirname, "sounds/music");
 const musicPublicDir = path.resolve(__dirname, "public/generated/music");
 const musicAssetDir = path.join(musicPublicDir, "assets");
 const musicManifestPath = path.join(musicPublicDir, "manifest.json");
+const localeSourceDir = path.resolve(__dirname, "locales");
+const localePublicDir = path.resolve(__dirname, "public/generated/locales");
 const musicMimeTypes: Record<string, string> = {
 	".mp3": "audio/mpeg",
 	".ogg": "audio/ogg",
@@ -307,12 +309,39 @@ function writeMusicManifest() {
 	fs.writeFileSync(musicManifestPath, `${JSON.stringify({ version: 1, source: "sounds/music", tracks }, null, 2)}\n`);
 }
 
+function writeLocaleAssets() {
+	fs.rmSync(localePublicDir, { recursive: true, force: true });
+	fs.mkdirSync(localePublicDir, { recursive: true });
+	const namespaces = fs.readdirSync(path.join(localeSourceDir, "pt-BR"))
+		.filter((file) => file.endsWith(".json") && file !== "meta.json")
+		.map((file) => path.basename(file, ".json"))
+		.sort();
+	const locales = fs.readdirSync(localeSourceDir, { withFileTypes: true })
+		.filter((entry) => entry.isDirectory())
+		.map((entry) => ({ code: entry.name, meta: JSON.parse(fs.readFileSync(path.join(localeSourceDir, entry.name, "meta.json"), "utf8")) }))
+		.filter(({ meta }) => meta.status === "published")
+		.map(({ code, meta }) => {
+			const resources: Record<string, string> = {};
+			for (const namespace of namespaces) {
+				const fileName = `${namespace}.json`;
+				const source = path.join(localeSourceDir, code, fileName);
+				const target = path.join(localePublicDir, code, fileName);
+				fs.mkdirSync(path.dirname(target), { recursive: true });
+				fs.copyFileSync(source, target);
+				resources[namespace] = `/generated/locales/${encodeURIComponent(code)}/${fileName}`;
+			}
+			return { code, name: meta.name, nativeName: meta.nativeName, direction: meta.direction, resources };
+		});
+	fs.writeFileSync(path.join(localePublicDir, "manifest.json"), `${JSON.stringify({ version: 1, locales }, null, 2)}\n`);
+}
+
 function writeAssetManifests() {
 	writeBoardManifest();
 	writeBackCardManifest();
 	writeCardImageManifest();
 	writeUiAssetManifest();
 	writeMusicManifest();
+	writeLocaleAssets();
 }
 
 function watchAssetSources(server: ViteDevServer) {
@@ -321,10 +350,15 @@ function watchAssetSources(server: ViteDevServer) {
 	if (fs.existsSync(cardSourceDir)) server.watcher.add(cardSourceDir);
 	if (fs.existsSync(uiAssetSourceDir)) server.watcher.add(uiAssetSourceDir);
 	if (fs.existsSync(musicSourceDir)) server.watcher.add(musicSourceDir);
+	if (fs.existsSync(localeSourceDir)) server.watcher.add(localeSourceDir);
 	server.watcher.on("all", (_event, filePath) => {
 		const resolvedFilePath = path.resolve(filePath);
 		if (resolvedFilePath.startsWith(musicSourceDir)) {
 			writeMusicManifest();
+			return;
+		}
+		if (resolvedFilePath.startsWith(localeSourceDir)) {
+			writeLocaleAssets();
 			return;
 		}
 		if (

@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import { useMemo } from "react";
 import type {
 	InfluenceScope,
@@ -20,17 +21,17 @@ const SCOPE_ORDER: InfluenceScope[] = [
 ];
 
 const SCOPE_LABELS: Record<InfluenceScope, string> = {
-	room_to_group: "SALA → GRUPO",
-	room_to_hero: "SALA → HERÓI",
-	dungeon_to_group: "DUNGEON → GRUPO",
-	hero_to_group: "HERÓIS → GRUPO",
-	hero_to_dungeon: "HERÓIS → DUNGEON",
-	hero_to_self: "HERÓI → SI MESMO",
-	hero_to_enemy: "HERÓIS → INIMIGOS",
-	enemy_to_group: "INIMIGOS → GRUPO",
-	enemy_to_hero: "INIMIGOS → HERÓIS",
-	item_to_hero: "ITENS EQUIPADOS",
-	unknown: "OUTROS",
+	room_to_group: "game:components.influencePanel.scopeLabels.room_to_group",
+	room_to_hero: "game:components.influencePanel.scopeLabels.room_to_hero",
+	dungeon_to_group: "game:components.influencePanel.scopeLabels.dungeon_to_group",
+	hero_to_group: "game:components.influencePanel.scopeLabels.hero_to_group",
+	hero_to_dungeon: "game:components.influencePanel.scopeLabels.hero_to_dungeon",
+	hero_to_self: "game:components.influencePanel.scopeLabels.hero_to_self",
+	hero_to_enemy: "game:components.influencePanel.scopeLabels.hero_to_enemy",
+	enemy_to_group: "game:components.influencePanel.scopeLabels.enemy_to_group",
+	enemy_to_hero: "game:components.influencePanel.scopeLabels.enemy_to_hero",
+	item_to_hero: "game:components.influencePanel.scopeLabels.item_to_hero",
+	unknown: "game:components.influencePanel.scopeLabels.unknown",
 };
 
 const KIND_PALETTE: Record<
@@ -142,13 +143,11 @@ export function InfluencePanel({ influences }: InfluencePanelProps) {
 					marginBottom: 2,
 				}}
 			>
-				📊 Influências Ativas
-			</div>
+				{translate("game:components.influencePanel.text001")}{" "}</div>
 
 			{!hasAny && (
 				<span style={{ fontSize: 10, color: UI.textTertiary }}>
-					Nenhuma influência ativa
-				</span>
+					{translate("game:components.influencePanel.text002")}{" "}</span>
 			)}
 
 			{SCOPE_ORDER.map((scope) => {
@@ -166,7 +165,7 @@ export function InfluencePanel({ influences }: InfluencePanelProps) {
 								marginBottom: 3,
 							}}
 						>
-							{SCOPE_LABELS[scope]}
+							{translate(SCOPE_LABELS[scope])}
 						</div>
 						<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
 							{items.map((inf) => (

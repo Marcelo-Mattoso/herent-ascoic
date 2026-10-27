@@ -1,13 +1,14 @@
-import { getSkillName } from "@/core/data/skillLocale";
+import { translate } from "@/i18n";
+import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { useGameStore } from "@/ui/store/gameStore";
 import { UI } from "@/ui/theme";
 
 const TARGET_KIND_LABEL = {
-	hero: "Herói",
-	enemy: "Inimigo",
-	die: "Dado",
+	hero: "game:components.modals.skillTargetModal.targetKindLabel.hero",
+	enemy: "game:components.modals.skillTargetModal.targetKindLabel.enemy",
+	die: "game:components.modals.skillTargetModal.targetKindLabel.die",
 } as const;
 
 const TARGET_KIND_ICON = {
@@ -34,7 +35,7 @@ export function SkillTargetModal() {
 	}
 
 	return (
-		<Modal title="Escolha o alvo" maxWidth={440} onClose={cancel}>
+		<Modal title={translate("game:components.modals.skillTargetModal.title001")} maxWidth={440} onClose={cancel}>
 			<div style={{ display: "flex", flexDirection: "column", gap: 12 }}>
 				<div>
 					<p style={{ color: UI.textPrimary, fontSize: 13, fontWeight: 600 }}>
@@ -73,7 +74,7 @@ export function SkillTargetModal() {
 								{candidate.label}
 							</strong>
 							<span style={{ color: UI.textTertiary, fontSize: 11 }}>
-								{TARGET_KIND_LABEL[candidate.kind]}
+								{translate(TARGET_KIND_LABEL[candidate.kind])}
 							</span>
 						</button>
 					))}

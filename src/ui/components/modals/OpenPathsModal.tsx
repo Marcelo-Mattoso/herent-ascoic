@@ -1,5 +1,6 @@
+import { translate } from "@/i18n";
 import { type CSSProperties, useState } from "react";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
@@ -43,15 +44,15 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 			<section
 				role="dialog"
 				aria-modal="true"
-				aria-label="Escolher próxima sala"
+				aria-label={translate("game:components.modals.openPathsModal.ariaLabel001")}
 				className="flow-modal-dialog flow-modal-dialog--paths"
 			>
 				<header className="flow-modal-header">
 					<div className="flow-modal-title">
 						{logoUrl ? <img src={logoUrl} alt="" /> : null}
 						<div>
-							<h1>Escolher próxima sala</h1>
-							<p>Escolha 1 caminho. As demais cartas serão descartadas.</p>
+							<h1>{translate("game:components.modals.openPathsModal.text002")}</h1>
+							<p>{translate("game:components.modals.openPathsModal.text003")}</p>
 						</div>
 					</div>
 				</header>
@@ -85,7 +86,7 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 									<span>{getCardName(cardId)}</span>
 									{(card?.type === "room" || card?.type === "subboss_room") && (
 										<small>
-											Saídas {card.exits} · XP {card.xp ?? 0}
+											{translate("game:components.modals.openPathsModal.text004")}{" "}{card.exits} {translate("game:components.modals.openPathsModal.text005")}{" "}{card.xp ?? 0}
 										</small>
 									)}
 								</button>
@@ -110,8 +111,7 @@ export function OpenPathsModal({ onClose }: OpenPathsModalProps) {
 						disabled={!selected}
 						onClick={confirmPath}
 					>
-						Confirmar escolha
-					</button>
+						{translate("game:components.modals.openPathsModal.text006")}{" "}</button>
 				</footer>
 			</section>
 

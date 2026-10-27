@@ -1,3 +1,5 @@
+import { translate } from "@/i18n";
+import { tutorialText } from "@/i18n/catalogs";
 import { type KeyboardEvent, useEffect, useRef } from "react";
 import { TUTORIAL_MODULES, type TutorialModuleId } from "./registry";
 import { downloadTutorialAudit, type TutorialAuditSnapshot } from "./audit";
@@ -45,28 +47,26 @@ export function TutorialHub({ onStart, onClose, lastAudit }: TutorialHubProps) {
 			<div className="tutorial-hub__content">
 				<div className="tutorial-hub__heading">
 					<button type="button" onClick={onClose}>
-						← Voltar
-					</button>
+						{translate("game:tutorials.tutorialHub.text001")}{" "}</button>
 					<div>
-						<p>O Arquivista apresenta</p>
-						<h2 id="tutorial-hub-title">Arquivos de treinamento</h2>
+						<p>{translate("game:tutorials.tutorialHub.text002")}</p>
+						<h2 id="tutorial-hub-title">{translate("game:tutorials.tutorialHub.text003")}</h2>
 					</div>
 				</div>
 				<p className="tutorial-hub__intro">
-					Escolha um arquivo para aprender usando o tabuleiro da expedição.
-				</p>
+					{translate("game:tutorials.tutorialHub.text004")}{" "}</p>
 				<div className="tutorial-hub__modules">
 					{TUTORIAL_MODULES.map((module) => (
 						<article className="tutorial-hub__module" key={module.id}>
-							<h3>{module.title}</h3>
-							<p>{module.subtitle}</p>
-							<p>{module.summary}</p>
+							<h3>{tutorialText(module.id, "title")}</h3>
+							<p>{tutorialText(module.id, "subtitle")}</p>
+							<p>{tutorialText(module.id, "summary")}</p>
 							<button
 								type="button"
 								disabled={!module.available}
 								onClick={() => onStart(module.id)}
 							>
-								{module.available ? "Iniciar arquivo" : "Em breve"}
+								{translate(module.available ? "game:tutorials.tutorialHub.startArchive" : "game:tutorials.tutorialHub.comingSoon")}
 							</button>
 						</article>
 					))}
@@ -77,8 +77,7 @@ export function TutorialHub({ onStart, onClose, lastAudit }: TutorialHubProps) {
 						className="tutorial-hub__audit"
 						onClick={() => downloadTutorialAudit(lastAudit)}
 					>
-						Baixar último registro de treinamento
-					</button>
+						{translate("game:tutorials.tutorialHub.text005")}{" "}</button>
 				)}
 			</div>
 		</section>

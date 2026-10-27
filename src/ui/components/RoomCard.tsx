@@ -1,7 +1,8 @@
+import { translate } from "@/i18n";
 // Card horizontal da sala atual (~200px). Vive dentro do tabuleiro, no topo central.
 // Inclui Despertar embutido.
 
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { ColorIndex } from "@/core/state/color";
 import type { RoomState } from "@/core/state/roomState";
 import { UI } from "@/ui/theme";
@@ -28,7 +29,7 @@ export function RoomCard({ room, despertar, onClick }: RoomCardProps) {
 					justifyContent: "center",
 				}}
 			>
-				<span style={{ color: UI.textTertiary, fontSize: 11 }}>sem sala</span>
+				<span style={{ color: UI.textTertiary, fontSize: 11 }}>{translate("game:components.roomCard.text001")}</span>
 			</div>
 		);
 	}
@@ -80,7 +81,7 @@ export function RoomCard({ room, despertar, onClick }: RoomCardProps) {
 					{getCardName(room.cardId)}
 				</p>
 				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 3 }}>
-					Saídas {room.exits} · XP {room.xp}
+					{translate("game:components.roomCard.text002")}{" "}{room.exits} {translate("game:components.roomCard.text003")}{" "}{room.xp}
 				</p>
 				<ColorBar current={despertar} />
 			</div>

@@ -1,6 +1,7 @@
-import { getCardLocale, getCardName } from "@/core/data/cardLocale";
+import { translate } from "@/i18n";
+import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
-import { getSkillName } from "@/core/data/skillLocale";
+import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CardType } from "@/ui/components/Card";
@@ -77,8 +78,7 @@ export function CardDetailModal({
 												className="text-xs font-medium"
 												style={{ color: UI.textSecondary }}
 											>
-												Habilidade
-											</p>
+												{translate("game:components.modals.cardDetailModal.text001")}{" "}</p>
 											<p className="text-xs" style={{ color: UI.textPrimary }}>
 												{renderSkillLabel(habilidade.ref)}
 											</p>
@@ -90,8 +90,7 @@ export function CardDetailModal({
 												className="text-xs font-medium"
 												style={{ color: UI.textSecondary }}
 											>
-												Poder
-											</p>
+												{translate("game:components.modals.cardDetailModal.text002")}{" "}</p>
 											<p className="text-xs" style={{ color: UI.textPrimary }}>
 												{renderSkillLabel(poder.ref)}
 											</p>
@@ -130,7 +129,7 @@ export function CardDetailModal({
 									)}
 									{purple && (
 										<p className="text-xs italic" style={{ color: "#3D1A6E" }}>
-											Roxo: {renderSkillLabel(purple.ref)}
+											{translate("game:components.modals.cardDetailModal.text003")}{" "}{renderSkillLabel(purple.ref)}
 										</p>
 									)}
 								</>
@@ -190,8 +189,7 @@ export function CardDetailModal({
 												cursor: "pointer",
 											}}
 										>
-											Usar
-										</button>
+											{translate("game:components.modals.cardDetailModal.text004")}{" "}</button>
 									)}
 								</>
 							);
@@ -236,8 +234,7 @@ export function CardDetailModal({
 
 					{!card && (
 						<p className="text-xs" style={{ color: UI.textTertiary }}>
-							Carta não encontrada no catálogo.
-						</p>
+							{translate("game:components.modals.cardDetailModal.text005")}{" "}</p>
 					)}
 				</div>
 			</div>

@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import { useState } from "react";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
@@ -32,12 +33,12 @@ export function UseItemModal({
 
 	return (
 		<Modal
-			title={selected ? selected.name : "Usar item ativo"}
+			title={selected ? selected.name : translate("game:components.modals.useItemModal.dynamic001")}
 			onClose={onClose}
 		>
 			<div className="flex flex-col gap-2">
 				{items.length === 0 && (
-					<p>Nenhum item ativo disponível nesta janela.</p>
+					<p>{translate("game:components.modals.useItemModal.text001")}</p>
 				)}
 				{selected?.target.kind === "needs_selection" ? (
 					<>

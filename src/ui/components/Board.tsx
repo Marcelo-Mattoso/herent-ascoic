@@ -1,8 +1,9 @@
+import { translate } from "@/i18n";
 // Tabuleiro coletivo da partida (Patch 3).
 // Layout: cartas ativas | arena | footer do grupo.
 
 import { type DragEvent, useEffect, useRef, useState } from "react";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -109,8 +110,7 @@ function ActiveDungeonCard({
 				}}
 			>
 				<span style={{ color: "rgba(255,255,255,0.72)", fontSize: 12 }}>
-					sem sala
-				</span>
+					{translate("game:components.board.text001")}{" "}</span>
 			</div>
 		);
 	}
@@ -190,7 +190,7 @@ function ActiveDungeonCard({
 						marginBottom: "var(--game-card-text-margin, 7px)",
 					}}
 				>
-					Saídas {room.exits} · XP {room.xp}
+					{translate("game:components.board.text002")}{" "}{room.exits} {translate("game:components.board.text003")}{" "}{room.xp}
 				</p>
 				<ColorBar current={despertar} />
 			</div>
@@ -310,8 +310,7 @@ function ActiveEnemyCard({
 						lineHeight: 1.3,
 					}}
 				>
-					Sub
-				</span>
+					{translate("game:components.board.text004")}{" "}</span>
 			)}
 			<div
 				style={{
@@ -456,7 +455,7 @@ function BossEncounterCard({
 								lineHeight: "var(--game-card-line-height, 1)",
 							}}
 						>
-							{enemy.currentLife}/{enemy.maxLife} Vida · +{enemy.hitBonus} · D
+							{enemy.currentLife}/{enemy.maxLife} {translate("game:components.board.text005")}{enemy.hitBonus} · D
 							{enemy.damage}
 						</p>
 					</>
@@ -469,8 +468,7 @@ function BossEncounterCard({
 							lineHeight: "var(--game-card-line-height, 1.2)",
 						}}
 					>
-						Confronto final disponível
-					</p>
+						{translate("game:components.board.text006")}{" "}</p>
 				)}
 			</div>
 			<span
@@ -489,8 +487,7 @@ function BossEncounterCard({
 					textTransform: "uppercase",
 				}}
 			>
-				Mestre
-			</span>
+				{translate("game:components.board.text007")}{" "}</span>
 			<span style={{ display: "none" }}>{bossCardId}</span>
 		</button>
 	);
@@ -525,8 +522,7 @@ function ArtifactDisplayCard({
 				}}
 			>
 				<span style={{ color: "rgba(255,255,255,0.68)", fontSize: 11 }}>
-					sem artefato
-				</span>
+					{translate("game:components.board.text008")}{" "}</span>
 			</div>
 		);
 	}
@@ -534,7 +530,7 @@ function ArtifactDisplayCard({
 	const skills = cardSkills(artifact.cardId);
 	const bonusText = skills[0]
 		? renderSkillLabel(skills[0].ref)
-		: "Artefato ativo";
+		: translate("game:components.board.activeArtifact");
 	const bearer = artifact.carriedBy
 		? heroes.find((hero) => hero.id === artifact.carriedBy)
 		: null;
@@ -1004,20 +1000,16 @@ export function Board({
 								status === "ROOM_EFFECT" ||
 								status === "SPAWN_ENEMIES" ? (
 								<span className="combat-auto-roll-status">
-									Preparando sala...
-								</span>
+									{translate("game:components.board.text009")}{" "}</span>
 							) : status === "COMBAT_START" ? (
 								<span className="combat-auto-roll-status">
-									Preparando combate...
-								</span>
+									{translate("game:components.board.text010")}{" "}</span>
 							) : status === "ROLL_DICE" ? (
 								<span className="combat-auto-roll-status">
-									Rolando dados...
-								</span>
+									{translate("game:components.board.text011")}{" "}</span>
 							) : combatAttackHintVisible ? (
 								<span className="combat-attack-hint" aria-live="polite">
-									Solte seu herói sobre um inimigo para atacar e rolar os dados
-								</span>
+									{translate("game:components.board.text012")}{" "}</span>
 							) : status === "BOSS_REVEAL" ? (
 								<div style={{ display: "flex", gap: 8 }}>
 									<ActionButton
@@ -1043,8 +1035,7 @@ export function Board({
 										whiteSpace: "nowrap",
 									}}
 								>
-									Linha de combate
-								</span>
+									{translate("game:components.board.text013")}{" "}</span>
 							)}
 							<div
 								style={{

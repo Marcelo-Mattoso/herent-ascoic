@@ -2,7 +2,7 @@
 // Suporta drag-and-drop nativo HTML5 para iniciar combate.
 
 import type { DragEvent } from "react";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { EQUIPMENT_SLOTS, equippedItemAt } from "@/core/rules/equipment";
 import type { HeroState } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";

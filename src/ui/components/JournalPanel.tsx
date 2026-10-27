@@ -1,3 +1,4 @@
+import { i18n, translate } from "@/i18n";
 import { useState } from "react";
 import {
 	exportJournalJson,
@@ -21,32 +22,40 @@ function download(name: string, content: string, type: string) {
 }
 
 const SLOT_NAMES: Record<string, string> = {
-	clothing1: "Vestimenta 1",
-	clothing2: "Vestimenta 2",
-	hand1: "Mão 1",
-	hand2: "Mão 2",
-	amulet: "Amuleto",
+	clothing1: "journal:slots.clothing1",
+	clothing2: "journal:slots.clothing2",
+	hand1: "journal:slots.hand1",
+	hand2: "journal:slots.hand2",
+	amulet: "journal:slots.amulet",
 };
 
 const TARGET_NAMES: Record<string, string> = {
-	damage_dealt: "Dano causado",
-	damage_taken: "Dano sofrido",
-	purple_damage_taken: "Dano roxo sofrido",
-	healing_received: "Cura recebida",
-	dice_count: "Dados",
-	hit_bonus: "Acerto",
+	damage_dealt: "journal:targets.damageDealt",
+	damage_taken: "journal:targets.damageTaken",
+	purple_damage_taken: "journal:targets.purpleDamageTaken",
+	healing_received: "journal:targets.healingReceived",
+	dice_count: "journal:targets.diceCount",
+	hit_bonus: "journal:targets.hitBonus",
 };
 
+function cardName(id: string, fallback: string) {
+	return i18n.exists(`${id}.name`, { ns: "cards" }) ? translate(`cards:${id}.name`) : fallback;
+}
+
+function skillName(id: string, fallback: string) {
+	return i18n.exists(`${id}.name`, { ns: "skills" }) ? translate(`skills:${id}.name`) : fallback;
+}
+
 function SkillList({ skills }: { skills: readonly JournalSkill[] }) {
-	if (!skills.length) return <p>Nenhuma habilidade registrada na carta.</p>;
+	if (!skills.length) return <p>{translate("journal:components.journalPanel.text001")}</p>;
 	return (
 		<ul className="journal-list">
 			{skills.map((skill) => (
 				<li key={skill.id}>
-					<strong>{skill.name}</strong>{" "}
+					<strong>{skillName(skill.id, skill.name)}</strong>{" "}
 					<small>
 						({skill.activation}
-						{skill.used ? ", usada" : ""})
+						{skill.used ? translate("journal:components.journalPanel.dynamic001") : ""})
 					</small>
 					{skill.text && <div>{skill.text}</div>}
 					{skill.requirements && <small>{skill.requirements}</small>}
@@ -57,10 +66,10 @@ function SkillList({ skills }: { skills: readonly JournalSkill[] }) {
 }
 
 function CardLine({ card }: { card: JournalCard | null }) {
-	if (!card) return <>Vazio</>;
+	if (!card) return <>{translate("journal:components.journalPanel.text002")}</>;
 	return (
 		<>
-			<strong>{card.name}</strong>{" "}
+			<strong>{cardName(card.id, card.name)}</strong>{" "}
 			<small>
 				({card.id}
 				{card.state
@@ -75,7 +84,7 @@ function CardLine({ card }: { card: JournalCard | null }) {
 			)}
 			{card.skills.length > 0 && (
 				<details>
-					<summary>Habilidades e efeitos</summary>
+					<summary>{translate("journal:components.journalPanel.text003")}</summary>
 					<SkillList skills={card.skills} />
 				</details>
 			)}
@@ -88,19 +97,19 @@ function ModifierList({
 }: {
 	modifiers: readonly JournalModifier[];
 }) {
-	if (!modifiers.length) return <p>Nenhum modificador ECS ativo.</p>;
+	if (!modifiers.length) return <p>{translate("journal:components.journalPanel.text004")}</p>;
 	return (
 		<ul className="journal-list">
 			{modifiers.map((mod, index) => (
 				<li key={`${mod.sourceId}:${mod.target}:${index}`}>
-					{TARGET_NAMES[mod.target] ?? mod.target}: {mod.operation}{" "}
+					{TARGET_NAMES[mod.target] ? translate(TARGET_NAMES[mod.target]) : mod.target}: {mod.operation}{" "}
 					{mod.value > 0 ? "+" : ""}
 					{mod.value}
 					{" · "}
 					{mod.source}{" "}
 					<small>
 						({mod.duration}
-						{mod.conditional ? "; depende do contexto" : ""})
+						{mod.conditional ? translate("journal:components.journalPanel.dynamic002") : ""})
 					</small>
 				</li>
 			))}
@@ -112,31 +121,30 @@ function HeroSection({ hero }: { hero: JournalHero }) {
 	return (
 		<details className="journal-card" open>
 			<summary>
-				{hero.name}{" "}
+				{cardName(hero.cardId, hero.name)}{" "}
 				<small>
 					({hero.id} · {hero.status})
 				</small>
 			</summary>
 			<div className="journal-card__body">
 				<p>
-					Vida {hero.life}/{hero.maxLife} · Dano base {hero.damage} · Acerto
-					base {hero.hitBonus} · Dados {hero.dice} · Ímpeto {hero.impeto} · XP{" "}
+					{translate("journal:components.journalPanel.text005")}{" "}{hero.life}/{hero.maxLife} {translate("journal:components.journalPanel.text006")}{" "}{hero.damage} {translate("journal:components.journalPanel.text007")}{" "}{hero.hitBonus} {translate("journal:components.journalPanel.text008")}{" "}{hero.dice} {translate("journal:components.journalPanel.text009")}{" "}{hero.impeto} {translate("journal:components.journalPanel.text010")}{" "}
 					{hero.xp}
 				</p>
-				{hero.healBlocked && <p>Cura bloqueada</p>}
+				{hero.healBlocked && <p>{translate("journal:components.journalPanel.text011")}</p>}
 				{hero.conditions.length > 0 && (
-					<p>Condições: {hero.conditions.join(", ")}</p>
+					<p>{translate("journal:components.journalPanel.text012")}{" "}{hero.conditions.join(", ")}</p>
 				)}
 				{hero.usedPowers.length > 0 && (
-					<p>Usos marcados pelo motor: {hero.usedPowers.join(", ")}</p>
+					<p>{translate("journal:components.journalPanel.text013")}{" "}{hero.usedPowers.join(", ")}</p>
 				)}
-				<h4>Equipamentos</h4>
+				<h4>{translate("journal:components.journalPanel.text014")}</h4>
 				<ul className="journal-list">
 					{hero.equipment.map((slot) => (
 						<li key={slot.slot}>
-							{SLOT_NAMES[slot.slot]}:{" "}
+							{SLOT_NAMES[slot.slot] ? translate(SLOT_NAMES[slot.slot]) : slot.slot}:{" "}
 							{slot.sharedWith ? (
-								<em>Ocupada pela carta da Mão 1</em>
+								<em>{translate("journal:components.journalPanel.text015")}</em>
 							) : (
 								<CardLine card={slot.card} />
 							)}
@@ -144,7 +152,7 @@ function HeroSection({ hero }: { hero: JournalHero }) {
 					))}
 				</ul>
 				<h4>
-					Mochila ({hero.backpack.filter(Boolean).length}/{hero.backpack.length}
+					{translate("journal:components.journalPanel.text016")}{hero.backpack.filter(Boolean).length}/{hero.backpack.length}
 					)
 				</h4>
 				<ol className="journal-list">
@@ -154,14 +162,12 @@ function HeroSection({ hero }: { hero: JournalHero }) {
 						</li>
 					))}
 				</ol>
-				<h4>Habilidades</h4>
+				<h4>{translate("journal:components.journalPanel.text017")}</h4>
 				<SkillList skills={hero.skills} />
-				<h4>Modificadores presentes</h4>
+				<h4>{translate("journal:components.journalPanel.text018")}</h4>
 				<ModifierList modifiers={hero.modifiers} />
 				<small>
-					Os totais aplicados, incluindo bônus condicionais de itens, aparecem
-					na rolagem da Linha do tempo.
-				</small>
+					{translate("journal:components.journalPanel.text019")}{" "}</small>
 			</div>
 		</details>
 	);
@@ -171,33 +177,31 @@ function EnemySection({ enemy }: { enemy: JournalEnemy }) {
 	return (
 		<details className="journal-card" open>
 			<summary>
-				{enemy.name}{" "}
+				{cardName(enemy.cardId, enemy.name)}{" "}
 				<small>
 					({enemy.id} · {enemy.status})
 				</small>
 			</summary>
 			<div className="journal-card__body">
 				<p>
-					Vida {enemy.life}/{enemy.maxLife} · Dano base {enemy.damage} · Acerto
-					base {enemy.hitBonus} · Dados {enemy.dice}
+					{translate("journal:components.journalPanel.text020")}{" "}{enemy.life}/{enemy.maxLife} {translate("journal:components.journalPanel.text021")}{" "}{enemy.damage} {translate("journal:components.journalPanel.text022")}{" "}{enemy.hitBonus} {translate("journal:components.journalPanel.text023")}{" "}{enemy.dice}
 				</p>
 				{enemy.conditions.length > 0 && (
-					<p>Condições: {enemy.conditions.join(", ")}</p>
+					<p>{translate("journal:components.journalPanel.text024")}{" "}{enemy.conditions.join(", ")}</p>
 				)}
 				{Object.keys(enemy.tokens).length > 0 && (
 					<p>
-						Tokens:{" "}
+						{translate("journal:components.journalPanel.text025")}{" "}
 						{Object.entries(enemy.tokens)
 							.map(([key, count]) => `${key}: ${count}`)
 							.join(", ")}
 					</p>
 				)}
-				<h4>Modificadores presentes</h4>
+				<h4>{translate("journal:components.journalPanel.text026")}</h4>
 				<ModifierList modifiers={enemy.modifiers} />
 				<small>
-					O total aplicado no confronto aparece na rolagem da Linha do tempo.
-				</small>
-				<h4>Habilidades</h4>
+					{translate("journal:components.journalPanel.text027")}{" "}</small>
+				<h4>{translate("journal:components.journalPanel.text028")}</h4>
 				<SkillList skills={enemy.skills} />
 			</div>
 		</details>
@@ -208,21 +212,21 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 	return (
 		<div className="journal-state">
 			<section>
-				<h3>Tabuleiro</h3>
+				<h3>{translate("journal:components.journalPanel.text029")}</h3>
 				<p>
-					Fase: {snapshot.status} · Rodada: {snapshot.round ?? "—"} · Combate:{" "}
+					{translate("journal:components.journalPanel.text030")}{" "}{snapshot.status} {translate("journal:components.journalPanel.text031")}{" "}{snapshot.round ?? "—"} {translate("journal:components.journalPanel.text032")}{" "}
 					{snapshot.combatPhase ?? "—"}
 				</p>
 				{snapshot.selectedHeroId && (
 					<p>
-						Herói selecionado:{" "}
+						{translate("journal:components.journalPanel.text033")}{" "}
 						{snapshot.heroes.find((hero) => hero.id === snapshot.selectedHeroId)
 							?.name ?? snapshot.selectedHeroId}
 					</p>
 				)}
 				{snapshot.combatPairs.length > 0 && (
 					<p>
-						Confrontos:{" "}
+						{translate("journal:components.journalPanel.text034")}{" "}
 						{snapshot.combatPairs
 							.map(
 								(pair) =>
@@ -232,18 +236,17 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 					</p>
 				)}
 				<p>
-					Sala: {snapshot.room?.card.name ?? "Nenhuma"}
+					{translate("journal:components.journalPanel.text035")}{" "}{snapshot.room?.card.name ?? "Nenhuma"}
 					{snapshot.room ? ` (${snapshot.room.status})` : ""}
 				</p>
-				{snapshot.room?.effect && <p>Efeito da sala: {snapshot.room.effect}</p>}
+				{snapshot.room?.effect && <p>{translate("journal:components.journalPanel.text036")}{" "}{snapshot.room.effect}</p>}
 				<p>
-					Despertar: {snapshot.despertar} · XP do grupo: {snapshot.groupXp} ·
-					Salas concluídas: {snapshot.roomsCleared} · Criaturas derrotadas:{" "}
+					{translate("journal:components.journalPanel.text037")}{" "}{snapshot.despertar} {translate("journal:components.journalPanel.text038")}{" "}{snapshot.groupXp} {translate("journal:components.journalPanel.text039")}{" "}{snapshot.roomsCleared} {translate("journal:components.journalPanel.text040")}{" "}
 					{snapshot.creaturesDefeated}
 				</p>
 				{snapshot.issues.length > 0 && (
 					<>
-						<h4>Inconsistências detectadas</h4>
+						<h4>{translate("journal:components.journalPanel.text041")}</h4>
 						<ul className="journal-list">
 							{snapshot.issues.map((issue, index) => (
 								<li key={index}>{issue}</li>
@@ -253,11 +256,11 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 				)}
 				{snapshot.roomModifiers.length > 0 && (
 					<>
-						<h4>Modificadores da sala</h4>
+						<h4>{translate("journal:components.journalPanel.text042")}</h4>
 						<ul className="journal-list">
 							{snapshot.roomModifiers.map(({ targetId, modifier }, index) => (
 								<li key={`${targetId}:${index}`}>
-									{targetId}: {TARGET_NAMES[modifier.target] ?? modifier.target}{" "}
+									{targetId}: {TARGET_NAMES[modifier.target] ? translate(TARGET_NAMES[modifier.target]) : modifier.target}{" "}
 									{modifier.value > 0 ? "+" : ""}
 									{modifier.value} · {modifier.source} ({modifier.duration})
 								</li>
@@ -266,11 +269,11 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 					</>
 				)}
 				{snapshot.flags.length > 0 && (
-					<p>Condições globais: {snapshot.flags.join(", ")}</p>
+					<p>{translate("journal:components.journalPanel.text043")}{" "}{snapshot.flags.join(", ")}</p>
 				)}
 				{snapshot.blocks.length > 0 && (
 					<p>
-						Bloqueios:{" "}
+						{translate("journal:components.journalPanel.text044")}{" "}
 						{snapshot.blocks
 							.map((block) => `${block.key} (${block.sources.join(", ")})`)
 							.join("; ")}
@@ -278,7 +281,7 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 				)}
 				{snapshot.tokens.length > 0 && (
 					<p>
-						Tokens:{" "}
+						{translate("journal:components.journalPanel.text045")}{" "}
 						{snapshot.tokens
 							.map((token) => `${token.key}: ${token.count}`)
 							.join(", ")}
@@ -286,7 +289,7 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 				)}
 				{snapshot.temporaryEffects.length > 0 && (
 					<p>
-						Efeitos temporários:{" "}
+						{translate("journal:components.journalPanel.text046")}{" "}
 						{snapshot.temporaryEffects
 							.map(
 								(effect) =>
@@ -296,43 +299,43 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 					</p>
 				)}
 				{snapshot.pendingChoices.length > 0 && (
-					<p>Escolhas pendentes: {snapshot.pendingChoices.join("; ")}</p>
+					<p>{translate("journal:components.journalPanel.text047")}{" "}{snapshot.pendingChoices.join("; ")}</p>
 				)}
 				{snapshot.pendingRewards.length > 0 && (
 					<p>
-						Recompensas pendentes:{" "}
-						{snapshot.pendingRewards.map((card) => card.name).join(", ")}
+						{translate("journal:components.journalPanel.text048")}{" "}
+							{snapshot.pendingRewards.map((card) => cardName(card.id, card.name)).join(", ")}
 					</p>
 				)}
 				{snapshot.revealedPaths.length > 0 && (
 					<p>
-						Caminhos revelados:{" "}
-						{snapshot.revealedPaths.map((card) => card.name).join(", ")}
+						{translate("journal:components.journalPanel.text049")}{" "}
+							{snapshot.revealedPaths.map((card) => cardName(card.id, card.name)).join(", ")}
 					</p>
 				)}
 			</section>
 			<section>
-				<h3>Heróis</h3>
+				<h3>{translate("journal:components.journalPanel.text050")}</h3>
 				{snapshot.heroes.length ? (
 					snapshot.heroes.map((hero) => (
 						<HeroSection key={hero.id} hero={hero} />
 					))
 				) : (
-					<p>Nenhum herói.</p>
+					<p>{translate("journal:components.journalPanel.text051")}</p>
 				)}
 			</section>
 			<section>
-				<h3>Criaturas</h3>
+				<h3>{translate("journal:components.journalPanel.text052")}</h3>
 				{snapshot.enemies.length ? (
 					snapshot.enemies.map((enemy) => (
 						<EnemySection key={enemy.id} enemy={enemy} />
 					))
 				) : (
-					<p>Nenhuma criatura ativa.</p>
+					<p>{translate("journal:components.journalPanel.text053")}</p>
 				)}
 				{snapshot.defeatedEnemies.length > 0 && (
 					<details>
-						<summary>Derrotadas ({snapshot.defeatedEnemies.length})</summary>
+						<summary>{translate("journal:components.journalPanel.text054")}{snapshot.defeatedEnemies.length})</summary>
 						{snapshot.defeatedEnemies.map((enemy) => (
 							<EnemySection key={enemy.id} enemy={enemy} />
 						))}
@@ -340,33 +343,32 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 				)}
 			</section>
 			<section>
-				<h3>Artefatos</h3>
+				<h3>{translate("journal:components.journalPanel.text055")}</h3>
 				{snapshot.artifacts.length ? (
 					<ul className="journal-list">
 						{snapshot.artifacts.map((artifact, index) => (
 							<li key={`${artifact.card.id}:${index}`}>
-								<CardLine card={artifact.card} /> · {artifact.state} · Portador:{" "}
+								<CardLine card={artifact.card} /> · {artifact.state} {translate("journal:components.journalPanel.text056")}{" "}
 								{snapshot.heroes.find((hero) => hero.id === artifact.carriedBy)
 									?.name ?? "Grupo"}
 							</li>
 						))}
 					</ul>
 				) : (
-					<p>Nenhum artefato.</p>
+					<p>{translate("journal:components.journalPanel.text057")}</p>
 				)}
 			</section>
 			<section>
-				<h3>Baralhos</h3>
+				<h3>{translate("journal:components.journalPanel.text058")}</h3>
 				<ul className="journal-list">
 					{snapshot.decks.map((deck) => (
 						<li key={deck.id}>
-							<strong>{deck.id}</strong>: {deck.available} restantes ·{" "}
-							{deck.discarded.length} descartadas · {deck.removed} removidas
-							{deck.discarded.length > 0 && (
+							<strong>{deck.id}</strong>: {deck.available} {translate("journal:components.journalPanel.text059")}{" "}
+							{deck.discarded.length} {translate("journal:components.journalPanel.text060")}{" "}{deck.removed} {translate("journal:components.journalPanel.text061")}{" "}{deck.discarded.length > 0 && (
 								<details>
-									<summary>Descartes visíveis</summary>
+									<summary>{translate("journal:components.journalPanel.text062")}</summary>
 									{deck.discarded.map((card, index) => (
-										<div key={`${card.id}:${index}`}>{card.name}</div>
+															<div key={`${card.id}:${index}`}>{cardName(card.id, card.name)}</div>
 									))}
 								</details>
 							)}
@@ -392,62 +394,58 @@ export function JournalPanel({
 			className="journal-panel"
 			role="dialog"
 			aria-modal="true"
-			aria-label="Diário da partida"
+			aria-label={translate("journal:components.journalPanel.ariaLabel063")}
 		>
 			<header className="journal-panel__header">
-				<h2>Diário da partida</h2>
-				<button type="button" onClick={onClose} aria-label="Fechar diário">
+				<h2>{translate("journal:components.journalPanel.text064")}</h2>
+				<button type="button" onClick={onClose} aria-label={translate("journal:components.journalPanel.ariaLabel065")}>
 					×
 				</button>
 			</header>
-			<nav className="journal-panel__tabs" aria-label="Seções do diário">
+			<nav className="journal-panel__tabs" aria-label={translate("journal:components.journalPanel.ariaLabel066")}>
 				<button
 					type="button"
 					aria-current={tab === "timeline" ? "page" : undefined}
 					onClick={() => setTab("timeline")}
 				>
-					Linha do tempo
-				</button>
+					{translate("journal:components.journalPanel.text067")}{" "}</button>
 				<button
 					type="button"
 					aria-current={tab === "state" ? "page" : undefined}
 					onClick={() => setTab("state")}
 				>
-					Estado atual
-				</button>
+					{translate("journal:components.journalPanel.text068")}{" "}</button>
 			</nav>
 			<div className="journal-panel__body">
 				{tab === "timeline" ? (
 					<>
 						{journal.omittedEntries > 0 && (
 							<p>
-								Os {journal.omittedEntries} registros mais antigos saíram da
-								memória. O estado atual continua completo.
-							</p>
+								{translate("journal:components.journalPanel.text069")}{" "}{journal.omittedEntries} {translate("journal:components.journalPanel.text070")}{" "}</p>
 						)}
 						{journal.entries.length ? (
 							[...journal.entries].reverse().map((entry) => (
 								<details className="journal-entry" key={entry.actionId}>
 									<summary>
 										<time>
-											{new Date(entry.timestamp).toLocaleTimeString("pt-BR")}
+											{new Intl.DateTimeFormat(i18n.language, { timeStyle: "short" }).format(entry.timestamp)}
 										</time>{" "}
 										· {entry.summary}
 									</summary>
 									<div className="journal-entry__body">
 										<p>
-											Ação #{entry.sequence}: {entry.actionType}
+											{translate("journal:components.journalPanel.text071")}{entry.sequence}: {entry.actionType}
 										</p>
 										{entry.changes.map((change, index) => (
 											<p key={index}>{change}</p>
 										))}
 										{entry.messages.map((message, index) => (
-											<p key={index}>Motor: {message}</p>
+											<p key={index}>{translate("journal:components.journalPanel.text072")}{" "}{message}</p>
 										))}
 										{entry.roll && (
 											<div className="journal-roll">
 												<p>
-													Herói [{entry.roll.heroResults.join(", ")}]:{" "}
+													{translate("journal:components.journalPanel.text073")}{entry.roll.heroResults.join(", ")}]:{" "}
 													{entry.roll.heroBreakdown
 														.map(
 															(part) =>
@@ -457,7 +455,7 @@ export function JournalPanel({
 													→ {entry.roll.heroTotal}
 												</p>
 												<p>
-													Criatura [{entry.roll.enemyResults.join(", ")}]:{" "}
+													{translate("journal:components.journalPanel.text074")}{entry.roll.enemyResults.join(", ")}]:{" "}
 													{entry.roll.enemyBreakdown
 														.map(
 															(part) =>
@@ -469,18 +467,18 @@ export function JournalPanel({
 											</div>
 										)}
 										<details>
-											<summary>Ver estado antes desta ação</summary>
+											<summary>{translate("journal:components.journalPanel.text075")}</summary>
 											<StateContents snapshot={entry.before} />
 										</details>
 										<details>
-											<summary>Ver estado após esta ação</summary>
+											<summary>{translate("journal:components.journalPanel.text076")}</summary>
 											<StateContents snapshot={entry.after} />
 										</details>
 									</div>
 								</details>
 							))
 						) : (
-							<p>Nenhuma ação registrada ainda.</p>
+							<p>{translate("journal:components.journalPanel.text077")}</p>
 						)}
 					</>
 				) : (
@@ -498,8 +496,7 @@ export function JournalPanel({
 						)
 					}
 				>
-					Exportar TXT
-				</button>
+					{translate("journal:components.journalPanel.text078")}{" "}</button>
 				<button
 					type="button"
 					onClick={() =>
@@ -510,8 +507,7 @@ export function JournalPanel({
 						)
 					}
 				>
-					Exportar JSON
-				</button>
+					{translate("journal:components.journalPanel.text079")}{" "}</button>
 			</footer>
 		</section>
 	);

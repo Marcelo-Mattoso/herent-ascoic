@@ -1,4 +1,5 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
+import { useTranslation } from "react-i18next";
 import { exportJournalJson } from "@/core/journal/gameJournal";
 import { Defeat } from "@/ui/screens/Defeat";
 import { Exploration } from "@/ui/screens/Exploration";
@@ -43,6 +44,7 @@ import {
 type UiScreen = "menu" | "setup" | "tutorialHub";
 
 function App() {
+	useTranslation(); // Re-renderiza as telas montadas quando o idioma muda.
 	const { view, journal, dispatch, reset, loadTrainingState } = useGameStore();
 	const status = view.status;
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");

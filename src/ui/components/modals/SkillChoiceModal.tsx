@@ -1,8 +1,9 @@
+import { translate } from "@/i18n";
 // Escolha contextual: a arte abre detalhes, e apenas os botões confirmam.
 import { useRef, useState } from "react";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
-import { getSkillName } from "@/core/data/skillLocale";
+import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import { cardSkills, skillUsedBy } from "@/core/skills/lookup";
 import { renderSkillText } from "@/core/skills/renderLabel";
 import type { GameState } from "@/core/state/gameState";
@@ -113,7 +114,7 @@ export function SkillChoiceModal() {
 				<div className="skill-choice-layout">
 					{sourceSkill && (
 						<section className="skill-choice-effect">
-							<p>Habilidade ativada</p>
+							<p>{translate("game:components.modals.skillChoiceModal.text001")}</p>
 							<strong>{renderSkillText(sourceSkill.ref)}</strong>
 						</section>
 					)}
@@ -127,7 +128,7 @@ export function SkillChoiceModal() {
 								)}
 							</div>
 							<div>
-								<p>Carta de origem</p>
+								<p>{translate("game:components.modals.skillChoiceModal.text002")}</p>
 								<strong>{getCardName(sourceId)}</strong>
 							</div>
 							<button
@@ -135,8 +136,7 @@ export function SkillChoiceModal() {
 								onClick={() => setDetailCardId(sourceId)}
 								aria-label={`Examinar carta de origem: ${getCardName(sourceId)}`}
 							>
-								Examinar
-							</button>
+								{translate("game:components.modals.skillChoiceModal.text003")}{" "}</button>
 						</section>
 					)}
 					<section>

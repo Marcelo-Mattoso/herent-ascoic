@@ -1,7 +1,8 @@
+import { translate } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
-import { getSkillName } from "@/core/data/skillLocale";
+import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillText } from "@/core/skills/renderLabel";
@@ -18,33 +19,33 @@ import { PlaceholderArt } from "../PlaceholderArt";
 import type { CardType } from "../Card";
 
 const SOURCE_KIND_LABEL: Record<TriggerSourceKind, string> = {
-	artifact: "Artefato",
-	boss: "Chefe",
-	enemy: "Inimigo",
-	hero: "Herói",
-	item: "Item",
-	room: "Sala",
+	artifact: "game:components.modals.triggerInterruptModal.sourceKindLabel.artifact",
+	boss: "game:components.modals.triggerInterruptModal.sourceKindLabel.boss",
+	enemy: "game:components.modals.triggerInterruptModal.sourceKindLabel.enemy",
+	hero: "game:components.modals.triggerInterruptModal.sourceKindLabel.hero",
+	item: "game:components.modals.triggerInterruptModal.sourceKindLabel.item",
+	room: "game:components.modals.triggerInterruptModal.sourceKindLabel.room",
 };
 
 const WINDOW_LABEL: Record<TriggerWindow, string> = {
-	after_damage: "Depois do dano",
-	after_roll_before_result: "Após a rolagem",
-	before_attack_roll: "Antes da rolagem de ataque",
-	before_combat: "Antes do combate",
-	before_damage: "Antes do dano",
-	before_destroy: "Antes da destruição",
-	combat_end: "Fim do combate",
-	dungeon_discard: "Descarte da masmorra",
-	entity_enter_play: "Entrada em jogo",
-	hero_action: "Ação do herói",
-	hero_leave_play: "Saída do herói",
-	on_destroy: "Destruição",
-	paths_open: "Caminhos abertos",
-	room_enter: "Entrada na sala",
-	room_leave: "Saída da sala",
-	round_end: "Fim da rodada",
-	round_start: "Início da rodada",
-	targeted: "Alvo escolhido",
+	after_damage: "game:components.modals.triggerInterruptModal.windowLabel.after_damage",
+	after_roll_before_result: "game:components.modals.triggerInterruptModal.windowLabel.after_roll_before_result",
+	before_attack_roll: "game:components.modals.triggerInterruptModal.windowLabel.before_attack_roll",
+	before_combat: "game:components.modals.triggerInterruptModal.windowLabel.before_combat",
+	before_damage: "game:components.modals.triggerInterruptModal.windowLabel.before_damage",
+	before_destroy: "game:components.modals.triggerInterruptModal.windowLabel.before_destroy",
+	combat_end: "game:components.modals.triggerInterruptModal.windowLabel.combat_end",
+	dungeon_discard: "game:components.modals.triggerInterruptModal.windowLabel.dungeon_discard",
+	entity_enter_play: "game:components.modals.triggerInterruptModal.windowLabel.entity_enter_play",
+	hero_action: "game:components.modals.triggerInterruptModal.windowLabel.hero_action",
+	hero_leave_play: "game:components.modals.triggerInterruptModal.windowLabel.hero_leave_play",
+	on_destroy: "game:components.modals.triggerInterruptModal.windowLabel.on_destroy",
+	paths_open: "game:components.modals.triggerInterruptModal.windowLabel.paths_open",
+	room_enter: "game:components.modals.triggerInterruptModal.windowLabel.room_enter",
+	room_leave: "game:components.modals.triggerInterruptModal.windowLabel.room_leave",
+	round_end: "game:components.modals.triggerInterruptModal.windowLabel.round_end",
+	round_start: "game:components.modals.triggerInterruptModal.windowLabel.round_start",
+	targeted: "game:components.modals.triggerInterruptModal.windowLabel.targeted",
 };
 
 function effectText(pending: PendingTriggerInterrupt): string {
@@ -124,8 +125,8 @@ export function TriggerInterruptModal() {
 	const activeInterrupt = pending;
 	const skillName = getSkillName(activeInterrupt.skillId);
 	const source = sourceText(activeInterrupt, view);
-	const sourceKind = SOURCE_KIND_LABEL[activeInterrupt.sourceKind];
-	const windowName = WINDOW_LABEL[activeInterrupt.window];
+	const sourceKind = translate(SOURCE_KIND_LABEL[activeInterrupt.sourceKind]);
+	const windowName = translate(WINDOW_LABEL[activeInterrupt.window]);
 	const description = effectText(activeInterrupt);
 	const reason = activeInterrupt.reason || `Janela ativa: ${windowName}.`;
 
@@ -154,7 +155,7 @@ export function TriggerInterruptModal() {
 			<div
 				className="trigger-interrupt-layer"
 				role="presentation"
-				aria-label="Interrupção de habilidade"
+				aria-label={translate("game:components.modals.triggerInterruptModal.ariaLabel001")}
 			>
 				<section
 					className="trigger-interrupt-modal"
@@ -164,7 +165,7 @@ export function TriggerInterruptModal() {
 				>
 					<header className="trigger-interrupt-modal__header">
 						<div>
-							<p>Interrupção de habilidade</p>
+							<p>{translate("game:components.modals.triggerInterruptModal.text002")}</p>
 							<h1 id="trigger-interrupt-title">{skillName}</h1>
 						</div>
 						<span>{windowName}</span>
@@ -202,26 +203,24 @@ export function TriggerInterruptModal() {
 
 					<div className="trigger-interrupt-modal__body">
 						<section>
-							<h2>Motivo</h2>
+							<h2>{translate("game:components.modals.triggerInterruptModal.text003")}</h2>
 							<p>{reason}</p>
 						</section>
 						<section>
-							<h2>Efeito</h2>
+							<h2>{translate("game:components.modals.triggerInterruptModal.text004")}</h2>
 							<p>{description}</p>
 						</section>
 					</div>
 
 					<footer className="trigger-interrupt-modal__actions">
 						<button type="button" className="ornate-action" onClick={skip}>
-							Ignorar
-						</button>
+							{translate("game:components.modals.triggerInterruptModal.text005")}{" "}</button>
 						<button
 							type="button"
 							className="ornate-action ornate-action--primary"
 							onClick={apply}
 						>
-							Aplicar habilidade
-						</button>
+							{translate("game:components.modals.triggerInterruptModal.text006")}{" "}</button>
 					</footer>
 				</section>
 			</div>

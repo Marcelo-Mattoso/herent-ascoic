@@ -1,4 +1,5 @@
-import { getCardName } from "@/core/data/cardLocale";
+import { translate } from "@/i18n";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { useGameStore } from "@/ui/store/gameStore";
 import { COLORS_MAP, UI } from "@/ui/theme";
@@ -19,12 +20,12 @@ export function Victory() {
 					className="text-4xl font-medium mb-2"
 					style={{ color: UI.textPrimary }}
 				>
-					{isCompetitive && winner ? `Vitória: ${winner}!` : "Vitória"}
+					{isCompetitive && winner ? translate("game:screens.victory.winnerTitle", { winner }) : translate("game:screens.victory.dynamic001")}
 				</h1>
 				<p className="text-sm mb-6" style={{ color: UI.textSecondary }}>
 					{isCompetitive && winner
-						? `${winner} derrotou o chefe final e vence a partida.`
-						: "Você derrotou o chefe final e sobreviveu à masmorra."}
+						? translate("game:screens.victory.winnerDescription", { winner })
+						: translate("game:screens.victory.dynamic002")}
 				</p>
 
 				<div
@@ -32,13 +33,13 @@ export function Victory() {
 					style={{ background: UI.subpanelBg }}
 				>
 					{[
-						["Chefe derrotado", view.bossCardName],
-						["Salas exploradas", view.roomsCleared],
-						["Criaturas derrotadas", view.creaturesDefeated],
-						["Artefatos obtidos", view.groupArtifacts.length],
-						isCompetitive ? null : ["XP total", view.groupXp],
-						["Nível do herói", hero ? COLORS_MAP[hero.impeto].name : "—"],
-						["Despertar final", COLORS_MAP[view.despertar].name],
+						[translate("game:screens.victory.dynamic003"), view.bossCardName],
+						[translate("game:screens.victory.dynamic004"), view.roomsCleared],
+						[translate("game:screens.victory.dynamic005"), view.creaturesDefeated],
+						[translate("game:screens.victory.dynamic006"), view.groupArtifacts.length],
+						isCompetitive ? null : [translate("game:screens.victory.dynamic007"), view.groupXp],
+						[translate("game:screens.victory.dynamic008"), hero ? COLORS_MAP[hero.impeto].name : "—"],
+						[translate("game:screens.victory.dynamic009"), COLORS_MAP[view.despertar].name],
 					]
 						.filter((x): x is [string, string | number] => x !== null)
 						.map(([label, value]) => (
@@ -53,7 +54,7 @@ export function Victory() {
 						view.heroes.map((h) => (
 							<div key={h.id} className="flex justify-between text-sm">
 								<span style={{ color: UI.textSecondary }}>
-									XP — {getCardName(h.cardId)} (J{h.playerIndex + 1})
+									{translate("game:screens.victory.text001")}{" "}{getCardName(h.cardId)} (J{h.playerIndex + 1})
 								</span>
 								<span className="font-medium" style={{ color: UI.textPrimary }}>
 									{h.xp}

@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import type { CSSProperties } from "react";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
@@ -10,10 +11,10 @@ export function Defeat() {
 
 	const deathReason =
 		hero && hero.currentLife <= 0
-			? "Herói eliminado em combate"
+			? translate("game:screens.defeat.reason.heroEliminated")
 			: view.decks.dungeonDeck.available === 0
-				? "Deck de dungeon esgotado"
-				: "Derrota pelo boss";
+				? translate("game:screens.defeat.reason.dungeonExhausted")
+				: translate("game:screens.defeat.reason.boss");
 	const logoUrl =
 		getUiAssetUrl(uiAssets, "logo-completa") ??
 		getUiAssetUrl(uiAssets, "newlogo");
@@ -25,12 +26,12 @@ export function Defeat() {
 		"--end-stone": stoneUrl ? `url("${stoneUrl}")` : undefined,
 	} as CSSProperties;
 	const stats: [string, string | number][] = [
-		["Motivo", deathReason],
-		["Salas exploradas", view.roomsCleared],
-		["Criaturas derrotadas", view.creaturesDefeated],
-		["Chefe escolhido", view.bossCardName],
-		["XP obtido", view.groupXp],
-		["Artefatos encontrados", view.groupArtifacts.length],
+		[translate("game:screens.defeat.stats.reason"), deathReason],
+		[translate("game:screens.defeat.stats.rooms"), view.roomsCleared],
+		[translate("game:screens.defeat.stats.creatures"), view.creaturesDefeated],
+		[translate("game:screens.defeat.stats.boss"), view.bossCardName],
+		[translate("game:screens.defeat.stats.xp"), view.groupXp],
+		[translate("game:screens.defeat.stats.artifacts"), view.groupArtifacts.length],
 	];
 
 	return (
@@ -41,21 +42,21 @@ export function Defeat() {
 					{logoUrl ? (
 						<img
 							src={logoUrl}
-							alt="Ascensão Heróica"
+							alt={translate("game:screens.defeat.alt001")}
 							className="end-card__logo"
 						/>
 					) : null}
 					<div>
-						<p className="end-card__kicker">Expedição encerrada</p>
-						<h1 id="defeat-title">Derrota</h1>
-						<span>A masmorra consumiu os heróis.</span>
+						<p className="end-card__kicker">{translate("game:screens.defeat.text002")}</p>
+						<h1 id="defeat-title">{translate("game:screens.defeat.text003")}</h1>
+						<span>{translate("game:screens.defeat.text004")}</span>
 					</div>
 				</header>
 
 				<div className="end-card__reason">
 					{monsterIconUrl ? <img src={monsterIconUrl} alt="" /> : null}
 					<div>
-						<p>Motivo da queda</p>
+						<p>{translate("game:screens.defeat.text005")}</p>
 						<strong>{deathReason}</strong>
 					</div>
 				</div>
@@ -75,11 +76,9 @@ export function Defeat() {
 						className="ornate-action ornate-action--primary"
 						onClick={reset}
 					>
-						Tentar novamente
-					</button>
+						{translate("game:screens.defeat.text006")}{" "}</button>
 					<button type="button" className="ornate-action" onClick={reset}>
-						Voltar ao menu
-					</button>
+						{translate("game:screens.defeat.text007")}{" "}</button>
 				</footer>
 			</section>
 		</main>

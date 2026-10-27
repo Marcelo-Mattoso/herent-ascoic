@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 // Replay Viewer — carrega log de actions e permite navegação passo a passo.
 // Passo 13: tela dev atrás de atalho (Ctrl+Shift+R em App.tsx).
 //
@@ -62,7 +63,7 @@ export function Replay({ onClose }: ReplayProps) {
 				const text = ev.target?.result as string;
 				const pkg = importPackageFromJson(text);
 				if (!pkg) {
-					setError("JSON inválido ou formato não reconhecido.");
+					setError(translate("game:screens.replay.invalidJson"));
 					return;
 				}
 				loadPackage(pkg);
@@ -123,17 +124,15 @@ export function Replay({ onClose }: ReplayProps) {
 		<div className="fixed inset-0 bg-black/90 text-white z-50 flex flex-col p-4 overflow-hidden">
 			{/* Header */}
 			<div className="flex items-center gap-3 mb-4 flex-shrink-0">
-				<h1 className="text-xl font-bold">Replay Viewer</h1>
+				<h1 className="text-xl font-bold">{translate("game:screens.replay.text001")}</h1>
 				<span className="text-xs text-gray-400 bg-gray-800 px-2 py-0.5 rounded">
-					DEV
-				</span>
+					{translate("game:screens.replay.text002")}{" "}</span>
 				<button
 					type="button"
 					onClick={onClose}
 					className="ml-auto px-3 py-1 bg-gray-700 hover:bg-gray-600 rounded text-sm"
 				>
-					Fechar (Ctrl+Shift+R)
-				</button>
+					{translate("game:screens.replay.text003")}{" "}</button>
 			</div>
 
 			{/* Controles de carregamento */}
@@ -143,11 +142,9 @@ export function Replay({ onClose }: ReplayProps) {
 					onClick={handleReplayCurrent}
 					className="px-3 py-1.5 bg-blue-700 hover:bg-blue-600 rounded text-sm"
 				>
-					Replay da partida atual
-				</button>
+					{translate("game:screens.replay.text004")}{" "}</button>
 				<label className="px-3 py-1.5 bg-green-700 hover:bg-green-600 rounded text-sm cursor-pointer">
-					Importar JSON
-					<input
+					{translate("game:screens.replay.text005")}{" "}<input
 						ref={fileInputRef}
 						type="file"
 						accept=".json"
@@ -160,8 +157,7 @@ export function Replay({ onClose }: ReplayProps) {
 					onClick={handleExportCurrent}
 					className="px-3 py-1.5 bg-yellow-700 hover:bg-yellow-600 rounded text-sm"
 				>
-					Exportar JSON (partida atual)
-				</button>
+					{translate("game:screens.replay.text006")}{" "}</button>
 			</div>
 
 			{error && (
@@ -179,23 +175,21 @@ export function Replay({ onClose }: ReplayProps) {
 						disabled={cursor === 0}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"
 					>
-						|◀ Início
-					</button>
+						{translate("game:screens.replay.text007")}{" "}</button>
 					<button
 						type="button"
 						onClick={() => goTo(cursor - 1)}
 						disabled={cursor === 0}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"
 					>
-						◀ Anterior
-					</button>
+						{translate("game:screens.replay.text008")}{" "}</button>
 					<button
 						type="button"
 						onClick={handlePlay}
 						disabled={!hasStates || cursor >= states.length - 1}
 						className="px-3 py-1.5 bg-indigo-700 hover:bg-indigo-600 disabled:opacity-40 rounded text-sm"
 					>
-						{playing ? "⏸ Pausar" : "▶ Play"}
+						{playing ? translate("game:screens.replay.dynamic001") : translate("game:screens.replay.dynamic002")}
 					</button>
 					<button
 						type="button"
@@ -203,18 +197,16 @@ export function Replay({ onClose }: ReplayProps) {
 						disabled={cursor >= states.length - 1}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"
 					>
-						Próximo ▶
-					</button>
+						{translate("game:screens.replay.text009")}{" "}</button>
 					<button
 						type="button"
 						onClick={() => goTo(states.length - 1)}
 						disabled={cursor >= states.length - 1}
 						className="px-3 py-1.5 bg-gray-700 hover:bg-gray-600 disabled:opacity-40 rounded text-sm"
 					>
-						Fim ▶|
-					</button>
+						{translate("game:screens.replay.text010")}{" "}</button>
 					<span className="text-sm text-gray-400 ml-2">
-						Passo {cursor} / {states.length - 1}
+						{translate("game:screens.replay.text011")}{" "}{cursor} / {states.length - 1}
 						{cursor > 0 && (
 							<span className="ml-2 text-gray-500">
 								{/* Ação que levou a este estado */}←{" "}
@@ -236,7 +228,7 @@ export function Replay({ onClose }: ReplayProps) {
 								action:
 									cursor > 0
 										? currentDisplayState.actionLog[cursor - 1]?.action
-										: "(estado inicial)",
+										: translate("game:screens.replay.dynamic003"),
 								heroes: currentDisplayState.heroes.map((h) => ({
 									id: h.id,
 									cardId: h.cardId,
@@ -263,9 +255,7 @@ export function Replay({ onClose }: ReplayProps) {
 					</pre>
 				) : (
 					<div className="text-gray-500 text-sm">
-						Nenhum replay carregado. Use "Replay da partida atual" ou "Importar
-						JSON".
-					</div>
+						{translate("game:screens.replay.text012")}{" "}</div>
 				)}
 			</div>
 		</div>
