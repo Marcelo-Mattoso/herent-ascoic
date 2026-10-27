@@ -6,37 +6,37 @@
       "id": "abismorachado",
       "fileName": "AbismoRachado.png",
       "url": "/generated/cards/assets/AbismoRachado.png",
-      "sizeBytes": 2380150
+      "sizeBytes": 3046931
     },
     {
       "id": "acolitodafornalha",
       "fileName": "AcólitodaFornalha.png",
       "url": "/generated/cards/assets/Ac%C3%B3litodaFornalha.png",
-      "sizeBytes": 2564409
+      "sizeBytes": 2853436
     },
     {
       "id": "adagaenferrujada",
       "fileName": "AdagaEnferrujada.png",
       "url": "/generated/cards/assets/AdagaEnferrujada.png",
-      "sizeBytes": 2208818
+      "sizeBytes": 2614386
     },
     {
       "id": "alaudedoultimoacorde",
       "fileName": "AlaúdedoÚltimoAcorde.png",
       "url": "/generated/cards/assets/Ala%C3%BAdedo%C3%9AltimoAcorde.png",
-      "sizeBytes": 2278276
+      "sizeBytes": 2711453
     },
     {
       "id": "aranhadospilaresantigos",
       "fileName": "AranhadosPilaresAntigos.png",
       "url": "/generated/cards/assets/AranhadosPilaresAntigos.png",
-      "sizeBytes": 2866563
+      "sizeBytes": 2954426
     },
     {
       "id": "arcodasfendas",
       "fileName": "ArcodasFendas.png",
       "url": "/generated/cards/assets/ArcodasFendas.png",
-      "sizeBytes": 2408299
+      "sizeBytes": 2968730
     },
     {
       "id": "armaduradecouroreforcado",
@@ -102,7 +102,7 @@
       "id": "cajadodasrunasrubras",
       "fileName": "CajadodasRunasRubras.png",
       "url": "/generated/cards/assets/CajadodasRunasRubras.png",
-      "sizeBytes": 2437215
+      "sizeBytes": 2986026
     },
     {
       "id": "camaradascorrentesrubras",
@@ -150,7 +150,7 @@
       "id": "clerigododescansoeterno",
       "fileName": "ClérigodoDescansoEterno.png",
       "url": "/generated/cards/assets/Cl%C3%A9rigodoDescansoEterno.png",
-      "sizeBytes": 3087230
+      "sizeBytes": 2927332
     },
     {
       "id": "coracaodebrasaantiga",
@@ -187,6 +187,12 @@
       "fileName": "CultistadaChamaOculta.png",
       "url": "/generated/cards/assets/CultistadaChamaOculta.png",
       "sizeBytes": 2557044
+    },
+    {
+      "id": "dragaodafornalhasombria",
+      "fileName": "DragãodaFornalhaSombria.png",
+      "url": "/generated/cards/assets/Drag%C3%A3odaFornalhaSombria.png",
+      "sizeBytes": 3099846
     },
     {
       "id": "encantodachamabaixa",
@@ -288,7 +294,7 @@
       "id": "ladinodasfendas",
       "fileName": "LadinodasFendas.png",
       "url": "/generated/cards/assets/LadinodasFendas.png",
-      "sizeBytes": 2241330
+      "sizeBytes": 2481472
     },
     {
       "id": "ladraodaspassagensmortas",
@@ -318,7 +324,7 @@
       "id": "magodasrunasrubras",
       "fileName": "MagodasRunasRubras.png",
       "url": "/generated/cards/assets/MagodasRunasRubras.png",
-      "sizeBytes": 2768093
+      "sizeBytes": 2943842
     },
     {
       "id": "mantodasaidaestreita",
