@@ -7,7 +7,7 @@
       "opening": {
         "title": "Opening",
         "narration": [
-          "I have recorded countless journeys through the Fornalha Sombria. Some ended before the first door. Others reached places that should never have been forgotten.",
+          "I have recorded countless journeys through the Dark Forge. Some ended before the first door. Others reached places that should never have been forgotten.",
           "They all began the same way: with a choice."
         ],
         "instruction": "Learn the first steps of an expedition."
@@ -36,7 +36,7 @@
       "board": {
         "title": "Getting to know the dungeon",
         "narration": [
-          "The Fornalha Sombria does not reveal all its paths. Each room shows only part of what awaits those who choose to press on."
+          "The Dark Forge does not reveal all its paths. Each room shows only part of what awaits those who choose to press on."
         ],
         "instruction": "Observe the areas of the board.",
         "highlights": [
@@ -69,7 +69,7 @@
         "title": "The expedition's objective",
         "narration": [
           "The first door does not define a journey. Nor does the final battle reveal all that came before it.",
-          "In the Fornalha Sombria, every decision changes what may be faced ahead."
+          "In the Dark Forge, every decision changes what may be faced ahead."
         ],
         "instruction": "Explore the dungeon, face its challenges, and advance toward Azhakar. Victory depends on the expedition's actual conditions."
       },
