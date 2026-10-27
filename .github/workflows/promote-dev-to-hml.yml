@@ -1,0 +1,96 @@
+name: Prepare dev to hml promotion
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: promote-dev-to-hml
+  cancel-in-progress: false
+
+jobs:
+  prepare:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: dev
+          fetch-depth: 0
+          persist-credentials: true
+      - name: Refuse to overwrite a promotion pending approval
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          existing="$(gh pr list --base hml --head promotion/dev-to-hml --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            echo "::error::PR #$existing is already awaiting approval; close or merge it first."
+            exit 1
+          fi
+      - uses: actions/setup-python@v5
+        with:
+          python-version: "3.12"
+          cache: pip
+          cache-dependency-path: requirements-assets.txt
+      - run: python -m pip install -r requirements-assets.txt
+      - name: Require all dev PNGs to have current WebP counterparts
+        run: python scripts/optimize-images.py --check
+      - uses: actions/setup-node@v5
+        with:
+          node-version: "24"
+          cache: npm
+      - name: Unit-test promotion guards
+        run: node --test scripts/verify-webp-assets.test.mjs scripts/prepare-hml-promotion.test.mjs
+      - name: Generate safe hml merge commit
+        id: prepare
+        run: node scripts/prepare-hml-promotion.mjs
+      - name: Validate promoted assets
+        if: steps.prepare.outputs.changed == 'true'
+        run: node scripts/verify-webp-assets.mjs --release
+      - name: Install application dependencies
+        if: steps.prepare.outputs.changed == 'true'
+        run: npm ci
+      - name: Validate localization, lint and unit tests
+        if: steps.prepare.outputs.changed == 'true'
+        run: |
+          npm run i18n:validate
+          npm run i18n:audit -- --check
+          npm run lint
+          npm test -- --maxWorkers=2 --testTimeout=15000
+      - name: Compile and verify final GitHub Pages payload
+        if: steps.prepare.outputs.changed == 'true'
+        env:
+          PAGES_BASE_PATH: /herent-ascoic/
+        run: |
+          npm run build
+          npm run verify:build -- --base "$PAGES_BASE_PATH"
+      - name: Browser end-to-end checks
+        if: steps.prepare.outputs.changed == 'true'
+        run: |
+          npx playwright install --with-deps chromium
+          npm run test:e2e
+      - name: Push approval branch and create PR into hml
+        if: steps.prepare.outputs.changed == 'true'
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          candidate="refs/heads/promotion/dev-to-hml"
+          if git ls-remote --exit-code --heads origin "$candidate" >/dev/null; then
+            git fetch origin "$candidate:refs/remotes/origin/promotion/dev-to-hml"
+            old="$(git rev-parse refs/remotes/origin/promotion/dev-to-hml)"
+            git push origin "--force-with-lease=$candidate:$old" "HEAD:$candidate"
+          else
+            git push origin "HEAD:$candidate"
+          fi
+          if ! gh pr create --base hml --head promotion/dev-to-hml \
+            --title "release(hml): promote latest dev without PNG masters" \
+            --body "Automated promotion from dev to hml. PNG masters stay only in dev; WebPs are verified against the committed catalog. Other merge conflicts abort the workflow. Builds and Playwright passed. **Approval and merge are manual.**"; then
+            echo "::error::The branch was pushed but GitHub refused PR creation. Enable Settings > Actions > General > Workflow permissions > Allow GitHub Actions to create and approve pull requests, then create the PR manually."
+            exit 1
+          fi
+          # GITHUB_TOKEN-originated PRs do not start normal pull_request workflows.
+          gh workflow run ci.yml --ref promotion/dev-to-hml
