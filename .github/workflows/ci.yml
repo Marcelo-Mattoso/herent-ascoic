@@ -28,6 +28,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      - name: Test promotion safety guards
+        run: node --test scripts/verify-webp-assets.test.mjs scripts/prepare-hml-promotion.test.mjs
       - run: npm run i18n:validate
       - run: npm run i18n:audit -- --check
       - run: npm run lint
