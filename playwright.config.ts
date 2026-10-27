@@ -12,10 +12,9 @@ export default defineConfig({
 		trace: "on-first-retry",
 	},
 	webServer: {
-		// CI must test the built app: dev-mode generated files may be missing in a fresh runner.
-		command: process.env.CI
-			? "npx vite preview --host 127.0.0.1 --port 4174 --strictPort"
-			: "npx vite --host 127.0.0.1 --port 4174 --strictPort",
+		// E2E uses dev-only test helpers and imports source modules in the browser.
+		// The CI job builds first so generated music/assets already exist.
+		command: "npx vite --host 127.0.0.1 --port 4174 --strictPort",
 		url: "http://127.0.0.1:4174",
 		reuseExistingServer: !process.env.CI,
 		timeout: 120_000,
