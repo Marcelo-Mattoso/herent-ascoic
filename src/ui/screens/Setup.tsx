@@ -14,6 +14,8 @@ import { useGameStore } from "@/ui/store/gameStore";
 import { getUiAssetUrl } from "@/ui/uiAssets";
 
 const DIFFICULTIES: Difficulty[] = ["very_easy", "easy", "normal", "hard", "nightmare"];
+// A seleção de modo está temporariamente oculta; o estado e a lógica permanecem disponíveis.
+const SHOW_GAME_MODE_SELECTOR = false;
 
 interface SetupProps {
 	onBack: () => void;
@@ -189,23 +191,25 @@ export function Setup({
 							</div>
 						</div>
 
-						<div className="setup-control-group">
-							<p>{translate("game:screens.setup.text007")}</p>
-							<div className="setup-segmented-control">
-								{(["cooperative", "competitive"] as GameMode[]).map(
-									(gameMode) => (
-										<button
-											key={gameMode}
-											type="button"
-											className={mode === gameMode ? "is-selected" : undefined}
-											onClick={() => setMode(gameMode)}
-										>
-											{translate(`game:screens.setup.mode.${gameMode}`)}
-										</button>
-									),
-								)}
+						{SHOW_GAME_MODE_SELECTOR && (
+							<div className="setup-control-group">
+								<p>{translate("game:screens.setup.text007")}</p>
+								<div className="setup-segmented-control">
+									{(["cooperative", "competitive"] as GameMode[]).map(
+										(gameMode) => (
+											<button
+												key={gameMode}
+												type="button"
+												className={mode === gameMode ? "is-selected" : undefined}
+												onClick={() => setMode(gameMode)}
+											>
+												{translate(`game:screens.setup.mode.${gameMode}`)}
+											</button>
+										),
+									)}
+								</div>
 							</div>
-						</div>
+						)}
 
 						<div className="setup-control-group">
 							<p>{translate("game:screens.setup.text008")}</p>
@@ -435,7 +439,7 @@ function HeroStatsModal({
 	return (
 		<SetupInfoModal
 			title={getCardName(hero.id)}
-			subtitle="Ficha do Herói"
+			subtitle={translate("game:screens.setup.heroSheet")}
 			logoUrl={logoUrl}
 			modalStyle={modalStyle}
 			onClose={onClose}
@@ -454,9 +458,9 @@ function HeroStatsModal({
 						{getCardLocale(hero.id)?.style}
 					</p>
 					<div className="setup-hero-modal__stats">
-						<StatRow label="Vida" values={hero.life} />
-						<StatRow label="Acerto" values={hero.hitBonus} prefix="+" />
-						<StatRow label="Dados" values={hero.diceByColor} />
+						<StatRow label={translate("game:screens.setup.text013")} values={hero.life} />
+						<StatRow label={translate("game:screens.setup.statHit")} values={hero.hitBonus} prefix="+" />
+						<StatRow label={translate("game:screens.setup.text019")} values={hero.diceByColor} />
 						<div className="setup-hero-modal__damage">
 							<span>{translate("game:screens.setup.text025")}</span>
 							<strong>{hero.damage}</strong>

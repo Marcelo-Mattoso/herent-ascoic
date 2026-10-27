@@ -7,6 +7,7 @@ import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
+import { getSkillLocale } from "@/core/data/skillLocale";
 import {
 	BACKPACK_CAPACITY,
 	EQUIPMENT_SLOTS,
@@ -100,7 +101,8 @@ function artifactRequiresBearer(cardId: string): boolean {
 	if (card?.type !== "artifact") return false;
 	const main = cardSkills(card.id)[0];
 	if (!main) return false;
-	return renderSkillLabel(main.ref).toLowerCase().includes("portador");
+	// A regra mecânica não pode depender do idioma de exibição da habilidade.
+	return (getSkillLocale(main.ref.skillId).label ?? "").toLowerCase().includes("portador");
 }
 
 function signed(value: number): string {

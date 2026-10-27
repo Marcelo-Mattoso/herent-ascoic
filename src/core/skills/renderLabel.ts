@@ -1,8 +1,8 @@
 // Renderiza label e texto de uma skill a partir do locale + params da carta.
-// Templates de copy vivem em src/data/skills.locale.pt-BR.yaml (patch-20).
+// Exibição usa o catálogo i18n ativo (pt-BR como fallback).
 
 import type { SkillRef } from "../data/cardTypes";
-import { getSkillLocale } from "../data/skillLocale";
+import { displaySkillLocale } from "@/i18n/catalogs";
 import { lookupSkillById } from "./lookup";
 
 function interpolate(
@@ -24,13 +24,13 @@ function mergedParams(ref: SkillRef): Record<string, number | string> {
 }
 
 export function renderSkillLabel(ref: SkillRef): string {
-	const locale = getSkillLocale(ref.skillId);
+	const locale = displaySkillLocale(ref.skillId);
 	if (!locale.label) return ref.skillId;
 	return interpolate(locale.label, mergedParams(ref));
 }
 
 export function renderSkillText(ref: SkillRef): string {
-	const locale = getSkillLocale(ref.skillId);
+	const locale = displaySkillLocale(ref.skillId);
 	if (!locale.text) return ref.skillId;
 	return interpolate(locale.text, mergedParams(ref));
 }
