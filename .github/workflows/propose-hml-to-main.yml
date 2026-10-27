@@ -1,0 +1,49 @@
+name: Propose hml to production
+
+on:
+  push:
+    branches: [hml]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+  pull-requests: write
+  actions: write
+
+concurrency:
+  group: propose-hml-to-main
+  cancel-in-progress: false
+
+jobs:
+  propose:
+    runs-on: ubuntu-24.04
+    steps:
+      - uses: actions/checkout@v5
+        with:
+          ref: hml
+          fetch-depth: 0
+      - name: Verify production artwork
+        run: node scripts/verify-webp-assets.mjs --release
+      - name: Open PR only for unpublished changes
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          set -eu
+          ahead="$(gh api "repos/$GITHUB_REPOSITORY/compare/main...hml" --jq '.ahead_by')"
+          if [ "$ahead" -eq 0 ]; then
+            echo "main already contains hml. No promotion needed."
+            exit 0
+          fi
+          existing="$(gh pr list --base main --head hml --state open --json number --jq '.[0].number // empty')"
+          if [ -n "$existing" ]; then
+            echo "Existing hml -> main PR #$existing. Waiting for approval."
+            exit 0
+          fi
+          if ! gh pr create --base main --head hml \
+            --title "release: promote validated hml to production" \
+            --body "Promotes the already-tested homologation branch into production. The hml tree contains optimized WebP assets and no PNG masters. **Approval and merge are manual.**"; then
+            echo "::error::PR creation requires Settings > Actions > General > Allow GitHub Actions to create and approve pull requests."
+            exit 1
+          fi
+          # PRs created with GITHUB_TOKEN do not fire the normal PR workflow.
+          gh workflow run ci.yml --ref hml
