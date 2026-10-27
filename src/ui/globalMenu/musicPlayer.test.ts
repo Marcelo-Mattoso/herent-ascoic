@@ -70,6 +70,10 @@ describe("MusicPlayer", () => {
 		await pending;
 		expect(player.getSnapshot().status).toBe("stopped");
 		await player.play();
+		// Play enquanto toca é idempotente; pare antes de testar uma nova falha.
+		await player.play();
+		expect(audio.play).toHaveBeenCalledTimes(2);
+		player.stop();
 		audio.play.mockRejectedValueOnce(new Error("blocked"));
 		await player.play();
 		expect(player.getSnapshot().status).toBe("error");
