@@ -12,7 +12,7 @@ node_modules/
 package.json
 package-lock.json
 
-# Local image source and generated public assets
+# In hml only WebP is tracked. Original PNG masters stay in dev.
 imagedata/
 public/generated/
 

@@ -30,7 +30,9 @@ for (const kind of ["boards", "backcards", "cards", "ui"]) {
 	assert.ok(Array.isArray(entries) && entries.length > 0, `Manifesto vazio: ${kind}`);
 	for (const entry of entries) {
 		assert.ok(entry.url.startsWith(`/generated/${kind}/assets/`), `URL inválida: ${entry.url}`);
-		file(decodeURIComponent(entry.url.slice(1)));
+		assert.ok(entry.fileName.endsWith(".webp"), `Not WebP: ${entry.fileName}`);
+		const bytes = fs.readFileSync(file(decodeURIComponent(entry.url.slice(1))));
+		assert.ok(bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP", `Invalid WebP: ${entry.fileName}`);
 	}
 }
 
