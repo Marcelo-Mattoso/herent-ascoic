@@ -36,12 +36,29 @@ export function GlobalMenu() {
 			.then((data: unknown) => {
 				if (!isMusicManifest(data)) throw new Error("Manifesto inválido");
 				player.setTracks(data.tracks);
+				void player.autoplay();
 			})
 			.catch(() => {
 				if (!controller.signal.aborted)
 					setCatalogError("common:globalMenu.globalMenu.catalogError");
 			});
-		return () => { controller.abort(); player.dispose(); };
+		function resumeOnGesture(event: Event) {
+			if (event.target instanceof Element && event.target.closest(".global-menu__music-prompt")) return;
+			void player.resumeAutoplay();
+		}
+		function resumeOnKeyboard(event: KeyboardEvent) {
+			if (!event.repeat && (event.key === "Enter" || event.key === " ")) resumeOnGesture(event);
+		}
+		document.addEventListener("pointerdown", resumeOnGesture, true);
+		document.addEventListener("pointerup", resumeOnGesture, true);
+		document.addEventListener("keydown", resumeOnKeyboard, true);
+		return () => {
+			controller.abort();
+			document.removeEventListener("pointerdown", resumeOnGesture, true);
+			document.removeEventListener("pointerup", resumeOnGesture, true);
+			document.removeEventListener("keydown", resumeOnKeyboard, true);
+			player.dispose();
+		};
 	}, [player]);
 
 	useEffect(() => {
@@ -88,6 +105,7 @@ export function GlobalMenu() {
 			<button ref={buttonRef} type="button" className="global-menu__toggle" aria-label={translate(open ? "common:globalMenu.globalMenu.toggleClose" : "common:globalMenu.globalMenu.toggleOpen")} aria-expanded={open} aria-controls="global-menu-panel" onClick={() => setOpen((value) => !value)}>
 				<span aria-hidden="true">{open ? "×" : "☰"}</span>
 			</button>
+			{music.status === "blocked" && <button type="button" className="global-menu__music-prompt" onClick={() => void player.playFromControls()}>{translate("common:globalMenu.globalMenu.startMusic")}</button>}
 			{open && <section ref={panelRef} id="global-menu-panel" className="global-menu__panel" aria-label={translate("common:globalMenu.globalMenu.ariaLabel001")}>
 				<div className="global-menu__heading"><span>{translate("common:globalMenu.globalMenu.text002")}</span><button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel003")} onClick={() => { setOpen(false); buttonRef.current?.focus(); }}>×</button></div>
 				<div className="global-menu__section">
@@ -99,14 +117,14 @@ export function GlobalMenu() {
 					</label>}
 					<div className="global-menu__controls">
 						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel006")} disabled={music.tracks.length < 2} onClick={() => player.step(-1)}>◀|</button>
-						<button type="button" disabled={!selected || music.status === "loading"} onClick={() => void player.play()}>{translate("common:globalMenu.globalMenu.text007")}</button>
-						<button type="button" disabled={music.status === "stopped"} onClick={() => player.stop()}>{translate("common:globalMenu.globalMenu.text008")}</button>
+						<button type="button" disabled={!selected || music.status === "loading"} onClick={() => void player.playFromControls()}>{translate("common:globalMenu.globalMenu.text007")}</button>
+						<button type="button" disabled={music.status === "stopped"} onClick={() => player.stopFromControls()}>{translate("common:globalMenu.globalMenu.text008")}</button>
 						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel009")} disabled={music.tracks.length < 2} onClick={() => player.step(1)}>|▶</button>
 					</div>
 					<label className="global-menu__field" htmlFor="global-music-volume">{translate("common:globalMenu.globalMenu.text010")}{" "}{music.volume}%
 						<input id="global-music-volume" type="range" min="0" max="100" value={music.volume} onChange={(event) => player.setVolume(Number(event.target.value))} />
 					</label>
-					<p className="global-menu__status" role="status">{catalogError ? translate(catalogError) : music.message ? translate(MUSIC_MESSAGES[music.message] ?? "common:globalMenu.globalMenu.musicError") : music.status === "playing" ? translate("common:globalMenu.globalMenu.playing") : music.status === "stopped" ? translate("common:globalMenu.globalMenu.stopped") : ""}</p>
+					<p className="global-menu__status" role="status">{catalogError ? translate(catalogError) : music.message ? translate(MUSIC_MESSAGES[music.message] ?? "common:globalMenu.globalMenu.musicError") : music.status === "playing" ? translate("common:globalMenu.globalMenu.playing") : music.status === "blocked" ? translate("common:globalMenu.globalMenu.autoplayBlocked") : music.status === "stopped" ? translate("common:globalMenu.globalMenu.stopped") : ""}</p>
 				</div>
 				<div className="global-menu__section">
 					<h2>{translate("common:globalMenu.globalMenu.text011")}</h2>

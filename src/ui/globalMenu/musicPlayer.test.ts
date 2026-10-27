@@ -1,5 +1,5 @@
 import { beforeEach, describe, expect, it, vi } from "vitest";
-import { MUSIC_TRACK_KEY, MUSIC_VOLUME_KEY, MusicPlayer, type MusicTrack } from "./musicPlayer";
+import { MUSIC_AUTOPLAY_KEY, MUSIC_TRACK_KEY, MUSIC_VOLUME_KEY, MusicPlayer, type MusicTrack } from "./musicPlayer";
 
 const tracks: MusicTrack[] = [
 	{ id: "one", title: "Primeira", fileName: "one.mp3", url: "/generated/music/assets/one.mp3", format: "mp3", mimeType: "audio/mpeg", sizeBytes: 12, order: 0 },
@@ -90,6 +90,50 @@ describe("MusicPlayer", () => {
 		expect(player.getSnapshot().selectedId).toBe("one");
 		player.stop();
 		player.dispose();
+	});
+
+	it("inicia automaticamente quando permitido e respeita Stop ao recarregar", async () => {
+		const audio = new FakeAudio();
+		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
+		player.setTracks(tracks);
+		await player.autoplay();
+		expect(audio.play).toHaveBeenCalledTimes(1);
+		expect(player.getSnapshot().status).toBe("playing");
+		player.stopFromControls();
+		expect(localStorage.getItem(MUSIC_AUTOPLAY_KEY)).toBe("off");
+		const nextAudio = new FakeAudio();
+		const next = new MusicPlayer(nextAudio as unknown as HTMLAudioElement);
+		next.setTracks(tracks);
+		await next.autoplay();
+		expect(nextAudio.play).not.toHaveBeenCalled();
+		await next.playFromControls();
+		expect(localStorage.getItem(MUSIC_AUTOPLAY_KEY)).toBe("on");
+		expect(next.getSnapshot().status).toBe("playing");
+		player.dispose();
+		next.dispose();
+	});
+
+	it("aguarda gesto quando autoplay é bloqueado e diferencia falha de áudio", async () => {
+		const audio = new FakeAudio();
+		audio.play.mockRejectedValueOnce(Object.assign(new Error("blocked"), { name: "NotAllowedError" }));
+		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
+		player.setTracks(tracks);
+		await player.autoplay();
+		expect(player.getSnapshot().status).toBe("blocked");
+		await player.resumeAutoplay();
+		expect(player.getSnapshot().status).toBe("playing");
+		expect(audio.play).toHaveBeenCalledTimes(2);
+		player.dispose();
+
+		const brokenAudio = new FakeAudio();
+		brokenAudio.play.mockRejectedValueOnce(new Error("file error"));
+		const brokenPlayer = new MusicPlayer(brokenAudio as unknown as HTMLAudioElement);
+		brokenPlayer.setTracks(tracks);
+		await brokenPlayer.autoplay();
+		expect(brokenPlayer.getSnapshot().status).toBe("error");
+		await brokenPlayer.resumeAutoplay();
+		expect(brokenAudio.play).toHaveBeenCalledTimes(1);
+		brokenPlayer.dispose();
 	});
 
 	it("lista vazia desativa reprodução sem tocar no elemento de áudio", async () => {

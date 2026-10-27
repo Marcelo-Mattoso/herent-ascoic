@@ -46,7 +46,7 @@ test("menu publica as cinco faixas e o manual, com controles acessíveis", async
 	await expect(toggle).toBeFocused();
 });
 
-test("player mantém seleção e volume ao navegar, sem autoplay ao recarregar", async ({ page }) => {
+test("player mantém seleção e volume ao navegar, respeitando Stop ao recarregar", async ({ page }) => {
 	await page.goto("/");
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
@@ -91,6 +91,47 @@ test("uma reprodução segue ativa ao passar por menu, preparação e tabuleiro"
 	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
 	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(1);
 	await page.getByRole("button", { name: "Stop" }).click();
+});
+
+test("música começa sozinha quando o navegador permite e não volta após Stop", async ({ page }) => {
+	await page.addInitScript(() => {
+		const state = window as Window & { __musicPlayCount?: number };
+		HTMLMediaElement.prototype.play = function () {
+			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			return Promise.resolve();
+		};
+		HTMLMediaElement.prototype.load = function () {};
+	});
+	await page.goto("/");
+	await expect.poll(() => page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount ?? 0)).toBe(1);
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
+	await page.getByRole("button", { name: "Stop" }).click();
+	await page.reload();
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
+	await expect(page.locator(".global-menu__status")).toHaveText("Parado");
+	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount ?? 0)).toBe(0);
+});
+
+test("autoplay bloqueado exibe convite e funciona após interação", async ({ page }) => {
+	await page.addInitScript(() => {
+		const state = window as Window & { __musicPlayCount?: number };
+		HTMLMediaElement.prototype.play = function () {
+			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			return state.__musicPlayCount === 1
+				? Promise.reject(Object.assign(new Error("blocked"), { name: "NotAllowedError" }))
+				: Promise.resolve();
+		};
+		HTMLMediaElement.prototype.load = function () {};
+	});
+	await page.goto("/");
+	await expect(page.getByRole("button", { name: "♫ Ouvir música" })).toBeVisible();
+	await page.getByRole("button", { name: "JOGAR" }).click();
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
+	await expect(page.getByRole("button", { name: "♫ Ouvir música" })).toHaveCount(0);
+	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(2);
 });
 
 test("menu global permanece disponível no arquivo de tutoriais e durante a narração", async ({ page }) => {

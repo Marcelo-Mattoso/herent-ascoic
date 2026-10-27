@@ -32,6 +32,7 @@ body {
 .global-menu button:disabled { opacity: .48; cursor: default; }
 .global-menu :focus-visible { outline: 2px solid #fff0bb; outline-offset: 2px; }
 .global-menu__toggle { width: 44px; height: 44px; font-size: 1.45rem !important; line-height: 1; box-shadow: 0 4px 16px #000b; }
+.global-menu__music-prompt { position: absolute; top: 3px; right: 52px; min-height: 38px; padding: 0 12px; white-space: nowrap; font-size: .84rem !important; box-shadow: 0 4px 16px #000b; }
 .global-menu__panel {
 	position: absolute;
 	top: 52px;
