@@ -5,19 +5,19 @@ import react from "@vitejs/plugin-react";
 import type { Plugin, ViteDevServer } from "vite";
 import { configDefaults, defineConfig } from "vitest/config";
 
-const boardSourceDir = path.resolve(__dirname, "imagedata/tabuleiros");
+const boardSourceDir = path.resolve(__dirname, "assets/webp/boards");
 const boardPublicDir = path.resolve(__dirname, "public/generated/boards");
 const boardAssetDir = path.join(boardPublicDir, "assets");
 const boardManifestPath = path.join(boardPublicDir, "manifest.json");
-const backCardSourceDir = path.resolve(__dirname, "imagedata/backcard");
+const backCardSourceDir = path.resolve(__dirname, "assets/webp/backcards");
 const backCardPublicDir = path.resolve(__dirname, "public/generated/backcards");
 const backCardAssetDir = path.join(backCardPublicDir, "assets");
 const backCardManifestPath = path.join(backCardPublicDir, "manifest.json");
-const cardSourceDir = path.resolve(__dirname, "imagedata/cards");
+const cardSourceDir = path.resolve(__dirname, "assets/webp/cards");
 const cardPublicDir = path.resolve(__dirname, "public/generated/cards");
 const cardAssetDir = path.join(cardPublicDir, "assets");
 const cardManifestPath = path.join(cardPublicDir, "manifest.json");
-const uiAssetSourceDir = path.resolve(__dirname, "imagedata/ui");
+const uiAssetSourceDir = path.resolve(__dirname, "assets/webp/ui");
 const uiAssetPublicDir = path.resolve(__dirname, "public/generated/ui");
 const uiAssetDir = path.join(uiAssetPublicDir, "assets");
 const uiAssetManifestPath = path.join(uiAssetPublicDir, "manifest.json");
@@ -336,6 +336,7 @@ function writeLocaleAssets() {
 }
 
 function writeAssetManifests() {
+	// Copy optimized WebP only. Encoding is a separate incremental dev step.
 	writeBoardManifest();
 	writeBackCardManifest();
 	writeCardImageManifest();

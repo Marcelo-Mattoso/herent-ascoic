@@ -12,8 +12,7 @@ node_modules/
 package.json
 package-lock.json
 
-# Local image source and generated public assets
-imagedata/
+# PNG masters and optimized WebP are source-controlled; only generated copies are ignored.
 public/generated/
 
 dist
