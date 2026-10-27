@@ -1,6 +1,14 @@
 import { expect, test } from "@playwright/test";
 
 test("menu publica as cinco faixas e o manual, com controles acessíveis", async ({ page }) => {
+	page.on("response", (response) => {
+		if (response.url().includes("/generated/music/manifest.json"))
+			console.log("[e2e music] browser manifest status", response.status(), response.url());
+	});
+	page.on("requestfailed", (request) => {
+		if (request.url().includes("/generated/music/manifest.json"))
+			console.log("[e2e music] browser request failed", request.failure()?.errorText);
+	});
 	await page.goto("/");
 	const toggle = page.getByRole("button", { name: "Abrir menu global" });
 	await expect(toggle).toHaveAttribute("aria-expanded", "false");
@@ -8,7 +16,16 @@ test("menu publica as cinco faixas e o manual, com controles acessíveis", async
 	await expect(page.getByRole("button", { name: "Fechar menu global" })).toHaveAttribute("aria-expanded", "true");
 	await expect(page.getByRole("heading", { name: "Música" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Regras" })).toBeVisible();
-	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
+	try {
+		await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
+	} catch (error) {
+		const response = await page.request.get("/generated/music/manifest.json");
+		console.log("[e2e music] manifest HTTP status", response.status());
+		console.log("[e2e music] manifest body", (await response.text()).slice(0, 2000));
+		console.log("[e2e music] UI track", await page.locator(".global-menu__track").allTextContents());
+		console.log("[e2e music] UI status", await page.locator(".global-menu__status").allTextContents());
+		throw error;
+	}
 	await expect(page.getByLabel("Idioma da interface").locator('option[value="pt-BR"]')).toHaveText("Português (Brasil)");
 	const readManual = page.getByRole("link", { name: "Ler manual de regras" });
 	const downloadManual = page.getByRole("link", { name: "Baixar manual em PDF" });
