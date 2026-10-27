@@ -53,8 +53,8 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # The quality job builds dist in a different runner: its generated assets
-      # are not available here. Build locally before testing the production preview.
+      # Jobs have separate filesystems: generate local public assets in this
+      # runner before the Vite dev server starts for Playwright tests.
       - run: npm run build
       - name: Verify bundled music assets
         run: |
