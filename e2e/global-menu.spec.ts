@@ -9,7 +9,7 @@ test("menu publica as cinco faixas e o manual, com controles acessíveis", async
 	await expect(page.getByRole("heading", { name: "Música" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Regras" })).toBeVisible();
 	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
-	await expect(page.getByLabel("Idioma da interface").locator("option")).toHaveCount(2);
+	await expect(page.getByLabel("Idioma da interface").locator('option[value="pt-BR"]')).toHaveText("Português (Brasil)");
 	const readManual = page.getByRole("link", { name: "Ler manual de regras" });
 	const downloadManual = page.getByRole("link", { name: "Baixar manual em PDF" });
 	await expect(readManual).toHaveAttribute("href", "/rules/ascensao-heroica-manual.pdf");
@@ -105,4 +105,41 @@ test("menu cabe em telas pequenas, paisagem, tablet e desktop", async ({ page })
 		if (viewport.width === 360 || viewport.width === 844)
 			await page.screenshot({ path: `test-results/global-menu-${viewport.width}x${viewport.height}.png` });
 	}
+});
+
+test("troca para inglês mantém tabuleiro e música, e persiste a escolha", async ({ page }) => {
+	await page.addInitScript(() => {
+		const state = window as Window & { __musicPlayCount?: number };
+		HTMLMediaElement.prototype.play = function () {
+			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			return Promise.resolve();
+		};
+		HTMLMediaElement.prototype.load = function () {};
+	});
+	await page.goto("/");
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	const selector = page.getByLabel("Idioma da interface");
+	if (await selector.locator('option[value="en-US"]').count() === 0) {
+		test.skip(true, "en-US ainda não está publicado");
+		return;
+	}
+	await page.getByRole("button", { name: "Play" }).click();
+	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
+	await page.getByRole("button", { name: "Fechar menu", exact: true }).click();
+	await page.getByRole("button", { name: "JOGAR" }).click();
+	await page.locator(".setup-hero-select-button").first().click();
+	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await expect(page.locator(".game-board-root")).toBeVisible();
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await page.getByLabel("Idioma da interface").selectOption("en-US");
+	await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
+	await expect(page.getByRole("heading", { name: "Music" })).toBeVisible();
+	await expect(page.locator(".game-board-root")).toBeVisible();
+	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(1);
+	await expect(page.locator(".global-menu__status")).toHaveText("Playing");
+	await expect.poll(() => page.evaluate(() => localStorage.getItem("ascensao-heroica:locale:v1"))).toBe("en-US");
+	await page.reload();
+	await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
+	await page.getByRole("button", { name: "Open global menu" }).click();
+	await expect(page.getByLabel("Interface language")).toHaveValue("en-US");
 });

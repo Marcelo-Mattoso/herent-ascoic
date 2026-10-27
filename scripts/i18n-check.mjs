@@ -104,18 +104,19 @@ export function inspectLocales(root = defaultRoot, { checkSources = true } = {})
 				let translated = 0;
 				let retained = 0;
 				let pending = 0;
+				const pendingDetails = [];
 				for (const key of current.keys())
 					if (!source.has(key) && !(pluralSuffix.test(key) && plurals.has(key.replace(pluralSuffix, "")))) errors.push(`${folder}/${namespace}: chave extra: ${key}`);
 				for (const [key, reference] of required) {
 					const value = current.get(key);
-					if (typeof value !== "string" || !value.trim()) { pending++; continue; }
+					if (typeof value !== "string" || !value.trim()) { pending++; pendingDetails.push(`${key}: ausente ou vazio`); continue; }
 					if (placeholders(value) !== placeholders(reference)) errors.push(`${folder}/${namespace}: parâmetros divergentes: ${key}`);
 					if (folder !== "pt-BR" && value === reference) {
 						if (meta.retained?.[`${namespace}:${key}`]) { retained++; usedRetained.add(`${namespace}:${key}`); }
-						else pending++;
+						else { pending++; pendingDetails.push(`${key}: igual ao português sem justificativa (${JSON.stringify(reference)})`); }
 					} else translated++;
 				}
-				summary.namespaces[namespace] = { translated, retained, total: required.size, pending, coverage: required.size ? Math.round(100 * (translated + retained) / required.size) : 100 };
+				summary.namespaces[namespace] = { translated, retained, total: required.size, pending, pendingDetails, coverage: required.size ? Math.round(100 * (translated + retained) / required.size) : 100 };
 				summary.total += required.size;
 				summary.translated += translated;
 				summary.retained += retained;
@@ -136,7 +137,10 @@ if (process.argv[1] && path.resolve(process.argv[1]) === path.resolve(import.met
 		const result = inspectLocales();
 		for (const locale of result.report) {
 			console.log(`${locale.code} (${locale.status}): ${locale.translated} traduzidos, ${locale.retained} preservados, ${locale.pending} pendentes, total ${locale.total}`);
-			for (const [namespace, data] of Object.entries(locale.namespaces)) console.log(`  ${namespace}: ${data.translated} traduzidos, ${data.retained} preservados, ${data.pending} pendentes / ${data.total} (${data.coverage}% concluído)`);
+			for (const [namespace, data] of Object.entries(locale.namespaces)) {
+				console.log(`  ${namespace}: ${data.translated} traduzidos, ${data.retained} preservados, ${data.pending} pendentes / ${data.total} (${data.coverage}% concluído)`);
+				if (process.argv.includes("--details")) for (const detail of data.pendingDetails) console.log(`    ${detail}`);
+			}
 		}
 		for (const error of result.errors) console.error(`i18n: ${error}`);
 		if (!process.argv.includes("--report") && result.errors.length) process.exitCode = 1;

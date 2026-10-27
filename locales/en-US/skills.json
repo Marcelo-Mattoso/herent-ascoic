@@ -1,0 +1,477 @@
+{
+  "skill_crimson_fury": {
+    "name": "Crimson Fury",
+    "label": "Crimson Fury ({value}): this character takes {value} damage to deal additional damage equal to 3 times the damage taken on their next attack.",
+    "text": "this character takes {value} damage to deal additional damage equal to 3 times the damage taken on their next attack."
+  },
+  "skill_last_light_healing": {
+    "name": "Last Light Healing",
+    "label": "Last Light Healing ({value}): heal {value} Health on one hero or allied creature.",
+    "text": "heal {value} Health on one hero or allied creature."
+  },
+  "skill_bastion_guard": {
+    "name": "Bastion Guard",
+    "label": "Bastion Guard ({value}): reduce the damage a hero or ally would take by {value}.",
+    "text": "reduce the damage a hero or ally would take by {value}."
+  },
+  "skill_rift_rune": {
+    "name": "Rift Rune",
+    "label": "Rift Rune ({value}): after rolling, adjust the result of 1 allied die by up to {value}, without exceeding 6 or going below 1.",
+    "text": "after rolling, adjust the result of 1 allied die by up to {value}, without exceeding 6 or going below 1."
+  },
+  "skill_hunter_focus": {
+    "name": "Hunter's Focus",
+    "label": "Hunter's Focus ({value}): while this item is equipped, this hero gains +{value} Hit Bonus.",
+    "text": "while this item is equipped, this hero gains +{value} Hit Bonus."
+  },
+  "skill_living_ember": {
+    "name": "Living Ember",
+    "label": "Living Ember ({value}): deal {value} direct damage to a creature in play.",
+    "text": "deal {value} direct damage to a creature in play."
+  },
+  "skill_living_ember_oil": {
+    "name": "Living Ember (Conditional)",
+    "label": "Living Ember (2/3): deal 2 direct damage to a creature in play. If it has Gelatinous Body, deal 3 damage instead of 2.",
+    "text": "deal 2 direct damage to a creature in play. If it has Gelatinous Body, deal 3 damage instead of 2."
+  },
+  "skill_last_light_shield": {
+    "name": "Shield of the Last Light",
+    "label": "Shield of the Last Light: once per round, prevent all damage that a hero would take.",
+    "text": "once per round, prevent all damage that a hero would take."
+  },
+  "skill_preserved_path": {
+    "name": "Preserved Path",
+    "label": "Preserved Path: once per room, when a dungeon card would be discarded by an effect, return that card to the top of the dungeon deck.",
+    "text": "once per room, when a dungeon card would be discarded by an effect, return that card to the top of the dungeon deck."
+  },
+  "skill_rekindled_forge": {
+    "name": "Rekindled Forge",
+    "label": "Rekindled Forge: when this room is cleared, the group may recover 1 discarded item and immediately equip it on a hero.",
+    "text": "when this room is cleared, the group may recover 1 discarded item and immediately equip it on a hero."
+  },
+  "skill_rift_second_chance": {
+    "name": "Second Chance of the Rifts",
+    "label": "Second Chance of the Rifts: once per combat, reroll 1 allied die.",
+    "text": "once per combat, reroll 1 allied die."
+  },
+  "skill_perfect_rune": {
+    "name": "Perfect Rune",
+    "label": "Perfect Rune: once per room, after rolling, change 1 allied die to a 6.",
+    "text": "once per room, after rolling, change 1 allied die to a 6."
+  },
+  "skill_last_light_miracle": {
+    "name": "Miracle of the Last Light",
+    "label": "Miracle of the Last Light: once per room, choose: heal 2 Health on an ally or deal +2 damage on the next attack against a creature.",
+    "text": "once per room, choose: heal 2 Health on an ally or deal +2 damage on the next attack against a creature.",
+    "options": {
+      "heal": "Heal {value}",
+      "damage_bonus": "+{value} damage"
+    }
+  },
+  "skill_piercing_strike": {
+    "name": "Piercing Strike",
+    "label": "Piercing Strike: when you destroy a creature with an attack, deal 1 direct damage to another creature in the same room.",
+    "text": "when you destroy a creature with an attack, deal 1 direct damage to another creature in the same room."
+  },
+  "skill_forge_spoils": {
+    "name": "Forge Spoils",
+    "label": "Forge Spoils: when this room is cleared, look at the top 2 cards of the Item deck, keep 1 and discard the other; this replaces the dungeon draw-and-discard step.",
+    "text": "when this room is cleared, look at the top 2 cards of the Item deck, keep 1 and discard the other; this replaces the dungeon draw-and-discard step."
+  },
+  "skill_prey_mark": {
+    "name": "Prey Mark",
+    "label": "Prey Mark ({value}): choose 1 creature as your Prey. Gain +{value} to hit against it until it is defeated.",
+    "text": "choose 1 creature as your Prey. Gain +{value} to hit against it until it is defeated."
+  },
+  "skill_return_rite": {
+    "name": "Rite of Return",
+    "label": "Rite of Return ({value}): once per room, you may pay 3 Health to recover {value} discarded dungeon card and shuffle it into the deck.",
+    "text": "once per room, you may pay 3 Health to recover {value} discarded dungeon card and shuffle it into the deck."
+  },
+  "skill_final_dawn_light": {
+    "name": "Light of the Final Dawn",
+    "label": "Light of the Final Dawn ({value}): against creatures, sub-bosses, or bosses, while Dungeon Awakening is at Red or Purple level, gain +{value} to attack and +{value} damage.",
+    "text": "against creatures, sub-bosses, or bosses, while Dungeon Awakening is at Red or Purple level, gain +{value} to attack and +{value} damage."
+  },
+  "skill_scorching_heat": {
+    "name": "Scorching Heat",
+    "label": "Scorching Heat ({value}): heroes take -{value} to the total of the first roll made in this room.",
+    "text": "heroes take -{value} to the total of the first roll made in this room."
+  },
+  "skill_crimson_chains": {
+    "name": "Crimson Chains",
+    "label": "Crimson Chains ({value}): until the end of the round, {value} hero cannot flee or leave combat due to an effect.",
+    "text": "until the end of the round, {value} hero cannot flee or leave combat due to an effect."
+  },
+  "skill_choking_ashes": {
+    "name": "Choking Ashes",
+    "label": "Choking Ashes ({value}): deal {value} direct damage to the hero with the lowest Health.",
+    "text": "deal {value} direct damage to the hero with the lowest Health."
+  },
+  "skill_charred_plate": {
+    "name": "Charred Plate",
+    "label": "Charred Plate ({value}): this creature reduces damage taken from attacks by {value}.",
+    "text": "this creature reduces damage taken from attacks by {value}."
+  },
+  "skill_forge_awakening": {
+    "name": "Forge Awakening",
+    "label": "Forge Awakening ({value}): increase Dungeon Awakening by {value} level.",
+    "text": "increase Dungeon Awakening by {value} level."
+  },
+  "skill_sealed_door": {
+    "name": "Sealed Door",
+    "label": "Sealed Door: while this room is active, heroes cannot flee the first combat.",
+    "text": "while this room is active, heroes cannot flee the first combat."
+  },
+  "skill_ruined_floor": {
+    "name": "Ruined Floor",
+    "label": "Ruined Floor: the first time a hero loses a combat in this room, discard 1 additional dungeon card.",
+    "text": "the first time a hero loses a combat in this room, discard 1 additional dungeon card."
+  },
+  "skill_forge_smoke": {
+    "name": "Forge Smoke",
+    "label": "Forge Smoke: during the first round in this room, heroes cannot use healing effects.",
+    "text": "during the first round in this room, heroes cannot use healing effects."
+  },
+  "skill_dark_tribute": {
+    "name": "Dark Tribute",
+    "label": "Dark Tribute: before the first combat in this room, the group must choose: discard 1 item or discard 1 additional dungeon card.",
+    "text": "before the first combat in this room, the group must choose: discard 1 item or discard 1 additional dungeon card.",
+    "options": {
+      "discard_item": "Discard {value} item",
+      "discard_dungeon": "Discard {value} dungeon card"
+    }
+  },
+  "skill_rift_evasion": {
+    "name": "Rift Evasion",
+    "label": "Rift Evasion: this creature ignores the first item effect used against it.",
+    "text": "this creature ignores the first item effect used against it."
+  },
+  "skill_chains_prison": {
+    "name": "Prison of Chains",
+    "label": "Prison of Chains: the first hero targeted in this room takes -2 to the total of their next roll.",
+    "text": "the first hero targeted in this room takes -2 to the total of their next roll."
+  },
+  "skill_path_corruption": {
+    "name": "Path Corruption",
+    "label": "Path Corruption: while this room is active, heroes cannot prevent dungeon discards caused by room or creature effects.",
+    "text": "while this room is active, heroes cannot prevent dungeon discards caused by room or creature effects."
+  },
+  "skill_lone_beast": {
+    "name": "Lone Beast",
+    "label": "Lone Beast ({value}): if alone in the room, this creature gains +{value} to Hit Bonus and damage.",
+    "text": "if alone in the room, this creature gains +{value} to Hit Bonus and damage."
+  },
+  "skill_treacherous_attack": {
+    "name": "Treacherous Attack",
+    "label": "Treacherous Attack ({value}): upon entering combat, deals {value} damage to the hero with the lowest Health.",
+    "text": "upon entering combat, deals {value} damage to the hero with the lowest Health.",
+    "notes": "In the original text, the name includes a variable, but the base effect specifies 1 damage. Use {value} when scaling is needed."
+  },
+  "skill_cowardly_flee": {
+    "name": "Cowardly Escape",
+    "label": "Cowardly Escape: if this creature flees or leaves play, it grants no reward.",
+    "text": "if this creature flees or leaves play, it grants no reward."
+  },
+  "skill_gelatinous_body": {
+    "name": "Gelatinous Body",
+    "label": "Gelatinous Body ({value}): heroes take -{value} Hit Bonus against this creature.",
+    "text": "heroes take -{value} Hit Bonus against this creature."
+  },
+  "skill_hidden_flame_presence": {
+    "name": "Hidden Flame Presence",
+    "label": "Hidden Flame Presence ({value}): if another creature is in the room, that other creature gains +{value} to its total Hit Bonus.",
+    "text": "if another creature is in the room, that other creature gains +{value} to its total Hit Bonus."
+  },
+  "skill_pack_courage": {
+    "name": "Pack Courage",
+    "label": "Pack Courage ({value}): if another creature is in the room, this creature gains +{value} to its total roll.",
+    "text": "if another creature is in the room, this creature gains +{value} to its total roll."
+  },
+  "skill_illuminate_path": {
+    "name": "Illuminate the Path",
+    "label": "Illuminate the Path: when revealing new paths, look at the dungeon cards before choosing a path. Then discard cards normally according to the standard game flow.",
+    "text": "when revealing new paths, look at the dungeon cards before choosing a path. Then discard cards normally according to the standard game flow."
+  },
+  "skill_path_safeguard": {
+    "name": "Path Safeguard",
+    "label": "Path Safeguard: prevent this round's dungeon discard.",
+    "text": "prevent this round's dungeon discard."
+  },
+  "skill_life_drain": {
+    "name": "Life Drain",
+    "label": "Life Drain ({value}): heal the bearer hero for {value} Health, but only if they deal damage.",
+    "text": "heal the bearer hero for {value} Health, but only if they deal damage."
+  },
+  "skill_opportunity_shot": {
+    "name": "Opportunity Shot",
+    "label": "Opportunity Shot: once per combat, instead of fighting, deal your damage directly to the creature.",
+    "text": "once per combat, instead of fighting, deal your damage directly to the creature."
+  },
+  "skill_last_light_ward": {
+    "name": "Ward of the Last Light",
+    "label": "Ward of the Last Light ({value}): against Purple effects, reduce damage received by {value}.",
+    "text": "against Purple effects, reduce damage received by {value}."
+  },
+  "skill_protective_veil": {
+    "name": "Protective Veil",
+    "label": "Protective Veil: once per room, ignore the first effect that would target this hero.",
+    "text": "once per room, ignore the first effect that would target this hero."
+  },
+  "skill_rift_light_step": {
+    "name": "Light Step of the Rifts",
+    "label": "Light Step of the Rifts: once per room, ignore the first effect that would cause an additional dungeon discard.",
+    "text": "once per room, ignore the first effect that would cause an additional dungeon discard."
+  },
+  "skill_focus_deflection": {
+    "name": "Focus Deflection",
+    "label": "Focus Deflection: once per room, after a creature targets this hero, you may redirect the target to another willing hero. If no other hero is available, gain +2 to your total Hit Bonus.",
+    "text": "once per room, after a creature targets this hero, you may redirect the target to another willing hero. If no other hero is available, gain +2 to your total Hit Bonus."
+  },
+  "skill_minor_rune": {
+    "name": "Minor Rune",
+    "label": "Minor Rune: once per room, after rolling, you may reroll a die showing 1.",
+    "text": "once per room, after rolling, you may reroll a die showing 1."
+  },
+  "power_greater_last_light_miracle": {
+    "name": "Greater Miracle of the Last Light",
+    "label": "Greater Miracle of the Last Light: fully heal 1 hero or prevent that hero from being destroyed, leaving them with 1 Health.",
+    "text": "fully heal 1 hero or prevent that hero from being destroyed, leaving them with 1 Health.",
+    "options": {
+      "full_heal": "Fully heal",
+      "survive": "Survive with {value} Health"
+    }
+  },
+  "power_unbreakable_bastion_guard": {
+    "name": "Unbreakable Bastion Guard",
+    "label": "Unbreakable Bastion Guard: until the end of the round, all damage taken by heroes is reduced by 1.",
+    "text": "until the end of the round, all damage taken by heroes is reduced by 1."
+  },
+  "power_restored_path": {
+    "name": "Restored Path",
+    "label": "Restored Path: recover 1 card from the dungeon discard pile and shuffle it into the dungeon deck.",
+    "text": "recover 1 card from the dungeon discard pile and shuffle it into the dungeon deck."
+  },
+  "power_supreme_rift_rune": {
+    "name": "Supreme Rift Rune",
+    "label": "Supreme Rift Rune: after any roll, change 1 allied die to a 6 or 1 enemy die to a 1.",
+    "text": "after any roll, change 1 allied die to a 6 or 1 enemy die to a 1."
+  },
+  "power_mighty_crimson_fury": {
+    "name": "Mighty Crimson Fury",
+    "label": "Mighty Crimson Fury: when using Crimson Fury, the additional damage lasts until the end of combat.",
+    "text": "when using Crimson Fury, the additional damage lasts until the end of combat."
+  },
+  "power_last_light_oath": {
+    "name": "Oath of the Last Light",
+    "label": "Oath of the Last Light: once per game, choose: heal 5 Health on all heroes or deal +5 holy damage on this hero's next attack.",
+    "text": "once per game, choose: heal 5 Health on all heroes or deal +5 holy damage on this hero's next attack.",
+    "options": {
+      "heal_all": "Heal all ({value})",
+      "damage_bonus_holy": "+{value} holy damage"
+    }
+  },
+  "power_deep_veil_echo": {
+    "name": "Deep Echo of the Veil",
+    "label": "Deep Echo of the Veil: once per game, when defeating a creature, store 1 Greater Echo. Spend that Echo to gain +3 to your total hit roll, reduce damage taken by 2, or look at the top 2 cards of the enemy deck.",
+    "text": "once per game, when defeating a creature, store 1 Greater Echo. Spend that Echo to gain +3 to your total hit roll, reduce damage taken by 2, or look at the top 2 cards of the enemy deck."
+  },
+  "power_hunter_execution": {
+    "name": "Hunter's Execution",
+    "label": "Hunter's Execution: once per game, after rolling against your Prey, change 1 blue die to a 6 and deal +1 damage if you hit.",
+    "text": "once per game, after rolling against your Prey, change 1 blue die to a 6 and deal +1 damage if you hit."
+  },
+  "purple_raging_flames": {
+    "name": "Raging Flames",
+    "label": "Raging Flames: when this creature enters play, deal 1 direct damage to every hero.",
+    "text": "when this creature enters play, deal 1 direct damage to every hero."
+  },
+  "purple_forge_chains": {
+    "name": "Forge Chains",
+    "label": "Forge Chains: while this creature is in play, heroes cannot flee.",
+    "text": "while this creature is in play, heroes cannot flee."
+  },
+  "purple_ruin_ashes": {
+    "name": "Ashes of Ruin",
+    "label": "Ashes of Ruin: when this creature is destroyed, discard 1 additional dungeon card.",
+    "text": "when this creature is destroyed, discard 1 additional dungeon card."
+  },
+  "purple_crimson_plate": {
+    "name": "Crimson Plate",
+    "label": "Crimson Plate: ignore the first damage this creature would take each round.",
+    "text": "ignore the first damage this creature would take each round."
+  },
+  "purple_ash_protection": {
+    "name": "Ash Protection",
+    "label": "Ash Protection ({value}): this creature reduces all damage it would take by {value}.",
+    "text": "this creature reduces all damage it would take by {value}."
+  },
+  "purple_dark_awakening": {
+    "name": "Dark Awakening",
+    "label": "Dark Awakening: when this creature enters play, increase Dungeon Awakening by 1 level.",
+    "text": "when this creature enters play, increase Dungeon Awakening by 1 level."
+  },
+  "purple_deadly_awakening": {
+    "name": "Deadly Awakening",
+    "label": "Deadly Awakening: when this creature is destroyed, increase Dungeon Awakening by 1 level.",
+    "text": "when this creature is destroyed, increase Dungeon Awakening by 1 level."
+  },
+  "purple_ember_blood": {
+    "name": "Ember Blood",
+    "label": "Ember Blood: whenever this creature takes damage, the hero who dealt that damage takes 1 direct damage.",
+    "text": "whenever this creature takes damage, the hero who dealt that damage takes 1 direct damage."
+  },
+  "purple_depths_seal": {
+    "name": "Seal of the Depths",
+    "label": "Seal of the Depths: while this creature is in play, heroes cannot use once-per-game powers.",
+    "text": "while this creature is in play, heroes cannot use once-per-game powers."
+  },
+  "purple_dark_tribute": {
+    "name": "Dark Tribute",
+    "label": "Dark Tribute: before combat, the group must discard 1 item or take +1 dungeon discard.",
+    "text": "before combat, the group must discard 1 item or take +1 dungeon discard.",
+    "options": {
+      "discard_item": "Discard {value} item",
+      "discard_dungeon": "Discard {value} dungeon card"
+    }
+  },
+  "purple_blood_tribute": {
+    "name": "Blood Tribute",
+    "label": "Blood Tribute: before combat, the group must discard 1 item or deal 3 damage to a hero of their choice.",
+    "text": "before combat, the group must discard 1 item or deal 3 damage to a hero of their choice.",
+    "options": {
+      "discard_item": "Discard {value} item",
+      "take_damage": "Take {value} damage"
+    }
+  },
+  "purple_veil_retaliation": {
+    "name": "Veil Retaliation",
+    "label": "Veil Retaliation ({value}): whenever this creature is hit by a hero, that hero takes {value} damage.",
+    "text": "whenever this creature is hit by a hero, that hero takes {value} damage."
+  },
+  "purple_healing_rupture": {
+    "name": "Healing Rupture",
+    "label": "Healing Rupture: upon entering this room, cancel the next healing effect used by heroes.",
+    "text": "upon entering this room, cancel the next healing effect used by heroes."
+  },
+  "purple_ancient_veil_prison": {
+    "name": "Prison of the Ancient Veil",
+    "label": "Prison of the Ancient Veil ({value}): the first hero targeted by this creature takes -{value} to their total Hit Bonus on the next roll.",
+    "text": "the first hero targeted by this creature takes -{value} to their total Hit Bonus on the next roll."
+  },
+  "purple_deep_veil_seal": {
+    "name": "Seal of the Deep Veil",
+    "label": "Seal of the Deep Veil: while this creature is in play, heroes cannot lower the dungeon level.",
+    "text": "while this creature is in play, heroes cannot lower the dungeon level."
+  },
+  "purple_crimson_shackles": {
+    "name": "Crimson Shackles",
+    "label": "Crimson Shackles: the first hero targeted by this creature takes -3 to their next attack roll total and deals -3 damage if they hit.",
+    "text": "the first hero targeted by this creature takes -3 to their next attack roll total and deals -3 damage if they hit."
+  },
+  "item_skill_deadly_edge": {
+    "name": "Deadly Edge",
+    "label": "Deadly Edge ({value}): gain +{value} to your total roll. If you win the roll by 4 or more, deal +{value} damage.",
+    "text": "gain +{value} to your total roll. If you win the roll by 4 or more, deal +{value} damage."
+  },
+  "item_skill_block": {
+    "name": "Block",
+    "label": "Block ({value}): reduce the damage taken by this hero by {value}.",
+    "text": "reduce the damage taken by this hero by {value}."
+  },
+  "item_skill_potion_stoneskin": {
+    "name": "Stoneskin",
+    "label": "Stoneskin ({value}): until the end of this combat, reduce damage taken by this hero by {value}.",
+    "text": "until the end of this combat, reduce damage taken by this hero by {value}."
+  },
+  "item_skill_mystic_draw": {
+    "name": "Mystic Draw",
+    "label": "Mystic Draw: draw 1 Artifact card from the artifact pile.",
+    "text": "draw 1 Artifact card from the artifact pile."
+  },
+  "item_skill_last_light_blade": {
+    "name": "Blade of the Last Light",
+    "label": "Blade of the Last Light: gain +2 to your total roll bonus. Against bosses and sub-bosses, deal +2 damage on a hit.",
+    "text": "gain +2 to your total roll bonus. Against bosses and sub-bosses, deal +2 damage on a hit."
+  },
+  "dungeon_skill_confinement": {
+    "name": "Confinement",
+    "label": "Confinement: creatures and heroes in this room cannot flee.",
+    "text": "creatures and heroes in this room cannot flee."
+  },
+  "dungeon_skill_dead_torches": {
+    "name": "Dead Torches",
+    "label": "Dead Torches: before the first combat in this room, heroes must choose: discard 1 item or take -1 to each hero's total hit roll in this room. If the group uses a Pitch Torch, ignore this effect.",
+    "text": "before the first combat in this room, heroes must choose: discard 1 item or take -1 to each hero's total hit roll in this room. If the group uses a Pitch Torch, ignore this effect.",
+    "options": {
+      "discard_item": "Discard {value} item",
+      "hit_penalty": "Take -{value} to hit"
+    }
+  },
+  "dungeon_skill_column_fall": {
+    "name": "Falling Column",
+    "label": "Falling Column: the first creature destroyed in this room knocks down a column. Choose another creature still in play; it takes 1 damage.",
+    "text": "the first creature destroyed in this room knocks down a column. Choose another creature still in play; it takes 1 damage."
+  },
+  "dungeon_skill_uneven_floor": {
+    "name": "Uneven Floor",
+    "label": "Uneven Floor: if any hero loses a combat in this room, discard +1 dungeon card.",
+    "text": "if any hero loses a combat in this room, discard +1 dungeon card."
+  },
+  "dungeon_skill_forge_spoils": {
+    "name": "Forge Spoils",
+    "label": "Forge Spoils: when this room is cleared, look at the top 2 cards of the Item deck, keep 1 and discard the other. This replaces the dungeon draw-and-discard step.",
+    "text": "when this room is cleared, look at the top 2 cards of the Item deck, keep 1 and discard the other. This replaces the dungeon draw-and-discard step."
+  },
+  "dungeon_skill_rekindled_forge": {
+    "name": "Rekindled Forge",
+    "label": "Rekindled Forge: when this room is cleared, search the item pile for the first [Equippable] Item and equip it on a hero.",
+    "text": "when this room is cleared, search the item pile for the first [Equippable] Item and equip it on a hero."
+  },
+  "dungeon_skill_summon_guardian": {
+    "name": "Summon Guardian",
+    "label": "Summon Guardian ({value}): reveal the {value} along with the room's enemies. While it is in play, the group cannot prevent dungeon discards through hero or item effects. If the {value} is defeated, remove this card from play.",
+    "text": "reveal the {value} along with the room's enemies. While it is in play, the group cannot prevent dungeon discards through hero or item effects. If the {value} is defeated, remove this card from play.",
+    "notes": "Use {value} as the name of the special creature/sub-boss revealed by the room."
+  },
+  "boss_skill_living_ash_throne": {
+    "name": "Throne of Living Ashes",
+    "label": "Throne of Living Ashes (1): the first damage Azhakar takes each round is reduced by 1.",
+    "text": "the first damage Azhakar takes each round is reduced by 1."
+  },
+  "boss_skill_dark_forge_pressure": {
+    "name": "Pressure of the Fornalha Sombria",
+    "label": "Pressure of the Fornalha Sombria (1): after each combat round, if Dungeon Awakening is at Purple level, discard the top card of the dungeon deck.",
+    "text": "after each combat round, if Dungeon Awakening is at Purple level, discard the top card of the dungeon deck."
+  },
+  "boss_skill_azhakar_ascension": {
+    "name": "Azhakar's Ascension",
+    "label": "Azhakar's Ascension (2): when Azhakar reaches half Health or less, he gains +2 Hit Bonus.",
+    "text": "when Azhakar reaches half Health or less, he gains +2 Hit Bonus."
+  },
+  "item_skill_drain_life_and_deadly_edge": {
+    "name": "Life Drain and Deadly Edge",
+    "label": "Life Drain and Deadly Edge ({value}): gain +{value} to your total roll. If you win the roll by 4 or more, deal +{value} damage. Heal this hero for 1 Health only if they deal damage.",
+    "text": "gain +{value} to your total roll. If you win the roll by 4 or more, deal +{value} damage. Heal this hero for 1 Health only if they deal damage."
+  },
+  "item_skill_block_and_last_light_ward": {
+    "name": "Block and Ward of the Last Light",
+    "label": "Block and Ward of the Last Light ({armor}/{purple}): reduce the damage taken by this hero by {armor}. Against Purple effects, reduce damage by an additional {purple}.",
+    "text": "reduce the damage taken by this hero by {armor}. Against Purple effects, reduce damage by an additional {purple}."
+  },
+  "item_skill_crimson_fury_mighty": {
+    "name": "Crimson Fury and Mighty Crimson Fury",
+    "label": "Crimson Fury and Mighty Crimson Fury ({value}): this character takes {value} damage to deal +6 damage. Once per game, when using Crimson Fury, the additional damage lasts until the end of combat.",
+    "text": "this character takes {value} damage to deal +6 damage. Once per game, when using Crimson Fury, the additional damage lasts until the end of combat."
+  },
+  "dungeon_skill_subboss_room": {
+    "name": "Sub-boss Room",
+    "label": "Sub-boss Room: special room: a sub-boss guards this chamber.",
+    "text": "special room: a sub-boss guards this chamber."
+  },
+  "dungeon_skill_empty_room": {
+    "name": "Empty Room",
+    "label": "Empty Room: no additional effect.",
+    "text": "no additional effect."
+  }
+}

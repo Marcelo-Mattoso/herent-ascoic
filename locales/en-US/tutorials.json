@@ -1,0 +1,340 @@
+{
+  "archive-one": {
+    "title": "Archive I — The Beginning of the Journey",
+    "subtitle": "Narrative and dungeon mechanics",
+    "summary": "Heroes, rooms, creatures, and progression.",
+    "steps": {
+      "opening": {
+        "title": "Opening",
+        "narration": [
+          "I have recorded countless journeys through the Fornalha Sombria. Some ended before the first door. Others reached places that should never have been forgotten.",
+          "They all began the same way: with a choice."
+        ],
+        "instruction": "Learn the first steps of an expedition."
+      },
+      "choose-hero": {
+        "title": "Choosing a hero",
+        "narration": [
+          "Not all who cross the Véu carry the same strengths. Each brings abilities, limitations, and choices that may shape the path ahead."
+        ],
+        "instruction": "Select a hero for your expedition. You can also inspect their card."
+      },
+      "group": {
+        "title": "The group",
+        "narration": [
+          "Some travel alone. Others share the journey. The number of those who walk together does not eliminate the risk. It merely changes the decisions they must make."
+        ],
+        "instruction": "An expedition can have one to four heroes. Add more if you wish, or continue with your chosen hero."
+      },
+      "start": {
+        "title": "Starting the expedition",
+        "narration": [
+          "Once the first step is taken, the path ceases to be a possibility. It becomes a record."
+        ],
+        "instruction": "Use the Start game button to enter the training board."
+      },
+      "board": {
+        "title": "Getting to know the dungeon",
+        "narration": [
+          "The Fornalha Sombria does not reveal all its paths. Each room shows only part of what awaits those who choose to press on."
+        ],
+        "instruction": "Observe the areas of the board.",
+        "highlights": [
+          "The current room appears here. No room has been revealed yet.",
+          "This is the group of heroes you chose.",
+          "Creatures encountered appear in this area.",
+          "The phase control guides the expedition's next action."
+        ]
+      },
+      "reveal": {
+        "title": "Revealing a room",
+        "narration": [
+          "Each passage conceals what has yet to be discovered. An open door may reveal obstacles, encounters, or opportunities."
+        ],
+        "instruction": "Use Reveal room. The game engine will draw and apply a room."
+      },
+      "encounter": {
+        "title": "Encounters and progression",
+        "narration": [
+          "Not every passage remains empty. Some presences bar the way. Some encounters leave something behind. The journey continues only when its conditions have been met."
+        ],
+        "instruction": "Observe the revealed room and any creatures within it. Combat and spoils will be covered in the next archives.",
+        "highlights": [
+          "This is the room the engine revealed for the expedition.",
+          "These creatures prevent progress until the encounter is resolved.",
+          "XP, artifacts, and the boss-related condition appear here."
+        ]
+      },
+      "goal": {
+        "title": "The expedition's objective",
+        "narration": [
+          "The first door does not define a journey. Nor does the final battle reveal all that came before it.",
+          "In the Fornalha Sombria, every decision changes what may be faced ahead."
+        ],
+        "instruction": "Explore the dungeon, face its challenges, and advance toward Azhakar. Victory depends on the expedition's actual conditions."
+      },
+      "completion": {
+        "title": "Archive I complete",
+        "narration": [
+          "This archive records the beginning of a journey. What follows still awaits those who choose to go on.",
+          "I recorded it."
+        ],
+        "instruction": "Choose how to proceed."
+      }
+    }
+  },
+  "archive-two": {
+    "title": "Archive II — Combat",
+    "subtitle": "Selection, rolling, and resolution",
+    "summary": "Selection, rolls, attacks, and damage.",
+    "steps": {
+      "combat-opening": {
+        "title": "The encounter",
+        "narration": [
+          "Some presences guard the paths of the Forge. Others seem to have been born from the very cracks in the Véu.",
+          "There is not always a way through without confrontation."
+        ],
+        "instruction": "In this archive, you will learn how to face the creatures encountered in the dungeon."
+      },
+      "combat-participants": {
+        "title": "Identifying the participants",
+        "narration": [
+          "On one side, those who chose to move forward. On the other, what rises to stop them."
+        ],
+        "instruction": "Observe your hero and the creature. Health decreases as damage is dealt.",
+        "highlights": [
+          "This card represents the hero available to act.",
+          "This is the creature blocking the way.",
+          "The creature's current and maximum Health appear here.",
+          "The hero card shows their Health and resources relevant to combat."
+        ]
+      },
+      "combat-select-hero": {
+        "title": "Selecting the hero",
+        "narration": [
+          "A decision needs someone to carry it out. Before the strike, there is the one who chooses it."
+        ],
+        "instruction": "Select your hero to initiate an attack."
+      },
+      "combat-select-target": {
+        "title": "Choosing the target",
+        "narration": [
+          "Strength without direction decides nothing. A strike needs a destination."
+        ],
+        "instruction": "Select the creature. Watch the roll and use Resolve attack to complete this first action."
+      },
+      "combat-drag": {
+        "title": "Drag and drop",
+        "narration": [
+          "Different paths can lead to the same destination. The intention remains. Only the gesture changes."
+        ],
+        "instruction": "Drag the hero card onto the creature. On touch devices, select both cards again."
+      },
+      "combat-dice": {
+        "title": "The dice",
+        "narration": [
+          "Not every intention reaches its destination. Even the most precise strike passes through a moment of uncertainty."
+        ],
+        "instruction": "Observe the dice and their actual modifiers. Once the animation ends, use Resolve attack."
+      },
+      "combat-result": {
+        "title": "Hit and damage",
+        "narration": [
+          "Not every strike reaches its target. And not every strike that lands has the same consequence."
+        ],
+        "instruction": "Compare the result recorded in the Journal with the creature's previous and current Health.",
+        "highlights": [
+          "The defeated creature has left the active enemies area. Its final Health is shown in the Archivist's panel.",
+          "Here is the hero's remaining Health."
+        ]
+      },
+      "combat-action": {
+        "title": "Completing the action",
+        "narration": [
+          "An action once completed cannot be repeated merely because its result displeased the one who chose it.",
+          "Every opportunity used changes what can still happen."
+        ],
+        "instruction": "Observe who attacked and had their attack opportunity consumed. Being selected, using an ability, or exhausting an item does not, by itself, count as attacking."
+      },
+      "combat-completion": {
+        "title": "Archive II complete — Combat",
+        "narration": [
+          "An encounter ends. Its consequences remain.",
+          "From what was lost or preserved, the next record is born."
+        ],
+        "instruction": "The engine has confirmed the completion conditions. Choose how to proceed."
+      }
+    }
+  },
+  "archive-three": {
+    "title": "Archive III — The Weight of the Journey",
+    "subtitle": "Items and equipment",
+    "summary": "Backpack, slots, effects, and consumption.",
+    "steps": {
+      "items-opening": {
+        "title": "The Weight of the Journey",
+        "narration": [
+          "Some cross the Forge relying on their own strength. Others entrust their survival to what they can carry.",
+          "But owning something does not mean knowing how to use it."
+        ],
+        "instruction": "In this archive, you will learn to organize equipment, use items, and understand their effects."
+      },
+      "inventory-open": {
+        "title": "Getting to know the inventory",
+        "narration": [
+          "Every journey imposes limits. What is carried must have a place. What is used must be within reach."
+        ],
+        "instruction": "Select the hero and open the group inventory."
+      },
+      "inventory-slots": {
+        "title": "Equipment slots",
+        "narration": [
+          "Each tool requires its place. And no traveler can bear more upon their body than their limits allow."
+        ],
+        "instruction": "Observe the two clothing slots, two hand slots, the amulet slot, and three backpack slots.",
+        "highlights": [
+          "Two clothing items can occupy separate slots.",
+          "Two hands can hold one-handed items or a two-handed weapon.",
+          "The amulet has its own slot.",
+          "The backpack holds up to three items; open it to see them."
+        ]
+      },
+      "item-inspect": {
+        "title": "Inspecting an item",
+        "narration": [
+          "An object may seem simple until its properties are understood.",
+          "There is power in what is known. And risk in what is ignored."
+        ],
+        "instruction": "Open the backpack, inspect a card, and close the details to continue."
+      },
+      "equip-dagger": {
+        "title": "Equipping a weapon",
+        "narration": [
+          "A sheathed blade does not change a strike. Only when wielded can it fulfill the purpose for which it was forged."
+        ],
+        "instruction": "Equip the Rusty Dagger from the backpack in an available hand slot."
+      },
+      "equip-axe": {
+        "title": "One hand or two",
+        "narration": [
+          "Not every weapon can be held the same way. Some require one hand. Others require both."
+        ],
+        "instruction": "In the backpack, choose Swap on the Ruined Hall Axe and tap a hand slot. Watch the previous items being rearranged."
+      },
+      "equip-armor": {
+        "title": "Clothing and passive effects",
+        "narration": [
+          "Some objects have effects that require no action. Their presence, when properly used, changes what their bearer can endure."
+        ],
+        "instruction": "Equip the Reinforced Leather Armor and observe the effect's source on the card and in the Journal."
+      },
+      "use-item": {
+        "title": "Using an item",
+        "narration": [
+          "Some objects remain silent until someone chooses to awaken what they hold within."
+        ],
+        "instruction": "Swap the axe for the Precision Potion in the backpack. Then use the equipped potion with the Use button."
+      },
+      "item-states": {
+        "title": "Exhausted and consumable items",
+        "narration": [
+          "Not every resource remains after use. Some become exhausted. Others vanish, leaving only the consequences of their use."
+        ],
+        "instruction": "Compare the potion discarded at the previous checkpoint with the Warm Blood Charm exhausted in this combat. Open the Journal to check their states; the hero can now attack this round."
+      },
+      "items-completion": {
+        "title": "Archive III complete — The Weight of the Journey",
+        "narration": [
+          "What one carries may offer protection, strength, or one last chance.",
+          "But no tool makes decisions for the one who wields it.",
+          "I recorded it."
+        ],
+        "instruction": "You have learned to inspect, equip, and use items. The next archive will cover abilities and powers."
+      }
+    }
+  },
+  "archive-four": {
+    "title": "Archive IV — Will and Power",
+    "subtitle": "Abilities and powers",
+    "summary": "Activation, preparation, effects, and limits.",
+    "steps": {
+      "abilities-opening": {
+        "title": "What Each One Carries",
+        "narration": [
+          "The same passage does not demand the same answers from everyone who crosses it.",
+          "Some abilities are revealed through choice. Others await the moment when their presence becomes necessary."
+        ],
+        "instruction": "In this archive, you will use abilities, prepare reactions, and discover the heroes' powers."
+      },
+      "abilities-inspect": {
+        "title": "Understanding Abilities",
+        "narration": [
+          "A traveler's strength lies not only in their weapons. There is knowledge, instinct, and talent that no blade can replace."
+        ],
+        "instruction": "Open the Hunter's panel and inspect the card describing their ability and power."
+      },
+      "prey-mark": {
+        "title": "A Manually Activated Ability",
+        "narration": [
+          "Some refuse to face a threat before understanding it.",
+          "Identifying a target is also a way to prepare for what comes next."
+        ],
+        "instruction": "Use Prey Mark and choose a valid creature in the target selector."
+      },
+      "hunter-attack": {
+        "title": "An Ability Is Not an Attack",
+        "narration": [
+          "Not every choice is a strike. Some merely establish the conditions for what is yet to happen."
+        ],
+        "instruction": "The Mark preserved the attack opportunity. Select the Hunter, choose a creature, and resolve the actual attack."
+      },
+      "fury-prepare": {
+        "title": "Preparing a Reaction",
+        "narration": [
+          "Some powers should not be awakened before the moment they are needed.",
+          "Some await a decision. After that, only the event remains."
+        ],
+        "instruction": "Open the Barbarian's panel and prepare Crimson Fury. Preparation can be canceled before the attack."
+      },
+      "fury-trigger": {
+        "title": "The Moment of Fury",
+        "narration": [
+          "When an opportunity arises, what was prepared finds its moment."
+        ],
+        "instruction": "Attack with the Barbarian. Watch Fury activate automatically, without further confirmation."
+      },
+      "hero-power": {
+        "title": "A Hero's Power",
+        "narration": [
+          "Some abilities accompany those who travel through the Forge, as marks of their very nature.",
+          "Their reach is not infinite. Their use, too, is governed by the rules of the path."
+        ],
+        "instruction": "Open the Warrior's panel and use Unbreakable Bastion Guard. Observe the protection and the once-per-game limit."
+      },
+      "passive-effect": {
+        "title": "Passive Effects",
+        "narration": [
+          "Not every power requires a command. Some remain present as long as their source exists."
+        ],
+        "instruction": "Observe the equipped Low-Flame Charm, its projected effect, and its source card in the Journal. Continuous effects do not require manual activation."
+      },
+      "ability-limits": {
+        "title": "Costs and Limits",
+        "narration": [
+          "Every possibility has its conditions. What has been used cannot always be claimed again at once."
+        ],
+        "instruction": "Check the power used and why it is unavailable. The power's usage limit does not consume the hero's attack."
+      },
+      "abilities-completion": {
+        "title": "Archive IV complete — Will and Power",
+        "narration": [
+          "You now know the first limits of your strength. You know what can be awakened by choice, what must wait, and what remains even in silence.",
+          "But knowing a path is not the same as walking it.",
+          "What happens next has yet to be recorded.",
+          "I recorded it. Now, I merely recount it."
+        ],
+        "instruction": "You have completed all four Ascensão Heróica training archives. Choose how to proceed."
+      }
+    }
+  }
+}

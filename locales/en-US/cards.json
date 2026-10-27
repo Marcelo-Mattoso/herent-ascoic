@@ -1,0 +1,417 @@
+{
+  "hero_eternal_rest_cleric": {
+    "name": "Cleric of Eternal Rest",
+    "style": "support, healing, survival, Última Luz."
+  },
+  "hero_broken_bastion_warrior": {
+    "name": "Warrior of the Broken Bastion",
+    "style": "combat, frontline, Bastião Partido, damage."
+  },
+  "hero_rift_rogue": {
+    "name": "Rogue of the Rifts",
+    "style": "exploration, dungeon control, Fendas, mobility."
+  },
+  "hero_crimson_rune_mage": {
+    "name": "Mage of the Crimson Runes",
+    "style": "magic, dice manipulation, control, Fendas."
+  },
+  "hero_crimson_barbarian": {
+    "name": "Crimson Barbarian",
+    "style": "damage, risk, Deserto Rubro, sacrifice."
+  },
+  "hero_last_light_paladin": {
+    "name": "Paladin of the Last Light",
+    "style": "balance, healing, damage, Última Luz."
+  },
+  "hero_deep_veil_necromancer": {
+    "name": "Necromancer of the Deep Veil",
+    "style": "Véu, recovery, late-game control, necromancy."
+  },
+  "hero_broken_veil_hunter": {
+    "name": "Hunter of the Broken Veil",
+    "style": "focus, precision, elimination, Véu."
+  },
+  "creature_deep_rift_rat": {
+    "name": "Deep Rift Rat"
+  },
+  "creature_dark_cave_goblin": {
+    "name": "Dark Cave Goblin"
+  },
+  "creature_wet_stone_slime": {
+    "name": "Damp Stone Slime"
+  },
+  "creature_black_ceiling_bat": {
+    "name": "Black Ceiling Bat"
+  },
+  "creature_ancient_pillar_spider": {
+    "name": "Ancient Pillar Spider"
+  },
+  "creature_broken_gates_watcher": {
+    "name": "Watcher of the Broken Gates"
+  },
+  "creature_hidden_flame_cultist": {
+    "name": "Cultist of the Hidden Flame"
+  },
+  "creature_catacomb_skeleton": {
+    "name": "Catacomb Skeleton"
+  },
+  "creature_dead_passage_thief": {
+    "name": "Thief of the Dead Passages"
+  },
+  "creature_old_chains_knight": {
+    "name": "Knight of the Old Chains"
+  },
+  "creature_low_fire_salamander": {
+    "name": "Low-Flame Salamander"
+  },
+  "creature_ruined_hall_ogre": {
+    "name": "Ruined Hall Ogre"
+  },
+  "creature_low_ember_kobold": {
+    "name": "Low-Ember Kobold"
+  },
+  "creature_hot_ash_worm": {
+    "name": "Hot Ash Worm"
+  },
+  "creature_blazing_skull": {
+    "name": "Blazing Skull"
+  },
+  "creature_dead_torch_sentinel": {
+    "name": "Dead Torch Sentinel"
+  },
+  "creature_forge_acolyte": {
+    "name": "Forge Acolyte"
+  },
+  "creature_broken_chains_brute": {
+    "name": "Broken Chains Brute"
+  },
+  "subboss_crimson_dungeon_jailer": {
+    "name": "Crimson Dungeon Jailer"
+  },
+  "subboss_cracked_abyss_guardian": {
+    "name": "Cracked Abyss Guardian"
+  },
+  "item_pitch_torch": {
+    "name": "Pitch Torch",
+    "tags": [
+      "Utility"
+    ]
+  },
+  "item_worn_explorer_rope": {
+    "name": "Worn Explorer’s Rope",
+    "tags": [
+      "Consumable",
+      "Exploration"
+    ]
+  },
+  "item_rusty_dagger": {
+    "name": "Rusty Dagger",
+    "tags": [
+      "Equippable",
+      "Weapon"
+    ]
+  },
+  "item_cracked_shield": {
+    "name": "Cracked Shield",
+    "tags": [
+      "Equippable",
+      "Shield",
+      "Defense"
+    ]
+  },
+  "item_lesser_vigor_potion": {
+    "name": "Lesser Vigor Potion",
+    "tags": [
+      "Consumable",
+      "Healing"
+    ]
+  },
+  "item_incendiary_oil_flask": {
+    "name": "Flask of Incendiary Oil",
+    "tags": [
+      "Consumable",
+      "Fire"
+    ]
+  },
+  "item_ancient_iron_key": {
+    "name": "Ancient Iron Key",
+    "tags": [
+      "Special",
+      "Artifact"
+    ]
+  },
+  "item_tunnel_hood": {
+    "name": "Tunnel Hood",
+    "tags": [
+      "Equippable",
+      "Protection",
+      "Exploration"
+    ]
+  },
+  "item_light_stone_boots": {
+    "name": "Lightstone Boots",
+    "tags": [
+      "Equippable",
+      "Mobility"
+    ]
+  },
+  "item_crimson_rune_staff": {
+    "name": "Crimson Rune Staff",
+    "tags": [
+      "Equippable",
+      "Weapon",
+      "Runes"
+    ]
+  },
+  "item_last_light_sword": {
+    "name": "Sword of the Last Light",
+    "tags": [
+      "Equippable",
+      "Weapon",
+      "Last Light"
+    ]
+  },
+  "item_deep_veil_scythe": {
+    "name": "Scythe of the Deep Veil",
+    "tags": [
+      "Equippable",
+      "Weapon",
+      "Veil"
+    ]
+  },
+  "item_ruined_hall_axe": {
+    "name": "Ruined Hall Axe",
+    "tags": [
+      "Equippable",
+      "Weapon",
+      "Damage"
+    ]
+  },
+  "item_broken_stone_hammer": {
+    "name": "Broken Stone Hammer",
+    "tags": [
+      "Equippable",
+      "Weapon",
+      "Strength"
+    ]
+  },
+  "item_rift_bow": {
+    "name": "Bow of the Rifts",
+    "tags": [
+      "Equippable",
+      "Weapon",
+      "Ranged",
+      "Rifts"
+    ]
+  },
+  "item_reinforced_leather_armor": {
+    "name": "Reinforced Leather Armor",
+    "tags": [
+      "Equippable",
+      "Armor",
+      "Defense"
+    ]
+  },
+  "item_ancient_metal_armor": {
+    "name": "Ancient Metal Armor",
+    "tags": [
+      "Equippable",
+      "Armor",
+      "Metal"
+    ]
+  },
+  "item_forge_magic_armor": {
+    "name": "Forge Magic Armor",
+    "tags": [
+      "Equippable",
+      "Armor",
+      "Forge",
+      "Arcane"
+    ]
+  },
+  "item_broken_veil_cloak": {
+    "name": "Cloak of the Broken Veil",
+    "tags": [
+      "Equippable",
+      "Armor",
+      "Veil"
+    ]
+  },
+  "item_fury_potion": {
+    "name": "Fury Potion",
+    "tags": [
+      "Consumable",
+      "Deserto Rubro",
+      "Damage"
+    ]
+  },
+  "item_precision_potion": {
+    "name": "Precision Potion",
+    "tags": [
+      "Consumable",
+      "Precision"
+    ]
+  },
+  "item_stoneskin_potion": {
+    "name": "Stoneskin Potion",
+    "tags": [
+      "Consumable",
+      "Defense",
+      "Stone"
+    ]
+  },
+  "item_return_potion": {
+    "name": "Return Potion",
+    "tags": [
+      "Consumable",
+      "Dungeon",
+      "Rifts"
+    ]
+  },
+  "item_living_ember_potion": {
+    "name": "Living Ember Potion",
+    "tags": [
+      "Consumable",
+      "Fire",
+      "Direct Damage"
+    ]
+  },
+  "item_greater_vigor_potion": {
+    "name": "Greater Vigor Potion",
+    "tags": [
+      "Consumable",
+      "Healing"
+    ]
+  },
+  "item_silent_dungeon_charm": {
+    "name": "Silent Dungeon Charm",
+    "tags": [
+      "Charm",
+      "Dungeon",
+      "Protection"
+    ]
+  },
+  "item_low_flame_charm": {
+    "name": "Low-Flame Charm",
+    "tags": [
+      "Charm",
+      "Forge",
+      "Hit"
+    ]
+  },
+  "item_warm_blood_charm": {
+    "name": "Warm Blood Charm",
+    "tags": [
+      "Charm",
+      "Deserto Rubro",
+      "Survival"
+    ]
+  },
+  "item_safe_path_charm": {
+    "name": "Safe Path Charm",
+    "tags": [
+      "Charm",
+      "Exploration",
+      "Dungeon"
+    ]
+  },
+  "item_last_defense_charm": {
+    "name": "Last Defense Charm",
+    "tags": [
+      "Charm",
+      "Last Light",
+      "Survival"
+    ]
+  },
+  "item_last_chord_lute": {
+    "name": "Last Chord Lute",
+    "tags": [
+      "Equippable",
+      "Charm",
+      "Escape"
+    ]
+  },
+  "item_narrow_exit_cloak": {
+    "name": "Narrow Exit Cloak",
+    "tags": [
+      "Equippable",
+      "Escape",
+      "Mobility"
+    ]
+  },
+  "item_torn_depths_map": {
+    "name": "Torn Map of the Depths",
+    "tags": [
+      "Special",
+      "Artifact",
+      "Exploration"
+    ]
+  },
+  "item_hidden_forge_chest": {
+    "name": "Hidden Forge Chest",
+    "tags": [
+      "Special",
+      "Artifact",
+      "Forge"
+    ]
+  },
+  "artifact_crimson_jailer_chain": {
+    "name": "Crimson Jailer’s Chain"
+  },
+  "artifact_ancient_ember_heart": {
+    "name": "Heart of the Ancient Ember"
+  },
+  "artifact_lost_forge_hammer": {
+    "name": "Hammer of the Lost Forge"
+  },
+  "artifact_last_vigil_brazier": {
+    "name": "Brazier of the Last Vigil"
+  },
+  "artifact_first_fire_blade": {
+    "name": "Blade of the First Fire"
+  },
+  "subboss_room_jailer_chamber": {
+    "name": "Jailer’s Chamber"
+  },
+  "subboss_room_cracked_abyss_chamber": {
+    "name": "Cracked Abyss Chamber"
+  },
+  "room_narrow_corridor": {
+    "name": "Narrow Corridor"
+  },
+  "room_dungeon_room": {
+    "name": "Dungeon Room"
+  },
+  "room_crimson_chains_chamber": {
+    "name": "Chamber of Crimson Chains"
+  },
+  "room_dead_torches_passage": {
+    "name": "Passage of Dead Torches"
+  },
+  "room_broken_columns_hall": {
+    "name": "Hall of Broken Columns"
+  },
+  "room_depths_stairway": {
+    "name": "Stairway to the Depths"
+  },
+  "room_abandoned_cell": {
+    "name": "Abandoned Cell"
+  },
+  "room_ruined_forge": {
+    "name": "Ruined Forge"
+  },
+  "room_jailer_room": {
+    "name": "Jailer’s Room"
+  },
+  "room_cracked_abyss": {
+    "name": "Cracked Abyss"
+  },
+  "boss_azhakar": {
+    "name": "Azhakar, Dragon of the Fornalha Sombria",
+    "dice": "3 red dice",
+    "condition": "the group must have at least 3 Artifacts.",
+    "artifactBonus": "if the group has the Crimson Jailer’s Chain, Heart of the Ancient Ember, and Hammer of the Lost Forge, Azhakar starts the fight with 16 Health instead of 20.",
+    "dungeonScaling": "Azhakar gains +1 to Hit Bonus for each dungeon level and +2 Health for each dungeon level.",
+    "victory": "when Azhakar is defeated, the players win the game."
+  }
+}
