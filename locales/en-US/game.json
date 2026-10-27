@@ -382,7 +382,7 @@
       "text003": "Heroes",
       "text004": "1 to 4 participants",
       "text005": "Setup",
-      "text006": "Mode and challenge",
+      "text006": "Difficulty and challenge",
       "text007": "Mode",
       "text008": "Difficulty",
       "text009": "Start game",
@@ -402,6 +402,8 @@
       "title023": "Victory",
       "text024": "Abilities",
       "text025": "Damage",
+      "heroSheet": "Hero Sheet",
+      "statHit": "Hit",
       "ariaLabel026": "Close",
       "dynamic001": "Choose your heroes",
       "mode": {

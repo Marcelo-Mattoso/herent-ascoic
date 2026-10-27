@@ -382,7 +382,7 @@
       "text003": "Heróis",
       "text004": "1 a 4 participantes",
       "text005": "Configuração",
-      "text006": "Modo e desafio",
+      "text006": "Dificuldade e desafio",
       "text007": "Modo",
       "text008": "Dificuldade",
       "text009": "Iniciar partida",
@@ -402,6 +402,8 @@
       "title023": "Vitória",
       "text024": "Habilidades",
       "text025": "Dano",
+      "heroSheet": "Ficha do Herói",
+      "statHit": "Acerto",
       "ariaLabel026": "Fechar",
       "dynamic001": "Escolha seus heróis",
       "mode": {
