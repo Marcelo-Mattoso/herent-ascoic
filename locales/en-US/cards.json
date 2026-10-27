@@ -1,417 +1,417 @@
 {
   "hero_eternal_rest_cleric": {
-    "name": "Clérigo do Descanso Eterno",
-    "style": "suporte, cura, sobrevivência, Última Luz."
+    "name": "Cleric of Eternal Rest",
+    "style": "support, healing, survival, Última Luz."
   },
   "hero_broken_bastion_warrior": {
-    "name": "Guerreiro do Bastião Partido",
-    "style": "combate, linha de frente, Bastião Partido, dano."
+    "name": "Warrior of the Broken Bastion",
+    "style": "combat, frontline, Bastião Partido, damage."
   },
   "hero_rift_rogue": {
-    "name": "Ladino das Fendas",
-    "style": "exploração, controle da dungeon, Fendas, mobilidade."
+    "name": "Rogue of the Rifts",
+    "style": "exploration, dungeon control, Fendas, mobility."
   },
   "hero_crimson_rune_mage": {
-    "name": "Mago das Runas Rubras",
-    "style": "magia, manipulação de dado, controle, Fendas."
+    "name": "Mage of the Crimson Runes",
+    "style": "magic, dice manipulation, control, Fendas."
   },
   "hero_crimson_barbarian": {
-    "name": "Bárbaro Rubro",
-    "style": "dano, risco, Deserto Rubro, sacrifício."
+    "name": "Crimson Barbarian",
+    "style": "damage, risk, Deserto Rubro, sacrifice."
   },
   "hero_last_light_paladin": {
-    "name": "Paladino da Última Luz",
-    "style": "equilíbrio, cura, dano, Última Luz."
+    "name": "Paladin of the Last Light",
+    "style": "balance, healing, damage, Última Luz."
   },
   "hero_deep_veil_necromancer": {
-    "name": "Necromante do Véu Profundo",
-    "style": "Véu, recuperação, controle tardio, necromancia."
+    "name": "Necromancer of the Deep Veil",
+    "style": "Véu, recovery, late-game control, necromancy."
   },
   "hero_broken_veil_hunter": {
-    "name": "Caçador do Véu Partido",
-    "style": "foco, precisão, eliminação, Véu."
+    "name": "Hunter of the Broken Veil",
+    "style": "focus, precision, elimination, Véu."
   },
   "creature_deep_rift_rat": {
-    "name": "Rato das Fendas Profundas"
+    "name": "Deep Rift Rat"
   },
   "creature_dark_cave_goblin": {
-    "name": "Goblin das Cavernas Escuras"
+    "name": "Dark Cave Goblin"
   },
   "creature_wet_stone_slime": {
-    "name": "Limo das Pedras Úmidas"
+    "name": "Damp Stone Slime"
   },
   "creature_black_ceiling_bat": {
-    "name": "Morcego do Teto Negro"
+    "name": "Black Ceiling Bat"
   },
   "creature_ancient_pillar_spider": {
-    "name": "Aranha dos Pilares Antigos"
+    "name": "Ancient Pillar Spider"
   },
   "creature_broken_gates_watcher": {
-    "name": "Vigia das Portas Quebradas"
+    "name": "Watcher of the Broken Gates"
   },
   "creature_hidden_flame_cultist": {
-    "name": "Cultista da Chama Oculta"
+    "name": "Cultist of the Hidden Flame"
   },
   "creature_catacomb_skeleton": {
-    "name": "Esqueleto das Catacumbas"
+    "name": "Catacomb Skeleton"
   },
   "creature_dead_passage_thief": {
-    "name": "Ladrão das Passagens Mortas"
+    "name": "Thief of the Dead Passages"
   },
   "creature_old_chains_knight": {
-    "name": "Cavaleiro das Correntes Velhas"
+    "name": "Knight of the Old Chains"
   },
   "creature_low_fire_salamander": {
-    "name": "Salamandra do Fogo Baixo"
+    "name": "Low-Flame Salamander"
   },
   "creature_ruined_hall_ogre": {
-    "name": "Ogro do Salão Arruinado"
+    "name": "Ruined Hall Ogre"
   },
   "creature_low_ember_kobold": {
-    "name": "Kobold das Brasas Baixas"
+    "name": "Low-Ember Kobold"
   },
   "creature_hot_ash_worm": {
-    "name": "Verme das Cinzas Quentes"
+    "name": "Hot Ash Worm"
   },
   "creature_blazing_skull": {
-    "name": "Crânio Flamejante"
+    "name": "Blazing Skull"
   },
   "creature_dead_torch_sentinel": {
-    "name": "Sentinela das Tochas Mortas"
+    "name": "Dead Torch Sentinel"
   },
   "creature_forge_acolyte": {
-    "name": "Acólito da Fornalha"
+    "name": "Forge Acolyte"
   },
   "creature_broken_chains_brute": {
-    "name": "Bruto das Correntes Partidas"
+    "name": "Broken Chains Brute"
   },
   "subboss_crimson_dungeon_jailer": {
-    "name": "Carcereiro da Masmorra Rubra"
+    "name": "Crimson Dungeon Jailer"
   },
   "subboss_cracked_abyss_guardian": {
-    "name": "Guardião do Abismo Rachado"
+    "name": "Cracked Abyss Guardian"
   },
   "item_pitch_torch": {
-    "name": "Tocha de Breu",
+    "name": "Pitch Torch",
     "tags": [
-      "Utilitário"
+      "Utility"
     ]
   },
   "item_worn_explorer_rope": {
-    "name": "Corda Gasta de Explorador",
+    "name": "Worn Explorer’s Rope",
     "tags": [
-      "Consumível",
-      "Exploração"
+      "Consumable",
+      "Exploration"
     ]
   },
   "item_rusty_dagger": {
-    "name": "Adaga Enferrujada",
+    "name": "Rusty Dagger",
     "tags": [
-      "Equipável",
-      "Arma"
+      "Equippable",
+      "Weapon"
     ]
   },
   "item_cracked_shield": {
-    "name": "Escudo Rachado",
+    "name": "Cracked Shield",
     "tags": [
-      "Equipável",
-      "Escudo",
-      "Defesa"
+      "Equippable",
+      "Shield",
+      "Defense"
     ]
   },
   "item_lesser_vigor_potion": {
-    "name": "Poção de Vigor Menor",
+    "name": "Lesser Vigor Potion",
     "tags": [
-      "Consumível",
-      "Cura"
+      "Consumable",
+      "Healing"
     ]
   },
   "item_incendiary_oil_flask": {
-    "name": "Frasco de Óleo Incendiário",
+    "name": "Flask of Incendiary Oil",
     "tags": [
-      "Consumível",
-      "Fogo"
+      "Consumable",
+      "Fire"
     ]
   },
   "item_ancient_iron_key": {
-    "name": "Chave de Ferro Antiga",
+    "name": "Ancient Iron Key",
     "tags": [
-      "Especial",
-      "Artefato"
+      "Special",
+      "Artifact"
     ]
   },
   "item_tunnel_hood": {
-    "name": "Capuz do Túnel",
+    "name": "Tunnel Hood",
     "tags": [
-      "Equipável",
-      "Proteção",
-      "Exploração"
+      "Equippable",
+      "Protection",
+      "Exploration"
     ]
   },
   "item_light_stone_boots": {
-    "name": "Botas de Pedra Leve",
+    "name": "Lightstone Boots",
     "tags": [
-      "Equipável",
-      "Mobilidade"
+      "Equippable",
+      "Mobility"
     ]
   },
   "item_crimson_rune_staff": {
-    "name": "Cajado das Runas Rubras",
+    "name": "Crimson Rune Staff",
     "tags": [
-      "Equipável",
-      "Arma",
-      "Runas"
+      "Equippable",
+      "Weapon",
+      "Runes"
     ]
   },
   "item_last_light_sword": {
-    "name": "Espada da Última Luz",
+    "name": "Sword of the Last Light",
     "tags": [
-      "Equipável",
-      "Arma",
-      "Última Luz"
+      "Equippable",
+      "Weapon",
+      "Last Light"
     ]
   },
   "item_deep_veil_scythe": {
-    "name": "Foice do Véu Profundo",
+    "name": "Scythe of the Deep Veil",
     "tags": [
-      "Equipável",
-      "Arma",
-      "Véu"
+      "Equippable",
+      "Weapon",
+      "Veil"
     ]
   },
   "item_ruined_hall_axe": {
-    "name": "Machado do Salão Arruinado",
+    "name": "Ruined Hall Axe",
     "tags": [
-      "Equipável",
-      "Arma",
-      "Dano"
+      "Equippable",
+      "Weapon",
+      "Damage"
     ]
   },
   "item_broken_stone_hammer": {
-    "name": "Martelo de Pedra Quebrada",
+    "name": "Broken Stone Hammer",
     "tags": [
-      "Equipável",
-      "Arma",
-      "Força"
+      "Equippable",
+      "Weapon",
+      "Strength"
     ]
   },
   "item_rift_bow": {
-    "name": "Arco das Fendas",
+    "name": "Bow of the Rifts",
     "tags": [
-      "Equipável",
-      "Arma",
-      "Distância",
-      "Fendas"
+      "Equippable",
+      "Weapon",
+      "Ranged",
+      "Rifts"
     ]
   },
   "item_reinforced_leather_armor": {
-    "name": "Armadura de Couro Reforçado",
+    "name": "Reinforced Leather Armor",
     "tags": [
-      "Equipável",
-      "Armadura",
-      "Defesa"
+      "Equippable",
+      "Armor",
+      "Defense"
     ]
   },
   "item_ancient_metal_armor": {
-    "name": "Armadura de Metal Antigo",
+    "name": "Ancient Metal Armor",
     "tags": [
-      "Equipável",
-      "Armadura",
+      "Equippable",
+      "Armor",
       "Metal"
     ]
   },
   "item_forge_magic_armor": {
-    "name": "Armadura Mágica da Fornalha",
+    "name": "Forge Magic Armor",
     "tags": [
-      "Equipável",
-      "Armadura",
-      "Fornalha",
-      "Arcano"
+      "Equippable",
+      "Armor",
+      "Forge",
+      "Arcane"
     ]
   },
   "item_broken_veil_cloak": {
-    "name": "Manto do Véu Partido",
+    "name": "Cloak of the Broken Veil",
     "tags": [
-      "Equipável",
-      "Armadura",
-      "Véu"
+      "Equippable",
+      "Armor",
+      "Veil"
     ]
   },
   "item_fury_potion": {
-    "name": "Poção de Fúria",
+    "name": "Fury Potion",
     "tags": [
-      "Consumível",
+      "Consumable",
       "Deserto Rubro",
-      "Dano"
+      "Damage"
     ]
   },
   "item_precision_potion": {
-    "name": "Poção de Precisão",
+    "name": "Precision Potion",
     "tags": [
-      "Consumível",
-      "Precisão"
+      "Consumable",
+      "Precision"
     ]
   },
   "item_stoneskin_potion": {
-    "name": "Poção de Pele de Pedra",
+    "name": "Stoneskin Potion",
     "tags": [
-      "Consumível",
-      "Defesa",
-      "Pedra"
+      "Consumable",
+      "Defense",
+      "Stone"
     ]
   },
   "item_return_potion": {
-    "name": "Poção de Retorno",
+    "name": "Return Potion",
     "tags": [
-      "Consumível",
+      "Consumable",
       "Dungeon",
-      "Fendas"
+      "Rifts"
     ]
   },
   "item_living_ember_potion": {
-    "name": "Poção de Brasa Viva",
+    "name": "Living Ember Potion",
     "tags": [
-      "Consumível",
-      "Fogo",
-      "Dano Direto"
+      "Consumable",
+      "Fire",
+      "Direct Damage"
     ]
   },
   "item_greater_vigor_potion": {
-    "name": "Poção de Vigor Maior",
+    "name": "Greater Vigor Potion",
     "tags": [
-      "Consumível",
-      "Cura"
+      "Consumable",
+      "Healing"
     ]
   },
   "item_silent_dungeon_charm": {
-    "name": "Encanto da Masmorra Calada",
+    "name": "Silent Dungeon Charm",
     "tags": [
-      "Encanto",
+      "Charm",
       "Dungeon",
-      "Proteção"
+      "Protection"
     ]
   },
   "item_low_flame_charm": {
-    "name": "Encanto da Chama Baixa",
+    "name": "Low-Flame Charm",
     "tags": [
-      "Encanto",
-      "Fornalha",
-      "Acerto"
+      "Charm",
+      "Forge",
+      "Hit"
     ]
   },
   "item_warm_blood_charm": {
-    "name": "Encanto do Sangue Quente",
+    "name": "Warm Blood Charm",
     "tags": [
-      "Encanto",
+      "Charm",
       "Deserto Rubro",
-      "Sobrevivência"
+      "Survival"
     ]
   },
   "item_safe_path_charm": {
-    "name": "Encanto do Caminho Seguro",
+    "name": "Safe Path Charm",
     "tags": [
-      "Encanto",
-      "Exploração",
+      "Charm",
+      "Exploration",
       "Dungeon"
     ]
   },
   "item_last_defense_charm": {
-    "name": "Encanto da Última Defesa",
+    "name": "Last Defense Charm",
     "tags": [
-      "Encanto",
-      "Última Luz",
-      "Sobrevivência"
+      "Charm",
+      "Last Light",
+      "Survival"
     ]
   },
   "item_last_chord_lute": {
-    "name": "Alaúde do Último Acorde",
+    "name": "Last Chord Lute",
     "tags": [
-      "Equipável",
-      "Encanto",
-      "Fuga"
+      "Equippable",
+      "Charm",
+      "Escape"
     ]
   },
   "item_narrow_exit_cloak": {
-    "name": "Manto da Saída Estreita",
+    "name": "Narrow Exit Cloak",
     "tags": [
-      "Equipável",
-      "Fuga",
-      "Mobilidade"
+      "Equippable",
+      "Escape",
+      "Mobility"
     ]
   },
   "item_torn_depths_map": {
-    "name": "Mapa Rasgado das Profundezas",
+    "name": "Torn Map of the Depths",
     "tags": [
-      "Especial",
-      "Artefato",
-      "Exploração"
+      "Special",
+      "Artifact",
+      "Exploration"
     ]
   },
   "item_hidden_forge_chest": {
-    "name": "Baú Oculto da Fornalha",
+    "name": "Hidden Forge Chest",
     "tags": [
-      "Especial",
-      "Artefato",
-      "Fornalha"
+      "Special",
+      "Artifact",
+      "Forge"
     ]
   },
   "artifact_crimson_jailer_chain": {
-    "name": "Corrente do Carcereiro Rubro"
+    "name": "Crimson Jailer’s Chain"
   },
   "artifact_ancient_ember_heart": {
-    "name": "Coração de Brasa Antiga"
+    "name": "Heart of the Ancient Ember"
   },
   "artifact_lost_forge_hammer": {
-    "name": "Martelo da Forja Perdida"
+    "name": "Hammer of the Lost Forge"
   },
   "artifact_last_vigil_brazier": {
-    "name": "Braseiro da Última Vigília"
+    "name": "Brazier of the Last Vigil"
   },
   "artifact_first_fire_blade": {
-    "name": "Lâmina do Primeiro Incêndio"
+    "name": "Blade of the First Fire"
   },
   "subboss_room_jailer_chamber": {
-    "name": "Câmara do Carcereiro"
+    "name": "Jailer’s Chamber"
   },
   "subboss_room_cracked_abyss_chamber": {
-    "name": "Câmara do Abismo Rachado"
+    "name": "Cracked Abyss Chamber"
   },
   "room_narrow_corridor": {
-    "name": "Corredor Estreito"
+    "name": "Narrow Corridor"
   },
   "room_dungeon_room": {
-    "name": "Sala da Masmorra"
+    "name": "Dungeon Room"
   },
   "room_crimson_chains_chamber": {
-    "name": "Câmara das Correntes Rubras"
+    "name": "Chamber of Crimson Chains"
   },
   "room_dead_torches_passage": {
-    "name": "Passagem das Tochas Mortas"
+    "name": "Passage of Dead Torches"
   },
   "room_broken_columns_hall": {
-    "name": "Salão das Colunas Quebradas"
+    "name": "Hall of Broken Columns"
   },
   "room_depths_stairway": {
-    "name": "Escadaria para as Profundezas"
+    "name": "Stairway to the Depths"
   },
   "room_abandoned_cell": {
-    "name": "Cela Abandonada"
+    "name": "Abandoned Cell"
   },
   "room_ruined_forge": {
-    "name": "Forja em Ruínas"
+    "name": "Ruined Forge"
   },
   "room_jailer_room": {
-    "name": "Sala do Carcereiro"
+    "name": "Jailer’s Room"
   },
   "room_cracked_abyss": {
-    "name": "Abismo Rachado"
+    "name": "Cracked Abyss"
   },
   "boss_azhakar": {
-    "name": "Azhakar, Dragão da Fornalha Sombria",
-    "dice": "3 dados vermelhos",
-    "condition": "o grupo precisa possuir ao menos 3 Artefatos.",
-    "artifactBonus": "se o grupo possuir Corrente do Carcereiro Rubro, Coração de Brasa Antiga e Martelo da Forja Perdida, Azhakar começa a luta com 16 de Vida em vez de 20.",
-    "dungeonScaling": "Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.",
-    "victory": "ao derrotar Azhakar, os jogadores vencem a partida."
+    "name": "Azhakar, Dragon of the Fornalha Sombria",
+    "dice": "3 red dice",
+    "condition": "the group must have at least 3 Artifacts.",
+    "artifactBonus": "if the group has the Crimson Jailer’s Chain, Heart of the Ancient Ember, and Hammer of the Lost Forge, Azhakar starts the fight with 16 Health instead of 20.",
+    "dungeonScaling": "Azhakar gains +1 to Hit Bonus for each dungeon level and +2 Health for each dungeon level.",
+    "victory": "when Azhakar is defeated, the players win the game."
   }
 }

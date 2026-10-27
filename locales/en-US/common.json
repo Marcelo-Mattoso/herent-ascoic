@@ -1,45 +1,45 @@
 {
   "globalMenu": {
     "globalMenu": {
-      "ariaLabel001": "Menu global",
+      "ariaLabel001": "Global menu",
       "text002": "Ascensão Heróica",
-      "ariaLabel003": "Fechar menu",
-      "text004": "Música",
-      "text005": "Faixa",
-      "ariaLabel006": "Faixa anterior",
+      "ariaLabel003": "Close menu",
+      "text004": "Music",
+      "text005": "Track",
+      "ariaLabel006": "Previous track",
       "text007": "Play",
       "text008": "Stop",
-      "ariaLabel009": "Próxima faixa",
+      "ariaLabel009": "Next track",
       "text010": "Volume ·",
-      "text011": "Regras",
-      "text012": "Ler manual de regras",
-      "text013": "Baixar manual em PDF",
-      "toggleOpen": "Abrir menu global",
-      "toggleClose": "Fechar menu global",
-      "noTrack": "Nenhuma faixa selecionada",
-      "catalogError": "Não foi possível carregar a lista de músicas.",
-      "playing": "Reproduzindo",
-      "stopped": "Parado",
-      "noTracks": "Nenhuma faixa disponível.",
-      "musicLoading": "Carregando música…",
-      "musicPlayError": "Não foi possível reproduzir esta faixa. Tente novamente.",
-      "musicFileError": "Arquivo de música indisponível ou incompatível.",
-      "musicError": "Não foi possível carregar a música."
+      "text011": "Rules",
+      "text012": "Read the rulebook",
+      "text013": "Download rulebook PDF",
+      "toggleOpen": "Open global menu",
+      "toggleClose": "Close global menu",
+      "noTrack": "No track selected",
+      "catalogError": "Could not load the music list.",
+      "playing": "Playing",
+      "stopped": "Stopped",
+      "noTracks": "No tracks available.",
+      "musicLoading": "Loading music…",
+      "musicPlayError": "Could not play this track. Please try again.",
+      "musicFileError": "Music file unavailable or unsupported.",
+      "musicError": "Could not load the music."
     }
   },
   "screens": {
     "mainMenu": {
       "text001": "Ascensão Heróica",
       "text002": "A Fornalha Sombria",
-      "text003": "JOGAR",
+      "text003": "PLAY",
       "text004": "TUTORIAL"
     }
   },
   "language": {
-    "title": "Idioma",
-    "select": "Idioma da interface",
-    "loading": "Carregando idioma…",
-    "loadError": "Não foi possível carregar o idioma. O anterior foi mantido."
+    "title": "Language",
+    "select": "Interface language",
+    "loading": "Loading language…",
+    "loadError": "Could not load the language. The previous language was kept."
   },
   "pageTitle": "Ascensão Heróica — A Fornalha Sombria"
 }

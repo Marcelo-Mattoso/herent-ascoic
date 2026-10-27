@@ -1,339 +1,339 @@
 {
   "archive-one": {
-    "title": "Arquivo I — O Início da Jornada",
-    "subtitle": "Narrativa e mecânicas da masmorra",
-    "summary": "Heróis, salas, criaturas e progressão.",
+    "title": "Archive I — The Beginning of the Journey",
+    "subtitle": "Narrative and dungeon mechanics",
+    "summary": "Heroes, rooms, creatures, and progression.",
     "steps": {
       "opening": {
-        "title": "Abertura",
+        "title": "Opening",
         "narration": [
-          "Eu registrei inúmeras travessias pela Fornalha Sombria. Algumas terminaram antes da primeira porta. Outras alcançaram lugares que não deveriam ter sido esquecidos.",
-          "Todas começaram da mesma maneira: com uma escolha."
+          "I have recorded countless journeys through the Fornalha Sombria. Some ended before the first door. Others reached places that should never have been forgotten.",
+          "They all began the same way: with a choice."
         ],
-        "instruction": "Conheça os primeiros passos de uma expedição."
+        "instruction": "Learn the first steps of an expedition."
       },
       "choose-hero": {
-        "title": "Escolhendo um herói",
+        "title": "Choosing a hero",
         "narration": [
-          "Nem todos aqueles que atravessam o Véu carregam as mesmas forças. Cada um traz consigo habilidades, limites e escolhas que poderão determinar o caminho."
+          "Not all who cross the Véu carry the same strengths. Each brings abilities, limitations, and choices that may shape the path ahead."
         ],
-        "instruction": "Selecione um herói para compor sua expedição. Você também pode examinar sua carta."
+        "instruction": "Select a hero for your expedition. You can also inspect their card."
       },
       "group": {
-        "title": "O grupo",
+        "title": "The group",
         "narration": [
-          "Alguns seguem sozinhos. Outros dividem a travessia. O número daqueles que caminham juntos não elimina o risco. Apenas transforma as decisões."
+          "Some travel alone. Others share the journey. The number of those who walk together does not eliminate the risk. It merely changes the decisions they must make."
         ],
-        "instruction": "A expedição pode ter de um a quatro heróis. Acrescente outros, se desejar, ou continue com o escolhido."
+        "instruction": "An expedition can have one to four heroes. Add more if you wish, or continue with your chosen hero."
       },
       "start": {
-        "title": "Iniciando a expedição",
+        "title": "Starting the expedition",
         "narration": [
-          "Quando o primeiro passo é dado, o caminho deixa de ser possibilidade. Torna-se registro."
+          "Once the first step is taken, the path ceases to be a possibility. It becomes a record."
         ],
-        "instruction": "Use o botão Iniciar partida para entrar no tabuleiro de treinamento."
+        "instruction": "Use the Start game button to enter the training board."
       },
       "board": {
-        "title": "Conhecendo a masmorra",
+        "title": "Getting to know the dungeon",
         "narration": [
-          "A Fornalha Sombria não revela todos os seus caminhos. Cada sala expõe apenas parte daquilo que aguarda os que decidiram avançar."
+          "The Fornalha Sombria does not reveal all its paths. Each room shows only part of what awaits those who choose to press on."
         ],
-        "instruction": "Observe as regiões do tabuleiro.",
+        "instruction": "Observe the areas of the board.",
         "highlights": [
-          "Aqui aparece a sala atual. Ainda não há uma sala revelada.",
-          "Este é o grupo de heróis que você escolheu.",
-          "As criaturas de um encontro aparecem nesta região.",
-          "O comando da fase conduz a próxima ação da expedição."
+          "The current room appears here. No room has been revealed yet.",
+          "This is the group of heroes you chose.",
+          "Creatures encountered appear in this area.",
+          "The phase control guides the expedition's next action."
         ]
       },
       "reveal": {
-        "title": "Revelando uma sala",
+        "title": "Revealing a room",
         "narration": [
-          "Cada passagem conserva aquilo que ainda não foi descoberto. Uma porta aberta pode revelar obstáculos, encontros ou oportunidades."
+          "Each passage conceals what has yet to be discovered. An open door may reveal obstacles, encounters, or opportunities."
         ],
-        "instruction": "Use Revelar sala. A sala será sorteada e aplicada pelo motor do jogo."
+        "instruction": "Use Reveal room. The game engine will draw and apply a room."
       },
       "encounter": {
-        "title": "O encontro e a progressão",
+        "title": "Encounters and progression",
         "narration": [
-          "Nem toda passagem permanece vazia. Há presenças que impedem o avanço. Há encontros que deixam algo para trás. O caminho prossegue apenas quando suas condições são cumpridas."
+          "Not every passage remains empty. Some presences bar the way. Some encounters leave something behind. The journey continues only when its conditions have been met."
         ],
-        "instruction": "Observe a sala revelada e as criaturas, se houver. Combate e espólios serão tratados nos próximos arquivos.",
+        "instruction": "Observe the revealed room and any creatures within it. Combat and spoils will be covered in the next archives.",
         "highlights": [
-          "Esta é a sala que o motor revelou para a expedição.",
-          "Estas criaturas impedem a progressão até que o encontro seja resolvido.",
-          "Aqui aparecem o XP, os artefatos e a condição ligada ao chefe."
+          "This is the room the engine revealed for the expedition.",
+          "These creatures prevent progress until the encounter is resolved.",
+          "XP, artifacts, and the boss-related condition appear here."
         ]
       },
       "goal": {
-        "title": "O objetivo da expedição",
+        "title": "The expedition's objective",
         "narration": [
-          "Não é a primeira porta que define uma travessia. Nem a última batalha revela tudo o que existiu antes dela.",
-          "Na Fornalha Sombria, cada decisão altera aquilo que poderá ser enfrentado adiante."
+          "The first door does not define a journey. Nor does the final battle reveal all that came before it.",
+          "In the Fornalha Sombria, every decision changes what may be faced ahead."
         ],
-        "instruction": "Explore a masmorra, enfrente seus desafios e avance em direção a Azhakar. A vitória depende das condições reais da expedição."
+        "instruction": "Explore the dungeon, face its challenges, and advance toward Azhakar. Victory depends on the expedition's actual conditions."
       },
       "completion": {
-        "title": "Arquivo I concluído",
+        "title": "Archive I complete",
         "narration": [
-          "Este arquivo registra o início de uma travessia. Os acontecimentos seguintes ainda aguardam aqueles que decidirem avançar.",
-          "Eu registrei."
+          "This archive records the beginning of a journey. What follows still awaits those who choose to go on.",
+          "I recorded it."
         ],
-        "instruction": "Escolha como prosseguir."
+        "instruction": "Choose how to proceed."
       }
     }
   },
   "archive-two": {
-    "title": "Arquivo II — O Combate",
-    "subtitle": "Seleção, rolagem e resolução",
-    "summary": "Seleção, rolagens, ataque e dano.",
+    "title": "Archive II — Combat",
+    "subtitle": "Selection, rolling, and resolution",
+    "summary": "Selection, rolls, attacks, and damage.",
     "steps": {
       "combat-opening": {
-        "title": "O encontro",
+        "title": "The encounter",
         "narration": [
-          "Algumas presenças guardam os caminhos da Fornalha. Outras parecem ter nascido das próprias fissuras do Véu.",
-          "Nem sempre há passagem sem confronto."
+          "Some presences guard the paths of the Forge. Others seem to have been born from the very cracks in the Véu.",
+          "There is not always a way through without confrontation."
         ],
-        "instruction": "Neste arquivo, você aprenderá a enfrentar as criaturas encontradas na masmorra."
+        "instruction": "In this archive, you will learn how to face the creatures encountered in the dungeon."
       },
       "combat-participants": {
-        "title": "Reconhecendo os envolvidos",
+        "title": "Identifying the participants",
         "narration": [
-          "De um lado, aqueles que decidiram avançar. Do outro, aquilo que se ergue para impedi-los."
+          "On one side, those who chose to move forward. On the other, what rises to stop them."
         ],
-        "instruction": "Observe seu herói e a criatura. A vida diminui conforme o dano aplicado.",
+        "instruction": "Observe your hero and the creature. Health decreases as damage is dealt.",
         "highlights": [
-          "Esta carta representa o herói disponível para agir.",
-          "Esta é a criatura que impede a passagem.",
-          "A vida atual e máxima da criatura aparece aqui.",
-          "A carta do herói mostra sua vida e os recursos relevantes para o combate."
+          "This card represents the hero available to act.",
+          "This is the creature blocking the way.",
+          "The creature's current and maximum Health appear here.",
+          "The hero card shows their Health and resources relevant to combat."
         ]
       },
       "combat-select-hero": {
-        "title": "Selecionando o herói",
+        "title": "Selecting the hero",
         "narration": [
-          "Uma decisão precisa de alguém que a execute. Antes do golpe, há aquele que o escolhe."
+          "A decision needs someone to carry it out. Before the strike, there is the one who chooses it."
         ],
-        "instruction": "Selecione o seu herói para iniciar um ataque."
+        "instruction": "Select your hero to initiate an attack."
       },
       "combat-select-target": {
-        "title": "Escolhendo o alvo",
+        "title": "Choosing the target",
         "narration": [
-          "A força sem direção nada decide. Um golpe exige um destino."
+          "Strength without direction decides nothing. A strike needs a destination."
         ],
-        "instruction": "Selecione a criatura. Acompanhe a rolagem e use Resolver ataque para concluir esta primeira ação."
+        "instruction": "Select the creature. Watch the roll and use Resolve attack to complete this first action."
       },
       "combat-drag": {
-        "title": "Arrastar e soltar",
+        "title": "Drag and drop",
         "narration": [
-          "Há caminhos diferentes para alcançar o mesmo destino. A intenção permanece. Apenas o gesto muda."
+          "Different paths can lead to the same destination. The intention remains. Only the gesture changes."
         ],
-        "instruction": "Arraste a carta do herói até a criatura. Em dispositivos de toque, selecione as duas cartas novamente."
+        "instruction": "Drag the hero card onto the creature. On touch devices, select both cards again."
       },
       "combat-dice": {
-        "title": "Os dados",
+        "title": "The dice",
         "narration": [
-          "Nem toda intenção encontra seu destino. Mesmo o golpe mais preciso atravessa um instante de incerteza."
+          "Not every intention reaches its destination. Even the most precise strike passes through a moment of uncertainty."
         ],
-        "instruction": "Observe os dados e seus modificadores reais. Quando a animação terminar, use Resolver ataque."
+        "instruction": "Observe the dice and their actual modifiers. Once the animation ends, use Resolve attack."
       },
       "combat-result": {
-        "title": "Acerto e dano",
+        "title": "Hit and damage",
         "narration": [
-          "Nem todo golpe alcança seu alvo. E nem todo golpe que alcança produz a mesma consequência."
+          "Not every strike reaches its target. And not every strike that lands has the same consequence."
         ],
-        "instruction": "Compare o resultado registrado no Diário com a vida anterior e atual da criatura.",
+        "instruction": "Compare the result recorded in the Journal with the creature's previous and current Health.",
         "highlights": [
-          "A criatura derrotada saiu da área de inimigos ativos. A vida final está no quadro do Arquivista.",
-          "Aqui está a vida restante do herói."
+          "The defeated creature has left the active enemies area. Its final Health is shown in the Archivist's panel.",
+          "Here is the hero's remaining Health."
         ]
       },
       "combat-action": {
-        "title": "A conclusão da ação",
+        "title": "Completing the action",
         "narration": [
-          "Um ato concluído não pode ser repetido apenas porque seu resultado desagradou àquele que o escolheu.",
-          "Cada oportunidade utilizada altera o que ainda pode acontecer."
+          "An action once completed cannot be repeated merely because its result displeased the one who chose it.",
+          "Every opportunity used changes what can still happen."
         ],
-        "instruction": "Observe quem atacou e teve a oportunidade de ataque consumida. Estar em foco, usar uma habilidade ou exaurir um item não significa, por si só, ter atacado."
+        "instruction": "Observe who attacked and had their attack opportunity consumed. Being selected, using an ability, or exhausting an item does not, by itself, count as attacking."
       },
       "combat-completion": {
-        "title": "Arquivo II concluído — O Combate",
+        "title": "Archive II complete — Combat",
         "narration": [
-          "Um confronto termina. Suas consequências permanecem.",
-          "Daquilo que foi perdido ou preservado nasce o próximo registro."
+          "An encounter ends. Its consequences remain.",
+          "From what was lost or preserved, the next record is born."
         ],
-        "instruction": "As condições de encerramento foram confirmadas pelo motor. Escolha como prosseguir."
+        "instruction": "The engine has confirmed the completion conditions. Choose how to proceed."
       }
     }
   },
   "archive-three": {
-    "title": "Arquivo III — O Peso da Jornada",
-    "subtitle": "Itens e equipamentos",
-    "summary": "Mochila, espaços, efeitos e consumo.",
+    "title": "Archive III — The Weight of the Journey",
+    "subtitle": "Items and equipment",
+    "summary": "Backpack, slots, effects, and consumption.",
     "steps": {
       "items-opening": {
-        "title": "O Peso da Jornada",
+        "title": "The Weight of the Journey",
         "narration": [
-          "Alguns atravessam a Fornalha confiando na própria força. Outros depositam sua sobrevivência naquilo que conseguem carregar.",
-          "Mas possuir algo não significa saber utilizá-lo."
+          "Some cross the Forge relying on their own strength. Others entrust their survival to what they can carry.",
+          "But owning something does not mean knowing how to use it."
         ],
-        "instruction": "Neste arquivo, você aprenderá a organizar equipamentos, utilizar itens e compreender seus efeitos."
+        "instruction": "In this archive, you will learn to organize equipment, use items, and understand their effects."
       },
       "inventory-open": {
-        "title": "Conhecendo o inventário",
+        "title": "Getting to know the inventory",
         "narration": [
-          "Toda jornada impõe limites. Aquilo que se carrega precisa encontrar lugar. Aquilo que se utiliza precisa estar ao alcance."
+          "Every journey imposes limits. What is carried must have a place. What is used must be within reach."
         ],
-        "instruction": "Selecione o herói e abra o inventário do grupo."
+        "instruction": "Select the hero and open the group inventory."
       },
       "inventory-slots": {
-        "title": "Os espaços de equipamento",
+        "title": "Equipment slots",
         "narration": [
-          "Cada instrumento exige seu lugar. E nenhum viajante pode carregar sobre o próprio corpo mais do que seus limites permitem."
+          "Each tool requires its place. And no traveler can bear more upon their body than their limits allow."
         ],
-        "instruction": "Observe os dois espaços de vestimenta, os dois de mão, o amuleto e os três espaços da mochila.",
+        "instruction": "Observe the two clothing slots, two hand slots, the amulet slot, and three backpack slots.",
         "highlights": [
-          "Duas vestimentas podem ocupar espaços distintos.",
-          "Duas mãos comportam itens de uma mão ou uma arma de duas mãos.",
-          "O amuleto possui seu próprio espaço.",
-          "A mochila guarda até três itens; abra-a para vê-los."
+          "Two clothing items can occupy separate slots.",
+          "Two hands can hold one-handed items or a two-handed weapon.",
+          "The amulet has its own slot.",
+          "The backpack holds up to three items; open it to see them."
         ]
       },
       "item-inspect": {
-        "title": "Examinando um item",
+        "title": "Inspecting an item",
         "narration": [
-          "Um objeto pode parecer simples até que suas propriedades sejam compreendidas.",
-          "Há poder naquilo que se conhece. E risco naquilo que se ignora."
+          "An object may seem simple until its properties are understood.",
+          "There is power in what is known. And risk in what is ignored."
         ],
-        "instruction": "Abra a mochila, examine uma carta e feche os detalhes para prosseguir."
+        "instruction": "Open the backpack, inspect a card, and close the details to continue."
       },
       "equip-dagger": {
-        "title": "Equipando uma arma",
+        "title": "Equipping a weapon",
         "narration": [
-          "Uma lâmina guardada não transforma o golpe. Apenas quando empunhada poderá cumprir aquilo para que foi forjada."
+          "A sheathed blade does not change a strike. Only when wielded can it fulfill the purpose for which it was forged."
         ],
-        "instruction": "Equipe a Adaga Enferrujada da mochila em uma mão disponível."
+        "instruction": "Equip the Rusty Dagger from the backpack in an available hand slot."
       },
       "equip-axe": {
-        "title": "Uma mão ou duas",
+        "title": "One hand or two",
         "narration": [
-          "Nem toda arma pode ser sustentada da mesma maneira. Algumas exigem uma mão. Outras exigem ambas."
+          "Not every weapon can be held the same way. Some require one hand. Others require both."
         ],
-        "instruction": "Na mochila, escolha Trocar no Machado do Salão Arruinado e toque em uma mão. Observe a realocação dos itens anteriores."
+        "instruction": "In the backpack, choose Swap on the Ruined Hall Axe and tap a hand slot. Watch the previous items being rearranged."
       },
       "equip-armor": {
-        "title": "Vestimentas e efeitos passivos",
+        "title": "Clothing and passive effects",
         "narration": [
-          "Há objetos cujo efeito não depende de um gesto. Sua presença, quando corretamente utilizados, modifica aquilo que seu portador pode suportar."
+          "Some objects have effects that require no action. Their presence, when properly used, changes what their bearer can endure."
         ],
-        "instruction": "Equipe a Armadura de Couro Reforçado e observe a origem do efeito na carta e no Diário."
+        "instruction": "Equip the Reinforced Leather Armor and observe the effect's source on the card and in the Journal."
       },
       "use-item": {
-        "title": "Utilizando um item",
+        "title": "Using an item",
         "narration": [
-          "Alguns objetos permanecem silenciosos até que alguém decida despertar aquilo que guardam."
+          "Some objects remain silent until someone chooses to awaken what they hold within."
         ],
-        "instruction": "Troque o machado pela Poção de Precisão da mochila. Depois use a poção equipada pelo botão Usar."
+        "instruction": "Swap the axe for the Precision Potion in the backpack. Then use the equipped potion with the Use button."
       },
       "item-states": {
-        "title": "Itens exauridos e consumíveis",
+        "title": "Exhausted and consumable items",
         "narration": [
-          "Nem todo recurso permanece após ser utilizado. Alguns se esgotam. Outros desaparecem, deixando apenas a consequência de seu uso."
+          "Not every resource remains after use. Some become exhausted. Others vanish, leaving only the consequences of their use."
         ],
-        "instruction": "Compare a poção descartada no checkpoint anterior com o Encanto do Sangue Quente exaurido neste combate. Abra o Diário para conferir o estado; o herói já pode atacar nesta rodada."
+        "instruction": "Compare the potion discarded at the previous checkpoint with the Warm Blood Charm exhausted in this combat. Open the Journal to check their states; the hero can now attack this round."
       },
       "items-completion": {
-        "title": "Arquivo III concluído — O Peso da Jornada",
+        "title": "Archive III complete — The Weight of the Journey",
         "narration": [
-          "Aquilo que se carrega pode oferecer proteção, força ou uma última oportunidade.",
-          "Mas nenhuma ferramenta decide por aquele que a empunha.",
-          "Eu registrei."
+          "What one carries may offer protection, strength, or one last chance.",
+          "But no tool makes decisions for the one who wields it.",
+          "I recorded it."
         ],
-        "instruction": "Você aprendeu a examinar, equipar e utilizar itens. O próximo arquivo tratará de habilidades e poderes."
+        "instruction": "You have learned to inspect, equip, and use items. The next archive will cover abilities and powers."
       }
     }
   },
   "archive-four": {
-    "title": "Arquivo IV — A Vontade e o Poder",
-    "subtitle": "Habilidades e poderes",
-    "summary": "Ativação, preparação, efeitos e limites.",
+    "title": "Archive IV — Will and Power",
+    "subtitle": "Abilities and powers",
+    "summary": "Activation, preparation, effects, and limits.",
     "steps": {
       "abilities-opening": {
-        "title": "Aquilo que Cada Um Carrega",
+        "title": "What Each One Carries",
         "narration": [
-          "Uma mesma passagem não exige as mesmas respostas de todos aqueles que a atravessam.",
-          "Há capacidades que se revelam pela escolha. Outras aguardam o instante em que sua presença se torna necessária."
+          "The same passage does not demand the same answers from everyone who crosses it.",
+          "Some abilities are revealed through choice. Others await the moment when their presence becomes necessary."
         ],
-        "instruction": "Neste arquivo, você utilizará habilidades, preparará reações e conhecerá os poderes dos heróis."
+        "instruction": "In this archive, you will use abilities, prepare reactions, and discover the heroes' powers."
       },
       "abilities-inspect": {
-        "title": "Conhecendo as Habilidades",
+        "title": "Understanding Abilities",
         "narration": [
-          "A força de cada viajante não está apenas em suas armas. Há conhecimentos, instintos e dons que nenhuma lâmina pode substituir."
+          "A traveler's strength lies not only in their weapons. There is knowledge, instinct, and talent that no blade can replace."
         ],
-        "instruction": "Abra o painel do Caçador e examine a carta que descreve sua habilidade e seu poder."
+        "instruction": "Open the Hunter's panel and inspect the card describing their ability and power."
       },
       "prey-mark": {
-        "title": "Uma Habilidade Manual",
+        "title": "A Manually Activated Ability",
         "narration": [
-          "Há aqueles que não enfrentam a ameaça sem antes compreendê-la.",
-          "Reconhecer um alvo também é uma maneira de preparar aquilo que virá."
+          "Some refuse to face a threat before understanding it.",
+          "Identifying a target is also a way to prepare for what comes next."
         ],
-        "instruction": "Use Marca da Presa e escolha uma criatura válida no seletor de alvos."
+        "instruction": "Use Prey Mark and choose a valid creature in the target selector."
       },
       "hunter-attack": {
-        "title": "A Habilidade Não É um Ataque",
+        "title": "An Ability Is Not an Attack",
         "narration": [
-          "Nem toda escolha é um golpe. Algumas apenas estabelecem as condições para aquilo que ainda acontecerá."
+          "Not every choice is a strike. Some merely establish the conditions for what is yet to happen."
         ],
-        "instruction": "A Marca preservou o ataque. Selecione o Caçador, escolha uma criatura e resolva o ataque real."
+        "instruction": "The Mark preserved the attack opportunity. Select the Hunter, choose a creature, and resolve the actual attack."
       },
       "fury-prepare": {
-        "title": "Preparando uma Reação",
+        "title": "Preparing a Reaction",
         "narration": [
-          "Há forças que não devem ser despertadas antes do instante necessário.",
-          "Algumas aguardam uma decisão. Depois dela, resta apenas o acontecimento."
+          "Some powers should not be awakened before the moment they are needed.",
+          "Some await a decision. After that, only the event remains."
         ],
-        "instruction": "Abra o Bárbaro e prepare Fúria Rubra. A preparação pode ser cancelada antes do ataque."
+        "instruction": "Open the Barbarian's panel and prepare Crimson Fury. Preparation can be canceled before the attack."
       },
       "fury-trigger": {
-        "title": "O Momento da Fúria",
+        "title": "The Moment of Fury",
         "narration": [
-          "Quando a oportunidade surge, aquilo que foi preparado encontra seu momento."
+          "When an opportunity arises, what was prepared finds its moment."
         ],
-        "instruction": "Ataque com o Bárbaro. Observe a Fúria executar automaticamente, sem confirmação adicional."
+        "instruction": "Attack with the Barbarian. Watch Fury activate automatically, without further confirmation."
       },
       "hero-power": {
-        "title": "O Poder de um Herói",
+        "title": "A Hero's Power",
         "narration": [
-          "Algumas capacidades acompanham aqueles que percorrem a Fornalha como marcas de sua própria natureza.",
-          "Seu alcance não é infinito. Seu uso também pertence às regras do caminho."
+          "Some abilities accompany those who travel through the Forge, as marks of their very nature.",
+          "Their reach is not infinite. Their use, too, is governed by the rules of the path."
         ],
-        "instruction": "Abra o Guerreiro e use Guarda Inquebrável do Bastião. Observe a proteção e o limite por partida."
+        "instruction": "Open the Warrior's panel and use Unbreakable Bastion Guard. Observe the protection and the once-per-game limit."
       },
       "passive-effect": {
-        "title": "Efeitos Passivos",
+        "title": "Passive Effects",
         "narration": [
-          "Nem toda força exige uma ordem. Algumas permanecem presentes enquanto sua origem existir."
+          "Not every power requires a command. Some remain present as long as their source exists."
         ],
-        "instruction": "Observe o Encanto da Chama Baixa equipado, seu efeito projetado e a carta de origem no Diário. Efeitos contínuos não exigem ativação manual."
+        "instruction": "Observe the equipped Low-Flame Charm, its projected effect, and its source card in the Journal. Continuous effects do not require manual activation."
       },
       "ability-limits": {
-        "title": "Custos e Limites",
+        "title": "Costs and Limits",
         "narration": [
-          "Toda possibilidade possui suas condições. Aquilo que foi utilizado nem sempre pode ser reclamado novamente no mesmo instante."
+          "Every possibility has its conditions. What has been used cannot always be claimed again at once."
         ],
-        "instruction": "Confira o poder utilizado e o motivo da indisponibilidade. O limite do poder não consome o ataque do herói."
+        "instruction": "Check the power used and why it is unavailable. The power's usage limit does not consume the hero's attack."
       },
       "abilities-completion": {
-        "title": "Arquivo IV concluído — A Vontade e o Poder",
+        "title": "Archive IV complete — Will and Power",
         "narration": [
-          "Agora conhece os primeiros limites de sua força. Sabe o que pode despertar por escolha, o que precisa aguardar e aquilo que permanece mesmo em silêncio.",
-          "Mas conhecer um caminho não é o mesmo que atravessá-lo.",
-          "Os próximos acontecimentos ainda não foram registrados.",
-          "Eu registrei. Agora, apenas relato."
+          "You now know the first limits of your strength. You know what can be awakened by choice, what must wait, and what remains even in silence.",
+          "But knowing a path is not the same as walking it.",
+          "What happens next has yet to be recorded.",
+          "I recorded it. Now, I merely recount it."
         ],
-        "instruction": "Você concluiu os quatro arquivos de aprendizado de Ascensão Heróica. Escolha como prosseguir."
+        "instruction": "You have completed all four Ascensão Heróica training archives. Choose how to proceed."
       }
     }
   }
