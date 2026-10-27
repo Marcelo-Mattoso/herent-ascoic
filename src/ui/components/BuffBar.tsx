@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import type { InfluenceView } from "@/core/projection/playerView";
 import { UI } from "@/ui/theme";
 
@@ -37,8 +38,7 @@ export function BuffBar({ buffs, hideWhenEmpty, leadingLabel }: BuffBarProps) {
 					</span>
 				)}
 				<span style={{ fontSize: 9, color: UI.textTertiary }}>
-					sem efeitos ativos
-				</span>
+					{translate("game:components.buffBar.text001")}{" "}</span>
 			</div>
 		);
 	}

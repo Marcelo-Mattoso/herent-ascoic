@@ -1,10 +1,11 @@
+import { translate } from "@/i18n";
 // Tela de gerenciamento de inventário do grupo — Patch 4.
 // Substitui o modal de recompensa por uma tela completa de organização.
 // Drag & drop livre entre todas as zonas: mesa ↔ herói-slot ↔ herói-mochila.
 
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
-import { getCardLocale, getCardName } from "@/core/data/cardLocale";
+import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import {
 	BACKPACK_CAPACITY,
@@ -74,18 +75,18 @@ function itemColor(itemId: string) {
 
 const SLOT_TYPES = EQUIPMENT_SLOTS;
 const SLOT_LABELS: Record<ItemSlotType, string> = {
-	clothing1: "ves1",
-	clothing2: "ves2",
-	hand1: "mão1",
-	hand2: "mão2",
-	amulet: "amu",
+	clothing1: "game:components.inventarioGrupo.slotLabels.clothing1",
+	clothing2: "game:components.inventarioGrupo.slotLabels.clothing2",
+	hand1: "game:components.inventarioGrupo.slotLabels.hand1",
+	hand2: "game:components.inventarioGrupo.slotLabels.hand2",
+	amulet: "game:components.inventarioGrupo.slotLabels.amulet",
 };
 const SLOT_TITLES: Record<ItemSlotType, string> = {
-	clothing1: "Vestimenta 1",
-	clothing2: "Vestimenta 2",
-	hand1: "Mão 1",
-	hand2: "Mão 2",
-	amulet: "Amuleto",
+	clothing1: "game:components.inventarioGrupo.slotTitles.clothing1",
+	clothing2: "game:components.inventarioGrupo.slotTitles.clothing2",
+	hand1: "game:components.inventarioGrupo.slotTitles.hand1",
+	hand2: "game:components.inventarioGrupo.slotTitles.hand2",
+	amulet: "game:components.inventarioGrupo.slotTitles.amulet",
 };
 const MAX_BACKPACK = BACKPACK_CAPACITY;
 
@@ -392,7 +393,7 @@ function HeroColumn({
 		const to = { kind: "hero_equip" as const, heroId: hero.id, slotType };
 		if (!moveInventoryItem(gameState, selectedBackpackItem.itemId, from, to)) {
 			setSelectionFeedback(
-				"Espaço incompatível ou sem destino para o item substituído.",
+				translate("game:components.inventarioGrupo.incompatibleSlot"),
 			);
 			return;
 		}
@@ -445,7 +446,7 @@ function HeroColumn({
 			{/* Espaços de equipamento — zona de drop inteira */}
 			{selectedBackpackItem && (
 				<p style={{ fontSize: 10, color: "#f2dfad" }}>
-					Toque no espaço para trocar {getCardName(selectedBackpackItem.itemId)}
+					{translate("game:components.inventarioGrupo.text001")}{" "}{getCardName(selectedBackpackItem.itemId)}
 					.
 				</p>
 			)}
@@ -553,8 +554,7 @@ function HeroColumn({
 									onClick={() => onUseItem(name, hero.id)}
 									style={{ fontSize: 10, padding: "1px 0" }}
 								>
-									Usar
-								</button>
+									{translate("game:components.inventarioGrupo.text002")}{" "}</button>
 							)}
 						</div>
 					) : (
@@ -570,7 +570,7 @@ function HeroColumn({
 							}
 							key={slotType}
 							{...slotDropHandlers(slotType)}
-							label={isTwoHandOverlay ? "2 mãos" : SLOT_LABELS[slotType]}
+							label={isTwoHandOverlay ? "2 mãos" : translate(SLOT_LABELS[slotType])}
 							filled={isTwoHandOverlay}
 							onClick={() => chooseEquipmentSlot(slotType)}
 						/>
@@ -589,28 +589,28 @@ function HeroColumn({
 
 			<div className="inventory-hero-stats">
 				<span>
-					<strong>Vida</strong>
+					<strong>{translate("game:components.inventarioGrupo.text003")}</strong>
 					{hero.currentLife}/{hero.maxLife}
 				</span>
 				<span>
-					<strong>Acerto</strong>+{hero.hitBonus}
+					<strong>{translate("game:components.inventarioGrupo.text004")}</strong>+{hero.hitBonus}
 					{effectiveStats.hitBonus
 						? ` (${signed(effectiveStats.hitBonus)} item)`
 						: ""}
 				</span>
 				<span>
-					<strong>Dados</strong>
+					<strong>{translate("game:components.inventarioGrupo.text005")}</strong>
 					{hero.dice}d
 				</span>
 				<span>
-					<strong>Dano</strong>
+					<strong>{translate("game:components.inventarioGrupo.text006")}</strong>
 					{effectiveStats.damage}
 					{effectiveStats.damageBonus
 						? ` (${signed(effectiveStats.damageBonus)} item)`
 						: ""}
 				</span>
 				<span>
-					<strong>Proteção</strong>
+					<strong>{translate("game:components.inventarioGrupo.text007")}</strong>
 					{effectiveStats.protection}
 				</span>
 			</div>
@@ -653,10 +653,9 @@ function HeroColumn({
 						<span />
 					</span>
 					<span className="inventory-backpack-stack__body">
-						<strong>Mochila</strong>
+						<strong>{translate("game:components.inventarioGrupo.text008")}</strong>
 						<small>
-							{hero.backpack.length}/{MAX_BACKPACK} itens
-						</small>
+							{hero.backpack.length}/{MAX_BACKPACK} {translate("game:components.inventarioGrupo.text009")}{" "}</small>
 					</span>
 				</button>
 
@@ -666,7 +665,7 @@ function HeroColumn({
 						data-tutorial-anchor="hero.backpack-popover"
 					>
 						{hero.backpack.length === 0 ? (
-							<span className="inventory-backpack-empty">vazia</span>
+							<span className="inventory-backpack-empty">{translate("game:components.inventarioGrupo.text010")}</span>
 						) : (
 							hero.backpack.map((name, i) => {
 								const col = itemColor(name);
@@ -753,8 +752,7 @@ function HeroColumn({
 												}}
 												style={{ marginLeft: "auto", fontSize: 10 }}
 											>
-												Usar
-											</button>
+												{translate("game:components.inventarioGrupo.text011")}{" "}</button>
 										)}
 										{canEquip && (
 											<button
@@ -766,8 +764,7 @@ function HeroColumn({
 												}}
 												style={{ marginLeft: "auto", fontSize: 10 }}
 											>
-												Equipar
-											</button>
+												{translate("game:components.inventarioGrupo.text012")}{" "}</button>
 										)}
 										{canChooseSlot && !canEquip && (
 											<button
@@ -781,8 +778,7 @@ function HeroColumn({
 												}}
 												style={{ marginLeft: "auto", fontSize: 10 }}
 											>
-												Trocar
-											</button>
+												{translate("game:components.inventarioGrupo.text013")}{" "}</button>
 										)}
 									</div>
 								);
@@ -991,7 +987,7 @@ export function InventarioGrupo({
 		if (!dragging) return;
 		if (!isValidZone(zone)) {
 			setInventoryFeedback(
-				"Movimento inválido: confira o espaço, a classe e a capacidade da mochila.",
+				translate("game:components.inventarioGrupo.invalidMove"),
 			);
 			return;
 		}
@@ -1078,7 +1074,7 @@ export function InventarioGrupo({
 		const from = { kind: "mesa" as const };
 		const to = { kind: "hero_backpack" as const, heroId: rewardHero.id };
 		if (!moveInventoryItem(state, itemId, from, to)) {
-			setInventoryFeedback("Mochila cheia ou destino inválido para este item.");
+			setInventoryFeedback(translate("game:components.inventarioGrupo.fullBackpack"));
 			return;
 		}
 		setInventoryFeedback(null);
@@ -1100,15 +1096,15 @@ export function InventarioGrupo({
 				<div
 					role="dialog"
 					aria-modal="true"
-					aria-label="Inventário do grupo"
+					aria-label={translate("game:components.inventarioGrupo.ariaLabel014")}
 					className="inventory-dialog"
 				>
 					<div className="inventory-header">
 						<div className="inventory-title">
 							{logoUrl ? <img src={logoUrl} alt="" /> : null}
 							<div>
-								<h1>Inventário do grupo</h1>
-								<p>Arrume recompensas antes da próxima fase</p>
+								<h1>{translate("game:components.inventarioGrupo.text015")}</h1>
+								<p>{translate("game:components.inventarioGrupo.text016")}</p>
 							</div>
 						</div>
 					</div>
@@ -1140,12 +1136,10 @@ export function InventarioGrupo({
 								}
 							>
 								<p className="inventory-drop-panel__label">
-									Itens não guardados
-								</p>
+									{translate("game:components.inventarioGrupo.text017")}{" "}</p>
 								{heroes.length > 1 && (
 									<label className="inventory-reward-target">
-										Guardar com
-										<select
+										{translate("game:components.inventarioGrupo.text018")}{" "}<select
 											value={rewardHero?.id ?? ""}
 											onChange={(event) => setRewardHeroId(event.target.value)}
 										>
@@ -1206,8 +1200,7 @@ export function InventarioGrupo({
 									})}
 									{mesaItens.length === 0 && (
 										<span className="inventory-empty-state">
-											sem itens para descartar
-										</span>
+											{translate("game:components.inventarioGrupo.text019")}{" "}</span>
 									)}
 								</div>
 							</div>
@@ -1216,7 +1209,7 @@ export function InventarioGrupo({
 
 					<section className="inventory-section">
 						<p className="inventory-strip-label">
-							Artefatos ativos · {grupoArtefatos.length}
+							{translate("game:components.inventarioGrupo.text020")}{" "}{grupoArtefatos.length}
 						</p>
 						<div className="inventory-artifact-grid inventory-artifact-grid--open">
 							{grupoArtefatos.map((art, vagaIndex) => {
@@ -1246,7 +1239,7 @@ export function InventarioGrupo({
 														fontSize: 11,
 													}}
 												>
-													<span>Portador:</span>
+													<span>{translate("game:components.inventarioGrupo.text021")}</span>
 													<select
 														value={art.carriedBy ?? ""}
 														onChange={(e) =>
@@ -1268,7 +1261,7 @@ export function InventarioGrupo({
 															color: AMBER.ink,
 														}}
 													>
-														<option value="">— sem portador —</option>
+														<option value="">{translate("game:components.inventarioGrupo.text022")}</option>
 														{heroes.map((h) => (
 															<option key={h.id} value={h.id}>
 																{getCardName(h.cardId).split(" ")[0]}
@@ -1284,8 +1277,7 @@ export function InventarioGrupo({
 														opacity: 0.7,
 													}}
 												>
-													Artefato passivo do grupo
-												</p>
+													{translate("game:components.inventarioGrupo.text023")}{" "}</p>
 											)}
 										</div>
 										<button
@@ -1307,21 +1299,19 @@ export function InventarioGrupo({
 							})}
 							{grupoArtefatos.length === 0 && (
 								<div className="inventory-active-artifact inventory-active-artifact--empty">
-									sem artefatos ativos
-								</div>
+									{translate("game:components.inventarioGrupo.text024")}{" "}</div>
 							)}
 						</div>
 					</section>
 
 					<section className="inventory-section">
 						<p className="inventory-strip-label">
-							{heroes.length} herói{heroes.length !== 1 ? "s" : ""} ativo
-							{heroes.length !== 1 ? "s" : ""}
+							{heroes.length} {translate("game:components.inventarioGrupo.text025")}{heroes.length !== 1 ? "s" : ""} {translate("game:components.inventarioGrupo.text026")}{" "}{heroes.length !== 1 ? "s" : ""}
 						</p>
 
 						<section
 							ref={scrollRef}
-							aria-label="Lista de heróis do inventário"
+							aria-label={translate("game:components.inventarioGrupo.ariaLabel027")}
 							onMouseDown={onScrollMouseDown}
 							onMouseMove={onScrollMouseMove}
 							onMouseUp={onScrollMouseUp}
@@ -1361,8 +1351,7 @@ export function InventarioGrupo({
 								))}
 								{heroes.length === 0 && (
 									<p style={{ fontSize: 13, color: UI.textTertiary }}>
-										Nenhum herói ativo.
-									</p>
+										{translate("game:components.inventarioGrupo.text028")}{" "}</p>
 								)}
 							</div>
 						</section>
@@ -1388,8 +1377,7 @@ export function InventarioGrupo({
 								transition: "opacity 0.15s",
 							}}
 						>
-							Finalizar arrumação
-						</button>
+							{translate("game:components.inventarioGrupo.text029")}{" "}</button>
 					</div>
 				</div>
 			</div>
@@ -1475,8 +1463,8 @@ function HeroInventoryModal({
 		(hero.conditions.length > 0
 			? hero.conditions.join(", ")
 			: hero.healBlocked
-				? "Cura bloqueada"
-				: "Sem bloqueios");
+				? translate("game:components.inventarioGrupo.healingBlocked")
+				: translate("game:components.inventarioGrupo.noBlocks"));
 
 	return (
 		<div
@@ -1492,7 +1480,7 @@ function HeroInventoryModal({
 				<button
 					type="button"
 					className="inventory-hero-modal__close"
-					aria-label="Fechar detalhes"
+					aria-label={translate("game:components.inventarioGrupo.ariaLabel030")}
 					onClick={onClose}
 				>
 					×
@@ -1530,50 +1518,50 @@ function HeroInventoryModal({
 							<h2>{heroName}</h2>
 							<div className="inventory-hero-modal__stats">
 								<span>
-									<strong>Vida</strong>
+									<strong>{translate("game:components.inventarioGrupo.text031")}</strong>
 									{hero.currentLife}/{hero.maxLife}
 								</span>
 								<span>
-									<strong>Acerto</strong>+{hero.hitBonus}
+									<strong>{translate("game:components.inventarioGrupo.text032")}</strong>+{hero.hitBonus}
 									{effectiveStats.hitBonus
 										? ` (${signed(effectiveStats.hitBonus)} item)`
 										: ""}
 								</span>
 								<span>
-									<strong>Dados</strong>
+									<strong>{translate("game:components.inventarioGrupo.text033")}</strong>
 									{hero.dice}d
 								</span>
 								<span>
-									<strong>Dano efetivo</strong>
+									<strong>{translate("game:components.inventarioGrupo.text034")}</strong>
 									{effectiveStats.damage}
 									{effectiveStats.damageBonus
 										? ` (${signed(effectiveStats.damageBonus)} item)`
 										: ""}
 								</span>
 								<span>
-									<strong>Proteção</strong>
+									<strong>{translate("game:components.inventarioGrupo.text035")}</strong>
 									{blockText}
 								</span>
 								<span>
-									<strong>Ímpeto</strong>
+									<strong>{translate("game:components.inventarioGrupo.text036")}</strong>
 									{hero.impeto}
 								</span>
 							</div>
 							<div className="inventory-hero-modal__passive">
-								<strong>Habilidades e poderes</strong>
+								<strong>{translate("game:components.inventarioGrupo.text037")}</strong>
 								{cardSkills(hero.cardId).length > 0 ? (
 									cardSkills(hero.cardId).map(({ def, ref }) => (
 										<p key={def.id}>{renderSkillLabel(ref)}</p>
 									))
 								) : (
-									<p>{passive || "Sem habilidade listada."}</p>
+									<p>{passive || translate("game:components.inventarioGrupo.dynamic001")}</p>
 								)}
 							</div>
 						</div>
 					</section>
 					<div className="inventory-hero-modal__backpack">
 						<strong>
-							Mochila ({hero.backpack.length}/{BACKPACK_CAPACITY})
+							{translate("game:components.inventarioGrupo.text038")}{hero.backpack.length}/{BACKPACK_CAPACITY})
 						</strong>
 						<div className="inventory-hero-modal__backpack-slots">
 							{Array.from({ length: BACKPACK_CAPACITY }, (_, index) => {
@@ -1612,7 +1600,7 @@ function HeroEquipmentCard({
 	cardImageUrls: CardImageUrls;
 	onItemDetail: (itemId: string) => void;
 }) {
-	const slotName = SLOT_TITLES[slotType];
+	const slotName = translate(SLOT_TITLES[slotType]);
 	const itemName = itemId ? getCardName(itemId) : "";
 	const imageUrl = itemId ? getCardImageUrl(cardImageUrls, itemId) : undefined;
 	const effect = itemId ? getPrimarySkillText(itemId) : "";
@@ -1622,7 +1610,7 @@ function HeroEquipmentCard({
 				className={`inventory-hero-modal__equipment inventory-hero-modal__equipment--${slotType}`}
 			>
 				<span>{slotName}</span>
-				<p>Ocupado por {itemName} (duas mãos)</p>
+				<p>{translate("game:components.inventarioGrupo.text039")}{" "}{itemName} {translate("game:components.inventarioGrupo.text040")}</p>
 			</div>
 		);
 	}
@@ -1633,7 +1621,7 @@ function HeroEquipmentCard({
 				className={`inventory-hero-modal__equipment inventory-hero-modal__equipment--${slotType} inventory-hero-modal__equipment--empty`}
 			>
 				<span>{slotName}</span>
-				<p>vazio</p>
+				<p>{translate("game:components.inventarioGrupo.text041")}</p>
 			</div>
 		);
 	}
@@ -1654,7 +1642,7 @@ function HeroEquipmentCard({
 				)}
 			</div>
 			<strong title={itemName}>{itemName}</strong>
-			{exhausted && <small>EXHAUSTED</small>}
+			{exhausted && <small>{translate("game:components.inventarioGrupo.text042")}</small>}
 			<p>{effect}</p>
 		</button>
 	);
@@ -1723,8 +1711,7 @@ function InventoryRewardCard({
 					className="inventory-reward-collect"
 					onClick={onCollect}
 				>
-					Guardar
-				</button>
+					{translate("game:components.inventarioGrupo.text043")}{" "}</button>
 			)}
 			<button
 				type="button"
@@ -1771,7 +1758,7 @@ function ItemTooltipPanel({
 	const isItem = card.type === "item";
 	const tagLine = isItem
 		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
-		: "Artefato de grupo";
+		: translate("game:components.inventarioGrupo.groupArtifact");
 	const effectEntry = cardSkills(card.id)[0];
 	const effect = effectEntry ? renderSkillLabel(effectEntry.ref) : "";
 
@@ -1858,8 +1845,7 @@ function ItemTooltipPanel({
 						cursor: "pointer",
 					}}
 				>
-					Usar
-				</button>
+					{translate("game:components.inventarioGrupo.text044")}{" "}</button>
 			)}
 		</div>
 	);

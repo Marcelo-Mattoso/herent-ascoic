@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import { UI } from "@/ui/theme";
 
 interface StackPreviewProps {
@@ -43,8 +44,7 @@ export function StackPreview({
 					{name}
 				</p>
 				<p className="text-xs" style={{ color: UI.textTertiary }}>
-					{count} cartas
-					{discardCount !== undefined &&
+					{count} {translate("game:components.stackPreview.text001")}{" "}{discardCount !== undefined &&
 						discardCount > 0 &&
 						` · descarte ${discardCount}`}
 				</p>

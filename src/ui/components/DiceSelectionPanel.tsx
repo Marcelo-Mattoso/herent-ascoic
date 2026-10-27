@@ -1,5 +1,6 @@
+import { translate } from "@/i18n";
 import { useState } from "react";
-import { getSkillName } from "@/core/data/skillLocale";
+import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import {
 	dieReplacementValues,
 	isEligibleDie,
@@ -46,16 +47,16 @@ export function DiceSelectionPanel({
 		(rerolling || (nextValue !== undefined && values.includes(nextValue)));
 	const total = selected?.side === "hero" ? roll.heroTotal : roll.enemyTotal;
 	const description = modifying
-		? `Ajuste um dado em até ${Math.abs(selection.deltaMax!)} ponto(s), entre 1 e 6.`
+		? translate("game:components.diceSelectionPanel.adjustDie", { count: Math.abs(selection.deltaMax!) })
 		: rerolling
-			? "Role novamente um dado. O novo resultado substituirá o atual."
-			: `Altere o resultado de um dado para ${selection.setToValue ?? 6}.`;
+			? translate("game:components.diceSelectionPanel.rerollDie")
+			: translate("game:components.diceSelectionPanel.setDie", { value: selection.setToValue ?? 6 });
 
 	return (
 		<Modal title={getSkillName(selection.skillId)} maxWidth={640}>
 			<div className="dice-choice">
 				<p className="dice-choice__intro">{description}</p>
-				<p className="dice-choice__step">1. Escolha um dos dados destacados</p>
+				<p className="dice-choice__step">{translate("game:components.diceSelectionPanel.text001")}</p>
 				<div className="dice-choice__sides">
 					{(["hero", "enemy"] as const).map((side) => {
 						const results =
@@ -96,11 +97,11 @@ export function DiceSelectionPanel({
 									))}
 								</div>
 								<p className="dice-choice__sum">
-									Dados {sum} · Bônus {sideTotal - sum >= 0 ? "+" : ""}
-									{sideTotal - sum} <strong>Total {sideTotal}</strong>
+									{translate("game:components.diceSelectionPanel.text002")}{" "}{sum} {translate("game:components.diceSelectionPanel.text003")}{" "}{sideTotal - sum >= 0 ? "+" : ""}
+									{sideTotal - sum} <strong>{translate("game:components.diceSelectionPanel.text004")}{" "}{sideTotal}</strong>
 								</p>
 								{!eligible && (
-									<small>Esta habilidade não altera estes dados.</small>
+									<small>{translate("game:components.diceSelectionPanel.text005")}</small>
 								)}
 							</section>
 						);
@@ -108,7 +109,7 @@ export function DiceSelectionPanel({
 				</div>
 				{modifying && (
 					<div>
-						<p className="dice-choice__step">2. Escolha o novo valor</p>
+						<p className="dice-choice__step">{translate("game:components.diceSelectionPanel.text006")}</p>
 						{selected ? (
 							<div className="dice-choice__dice">
 								{values.map((option) => (
@@ -126,8 +127,7 @@ export function DiceSelectionPanel({
 							</div>
 						) : (
 							<p className="dice-choice__muted">
-								Selecione um dado para ver os valores permitidos.
-							</p>
+								{translate("game:components.diceSelectionPanel.text007")}{" "}</p>
 						)}
 					</div>
 				)}
@@ -138,7 +138,7 @@ export function DiceSelectionPanel({
 							: nextValue !== undefined
 								? `Dado ${current} → ${nextValue} · Total ${total} → ${total - current + nextValue}`
 								: `Dado ${current} selecionado. Escolha o novo valor.`
-						: "O ataque aguarda sua escolha."}
+						: translate("game:components.diceSelectionPanel.dynamic001")}
 				</div>
 				<ActionButton
 					label={rerolling ? "Confirmar e rerrolar" : "Aplicar alteração"}
@@ -151,8 +151,7 @@ export function DiceSelectionPanel({
 					}}
 				/>
 				<p className="dice-choice__muted">
-					Depois da habilidade, você poderá resolver o ataque.
-				</p>
+					{translate("game:components.diceSelectionPanel.text008")}{" "}</p>
 			</div>
 		</Modal>
 	);

@@ -1,0 +1,10 @@
+# O proprietário do repositório revisa alterações no contrato de localização.
+/locales/ @println
+/src/i18n/ @println
+/scripts/i18n-*.mjs @println
+/vite.config.ts @println
+/scripts/verify-pages-build.mjs @println
+/package.json @println
+/.github/workflows/ci.yml @println
+/docs/LOCALIZATION.md @println
+/.github/CODEOWNERS @println

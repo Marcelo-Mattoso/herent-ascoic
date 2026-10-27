@@ -67,5 +67,21 @@ function scanMusic(dir) {
 scanMusic(path.resolve("sounds/music"));
 assert.deepEqual([...musicFiles].sort(), sourceMusic.sort(), "Playlist não corresponde aos arquivos originais");
 
+const localeManifest = JSON.parse(fs.readFileSync(file("generated/locales/manifest.json"), "utf8"));
+assert.equal(localeManifest.version, 1);
+const publishedCodes = fs.readdirSync("locales", { withFileTypes: true })
+	.filter((entry) => entry.isDirectory())
+	.filter((entry) => JSON.parse(fs.readFileSync(path.join("locales", entry.name, "meta.json"), "utf8")).status === "published")
+	.map((entry) => entry.name).sort();
+assert.deepEqual(localeManifest.locales.map((entry) => entry.code).sort(), publishedCodes, "Catálogo de idiomas publicados divergente");
+const namespaces = fs.readdirSync("locales/pt-BR").filter((name) => name.endsWith(".json") && name !== "meta.json").map((name) => path.basename(name, ".json")).sort();
+for (const locale of localeManifest.locales) {
+	assert.deepEqual(Object.keys(locale.resources).sort(), namespaces, `Namespaces incompletos: ${locale.code}`);
+	for (const url of Object.values(locale.resources)) {
+		assert.ok(url.startsWith(`/generated/locales/${encodeURIComponent(locale.code)}/`), `URL de idioma inválida: ${url}`);
+		assert.ok(fs.statSync(file(decodeURIComponent(url.slice(1)))).size > 0, `Recurso de idioma vazio: ${url}`);
+	}
+}
+
 assert.equal(fs.readFileSync(file("rules/ascensao-heroica-manual.pdf")).subarray(0, 4).toString(), "%PDF");
-console.log(`Build íntegro para base ${base}; ${musicManifest.tracks.length} músicas, ${(musicBytes / 1024 / 1024).toFixed(2)} MiB de áudio`);
+console.log(`Build íntegro para base ${base}; ${musicManifest.tracks.length} músicas, ${(musicBytes / 1024 / 1024).toFixed(2)} MiB de áudio; ${publishedCodes.length} idioma(s) publicado(s)`);

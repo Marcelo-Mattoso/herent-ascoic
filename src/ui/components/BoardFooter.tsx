@@ -1,6 +1,7 @@
+import { translate } from "@/i18n";
 // Footer do tabuleiro: XP do grupo · Artefatos · Condição do chefe.
 
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
@@ -31,8 +32,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 				{view.mode === "competitive" ? (
 					<>
 						<p style={{ color: UI.textSecondary, fontSize: 10 }}>
-							XP por jogador
-						</p>
+							{translate("game:components.boardFooter.text001")}{" "}</p>
 						<div
 							style={{
 								display: "flex",
@@ -59,7 +59,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 					</>
 				) : (
 					<>
-						<p style={{ color: UI.textSecondary, fontSize: 10 }}>XP do grupo</p>
+						<p style={{ color: UI.textSecondary, fontSize: 10 }}>{translate("game:components.boardFooter.text002")}</p>
 						<p
 							style={{
 								color: UI.textPrimary,
@@ -77,7 +77,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 			{/* Artefatos */}
 			<div style={{ textAlign: "center" }}>
 				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 3 }}>
-					Artefatos {view.groupArtifacts.length}/2
+					{translate("game:components.boardFooter.text003")}{" "}{view.groupArtifacts.length}/2
 				</p>
 				<div
 					style={{
@@ -116,8 +116,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 								padding: "1px 5px",
 							}}
 						>
-							falta
-						</span>
+							{translate("game:components.boardFooter.text004")}{" "}</span>
 					))}
 				</div>
 			</div>
@@ -125,10 +124,9 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 			{/* Condição */}
 			<div style={{ textAlign: "center" }}>
 				<p style={{ color: UI.textSecondary, fontSize: 10 }}>
-					Condição do chefe
-				</p>
+					{translate("game:components.boardFooter.text005")}{" "}</p>
 				<p style={{ color: UI.textPrimary, fontSize: 11 }}>
-					2 Artefatos ({view.groupArtifacts.length}/2)
+					{translate("game:components.boardFooter.text006")}{view.groupArtifacts.length}/2)
 				</p>
 			</div>
 		</div>

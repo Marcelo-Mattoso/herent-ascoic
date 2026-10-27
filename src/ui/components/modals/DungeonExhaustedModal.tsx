@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import { ActionButton } from "@/ui/components/ActionButton";
 import { Modal } from "@/ui/components/Modal";
 import { useGameStore } from "@/ui/store/gameStore";
@@ -17,15 +18,13 @@ export function DungeonExhaustedModal() {
 	}
 
 	return (
-		<Modal title="Deck de dungeon vazio" maxWidth={440}>
+		<Modal title={translate("game:components.modals.dungeonExhaustedModal.title001")} maxWidth={440}>
 			<p className="text-sm mb-4" style={{ color: UI.textSecondary }}>
-				Você pode gastar <strong style={{ color: UI.textPrimary }}>5 XP</strong>{" "}
-				para recuperar 1 carta aleatória do descarte e continuar. Caso
-				contrário, a partida termina em derrota.
-			</p>
+				{translate("game:components.modals.dungeonExhaustedModal.text002")}{" "}<strong style={{ color: UI.textPrimary }}>{translate("game:components.modals.dungeonExhaustedModal.text003")}</strong>{" "}
+				{translate("game:components.modals.dungeonExhaustedModal.text004")}{" "}</p>
 
 			<p className="text-xs mb-5" style={{ color: UI.textTertiary }}>
-				XP disponível: {view.groupXp} · Cartas no descarte:{" "}
+				{translate("game:components.modals.dungeonExhaustedModal.text005")}{" "}{view.groupXp} {translate("game:components.modals.dungeonExhaustedModal.text006")}{" "}
 				{view.decks.dungeonDeck.discarded.length}
 			</p>
 

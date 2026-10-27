@@ -1,7 +1,8 @@
+import { translate } from "@/i18n";
 // Card mini de criatura/inimigo (~88px). Usado no tabuleiro.
 // Aceita drop de herói para iniciar combate.
 
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { EnemyState } from "@/core/state/enemyState";
 import { UI } from "@/ui/theme";
 import { HpBar } from "./HpBar";
@@ -99,8 +100,7 @@ export function EnemyCard({
 							lineHeight: 1.3,
 						}}
 					>
-						Subchefe
-					</span>
+						{translate("game:components.enemyCard.text001")}{" "}</span>
 				)}
 			</div>
 			{/* Nome */}
@@ -133,8 +133,7 @@ export function EnemyCard({
 			</p>
 			{isEngaged && (
 				<p style={{ color: UI.textTertiary, fontSize: 9, marginTop: 1 }}>
-					engajado
-				</p>
+					{translate("game:components.enemyCard.text002")}{" "}</p>
 			)}
 		</div>
 	);

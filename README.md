@@ -26,6 +26,8 @@ Abra `http://localhost:5173/`. Comandos disponíveis:
 | `npm run verify:build` | Confere HTML, imagens, manifestos e manual no build. |
 | `npm run test:e2e` | Fluxos de jogo e matriz responsiva no Chromium; antes, `npx playwright install chromium`. |
 | `npm run preview` | Serve o build localmente. |
+| `npm run i18n:validate` | Valida catálogos e critérios de publicação de idiomas. |
+| `npm run i18n:report` | Mostra cobertura real por idioma e namespace. |
 
 Para simular o subdiretório do Pages em PowerShell:
 
@@ -39,7 +41,7 @@ Remove-Item Env:PAGES_BASE_PATH
 
 ## Publicação da Alpha
 
-O repositório público é [`Marcelo-Mattoso/herent-ascoic`](https://github.com/Marcelo-Mattoso/herent-ascoic), com branch principal `main`. A URL esperada, após o primeiro deploy bem-sucedido, é [marcelo-mattoso.github.io/herent-ascoic/](https://marcelo-mattoso.github.io/herent-ascoic/). O [link esperado do manual](https://marcelo-mattoso.github.io/herent-ascoic/rules/ascensao-heroica-manual.pdf) também fica acessível pelo menu discreto **Regras**. A versão do PDF ainda precisa de confirmação do autor; veja [regras digitais](docs/GAME_RULES.md).
+O remote `origin` atual é [`println/herent-ascoic`](https://github.com/println/herent-ascoic), com branch principal `main`. A URL esperada do GitHub Pages é [println.github.io/herent-ascoic/](https://println.github.io/herent-ascoic/). O [link esperado do manual](https://println.github.io/herent-ascoic/rules/ascensao-heroica-manual.pdf) também fica acessível pelo menu discreto **Regras**. A versão do PDF ainda precisa de confirmação do autor; veja [regras digitais](docs/GAME_RULES.md).
 
 O único workflow de CI/CD é [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Pull requests executam lint, testes, cobertura, build, conferência dos assets e testes de navegador sem publicar. Um push em `main` publica **somente `dist/`** no ambiente `github-pages` após todos os checks. O build usa `PAGES_BASE_PATH=/herent-ascoic/`; a UI resolve imagens, manifestos e PDF por `import.meta.env.BASE_URL`.
 
@@ -52,6 +54,7 @@ Antes de publicar, o proprietário deve selecionar **Settings → Pages → Buil
 | [Arquitetura](docs/ARCHITECTURE.md) | Fluxo de ações, core, UI, dados, DSL, ECS e extensão do jogo. |
 | [Regras digitais](docs/GAME_RULES.md) | Decisões do autor e diferenças do manual físico. |
 | [Playtest](docs/PLAYTEST.md) | Estado da Alpha, limitações, checklist e feedback. |
+| [Localização](docs/LOCALIZATION.md) | Como criar, validar, revisar e publicar um idioma. |
 | [Core](src/core/README.md) e [dados](src/data/README.md) | Contratos e convenções dos módulos. |
 
 Os catálogos editoriais `docs/dungeon-1.json` e `docs/habilidades.json` foram preservados como referência. O comportamento executado vem de `src/data/`, e o histórico de propostas e patches permanece recuperável no Git.

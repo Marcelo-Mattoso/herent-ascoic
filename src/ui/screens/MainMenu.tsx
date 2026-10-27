@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import type { CSSProperties } from "react";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { getUiAssetUrl } from "@/ui/uiAssets";
@@ -29,8 +30,8 @@ export function MainMenu({ onNewGame, onTutorial }: MainMenuProps) {
 						<img src={logoUrl} alt="" className="menu-brand-panel__logo" />
 					) : null}
 					<div className="menu-brand-panel__title-block">
-						<h1 id="main-menu-title">Ascensão Heróica</h1>
-						<p>A Fornalha Sombria</p>
+						<h1 id="main-menu-title">{translate("common:screens.mainMenu.text001")}</h1>
+						<p>{translate("common:screens.mainMenu.text002")}</p>
 					</div>
 					<div className="menu-brand-panel__actions">
 						<button
@@ -38,15 +39,13 @@ export function MainMenu({ onNewGame, onTutorial }: MainMenuProps) {
 							className="ornate-action ornate-action--primary"
 							onClick={onNewGame}
 						>
-							JOGAR
-						</button>
+							{translate("common:screens.mainMenu.text003")}{" "}</button>
 						<button
 							type="button"
 							className="ornate-action"
 							onClick={onTutorial}
 						>
-							TUTORIAL
-						</button>
+							{translate("common:screens.mainMenu.text004")}{" "}</button>
 					</div>
 				</section>
 			</div>

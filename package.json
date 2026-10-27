@@ -5,7 +5,7 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "tsc -b && vite build",
+		"build": "npm run i18n:validate && tsc -b && vite build",
 		"verify:build": "node scripts/verify-pages-build.mjs",
 		"preview": "vite preview",
 		"test": "vitest run",
@@ -15,12 +15,19 @@
 		"lint": "biome lint . --diagnostic-level=error",
 		"lint:fix": "biome check --write .",
 		"test:e2e": "playwright test",
+		"i18n:sync": "node scripts/i18n-source.mjs",
+		"i18n:new": "node scripts/i18n-new.mjs",
+		"i18n:validate": "node scripts/i18n-check.mjs",
+		"i18n:report": "node scripts/i18n-check.mjs --report",
+		"i18n:audit": "node scripts/i18n-audit.mjs",
 		"script": "npx vite-node"
 	},
 	"dependencies": {
 		"@ngneat/elf": "^2.5.1",
+		"i18next": "^26.5.11",
 		"react": "^19.2.6",
 		"react-dom": "^19.2.6",
+		"react-i18next": "^17.1.9",
 		"rxjs": "^7.8.2",
 		"yaml": "^2.9.0"
 	},

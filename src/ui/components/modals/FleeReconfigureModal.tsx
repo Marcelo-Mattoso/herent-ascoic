@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 // Modal exibido quando status === "DUNGEON_RESTART_PROMPT".
 // Permite reiniciar a masmorra mantendo ou descartando equipamentos.
 
@@ -10,11 +11,9 @@ export function FleeReconfigureModal() {
 	const { dispatch } = useGameStore();
 
 	return (
-		<Modal title="🏃 Fuga bem-sucedida!" maxWidth={400}>
+		<Modal title={translate("game:components.modals.fleeReconfigureModal.title001")} maxWidth={400}>
 			<p className="text-sm mb-4" style={{ color: UI.textSecondary }}>
-				Todos os heróis fugiram da masmorra. Vocês podem recomeçar — escolham
-				como reiniciar:
-			</p>
+				{translate("game:components.modals.fleeReconfigureModal.text002")}{" "}</p>
 
 			<div className="flex flex-col gap-3">
 				<ActionButton

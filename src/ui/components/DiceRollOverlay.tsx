@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import { type CSSProperties, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { CombatRollResult } from "@/core/state/combatState";
@@ -73,7 +74,7 @@ export function DiceRollOverlay({
 				className="game-dice-roll-modal"
 				data-tutorial-anchor="combat.dice"
 				role="dialog"
-				aria-label="Resultado da rolagem de dados"
+				aria-label={translate("game:components.diceRollOverlay.ariaLabel001")}
 			>
 				<div className="game-dice-roll-modal__body">
 					<DiceCluster
@@ -84,7 +85,7 @@ export function DiceRollOverlay({
 						tick={tick}
 						isRolling={!canResolve}
 					/>
-					<div className="game-dice-roll-versus">vs</div>
+					<div className="game-dice-roll-versus">{translate("game:components.diceRollOverlay.text002")}</div>
 					<DiceCluster
 						side="hero"
 						label="Herói"
@@ -99,9 +100,9 @@ export function DiceRollOverlay({
 					className="game-dice-roll-action"
 					onClick={onResolveAttack}
 					disabled={!canResolve}
-					aria-label="Resolver ataque"
+					aria-label={translate("game:components.diceRollOverlay.ariaLabel003")}
 				>
-					{canResolve ? "Resolver ataque" : "Rolando..."}
+					{canResolve ? translate("game:components.diceRollOverlay.dynamic001") : "Rolando..."}
 				</button>
 			</div>
 		</div>,

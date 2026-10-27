@@ -1,4 +1,5 @@
-import { getCardName } from "@/core/data/cardLocale";
+import { translate } from "@/i18n";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { ItemSlotType } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";
 import { ItemTile } from "./ItemTile";
@@ -10,11 +11,11 @@ interface ItemChipProps {
 }
 
 const SLOT_LABELS: Record<ItemSlotType, string> = {
-	clothing1: "vestimenta",
-	clothing2: "vestimenta",
-	hand1: "mão",
-	hand2: "mão",
-	amulet: "amuleto",
+	clothing1: "game:components.itemChip.slotLabels.clothing1",
+	clothing2: "game:components.itemChip.slotLabels.clothing2",
+	hand1: "game:components.itemChip.slotLabels.hand1",
+	hand2: "game:components.itemChip.slotLabels.hand2",
+	amulet: "game:components.itemChip.slotLabels.amulet",
 };
 
 export function ItemChip({ item, slot, onClick }: ItemChipProps) {
@@ -34,7 +35,7 @@ export function ItemChip({ item, slot, onClick }: ItemChipProps) {
 			<span style={{ color: UI.textPrimary, fontSize: 11 }}>{label}</span>
 			{slot && (
 				<span style={{ color: UI.textTertiary, fontSize: 10 }}>
-					({SLOT_LABELS[slot]})
+					({translate(SLOT_LABELS[slot])})
 				</span>
 			)}
 		</button>

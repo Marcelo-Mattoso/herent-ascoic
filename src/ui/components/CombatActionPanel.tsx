@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 // Painel de ações de combate. Patch 2.
 // Renderiza botões e instruções conforme combat.phase:
 //   selecting_hero    → instrução para clicar num herói
@@ -5,7 +6,7 @@
 //   resolving         → Rolar dados / Resolver ataque
 //   outros            → nada (auto-avance cuida)
 
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import { ActionButton } from "@/ui/components/ActionButton";
 import type { HeroCombatActions } from "@/ui/store/selectors";
@@ -50,7 +51,7 @@ export function CombatActionPanel({
 			>
 				{pending.length > 0
 					? `Clique em um herói para ativá-lo (${pending.length} disponível${pending.length > 1 ? "is" : ""})`
-					: "Todos os heróis agiram."}
+					: translate("game:components.combatActionPanel.dynamic001")}
 			</div>
 		);
 	}
@@ -69,8 +70,7 @@ export function CombatActionPanel({
 					<strong style={{ color: UI.textPrimary }}>
 						{hero ? getCardName(hero.cardId) : ""}
 					</strong>{" "}
-					— clique num inimigo ou escolha uma ação
-				</p>
+					{translate("game:components.combatActionPanel.text001")}{" "}</p>
 				<div className="flex gap-2 flex-wrap">
 					<ActionButton
 						label="Atacar"

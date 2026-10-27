@@ -1,3 +1,5 @@
+import { translate } from "@/i18n";
+import { tutorialHighlight, tutorialNarration, tutorialText } from "@/i18n/catalogs";
 import {
 	type CSSProperties,
 	useEffect,
@@ -15,8 +17,8 @@ import { currentTutorialStep, type TutorialSession } from "./session";
 import { getTutorialModule, type TutorialModule } from "./registry";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { BonusEntry } from "@/core/state/combatState";
-import { getCardName } from "@/core/data/cardLocale";
-import { getSkillName } from "@/core/data/skillLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
+import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 
@@ -42,7 +44,7 @@ function bonusDescription(entries: readonly BonusEntry[]): string {
 		entries
 			.map(
 				({ source, value }) =>
-					`${source === "hitBonus" ? "bônus de ataque" : source} ${value >= 0 ? "+" : ""}${value}`,
+					`${source === "hitBonus" ? translate("game:tutorials.tutorialOverlay.hitBonus") : source} ${value >= 0 ? "+" : ""}${value}`,
 			)
 			.join(", ") || "nenhum"
 	);
@@ -317,15 +319,17 @@ export function TutorialOverlay({
 				: "top";
 	const instruction =
 		step.id === "combat-drag" && session.combatInput === "tap"
-			? "Toque no herói e depois na criatura para declarar o ataque."
-			: (highlight?.instruction ?? step.instruction);
+			? translate("game:tutorials.tutorialOverlay.tapAttackInstruction")
+			: highlight
+				? tutorialHighlight(session.moduleId, step.id, session.highlightIndex, highlight.instruction)
+				: tutorialText(session.moduleId, `steps.${step.id}.instruction`);
 	const visibleRoll = step.id === "combat-dice" ? view.combat?.lastRoll : null;
 	const result = session.finalAttack;
 	const powerDefinition = session.moduleId === "archive-four" && view.heroes[0]
 		? cardSkills(view.heroes[0].cardId).find(({ def }) => def.category === "hero_power")?.def
 		: undefined;
 	const powerScope = powerDefinition?.cooldown?.scope;
-	const powerLimit = powerScope === "game" ? "por partida" : powerScope === "room" ? "por sala" : powerScope === "combat" ? "por combate" : powerScope === "round" ? "por rodada" : undefined;
+	const powerLimit = powerScope === "game" ? translate("game:tutorials.tutorialOverlay.perGame") : powerScope === "room" ? translate("game:tutorials.tutorialOverlay.perRoom") : powerScope === "combat" ? translate("game:tutorials.tutorialOverlay.perCombat") : powerScope === "round" ? translate("game:tutorials.tutorialOverlay.perRound") : undefined;
 	const damageMessage = result?.messages.find(
 		(message) =>
 			message.includes(result.enemyName) && message.includes("sofreu"),
@@ -396,44 +400,44 @@ export function TutorialOverlay({
 				key={step.id}
 				className={`tutorial-panel tutorial-panel--${panelPlacement}${step.kind === "completion" ? " tutorial-panel--completion" : ""}`}
 				style={panelStyle}
-				aria-label="Orientações do Arquivista"
+				aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel001")}
 				aria-live="polite"
 			>
 				<div className="tutorial-panel__meta">
-					<span>{module.title}</span>
+					<span>{tutorialText(module.id, "title")}</span>
 					<span>
-						Etapa {session.stepIndex + 1} de {module.steps.length}
+						{translate("game:tutorials.tutorialOverlay.text002")}{" "}{session.stepIndex + 1} {translate("game:tutorials.tutorialOverlay.text003")}{" "}{module.steps.length}
 					</span>
 				</div>
 				<button
 					type="button"
 					className="tutorial-panel__close"
 					onClick={onClose}
-					aria-label="Sair do tutorial"
+					aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel004")}
 				>
 					×
 				</button>
-				<p className="tutorial-panel__speaker">O Arquivista</p>
-				<h2>{step.title}</h2>
-				{step.narration.map((paragraph) => (
+				<p className="tutorial-panel__speaker">{translate("game:tutorials.tutorialOverlay.text005")}</p>
+				<h2>{tutorialText(session.moduleId, `steps.${step.id}.title`)}</h2>
+				{tutorialNarration(session.moduleId, step.id, step.narration).map((paragraph) => (
 					<p key={paragraph}>{paragraph}</p>
 				))}
 				<p className="tutorial-panel__instruction">{instruction}</p>
 				{session.moduleId === "archive-four" &&
 					["prey-mark", "hunter-attack", "fury-prepare", "fury-trigger", "hero-power", "passive-effect", "ability-limits"].includes(step.id) && (
-						<div className="tutorial-panel__combat-detail" role="status" aria-label="Estado real das habilidades">
+						<div className="tutorial-panel__combat-detail" role="status" aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel006")}>
 							{view.heroes[0] && view.abilityActionsByHero[view.heroes[0].id]?.filter((action) => action.kind !== "item" && (step.id === "passive-effect" ? false : step.id === "ability-limits" ? action.kind === "power" : true)).map((action) => (
 								<p key={action.abilityId}>
-									{action.label}: {action.status === "prepared" ? "preparada: aguardando o evento" : action.status === "active" ? "efeito ativo" : action.status === "exhausted" ? "limite atingido" : action.status === "available" ? "disponível" : "indisponível"}.
+									{action.label}: {action.status === "prepared" ? translate("game:tutorials.tutorialOverlay.dynamic001") : action.status === "active" ? translate("game:tutorials.tutorialOverlay.dynamic002") : action.status === "exhausted" ? translate("game:tutorials.tutorialOverlay.dynamic003") : action.status === "available" ? translate("game:tutorials.tutorialOverlay.dynamic004") : translate("game:tutorials.tutorialOverlay.dynamic005")}.
 									{action.reason ? ` ${action.reason}` : ""}
 								</p>
 							))}
 							{(step.id === "passive-effect" || step.id === "ability-limits") &&
 								view.activeInfluences.filter((influence) => influence.from.kind === "item" && influence.from.id === "item_low_flame_charm").map((influence) => (
-									<p key={influence.id}>Passivo: {influence.source} — {influence.label} ({influence.duration}).</p>
+									<p key={influence.id}>{translate("game:tutorials.tutorialOverlay.text007")}{" "}{influence.source} — {influence.label} ({influence.duration}).</p>
 								))}
 							{step.id === "ability-limits" && powerDefinition && powerLimit && (
-								<p>Limite de {getSkillName(powerDefinition.id)}: {powerDefinition.cooldown?.charges ?? 1} uso(s) {powerLimit}. O ataque permanece independente.</p>
+								<p>{translate("game:tutorials.tutorialOverlay.text008")}{" "}{getSkillName(powerDefinition.id)}: {powerDefinition.cooldown?.charges ?? 1} {translate("game:tutorials.tutorialOverlay.text009")}{" "}{powerLimit}{translate("game:tutorials.tutorialOverlay.text010")}</p>
 							)}
 							{step.id !== "passive-effect" && step.id !== "ability-limits" && session.abilityResult?.slice(0, 3).map((change) => <p key={change}>{change}</p>)}
 						</div>
@@ -445,18 +449,18 @@ export function TutorialOverlay({
 						<div
 							className="tutorial-panel__combat-detail"
 							role="status"
-							aria-label="Resultado real do inventário"
+							aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel011")}
 						>
 							<p>
 								{session.inventoryCheckpointReady
-									? "Checkpoint anterior"
+									? translate("game:tutorials.tutorialOverlay.dynamic006")
 									: "Carta"}
 								: {getCardName(session.inventoryResult.itemId)}.
 							</p>
 							{session.inventoryResult.itemId !== "item_precision_potion" &&
 								cardSkills(session.inventoryResult.itemId).map(({ ref }) => (
 									<p key={ref.skillId}>
-										Efeito da carta: {renderSkillLabel(ref)}
+										{translate("game:tutorials.tutorialOverlay.text012")}{" "}{renderSkillLabel(ref)}
 									</p>
 								))}
 							{session.inventoryResult.changes.slice(0, 3).map((change) => (
@@ -472,9 +476,9 @@ export function TutorialOverlay({
 									)
 									.map((modifier) => (
 										<p key={modifier.sourceId}>
-											Efeito aplicado: {modifier.source}{" "}
+											{translate("game:tutorials.tutorialOverlay.text013")}{" "}{modifier.source}{" "}
 											{modifier.value >= 0 ? "+" : ""}
-											{modifier.value} em acerto ({modifier.duration}).
+											{modifier.value} {translate("game:tutorials.tutorialOverlay.text014")}{modifier.duration}).
 										</p>
 									))}
 						</div>
@@ -483,17 +487,17 @@ export function TutorialOverlay({
 					<div
 						className="tutorial-panel__combat-detail"
 						role="region"
-						aria-label="Estados reais dos itens"
+						aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel015")}
 					>
 						<p>
-							Consumido no checkpoint anterior:{" "}
+							{translate("game:tutorials.tutorialOverlay.text016")}{" "}
 							{session.inventoryResult?.itemId === "item_precision_potion"
 								? getCardName("item_precision_potion")
-								: "nenhum confirmado"}
+								: translate("game:tutorials.tutorialOverlay.dynamic007")}
 							.
 						</p>
 						<p>
-							Prontos:{" "}
+							{translate("game:tutorials.tutorialOverlay.text017")}{" "}
 							{journal.current.heroes
 								.flatMap((hero) =>
 									hero.equipment
@@ -504,59 +508,54 @@ export function TutorialOverlay({
 							.
 						</p>
 						<p>
-							Exauridos:{" "}
+							{translate("game:tutorials.tutorialOverlay.text018")}{" "}
 							{journal.current.heroes
 								.flatMap((hero) =>
 									hero.equipment
 										.filter((slot) => slot.card?.state === "exhausted")
 										.map((slot) => slot.card!.name),
 								)
-								.join(", ") || "nenhum neste encontro"}
+								.join(", ") || translate("game:tutorials.tutorialOverlay.dynamic008")}
 							.
 						</p>
 						<p>
-							Ataque do herói:{" "}
+							{translate("game:tutorials.tutorialOverlay.text019")}{" "}
 							{journal.current.heroesActed.length === 0 &&
 							view.status === "HERO_ACTION"
-								? "disponível nesta rodada"
-								: "já realizado nesta rodada"}
+								? translate("game:tutorials.tutorialOverlay.dynamic009")
+								: translate("game:tutorials.tutorialOverlay.dynamic010")}
 							.
 						</p>
 					</div>
 				)}
 				{step.id === "combat-drag" && session.firstAttack && (
 					<p className="tutorial-panel__combat-detail">
-						Primeiro ataque: {session.firstAttack.roll.heroTotal} contra{" "}
+						{translate("game:tutorials.tutorialOverlay.text020")}{" "}{session.firstAttack.roll.heroTotal} {translate("game:tutorials.tutorialOverlay.text021")}{" "}
 						{session.firstAttack.roll.enemyTotal} —{" "}
 						{session.firstAttack.roll.heroTotal >
 						session.firstAttack.roll.enemyTotal
-							? "acerto do herói"
+							? translate("game:tutorials.tutorialOverlay.dynamic011")
 							: session.firstAttack.roll.heroTotal <
 									session.firstAttack.roll.enemyTotal
-								? "ataque do herói falhou"
+								? translate("game:tutorials.tutorialOverlay.dynamic012")
 								: "empate"}
 						. {session.firstAttack.enemyName}:{" "}
 						{session.firstAttack.enemyLifeBefore} →{" "}
-						{session.firstAttack.enemyLifeAfter} de vida.{" "}
+						{session.firstAttack.enemyLifeAfter} {translate("game:tutorials.tutorialOverlay.text022")}{" "}
 						{session.firstAttack.heroName}: {session.firstAttack.heroLifeBefore}{" "}
-						→ {session.firstAttack.heroLifeAfter} de vida.
-					</p>
+						→ {session.firstAttack.heroLifeAfter} {translate("game:tutorials.tutorialOverlay.text023")}{" "}</p>
 				)}
 				{visibleRoll && (
 					<div
 						className="tutorial-panel__combat-detail"
 						role="region"
-						aria-label="Resultado real da rolagem"
+						aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel024")}
 					>
 						<p>
-							Herói: dados {diceDescription(visibleRoll.heroResults)} ·
-							modificadores {bonusDescription(visibleRoll.heroBreakdown)} ·
-							total {visibleRoll.heroTotal}
+							{translate("game:tutorials.tutorialOverlay.text025")}{" "}{diceDescription(visibleRoll.heroResults)} {translate("game:tutorials.tutorialOverlay.text026")}{" "}{bonusDescription(visibleRoll.heroBreakdown)} {translate("game:tutorials.tutorialOverlay.text027")}{" "}{visibleRoll.heroTotal}
 						</p>
 						<p>
-							Criatura: dados {diceDescription(visibleRoll.enemyResults)} ·
-							modificadores {bonusDescription(visibleRoll.enemyBreakdown)} ·
-							total {visibleRoll.enemyTotal}
+							{translate("game:tutorials.tutorialOverlay.text028")}{" "}{diceDescription(visibleRoll.enemyResults)} {translate("game:tutorials.tutorialOverlay.text029")}{" "}{bonusDescription(visibleRoll.enemyBreakdown)} {translate("game:tutorials.tutorialOverlay.text030")}{" "}{visibleRoll.enemyTotal}
 						</p>
 					</div>
 				)}
@@ -567,42 +566,41 @@ export function TutorialOverlay({
 						<div
 							className="tutorial-panel__combat-detail"
 							role="region"
-							aria-label="Resultado registrado do ataque"
+							aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel031")}
 						>
 							<p>
 								{result.roll.heroTotal > result.roll.enemyTotal
-									? "Acerto do herói"
+									? translate("game:tutorials.tutorialOverlay.dynamic013")
 									: result.roll.heroTotal < result.roll.enemyTotal
-										? "Golpe da criatura"
-										: "Empate: ambos podem sofrer dano"}
+										? translate("game:tutorials.tutorialOverlay.dynamic014")
+										: translate("game:tutorials.tutorialOverlay.dynamic015")}
 								. {result.enemyName}: {result.enemyLifeBefore} →{" "}
-								{result.enemyLifeAfter} de vida. Perda de vida observada:{" "}
+								{result.enemyLifeAfter} {translate("game:tutorials.tutorialOverlay.text032")}{" "}
 								{Math.max(0, result.enemyLifeBefore - result.enemyLifeAfter)}.
 							</p>
 							<p>
-								Vida do herói: {result.heroLifeBefore} → {result.heroLifeAfter}.
-								Ataque consumido:{" "}
+								{translate("game:tutorials.tutorialOverlay.text033")}{" "}{result.heroLifeBefore} → {result.heroLifeAfter}{translate("game:tutorials.tutorialOverlay.text034")}{" "}
 								{result.heroesActed.includes(result.roll.heroId)
 									? "sim"
-									: "não"}
+									: translate("game:tutorials.tutorialOverlay.dynamic016")}
 								.
 							</p>
 							<p>
-								{result.heroName}: dados{" "}
-								{diceDescription(result.roll.heroResults)} · modificadores{" "}
-								{bonusDescription(result.roll.heroBreakdown)} · total{" "}
+								{result.heroName}{translate("game:tutorials.tutorialOverlay.text035")}{" "}
+								{diceDescription(result.roll.heroResults)} {translate("game:tutorials.tutorialOverlay.text036")}{" "}
+								{bonusDescription(result.roll.heroBreakdown)} {translate("game:tutorials.tutorialOverlay.text037")}{" "}
 								{result.roll.heroTotal}.
 							</p>
 							<p>
-								{result.enemyName}: dados{" "}
-								{diceDescription(result.roll.enemyResults)} · modificadores{" "}
-								{bonusDescription(result.roll.enemyBreakdown)} · total{" "}
+								{result.enemyName}{translate("game:tutorials.tutorialOverlay.text038")}{" "}
+								{diceDescription(result.roll.enemyResults)} {translate("game:tutorials.tutorialOverlay.text039")}{" "}
+								{bonusDescription(result.roll.enemyBreakdown)} {translate("game:tutorials.tutorialOverlay.text040")}{" "}
 								{result.roll.enemyTotal}.
 							</p>
-							{damageMessage && <p>Resolução do motor: {damageMessage}</p>}
+							{damageMessage && <p>{translate("game:tutorials.tutorialOverlay.text041")}{" "}{damageMessage}</p>}
 							{result.messages.length > 0 && (
 								<details>
-									<summary>Detalhes da resolução no Diário</summary>
+									<summary>{translate("game:tutorials.tutorialOverlay.text042")}</summary>
 									<ul>
 										{result.messages.map((message, index) => (
 											<li key={`${index}-${message}`}>{message}</li>
@@ -614,26 +612,26 @@ export function TutorialOverlay({
 					)}
 				{step.highlights && (
 					<p className="tutorial-panel__count">
-						Ponto {session.highlightIndex + 1} de {step.highlights.length}
+						{translate("game:tutorials.tutorialOverlay.text043")}{" "}{session.highlightIndex + 1} {translate("game:tutorials.tutorialOverlay.text044")}{" "}{step.highlights.length}
 					</p>
 				)}
 				<div className="tutorial-panel__actions">
 					{step.kind === "completion" ? (
 						<>
 							{nextModule && <button type="button" onClick={onNext}>
-								Próximo arquivo — {nextModule.title}
+								{translate("game:tutorials.tutorialOverlay.text045")}{" "}{nextModule.title}
 							</button>}
 							<button type="button" onClick={onHub}>
-								{session.moduleId === "archive-four" ? "Revisar tutoriais" : "Escolher arquivo"}
+								{session.moduleId === "archive-four" ? translate("game:tutorials.tutorialOverlay.dynamic017") : translate("game:tutorials.tutorialOverlay.dynamic018")}
 							</button>
 							<button type="button" onClick={onRepeat}>
-								{session.moduleId === "archive-four" ? "Repetir este arquivo" : "Repetir arquivo"}
+								{session.moduleId === "archive-four" ? translate("game:tutorials.tutorialOverlay.dynamic019") : translate("game:tutorials.tutorialOverlay.dynamic020")}
 							</button>
 							<button type="button" onClick={onPlay}>
-								{session.moduleId === "archive-four" ? "Jogar agora" : "Jogar normalmente"}
+								{session.moduleId === "archive-four" ? translate("game:tutorials.tutorialOverlay.dynamic021") : translate("game:tutorials.tutorialOverlay.dynamic022")}
 							</button>
 							<button type="button" onClick={onClose}>
-								{session.moduleId === "archive-four" ? "Voltar ao menu" : "Sair dos tutoriais"}
+								{session.moduleId === "archive-four" ? translate("game:tutorials.tutorialOverlay.dynamic023") : translate("game:tutorials.tutorialOverlay.dynamic024")}
 							</button>
 						</>
 					) : (
@@ -650,33 +648,30 @@ export function TutorialOverlay({
 								>
 									{step.highlights &&
 									session.highlightIndex < step.highlights.length - 1
-										? "Próximo ponto"
+										? translate("game:tutorials.tutorialOverlay.dynamic025")
 										: step.id === "combat-action"
-											? "Concluir combate"
+											? translate("game:tutorials.tutorialOverlay.dynamic026")
 											: "Continuar"}
 								</button>
 							)}
 							{step.skippable && (
 								<button type="button" onClick={onSkip}>
-									Pular observação
-								</button>
+									{translate("game:tutorials.tutorialOverlay.text046")}{" "}</button>
 							)}
 							{canBack && (
 								<button type="button" onClick={onBack}>
-									Voltar
-								</button>
+									{translate("game:tutorials.tutorialOverlay.text047")}{" "}</button>
 							)}
 							{step.kind === "interaction" && (
 								<span className="tutorial-panel__waiting">
-									Aguardando sua ação no jogo
-								</span>
+									{translate("game:tutorials.tutorialOverlay.text048")}{" "}</span>
 							)}
 						</>
 					)}
 				</div>
 				<details className="tutorial-panel__audit">
-					<summary>Registro do treinamento</summary>
-					<p>Sessão {session.id}</p>
+					<summary>{translate("game:tutorials.tutorialOverlay.text049")}</summary>
+					<p>{translate("game:tutorials.tutorialOverlay.text050")}{" "}{session.id}</p>
 					<ol>
 						{session.events.map((event, index) => (
 							<li key={`${index}-${event.type}`}>
@@ -687,8 +682,7 @@ export function TutorialOverlay({
 						))}
 					</ol>
 					<button type="button" onClick={downloadAudit}>
-						Baixar registro e diário
-					</button>
+						{translate("game:tutorials.tutorialOverlay.text051")}{" "}</button>
 				</details>
 			</section>
 		</div>,

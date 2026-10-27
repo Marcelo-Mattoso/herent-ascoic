@@ -1,6 +1,7 @@
+import { translate } from "@/i18n";
 import { useState, type CSSProperties } from "react";
 import type { XpSpendOption } from "@/core/config/defaults";
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
 import { useGameStore } from "@/ui/store/gameStore";
 import { selectXpSpendOptions } from "@/ui/store/selectors";
@@ -53,21 +54,21 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 			<section
 				role="dialog"
 				aria-modal="true"
-				aria-label="Gastar XP"
+				aria-label={translate("game:components.modals.xpSpendModal.ariaLabel001")}
 				className="flow-modal-dialog flow-modal-dialog--xp"
 			>
 				<header className="flow-modal-header">
 					<div className="flow-modal-title">
 						{logoUrl ? <img src={logoUrl} alt="" /> : null}
 						<div>
-							<h1>Gastar XP</h1>
-							<p>Prepare o grupo antes da próxima sala</p>
+							<h1>{translate("game:components.modals.xpSpendModal.text002")}</h1>
+							<p>{translate("game:components.modals.xpSpendModal.text003")}</p>
 						</div>
 					</div>
 					<div className="xp-total-badge">
 						{xpTokenUrl ? <img src={xpTokenUrl} alt="" /> : null}
 						<span>{view.groupXp}</span>
-						<small>XP</small>
+						<small>{translate("game:components.modals.xpSpendModal.text004")}</small>
 					</div>
 				</header>
 
@@ -85,7 +86,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 								) : null}
 							</div>
 							<div className="xp-option-card__footer">
-								<strong>{opt.cost} XP</strong>
+								<strong>{opt.cost} {translate("game:components.modals.xpSpendModal.text005")}</strong>
 								<button
 									type="button"
 									className="ornate-action ornate-action--primary"
@@ -105,7 +106,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 							</div>
 							{opt.option === "level_up" && isChoosingLevelTarget ? (
 								<div className="xp-level-choice">
-									<p>Qual herói recebe este nível?</p>
+									<p>{translate("game:components.modals.xpSpendModal.text006")}</p>
 									<div className="xp-level-choice__grid">
 										{levelEligibleHeroes.map((hero) => (
 											<button
@@ -115,7 +116,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 												onClick={() => levelUp(hero.id)}
 											>
 												<strong>{getCardName(hero.cardId)}</strong>
-												<span>Nível {hero.impeto + 1} → {hero.impeto + 2}</span>
+												<span>{translate("game:components.modals.xpSpendModal.text007")}{" "}{hero.impeto + 1} → {hero.impeto + 2}</span>
 											</button>
 										))}
 									</div>
@@ -127,8 +128,7 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 
 				<footer className="flow-modal-footer">
 					<button type="button" className="ornate-action" onClick={continuar}>
-						Continuar sem gastar
-					</button>
+						{translate("game:components.modals.xpSpendModal.text008")}{" "}</button>
 				</footer>
 			</section>
 		</div>
@@ -138,14 +138,14 @@ export function XpSpendModal({ onClose }: XpSpendModalProps) {
 function getXpOptionHint(option: XpSpendOption) {
 	switch (option) {
 		case "recover_dungeon":
-			return "Reembaralha o descarte da masmorra para manter a expedição viva.";
+			return translate("game:components.modals.xpSpendModal.recoverDungeonHint");
 		case "level_up":
-			return "Escolha um herói disponível para aumentar seu nível de ímpeto.";
+			return translate("game:components.modals.xpSpendModal.levelUpHint");
 		case "buy_item":
-			return "Compra um item novo para a próxima organização do grupo.";
+			return translate("game:components.modals.xpSpendModal.buyItemHint");
 		case "lower_despertar":
-			return "Reduz a pressão da masmorra antes da próxima sala.";
+			return translate("game:components.modals.xpSpendModal.lowerDespertarHint");
 		case "buy_artifact":
-			return "Busca um artefato para fortalecer o grupo.";
+			return translate("game:components.modals.xpSpendModal.buyArtifactHint");
 	}
 }

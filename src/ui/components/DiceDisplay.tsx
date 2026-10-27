@@ -1,3 +1,4 @@
+import { translate } from "@/i18n";
 import type { KeyboardEvent } from "react";
 import { UI } from "@/ui/theme";
 
@@ -67,7 +68,7 @@ export function DiceDisplay({
 						color: isHero ? UI.info.text : UI.danger.text,
 					}}
 				>
-					total {total}
+					{translate("game:components.diceDisplay.text001")}{" "}{total}
 				</span>
 			</div>
 		);
@@ -108,7 +109,7 @@ export function DiceDisplay({
 				className="text-sm font-medium mt-0.5"
 				style={{ color: isHero ? UI.info.text : UI.danger.text }}
 			>
-				total {total}
+				{translate("game:components.diceDisplay.text002")}{" "}{total}
 			</p>
 		</div>
 	);

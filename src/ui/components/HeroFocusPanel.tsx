@@ -1,8 +1,9 @@
+import { translate } from "@/i18n";
 // Painel inferior do herói em foco (Patch 3).
 // Mostra stats, habilidade, poder, mochila e botões de ação.
 // Também cobre ações de não-combate (revelar sala, iniciar combate, etc.).
 
-import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
@@ -119,10 +120,9 @@ export function HeroFocusPanel({
 								}}
 							>
 								<p style={{ color: UI.textTertiary, fontSize: 10 }}>
-									Herói em foco ·{" "}
+									{translate("game:components.heroFocusPanel.text001")}{" "}
 									<span style={{ color: UI.info.text }}>
-										clique em outro para trocar
-									</span>
+										{translate("game:components.heroFocusPanel.text002")}{" "}</span>
 								</p>
 							</div>
 
@@ -137,12 +137,12 @@ export function HeroFocusPanel({
 								}}
 							>
 								<p style={{ color: UI.textPrimary, fontSize: 11 }}>
-									Vida{" "}
+									{translate("game:components.heroFocusPanel.text003")}{" "}
 									<strong>
 										{hero.currentLife}/{hero.maxLife}
 									</strong>{" "}
-									· Acerto <strong>+{hero.hitBonus}</strong> · Dano{" "}
-									<strong>D{hero.damage}</strong> · Dados{" "}
+									{translate("game:components.heroFocusPanel.text004")}{" "}<strong>+{hero.hitBonus}</strong> {translate("game:components.heroFocusPanel.text005")}{" "}
+									<strong>D{hero.damage}</strong> {translate("game:components.heroFocusPanel.text006")}{" "}
 									<strong>{hero.dice}d6</strong>
 								</p>
 								<div style={{ minWidth: 80 }}>
@@ -197,7 +197,7 @@ export function HeroFocusPanel({
 													marginBottom: 2,
 												}}
 											>
-												📖 Habilidade ·{" "}
+												{translate("game:components.heroFocusPanel.text007")}{" "}
 												<span
 													style={{
 														background: "#EAF3DE",
@@ -209,8 +209,8 @@ export function HeroFocusPanel({
 												>
 													{skillStatus === "prepared" ? "preparada" :
 														skillStatus === "active" ? "ativa" :
-														skillStatus === "available" ? "disponível" :
-														skillStatus === "exhausted" ? "usada" : "indisponível"}
+														skillStatus === "available" ? translate("game:components.heroFocusPanel.dynamic001") :
+														skillStatus === "exhausted" ? "usada" : translate("game:components.heroFocusPanel.dynamic002")}
 												</span>
 											</p>
 											<p
@@ -222,7 +222,7 @@ export function HeroFocusPanel({
 											>
 												{renderSkillLabel(habilidade.ref)}
 											</p>
-											<button type="button" onClick={() => onCardDetail(hero.cardId, "hero")}>Examinar carta</button>
+											<button type="button" onClick={() => onCardDetail(hero.cardId, "hero")}>{translate("game:components.heroFocusPanel.text008")}</button>
 										</div>
 									)}
 
@@ -244,7 +244,7 @@ export function HeroFocusPanel({
 													marginBottom: 2,
 												}}
 											>
-												⚡ Poder ·{" "}
+												{translate("game:components.heroFocusPanel.text009")}{" "}
 												<span
 													style={{
 														background: powerUsed ? UI.subpanelBg : UI.panelBg,
@@ -259,8 +259,8 @@ export function HeroFocusPanel({
 												>
 													{powerStatus === "prepared" ? "preparado" :
 														powerStatus === "active" ? "ativo" :
-														powerStatus === "available" ? "disponível" :
-														powerStatus === "exhausted" || powerUsed ? "usado" : "indisponível"}
+														powerStatus === "available" ? translate("game:components.heroFocusPanel.dynamic003") :
+														powerStatus === "exhausted" || powerUsed ? "usado" : translate("game:components.heroFocusPanel.dynamic004")}
 												</span>
 											</p>
 											<p
@@ -288,7 +288,7 @@ export function HeroFocusPanel({
 								marginBottom: 4,
 							}}
 						>
-							🎒 Mochila do {getCardName(hero.cardId).split(" ")[0]} ·{" "}
+							{translate("game:components.heroFocusPanel.text010")}{" "}{getCardName(hero.cardId).split(" ")[0]} ·{" "}
 							{hero.backpack.length === 0
 								? "vazia"
 								: `${hero.backpack.length} ${hero.backpack.length === 1 ? "item" : "itens"}`}
@@ -317,8 +317,7 @@ export function HeroFocusPanel({
 									marginBottom: 4,
 								}}
 							>
-								Equipamentos
-							</p>
+								{translate("game:components.heroFocusPanel.text011")}{" "}</p>
 							<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
 								{(
 									["clothing1", "clothing2", "hand1", "hand2", "amulet"] as ItemSlotType[]
@@ -372,8 +371,7 @@ export function HeroFocusPanel({
 					}}
 				>
 					<span style={{ color: UI.textTertiary, fontSize: 12 }}>
-						Nenhum herói em foco
-					</span>
+						{translate("game:components.heroFocusPanel.text012")}{" "}</span>
 				</div>
 			)}
 		</div>
@@ -465,8 +463,8 @@ function ActionSection({
 
 	if (isSelectingHero) {
 		const heroesActedHint = isFocusedHeroSelected
-			? "Este herói já agiu nesta rodada."
-			: "Arraste o herói até um inimigo, ou toque/clique no herói e depois no alvo.";
+			? translate("game:components.heroFocusPanel.actedHint")
+			: translate("game:components.heroFocusPanel.attackHint");
 		return (
 			<div>
 				<p style={{ color: UI.textTertiary, fontSize: 11, marginBottom: 6 }}>
