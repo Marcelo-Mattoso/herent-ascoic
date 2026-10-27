@@ -7,7 +7,7 @@ import { Replay } from "@/ui/screens/Replay";
 import { Setup } from "@/ui/screens/Setup";
 import { Victory } from "@/ui/screens/Victory";
 import { useGameStore } from "@/ui/store/gameStore";
-import { publicAssetUrl } from "@/ui/publicAssetUrl";
+import { GlobalMenu } from "@/ui/globalMenu/GlobalMenu";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
 import { TutorialOverlay } from "@/ui/tutorials/TutorialOverlay";
 import { prepareCombatCheckpoint } from "@/ui/tutorials/combatScenario";
@@ -352,33 +352,8 @@ function App() {
 					onPlay={() => leaveTutorial("setup")}
 				/>
 			)}
-			<RulesAccess
-				inGame={
-					status !== "MAIN_MENU" && status !== "VICTORY" && status !== "DEFEAT"
-				}
-			/>
+			<GlobalMenu />
 		</>
-	);
-}
-
-function RulesAccess({ inGame }: { inGame: boolean }) {
-	const manualUrl = publicAssetUrl("rules/ascensao-heroica-manual.pdf");
-	return (
-		<nav
-			className={`rules-access${inGame ? " rules-access--in-game" : ""}`}
-			aria-label="Manual de regras"
-		>
-			<a href={manualUrl} target="_blank" rel="noopener noreferrer">
-				? Regras
-			</a>
-			<a
-				href={manualUrl}
-				download="ascensao-heroica-manual.pdf"
-				aria-label="Baixar manual em PDF"
-			>
-				↓ PDF
-			</a>
-		</nav>
 	);
 }
 

@@ -36,7 +36,8 @@ test("menu inicial oferece jogar e o PDF de regras em tela pequena", async ({ pa
 	await expect(page.getByRole("heading", { name: "Ascensão Heróica" })).toBeVisible();
 	await expect(page.getByText("A Fornalha Sombria")).toBeVisible();
 	await expect(page.getByRole("button", { name: "JOGAR" })).toBeVisible();
-	await expect(page.getByRole("link", { name: /Regras/ })).toBeVisible();
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.getByRole("link", { name: "Ler manual de regras" })).toBeVisible();
 	const manual = await page.request.get("/rules/ascensao-heroica-manual.pdf");
 	expect(manual.ok()).toBe(true);
 	expect((await manual.body()).subarray(0, 4).toString()).toBe("%PDF");

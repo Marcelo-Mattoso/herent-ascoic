@@ -53,6 +53,8 @@ Os catálogos executados ficam em `src/data/`:
 
 `docs/dungeon-1.json` e `docs/habilidades.json` são catálogos editoriais da especificação v3, preservados como fonte do autor. **Não são importados pelo runtime**: uma alteração neles não muda a Alpha. Imagens originais ficam em `imagedata/`; o plugin de Vite gera manifestos e cópias em `public/generated/`. A UI resolve as URLs dos manifestos com `import.meta.env.BASE_URL`, necessário no subdiretório do GitHub Pages.
 
+O menu global é montado uma vez em `App` e renderizado por portal no `body`, fora das transformações do tabuleiro. Ele reúne música e links de leitura/download do PDF existente. `MusicPlayer` possui um único `HTMLAudioElement`, sem vínculo com o store da partida: troca de tela não reinicia a faixa. Play exige ação explícita; Stop pausa e volta ao início. Volume e faixa selecionada são preferências locais, sem retomar reprodução após reload. O Vite descobre MP3/OGG/WAV/M4A em `sounds/music/`, copia os arquivos intactos para `public/generated/music/assets/` e gera um manifesto com ID, título, formato, ordem e tamanho. A UI usa `BASE_URL` também nas URLs de áudio. `verify:build` compara a playlist com a origem, confere arquivos/tamanhos e informa o total de áudio.
+
 ## Adicionar carta ou habilidade
 
 1. Defina ou atualize a habilidade em `src/data/skills.yaml`, com ID estável, categoria, `operate_type`, alvo, escopo e `effect` ou `script`. Prefira uma primitiva DSL quando o efeito for reutilizável.

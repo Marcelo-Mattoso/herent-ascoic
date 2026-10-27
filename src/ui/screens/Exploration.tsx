@@ -30,7 +30,6 @@ import { useBoardBackgrounds } from "@/ui/hooks/useBoardBackgrounds";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useGameViewport } from "@/ui/hooks/useGameViewport";
 import { useGameStore } from "@/ui/store/gameStore";
-import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { selectFocusedHero } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 
@@ -492,14 +491,6 @@ export function Exploration({
 								>
 									<span aria-hidden="true">📖</span> Diário
 								</button>
-								<a
-									href={publicAssetUrl("rules/ascensao-heroica-manual.pdf")}
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label="Abrir manual de regras em PDF"
-								>
-									<span aria-hidden="true">?</span> Regras
-								</a>
 							</div>
 							{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
 							{(() => {

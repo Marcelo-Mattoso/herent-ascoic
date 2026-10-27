@@ -1,10 +1,10 @@
 # Playtest da Alpha Web
 
-Estado local em 26/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as mudanças desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
+Estado local em 27/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as mudanças desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
 
 ## O que testar
 
-A Alpha abre sem cadastro. Escolha **JOGAR**, selecione de 1 a 4 heróis, modo e dificuldade e inicie a expedição. Revele salas, enfrente criaturas, use ataque, habilidades, poderes e itens, organize espólios, gaste XP, abra caminhos e avance até Azhakar. **Regras** abre o manual PDF; há link para baixar. Vitória e derrota têm telas próprias.
+A Alpha abre sem cadastro. Escolha **JOGAR**, selecione de 1 a 4 heróis, modo e dificuldade e inicie a expedição. Revele salas, enfrente criaturas, use ataque, habilidades, poderes e itens, organize espólios, gaste XP, abra caminhos e avance até Azhakar. O botão ☰ no canto superior direito abre **Música** e **Regras** em todas as telas. Escolha uma faixa e pressione **Play**; **Stop** interrompe e reinicia a faixa. O volume começa em 50% e persiste com a faixa escolhida, mas a reprodução não recomeça após recarregar. Em Regras, é possível ler ou baixar o manual PDF. Vitória e derrota têm telas próprias.
 
 **TUTORIAL** abre quatro arquivos independentes. O Arquivo I guia a seleção de heróis, o tabuleiro e a revelação de uma sala. O Arquivo II ensina combate com seleção, arrasto ou toque, dados e dano reais. O Arquivo III ensina inventário e equipamentos. O Arquivo IV ensina a Marca da Presa, o ataque após a habilidade, a preparação e execução da Fúria Rubra, um poder do Guerreiro, o passivo de um encanto e o limite por partida. O Arquivista narra sobre a interface; use os controles destacados e **Continuar** nas observações. No fim, é possível repetir, escolher arquivo ou abrir a preparação de uma partida normal sem recarregar. O registro do treinamento pode ser baixado em JSON com o Diário.
 
@@ -48,6 +48,8 @@ Validação local do Arquivo III em 26/10/2026: 748 testes Vitest em 82 arquivos
 
 Validação local do Arquivo IV em 26/10/2026: os 751 testes Vitest em 84 arquivos passaram; a cobertura atingiu 77,51% de instruções, 68,16% de ramos, 84,94% de funções e 80,81% de linhas. Os 31 testes Playwright em série passaram, inclusive entrada direta, continuação III→IV sem recarga, a sequência completa em desktop e 390×844, início posterior de uma partida normal e spotlight em 360×800, 390×844, 844×390, 768×1024 e 1366×768. Lint, build com `--base /herent-ascoic/` e `verify:build --base /herent-ascoic/` passaram. Capturas de entrada, passivo e conclusão ficam em `test-results/tutorial-abilities-*.png`. O catálogo ainda apresenta sete casos `no-effect` contextuais já registrados; não foram alterados para este tutorial. Falta playtest humano em aparelhos físicos, em especial a legibilidade da narração em paisagem e a sequência de ataque após preparação. As alterações continuam locais; nenhuma publicação ou push foi feito.
 
+Validação local do menu global em 27/10/2026: 756 testes Vitest em 85 arquivos e 36 testes Playwright passaram. A cobertura do núcleo permaneceu em 77,51% de instruções, 68,16% de ramos, 84,94% de funções e 80,81% de linhas. Lint, build com base `/herent-ascoic/` e `verify:build` passaram. O manifesto publicou as cinco faixas MP3 originais (19,71 MiB), com URLs verificadas por HTTP, e o PDF. Os testes cobrem Play/Stop, troca de faixa, volume persistente, ausência de autoplay, continuidade entre telas, menu no tutorial, modais e cinco viewports; capturas ficam em `test-results/global-menu-*.png`. O som audível e o volume percebido ainda precisam de confirmação humana em aparelho real.
+
 ## Checklist para liberação
 
 - [ ] Checks do pull request passam; push em `main` publica apenas `dist/` pelo workflow.
@@ -56,7 +58,7 @@ Validação local do Arquivo IV em 26/10/2026: os 751 testes Vitest em 84 arquiv
 - [ ] **JOGAR** abre preparação; iniciar com 1 e com 4 heróis chega ao tabuleiro.
 - [ ] Revelar sala, iniciar e concluir combate com ataque e item; organizar recompensa, gastar XP e abrir caminho até outra sala.
 - [ ] Testar Marca da Presa com duas criaturas; usar Fúria e poder preparados antes do ataque; cancelar preparação; usar item equipado, cancelar alvo, enfrentar chefe, vencer e perder em sessões dirigidas.
-- [ ] Abrir **Regras** e baixar o PDF sem cadastro; confirmar com o autor qual versão é oficial antes de divulgar como definitiva.
+- [ ] Abrir ☰ em menu, preparação, partida, tutorial e tela final; testar Play, Stop, troca de faixa, volume e leitura/download do PDF. Confirmar com o autor qual versão do manual é oficial antes de divulgar como definitiva.
 - [ ] Registrar feedback e avisar sobre perda da sessão; testar retrato e paisagem no aparelho dos participantes.
 
 ## Cinco perguntas para os amigos

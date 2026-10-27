@@ -21,6 +21,16 @@ const uiAssetSourceDir = path.resolve(__dirname, "imagedata/ui");
 const uiAssetPublicDir = path.resolve(__dirname, "public/generated/ui");
 const uiAssetDir = path.join(uiAssetPublicDir, "assets");
 const uiAssetManifestPath = path.join(uiAssetPublicDir, "manifest.json");
+const musicSourceDir = path.resolve(__dirname, "sounds/music");
+const musicPublicDir = path.resolve(__dirname, "public/generated/music");
+const musicAssetDir = path.join(musicPublicDir, "assets");
+const musicManifestPath = path.join(musicPublicDir, "manifest.json");
+const musicMimeTypes: Record<string, string> = {
+	".mp3": "audio/mpeg",
+	".ogg": "audio/ogg",
+	".wav": "audio/wav",
+	".m4a": "audio/mp4",
+};
 const imageExtensions = new Set([
 	".apng",
 	".avif",
@@ -108,7 +118,7 @@ function toBoardName(relativeFile: string) {
 }
 
 function toPublicUrl(
-	kind: "boards" | "backcards" | "cards" | "ui",
+	kind: "boards" | "backcards" | "cards" | "ui" | "music",
 	relativeFile: string,
 ) {
 	return `/generated/${kind}/assets/${relativeFile
@@ -260,11 +270,49 @@ function writeUiAssetManifest() {
 	);
 }
 
+function listMusicFiles(dir: string): string[] {
+	if (!fs.existsSync(dir)) return [];
+	return fs.readdirSync(dir, { withFileTypes: true }).flatMap((entry) => {
+		const fullPath = path.join(dir, entry.name);
+		if (entry.isDirectory()) return listMusicFiles(fullPath);
+		return entry.isFile() && musicMimeTypes[path.extname(entry.name).toLowerCase()]
+			? [fullPath]
+			: [];
+	}).sort((a, b) => a.localeCompare(b, "pt-BR"));
+}
+
+function writeMusicManifest() {
+	fs.rmSync(musicPublicDir, { recursive: true, force: true });
+	fs.mkdirSync(musicAssetDir, { recursive: true });
+	const ids = new Set<string>();
+	const tracks = listMusicFiles(musicSourceDir).map((filePath, order) => {
+		const relativeFile = path.relative(musicSourceDir, filePath);
+		const id = toBoardId(relativeFile);
+		if (ids.has(id)) throw new Error(`ID de música duplicado: ${id}`);
+		ids.add(id);
+		const targetPath = path.join(musicAssetDir, relativeFile);
+		fs.mkdirSync(path.dirname(targetPath), { recursive: true });
+		fs.copyFileSync(filePath, targetPath);
+		return {
+			id,
+			title: path.basename(relativeFile, path.extname(relativeFile)).replace(/[_-]+/g, " ").replace(/\s+/g, " ").trim(),
+			fileName: relativeFile.split(path.sep).join("/"),
+			url: toPublicUrl("music", relativeFile),
+			format: path.extname(filePath).slice(1).toLowerCase(),
+			mimeType: musicMimeTypes[path.extname(filePath).toLowerCase()],
+			sizeBytes: fs.statSync(filePath).size,
+			order,
+		};
+	});
+	fs.writeFileSync(musicManifestPath, `${JSON.stringify({ version: 1, source: "sounds/music", tracks }, null, 2)}\n`);
+}
+
 function writeAssetManifests() {
 	writeBoardManifest();
 	writeBackCardManifest();
 	writeCardImageManifest();
 	writeUiAssetManifest();
+	writeMusicManifest();
 }
 
 function watchAssetSources(server: ViteDevServer) {
@@ -272,8 +320,13 @@ function watchAssetSources(server: ViteDevServer) {
 	if (fs.existsSync(backCardSourceDir)) server.watcher.add(backCardSourceDir);
 	if (fs.existsSync(cardSourceDir)) server.watcher.add(cardSourceDir);
 	if (fs.existsSync(uiAssetSourceDir)) server.watcher.add(uiAssetSourceDir);
+	if (fs.existsSync(musicSourceDir)) server.watcher.add(musicSourceDir);
 	server.watcher.on("all", (_event, filePath) => {
 		const resolvedFilePath = path.resolve(filePath);
+		if (resolvedFilePath.startsWith(musicSourceDir)) {
+			writeMusicManifest();
+			return;
+		}
 		if (
 			!resolvedFilePath.startsWith(boardSourceDir) &&
 			!resolvedFilePath.startsWith(backCardSourceDir) &&
@@ -282,7 +335,10 @@ function watchAssetSources(server: ViteDevServer) {
 		) {
 			return;
 		}
-		writeAssetManifests();
+		writeBoardManifest();
+		writeBackCardManifest();
+		writeCardImageManifest();
+		writeUiAssetManifest();
 	});
 }
 
