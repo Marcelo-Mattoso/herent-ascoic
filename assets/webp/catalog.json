@@ -1,0 +1,773 @@
+{
+  "entries": {
+    "backcards/verso_criatura.webp": {
+      "bytes": 256332,
+      "options": {
+        "method": 4,
+        "quality": 90
+      },
+      "sha256": "877befe4d667b939a36737609cf66f138ce97d97496aca7a155d30e082e6758c"
+    },
+    "backcards/verso_dungeon.webp": {
+      "bytes": 268906,
+      "options": {
+        "method": 4,
+        "quality": 90
+      },
+      "sha256": "cef5362837f3b70ee09079beaf28de0d6dcd50510fe79cb4d91c1b973507ec06"
+    },
+    "backcards/verso_tesouro.webp": {
+      "bytes": 284774,
+      "options": {
+        "method": 4,
+        "quality": 90
+      },
+      "sha256": "1a5d043d855c797561d0c44a1a0316c29772fbb944045cd335cf896e4c9683aa"
+    },
+    "boards/basic.webp": {
+      "bytes": 386842,
+      "options": {
+        "method": 4,
+        "quality": 87
+      },
+      "sha256": "fde9b8c73c25022b7db33905fd4f94caab8fafe2f45fe01093019a7624163292"
+    },
+    "boards/terras_aridas.webp": {
+      "bytes": 415980,
+      "options": {
+        "method": 4,
+        "quality": 87
+      },
+      "sha256": "00e1b26b56ca1c517bea30e434b30d55ca527a7930ed2e88193e02f9c5e65acc"
+    },
+    "cards/AbismoRachado.webp": {
+      "bytes": 416790,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "d3dafbe2514904b70da59803179dbb35415a9d2830c3c5463a7e25897c036544"
+    },
+    "cards/AcólitodaFornalha.webp": {
+      "bytes": 394308,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "38734c378a1fccd847bfa4d43ddfd8d8d443b0735a012fc1118488d012c61d46"
+    },
+    "cards/AdagaEnferrujada.webp": {
+      "bytes": 336462,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "f69345d120d3b6e7d467e5ad28277f116d7b18313432d993ee83141064f86d56"
+    },
+    "cards/AlaúdedoÚltimoAcorde.webp": {
+      "bytes": 332650,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "e95ecf22c57778965924eedb81d910d80bdf21df20f3320d427de64e0fbba307"
+    },
+    "cards/AranhadosPilaresAntigos.webp": {
+      "bytes": 394384,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "89a8e18302440fbdff5638fb2372470814d40f8602fe92d1de07ef35d257900c"
+    },
+    "cards/ArcodasFendas.webp": {
+      "bytes": 427702,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "941e5dff6e0f87b514f34f27b56e16e0fe83e222572cc474d0a64417f202e2a5"
+    },
+    "cards/ArmaduraMágicadaFornalha.webp": {
+      "bytes": 333674,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "700bd38bb62bb752a172d176f18ee0c1509eb7f8fec83feb26e7ec052b2e1c3a"
+    },
+    "cards/ArmaduradeCouroReforçado.webp": {
+      "bytes": 324812,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "090d9f33478272e815cc90d5ccbc1749cce0bf9d02166391c9fbdd690a1ae412"
+    },
+    "cards/ArmaduradeMetalAntigo.webp": {
+      "bytes": 354840,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "946b4c6e04f64be89bc44f734049331939f6fe35548878a093ea54e9c0bfb2d5"
+    },
+    "cards/Azhakardragaofornalhasombria.webp": {
+      "bytes": 429472,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "a76da306bf97f2bd417d7768c20931507a319b5428ca2ac09f6dadbef200b214"
+    },
+    "cards/BaúOcultodaFornalha.webp": {
+      "bytes": 409306,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "5b3ced003b84a1a2fd4a5785226a13419e29841346f1b13d5b6bb760903fecf3"
+    },
+    "cards/BotasdePedraLeve.webp": {
+      "bytes": 298578,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "8c5d8c109fa85b3481f5eb9bcab6d48a3734d85296ca3d30c2ed3f58abb48b25"
+    },
+    "cards/BraseirodaÚltimaVigília.webp": {
+      "bytes": 327362,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "1e7e81ef67879d237dc92d938e7be8bccc6281eaee0d929a689ec7d4c1773a7d"
+    },
+    "cards/BrutodasCorrentesPartidas.webp": {
+      "bytes": 361018,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "f26896784cab26085278b77990f844a8f49b11c966ee6778f04598c7360ded7f"
+    },
+    "cards/BárbaroRubro.webp": {
+      "bytes": 463026,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "59823f4736d60a259eda2dfdd2927d9f23d3d701ef2f89d2d78a18223c9c71ac"
+    },
+    "cards/CajadodasRunasRubras.webp": {
+      "bytes": 412250,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "1d868b1d24893acbb2f7ecca923a9c4b42c3d97b4b3a10a0505404b895cb03e1"
+    },
+    "cards/CapuzdoTúnel.webp": {
+      "bytes": 256756,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "4eaba0aaec7af17aa3df8262568d9669e6f18b0d4fa180e475ca73d6cf885e00"
+    },
+    "cards/CarcereirodaMasmorraRubra.webp": {
+      "bytes": 329018,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "7c61820968fead2a5307d3e68dcbe233dd6184080e83ae882436a43d6097f09f"
+    },
+    "cards/CavaleiroCarbonizado.webp": {
+      "bytes": 388394,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "c3b108990c3e1f4b087182c0b5a9990c7151fcc0d8785020022b676e6a6456c1"
+    },
+    "cards/CavaleirodasCorrentesVelhas.webp": {
+      "bytes": 330692,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "c03ade996239a9b890be148718b807bd4d623f4341cf6a988480eecd4ea050c6"
+    },
+    "cards/CaçadordoVéuPartido.webp": {
+      "bytes": 432628,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "a461dd3c9db979be400e852a2f71872e9d77225963186767fc7054a7d1c405fb"
+    },
+    "cards/CelaAbandonada.webp": {
+      "bytes": 352356,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "76becbdf682176cd814ebff23049c6945c592d9b9d88509d3d4a1ae47b823103"
+    },
+    "cards/ChavedeFerroAntiga.webp": {
+      "bytes": 278952,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "656d31b73a8538a6211af8e5d6795c9d72d2c51503b5ebe6f8855a4018d1f67a"
+    },
+    "cards/ClérigodoDescansoEterno.webp": {
+      "bytes": 398960,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "9f97d3fe5e52c2b04395774526285bd2728a8ed49d9da76c144fa71df2d1b814"
+    },
+    "cards/CoraçãodeBrasaAntiga.webp": {
+      "bytes": 402988,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "4cdfbcbeafab326ea492b25f627db2553c504988e5b08ad8cdef36a0d27c7770"
+    },
+    "cards/CordaGastadeExplorador.webp": {
+      "bytes": 294498,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "e85b1f3629454ed2caa7e205b906a17b4fc1b6225cf6074ea46d8ca3232b9c3a"
+    },
+    "cards/CorredorEstreito.webp": {
+      "bytes": 307442,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "8234409fccb839b3be1e5538c9f7d2cfd812c9f7b32520ab9ead121d38ecc93e"
+    },
+    "cards/CorrentedoCarcereiroRubro.webp": {
+      "bytes": 348628,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "7550c0b3e5c52f2d0cc848c16cd1b2c68748ee3074e37b71d5171c9569b19262"
+    },
+    "cards/CrânioFlamejante.webp": {
+      "bytes": 418714,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "83efdc10ccc69d29c4e0cdf22c71cc719953f46e0dd11b9bd76f2b5ff13cf689"
+    },
+    "cards/CultistadaChamaOculta.webp": {
+      "bytes": 354956,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "515ebcad1616319f7fe1aa9b9cc9ba47ac610e85817c41f5d984d6a171816097"
+    },
+    "cards/CâmaradasCorrentesRubras.webp": {
+      "bytes": 319804,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "edf45c494e463a48f7a3fb0d64855e24826dc95bd6c94bfe0f98a6bca5d2d54f"
+    },
+    "cards/EncantodaChamaBaixa.webp": {
+      "bytes": 267900,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "14e189c64cc2994813624610868f24a302248c08bbf2e6adda48aaa34d622025"
+    },
+    "cards/EncantodaMasmorraCalada.webp": {
+      "bytes": 254300,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "5da8bb9c3ee89554d99199c6385852fc78c4e8a0c79a2c68b3bb812da414bb97"
+    },
+    "cards/EncantodaÚltimaDefesa.webp": {
+      "bytes": 316840,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "fce66cdba4f50ec185d86eafc82158cadad539215b7ce1208edb85341bdd0cf3"
+    },
+    "cards/EncantodoCaminhoSeguro.webp": {
+      "bytes": 266620,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "967d132de59c1669bdddaac0eb08ea1eb8b63ab3e8826d5da47ee6452e8df9b8"
+    },
+    "cards/EncantodoSangueQuente.webp": {
+      "bytes": 257120,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "b5a67f09f04a29f79e279668d7a9d8c6935b49f83b3d23c1d5234083b2d25004"
+    },
+    "cards/EscadariaparaasProfundezas.webp": {
+      "bytes": 303878,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "dcb833bf35a8b05a807d98666d9a6717c9585064e030384f5c31fedfb6065650"
+    },
+    "cards/EscudoRachado.webp": {
+      "bytes": 261002,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "6cd3d2d757be723b24c4ccb910faa9a162b77ba2a9a7ee24966b17dfb74247f4"
+    },
+    "cards/EspadadaÚltimaLuz.webp": {
+      "bytes": 289272,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "ced8f881f383c623ac1af0e410f90c154f3c0578bf83f202424f5ef84aaaf4e9"
+    },
+    "cards/EsqueletodasCatacumbas.webp": {
+      "bytes": 274532,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "f3f63eb5c9bc79255a6dee50f26ff7cb7e897afe4458ddde2fa3951ed3b51b07"
+    },
+    "cards/FoicedoVéuProfundo.webp": {
+      "bytes": 240800,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "12a04f34b4d9e72c49bf860ca816092d952a903303f48fdf1d3f034ea8abce85"
+    },
+    "cards/ForjaemRuínas.webp": {
+      "bytes": 265256,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "741a7b54887b4c126db15bda9ab7afece92f995c8b774082e6b100296fc60082"
+    },
+    "cards/FrascodeÓleoIncendiário.webp": {
+      "bytes": 210856,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "f8e8d9c971c28482c0d7699e109f24a1edb2fbe1752fe235bd6747376c5dec3e"
+    },
+    "cards/GoblindasCavernasEscuras.webp": {
+      "bytes": 342048,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "912a22fe5c06205567f7170e9caa1f33121ebf668f0da7e02a5b007490ecbaa9"
+    },
+    "cards/GuardiãodoAbismoRachado.webp": {
+      "bytes": 376176,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "fdb157f535b05c80be5322466cf134b60e44cdb36c1eb972496c78530bde6102"
+    },
+    "cards/GuerreirodoBastiãoPartido.webp": {
+      "bytes": 422412,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "78a9c76994cf37064077e6e4b96cec82ebde86ef59d0027a9234f1274f8fea66"
+    },
+    "cards/KobolddasBrasasBaixas.webp": {
+      "bytes": 359822,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "4fbd459b3f4736c011764d449164f7c9bcceb72cfc992cb728cb6fa99786d9f9"
+    },
+    "cards/LadinodasFendas.webp": {
+      "bytes": 314416,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "c4d0e13b854260c587a8a8d31c2a8dcfd2b4e1e10fbe1eeb1537594b43335fa2"
+    },
+    "cards/LadrãodasPassagensMortas.webp": {
+      "bytes": 275936,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "4ebed2304147b9bb4a5a1a6a6ca88797cbdb4c3a7a63510a9b8d311db2b7170b"
+    },
+    "cards/LimodasPedrasÚmidas.webp": {
+      "bytes": 356990,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "059fc3e6600ebb193f43031622a02214df61a41d3cfac862dc2a3f92e8e2a882"
+    },
+    "cards/LâminadoPrimeiroIncêndio.webp": {
+      "bytes": 272050,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "9f5bcd9fa20c20f25d9d1105d470e66a1d45fdb581b4c0d3c8036d855fbd2618"
+    },
+    "cards/MachadodoSalãoArruinado.webp": {
+      "bytes": 302466,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "be2ef53449aaf6040aa83138bbcc98119cfc1c33a79a14b011bd8bfae511ebeb"
+    },
+    "cards/MagodasRunasRubras.webp": {
+      "bytes": 391912,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "7acf26f43b2164c9465e33982cb58ece9cc221b8ae093a63204ee76b2b2bea97"
+    },
+    "cards/MantodaSaídaEstreita.webp": {
+      "bytes": 272976,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "11752eddef4236a918c3eace7ce5ccc101bc9be296e069b775a6ad6dfa7a2cf9"
+    },
+    "cards/MantodoVéuPartido.webp": {
+      "bytes": 227938,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "375d2f79ad3e0a878ad858e7a2e1f10dd166e46614d747d73ac82abb440799ff"
+    },
+    "cards/MapaRasgadodasProfundezas.webp": {
+      "bytes": 375604,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "d74bbfb466e8df88a20bcb8faefbcd7e77ec261532123ce9b67ff8d89a761cdb"
+    },
+    "cards/MartelodaForjaPerdida.webp": {
+      "bytes": 309928,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "424cf26f7c4c741adcf8e779b5dd9323b0f4f861c7871c22909dd9159fcdbfe7"
+    },
+    "cards/MartelodePedraQuebrada.webp": {
+      "bytes": 245490,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "49a1b987de9af47cd259ca0bf77d855751a1f178ec8dbd4fc4694e0f15ea0d0d"
+    },
+    "cards/MorcegodoTetoNegro.webp": {
+      "bytes": 333434,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "eefe4baa41fc3412c99053d46f838883e6d44e70ff48c319784009c1933e2bc0"
+    },
+    "cards/NecromantedoVéuProfundo.webp": {
+      "bytes": 437852,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "b1772b4257822c2b03e784788e67c50135711b07b899ee3c94e81522bf0f8869"
+    },
+    "cards/OgrodoSalãoArruinado.webp": {
+      "bytes": 340062,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "f531f49b4b62dfb76fe723a9181d6ba724f748fba9114ad3c1e8f844557ffc3b"
+    },
+    "cards/PaladinodaÚltimaLuz.webp": {
+      "bytes": 515482,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "9ae75016ff3fe10180c530c011781350d1b71916ff3f4d205197597e3f8eb376"
+    },
+    "cards/PassagemdasTochasMortas.webp": {
+      "bytes": 318200,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "52e106c40bafb66d50e8d9f6595f5aca2380405a4641d060b2c6bcaaaa7af8e4"
+    },
+    "cards/PoçãodeBrasaViva.webp": {
+      "bytes": 254850,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "e86adede0d4a5c8869511a08796eddb4e7ab29becc2b691270c533f66770e0ad"
+    },
+    "cards/PoçãodeFúria.webp": {
+      "bytes": 237994,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "b57af93389ad58b56b04a8dfa5f7ae9e5846a1f9f4f747cd8086886e1fdd853d"
+    },
+    "cards/PoçãodePeledePedra.webp": {
+      "bytes": 277752,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "fd6775d0068bdfa425e0018b180bea54db352c8cce995edc85572e0030dda011"
+    },
+    "cards/PoçãodePrecisão.webp": {
+      "bytes": 254476,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "4411efe1d2f61984b66832377026b506510508430466023b976b1db68e0ae7ff"
+    },
+    "cards/PoçãodeRetorno.webp": {
+      "bytes": 227976,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "2639067bc44e9123b84d8461d33a56aee81a46d915953c03c2f6ed76e2d66b93"
+    },
+    "cards/PoçãodeVigorMaior.webp": {
+      "bytes": 304854,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "240a9e8aad47f7e63f0ac4a29253691c2c3ef33fc3b38437cb3a2afabea1184b"
+    },
+    "cards/PoçãodeVigorMenor.webp": {
+      "bytes": 202856,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "d10f64559f4210532d5890435cf903e445dfc2f788ee6128ccb31b121c6fc6a9"
+    },
+    "cards/RatodasFendasProfundas.webp": {
+      "bytes": 347506,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "016db66a1cc95b0a99ddaa55c26424c5eba1e322399330b0ad1485c00d55f0d8"
+    },
+    "cards/SaladaMasmorra.webp": {
+      "bytes": 260830,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "e03466f9e79e87fab7c38b3b66af1d5ff3fb30fa0770412422080085bf28c8d5"
+    },
+    "cards/SaladoCarcereiro.webp": {
+      "bytes": 357374,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "473a64efc0f4d9d7c4682baabfb31ab4ded9c4f52800231746f8717cd950f537"
+    },
+    "cards/SalamandradoFogoBaixo.webp": {
+      "bytes": 379910,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "6c31213b1d7ca2557a7e570865b3f0979bd94ced5879296550ef8e7261989ebd"
+    },
+    "cards/SalãodasColunasQuebradas.webp": {
+      "bytes": 290336,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "c31f3a39316917340e182c47c29c1f9a44808a339da53cb7424f23b64a05c655"
+    },
+    "cards/SentineladasTochasMortas.webp": {
+      "bytes": 356968,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "b3a97dc52ac17a037739b62a26f3da33a93dea581258122f16951036343e57a0"
+    },
+    "cards/TochadeBreu.webp": {
+      "bytes": 298034,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "84c7cfc86ceae98ae77380e9fb9e66548c162d0825ffccb87e1029fc9f6cad96"
+    },
+    "cards/VermedasCinzasQuentes.webp": {
+      "bytes": 396864,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "b794aef4973307f8a5b9508f037e8367dce6c9c2d611a21fd3cb6bb4105700ca"
+    },
+    "cards/VigiadasPortasQuebradas.webp": {
+      "bytes": 348048,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "4ee0851b57de83aaf6c81a5dd4f977d824a816c5b7134747b9f7f03a390a68b8"
+    },
+    "ui/background-card.webp": {
+      "bytes": 1985176,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "599f42019024769c10c2ed32989fdc63c85806744f7b47354ad5d9445b715725"
+    },
+    "ui/dice-token.webp": {
+      "bytes": 809980,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "fa36d87bdfc9bfe0563eda8fe8c6268417164ca8e5924016d973c1cd098bd3bc"
+    },
+    "ui/hero-icon.webp": {
+      "bytes": 807224,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "913c7065fc5db66bb785bd40fb48577f1fb42b1134cbd4b907d2181d73549bf1"
+    },
+    "ui/hp-token.webp": {
+      "bytes": 1005004,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "c5bb1d22563af66b4c7a3a1f04e505ed54bc007324bf36ecfa7b631e2679cf39"
+    },
+    "ui/logo-completa.webp": {
+      "bytes": 787800,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "9657966200df9f6496f43ed2a497c24dd253871ab3d65ca74f3a63a438f212d5"
+    },
+    "ui/monster-icon.webp": {
+      "bytes": 1040062,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "74f919b85932650511e0b94ead989776b36d984427bdfea9fbba302bd5eb38a8"
+    },
+    "ui/newcard.webp": {
+      "bytes": 2333264,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "5d3a012aa822c6ae5d163130c76f94c7022a80cc377dec6b85376a169b364a27"
+    },
+    "ui/newlogo.webp": {
+      "bytes": 1284046,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "603afca5432069de142780e02efc29842164d9d86f0bb428928f03a6f6709688"
+    },
+    "ui/ornate-border.webp": {
+      "bytes": 742344,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "4ca73655be56795386cf70e668de9c55a885cfd475212fceea37db15abeaf45f"
+    },
+    "ui/stonebackground.webp": {
+      "bytes": 1781024,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "7e1cb12009614280ae2f6c3cb736925a3aa9f16de6a7a964ec083bf06f643ce6"
+    },
+    "ui/treasure-token.webp": {
+      "bytes": 1255582,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "5fad58a79e99ca0e513ffe4dfaa28182daa5a064dc6b31d430e3dbd9f8e5c420"
+    },
+    "ui/xp-token.webp": {
+      "bytes": 1058486,
+      "options": {
+        "lossless": true,
+        "method": 4
+      },
+      "sha256": "a4bb15727a0f90a3a9e0e659a03bbb1eba29d2db659542462884488610f8b6ce"
+    }
+  },
+  "version": 1
+}
