@@ -93,15 +93,15 @@ export function GlobalMenu() {
 				<div className="global-menu__section">
 					<h2>{translate("common:globalMenu.globalMenu.text004")}</h2>
 					<p className="global-menu__track" aria-live="polite">{selected ? `${music.tracks.findIndex((track) => track.id === selected.id) + 1} / ${music.tracks.length} · ${selected.title}` : translate("common:globalMenu.globalMenu.noTrack")}</p>
-					{music.tracks.length > 1 && <label className="global-menu__field">{translate("common:globalMenu.globalMenu.text005")}{" "}<select value={music.selectedId ?? ""} onChange={(event) => player.select(event.target.value)}>
+					{music.tracks.length > 0 && <label className="global-menu__field">{translate("common:globalMenu.globalMenu.text005")}{" "}<select value={music.selectedId ?? ""} onChange={(event) => player.select(event.target.value)}>
 							{music.tracks.map((track) => <option key={track.id} value={track.id}>{track.title}</option>)}
 						</select>
 					</label>}
 					<div className="global-menu__controls">
-						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel006")} disabled={music.tracks.length < 2} onClick={() => player.step(-1)}>◀◀</button>
+						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel006")} disabled={music.tracks.length < 2} onClick={() => player.step(-1)}>◀|</button>
 						<button type="button" disabled={!selected || music.status === "loading"} onClick={() => void player.play()}>{translate("common:globalMenu.globalMenu.text007")}</button>
 						<button type="button" disabled={music.status === "stopped"} onClick={() => player.stop()}>{translate("common:globalMenu.globalMenu.text008")}</button>
-						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel009")} disabled={music.tracks.length < 2} onClick={() => player.step(1)}>▶▶</button>
+						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel009")} disabled={music.tracks.length < 2} onClick={() => player.step(1)}>|▶</button>
 					</div>
 					<label className="global-menu__field" htmlFor="global-music-volume">{translate("common:globalMenu.globalMenu.text010")}{" "}{music.volume}%
 						<input id="global-music-volume" type="range" min="0" max="100" value={music.volume} onChange={(event) => player.setVolume(Number(event.target.value))} />

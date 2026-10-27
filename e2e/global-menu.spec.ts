@@ -9,7 +9,7 @@ test("menu publica as cinco faixas e o manual, com controles acessíveis", async
 	await expect(page.getByRole("heading", { name: "Música" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Regras" })).toBeVisible();
 	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
-	await expect(page.getByLabel("Idioma da interface").locator("option")).toHaveCount(1);
+	await expect(page.getByLabel("Idioma da interface").locator("option")).toHaveCount(2);
 	const readManual = page.getByRole("link", { name: "Ler manual de regras" });
 	const downloadManual = page.getByRole("link", { name: "Baixar manual em PDF" });
 	await expect(readManual).toHaveAttribute("href", "/rules/ascensao-heroica-manual.pdf");
