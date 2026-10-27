@@ -41,6 +41,7 @@ interface GameStore {
 	readonly heroActionsFor: (heroId: string) => HeroCombatActions;
 	readonly resolveSkillChoice: (choice: string) => void;
 	readonly reset: () => void;
+	readonly loadTrainingState: (state: GameState) => void;
 }
 
 // ── Redux DevTools ──────────────────────────────────────────────────────────
@@ -166,6 +167,16 @@ function reset(): void {
 	devTools = connectDevTools(getElfGameState());
 }
 
+function loadTrainingState(state: GameState): void {
+	adapter = createInProcessAdapter(state);
+	journalRecorder = createGameJournal(state);
+	setElfStoreProps({
+		gameState: state,
+		ui: { focusedHeroId: state.heroes[0]?.id ?? null },
+	});
+	devTools?.send({ type: "TUTORIAL_CHECKPOINT" }, state);
+}
+
 // ── useSyncExternalStore ─────────────────────────────────────────────────────
 
 // Snapshot estável — só recria quando gameState ou ui mudam.
@@ -180,6 +191,7 @@ let cachedSnapshot: GameStore = {
 	heroActionsFor,
 	resolveSkillChoice,
 	reset,
+	loadTrainingState,
 };
 
 function getSnapshot(): GameStore {
@@ -196,6 +208,7 @@ function getSnapshot(): GameStore {
 		heroActionsFor,
 		resolveSkillChoice,
 		reset,
+		loadTrainingState,
 	};
 	return cachedSnapshot;
 }

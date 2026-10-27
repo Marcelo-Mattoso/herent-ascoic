@@ -11,6 +11,11 @@ import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
 import { TutorialOverlay } from "@/ui/tutorials/TutorialOverlay";
 import { prepareCombatCheckpoint } from "@/ui/tutorials/combatScenario";
+import { ABILITY_BARBARIAN, ABILITY_HUNTER, prepareAbilityEncounter, preparePowerAndPassiveEncounter } from "@/ui/tutorials/abilitiesScenario";
+import {
+	prepareExhaustedInventoryTraining,
+	prepareInventoryTraining,
+} from "@/ui/tutorials/inventoryScenario";
 import type { TutorialAuditSnapshot } from "@/ui/tutorials/audit";
 import {
 	getTutorialModule,
@@ -23,6 +28,10 @@ import {
 	currentTutorialStep,
 	finishTutorial,
 	markCombatCheckpointReady,
+	markInventoryCheckpointReady,
+	markAbilityCheckpointReady,
+	observeAbilityUi,
+	observeInventoryUi,
 	recordCombatAttackInput,
 	reconcileTutorial,
 	selectTutorialHeroes,
@@ -34,13 +43,18 @@ import {
 type UiScreen = "menu" | "setup" | "tutorialHub";
 
 function App() {
-	const { view, journal, dispatch, reset } = useGameStore();
+	const { view, journal, dispatch, reset, loadTrainingState } = useGameStore();
 	const status = view.status;
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");
 	const [tutorial, setTutorial] = useState<TutorialSession | null>(null);
 	const [lastTutorialAudit, setLastTutorialAudit] =
 		useState<TutorialAuditSnapshot | null>(null);
 	const [showReplay, setShowReplay] = useState(false);
+	const [inventoryOpened, setInventoryOpened] = useState(false);
+	const [inventoryHeroSelected, setInventoryHeroSelected] = useState(false);
+	const [inventoryDetailCardId, setInventoryDetailCardId] = useState<
+		string | null
+	>(null);
 	const preparedCheckpoints = useRef(new Set<string>());
 	const tutorialRevision = tutorial?.events.length ?? 0;
 
@@ -63,6 +77,18 @@ function App() {
 	}, [view, journal, tutorialRevision]);
 
 	useEffect(() => {
+		if (tutorial?.moduleId !== "archive-three") return;
+		const panelOpen =
+			inventoryOpened &&
+			!!document.querySelector('[data-tutorial-anchor="hero.inventory"]');
+		setTutorial((current) =>
+			current
+				? observeInventoryUi(current, panelOpen, inventoryDetailCardId, view)
+				: current,
+		);
+	}, [tutorial?.moduleId, inventoryOpened, inventoryDetailCardId, view]);
+
+	useEffect(() => {
 		if (
 			!tutorial ||
 			tutorial.moduleId !== "archive-two" ||
@@ -83,7 +109,52 @@ function App() {
 		);
 	}, [tutorial, reset, dispatch]);
 
+	useEffect(() => {
+		if (
+			!tutorial ||
+			tutorial.moduleId !== "archive-three" ||
+			currentTutorialStep(tutorial).id !== "item-states" ||
+			tutorial.inventoryCheckpointReady ||
+			preparedCheckpoints.current.has(`${tutorial.id}:items`)
+		)
+			return;
+		preparedCheckpoints.current.add(`${tutorial.id}:items`);
+		const previousJournalJson = exportJournalJson(journal);
+		let training: ReturnType<typeof prepareExhaustedInventoryTraining>;
+		try {
+			training = prepareExhaustedInventoryTraining(
+				tutorial.selectedHeroCardIds[0],
+			);
+		} catch {
+			training = prepareExhaustedInventoryTraining();
+		}
+		loadTrainingState(training);
+		setInventoryOpened(false);
+		setTutorial((current) =>
+			current
+				? markInventoryCheckpointReady(
+						current,
+						previousJournalJson,
+						training.heroes[0].cardId,
+					)
+				: current,
+		);
+	}, [tutorial, journal, loadTrainingState]);
+
+	useEffect(() => {
+		if (!tutorial || tutorial.moduleId !== "archive-four") return;
+		const step = currentTutorialStep(tutorial).id;
+		const checkpoint = step === "fury-prepare" ? "barbarian" : step === "hero-power" ? "warrior" : null;
+		if (!checkpoint || tutorial.abilityCheckpoint === checkpoint || preparedCheckpoints.current.has(`${tutorial.id}:${checkpoint}`)) return;
+		preparedCheckpoints.current.add(`${tutorial.id}:${checkpoint}`);
+		loadTrainingState(checkpoint === "barbarian" ? prepareAbilityEncounter(ABILITY_BARBARIAN) : preparePowerAndPassiveEncounter());
+		setTutorial((current) => current ? markAbilityCheckpointReady(current, checkpoint) : current);
+	}, [tutorial, loadTrainingState]);
+
 	function startModule(id: TutorialModuleId) {
+		setInventoryOpened(false);
+		setInventoryHeroSelected(false);
+		setInventoryDetailCardId(null);
 		const module = getTutorialModule(id);
 		const entry = module.entry;
 		const selectedHeroCardIds =
@@ -103,6 +174,28 @@ function App() {
 			setUiScreen("setup");
 			return;
 		}
+		if (id === "archive-three") {
+			const preferredHero =
+				selectedHeroCardIds[0] ?? "hero_broken_bastion_warrior";
+			let training: ReturnType<typeof prepareInventoryTraining>;
+			let heroId = preferredHero;
+			try {
+				training = prepareInventoryTraining(preferredHero);
+			} catch {
+				heroId = "hero_broken_bastion_warrior";
+				training = prepareInventoryTraining(heroId);
+			}
+			loadTrainingState(training);
+			setTutorial(startTutorial(id, [heroId]));
+			setUiScreen("menu");
+			return;
+		}
+		if (id === "archive-four") {
+			loadTrainingState(prepareAbilityEncounter(ABILITY_HUNTER));
+			setTutorial(markAbilityCheckpointReady(startTutorial(id, [ABILITY_HUNTER]), "hunter"));
+			setUiScreen("menu");
+			return;
+		}
 		const context = { view, selectedHeroCardIds };
 		if (!entry.prepareActions) throw new Error(`Arquivo sem preparação: ${id}`);
 		const actions = entry.prepareActions(context);
@@ -119,6 +212,9 @@ function App() {
 	}
 
 	function leaveTutorial(destination: UiScreen) {
+		setInventoryOpened(false);
+		setInventoryHeroSelected(false);
+		setInventoryDetailCardId(null);
 		if (tutorial)
 			setLastTutorialAudit({
 				session: finishTutorial(tutorial),
@@ -149,6 +245,16 @@ function App() {
 	} else if (status !== "MAIN_MENU") {
 		screen = (
 			<Exploration
+				key={tutorial?.moduleId === "archive-four" ? `${tutorial.id}:${tutorial.abilityCheckpoint}` : "ordinary-board"}
+				tutorialAbilityMode={tutorial?.moduleId === "archive-four"}
+				onTutorialAbilityPanelOpen={() => setTutorial((current) => current ? observeAbilityUi(current, "panel") : current)}
+				onTutorialAbilityCardInspect={() => setTutorial((current) => current ? observeAbilityUi(current, "card") : current)}
+				tutorialInventoryMode={tutorial?.moduleId === "archive-three"}
+				tutorialInventoryOpen={inventoryOpened}
+				tutorialInventoryHeroSelected={inventoryHeroSelected}
+				onTutorialInventoryHeroSelected={() => setInventoryHeroSelected(true)}
+				onTutorialInventoryOpen={() => setInventoryOpened(true)}
+				onTutorialItemDetailChange={setInventoryDetailCardId}
 				tutorialMode={!!tutorial || uiScreen === "tutorialHub"}
 				tutorialCombatMode={tutorial?.moduleId === "archive-two"}
 				tutorialCombatMethod={

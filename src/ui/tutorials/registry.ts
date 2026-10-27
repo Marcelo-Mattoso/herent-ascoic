@@ -47,6 +47,18 @@ export type TutorialAdvance =
 	| "combat-second-declared"
 	| "combat-second-resolved"
 	| "combat-ended"
+	| "inventory-opened"
+	| "item-inspected"
+	| "dagger-equipped"
+	| "axe-equipped"
+	| "armor-equipped"
+	| "item-used"
+	| "ability-inspected"
+	| "prey-marked"
+	| "hunter-attack-resolved"
+	| "fury-prepared"
+	| "fury-triggered"
+	| "power-used"
 	| "complete";
 
 export interface TutorialHighlight {
@@ -360,6 +372,180 @@ const archiveTwoSteps: readonly TutorialStep[] = [
 	},
 ];
 
+const archiveThreeSteps: readonly TutorialStep[] = [
+	{
+		id: "items-opening",
+		title: "O Peso da Jornada",
+		kind: "narration",
+		advance: "manual",
+		narration: [
+			"Alguns atravessam a Fornalha confiando na própria força. Outros depositam sua sobrevivência naquilo que conseguem carregar.",
+			"Mas possuir algo não significa saber utilizá-lo.",
+		],
+		instruction:
+			"Neste arquivo, você aprenderá a organizar equipamentos, utilizar itens e compreender seus efeitos.",
+	},
+	{
+		id: "inventory-open",
+		title: "Conhecendo o inventário",
+		kind: "interaction",
+		advance: "inventory-opened",
+		anchors: ["board.heroes", "inventory.open"],
+		narration: [
+			"Toda jornada impõe limites. Aquilo que se carrega precisa encontrar lugar. Aquilo que se utiliza precisa estar ao alcance.",
+		],
+		instruction: "Selecione o herói e abra o inventário do grupo.",
+	},
+	{
+		id: "inventory-slots",
+		title: "Os espaços de equipamento",
+		kind: "observation",
+		advance: "manual",
+		narration: [
+			"Cada instrumento exige seu lugar. E nenhum viajante pode carregar sobre o próprio corpo mais do que seus limites permitem.",
+		],
+		instruction:
+			"Observe os dois espaços de vestimenta, os dois de mão, o amuleto e os três espaços da mochila.",
+		highlights: [
+			{
+				anchor: "hero.clothing",
+				instruction: "Duas vestimentas podem ocupar espaços distintos.",
+			},
+			{
+				anchor: "hero.hands",
+				instruction:
+					"Duas mãos comportam itens de uma mão ou uma arma de duas mãos.",
+			},
+			{
+				anchor: "hero.amulet",
+				instruction: "O amuleto possui seu próprio espaço.",
+			},
+			{
+				anchor: "hero.backpack",
+				instruction: "A mochila guarda até três itens; abra-a para vê-los.",
+			},
+		],
+	},
+	{
+		id: "item-inspect",
+		title: "Examinando um item",
+		kind: "interaction",
+		advance: "item-inspected",
+		anchor: "hero.backpack",
+		narration: [
+			"Um objeto pode parecer simples até que suas propriedades sejam compreendidas.",
+			"Há poder naquilo que se conhece. E risco naquilo que se ignora.",
+		],
+		instruction:
+			"Abra a mochila, examine uma carta e feche os detalhes para prosseguir.",
+	},
+	{
+		id: "equip-dagger",
+		title: "Equipando uma arma",
+		kind: "interaction",
+		advance: "dagger-equipped",
+		anchor: "hero.backpack",
+		narration: [
+			"Uma lâmina guardada não transforma o golpe. Apenas quando empunhada poderá cumprir aquilo para que foi forjada.",
+		],
+		instruction: "Equipe a Adaga Enferrujada da mochila em uma mão disponível.",
+	},
+	{
+		id: "equip-axe",
+		title: "Uma mão ou duas",
+		kind: "interaction",
+		advance: "axe-equipped",
+		anchors: ["hero.hands", "hero.backpack"],
+		narration: [
+			"Nem toda arma pode ser sustentada da mesma maneira. Algumas exigem uma mão. Outras exigem ambas.",
+		],
+		instruction:
+			"Na mochila, escolha Trocar no Machado do Salão Arruinado e toque em uma mão. Observe a realocação dos itens anteriores.",
+	},
+	{
+		id: "equip-armor",
+		title: "Vestimentas e efeitos passivos",
+		kind: "interaction",
+		advance: "armor-equipped",
+		anchors: ["hero.clothing", "hero.backpack"],
+		narration: [
+			"Há objetos cujo efeito não depende de um gesto. Sua presença, quando corretamente utilizados, modifica aquilo que seu portador pode suportar.",
+		],
+		instruction:
+			"Equipe a Armadura de Couro Reforçado e observe a origem do efeito na carta e no Diário.",
+	},
+	{
+		id: "use-item",
+		title: "Utilizando um item",
+		kind: "interaction",
+		advance: "item-used",
+		anchors: ["hero.hands", "hero.backpack"],
+		narration: [
+			"Alguns objetos permanecem silenciosos até que alguém decida despertar aquilo que guardam.",
+		],
+		instruction:
+			"Troque o machado pela Poção de Precisão da mochila. Depois use a poção equipada pelo botão Usar.",
+	},
+	{
+		id: "item-states",
+		title: "Itens exauridos e consumíveis",
+		kind: "observation",
+		advance: "manual",
+		anchors: ["board.heroes", "journal.open"],
+		narration: [
+			"Nem todo recurso permanece após ser utilizado. Alguns se esgotam. Outros desaparecem, deixando apenas a consequência de seu uso.",
+		],
+		instruction:
+			"Compare a poção descartada no checkpoint anterior com o Encanto do Sangue Quente exaurido neste combate. Abra o Diário para conferir o estado; o herói já pode atacar nesta rodada.",
+	},
+	{
+		id: "items-completion",
+		title: "Arquivo III concluído — O Peso da Jornada",
+		kind: "completion",
+		advance: "complete",
+		narration: [
+			"Aquilo que se carrega pode oferecer proteção, força ou uma última oportunidade.",
+			"Mas nenhuma ferramenta decide por aquele que a empunha.",
+			"Eu registrei.",
+		],
+		instruction:
+			"Você aprendeu a examinar, equipar e utilizar itens. O próximo arquivo tratará de habilidades e poderes.",
+	},
+];
+
+const archiveFourSteps: readonly TutorialStep[] = [
+	{ id: "abilities-opening", title: "Aquilo que Cada Um Carrega", kind: "narration", advance: "manual",
+		narration: ["Uma mesma passagem não exige as mesmas respostas de todos aqueles que a atravessam.", "Há capacidades que se revelam pela escolha. Outras aguardam o instante em que sua presença se torna necessária."],
+		instruction: "Neste arquivo, você utilizará habilidades, preparará reações e conhecerá os poderes dos heróis." },
+	{ id: "abilities-inspect", title: "Conhecendo as Habilidades", kind: "interaction", advance: "ability-inspected", anchors: ["combat.hero", "hero.skill-card"],
+		narration: ["A força de cada viajante não está apenas em suas armas. Há conhecimentos, instintos e dons que nenhuma lâmina pode substituir."],
+		instruction: "Abra o painel do Caçador e examine a carta que descreve sua habilidade e seu poder." },
+	{ id: "prey-mark", title: "Uma Habilidade Manual", kind: "interaction", advance: "prey-marked", anchors: ["hero.skill-action", "combat.enemy"],
+		narration: ["Há aqueles que não enfrentam a ameaça sem antes compreendê-la.", "Reconhecer um alvo também é uma maneira de preparar aquilo que virá."],
+		instruction: "Use Marca da Presa e escolha uma criatura válida no seletor de alvos." },
+	{ id: "hunter-attack", title: "A Habilidade Não É um Ataque", kind: "interaction", advance: "hunter-attack-resolved", anchors: ["combat.hero", "combat.enemy", "combat.dice"],
+		narration: ["Nem toda escolha é um golpe. Algumas apenas estabelecem as condições para aquilo que ainda acontecerá."],
+		instruction: "A Marca preservou o ataque. Selecione o Caçador, escolha uma criatura e resolva o ataque real." },
+	{ id: "fury-prepare", title: "Preparando uma Reação", kind: "interaction", advance: "fury-prepared", anchors: ["combat.hero", "hero.skill-action"],
+		narration: ["Há forças que não devem ser despertadas antes do instante necessário.", "Algumas aguardam uma decisão. Depois dela, resta apenas o acontecimento."],
+		instruction: "Abra o Bárbaro e prepare Fúria Rubra. A preparação pode ser cancelada antes do ataque." },
+	{ id: "fury-trigger", title: "O Momento da Fúria", kind: "interaction", advance: "fury-triggered", anchors: ["combat.hero", "combat.enemy", "combat.dice"],
+		narration: ["Quando a oportunidade surge, aquilo que foi preparado encontra seu momento."],
+		instruction: "Ataque com o Bárbaro. Observe a Fúria executar automaticamente, sem confirmação adicional." },
+	{ id: "hero-power", title: "O Poder de um Herói", kind: "interaction", advance: "power-used", anchors: ["combat.hero", "hero.power-card", "hero.power-action"],
+		narration: ["Algumas capacidades acompanham aqueles que percorrem a Fornalha como marcas de sua própria natureza.", "Seu alcance não é infinito. Seu uso também pertence às regras do caminho."],
+		instruction: "Abra o Guerreiro e use Guarda Inquebrável do Bastião. Observe a proteção e o limite por partida." },
+	{ id: "passive-effect", title: "Efeitos Passivos", kind: "observation", advance: "manual", anchors: ["board.heroes", "journal.open"],
+		narration: ["Nem toda força exige uma ordem. Algumas permanecem presentes enquanto sua origem existir."],
+		instruction: "Observe o Encanto da Chama Baixa equipado, seu efeito projetado e a carta de origem no Diário. Efeitos contínuos não exigem ativação manual." },
+	{ id: "ability-limits", title: "Custos e Limites", kind: "observation", advance: "manual", anchors: ["hero.power-card", "journal.open"],
+		narration: ["Toda possibilidade possui suas condições. Aquilo que foi utilizado nem sempre pode ser reclamado novamente no mesmo instante."],
+		instruction: "Confira o poder utilizado e o motivo da indisponibilidade. O limite do poder não consome o ataque do herói." },
+	{ id: "abilities-completion", title: "Arquivo IV concluído — A Vontade e o Poder", kind: "completion", advance: "complete",
+		narration: ["Agora conhece os primeiros limites de sua força. Sabe o que pode despertar por escolha, o que precisa aguardar e aquilo que permanece mesmo em silêncio.", "Mas conhecer um caminho não é o mesmo que atravessá-lo.", "Os próximos acontecimentos ainda não foram registrados.", "Eu registrei. Agora, apenas relato."],
+		instruction: "Você concluiu os quatro arquivos de aprendizado de Ascensão Heróica. Escolha como prosseguir." },
+];
+
 export const TUTORIAL_MODULES: readonly TutorialModule[] = [
 	{
 		id: "archive-one",
@@ -386,21 +572,24 @@ export const TUTORIAL_MODULES: readonly TutorialModule[] = [
 	},
 	{
 		id: "archive-three",
-		title: "Arquivo III — Equipamentos e Itens",
-		subtitle: "Em breve",
-		summary: "Mochila, equipamentos e consumo.",
-		available: false,
-		entry: { kind: "prepared-board" },
-		steps: [],
+		title: "Arquivo III — O Peso da Jornada",
+		subtitle: "Itens e equipamentos",
+		summary: "Mochila, espaços, efeitos e consumo.",
+		available: true,
+		entry: {
+			kind: "prepared-board",
+			defaultHeroCardIds: [COMBAT_DEFAULT_HERO],
+		},
+		steps: archiveThreeSteps,
 	},
 	{
 		id: "archive-four",
-		title: "Arquivo IV — Habilidades e Poderes",
-		subtitle: "Em breve",
-		summary: "Ativação, preparação e triggers.",
-		available: false,
-		entry: { kind: "prepared-board" },
-		steps: [],
+		title: "Arquivo IV — A Vontade e o Poder",
+		subtitle: "Habilidades e poderes",
+		summary: "Ativação, preparação, efeitos e limites.",
+		available: true,
+		entry: { kind: "prepared-board", defaultHeroCardIds: ["hero_broken_veil_hunter"] },
+		steps: archiveFourSteps,
 	},
 ];
 

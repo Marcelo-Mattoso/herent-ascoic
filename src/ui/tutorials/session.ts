@@ -2,6 +2,8 @@ import type { PlayerView } from "@/core/projection/playerView";
 import type { CombatRollResult } from "@/core/state/combatState";
 import type { GameJournal, JournalEntry } from "@/core/journal/gameJournal";
 import { getTutorialModule, type TutorialModuleId } from "./registry";
+import { INVENTORY_ITEMS } from "./inventoryScenario";
+import { ABILITY_BARBARIAN, ABILITY_HUNTER, ABILITY_WARRIOR, BASTION_POWER, CRIMSON_FURY, PREY_MARK } from "./abilitiesScenario";
 
 export interface TutorialEvent {
 	readonly type:
@@ -13,6 +15,9 @@ export interface TutorialEvent {
 		| "combat-attack-input"
 		| "combat-attack-resolved"
 		| "combat-ended"
+		| "inventory-opened"
+		| "item-inspected"
+		| "inventory-action"
 		| "step"
 		| "step-completed"
 		| "completed"
@@ -54,6 +59,16 @@ export interface TutorialSession {
 	readonly attackIntentSequence: number;
 	readonly firstAttack?: CombatObservation;
 	readonly finalAttack?: CombatObservation;
+	readonly inspectedItemId?: string;
+	readonly inventoryResult?: {
+		readonly itemId: string;
+		readonly changes: readonly string[];
+	};
+	readonly inventoryCheckpointReady?: boolean;
+	readonly previousInventoryJournalJson?: string;
+	readonly abilityCheckpoint?: "hunter" | "barbarian" | "warrior";
+	readonly abilityPanelOpened?: boolean;
+	readonly abilityResult?: readonly string[];
 }
 
 export function startTutorial(
@@ -139,6 +154,34 @@ export function markCombatCheckpointReady(
 	};
 }
 
+export function markInventoryCheckpointReady(
+	session: TutorialSession,
+	previousJournalJson: string,
+	heroCardId: string,
+): TutorialSession {
+	if (
+		session.moduleId !== "archive-three" ||
+		currentTutorialStep(session).id !== "item-states" ||
+		session.inventoryCheckpointReady
+	)
+		return session;
+	return {
+		...session,
+		inventoryCheckpointReady: true,
+		selectedHeroCardIds: [heroCardId],
+		previousInventoryJournalJson: previousJournalJson,
+		events: [
+			...session.events,
+			{
+				type: "inventory-action",
+				source: "game-observation",
+				stepId: "item-states",
+				detail: "valid exhausted charm checkpoint",
+			},
+		],
+	};
+}
+
 export function recordCombatAttackInput(
 	session: TutorialSession,
 	method: "drag" | "tap",
@@ -168,6 +211,79 @@ export function recordCombatAttackInput(
 
 export function currentTutorialStep(session: TutorialSession) {
 	return getTutorialModule(session.moduleId).steps[session.stepIndex];
+}
+
+export function markAbilityCheckpointReady(session: TutorialSession, checkpoint: "hunter" | "barbarian" | "warrior"): TutorialSession {
+	if (session.moduleId !== "archive-four" || session.abilityCheckpoint === checkpoint) return session;
+	return { ...session, abilityCheckpoint: checkpoint,
+		selectedHeroCardIds: [checkpoint === "hunter" ? ABILITY_HUNTER : checkpoint === "barbarian" ? ABILITY_BARBARIAN : ABILITY_WARRIOR],
+		events: [...session.events, { type: "combat-checkpoint", source: "game-observation", stepId: currentTutorialStep(session).id, detail: checkpoint }],
+	};
+}
+
+export function observeAbilityUi(session: TutorialSession, event: "panel" | "card"): TutorialSession {
+	if (session.moduleId !== "archive-four" || currentTutorialStep(session).id !== "abilities-inspect") return session;
+	if (event === "panel") return session.abilityPanelOpened ? session : { ...session, abilityPanelOpened: true };
+	return session.abilityPanelOpened ? nextStep({ ...session, events: [...session.events, { type: "item-inspected", source: "tutorial-ui", stepId: "abilities-inspect", detail: ABILITY_HUNTER }] }) : session;
+}
+
+export function observeInventoryUi(
+	session: TutorialSession,
+	panelOpen: boolean,
+	detailCardId: string | null,
+	view: PlayerView,
+): TutorialSession {
+	if (session.moduleId !== "archive-three") return session;
+	const step = currentTutorialStep(session);
+	if (step.id === "inventory-open" && panelOpen)
+		return nextStep({
+			...session,
+			events: [
+				...session.events,
+				{ type: "inventory-opened", source: "tutorial-ui", stepId: step.id },
+			],
+		});
+	if (step.id !== "item-inspect") return session;
+	const valid =
+		detailCardId &&
+		view.heroes.some((hero) => hero.backpack.includes(detailCardId));
+	if (valid && session.inspectedItemId !== detailCardId)
+		return { ...session, inspectedItemId: detailCardId };
+	if (!detailCardId && session.inspectedItemId)
+		return nextStep({
+			...session,
+			events: [
+				...session.events,
+				{
+					type: "item-inspected",
+					source: "tutorial-ui",
+					stepId: step.id,
+					detail: session.inspectedItemId,
+				},
+			],
+		});
+	return session;
+}
+
+function movedItem(
+	entry: JournalEntry | undefined,
+	itemId: string,
+	slots: readonly string[],
+): boolean {
+	if (entry?.actionType !== "INV_MOVE") return false;
+	return entry.before.heroes.some((beforeHero) => {
+		const afterHero = entry.after.heroes.find(
+			(hero) => hero.id === beforeHero.id,
+		);
+		return (
+			beforeHero.backpack.some((card) => card?.id === itemId) &&
+			!!afterHero?.equipment.some(
+				(equipment) =>
+					slots.includes(equipment.slot) && equipment.card?.id === itemId,
+			) &&
+			!afterHero.backpack.some((card) => card?.id === itemId)
+		);
+	});
 }
 
 function nextStep(session: TutorialSession): TutorialSession {
@@ -235,6 +351,141 @@ export function reconcileTutorial(
 	journal?: GameJournal,
 ): TutorialSession {
 	const advance = currentTutorialStep(session).advance;
+	if (session.moduleId === "archive-four") {
+		const latest = journal?.entries.at(-1);
+		const hero = view.heroes[0];
+		const heroId = hero?.id;
+		if (!latest || !heroId) return session;
+		const observed = (detail: string) => nextStep({ ...session,
+			abilityResult: latest.changes,
+			events: [...session.events, { type: "inventory-action", source: "game-observation", stepId: currentTutorialStep(session).id, detail }],
+		});
+		if (advance === "prey-marked" && session.abilityCheckpoint === "hunter" &&
+			latest.actionType === "SELECT_SKILL_TARGET" &&
+			latest.before.heroes[0]?.cardId === ABILITY_HUNTER &&
+			view.activeInfluences.some((influence) => influence.id === `prey:${heroId}`) &&
+			latest.before.heroesActed.join("|") === latest.after.heroesActed.join("|"))
+			return observed(`${PREY_MARK}: ${latest.actionId}`);
+		if (advance === "hunter-attack-resolved" && session.abilityCheckpoint === "hunter" &&
+			latest.actionType === "RESOLVE_ATTACK" && latest.roll?.heroId === heroId &&
+			latest.after.heroesActed.includes(heroId))
+			return observed(`${PREY_MARK}: ataque ${latest.actionId}`);
+		if (advance === "fury-prepared" && session.abilityCheckpoint === "barbarian" &&
+			latest.actionType === "USE_SKILL" && hero.cardId === ABILITY_BARBARIAN &&
+			latest.after.preparedAbilities.some((prepared) => prepared.abilityId === CRIMSON_FURY) &&
+			!latest.before.preparedAbilities.some((prepared) => prepared.abilityId === CRIMSON_FURY) &&
+			latest.after.heroesActed.join("|") === latest.before.heroesActed.join("|"))
+			return observed(`${CRIMSON_FURY}: ${latest.actionId}`);
+		if (advance === "fury-triggered" && session.abilityCheckpoint === "barbarian" &&
+			latest.actionType === "RESOLVE_ATTACK" && latest.roll?.heroId === heroId &&
+			journal?.entries.some((entry) => entry.actionType === "ROLL_DICE" &&
+				entry.before.preparedAbilities.some((prepared) => prepared.abilityId === CRIMSON_FURY) &&
+				!entry.after.preparedAbilities.some((prepared) => prepared.abilityId === CRIMSON_FURY)) &&
+			!view.pendingTriggerInterrupt && latest.after.heroesActed.includes(heroId))
+			return nextStep({ ...session,
+				abilityResult: ["Fúria ativada.", ...journal.entries.filter((entry) => entry.actionType === "ROLL_DICE").at(-1)!.changes, ...latest.changes],
+				events: [...session.events, { type: "combat-attack-resolved", source: "game-observation", stepId: "fury-trigger", detail: `${CRIMSON_FURY}: ${latest.actionId}` }],
+			});
+		if (advance === "power-used" && session.abilityCheckpoint === "warrior" &&
+			latest.actionType === "USE_POWER" && hero.cardId === ABILITY_WARRIOR &&
+			view.abilityActionsByHero[heroId]?.some((action) => action.abilityId === BASTION_POWER && action.status === "exhausted") &&
+			latest.changes.length > 0 &&
+			latest.after.heroesActed.join("|") === latest.before.heroesActed.join("|"))
+			return observed(`${BASTION_POWER}: ${latest.actionId}`);
+		return session;
+	}
+	if (session.moduleId === "archive-three") {
+		const latest = journal?.entries.at(-1);
+		const itemId =
+			advance === "dagger-equipped"
+				? INVENTORY_ITEMS.dagger
+				: advance === "axe-equipped"
+					? INVENTORY_ITEMS.axe
+					: advance === "armor-equipped"
+						? INVENTORY_ITEMS.armor
+						: null;
+		const slots =
+			advance === "armor-equipped"
+				? ["clothing1", "clothing2"]
+				: advance === "dagger-equipped"
+					? ["hand1", "hand2"]
+					: ["hand1"];
+		if (itemId && movedItem(latest, itemId, slots)) {
+			const afterHero = latest?.after.heroes.find((hero) =>
+				hero.equipment.some((equipment) => equipment.card?.id === itemId),
+			);
+			const valid =
+				advance !== "axe-equipped" ||
+				(!!afterHero?.equipment.some(
+					(equipment) =>
+						equipment.slot === "hand2" && equipment.sharedWith === "hand1",
+				) &&
+					!afterHero.backpack.some((card) => card?.id === itemId));
+			if (valid)
+				return nextStep({
+					...session,
+					inventoryResult: { itemId, changes: latest?.changes ?? [] },
+					events: [
+						...session.events,
+						{
+							type: "inventory-action",
+							source: "game-observation",
+							stepId: currentTutorialStep(session).id,
+							detail: latest?.actionId,
+						},
+					],
+				});
+		}
+		if (
+			advance === "item-used" &&
+			latest?.actionType === "USE_ITEM" &&
+			latest.before.heroes.some((hero) =>
+				hero.equipment.some(
+					(equipment) => equipment.card?.id === INVENTORY_ITEMS.precision,
+				),
+			) &&
+			latest.after.heroes.some(
+				(hero) =>
+					hero.modifiers.some(
+						(modifier) =>
+							modifier.sourceId === "ability_hit_bonus_once" &&
+							modifier.target === "hit_bonus",
+					) &&
+					!latest.before.heroes
+						.find((beforeHero) => beforeHero.id === hero.id)
+						?.modifiers.some(
+							(modifier) => modifier.sourceId === "ability_hit_bonus_once",
+						),
+			) &&
+			latest.after.decks.some(
+				(deck) =>
+					deck.id === "itemDeck" &&
+					deck.discarded.some((card) => card.id === INVENTORY_ITEMS.precision),
+			) &&
+			!latest.after.heroes.some((hero) =>
+				hero.equipment.some(
+					(equipment) => equipment.card?.id === INVENTORY_ITEMS.precision,
+				),
+			) &&
+			latest.after.heroesActed.join("|") === latest.before.heroesActed.join("|")
+		)
+			return nextStep({
+				...session,
+				inventoryResult: {
+					itemId: INVENTORY_ITEMS.precision,
+					changes: latest.changes,
+				},
+				events: [
+					...session.events,
+					{
+						type: "inventory-action",
+						source: "game-observation",
+						stepId: "use-item",
+						detail: latest.actionId,
+					},
+				],
+			});
+	}
 	if (session.moduleId === "archive-two") {
 		const latest = journal?.entries.at(-1);
 		if (

@@ -4763,6 +4763,13 @@ body {
 
 .tutorial-layer { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
 .tutorial-layer--dice { z-index: 65; }
+.tutorial-layer--inventory { z-index: 70; }
+body:has(.tutorial-layer--inventory) .modal-layer { z-index: 75; }
+.tutorial-layer--abilities { z-index: 70; }
+body:has(.tutorial-layer--abilities) .modal-layer { z-index: 75; }
+body:has(.tutorial-layer--abilities):has(.modal-layer) .tutorial-mask { pointer-events: none; }
+body:has(.tutorial-layer--abilities):has(.modal-layer) .tutorial-panel { pointer-events: none; }
+body:has(.tutorial-layer--abilities):has(.game-dice-roll-layer) .tutorial-mask { pointer-events: none; }
 .tutorial-mask { position: absolute; background: rgba(25, 25, 25, .55); pointer-events: auto; }
 .tutorial-spotlight { position: absolute; border: 2px solid #f1d184; border-radius: 9px; box-shadow: 0 0 0 3px rgba(241, 209, 132, .25), 0 0 20px #d4a968; pointer-events: none; }
 .tutorial-spotlight-shield { position: absolute; pointer-events: auto; }
@@ -4798,6 +4805,12 @@ body {
 .tutorial-panel__audit summary { cursor: pointer; }
 .tutorial-panel__audit ol { padding-left: 20px; max-height: 100px; overflow: auto; }
 .tutorial-panel--completion { max-height: min(70dvh, 480px); }
+.tutorial-layer--abilities[data-tutorial-step="passive-effect"] .tutorial-panel,
+.tutorial-layer--abilities[data-tutorial-step="ability-limits"] .tutorial-panel { max-height: min(55dvh, 460px); }
+.tutorial-layer[data-tutorial-step="item-states"] .tutorial-panel { max-height: min(70dvh, 540px); }
+@media (max-height: 500px) and (min-width: 700px) {
+	.tutorial-layer--inventory .tutorial-panel { max-height: calc(100dvh - 24px); }
+}
 .tutorial-panel button:focus-visible, .tutorial-hub button:focus-visible { outline: 3px solid #f5d488; outline-offset: 2px; }
 @media (max-width: 600px) {
 	.tutorial-hub__heading { gap: 10px; }
