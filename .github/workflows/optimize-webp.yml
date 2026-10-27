@@ -46,6 +46,8 @@ jobs:
         env:
           PAGES_BASE_PATH: /herent-ascoic/
       - run: npm run verify:build -- --base /herent-ascoic/
+      - run: npx playwright install --with-deps chromium
+      - run: npm run test:e2e
       - name: Commit optimized art back to current branch
         run: |
           git config user.name "github-actions[bot]"

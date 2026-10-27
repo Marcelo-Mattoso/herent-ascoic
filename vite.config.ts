@@ -168,6 +168,24 @@ function copyImageAsset(sourcePath: string, targetPath: string) {
 	}
 }
 
+function pruneGeneratedImages(directory: string, validRelativeFiles: readonly string[]) {
+	const keep = new Set(validRelativeFiles);
+	if (!fs.existsSync(directory)) return;
+	function visit(folder: string) {
+		for (const entry of fs.readdirSync(folder, { withFileTypes: true })) {
+			const fullPath = path.join(folder, entry.name);
+			if (entry.isDirectory()) {
+				visit(fullPath);
+				if (fs.readdirSync(fullPath).length === 0) fs.rmdirSync(fullPath);
+			} else if (!keep.has(path.relative(directory, fullPath).split(path.sep).join("/"))) {
+				fs.rmSync(fullPath, { force: true });
+			}
+		}
+	}
+	visit(directory);
+}
+
+// Prevent old PNG copies from leaking into dist after switching to WebP.
 function writeBoardManifest() {
 	fs.mkdirSync(boardAssetDir, { recursive: true });
 
@@ -184,6 +202,8 @@ function writeBoardManifest() {
 			sizeBytes: fs.statSync(filePath).size,
 		};
 	});
+
+	pruneGeneratedImages(boardAssetDir, boards.map((asset) => asset.fileName));
 
 	const manifest: BoardManifest = {
 		version: 1,
@@ -208,6 +228,8 @@ function writeBackCardManifest() {
 			sizeBytes: fs.statSync(filePath).size,
 		};
 	});
+
+	pruneGeneratedImages(backCardAssetDir, backCards.map((asset) => asset.fileName));
 
 	const manifest: BackCardManifest = {
 		version: 1,
@@ -236,6 +258,8 @@ function writeCardImageManifest() {
 		};
 	});
 
+	pruneGeneratedImages(cardAssetDir, cards.map((asset) => asset.fileName));
+
 	const manifest: CardImageManifest = {
 		version: 1,
 		source: "imagedata/cards",
@@ -260,6 +284,8 @@ function writeUiAssetManifest() {
 			sizeBytes: fs.statSync(filePath).size,
 		};
 	});
+
+	pruneGeneratedImages(uiAssetDir, assets.map((asset) => asset.fileName));
 
 	const manifest: UiAssetManifest = {
 		version: 1,

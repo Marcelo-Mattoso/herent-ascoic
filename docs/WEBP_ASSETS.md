@@ -21,3 +21,7 @@ reproducible but are not packaged into `dist/`. Archiving original PNGs outside
 Git or moving them to Git LFS is a separate later migration.
 
 Card encoder quality 86, backs 90, boards 87; UI uses lossless WebP.
+
+The manifest generator prunes old files from generated asset directories,
+preventing leftover PNGs from being deployed. The optimization workflow also
+runs the Playwright end-to-end suite before committing converted assets.
