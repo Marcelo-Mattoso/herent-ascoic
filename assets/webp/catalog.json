@@ -89,28 +89,28 @@
       "sha256": "941e5dff6e0f87b514f34f27b56e16e0fe83e222572cc474d0a64417f202e2a5"
     },
     "cards/ArmaduraMágicadaFornalha.webp": {
-      "bytes": 333674,
+      "bytes": 330106,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "700bd38bb62bb752a172d176f18ee0c1509eb7f8fec83feb26e7ec052b2e1c3a"
+      "sha256": "9e44f49d22ef3f91b90acb3dfadeed3e2226b7ac8b0265ac2677712cb5fcf8f8"
     },
     "cards/ArmaduradeCouroReforçado.webp": {
-      "bytes": 324812,
+      "bytes": 430840,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "090d9f33478272e815cc90d5ccbc1749cce0bf9d02166391c9fbdd690a1ae412"
+      "sha256": "44f00cad7c3874ce14b64a794dc4d5c23ee1790923456662760489bba7b3ba10"
     },
     "cards/ArmaduradeMetalAntigo.webp": {
-      "bytes": 354840,
+      "bytes": 388762,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "946b4c6e04f64be89bc44f734049331939f6fe35548878a093ea54e9c0bfb2d5"
+      "sha256": "41ffe7df226a0d0e279f86d62c530e8ba3094d842c24ea6132c7a59fb2e62578"
     },
     "cards/Azhakardragaofornalhasombria.webp": {
       "bytes": 429472,
@@ -121,44 +121,44 @@
       "sha256": "a76da306bf97f2bd417d7768c20931507a319b5428ca2ac09f6dadbef200b214"
     },
     "cards/BaúOcultodaFornalha.webp": {
-      "bytes": 409306,
+      "bytes": 466026,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "5b3ced003b84a1a2fd4a5785226a13419e29841346f1b13d5b6bb760903fecf3"
+      "sha256": "d85fe618d22acf9127ef3ca96f6bd847b834e90a4de84f39daa44c8fd694b82c"
     },
     "cards/BotasdePedraLeve.webp": {
-      "bytes": 298578,
+      "bytes": 395974,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "8c5d8c109fa85b3481f5eb9bcab6d48a3734d85296ca3d30c2ed3f58abb48b25"
+      "sha256": "2456b84bdf10a18e34a847e6cc5d0be16a0d250543ee96fa250140f7e5540448"
     },
     "cards/BraseirodaÚltimaVigília.webp": {
-      "bytes": 327362,
+      "bytes": 394316,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "1e7e81ef67879d237dc92d938e7be8bccc6281eaee0d929a689ec7d4c1773a7d"
+      "sha256": "6c253a8911cb8515613ac48690234df037f4c4d403afb4b45216973021431dbe"
     },
     "cards/BrutodasCorrentesPartidas.webp": {
-      "bytes": 361018,
+      "bytes": 364084,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "f26896784cab26085278b77990f844a8f49b11c966ee6778f04598c7360ded7f"
+      "sha256": "b34aedb3d303d7a3be49864f7a017fad0a83f656dc00afc63b7f2bdf5929dbdd"
     },
     "cards/BárbaroRubro.webp": {
-      "bytes": 463026,
+      "bytes": 402918,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "59823f4736d60a259eda2dfdd2927d9f23d3d701ef2f89d2d78a18223c9c71ac"
+      "sha256": "57e45f74e1564107e6b5642ea072ee6c72e0af397444880f3ce568ce4dcaab46"
     },
     "cards/CajadodasRunasRubras.webp": {
       "bytes": 412250,
@@ -169,60 +169,60 @@
       "sha256": "1d868b1d24893acbb2f7ecca923a9c4b42c3d97b4b3a10a0505404b895cb03e1"
     },
     "cards/CapuzdoTúnel.webp": {
-      "bytes": 256756,
+      "bytes": 330594,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "4eaba0aaec7af17aa3df8262568d9669e6f18b0d4fa180e475ca73d6cf885e00"
+      "sha256": "cd983ab39a11d539755ea68292dd5292d3448c6b7b0f68e7a30180c05a74cdb3"
     },
     "cards/CarcereirodaMasmorraRubra.webp": {
-      "bytes": 329018,
+      "bytes": 349008,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "7c61820968fead2a5307d3e68dcbe233dd6184080e83ae882436a43d6097f09f"
+      "sha256": "b22dc9880cfed99b71cf6fe5209cbe94569cfcfdaaab5d24c3251d55bd2af8d8"
     },
     "cards/CavaleiroCarbonizado.webp": {
-      "bytes": 388394,
+      "bytes": 388526,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "c3b108990c3e1f4b087182c0b5a9990c7151fcc0d8785020022b676e6a6456c1"
+      "sha256": "d1c0d02d06034795162be6c659ae0cd49fe6f827676234e929c8f4556d48416f"
     },
     "cards/CavaleirodasCorrentesVelhas.webp": {
-      "bytes": 330692,
+      "bytes": 350916,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "c03ade996239a9b890be148718b807bd4d623f4341cf6a988480eecd4ea050c6"
+      "sha256": "ddbc5d529b8d99e8ce8f1cbc92d1621ea037c536a65f4d4de121635ec2ac8fc2"
     },
     "cards/CaçadordoVéuPartido.webp": {
-      "bytes": 432628,
+      "bytes": 396284,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "a461dd3c9db979be400e852a2f71872e9d77225963186767fc7054a7d1c405fb"
+      "sha256": "a0dc923c3d195d8d35f1294d431e4f74af7094dbde66923ffa7e563ac40fc542"
     },
     "cards/CelaAbandonada.webp": {
-      "bytes": 352356,
+      "bytes": 417478,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "76becbdf682176cd814ebff23049c6945c592d9b9d88509d3d4a1ae47b823103"
+      "sha256": "d3c447adfad69146999018ca4b780ad84457c301b180f2c4cd3bc2fb63224dd9"
     },
     "cards/ChavedeFerroAntiga.webp": {
-      "bytes": 278952,
+      "bytes": 361446,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "656d31b73a8538a6211af8e5d6795c9d72d2c51503b5ebe6f8855a4018d1f67a"
+      "sha256": "58d00cb543bd5d131145eeb76688b6c15d0cd1f1c4638658288a332afeabbbd6"
     },
     "cards/ClérigodoDescansoEterno.webp": {
       "bytes": 398960,
@@ -233,188 +233,188 @@
       "sha256": "9f97d3fe5e52c2b04395774526285bd2728a8ed49d9da76c144fa71df2d1b814"
     },
     "cards/CoraçãodeBrasaAntiga.webp": {
-      "bytes": 402988,
+      "bytes": 454958,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "4cdfbcbeafab326ea492b25f627db2553c504988e5b08ad8cdef36a0d27c7770"
+      "sha256": "08eec0de95fa16c81dc292189732072c8e7341eccec315217e80ed3901bac693"
     },
     "cards/CordaGastadeExplorador.webp": {
-      "bytes": 294498,
+      "bytes": 403088,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "e85b1f3629454ed2caa7e205b906a17b4fc1b6225cf6074ea46d8ca3232b9c3a"
+      "sha256": "8cf2d520c5c38ff3883ad1416c889bd7946c92ae47a0f9f188098a5feb2276ca"
     },
     "cards/CorredorEstreito.webp": {
-      "bytes": 307442,
+      "bytes": 422880,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "8234409fccb839b3be1e5538c9f7d2cfd812c9f7b32520ab9ead121d38ecc93e"
+      "sha256": "3c4e6b6c68f3e91bc14132d5cbcf8beba8e3c4ce3bf2b75b154d76e0d739d749"
     },
     "cards/CorrentedoCarcereiroRubro.webp": {
-      "bytes": 348628,
+      "bytes": 421140,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "7550c0b3e5c52f2d0cc848c16cd1b2c68748ee3074e37b71d5171c9569b19262"
+      "sha256": "e49e8d495ed0f9c4c503fa4e33b4bfa1d28a3b3c6b07027fc1fa4b90609f909c"
     },
     "cards/CrânioFlamejante.webp": {
-      "bytes": 418714,
+      "bytes": 424610,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "83efdc10ccc69d29c4e0cdf22c71cc719953f46e0dd11b9bd76f2b5ff13cf689"
+      "sha256": "a88c733da2a17c2d2fe7237b7b18466636a6e88b37f1c3fcf8b1deac76730855"
     },
     "cards/CultistadaChamaOculta.webp": {
-      "bytes": 354956,
+      "bytes": 417172,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "515ebcad1616319f7fe1aa9b9cc9ba47ac610e85817c41f5d984d6a171816097"
+      "sha256": "0ea8896fac1f8e70e17211fb1c63e29210fcc8f050734dc575d06e5bc73032b6"
     },
     "cards/CâmaradasCorrentesRubras.webp": {
-      "bytes": 319804,
+      "bytes": 429512,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "edf45c494e463a48f7a3fb0d64855e24826dc95bd6c94bfe0f98a6bca5d2d54f"
+      "sha256": "909e788e4c6b98ba463bbe1a5a548f9691e5a24bf35ca6f0d1015307fd06339d"
     },
     "cards/EncantodaChamaBaixa.webp": {
-      "bytes": 267900,
+      "bytes": 371980,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "14e189c64cc2994813624610868f24a302248c08bbf2e6adda48aaa34d622025"
+      "sha256": "ec0cd6a66d160380ee07f88b684cc50280c6989f2b9f6c02993ac112302c8c40"
     },
     "cards/EncantodaMasmorraCalada.webp": {
-      "bytes": 254300,
+      "bytes": 380688,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "5da8bb9c3ee89554d99199c6385852fc78c4e8a0c79a2c68b3bb812da414bb97"
+      "sha256": "6c87f26973fe764041b027ee3265dfadb95516ae2d691dc3bc2ba1b7211c8f6f"
     },
     "cards/EncantodaÚltimaDefesa.webp": {
-      "bytes": 316840,
+      "bytes": 468802,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "fce66cdba4f50ec185d86eafc82158cadad539215b7ce1208edb85341bdd0cf3"
+      "sha256": "9ee557439d88d4b09f18f05818bee7b9646422f7ae8c5dc6722747e6d720fa8c"
     },
     "cards/EncantodoCaminhoSeguro.webp": {
-      "bytes": 266620,
+      "bytes": 430862,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "967d132de59c1669bdddaac0eb08ea1eb8b63ab3e8826d5da47ee6452e8df9b8"
+      "sha256": "468214159f15ba3d48a27555d0f5769332567f1b22da3de1363093a437d218fa"
     },
     "cards/EncantodoSangueQuente.webp": {
-      "bytes": 257120,
+      "bytes": 373888,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "b5a67f09f04a29f79e279668d7a9d8c6935b49f83b3d23c1d5234083b2d25004"
+      "sha256": "6e677d9ffd636df31c0d18f34340a7f30ac8d2578120984d7e17053d3d0fdf0a"
     },
     "cards/EscadariaparaasProfundezas.webp": {
-      "bytes": 303878,
+      "bytes": 457326,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "dcb833bf35a8b05a807d98666d9a6717c9585064e030384f5c31fedfb6065650"
+      "sha256": "3d64dc2672c30f017177e3b6971b1c51b17e0ce290ae32f7631cacbc0625fcad"
     },
     "cards/EscudoRachado.webp": {
-      "bytes": 261002,
+      "bytes": 390504,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "6cd3d2d757be723b24c4ccb910faa9a162b77ba2a9a7ee24966b17dfb74247f4"
+      "sha256": "2f8be03f3d4e3ad2c7aa6d21ff12ece55187d787a7cfec76bc93a02fef8bce76"
     },
     "cards/EspadadaÚltimaLuz.webp": {
-      "bytes": 289272,
+      "bytes": 390152,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "ced8f881f383c623ac1af0e410f90c154f3c0578bf83f202424f5ef84aaaf4e9"
+      "sha256": "bacc12e696294f9774a3fb1459c2b9d3c1f71afc2e435af7244933cd5292cdb9"
     },
     "cards/EsqueletodasCatacumbas.webp": {
-      "bytes": 274532,
+      "bytes": 368156,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "f3f63eb5c9bc79255a6dee50f26ff7cb7e897afe4458ddde2fa3951ed3b51b07"
+      "sha256": "54104e937b30fbe3a7067e1ab88c7f228dbb16aa333824525ce00aa592ce3300"
     },
     "cards/FoicedoVéuProfundo.webp": {
-      "bytes": 240800,
+      "bytes": 393222,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "12a04f34b4d9e72c49bf860ca816092d952a903303f48fdf1d3f034ea8abce85"
+      "sha256": "50cb29aa87d1dd278fd9040aed70fe36126bc038932d606cc2c75ab38204600e"
     },
     "cards/ForjaemRuínas.webp": {
-      "bytes": 265256,
+      "bytes": 324440,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "741a7b54887b4c126db15bda9ab7afece92f995c8b774082e6b100296fc60082"
+      "sha256": "621b8cb3c083181f24b05d551aa08d1905958e9c0c863fe766a6fe906fc95102"
     },
     "cards/FrascodeÓleoIncendiário.webp": {
-      "bytes": 210856,
+      "bytes": 366704,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "f8e8d9c971c28482c0d7699e109f24a1edb2fbe1752fe235bd6747376c5dec3e"
+      "sha256": "371f41ae47a0663bb11b69890f9048f551b94eb7abfddb9dd100ba67b467b2b5"
     },
     "cards/GoblindasCavernasEscuras.webp": {
-      "bytes": 342048,
+      "bytes": 447640,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "912a22fe5c06205567f7170e9caa1f33121ebf668f0da7e02a5b007490ecbaa9"
+      "sha256": "afe2bfbf8ff4660d4a61480d2c9824185cb54e6cfadf9e5a46cd6801f57fd47c"
     },
     "cards/GuardiãodoAbismoRachado.webp": {
-      "bytes": 376176,
+      "bytes": 511272,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "fdb157f535b05c80be5322466cf134b60e44cdb36c1eb972496c78530bde6102"
+      "sha256": "9f82cb788fa9d4bcee52575a8101a4b2f14cfa0b37ebe2b752671eb90da8e92b"
     },
     "cards/GuerreirodoBastiãoPartido.webp": {
-      "bytes": 422412,
+      "bytes": 385390,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "78a9c76994cf37064077e6e4b96cec82ebde86ef59d0027a9234f1274f8fea66"
+      "sha256": "25570de5c885a003116fd8cc13ba378aa0813456381d3c1efc31fb5f97d57f89"
     },
     "cards/KobolddasBrasasBaixas.webp": {
-      "bytes": 359822,
+      "bytes": 364602,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "4fbd459b3f4736c011764d449164f7c9bcceb72cfc992cb728cb6fa99786d9f9"
+      "sha256": "e106bdeb6c4eaa12836c3f0ca8cca5e0b01bd218087db1a08e78d48449d66da0"
     },
     "cards/LadinodasFendas.webp": {
       "bytes": 314416,
@@ -425,36 +425,36 @@
       "sha256": "c4d0e13b854260c587a8a8d31c2a8dcfd2b4e1e10fbe1eeb1537594b43335fa2"
     },
     "cards/LadrãodasPassagensMortas.webp": {
-      "bytes": 275936,
+      "bytes": 313246,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "4ebed2304147b9bb4a5a1a6a6ca88797cbdb4c3a7a63510a9b8d311db2b7170b"
+      "sha256": "9e68327a161d0095ae1182971524675b598577be76650bd8eee3ed95bd385da6"
     },
     "cards/LimodasPedrasÚmidas.webp": {
-      "bytes": 356990,
+      "bytes": 445704,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "059fc3e6600ebb193f43031622a02214df61a41d3cfac862dc2a3f92e8e2a882"
+      "sha256": "17b5c26ebba1c343a15e72f29ec0127ef5eb059e6618a77281de832c85965647"
     },
     "cards/LâminadoPrimeiroIncêndio.webp": {
-      "bytes": 272050,
+      "bytes": 406452,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "9f5bcd9fa20c20f25d9d1105d470e66a1d45fdb581b4c0d3c8036d855fbd2618"
+      "sha256": "3c45fe05e065146468cd7b2b5c6ada27e3b15044e90988daf14afe97493e974d"
     },
     "cards/MachadodoSalãoArruinado.webp": {
-      "bytes": 302466,
+      "bytes": 374526,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "be2ef53449aaf6040aa83138bbcc98119cfc1c33a79a14b011bd8bfae511ebeb"
+      "sha256": "e0b073e75f6190046aa914634c2748264be1dd9f10b8c6a89e297e57d3fd0751"
     },
     "cards/MagodasRunasRubras.webp": {
       "bytes": 391912,
@@ -465,212 +465,212 @@
       "sha256": "7acf26f43b2164c9465e33982cb58ece9cc221b8ae093a63204ee76b2b2bea97"
     },
     "cards/MantodaSaídaEstreita.webp": {
-      "bytes": 272976,
+      "bytes": 427436,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "11752eddef4236a918c3eace7ce5ccc101bc9be296e069b775a6ad6dfa7a2cf9"
+      "sha256": "38cd26b0f605dbb41c3f3dfd2a289408b0daba13456d1be9e49f3a95611e29fa"
     },
     "cards/MantodoVéuPartido.webp": {
-      "bytes": 227938,
+      "bytes": 338708,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "375d2f79ad3e0a878ad858e7a2e1f10dd166e46614d747d73ac82abb440799ff"
+      "sha256": "780b02ddf9e2157c66ce9d9576cbb16b7141f597873d1e12fe565f997f7eecbb"
     },
     "cards/MapaRasgadodasProfundezas.webp": {
-      "bytes": 375604,
+      "bytes": 576418,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "d74bbfb466e8df88a20bcb8faefbcd7e77ec261532123ce9b67ff8d89a761cdb"
+      "sha256": "356d0723ca8ecd2ed405cc933fa727c27636cebb6f59068370c5cf08fd4c46d0"
     },
     "cards/MartelodaForjaPerdida.webp": {
-      "bytes": 309928,
+      "bytes": 355626,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "424cf26f7c4c741adcf8e779b5dd9323b0f4f861c7871c22909dd9159fcdbfe7"
+      "sha256": "1566a070d33b33fe5e8e4f30681f6162963375fb9b8035150127e8f4966a368f"
     },
     "cards/MartelodePedraQuebrada.webp": {
-      "bytes": 245490,
+      "bytes": 340756,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "49a1b987de9af47cd259ca0bf77d855751a1f178ec8dbd4fc4694e0f15ea0d0d"
+      "sha256": "0b20325997d2e468bd05de9914fec6875e86560238837ae35ffebb0ac6fc7781"
     },
     "cards/MorcegodoTetoNegro.webp": {
-      "bytes": 333434,
+      "bytes": 390496,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "eefe4baa41fc3412c99053d46f838883e6d44e70ff48c319784009c1933e2bc0"
+      "sha256": "130cf02f404b0c8f46b04a5c2eb3f88c077cdcf6d9bf9849658debd6c3e83848"
     },
     "cards/NecromantedoVéuProfundo.webp": {
-      "bytes": 437852,
+      "bytes": 402700,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "b1772b4257822c2b03e784788e67c50135711b07b899ee3c94e81522bf0f8869"
+      "sha256": "950cb98e3a7998238e2cbbf1969be0f47a7138f99f4d6774663450f8e5610245"
     },
     "cards/OgrodoSalãoArruinado.webp": {
-      "bytes": 340062,
+      "bytes": 437776,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "f531f49b4b62dfb76fe723a9181d6ba724f748fba9114ad3c1e8f844557ffc3b"
+      "sha256": "194e6a1113934df701d079f57da6a0429e6ed7e82b285a0e0c7eae1e90a130fb"
     },
     "cards/PaladinodaÚltimaLuz.webp": {
-      "bytes": 515482,
+      "bytes": 432740,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "9ae75016ff3fe10180c530c011781350d1b71916ff3f4d205197597e3f8eb376"
+      "sha256": "d48da7c3cb9254279c45ae770a85c9ae322fcc15d9a638d699095f984e17f62f"
     },
     "cards/PassagemdasTochasMortas.webp": {
-      "bytes": 318200,
+      "bytes": 466456,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "52e106c40bafb66d50e8d9f6595f5aca2380405a4641d060b2c6bcaaaa7af8e4"
+      "sha256": "7ffc95b3d4f12c888d6fabf09a1db9bf4c06e50d558d89d0ecbb9e5daa82c83a"
     },
     "cards/PoçãodeBrasaViva.webp": {
-      "bytes": 254850,
+      "bytes": 361682,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "e86adede0d4a5c8869511a08796eddb4e7ab29becc2b691270c533f66770e0ad"
+      "sha256": "3e8c8c361795300ccc4081bf78fec7f82d0a6eedfd2cbad268ef29dfc5c98344"
     },
     "cards/PoçãodeFúria.webp": {
-      "bytes": 237994,
+      "bytes": 330052,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "b57af93389ad58b56b04a8dfa5f7ae9e5846a1f9f4f747cd8086886e1fdd853d"
+      "sha256": "31df956ace8a602bf37ce3afb5ed4a6b18941c6f86fcbe9b52683d82f6e3410f"
     },
     "cards/PoçãodePeledePedra.webp": {
-      "bytes": 277752,
+      "bytes": 400448,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "fd6775d0068bdfa425e0018b180bea54db352c8cce995edc85572e0030dda011"
+      "sha256": "df4fba638fe8c44749d32d203e002ffd6c675392d568e407acc6a1abf58349d5"
     },
     "cards/PoçãodePrecisão.webp": {
-      "bytes": 254476,
+      "bytes": 405334,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "4411efe1d2f61984b66832377026b506510508430466023b976b1db68e0ae7ff"
+      "sha256": "a0d60ae9a2183595d9bce7d1b2fef2463b9fcd24330b2843c5bc9b186da22ad0"
     },
     "cards/PoçãodeRetorno.webp": {
-      "bytes": 227976,
+      "bytes": 417934,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "2639067bc44e9123b84d8461d33a56aee81a46d915953c03c2f6ed76e2d66b93"
+      "sha256": "af66707e200d3ace4f8481fbf9b22992513094ae2e3e5b4b11c75c4f1e11b326"
     },
     "cards/PoçãodeVigorMaior.webp": {
-      "bytes": 304854,
+      "bytes": 385292,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "240a9e8aad47f7e63f0ac4a29253691c2c3ef33fc3b38437cb3a2afabea1184b"
+      "sha256": "3646ced5eab7ef3ea1045860a7a1a846e98d5eea993c0df2dc29dbc66caadd86"
     },
     "cards/PoçãodeVigorMenor.webp": {
-      "bytes": 202856,
+      "bytes": 327302,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "d10f64559f4210532d5890435cf903e445dfc2f788ee6128ccb31b121c6fc6a9"
+      "sha256": "6a09b97c94c4f2aebb295201e93ee1cb18980d48defa7121fa7eb86bcd4f81b4"
     },
     "cards/RatodasFendasProfundas.webp": {
-      "bytes": 347506,
+      "bytes": 392536,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "016db66a1cc95b0a99ddaa55c26424c5eba1e322399330b0ad1485c00d55f0d8"
+      "sha256": "82a492944c8b6099a7ce8a858d60123013af07ff8651edbcd2125acc0405e607"
     },
     "cards/SaladaMasmorra.webp": {
-      "bytes": 260830,
+      "bytes": 416102,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "e03466f9e79e87fab7c38b3b66af1d5ff3fb30fa0770412422080085bf28c8d5"
+      "sha256": "f06e074df96afd9a4e78d4e23f79c6099e99cdf999a451b4cefe68e613a36c17"
     },
     "cards/SaladoCarcereiro.webp": {
-      "bytes": 357374,
+      "bytes": 424504,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "473a64efc0f4d9d7c4682baabfb31ab4ded9c4f52800231746f8717cd950f537"
+      "sha256": "3da32202eb3256c2f644791c9d9cf88a767332e7fb687e5be53a78656d362b62"
     },
     "cards/SalamandradoFogoBaixo.webp": {
-      "bytes": 379910,
+      "bytes": 401488,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "6c31213b1d7ca2557a7e570865b3f0979bd94ced5879296550ef8e7261989ebd"
+      "sha256": "fa1fcd32f827801a75c6bc99625fd295fcb6310d2fa8db00f6198bfa1003a6b9"
     },
     "cards/SalãodasColunasQuebradas.webp": {
-      "bytes": 290336,
+      "bytes": 410960,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "c31f3a39316917340e182c47c29c1f9a44808a339da53cb7424f23b64a05c655"
+      "sha256": "0ee3b42fe7843b2a2f643429e6243db6b526a0b7c65ca1592864a7940619355a"
     },
     "cards/SentineladasTochasMortas.webp": {
-      "bytes": 356968,
+      "bytes": 364030,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "b3a97dc52ac17a037739b62a26f3da33a93dea581258122f16951036343e57a0"
+      "sha256": "7923b5dd5eb4aa68545fece344c54bcd4396fc1df87bfc5556d0bc1b940b3a47"
     },
     "cards/TochadeBreu.webp": {
-      "bytes": 298034,
+      "bytes": 331402,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "84c7cfc86ceae98ae77380e9fb9e66548c162d0825ffccb87e1029fc9f6cad96"
+      "sha256": "7f8af753f0e3a418232d42fa3e0721214328862e0dd8e987827ee5288d3b1b61"
     },
     "cards/VermedasCinzasQuentes.webp": {
-      "bytes": 396864,
+      "bytes": 425100,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "b794aef4973307f8a5b9508f037e8367dce6c9c2d611a21fd3cb6bb4105700ca"
+      "sha256": "6b36ab0405cccf55a8a6ed63517d4113c1bca8ca37dbb53a2898d33b3a397e85"
     },
     "cards/VigiadasPortasQuebradas.webp": {
-      "bytes": 348048,
+      "bytes": 432578,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "4ee0851b57de83aaf6c81a5dd4f977d824a816c5b7134747b9f7f03a390a68b8"
+      "sha256": "067c1b0cdaf2710692e87ad01e92fda54f58f20def2426be3ab06cbdc5ea8f6a"
     },
     "ui/background-card.webp": {
       "bytes": 1985176,
