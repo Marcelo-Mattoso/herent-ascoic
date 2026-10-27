@@ -25,3 +25,12 @@ Card encoder quality 86, backs 90, boards 87; UI uses lossless WebP.
 The manifest generator prunes old files from generated asset directories,
 preventing leftover PNGs from being deployed. The optimization workflow also
 runs the Playwright end-to-end suite before committing converted assets.
+
+## Homologação (hml)
+
+A branch hml é promovida a partir de dev com os PNGs-mestre de
+`imagedata/` removidos do seu *tree*. Todos os arquivos necessários à aplicação
+estão em `assets/webp/`; o build apenas os copia para `public/generated/`.
+O processo de conversão é executado em dev antes da promoção, jamais em hml.
+Se novas artes forem adicionadas a dev, repetir a remoção de `imagedata/`
+na promoção seguinte. Os originais continuam preservados em dev.

@@ -12,7 +12,8 @@ node_modules/
 package.json
 package-lock.json
 
-# PNG masters and optimized WebP are source-controlled; only generated copies are ignored.
+# In hml only WebP is tracked. Original PNG masters stay in dev.
+imagedata/
 public/generated/
 
 dist
