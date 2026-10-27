@@ -19,6 +19,8 @@
       "noTrack": "No track selected",
       "catalogError": "Could not load the music list.",
       "playing": "Playing",
+      "startMusic": "♫ Play music",
+      "autoplayBlocked": "Your browser blocked autoplay with sound. Tap to listen.",
       "stopped": "Stopped",
       "noTracks": "No tracks available.",
       "musicLoading": "Loading music…",

@@ -19,6 +19,8 @@
       "noTrack": "Nenhuma faixa selecionada",
       "catalogError": "Não foi possível carregar a lista de músicas.",
       "playing": "Reproduzindo",
+      "startMusic": "♫ Ouvir música",
+      "autoplayBlocked": "O navegador bloqueou o som automático. Toque para ouvir.",
       "stopped": "Parado",
       "noTracks": "Nenhuma faixa disponível.",
       "musicLoading": "Carregando música…",

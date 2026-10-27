@@ -20,8 +20,9 @@ export interface MusicManifest {
 export const MUSIC_MANIFEST_URL = publicAssetUrl("generated/music/manifest.json");
 export const MUSIC_VOLUME_KEY = "ascensao.heroica.music.volume";
 export const MUSIC_TRACK_KEY = "ascensao.heroica.music.track";
+export const MUSIC_AUTOPLAY_KEY = "ascensao.heroica.music.autoplay";
 
-export type MusicStatus = "stopped" | "loading" | "playing" | "error";
+export type MusicStatus = "stopped" | "loading" | "playing" | "blocked" | "error";
 
 export interface MusicSnapshot {
 	readonly tracks: readonly MusicTrack[];
@@ -54,6 +55,7 @@ export class MusicPlayer {
 	private readonly listeners = new Set<() => void>();
 	private generation = 0;
 	private wantsPlayback = false;
+	private autoplayEnabled = storedValue(MUSIC_AUTOPLAY_KEY) !== "off";
 	private snapshot: MusicSnapshot;
 
 	constructor(audio: HTMLAudioElement) {
@@ -108,7 +110,30 @@ export class MusicPlayer {
 		if (wasPlaying) void this.startPlayback();
 	}
 
+	async autoplay() {
+		if (this.autoplayEnabled && this.snapshot.selectedId && this.snapshot.status === "stopped")
+			await this.play();
+	}
+
+	async resumeAutoplay() {
+		if (this.autoplayEnabled && this.snapshot.status === "blocked")
+			await this.play();
+	}
+
+	async playFromControls() {
+		this.autoplayEnabled = true;
+		remember(MUSIC_AUTOPLAY_KEY, "on");
+		await this.play();
+	}
+
+	stopFromControls() {
+		this.autoplayEnabled = false;
+		remember(MUSIC_AUTOPLAY_KEY, "off");
+		this.stop();
+	}
+
 	async play() {
+		if (this.wantsPlayback && (this.snapshot.status === "loading" || this.snapshot.status === "playing")) return;
 		if (!this.snapshot.selectedId) {
 			this.update({ status: "error", message: "Nenhuma faixa disponível." });
 			return;
@@ -131,8 +156,12 @@ export class MusicPlayer {
 			await this.audio.play();
 			if (generation === this.generation && this.wantsPlayback)
 				this.update({ status: "playing", message: "" });
-		} catch {
+		} catch (error) {
 			if (generation !== this.generation) return;
+			if (error && typeof error === "object" && "name" in error && error.name === "NotAllowedError") {
+				this.update({ status: "blocked", message: "" });
+				return;
+			}
 			this.wantsPlayback = false;
 			this.update({ status: "error", message: "Não foi possível reproduzir esta faixa. Tente novamente." });
 		}
