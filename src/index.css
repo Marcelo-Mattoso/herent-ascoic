@@ -12,6 +12,60 @@ body {
 	overflow: hidden;
 }
 
+.global-menu {
+	position: fixed;
+	top: env(safe-area-inset-top);
+	right: calc(env(safe-area-inset-right) + 10px);
+	z-index: 1200;
+	font: 500 0.88rem/1.35 system-ui, sans-serif;
+	color: #f8e4b8;
+}
+
+.global-menu button, .global-menu select, .global-menu a { font: inherit; }
+.global-menu button, .global-menu select, .global-menu a {
+	border: 1px solid #a87838;
+	border-radius: 7px;
+	background: #102036;
+	color: #f8e4b8;
+}
+.global-menu button, .global-menu a { cursor: pointer; }
+.global-menu button:disabled { opacity: .48; cursor: default; }
+.global-menu :focus-visible { outline: 2px solid #fff0bb; outline-offset: 2px; }
+.global-menu__toggle { width: 44px; height: 44px; font-size: 1.45rem !important; line-height: 1; box-shadow: 0 4px 16px #000b; }
+.global-menu__panel {
+	position: absolute;
+	top: 52px;
+	right: 0;
+	width: min(340px, calc(100vw - 20px - env(safe-area-inset-left) - env(safe-area-inset-right)));
+	max-height: calc(100dvh - 74px - env(safe-area-inset-top) - env(safe-area-inset-bottom));
+	overflow-y: auto;
+	box-sizing: border-box;
+	padding: 14px;
+	border: 1px solid #b48343;
+	border-radius: 12px;
+	background: linear-gradient(150deg, #14283c 0%, #081421 100%);
+	box-shadow: 0 12px 30px #000d;
+}
+.global-menu__heading { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: Georgia, serif; font-size: 1.1rem; font-weight: 700; }
+.global-menu__heading button { width: 32px; height: 32px; font-size: 1.3rem; }
+.global-menu__section { padding-top: 10px; margin-top: 10px; border-top: 1px solid #94734388; }
+.global-menu__section h2 { margin: 0 0 9px; font-family: Georgia, serif; font-size: 1rem; color: #ffd994; }
+.global-menu__track { min-height: 2.2em; margin: 0 0 8px; overflow-wrap: anywhere; }
+.global-menu__field { display: grid; gap: 5px; margin: 9px 0; }
+.global-menu select { width: 100%; min-height: 38px; padding: 5px 7px; }
+.global-menu input[type="range"] { width: 100%; accent-color: #dba64d; touch-action: pan-y; }
+.global-menu__controls { display: flex; gap: 5px; }
+.global-menu__controls button { flex: 1; min-width: 0; min-height: 40px; padding: 5px; }
+.global-menu__status { min-height: 1.35em; margin: 8px 0 0; color: #e4c889; font-size: .8rem; }
+.global-menu__links { display: grid; gap: 7px; }
+.global-menu__links a { display: block; padding: 9px; text-decoration: none; }
+.global-menu__links a:hover, .global-menu button:not(:disabled):hover { background: #213a51; }
+body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-modal-overlay) .global-menu { display: none; }
+@media (max-width: 500px) {
+	body:has(.tutorial-layer) .tutorial-panel__close { right: 54px; }
+	body:has(.tutorial-layer) .tutorial-panel__meta { padding-right: 82px; }
+}
+
 .victory-screen {
 	height: 100dvh;
 	overflow: auto;
@@ -414,42 +468,12 @@ body {
 	text-transform: uppercase;
 }
 
-.rules-access {
-	position: fixed;
-	top: max(10px, env(safe-area-inset-top));
-	right: max(12px, env(safe-area-inset-right));
-	z-index: 20;
-	display: flex;
-	gap: 6px;
-	font:
-		700 0.75rem / 1.2 system-ui,
-		sans-serif;
-}
-
 .setup-save-note {
 	margin: 8px 0 0;
 	color: #d7c69c;
 	font-size: 0.75rem;
 	line-height: 1.3;
 	text-align: center;
-}
-
-.rules-access a {
-	display: inline-flex;
-	align-items: center;
-	min-height: 38px;
-	padding: 7px 11px;
-	border: 1px solid rgba(230, 177, 65, 0.65);
-	border-radius: 6px;
-	background: rgba(7, 19, 35, 0.94);
-	color: #f7dfa3;
-	text-decoration: none;
-}
-
-.rules-access a:hover,
-.rules-access a:focus-visible {
-	outline: 2px solid #ffe6a1;
-	outline-offset: 2px;
 }
 
 .setup-screen {
@@ -4262,10 +4286,6 @@ body {
 		--game-footer-padding: 8px 0;
 	}
 
-	.rules-access--in-game {
-		display: none;
-	}
-
 	.game-board-arena {
 		justify-content: space-evenly;
 	}
@@ -4763,6 +4783,13 @@ body {
 
 .tutorial-layer { position: fixed; inset: 0; z-index: 45; pointer-events: none; }
 .tutorial-layer--dice { z-index: 65; }
+.tutorial-layer--inventory { z-index: 70; }
+body:has(.tutorial-layer--inventory) .modal-layer { z-index: 75; }
+.tutorial-layer--abilities { z-index: 70; }
+body:has(.tutorial-layer--abilities) .modal-layer { z-index: 75; }
+body:has(.tutorial-layer--abilities):has(.modal-layer) .tutorial-mask { pointer-events: none; }
+body:has(.tutorial-layer--abilities):has(.modal-layer) .tutorial-panel { pointer-events: none; }
+body:has(.tutorial-layer--abilities):has(.game-dice-roll-layer) .tutorial-mask { pointer-events: none; }
 .tutorial-mask { position: absolute; background: rgba(25, 25, 25, .55); pointer-events: auto; }
 .tutorial-spotlight { position: absolute; border: 2px solid #f1d184; border-radius: 9px; box-shadow: 0 0 0 3px rgba(241, 209, 132, .25), 0 0 20px #d4a968; pointer-events: none; }
 .tutorial-spotlight-shield { position: absolute; pointer-events: auto; }
@@ -4798,6 +4825,12 @@ body {
 .tutorial-panel__audit summary { cursor: pointer; }
 .tutorial-panel__audit ol { padding-left: 20px; max-height: 100px; overflow: auto; }
 .tutorial-panel--completion { max-height: min(70dvh, 480px); }
+.tutorial-layer--abilities[data-tutorial-step="passive-effect"] .tutorial-panel,
+.tutorial-layer--abilities[data-tutorial-step="ability-limits"] .tutorial-panel { max-height: min(55dvh, 460px); }
+.tutorial-layer[data-tutorial-step="item-states"] .tutorial-panel { max-height: min(70dvh, 540px); }
+@media (max-height: 500px) and (min-width: 700px) {
+	.tutorial-layer--inventory .tutorial-panel { max-height: calc(100dvh - 24px); }
+}
 .tutorial-panel button:focus-visible, .tutorial-hub button:focus-visible { outline: 3px solid #f5d488; outline-offset: 2px; }
 @media (max-width: 600px) {
 	.tutorial-hub__heading { gap: 10px; }

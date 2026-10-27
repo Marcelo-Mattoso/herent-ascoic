@@ -34,5 +34,38 @@ for (const kind of ["boards", "backcards", "cards", "ui"]) {
 	}
 }
 
+const musicManifest = JSON.parse(fs.readFileSync(file("generated/music/manifest.json"), "utf8"));
+assert.equal(musicManifest.version, 1);
+assert.equal(musicManifest.source, "sounds/music");
+assert.ok(Array.isArray(musicManifest.tracks) && musicManifest.tracks.length > 0, "Playlist vazia");
+const musicIds = new Set();
+const musicFiles = new Set();
+let musicBytes = 0;
+for (const [order, track] of musicManifest.tracks.entries()) {
+	assert.equal(track.order, order, `Ordem inválida: ${track.fileName}`);
+	assert.ok(track.id && !musicIds.has(track.id), `ID de música duplicado: ${track.id}`);
+	musicIds.add(track.id);
+	assert.ok(track.fileName && !musicFiles.has(track.fileName), `Música duplicada: ${track.fileName}`);
+	musicFiles.add(track.fileName);
+	assert.ok(track.title && track.sizeBytes > 0, `Metadados inválidos: ${track.fileName}`);
+	assert.ok(track.url.startsWith("/generated/music/assets/"), `URL inválida: ${track.url}`);
+	const asset = file(decodeURIComponent(track.url.slice(1)));
+	assert.equal(fs.statSync(asset).size, track.sizeBytes, `Tamanho divergente: ${track.fileName}`);
+	const expectedMime = { mp3: "audio/mpeg", ogg: "audio/ogg", wav: "audio/wav", m4a: "audio/mp4" }[track.format];
+	assert.equal(track.mimeType, expectedMime, `Formato não suportado: ${track.fileName}`);
+	musicBytes += track.sizeBytes;
+}
+const sourceMusic = [];
+function scanMusic(dir) {
+	for (const entry of fs.readdirSync(dir, { withFileTypes: true })) {
+		const fullPath = path.join(dir, entry.name);
+		if (entry.isDirectory()) scanMusic(fullPath);
+		else if (entry.isFile() && /\.(mp3|ogg|wav|m4a)$/i.test(entry.name))
+			sourceMusic.push(path.relative(path.resolve("sounds/music"), fullPath).split(path.sep).join("/"));
+	}
+}
+scanMusic(path.resolve("sounds/music"));
+assert.deepEqual([...musicFiles].sort(), sourceMusic.sort(), "Playlist não corresponde aos arquivos originais");
+
 assert.equal(fs.readFileSync(file("rules/ascensao-heroica-manual.pdf")).subarray(0, 4).toString(), "%PDF");
-console.log(`Build íntegro para base ${base}`);
+console.log(`Build íntegro para base ${base}; ${musicManifest.tracks.length} músicas, ${(musicBytes / 1024 / 1024).toFixed(2)} MiB de áudio`);

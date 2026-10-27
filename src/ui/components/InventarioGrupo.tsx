@@ -145,6 +145,7 @@ type DetailCardTarget = {
 // ── Slot visual ───────────────────────────────────────────────────────────────
 
 interface SlotProps {
+	tutorialAnchor?: string;
 	label?: string;
 	title?: string;
 	amber?: boolean;
@@ -166,6 +167,7 @@ interface SlotProps {
 }
 
 function Slot({
+	tutorialAnchor,
 	label,
 	title: _title,
 	amber,
@@ -217,6 +219,7 @@ function Slot({
 	return (
 		<button
 			type="button"
+			data-tutorial-anchor={tutorialAnchor}
 			draggable={draggable}
 			tabIndex={draggable ? 0 : undefined}
 			title={undefined}
@@ -486,6 +489,15 @@ function HeroColumn({
 					return name && !isTwoHandOverlay ? (
 						<div key={slotType} style={{ display: "grid", gap: 2 }}>
 							<Slot
+								tutorialAnchor={
+									slotType === "clothing1"
+										? "hero.clothing"
+										: slotType === "hand1"
+											? "hero.hands"
+											: slotType === "amulet"
+												? "hero.amulet"
+												: undefined
+								}
 								{...slotDropHandlers(slotType)}
 								label={shortLabel(getCardName(name))}
 								color={
@@ -533,6 +545,11 @@ function HeroColumn({
 							{usableItemIds.has(name) && (
 								<button
 									type="button"
+									data-tutorial-anchor={
+										name === "item_precision_potion"
+											? "item.use-action"
+											: undefined
+									}
 									onClick={() => onUseItem(name, hero.id)}
 									style={{ fontSize: 10, padding: "1px 0" }}
 								>
@@ -542,6 +559,15 @@ function HeroColumn({
 						</div>
 					) : (
 						<Slot
+							tutorialAnchor={
+								slotType === "clothing1"
+									? "hero.clothing"
+									: slotType === "hand1"
+										? "hero.hands"
+										: slotType === "amulet"
+											? "hero.amulet"
+											: undefined
+							}
 							key={slotType}
 							{...slotDropHandlers(slotType)}
 							label={isTwoHandOverlay ? "2 mãos" : SLOT_LABELS[slotType]}
@@ -592,6 +618,7 @@ function HeroColumn({
 			{/* Mochila em stack — zona de drop inteira */}
 			<div
 				role="group"
+				data-tutorial-anchor="hero.backpack"
 				aria-label={`Mochila de ${heroName}`}
 				{...areaDropHandlers(mochilaZone)}
 				className="inventory-backpack-wrap"
@@ -634,7 +661,10 @@ function HeroColumn({
 				</button>
 
 				{backpackOpen && (
-					<div className="inventory-backpack-popover">
+					<div
+						className="inventory-backpack-popover"
+						data-tutorial-anchor="hero.backpack-popover"
+					>
 						{hero.backpack.length === 0 ? (
 							<span className="inventory-backpack-empty">vazia</span>
 						) : (
@@ -784,7 +814,11 @@ function HeroColumn({
 
 // ── Componente principal ──────────────────────────────────────────────────────
 
-export function InventarioGrupo() {
+export function InventarioGrupo({
+	onItemDetailChange,
+}: {
+	onItemDetailChange?: (itemId: string | null) => void;
+} = {}) {
 	const { view, state, dispatch } = useGameStore();
 	const cardImageUrls = useCardImages();
 	const uiAssets = useUiAssets();
@@ -800,6 +834,10 @@ export function InventarioGrupo() {
 	const [hoverZone, setHoverZone] = useState<string | null>(null);
 	const [tooltip, setTooltip] = useState<TooltipTarget | null>(null);
 	const [detailCard, setDetailCard] = useState<DetailCardTarget | null>(null);
+	useEffect(
+		() => onItemDetailChange?.(detailCard?.cardId ?? null),
+		[detailCard?.cardId, onItemDetailChange],
+	);
 	const [focusedHero, setFocusedHero] = useState<HeroState | null>(null);
 	const [itemUse, setItemUse] = useState<{
 		heroId: string;
@@ -894,7 +932,8 @@ export function InventarioGrupo() {
 	// ── Tooltip ───────────────────────────────────────────────────────────────
 
 	function showTooltip(t: TooltipTarget) {
-		if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches) return;
+		if (!window.matchMedia("(hover: hover) and (pointer: fine)").matches)
+			return;
 		if (hideTimeoutRef.current) {
 			clearTimeout(hideTimeoutRef.current);
 			hideTimeoutRef.current = null;
@@ -1053,7 +1092,11 @@ export function InventarioGrupo() {
 
 	return (
 		<>
-			<div className="inventory-overlay" style={inventoryStyle}>
+			<div
+				className="inventory-overlay"
+				data-tutorial-anchor="hero.inventory"
+				style={inventoryStyle}
+			>
 				<div
 					role="dialog"
 					aria-modal="true"

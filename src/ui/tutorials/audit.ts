@@ -19,7 +19,15 @@ export function downloadTutorialAudit({
 				selectedHeroCardIds: session.selectedHeroCardIds,
 				firstAttack: session.firstAttack,
 				finalAttack: session.finalAttack,
+				inventoryResult: session.inventoryResult,
 			},
+			...(session.previousInventoryJournalJson
+				? {
+						previousGameJournal: JSON.parse(
+							session.previousInventoryJournalJson,
+						),
+					}
+				: {}),
 			gameJournal: JSON.parse(gameJournalJson),
 		},
 		null,

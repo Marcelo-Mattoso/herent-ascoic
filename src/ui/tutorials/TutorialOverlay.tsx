@@ -15,6 +15,10 @@ import { currentTutorialStep, type TutorialSession } from "./session";
 import { getTutorialModule, type TutorialModule } from "./registry";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { BonusEntry } from "@/core/state/combatState";
+import { getCardName } from "@/core/data/cardLocale";
+import { getSkillName } from "@/core/data/skillLocale";
+import { cardSkills } from "@/core/skills/lookup";
+import { renderSkillLabel } from "@/core/skills/renderLabel";
 
 interface Props {
 	session: TutorialSession;
@@ -72,18 +76,45 @@ export function TutorialOverlay({
 				step.kind === "completion" ||
 				step.id === "combat-action"));
 	const highlight = step.highlights?.[session.highlightIndex];
-	const anchors = useMemo(
-		() =>
-			highlight
-				? [highlight.anchor]
-				: (step.anchors ?? (step.anchor ? [step.anchor] : [])),
-		[highlight, step.anchors, step.anchor],
-	);
+	const anchors = useMemo(() => {
+		const base = highlight
+			? [highlight.anchor]
+			: (step.anchors ?? (step.anchor ? [step.anchor] : []));
+		return session.moduleId === "archive-three" &&
+			[
+				"item-inspect",
+				"equip-dagger",
+				"equip-axe",
+				"equip-armor",
+				"use-item",
+			].includes(step.id)
+			? [
+					...base,
+					"hero.backpack-popover",
+					...(step.id === "use-item" ? ["item.use-action"] : []),
+				]
+			: base;
+	}, [highlight, step.anchors, step.anchor, step.id, session.moduleId]);
 	const [rects, setRects] = useState<Rect[]>([]);
 	const [viewport, setViewport] = useState({
 		width: window.innerWidth,
 		height: window.innerHeight,
 	});
+
+	useEffect(() => {
+		if (session.moduleId !== "archive-three" || !anchors[0]) return;
+		const target = document.querySelector<HTMLElement>(
+			`[data-tutorial-anchor="${anchors[0]}"]`,
+		);
+		if (!target || !target.closest(".inventory-dialog")) return;
+		const bounds = target.getBoundingClientRect();
+		if (bounds.top < 16 || bounds.bottom > viewport.height - 16)
+			target.scrollIntoView({
+				block: "center",
+				inline: "nearest",
+				behavior: "instant",
+			});
+	}, [anchors, session.moduleId, viewport.height]);
 
 	useLayoutEffect(() => {
 		const update = () => {
@@ -116,16 +147,15 @@ export function TutorialOverlay({
 			if (target) observer.observe(target);
 		}
 		const mutationObserver = new MutationObserver(() => {
-			if (
-				anchors.every((anchor) =>
-					document.querySelector(`[data-tutorial-anchor="${anchor}"]`),
-				)
-			) {
-				mutationObserver.disconnect();
-				update();
-			}
+			update();
 		});
-		if (
+		const inventoryDialog = document.querySelector(".inventory-dialog");
+		if (inventoryDialog)
+			mutationObserver.observe(inventoryDialog, {
+				childList: true,
+				subtree: true,
+			});
+		else if (
 			anchors.some(
 				(anchor) =>
 					!document.querySelector(`[data-tutorial-anchor="${anchor}"]`),
@@ -171,7 +201,9 @@ export function TutorialOverlay({
 				"button:not([disabled]), a[href], input:not([disabled]), [tabindex]:not([tabindex='-1'])";
 			const panel = document.querySelector(".tutorial-panel");
 			const targets =
-				step.kind === "interaction" || step.id === "group"
+				step.kind === "interaction" ||
+				step.id === "group" ||
+				step.id === "item-states"
 					? anchors
 							.map((anchor) =>
 								document.querySelector(`[data-tutorial-anchor="${anchor}"]`),
@@ -271,7 +303,11 @@ export function TutorialOverlay({
 			}
 		: null;
 	const panelPlacement =
-		step.id === "combat-drag" && session.combatInput === "tap"
+		session.moduleId === "archive-four" &&
+		(step.id === "hunter-attack" || step.id === "fury-trigger") &&
+		viewport.width < 900
+			? "bottom"
+			: step.id === "combat-drag" && session.combatInput === "tap"
 			? view.combat?.phase === "selecting_target"
 				? "bottom"
 				: "top"
@@ -285,6 +321,11 @@ export function TutorialOverlay({
 			: (highlight?.instruction ?? step.instruction);
 	const visibleRoll = step.id === "combat-dice" ? view.combat?.lastRoll : null;
 	const result = session.finalAttack;
+	const powerDefinition = session.moduleId === "archive-four" && view.heroes[0]
+		? cardSkills(view.heroes[0].cardId).find(({ def }) => def.category === "hero_power")?.def
+		: undefined;
+	const powerScope = powerDefinition?.cooldown?.scope;
+	const powerLimit = powerScope === "game" ? "por partida" : powerScope === "room" ? "por sala" : powerScope === "combat" ? "por combate" : powerScope === "round" ? "por rodada" : undefined;
 	const damageMessage = result?.messages.find(
 		(message) =>
 			message.includes(result.enemyName) && message.includes("sofreu"),
@@ -315,7 +356,7 @@ export function TutorialOverlay({
 
 	return createPortal(
 		<div
-			className={`tutorial-layer${step.id === "combat-dice" ? " tutorial-layer--dice" : ""}`}
+			className={`tutorial-layer${step.id === "combat-dice" ? " tutorial-layer--dice" : ""}${session.moduleId === "archive-three" ? " tutorial-layer--inventory" : ""}${session.moduleId === "archive-four" ? " tutorial-layer--abilities" : ""}`}
 			data-tutorial-step={step.id}
 		>
 			{masks}
@@ -335,7 +376,10 @@ export function TutorialOverlay({
 			{rects.map(
 				(spotlight, index) =>
 					step.kind !== "interaction" &&
-					step.id !== "group" && (
+					step.id !== "group" &&
+					step.id !== "item-states" &&
+					step.id !== "passive-effect" &&
+					step.id !== "ability-limits" && (
 						<div
 							key={index}
 							className="tutorial-spotlight-shield"
@@ -349,6 +393,7 @@ export function TutorialOverlay({
 					),
 			)}
 			<section
+				key={step.id}
 				className={`tutorial-panel tutorial-panel--${panelPlacement}${step.kind === "completion" ? " tutorial-panel--completion" : ""}`}
 				style={panelStyle}
 				aria-label="Orientações do Arquivista"
@@ -374,6 +419,111 @@ export function TutorialOverlay({
 					<p key={paragraph}>{paragraph}</p>
 				))}
 				<p className="tutorial-panel__instruction">{instruction}</p>
+				{session.moduleId === "archive-four" &&
+					["prey-mark", "hunter-attack", "fury-prepare", "fury-trigger", "hero-power", "passive-effect", "ability-limits"].includes(step.id) && (
+						<div className="tutorial-panel__combat-detail" role="status" aria-label="Estado real das habilidades">
+							{view.heroes[0] && view.abilityActionsByHero[view.heroes[0].id]?.filter((action) => action.kind !== "item" && (step.id === "passive-effect" ? false : step.id === "ability-limits" ? action.kind === "power" : true)).map((action) => (
+								<p key={action.abilityId}>
+									{action.label}: {action.status === "prepared" ? "preparada: aguardando o evento" : action.status === "active" ? "efeito ativo" : action.status === "exhausted" ? "limite atingido" : action.status === "available" ? "disponível" : "indisponível"}.
+									{action.reason ? ` ${action.reason}` : ""}
+								</p>
+							))}
+							{(step.id === "passive-effect" || step.id === "ability-limits") &&
+								view.activeInfluences.filter((influence) => influence.from.kind === "item" && influence.from.id === "item_low_flame_charm").map((influence) => (
+									<p key={influence.id}>Passivo: {influence.source} — {influence.label} ({influence.duration}).</p>
+								))}
+							{step.id === "ability-limits" && powerDefinition && powerLimit && (
+								<p>Limite de {getSkillName(powerDefinition.id)}: {powerDefinition.cooldown?.charges ?? 1} uso(s) {powerLimit}. O ataque permanece independente.</p>
+							)}
+							{step.id !== "passive-effect" && step.id !== "ability-limits" && session.abilityResult?.slice(0, 3).map((change) => <p key={change}>{change}</p>)}
+						</div>
+					)}
+				{session.moduleId === "archive-three" &&
+					session.inventoryResult &&
+					session.stepIndex >= 5 &&
+					session.stepIndex <= 7 && (
+						<div
+							className="tutorial-panel__combat-detail"
+							role="status"
+							aria-label="Resultado real do inventário"
+						>
+							<p>
+								{session.inventoryCheckpointReady
+									? "Checkpoint anterior"
+									: "Carta"}
+								: {getCardName(session.inventoryResult.itemId)}.
+							</p>
+							{session.inventoryResult.itemId !== "item_precision_potion" &&
+								cardSkills(session.inventoryResult.itemId).map(({ ref }) => (
+									<p key={ref.skillId}>
+										Efeito da carta: {renderSkillLabel(ref)}
+									</p>
+								))}
+							{session.inventoryResult.changes.slice(0, 3).map((change) => (
+								<p key={change}>{change}</p>
+							))}
+							{session.inventoryResult.itemId === "item_precision_potion" &&
+								journal.current.heroes
+									.flatMap((hero) =>
+										hero.modifiers.filter(
+											(modifier) =>
+												modifier.sourceId === "ability_hit_bonus_once",
+										),
+									)
+									.map((modifier) => (
+										<p key={modifier.sourceId}>
+											Efeito aplicado: {modifier.source}{" "}
+											{modifier.value >= 0 ? "+" : ""}
+											{modifier.value} em acerto ({modifier.duration}).
+										</p>
+									))}
+						</div>
+					)}
+				{step.id === "item-states" && (
+					<div
+						className="tutorial-panel__combat-detail"
+						role="region"
+						aria-label="Estados reais dos itens"
+					>
+						<p>
+							Consumido no checkpoint anterior:{" "}
+							{session.inventoryResult?.itemId === "item_precision_potion"
+								? getCardName("item_precision_potion")
+								: "nenhum confirmado"}
+							.
+						</p>
+						<p>
+							Prontos:{" "}
+							{journal.current.heroes
+								.flatMap((hero) =>
+									hero.equipment
+										.filter((slot) => slot.card?.state === "ready")
+										.map((slot) => slot.card!.name),
+								)
+								.join(", ") || "nenhum"}
+							.
+						</p>
+						<p>
+							Exauridos:{" "}
+							{journal.current.heroes
+								.flatMap((hero) =>
+									hero.equipment
+										.filter((slot) => slot.card?.state === "exhausted")
+										.map((slot) => slot.card!.name),
+								)
+								.join(", ") || "nenhum neste encontro"}
+							.
+						</p>
+						<p>
+							Ataque do herói:{" "}
+							{journal.current.heroesActed.length === 0 &&
+							view.status === "HERO_ACTION"
+								? "disponível nesta rodada"
+								: "já realizado nesta rodada"}
+							.
+						</p>
+					</div>
+				)}
 				{step.id === "combat-drag" && session.firstAttack && (
 					<p className="tutorial-panel__combat-detail">
 						Primeiro ataque: {session.firstAttack.roll.heroTotal} contra{" "}
@@ -470,22 +620,20 @@ export function TutorialOverlay({
 				<div className="tutorial-panel__actions">
 					{step.kind === "completion" ? (
 						<>
-							<button type="button" disabled={!nextModule} onClick={onNext}>
-								{nextModule
-									? `Próximo arquivo — ${nextModule.title}`
-									: "Próximo arquivo — em breve"}
-							</button>
+							{nextModule && <button type="button" onClick={onNext}>
+								Próximo arquivo — {nextModule.title}
+							</button>}
 							<button type="button" onClick={onHub}>
-								Escolher arquivo
+								{session.moduleId === "archive-four" ? "Revisar tutoriais" : "Escolher arquivo"}
 							</button>
 							<button type="button" onClick={onRepeat}>
-								Repetir arquivo
+								{session.moduleId === "archive-four" ? "Repetir este arquivo" : "Repetir arquivo"}
 							</button>
 							<button type="button" onClick={onPlay}>
-								Jogar normalmente
+								{session.moduleId === "archive-four" ? "Jogar agora" : "Jogar normalmente"}
 							</button>
 							<button type="button" onClick={onClose}>
-								Sair dos tutoriais
+								{session.moduleId === "archive-four" ? "Voltar ao menu" : "Sair dos tutoriais"}
 							</button>
 						</>
 					) : (

@@ -17,7 +17,7 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 		await page.setViewportSize(viewport);
 		await page.goto("/");
 		await expect(page.getByRole("button", { name: "JOGAR" })).toBeVisible();
-		await expect(page.getByRole("link", { name: /Regras/ })).toBeVisible();
+		await expect(page.getByRole("button", { name: "Abrir menu global" })).toBeVisible();
 		if (viewport.width === 360)
 			await page.screenshot({ path: "test-results/layout-menu-portrait.png" });
 		await page.getByRole("button", { name: "JOGAR" }).click();
@@ -81,9 +81,7 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 			.toBe(true);
 		await expect(page.locator(".game-board-stacks")).toHaveCount(0);
 		await expect(page.locator(".orientation-gate")).toHaveCount(0);
-		await expect(
-			page.getByRole("link", { name: /regras/i }).first(),
-		).toBeVisible();
+		await expect(page.getByRole("button", { name: "Abrir menu global" })).toBeVisible();
 
 		if (viewport.width <= 900) {
 			await expect(

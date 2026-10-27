@@ -1,12 +1,12 @@
 # Playtest da Alpha Web
 
-Estado local em 26/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as mudanças desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
+Estado local em 27/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as mudanças desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
 
 ## O que testar
 
-A Alpha abre sem cadastro. Escolha **JOGAR**, selecione de 1 a 4 heróis, modo e dificuldade e inicie a expedição. Revele salas, enfrente criaturas, use ataque, habilidades, poderes e itens, organize espólios, gaste XP, abra caminhos e avance até Azhakar. **Regras** abre o manual PDF; há link para baixar. Vitória e derrota têm telas próprias.
+A Alpha abre sem cadastro. Escolha **JOGAR**, selecione de 1 a 4 heróis, modo e dificuldade e inicie a expedição. Revele salas, enfrente criaturas, use ataque, habilidades, poderes e itens, organize espólios, gaste XP, abra caminhos e avance até Azhakar. O botão ☰ no canto superior direito abre **Música** e **Regras** em todas as telas. Escolha uma faixa e pressione **Play**; **Stop** interrompe e reinicia a faixa. O volume começa em 50% e persiste com a faixa escolhida, mas a reprodução não recomeça após recarregar. Em Regras, é possível ler ou baixar o manual PDF. Vitória e derrota têm telas próprias.
 
-**TUTORIAL** abre quatro arquivos. O Arquivo I guia a seleção de heróis, o reconhecimento do tabuleiro e a revelação de uma sala real. O Arquivo II ensina combate com cartas reais: selecione herói e criatura, resolva o primeiro ataque, depois pratique arrastar no desktop ou tocar no celular. Observe os dados, os modificadores, a vida e o consumo da ação antes de concluir o encontro. Os Arquivos III e IV indicam “Em breve”. O Arquivista narra em uma caixa sobre a interface. Use os controles destacados, **Continuar** nas observações, ou **Sair do tutorial** a qualquer momento. No fim, é possível repetir, escolher arquivo ou começar JOGAR sem recarregar. O registro do treinamento pode ser baixado em JSON junto com o diário da partida.
+**TUTORIAL** abre quatro arquivos independentes. O Arquivo I guia a seleção de heróis, o tabuleiro e a revelação de uma sala. O Arquivo II ensina combate com seleção, arrasto ou toque, dados e dano reais. O Arquivo III ensina inventário e equipamentos. O Arquivo IV ensina a Marca da Presa, o ataque após a habilidade, a preparação e execução da Fúria Rubra, um poder do Guerreiro, o passivo de um encanto e o limite por partida. O Arquivista narra sobre a interface; use os controles destacados e **Continuar** nas observações. No fim, é possível repetir, escolher arquivo ou abrir a preparação de uma partida normal sem recarregar. O registro do treinamento pode ser baixado em JSON com o Diário.
 
 Para relatar um problema, anote carta, herói, sala, ação, resultado esperado e observado e as últimas mensagens do log. O replay determinístico e as ferramentas de console ficam disponíveis apenas no modo de desenvolvimento.
 
@@ -23,7 +23,8 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 | P2 | `enableSubBosses = false`. | Conteúdo de subchefes fica fora do escopo atual. |
 | P2 | Bundle JS acima do aviso de 500 kB do Vite. | Medir carregamento em rede móvel antes de dividir chunks. |
 | P2 | Manual publicado de 25 páginas difere de PDF posterior de 39 páginas fora do repositório. | Confirmar versão oficial e divergências com o autor antes de substituir. |
-| Futuro | Arquivos III e IV do tutorial estão indisponíveis. | Definir etapas e preparação válida para equipamentos, itens, habilidades e poderes. |
+| P2 | O Arquivo III demonstra um encanto exaurido durante o combate e uma poção consumida no checkpoint anterior. | Em aparelho real, conferir se o jogador distingue os dois registros e compreende quando o limite por combate é renovado. |
+| P2 | Em uma sondagem fora do tutorial, preparar `item_safe_path_charm` na recompensa e avançar de sala lançou `[resolveExpr] param "value" não é número`. | Reproduzir esse item em uma partida dirigida e corrigir seu grant em trabalho próprio, sem alterar regras para o tutorial. |
 | Futuro | `category` ainda compõe a definição de habilidade; algumas skills sem carta referenciada permanecem no catálogo para expansão. | Preservar esses IDs e contratos; revisar modelagem apenas em refatoração própria. |
 | Futuro | Algumas ações de dungeon e descoberta de habilidades tiveram propostas de UI em documentos antigos. | Validar o fluxo atual em partidas antes de abrir trabalho novo; os diagnósticos antigos podem estar superados. |
 
@@ -43,6 +44,12 @@ Validação local do Arquivo I em 26/10/2026: 741 testes Vitest em 80 arquivos e
 
 Validação local do Arquivo II em 26/10/2026: 744 testes Vitest em 81 arquivos e 24 testes Playwright passaram. A cobertura ficou em 76,12% das instruções, 65,92% dos ramos, 83,45% das funções e 79,42% das linhas. As seeds `2` e `1` foram verificadas para os oito heróis; o segundo checkpoint conclui o encontro por actions reais. Os testes de interface percorreram entrada direta, continuação do Arquivo I sem reload, seleção, ataque por toque e arrasto, rolagem, comparação com o Diário, encerramento, repetição e cinco viewports entre 360×800 e 1366×768. Lint, build de produção e `verify:build --base /herent-ascoic/` passaram. Capturas de dados e resultado no desktop e da etapa dos dados nos cinco viewports ficam em `test-results/tutorial-combat-*.png` após a suíte local. Ainda falta playtest em aparelhos físicos antes da publicação.
 
+Validação local do Arquivo III em 26/10/2026: 748 testes Vitest em 82 arquivos e 27 testes Playwright em série passaram. O fluxo percorreu as dez etapas em desktop e celular, inclusive continuação do Arquivo II sem reload, equipamento de uma e duas mãos, vestimenta, Poção de Precisão com bônus temporário e descarte, e Encanto do Sangue Quente exaurido com o herói apto a atacar na rodada seguinte. Os dois checkpoints foram verificados com os oito heróis. Cinco viewports de 360×800 a 1366×768 foram capturados em `test-results/tutorial-inventory-*.png`. Lint, tipos, build de produção e `verify:build --base /herent-ascoic/` passaram. O Arquivo III ainda precisa de playtest em aparelhos físicos, especialmente legibilidade do inventário horizontal e do destaque em paisagem.
+
+Validação local do Arquivo IV em 26/10/2026: os 751 testes Vitest em 84 arquivos passaram; a cobertura atingiu 77,51% de instruções, 68,16% de ramos, 84,94% de funções e 80,81% de linhas. Os 31 testes Playwright em série passaram, inclusive entrada direta, continuação III→IV sem recarga, a sequência completa em desktop e 390×844, início posterior de uma partida normal e spotlight em 360×800, 390×844, 844×390, 768×1024 e 1366×768. Lint, build com `--base /herent-ascoic/` e `verify:build --base /herent-ascoic/` passaram. Capturas de entrada, passivo e conclusão ficam em `test-results/tutorial-abilities-*.png`. O catálogo ainda apresenta sete casos `no-effect` contextuais já registrados; não foram alterados para este tutorial. Falta playtest humano em aparelhos físicos, em especial a legibilidade da narração em paisagem e a sequência de ataque após preparação. As alterações continuam locais; nenhuma publicação ou push foi feito.
+
+Validação local do menu global em 27/10/2026: 756 testes Vitest em 85 arquivos e 36 testes Playwright passaram. A cobertura do núcleo permaneceu em 77,51% de instruções, 68,16% de ramos, 84,94% de funções e 80,81% de linhas. Lint, build com base `/herent-ascoic/` e `verify:build` passaram. O manifesto publicou as cinco faixas MP3 originais (19,71 MiB), com URLs verificadas por HTTP, e o PDF. Os testes cobrem Play/Stop, troca de faixa, volume persistente, ausência de autoplay, continuidade entre telas, menu no tutorial, modais e cinco viewports; capturas ficam em `test-results/global-menu-*.png`. O som audível e o volume percebido ainda precisam de confirmação humana em aparelho real.
+
 ## Checklist para liberação
 
 - [ ] Checks do pull request passam; push em `main` publica apenas `dist/` pelo workflow.
@@ -51,7 +58,7 @@ Validação local do Arquivo II em 26/10/2026: 744 testes Vitest em 81 arquivos 
 - [ ] **JOGAR** abre preparação; iniciar com 1 e com 4 heróis chega ao tabuleiro.
 - [ ] Revelar sala, iniciar e concluir combate com ataque e item; organizar recompensa, gastar XP e abrir caminho até outra sala.
 - [ ] Testar Marca da Presa com duas criaturas; usar Fúria e poder preparados antes do ataque; cancelar preparação; usar item equipado, cancelar alvo, enfrentar chefe, vencer e perder em sessões dirigidas.
-- [ ] Abrir **Regras** e baixar o PDF sem cadastro; confirmar com o autor qual versão é oficial antes de divulgar como definitiva.
+- [ ] Abrir ☰ em menu, preparação, partida, tutorial e tela final; testar Play, Stop, troca de faixa, volume e leitura/download do PDF. Confirmar com o autor qual versão do manual é oficial antes de divulgar como definitiva.
 - [ ] Registrar feedback e avisar sobre perda da sessão; testar retrato e paisagem no aparelho dos participantes.
 
 ## Cinco perguntas para os amigos

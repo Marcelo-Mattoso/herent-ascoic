@@ -10,7 +10,7 @@ async function openArchive(page: Page) {
 	await expect(page.locator(".tutorial-hub__module")).toHaveCount(4);
 	await expect(
 		page.locator(".tutorial-hub__module button:disabled"),
-	).toHaveCount(2);
+	).toHaveCount(0);
 	await page
 		.locator(".tutorial-hub__module")
 		.first()

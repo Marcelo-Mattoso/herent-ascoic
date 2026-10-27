@@ -182,6 +182,7 @@ export function HeroFocusPanel({
 									{/* Habilidade */}
 									{habilidade && (
 										<div
+											data-tutorial-anchor="hero.skill-card"
 											style={{
 												background: UI.subpanelBg,
 												borderRadius: 6,
@@ -221,12 +222,14 @@ export function HeroFocusPanel({
 											>
 												{renderSkillLabel(habilidade.ref)}
 											</p>
+											<button type="button" onClick={() => onCardDetail(hero.cardId, "hero")}>Examinar carta</button>
 										</div>
 									)}
 
 									{/* Poder */}
 									{poder && (
 										<div
+											data-tutorial-anchor="hero.power-card"
 											style={{
 												background: UI.subpanelBg,
 												borderRadius: 6,
@@ -436,6 +439,7 @@ function ActionSection({
 				/>
 				{skill && (
 					<ActionButton
+						tutorialAnchor="hero.skill-action"
 						label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 						title={skill.reason}
 						icon="✨"
@@ -446,6 +450,7 @@ function ActionSection({
 				)}
 				{power && (
 					<ActionButton
+						tutorialAnchor="hero.power-action"
 						label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
 						title={power.reason}
 						icon="⚡"
@@ -484,6 +489,7 @@ function ActionSection({
 					/>
 					{skill && (
 						<ActionButton
+							tutorialAnchor="hero.skill-action"
 							label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 							title={skill.reason}
 							icon="✨"
@@ -494,6 +500,7 @@ function ActionSection({
 					)}
 					{power && (
 					<ActionButton
+							tutorialAnchor="hero.power-action"
 							label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
 							title={power.reason}
 						icon="⚡"
@@ -539,6 +546,7 @@ function ActionSection({
 			/>
 			{skill && (
 				<ActionButton
+				tutorialAnchor="hero.skill-action"
 				label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 				title={skill.reason}
 					icon="✨"
@@ -549,6 +557,7 @@ function ActionSection({
 			)}
 			{power && (
 				<ActionButton
+				tutorialAnchor="hero.power-action"
 				label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
 				title={power.reason}
 					icon="⚡"

@@ -30,7 +30,6 @@ import { useBoardBackgrounds } from "@/ui/hooks/useBoardBackgrounds";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useGameViewport } from "@/ui/hooks/useGameViewport";
 import { useGameStore } from "@/ui/store/gameStore";
-import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { selectFocusedHero } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 
@@ -100,12 +99,30 @@ export function Exploration({
 	tutorialCombatMode = false,
 	tutorialCombatMethod = null,
 	onTutorialAttackInput,
+	tutorialInventoryMode = false,
+	tutorialInventoryOpen = false,
+	tutorialInventoryHeroSelected = false,
+	onTutorialInventoryHeroSelected,
+	onTutorialInventoryOpen,
+	onTutorialItemDetailChange,
+	tutorialAbilityMode = false,
+	onTutorialAbilityPanelOpen,
+	onTutorialAbilityCardInspect,
 }: {
 	tutorialMode?: boolean;
 	tutorialRevealEnabled?: boolean;
 	tutorialCombatMode?: boolean;
 	tutorialCombatMethod?: "drag" | "tap" | null;
 	onTutorialAttackInput?: (method: "drag" | "tap") => void;
+	tutorialInventoryMode?: boolean;
+	tutorialInventoryOpen?: boolean;
+	tutorialInventoryHeroSelected?: boolean;
+	onTutorialInventoryHeroSelected?: () => void;
+	onTutorialInventoryOpen?: () => void;
+	onTutorialItemDetailChange?: (itemId: string | null) => void;
+	tutorialAbilityMode?: boolean;
+	onTutorialAbilityPanelOpen?: () => void;
+	onTutorialAbilityCardInspect?: () => void;
 }) {
 	const [itemUse, setItemUse] = useState<{
 		heroId: string;
@@ -203,12 +220,18 @@ export function Exploration({
 
 	function openCardDetail(id: string, cardType: CardType) {
 		setDetailCard({ id, cardType });
+		if (tutorialAbilityMode && cardType === "hero") onTutorialAbilityCardInspect?.();
 	}
 
 	// Clique em card de herói: muda foco + seleciona para combate se válido
 	function handleHeroClick(h: HeroState) {
 		if (h.status !== "active") return;
 		setFocusedHero(h.id);
+		if (tutorialInventoryMode && !tutorialInventoryOpen) {
+			setShowHeroFocus(false);
+			onTutorialInventoryHeroSelected?.();
+			return;
+		}
 		if (
 			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
 			combat?.phase === "selecting_hero" &&
@@ -221,6 +244,7 @@ export function Exploration({
 			return;
 		}
 		setShowHeroFocus(true);
+		if (tutorialAbilityMode) onTutorialAbilityPanelOpen?.();
 	}
 
 	function handleHeroDragStart(heroId: string) {
@@ -290,6 +314,7 @@ export function Exploration({
 		const heroId = combat?.selectedHeroId ?? focusedHero?.id;
 		if (!heroId) return;
 		setCombatAttackHintVisible(false);
+		if (tutorialAbilityMode) setShowHeroFocus(false);
 		dispatch({ type: "USE_POWER", payload: { heroId } });
 	}
 
@@ -301,6 +326,7 @@ export function Exploration({
 	}
 
 	function handleUseSkill(skillId: string, sourceId: string) {
+		if (tutorialAbilityMode) setShowHeroFocus(false);
 		dispatch({
 			type: "USE_SKILL",
 			payload: { skillId, sourceId },
@@ -371,6 +397,20 @@ export function Exploration({
 						</div>
 
 						<aside className="game-influence-chat">
+							{tutorialInventoryMode &&
+								status === "REWARD_PHASE" &&
+								!tutorialInventoryOpen &&
+								gameGeometry.mode === "desktop" && (
+									<button
+										type="button"
+										className="game-journal-open"
+										data-tutorial-anchor="inventory.open"
+										disabled={!tutorialInventoryHeroSelected}
+										onClick={onTutorialInventoryOpen}
+									>
+										🎒 Abrir inventário
+									</button>
+								)}
 							<DungeonAwakeningMarker current={view.despertar} />
 							<div className="game-influence-panel">
 								<InfluencePanel influences={view.activeInfluences} />
@@ -378,6 +418,9 @@ export function Exploration({
 							<button
 								type="button"
 								className="game-journal-open"
+								data-tutorial-anchor={
+									gameGeometry.mode === "desktop" ? "journal.open" : undefined
+								}
 								onClick={() => setShowJournal(true)}
 							>
 								📖 Diário da partida
@@ -414,6 +457,19 @@ export function Exploration({
 								role="group"
 								aria-label="Ações da partida"
 							>
+								{tutorialInventoryMode &&
+									status === "REWARD_PHASE" &&
+									!tutorialInventoryOpen &&
+									gameGeometry.mode !== "desktop" && (
+										<button
+											type="button"
+											data-tutorial-anchor="inventory.open"
+											disabled={!tutorialInventoryHeroSelected}
+											onClick={onTutorialInventoryOpen}
+										>
+											🎒 Abrir inventário
+										</button>
+									)}
 								<button
 									type="button"
 									onClick={() => togglePortableDrawer("awakening")}
@@ -426,17 +482,15 @@ export function Exploration({
 								>
 									<span aria-hidden="true">✦</span> Influências
 								</button>
-								<button type="button" onClick={() => setShowJournal(true)}>
+								<button
+									type="button"
+									data-tutorial-anchor={
+										gameGeometry.mode !== "desktop" ? "journal.open" : undefined
+									}
+									onClick={() => setShowJournal(true)}
+								>
 									<span aria-hidden="true">📖</span> Diário
 								</button>
-								<a
-									href={publicAssetUrl("rules/ascensao-heroica-manual.pdf")}
-									target="_blank"
-									rel="noopener noreferrer"
-									aria-label="Abrir manual de regras em PDF"
-								>
-									<span aria-hidden="true">?</span> Regras
-								</a>
 							</div>
 							{/* EFEITOS ATIVOS — grupo (topo) + herói em foco (baixo) */}
 							{(() => {
@@ -576,7 +630,11 @@ export function Exploration({
 			</div>
 
 			{/* Tela de inventário — cobre a exploração durante REWARD_PHASE */}
-			{status === "REWARD_PHASE" && !tutorialCombatMode && <InventarioGrupo />}
+			{status === "REWARD_PHASE" &&
+				!tutorialCombatMode &&
+				(!tutorialInventoryMode || tutorialInventoryOpen) && (
+					<InventarioGrupo onItemDetailChange={onTutorialItemDetailChange} />
+				)}
 		</>
 	);
 }

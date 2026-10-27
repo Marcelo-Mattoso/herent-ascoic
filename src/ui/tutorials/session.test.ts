@@ -62,9 +62,7 @@ describe("sessão do Arquivo I", () => {
 		expect(session.events.at(-1)?.type).toBe("abandoned");
 	});
 
-	it("recusa módulos futuros até que declarem etapas", () => {
-		expect(() => startTutorial("archive-three")).toThrow(
-			"Arquivo indisponível",
-		);
+	it("permite iniciar o quarto arquivo diretamente", () => {
+		expect(currentTutorialStep(startTutorial("archive-four")).id).toBe("abilities-opening");
 	});
 });
