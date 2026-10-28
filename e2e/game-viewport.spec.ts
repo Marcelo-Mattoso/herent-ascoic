@@ -171,6 +171,24 @@ async function expectBoardFits(page: Page) {
 	}
 }
 
+test("Apoie-nos aparece apenas no menu e não intercepta cartas do tabuleiro", async ({ page }) => {
+	await page.setViewportSize({ width: 320, height: 568 });
+	await page.goto("/");
+	const support = page.locator(".support-action__trigger");
+	await expect(support).toBeVisible();
+	await support.click();
+	const dialog = page.getByRole("dialog", { name: /Ajude a expandir Ascensão Heróica/ });
+	await expect(dialog).toBeVisible();
+	await expect(dialog.getByRole("img", { name: "QR Code de pagamento Pix" })).toBeVisible();
+	await dialog.getByRole("button", { name: "✕" }).click();
+	await expect(dialog).toHaveCount(0);
+	await startCombat(page);
+	await expect(support).toHaveCount(0);
+	await expectBoardFits(page);
+	await page.locator(".game-card--room").click();
+	await expect(page.getByRole("dialog", { name: /Passagem das Tochas Mortas/ })).toBeVisible();
+});
+
 test("a cena inteira cabe nos doze viewports com quatro heróis e criaturas", async ({
 	page,
 }) => {

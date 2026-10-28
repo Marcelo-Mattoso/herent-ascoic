@@ -355,7 +355,7 @@ function App() {
 					onPlay={() => leaveTutorial("setup")}
 				/>
 			)}
-			<SupportAction />
+			{status === "MAIN_MENU" && uiScreen === "menu" && !tutorial && <SupportAction />}
 			<GlobalMenu />
 		</>
 	);
