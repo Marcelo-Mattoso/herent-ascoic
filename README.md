@@ -1,6 +1,6 @@
-# Ascensão Heróica — A Fornalha Sombria
+# Ascensão Heróica
 
-Jogo de cartas cooperativo de exploração de masmorra. Escolha heróis, revele salas, enfrente criaturas, organize espólios e tente derrotar Azhakar. A Alpha Web é estática, sem cadastro ou backend; a partida ainda não é salva ao recarregar.
+Jogo de cartas cooperativo de exploração de masmorra. **A Fornalha Sombria** é a primeira expansão, não um subtítulo do jogo. Escolha heróis, revele salas, enfrente criaturas, organize espólios e tente derrotar Azhakar. A Alpha Web é estática, sem cadastro ou backend; a partida ainda não é salva ao recarregar.
 
 ## Tecnologia
 

@@ -32,7 +32,6 @@
   "screens": {
     "mainMenu": {
       "text001": "Ascensão Heróica",
-      "text002": "A Fornalha Sombria",
       "text003": "JOGAR",
       "text004": "TUTORIAL"
     }
@@ -43,5 +42,5 @@
     "loading": "Carregando idioma…",
     "loadError": "Não foi possível carregar o idioma. O anterior foi mantido."
   },
-  "pageTitle": "Ascensão Heróica — A Fornalha Sombria"
+  "pageTitle": "Ascensão Heróica"
 }

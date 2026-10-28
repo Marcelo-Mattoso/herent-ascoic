@@ -1,0 +1,46 @@
+{
+  "globalMenu": {
+    "globalMenu": {
+      "ariaLabel001": "Menú general",
+      "text002": "Ascensión Heroica",
+      "ariaLabel003": "Cerrar menú",
+      "text004": "Música",
+      "text005": "Pista",
+      "ariaLabel006": "Pista anterior",
+      "text007": "Reproducir",
+      "text008": "Detener",
+      "ariaLabel009": "Pista siguiente",
+      "text010": "Volumen ·",
+      "text011": "Reglas",
+      "text012": "Leer el manual de reglas",
+      "text013": "Descargar el manual en PDF",
+      "toggleOpen": "Abrir menú general",
+      "toggleClose": "Cerrar menú general",
+      "noTrack": "Ninguna pista seleccionada",
+      "catalogError": "No se pudo cargar la lista de música.",
+      "playing": "Reproduciendo",
+      "startMusic": "♫ Escuchar música",
+      "autoplayBlocked": "El navegador ha bloqueado la reproducción automática con sonido. Pulsa para escuchar.",
+      "stopped": "Detenido",
+      "noTracks": "No hay pistas disponibles.",
+      "musicLoading": "Cargando música…",
+      "musicPlayError": "No se pudo reproducir esta pista. Inténtalo de nuevo.",
+      "musicFileError": "El archivo de música no está disponible o no es compatible.",
+      "musicError": "No se pudo cargar la música."
+    }
+  },
+  "screens": {
+    "mainMenu": {
+      "text001": "Ascensión Heroica",
+      "text003": "JUGAR",
+      "text004": "TUTORIAL"
+    }
+  },
+  "language": {
+    "title": "Idioma",
+    "select": "Idioma de la interfaz",
+    "loading": "Cargando idioma…",
+    "loadError": "No se pudo cargar el idioma. Se ha mantenido el anterior."
+  },
+  "pageTitle": "Ascensión Heroica"
+}

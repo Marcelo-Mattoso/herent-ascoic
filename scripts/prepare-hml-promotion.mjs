@@ -30,6 +30,10 @@ function main() {
 		return;
 	}
 	git("switch", "-C", temporaryBranch, target);
+	// git merge --no-commit still needs a committer identity before it can start.
+	// Configure only the runner checkout, never the user account or global Git.
+	git("config", "--local", "user.name", "github-actions[bot]");
+	git("config", "--local", "user.email", "41898282+github-actions[bot]@users.noreply.github.com");
 	const merge = attempt("merge", "--no-commit", "--no-ff", source);
 	const mergeHead = git("rev-parse", "--git-path", "MERGE_HEAD");
 	if (!existsSync(mergeHead)) {

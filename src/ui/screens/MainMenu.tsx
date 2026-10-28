@@ -31,7 +31,6 @@ export function MainMenu({ onNewGame, onTutorial }: MainMenuProps) {
 					) : null}
 					<div className="menu-brand-panel__title-block">
 						<h1 id="main-menu-title">{translate("common:screens.mainMenu.text001")}</h1>
-						<p>{translate("common:screens.mainMenu.text002")}</p>
 					</div>
 					<div className="menu-brand-panel__actions">
 						<button

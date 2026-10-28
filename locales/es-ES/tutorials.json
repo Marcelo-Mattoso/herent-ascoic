@@ -1,0 +1,340 @@
+{
+  "archive-one": {
+    "title": "Archivo I — El Inicio del Viaje",
+    "subtitle": "Narrativa y mecánicas de la mazmorra",
+    "summary": "Héroes, salas, criaturas y progresión.",
+    "steps": {
+      "opening": {
+        "title": "Introducción",
+        "narration": [
+          "He registrado innumerables travesías por la Forja Oscura. Algunas terminaron antes de la primera puerta. Otras llegaron a lugares que nunca deberían haberse olvidado.",
+          "Todas comenzaron de la misma manera: con una elección."
+        ],
+        "instruction": "Descubre los primeros pasos de una expedición."
+      },
+      "choose-hero": {
+        "title": "Elegir un héroe",
+        "narration": [
+          "No todos los que atraviesan el Véu poseen las mismas fuerzas. Cada uno lleva consigo habilidades, límites y decisiones que pueden determinar su camino."
+        ],
+        "instruction": "Selecciona un héroe para tu expedición. También puedes examinar su carta."
+      },
+      "group": {
+        "title": "El grupo",
+        "narration": [
+          "Algunos avanzan solos. Otros comparten la travesía. El número de quienes caminan juntos no elimina el peligro. Solo transforma las decisiones."
+        ],
+        "instruction": "La expedición puede tener de uno a cuatro héroes. Añade más si lo deseas o continúa con el que hayas elegido."
+      },
+      "start": {
+        "title": "Comenzar la expedición",
+        "narration": [
+          "Cuando se da el primer paso, el camino deja de ser una posibilidad. Se convierte en un registro."
+        ],
+        "instruction": "Usa el botón Iniciar partida para entrar en el tablero de entrenamiento."
+      },
+      "board": {
+        "title": "Conocer la mazmorra",
+        "narration": [
+          "La Forja Oscura no revela todos sus caminos. Cada sala muestra solo una parte de lo que espera a quienes han decidido avanzar."
+        ],
+        "instruction": "Observa las diferentes zonas del tablero.",
+        "highlights": [
+          "Aquí aparece la sala actual. Todavía no se ha revelado ninguna sala.",
+          "Este es el grupo de héroes que has elegido.",
+          "Las criaturas de un encuentro aparecen en esta zona.",
+          "El control de fase dirige la siguiente acción de la expedición."
+        ]
+      },
+      "reveal": {
+        "title": "Revelar una sala",
+        "narration": [
+          "Cada pasadizo guarda aquello que aún no se ha descubierto. Una puerta abierta puede revelar obstáculos, encuentros u oportunidades."
+        ],
+        "instruction": "Usa Revelar sala. El motor del juego elegirá una sala al azar y aplicará sus efectos."
+      },
+      "encounter": {
+        "title": "El encuentro y la progresión",
+        "narration": [
+          "No todos los caminos están despejados. Hay presencias que impiden avanzar. Hay encuentros que dejan algo atrás. El camino solo continúa cuando se cumplen sus condiciones."
+        ],
+        "instruction": "Observa la sala revelada y las criaturas, si las hay. El combate y el botín se abordarán en los siguientes archivos.",
+        "highlights": [
+          "Esta es la sala que el motor ha revelado para la expedición.",
+          "Estas criaturas impiden avanzar hasta resolver el encuentro.",
+          "Aquí aparecen los XP, los artefactos y la condición para enfrentarse al jefe."
+        ]
+      },
+      "goal": {
+        "title": "El objetivo de la expedición",
+        "narration": [
+          "No es la primera puerta la que define una travesía. Ni la última batalla revela todo lo que sucedió antes.",
+          "En la Forja Oscura, cada decisión cambia aquello a lo que podrás enfrentarte después."
+        ],
+        "instruction": "Explora la mazmorra, afronta sus desafíos y avanza hacia Azhakar. La victoria depende de las condiciones reales de la expedición."
+      },
+      "completion": {
+        "title": "Archivo I completado",
+        "narration": [
+          "Este archivo registra el comienzo de una travesía. Los siguientes acontecimientos aún esperan a quienes decidan avanzar.",
+          "Yo lo he registrado."
+        ],
+        "instruction": "Elige cómo continuar."
+      }
+    }
+  },
+  "archive-two": {
+    "title": "Archivo II — El Combate",
+    "subtitle": "Selección, tiradas y resolución",
+    "summary": "Selección, tiradas, ataques y daño.",
+    "steps": {
+      "combat-opening": {
+        "title": "El encuentro",
+        "narration": [
+          "Algunas presencias custodian los caminos de la Forja. Otras parecen haber nacido de las propias fisuras del Véu.",
+          "No siempre existe un camino sin enfrentamiento."
+        ],
+        "instruction": "En este archivo aprenderás a enfrentarte a las criaturas que encuentres en la mazmorra."
+      },
+      "combat-participants": {
+        "title": "Reconocer a los combatientes",
+        "narration": [
+          "A un lado, quienes han decidido avanzar. Al otro, aquello que se alza para detenerlos."
+        ],
+        "instruction": "Observa a tu héroe y a la criatura. Los puntos de vida disminuyen según el daño recibido.",
+        "highlights": [
+          "Esta carta representa al héroe disponible para actuar.",
+          "Esta es la criatura que bloquea el camino.",
+          "Aquí aparece la vida actual y máxima de la criatura.",
+          "La carta del héroe muestra su vida y los recursos relevantes para el combate."
+        ]
+      },
+      "combat-select-hero": {
+        "title": "Seleccionar al héroe",
+        "narration": [
+          "Cada decisión necesita a alguien que la lleve a cabo. Antes del golpe está quien decide asestarlo."
+        ],
+        "instruction": "Selecciona a tu héroe para comenzar un ataque."
+      },
+      "combat-select-target": {
+        "title": "Elegir el objetivo",
+        "narration": [
+          "La fuerza sin dirección no decide nada. Todo golpe necesita un destino."
+        ],
+        "instruction": "Selecciona a la criatura. Observa la tirada y usa Resolver ataque para completar esta primera acción."
+      },
+      "combat-drag": {
+        "title": "Arrastrar y soltar",
+        "narration": [
+          "Existen distintos caminos para alcanzar el mismo destino. La intención permanece; solo cambia el gesto."
+        ],
+        "instruction": "Arrastra la carta del héroe hasta la criatura. En dispositivos táctiles, vuelve a seleccionar ambas cartas."
+      },
+      "combat-dice": {
+        "title": "Los dados",
+        "narration": [
+          "No todas las intenciones alcanzan su destino. Incluso el golpe más preciso atraviesa un instante de incertidumbre."
+        ],
+        "instruction": "Observa los dados y sus modificadores reales. Cuando termine la animación, usa Resolver ataque."
+      },
+      "combat-result": {
+        "title": "Impacto y daño",
+        "narration": [
+          "No todos los golpes alcanzan su objetivo. Y no todos los golpes acertados tienen las mismas consecuencias."
+        ],
+        "instruction": "Compara el resultado registrado en el Diario con la vida anterior y actual de la criatura.",
+        "highlights": [
+          "La criatura derrotada ha salido de la zona de enemigos activos. Su vida final aparece en el panel del Archivista.",
+          "Aquí se muestra la vida restante del héroe."
+        ]
+      },
+      "combat-action": {
+        "title": "El final de la acción",
+        "narration": [
+          "Una acción terminada no puede repetirse solo porque su resultado no haya complacido a quien la eligió.",
+          "Cada oportunidad utilizada cambia lo que todavía puede suceder."
+        ],
+        "instruction": "Observa quién ha atacado y consumido su oportunidad de ataque. Estar seleccionado, usar una habilidad o agotar un objeto no significa, por sí solo, haber atacado."
+      },
+      "combat-completion": {
+        "title": "Archivo II completado — El Combate",
+        "narration": [
+          "Un enfrentamiento termina. Sus consecuencias permanecen.",
+          "De aquello que se perdió o se conservó nace el siguiente registro."
+        ],
+        "instruction": "El motor ha confirmado las condiciones de finalización. Elige cómo continuar."
+      }
+    }
+  },
+  "archive-three": {
+    "title": "Archivo III — El Peso del Viaje",
+    "subtitle": "Objetos y equipamiento",
+    "summary": "Mochila, ranuras, efectos y consumos.",
+    "steps": {
+      "items-opening": {
+        "title": "El Peso del Viaje",
+        "narration": [
+          "Algunos cruzan la Forja confiando en su propia fuerza. Otros depositan su supervivencia en aquello que logran llevar consigo.",
+          "Pero poseer algo no significa saber utilizarlo."
+        ],
+        "instruction": "En este archivo aprenderás a organizar el equipamiento, usar objetos y comprender sus efectos."
+      },
+      "inventory-open": {
+        "title": "Conocer el inventario",
+        "narration": [
+          "Todo viaje impone límites. Aquello que se lleva necesita un lugar. Aquello que se utiliza debe estar al alcance de la mano."
+        ],
+        "instruction": "Selecciona al héroe y abre el inventario del grupo."
+      },
+      "inventory-slots": {
+        "title": "Las ranuras de equipo",
+        "narration": [
+          "Cada herramienta exige su lugar. Y ningún viajero puede llevar sobre su cuerpo más de lo que sus límites permiten."
+        ],
+        "instruction": "Observa las dos ranuras de vestimenta, las dos de mano, la de amuleto y las tres de mochila.",
+        "highlights": [
+          "Puedes llevar dos vestimentas en ranuras diferentes.",
+          "Las dos manos permiten llevar objetos de una mano o un arma a dos manos.",
+          "El amuleto tiene su propia ranura.",
+          "La mochila puede guardar hasta tres objetos; ábrela para verlos."
+        ]
+      },
+      "item-inspect": {
+        "title": "Examinar un objeto",
+        "narration": [
+          "Un objeto puede parecer sencillo hasta que se comprenden sus propiedades.",
+          "Hay poder en aquello que se conoce y riesgo en aquello que se ignora."
+        ],
+        "instruction": "Abre la mochila, examina una carta y cierra sus detalles para continuar."
+      },
+      "equip-dagger": {
+        "title": "Equipar un arma",
+        "narration": [
+          "Una hoja guardada no transforma un golpe. Solo al empuñarla podrá cumplir la función para la que fue forjada."
+        ],
+        "instruction": "Equipa la Daga Oxidada de la mochila en una mano disponible."
+      },
+      "equip-axe": {
+        "title": "Una mano o dos",
+        "narration": [
+          "No todas las armas pueden sostenerse del mismo modo. Algunas requieren una mano; otras, las dos."
+        ],
+        "instruction": "En la mochila, elige Cambiar en el Hacha del Salón en Ruinas y pulsa una mano. Observa cómo se recolocan los objetos anteriores."
+      },
+      "equip-armor": {
+        "title": "Vestimentas y efectos pasivos",
+        "narration": [
+          "Hay objetos cuyos efectos no dependen de un gesto. Su presencia, cuando se utilizan correctamente, cambia aquello que su portador puede soportar."
+        ],
+        "instruction": "Equipa la Armadura de Cuero Reforzado y observa el origen del efecto en la carta y en el Diario."
+      },
+      "use-item": {
+        "title": "Usar un objeto",
+        "narration": [
+          "Algunos objetos permanecen en silencio hasta que alguien decide despertar lo que guardan."
+        ],
+        "instruction": "Cambia el hacha por la Poción de Precisión de la mochila. Después, usa la poción equipada mediante el botón Usar."
+      },
+      "item-states": {
+        "title": "Objetos agotados y consumibles",
+        "narration": [
+          "No todos los recursos permanecen después de utilizarlos. Algunos se agotan. Otros desaparecen, dejando solo las consecuencias de su uso."
+        ],
+        "instruction": "Compara la poción descartada en el punto de control anterior con el Encanto de la Sangre Caliente, agotado en este combate. Abre el Diario para comprobar su estado; el héroe ya puede atacar en esta ronda."
+      },
+      "items-completion": {
+        "title": "Archivo III completado — El Peso del Viaje",
+        "narration": [
+          "Aquello que se lleva puede ofrecer protección, fuerza o una última oportunidad.",
+          "Pero ninguna herramienta decide por quien la empuña.",
+          "Yo lo he registrado."
+        ],
+        "instruction": "Has aprendido a examinar, equipar y usar objetos. El siguiente archivo tratará sobre habilidades y poderes."
+      }
+    }
+  },
+  "archive-four": {
+    "title": "Archivo IV — La Voluntad y el Poder",
+    "subtitle": "Habilidades y poderes",
+    "summary": "Activación, preparación, efectos y límites.",
+    "steps": {
+      "abilities-opening": {
+        "title": "Lo que Cada Uno Lleva Consigo",
+        "narration": [
+          "Un mismo camino no exige las mismas respuestas a todos los que lo recorren.",
+          "Hay capacidades que se revelan al elegir. Otras esperan al momento en que su presencia se vuelve necesaria."
+        ],
+        "instruction": "En este archivo utilizarás habilidades, prepararás reacciones y conocerás los poderes de los héroes."
+      },
+      "abilities-inspect": {
+        "title": "Conocer las Habilidades",
+        "narration": [
+          "La fuerza de cada viajero no está únicamente en sus armas. Hay conocimientos, instintos y dones que ninguna hoja puede sustituir."
+        ],
+        "instruction": "Abre el panel del Cazador y examina la carta que describe su habilidad y su poder."
+      },
+      "prey-mark": {
+        "title": "Una Habilidad Manual",
+        "narration": [
+          "Hay quienes no se enfrentan a una amenaza sin comprenderla antes.",
+          "Reconocer a un objetivo también es una forma de prepararse para lo que vendrá."
+        ],
+        "instruction": "Usa Marca de la Presa y elige una criatura válida en el selector de objetivos."
+      },
+      "hunter-attack": {
+        "title": "La Habilidad No Es un Ataque",
+        "narration": [
+          "No todas las elecciones son un golpe. Algunas solo establecen las condiciones para aquello que sucederá después."
+        ],
+        "instruction": "La Marca ha conservado la oportunidad de ataque. Selecciona al Cazador, elige una criatura y resuelve el ataque real."
+      },
+      "fury-prepare": {
+        "title": "Preparar una Reacción",
+        "narration": [
+          "Hay fuerzas que no deben despertar antes del momento necesario.",
+          "Algunas esperan una decisión. Después de ella, solo queda el acontecimiento."
+        ],
+        "instruction": "Abre el Bárbaro y prepara Furia Rubra. Puedes cancelar la preparación antes del ataque."
+      },
+      "fury-trigger": {
+        "title": "El Momento de la Furia",
+        "narration": [
+          "Cuando llega la oportunidad, aquello que estaba preparado encuentra su momento."
+        ],
+        "instruction": "Ataca con el Bárbaro. Observa cómo la Furia se activa automáticamente, sin confirmación adicional."
+      },
+      "hero-power": {
+        "title": "El Poder de un Héroe",
+        "narration": [
+          "Algunas capacidades acompañan a quienes recorren la Forja como señales de su propia naturaleza.",
+          "Su alcance no es infinito. Su uso también obedece a las reglas del camino."
+        ],
+        "instruction": "Abre el Guerrero y usa Guardia Inquebrantable del Bastión. Observa la protección y el límite por partida."
+      },
+      "passive-effect": {
+        "title": "Efectos Pasivos",
+        "narration": [
+          "No todas las fuerzas necesitan una orden. Algunas permanecen mientras exista aquello que las origina."
+        ],
+        "instruction": "Observa el Encanto de la Llama Tenue equipado, su efecto aplicado y la carta de origen en el Diario. Los efectos continuos no requieren activación manual."
+      },
+      "ability-limits": {
+        "title": "Costes y Límites",
+        "narration": [
+          "Toda posibilidad tiene sus condiciones. Lo que ya se ha utilizado no siempre puede reclamarse de nuevo al instante."
+        ],
+        "instruction": "Comprueba el poder utilizado y el motivo por el que ya no está disponible. El límite del poder no consume el ataque del héroe."
+      },
+      "abilities-completion": {
+        "title": "Archivo IV completado — La Voluntad y el Poder",
+        "narration": [
+          "Ahora conoces los primeros límites de tu fuerza. Sabes lo que puedes despertar por elección, lo que debe esperar y lo que permanece incluso en silencio.",
+          "Pero conocer un camino no es lo mismo que recorrerlo.",
+          "Los próximos acontecimientos todavía no se han registrado.",
+          "Yo lo he registrado. Ahora, solo lo relato."
+        ],
+        "instruction": "Has completado los cuatro archivos de aprendizaje de Ascensión Heroica. Elige cómo continuar."
+      }
+    }
+  }
+}
