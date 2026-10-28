@@ -1,0 +1,417 @@
+{
+  "hero_eternal_rest_cleric": {
+    "name": "Clérigo del Descanso Eterno",
+    "style": "apoyo, curación, supervivencia, Última Luz."
+  },
+  "hero_broken_bastion_warrior": {
+    "name": "Guerrero del Bastión Partido",
+    "style": "combate, primera línea, Bastião Partido, daño."
+  },
+  "hero_rift_rogue": {
+    "name": "Pícara de las Fisuras",
+    "style": "exploración, control de la mazmorra, Fendas, movilidad."
+  },
+  "hero_crimson_rune_mage": {
+    "name": "Mago de las Runas Rubras",
+    "style": "magia, manipulación de dados, control, Fendas."
+  },
+  "hero_crimson_barbarian": {
+    "name": "Bárbaro Rubro",
+    "style": "daño, riesgo, Deserto Rubro, sacrificio."
+  },
+  "hero_last_light_paladin": {
+    "name": "Paladín de la Última Luz",
+    "style": "equilibrio, curación, daño, Última Luz."
+  },
+  "hero_deep_veil_necromancer": {
+    "name": "Nigromante del Velo Profundo",
+    "style": "Véu, recuperación, control en las fases finales, nigromancia."
+  },
+  "hero_broken_veil_hunter": {
+    "name": "Cazador del Velo Partido",
+    "style": "concentración, precisión, eliminación, Véu."
+  },
+  "creature_deep_rift_rat": {
+    "name": "Rata de las Fisuras Profundas"
+  },
+  "creature_dark_cave_goblin": {
+    "name": "Goblin de las Cavernas Oscuras"
+  },
+  "creature_wet_stone_slime": {
+    "name": "Baba de las Piedras Húmedas"
+  },
+  "creature_black_ceiling_bat": {
+    "name": "Murciélago del Techo Negro"
+  },
+  "creature_ancient_pillar_spider": {
+    "name": "Araña de los Pilares Antiguos"
+  },
+  "creature_broken_gates_watcher": {
+    "name": "Vigía de las Puertas Rotas"
+  },
+  "creature_hidden_flame_cultist": {
+    "name": "Cultista de la Llama Oculta"
+  },
+  "creature_catacomb_skeleton": {
+    "name": "Esqueleto de las Catacumbas"
+  },
+  "creature_dead_passage_thief": {
+    "name": "Ladrón de los Pasadizos Muertos"
+  },
+  "creature_old_chains_knight": {
+    "name": "Caballero de las Cadenas Viejas"
+  },
+  "creature_low_fire_salamander": {
+    "name": "Salamandra del Fuego Tenue"
+  },
+  "creature_ruined_hall_ogre": {
+    "name": "Ogro del Salón en Ruinas"
+  },
+  "creature_low_ember_kobold": {
+    "name": "Kobold de las Brasas Tenues"
+  },
+  "creature_hot_ash_worm": {
+    "name": "Gusano de las Cenizas Ardientes"
+  },
+  "creature_blazing_skull": {
+    "name": "Cráneo Llameante"
+  },
+  "creature_dead_torch_sentinel": {
+    "name": "Centinela de las Antorchas Apagadas"
+  },
+  "creature_forge_acolyte": {
+    "name": "Acólito de la Forja"
+  },
+  "creature_broken_chains_brute": {
+    "name": "Bruto de las Cadenas Rotas"
+  },
+  "subboss_crimson_dungeon_jailer": {
+    "name": "Carcelero de la Mazmorra Rubra"
+  },
+  "subboss_cracked_abyss_guardian": {
+    "name": "Guardián del Abismo Agrietado"
+  },
+  "item_pitch_torch": {
+    "name": "Antorcha de Brea",
+    "tags": [
+      "Utilidad"
+    ]
+  },
+  "item_worn_explorer_rope": {
+    "name": "Cuerda Gastada del Explorador",
+    "tags": [
+      "Consumible",
+      "Exploración"
+    ]
+  },
+  "item_rusty_dagger": {
+    "name": "Daga Oxidada",
+    "tags": [
+      "Equipable",
+      "Arma"
+    ]
+  },
+  "item_cracked_shield": {
+    "name": "Escudo Agrietado",
+    "tags": [
+      "Equipable",
+      "Escudo",
+      "Defensa"
+    ]
+  },
+  "item_lesser_vigor_potion": {
+    "name": "Poción de Vigor Menor",
+    "tags": [
+      "Consumible",
+      "Curación"
+    ]
+  },
+  "item_incendiary_oil_flask": {
+    "name": "Frasco de Aceite Incendiario",
+    "tags": [
+      "Consumible",
+      "Fuego"
+    ]
+  },
+  "item_ancient_iron_key": {
+    "name": "Llave de Hierro Antigua",
+    "tags": [
+      "Especial",
+      "Artefacto"
+    ]
+  },
+  "item_tunnel_hood": {
+    "name": "Capucha del Túnel",
+    "tags": [
+      "Equipable",
+      "Protección",
+      "Exploración"
+    ]
+  },
+  "item_light_stone_boots": {
+    "name": "Botas de Piedra Ligera",
+    "tags": [
+      "Equipable",
+      "Movilidad"
+    ]
+  },
+  "item_crimson_rune_staff": {
+    "name": "Bastón de las Runas Rubras",
+    "tags": [
+      "Equipable",
+      "Arma",
+      "Runas"
+    ]
+  },
+  "item_last_light_sword": {
+    "name": "Espada de la Última Luz",
+    "tags": [
+      "Equipable",
+      "Arma",
+      "Última Luz"
+    ]
+  },
+  "item_deep_veil_scythe": {
+    "name": "Guadaña del Velo Profundo",
+    "tags": [
+      "Equipable",
+      "Arma",
+      "Véu"
+    ]
+  },
+  "item_ruined_hall_axe": {
+    "name": "Hacha del Salón en Ruinas",
+    "tags": [
+      "Equipable",
+      "Arma",
+      "Daño"
+    ]
+  },
+  "item_broken_stone_hammer": {
+    "name": "Martillo de Piedra Rota",
+    "tags": [
+      "Equipable",
+      "Arma",
+      "Fuerza"
+    ]
+  },
+  "item_rift_bow": {
+    "name": "Arco de las Fisuras",
+    "tags": [
+      "Equipable",
+      "Arma",
+      "Distancia",
+      "Fisuras"
+    ]
+  },
+  "item_reinforced_leather_armor": {
+    "name": "Armadura de Cuero Reforzado",
+    "tags": [
+      "Equipable",
+      "Armadura",
+      "Defensa"
+    ]
+  },
+  "item_ancient_metal_armor": {
+    "name": "Armadura de Metal Antiguo",
+    "tags": [
+      "Equipable",
+      "Armadura",
+      "Metal"
+    ]
+  },
+  "item_forge_magic_armor": {
+    "name": "Armadura Mágica de la Forja",
+    "tags": [
+      "Equipable",
+      "Armadura",
+      "Forja",
+      "Arcano"
+    ]
+  },
+  "item_broken_veil_cloak": {
+    "name": "Manto del Velo Partido",
+    "tags": [
+      "Equipable",
+      "Armadura",
+      "Véu"
+    ]
+  },
+  "item_fury_potion": {
+    "name": "Poción de Furia",
+    "tags": [
+      "Consumible",
+      "Deserto Rubro",
+      "Daño"
+    ]
+  },
+  "item_precision_potion": {
+    "name": "Poción de Precisión",
+    "tags": [
+      "Consumible",
+      "Precisión"
+    ]
+  },
+  "item_stoneskin_potion": {
+    "name": "Poción de Piel de Piedra",
+    "tags": [
+      "Consumible",
+      "Defensa",
+      "Piedra"
+    ]
+  },
+  "item_return_potion": {
+    "name": "Poción de Retorno",
+    "tags": [
+      "Consumible",
+      "Mazmorra",
+      "Fisuras"
+    ]
+  },
+  "item_living_ember_potion": {
+    "name": "Poción de Brasa Viva",
+    "tags": [
+      "Consumible",
+      "Fuego",
+      "Daño directo"
+    ]
+  },
+  "item_greater_vigor_potion": {
+    "name": "Poción de Vigor Mayor",
+    "tags": [
+      "Consumible",
+      "Curación"
+    ]
+  },
+  "item_silent_dungeon_charm": {
+    "name": "Encanto de la Mazmorra Silenciosa",
+    "tags": [
+      "Encanto",
+      "Mazmorra",
+      "Protección"
+    ]
+  },
+  "item_low_flame_charm": {
+    "name": "Encanto de la Llama Tenue",
+    "tags": [
+      "Encanto",
+      "Forja",
+      "Impacto"
+    ]
+  },
+  "item_warm_blood_charm": {
+    "name": "Encanto de la Sangre Caliente",
+    "tags": [
+      "Encanto",
+      "Deserto Rubro",
+      "Supervivencia"
+    ]
+  },
+  "item_safe_path_charm": {
+    "name": "Encanto del Camino Seguro",
+    "tags": [
+      "Encanto",
+      "Exploración",
+      "Mazmorra"
+    ]
+  },
+  "item_last_defense_charm": {
+    "name": "Encanto de la Última Defensa",
+    "tags": [
+      "Encanto",
+      "Última Luz",
+      "Supervivencia"
+    ]
+  },
+  "item_last_chord_lute": {
+    "name": "Laúd del Último Acorde",
+    "tags": [
+      "Equipable",
+      "Encanto",
+      "Huida"
+    ]
+  },
+  "item_narrow_exit_cloak": {
+    "name": "Manto de la Salida Estrecha",
+    "tags": [
+      "Equipable",
+      "Huida",
+      "Movilidad"
+    ]
+  },
+  "item_torn_depths_map": {
+    "name": "Mapa Rasgado de las Profundidades",
+    "tags": [
+      "Especial",
+      "Artefacto",
+      "Exploración"
+    ]
+  },
+  "item_hidden_forge_chest": {
+    "name": "Cofre Oculto de la Forja",
+    "tags": [
+      "Especial",
+      "Artefacto",
+      "Forja"
+    ]
+  },
+  "artifact_crimson_jailer_chain": {
+    "name": "Cadena del Carcelero Rubro"
+  },
+  "artifact_ancient_ember_heart": {
+    "name": "Corazón de Brasa Antigua"
+  },
+  "artifact_lost_forge_hammer": {
+    "name": "Martillo de la Forja Perdida"
+  },
+  "artifact_last_vigil_brazier": {
+    "name": "Brasero de la Última Vigilia"
+  },
+  "artifact_first_fire_blade": {
+    "name": "Hoja del Primer Incendio"
+  },
+  "subboss_room_jailer_chamber": {
+    "name": "Cámara del Carcelero"
+  },
+  "subboss_room_cracked_abyss_chamber": {
+    "name": "Cámara del Abismo Agrietado"
+  },
+  "room_narrow_corridor": {
+    "name": "Pasillo Estrecho"
+  },
+  "room_dungeon_room": {
+    "name": "Sala de la Mazmorra"
+  },
+  "room_crimson_chains_chamber": {
+    "name": "Cámara de las Cadenas Rubras"
+  },
+  "room_dead_torches_passage": {
+    "name": "Pasadizo de las Antorchas Apagadas"
+  },
+  "room_broken_columns_hall": {
+    "name": "Salón de las Columnas Rotas"
+  },
+  "room_depths_stairway": {
+    "name": "Escalera hacia las Profundidades"
+  },
+  "room_abandoned_cell": {
+    "name": "Celda Abandonada"
+  },
+  "room_ruined_forge": {
+    "name": "Forja en Ruinas"
+  },
+  "room_jailer_room": {
+    "name": "Sala del Carcelero"
+  },
+  "room_cracked_abyss": {
+    "name": "Abismo Agrietado"
+  },
+  "boss_azhakar": {
+    "name": "Azhakar, Dragón de la Forja Oscura",
+    "dice": "3 dados rojos",
+    "condition": "el grupo debe poseer al menos 3 artefactos.",
+    "artifactBonus": "si el grupo posee la Cadena del Carcelero Rubro, el Corazón de Brasa Antigua y el Martillo de la Forja Perdida, Azhakar comienza el combate con 16 puntos de vida en vez de 20.",
+    "dungeonScaling": "Azhakar obtiene +1 a la bonificación de impacto por cada nivel de la mazmorra y +2 puntos de vida por cada nivel de la mazmorra.",
+    "victory": "al derrotar a Azhakar, los jugadores ganan la partida."
+  }
+}
