@@ -170,6 +170,13 @@
     "journal:components.journalPanel.text074": "Término equivalente en español y portugués.",
     "journal:components.journalPanel.text078": "Sigla o formato técnico compartido.",
     "journal:components.journalPanel.text079": "Sigla o formato técnico compartido.",
-    "journal:components.journalPanel.dynamic001": "Término equivalente en español y portugués."
+    "journal:components.journalPanel.dynamic001": "Término equivalente en español y portugués.",
+    "skills:skill_living_ember.name": "Término equivalente en español y portugués.",
+    "skills:skill_living_ember_oil.name": "Término equivalente en español y portugués.",
+    "skills:skill_last_light_miracle.options.heal": "Término equivalente en español y portugués.",
+    "skills:skill_return_rite.name": "Término equivalente en español y portugués.",
+    "skills:skill_life_drain.name": "Término equivalente en español y portugués.",
+    "skills:skill_minor_rune.name": "Término equivalente en español y portugués.",
+    "skills:purple_deadly_awakening.name": "Término equivalente en español y portugués."
   }
 }

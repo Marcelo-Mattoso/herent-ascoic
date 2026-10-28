@@ -31,7 +31,7 @@
   },
   "skill_living_ember_oil": {
     "name": "Brasa Viva (Condicional)",
-    "label": "Brasa Viva (Condicional) (2/3): inflige 2 puntos de daño directo a una criatura en juego. Si tiene Cuerpo Gelatinoso, inflige 3 puntos de daño en lugar de 2.",
+    "label": "Brasa Viva (2/3): inflige 2 puntos de daño directo a una criatura en juego. Si tiene Cuerpo Gelatinoso, inflige 3 puntos de daño en lugar de 2.",
     "text": "inflige 2 puntos de daño directo a una criatura en juego. Si tiene Cuerpo Gelatinoso, inflige 3 puntos de daño en lugar de 2."
   },
   "skill_last_light_shield": {
