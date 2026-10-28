@@ -34,7 +34,8 @@ test("menu inicial oferece jogar e o PDF de regras em tela pequena", async ({ pa
 	await page.setViewportSize({ width: 390, height: 844 });
 	await page.goto("/");
 	await expect(page.getByRole("heading", { name: "Ascensão Heróica" })).toBeVisible();
-	await expect(page.getByText("A Fornalha Sombria")).toBeVisible();
+	await expect(page).toHaveTitle("Ascensão Heróica");
+	await expect(page.locator(".menu-brand-panel__title-block p")).toHaveCount(0);
 	await expect(page.getByRole("button", { name: "JOGAR" })).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.getByRole("link", { name: "Ler manual de regras" })).toBeVisible();
