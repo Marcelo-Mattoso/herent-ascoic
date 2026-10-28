@@ -1,0 +1,477 @@
+{
+  "skill_crimson_fury": {
+    "name": "Furia Rubra",
+    "label": "Furia Rubra ({value}): este personaje sufre {value} de daño para infligir daño adicional equivalente al triple del daño sufrido en el próximo ataque.",
+    "text": "este personaje sufre {value} de daño para infligir daño adicional equivalente al triple del daño sufrido en el próximo ataque."
+  },
+  "skill_last_light_healing": {
+    "name": "Curación de la Última Luz",
+    "label": "Curación de la Última Luz ({value}): cura {value} puntos de vida a un héroe o criatura aliada.",
+    "text": "cura {value} puntos de vida a un héroe o criatura aliada."
+  },
+  "skill_bastion_guard": {
+    "name": "Guardia del Bastión",
+    "label": "Guardia del Bastión ({value}): reduce en {value} el daño que recibiría un héroe o aliado.",
+    "text": "reduce en {value} el daño que recibiría un héroe o aliado."
+  },
+  "skill_rift_rune": {
+    "name": "Runa de las Fisuras",
+    "label": "Runa de las Fisuras ({value}): después de tirar, modifica el resultado de 1 dado aliado hasta en {value}, sin superar 6 ni bajar de 1.",
+    "text": "después de tirar, modifica el resultado de 1 dado aliado hasta en {value}, sin superar 6 ni bajar de 1."
+  },
+  "skill_hunter_focus": {
+    "name": "Concentración del Cazador",
+    "label": "Concentración del Cazador ({value}): mientras este objeto esté equipado, este héroe recibe +{value} a su bonificación de impacto.",
+    "text": "mientras este objeto esté equipado, este héroe recibe +{value} a su bonificación de impacto."
+  },
+  "skill_living_ember": {
+    "name": "Brasa Viva",
+    "label": "Brasa Viva ({value}): inflige {value} de daño directo a una criatura en juego.",
+    "text": "inflige {value} de daño directo a una criatura en juego."
+  },
+  "skill_living_ember_oil": {
+    "name": "Brasa Viva (Condicional)",
+    "label": "Brasa Viva (Condicional) (2/3): inflige 2 puntos de daño directo a una criatura en juego. Si tiene Cuerpo Gelatinoso, inflige 3 puntos de daño en lugar de 2.",
+    "text": "inflige 2 puntos de daño directo a una criatura en juego. Si tiene Cuerpo Gelatinoso, inflige 3 puntos de daño en lugar de 2."
+  },
+  "skill_last_light_shield": {
+    "name": "Escudo de la Última Luz",
+    "label": "Escudo de la Última Luz: una vez por ronda, evita todo el daño que recibiría un héroe.",
+    "text": "una vez por ronda, evita todo el daño que recibiría un héroe."
+  },
+  "skill_preserved_path": {
+    "name": "Camino Conservado",
+    "label": "Camino Conservado: una vez por sala, cuando un efecto vaya a descartar una carta de mazmorra, devuélvela a la parte superior del mazo de mazmorra.",
+    "text": "una vez por sala, cuando un efecto vaya a descartar una carta de mazmorra, devuélvela a la parte superior del mazo de mazmorra."
+  },
+  "skill_rekindled_forge": {
+    "name": "Forja Reavivada",
+    "label": "Forja Reavivada: al superar esta sala, el grupo puede recuperar 1 objeto descartado y equiparlo de inmediato a un héroe.",
+    "text": "al superar esta sala, el grupo puede recuperar 1 objeto descartado y equiparlo de inmediato a un héroe."
+  },
+  "skill_rift_second_chance": {
+    "name": "Segunda Oportunidad de las Fisuras",
+    "label": "Segunda Oportunidad de las Fisuras: una vez por combate, vuelve a tirar 1 dado aliado.",
+    "text": "una vez por combate, vuelve a tirar 1 dado aliado."
+  },
+  "skill_perfect_rune": {
+    "name": "Runa Perfecta",
+    "label": "Runa Perfecta: una vez por sala, después de tirar, cambia el resultado de 1 dado aliado a 6.",
+    "text": "una vez por sala, después de tirar, cambia el resultado de 1 dado aliado a 6."
+  },
+  "skill_last_light_miracle": {
+    "name": "Milagro de la Última Luz",
+    "label": "Milagro de la Última Luz: una vez por sala, elige: cura 2 puntos de vida a un aliado o inflige +2 de daño en el próximo ataque contra una criatura.",
+    "text": "una vez por sala, elige: cura 2 puntos de vida a un aliado o inflige +2 de daño en el próximo ataque contra una criatura.",
+    "options": {
+      "heal": "Curar {value}",
+      "damage_bonus": "+{value} de daño"
+    }
+  },
+  "skill_piercing_strike": {
+    "name": "Golpe Perforante",
+    "label": "Golpe Perforante: cuando destruyas una criatura con un ataque, inflige 1 punto de daño directo a otra criatura de la misma sala.",
+    "text": "cuando destruyas una criatura con un ataque, inflige 1 punto de daño directo a otra criatura de la misma sala."
+  },
+  "skill_forge_spoils": {
+    "name": "Botín de la Forja",
+    "label": "Botín de la Forja: al superar esta sala, mira las 2 cartas superiores del mazo de Objetos, quédate con 1 y descarta la otra; esto sustituye el paso de robo y descarte de cartas de mazmorra.",
+    "text": "al superar esta sala, mira las 2 cartas superiores del mazo de Objetos, quédate con 1 y descarta la otra; esto sustituye el paso de robo y descarte de cartas de mazmorra."
+  },
+  "skill_prey_mark": {
+    "name": "Marca de la Presa",
+    "label": "Marca de la Presa ({value}): elige 1 criatura como Presa. Contra ella, obtienes +{value} al impacto hasta derrotarla.",
+    "text": "elige 1 criatura como Presa. Contra ella, obtienes +{value} al impacto hasta derrotarla."
+  },
+  "skill_return_rite": {
+    "name": "Rito de Retorno",
+    "label": "Rito de Retorno ({value}): una vez por sala, puedes pagar 3 puntos de vida para recuperar {value} carta de mazmorra descartada y barajarla en el mazo.",
+    "text": "una vez por sala, puedes pagar 3 puntos de vida para recuperar {value} carta de mazmorra descartada y barajarla en el mazo."
+  },
+  "skill_final_dawn_light": {
+    "name": "Luz del Alba Final",
+    "label": "Luz del Alba Final ({value}): contra criaturas, subjefes o jefes, mientras el Despertar de la Mazmorra esté en nivel Rojo o Morado, obtienes +{value} al ataque y +{value} de daño.",
+    "text": "contra criaturas, subjefes o jefes, mientras el Despertar de la Mazmorra esté en nivel Rojo o Morado, obtienes +{value} al ataque y +{value} de daño."
+  },
+  "skill_scorching_heat": {
+    "name": "Calor Abrasador",
+    "label": "Calor Abrasador ({value}): los héroes reciben -{value} al total de su primera tirada en esta sala.",
+    "text": "los héroes reciben -{value} al total de su primera tirada en esta sala."
+  },
+  "skill_crimson_chains": {
+    "name": "Cadenas Rubras",
+    "label": "Cadenas Rubras ({value}): hasta el final de la ronda, {value} héroe no puede huir ni abandonar el combate por efecto.",
+    "text": "hasta el final de la ronda, {value} héroe no puede huir ni abandonar el combate por efecto."
+  },
+  "skill_choking_ashes": {
+    "name": "Cenizas Asfixiantes",
+    "label": "Cenizas Asfixiantes ({value}): inflige {value} de daño directo al héroe con menos vida.",
+    "text": "inflige {value} de daño directo al héroe con menos vida."
+  },
+  "skill_charred_plate": {
+    "name": "Coraza Carbonizada",
+    "label": "Coraza Carbonizada ({value}): esta criatura reduce en {value} el daño que recibe de los ataques.",
+    "text": "esta criatura reduce en {value} el daño que recibe de los ataques."
+  },
+  "skill_forge_awakening": {
+    "name": "Despertar de la Forja",
+    "label": "Despertar de la Forja ({value}): aumenta el Despertar de la Mazmorra en {value} nivel.",
+    "text": "aumenta el Despertar de la Mazmorra en {value} nivel."
+  },
+  "skill_sealed_door": {
+    "name": "Puerta Sellada",
+    "label": "Puerta Sellada: mientras esta sala esté activa, los héroes no pueden huir del primer combate.",
+    "text": "mientras esta sala esté activa, los héroes no pueden huir del primer combate."
+  },
+  "skill_ruined_floor": {
+    "name": "Suelo en Ruinas",
+    "label": "Suelo en Ruinas: la primera vez que un héroe pierda un combate en esta sala, descarta 1 carta adicional de mazmorra.",
+    "text": "la primera vez que un héroe pierda un combate en esta sala, descarta 1 carta adicional de mazmorra."
+  },
+  "skill_forge_smoke": {
+    "name": "Humo de la Forja",
+    "label": "Humo de la Forja: durante la primera ronda en esta sala, los héroes no pueden usar efectos de curación.",
+    "text": "durante la primera ronda en esta sala, los héroes no pueden usar efectos de curación."
+  },
+  "skill_dark_tribute": {
+    "name": "Tributo Oscuro",
+    "label": "Tributo Oscuro: antes del primer combate en esta sala, el grupo debe elegir: descartar 1 objeto o descartar 1 carta adicional de mazmorra.",
+    "text": "antes del primer combate en esta sala, el grupo debe elegir: descartar 1 objeto o descartar 1 carta adicional de mazmorra.",
+    "options": {
+      "discard_item": "Descartar {value} objeto",
+      "discard_dungeon": "Descartar {value} carta de mazmorra"
+    }
+  },
+  "skill_rift_evasion": {
+    "name": "Evasión de las Fisuras",
+    "label": "Evasión de las Fisuras: esta criatura ignora el primer efecto de objeto usado contra ella.",
+    "text": "esta criatura ignora el primer efecto de objeto usado contra ella."
+  },
+  "skill_chains_prison": {
+    "name": "Prisión de Cadenas",
+    "label": "Prisión de Cadenas: el primer héroe elegido como objetivo en esta sala recibe -2 al total de su próxima tirada.",
+    "text": "el primer héroe elegido como objetivo en esta sala recibe -2 al total de su próxima tirada."
+  },
+  "skill_path_corruption": {
+    "name": "Corrupción del Camino",
+    "label": "Corrupción del Camino: mientras esta sala esté activa, los héroes no pueden evitar los descartes de cartas de mazmorra causados por efectos de sala o criatura.",
+    "text": "mientras esta sala esté activa, los héroes no pueden evitar los descartes de cartas de mazmorra causados por efectos de sala o criatura."
+  },
+  "skill_lone_beast": {
+    "name": "Bestia Solitaria",
+    "label": "Bestia Solitaria ({value}): si está sola en la sala, obtiene +{value} a su bonificación de impacto y de daño.",
+    "text": "si está sola en la sala, obtiene +{value} a su bonificación de impacto y de daño."
+  },
+  "skill_treacherous_attack": {
+    "name": "Ataque Traicionero",
+    "label": "Ataque Traicionero ({value}): al entrar en combate, inflige {value} de daño al héroe con menos vida.",
+    "text": "al entrar en combate, inflige {value} de daño al héroe con menos vida.",
+    "notes": "En el texto original, el nombre lleva una variable, pero el efecto base indica 1 punto de daño. Utiliza {value} si quieres que aumente."
+  },
+  "skill_cowardly_flee": {
+    "name": "Huida Cobarde",
+    "label": "Huida Cobarde: si huye o abandona el juego, no concede recompensa.",
+    "text": "si huye o abandona el juego, no concede recompensa."
+  },
+  "skill_gelatinous_body": {
+    "name": "Cuerpo Gelatinoso",
+    "label": "Cuerpo Gelatinoso ({value}): los héroes reciben -{value} a su bonificación de impacto contra esta criatura.",
+    "text": "los héroes reciben -{value} a su bonificación de impacto contra esta criatura."
+  },
+  "skill_hidden_flame_presence": {
+    "name": "Presencia de la Llama Oculta",
+    "label": "Presencia de la Llama Oculta ({value}): si hay otra criatura en la sala, esa criatura recibe +{value} al total de su bonificación de impacto.",
+    "text": "si hay otra criatura en la sala, esa criatura recibe +{value} al total de su bonificación de impacto."
+  },
+  "skill_pack_courage": {
+    "name": "Valor de la Manada",
+    "label": "Valor de la Manada ({value}): si hay otra criatura en la sala, esta criatura recibe +{value} al total.",
+    "text": "si hay otra criatura en la sala, esta criatura recibe +{value} al total."
+  },
+  "skill_illuminate_path": {
+    "name": "Iluminar el Camino",
+    "label": "Iluminar el Camino: al revelar nuevos caminos, mira las cartas de mazmorra antes de elegir uno. Después, descártalas normalmente, siguiendo las reglas habituales.",
+    "text": "al revelar nuevos caminos, mira las cartas de mazmorra antes de elegir uno. Después, descártalas normalmente, siguiendo las reglas habituales."
+  },
+  "skill_path_safeguard": {
+    "name": "Protección del Camino",
+    "label": "Protección del Camino: evita el descarte de cartas de mazmorra de esta ronda.",
+    "text": "evita el descarte de cartas de mazmorra de esta ronda."
+  },
+  "skill_life_drain": {
+    "name": "Drenar Vida",
+    "label": "Drenar Vida ({value}): cura {value} puntos de vida al héroe que lo porta, solo si inflige daño.",
+    "text": "cura {value} puntos de vida al héroe que lo porta, solo si inflige daño."
+  },
+  "skill_opportunity_shot": {
+    "name": "Disparo de Oportunidad",
+    "label": "Disparo de Oportunidad: una vez por combate, en lugar de combatir, inflige tu daño directamente a la criatura.",
+    "text": "una vez por combate, en lugar de combatir, inflige tu daño directamente a la criatura."
+  },
+  "skill_last_light_ward": {
+    "name": "Amparo de la Última Luz",
+    "label": "Amparo de la Última Luz ({value}): contra efectos Morados, reduce en {value} el daño recibido.",
+    "text": "contra efectos Morados, reduce en {value} el daño recibido."
+  },
+  "skill_protective_veil": {
+    "name": "Velo Protector",
+    "label": "Velo Protector: una vez por sala, ignora el primer efecto que elegiría a este héroe como objetivo.",
+    "text": "una vez por sala, ignora el primer efecto que elegiría a este héroe como objetivo."
+  },
+  "skill_rift_light_step": {
+    "name": "Paso Ligero de las Fisuras",
+    "label": "Paso Ligero de las Fisuras: una vez por sala, ignora el primer efecto que provoque un descarte adicional de cartas de mazmorra.",
+    "text": "una vez por sala, ignora el primer efecto que provoque un descarte adicional de cartas de mazmorra."
+  },
+  "skill_focus_deflection": {
+    "name": "Desvío del Objetivo",
+    "label": "Desvío del Objetivo: una vez por sala, después de que una criatura elija a este héroe como objetivo, puedes cambiarlo por otro héroe voluntario. Si no hay otro disponible, obtienes +2 al total de tu bonificación de impacto.",
+    "text": "una vez por sala, después de que una criatura elija a este héroe como objetivo, puedes cambiarlo por otro héroe voluntario. Si no hay otro disponible, obtienes +2 al total de tu bonificación de impacto."
+  },
+  "skill_minor_rune": {
+    "name": "Runa Menor",
+    "label": "Runa Menor: una vez por sala, después de tirar, puedes volver a tirar un dado cuyo resultado sea 1.",
+    "text": "una vez por sala, después de tirar, puedes volver a tirar un dado cuyo resultado sea 1."
+  },
+  "power_greater_last_light_miracle": {
+    "name": "Milagro Mayor de la Última Luz",
+    "label": "Milagro Mayor de la Última Luz: cura por completo a 1 héroe o evita que sea destruido, dejándolo con 1 punto de vida.",
+    "text": "cura por completo a 1 héroe o evita que sea destruido, dejándolo con 1 punto de vida.",
+    "options": {
+      "full_heal": "Curar por completo",
+      "survive": "Sobrevivir con {value} de vida"
+    }
+  },
+  "power_unbreakable_bastion_guard": {
+    "name": "Guardia Inquebrantable del Bastión",
+    "label": "Guardia Inquebrantable del Bastión: hasta el final de la ronda, se reduce en 1 todo el daño recibido por los héroes.",
+    "text": "hasta el final de la ronda, se reduce en 1 todo el daño recibido por los héroes."
+  },
+  "power_restored_path": {
+    "name": "Camino Restaurado",
+    "label": "Camino Restaurado: recupera 1 carta de la pila de descartes de la mazmorra y barájala en el mazo de mazmorra.",
+    "text": "recupera 1 carta de la pila de descartes de la mazmorra y barájala en el mazo de mazmorra."
+  },
+  "power_supreme_rift_rune": {
+    "name": "Runa Suprema de las Fisuras",
+    "label": "Runa Suprema de las Fisuras: después de cualquier tirada, cambia el resultado de 1 dado aliado a 6 o el de 1 dado enemigo a 1.",
+    "text": "después de cualquier tirada, cambia el resultado de 1 dado aliado a 6 o el de 1 dado enemigo a 1."
+  },
+  "power_mighty_crimson_fury": {
+    "name": "Furia Rubra Poderosa",
+    "label": "Furia Rubra Poderosa: al usar Furia Rubra, el daño adicional dura hasta el final del combate.",
+    "text": "al usar Furia Rubra, el daño adicional dura hasta el final del combate."
+  },
+  "power_last_light_oath": {
+    "name": "Juramento de la Última Luz",
+    "label": "Juramento de la Última Luz: una vez por partida, elige: cura 5 puntos de vida a todos los héroes o inflige +5 de daño sagrado en el próximo ataque de este héroe.",
+    "text": "una vez por partida, elige: cura 5 puntos de vida a todos los héroes o inflige +5 de daño sagrado en el próximo ataque de este héroe.",
+    "options": {
+      "heal_all": "Curar a todos ({value})",
+      "damage_bonus_holy": "+{value} de daño sagrado"
+    }
+  },
+  "power_deep_veil_echo": {
+    "name": "Eco Profundo del Véu",
+    "label": "Eco Profundo del Véu: una vez por partida, al derrotar una criatura, guarda 1 Eco mayor. Gasta ese Eco para obtener +3 al total de impacto, reducir en 2 el daño recibido o mirar las 2 cartas superiores del mazo de enemigos.",
+    "text": "una vez por partida, al derrotar una criatura, guarda 1 Eco mayor. Gasta ese Eco para obtener +3 al total de impacto, reducir en 2 el daño recibido o mirar las 2 cartas superiores del mazo de enemigos."
+  },
+  "power_hunter_execution": {
+    "name": "Ejecución del Cazador",
+    "label": "Ejecución del Cazador: una vez por partida, después de tirar contra tu Presa, cambia el resultado de 1 dado azul a 6 e inflige +1 de daño si impactas.",
+    "text": "una vez por partida, después de tirar contra tu Presa, cambia el resultado de 1 dado azul a 6 e inflige +1 de daño si impactas."
+  },
+  "purple_raging_flames": {
+    "name": "Llamas Voraces",
+    "label": "Llamas Voraces: al entrar en juego, inflige 1 punto de daño directo a todos los héroes.",
+    "text": "al entrar en juego, inflige 1 punto de daño directo a todos los héroes."
+  },
+  "purple_forge_chains": {
+    "name": "Cadenas de la Forja",
+    "label": "Cadenas de la Forja: mientras esta criatura esté en juego, los héroes no pueden huir.",
+    "text": "mientras esta criatura esté en juego, los héroes no pueden huir."
+  },
+  "purple_ruin_ashes": {
+    "name": "Cenizas de la Ruina",
+    "label": "Cenizas de la Ruina: cuando esta criatura sea destruida, descarta 1 carta adicional de mazmorra.",
+    "text": "cuando esta criatura sea destruida, descarta 1 carta adicional de mazmorra."
+  },
+  "purple_crimson_plate": {
+    "name": "Coraza Rubra",
+    "label": "Coraza Rubra: se ignora el primer punto de daño que recibiría esta criatura en cada ronda.",
+    "text": "se ignora el primer punto de daño que recibiría esta criatura en cada ronda."
+  },
+  "purple_ash_protection": {
+    "name": "Protección de las Cenizas",
+    "label": "Protección de las Cenizas ({value}): esta criatura reduce en {value} todo el daño que recibiría.",
+    "text": "esta criatura reduce en {value} todo el daño que recibiría."
+  },
+  "purple_dark_awakening": {
+    "name": "Despertar Oscuro",
+    "label": "Despertar Oscuro: al entrar en juego, aumenta el Despertar de la Mazmorra en 1 nivel.",
+    "text": "al entrar en juego, aumenta el Despertar de la Mazmorra en 1 nivel."
+  },
+  "purple_deadly_awakening": {
+    "name": "Despertar Mortal",
+    "label": "Despertar Mortal: cuando esta criatura sea destruida, aumenta el Despertar de la Mazmorra en 1 nivel.",
+    "text": "cuando esta criatura sea destruida, aumenta el Despertar de la Mazmorra en 1 nivel."
+  },
+  "purple_ember_blood": {
+    "name": "Sangre Ardiente",
+    "label": "Sangre Ardiente: cada vez que esta criatura reciba daño, el héroe que lo infligió recibe 1 punto de daño directo.",
+    "text": "cada vez que esta criatura reciba daño, el héroe que lo infligió recibe 1 punto de daño directo."
+  },
+  "purple_depths_seal": {
+    "name": "Sello de las Profundidades",
+    "label": "Sello de las Profundidades: mientras esta criatura esté en juego, los héroes no pueden usar poderes de una vez por partida.",
+    "text": "mientras esta criatura esté en juego, los héroes no pueden usar poderes de una vez por partida."
+  },
+  "purple_dark_tribute": {
+    "name": "Tributo Oscuro",
+    "label": "Tributo Oscuro: antes del combate, el grupo debe descartar 1 objeto o sufrir el descarte adicional de 1 carta de mazmorra.",
+    "text": "antes del combate, el grupo debe descartar 1 objeto o sufrir el descarte adicional de 1 carta de mazmorra.",
+    "options": {
+      "discard_item": "Descartar {value} objeto",
+      "discard_dungeon": "Descartar {value} carta de mazmorra"
+    }
+  },
+  "purple_blood_tribute": {
+    "name": "Tributo de Sangre",
+    "label": "Tributo de Sangre: antes del combate, el grupo debe descartar 1 objeto o infligir 3 puntos de daño a un héroe de su elección.",
+    "text": "antes del combate, el grupo debe descartar 1 objeto o infligir 3 puntos de daño a un héroe de su elección.",
+    "options": {
+      "discard_item": "Descartar {value} objeto",
+      "take_damage": "Recibir {value} de daño"
+    }
+  },
+  "purple_veil_retaliation": {
+    "name": "Represalia del Véu",
+    "label": "Represalia del Véu ({value}): cada vez que un héroe impacte a esta criatura, dicho héroe recibe {value} de daño.",
+    "text": "cada vez que un héroe impacte a esta criatura, dicho héroe recibe {value} de daño."
+  },
+  "purple_healing_rupture": {
+    "name": "Ruptura de la Curación",
+    "label": "Ruptura de la Curación: al entrar en esta sala, anula el próximo efecto de curación usado por los héroes.",
+    "text": "al entrar en esta sala, anula el próximo efecto de curación usado por los héroes."
+  },
+  "purple_ancient_veil_prison": {
+    "name": "Prisión del Véu Antiguo",
+    "label": "Prisión del Véu Antiguo ({value}): el primer héroe al que elija como objetivo recibe -{value} al total de su bonificación de impacto en la próxima tirada.",
+    "text": "el primer héroe al que elija como objetivo recibe -{value} al total de su bonificación de impacto en la próxima tirada."
+  },
+  "purple_deep_veil_seal": {
+    "name": "Sello del Véu Profundo",
+    "label": "Sello del Véu Profundo: mientras esté en juego, los héroes no pueden reducir el nivel de la mazmorra.",
+    "text": "mientras esté en juego, los héroes no pueden reducir el nivel de la mazmorra."
+  },
+  "purple_crimson_shackles": {
+    "name": "Grilletes Rubros",
+    "label": "Grilletes Rubros: el primer héroe elegido como objetivo por esta criatura recibe -3 al total de su próxima tirada de ataque e inflige -3 de daño si impacta.",
+    "text": "el primer héroe elegido como objetivo por esta criatura recibe -3 al total de su próxima tirada de ataque e inflige -3 de daño si impacta."
+  },
+  "item_skill_deadly_edge": {
+    "name": "Filo Mortal",
+    "label": "Filo Mortal ({value}): obtienes +{value} al total de la tirada. Si ganas la tirada por 4 o más, infliges +{value} de daño.",
+    "text": "obtienes +{value} al total de la tirada. Si ganas la tirada por 4 o más, infliges +{value} de daño."
+  },
+  "item_skill_block": {
+    "name": "Bloqueo",
+    "label": "Bloqueo ({value}): reduce en {value} el daño recibido por este héroe.",
+    "text": "reduce en {value} el daño recibido por este héroe."
+  },
+  "item_skill_potion_stoneskin": {
+    "name": "Piel de Piedra",
+    "label": "Piel de Piedra ({value}): hasta el final de este combate, reduce en {value} el daño recibido por este héroe.",
+    "text": "hasta el final de este combate, reduce en {value} el daño recibido por este héroe."
+  },
+  "item_skill_mystic_draw": {
+    "name": "Robo Místico",
+    "label": "Robo Místico: roba 1 carta de Artefacto de la pila de artefactos.",
+    "text": "roba 1 carta de Artefacto de la pila de artefactos."
+  },
+  "item_skill_last_light_blade": {
+    "name": "Hoja de la Última Luz",
+    "label": "Hoja de la Última Luz: obtienes +2 al total de la bonificación de tirada. Contra jefes y subjefes, infliges +2 de daño al impactar.",
+    "text": "obtienes +2 al total de la bonificación de tirada. Contra jefes y subjefes, infliges +2 de daño al impactar."
+  },
+  "dungeon_skill_confinement": {
+    "name": "Confinamiento",
+    "label": "Confinamiento: las criaturas o los héroes de esta sala no pueden huir.",
+    "text": "las criaturas o los héroes de esta sala no pueden huir."
+  },
+  "dungeon_skill_dead_torches": {
+    "name": "Antorchas Apagadas",
+    "label": "Antorchas Apagadas: antes del primer combate en esta sala, los héroes deben elegir: descartar 1 objeto o sufrir -1 al total de su tirada de impacto en esta sala. Si el grupo usa una Antorcha de Brea, ignora este efecto.",
+    "text": "antes del primer combate en esta sala, los héroes deben elegir: descartar 1 objeto o sufrir -1 al total de su tirada de impacto en esta sala. Si el grupo usa una Antorcha de Brea, ignora este efecto.",
+    "options": {
+      "discard_item": "Descartar {value} objeto",
+      "hit_penalty": "Sufrir -{value} al impacto"
+    }
+  },
+  "dungeon_skill_column_fall": {
+    "name": "Caída de Columna",
+    "label": "Caída de Columna: la primera criatura destruida en esta sala derriba una columna. Elige otra criatura de la sala; recibe 1 punto de daño.",
+    "text": "la primera criatura destruida en esta sala derriba una columna. Elige otra criatura de la sala; recibe 1 punto de daño."
+  },
+  "dungeon_skill_uneven_floor": {
+    "name": "Suelo Irregular",
+    "label": "Suelo Irregular: si algún héroe pierde un combate en esta sala, descarta 1 carta adicional de mazmorra.",
+    "text": "si algún héroe pierde un combate en esta sala, descarta 1 carta adicional de mazmorra."
+  },
+  "dungeon_skill_forge_spoils": {
+    "name": "Botín de la Forja",
+    "label": "Botín de la Forja: al superar esta sala, mira las 2 cartas superiores del mazo de Objetos, quédate con 1 y descarta la otra. Esto sustituye el paso de robo y descarte de cartas de mazmorra.",
+    "text": "al superar esta sala, mira las 2 cartas superiores del mazo de Objetos, quédate con 1 y descarta la otra. Esto sustituye el paso de robo y descarte de cartas de mazmorra."
+  },
+  "dungeon_skill_rekindled_forge": {
+    "name": "Forja Reavivada",
+    "label": "Forja Reavivada: al superar esta sala, busca el primer Objeto [Equipable] de la pila de objetos y equípaselo a un héroe.",
+    "text": "al superar esta sala, busca el primer Objeto [Equipable] de la pila de objetos y equípaselo a un héroe."
+  },
+  "dungeon_skill_summon_guardian": {
+    "name": "Invocar Guardián",
+    "label": "Invocar Guardián ({value}): revela a {value} junto con los enemigos de la sala. Mientras esté en juego, el grupo no puede evitar descartes de cartas de mazmorra mediante efectos de héroe u objeto. Si {value} es derrotado, retira esta carta del juego.",
+    "text": "revela a {value} junto con los enemigos de la sala. Mientras esté en juego, el grupo no puede evitar descartes de cartas de mazmorra mediante efectos de héroe u objeto. Si {value} es derrotado, retira esta carta del juego.",
+    "notes": "Utiliza {value} como nombre de la criatura especial o del subjefe revelado en esta sala."
+  },
+  "boss_skill_living_ash_throne": {
+    "name": "Trono de Cenizas Vivas",
+    "label": "Trono de Cenizas Vivas (1): el primer punto de daño que Azhakar reciba en cada ronda se reduce en 1.",
+    "text": "el primer punto de daño que Azhakar reciba en cada ronda se reduce en 1."
+  },
+  "boss_skill_dark_forge_pressure": {
+    "name": "Presión de la Forja Oscura",
+    "label": "Presión de la Forja Oscura (1): después de cada ronda de combate, si el Despertar de la Mazmorra está en nivel Morado, descarta la carta superior del mazo de mazmorra.",
+    "text": "después de cada ronda de combate, si el Despertar de la Mazmorra está en nivel Morado, descarta la carta superior del mazo de mazmorra."
+  },
+  "boss_skill_azhakar_ascension": {
+    "name": "Ascensión de Azhakar",
+    "label": "Ascensión de Azhakar (2): cuando Azhakar llegue a la mitad de sus puntos de vida o menos, recibe +2 a su bonificación de impacto.",
+    "text": "cuando Azhakar llegue a la mitad de sus puntos de vida o menos, recibe +2 a su bonificación de impacto."
+  },
+  "item_skill_drain_life_and_deadly_edge": {
+    "name": "Drenar Vida y Filo Mortal",
+    "label": "Drenar Vida y Filo Mortal ({value}): obtienes +{value} al total de la tirada. Si ganas la tirada por 4 o más, infliges +{value} de daño. Cura 1 punto de vida a este héroe solo si inflige daño.",
+    "text": "obtienes +{value} al total de la tirada. Si ganas la tirada por 4 o más, infliges +{value} de daño. Cura 1 punto de vida a este héroe solo si inflige daño."
+  },
+  "item_skill_block_and_last_light_ward": {
+    "name": "Bloqueo y Amparo de la Última Luz",
+    "label": "Bloqueo y Amparo de la Última Luz ({armor}/{purple}): reduce en {armor} el daño recibido por este héroe. Contra efectos Morados, reduce {purple} puntos adicionales de daño.",
+    "text": "reduce en {armor} el daño recibido por este héroe. Contra efectos Morados, reduce {purple} puntos adicionales de daño."
+  },
+  "item_skill_crimson_fury_mighty": {
+    "name": "Furia Rubra y Furia Rubra Poderosa",
+    "label": "Furia Rubra y Furia Rubra Poderosa ({value}): este personaje sufre {value} de daño para infligir +6 de daño. Una vez por partida, al usar Furia Rubra, el daño adicional dura hasta el final del combate.",
+    "text": "este personaje sufre {value} de daño para infligir +6 de daño. Una vez por partida, al usar Furia Rubra, el daño adicional dura hasta el final del combate."
+  },
+  "dungeon_skill_subboss_room": {
+    "name": "Sala del Subjefe",
+    "label": "Sala del Subjefe: sala especial: un subjefe custodia esta cámara.",
+    "text": "sala especial: un subjefe custodia esta cámara."
+  },
+  "dungeon_skill_empty_room": {
+    "name": "Sala Vacía",
+    "label": "Sala Vacía: sin efectos adicionales.",
+    "text": "sin efectos adicionales."
+  }
+}
