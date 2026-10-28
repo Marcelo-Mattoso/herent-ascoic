@@ -36,6 +36,9 @@
     "cards:item_last_defense_charm.tags[1]": "Nombre propio conservado.",
     "cards:item_last_chord_lute.tags[1]": "Término equivalente en español y portugués.",
     "cards:item_torn_depths_map.tags[0]": "Término equivalente en español y portugués.",
-    "cards:item_hidden_forge_chest.tags[0]": "Término equivalente en español y portugués."
+    "cards:item_hidden_forge_chest.tags[0]": "Término equivalente en español y portugués.",
+    "common:globalMenu.globalMenu.text004": "Término equivalente en español y portugués.",
+    "common:screens.mainMenu.text004": "Término equivalente en español y portugués.",
+    "common:language.title": "Término equivalente en español y portugués."
   }
 }
