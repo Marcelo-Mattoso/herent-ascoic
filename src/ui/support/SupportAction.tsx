@@ -72,8 +72,8 @@ export function SupportAction() {
 										{copyButton(supportConfig.recipientName, "recipient")}
 									</div>
 								</section>
-								<section aria-label="PayPal">
-									<h3>PayPal</h3>
+								<section aria-label={translate("common:support.paypalLink")}>
+									<h3>{translate("common:support.paypalLink")}</h3>
 									{paypalReady ? (
 										<a className="support-action__paypal" href={supportConfig.paypalUrl} target="_blank" rel="noopener noreferrer">
 											{translate("common:support.paypalLink")}
