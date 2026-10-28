@@ -32,7 +32,7 @@ test("troca carregada atualiza a tela montada, preserva estado e usa fallback", 
 	fireEvent.click(screen.getByRole("button", { name: "Idioma 0" }));
 	expect(await changeLocale("fr-FR")).toBe(true);
 	await waitFor(() => expect(screen.getByRole("button", { name: "LOCALIZED 1" })).toBeTruthy());
-	expect(translate("common:pageTitle")).toBe("Ascensão Heróica — A Fornalha Sombria");
+	expect(translate("common:pageTitle")).toBe("Ascensão Heróica");
 	expect(document.documentElement.lang).toBe("fr-FR");
 	expect(i18n.language).toBe("fr-FR");
 });

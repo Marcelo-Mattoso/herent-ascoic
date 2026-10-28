@@ -54,7 +54,12 @@ test("promotes code and changed/new WebP while stripping modified and new PNG or
 		git(work, "add", "-A");
 		git(work, "commit", "-m", "New art and gameplay");
 		git(work, "push", "origin", "dev");
-		const result = spawnSync(process.execPath, [script], { cwd: work, encoding: "utf8" });
+		// Simulate GitHub Actions: the checkout has no user.name or user.email.
+		git(work, "config", "--local", "--unset", "user.name");
+		git(work, "config", "--local", "--unset", "user.email");
+		const env = { ...process.env, GIT_CONFIG_GLOBAL: os.devNull, GIT_CONFIG_NOSYSTEM: "1" };
+		assert.notEqual(spawnSync("git", ["var", "GIT_COMMITTER_IDENT"], { cwd: work, env, encoding: "utf8" }).status, 0);
+		const result = spawnSync(process.execPath, [script], { cwd: work, encoding: "utf8", env });
 		assert.equal(result.status, 0, result.stderr || result.stdout);
 		assert.match(result.stdout, /promotion_changed=true/u);
 		assert.equal(git(work, "branch", "--show-current"), "promotion/dev-to-hml");
@@ -62,6 +67,7 @@ test("promotes code and changed/new WebP while stripping modified and new PNG or
 		assert.equal(git(work, "diff", "--name-only", "origin/dev", "--", "assets/webp"), "");
 		assert.equal(fs.readFileSync(path.join(work, "game.txt"), "utf8"), "updated game");
 		assert.equal(git(work, "rev-list", "--parents", "-n", "1", "HEAD").split(" ").length, 3);
+		assert.equal(git(work, "show", "-s", "--format=%cn|%ce", "HEAD"), "github-actions[bot]|41898282+github-actions[bot]@users.noreply.github.com");
 	} finally {
 		fs.rmSync(root, { recursive: true, force: true });
 	}
