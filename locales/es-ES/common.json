@@ -32,7 +32,6 @@
   "screens": {
     "mainMenu": {
       "text001": "Ascensión Heroica",
-      "text002": "La Forja Oscura",
       "text003": "JUGAR",
       "text004": "TUTORIAL"
     }
@@ -43,5 +42,5 @@
     "loading": "Cargando idioma…",
     "loadError": "No se pudo cargar el idioma. Se ha mantenido el anterior."
   },
-  "pageTitle": "Ascensión Heroica — La Forja Oscura"
+  "pageTitle": "Ascensión Heroica"
 }

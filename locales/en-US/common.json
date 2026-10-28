@@ -32,7 +32,6 @@
   "screens": {
     "mainMenu": {
       "text001": "Heroic Ascension",
-      "text002": "The Dark Forge",
       "text003": "PLAY",
       "text004": "TUTORIAL"
     }
@@ -43,5 +42,5 @@
     "loading": "Loading language…",
     "loadError": "Could not load the language. The previous language was kept."
   },
-  "pageTitle": "Heroic Ascension — The Dark Forge"
+  "pageTitle": "Heroic Ascension"
 }
