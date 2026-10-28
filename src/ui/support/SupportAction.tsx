@@ -22,7 +22,6 @@ export function SupportAction() {
 	const [copyStatus, setCopyStatus] = useState("");
 	const paypalReady = isTrustedPaypalUrl(supportConfig.paypalUrl);
 	const pixReady = Boolean(supportConfig.pixCopyPaste && supportConfig.pixQrImagePath);
-	const phoneReady = Boolean(supportConfig.pixPhone);
 
 	async function copy(value: string, field: string) {
 		try {
@@ -67,11 +66,6 @@ export function SupportAction() {
 											{copyButton(supportConfig.pixCopyPaste, "pix")}
 										</div>
 									)}
-									<div className="support-action__row">
-										<span>{translate("common:support.phone")}</span>
-										<code>{phoneReady ? supportConfig.pixPhone : translate("common:support.notConfigured")}</code>
-										{phoneReady && copyButton(supportConfig.pixPhone, "phone")}
-									</div>
 									<div className="support-action__row">
 										<span>{translate("common:support.recipient")}</span>
 										<code>{supportConfig.recipientName}</code>
