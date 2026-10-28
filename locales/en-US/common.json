@@ -2,7 +2,7 @@
   "globalMenu": {
     "globalMenu": {
       "ariaLabel001": "Global menu",
-      "text002": "Ascensão Heróica",
+      "text002": "Heroic Ascension",
       "ariaLabel003": "Close menu",
       "text004": "Music",
       "text005": "Track",
@@ -31,7 +31,7 @@
   },
   "screens": {
     "mainMenu": {
-      "text001": "Ascensão Heróica",
+      "text001": "Heroic Ascension",
       "text002": "The Dark Forge",
       "text003": "PLAY",
       "text004": "TUTORIAL"
@@ -43,5 +43,5 @@
     "loading": "Loading language…",
     "loadError": "Could not load the language. The previous language was kept."
   },
-  "pageTitle": "Ascensão Heróica — The Dark Forge"
+  "pageTitle": "Heroic Ascension — The Dark Forge"
 }
