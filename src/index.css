@@ -779,6 +779,27 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	text-shadow: 0 2px 4px rgba(0, 0, 0, 0.72);
 }
 
+.setup-hero-identity__name {
+	display: block;
+	min-width: 0;
+	overflow-wrap: anywhere;
+	font-size: inherit;
+	font-weight: 900;
+}
+
+.setup-hero-identity__class {
+	display: block;
+	min-width: 0;
+	color: #d4bf91;
+	font-family: system-ui, sans-serif;
+	font-size: 0.76em;
+	font-weight: 600;
+	line-height: 1.22;
+	overflow: hidden;
+	text-overflow: ellipsis;
+	white-space: normal;
+}
+
 .setup-hero-info-button {
 	position: absolute;
 	top: auto;

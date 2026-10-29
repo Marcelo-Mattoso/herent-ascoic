@@ -1,5 +1,5 @@
 import { translate } from "@/i18n";
-import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
+import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
@@ -57,7 +57,7 @@ export function CardDetailModal({
 						className="text-xs px-2 py-0.5 rounded inline-block"
 						style={{ background: UI.subpanelBg, color: UI.textTertiary }}
 					>
-						{card?.type ?? cardType}
+						{card?.type === "hero" ? getCardClass(cardId) : card?.type ?? cardType}
 					</p>
 
 					{card?.type === "hero" &&

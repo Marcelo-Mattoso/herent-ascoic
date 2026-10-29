@@ -3,7 +3,7 @@ import { translate } from "@/i18n";
 // Mostra stats, habilidade, poder, mochila e botões de ação.
 // Também cobre ações de não-combate (revelar sala, iniciar combate, etc.).
 
-import { displayCardName as getCardName } from "@/i18n/catalogs";
+import { displayCardClass as getCardClass, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
@@ -106,6 +106,16 @@ export function HeroFocusPanel({
 								}}
 							>
 								{getCardName(hero.cardId).split(",")[0]?.split(" ")[0]}
+							</p>
+							<p title={getCardClass(hero.cardId)} style={{
+								color: UI.textSecondary,
+								fontSize: 8,
+								textAlign: "center",
+								overflow: "hidden",
+								textOverflow: "ellipsis",
+								whiteSpace: "nowrap",
+							}}>
+								{getCardClass(hero.cardId)}
 							</p>
 						</div>
 
