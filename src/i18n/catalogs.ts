@@ -3,7 +3,8 @@ import { getCardLocale, type CardLocale } from "@/core/data/cardLocale";
 import { getSkillLocale, type SkillLocaleEntry } from "@/core/data/skillLocale";
 
 export function displayCardName(id: string): string {
-	return translate(`cards:${id}.name`);
+	const field = getCardLocale(id)?.characterName ? "characterName" : "name";
+	return translate(`cards:${id}.${field}`);
 }
 
 export function displayCardLocale(id: string): CardLocale | undefined {

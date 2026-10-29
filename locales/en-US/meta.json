@@ -40,6 +40,14 @@
     "game:tutorials.tutorialOverlay.text040": "Total é a mesma palavra em inglês.",
     "journal:components.journalPanel.text010": "XP é uma sigla de regra mantida nos dois idiomas.",
     "journal:components.journalPanel.text025": "Tokens é a mesma palavra em inglês.",
-    "journal:components.journalPanel.text045": "Tokens é a mesma palavra em inglês."
+    "journal:components.journalPanel.text045": "Tokens é a mesma palavra em inglês.",
+    "cards:hero_eternal_rest_cleric.characterName": "Canonical character name preserved unchanged in all languages.",
+    "cards:hero_broken_bastion_warrior.characterName": "Canonical character name preserved unchanged in all languages.",
+    "cards:hero_rift_rogue.characterName": "Canonical character name preserved unchanged in all languages.",
+    "cards:hero_crimson_rune_mage.characterName": "Canonical character name preserved unchanged in all languages.",
+    "cards:hero_crimson_barbarian.characterName": "Canonical character name preserved unchanged in all languages.",
+    "cards:hero_last_light_paladin.characterName": "Canonical character name preserved unchanged in all languages.",
+    "cards:hero_deep_veil_necromancer.characterName": "Canonical character name preserved unchanged in all languages.",
+    "cards:hero_broken_veil_hunter.characterName": "Canonical character name preserved unchanged in all languages."
   }
 }

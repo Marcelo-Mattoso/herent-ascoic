@@ -1,34 +1,42 @@
 {
   "hero_eternal_rest_cleric": {
     "name": "Clérigo del Descanso Eterno",
+    "characterName": "Letícia Morane",
     "style": "apoyo, curación, supervivencia, Última Luz."
   },
   "hero_broken_bastion_warrior": {
     "name": "Guerrero del Bastión Partido",
+    "characterName": "Brennar",
     "style": "combate, primera línea, Bastião Partido, daño."
   },
   "hero_rift_rogue": {
     "name": "Pícara de las Fisuras",
+    "characterName": "Ágatha Veyr",
     "style": "exploración, control de la mazmorra, Fendas, movilidad."
   },
   "hero_crimson_rune_mage": {
     "name": "Mago de las Runas Rubras",
+    "characterName": "Andrei Mikhail",
     "style": "magia, manipulación de dados, control, Fendas."
   },
   "hero_crimson_barbarian": {
     "name": "Bárbaro Rubro",
+    "characterName": "Ankhar Varkun",
     "style": "daño, riesgo, Deserto Rubro, sacrificio."
   },
   "hero_last_light_paladin": {
     "name": "Paladín de la Última Luz",
+    "characterName": "Kaelor Arden",
     "style": "equilibrio, curación, daño, Última Luz."
   },
   "hero_deep_veil_necromancer": {
     "name": "Nigromante del Velo Profundo",
+    "characterName": "Zípora Nareth",
     "style": "Véu, recuperación, control en las fases finales, nigromancia."
   },
   "hero_broken_veil_hunter": {
     "name": "Cazador del Velo Partido",
+    "characterName": "Ravik Dorn",
     "style": "concentración, precisión, eliminación, Véu."
   },
   "creature_deep_rift_rat": {
