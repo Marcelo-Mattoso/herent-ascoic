@@ -42,5 +42,23 @@
     "loading": "Cargando idioma…",
     "loadError": "No se pudo cargar el idioma. Se ha mantenido el anterior."
   },
-  "pageTitle": "Ascensión Heroica"
+  "pageTitle": "Ascensión Heroica",
+  "support": {
+    "trigger": "Apóyanos",
+    "title": "Ayuda a expandir Ascensión Heroica",
+    "description": "Ascensión Heroica es gratuito. Tu apoyo voluntario nos ayuda a crear nuevas expansiones, aventuras y contenidos para el juego.",
+    "universe": "El juego forma parte del universo de Alexya, que también crece con cómics, Thronus y las Crônicas do Café, Pão e Milagre. ¡Seguimos preparando novedades!",
+    "pixTitle": "Apoyar con Pix",
+    "qrAlt": "Código QR de pago Pix",
+    "pixPending": "El código QR de Pix estará disponible pronto.",
+    "pixCode": "Código Pix para copiar y pegar",
+    "recipient": "Nombre del destinatario",
+    "copy": "Copiar",
+    "copied": "¡Copiado!",
+    "copyError": "No se pudo copiar. Selecciona el texto y cópialo manualmente.",
+    "copySuccess": "Copiado al portapapeles.",
+    "voluntary": "Contribución voluntaria, sin ventajas dentro del juego.",
+    "paypalLink": "Apoyar mediante PayPal",
+    "paypalPending": "El enlace de PayPal estará disponible pronto."
+  }
 }

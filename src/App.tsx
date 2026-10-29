@@ -9,6 +9,7 @@ import { Setup } from "@/ui/screens/Setup";
 import { Victory } from "@/ui/screens/Victory";
 import { useGameStore } from "@/ui/store/gameStore";
 import { GlobalMenu } from "@/ui/globalMenu/GlobalMenu";
+import { SupportAction } from "@/ui/support/SupportAction";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
 import { TutorialOverlay } from "@/ui/tutorials/TutorialOverlay";
 import { prepareCombatCheckpoint } from "@/ui/tutorials/combatScenario";
@@ -354,6 +355,7 @@ function App() {
 					onPlay={() => leaveTutorial("setup")}
 				/>
 			)}
+			{status === "MAIN_MENU" && uiScreen === "menu" && !tutorial && <SupportAction />}
 			<GlobalMenu />
 		</>
 	);
