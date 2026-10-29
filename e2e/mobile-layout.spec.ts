@@ -438,7 +438,7 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 				element.scrollTop = element.scrollHeight;
 			});
 			await page
-				.getByRole("button", { name: /Mochila de Bárbaro Rubro/ })
+				.getByRole("button", { name: /Mochila de Ankhar Varkun/ })
 				.tap();
 			await expect(page.getByRole("button", { name: "Equipar" })).toBeVisible();
 			await page.getByRole("button", { name: "Equipar" }).tap();
@@ -457,10 +457,10 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 				page.getByRole("button", { name: "Finalizar arrumação" }),
 			).toBeVisible();
 			await page
-				.getByRole("button", { name: /Detalhes de Bárbaro Rubro/ })
+				.getByRole("button", { name: /Detalhes de Ankhar Varkun/ })
 				.click();
 			const equipment = page.getByRole("dialog", {
-				name: /Detalhes de Bárbaro Rubro/,
+				name: /Detalhes de Ankhar Varkun/,
 			});
 			await expect(equipment).toBeVisible();
 			await expect(
