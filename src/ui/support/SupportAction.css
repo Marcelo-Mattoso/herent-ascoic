@@ -104,7 +104,7 @@
 	padding: 8px;
 }
 .support-action__copy,
-.support-action__paypal {
+.support-action__external {
 	border: 1px solid #a87838;
 	border-radius: 7px;
 	background: #153853;
@@ -115,15 +115,15 @@
 	cursor: pointer;
 }
 .support-action__copy:hover,
-.support-action__paypal:hover {
+.support-action__external:hover {
 	background: #254b65;
 }
 .support-action__copy:focus-visible,
-.support-action__paypal:focus-visible {
+.support-action__external:focus-visible {
 	outline: 2px solid white;
 	outline-offset: 2px;
 }
-.support-action__paypal {
+.support-action__external {
 	display: inline-block;
 	width: fit-content;
 }
