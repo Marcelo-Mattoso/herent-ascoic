@@ -21,7 +21,7 @@ async function completeAbilities(page: Page, viewportName: string) {
 	await openHeroPanel(page);
 	await page.locator('[data-tutorial-anchor="hero.skill-card"]').getByRole("button", { name: "Examinar carta" }).click();
 	await expect(page.locator('[data-tutorial-step="prey-mark"]')).toBeVisible();
-	await page.getByRole("dialog", { name: "Caçador do Véu Partido" }).getByRole("button", { name: "✕" }).click();
+	await page.getByRole("dialog", { name: "Ravik Dorn" }).getByRole("button", { name: "✕" }).click();
 	await page.locator('[data-tutorial-anchor="hero.skill-action"]').click();
 	await expect(page.locator(".skill-target-option")).toHaveCount(2);
 	await page.locator(".skill-target-option").first().click();

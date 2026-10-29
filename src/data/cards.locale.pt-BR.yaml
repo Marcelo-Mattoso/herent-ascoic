@@ -1,26 +1,34 @@
 hero_eternal_rest_cleric:
   name: Clérigo do Descanso Eterno
+  characterName: Letícia Morane
   style: suporte, cura, sobrevivência, Última Luz.
 hero_broken_bastion_warrior:
   name: Guerreiro do Bastião Partido
+  characterName: Brennar
   style: combate, linha de frente, Bastião Partido, dano.
 hero_rift_rogue:
   name: Ladino das Fendas
+  characterName: Ágatha Veyr
   style: exploração, controle da dungeon, Fendas, mobilidade.
 hero_crimson_rune_mage:
   name: Mago das Runas Rubras
+  characterName: Andrei Mikhail
   style: magia, manipulação de dado, controle, Fendas.
 hero_crimson_barbarian:
   name: Bárbaro Rubro
+  characterName: Ankhar Varkun
   style: dano, risco, Deserto Rubro, sacrifício.
 hero_last_light_paladin:
   name: Paladino da Última Luz
+  characterName: Kaelor Arden
   style: equilíbrio, cura, dano, Última Luz.
 hero_deep_veil_necromancer:
   name: Necromante do Véu Profundo
+  characterName: Zípora Nareth
   style: Véu, recuperação, controle tardio, necromancia.
 hero_broken_veil_hunter:
   name: Caçador do Véu Partido
+  characterName: Ravik Dorn
   style: foco, precisão, eliminação, Véu.
 creature_deep_rift_rat:
   name: Rato das Fendas Profundas

@@ -1,34 +1,42 @@
 {
   "hero_eternal_rest_cleric": {
     "name": "Cleric of Eternal Rest",
+    "characterName": "Letícia Morane",
     "style": "support, healing, survival, Última Luz."
   },
   "hero_broken_bastion_warrior": {
     "name": "Warrior of the Broken Bastion",
+    "characterName": "Brennar",
     "style": "combat, frontline, Bastião Partido, damage."
   },
   "hero_rift_rogue": {
     "name": "Rogue of the Rifts",
+    "characterName": "Ágatha Veyr",
     "style": "exploration, dungeon control, Fendas, mobility."
   },
   "hero_crimson_rune_mage": {
     "name": "Mage of the Crimson Runes",
+    "characterName": "Andrei Mikhail",
     "style": "magic, dice manipulation, control, Fendas."
   },
   "hero_crimson_barbarian": {
     "name": "Crimson Barbarian",
+    "characterName": "Ankhar Varkun",
     "style": "damage, risk, Deserto Rubro, sacrifice."
   },
   "hero_last_light_paladin": {
     "name": "Paladin of the Last Light",
+    "characterName": "Kaelor Arden",
     "style": "balance, healing, damage, Última Luz."
   },
   "hero_deep_veil_necromancer": {
     "name": "Necromancer of the Deep Veil",
+    "characterName": "Zípora Nareth",
     "style": "Véu, recovery, late-game control, necromancy."
   },
   "hero_broken_veil_hunter": {
     "name": "Hunter of the Broken Veil",
+    "characterName": "Ravik Dorn",
     "style": "focus, precision, elimination, Véu."
   },
   "creature_deep_rift_rat": {

@@ -3,6 +3,7 @@ import localeText from "../../data/cards.locale.pt-BR.yaml?raw";
 
 export interface CardLocale {
 	readonly name: string;
+	readonly characterName?: string;
 	readonly style?: string;
 	readonly tags?: readonly string[];
 	readonly condition?: string;

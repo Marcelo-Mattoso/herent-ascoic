@@ -31,8 +31,8 @@ test("interrupção mostra carta e decisões acessíveis em telas pequenas", asy
 	expect(bounds!.x).toBeGreaterThanOrEqual(0);
 	expect(bounds!.x + bounds!.width).toBeLessThanOrEqual(320);
 	await modal.getByRole("button", { name: /Ver carta/ }).click();
-	await expect(page.getByRole("dialog", { name: "Bárbaro Rubro" })).toBeVisible();
-	await page.getByRole("dialog", { name: "Bárbaro Rubro" }).locator(".modal-close").click();
+	await expect(page.getByRole("dialog", { name: "Ankhar Varkun" })).toBeVisible();
+	await page.getByRole("dialog", { name: "Ankhar Varkun" }).locator(".modal-close").click();
 	await modal.getByRole("button", { name: "Ignorar" }).click();
 	await expect(modal).toHaveCount(0);
 	await page.setViewportSize({ width: 568, height: 320 });
