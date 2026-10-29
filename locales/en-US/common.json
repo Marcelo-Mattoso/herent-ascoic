@@ -58,7 +58,7 @@
     "copyError": "Could not copy. Select the text and copy it manually.",
     "copySuccess": "Copied to clipboard.",
     "voluntary": "Voluntary contribution, with no in-game benefits.",
-    "paypalLink": "Support via PayPal",
-    "paypalPending": "The PayPal link will be available soon."
+    "koFiLink": "Support us on Ko-fi",
+    "koFiPending": "The Ko-fi link will be available soon."
   }
 }
