@@ -178,6 +178,14 @@
     "skills:skill_life_drain.name": "Término equivalente en español y portugués.",
     "skills:skill_minor_rune.name": "Término equivalente en español y portugués.",
     "skills:purple_deadly_awakening.name": "Término equivalente en español y portugués.",
-    "common:support.copy": "Término equivalente en español y portugués."
+    "common:support.copy": "Término equivalente en español y portugués.",
+    "cards:hero_eternal_rest_cleric.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "cards:hero_broken_bastion_warrior.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "cards:hero_rift_rogue.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "cards:hero_crimson_rune_mage.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "cards:hero_crimson_barbarian.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "cards:hero_last_light_paladin.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "cards:hero_deep_veil_necromancer.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "cards:hero_broken_veil_hunter.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas."
   }
 }
