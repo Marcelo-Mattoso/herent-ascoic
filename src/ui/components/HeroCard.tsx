@@ -2,7 +2,7 @@
 // Suporta drag-and-drop nativo HTML5 para iniciar combate.
 
 import type { DragEvent } from "react";
-import { displayCardName as getCardName } from "@/i18n/catalogs";
+import { displayCardClass as getCardClass, displayCardName as getCardName, displayHeroIdentity } from "@/i18n/catalogs";
 import { EQUIPMENT_SLOTS, equippedItemAt } from "@/core/rules/equipment";
 import type { HeroState } from "@/core/state/heroState";
 import { UI } from "@/ui/theme";
@@ -61,6 +61,7 @@ export function HeroCard({
 					: 1;
 
 	const heroName = getCardName(hero.cardId);
+	const heroClass = getCardClass(hero.cardId);
 	const firstName = heroName.split(",")[0]?.split(" ")[0] ?? heroName;
 	const shortName =
 		firstName.length > 7 ? `${firstName.slice(0, 7)}` : firstName;
@@ -214,6 +215,7 @@ export function HeroCard({
 					data-tutorial-anchor={
 						size === "board" ? "combat.hero-attributes" : undefined
 					}
+					title={displayHeroIdentity(hero.cardId)}
 					style={{
 						background: useCardImage ? "rgba(246, 240, 229, 0.82)" : undefined,
 						borderRadius: useCardImage ? 7 : undefined,
@@ -243,6 +245,25 @@ export function HeroCard({
 						}}
 					>
 						{displayName}
+					</p>
+					<p
+						className="hero-card__class"
+						style={{
+							color: isDefeated ? UI.textTertiary : UI.textSecondary,
+							fontSize: size === "board" ? "clamp(8px, 0.75vw, 10px)" : 8,
+							fontWeight: 500,
+							lineHeight: 1.12,
+							overflow: "hidden",
+							textOverflow: "ellipsis",
+							whiteSpace: size === "board" ? "normal" : "nowrap",
+							display: size === "board" ? "-webkit-box" : "block",
+							WebkitBoxOrient: size === "board" ? "vertical" : undefined,
+							WebkitLineClamp: size === "board" ? 2 : undefined,
+							marginTop: size === "board" ? -4 : 1,
+							marginBottom: size === "board" ? 5 : 2,
+						}}
+					>
+						{heroClass}
 					</p>
 					{/* Barra de vida */}
 					<div
