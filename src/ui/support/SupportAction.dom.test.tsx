@@ -20,6 +20,16 @@ describe("SupportAction", () => {
 		expect(screen.queryByRole("dialog")).toBeNull();
 	});
 
+	it("oferece o link do Ko-fi e mantém Pix no modal", () => {
+		render(<SupportAction />);
+		fireEvent.click(screen.getByRole("button", { name: /apoie-nos/i }));
+		const link = screen.getByRole("link", { name: "Contribuir via Ko-fi" });
+		expect(link.getAttribute("href")).toBe("https://ko-fi.com/marcelomattoso");
+		expect(link.getAttribute("target")).toBe("_blank");
+		expect(link.getAttribute("rel")).toContain("noopener");
+		expect(screen.getByRole("img", { name: "QR Code de pagamento Pix" })).toBeTruthy();
+	});
+
 	it("copia o nome e o Pix separadamente", async () => {
 		const writeText = vi.fn().mockResolvedValue(undefined);
 		Object.defineProperty(navigator, "clipboard", { configurable: true, value: { writeText } });
