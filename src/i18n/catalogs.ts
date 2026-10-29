@@ -7,6 +7,16 @@ export function displayCardName(id: string): string {
 	return translate(`cards:${id}.${field}`);
 }
 
+export function displayCardClass(id: string): string {
+	return translate(`cards:${id}.name`);
+}
+
+export function displayHeroIdentity(id: string): string {
+	const name = displayCardName(id);
+	const cardClass = getCardLocale(id)?.characterName ? displayCardClass(id) : "";
+	return cardClass ? `${name} — ${cardClass}` : name;
+}
+
 export function displayCardLocale(id: string): CardLocale | undefined {
 	const fallback = getCardLocale(id);
 	if (!fallback) return undefined;

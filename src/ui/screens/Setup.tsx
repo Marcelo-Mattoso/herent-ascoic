@@ -1,7 +1,7 @@
 import { translate } from "@/i18n";
 import { type CSSProperties, type ReactNode, useState } from "react";
 import { createPortal } from "react-dom";
-import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
+import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getBoss, getHeroes } from "@/core/data/cards";
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
 import { displaySkillLocale as getSkillLocale, displaySkillName as getSkillName } from "@/i18n/catalogs";
@@ -164,7 +164,10 @@ export function Setup({
 											imageUrl={getCardImageUrl(cardImageUrls, hero.id)}
 											name={getCardName(hero.id)}
 										/>
-										<span>{getCardName(hero.id)}</span>
+										<span className="setup-hero-identity">
+											<strong className="setup-hero-identity__name">{getCardName(hero.id)}</strong>
+											<small className="setup-hero-identity__class">{getCardClass(hero.id)}</small>
+										</span>
 									</button>
 									<button
 										type="button"
@@ -439,7 +442,7 @@ function HeroStatsModal({
 	return (
 		<SetupInfoModal
 			title={getCardName(hero.id)}
-			subtitle={translate("game:screens.setup.heroSheet")}
+			subtitle={`${getCardClass(hero.id)} · ${translate("game:screens.setup.heroSheet")}`}
 			logoUrl={logoUrl}
 			modalStyle={modalStyle}
 			onClose={onClose}

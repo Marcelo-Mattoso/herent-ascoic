@@ -5,7 +5,7 @@ import { translate } from "@/i18n";
 
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
-import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
+import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import { getSkillLocale } from "@/core/data/skillLocale";
 import {
@@ -589,6 +589,10 @@ function HeroColumn({
 				)}
 			</div>
 
+			<div className="inventory-hero-card__identity" style={{ textAlign: "center", marginBottom: 6 }}>
+				<strong style={{ display: "block", color: "#f2dfad", fontSize: 12, lineHeight: 1.2 }}>{heroName}</strong>
+				<small style={{ display: "block", color: "#cbb991", fontSize: 10, lineHeight: 1.2 }}>{getCardClass(hero.cardId)}</small>
+			</div>
 			<div className="inventory-hero-stats">
 				<span>
 					<strong>{translate("game:components.inventarioGrupo.text003")}</strong>
@@ -1518,6 +1522,7 @@ function HeroInventoryModal({
 						</div>
 						<div className="inventory-hero-modal__copy">
 							<h2>{heroName}</h2>
+							<p style={{ color: "#d4bf91", fontSize: "0.8rem", fontWeight: 600, marginBottom: 8 }}>{getCardClass(hero.cardId)}</p>
 							<div className="inventory-hero-modal__stats">
 								<span>
 									<strong>{translate("game:components.inventarioGrupo.text031")}</strong>
