@@ -4,6 +4,7 @@ import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createInitialGameState } from "@/core/state/gameState";
 import { playerView } from "@/core/projection/playerView";
 import { getCardName } from "@/core/data/cardLocale";
+import { displayCardName } from "@/i18n/catalogs";
 import { normalizeCardImageKey } from "@/ui/cardImages";
 import { TriggerInterruptModal } from "./TriggerInterruptModal";
 
@@ -44,7 +45,7 @@ describe("TriggerInterruptModal", () => {
 	it("exibe a carta, permite inspeção sem decidir e envia a decisão apenas uma vez", () => {
 		render(<TriggerInterruptModal />);
 		const art = screen.getByRole("button", {
-			name: `Ver carta ${getCardName(sourceCardId)}`,
+			name: `Ver carta ${displayCardName(sourceCardId)}`,
 		});
 		expect(art.querySelector("img")?.getAttribute("src")).toBe(imageUrl);
 		fireEvent.click(art);
