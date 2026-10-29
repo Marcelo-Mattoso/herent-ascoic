@@ -6,12 +6,12 @@ import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { supportConfig } from "./supportConfig";
 import "./SupportAction.css";
 
-function isTrustedPaypalUrl(value: string): boolean {
+function isTrustedKoFiUrl(value: string): boolean {
 	try {
 		const url = new URL(value);
 		return url.protocol === "https:" &&
-			(url.hostname === "paypal.me" || url.hostname === "www.paypal.me" ||
-				url.hostname === "paypal.com" || url.hostname.endsWith(".paypal.com"));
+			(url.hostname === "ko-fi.com" || url.hostname === "www.ko-fi.com") &&
+			!url.username && !url.password;
 	} catch {
 		return false;
 	}
@@ -20,7 +20,7 @@ function isTrustedPaypalUrl(value: string): boolean {
 export function SupportAction() {
 	const [open, setOpen] = useState(false);
 	const [copyStatus, setCopyStatus] = useState("");
-	const paypalReady = isTrustedPaypalUrl(supportConfig.paypalUrl);
+	const koFiReady = isTrustedKoFiUrl(supportConfig.koFiUrl);
 	const pixReady = Boolean(supportConfig.pixCopyPaste && supportConfig.pixQrImagePath);
 
 	async function copy(value: string, field: string) {
@@ -72,13 +72,13 @@ export function SupportAction() {
 										{copyButton(supportConfig.recipientName, "recipient")}
 									</div>
 								</section>
-								<section aria-label={translate("common:support.paypalLink")}>
-									<h3>{translate("common:support.paypalLink")}</h3>
-									{paypalReady ? (
-										<a className="support-action__paypal" href={supportConfig.paypalUrl} target="_blank" rel="noopener noreferrer">
-											{translate("common:support.paypalLink")}
+								<section aria-label={translate("common:support.koFiLink")}>
+									<h3>{translate("common:support.koFiLink")}</h3>
+									{koFiReady ? (
+										<a className="support-action__external" href={supportConfig.koFiUrl} target="_blank" rel="noopener noreferrer">
+											{translate("common:support.koFiLink")}
 										</a>
-									) : <p className="support-action__pending">{translate("common:support.paypalPending")}</p>}
+									) : <p className="support-action__pending">{translate("common:support.koFiPending")}</p>}
 								</section>
 							</div>
 							<p className="support-action__status" role="status" aria-live="polite">
