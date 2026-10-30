@@ -378,12 +378,12 @@ export function reconcileTutorial(
 			return observed(`${CRIMSON_FURY}: ${latest.actionId}`);
 		if (advance === "fury-triggered" && session.abilityCheckpoint === "barbarian" &&
 			latest.actionType === "RESOLVE_ATTACK" && latest.roll?.heroId === heroId &&
-			journal?.entries.some((entry) => entry.actionType === "ROLL_DICE" &&
+			journal?.entries.some((entry) => (entry.actionType === "ROLL_DICE" || entry.actionType === "PREPARE_PHYSICAL_ROLL") &&
 				entry.before.preparedAbilities.some((prepared) => prepared.abilityId === CRIMSON_FURY) &&
 				!entry.after.preparedAbilities.some((prepared) => prepared.abilityId === CRIMSON_FURY)) &&
 			!view.pendingTriggerInterrupt && latest.after.heroesActed.includes(heroId))
 			return nextStep({ ...session,
-				abilityResult: ["Fúria ativada.", ...journal.entries.filter((entry) => entry.actionType === "ROLL_DICE").at(-1)!.changes, ...latest.changes],
+				abilityResult: ["Fúria ativada.", ...journal.entries.filter((entry) => entry.actionType === "ROLL_DICE" || entry.actionType === "PREPARE_PHYSICAL_ROLL").at(-1)!.changes, ...latest.changes],
 				events: [...session.events, { type: "combat-attack-resolved", source: "game-observation", stepId: "fury-trigger", detail: `${CRIMSON_FURY}: ${latest.actionId}` }],
 			});
 		if (advance === "power-used" && session.abilityCheckpoint === "warrior" &&

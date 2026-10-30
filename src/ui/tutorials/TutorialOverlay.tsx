@@ -636,7 +636,10 @@ export function TutorialOverlay({
 						</>
 					) : (
 						<>
-							{(step.advance === "manual" || step.id === "combat-action") && (
+							{step.id === "combat-action" && view.status === "HERO_ACTION" && (
+								<p className="tutorial-panel__waiting">{translate("game:tutorials.tutorialOverlay.retryCombat")}</p>
+							)}
+							{(step.advance === "manual" || (step.id === "combat-action" && (view.status === "DIRECT_DAMAGE" || view.status === "CHECK_COMBAT_END"))) && (
 								<button
 									type="button"
 									className="tutorial-panel__primary"

@@ -1,13 +1,17 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { exportJournalJson } from "@/core/journal/gameJournal";
+import type { PlayerView } from "@/core/projection/playerView";
 import { Defeat } from "@/ui/screens/Defeat";
+import { CombatFeedback } from "@/ui/components/CombatFeedback";
+import { useCardImages } from "@/ui/hooks/useCardImages";
 import { Exploration } from "@/ui/screens/Exploration";
 import { MainMenu } from "@/ui/screens/MainMenu";
 import { Replay } from "@/ui/screens/Replay";
 import { Setup } from "@/ui/screens/Setup";
 import { Victory } from "@/ui/screens/Victory";
 import { useGameStore } from "@/ui/store/gameStore";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 import { GlobalMenu } from "@/ui/globalMenu/GlobalMenu";
 import { SupportAction } from "@/ui/support/SupportAction";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
@@ -44,9 +48,19 @@ import {
 
 type UiScreen = "menu" | "setup" | "tutorialHub";
 
+function rewardSignature(view: PlayerView): string {
+	const items = [
+		...view.groupArtifacts.map((artifact) => artifact.cardId),
+		...view.pendingRewards.map((reward) => reward.cardId),
+		...view.heroes.flatMap((hero) => [...hero.backpack, ...new Set(Object.values(hero.activeItems).filter((id): id is string => !!id))]),
+	].sort();
+	return JSON.stringify([view.groupXp, items]);
+}
+
 function App() {
 	useTranslation(); // Re-renderiza as telas montadas quando o idioma muda.
 	const { view, journal, dispatch, reset, loadTrainingState } = useGameStore();
+	const cardImageUrls = useCardImages();
 	const status = view.status;
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");
 	const [tutorial, setTutorial] = useState<TutorialSession | null>(null);
@@ -59,7 +73,32 @@ function App() {
 		string | null
 	>(null);
 	const preparedCheckpoints = useRef(new Set<string>());
+	const lastSfxState = useRef({
+		room: view.currentRoom?.cardId ?? null,
+		enemies: view.enemies.filter((enemy) => enemy.status === "active").map((enemy) => enemy.id).join("|"),
+		rewards: rewardSignature(view),
+	});
+	const lastCombatSound = useRef({ roll: view.combat?.lastRoll ?? null, damageId: view.damageFeedback.at(-1)?.id ?? 0 });
 	const tutorialRevision = tutorial?.events.length ?? 0;
+	useEffect(() => {
+		const previous = lastSfxState.current;
+		const room = view.currentRoom?.cardId ?? null;
+		const enemies = view.enemies.filter((enemy) => enemy.status === "active").map((enemy) => enemy.id).join("|");
+		const rewards = rewardSignature(view);
+		if (room && room !== previous.room) sfxPlayer.play("room_reveal");
+		if (enemies && enemies !== previous.enemies && (view.status === "COMBAT_START" || view.status === "HERO_ACTION" || view.status === "BOSS_COMBAT")) sfxPlayer.play("enemy_reveal");
+		if (rewards !== previous.rewards && view.status === "REWARD_PHASE") sfxPlayer.play("reward_gain");
+		lastSfxState.current = { room, enemies, rewards };
+	}, [view]);
+	useEffect(() => {
+		const previous = lastCombatSound.current;
+		const currentRoll = view.combat?.lastRoll ?? null;
+		const damageId = view.damageFeedback.at(-1)?.id ?? 0;
+		if (previous.roll && !currentRoll && damageId === previous.damageId && previous.roll.heroTotal !== previous.roll.enemyTotal) {
+			sfxPlayer.play("attack_defend");
+		}
+		lastCombatSound.current = { roll: currentRoll, damageId };
+	}, [view.combat?.lastRoll, view.damageFeedback]);
 
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
@@ -103,10 +142,7 @@ function App() {
 			return;
 		preparedCheckpoints.current.add(tutorial.id);
 		reset();
-		for (const action of prepareCombatCheckpoint(
-			tutorial.firstAttack.heroCardId,
-		))
-			dispatch(action);
+		for (const action of prepareCombatCheckpoint(tutorial.firstAttack.heroCardId)) dispatch(action);
 		setTutorial((current) =>
 			current ? markCombatCheckpointReady(current) : current,
 		);
@@ -314,6 +350,7 @@ function App() {
 	return (
 		<>
 			{screen}
+			<CombatFeedback view={view} cardImageUrls={cardImageUrls} />
 			{uiScreen === "tutorialHub" && (
 				<TutorialHub
 					onStart={startModule}
@@ -332,8 +369,9 @@ function App() {
 					nextModule={nextModule?.available ? nextModule : undefined}
 					onNext={() => nextModule && startModule(nextModule.id)}
 					onContinue={() => {
-						if (currentTutorialStep(tutorial).id === "combat-action")
-							dispatch({ type: "CHECK_COMBAT_END" });
+						if (currentTutorialStep(tutorial).id === "combat-action") {
+							if (status === "DIRECT_DAMAGE" || status === "CHECK_COMBAT_END") dispatch({ type: "CHECK_COMBAT_END" });
+						}
 						else
 							setTutorial((current) =>
 								current ? continueTutorial(current) : current,

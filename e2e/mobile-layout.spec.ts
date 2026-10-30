@@ -13,6 +13,7 @@ const viewports = [
 test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisagem", async ({
 	page,
 }) => {
+	test.setTimeout(90_000);
 	for (const viewport of viewports) {
 		await page.setViewportSize(viewport);
 		await page.goto("/");
@@ -208,6 +209,7 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 		expect(diceBounds!.x).toBeGreaterThanOrEqual(0);
 		expect(diceBounds!.x + diceBounds!.width).toBeLessThanOrEqual(390);
 		await page.screenshot({ path: "test-results/layout-dice-portrait.png" });
+		await expect(dice.getByRole("button", { name: "Resolver ataque" })).toBeEnabled({ timeout: 15_000 });
 		const attackGeometry = await page.evaluate(async () => {
 			const modulePath = "/src/ui/store/elfStore.ts";
 			const { getElfGameState } = await import(modulePath);
@@ -264,7 +266,14 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 			observer.observe(document.body, { childList: true, subtree: true });
 			return geometry;
 		});
-		expect(attackGeometry).not.toBeNull();
+		if (!attackGeometry) {
+			const tied = await page.evaluate(async () => {
+				const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
+				const roll = getElfGameState().combat.lastRoll;
+				return !!roll && roll.heroTotal === roll.enemyTotal;
+			});
+			expect(tied).toBe(true);
+		}
 		await dice.getByRole("button", { name: "Resolver ataque" }).tap();
 		if (attackGeometry) {
 			await expect

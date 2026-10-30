@@ -69,6 +69,18 @@ function scanMusic(dir) {
 scanMusic(path.resolve("sounds/music"));
 assert.deepEqual([...musicFiles].sort(), sourceMusic.sort(), "Playlist não corresponde aos arquivos originais");
 
+const sfxNames = [
+	"dice_launch", "dice_surface", "dice_collision", "dice_tumble", "dice_settle",
+	"attack_whoosh", "attack_impact", "attack_defend", "attack_draw",
+	"room_reveal", "enemy_reveal", "reward_gain", "heal_gain",
+];
+for (const name of sfxNames) {
+	const built = fs.readFileSync(file(`generated/sfx/${name}.wav`));
+	assert.equal(built.toString("ascii", 0, 4), "RIFF", `WAV inválido: ${name}`);
+	assert.equal(built.toString("ascii", 8, 12), "WAVE", `WAV inválido: ${name}`);
+	assert.deepEqual(built, fs.readFileSync(path.resolve(`sounds/sfx/${name}.wav`)), `Efeito divergente: ${name}`);
+}
+
 const localeManifest = JSON.parse(fs.readFileSync(file("generated/locales/manifest.json"), "utf8"));
 assert.equal(localeManifest.version, 1);
 const publishedCodes = fs.readdirSync("locales", { withFileTypes: true })

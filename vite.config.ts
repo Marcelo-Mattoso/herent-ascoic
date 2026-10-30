@@ -22,6 +22,8 @@ const uiAssetPublicDir = path.resolve(__dirname, "public/generated/ui");
 const uiAssetDir = path.join(uiAssetPublicDir, "assets");
 const uiAssetManifestPath = path.join(uiAssetPublicDir, "manifest.json");
 const musicSourceDir = path.resolve(__dirname, "sounds/music");
+const sfxSourceDir = path.resolve(__dirname, "sounds/sfx");
+const sfxPublicDir = path.resolve(__dirname, "public/generated/sfx");
 const musicPublicDir = path.resolve(__dirname, "public/generated/music");
 const musicAssetDir = path.join(musicPublicDir, "assets");
 const musicManifestPath = path.join(musicPublicDir, "manifest.json");
@@ -335,6 +337,16 @@ function writeMusicManifest() {
 	fs.writeFileSync(musicManifestPath, `${JSON.stringify({ version: 1, source: "sounds/music", tracks }, null, 2)}\n`);
 }
 
+function writeSfxAssets() {
+	fs.rmSync(sfxPublicDir, { recursive: true, force: true });
+	fs.mkdirSync(sfxPublicDir, { recursive: true });
+	if (!fs.existsSync(sfxSourceDir)) return;
+	for (const file of fs.readdirSync(sfxSourceDir)) {
+		if (!file.endsWith(".wav")) continue;
+		fs.copyFileSync(path.join(sfxSourceDir, file), path.join(sfxPublicDir, file));
+	}
+}
+
 function writeLocaleAssets() {
 	fs.rmSync(localePublicDir, { recursive: true, force: true });
 	fs.mkdirSync(localePublicDir, { recursive: true });
@@ -368,6 +380,7 @@ function writeAssetManifests() {
 	writeCardImageManifest();
 	writeUiAssetManifest();
 	writeMusicManifest();
+	writeSfxAssets();
 	writeLocaleAssets();
 }
 
@@ -377,11 +390,16 @@ function watchAssetSources(server: ViteDevServer) {
 	if (fs.existsSync(cardSourceDir)) server.watcher.add(cardSourceDir);
 	if (fs.existsSync(uiAssetSourceDir)) server.watcher.add(uiAssetSourceDir);
 	if (fs.existsSync(musicSourceDir)) server.watcher.add(musicSourceDir);
+	if (fs.existsSync(sfxSourceDir)) server.watcher.add(sfxSourceDir);
 	if (fs.existsSync(localeSourceDir)) server.watcher.add(localeSourceDir);
 	server.watcher.on("all", (_event, filePath) => {
 		const resolvedFilePath = path.resolve(filePath);
 		if (resolvedFilePath.startsWith(musicSourceDir)) {
 			writeMusicManifest();
+			return;
+		}
+		if (resolvedFilePath.startsWith(sfxSourceDir)) {
+			writeSfxAssets();
 			return;
 		}
 		if (resolvedFilePath.startsWith(localeSourceDir)) {

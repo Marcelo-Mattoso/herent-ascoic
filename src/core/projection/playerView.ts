@@ -93,6 +93,8 @@ export interface PlayerView {
 		readonly heroesActed: readonly string[];
 		readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
 		readonly lastRoll: CombatRollResult | null;
+		readonly pendingPhysicalRoll: CombatState["pendingPhysicalRoll"];
+		readonly extraEnemiesRemaining: CombatState["extraEnemiesRemaining"];
 		readonly pendingDiceSelection: CombatState["pendingDiceSelection"];
 		readonly buffsByHero: Readonly<Record<string, readonly InfluenceView[]>>;
 	} | null;
@@ -107,6 +109,9 @@ export interface PlayerView {
 	readonly paths: readonly string[];
 	readonly pendingRewards: readonly PendingReward[];
 	readonly eventLog: readonly string[];
+	readonly damageFeedback: NonNullable<GameState["damageFeedback"]>;
+	readonly healFeedback: NonNullable<GameState["healFeedback"]>;
+	readonly extraAttackFeedback: NonNullable<GameState["extraAttackFeedback"]>;
 	// Efeitos que afetam o grupo todo (recursos compartilhados: deck, fuga, sala).
 	// Vivem aqui — não duplicados nas BuffBars dos heróis.
 	readonly groupBuffs: readonly InfluenceView[];
@@ -188,6 +193,8 @@ export function playerView(state: GameState): PlayerView {
 					heroesActed: state.combat.heroesActed,
 					powersUsedThisRoom: state.combat.powersUsedThisRoom,
 					lastRoll: state.combat.lastRoll,
+					pendingPhysicalRoll: state.combat.pendingPhysicalRoll,
+					extraEnemiesRemaining: state.combat.extraEnemiesRemaining,
 					pendingDiceSelection: state.combat.pendingDiceSelection,
 					buffsByHero,
 				}
@@ -203,6 +210,9 @@ export function playerView(state: GameState): PlayerView {
 		paths: state.paths,
 		pendingRewards: state.pendingRewards,
 		eventLog: state.eventLog,
+		damageFeedback: state.damageFeedback ?? [],
+		healFeedback: state.healFeedback ?? [],
+		extraAttackFeedback: state.extraAttackFeedback ?? [],
 		groupBuffs,
 		decks: {
 			dungeonDeck: {

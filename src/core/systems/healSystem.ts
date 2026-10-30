@@ -21,6 +21,14 @@ function replaceHero(state: GameState, updated: HeroState): GameState {
 	};
 }
 
+function recordHeal(state: GameState, targetId: EntityId, amount: number): GameState {
+	if (amount <= 0) return state;
+	const previous = state.healFeedback ?? [];
+	return { ...state, healFeedback: [...previous.slice(-63), {
+		id: (previous.at(-1)?.id ?? 0) + 1, targetId, amount,
+	}] };
+}
+
 export function applyHeal(
 	state: GameState,
 	targetId: EntityId,
@@ -49,7 +57,7 @@ export function applyHeal(
 		payload: { targetId, amount: newLife - hero.currentLife },
 	});
 
-	return s3;
+	return recordHeal(s3, targetId, newLife - hero.currentLife);
 }
 
 export function applyFullHeal(state: GameState, targetId: EntityId): GameState {
@@ -65,7 +73,7 @@ export function applyFullHeal(state: GameState, targetId: EntityId): GameState {
 		type: "HealApplied",
 		payload: { targetId, amount: hero.maxLife - hero.currentLife },
 	});
-	return s2;
+	return recordHeal(s2, targetId, hero.maxLife - hero.currentLife);
 }
 
 export function applySurvive(state: GameState, targetId: EntityId): GameState {

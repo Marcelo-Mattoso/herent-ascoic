@@ -3,6 +3,7 @@
 
 import { describe, expect, it } from "vitest";
 import { getHeroes } from "../data/cards";
+import { createEmptyCombatState } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
@@ -1113,6 +1114,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
 
 		expect(totalLifeAfter).toBe(totalLifeBefore);
+		expect(s.extraAttackFeedback).toBeUndefined();
 	});
 
 	it("inimigo excedente rola combate e só causa dano se vencer", () => {
@@ -1175,6 +1177,40 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		expect(s.eventLog.some((entry) => entry.includes("Ataque extra"))).toBe(
 			true,
 		);
+		expect(s.extraAttackFeedback?.at(-1)).toMatchObject({
+			enemyId: "e2",
+			enemyCardId: "test_extra_enemy_wins",
+		});
+		expect(s.damageFeedback?.at(-1)?.extraAttackId).toBe(
+			s.extraAttackFeedback?.at(-1)?.id,
+		);
+	});
+
+	it("inimigo excedente que erra ainda registra a investida visual", () => {
+		const base = stateWithTwoHeroesOneEnemy();
+		const hero = { ...base.heroes[0]!, hitBonus: 1000 };
+		const enemy = {
+			...base.activeEnemies[0]!,
+			id: "e2",
+			cardId: "test_extra_enemy_misses",
+			hitBonus: -1000,
+		};
+		const state: GameState = {
+			...base,
+			status: "DIRECT_DAMAGE",
+			heroes: [hero, { ...base.heroes[1]!, status: "defeated" }],
+			activeEnemies: [base.activeEnemies[0]!, enemy],
+			combat: {
+				...createEmptyCombatState(),
+				pairs: [{ heroId: hero.id, enemyId: "e1" }],
+			},
+		};
+		const result = reducer(state, { type: "DIRECT_DAMAGE" });
+		expect(result.extraAttackFeedback?.at(-1)).toMatchObject({
+			enemyId: "e2",
+			heroId: hero.id,
+		});
+		expect(result.damageFeedback).toBeUndefined();
 	});
 });
 
