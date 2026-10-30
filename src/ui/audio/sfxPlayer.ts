@@ -1,3 +1,4 @@
+import { AUDIO_CONFIG } from "@/config/audio";
 import { publicAssetUrl } from "@/ui/publicAssetUrl";
 
 export const SFX_NAMES = [
@@ -34,8 +35,10 @@ export class SfxPlayer {
 	private active = new Map<HTMLAudioElement, number>();
 	private lastPlayed = new Map<SfxName, number>();
 	private audioFactory: (url: string) => HTMLAudioElement;
+	private readonly enabled: boolean;
 
-	constructor(audioFactory: (url: string) => HTMLAudioElement = (url) => new Audio(url)) {
+	constructor(audioFactory: (url: string) => HTMLAudioElement = (url) => new Audio(url), enabled: boolean = AUDIO_CONFIG.sfx.enabled) {
+		this.enabled = enabled;
 		const savedVolume = Number(stored(VOLUME_KEY));
 		this.snapshot = {
 			volume: stored(VOLUME_KEY) !== null && Number.isFinite(savedVolume)
@@ -71,7 +74,9 @@ export class SfxPlayer {
 		this.notify();
 	}
 	play(name: SfxName, intensity = 1) {
-		if (this.snapshot.muted || this.snapshot.volume <= 0) return;
+		// A configuração de publicação prevalece sobre mute/volume salvos no navegador.
+		// Não cria elementos Audio enquanto os efeitos estiverem desabilitados.
+		if (!this.enabled || this.snapshot.muted || this.snapshot.volume <= 0) return;
 		const now = performance.now();
 		if (now - (this.lastPlayed.get(name) ?? -Infinity) < (MIN_INTERVAL_MS[name] ?? 0)) return;
 		if (this.active.size >= MAX_SIMULTANEOUS) return;
