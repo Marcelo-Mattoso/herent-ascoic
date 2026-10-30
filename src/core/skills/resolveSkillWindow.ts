@@ -23,6 +23,7 @@ import {
 export type SkillWindowResume =
 	| { readonly type: "none" }
 	| { readonly type: "roll_dice" }
+	| { readonly type: "prepare_physical_roll" }
 	| { readonly type: "resolve_attack" }
 	| { readonly type: "continue_rewards_after_room_win" }
 	| { readonly type: "finish_rewards" }

@@ -43,6 +43,19 @@ export type Action =
 	| { type: "CANCEL_HERO_SELECTION" }
 	| { type: "CHOOSE_TARGET"; payload: { heroId: string; enemyId: string } }
 	| { type: "ROLL_DICE" }
+	| { type: "PREPARE_PHYSICAL_ROLL" }
+	| { type: "PREPARE_EXTRA_ATTACK" }
+	| {
+			type: "CONFIRM_DICE_ROLL";
+			payload: {
+				rollId: string;
+				heroId: string;
+				enemyId: string;
+				heroResults: readonly number[];
+				enemyResults: readonly number[];
+				source: "physics" | "fallback";
+			};
+	  }
 	| { type: "RESOLVE_ATTACK" }
 	| {
 			type: "APPLY_DAMAGE";
