@@ -3108,6 +3108,65 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	justify-self: start;
 }
 
+.game-board-content--shaking {
+	animation: game-board-impact-shake 300ms ease-out;
+}
+
+@keyframes game-board-impact-shake {
+	0%, 100% { transform: translate3d(0, 0, 0); }
+	20% { transform: translate3d(-5px, 2px, 0); }
+	42% { transform: translate3d(4px, -2px, 0); }
+	65% { transform: translate3d(-3px, 1px, 0); }
+	82% { transform: translate3d(2px, 0, 0); }
+}
+
+.game-damage-layer {
+	position: fixed;
+	inset: 0;
+	z-index: 101;
+	pointer-events: none;
+	overflow: hidden;
+}
+
+.game-damage-number {
+	position: absolute;
+	font-size: clamp(21px, 3vw, 32px);
+	font-weight: 1000;
+	line-height: 1;
+	white-space: nowrap;
+	color: #72f29a;
+	-webkit-text-stroke: 1px #0a4225;
+	text-shadow: 0 2px 2px #092619, 0 0 12px #28c66c;
+	animation: game-damage-rise 900ms ease-out both;
+}
+
+.game-damage-number--hero {
+	color: #ff7777;
+	-webkit-text-stroke-color: #641b1b;
+	text-shadow: 0 2px 2px #310c0c, 0 0 12px #f04444;
+}
+
+.game-damage-number--heavy {
+	font-size: clamp(29px, 4vw, 42px);
+	filter: drop-shadow(0 0 8px currentColor);
+}
+
+@keyframes game-damage-rise {
+	0% { opacity: 0; transform: translate(-50%, 10px) scale(0.85); }
+	18% { opacity: 1; transform: translate(-50%, -7px) scale(1.12); }
+	100% { opacity: 0; transform: translate(-50%, -62px) scale(1.24); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.game-board-content--shaking { animation: none; }
+	.game-damage-number { animation: game-damage-fade 900ms linear both; }
+}
+
+@keyframes game-damage-fade {
+	0%, 65% { opacity: 1; }
+	100% { opacity: 0; }
+}
+
 /* Primitivo reutilizável: a carta vencedora avança, colide e retorna ao lugar. */
 .card-attack-animation {
 	position: fixed;
@@ -3342,7 +3401,7 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	z-index: 60;
 	display: grid;
 	place-items: center;
-	padding: 24px;
+	padding: max(8px, env(safe-area-inset-top)) max(8px, env(safe-area-inset-right)) max(8px, env(safe-area-inset-bottom)) max(8px, env(safe-area-inset-left));
 	background: rgba(44, 44, 42, 0.48);
 	backdrop-filter: blur(3px);
 	overflow: hidden;
@@ -3354,8 +3413,9 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	flex-direction: column;
 	align-items: center;
 	gap: 16px;
-	width: min(560px, calc(100vw - 48px));
-	padding: 22px 24px 18px;
+	width: min(700px, 100%);
+	max-height: 100%;
+	padding: clamp(8px, 2vh, 18px);
 	border: 1px solid rgba(255, 255, 255, 0.28);
 	border-radius: 12px;
 	background: rgba(78, 77, 73, 0.94);
@@ -3369,9 +3429,9 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	display: grid;
 	grid-template-columns: minmax(0, 1fr) auto minmax(0, 1fr);
 	align-items: start;
-	gap: 20px;
+	gap: clamp(6px, 2vw, 16px);
 	width: 100%;
-	padding: 16px;
+	padding: clamp(6px, 1.5vw, 14px);
 	border: 1px solid rgba(255, 255, 255, 0.14);
 	border-radius: 10px;
 	background:
@@ -3390,9 +3450,7 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	}
 
 	.game-dice-roll-modal {
-		width: min(100%, 560px);
-		max-height: 100%;
-		overflow: auto;
+		width: 100%;
 		gap: 10px;
 		padding: 12px;
 	}
@@ -3407,7 +3465,8 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	display: flex;
 	flex-direction: column;
 	align-items: center;
-	gap: 10px;
+	gap: 7px;
+	width: 100%;
 	min-width: 0;
 	filter: drop-shadow(0 12px 12px rgba(0, 0, 0, 0.42));
 }
@@ -3438,13 +3497,57 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	text-transform: uppercase;
 }
 
-.game-dice-roll-row {
-	display: flex;
-	align-items: center;
-	justify-content: center;
-	gap: 9px;
-	flex-wrap: wrap;
-	min-height: 72px;
+.game-dice-roll-arena {
+	position: relative;
+	width: 100%;
+	height: clamp(78px, 24dvh, 170px);
+	min-width: 0;
+	overflow: hidden;
+	border: 2px solid rgba(255, 255, 255, 0.3);
+	border-radius: 10px;
+	background: radial-gradient(ellipse at center, rgba(255,255,255,0.1), rgba(0,0,0,0.22));
+	box-shadow: inset 0 4px 12px rgba(0,0,0,0.4), 0 1px 0 rgba(255,255,255,0.15);
+}
+
+.game-dice-roll-arena--3d canvas {
+	display: block;
+	width: 100%;
+	height: 100%;
+}
+
+.game-dice-roll-modal--physical .game-dice-roll-arena {
+	height: clamp(108px, 30dvh, 230px);
+}
+
+.game-dice-roll-fallback {
+	color: #fff5d6;
+	font-size: 12px;
+	text-align: center;
+}
+
+.game-dice-roll-layer--reroll {
+	z-index: 110;
+}
+
+.game-dice-roll-reroll-arena {
+	width: min(280px, 80vw);
+	height: min(180px, 38dvh);
+}
+
+@media (max-height: 420px) and (orientation: landscape) {
+	.game-dice-roll-modal--physical {
+		gap: 5px;
+		padding: 5px;
+	}
+	.game-dice-roll-modal--physical .game-dice-roll-arena {
+		height: clamp(74px, 37dvh, 145px);
+	}
+}
+
+@media (min-width: 1100px) {
+	body:has([data-tutorial-step="combat-dice"]) .game-dice-roll-layer {
+		padding-left: min(36vw, 460px);
+	}
 }
 
 .game-dice-roll-versus {
@@ -3457,12 +3560,13 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 }
 
 .game-dice-roll-die {
+	position: absolute;
+	left: 0;
+	top: 0;
 	display: grid;
 	grid-template-columns: repeat(3, 1fr);
 	grid-template-rows: repeat(3, 1fr);
-	width: 50px;
-	aspect-ratio: 1;
-	padding: 10px;
+	padding: clamp(4px, 1vw, 10px);
 	border: 2px solid var(--die-border);
 	border-radius: 12px;
 	background:
@@ -3478,18 +3582,15 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 		0 2px 2px rgba(0, 0, 0, 0.3),
 		inset 0 1px 0 rgba(255, 255, 255, 0.76),
 		inset 0 -2px 3px rgba(0, 0, 0, 0.12);
-	opacity: 0;
 	transform-origin: center;
-	will-change: transform, opacity;
-	animation: dice-roll-tumble 2.05s cubic-bezier(0.16, 0.86, 0.22, 1) forwards;
-	animation-delay: calc(var(--dice-index) * 86ms);
+	will-change: transform;
 }
 
 .game-dice-roll-pip {
 	align-self: center;
 	justify-self: center;
-	width: 8px;
-	height: 8px;
+	width: min(8px, 100%);
+	aspect-ratio: 1;
 	border-radius: 50%;
 	background: currentColor;
 	box-shadow:
@@ -3509,9 +3610,7 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 	line-height: 1.2;
 	text-align: center;
 	box-shadow: 0 7px 12px rgba(0, 0, 0, 0.28);
-	opacity: 0;
-	transform: translateY(-4px) scale(0.88);
-	animation: dice-total-pop 0.34s ease-out 1.74s forwards;
+	animation: dice-total-pop 0.34s ease-out both;
 }
 
 .game-dice-roll-action {
@@ -4601,9 +4700,7 @@ body:has(.journal-layer, .modal-layer, .flow-modal-overlay, .inventory-hero-moda
 
 @media (prefers-reduced-motion: reduce) {
 	.die-eligible,
-	.click-attention,
-	.game-dice-roll-die,
-	.game-dice-roll-total {
+	.click-attention {
 		animation: none;
 		opacity: 1;
 		transform: none;
@@ -4812,6 +4909,7 @@ body:has(.tutorial-layer--abilities) .modal-layer { z-index: 75; }
 body:has(.tutorial-layer--abilities):has(.modal-layer) .tutorial-mask { pointer-events: none; }
 body:has(.tutorial-layer--abilities):has(.modal-layer) .tutorial-panel { pointer-events: none; }
 body:has(.tutorial-layer--abilities):has(.game-dice-roll-layer) .tutorial-mask { pointer-events: none; }
+body:has(.tutorial-layer--abilities) .game-dice-roll-layer { z-index: 75; }
 .tutorial-mask { position: absolute; background: rgba(25, 25, 25, .55); pointer-events: auto; }
 .tutorial-spotlight { position: absolute; border: 2px solid #f1d184; border-radius: 9px; box-shadow: 0 0 0 3px rgba(241, 209, 132, .25), 0 0 20px #d4a968; pointer-events: none; }
 .tutorial-spotlight-shield { position: absolute; pointer-events: auto; }

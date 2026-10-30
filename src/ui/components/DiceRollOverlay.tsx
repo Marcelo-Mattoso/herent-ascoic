@@ -1,189 +1,98 @@
 import { translate } from "@/i18n";
-import { type CSSProperties, useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { CombatRollResult } from "@/core/state/combatState";
+import type { CombatRollResult, PendingPhysicalRoll } from "@/core/state/combatState";
+import { DiceRollOverlay as LegacyDiceRollOverlay } from "./LegacyDiceRollOverlay";
 
-interface DiceRollOverlayProps {
-	roll: CombatRollResult;
+type Confirm = (payload: {
+	rollId: string; heroId: string; enemyId: string;
+	heroResults: number[]; enemyResults: number[];
+	source: "physics" | "fallback";
+}) => void;
+
+interface Props {
+	roll: CombatRollResult | null;
+	pending?: PendingPhysicalRoll;
+	onConfirm?: Confirm;
 	onResolveAttack: () => void;
 }
 
-type DiceSide = "hero" | "enemy";
-const ROLLING_DURATION_MS = 1850;
-const ROLLING_TICK_MS = 92;
+export function DiceRollOverlay({ roll, pending, onConfirm, onResolveAttack }: Props) {
+	if (pending || roll?.physicalRollId) {
+		return <PhysicalDiceRollOverlay roll={roll} pending={pending} onConfirm={onConfirm} onResolveAttack={onResolveAttack} />;
+	}
+	return roll ? <LegacyDiceRollOverlay roll={roll} onResolveAttack={onResolveAttack} /> : null;
+}
 
-const PIP_POSITIONS: Record<number, readonly [number, number][]> = {
-	1: [[2, 2]],
-	2: [
-		[1, 1],
-		[3, 3],
-	],
-	3: [
-		[1, 1],
-		[2, 2],
-		[3, 3],
-	],
-	4: [
-		[1, 1],
-		[3, 1],
-		[1, 3],
-		[3, 3],
-	],
-	5: [
-		[1, 1],
-		[3, 1],
-		[2, 2],
-		[1, 3],
-		[3, 3],
-	],
-	6: [
-		[1, 1],
-		[3, 1],
-		[1, 2],
-		[3, 2],
-		[1, 3],
-		[3, 3],
-	],
-};
-
-export function DiceRollOverlay({
-	roll,
-	onResolveAttack,
-}: DiceRollOverlayProps) {
-	const [canResolve, setCanResolve] = useState(false);
-	const [tick, setTick] = useState(0);
-
+function PhysicalDiceRollOverlay({ roll, pending, onConfirm, onResolveAttack }: Props) {
+	const initialPending = useRef(pending);
+	const confirmRef = useRef(onConfirm);
+	confirmRef.current = onConfirm;
+	const heroArena = useRef<HTMLDivElement>(null);
+	const enemyArena = useRef<HTMLDivElement>(null);
+	const [complete, setComplete] = useState(!!roll);
+	const [fallback, setFallback] = useState(false);
 	useEffect(() => {
-		const interval = window.setInterval(() => {
-			setTick((current) => current + 1);
-		}, ROLLING_TICK_MS);
-		const timer = window.setTimeout(() => {
-			window.clearInterval(interval);
-			setCanResolve(true);
-		}, ROLLING_DURATION_MS);
-
-		return () => {
-			window.clearInterval(interval);
-			window.clearTimeout(timer);
+		const request = initialPending.current;
+		if (!request || !confirmRef.current) return;
+		let disposed = false;
+		let completed = false;
+		const cleanups: (() => void)[] = [];
+		const results: { hero?: number[] | null; enemy?: number[] | null } = {};
+		const confirm = (source: "physics" | "fallback") => {
+			if (disposed || completed) return;
+			completed = true;
+			if (source === "fallback") setFallback(true);
+			setComplete(true);
+			confirmRef.current?.({
+				rollId: request.id, heroId: request.heroId, enemyId: request.enemyId,
+				heroResults: source === "physics" ? results.hero! : [...request.fallbackHeroResults],
+				enemyResults: source === "physics" ? results.enemy! : [...request.fallbackEnemyResults],
+				source,
+			});
 		};
+		if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+			confirm("fallback");
+			return () => { disposed = true; };
+		}
+		import("@/ui/dice/physicalRoll").then(async (module) => {
+			if (disposed || !heroArena.current || !enemyArena.current) return;
+			const start = async (side: "hero" | "enemy", count: number, element: HTMLElement) => {
+				const stop = await module.startPhysicalArena({ side, count, element }, (value) => {
+					results[side] = value;
+					if ("hero" in results && "enemy" in results) {
+						confirm(results.hero && results.enemy ? "physics" : "fallback");
+					}
+				});
+				if (disposed) stop(); else cleanups.push(stop);
+			};
+			await Promise.all([
+				start("hero", request.heroDiceCount, heroArena.current),
+				start("enemy", request.enemyDiceCount, enemyArena.current),
+			]);
+		}).catch(() => confirm("fallback"));
+		return () => { disposed = true; cleanups.forEach((cleanup) => { cleanup(); }); };
 	}, []);
-
-	return createPortal(
-		<div className="game-dice-roll-layer">
-			<div
-				className="game-dice-roll-modal"
-				data-tutorial-anchor="combat.dice"
-				role="dialog"
-				aria-label={translate("game:components.diceRollOverlay.ariaLabel001")}
-			>
-				<div className="game-dice-roll-modal__body">
-					<DiceCluster
-						side="enemy"
-						label="Monstro"
-						results={roll.enemyResults}
-						total={roll.enemyTotal}
-						tick={tick}
-						isRolling={!canResolve}
-					/>
-					<div className="game-dice-roll-versus">{translate("game:components.diceRollOverlay.text002")}</div>
-					<DiceCluster
-						side="hero"
-						label="Herói"
-						results={roll.heroResults}
-						total={roll.heroTotal}
-						tick={tick}
-						isRolling={!canResolve}
-					/>
+	const shownRoll = roll;
+	return createPortal(<div className="game-dice-roll-layer">
+		<div className="game-dice-roll-modal game-dice-roll-modal--physical" data-tutorial-anchor="combat.dice" role="dialog" aria-label={translate("game:components.diceRollOverlay.ariaLabel001")}>
+			<div className="game-dice-roll-modal__body">
+				<div className="game-dice-roll-cluster game-dice-roll-cluster--enemy">
+					<div className="game-dice-roll-label">{translate("game:components.diceRollOverlay.enemyLabel")}</div>
+					<div className="game-dice-roll-arena game-dice-roll-arena--3d" ref={enemyArena} data-testid="enemy-arena" />
+					{complete && shownRoll && <div className="game-dice-roll-total" data-testid="enemy-total">{shownRoll.enemyTotal}</div>}
 				</div>
-				<button
-					type="button"
-					className="game-dice-roll-action"
-					onClick={onResolveAttack}
-					disabled={!canResolve}
-					aria-label={translate("game:components.diceRollOverlay.ariaLabel003")}
-				>
-					{canResolve ? translate("game:components.diceRollOverlay.dynamic001") : "Rolando..."}
-				</button>
+				<div className="game-dice-roll-versus">{translate("game:components.diceRollOverlay.text002")}</div>
+				<div className="game-dice-roll-cluster game-dice-roll-cluster--hero">
+					<div className="game-dice-roll-label">{translate("game:components.diceRollOverlay.heroLabel")}</div>
+					<div className="game-dice-roll-arena game-dice-roll-arena--3d" ref={heroArena} data-testid="hero-arena" />
+					{complete && shownRoll && <div className="game-dice-roll-total" data-testid="hero-total">{shownRoll.heroTotal}</div>}
+				</div>
 			</div>
-		</div>,
-		document.body,
-	);
-}
-
-function DiceCluster({
-	side,
-	label,
-	results,
-	total,
-	tick,
-	isRolling,
-}: {
-	side: DiceSide;
-	label: string;
-	results: readonly number[];
-	total: number;
-	tick: number;
-	isRolling: boolean;
-}) {
-	const visibleResults = isRolling
-		? results.map((value, index) => getRollingValue(value, index, tick, side))
-		: results;
-
-	return (
-		<div className={`game-dice-roll-cluster game-dice-roll-cluster--${side}`}>
-			<div className="game-dice-roll-label">{label}</div>
-			<div className="game-dice-roll-row">
-				{visibleResults.map((value, index) => (
-					<DiceFace
-						key={`${side}-roll-die-${index}`}
-						value={value}
-						index={index}
-						side={side}
-					/>
-				))}
-			</div>
-			<div className="game-dice-roll-total">{total}</div>
+			{fallback && <div className="game-dice-roll-fallback">{translate("game:components.diceRollOverlay.fallback")}</div>}
+			<button type="button" className="game-dice-roll-action" onClick={onResolveAttack} disabled={!complete || !shownRoll} aria-label={translate("game:components.diceRollOverlay.ariaLabel003")}>
+				{complete && shownRoll ? translate("game:components.diceRollOverlay.dynamic001") : translate("game:components.diceRollOverlay.rolling")}
+			</button>
 		</div>
-	);
-}
-
-function getRollingValue(
-	finalValue: number,
-	index: number,
-	tick: number,
-	side: DiceSide,
-) {
-	const sideOffset = side === "hero" ? 2 : 5;
-	return ((finalValue + tick + index * sideOffset) % 6) + 1;
-}
-
-function DiceFace({
-	value,
-	index,
-	side,
-}: {
-	value: number;
-	index: number;
-	side: DiceSide;
-}) {
-	const pips = PIP_POSITIONS[value] ?? PIP_POSITIONS[6];
-	const style = {
-		"--dice-index": index,
-		"--dice-spin": side === "hero" ? "1" : "-1",
-	} as CSSProperties;
-
-	return (
-		<div className="game-dice-roll-die" style={style}>
-			{pips.map(([column, row], pipIndex) => (
-				<span
-					key={`pip-${pipIndex}`}
-					className="game-dice-roll-pip"
-					style={{
-						gridColumn: column,
-						gridRow: row,
-					}}
-				/>
-			))}
-		</div>
-	);
+	</div>, document.body);
 }

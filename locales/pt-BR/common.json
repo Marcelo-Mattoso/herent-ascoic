@@ -26,7 +26,11 @@
       "musicLoading": "Carregando música…",
       "musicPlayError": "Não foi possível reproduzir esta faixa. Tente novamente.",
       "musicFileError": "Arquivo de música indisponível ou incompatível.",
-      "musicError": "Não foi possível carregar a música."
+      "musicError": "Não foi possível carregar a música.",
+      "sfxTitle": "Efeitos sonoros",
+      "sfxVolume": "Volume dos efeitos",
+      "sfxMute": "Silenciar efeitos",
+      "sfxUnmute": "Reativar efeitos"
     }
   },
   "screens": {

@@ -5,6 +5,7 @@ import { changeLocale, i18n, translate } from "@/i18n";
 import { publishedLocales } from "@/i18n/registry";
 import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { isMusicManifest, MUSIC_MANIFEST_URL, MusicPlayer } from "./musicPlayer";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 
 const MANUAL_URL = publicAssetUrl("rules/ascensao-heroica-manual.pdf");
 const MUSIC_MESSAGES: Record<string, string> = {
@@ -18,6 +19,7 @@ export function GlobalMenu() {
 	useTranslation();
 	const [player] = useState(() => new MusicPlayer(document.createElement("audio")));
 	const music = useSyncExternalStore(player.subscribe, player.getSnapshot);
+	const sfx = useSyncExternalStore(sfxPlayer.subscribe, sfxPlayer.getSnapshot);
 	const [open, setOpen] = useState(false);
 	const [catalogError, setCatalogError] = useState("");
 	const [localeLoading, setLocaleLoading] = useState(false);
@@ -125,6 +127,15 @@ export function GlobalMenu() {
 						<input id="global-music-volume" type="range" min="0" max="100" value={music.volume} onChange={(event) => player.setVolume(Number(event.target.value))} />
 					</label>
 					<p className="global-menu__status" role="status">{catalogError ? translate(catalogError) : music.message ? translate(MUSIC_MESSAGES[music.message] ?? "common:globalMenu.globalMenu.musicError") : music.status === "playing" ? translate("common:globalMenu.globalMenu.playing") : music.status === "blocked" ? translate("common:globalMenu.globalMenu.autoplayBlocked") : music.status === "stopped" ? translate("common:globalMenu.globalMenu.stopped") : ""}</p>
+				</div>
+				<div className="global-menu__section">
+					<h2>{translate("common:globalMenu.globalMenu.sfxTitle")}</h2>
+					<label className="global-menu__field" htmlFor="global-sfx-volume">{translate("common:globalMenu.globalMenu.sfxVolume")} {sfx.volume}%
+						<input id="global-sfx-volume" type="range" min="0" max="100" value={sfx.volume} onChange={(event) => sfxPlayer.setVolume(Number(event.target.value))} />
+					</label>
+					<button type="button" onClick={() => sfxPlayer.setMuted(!sfx.muted)}>
+						{translate(sfx.muted ? "common:globalMenu.globalMenu.sfxUnmute" : "common:globalMenu.globalMenu.sfxMute")}
+					</button>
 				</div>
 				<div className="global-menu__section">
 					<h2>{translate("common:globalMenu.globalMenu.text011")}</h2>

@@ -51,12 +51,14 @@ describe("applyHeal", () => {
 		const state = makeState({ currentLife: 5 });
 		const result = applyHeal(state, "h1", 3);
 		expect(result.heroes[0]!.currentLife).toBe(8);
+		expect(result.healFeedback?.at(-1)).toMatchObject({ targetId: "h1", amount: 3 });
 	});
 
 	it("não ultrapassa maxLife", () => {
 		const state = makeState({ currentLife: 9, maxLife: 10 });
 		const result = applyHeal(state, "h1", 5);
 		expect(result.heroes[0]!.currentLife).toBe(10);
+		expect(result.healFeedback?.at(-1)?.amount).toBe(1);
 	});
 
 	it("retorna estado inalterado se healBlocked", () => {

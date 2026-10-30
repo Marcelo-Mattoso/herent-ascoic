@@ -21,6 +21,9 @@ import {
 	handlePassHeroAction,
 	handleResolveAttack,
 	handleRollDice,
+	handlePreparePhysicalRoll,
+	handlePrepareExtraAttack,
+	handleConfirmPhysicalRoll,
 	handleSelectDie,
 	handleStartCombat,
 	handleUseItem,
@@ -100,7 +103,9 @@ function resumeAfterTriggerDecision(
 ): GameState {
 	if (state.pendingTriggerInterrupt) return state;
 	if (pendingWindow === "before_attack_roll" && state.status === "ROLL_DICE") {
-		return handleRollDice(state);
+		return state.combat?.physicalRollPreparing
+			? handlePreparePhysicalRoll(state, true)
+			: handleRollDice(state);
 	}
 	return state;
 }
@@ -145,6 +150,8 @@ function resumeAfterSkillWindow(
 	const result: GameState = (() => { switch (window.resume.type) {
 		case "roll_dice":
 			return handleRollDice(afterStack);
+		case "prepare_physical_roll":
+			return handlePreparePhysicalRoll(afterStack, true);
 		case "resolve_attack":
 			return handleResolveAttack(afterStack);
 		case "continue_rewards_after_room_win":
@@ -257,6 +264,13 @@ function dispatch(state: GameState, action: Action): GameState {
 			}
 			return handleRollDice(state);
 		}
+
+		case "PREPARE_PHYSICAL_ROLL":
+			return handlePreparePhysicalRoll(state);
+		case "PREPARE_EXTRA_ATTACK":
+			return handlePrepareExtraAttack(state);
+		case "CONFIRM_DICE_ROLL":
+			return handleConfirmPhysicalRoll(state, action.payload);
 
 		case "RESOLVE_ATTACK":
 			if (
