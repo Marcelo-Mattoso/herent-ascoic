@@ -1,3 +1,4 @@
+import { AUDIO_CONFIG } from "@/config/audio";
 import { publicAssetUrl } from "@/ui/publicAssetUrl";
 
 export interface MusicTrack {
@@ -133,6 +134,7 @@ export class MusicPlayer {
 	}
 
 	async play() {
+		if (!AUDIO_CONFIG.music.enabled) return;
 		if (this.wantsPlayback && (this.snapshot.status === "loading" || this.snapshot.status === "playing")) return;
 		if (!this.snapshot.selectedId) {
 			this.update({ status: "error", message: "Nenhuma faixa disponível." });
