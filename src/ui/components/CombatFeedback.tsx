@@ -3,6 +3,7 @@ import type { PlayerView } from "@/core/projection/playerView";
 import { displayCardName } from "@/i18n/catalogs";
 import { getCardImageUrl, type CardImageUrls } from "@/ui/cardImages";
 import { CardAttackAnimation } from "./CardAttackAnimation";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 
 type DamageEvent = PlayerView["damageFeedback"][number];
 type ExtraAttack = PlayerView["extraAttackFeedback"][number];
@@ -22,6 +23,8 @@ function targetRect(id: string): DOMRect | undefined {
 }
 
 function showDamage(event: DamageEvent) {
+	if (event.amount <= 0) return;
+	sfxPlayer.play("attack_impact");
 	const rect = targetRect(event.targetId);
 	if (!rect) return;
 	const layer = document.createElement("div");
@@ -45,16 +48,37 @@ function showDamage(event: DamageEvent) {
 	}
 }
 
+function showHeal(event: PlayerView["healFeedback"][number]) {
+	if (event.amount <= 0) return;
+	const rect = targetRect(event.targetId);
+	if (!rect) return;
+	sfxPlayer.play("heal_gain");
+	const layer = document.createElement("div");
+	layer.className = "game-damage-layer";
+	layer.setAttribute("aria-hidden", "true");
+	const number = document.createElement("span");
+	number.className = "game-damage-number game-damage-number--heal";
+	number.textContent = `+${event.amount}`;
+	number.style.left = `${rect.left + rect.width / 2}px`;
+	number.style.top = `${rect.top + rect.height * 0.36}px`;
+	layer.appendChild(number);
+	document.body.appendChild(layer);
+	window.setTimeout(() => layer.remove(), 900);
+}
+
 export function CombatFeedback({ view, cardImageUrls }: { view: PlayerView; cardImageUrls?: CardImageUrls }) {
 	const lastDamageId = useRef(view.damageFeedback.at(-1)?.id ?? 0);
+	const lastHealId = useRef(view.healFeedback?.at(-1)?.id ?? 0);
 	const lastAttackId = useRef(view.extraAttackFeedback.at(-1)?.id ?? 0);
 	const pendingDamage = useRef(new Map<number, DamageEvent[]>());
 	const [attacks, setAttacks] = useState<VisualAttack[]>([]);
 
 	useLayoutEffect(() => {
 		const latestDamage = view.damageFeedback.at(-1)?.id ?? 0;
+		const latestHeal = view.healFeedback?.at(-1)?.id ?? 0;
 		const latestAttack = view.extraAttackFeedback.at(-1)?.id ?? 0;
 		if (latestDamage < lastDamageId.current) lastDamageId.current = 0;
+		if (latestHeal < lastHealId.current) lastHealId.current = 0;
 		if (latestAttack < lastAttackId.current) {
 			lastAttackId.current = 0;
 			pendingDamage.current.clear();
@@ -67,6 +91,9 @@ export function CombatFeedback({ view, cardImageUrls }: { view: PlayerView; card
 				const existing = pendingDamage.current.get(event.extraAttackId) ?? [];
 				pendingDamage.current.set(event.extraAttackId, [...existing, event]);
 			}
+		}
+		for (const event of view.healFeedback ?? []) {
+			if (event.id > lastHealId.current) showHeal(event);
 		}
 		const newAttacks: VisualAttack[] = [];
 		for (const attack of view.extraAttackFeedback) {
@@ -82,8 +109,9 @@ export function CombatFeedback({ view, cardImageUrls }: { view: PlayerView; card
 		}
 		if (newAttacks.length) setAttacks((current) => [...current, ...newAttacks]);
 		lastDamageId.current = latestDamage;
+		lastHealId.current = latestHeal;
 		lastAttackId.current = latestAttack;
-	}, [view.damageFeedback, view.extraAttackFeedback]);
+	}, [view.damageFeedback, view.healFeedback, view.extraAttackFeedback]);
 
 	function finishImpact(id: number) {
 		for (const damage of pendingDamage.current.get(id) ?? []) showDamage(damage);

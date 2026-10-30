@@ -193,6 +193,11 @@ export interface GameState {
 		readonly amount: number;
 		readonly extraAttackId?: number;
 	}[];
+	readonly healFeedback?: readonly {
+		readonly id: number;
+		readonly targetId: string;
+		readonly amount: number;
+	}[];
 	/** Ataques excedentes já resolvidos pela engine, para encenação posterior na UI. */
 	readonly extraAttackFeedback?: readonly {
 		readonly id: number;

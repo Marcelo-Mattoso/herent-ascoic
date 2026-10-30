@@ -325,7 +325,19 @@ export function buildBossRoll(
 
 	const { result: heroRoll, next: rng1 } = rollDiceRng(hero.dice, state.rng);
 	const { result: bossRoll, next: rng2 } = rollDiceRng(boss.dice, rng1);
+	const roll = buildBossRollFromResults(state, heroRoll.results, bossRoll.results);
+	return roll ? { roll, nextState: { ...state, rng: rng2 } } : null;
+}
 
+export function buildBossRollFromResults(
+	state: GameState,
+	heroResults: readonly number[],
+	bossResults: readonly number[],
+): CombatRollResult | null {
+	const pair = state.combat?.pairs[0];
+	const hero = state.heroes.find((h) => h.id === pair?.heroId);
+	const boss = state.activeEnemies.find((e) => e.id === "boss");
+	if (!hero || !boss) return null;
 	const heroBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: hero.hitBonus },
 		...collectWorldModifierEntries(state, hero.id, "hit_bonus"),
@@ -336,18 +348,18 @@ export function buildBossRoll(
 		...collectWorldModifierEntries(state, boss.id, "hit_bonus"),
 	];
 
-	const heroCalc = calculateTotal(heroRoll.results, heroBonuses);
-	const bossCalc = calculateTotal(bossRoll.results, bossBonuses);
+	const heroCalc = calculateTotal(heroResults, heroBonuses);
+	const bossCalc = calculateTotal(bossResults, bossBonuses);
 
 	const roll: CombatRollResult = {
 		heroId: hero.id,
 		enemyId: boss.id,
-		heroResults: heroRoll.results,
+		heroResults,
 		heroTotal: heroCalc.total,
 		heroBreakdown: heroBonuses,
-		enemyResults: bossRoll.results,
+		enemyResults: bossResults,
 		enemyTotal: bossCalc.total,
 		enemyBreakdown: bossBonuses,
 	};
-	return { roll, nextState: { ...state, rng: rng2 } };
+	return roll;
 }

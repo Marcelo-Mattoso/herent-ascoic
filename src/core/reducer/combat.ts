@@ -63,6 +63,8 @@ import { selectTargetHero } from "../strategies/targetSelection";
 import { applyDamage } from "../systems/damageSystem";
 import { applyHeal } from "../systems/healSystem";
 import { log, shuffleRng } from "./utils";
+import { buildBossRollFromResults } from "./boss";
+import type { Action } from "../actions/types";
 
 function activeHeroesPendingActivation(state: GameState): HeroState[] {
 	return state.heroes.filter(
@@ -562,6 +564,7 @@ function maybeDisableReusableItem(
 }
 
 export function handleRollDice(state: GameState): GameState {
+	if (state.combat?.pendingPhysicalRoll) return state;
 	if (!state.combat || state.combat.pairs.length === 0) return state;
 	// Rola para o par mais recente (último adicionado nesta rodada)
 	const pair = state.combat.pairs[state.combat.pairs.length - 1];
@@ -641,6 +644,187 @@ export function handleRollDice(state: GameState): GameState {
 	);
 }
 
+/** Prepara a rolagem interativa sem consumir resultados de dados. */
+export function handlePreparePhysicalRoll(state: GameState, skipPreRoll = false): GameState {
+	if (!state.combat || state.combat.pendingPhysicalRoll || state.combat.lastRoll) return state;
+	if (state.status !== "ROLL_DICE" && state.status !== "BOSS_COMBAT") return state;
+	const boss = state.status === "BOSS_COMBAT" ||
+		state.combat.pairs.some((pair) => pair.enemyId === "boss");
+	const pair = boss ? state.combat.pairs[0] : state.combat.pairs.at(-1);
+	if (!pair) return state;
+	const hero = state.heroes.find((entry) => entry.id === pair.heroId);
+	const enemy = state.activeEnemies.find((entry) => entry.id === pair.enemyId);
+	if (!hero || !enemy) return state;
+
+	let prepared = state;
+	if (!boss && !skipPreRoll) {
+		prepared = resolveSkillWindow({ ...state, combat: { ...state.combat, physicalRollPreparing: true } }, {
+			event: "evt_attack_declared",
+			resume: { type: "prepare_physical_roll" },
+			ctx: {
+				triggeredBy: "evt_attack_declared",
+				sourceHeroId: hero.id,
+				sourceEnemyId: enemy.id,
+				targetHeroIds: [hero.id],
+				targetEnemyIds: [enemy.id],
+				round: state.combat.round,
+			},
+		});
+		if (prepared.pendingTriggerInterrupt || prepared.pendingSkillChoice || prepared.pendingSkillTarget)
+			return { ...prepared, status: "ROLL_DICE" };
+		prepared = drainStack(prepared);
+	}
+	if (skipPreRoll) prepared = drainStack(prepared);
+	const heroDiceCount = hero.dice + (boss ? 0 : (prepared.combat?.extraDice[hero.id] ?? 0));
+	const enemyDiceCount = enemy.dice;
+	const { result: fallbackHero, next: rng1 } = rollDiceRng(heroDiceCount, prepared.rng);
+	const { result: fallbackEnemy } = rollDiceRng(enemyDiceCount, rng1);
+	const pending = {
+		id: `${prepared.actionLog.length}:${prepared.combat?.round ?? 0}:${hero.id}:${enemy.id}`,
+		heroId: hero.id,
+		enemyId: enemy.id,
+		heroDiceCount,
+		enemyDiceCount,
+		boss,
+		heroBonuses: boss ? [] : collectHeroBonuses(hero, prepared, enemy),
+		enemyBonuses: boss ? [] : collectEnemyBonuses(enemy, prepared),
+		fallbackHeroResults: fallbackHero.results,
+		fallbackEnemyResults: fallbackEnemy.results,
+	};
+	return {
+		...prepared,
+		status: "RESOLVE_ATTACK",
+		combat: { ...prepared.combat!, pendingPhysicalRoll: pending, physicalRollPreparing: false },
+	};
+}
+
+/** Prepara um ataque excedente por vez, mantendo a ordem original dos inimigos. */
+export function handlePrepareExtraAttack(state: GameState): GameState {
+	if (state.status !== "DIRECT_DAMAGE" || !state.combat || state.combat.pendingPhysicalRoll) return state;
+	if (state.pendingTriggerInterrupt || state.pendingSkillChoice || state.pendingSkillTarget) return state;
+	const remaining = state.combat.extraEnemiesRemaining ?? (() => {
+		const attacked = new Set(state.combat!.pairs.map((pair) => pair.enemyId));
+		const activeEnemies = state.activeEnemies.filter((enemy) => enemy.status === "active");
+		const activeHeroes = state.heroes.filter((hero) => hero.status === "active");
+		return activeEnemies.filter((enemy) => !attacked.has(enemy.id))
+			.slice(0, Math.max(0, activeEnemies.length - activeHeroes.length)).map((enemy) => enemy.id);
+	})();
+	if (remaining.length === 0) return { ...state, status: "CHECK_COMBAT_END", combat: { ...state.combat, extraEnemiesRemaining: undefined } };
+	const preparation = state.combat.pendingExtraPreparation;
+	const enemy = state.activeEnemies.find((entry) => entry.id === (preparation?.enemyId ?? remaining[0]) && entry.status === "active");
+	const target = preparation
+		? state.heroes.find((hero) => hero.id === preparation.heroId && hero.status === "active")
+		: selectTargetHero(state.heroes);
+	if (!enemy || !target) return { ...state, combat: { ...state.combat, extraEnemiesRemaining: remaining.slice(1), pendingExtraPreparation: undefined } };
+	let next = state;
+	if (!preparation) {
+		next = resolveSkillWindow(state, {
+			event: "evt_targeted",
+			ctx: { triggeredBy: "evt_targeted", sourceEnemyId: enemy.id, targetHeroIds: [target.id], round: state.combat.round },
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice || next.pendingSkillTarget)
+			return { ...next, combat: { ...next.combat!, extraEnemiesRemaining: remaining,
+				pendingExtraPreparation: { enemyId: enemy.id, heroId: target.id, stage: "targeted" } } };
+	}
+	if (preparation?.stage !== "declared" && next.combat?.targetProtectionByHero[target.id]) {
+		return log({ ...next, combat: {
+			...next.combat, extraEnemiesRemaining: remaining.slice(1), pendingExtraPreparation: undefined,
+			targetProtectionByHero: { ...next.combat.targetProtectionByHero, [target.id]: false },
+		} }, `${getCardName(target.cardId)} ignorou o efeito que o escolheria como alvo.`);
+	}
+	if (preparation?.stage !== "declared") {
+		next = resolveSkillWindow(next, {
+			event: "evt_attack_declared",
+			ctx: { triggeredBy: "evt_attack_declared", sourceEnemyId: enemy.id,
+				targetHeroIds: [target.id], targetEnemyIds: [enemy.id], round: next.combat?.round ?? 0 },
+		});
+		if (next.pendingTriggerInterrupt || next.pendingSkillChoice || next.pendingSkillTarget)
+			return { ...next, combat: { ...next.combat!, extraEnemiesRemaining: remaining,
+				pendingExtraPreparation: { enemyId: enemy.id, heroId: target.id, stage: "declared" } } };
+	}
+	next = drainStack(next);
+	const currentTarget = next.heroes.find((entry) => entry.id === target.id && entry.status === "active");
+	const currentEnemy = next.activeEnemies.find((entry) => entry.id === enemy.id && entry.status === "active");
+	if (!currentTarget || !currentEnemy) return { ...next, combat: { ...next.combat!, extraEnemiesRemaining: remaining.slice(1), pendingExtraPreparation: undefined } };
+	const { result: fallbackHero, next: rng1 } = rollDiceRng(currentTarget.dice, next.rng);
+	const { result: fallbackEnemy } = rollDiceRng(currentEnemy.dice, rng1);
+	return {
+		...next, status: "RESOLVE_ATTACK",
+		combat: { ...next.combat!, extraEnemiesRemaining: remaining.slice(1), pendingExtraPreparation: undefined, pendingPhysicalRoll: {
+			id: `${next.actionLog.length}:${next.combat?.round ?? 0}:extra:${currentEnemy.id}:${currentTarget.id}`,
+			heroId: currentTarget.id, enemyId: currentEnemy.id,
+			heroDiceCount: currentTarget.dice, enemyDiceCount: currentEnemy.dice,
+			boss: false, extraAttack: true,
+			heroBonuses: collectHeroBonuses(currentTarget, next, currentEnemy),
+			enemyBonuses: collectEnemyBonuses(currentEnemy, next),
+			fallbackHeroResults: fallbackHero.results, fallbackEnemyResults: fallbackEnemy.results,
+		} },
+	};
+}
+
+/** Aceita somente as faces confirmadas para a rolagem pendente atual. */
+export function handleConfirmPhysicalRoll(
+	state: GameState,
+	payload: Extract<Action, { type: "CONFIRM_DICE_ROLL" }>["payload"],
+): GameState {
+	const pending = state.combat?.pendingPhysicalRoll;
+	if (!pending || state.status !== "RESOLVE_ATTACK" || state.combat?.lastRoll) return state;
+	if (state.pendingTriggerInterrupt || state.pendingSkillChoice || state.pendingSkillTarget) return state;
+	if (payload.rollId !== pending.id || payload.heroId !== pending.heroId || payload.enemyId !== pending.enemyId) return state;
+	if (payload.source !== "physics" && payload.source !== "fallback") return state;
+	const valid = (values: readonly number[], count: number) =>
+		Array.isArray(values) && values.length === count && values.every((value) => Number.isInteger(value) && value >= 1 && value <= 6);
+	if (!valid(payload.heroResults, pending.heroDiceCount) || !valid(payload.enemyResults, pending.enemyDiceCount)) return state;
+	let next = state;
+	if (payload.source === "fallback") {
+		if (payload.heroResults.some((value, index) => value !== pending.fallbackHeroResults[index]) ||
+			payload.enemyResults.some((value, index) => value !== pending.fallbackEnemyResults[index])) return state;
+		const { next: rng1 } = rollDiceRng(pending.heroDiceCount, state.rng);
+		const { next: rng2 } = rollDiceRng(pending.enemyDiceCount, rng1);
+		next = { ...state, rng: rng2 };
+	}
+	let roll: CombatRollResult;
+	if (pending.boss) {
+		const bossRoll = buildBossRollFromResults(next, payload.heroResults, payload.enemyResults);
+		if (!bossRoll) return state;
+		roll = { ...bossRoll, physicalRollId: pending.id };
+	} else {
+		const heroCalc = calculateTotal(payload.heroResults, pending.heroBonuses);
+		const enemyCalc = calculateTotal(payload.enemyResults, pending.enemyBonuses);
+		roll = {
+			physicalRollId: pending.id,
+			extraAttack: pending.extraAttack,
+			heroId: pending.heroId,
+			enemyId: pending.enemyId,
+			heroResults: [...payload.heroResults],
+			heroTotal: heroCalc.total,
+			heroBreakdown: pending.heroBonuses,
+			enemyResults: [...payload.enemyResults],
+			enemyTotal: enemyCalc.total,
+			enemyBreakdown: pending.enemyBonuses,
+		};
+	}
+	next = {
+		...next,
+		combat: { ...next.combat!, pendingPhysicalRoll: undefined, lastRoll: roll },
+	};
+	if (!pending.boss) {
+		next = resolveSkillWindow(next, {
+			event: "evt_roll",
+			ctx: {
+				triggeredBy: "evt_roll",
+				...(pending.extraAttack ? { sourceEnemyId: pending.enemyId } : { sourceHeroId: pending.heroId, sourceEnemyId: pending.enemyId }),
+				targetHeroIds: [pending.heroId],
+				targetEnemyIds: [pending.enemyId],
+				value: roll.heroTotal - roll.enemyTotal,
+				round: next.combat?.round ?? 0,
+			},
+		});
+		if (next.pendingTriggerInterrupt) return next;
+	}
+	return log(next, `Herói rolou ${roll.heroTotal} | Inimigo rolou ${roll.enemyTotal}.`);
+}
+
 // ─── Helpers de log ──────────────────────────────────────────────────────────
 
 // Rótulos legíveis para as fontes de bônus
@@ -672,6 +856,7 @@ function fmtRoll(
 export function handleResolveAttack(state: GameState): GameState {
 	if (!state.combat?.lastRoll) return state;
 	const roll = state.combat.lastRoll;
+	if (roll.extraAttack) return resolveExtraPhysicalAttack(state, roll);
 
 	const hero = state.heroes.find((h) => h.id === roll.heroId);
 	const enemy = state.activeEnemies.find((e) => e.id === roll.enemyId);
@@ -824,6 +1009,33 @@ export function handleResolveAttack(state: GameState): GameState {
 			return attachAttackResume(next, attackResume);
 	}
 	return resumeAttackAfterDamage(next, attackResume);
+}
+
+function resolveExtraPhysicalAttack(state: GameState, roll: CombatRollResult): GameState {
+	const target = state.heroes.find((hero) => hero.id === roll.heroId && hero.status === "active");
+	const enemy = state.activeEnemies.find((entry) => entry.id === roll.enemyId && entry.status === "active");
+	if (!target || !enemy) return { ...state, status: "DIRECT_DAMAGE", combat: { ...state.combat!, lastRoll: null } };
+	const previousAttacks = state.extraAttackFeedback ?? [];
+	const extraAttackId = (previousAttacks.at(-1)?.id ?? 0) + 1;
+	let next: GameState = {
+		...state,
+		extraAttackFeedback: [...previousAttacks.slice(-31), {
+			id: extraAttackId, enemyId: enemy.id, enemyCardId: enemy.cardId, heroId: target.id,
+		}],
+	};
+	if (roll.enemyTotal <= roll.heroTotal) {
+		return log({ ...next, status: "DIRECT_DAMAGE", combat: { ...next.combat!, lastRoll: null } },
+			`Ataque extra: ${getCardName(enemy.cardId)} rolou ${roll.enemyTotal} contra ${getCardName(target.cardId)} (${roll.heroTotal}) e não causou dano.`);
+	}
+	const enemyDamage = effectiveEnemyDamage(enemy, next);
+	const reduced = reduceHeroDamage(next, target, enemyDamage.damage, "attack");
+	const dmg = reduced.damage;
+	next = applyDamage(next, target.id, dmg, { sourceId: enemy.id, damageType: "attack", extraAttackId });
+	if (next.pendingTriggerInterrupt) return next;
+	const enemyRollStr = fmtRoll(roll.enemyResults, roll.enemyBreakdown, roll.enemyTotal);
+	const reductionStr = reduced.breakdown.length ? ` [${reduced.breakdown.join(", ")}]` : "";
+	return log({ ...next, status: "DIRECT_DAMAGE", combat: { ...next.combat!, lastRoll: null } },
+		`Ataque extra: ${getCardName(enemy.cardId)} venceu ${getCardName(target.cardId)} e causou ${dmg} de dano${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${roll.heroTotal}.`);
 }
 
 function attachAttackResume(state: GameState, attack: AttackResume): GameState {
@@ -1547,9 +1759,14 @@ export function handleSelectDie(
 		}
 		newValue = chosen;
 	} else {
-		const { result, next: rngNext } = rollDiceRng(1, state.rng);
-		newValue = result.results[0] ?? 1;
-		stateAfterRng = { ...state, rng: rngNext };
+		if (value !== undefined) {
+			if (!Number.isInteger(value) || value < 1 || value > 6) return state;
+			newValue = value;
+		} else {
+			const { result, next: rngNext } = rollDiceRng(1, state.rng);
+			newValue = result.results[0] ?? 1;
+			stateAfterRng = { ...state, rng: rngNext };
+		}
 	}
 
 	results[index] = newValue;

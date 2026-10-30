@@ -7,7 +7,7 @@ import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardSkills } from "@/core/skills/lookup";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
-import type { CombatRollResult } from "@/core/state/combatState";
+import type { CombatRollResult, PendingPhysicalRoll } from "@/core/state/combatState";
 import type { EnemyState } from "@/core/state/enemyState";
 import { MAX_HEROES, type GroupArtifact } from "@/core/state/gameState";
 import type { HeroState } from "@/core/state/heroState";
@@ -15,6 +15,7 @@ import type { CardImageUrls } from "@/ui/cardImages";
 import { getCardImageUrl } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 import { ActionButton } from "./ActionButton";
 import { BoardFooter } from "./BoardFooter";
 import { CardAttackAnimation } from "./CardAttackAnimation";
@@ -22,6 +23,7 @@ import { rememberCombatTarget } from "./CombatFeedback";
 import { ColorBar } from "./ColorBar";
 import { DiceSelectionPanel } from "./DiceSelectionPanel";
 import { DiceRollOverlay } from "./DiceRollOverlay";
+import { SingleDieRerollOverlay } from "./SingleDieRerollOverlay";
 import { HeroCard } from "./HeroCard";
 import { HpBar } from "./HpBar";
 
@@ -42,6 +44,7 @@ interface BoardProps {
 	onRevealBoss: () => void;
 	onContinueExploration: () => void;
 	onResolve: () => void;
+	onConfirmDiceRoll?: (payload: { rollId: string; heroId: string; enemyId: string; heroResults: number[]; enemyResults: number[]; source: "physics" | "fallback" }) => void;
 	onSelectDie?: (side: "hero" | "enemy", index: number, value?: number) => void;
 	roll: CombatRollResult | null;
 	combatAttackHintVisible?: boolean;
@@ -631,6 +634,7 @@ export function Board({
 	onRevealBoss,
 	onContinueExploration,
 	onResolve,
+	onConfirmDiceRoll,
 	onSelectDie,
 	roll,
 	combatAttackHintVisible = false,
@@ -639,6 +643,8 @@ export function Board({
 	const [draggingHeroId, setDraggingHeroId] = useState<string | null>(null);
 	const [diceRollAnimation, setDiceRollAnimation] =
 		useState<DiceRollAnimationState | null>(null);
+	const [dismissedPhysicalRollId, setDismissedPhysicalRollId] = useState<string | null>(null);
+	const [rerollingDie, setRerollingDie] = useState<{ side: "hero" | "enemy"; index: number } | null>(null);
 	const [combatDragPreview, setCombatDragPreview] =
 		useState<CombatDragPreviewState | null>(null);
 	const [attackAnimation, setAttackAnimation] =
@@ -653,6 +659,10 @@ export function Board({
 	const selectedHeroId = view.combat?.selectedHeroId ?? null;
 	const status = view.status;
 	const pendingDiceSelection = view.combat?.pendingDiceSelection;
+	useEffect(() => {
+		if (!pendingDiceSelection) setRerollingDie(null);
+	}, [pendingDiceSelection]);
+	const pendingPhysicalRoll: PendingPhysicalRoll | undefined = view.combat?.pendingPhysicalRoll;
 
 	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL";
 	const canDropAttack =
@@ -709,10 +719,17 @@ export function Board({
 
 	function resolveAttackWithAnimation() {
 		if (!roll || attackAnimation) return;
+		if (roll.physicalRollId) setDismissedPhysicalRollId(roll.physicalRollId);
+		if (roll.extraAttack) {
+			if (roll.heroTotal === roll.enemyTotal) sfxPlayer.play("attack_draw");
+			onResolve();
+			return;
+		}
 
 		const heroWon = roll.heroTotal > roll.enemyTotal;
 		const enemyWon = roll.enemyTotal > roll.heroTotal;
 		if (!heroWon && !enemyWon) {
+			sfxPlayer.play("attack_draw");
 			setDiceRollAnimation(null);
 			onResolve();
 			return;
@@ -750,7 +767,7 @@ export function Board({
 	}
 
 	useEffect(() => {
-		if (status !== "RESOLVE_ATTACK" || !roll || pendingDiceSelection) {
+		if (status !== "RESOLVE_ATTACK" || !roll || pendingDiceSelection || roll.physicalRollId) {
 			setDiceRollAnimation(null);
 			return;
 		}
@@ -931,6 +948,15 @@ export function Board({
 					</div>
 				)}
 
+				{(pendingPhysicalRoll || (roll?.physicalRollId && status === "RESOLVE_ATTACK" && !pendingDiceSelection && dismissedPhysicalRollId !== roll.physicalRollId)) && (
+					<DiceRollOverlay
+						key={pendingPhysicalRoll?.id ?? roll?.physicalRollId}
+						pending={pendingPhysicalRoll}
+						roll={roll}
+						onConfirm={onConfirmDiceRoll}
+						onResolveAttack={resolveAttackWithAnimation}
+					/>
+				)}
 				{diceRollAnimation && (
 					<DiceRollOverlay
 						key={diceRollAnimation.key}
@@ -938,6 +964,13 @@ export function Board({
 						onResolveAttack={resolveAttackWithAnimation}
 					/>
 				)}
+				{rerollingDie && <SingleDieRerollOverlay
+					side={rerollingDie.side}
+					onComplete={(value) => {
+						onSelectDie?.(rerollingDie.side, rerollingDie.index, value);
+						setRerollingDie(null);
+					}}
+				/>}
 
 				{/* Arena central */}
 				<div
@@ -965,9 +998,11 @@ export function Board({
 									view.enemies.find((enemy) => enemy.id === roll.enemyId)
 										?.cardId ?? "",
 								)}
-								onConfirm={(side, index, value) =>
-									onSelectDie?.(side, index, value)
-								}
+								onConfirm={(side, index, value) => {
+									if (pendingDiceSelection.action === "reroll" && pendingDiceSelection.deltaMax === undefined) {
+										setRerollingDie({ side, index });
+									} else onSelectDie?.(side, index, value);
+								}}
 							/>
 						) : (
 							<ActionButton

@@ -26,7 +26,11 @@
       "musicLoading": "Loading music…",
       "musicPlayError": "Could not play this track. Please try again.",
       "musicFileError": "Music file unavailable or unsupported.",
-      "musicError": "Could not load the music."
+      "musicError": "Could not load the music.",
+      "sfxTitle": "Sound effects",
+      "sfxVolume": "Effects volume",
+      "sfxMute": "Mute effects",
+      "sfxUnmute": "Unmute effects"
     }
   },
   "screens": {

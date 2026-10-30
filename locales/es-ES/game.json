@@ -46,7 +46,9 @@
       "dynamic001": "Resolver ataque",
       "enemyLabel": "Enemigo",
       "heroLabel": "Héroe",
-      "rolling": "Tirando..."
+      "rolling": "Tirando...",
+      "fallback": "Modo simplificado: resultado generado por la partida.",
+      "reroll": "Volviendo a tirar un dado"
     },
     "diceSelectionPanel": {
       "adjustDie_one": "Ajusta un dado hasta {{count}} punto, entre 1 y 6.",
@@ -548,7 +550,8 @@
       "dynamic023": "Volver al menú",
       "dynamic024": "Salir de los tutoriales",
       "dynamic025": "Siguiente punto",
-      "dynamic026": "Terminar combate"
+      "dynamic026": "Terminar combate",
+      "retryCombat": "La criatura resistió. Selecciona al héroe y ataca de nuevo para terminar el combate."
     }
   }
 }

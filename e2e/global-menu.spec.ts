@@ -51,7 +51,7 @@ test("player mantém seleção e volume ao navegar, respeitando Stop ao recarreg
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
 	await page.locator(".global-menu__track + label select").selectOption({ index: 1 });
-	await page.getByLabel(/Volume/).fill("68");
+	await page.locator("#global-music-volume").fill("68");
 	await page.getByRole("button", { name: "Play" }).click();
 	await expect(page.locator(".global-menu__status")).toContainText(/Reproduzindo|Não foi possível/);
 	await page.getByRole("button", { name: "Stop" }).click();
@@ -60,19 +60,21 @@ test("player mantém seleção e volume ao navegar, respeitando Stop ao recarreg
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__track + label select")).toHaveValue("o_chamado_da_fornalha");
-	await expect(page.getByLabel(/Volume/)).toHaveValue("68");
+	await expect(page.locator("#global-music-volume")).toHaveValue("68");
 	await page.reload();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__status")).toHaveText("Parado");
-	await expect(page.getByLabel(/Volume/)).toHaveValue("68");
+	await expect(page.locator("#global-music-volume")).toHaveValue("68");
 });
 
 test("uma reprodução segue ativa ao passar por menu, preparação e tabuleiro", async ({ page }) => {
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicAudio?: HTMLMediaElement; __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicAudio = this;
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) {
+				state.__musicAudio = this;
+				state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			}
 			return Promise.resolve();
 		};
 		HTMLMediaElement.prototype.load = function () {};
@@ -97,7 +99,7 @@ test("música começa sozinha quando o navegador permite e não volta após Stop
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
 			return Promise.resolve();
 		};
 		HTMLMediaElement.prototype.load = function () {};
@@ -118,7 +120,7 @@ test("autoplay bloqueado exibe convite e funciona após interação", async ({ p
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
 			return state.__musicPlayCount === 1
 				? Promise.reject(Object.assign(new Error("blocked"), { name: "NotAllowedError" }))
 				: Promise.resolve();
@@ -169,7 +171,7 @@ test("troca para inglês mantém tabuleiro e música, e persiste a escolha", asy
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
 			return Promise.resolve();
 		};
 		HTMLMediaElement.prototype.load = function () {};

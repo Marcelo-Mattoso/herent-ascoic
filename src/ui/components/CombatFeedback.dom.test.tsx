@@ -7,7 +7,8 @@ import { CombatFeedback, rememberCombatTarget } from "./CombatFeedback";
 const view = (
 	events: PlayerView["damageFeedback"],
 	attacks: PlayerView["extraAttackFeedback"] = [],
-) => ({ damageFeedback: events, extraAttackFeedback: attacks }) as PlayerView;
+	heals: PlayerView["healFeedback"] = [],
+) => ({ damageFeedback: events, extraAttackFeedback: attacks, healFeedback: heals }) as PlayerView;
 
 afterEach(() => {
 	cleanup();
@@ -17,6 +18,15 @@ afterEach(() => {
 });
 
 describe("CombatFeedback", () => {
+	it("exibe a cura efetiva e ignora eventos de valor zero", () => {
+		const target = document.createElement("div");
+		target.getBoundingClientRect = () => ({ left: 20, top: 30, width: 50, height: 70 }) as DOMRect;
+		rememberCombatTarget("healed", target);
+		const { rerender } = render(<CombatFeedback view={view([])} />);
+		rerender(<CombatFeedback view={view([], [], [{ id: 1, targetId: "healed", amount: 2 }, { id: 2, targetId: "healed", amount: 0 }])} />);
+		expect(document.querySelector(".game-damage-number--heal")?.textContent).toBe("+2");
+		expect(document.querySelectorAll(".game-damage-number--heal")).toHaveLength(1);
+	});
 	it("exibe danos reais de ambos os lados e preserva posição após remoção da carta", () => {
 		vi.useFakeTimers();
 		const hero = document.createElement("div");

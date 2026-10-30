@@ -11,6 +11,8 @@ export interface BonusEntry {
 }
 
 export interface CombatRollResult {
+	readonly physicalRollId?: string;
+	readonly extraAttack?: boolean;
 	readonly heroId: string;
 	readonly enemyId: string;
 	readonly heroResults: readonly number[];
@@ -19,6 +21,21 @@ export interface CombatRollResult {
 	readonly enemyResults: readonly number[];
 	readonly enemyTotal: number;
 	readonly enemyBreakdown: readonly BonusEntry[];
+}
+
+export interface PendingPhysicalRoll {
+	readonly id: string;
+	readonly heroId: string;
+	readonly enemyId: string;
+	readonly heroDiceCount: number;
+	readonly enemyDiceCount: number;
+	readonly boss: boolean;
+	readonly extraAttack?: boolean;
+	readonly heroBonuses: readonly BonusEntry[];
+	readonly enemyBonuses: readonly BonusEntry[];
+	/** Resultados determinísticos usados apenas quando a simulação 3D falha. */
+	readonly fallbackHeroResults: readonly number[];
+	readonly fallbackEnemyResults: readonly number[];
 }
 
 export interface CombatPair {
@@ -54,6 +71,10 @@ export interface CombatState {
 	readonly heroesActed: readonly string[];
 	readonly pairs: readonly CombatPair[];
 	lastRoll: CombatRollResult | null;
+	pendingPhysicalRoll?: PendingPhysicalRoll;
+	physicalRollPreparing?: boolean;
+	extraEnemiesRemaining?: readonly string[];
+	pendingExtraPreparation?: { readonly enemyId: string; readonly heroId: string; readonly stage: "targeted" | "declared" };
 	// Heróis que já usaram o item_cracked_shield neste combate
 	readonly shieldsUsedThisCombat: Readonly<Record<string, boolean>>;
 	// Heróis que usaram o poder do Bárbaro nesta sala

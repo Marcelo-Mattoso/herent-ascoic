@@ -1,5 +1,6 @@
 import { type CSSProperties, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 
 export interface CardAttackActor {
 	name: string;
@@ -41,6 +42,7 @@ export function CardAttackAnimation({
 	impactCallback.current = onImpact;
 	finishCallback.current = onFinish;
 	useEffect(() => {
+		sfxPlayer.play("attack_whoosh");
 		const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
 		if (reducedMotion) {
 			impactCallback.current?.();
