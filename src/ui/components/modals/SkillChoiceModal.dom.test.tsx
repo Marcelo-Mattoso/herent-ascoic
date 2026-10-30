@@ -2,13 +2,18 @@
 import { cleanup, fireEvent, render, screen } from "@testing-library/react";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { getCardName } from "@/core/data/cardLocale";
-import { createInitialGameState, type GameState } from "@/core/state/gameState";
-import { normalizeCardImageKey } from "@/ui/cardImages";
+import { playerView } from "@/core/projection/playerView";
+import { withGame } from "@/engine/state";
+import { type AscensaoGame, createInitialGameState, type GameState } from "@/core/state/gameState";
 import {
-	SkillChoiceModal,
 	choiceCardId,
 	choiceSourceCardId,
-} from "./SkillChoiceModal";
+} from "@/core/projection/skillChoiceView";
+import { normalizeCardImageKey } from "@/ui/cardImages";
+import { SkillChoiceModal } from "./SkillChoiceModal";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { type DeckSet, decksOf, withDecks, withPendingSkillChoice } from "@/core/state/access";
+import type { PendingSkillChoice } from "@/core/choices";
 
 let currentState: GameState;
 const dispatch = vi.fn();
@@ -24,19 +29,20 @@ const imageUrls = Object.fromEntries(
 );
 
 vi.mock("@/ui/store/gameStore", () => ({
-	useGameStore: () => ({ state: currentState, dispatch }),
+	useGameStore: () => ({ view: playerView(testEngine, currentState), dispatch }),
 }));
 vi.mock("@/ui/hooks/useCardImages", () => ({ useCardImages: () => imageUrls }));
 
 function withChoice(
-	pending: NonNullable<GameState["pendingSkillChoice"]>,
-	extra: Partial<GameState> = {},
+	pending: PendingSkillChoice,
+	extra: Partial<AscensaoGame> & { decks?: DeckSet } = {},
 ) {
-	currentState = {
-		...createInitialGameState({ heroCardIds: [] }),
-		...extra,
-		pendingSkillChoice: pending,
-	};
+	const { decks, ...rest } = extra;
+	const base = withPendingSkillChoice(
+		withGame(createInitialGameState({ heroCardIds: [] }), (game) => ({ ...game, ...rest })),
+		pending,
+	);
+	currentState = decks ? withDecks(base, decks) : base;
 }
 
 beforeEach(() => {
@@ -104,16 +110,14 @@ describe("SkillChoiceModal", () => {
 				{ id: "ok", label: "Confirmar (manter ordem atual)" },
 			],
 		};
-		withChoice(pending, {
-			decks: {
-				...createInitialGameState({ heroCardIds: [] }).decks,
+		withChoice(pending, { decks: {
+				...decksOf(createInitialGameState({ heroCardIds: [] })),
 				dungeonDeck: {
 					available: [roomA, roomB, "room_abandoned_cell"],
 					discarded: [],
 					removed: [],
 				},
-			},
-		});
+			} });
 		const { container } = render(<SkillChoiceModal />);
 		expect(
 			container.querySelectorAll(".skill-choice-option--card"),
@@ -122,7 +126,7 @@ describe("SkillChoiceModal", () => {
 		expect(
 			screen.getByRole("img", { name: getCardName(roomA) }).getAttribute("src"),
 		).toBe(imageUrls[normalizeCardImageKey(getCardName(roomA))]);
-		expect(choiceCardId(currentState, pending, pending.options[0])).toBe(roomA);
+		expect(choiceCardId(testEngine, currentState, pending, pending.options[0])).toBe(roomA);
 		fireEvent.click(
 			screen.getByRole("button", {
 				name: `Examinar carta: ${getCardName(roomA)}`,
@@ -149,7 +153,7 @@ describe("SkillChoiceModal", () => {
 			},
 			{
 				decks: {
-					...createInitialGameState({ heroCardIds: [] }).decks,
+					...decksOf(createInitialGameState({ heroCardIds: [] })),
 					itemDeck: { available: [], discarded: [itemB], removed: [] },
 				},
 			},
@@ -183,14 +187,12 @@ describe("SkillChoiceModal", () => {
 			prompt: "Observe",
 			options: [{ id: "card_0", label: roomA }],
 		};
-		withChoice(pending, {
-			decks: {
-				...createInitialGameState({ heroCardIds: [] }).decks,
+		withChoice(pending, { decks: {
+				...decksOf(createInitialGameState({ heroCardIds: [] })),
 				dungeonDeck: { available: [roomB], discarded: [], removed: [] },
-			},
-		});
-		expect(choiceCardId(currentState, pending, pending.options[0])).toBeNull();
-		expect(choiceSourceCardId(currentState, pending)).toBeNull();
+			} });
+		expect(choiceCardId(testEngine, currentState, pending, pending.options[0])).toBeNull();
+		expect(choiceSourceCardId(testEngine, currentState, pending)).toBeNull();
 		const { container } = render(<SkillChoiceModal />);
 		expect(
 			container.querySelectorAll(".skill-choice-option--card"),
@@ -215,7 +217,7 @@ describe("SkillChoiceModal", () => {
 				status: "cleared",
 			},
 		});
-		expect(choiceSourceCardId(currentState, pending)).toBe(
+		expect(choiceSourceCardId(testEngine, currentState, pending)).toBe(
 			"room_abandoned_cell",
 		);
 		render(<SkillChoiceModal />);

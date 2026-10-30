@@ -10,6 +10,8 @@ import {
 	getComponents,
 	upsertEntity,
 } from "../world";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { withGame, gameOf } from "../../../engine/state";
 
 function makeState(
 	entityId: string,
@@ -18,7 +20,7 @@ function makeState(
 	const state = createInitialGameState({ heroCardIds: [] });
 	let world = createEmptyWorld();
 	world = upsertEntity(world, createEntity(entityId, entityType));
-	return { ...state, world };
+	return withGame(state, (prevGame) => ({ ...prevGame, world }));
 }
 
 function makeModifierPending(
@@ -56,11 +58,11 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 			entityId,
 			"skill_charred_plate",
 		);
-		state = resolveEffect(state, pending);
-		state = resolveEffect(state, pending);
+		state = resolveEffect(testEngine, state, pending);
+		state = resolveEffect(testEngine, state, pending);
 
 		const mods = getComponents<ModifierComponent>(
-			state.world,
+			gameOf(state).world,
 			entityId,
 			"modifier",
 		);
@@ -78,12 +80,12 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 			entityId,
 			"skill_gelatinous_body",
 		);
-		state = resolveEffect(state, pending);
-		state = resolveEffect(state, pending);
-		state = resolveEffect(state, pending);
+		state = resolveEffect(testEngine, state, pending);
+		state = resolveEffect(testEngine, state, pending);
+		state = resolveEffect(testEngine, state, pending);
 
 		const mods = getComponents<ModifierComponent>(
-			state.world,
+			gameOf(state).world,
 			entityId,
 			"modifier",
 		);
@@ -96,7 +98,7 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 		const entityId = "hero_1";
 		let state = makeState(entityId, "hero");
 
-		state = resolveEffect(
+		state = resolveEffect(testEngine, 
 			state,
 			makeModifierPending(
 				entityId,
@@ -106,7 +108,7 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 				"skill_charred_plate",
 			),
 		);
-		state = resolveEffect(
+		state = resolveEffect(testEngine, 
 			state,
 			makeModifierPending(
 				entityId,
@@ -118,7 +120,7 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 		);
 
 		const mods = getComponents<ModifierComponent>(
-			state.world,
+			gameOf(state).world,
 			entityId,
 			"modifier",
 		);
@@ -144,11 +146,11 @@ describe("modifier dedup (B5 — while_source_in_play)", () => {
 			},
 		} as unknown as PendingEffect;
 
-		state = resolveEffect(state, pending);
-		state = resolveEffect(state, pending);
+		state = resolveEffect(testEngine, state, pending);
+		state = resolveEffect(testEngine, state, pending);
 
 		const mods = getComponents<ModifierComponent>(
-			state.world,
+			gameOf(state).world,
 			entityId,
 			"modifier",
 		);

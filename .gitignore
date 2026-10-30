@@ -32,3 +32,5 @@ test-results/
 *.njsproj
 *.sln
 *.sw?
+
+tools/bot/runs

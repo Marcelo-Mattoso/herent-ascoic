@@ -3,12 +3,12 @@ import { translate } from "@/i18n";
 // Aceita drop de herói para iniciar combate.
 
 import { displayCardName as getCardName } from "@/i18n/catalogs";
-import type { EnemyState } from "@/core/state/enemyState";
+import type { EnemyView } from "@/core/projection/viewTypes";
 import { UI } from "@/ui/theme";
 import { HpBar } from "./HpBar";
 
 interface EnemyCardProps {
-	enemy: EnemyState;
+	enemy: EnemyView;
 	isSelectable: boolean;
 	isEngaged: boolean;
 	isDragOver?: boolean;

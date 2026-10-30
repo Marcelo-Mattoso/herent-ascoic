@@ -1,6 +1,7 @@
-// Strategy: qual boss usar na partida.
-// Default MVP 1: Azhakar fixo.
+import { bossCard, type GameEngine } from "../gameEngine";
 
-export function selectBoss(): string {
-	return "boss_azhakar";
+export function selectBoss(engine: GameEngine): string {
+	const boss = bossCard(engine);
+	if (!boss) throw new Error("Nenhum chefe no catálogo.");
+	return boss.id;
 }

@@ -1,0 +1,1587 @@
+{
+	"engineVersion": 1,
+	"name": "golden-14",
+	"seed": 14132,
+	"setup": {
+		"heroCardIds": [
+			"hero_deep_veil_necromancer",
+			"hero_crimson_barbarian",
+			"hero_rift_rogue",
+			"hero_crimson_rune_mage"
+		],
+		"difficulty": "easy",
+		"bossCardId": "boss_azhakar",
+		"seed": 14132
+	},
+	"outcome": "VICTORY",
+	"actions": [
+		{
+			"type": "START_GAME",
+			"payload": {
+				"heroCardIds": [
+					"hero_deep_veil_necromancer",
+					"hero_crimson_barbarian",
+					"hero_rift_rogue",
+					"hero_crimson_rune_mage"
+				],
+				"difficulty": "easy",
+				"bossCardId": "boss_azhakar",
+				"seed": 14132,
+				"gameId": "golden-14132"
+			}
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-vouyhp-1wf252x",
+				"enemyId": "e-64ejm1-mk7arl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-vouyhp-1wf252x",
+				"enemyId": "e-1fske45-14nxw03"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-vouyhp-1wf252x",
+				"enemyId": "e-64ejm1-mk7arl"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-64ejm1-mk7arl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1t01vj9-623ad0",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1fske45-14nxw03"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-2xdl4c-1pnsuhg",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-vouyhp-1wf252x",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1ubt18w-18wilsu"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1t01vj9-623ad0",
+				"enemyId": "e-1fske45-14nxw03"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1t01vj9-623ad0",
+				"enemyId": "e-1fske45-14nxw03"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-64ejm1-mk7arl"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-2xdl4c-1pnsuhg",
+				"enemyId": "e-64ejm1-mk7arl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1t01vj9-623ad0",
+				"enemyId": "e-1fske45-14nxw03"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-2xdl4c-1pnsuhg",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1t01vj9-623ad0",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-2xdl4c-1pnsuhg",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1t01vj9-623ad0",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-iaq61x-zpgfj5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "equip"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "equip"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "equip"
+			}
+		},
+		{
+			"type": "SPEND_XP",
+			"payload": {
+				"option": "level_up",
+				"heroId": "h-1we3asg-1hhxf61"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1sv4lih-cdu8qz"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1sv4lih-cdu8qz"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "equip"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-f3ryru-1cpkn0o"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-f3ryru-1cpkn0o"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "SPEND_XP",
+			"payload": {
+				"option": "level_up",
+				"heroId": "h-1we3asg-1hhxf61"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-110qh8v-ox70nh"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-mimlzf-1blzymz"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "SKILL_CHOICE",
+			"payload": {
+				"skillId": "dungeon_skill_forge_spoils",
+				"choice": "item_ancient_iron_key"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "SKILL_CHOICE",
+			"payload": {
+				"skillId": "dungeon_skill_forge_spoils",
+				"choice": "item_worn_explorer_rope"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1jsp7m9-cn31vl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1jsp7m9-cn31vl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-srm9a4-cqbv3o"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1jsp7m9-cn31vl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "e-1jsp7m9-cn31vl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "SPEND_XP",
+			"payload": {
+				"option": "level_up",
+				"heroId": "h-1we3asg-1hhxf61"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "REVEAL_BOSS"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1we3asg-1hhxf61",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		}
+	],
+	"steps": [
+		"3ff65bf7108e2f41",
+		"4c5e58d2877fba6a",
+		"54cb9e44f5c5c6d6",
+		"8c633ab753e301a2",
+		"84f807501bcf263f",
+		"06160c42b488d378",
+		"5e639f74f84e102b",
+		"1be98b78974b3208",
+		"c974bc5c154ad3d5",
+		"907e8c10e7a76deb",
+		"45c23fa4b3aaf097",
+		"32481a59180b5301",
+		"0f51fdc2a465d004",
+		"dc92525a922b0492",
+		"de8263d4f2c761eb",
+		"a86277aa3c37d67d",
+		"e0197c90b984f1eb",
+		"b3c404f47e9479fc",
+		"06d7faa55f9ac84a",
+		"fe87e03cc5ea3ac0",
+		"b43bb2dd9985ac80",
+		"3a77e427d8a28685",
+		"3ca4a7e491a39d4a",
+		"f033553213fdec1e",
+		"1fbde6512f3517fb",
+		"323114c6edd91c57",
+		"ce8627276c5f90d9",
+		"d88b4eb49ec7acfb",
+		"bf7cb070078aba44",
+		"7740a7774e9e2131",
+		"49a63208a339ba51",
+		"f0337511fbc868e3",
+		"9aaa2ac71ee336f0",
+		"b18c4bb5d275d211",
+		"c4eb31973faf0d9c",
+		"9c527e5cdd233e10",
+		"cd9cd4f8736d5277",
+		"108aced3f27824ce",
+		"d2858b223fd0a06c",
+		"e352dfddfb2722d6",
+		"ef9ee70b84454896",
+		"5e6de7566b915db9",
+		"f26893dab6750e7e",
+		"3bcb5055edac3902",
+		"4be4de42d94c7a72",
+		"7cb0f251cbf3db3f",
+		"304154e85802eb3d",
+		"223ef68937cef2ed",
+		"21dd3f0de19aea4a",
+		"935d06f5d6963d2f",
+		"c020595ceaea9b9f",
+		"fed285065ae7a8e8",
+		"34b3c1241a62c7ad",
+		"439fde6ca4200f63",
+		"0d823e2a85030aa5",
+		"89e215f579d6aa33",
+		"3861046dae68366d",
+		"2f66e3991f69c395",
+		"38d335837d8b0950",
+		"3a6e8715715d9b11",
+		"9a27238c760e151d",
+		"43df2caf75917215",
+		"f196b573dfa74126",
+		"c47d5141297f725b",
+		"fd36ab9274377cb5",
+		"99940daa5088801c",
+		"24631954510ef51b",
+		"3d4640bb996c478f",
+		"ab73454342931c00",
+		"4c5a35f8fd0cc2c4",
+		"7eb5720fe880dcee",
+		"0fa6fb69239212c6",
+		"9ff1efbc63dae8b7",
+		"3e2670f7e127f917",
+		"c5cc335f373a6d4e",
+		"1ee230f32582ef19",
+		"6c42a70480a207f5",
+		"9530bca52b034f37",
+		"58649755b17f72e3",
+		"cb350f17af5e32bf",
+		"b79a273f41f0006f",
+		"cac14da4a963f582",
+		"a200e685d9fcfcb8",
+		"b1a8b1c4c4c006f2",
+		"17d898c95d92c69c",
+		"8f0ca7c4099eacc3",
+		"445363f41a0ef986",
+		"057f7337ff7f8458",
+		"63692ba0e27cd061",
+		"2061d6c08c57e677",
+		"b9fafaa2be16aee4",
+		"05d8fc3cd26ecf4d",
+		"042a5d4a8f4bd842",
+		"d3b5d82577735d70",
+		"817eec3b3aa224a2",
+		"ed943ae96ffc7f93",
+		"9783155d7f690be9",
+		"62a2d5ea2cef5026",
+		"205e4e4752dc7b3f",
+		"b6fa5448504c3289",
+		"a4a8fa98f641f83d",
+		"05254d2019ea69a5",
+		"fc480c634259e1f5",
+		"afdd138ff46b0537",
+		"0700328c9ef5dac0",
+		"d418131d871d2c21",
+		"819597dc98dee2f8",
+		"0e112960d84f9240",
+		"0cbb3caff75dedc8",
+		"0c57528344434882",
+		"518b03d08cc416a1",
+		"bd25e433acbe1354",
+		"28b1efc48317af28",
+		"3b6b9316c8568a58",
+		"6021602240613452",
+		"0f3a6c9dace65a1d",
+		"e57666f41b393aa1",
+		"7599695fb955f951",
+		"bd2c0d184ea866bf",
+		"8a85c1cfbfb72c77",
+		"545850086d7d7b53",
+		"6d075809bed6ae06",
+		"acc0d7008c081c08",
+		"f4cfd8e6be0d02fe",
+		"7d580cf90af8d790",
+		"f7a98aec64ba1ae9",
+		"d54a7a0983af332d",
+		"252e92b42767a13b",
+		"698304bab125ec64",
+		"98c70ca10910c35e",
+		"de7c6e4624ab9cc8",
+		"5486b14e2d4b7f0a",
+		"9c5f8fe575598a0a",
+		"b7e1cfcf0f3e1272",
+		"b4e21837577feec1",
+		"c55e5d9d0c95534d",
+		"6cbd58454d00da8b",
+		"94d2bfb78909da78",
+		"7875aa6fdf5ca89a",
+		"5777ef539ed7292e",
+		"e1811b346949d14d",
+		"33d8621ff6e1e68a",
+		"f891c83bd4ec022e",
+		"ec40b7c306871e4f",
+		"fb5857ef3a2d0850",
+		"5fd747237b190890",
+		"cd5b195f6427b065",
+		"24208c73d11fe3fd",
+		"b4286c93c8a8218d",
+		"497d99daa4d346da",
+		"62ab9cb4a63b4521",
+		"ae9fd3e6013678da",
+		"9c861fc905308a4c",
+		"dcf687b72462ece6",
+		"248cbe560806fdf0",
+		"42be4bb10b4ae4b3",
+		"8c13966477b864e8",
+		"aa88a1e792fe9738",
+		"dfdfaf872cfbee9c",
+		"c4cf3eb86f58c91a",
+		"4b562559e69b6a21",
+		"5a4fb3654740d1e0",
+		"2fd90964ce09aded",
+		"e97fbb4b9cf469af",
+		"04c731f95d7db574",
+		"da471f311d58288f",
+		"5b0c6b977fdc492a",
+		"e13c6acc3d17e102",
+		"de9ed9d778bba91b",
+		"a540d9309d936dd6",
+		"fed158178f7fd048",
+		"2119fedc3236c5ec",
+		"4f2cf861eb070509",
+		"67e663b82fef1996",
+		"9fd4fb772090c6a0",
+		"d355e837896b8e5e",
+		"e01dce333bc1c9b1",
+		"5c878600c5121c0a",
+		"db4a2c4dd1d1eb12",
+		"91ae368c29abed96",
+		"2c9df04cac0f1e27"
+	],
+	"finalSnapshot": {
+		"abilityActionsByHero": {
+			"h-1t01vj9-623ad0": [
+				{
+					"abilityId": "skill_return_rite",
+					"activation": "manual",
+					"kind": "skill",
+					"label": "Rito de Retorno",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_deep_veil_necromancer",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_deep_veil_echo",
+					"activation": "prepare",
+					"kind": "power",
+					"label": "Eco Profundo do Véu",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_deep_veil_necromancer",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			],
+			"h-1we3asg-1hhxf61": [
+				{
+					"abilityId": "skill_crimson_fury",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Fúria Rubra",
+					"sourceCardId": "hero_crimson_barbarian",
+					"status": "available",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_mighty_crimson_fury",
+					"activation": "prepare",
+					"kind": "power",
+					"label": "Fúria Rubra Poderosa",
+					"sourceCardId": "hero_crimson_barbarian",
+					"status": "available",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "skill_path_safeguard",
+					"activation": "prepare",
+					"kind": "item",
+					"label": "Encanto da Masmorra Calada",
+					"reason": "Aguarde uma janela de ação para usar o item.",
+					"sourceCardId": "item_silent_dungeon_charm",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "skill_protective_veil",
+					"activation": "prepare",
+					"kind": "item",
+					"label": "Manto do Véu Partido",
+					"reason": "Aguarde uma janela de ação para usar o item.",
+					"sourceCardId": "item_broken_veil_cloak",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "skill_living_ember_oil",
+					"activation": "manual",
+					"kind": "item",
+					"label": "Frasco de Óleo Incendiário",
+					"reason": "Aguarde uma janela de ação para usar o item.",
+					"sourceCardId": "item_incendiary_oil_flask",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "item_skill_potion_stoneskin",
+					"activation": "manual",
+					"kind": "item",
+					"label": "Poção de Pele de Pedra",
+					"reason": "Aguarde uma janela de ação para usar o item.",
+					"sourceCardId": "item_stoneskin_potion",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": [
+						"h-1we3asg-1hhxf61"
+					]
+				}
+			],
+			"h-2xdl4c-1pnsuhg": [
+				{
+					"abilityId": "skill_preserved_path",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Caminho Preservado",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_rift_rogue",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_restored_path",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Caminho Restaurado",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_rift_rogue",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			],
+			"h-vouyhp-1wf252x": [
+				{
+					"abilityId": "skill_rift_rune",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Runa das Fendas",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_crimson_rune_mage",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_supreme_rift_rune",
+					"activation": "prepare",
+					"kind": "power",
+					"label": "Runa Suprema das Fendas",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_crimson_rune_mage",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			]
+		},
+		"activeInfluences": [],
+		"bossCardId": "boss_azhakar",
+		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
+		"combat": {
+			"buffsByHero": {},
+			"heroesActed": [],
+			"lastRoll": {
+				"enemyBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 15
+					}
+				],
+				"enemyId": "boss",
+				"enemyResults": [
+					2,
+					3,
+					1
+				],
+				"enemyTotal": 21,
+				"heroBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 18
+					}
+				],
+				"heroId": "h-1we3asg-1hhxf61",
+				"heroResults": [
+					5,
+					6,
+					2
+				],
+				"heroTotal": 31
+			},
+			"phase": "resolving",
+			"powersUsedThisRoom": {},
+			"round": 2,
+			"selectedHeroId": "h-1we3asg-1hhxf61"
+		},
+		"creaturesDefeated": 10,
+		"currentRoom": null,
+		"decks": {
+			"artifactDeck": {
+				"available": [
+					"artifact_ancient_ember_heart",
+					"artifact_lost_forge_hammer",
+					"artifact_last_vigil_brazier"
+				],
+				"discarded": 0
+			},
+			"dungeonDeck": {
+				"available": 9,
+				"discarded": [
+					"room_crimson_chains_chamber",
+					"room_broken_columns_hall",
+					"room_ruined_forge",
+					"room_cracked_abyss",
+					"room_narrow_corridor",
+					"room_ruined_forge",
+					"room_depths_stairway",
+					"room_jailer_room",
+					"room_abandoned_cell",
+					"room_broken_columns_hall",
+					"room_abandoned_cell",
+					"room_depths_stairway",
+					"room_jailer_room"
+				]
+			},
+			"enemyDeck": {
+				"available": 9,
+				"discarded": 0
+			},
+			"itemDeck": {
+				"available": [
+					"item_last_chord_lute",
+					"item_living_ember_potion",
+					"item_warm_blood_charm",
+					"item_reinforced_leather_armor",
+					"item_ancient_metal_armor",
+					"item_narrow_exit_cloak",
+					"item_fury_potion",
+					"item_tunnel_hood",
+					"item_safe_path_charm",
+					"item_greater_vigor_potion"
+				],
+				"discarded": 2
+			}
+		},
+		"despertar": 3,
+		"enemies": [
+			{
+				"cardId": "boss_azhakar",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 6,
+				"dice": 3,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 15,
+				"id": "boss",
+				"maxLife": 26,
+				"status": "defeated",
+				"tokens": {}
+			}
+		],
+		"eventLog": [
+			"Partida iniciada. Heróis: Necromante do Véu Profundo, Bárbaro Rubro, Ladino das Fendas, Mago das Runas Rubras. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Fuga bloqueada.",
+			"Sala sorteada: Câmara das Correntes Rubras.",
+			"4 inimigo(s) aparecem: Vigia das Portas Quebradas, Acólito da Fornalha, Ogro do Salão Arruinado, Cavaleiro das Correntes Velhas.",
+			"Combate iniciado.",
+			"Herói rolou 8 | Inimigo rolou 10.",
+			"Mago das Runas Rubras sofreu 5 de dano. Inimigo: dado(s) [5]=5, acerto +5 → 10 vs herói: 8.",
+			"Aguardando ação de 3 herói(s).",
+			"[AVISO] Herói h-vouyhp-1wf252x já agiu nesta rodada.",
+			"[AVISO] Herói h-vouyhp-1wf252x já agiu nesta rodada.",
+			"Herói rolou 11 | Inimigo rolou 8.",
+			"Ogro do Salão Arruinado sofreu 4 de dano. Herói: dado(s) [4]=4, acerto +7 → 11 vs inimigo: 8.",
+			"Aguardando ação de 2 herói(s).",
+			"Herói rolou 10 | Inimigo rolou 11.",
+			"Necromante do Véu Profundo sofreu 6 de dano. Inimigo: dado(s) [5]=5, acerto +6 → 11 vs herói: 10.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-1we3asg-1hhxf61 já agiu nesta rodada.",
+			"Herói rolou 6 | Inimigo rolou 7.",
+			"Ladino das Fendas sofreu 6 de dano. Inimigo: dado(s) [1]=1, acerto +6 → 7 vs herói: 6.",
+			"Rodada 2 de combate.",
+			"Herói rolou 6 | Inimigo rolou 9.",
+			"Mago das Runas Rubras sofreu 6 de dano. Inimigo: dado(s) [3]=3, acerto +6 → 9 vs herói: 6.",
+			"Aguardando ação de 3 herói(s).",
+			"Herói rolou 8 | Inimigo rolou 6.",
+			"Vigia das Portas Quebradas sofreu 4 de dano. Herói: dado(s) [1]=1, acerto +7 → 8 vs inimigo: 6.",
+			"Aguardando ação de 2 herói(s).",
+			"[AVISO] Herói h-1we3asg-1hhxf61 já agiu nesta rodada.",
+			"Herói rolou 6 | Inimigo rolou 9.",
+			"Necromante do Véu Profundo sofreu 3 de dano. Inimigo: dado(s) [4]=4, acerto +3, skill_hidden_flame_presence +2 → 9 vs herói: 6.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-1t01vj9-623ad0 já agiu nesta rodada.",
+			"[AVISO] Herói h-1we3asg-1hhxf61 já agiu nesta rodada.",
+			"[AVISO] Herói h-1we3asg-1hhxf61 já agiu nesta rodada.",
+			"Herói rolou 11 | Inimigo rolou 7.",
+			"Ogro do Salão Arruinado sofreu 2 de dano. Herói: dado(s) [6]=6, acerto +5 → 11 vs inimigo: 7.",
+			"Rodada 3 de combate.",
+			"Herói rolou 9 | Inimigo rolou 7.",
+			"Acólito da Fornalha sofreu 2 de dano. Herói: dado(s) [4]=4, acerto +5 → 9 vs inimigo: 7.",
+			"Aguardando ação de 2 herói(s).",
+			"Herói rolou 11 | Inimigo rolou 10.",
+			"Cavaleiro das Correntes Velhas sofreu 2 de dano. Herói: dado(s) [6]=6, acerto +5 → 11 vs inimigo: 10.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-1t01vj9-623ad0 já agiu nesta rodada.",
+			"Herói rolou 13 | Inimigo rolou 7.",
+			"Cavaleiro das Correntes Velhas sofreu 4 de dano. Herói: dado(s) [6]=6, acerto +7 → 13 vs inimigo: 7.",
+			"Rodada 4 de combate.",
+			"Herói rolou 6 | Inimigo rolou 12.",
+			"Ladino das Fendas sofreu 6 de dano. Inimigo: dado(s) [6]=6, acerto +6 → 12 vs herói: 6.",
+			"Aguardando ação de 2 herói(s).",
+			"Herói rolou 9 | Inimigo rolou 10.",
+			"Necromante do Véu Profundo sofreu 6 de dano. Inimigo: dado(s) [4]=4, acerto +6 → 10 vs herói: 9.",
+			"Aguardando ação de 1 herói(s).",
+			"Herói rolou 11 | Inimigo rolou 11.",
+			"Cavaleiro das Correntes Velhas sofreu 1 de dano (empate). Herói: dado(s) [4]=4, acerto +7 → 11 vs inimigo: 11.",
+			"Bárbaro Rubro sofreu 1 de dano (empate). Inimigo: dado(s) [5]=5, acerto +6 → 11 vs herói: 11.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +12 XP, 8 item(ns), 0 artefato(s). Resolvendo...",
+			"Tocha de Breu atribuído a h-1we3asg-1hhxf61.",
+			"Encanto da Última Defesa atribuído a h-1we3asg-1hhxf61.",
+			"Foice do Véu Profundo atribuído a h-1we3asg-1hhxf61.",
+			"Encanto da Masmorra Calada atribuído a h-1we3asg-1hhxf61.",
+			"Escudo Rachado descartado.",
+			"Manto do Véu Partido atribuído a h-1we3asg-1hhxf61.",
+			"Encanto da Chama Baixa descartado.",
+			"Frasco de Óleo Incendiário atribuído a h-1we3asg-1hhxf61.",
+			"Bárbaro Rubro subiu para nível 3. Despertar avança.",
+			"Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
+			"Sala sorteada: Forja em Ruínas.",
+			"Prevenção de descarte de dungeon bloqueada.",
+			"1 inimigo(s) aparecem: Bruto das Correntes Partidas.",
+			"Combate iniciado.",
+			"Herói rolou 12 | Inimigo rolou 11.",
+			"Bruto das Correntes Partidas sofreu 4 de dano. Herói: dado(s) [1+1]=2, acerto +10 → 12 vs inimigo: 11.",
+			"Rodada 2 de combate.",
+			"Herói rolou 15 | Inimigo rolou 11.",
+			"Bruto das Correntes Partidas sofreu 4 de dano. Herói: dado(s) [1+4]=5, acerto +10 → 15 vs inimigo: 11.",
+			"Sala limpa! Avançando para recompensa.",
+			"Forja Reacesa: item_stoneskin_potion sacado do deck e oferecido.",
+			"Recompensas: +5 XP, 4 item(ns), 0 artefato(s). Resolvendo...",
+			"Poção de Pele de Pedra atribuído a h-1we3asg-1hhxf61.",
+			"Baú Oculto da Fornalha descartado.",
+			"Poção de Retorno descartado.",
+			"Machado do Salão Arruinado descartado.",
+			"Armadura Mágica da Fornalha descartado.",
+			"Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
+			"Sala sorteada: Corredor Estreito.",
+			"1 inimigo(s) aparecem: Salamandra do Fogo Baixo.",
+			"Combate iniciado.",
+			"Herói rolou 18 | Inimigo rolou 12.",
+			"Salamandra do Fogo Baixo sofreu 4 de dano. Herói: dado(s) [3+5]=8, acerto +10 → 18 vs inimigo: 12.",
+			"Rodada 2 de combate.",
+			"Herói rolou 16 | Inimigo rolou 13.",
+			"Salamandra do Fogo Baixo sofreu 4 de dano. Herói: dado(s) [4+2]=6, acerto +10 → 16 vs inimigo: 13.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +3 XP, 3 item(ns), 0 artefato(s). Resolvendo...",
+			"Mapa Rasgado das Profundezas descartado.",
+			"Arco das Fendas descartado.",
+			"Martelo de Pedra Quebrada descartado.",
+			"Bárbaro Rubro subiu para nível 4. Despertar avança.",
+			"Caminho sorteado em segredo: 1 carta(s), 0 descarte(s).",
+			"Sala sorteada: Escadaria para as Profundezas.",
+			"2 inimigo(s) aparecem: Goblin das Cavernas Escuras, Crânio Flamejante.",
+			"Combate iniciado.",
+			"Herói rolou 22 | Inimigo rolou 17.",
+			"Goblin das Cavernas Escuras sofreu 4 de dano. Herói: dado(s) [5+3]=8, acerto +14 → 22 vs inimigo: 17.",
+			"Rodada 2 de combate.",
+			"Herói rolou 22 | Inimigo rolou 13.",
+			"Crânio Flamejante sofreu 4 de dano. Herói: dado(s) [2+6]=8, acerto +14 → 22 vs inimigo: 13.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +5 XP, 3 item(ns), 0 artefato(s). Resolvendo...",
+			"Botas de Pedra Leve descartado.",
+			"Poção de Vigor Menor descartado.",
+			"Cajado das Runas Rubras descartado.",
+			"Caminho sorteado em segredo: 2 carta(s), 1 descarte(s).",
+			"Sala sorteada: Cela Abandonada.",
+			"Sala sem inimigos. Indo para recompensa.",
+			"2 carta(s) revelada(s) para escolha.",
+			"item_ancient_iron_key adicionado às recompensas pendentes.",
+			"Recompensas: +1 XP, 0 item(ns), 0 artefato(s). Resolvendo...",
+			"Chave de Ferro Antiga descartado.",
+			"Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
+			"Sala sorteada: Cela Abandonada.",
+			"Sala sem inimigos. Indo para recompensa.",
+			"2 carta(s) revelada(s) para escolha.",
+			"item_worn_explorer_rope adicionado às recompensas pendentes.",
+			"Recompensas: +1 XP, 0 item(ns), 0 artefato(s). Resolvendo...",
+			"Corda Gasta de Explorador descartado.",
+			"Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
+			"Sala sorteada: Sala do Carcereiro.",
+			"Prevenção de descarte de dungeon bloqueada.",
+			"2 inimigo(s) aparecem: Cultista da Chama Oculta, Carcereiro da Masmorra Rubra.",
+			"Combate iniciado.",
+			"Herói rolou 20 | Inimigo rolou 20.",
+			"Carcereiro da Masmorra Rubra sofreu 1 de dano (empate). Herói: dado(s) [3+3]=6, acerto +14 → 20 vs inimigo: 20.",
+			"Bárbaro Rubro sofreu 1 de dano (empate). Inimigo: dado(s) [5+5]=10, acerto +10 → 20 vs herói: 20.",
+			"Ataque extra: Cultista da Chama Oculta rolou 16 contra Bárbaro Rubro (21) e não causou dano.",
+			"Rodada 2 de combate.",
+			"Herói rolou 20 | Inimigo rolou 20.",
+			"Carcereiro da Masmorra Rubra sofreu 1 de dano (empate). Herói: dado(s) [2+4]=6, acerto +14 → 20 vs inimigo: 20.",
+			"Bárbaro Rubro sofreu 1 de dano (empate). Inimigo: dado(s) [5+5]=10, acerto +10 → 20 vs herói: 20.",
+			"Ataque extra: Cultista da Chama Oculta rolou 15 contra Bárbaro Rubro (20) e não causou dano.",
+			"Rodada 3 de combate.",
+			"Herói rolou 22 | Inimigo rolou 16.",
+			"Cultista da Chama Oculta sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +14 → 22 vs inimigo: 16.",
+			"Rodada 4 de combate.",
+			"Herói rolou 18 | Inimigo rolou 15.",
+			"Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [3+1]=4, acerto +14 → 18 vs inimigo: 15.",
+			"Rodada 5 de combate.",
+			"Herói rolou 22 | Inimigo rolou 14.",
+			"Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +14 → 22 vs inimigo: 14.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +9 XP, 1 item(ns), 2 artefato(s). Resolvendo...",
+			"Espada da Última Luz descartado.",
+			"Despertar Vermelho! Salas de subchefe injetadas no deck (Câmara do Carcereiro, Câmara do Abismo Rachado).",
+			"Bárbaro Rubro subiu para nível 5. Despertar avança.",
+			"Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
+			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 26, Bônus de Acerto: 15.",
+			"Herói rolou 27 | Inimigo rolou 22.",
+			"Trono Vivo: dano ao boss reduzido em 1.",
+			"Boss sofreu 9 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 17.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Herói rolou 31 | Inimigo rolou 22.",
+			"Trono Vivo: dano ao boss reduzido em 1.",
+			"Boss sofreu 9 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 8.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Herói rolou 31 | Inimigo rolou 21.",
+			"Ascensão Final ativada: +2 no acerto do boss.",
+			"Trono Vivo: dano ao boss reduzido em 1.",
+			"Boss sofreu 9 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 0.",
+			"Boss derrotado! Vitória!"
+		],
+		"groupArtifacts": [
+			{
+				"cardId": "artifact_first_fire_blade",
+				"carriedBy": null
+			},
+			{
+				"cardId": "artifact_crimson_jailer_chain",
+				"carriedBy": null
+			}
+		],
+		"groupBuffs": [],
+		"groupXp": 6,
+		"heroes": [
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_deep_veil_necromancer",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 2,
+				"dice": 1,
+				"hitBonus": 5,
+				"id": "h-1t01vj9-623ad0",
+				"impeto": 1,
+				"maxLife": 10,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {
+					"amulet": "item_silent_dungeon_charm",
+					"clothing1": "item_broken_veil_cloak",
+					"hand1": "item_incendiary_oil_flask",
+					"hand2": "item_stoneskin_potion"
+				},
+				"backpack": [
+					"item_pitch_torch",
+					"item_last_defense_charm",
+					"item_deep_veil_scythe"
+				],
+				"cardId": "hero_crimson_barbarian",
+				"conditions": [],
+				"currentLife": 16,
+				"damage": 4,
+				"dice": 3,
+				"hitBonus": 18,
+				"id": "h-1we3asg-1hhxf61",
+				"impeto": 4,
+				"maxLife": 20,
+				"playerIndex": 0,
+				"status": "active",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_rift_rogue",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 2,
+				"dice": 1,
+				"hitBonus": 5,
+				"id": "h-2xdl4c-1pnsuhg",
+				"impeto": 1,
+				"maxLife": 10,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_crimson_rune_mage",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 2,
+				"dice": 1,
+				"hitBonus": 5,
+				"id": "h-vouyhp-1wf252x",
+				"impeto": 1,
+				"maxLife": 9,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			}
+		],
+		"inventoryByHero": {
+			"h-1t01vj9-623ad0": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 8,
+					"damageBonus": 6,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-1we3asg-1hhxf61": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 10,
+					"damageBonus": 6,
+					"hit": 18,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-2xdl4c-1pnsuhg": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 8,
+					"damageBonus": 6,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-vouyhp-1wf252x": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 8,
+					"damageBonus": 6,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			}
+		},
+		"mode": "cooperative",
+		"paths": [],
+		"paused": null,
+		"pendingRewards": [],
+		"pendingSkillChoice": null,
+		"pendingSkillTarget": null,
+		"pendingTriggerInterrupt": null,
+		"roomsCleared": 7,
+		"status": "VICTORY"
+	}
+}

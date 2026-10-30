@@ -1,9 +1,3 @@
-﻿// Testes da Onda B do patch-8: handlers com SKILL_CHOICE.
-// Cada describe cobre 1 handler + continuação.
-
-// Lote 3 (Patch-12): item_or_discardDungeon absorvido pela DSL choose_one.
-// Testes portados para usar evaluate() + drainStack + reducer com novos option IDs.
-
 import { describe, expect, it } from "vitest";
 import { buildScriptCtx } from "../../../scripts/context";
 import { evaluate } from "../../dsl/evaluate";
@@ -12,8 +6,14 @@ import "../index";
 import { reducer } from "../../../reducer";
 import { createEmptyCombatState } from "../../../state/combatState";
 import type { GameState } from "../../../state/gameState";
+import { gameOf } from "@/engine/state";
 import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { deckOf, decksOf, heroesOf, withDecks } from "@/core/state/access";
+import { type LooseGame, settledWith } from "../../../__tests__/fixtures";
+import { pendingSkillChoiceOf, withPendingSkillChoice } from "../../../state/access";
+import type { PendingSkillChoice } from "../../../choices";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
@@ -24,7 +24,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 1,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -36,16 +35,21 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	};
 }
 
-function makeState(overrides: Partial<GameState> = {}): GameState {
+function makeState(
+	overrides: Partial<LooseGame> & { pendingSkillChoice?: PendingSkillChoice } = {},
+): GameState {
+	const { pendingSkillChoice, ...rest } = overrides;
 	const base = createInitialGameState({
 		heroCardIds: ["hero_crimson_barbarian"],
 	});
-	return {
-		...base,
-		heroes: [makeHero()],
-		combat: createEmptyCombatState(),
-		...overrides,
-	};
+	return withPendingSkillChoice(
+		settledWith(base, {
+			heroes: [makeHero()],
+			combat: createEmptyCombatState(),
+			...rest,
+		}),
+		pendingSkillChoice,
+	);
 }
 
 // ── DSL choose_one: dark_tribute (portado de item_or_discardDungeon) ──────────
@@ -81,7 +85,7 @@ describe("DSL choose_one — dark_tribute", () => {
 		const state = makeState({
 			heroes: [makeHero({ backpack: ["Adaga Enferrujada"] })],
 		});
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "before_first_combat_in_room",
@@ -90,27 +94,26 @@ describe("DSL choose_one — dark_tribute", () => {
 			{},
 		);
 		const result = evaluate(darkTributeEffect, ctx);
-		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options.map((o) => o.id)).toContain(
+		expect(pendingSkillChoiceOf(result)).toBeDefined();
+		expect(pendingSkillChoiceOf(result)?.options.map((o) => o.id)).toContain(
 			"discard_item",
 		);
-		expect(result.pendingSkillChoice?.options.map((o) => o.id)).toContain(
+		expect(pendingSkillChoiceOf(result)?.options.map((o) => o.id)).toContain(
 			"discard_dungeon",
 		);
 	});
 
 	it("escolha 'dungeon' descarta 1 carta do deck via SKILL_CHOICE", () => {
-		const base = makeState({
-			decks: {
-				...createInitialGameState({ heroCardIds: [] }).decks,
+		const base = withDecks(makeState({
+		}), {
+				...decksOf(createInitialGameState({ heroCardIds: [] })),
 				dungeonDeck: {
 					available: ["Sala A", "Sala B"],
 					discarded: [],
 					removed: [],
 				},
-			},
-		});
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine, 
 			base,
 			{
 				triggeredBy: "before_first_combat_in_room",
@@ -119,22 +122,22 @@ describe("DSL choose_one — dark_tribute", () => {
 			{},
 		);
 		const withChoice = evaluate(darkTributeEffect, ctx);
-		const result = reducer(withChoice, {
+		const result = reducer(testEngine, withChoice, {
 			type: "SKILL_CHOICE",
 			payload: {
 				skillId: "skill_dark_tribute",
 				choice: "discard_dungeon",
 			},
 		});
-		expect(result.decks.dungeonDeck.available).toHaveLength(1);
-		expect(result.pendingSkillChoice).toBeUndefined();
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(1);
+		expect(pendingSkillChoiceOf(result)).toBeUndefined();
 	});
 
 	it("escolha 'item' remove item da mochila via SKILL_CHOICE", () => {
 		const base = makeState({
 			heroes: [makeHero({ backpack: ["Poção de Vigor Menor"] })],
 		});
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			base,
 			{
 				triggeredBy: "before_first_combat_in_room",
@@ -143,12 +146,12 @@ describe("DSL choose_one — dark_tribute", () => {
 			{},
 		);
 		const withChoice = evaluate(darkTributeEffect, ctx);
-		const result = reducer(withChoice, {
+		const result = reducer(testEngine, withChoice, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "skill_dark_tribute", choice: "discard_item" },
 		});
-		expect(result.heroes[0].backpack).toHaveLength(0);
-		expect(result.pendingSkillChoice).toBeUndefined();
+		expect(heroesOf(result)[0].backpack).toHaveLength(0);
+		expect(pendingSkillChoiceOf(result)).toBeUndefined();
 	});
 });
 
@@ -157,13 +160,13 @@ describe("DSL choose_one — dark_tribute", () => {
 describe("reducer SKILL_CHOICE", () => {
 	it("sem pendingSkillChoice, retorna estado inalterado (exceto actionLog)", () => {
 		const state = makeState();
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "x", choice: "y" },
 		});
 		// actionLog sempre acumula — compara o resto do estado
-		const { actionLog: _a, ...restResult } = result;
-		const { actionLog: _b, ...restState } = state;
+		const { actionLog: _a, ...restResult } = gameOf(result);
+		const { actionLog: _b, ...restState } = gameOf(state);
 		expect(restResult).toEqual(restState);
 	});
 
@@ -175,11 +178,11 @@ describe("reducer SKILL_CHOICE", () => {
 				options: [{ id: "a", label: "A" }],
 			},
 		});
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "habilidade-inexistente", choice: "a" },
 		});
-		expect(result.pendingSkillChoice).toBeUndefined();
+		expect(pendingSkillChoiceOf(result)).toBeUndefined();
 	});
 
 	it("não permite pular uma escolha obrigatória", () => {
@@ -190,11 +193,11 @@ describe("reducer SKILL_CHOICE", () => {
 				options: [{ id: "discard_item", label: "Descartar item" }],
 			},
 		});
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "skill_dark_tribute", choice: "__skip__" },
 		});
-		expect(result.pendingSkillChoice).toEqual(state.pendingSkillChoice);
+		expect(pendingSkillChoiceOf(result)).toEqual(pendingSkillChoiceOf(state));
 	});
 
 	it("permite pular apenas uma escolha marcada como opcional", () => {
@@ -206,10 +209,10 @@ describe("reducer SKILL_CHOICE", () => {
 				options: [{ id: "heal_all", label: "Curar todos" }],
 			},
 		});
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "power_last_light_oath", choice: "__skip__" },
 		});
-		expect(result.pendingSkillChoice).toBeUndefined();
+		expect(pendingSkillChoiceOf(result)).toBeUndefined();
 	});
 });

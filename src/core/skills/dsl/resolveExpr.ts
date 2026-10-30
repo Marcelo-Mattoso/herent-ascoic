@@ -1,4 +1,4 @@
-// Resolução de ExprNode → number | string.
+﻿// Resolução de ExprNode → number | string.
 // Pura — sem efeitos colaterais.
 
 import type { ArithExpr, EvalCtx, ExprNode } from "./types";
@@ -23,9 +23,10 @@ export function resolveExpr(node: ExprNode, ctx: EvalCtx): number {
 		return resolveRef(node, ctx);
 	}
 
-	// ColorByAwakening — array de 5 valores indexado por state.despertar
+	// Tupla indexada pelo contador de progressão que o jogo registra no espaço "index"
 	if (Array.isArray(node)) {
-		const idx = ctx.state.despertar;
+		const idx = ctx.engine.kinds.ref<number>("index", "tuple", ctx);
+		if (idx === undefined) throw new Error("[resolveExpr] espaço index sem resolvedor");
 		const v = (node as ReadonlyArray<number | null>)[idx];
 		if (v === null) throw new SkipEffect();
 		return v;
@@ -54,8 +55,7 @@ export function resolveExpr(node: ExprNode, ctx: EvalCtx): number {
 }
 
 /**
- * Resolve uma ref simbólica para número.
- * Tenta ctx.params primeiro, depois refs especiais de estado.
+ * Resolve uma ref simbólica para número pelos RefResolver registrados na engine.
  */
 function resolveRef(ref: string, ctx: EvalCtx): number {
 	if (!ref.startsWith("$")) {
@@ -67,52 +67,8 @@ function resolveRef(ref: string, ctx: EvalCtx): number {
 		);
 	}
 
-	const name = ref.slice(1); // remove "$"
-
-	// Params da habilidade
-	if (name in ctx.params) {
-		const v = ctx.params[name];
-		if (typeof v === "number") return v;
-		const n = Number(v);
-		if (!Number.isNaN(n)) return n;
-		throw new Error(`[resolveExpr] param "${name}" não é número: ${String(v)}`);
-	}
-
-	// Refs especiais de estado
-	switch (name) {
-		case "dungeon.level":
-			return ctx.query.dungeonLevel();
-		case "room.enemy_count":
-			return ctx.query.roomEnemyCount();
-		case "self.currentLife":
-		case "self.maxLife": {
-			const entityId = ctx.sourceId;
-			if (!entityId) throw new Error(`[resolveExpr] $${name} requer sourceId`);
-			const hero = ctx.state.heroes.find((h) => h.id === entityId);
-			if (hero)
-				return name === "self.currentLife" ? hero.currentLife : hero.maxLife;
-			const enemy = ctx.state.activeEnemies.find((e) => e.id === entityId);
-			if (enemy)
-				return name === "self.currentLife" ? enemy.currentLife : enemy.maxLife;
-			throw new Error(
-				`[resolveExpr] entidade "${entityId}" não encontrada para $${name}`,
-			);
-		}
-	}
-
-	// Refs de entidade compostas ("source.currentLife" etc.) — extensível sob demanda
-	if (name.includes(".")) {
-		const [entity, prop] = name.split(".", 2) as [string, string];
-		const entityId = resolveEntityRef(`$${entity}`, ctx);
-		if (entityId) {
-			const hero = ctx.state.heroes.find((h) => h.id === entityId);
-			if (hero && prop === "currentLife") return hero.currentLife;
-			if (hero && prop === "maxLife") return hero.maxLife;
-			const enemy = ctx.state.activeEnemies.find((e) => e.id === entityId);
-			if (enemy && prop === "currentLife") return enemy.currentLife;
-			if (enemy && prop === "maxLife") return enemy.maxLife;
-		}
-	}
+	const value = ctx.engine.kinds.ref<number>("number", ref, ctx);
+	if (value !== undefined) return value;
 
 	throw new Error(`[resolveExpr] ref desconhecida: "${ref}"`);
 }
@@ -123,61 +79,18 @@ function resolveRef(ref: string, ctx: EvalCtx): number {
  */
 export function resolveEntityRef(ref: string, ctx: EvalCtx): string | null {
 	if (!ref.startsWith("$")) return ref; // id literal
-
-	switch (ref) {
-		case "$source":
-			return ctx.sourceId;
-		case "$target":
-			return ctx.targetId;
-		case "$self":
-			return ctx.sourceId;
-		case "$lowest_life_hero":
-			return ctx.query.heroWithLowestLife();
-	}
-
-	// Ref a param
-	const name = ref.slice(1);
-	if (name in ctx.params) {
-		const v = ctx.params[name];
-		return typeof v === "string" ? v : null;
-	}
-
-	return null;
+	return ctx.engine.kinds.ref<string | null>("entity", ref, ctx) ?? null;
 }
 
 /**
  * Resolve uma ref para lista de entity ids.
- * Inclui `$each` — itera sobre affect_scope da skill (resolução baseada em ctx.state).
  */
 export function resolveEntityListRef(
 	ref: string,
 	ctx: EvalCtx,
 ): readonly string[] {
-	switch (ref) {
-		case "$each":
-			// Resolve baseado nos targetIds do contexto (scp_party_full / scp_room → todos ativos)
-			// A semântica exata depende do affect_scope declarado na skill; aqui usamos targetIds
-			// como proxy universal. Para scp_party_full/scp_room, o dispatcher preenche targetIds.
-			return ctx.targetIds.length > 0
-				? ctx.targetIds
-				: ctx.state.heroes
-						.filter((h) => h.status === "active")
-						.map((h) => h.id);
-		case "$targets":
-			return ctx.targetIds;
-		case "$source":
-			return ctx.sourceId ? [ctx.sourceId] : [];
-		case "$target":
-			return ctx.targetId ? [ctx.targetId] : [];
-		case "all_heroes":
-			return ctx.state.heroes
-				.filter((h) => h.status === "active")
-				.map((h) => h.id);
-		case "all_enemies":
-			return ctx.state.activeEnemies
-				.filter((e) => e.status === "active")
-				.map((e) => e.id);
-	}
+	const list = ctx.engine.kinds.ref<readonly string[]>("entities", ref, ctx);
+	if (list !== undefined) return list;
 
 	const single = resolveEntityRef(ref, ctx);
 	return single ? [single] : [];

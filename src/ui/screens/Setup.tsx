@@ -6,7 +6,7 @@ import { getBoss, getHeroes } from "@/core/data/cards";
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
 import { displaySkillLocale as getSkillLocale, displaySkillName as getSkillName } from "@/i18n/catalogs";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
-import { MAX_HEROES } from "@/core/state/gameState";
+import { MAX_HEROES } from "@/core/projection/viewTypes";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";

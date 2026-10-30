@@ -16,10 +16,11 @@ import { downloadTutorialAudit } from "./audit";
 import { currentTutorialStep, type TutorialSession } from "./session";
 import { getTutorialModule, type TutorialModule } from "./registry";
 import type { PlayerView } from "@/core/projection/playerView";
-import type { BonusEntry } from "@/core/state/combatState";
+import type { BonusEntry } from "@/core/projection/viewTypes";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { displaySkillName as getSkillName } from "@/i18n/catalogs";
-import { cardSkills } from "@/core/skills/lookup";
+import { skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 
 interface Props {
@@ -326,7 +327,7 @@ export function TutorialOverlay({
 	const visibleRoll = step.id === "combat-dice" ? view.combat?.lastRoll : null;
 	const result = session.finalAttack;
 	const powerDefinition = session.moduleId === "archive-four" && view.heroes[0]
-		? cardSkills(view.heroes[0].cardId).find(({ def }) => def.category === "hero_power")?.def
+		? skillsOf(uiEngine, view.heroes[0].cardId).find(({ def }) => def.category === "hero_power")?.def
 		: undefined;
 	const powerScope = powerDefinition?.cooldown?.scope;
 	const powerLimit = powerScope === "game" ? translate("game:tutorials.tutorialOverlay.perGame") : powerScope === "room" ? translate("game:tutorials.tutorialOverlay.perRoom") : powerScope === "combat" ? translate("game:tutorials.tutorialOverlay.perCombat") : powerScope === "round" ? translate("game:tutorials.tutorialOverlay.perRound") : undefined;
@@ -354,7 +355,7 @@ export function TutorialOverlay({
 	function downloadAudit() {
 		downloadTutorialAudit({
 			session,
-			gameJournalJson: exportJournalJson(journal),
+			gameJournalJson: exportJournalJson(uiEngine, journal),
 		});
 	}
 
@@ -458,9 +459,9 @@ export function TutorialOverlay({
 								: {getCardName(session.inventoryResult.itemId)}.
 							</p>
 							{session.inventoryResult.itemId !== "item_precision_potion" &&
-								cardSkills(session.inventoryResult.itemId).map(({ ref }) => (
+								skillsOf(uiEngine, session.inventoryResult.itemId).map(({ ref }) => (
 									<p key={ref.skillId}>
-										{translate("game:tutorials.tutorialOverlay.text012")}{" "}{renderSkillLabel(ref)}
+										{translate("game:tutorials.tutorialOverlay.text012")}{" "}{renderSkillLabel(uiEngine, ref)}
 									</p>
 								))}
 							{session.inventoryResult.changes.slice(0, 3).map((change) => (

@@ -1,5 +1,5 @@
 import type { PlayerView } from "@/core/projection/playerView";
-import type { CombatRollResult } from "@/core/state/combatState";
+import type { CombatRollResult } from "@/core/projection/viewTypes";
 import type { GameJournal, JournalEntry } from "@/core/journal/gameJournal";
 import { getTutorialModule, type TutorialModuleId } from "./registry";
 import { INVENTORY_ITEMS } from "./inventoryScenario";

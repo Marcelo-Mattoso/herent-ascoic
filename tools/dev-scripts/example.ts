@@ -1,10 +1,6 @@
-// Exemplo de script customizado.
-// Execução: npm run script src/data/scripts/example.ts
-//
-// Tem acesso a todo o core via alias @/ — mesmo ambiente que os testes.
-
 import { reducer } from "@/core/reducer/index";
 import { createInitialGameState } from "@/core/state/gameState";
+import { gameOf } from "@/engine/state";
 
 function main() {
 	const base = createInitialGameState({ heroCardNames: ["Bárbaro Rubro"] });
@@ -13,12 +9,12 @@ function main() {
 		payload: { heroCardNames: ["Bárbaro Rubro"] },
 	});
 
-	console.log("Status:", state.status);
+	console.log("Status:", gameOf(state).status);
 	console.log(
 		"Heróis:",
-		state.heroes.map((h) => `${h.cardName} (${h.currentLife}/${h.maxLife} HP)`),
+		gameOf(state).heroes.map((h) => `${h.cardName} (${h.currentLife}/${h.maxLife} HP)`),
 	);
-	console.log("Log de actions:", state.actionLog.length, "entrada(s)");
+	console.log("Log de actions:", gameOf(state).actionLog.length, "entrada(s)");
 }
 
 // Executar apenas quando invocado diretamente (não quando importado pelo registry glob no test)

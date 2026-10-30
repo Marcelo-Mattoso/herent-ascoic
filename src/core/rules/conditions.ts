@@ -1,8 +1,7 @@
-// Verificação de condição de acesso ao boss.
-// A condição é declarada no campo accessCondition da carta do boss em cards.yaml.
-
-import { getCardById } from "../data/cards";
 import type { GameState } from "../state/gameState";
+import { cardById } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+import { gameOf } from "../../engine/state";
 
 type AccessCondition =
 	| { type: "group_artifacts_gte"; value: number }
@@ -14,7 +13,7 @@ function evaluateCondition(
 ): boolean {
 	switch (condition.type) {
 		case "group_artifacts_gte":
-			return state.groupArtifacts.length >= condition.value;
+			return gameOf(state).groupArtifacts.length >= condition.value;
 		case "always":
 			return true;
 		default:
@@ -22,11 +21,11 @@ function evaluateCondition(
 	}
 }
 
-export function checkBossCondition(
+export function checkBossCondition(engine: GameEngine, 
 	state: GameState,
 	bossCardId: string,
 ): boolean {
-	const card = getCardById(bossCardId);
+	const card = cardById(engine, bossCardId);
 	if (!card || card.type !== "boss") return false;
 
 	const raw = (card as unknown as Record<string, unknown>).accessCondition;

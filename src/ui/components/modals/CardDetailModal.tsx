@@ -2,7 +2,8 @@ import { translate } from "@/i18n";
 import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import { displaySkillName as getSkillName } from "@/i18n/catalogs";
-import { cardSkills, lookupSkillById } from "@/core/skills/lookup";
+import { skillById, skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CardType } from "@/ui/components/Card";
 import { Modal } from "@/ui/components/Modal";
@@ -62,7 +63,7 @@ export function CardDetailModal({
 
 					{card?.type === "hero" &&
 						(() => {
-							const heroSkills = cardSkills(card.id);
+							const heroSkills = skillsOf(uiEngine, card.id);
 							const habilidade = heroSkills.find(
 								({ def }) => def.category === "hero_skill",
 							);
@@ -80,7 +81,7 @@ export function CardDetailModal({
 											>
 												{translate("game:components.modals.cardDetailModal.text001")}{" "}</p>
 											<p className="text-xs" style={{ color: UI.textPrimary }}>
-												{renderSkillLabel(habilidade.ref)}
+												{renderSkillLabel(uiEngine, habilidade.ref)}
 											</p>
 										</div>
 									)}
@@ -92,7 +93,7 @@ export function CardDetailModal({
 											>
 												{translate("game:components.modals.cardDetailModal.text002")}{" "}</p>
 											<p className="text-xs" style={{ color: UI.textPrimary }}>
-												{renderSkillLabel(poder.ref)}
+												{renderSkillLabel(uiEngine, poder.ref)}
 											</p>
 										</div>
 									)}
@@ -108,7 +109,7 @@ export function CardDetailModal({
 
 					{(card?.type === "creature" || card?.type === "subboss") &&
 						(() => {
-							const creatureSkills = cardSkills(card.id);
+							const creatureSkills = skillsOf(uiEngine, card.id);
 							const main = creatureSkills.find(
 								({ ref }) => !ref.requiresAwakening,
 							);
@@ -124,12 +125,12 @@ export function CardDetailModal({
 											className="text-xs italic"
 											style={{ color: UI.textSecondary }}
 										>
-											{renderSkillLabel(main.ref)}
+											{renderSkillLabel(uiEngine, main.ref)}
 										</p>
 									)}
 									{purple && (
 										<p className="text-xs italic" style={{ color: "#3D1A6E" }}>
-											{translate("game:components.modals.cardDetailModal.text003")}{" "}{renderSkillLabel(purple.ref)}
+											{translate("game:components.modals.cardDetailModal.text003")}{" "}{renderSkillLabel(uiEngine, purple.ref)}
 										</p>
 									)}
 								</>
@@ -138,7 +139,7 @@ export function CardDetailModal({
 
 					{(card?.type === "room" || card?.type === "subboss_room") &&
 						(() => {
-							const roomSkills = cardSkills(card.id);
+							const roomSkills = skillsOf(uiEngine, card.id);
 							const main = roomSkills[0];
 							return (
 								<>
@@ -149,7 +150,7 @@ export function CardDetailModal({
 											className="text-xs italic"
 											style={{ color: UI.textSecondary }}
 										>
-											{renderSkillLabel(main.ref)}
+											{renderSkillLabel(uiEngine, main.ref)}
 										</p>
 									)}
 								</>
@@ -158,7 +159,7 @@ export function CardDetailModal({
 
 					{card?.type === "item" &&
 						(() => {
-							const itemSkills = cardSkills(card.id);
+							const itemSkills = skillsOf(uiEngine, card.id);
 							const main = itemSkills[0];
 							const canUseItem =
 								!!onUseItem &&
@@ -169,7 +170,7 @@ export function CardDetailModal({
 									<Row label="Tipo" value={card.itemClass} />
 									{main && (
 										<p className="text-xs" style={{ color: UI.textPrimary }}>
-											{renderSkillLabel(main.ref)}
+											{renderSkillLabel(uiEngine, main.ref)}
 										</p>
 									)}
 									{canUseItem && (
@@ -197,11 +198,11 @@ export function CardDetailModal({
 
 					{card?.type === "artifact" &&
 						(() => {
-							const artSkills = cardSkills(card.id);
+							const artSkills = skillsOf(uiEngine, card.id);
 							const main = artSkills[0];
 							return main ? (
 								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{renderSkillLabel(main.ref)}
+									{renderSkillLabel(uiEngine, main.ref)}
 								</p>
 							) : null;
 						})()}
@@ -213,7 +214,7 @@ export function CardDetailModal({
 								value={getCardLocale(card.id)?.condition ?? "—"}
 							/>
 							{card.skills.map((ref) => {
-								const def = lookupSkillById(ref.skillId);
+								const def = skillById(uiEngine, ref.skillId);
 								if (!def) return null;
 								return (
 									<div key={ref.skillId}>
@@ -224,7 +225,7 @@ export function CardDetailModal({
 											{getSkillName(def.id)}
 										</p>
 										<p className="text-xs" style={{ color: UI.textPrimary }}>
-											{renderSkillLabel(ref)}
+											{renderSkillLabel(uiEngine, ref)}
 										</p>
 									</div>
 								);

@@ -6,7 +6,7 @@ import {
 	isEligibleDie,
 	type DiceSelection,
 } from "@/core/rules/diceSelection";
-import type { CombatRollResult } from "@/core/state/combatState";
+import type { CombatRollResult } from "@/core/projection/viewTypes";
 import { ActionButton } from "./ActionButton";
 import { Modal } from "./Modal";
 

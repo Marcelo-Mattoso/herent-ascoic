@@ -32,6 +32,8 @@ export interface HeroCard {
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
 	readonly damage: number;
+	/** Herói cuja habilidade impede o descarte da masmorra (influência exibida pela projeção). */
+	readonly preservesDungeonDiscard?: boolean;
 	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
 	readonly grants?: readonly AbilityGrant[];
@@ -138,12 +140,27 @@ export interface ArtifactCard {
 
 // --- Boss ---
 
+export interface BossRules {
+	readonly dice: number;
+	readonly fullArtifacts: { readonly count: number; readonly life: number };
+	readonly firstDamageReduction: number;
+	readonly ascension: {
+		readonly hitBonus: number;
+		readonly atOrBelowLifeFraction: number;
+	};
+	readonly pressure: {
+		readonly atAwakening: number;
+		readonly discardDungeon: number;
+	};
+}
+
 export interface BossCard {
 	readonly type: "boss";
 	readonly id: string;
 	readonly lifeBase: number;
 	readonly hitBonusBase: number;
 	readonly damage: number;
+	readonly rules: BossRules;
 	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
 	readonly grants?: readonly AbilityGrant[];

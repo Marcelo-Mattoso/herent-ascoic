@@ -426,7 +426,7 @@ export default defineConfig({
 	},
 	test: {
 		environment: "node",
-		exclude: [...configDefaults.exclude, "e2e/**"],
+		exclude: [...configDefaults.exclude, "e2e/**", "tools/engine-test/**"],
 		passWithNoTests: true,
 		coverage: {
 			provider: "v8",

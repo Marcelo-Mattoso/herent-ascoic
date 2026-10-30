@@ -1,0 +1,341 @@
+{
+	"engineVersion": 1,
+	"name": "golden-05",
+	"seed": 5036,
+	"setup": {
+		"heroCardIds": [
+			"hero_broken_bastion_warrior"
+		],
+		"difficulty": "nightmare",
+		"bossCardId": "boss_azhakar",
+		"seed": 5036
+	},
+	"outcome": "DEFEAT",
+	"actions": [
+		{
+			"type": "START_GAME",
+			"payload": {
+				"heroCardIds": [
+					"hero_broken_bastion_warrior"
+				],
+				"difficulty": "nightmare",
+				"bossCardId": "boss_azhakar",
+				"seed": 5036,
+				"gameId": "golden-5036"
+			}
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "SKILL_CHOICE",
+			"payload": {
+				"skillId": "dungeon_skill_dead_torches",
+				"choice": "discard_item"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1rvef5y-8j5xsd",
+				"enemyId": "e-1ue3gqx-ab4gn0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1rvef5y-8j5xsd",
+				"enemyId": "e-1ue3gqx-ab4gn0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1rvef5y-8j5xsd",
+				"enemyId": "e-1ue3gqx-ab4gn0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		}
+	],
+	"steps": [
+		"48ccc09bf87b5433",
+		"440141ada639f079",
+		"d4f6df8589d3fd7c",
+		"e476be4afe1f11ce",
+		"4fe01a78564f3626",
+		"da65a7ff5a2a82e0",
+		"e58f2034beaa54e5",
+		"f7b32e8ee660fae9",
+		"e3143e309bbe69b8",
+		"8cf6bd9779a501e5",
+		"2ac84f5c135408b6",
+		"f78f2d5e6ba3f991",
+		"55f2046141db7332",
+		"be3a57158bb0c46e",
+		"8f761b8c0e699f03",
+		"2fd64141e789b594",
+		"2e12d2202dcf42a4",
+		"8455a1cbd3b39ba8",
+		"fd669add3c9c8d14",
+		"3892dccc1c28a7a8"
+	],
+	"finalSnapshot": {
+		"abilityActionsByHero": {
+			"h-1rvef5y-8j5xsd": [
+				{
+					"abilityId": "skill_bastion_guard",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Guarda do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_unbreakable_bastion_guard",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Guarda Inquebrável do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			]
+		},
+		"activeInfluences": [],
+		"bossCardId": "boss_azhakar",
+		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
+		"combat": {
+			"buffsByHero": {},
+			"heroesActed": [
+				"h-1rvef5y-8j5xsd"
+			],
+			"lastRoll": {
+				"enemyBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 7
+					}
+				],
+				"enemyId": "e-1ue3gqx-ab4gn0",
+				"enemyResults": [
+					2,
+					3
+				],
+				"enemyTotal": 12,
+				"heroBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 5
+					}
+				],
+				"heroId": "h-1rvef5y-8j5xsd",
+				"heroResults": [
+					5
+				],
+				"heroTotal": 10
+			},
+			"phase": "direct_damage",
+			"powersUsedThisRoom": {},
+			"round": 2,
+			"selectedHeroId": null
+		},
+		"creaturesDefeated": 0,
+		"currentRoom": {
+			"cardId": "room_dead_torches_passage",
+			"currentEnemies": 1,
+			"effect": "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
+			"exits": 2,
+			"reward": 1,
+			"rewardType": "item",
+			"status": "active",
+			"xp": 2
+		},
+		"decks": {
+			"artifactDeck": {
+				"available": [
+					"artifact_crimson_jailer_chain",
+					"artifact_ancient_ember_heart",
+					"artifact_lost_forge_hammer",
+					"artifact_first_fire_blade",
+					"artifact_last_vigil_brazier"
+				],
+				"discarded": 0
+			},
+			"dungeonDeck": {
+				"available": 19,
+				"discarded": []
+			},
+			"enemyDeck": {
+				"available": 17,
+				"discarded": 0
+			},
+			"itemDeck": {
+				"available": [
+					"item_broken_veil_cloak",
+					"item_light_stone_boots",
+					"item_cracked_shield",
+					"item_last_light_sword",
+					"item_safe_path_charm",
+					"item_living_ember_potion",
+					"item_last_chord_lute",
+					"item_fury_potion",
+					"item_deep_veil_scythe",
+					"item_rusty_dagger",
+					"item_incendiary_oil_flask",
+					"item_last_defense_charm",
+					"item_stoneskin_potion",
+					"item_greater_vigor_potion",
+					"item_warm_blood_charm",
+					"item_pitch_torch",
+					"item_broken_stone_hammer",
+					"item_precision_potion",
+					"item_tunnel_hood",
+					"item_worn_explorer_rope",
+					"item_ancient_metal_armor",
+					"item_lesser_vigor_potion",
+					"item_silent_dungeon_charm",
+					"item_torn_depths_map",
+					"item_ruined_hall_axe",
+					"item_return_potion",
+					"item_low_flame_charm",
+					"item_ancient_iron_key",
+					"item_hidden_forge_chest",
+					"item_forge_magic_armor",
+					"item_narrow_exit_cloak",
+					"item_reinforced_leather_armor",
+					"item_crimson_rune_staff",
+					"item_rift_bow"
+				],
+				"discarded": 0
+			}
+		},
+		"despertar": 2,
+		"enemies": [
+			{
+				"cardId": "creature_dead_torch_sentinel",
+				"conditions": [],
+				"currentLife": 6,
+				"damage": 4,
+				"dice": 2,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 7,
+				"id": "e-1ue3gqx-ab4gn0",
+				"isSubboss": false,
+				"maxLife": 6,
+				"status": "active",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 2,
+					"xp": 2
+				}
+			}
+		],
+		"eventLog": [
+			"Partida iniciada. Heróis: Guerreiro do Bastião Partido. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Sala sorteada: Passagem das Tochas Mortas.",
+			"1 inimigo(s) aparecem: Sentinela das Tochas Mortas.",
+			"Combate iniciado.",
+			"Tributo: nenhum item disponível para descartar.",
+			"Herói rolou 6 | Inimigo rolou 13.",
+			"Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [4+2]=6, acerto +7 → 13 vs herói: 6.",
+			"Rodada 2 de combate.",
+			"Herói rolou 11 | Inimigo rolou 16.",
+			"Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [3+6]=9, acerto +7 → 16 vs herói: 11.",
+			"Rodada 3 de combate.",
+			"Herói rolou 10 | Inimigo rolou 12.",
+			"Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [2+3]=5, acerto +7 → 12 vs herói: 10.",
+			"Derrota: herói eliminado."
+		],
+		"groupArtifacts": [],
+		"groupBuffs": [],
+		"groupXp": 0,
+		"heroes": [
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_broken_bastion_warrior",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 3,
+				"dice": 1,
+				"hitBonus": 5,
+				"id": "h-1rvef5y-8j5xsd",
+				"impeto": 0,
+				"maxLife": 11,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			}
+		],
+		"inventoryByHero": {
+			"h-1rvef5y-8j5xsd": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 3,
+					"damageBonus": 0,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			}
+		},
+		"mode": "cooperative",
+		"paths": [],
+		"paused": null,
+		"pendingRewards": [],
+		"pendingSkillChoice": null,
+		"pendingSkillTarget": null,
+		"pendingTriggerInterrupt": null,
+		"roomsCleared": 0,
+		"status": "DEFEAT"
+	}
+}

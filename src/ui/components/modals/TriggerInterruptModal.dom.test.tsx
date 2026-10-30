@@ -7,6 +7,7 @@ import { getCardName } from "@/core/data/cardLocale";
 import { displayCardName } from "@/i18n/catalogs";
 import { normalizeCardImageKey } from "@/ui/cardImages";
 import { TriggerInterruptModal } from "./TriggerInterruptModal";
+import { testEngine } from "@/core/__tests__/testEngine";
 
 const sourceCardId = "hero_crimson_barbarian";
 const imageUrl = "/herent-ascoic/generated/cards/assets/barbarian.png";
@@ -15,7 +16,7 @@ const imageUrls = {
 };
 const dispatch = vi.fn();
 const base = createInitialGameState({ heroCardIds: [sourceCardId] });
-let view = playerView(base);
+let view = playerView(testEngine, base);
 
 vi.mock("@/ui/store/gameStore", () => ({
 	useGameStore: () => ({ view, dispatch }),
@@ -25,7 +26,7 @@ vi.mock("@/ui/hooks/useCardImages", () => ({ useCardImages: () => imageUrls }));
 beforeEach(() => {
 	dispatch.mockReset();
 	view = {
-		...playerView(base),
+		...playerView(testEngine, base),
 		pendingTriggerInterrupt: {
 			id: "interrupt-1",
 			skillId: "power_mighty_crimson_fury",

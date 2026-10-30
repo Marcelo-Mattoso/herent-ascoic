@@ -1,4 +1,3 @@
-import { getCardName } from "../data/cardLocale";
 import type { SkillContext } from "../data/skillTypes";
 import type { ModifierComponent, TriggerComponent } from "../ecs/types";
 import {
@@ -7,18 +6,21 @@ import {
 } from "../ecs/world";
 import { addPending } from "../effects/stack";
 import { log as appendLog } from "../reducer/utils";
-import { cardSkills } from "../skills/lookup";
+
 import type { GameState } from "../state/gameState";
 import { applyDamage } from "../systems/damageSystem";
 import type { ScriptCtx } from "./types";
+import { cardName, skillsOf } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
 
+import { awakeningOf, enemiesOf, heroesOf, withWorld, worldOf, withPendingSkillChoice, withEffectStack, effectStackOf } from "../state/access";
 /**
  * Constrói o ScriptCtx passado para scripts e para o evaluator DSL.
  *
  * Fase 2 (Passo 9): action.* plugam no pipeline ECS em vez de mutar
  * o estado diretamente. dealDamage mantido como @deprecated compat.
  */
-export function buildScriptCtx(
+export function buildScriptCtx(engine: GameEngine, 
 	state: GameState,
 	skillCtx: SkillContext,
 	params: Readonly<Record<string, unknown>> = {},
@@ -38,6 +40,7 @@ export function buildScriptCtx(
 	];
 
 	const ctx: ScriptCtx = {
+		engine,
 		state,
 		skillCtx,
 		skillId,
@@ -48,18 +51,18 @@ export function buildScriptCtx(
 
 		query: {
 			creatureHasSkill(enemyId, sId) {
-				const enemy = state.activeEnemies.find((e) => e.id === enemyId);
+				const enemy = enemiesOf(state).find((e) => e.id === enemyId);
 				if (!enemy) return false;
-				return cardSkills(enemy.cardId).some(({ def }) => def.id === sId);
+				return skillsOf(engine, enemy.cardId).some(({ def }) => def.id === sId);
 			},
 			dungeonLevel() {
-				return state.despertar;
+				return awakeningOf(state);
 			},
 			roomEnemyCount() {
-				return state.activeEnemies.filter((e) => e.status === "active").length;
+				return enemiesOf(state).filter((e) => e.status === "active").length;
 			},
 			heroWithLowestLife() {
-				const active = state.heroes.filter((h) => h.status === "active");
+				const active = heroesOf(state).filter((h) => h.status === "active");
 				if (active.length === 0) return null;
 				return active.reduce((a, b) => (a.currentLife <= b.currentLife ? a : b))
 					.id;
@@ -68,25 +71,25 @@ export function buildScriptCtx(
 
 		action: {
 			pushEffect(node) {
-				const newStack = addPending(state.effectStack, {
+				const newStack = addPending(effectStackOf(state), {
 					cause: skillCtx.triggeredBy,
 					effect: node as import("../ecs/types").EffectDescriptor,
 					source: skillId,
 				});
-				return { ...state, effectStack: newStack };
+				return withEffectStack(state, newStack);
 			},
 
 			addComponent(entityId, component) {
-				const newWorld = ecsAddComponent(state.world, entityId, component);
-				return { ...state, world: newWorld };
+				const newWorld = ecsAddComponent(worldOf(state), entityId, component);
+				return withWorld(state, newWorld);
 			},
 
 			removeComponentsBySource(entityId, source) {
-				const newWorld = ecsRemoveComponent(state.world, entityId, (c) => {
+				const newWorld = ecsRemoveComponent(worldOf(state), entityId, (c) => {
 					const typed = c as ModifierComponent | TriggerComponent;
 					return "source" in typed && typed.source === source;
 				});
-				return { ...state, world: newWorld };
+				return withWorld(state, newWorld);
 			},
 
 			emit(event) {
@@ -95,9 +98,7 @@ export function buildScriptCtx(
 			},
 
 			requestChoice(options, choiceOptions) {
-				return {
-					...state,
-					pendingSkillChoice: {
+				return withPendingSkillChoice(state, {
 						skillId,
 						prompt: "Escolha uma opção:",
 						allowSkip: choiceOptions?.allowSkip === true,
@@ -113,8 +114,7 @@ export function buildScriptCtx(
 						targetHeroIds: skillCtx.targetHeroIds,
 						targetEnemyIds: skillCtx.targetEnemyIds,
 						context: skillCtx,
-					},
-				};
+					});
 			},
 
 			log(msg) {
@@ -123,26 +123,26 @@ export function buildScriptCtx(
 
 			// @deprecated — use action.pushEffect({ kind: "apply_damage", ... })
 			dealDamage(tId, amount) {
-				const enemy = state.activeEnemies.find((e) => e.id === tId);
+				const enemy = enemiesOf(state).find((e) => e.id === tId);
 				if (enemy?.status === "active") {
-					const next = applyDamage(state, tId, amount, {
+					const next = applyDamage(engine, state, tId, amount, {
 						sourceId: sourceId ?? undefined,
 						damageType: "direct",
 					});
 					return appendLog(
 						next,
-						`Dano direto: ${getCardName(enemy.cardId)} sofreu ${amount}.`,
+						`Dano direto: ${cardName(engine, enemy.cardId)} sofreu ${amount}.`,
 					);
 				}
-				const hero = state.heroes.find((h) => h.id === tId);
+				const hero = heroesOf(state).find((h) => h.id === tId);
 				if (hero?.status === "active") {
-					const next = applyDamage(state, tId, amount, {
+					const next = applyDamage(engine, state, tId, amount, {
 						sourceId: sourceId ?? undefined,
 						damageType: "direct",
 					});
 					return appendLog(
 						next,
-						`Dano direto: ${getCardName(hero.cardId)} sofreu ${amount}.`,
+						`Dano direto: ${cardName(engine, hero.cardId)} sofreu ${amount}.`,
 					);
 				}
 				return state;
@@ -152,7 +152,7 @@ export function buildScriptCtx(
 		log: (msg) => appendLog(state, msg),
 
 		withState(s) {
-			return buildScriptCtx(s, skillCtx, params);
+			return buildScriptCtx(engine, s, skillCtx, params);
 		},
 	};
 

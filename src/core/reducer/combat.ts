@@ -1,11 +1,3 @@
-// Handlers do loop de combate.
-// Patch 2: fluxo sequencial — CHOOSE_HERO_FOR_ROUND → CHOOSE_TARGET → ROLL_DICE → RESOLVE_ATTACK → DIRECT_DAMAGE → CHECK_COMBAT_END.
-// Vários heróis podem atacar o mesmo inimigo; inimigos excedentes fazem rolagens extras.
-// Implementa efeitos de: item_rusty_dagger, item_cracked_shield, item_lesser_vigor_potion, hero_crimson_barbarian.
-
-import { getCardName } from "../data/cardLocale";
-import { getCardById } from "../data/cards";
-import { cardAbilityGrants } from "../data/abilities";
 import {
 	canExecuteAbilityGrant,
 	executeAbilityGrant,
@@ -14,7 +6,6 @@ import {
 import { preparedAbilityKey, togglePreparedAbility, isAbilityPrepared } from "../abilities/prepared";
 import {
 	decrementRoundsModifiers,
-	removeEntity,
 	removeModifiersForSource,
 	removeTriggersAppliedBySource,
 	tickModifierDurations,
@@ -41,7 +32,7 @@ import {
 } from "../rules/itemEffects";
 import { guardPassed } from "../triggers/engine";
 import { ActivationTracker } from "../state/activation";
-import { cardSkills, lookupSkillById } from "../skills/lookup";
+
 import {
 	fireOnUseSkill,
 	isManuallyActivatable,
@@ -58,14 +49,24 @@ import type { BonusEntry, CombatRollResult } from "../state/combatState";
 import { createEmptyCombatState } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
-import type { HeroState } from "../state/heroState";
+import type { HeroRecord, HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
 import { applyDamage } from "../systems/damageSystem";
 import { applyHeal } from "../systems/healSystem";
-import { log, shuffleRng } from "./utils";
+import { recordEvent } from "../events/record";
+import { log } from "./utils";
+import { abilityGrants, cardById, cardName, skillById, skillsOf } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
 
+import { deckOf, decksOf, enemiesOf, extraDiceOf, fledHeroesOf, heroesOf, shuffleDeck, withDeck, withDecks, withEntityRetired, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, pendingSkillWindowOf, pausedOf, withPendingSkillWindow, withPendingSkillTarget } from "../state/access";
+import { scopedFlagOf, withScopedFlag } from "../state/access";
+import type { GameHandler } from "../gameEngine";
+import { isBossAttack, isBossRoll } from "./boss";
+import { targetPairs } from "./legal";
+import { beginCombat, beginRound } from "../state/lifecycle";
+import { gameOf, withGame } from "../../engine/state";
 function activeHeroesPendingActivation(state: GameState): HeroState[] {
-	return state.heroes.filter(
+	return heroesOf(state).filter(
 		(h) =>
 			h.status === "active" &&
 			!ActivationTracker.isHeroDisabledThisRound(state, h.id),
@@ -73,49 +74,37 @@ function activeHeroesPendingActivation(state: GameState): HeroState[] {
 }
 
 export function advanceAfterHeroDisabledForRound(state: GameState): GameState {
-	if (!state.combat) return state;
+	if (!gameOf(state).combat) return state;
 	const pendingHeroes = activeHeroesPendingActivation(state);
 
 	if (pendingHeroes.length > 0) {
-		const livingEnemies = state.activeEnemies.filter(
+		const livingEnemies = enemiesOf(state).filter(
 			(e) => e.status === "active",
 		);
 		if (livingEnemies.length === 0) {
-			return {
-				...state,
-				status: "DIRECT_DAMAGE" as const,
-				combat: {
-					...state.combat,
+			return withGame(state, (prevGame) => ({ ...prevGame, status: "DIRECT_DAMAGE" as const, combat: {
+					...gameOf(state).combat!,
 					phase: "direct_damage" as const,
 					selectedHeroId: null,
-				},
-			};
+				} }));
 		}
 		return log(
-			{
-				...state,
-				status: (state.status === "BOSS_COMBAT"
+			withGame(state, (prevGame) => ({ ...prevGame, status: (gameOf(state).status === "BOSS_COMBAT"
 					? "BOSS_COMBAT"
-					: "HERO_ACTION") as "BOSS_COMBAT" | "HERO_ACTION",
-				combat: {
-					...state.combat,
+					: "HERO_ACTION") as "BOSS_COMBAT" | "HERO_ACTION", combat: {
+					...gameOf(state).combat!,
 					phase: "selecting_hero" as const,
 					selectedHeroId: null,
-				},
-			},
+				} })),
 			`Aguardando ação de ${pendingHeroes.length} herói(s).`,
 		);
 	}
 
-	return {
-		...state,
-		status: "DIRECT_DAMAGE" as const,
-		combat: {
-			...state.combat,
+	return withGame(state, (prevGame) => ({ ...prevGame, status: "DIRECT_DAMAGE" as const, combat: {
+			...gameOf(state).combat!,
 			phase: "direct_damage" as const,
 			selectedHeroId: null,
-		},
-	};
+		} }));
 }
 
 function endHeroTurnAndAdvance(
@@ -134,48 +123,36 @@ function endHeroTurnAndAdvance(
  */
 export function advanceAfterEnemyDefeat(state: GameState): GameState {
 	if (
-		state.pendingTriggerInterrupt ||
-		state.pendingSkillChoice ||
-		state.pendingSkillTarget ||
-		!state.combat ||
-		(state.status !== "HERO_ACTION" &&
-			state.status !== "RESOLVE_ATTACK" &&
-			state.status !== "DIRECT_DAMAGE" &&
-			state.status !== "CHECK_COMBAT_END") ||
-		state.activeEnemies.some((enemy) => enemy.status === "active")
+		pendingTriggerInterruptOf(state) ||
+		pendingSkillChoiceOf(state) ||
+		pendingSkillTargetOf(state) ||
+		!gameOf(state).combat ||
+		(gameOf(state).status !== "HERO_ACTION" &&
+			gameOf(state).status !== "RESOLVE_ATTACK" &&
+			gameOf(state).status !== "DIRECT_DAMAGE" &&
+			gameOf(state).status !== "CHECK_COMBAT_END") ||
+		enemiesOf(state).some((enemy) => enemy.status === "active")
 	) {
 		return state;
 	}
-	return {
-		...state,
-		status: "CHECK_COMBAT_END",
-		combat: {
-			...state.combat,
+	return withGame(state, (prevGame) => ({ ...prevGame, status: "CHECK_COMBAT_END", combat: {
+			...gameOf(state).combat!,
 			phase: "direct_damage",
 			selectedHeroId: null,
-		},
-	};
+		} }));
 }
 
 // ─── START_COMBAT ────────────────────────────────────────────────────────────
 
-export function handleStartCombat(state: GameState): GameState {
-	let next: GameState = {
-		...state,
-		status: "HERO_ACTION",
-		oncePer: {
-			...state.oncePer,
-			room: state.oncePer.room ?? state.combat?.oncePer.room ?? {},
-		},
-		combat: { ...createEmptyCombatState(), phase: "selecting_hero" },
-	};
-	const targetEnemyIds = next.activeEnemies
+export function handleStartCombat(engine: GameEngine, state: GameState): GameState {
+	let next: GameState = beginCombat(engine, withGame(state, (prevGame) => ({ ...prevGame, status: "HERO_ACTION", combat: { ...createEmptyCombatState(), phase: "selecting_hero" } })));
+	const targetEnemyIds = enemiesOf(next)
 		.filter((enemy) => enemy.status === "active")
 		.map((enemy) => enemy.id);
-	const targetHeroIds = next.heroes
+	const targetHeroIds = heroesOf(next)
 		.filter((hero) => hero.status === "active")
 		.map((hero) => hero.id);
-	next = resolveSkillWindow(next, {
+	next = resolveSkillWindow(engine, next, {
 		event: "evt_combat_start",
 		ctx: {
 			triggeredBy: "evt_combat_start",
@@ -183,8 +160,8 @@ export function handleStartCombat(state: GameState): GameState {
 			targetHeroIds,
 		},
 	});
-	if (next.pendingTriggerInterrupt) return next;
-	next = resolveSkillWindow(next, {
+	if (pendingTriggerInterruptOf(next)) return next;
+	next = resolveSkillWindow(engine, next, {
 		event: "evt_round_start",
 		ctx: {
 			triggeredBy: "evt_round_start",
@@ -193,20 +170,20 @@ export function handleStartCombat(state: GameState): GameState {
 			targetEnemyIds,
 		},
 	});
-	if (next.pendingTriggerInterrupt) return next;
+	if (pendingTriggerInterruptOf(next)) return next;
 	return log(next, "Combate iniciado.");
 }
 
 // ─── DECLARE_FLEE ────────────────────────────────────────────────────────────
 
-export function handleDeclareFlee(state: GameState, heroId: string): GameState {
-	if (!state.combat) {
+export function handleDeclareFlee(engine: GameEngine, state: GameState, heroId: string): GameState {
+	if (!gameOf(state).combat) {
 		return log(state, "[AVISO] Fuga só possível durante combate.");
 	}
-	if (state.flags?.fleeBlocked) {
+	if (gameOf(state).flags?.fleeBlocked) {
 		return log(state, "[AVISO] Fuga bloqueada nesta sala.");
 	}
-	const hero = state.heroes.find(
+	const hero = heroesOf(state).find(
 		(h) => h.id === heroId && h.status === "active",
 	);
 	if (!hero) {
@@ -215,60 +192,48 @@ export function handleDeclareFlee(state: GameState, heroId: string): GameState {
 	if (hero.currentLife !== 1) {
 		return log(state, "[AVISO] Fuga só permitida com 1 de vida.");
 	}
-	let next: GameState = {
-		...state,
-		combat: {
-			...state.combat,
-			fleeAttemptByHero: {
-				...state.combat.fleeAttemptByHero,
-				[heroId]: true,
-			},
-		},
-	};
+	let next: GameState = withScopedFlag(state, "combat", "fleeAttempt", heroId);
 	// Lote E: emite HeroFled ao declarar fuga
-	({ state: next } = emit(next, { type: "HeroFled", payload: { heroId } }));
+	({ state: next } = emit(engine, next, { type: "HeroFled", payload: { heroId } }));
 	return log(
 		next,
-		`${getCardName(hero.cardId)} declara fuga! O próximo confronto será uma tentativa de fuga.`,
+		`${cardName(engine, hero.cardId)} declara fuga! O próximo confronto será uma tentativa de fuga.`,
 	);
 }
 
 // ─── CHOOSE_HERO_FOR_ROUND ────────────────────────────────────────────────────
 
-export function handleChooseHeroForRound(
+export function handleChooseHeroForRound(engine: GameEngine, 
 	state: GameState,
 	heroId: string,
 ): GameState {
-	if (!state.combat) return state;
+	if (!gameOf(state).combat) return state;
 	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
-	const hero = state.heroes.find(
+	const hero = heroesOf(state).find(
 		(h) => h.id === heroId && h.status === "active",
 	);
 	if (!hero) return log(state, `[AVISO] Herói ${heroId} inválido ou inativo.`);
 
 	return log(
-		{
-			...state,
-			combat: {
-				...state.combat,
+		withGame(state, (prevGame) => ({ ...prevGame, combat: {
+				...gameOf(state).combat!,
 				phase: "selecting_target",
 				selectedHeroId: heroId,
-			},
-		},
-		`${getCardName(hero.cardId)} selecionado para agir.`,
+			} })),
+		`${cardName(engine, hero.cardId)} selecionado para agir.`,
 	);
 }
 
 // ─── PASS_HERO_ACTION ─────────────────────────────────────────────────────────
 
-export function handlePassHeroAction(
+export function handlePassHeroAction(engine: GameEngine, 
 	state: GameState,
 	heroId: string,
 ): GameState {
-	if (!state.combat) return state;
-	const hero = state.heroes.find((h) => h.id === heroId);
+	if (!gameOf(state).combat) return state;
+	const hero = heroesOf(state).find((h) => h.id === heroId);
 	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
@@ -277,43 +242,36 @@ export function handlePassHeroAction(
 
 	if (pendingHeroes.length > 0) {
 		return log(
-			{
-				...next,
-				combat: next.combat
+			withGame(next, (prevGame) => ({ ...prevGame, combat: gameOf(next).combat
 					? {
-							...next.combat,
+							...gameOf(next).combat!,
 							selectedHeroId: null,
 							phase: "selecting_hero" as const,
 						}
-					: null,
-			},
-			`${getCardName(hero?.cardId ?? heroId)} passou a rodada.`,
+					: null })),
+			`${cardName(engine, hero?.cardId ?? heroId)} passou a rodada.`,
 		);
 	}
 	return log(
-		{
-			...next,
-			status: "DIRECT_DAMAGE",
-			combat: next.combat
+		withGame(next, (prevGame) => ({ ...prevGame, status: "DIRECT_DAMAGE", combat: gameOf(next).combat
 				? {
-						...next.combat,
+						...gameOf(next).combat!,
 						selectedHeroId: null,
 						phase: "direct_damage" as const,
 					}
-				: null,
-		},
+				: null })),
 		"Todos os heróis agiram. Dano direto.",
 	);
 }
 
 // ─── CHOOSE_TARGET ───────────────────────────────────────────────────────────
 
-export function handleChooseTarget(
+export function handleChooseTarget(engine: GameEngine, 
 	state: GameState,
 	heroId: string,
 	enemyId: string,
 ): GameState {
-	if (!state.combat) return state;
+	if (!gameOf(state).combat) return state;
 
 	// Validação: herói não pode agir duas vezes na mesma rodada
 	if (ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
@@ -332,15 +290,12 @@ export function handleChooseTarget(
 
 	// Lote E: emite TargetChosen
 	const roomTargetKey = `targetChosen::${enemyId}`;
-	const roomFirstTime = !state.flags[roomTargetKey];
+	const roomFirstTime = !gameOf(state).flags[roomTargetKey];
 	let afterEmit = afterTrigger;
 	if (roomFirstTime) {
-		afterEmit = {
-			...afterEmit,
-			flags: { ...afterEmit.flags, [roomTargetKey]: true },
-		};
+		afterEmit = withGame(afterEmit, (prevGame) => ({ ...prevGame, flags: { ...gameOf(afterEmit).flags, [roomTargetKey]: true } }));
 	}
-	({ state: afterEmit } = emit(afterEmit, {
+	({ state: afterEmit } = emit(engine, afterEmit, {
 		type: "TargetChosen",
 		payload: {
 			sourceId: heroId,
@@ -351,28 +306,24 @@ export function handleChooseTarget(
 	}));
 
 	if (
-		afterEmit.pendingTriggerInterrupt ||
-		afterEmit.pendingSkillChoice ||
-		afterEmit.pendingSkillTarget
+		pendingTriggerInterruptOf(afterEmit) ||
+		pendingSkillChoiceOf(afterEmit) ||
+		pendingSkillTargetOf(afterEmit)
 	) {
 		return afterEmit;
 	}
 	const pair = { heroId, enemyId };
-	return {
-		...afterEmit,
-		status: "ROLL_DICE",
-		combat: {
-			...afterEmit.combat!,
+	return withGame(afterEmit, (prevGame) => ({ ...prevGame, status: "ROLL_DICE", combat: {
+			...gameOf(afterEmit).combat!,
 			phase: "resolving",
 			selectedHeroId: heroId,
-			pairs: [...(afterEmit.combat?.pairs ?? []), pair],
-		},
-	};
+			pairs: [...(gameOf(afterEmit).combat?.pairs ?? []), pair],
+		} }));
 }
 
 // ─── ROLL_DICE ───────────────────────────────────────────────────────────────
 
-function collectHeroBonuses(
+function collectHeroBonuses(engine: GameEngine, 
 	hero: HeroState,
 	state: GameState,
 	enemy?: EnemyState,
@@ -380,7 +331,7 @@ function collectHeroBonuses(
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
 
 	// Bônus de acerto — lê do ECS world (Lote C)
-	const entity = state.world.entities[hero.id];
+	const entity = worldOf(state).entities[hero.id];
 	if (entity) {
 		for (const comp of entity.components) {
 			if (
@@ -393,17 +344,20 @@ function collectHeroBonuses(
 		}
 	}
 
-	if (state.combat?.preyByHero[hero.id] === enemy?.id) {
-		const preyMark = cardSkills(hero.cardId).find(
-			({ def }) => def.id === "skill_prey_mark",
+	if (gameOf(state).combat?.preyByHero[hero.id] === enemy?.id) {
+		const preyMark = skillsOf(engine, hero.cardId).find(
+			({ def }) => def.rules?.preyHitBonus,
 		);
 		const value = preyMark?.ref.params?.value;
 		if (typeof value === "number" && value !== 0) {
-			bonuses.push({ source: "Marca da Presa", value });
+			bonuses.push({
+				source: preyMark?.def.rules?.preyHitBonus?.label ?? "",
+				value,
+			});
 		}
 	}
 
-	bonuses.push(...collectHeroHitBonusesFromItems(hero, state, enemy));
+	bonuses.push(...collectHeroHitBonusesFromItems(engine, hero, state, enemy));
 
 	return bonuses;
 }
@@ -413,7 +367,7 @@ function collectEnemyBonuses(
 	state: GameState,
 ): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: enemy.hitBonus }];
-	const enemyEntity = state.world.entities[enemy.id];
+	const enemyEntity = worldOf(state).entities[enemy.id];
 	if (enemyEntity) {
 		for (const comp of enemyEntity.components) {
 			if (
@@ -433,7 +387,7 @@ function collectWorldModifierEntries(
 	entityId: string,
 	target: "damage_dealt" | "damage_taken",
 ): Array<{ source: string; value: number }> {
-	const entity = state.world.entities[entityId];
+	const entity = worldOf(state).entities[entityId];
 	if (!entity) return [];
 	const entries: Array<{ source: string; value: number }> = [];
 	for (const comp of entity.components) {
@@ -448,7 +402,7 @@ function collectWorldModifierEntries(
 	return entries;
 }
 
-function effectiveHeroDamage(
+function effectiveHeroDamage(engine: GameEngine, 
 	hero: HeroState,
 	state: GameState,
 	enemy: EnemyState | undefined,
@@ -459,7 +413,7 @@ function effectiveHeroDamage(
 		hero.id,
 		"damage_dealt",
 	);
-	const itemEntries = collectHeroDamageBonusesFromItems(
+	const itemEntries = collectHeroDamageBonusesFromItems(engine, 
 		hero,
 		state,
 		enemy,
@@ -487,7 +441,7 @@ function effectiveEnemyDamage(
 	};
 }
 
-function reduceHeroDamage(
+function reduceHeroDamage(engine: GameEngine, 
 	state: GameState,
 	hero: HeroState,
 	amount: number,
@@ -499,7 +453,7 @@ function reduceHeroDamage(
 		"damage_taken",
 	);
 	const worldReduction = -totalItemValue(worldEntries);
-	const itemEntries = collectHeroDamageReductionsFromItems(
+	const itemEntries = collectHeroDamageReductionsFromItems(engine, 
 		hero,
 		state,
 		damageType,
@@ -517,15 +471,15 @@ function reduceHeroDamage(
 	return { damage: finalDamage, breakdown };
 }
 
-function logItemLifeDrain(state: GameState, hero: HeroState): GameState {
-	const drains = collectHeroLifeDrainFromItems(hero, state);
+function logItemLifeDrain(engine: GameEngine, state: GameState, hero: HeroState): GameState {
+	const drains = collectHeroLifeDrainFromItems(engine, hero, state);
 	const amount = totalItemValue(drains);
 	if (amount <= 0) return state;
-	const healed = applyHeal(state, hero.id, amount);
+	const healed = applyHeal(engine, state, hero.id, amount);
 	const sources = drains.map((d) => d.source).join(", ");
 	return log(
 		healed,
-		`${getCardName(hero.cardId)} recuperou ${amount} de vida (${sources}).`,
+		`${cardName(engine, hero.cardId)} recuperou ${amount} de vida (${sources}).`,
 	);
 }
 
@@ -545,33 +499,33 @@ function formatDamageBonusNote(
 		: "";
 }
 
-function maybeDisableReusableItem(
+function maybeDisableReusableItem(engine: GameEngine, 
 	state: GameState,
 	heroId: string,
 	itemId: string,
 	consumed: boolean,
 ): GameState {
 	if (consumed) return state;
-	return ActivationTracker.disable(state, {
+	return ActivationTracker.disable(engine, state, {
 		kind: "item",
 		id: itemActivationId(heroId, itemId),
-		scope: cardSkills(itemId)[0]?.def.cooldown?.scope ?? "room",
+		scope: skillsOf(engine, itemId)[0]?.def.cooldown?.scope ?? "room",
 		sourceId: heroId,
 		reason: "item usado",
 	});
 }
 
-export function handleRollDice(state: GameState): GameState {
-	if (!state.combat || state.combat.pairs.length === 0) return state;
+export function handleRollDice(engine: GameEngine, state: GameState): GameState {
+	if (!gameOf(state).combat || gameOf(state).combat!.pairs.length === 0) return state;
 	// Rola para o par mais recente (último adicionado nesta rodada)
-	const pair = state.combat.pairs[state.combat.pairs.length - 1];
+	const pair = gameOf(state).combat!.pairs[gameOf(state).combat!.pairs.length - 1];
 	if (!pair) return state;
 
-	const hero = state.heroes.find((h) => h.id === pair.heroId);
-	const enemy = state.activeEnemies.find((e) => e.id === pair.enemyId);
+	const hero = heroesOf(state).find((h) => h.id === pair.heroId);
+	const enemy = enemiesOf(state).find((e) => e.id === pair.enemyId);
 	if (!hero || !enemy) return state;
 
-	let preRoll = resolveSkillWindow(state, {
+	let preRoll = resolveSkillWindow(engine, state, {
 		event: "evt_attack_declared",
 		resume: { type: "roll_dice" },
 		ctx: {
@@ -580,25 +534,24 @@ export function handleRollDice(state: GameState): GameState {
 			sourceEnemyId: enemy.id,
 			targetHeroIds: [hero.id],
 			targetEnemyIds: [enemy.id],
-			round: state.combat?.round ?? 0,
+			round: gameOf(state).combat?.round ?? 0,
 		},
 	});
-	if (preRoll.pendingTriggerInterrupt) {
-		return { ...preRoll, status: "ROLL_DICE" };
+	if (pendingTriggerInterruptOf(preRoll)) {
+		return withGame(preRoll, (prevGame) => ({ ...prevGame, status: "ROLL_DICE" }));
 	}
 	// Drena a stack de efeitos acumulados pelos TriggerComponents (modificadores de combate)
-	preRoll = drainStack(preRoll);
+	preRoll = drainStack(engine, preRoll);
 
-	const extraDice = preRoll.combat?.extraDice[hero.id] ?? 0;
-	const heroDiceCount = hero.dice + extraDice;
+	const heroDiceCount = hero.dice + extraDiceOf(preRoll, hero.id);
 	const { result: heroRollResult, next: rng1 } = rollDiceRng(
 		heroDiceCount,
-		preRoll.rng,
+		gameOf(preRoll).rng,
 	);
 	const { result: enemyRollResult, next: rng2 } = rollDiceRng(enemy.dice, rng1);
-	preRoll = { ...preRoll, rng: rng2 };
+	preRoll = withGame(preRoll, (prevGame) => ({ ...prevGame, rng: rng2 }));
 
-	const heroBonuses = collectHeroBonuses(hero, preRoll, enemy);
+	const heroBonuses = collectHeroBonuses(engine, hero, preRoll, enemy);
 	const enemyBonuses = collectEnemyBonuses(enemy, preRoll);
 
 	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);
@@ -615,13 +568,18 @@ export function handleRollDice(state: GameState): GameState {
 		enemyBreakdown: enemyBonuses,
 	};
 
-	let postRoll: GameState = {
-		...preRoll,
-		status: "RESOLVE_ATTACK",
-		combat: preRoll.combat ? { ...preRoll.combat, lastRoll: roll } : null,
-	};
+	let postRoll: GameState = withGame(preRoll, (prevGame) => ({ ...prevGame, status: "RESOLVE_ATTACK", combat: gameOf(preRoll).combat ? { ...gameOf(preRoll).combat!, lastRoll: roll } : null }));
 
-	postRoll = resolveSkillWindow(postRoll, {
+	postRoll = recordEvent(postRoll, "RollResolved", {
+		heroId: hero.id,
+		enemyId: enemy.id,
+		heroTotal: heroCalc.total,
+		enemyTotal: enemyCalc.total,
+		heroResults: heroRollResult.results,
+		enemyResults: enemyRollResult.results,
+	});
+
+	postRoll = resolveSkillWindow(engine, postRoll, {
 		event: "evt_roll",
 		ctx: {
 			triggeredBy: "evt_roll",
@@ -630,10 +588,10 @@ export function handleRollDice(state: GameState): GameState {
 			targetHeroIds: [hero.id],
 			targetEnemyIds: [enemy.id],
 			value: heroCalc.total - enemyCalc.total,
-			round: postRoll.combat?.round ?? 0,
+			round: gameOf(postRoll).combat?.round ?? 0,
 		},
 	});
-	if (postRoll.pendingTriggerInterrupt) return postRoll;
+	if (pendingTriggerInterruptOf(postRoll)) return postRoll;
 
 	return log(
 		postRoll,
@@ -669,28 +627,28 @@ function fmtRoll(
 
 // ─── RESOLVE_ATTACK ───────────────────────────────────────────────────────────
 
-export function handleResolveAttack(state: GameState): GameState {
-	if (!state.combat?.lastRoll) return state;
-	const roll = state.combat.lastRoll;
+export function handleResolveAttack(engine: GameEngine, state: GameState): GameState {
+	if (!gameOf(state).combat?.lastRoll) return state;
+	const roll = gameOf(state).combat!.lastRoll;
 
-	const hero = state.heroes.find((h) => h.id === roll.heroId);
-	const enemy = state.activeEnemies.find((e) => e.id === roll.enemyId);
+	const hero = heroesOf(state).find((h) => h.id === roll!.heroId);
+	const enemy = enemiesOf(state).find((e) => e.id === roll!.enemyId);
 	if (!hero || !enemy) return state;
 
-	const rollMargin = roll.heroTotal - roll.enemyTotal;
-	const heroDamage = effectiveHeroDamage(hero, state, enemy, rollMargin);
+	const rollMargin = roll!.heroTotal - roll!.enemyTotal;
+	const heroDamage = effectiveHeroDamage(engine, hero, state, enemy, rollMargin);
 	const enemyDamage = effectiveEnemyDamage(enemy, state);
 	const result = resolveAttack(
-		roll.heroTotal,
-		roll.enemyTotal,
+		roll!.heroTotal,
+		roll!.enemyTotal,
 		heroDamage.damage,
 		enemyDamage.damage,
 	);
 
-	const isFleeAttempt = !!state.combat.fleeAttemptByHero?.[hero.id];
+	const isFleeAttempt = scopedFlagOf(state, "combat", "fleeAttempt", hero.id);
 	let next =
 		result.heroDamageTaken > 0
-			? resolveSkillWindow(state, {
+			? resolveSkillWindow(engine, state, {
 					event: "evt_damage_taken",
 					resume: { type: "resolve_attack" },
 					ctx: {
@@ -699,53 +657,42 @@ export function handleResolveAttack(state: GameState): GameState {
 						targetHeroIds: [hero.id],
 						targetEnemyIds: [enemy.id],
 						value: result.heroDamageTaken,
-						round: state.combat?.round ?? 0,
+						round: gameOf(state).combat?.round ?? 0,
 					},
 				})
 			: state;
-	if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+	if (pendingTriggerInterruptOf(next) || pendingSkillChoiceOf(next)) return next;
 
 	// Limpar flag de fuga independente do resultado
-	if (isFleeAttempt && next.combat) {
-		next = {
-			...next,
-			combat: {
-				...next.combat,
-				fleeAttemptByHero: {
-					...next.combat.fleeAttemptByHero,
-					[hero.id]: false,
-				},
-			},
-		};
+	if (isFleeAttempt && gameOf(next).combat) {
+		next = withScopedFlag(next, "combat", "fleeAttempt", hero.id, false);
 	}
 
 	// Fuga bem-sucedida: herói venceu o confronto de fuga
 	if (isFleeAttempt && result.enemyDamageTaken > 0) {
-		const fledHero: HeroState = { ...hero, status: "fled" };
-		next = {
-			...next,
-			heroes: next.heroes.filter((h) => h.id !== hero.id),
-			fledHeroes: [...next.fledHeroes, fledHero],
-			world: removeTriggersAppliedBySource(
-				removeModifiersForSource(removeEntity(next.world, hero.id), hero.id),
-				hero.id,
-			),
+		const fledHero: HeroRecord = {
+			...(gameOf(next).heroes.find((h) => h.id === hero.id) as HeroRecord),
+			status: "fled",
 		};
-		next = resolveSkillWindow(next, {
+		next = withWorld(withGame(next, (prevGame) => ({ ...prevGame, heroes: gameOf(next).heroes.filter((h) => h.id !== hero.id), fledHeroes: [...gameOf(next).fledHeroes, fledHero] })), removeTriggersAppliedBySource(
+				removeModifiersForSource(worldOf(withEntityRetired(next, hero.id)), hero.id),
+				hero.id,
+			));
+		next = resolveSkillWindow(engine, next, {
 			event: "evt_leave_play",
 			ctx: {
 				triggeredBy: "evt_leave_play",
 				sourceHeroId: hero.id,
 				targetHeroIds: [hero.id],
-				round: next.combat?.round ?? 0,
+				round: gameOf(next).combat?.round ?? 0,
 			},
 		});
-		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+		if (pendingTriggerInterruptOf(next) || pendingSkillChoiceOf(next)) return next;
 		next = log(
 			next,
-			`${getCardName(hero.cardId)} fugiu do combate com sucesso!`,
+			`${cardName(engine, hero.cardId)} fugiu do combate com sucesso!`,
 		);
-		return endHeroTurnAndAdvance(next, roll.heroId, "fugiu");
+		return endHeroTurnAndAdvance(next, roll!.heroId, "fugiu");
 	}
 
 	// A destruição precisa ser decidida antes de qualquer dano deste ataque ser
@@ -753,13 +700,13 @@ export function handleResolveAttack(state: GameState): GameState {
 	// ataque inteiro sem repetir o dano que já foi aplicado ao outro lado.
 	const reducedHeroDamage =
 		result.heroDamageTaken > 0
-			? reduceHeroDamage(next, hero, result.heroDamageTaken)
+			? reduceHeroDamage(engine, next, hero, result.heroDamageTaken)
 			: null;
 	if (
 		result.enemyDamageTaken >= enemy.currentLife &&
 		result.enemyDamageTaken > 0
 	) {
-		next = resolveSkillWindow(next, {
+		next = resolveSkillWindow(engine, next, {
 			event: "evt_would_be_destroyed",
 			resume: { type: "resolve_attack" },
 			ctx: {
@@ -768,17 +715,17 @@ export function handleResolveAttack(state: GameState): GameState {
 				targetHeroIds: [],
 				targetEnemyIds: [enemy.id],
 				value: result.enemyDamageTaken,
-				round: next.combat?.round ?? 0,
+				round: gameOf(next).combat?.round ?? 0,
 			},
 		});
-		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+		if (pendingTriggerInterruptOf(next) || pendingSkillChoiceOf(next)) return next;
 	}
 	if (
 		reducedHeroDamage &&
 		reducedHeroDamage.damage >= hero.currentLife &&
 		reducedHeroDamage.damage > 0
 	) {
-		next = resolveSkillWindow(next, {
+		next = resolveSkillWindow(engine, next, {
 			event: "evt_would_be_destroyed",
 			resume: { type: "resolve_attack" },
 			ctx: {
@@ -787,18 +734,18 @@ export function handleResolveAttack(state: GameState): GameState {
 				targetHeroIds: [hero.id],
 				targetEnemyIds: [enemy.id],
 				value: reducedHeroDamage.damage,
-				round: next.combat?.round ?? 0,
+				round: gameOf(next).combat?.round ?? 0,
 			},
 		});
-		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
+		if (pendingTriggerInterruptOf(next) || pendingSkillChoiceOf(next)) return next;
 	}
 
 	const enemyDamageLog =
 		result.enemyDamageTaken > 0
-			? `${getCardName(enemy.cardId)} sofreu ${result.enemyDamageTaken} de dano${result.outcome === "tie" ? " (empate)" : ""}${formatDamageBonusNote(hero.damage, heroDamage.damage, heroDamage.breakdown)}. Herói: ${fmtRoll(roll.heroResults, roll.heroBreakdown, roll.heroTotal)} vs inimigo: ${roll.enemyTotal}.`
+			? `${cardName(engine, enemy.cardId)} sofreu ${result.enemyDamageTaken} de dano${result.outcome === "tie" ? " (empate)" : ""}${formatDamageBonusNote(hero.damage, heroDamage.damage, heroDamage.breakdown)}. Herói: ${fmtRoll(roll!.heroResults, roll!.heroBreakdown, roll!.heroTotal)} vs inimigo: ${roll!.enemyTotal}.`
 			: undefined;
 	const heroDamageLog = reducedHeroDamage
-		? `${getCardName(hero.cardId)} sofreu ${reducedHeroDamage.damage} de dano${result.outcome === "tie" ? " (empate)" : ""}${reducedHeroDamage.breakdown.length ? ` [${reducedHeroDamage.breakdown.join(", ")}]` : ""}. Inimigo: ${fmtRoll(roll.enemyResults, roll.enemyBreakdown, roll.enemyTotal)} vs herói: ${roll.heroTotal}.`
+		? `${cardName(engine, hero.cardId)} sofreu ${reducedHeroDamage.damage} de dano${result.outcome === "tie" ? " (empate)" : ""}${reducedHeroDamage.breakdown.length ? ` [${reducedHeroDamage.breakdown.join(", ")}]` : ""}. Inimigo: ${fmtRoll(roll!.enemyResults, roll!.enemyBreakdown, roll!.enemyTotal)} vs herói: ${roll!.heroTotal}.`
 		: undefined;
 	const attackResume: AttackResume = {
 		stage: "after_enemy_damage",
@@ -811,54 +758,51 @@ export function handleResolveAttack(state: GameState): GameState {
 
 	// on_deal_damage: agora via TriggerComponent em emit(DamageDealt) dentro de applyDamage
 	if (result.enemyDamageTaken > 0) {
-		next = applyDamage(next, enemy.id, result.enemyDamageTaken, {
+		next = applyDamage(engine, next, enemy.id, result.enemyDamageTaken, {
 			sourceId: hero.id,
 			damageType: "attack",
 			skipWouldBeDestroyed: true,
 		});
 		if (
-			next.pendingTriggerInterrupt ||
-			next.pendingSkillChoice ||
-			next.pendingSkillTarget
+			pendingTriggerInterruptOf(next) ||
+			pendingSkillChoiceOf(next) ||
+			pendingSkillTargetOf(next)
 		)
 			return attachAttackResume(next, attackResume);
 	}
-	return resumeAttackAfterDamage(next, attackResume);
+	return resumeAttackAfterDamage(engine, next, attackResume);
 }
 
 function attachAttackResume(state: GameState, attack: AttackResume): GameState {
-	const window = state.pendingSkillWindow;
+	const window = pendingSkillWindowOf(state);
 	if (!window || window.resume.type !== "continue_damage") return state;
-	return {
-		...state,
-		pendingSkillWindow: {
+	return withPendingSkillWindow(state, {
 			...window,
 			resume: { ...window.resume, afterAttack: attack },
-		},
-	};
+		});
 }
 
-export function resumeAttackAfterDamage(
+export function resumeAttackAfterDamage(engine: GameEngine, 
 	state: GameState,
 	attack: AttackResume,
 ): GameState {
 	let next = state;
 	if (attack.stage === "after_enemy_damage") {
-		const hero = next.heroes.find((entry) => entry.id === attack.heroId);
+		const hero = heroesOf(next).find((entry) => entry.id === attack.heroId);
 		if (attack.enemyDamageLog) {
-			if (hero) next = logItemLifeDrain(next, hero);
+			if (hero) next = logItemLifeDrain(engine, next, hero);
 			next = log(next, attack.enemyDamageLog);
 		}
 		if (attack.heroDamageAmount > 0) {
-			next = applyDamage(next, attack.heroId, attack.heroDamageAmount, {
+			next = applyDamage(engine, next, attack.heroId, attack.heroDamageAmount, {
 				sourceId: attack.enemyId,
 				damageType: "attack",
 				skipWouldBeDestroyed: true,
 			});
 			if (
-				next.pendingTriggerInterrupt ||
-				next.pendingSkillChoice ||
-				next.pendingSkillTarget
+				pendingTriggerInterruptOf(next) ||
+				pendingSkillChoiceOf(next) ||
+				pendingSkillTargetOf(next)
 			)
 				return attachAttackResume(next, {
 					...attack,
@@ -867,7 +811,7 @@ export function resumeAttackAfterDamage(
 		}
 	}
 	if (attack.heroDamageLog) next = log(next, attack.heroDamageLog);
-	next = { ...next, world: tickModifierDurations(next.world, "once_consumed") };
+	next = withWorld(next, tickModifierDurations(worldOf(next), "once_consumed"));
 	return advanceAfterEnemyDefeat(
 		endHeroTurnAndAdvance(next, attack.heroId, "atacou"),
 	);
@@ -875,79 +819,81 @@ export function resumeAttackAfterDamage(
 
 // ─── DIRECT_DAMAGE ───────────────────────────────────────────────────────────
 
-function resolveExtraEnemyCombatRoll(
+function resolveExtraEnemyCombatRoll(engine: GameEngine, 
 	state: GameState,
 	enemy: EnemyState,
 ): GameState {
-	const target = selectTargetHero(state.heroes);
+	const target = selectTargetHero(heroesOf(state));
 	if (!target) return state;
 
 	let next = state;
 
-	next = resolveSkillWindow(next, {
+	next = resolveSkillWindow(engine, next, {
 		event: "evt_targeted",
 		ctx: {
 			triggeredBy: "evt_targeted",
 			sourceEnemyId: enemy.id,
 			targetHeroIds: [target.id],
-			round: next.combat?.round ?? 0,
+			round: gameOf(next).combat?.round ?? 0,
 		},
 	});
-	if (next.pendingTriggerInterrupt) return next;
+	if (pendingTriggerInterruptOf(next)) return next;
 
-	if (next.combat?.targetProtectionByHero[target.id]) {
+	if (
+		gameOf(next).combat &&
+		scopedFlagOf(next, "combat", "targetProtection", target.id)
+	) {
 		return log(
-			{
-				...next,
-				combat: {
-					...next.combat,
-					targetProtectionByHero: {
-						...next.combat.targetProtectionByHero,
-						[target.id]: false,
-					},
-				},
-			},
-			`${getCardName(target.cardId)} ignorou o efeito que o escolheria como alvo.`,
+			withScopedFlag(next, "combat", "targetProtection", target.id, false),
+			`${cardName(engine, target.cardId)} ignorou o efeito que o escolheria como alvo.`,
 		);
 	}
 
-	next = resolveSkillWindow(next, {
+	next = resolveSkillWindow(engine, next, {
 		event: "evt_attack_declared",
 		ctx: {
 			triggeredBy: "evt_attack_declared",
 			sourceEnemyId: enemy.id,
 			targetHeroIds: [target.id],
 			targetEnemyIds: [enemy.id],
-			round: next.combat?.round ?? 0,
+			round: gameOf(next).combat?.round ?? 0,
 		},
 	});
-	if (next.pendingTriggerInterrupt) return next;
-	next = drainStack(next);
+	if (pendingTriggerInterruptOf(next)) return next;
+	next = drainStack(engine, next);
 
-	const currentTarget = next.heroes.find(
+	const currentTarget = heroesOf(next).find(
 		(h) => h.id === target.id && h.status === "active",
 	);
-	const currentEnemy = next.activeEnemies.find(
+	const currentEnemy = enemiesOf(next).find(
 		(e) => e.id === enemy.id && e.status === "active",
 	);
 	if (!currentTarget || !currentEnemy) return next;
 
 	const { result: heroRollResult, next: rng1 } = rollDiceRng(
 		currentTarget.dice,
-		next.rng,
+		gameOf(next).rng,
 	);
 	const { result: enemyRollResult, next: rng2 } = rollDiceRng(
 		currentEnemy.dice,
 		rng1,
 	);
-	next = { ...next, rng: rng2 };
+	next = withGame(next, (prevGame) => ({ ...prevGame, rng: rng2 }));
 
-	const heroBonuses = collectHeroBonuses(currentTarget, next, currentEnemy);
+	const heroBonuses = collectHeroBonuses(engine, currentTarget, next, currentEnemy);
 	const enemyBonuses = collectEnemyBonuses(currentEnemy, next);
 	const heroCalc = calculateTotal(heroRollResult.results, heroBonuses);
 	const enemyCalc = calculateTotal(enemyRollResult.results, enemyBonuses);
 
-	next = resolveSkillWindow(next, {
+	next = recordEvent(next, "RollResolved", {
+		heroId: currentTarget.id,
+		enemyId: currentEnemy.id,
+		heroTotal: heroCalc.total,
+		enemyTotal: enemyCalc.total,
+		heroResults: heroRollResult.results,
+		enemyResults: enemyRollResult.results,
+	});
+	next = resolveSkillWindow(engine, next, {
 		event: "evt_roll",
 		ctx: {
 			triggeredBy: "evt_roll",
@@ -955,20 +901,20 @@ function resolveExtraEnemyCombatRoll(
 			targetHeroIds: [currentTarget.id],
 			targetEnemyIds: [currentEnemy.id],
 			value: heroCalc.total - enemyCalc.total,
-			round: next.combat?.round ?? 0,
+			round: gameOf(next).combat?.round ?? 0,
 		},
 	});
-	if (next.pendingTriggerInterrupt) return next;
+	if (pendingTriggerInterruptOf(next)) return next;
 
 	if (enemyCalc.total <= heroCalc.total) {
 		return log(
 			next,
-			`Ataque extra: ${getCardName(currentEnemy.cardId)} rolou ${enemyCalc.total} contra ${getCardName(currentTarget.cardId)} (${heroCalc.total}) e não causou dano.`,
+			`Ataque extra: ${cardName(engine, currentEnemy.cardId)} rolou ${enemyCalc.total} contra ${cardName(engine, currentTarget.cardId)} (${heroCalc.total}) e não causou dano.`,
 		);
 	}
 
 	const enemyDamage = effectiveEnemyDamage(currentEnemy, next);
-	const reduced = reduceHeroDamage(
+	const reduced = reduceHeroDamage(engine, 
 		next,
 		currentTarget,
 		enemyDamage.damage,
@@ -976,11 +922,11 @@ function resolveExtraEnemyCombatRoll(
 	);
 	const dmg = reduced.damage;
 
-	next = applyDamage(next, currentTarget.id, dmg, {
+	next = applyDamage(engine, next, currentTarget.id, dmg, {
 		sourceId: currentEnemy.id,
 		damageType: "attack",
 	});
-	if (next.pendingTriggerInterrupt) return next;
+	if (pendingTriggerInterruptOf(next)) return next;
 
 	const enemyRollStr = fmtRoll(
 		enemyRollResult.results,
@@ -993,17 +939,17 @@ function resolveExtraEnemyCombatRoll(
 
 	return log(
 		next,
-		`Ataque extra: ${getCardName(currentEnemy.cardId)} venceu ${getCardName(currentTarget.cardId)} e causou ${dmg} de dano${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${heroCalc.total}.`,
+		`Ataque extra: ${cardName(engine, currentEnemy.cardId)} venceu ${cardName(engine, currentTarget.cardId)} e causou ${dmg} de dano${reductionStr}. Inimigo: ${enemyRollStr} vs herói: ${heroCalc.total}.`,
 	);
 }
 
-export function handleDirectDamage(state: GameState): GameState {
-	if (!state.combat) return state;
-	const attacked = new Set(state.combat.pairs.map((p) => p.enemyId));
-	const activeEnemies = state.activeEnemies.filter(
+export function handleDirectDamage(engine: GameEngine, state: GameState): GameState {
+	if (!gameOf(state).combat) return state;
+	const attacked = new Set(gameOf(state).combat!.pairs.map((p) => p.enemyId));
+	const activeEnemies = enemiesOf(state).filter(
 		(e) => e.status === "active",
 	);
-	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+	const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
 	const extraEnemyCount = Math.max(
 		0,
 		activeEnemies.length - activeHeroes.length,
@@ -1012,136 +958,116 @@ export function handleDirectDamage(state: GameState): GameState {
 	let next = state;
 	const extraEnemies = unengaged.slice(0, extraEnemyCount);
 	if (extraEnemies.length === 0)
-		return { ...state, status: "CHECK_COMBAT_END" };
+		return withGame(state, (prevGame) => ({ ...prevGame, status: "CHECK_COMBAT_END" }));
 
 	for (const enemy of extraEnemies) {
-		next = resolveExtraEnemyCombatRoll(next, enemy);
+		next = resolveExtraEnemyCombatRoll(engine, next, enemy);
 	}
 
-	return { ...next, status: "CHECK_COMBAT_END" };
+	return withGame(next, (prevGame) => ({ ...prevGame, status: "CHECK_COMBAT_END" }));
 }
 
 // ─── CHECK_COMBAT_END ─────────────────────────────────────────────────────────
 
-export function handleCheckCombatEnd(state: GameState): GameState {
-	const allEnemiesDone = state.activeEnemies.every(
+export function handleCheckCombatEnd(engine: GameEngine, state: GameState): GameState {
+	const allEnemiesDone = enemiesOf(state).every(
 		(e) => e.status !== "active",
 	);
-	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+	const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
 
 	// Todos os heróis fugiram enquanto há inimigos → reiniciar masmorra
 	if (
 		activeHeroes.length === 0 &&
-		state.fledHeroes.length > 0 &&
+		fledHeroesOf(state).length > 0 &&
 		!allEnemiesDone
 	) {
 		return log(
-			{ ...state, status: "DUNGEON_RESTART_PROMPT" },
+			withGame(state, (prevGame) => ({ ...prevGame, status: "DUNGEON_RESTART_PROMPT" })),
 			"Todos os heróis fugiram. Reiniciar masmorra?",
 		);
 	}
 
-	const heroDefeated = state.heroes.every((h) => h.status !== "active");
+	const heroDefeated = heroesOf(state).every((h) => h.status !== "active");
 
-	if (heroDefeated && state.fledHeroes.length === 0) {
-		return log({ ...state, status: "DEFEAT" }, "Derrota: herói eliminado.");
+	if (heroDefeated && fledHeroesOf(state).length === 0) {
+		return log(withGame(state, (prevGame) => ({ ...prevGame, status: "DEFEAT" })), "Derrota: herói eliminado.");
 	}
 
 	if (allEnemiesDone) {
-		const defeated = state.activeEnemies.filter((e) => e.status === "defeated");
+		const defeated = gameOf(state).activeEnemies.filter((e) => e.status === "defeated");
 		// Inimigos que fugiram voltam ao deck
-		const fled = state.activeEnemies.filter((e) => e.status === "fled");
+		const fled = enemiesOf(state).filter((e) => e.status === "fled");
 		let next = state;
 		if (fled.length > 0) {
 			const fleeIds = fled.map((e) => e.cardId);
-			const { value: shuffled, next: rngAfterShuffle } = shuffleRng(
-				[...next.decks.enemyDeck.available, ...fleeIds],
-				next.rng,
+			next = shuffleDeck(
+				withDeck(next, "enemyDeck", {
+					...deckOf(next, "enemyDeck"),
+					available: [...deckOf(next, "enemyDeck").available, ...fleeIds],
+				}),
+				"enemyDeck",
 			);
-			next = {
-				...next,
-				rng: rngAfterShuffle,
-				decks: {
-					...next.decks,
-					enemyDeck: {
-						...next.decks.enemyDeck,
-						available: shuffled,
-					},
-				},
-			};
 		}
 		return log(
-			{
-				...next,
-				status: "REWARD_PHASE",
-				creaturesDefeated: next.creaturesDefeated + defeated.length,
-				enemyGraveyard: [...next.enemyGraveyard, ...defeated],
-				activeEnemies: [],
-				combat: next.combat
+			withGame(next, (prevGame) => ({ ...prevGame, status: "REWARD_PHASE", creaturesDefeated: gameOf(next).creaturesDefeated + defeated.length, enemyGraveyard: [...gameOf(next).enemyGraveyard, ...defeated], activeEnemies: [], combat: gameOf(next).combat
 					? {
-							...next.combat,
-							round: next.combat.round + 1,
+							...gameOf(next).combat!,
+							round: gameOf(next).combat!.round + 1,
 							pairs: [],
 							heroesActed: [],
 							disabled: {},
 						}
-					: null,
-			},
+					: null })),
 			"Sala limpa! Avançando para recompensa.",
 		);
 	}
 
 	// Próxima rodada — reset completo com phase="selecting_hero"
-	const nextRound = (state.combat?.round ?? 0) + 1;
-	const nextCombat = state.combat
+	const nextRound = (gameOf(state).combat?.round ?? 0) + 1;
+	const nextCombat = gameOf(state).combat
 		? {
-				...state.combat,
+				...gameOf(state).combat!,
 				round: nextRound,
 				phase: "selecting_hero" as const,
 				selectedHeroId: null,
 				pairs: [],
 				heroesActed: [],
 				lastRoll: null,
-				disabled: ActivationTracker.clearLocks(state.combat.disabled, "round"),
-				oncePer: {
-					...state.combat.oncePer,
-					round: {}, // reset por rodada
-				},
+				disabled: ActivationTracker.clearLocks(gameOf(state).combat!.disabled, "round"),
 			}
 		: createEmptyCombatState();
-	const currentRound = state.combat?.round ?? 0;
-	let nextState = resolveSkillWindow(state, {
+	const currentRound = gameOf(state).combat?.round ?? 0;
+	let nextState = resolveSkillWindow(engine, state, {
 		event: "evt_round_end",
 		ctx: {
 			triggeredBy: "evt_round_end",
 			round: currentRound,
 		},
 	});
-	if (nextState.pendingTriggerInterrupt) return nextState;
+	if (pendingTriggerInterruptOf(nextState)) return nextState;
 
 	// Expirar modificadores ECS de duração "end_of_round" (this_turn) e decrementar rounds.
 	const worldAfterTick = decrementRoundsModifiers(
-		tickModifierDurations(nextState.world, "end_of_round"),
+		tickModifierDurations(worldOf(nextState), "end_of_round"),
 	);
+	const rolledOver = withGame(nextState, (prevGame) => ({ ...prevGame, status: "HERO_ACTION" as const, combat: nextCombat }));
 	nextState = tickBlockEntries(
-		{
-			...nextState,
-			status: "HERO_ACTION",
-			combat: nextCombat,
-			world: worldAfterTick,
-		},
+		withWorld(
+			gameOf(state).combat ? beginRound(engine, rolledOver) : beginCombat(engine, rolledOver),
+			worldAfterTick,
+		),
 		"end_of_round",
 	);
 
-	nextState = resolveSkillWindow(nextState, {
+	nextState = resolveSkillWindow(engine, nextState, {
 		event: "evt_round_start",
 		ctx: {
 			triggeredBy: "evt_round_start",
 			round: nextRound,
-			targetHeroIds: nextState.heroes
+			targetHeroIds: gameOf(nextState).heroes
 				.filter((hero) => hero.status === "active")
 				.map((hero) => hero.id),
-			targetEnemyIds: nextState.activeEnemies
+			targetEnemyIds: gameOf(nextState).activeEnemies
 				.filter((enemy) => enemy.status === "active")
 				.map((enemy) => enemy.id),
 		},
@@ -1152,7 +1078,7 @@ export function handleCheckCombatEnd(state: GameState): GameState {
 
 // ─── USE_ITEM ─────────────────────────────────────────────────────────────────
 
-export function handleUseItem(
+export function handleUseItem(engine: GameEngine, 
 	state: GameState,
 	itemId: string,
 	heroId: string,
@@ -1160,7 +1086,7 @@ export function handleUseItem(
 	targetEnemyId?: string,
 ): GameState {
 	// Resolve a skill do item via catálogo
-	const itemCard = getCardById(itemId);
+	const itemCard = cardById(engine, itemId);
 	const explicitGrant = itemCard?.grants?.find(
 		(grant) => grant.activation.kind === "manual",
 	);
@@ -1169,7 +1095,7 @@ export function handleUseItem(
 	);
 	if (itemCard?.grants?.length) {
 		if (eventGrant && !explicitGrant) {
-			const unavailable = manualItemUnavailableReason(state, heroId, itemId);
+			const unavailable = manualItemUnavailableReason(engine, state, heroId, itemId);
 			if (unavailable) return log(state, `[AVISO] ${unavailable}`);
 			const key = preparedAbilityKey("item", heroId, itemId,
 				eventGrant.abilityId, eventGrant.id);
@@ -1177,22 +1103,22 @@ export function handleUseItem(
 				key, sourceKind: "item", sourceHeroId: heroId,
 				sourceCardId: itemId, abilityId: eventGrant.abilityId,
 				grantId: eventGrant.id, event: eventGrant.activation.event!,
-			}), `${getCardName(itemId)}: ${isAbilityPrepared(state, key) ? "preparação cancelada" : "preparado"}.`);
+			}), `${cardName(engine, itemId)}: ${isAbilityPrepared(state, key) ? "preparação cancelada" : "preparado"}.`);
 		}
 		if (!explicitGrant) {
 			return log(
 				state,
-				`${getCardName(itemId)} reage a uma janela do jogo e não pode ser usado manualmente.`,
+				`${cardName(engine, itemId)} reage a uma janela do jogo e não pode ser usado manualmente.`,
 			);
 		}
-		const unavailable = manualItemUnavailableReason(state, heroId, itemId);
+		const unavailable = manualItemUnavailableReason(engine, state, heroId, itemId);
 		if (unavailable) return log(state, `[AVISO] ${unavailable}`);
 		const source = {
 			kind: "item" as const,
 			cardId: itemId,
 			sourceHeroId: heroId,
 		};
-		const selection = resolveManualGrantTarget(
+		const selection = resolveManualGrantTarget(engine, 
 			state,
 			source,
 			explicitGrant,
@@ -1207,7 +1133,7 @@ export function handleUseItem(
 			);
 		}
 		return advanceAfterEnemyDefeat(
-			executeAbilityGrant(state, {
+			executeAbilityGrant(engine, state, {
 				source,
 				grant: explicitGrant,
 				triggeredBy: "manual",
@@ -1215,16 +1141,16 @@ export function handleUseItem(
 			}),
 		);
 	}
-	const itemSkillRef = itemCard ? cardSkills(itemCard.id)[0] : null;
+	const itemSkillRef = itemCard ? skillsOf(engine, itemCard.id)[0] : null;
 	const skillDef = itemSkillRef?.def ?? null;
-	const itemName = getCardName(itemId);
+	const itemName = cardName(engine, itemId);
 	if (!skillDef) {
 		return log(state, `[TODO] Efeito de item não catalogado: ${itemName}`);
 	}
 	if (skillDef.operate_type === "op_triggered") {
 		if (!isVoluntaryTrigger(skillDef, "item", skillDef.trigger!.event))
 			return log(state, "[AVISO] Esta habilidade é automática.");
-		const unavailable = manualItemUnavailableReason(state, heroId, itemId);
+		const unavailable = manualItemUnavailableReason(engine, state, heroId, itemId);
 		if (unavailable) return log(state, `[AVISO] ${unavailable}`);
 		const key = preparedAbilityKey("item", heroId, itemId, skillDef.id);
 		return log(togglePreparedAbility(state, {
@@ -1243,10 +1169,10 @@ export function handleUseItem(
 		);
 	}
 
-	const unavailable = manualItemUnavailableReason(state, heroId, itemId);
+	const unavailable = manualItemUnavailableReason(engine, state, heroId, itemId);
 	if (unavailable) return log(state, `[AVISO] ${unavailable}`);
-	const hero = state.heroes.find((h) => h.id === heroId)!;
-	const selection = resolveManualSkillTarget(
+	const hero = heroesOf(state).find((h) => h.id === heroId)!;
+	const selection = resolveManualSkillTarget(engine, 
 		state,
 		skillDef,
 		heroId,
@@ -1261,75 +1187,69 @@ export function handleUseItem(
 		);
 	}
 
-	const grant = cardAbilityGrants(itemId).find((entry) =>
+	const grant = abilityGrants(engine, itemId).find((entry) =>
 		entry.abilityId === skillDef.id && entry.activation.kind === "manual");
 	if (!grant) return log(state, `[AVISO] Concessão manual não encontrada: ${skillDef.id}`);
 	const source = { kind: "item" as const, cardId: itemId, sourceHeroId: heroId };
-	const grantUnavailable = canExecuteAbilityGrant(state, source, grant, "manual");
+	const grantUnavailable = canExecuteAbilityGrant(engine, state, source, grant, "manual");
 	if (grantUnavailable) return log(state, `[AVISO] ${grantUnavailable}`);
-	const heroName = hero ? getCardName(hero.cardId) : heroId;
-	const consumed = itemShouldBeConsumed(itemId);
+	const heroName = hero ? cardName(engine, hero.cardId) : heroId;
+	const consumed = itemShouldBeConsumed(engine, itemId);
 	const afterCost = consumed ? removeHeroItem(state, heroId, itemId) : state;
 	const withItemCost: GameState = log(
 		consumed
-			? {
-					...afterCost,
-					decks: {
-						...afterCost.decks,
+			? withDecks(afterCost, {
+						...decksOf(afterCost),
 						itemDeck: {
-							...afterCost.decks.itemDeck,
-							discarded: [...afterCost.decks.itemDeck.discarded, itemId],
+							...deckOf(afterCost, "itemDeck"),
+							discarded: [...deckOf(afterCost, "itemDeck").discarded, itemId],
 						},
-					},
-				}
+					})
 			: state,
 		consumed
 			? `${heroName} descartou ${itemName} para ativar o efeito.`
 			: `${heroName} usou ${itemName}.`,
 	);
 	const executeItem = (current: GameState): GameState => {
-		const used = executeAbilityGrant(current, {
+		const used = executeAbilityGrant(engine, current, {
 			source, grant, triggeredBy: "manual", targetIds: selection.targetIds,
 		});
-		return advanceAfterEnemyDefeat(maybeDisableReusableItem(
+		return advanceAfterEnemyDefeat(maybeDisableReusableItem(engine, 
 			log(used, `${heroName} usou ${itemName}.`), heroId, itemId, consumed,
 		));
 	};
 
 	// itemControl: inimigo do par atual pode ignorar o 1º efeito de item
 	const currentPairEnemyId = selection.targetIds.find((id) =>
-		state.activeEnemies.some((enemy) => enemy.id === id),
+		enemiesOf(state).some((enemy) => enemy.id === id),
 	);
 	if (currentPairEnemyId) {
 		// itemControl: inimigo do par atual pode ignorar o 1º efeito de item (Evasão das Fendas)
-		if (withItemCost.combat?.itemControlByEnemy[currentPairEnemyId]) {
+		if (
+			gameOf(withItemCost).combat &&
+			scopedFlagOf(withItemCost, "combat", "itemControl", currentPairEnemyId)
+		) {
 			const blocked = log(
-				{
-					...withItemCost,
-					combat: {
-						...withItemCost.combat!,
-						itemControlByEnemy: {
-							...withItemCost.combat!.itemControlByEnemy,
-							[currentPairEnemyId]: false,
-						},
-					},
-				},
+				withScopedFlag(
+					withItemCost,
+					"combat",
+					"itemControl",
+					currentPairEnemyId,
+					false,
+				),
 				`${currentPairEnemyId}: Evasão das Fendas — efeito de item bloqueado.`,
 			);
-			return maybeDisableReusableItem(blocked, heroId, itemId, consumed);
+			return maybeDisableReusableItem(engine, blocked, heroId, itemId, consumed);
 		}
 		const roomFirstTime =
-			!state.flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
+			!gameOf(state).flags[`itemEffect::${currentPairEnemyId}::${heroId}`];
 		let afterItemEmit = roomFirstTime
-			? {
-					...state,
-					flags: {
-						...state.flags,
+			? withGame(state, (prevGame) => ({ ...prevGame, flags: {
+						...gameOf(state).flags,
 						[`itemEffect::${currentPairEnemyId}::${heroId}`]: true,
-					},
-				}
+					} }))
 			: state;
-		({ state: afterItemEmit } = emit(afterItemEmit, {
+		({ state: afterItemEmit } = emit(engine, afterItemEmit, {
 			type: "ItemEffectAppliedTo",
 			payload: { heroId, itemId, sourceId: currentPairEnemyId, roomFirstTime },
 		}));
@@ -1341,56 +1261,56 @@ export function handleUseItem(
 
 // ─── USE_POWER ────────────────────────────────────────────────────────────────
 
-export function handleUsePower(state: GameState, heroId: string): GameState {
-	const hero = state.heroes.find((h) => h.id === heroId);
+export function handleUsePower(engine: GameEngine, state: GameState, heroId: string): GameState {
+	const hero = heroesOf(state).find((h) => h.id === heroId);
 	if (!hero) return state;
-	if (state.flags.powerUseBlocked) {
+	if (gameOf(state).flags.powerUseBlocked) {
 		return log(state, "Uso de poder bloqueado nesta sala.");
 	}
-	if (state.combat && ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
+	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, heroId)) {
 		return log(state, `[AVISO] Herói ${heroId} já agiu nesta rodada.`);
 	}
 
-	const heroCard = getCardById(hero.cardId);
+	const heroCard = cardById(engine, hero.cardId);
 	const powerEntry = heroCard
-		? cardSkills(heroCard.id).find(({ def }) => def.category === "hero_power")
+		? skillsOf(engine, heroCard.id).find(({ def }) => def.category === "hero_power")
 		: null;
 	const powerDef = powerEntry?.def ?? null;
 	if (!powerDef) {
 		return log(
 			state,
-			`[TODO] Poder não catalogado para: ${getCardName(hero.cardId)}`,
+			`[TODO] Poder não catalogado para: ${cardName(engine, hero.cardId)}`,
 		);
 	}
 
-	return handleUseSkill(state, { skillId: powerDef.id, sourceId: heroId });
+	return handleUseSkill(engine, state, { skillId: powerDef.id, sourceId: heroId });
 }
 
-export function handleUseSkill(
+export function handleUseSkill(engine: GameEngine, 
 	state: GameState,
 	payload: UseSkillPayload,
 ): GameState {
-	const hero = state.heroes.find(
+	const hero = heroesOf(state).find(
 		(h) => h.id === payload.sourceId && h.status === "active",
 	);
-	if (!hero) return fireOnUseSkill(state, payload);
+	if (!hero) return fireOnUseSkill(engine, state, payload);
 
-	const skillDef = lookupSkillById(payload.skillId);
+	const skillDef = skillById(engine, payload.skillId);
 	if (!skillDef) {
-		return fireOnUseSkill(state, payload);
+		return fireOnUseSkill(engine, state, payload);
 	}
 	if (skillDef.operate_type === "op_triggered") {
 		if (!isVoluntaryTrigger(skillDef, "hero", skillDef.trigger!.event))
 			return log(state, "[AVISO] Esta habilidade reage automaticamente ao evento da carta.");
-		if (state.paused || state.pendingSkillChoice || state.pendingSkillTarget || state.pendingTriggerInterrupt)
+		if (pausedOf(state) || pendingSkillChoiceOf(state) || pendingSkillTargetOf(state) || pendingTriggerInterruptOf(state))
 			return log(state, "[AVISO] Conclua a escolha pendente primeiro.");
-		if (["SETUP", "VICTORY", "DEFEAT", "ROLL_DICE", "RESOLVE_ATTACK", "DIRECT_DAMAGE"].includes(state.status))
+		if (["SETUP", "VICTORY", "DEFEAT", "ROLL_DICE", "RESOLVE_ATTACK", "DIRECT_DAMAGE"].includes(gameOf(state).status))
 			return log(state, "[AVISO] Esta reação não pode ser preparada agora.");
-		if (!cardSkills(hero.cardId).some(({ def }) => def.id === skillDef.id))
+		if (!skillsOf(engine, hero.cardId).some(({ def }) => def.id === skillDef.id))
 			return log(state, "[AVISO] Esta habilidade não pertence ao herói.");
 		const key = preparedAbilityKey("hero", hero.id, hero.cardId, skillDef.id);
 		if (!isAbilityPrepared(state, key) && (
-			(state.combat && ActivationTracker.isHeroDisabledThisRound(state, hero.id)) ||
+			(gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, hero.id)) ||
 			!guardPassed(state, skillDef, hero.id) ||
 			hero.currentLife <= (skillDef.cost?.hp ?? 0)
 		)) return log(state, "[AVISO] Esta reação está indisponível.");
@@ -1400,35 +1320,35 @@ export function handleUseSkill(
 			event: skillDef.trigger!.event,
 		}), `${skillDef.id}: ${isAbilityPrepared(state, key) ? "preparação cancelada" : "preparada"}.`);
 	}
-	if (!isManuallyActivatable(skillDef)) return fireOnUseSkill(state, payload);
+	if (!isManuallyActivatable(skillDef)) return fireOnUseSkill(engine, state, payload);
 	if (
-		state.pendingSkillChoice ||
-		state.pendingSkillTarget ||
-		state.pendingTriggerInterrupt ||
-		state.paused
+		pendingSkillChoiceOf(state) ||
+		pendingSkillTargetOf(state) ||
+		pendingTriggerInterruptOf(state) ||
+		pausedOf(state)
 	) {
 		return log(state, "[AVISO] Conclua a escolha pendente primeiro.");
 	}
 	if (
-		(state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") &&
-		state.combat?.phase !== "selecting_hero" &&
-		state.combat?.phase !== "selecting_target"
+		(gameOf(state).status === "HERO_ACTION" || gameOf(state).status === "BOSS_COMBAT") &&
+		gameOf(state).combat?.phase !== "selecting_hero" &&
+		gameOf(state).combat?.phase !== "selecting_target"
 	) {
 		return log(state, "[AVISO] Aguarde uma janela de ação para usar a habilidade.");
 	}
 
-	if (state.combat && ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId)) {
+	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId)) {
 		return log(
 			state,
 			`[AVISO] Herói ${payload.sourceId} já agiu nesta rodada.`,
 		);
 	}
 
-	if (!cardSkills(hero.cardId).some(({ def }) => def.id === skillDef.id)) {
+	if (!skillsOf(engine, hero.cardId).some(({ def }) => def.id === skillDef.id)) {
 		return log(state, "[AVISO] Esta habilidade não pertence ao herói.");
 	}
-	const currentPreyId = state.combat?.preyByHero[hero.id];
-	const currentPrey = state.activeEnemies.find(
+	const currentPreyId = gameOf(state).combat?.preyByHero[hero.id];
+	const currentPrey = enemiesOf(state).find(
 		(enemy) => enemy.id === currentPreyId && enemy.status === "active",
 	);
 	if (skillDef.effect?.some((effect) => effect.kind === "i_mark_target") && currentPrey) {
@@ -1447,7 +1367,7 @@ export function handleUseSkill(
 		);
 	}
 
-	const target = resolveManualSkillTarget(
+	const target = resolveManualSkillTarget(engine, 
 		state,
 		skillDef,
 		payload.sourceId,
@@ -1457,33 +1377,30 @@ export function handleUseSkill(
 		return log(state, `[AVISO] ${skillDef.id}: ${target.reason}`);
 	}
 	if (target.kind === "needs_selection") {
-		return {
-			...state,
-			pendingSkillTarget: {
+		return withPendingSkillTarget(state, {
 				skillId: payload.skillId,
 				sourceId: payload.sourceId,
 				prompt: target.prompt,
 				candidates: target.candidates,
-			},
-		};
+			});
 	}
 
-	return advanceAfterEnemyDefeat(fireOnUseSkill(state, {
+	return advanceAfterEnemyDefeat(fireOnUseSkill(engine, state, {
 		...payload, targetIds: [...target.targetIds],
 	}));
 }
 
-export function handleSelectSkillTarget(
+export function handleSelectSkillTarget(engine: GameEngine, 
 	state: GameState,
 	targetId: string,
 ): GameState {
-	const pending = state.pendingSkillTarget;
+	const pending = pendingSkillTargetOf(state);
 	if (!pending) return state;
 	if (!pending.candidates.some((candidate) => candidate.id === targetId)) {
 		return log(state, `[AVISO] Alvo inválido para ${pending.skillId}.`);
 	}
-	return handleUseSkill(
-		{ ...state, pendingSkillTarget: undefined },
+	return handleUseSkill(engine, 
+		withPendingSkillTarget(state, undefined),
 		{
 			skillId: pending.skillId,
 			sourceId: pending.sourceId,
@@ -1493,9 +1410,9 @@ export function handleSelectSkillTarget(
 }
 
 export function handleCancelSkillTarget(state: GameState): GameState {
-	const pending = state.pendingSkillTarget;
+	const pending = pendingSkillTargetOf(state);
 	if (!pending) return state;
-	const cleared = { ...state, pendingSkillTarget: undefined };
+	const cleared = withPendingSkillTarget(state, undefined);
 	return log(cleared, "Seleção de alvo cancelada sem consumir uso.");
 }
 
@@ -1507,13 +1424,13 @@ export function handleSelectDie(
 	index: number,
 	value?: number,
 ): GameState {
-	const sel = state.combat?.pendingDiceSelection;
-	if (!sel || !state.combat?.lastRoll) return state;
-	const roll = state.combat.lastRoll;
+	const sel = gameOf(state).combat?.pendingDiceSelection;
+	if (!sel || !gameOf(state).combat?.lastRoll) return state;
+	const roll = gameOf(state).combat!.lastRoll!;
 
 	// Verificar filtro
 	const results =
-		side === "hero" ? [...roll.heroResults] : [...roll.enemyResults];
+		side === "hero" ? [...roll!.heroResults] : [...roll!.enemyResults];
 	const dieValue = results[index];
 	if (dieValue === undefined)
 		return log(state, "[AVISO] Índice de dado inválido.");
@@ -1531,16 +1448,16 @@ export function handleSelectDie(
 		}
 		newValue = chosen;
 	} else {
-		const { result, next: rngNext } = rollDiceRng(1, state.rng);
+		const { result, next: rngNext } = rollDiceRng(1, gameOf(state).rng);
 		newValue = result.results[0] ?? 1;
-		stateAfterRng = { ...state, rng: rngNext };
+		stateAfterRng = withGame(state, (prevGame) => ({ ...prevGame, rng: rngNext }));
 	}
 
 	results[index] = newValue;
 
 	// Recalcular total
 	const breakdownToUse =
-		side === "hero" ? roll.heroBreakdown : roll.enemyBreakdown;
+		side === "hero" ? roll!.heroBreakdown : roll!.enemyBreakdown;
 	const newCalc = calculateTotal(results, [...breakdownToUse]);
 
 	const newRoll =
@@ -1549,14 +1466,11 @@ export function handleSelectDie(
 			: { ...roll, enemyResults: results, enemyTotal: newCalc.total };
 
 	return log(
-		{
-			...stateAfterRng,
-			combat: {
-				...stateAfterRng.combat!,
+		withGame(stateAfterRng, (prevGame) => ({ ...prevGame, combat: {
+				...gameOf(stateAfterRng).combat!,
 				lastRoll: newRoll,
 				pendingDiceSelection: undefined,
-			},
-		},
+			} })),
 		`Dado ${side === "hero" ? "aliado" : "inimigo"} [${index}] alterado de ${dieValue} para ${newValue}.`,
 	);
 }
@@ -1564,16 +1478,13 @@ export function handleSelectDie(
 // ─── CANCEL_HERO_SELECTION ───────────────────────────────────────────────────
 
 export function handleCancelHeroSelection(state: GameState): GameState {
-	if (!state.combat) return state;
+	if (!gameOf(state).combat) return state;
 	return log(
-		{
-			...state,
-			combat: {
-				...state.combat,
+		withGame(state, (prevGame) => ({ ...prevGame, combat: {
+				...gameOf(state).combat!,
 				phase: "selecting_hero",
 				selectedHeroId: null,
-			},
-		},
+			} })),
 		"Seleção de herói cancelada.",
 	);
 }
@@ -1583,9 +1494,9 @@ export function handleCancelHeroSelection(state: GameState): GameState {
 // Com múltiplos: valida que o herói está ativo e ainda não agiu nesta rodada.
 
 export function handleChooseHero(state: GameState, heroId?: string): GameState {
-	const activeHeroes = state.heroes.filter((h) => h.status === "active");
+	const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
 	if (activeHeroes.length === 0) {
-		return log({ ...state, status: "DEFEAT" }, "Sem heróis ativos.");
+		return log(withGame(state, (prevGame) => ({ ...prevGame, status: "DEFEAT" })), "Sem heróis ativos.");
 	}
 
 	// Validar herói específico, se informado
@@ -1599,5 +1510,113 @@ export function handleChooseHero(state: GameState, heroId?: string): GameState {
 		}
 	}
 
-	return { ...state, status: "HERO_ACTION" };
+	return withGame(state, (prevGame) => ({ ...prevGame, status: "HERO_ACTION" }));
 }
+
+export const combatHandler: GameHandler = {
+	id: "combat",
+	phases: [
+		"COMBAT_START",
+		"HERO_ACTION",
+		"ROLL_DICE",
+		"RESOLVE_ATTACK",
+		"DIRECT_DAMAGE",
+		"CHECK_COMBAT_END",
+	],
+	actions: [
+		"START_COMBAT",
+		"CHOOSE_HERO",
+		"CHOOSE_HERO_FOR_ROUND",
+		"PASS_HERO_ACTION",
+		"CANCEL_HERO_SELECTION",
+		"CHOOSE_TARGET",
+		"ROLL_DICE",
+		"RESOLVE_ATTACK",
+		"APPLY_DAMAGE",
+		"CHECK_COMBAT_END",
+		"DIRECT_DAMAGE",
+		"USE_ITEM",
+		"USE_POWER",
+		"USE_SKILL",
+		"SELECT_DIE",
+		"DECLARE_FLEE",
+	],
+	accepts(state, action) {
+		if (action.type === "ROLL_DICE") return !isBossRoll(state);
+		if (action.type === "RESOLVE_ATTACK") return !isBossAttack(state);
+		return true;
+	},
+	legalActions(state) {
+		switch (gameOf(state).status) {
+			case "COMBAT_START":
+				return [{ type: "START_COMBAT" }];
+			case "HERO_ACTION":
+				return [...targetPairs(state), { type: "CHECK_COMBAT_END" }];
+			case "ROLL_DICE":
+				return [{ type: "ROLL_DICE" }];
+			case "RESOLVE_ATTACK":
+				return [{ type: "RESOLVE_ATTACK" }];
+			case "DIRECT_DAMAGE":
+				return [{ type: "DIRECT_DAMAGE" }];
+			case "CHECK_COMBAT_END":
+				return [{ type: "CHECK_COMBAT_END" }];
+			default:
+				return [];
+		}
+	},
+	apply(state, action, engine) {
+		switch (action.type) {
+			case "START_COMBAT":
+				return handleStartCombat(engine, state);
+			case "CHOOSE_HERO":
+				return handleChooseHero(state, action.payload?.heroId);
+			case "CHOOSE_HERO_FOR_ROUND":
+				return handleChooseHeroForRound(engine, state, action.payload.heroId);
+			case "PASS_HERO_ACTION":
+				return handlePassHeroAction(engine, state, action.payload.heroId);
+			case "CANCEL_HERO_SELECTION":
+				return handleCancelHeroSelection(state);
+			case "CHOOSE_TARGET":
+				return handleChooseTarget(
+					engine,
+					state,
+					action.payload.heroId,
+					action.payload.enemyId,
+				);
+			case "ROLL_DICE":
+				return handleRollDice(engine, state);
+			case "RESOLVE_ATTACK":
+				return handleResolveAttack(engine, state);
+			case "APPLY_DAMAGE":
+				return state;
+			case "CHECK_COMBAT_END":
+				return handleCheckCombatEnd(engine, state);
+			case "DIRECT_DAMAGE":
+				return handleDirectDamage(engine, state);
+			case "USE_ITEM":
+				return handleUseItem(
+					engine,
+					state,
+					action.payload.itemId,
+					action.payload.heroId,
+					action.payload.targetHeroId,
+					action.payload.targetEnemyId,
+				);
+			case "USE_POWER":
+				return handleUsePower(engine, state, action.payload.heroId);
+			case "USE_SKILL":
+				return handleUseSkill(engine, state, action.payload);
+			case "SELECT_DIE":
+				return handleSelectDie(
+					state,
+					action.payload.side,
+					action.payload.index,
+					action.payload.value,
+				);
+			case "DECLARE_FLEE":
+				return handleDeclareFlee(engine, state, action.payload.heroId);
+			default:
+				return state;
+		}
+	},
+};

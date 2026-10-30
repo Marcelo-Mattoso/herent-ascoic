@@ -3,13 +3,13 @@ import { translate } from "@/i18n";
 // Inclui Despertar embutido.
 
 import { displayCardName as getCardName } from "@/i18n/catalogs";
-import type { ColorIndex } from "@/core/state/color";
-import type { RoomState } from "@/core/state/roomState";
+import type { ColorIndex } from "@/core/projection/viewTypes";
+import type { RoomView } from "@/core/projection/viewTypes";
 import { UI } from "@/ui/theme";
 import { ColorBar } from "./ColorBar";
 
 interface RoomCardProps {
-	room: RoomState | null;
+	room: RoomView | null;
 	despertar: ColorIndex;
 	onClick?: () => void;
 }

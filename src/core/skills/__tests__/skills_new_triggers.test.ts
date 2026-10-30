@@ -1,3 +1,4 @@
+import { awakeningOf, withAwakening } from "@/core/state/access";
 // Testes para triggers adicionados: while_in_play, combat_if_dungeon_red_or_purple,
 // on_destroyed, combat (Fio Mortal), e filtro combat_against_self.
 
@@ -15,6 +16,10 @@ import type { ColorIndex } from "../../state/color";
 import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { settled, settledWith, type LooseGame } from "../../__tests__/fixtures";
+import { pendingTriggerInterruptOf } from "../../state/access";
+import { withGame, gameOf } from "../../../engine/state";
 
 function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	return {
@@ -25,7 +30,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 4,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -54,30 +58,31 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	};
 }
 
-function baseState(extras: Partial<GameState> = {}): GameState {
+function baseState(
+	extras: Partial<LooseGame> = {},
+	awakening: ColorIndex = 4,
+): GameState {
 	const base = createInitialGameState({
 		heroCardIds: ["hero_crimson_barbarian"],
 	});
-	return {
-		...base,
+	return withAwakening(settledWith(base, {
 		heroes: [makeHero()],
 		activeEnemies: [],
-		despertar: 4 as ColorIndex,
 		...extras,
-	};
+	}), awakening);
 }
 
 function approvePendingTrigger(state: GameState): GameState {
-	expect(state.pendingTriggerInterrupt).toBeUndefined();
-	return drainStack(state);
+	expect(pendingTriggerInterruptOf(state)).toBeUndefined();
+	return drainStack(testEngine, state);
 }
 
 function prepareFury(state: GameState): GameState {
 	const key = preparedAbilityKey("hero", "h1", "hero_crimson_barbarian", "skill_crimson_fury");
-	return { ...state, preparedAbilities: { [key]: {
+	return withGame(state, (prevGame) => ({ ...prevGame, preparedAbilities: { [key]: {
 		key, sourceKind: "hero", sourceHeroId: "h1", sourceCardId: "hero_crimson_barbarian",
 		abilityId: "skill_crimson_fury", event: "evt_attack_declared",
-	} } };
+	} } }));
 }
 
 // ── while_in_play dispara em handleStartCombat ─────────────────────────────────
@@ -90,8 +95,8 @@ describe("while_in_play — flee_block", () => {
 	// Como não temos inimigo real com while_in_play, verificamos que não explode.
 
 	it("handleStartCombat não explode com while_in_play no Despertar 4", () => {
-		const state = baseState({ despertar: 4 as ColorIndex });
-		expect(() => handleStartCombat(state)).not.toThrow();
+		const state = baseState();
+		expect(() => handleStartCombat(testEngine, state)).not.toThrow();
 	});
 
 	it("fireTrigger while_in_play seta fleeBlocked quando inimigo com flee_block está ativo (Despertar 4)", () => {
@@ -102,11 +107,10 @@ describe("while_in_play — flee_block", () => {
 		const enemy = makeEnemy({});
 		const state = baseState({
 			activeEnemies: [enemy],
-			despertar: 4 as ColorIndex,
 		});
-		const result = handleStartCombat(state);
+		const result = handleStartCombat(testEngine, state);
 		// Goblin não tem while_in_play, então fleeBlocked não deve estar ativo
-		expect(result.flags?.fleeBlocked).toBeFalsy();
+		expect(gameOf(result).flags?.fleeBlocked).toBeFalsy();
 	});
 });
 
@@ -125,7 +129,6 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			damage: 3,
 			hitBonus: 0,
 			dice: 2,
-			impeto: 0,
 			activeItems: {},
 			backpack: [],
 			usedPowers: {},
@@ -140,28 +143,22 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			phase: "resolving" as const,
 			currentPair: { heroId: "h1", enemyId: "e1" },
 		};
-		return {
-			...base,
-			heroes: [hero],
-			activeEnemies: [enemy],
-			despertar,
-			combat,
-		};
+		return withAwakening(settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [hero], activeEnemies: [enemy], combat }))), despertar);
 	}
 
 	it("NÃO dispara com despertar < 3 — conditions[] avaliadas pelo dispatch (Lote B)", () => {
 		// Patch-21 Lote B: conditions[] avaliadas no dispatch — guard declarativo.
 		// Com despertar=2 ($dungeon.level=2 < 3), a condition gte falha → skill não dispara.
 		const state = makeStateWithPaladino(2 as ColorIndex);
-		const result = drainStack(
-			fireTrigger(state, "evt_combat_start", {
+		const result = drainStack(testEngine, 
+			fireTrigger(testEngine, state, "evt_combat_start", {
 				triggeredBy: "evt_combat_start",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 			}),
 		);
 		const mods = getComponents<ModifierComponent>(
-			result.world,
+			gameOf(result).world,
 			"h1",
 			"modifier",
 		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
@@ -170,7 +167,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 
 	it("aplica bônus ao Paladino quando despertar >= 3", () => {
 		const state = makeStateWithPaladino(3 as ColorIndex);
-		const prompted = fireTrigger(state, "evt_combat_start", {
+		const prompted = fireTrigger(testEngine, state, "evt_combat_start", {
 				triggeredBy: "evt_combat_start",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
@@ -178,7 +175,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 		const result = approvePendingTrigger(prompted);
 		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2 no ECS world
 		const mods = getComponents<ModifierComponent>(
-			result.world,
+			gameOf(result).world,
 			"h1",
 			"modifier",
 		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
@@ -188,14 +185,14 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 
 	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
 		const state = makeStateWithPaladino(4 as ColorIndex);
-		const prompted = fireTrigger(state, "evt_combat_start", {
+		const prompted = fireTrigger(testEngine, state, "evt_combat_start", {
 				triggeredBy: "evt_combat_start",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 		});
 		const result = approvePendingTrigger(prompted);
 		const mods = getComponents<ModifierComponent>(
-			result.world,
+			gameOf(result).world,
 			"h1",
 			"modifier",
 		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
@@ -223,17 +220,16 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		};
 		const state = baseState({
 			activeEnemies: [cultista],
-			despertar: 3 as ColorIndex,
-		});
+		}, 3);
 		// Despertar 4: purpleEffect ativo
-		const stateD4 = { ...state, despertar: 4 as ColorIndex };
-		const result = fireTrigger(stateD4, "evt_destroy", {
+		const stateD4 = withAwakening(state, 4);
+		const result = fireTrigger(testEngine, stateD4, "evt_destroy", {
 			triggeredBy: "evt_destroy",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
 		// Despertar já estava em 4 (máximo), deve permanecer em 4
-		expect(result.despertar).toBe(4);
+		expect(awakeningOf(result)).toBe(4);
 	});
 
 	it("aumenta despertar ao destruir Cultista (Despertar 3 → 4)", () => {
@@ -253,19 +249,18 @@ describe("on_destroyed — dungeonLevel (Despertar Mortal)", () => {
 		// Despertar 4 para que purpleEffect seja visível
 		const state = baseState({
 			activeEnemies: [cultista],
-			despertar: 4 as ColorIndex,
 		});
 		// Forçar despertar para 3 mantendo purpleEffect ativo (despertar 4 já foi ativado para coleta)
 		// Na prática a skill é coletada com despertar === 4; vamos testar com estado D4 e despertar 3
 		// interno ao handler
-		const stateWith3 = { ...state, despertar: 3 as ColorIndex };
-		const result = fireTrigger(stateWith3, "evt_destroy", {
+		const stateWith3 = withAwakening(state, 3);
+		const result = fireTrigger(testEngine, stateWith3, "evt_destroy", {
 			triggeredBy: "evt_destroy",
 			sourceHeroId: "h1",
 			sourceEnemyId: "e1",
 		});
 		// purpleEffect só é coletado se despertar === 4; com 3 não dispara
-		expect(result.despertar).toBe(3);
+		expect(awakeningOf(result)).toBe(3);
 	});
 });
 
@@ -284,7 +279,6 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			damage: 4,
 			hitBonus: 0,
 			dice: 2,
-			impeto: 0,
 			activeItems: { hand1: "item_rusty_dagger" },
 			backpack: [],
 			usedPowers: {},
@@ -299,13 +293,7 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 			phase: "resolving" as const,
 			currentPair: { heroId: "h1", enemyId: "e1" },
 		};
-		return {
-			...base,
-			heroes: [hero],
-			activeEnemies: [enemy],
-			despertar,
-			combat,
-		};
+		return withAwakening(settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [hero], activeEnemies: [enemy], combat }))), despertar);
 	}
 
 	it("aplica bônus de Fio Mortal no Despertar 1 (sem restrição de despertar)", () => {
@@ -313,14 +301,14 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 		// skill_crimson_fury → damage_bonus +6 → damage_dealt +6
 		// item_skill_deadly_edge → tohit_bonus +1 + damage_bonus +1 → hit_bonus +1 + damage_dealt +1
 		const state = prepareFury(makeStateWithAdaga(1 as ColorIndex));
-		const prompted = fireTrigger(state, "evt_attack_declared", {
+		const prompted = fireTrigger(testEngine, state, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 		});
 		const result = approvePendingTrigger(prompted);
 		const mods = getComponents<ModifierComponent>(
-			result.world,
+			gameOf(result).world,
 			"h1",
 			"modifier",
 		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
@@ -332,14 +320,14 @@ describe("tohit_damage via trigger 'combat' — Fio Mortal (Adaga Enferrujada)",
 
 	it("aplica bônus de Fio Mortal no Despertar 4 também", () => {
 		const state = prepareFury(makeStateWithAdaga(4 as ColorIndex));
-		const prompted = fireTrigger(state, "evt_attack_declared", {
+		const prompted = fireTrigger(testEngine, state, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",
 		});
 		const result = approvePendingTrigger(prompted);
 		const mods = getComponents<ModifierComponent>(
-			result.world,
+			gameOf(result).world,
 			"h1",
 			"modifier",
 		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
@@ -363,7 +351,7 @@ describe("filtro combat_against_self em before_attack", () => {
 		const state = baseState({ activeEnemies: [e1, e2] });
 		// Não deve explodir e não deve aplicar efeito de e2 quando sourceEnemyId=e1
 		expect(() =>
-			fireTrigger(state, "evt_attack_declared", {
+			fireTrigger(testEngine, state, "evt_attack_declared", {
 				triggeredBy: "evt_attack_declared",
 				sourceHeroId: "h1",
 				sourceEnemyId: "e1",

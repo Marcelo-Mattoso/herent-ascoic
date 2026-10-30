@@ -24,6 +24,7 @@
         value: 1
 - id: hero_rift_rogue
   type: hero
+  preservesDungeonDiscard: true
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 8, 10, 12, 14, 16 ]
   hitBonus: [ 4, 5, 7, 10, 14 ]
@@ -510,6 +511,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -861,6 +863,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -881,6 +884,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -1037,6 +1041,18 @@
   accessCondition:
     type: group_artifacts_gte
     value: 2
+  rules:
+    dice: 3
+    fullArtifacts:
+      count: 3
+      life: 16
+    firstDamageReduction: 1
+    ascension:
+      hitBonus: 2
+      atOrBelowLifeFraction: 0.5
+    pressure:
+      atAwakening: 4
+      discardDungeon: 1
   skills:
     - skillId: boss_skill_living_ash_throne
       params:

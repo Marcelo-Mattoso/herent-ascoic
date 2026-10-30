@@ -5,18 +5,21 @@ import { lowerDespertar } from "../../reducer/progression";
 import { removeBlocksForSource } from "../../state/blockHelpers";
 import { createInitialGameState } from "../../state/gameState";
 import { applyDeclaredPassiveBlocks } from "../applyPassiveBlocks";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { awakeningOf, deckOf, withAwakening, withDeck } from "@/core/state/access";
+import { gameOf, withGame } from "../../../engine/state";
 
 describe("applyDeclaredPassiveBlocks", () => {
 	it("ativa Confinamento enquanto a sala está em jogo e o remove ao sair", () => {
 		const initial = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const blocked = applyDeclaredPassiveBlocks(initial, {
+		const blocked = applyDeclaredPassiveBlocks(testEngine, initial, {
 			cardId: "room_crimson_chains_chamber",
 			entityId: "room_crimson_chains_chamber",
 		});
-		expect(blocked.flags.fleeBlocked).toBe(true);
-		expect(blocked.blocks.fleeBlocked?.[0]?.sourceEntityId).toBe(
+		expect(gameOf(blocked).flags.fleeBlocked).toBe(true);
+		expect(gameOf(blocked).blocks.fleeBlocked?.[0]?.sourceEntityId).toBe(
 			"room_crimson_chains_chamber",
 		);
 
@@ -24,30 +27,30 @@ describe("applyDeclaredPassiveBlocks", () => {
 			blocked,
 			"room_crimson_chains_chamber",
 		);
-		expect(cleared.flags.fleeBlocked).toBe(false);
+		expect(gameOf(cleared).flags.fleeBlocked).toBe(false);
 	});
 
 	it("respeita requisito roxo e bloqueia a redução do Despertar só no roxo", () => {
 		const initial = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const inactive = applyDeclaredPassiveBlocks(initial, {
+		const inactive = applyDeclaredPassiveBlocks(testEngine, initial, {
 			cardId: "creature_old_chains_knight",
 			entityId: "e1",
 			sourceEnemyId: "e1",
 		});
-		expect(inactive.flags.dungeonLevelReductionBlocked).toBeUndefined();
+		expect(gameOf(inactive).flags.dungeonLevelReductionBlocked).toBeUndefined();
 
-		const purple = applyDeclaredPassiveBlocks(
-			{ ...initial, despertar: 4 },
+		const purple = applyDeclaredPassiveBlocks(testEngine, 
+			withAwakening(initial, 4),
 			{
 				cardId: "creature_old_chains_knight",
 				entityId: "e1",
 				sourceEnemyId: "e1",
 			},
 		);
-		expect(purple.flags.dungeonLevelReductionBlocked).toBe(true);
-		expect(lowerDespertar(purple).despertar).toBe(4);
+		expect(gameOf(purple).flags.dungeonLevelReductionBlocked).toBe(true);
+		expect(awakeningOf(lowerDespertar(testEngine, purple))).toBe(4);
 	});
 });
 
@@ -56,33 +59,28 @@ describe("boss content setup", () => {
 		const state = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const revealed = handleRevealBoss(state);
-		expect(revealed.activeEnemies[0]?.id).toBe("boss");
-		expect(revealed.world.entities.boss?.type).toBe("enemy");
+		const revealed = handleRevealBoss(testEngine, state);
+		expect(gameOf(revealed).activeEnemies[0]?.id).toBe("boss");
+		expect(gameOf(revealed).world.entities.boss?.type).toBe("enemy");
 	});
 
 	it("aplica Pressão da Forja Sombria ao fim da rodada roxa", () => {
 		const initial = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const started = reducer(initial, {
+		const started = reducer(testEngine, initial, {
 			type: "START_GAME",
 			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
-		const revealed = handleRevealBoss({ ...started, despertar: 4 });
-		const heroId = revealed.heroes[0]!.id;
-		const result = handleBossResolveAttack({
-			...revealed,
-			decks: {
-				...revealed.decks,
-				dungeonDeck: {
-					...revealed.decks.dungeonDeck,
-					available: ["room_dungeon_room"],
-					discarded: [],
-				},
-			},
-			combat: {
-				...revealed.combat!,
+		const revealed = handleRevealBoss(testEngine, withAwakening(started, 4));
+		const heroId = gameOf(revealed).heroes[0]!.id;
+		const prepared = withDeck(revealed, "dungeonDeck", {
+			...deckOf(revealed, "dungeonDeck"),
+			available: ["room_dungeon_room"],
+			discarded: [],
+		});
+		const result = handleBossResolveAttack(testEngine, withGame(prepared, (prevGame) => ({ ...prevGame, combat: {
+				...gameOf(prepared).combat!,
 				lastRoll: {
 					heroId,
 					enemyId: "boss",
@@ -93,9 +91,8 @@ describe("boss content setup", () => {
 					enemyTotal: 99,
 					enemyBreakdown: [],
 				},
-			},
-		});
-		expect(result.decks.dungeonDeck.available).toHaveLength(0);
-		expect(result.decks.dungeonDeck.discarded).toContain("room_dungeon_room");
+			} })));
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(0);
+		expect(deckOf(result, "dungeonDeck").discarded).toContain("room_dungeon_room");
 	});
 });

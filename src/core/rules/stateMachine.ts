@@ -1,18 +1,23 @@
-// Máquina de estados explícita. A tabela de transições válidas vive em src/data/transitions.json.
-// Toda escrita em state.status no reducer deve chamar assertTransition antes.
+// Consulta à tabela de transições injetada no PhaseFlow (transitions.json); a validação em execução é feita por engine.flow.dispatch.
 
-import TRANSITIONS from "../../data/transitions.json";
+import type { GameEngine } from "../gameEngine";
 import type { GameStatus } from "../state/status";
 
-const table = TRANSITIONS as Partial<Record<GameStatus, readonly GameStatus[]>>;
-
-export function canTransition(from: GameStatus, to: GameStatus): boolean {
-	return table[from]?.includes(to) ?? false;
+export function canTransition(
+	engine: GameEngine,
+	from: GameStatus,
+	to: GameStatus,
+): boolean {
+	return engine.flow.canTransition(from, to);
 }
 
-export function assertTransition(from: GameStatus, to: GameStatus): void {
+export function assertTransition(
+	engine: GameEngine,
+	from: GameStatus,
+	to: GameStatus,
+): void {
 	if (from === to) return; // sem mudança: sempre permitido
-	if (!canTransition(from, to)) {
+	if (!canTransition(engine, from, to)) {
 		const msg = `[StateMachine] Transição inválida: ${from} → ${to}`;
 		// Lança em dev/test (import.meta.env.PROD é false em ambos); só loga em prod.
 		if (!import.meta.env?.PROD) {

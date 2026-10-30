@@ -8,8 +8,8 @@ import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
-import type { EnemyState } from "@/core/state/enemyState";
-import type { HeroState } from "@/core/state/heroState";
+import type { EnemyView } from "@/core/projection/viewTypes";
+import type { HeroView } from "@/core/projection/viewTypes";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { Board } from "@/ui/components/Board";
 import { BoardFooter } from "@/ui/components/BoardFooter";
@@ -225,7 +225,7 @@ export function Exploration({
 	}
 
 	// Clique em card de herói: muda foco + seleciona para combate se válido
-	function handleHeroClick(h: HeroState) {
+	function handleHeroClick(h: HeroView) {
 		if (h.status !== "active") return;
 		setFocusedHero(h.id);
 		if (tutorialInventoryMode && !tutorialInventoryOpen) {
@@ -268,7 +268,7 @@ export function Exploration({
 		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 	}
 
-	function handleEnemyClick(e: EnemyState) {
+	function handleEnemyClick(e: EnemyView) {
 		const selectedHeroId = combat?.selectedHeroId;
 		if (
 			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&

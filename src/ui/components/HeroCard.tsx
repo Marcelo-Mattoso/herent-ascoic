@@ -4,13 +4,14 @@
 import type { DragEvent } from "react";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { EQUIPMENT_SLOTS, equippedItemAt } from "@/core/rules/equipment";
-import type { HeroState } from "@/core/state/heroState";
+import type { HeroView } from "@/core/projection/viewTypes";
 import { UI } from "@/ui/theme";
 import { HpBar } from "./HpBar";
 import { ItemTile } from "./ItemTile";
+import { uiEngine } from "@/ui/engine";
 
 interface HeroCardProps {
-	hero: HeroState;
+	hero: HeroView;
 	isFocused: boolean;
 	hasActed: boolean;
 	isSelected: boolean;
@@ -283,8 +284,8 @@ export function HeroCard({
 								<ItemTile
 									key={slot}
 									slot={slot}
-									filled={!!equippedItemAt(hero, slot)}
-									item={equippedItemAt(hero, slot)}
+									filled={!!equippedItemAt(uiEngine, hero, slot)}
+									item={equippedItemAt(uiEngine, hero, slot)}
 								/>
 							))}
 						</div>
@@ -298,8 +299,8 @@ export function HeroCard({
 						<ItemTile
 							key={slot}
 							slot={slot}
-							filled={!!equippedItemAt(hero, slot)}
-							item={equippedItemAt(hero, slot)}
+							filled={!!equippedItemAt(uiEngine, hero, slot)}
+							item={equippedItemAt(uiEngine, hero, slot)}
 						/>
 					))}
 				</div>

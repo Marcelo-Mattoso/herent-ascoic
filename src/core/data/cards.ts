@@ -38,6 +38,12 @@ function validateRaw(raw: unknown[]): AnyCard[] {
 		) {
 			throw new Error(`Carta inválida no YAML: ${JSON.stringify(entry)}`);
 		}
+		const card = entry as { id: string; type: unknown };
+		if ("preservesDungeonDiscard" in card && card.type !== "hero") {
+			throw new Error(
+				`preservesDungeonDiscard só vale para heróis: ${card.id}`,
+			);
+		}
 		for (const field of LOCALE_FIELDS) {
 			if (field in (entry as object)) {
 				throw new Error(

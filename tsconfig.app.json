@@ -29,5 +29,5 @@
 		}
 	},
 	"include": ["src"],
-	"exclude": ["src/data/scripts"]
+	"exclude": ["src/data/scripts", "src/engine"]
 }

@@ -1,15 +1,16 @@
-// Testes de custo de habilidade (Patch-21 Lote A).
-// Verifica que cost.hp é checado e debitado antes de executar o efeito.
-
 import { describe, expect, it } from "vitest";
 import { reducer } from "../../reducer/index";
 import { createInitialGameState } from "../../state/gameState";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { heroesOf } from "../../state/access";
+import { settled } from "../../__tests__/fixtures";
+import { withGame } from "../../../engine/state";
 
 const HERO = "hero_crimson_barbarian";
 
 function buildState() {
 	const base = createInitialGameState({ heroCardIds: [HERO] });
-	return reducer(base, {
+	return reducer(testEngine, base, {
 		type: "START_GAME",
 		payload: { heroCardIds: [HERO] },
 	});
@@ -20,22 +21,19 @@ function buildState() {
 describe("cost.hp — lógica de debit", () => {
 	it("debit de HP: vida suficiente → reduz currentLife", () => {
 		const state = buildState();
-		const heroId = state.heroes[0]?.id ?? "";
+		const heroId = heroesOf(state)[0]?.id ?? "";
 		const costHp = 2;
 
 		// Simula o debit que fireOnUseSkill aplica quando cost.hp > 0
-		const hero = state.heroes.find((h) => h.id === heroId);
+		const hero = heroesOf(state).find((h) => h.id === heroId);
 		expect(hero).toBeDefined();
 		expect(hero!.currentLife).toBeGreaterThan(costHp);
 
-		const stateAfter = {
-			...state,
-			heroes: state.heroes.map((h) =>
+		const stateAfter = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((h) =>
 				h.id === heroId ? { ...h, currentLife: h.currentLife - costHp } : h,
-			),
-		};
+			) })));
 
-		const heroAfter = stateAfter.heroes.find((h) => h.id === heroId);
+		const heroAfter = heroesOf(stateAfter).find((h) => h.id === heroId);
 		expect(heroAfter?.currentLife).toBe(hero!.currentLife - costHp);
 	});
 
@@ -43,20 +41,17 @@ describe("cost.hp — lógica de debit", () => {
 		// Verifica que a guarda de vida insuficiente existe em useSkill.ts.
 		// A guarda real é: hero.currentLife <= hp → log("custo de vida insuficiente").
 		const state = buildState();
-		const heroId = state.heroes[0]?.id ?? "";
-		const hero = state.heroes.find((h) => h.id === heroId);
+		const heroId = heroesOf(state)[0]?.id ?? "";
+		const hero = heroesOf(state).find((h) => h.id === heroId);
 		expect(hero).toBeDefined();
 
 		// Estado com vida baixa (1 ponto)
-		const stateZeroLife = {
-			...state,
-			heroes: state.heroes.map((h) =>
+		const stateZeroLife = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((h) =>
 				h.id === heroId ? { ...h, currentLife: 1 } : h,
-			),
-		};
+			) })));
 
 		const costHp = 2;
-		const heroCheck = stateZeroLife.heroes.find((h) => h.id === heroId)!;
+		const heroCheck = heroesOf(stateZeroLife).find((h) => h.id === heroId)!;
 		// A guarda: currentLife <= hp → bloqueia
 		expect(heroCheck.currentLife <= costHp).toBe(true);
 	});
@@ -64,23 +59,20 @@ describe("cost.hp — lógica de debit", () => {
 	it("cost ausente → sem debit (vida intacta)", () => {
 		// Skills sem cost não alteram currentLife no momento da ativação
 		const state = buildState();
-		const heroId = state.heroes[0]?.id ?? "";
-		const heroBefore = state.heroes.find((h) => h.id === heroId);
+		const heroId = heroesOf(state)[0]?.id ?? "";
+		const heroBefore = heroesOf(state).find((h) => h.id === heroId);
 
 		// cost undefined → nenhum debit acontece
 		const cost = undefined;
 		const stateAfter = cost
-			? {
-					...state,
-					heroes: state.heroes.map((h) =>
+			? settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((h) =>
 						h.id === heroId
 							? { ...h, currentLife: h.currentLife - (cost as any).hp }
 							: h,
-					),
-				}
+					) })))
 			: state;
 
-		const heroAfter = stateAfter.heroes.find((h) => h.id === heroId);
+		const heroAfter = heroesOf(stateAfter).find((h) => h.id === heroId);
 		expect(heroAfter?.currentLife).toBe(heroBefore?.currentLife);
 	});
 });

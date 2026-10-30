@@ -1,4 +1,5 @@
 import { expect, test, type Page } from "@playwright/test";
+import { mutateGame, readGame } from "./state";
 
 const viewports = [
 	{ width: 320, height: 568 },
@@ -42,14 +43,9 @@ async function startCombat(page: Page, heroCount = 1) {
 		.last()
 		.click();
 	await expect
-		.poll(
-			() =>
-				page.evaluate(async () => {
-					const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
-					return getElfGameState().status;
-				}),
-			{ timeout: 12_000 },
-		)
+		.poll(() => readGame(page, "(s, a) => s.game.status"), {
+			timeout: 12_000,
+		})
 		.toBe("HERO_ACTION");
 }
 
@@ -59,46 +55,50 @@ async function setEncounter(
 	enemyCount: number,
 	boss = false,
 ) {
-	await page.evaluate(
-		async ({ heroCount, enemyCount, boss }) => {
-			const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
-			const state = getElfGameState();
-			const hero = state.heroes[0];
-			const enemy = state.activeEnemies.find(
-				(item) => item.status === "active",
-			);
+	await mutateGame(
+		page,
+		`(state, access, engine, { heroCount, enemyCount, boss }) => {
+			const heroes = access.heroesOf(state);
+			const hero = heroes[0];
+			const enemy = access.enemiesOf(state).find((item) => item.status === "active");
 			if (!hero || !enemy) throw new Error("Combat fixture unavailable");
-			const heroes =
-				state.heroes.length >= heroCount
-					? state.heroes.slice(0, heroCount)
+			const nextHeroes =
+				heroes.length >= heroCount
+					? heroes.slice(0, heroCount)
 					: Array.from({ length: heroCount }, (_, index) => ({
 							...hero,
-							id: `viewport-hero-${index}`,
+							id: "viewport-hero-" + index,
 							playerIndex: index,
 						}));
-			const activeEnemies = boss
-				? [{ ...enemy, id: "boss", cardId: state.bossCardId, status: "active" }]
+			const nextEnemies = boss
+				? [{ ...enemy, id: "boss", cardId: engine.gameOf(state).bossCardId, status: "active" }]
 				: Array.from({ length: enemyCount }, (_, index) => ({
 						...enemy,
-						id: `viewport-enemy-${index}`,
+						id: "viewport-enemy-" + index,
 					}));
-			(
-				window as unknown as { __loadGameState: (state: unknown) => void }
-			).__loadGameState({
-				...state,
+			let world = engine.gameOf(state).world;
+			for (const unit of nextHeroes) world = access.spawnHero(world, unit);
+			for (const unit of nextEnemies) world = access.spawnEnemy(world, unit);
+			let next = engine.withGame(state, (g) => ({
+				...g,
+				world,
+				heroes: nextHeroes.map(access.recordOfHero),
+				activeEnemies: nextEnemies.map(access.recordOfEnemy),
+			}));
+			next = access.withPendingSkillChoice(next, undefined);
+			next = access.withPendingTriggerInterrupt(next, undefined);
+			next = engine.withGame(next, (g) => ({
+				...g,
 				status: boss ? "BOSS_COMBAT" : "HERO_ACTION",
-				pendingSkillChoice: undefined,
-				pendingTriggerInterrupt: undefined,
-				heroes,
-				activeEnemies,
 				combat: {
-					...state.combat,
+					...g.combat,
 					phase: "selecting_hero",
 					selectedHeroId: null,
 					heroesActed: [],
 				},
-			});
-		},
+			}));
+			return { state: next };
+		}`,
 		{ heroCount, enemyCount, boss },
 	);
 	await expect(page.locator(".game-card--hero")).toHaveCount(heroCount);
@@ -171,22 +171,30 @@ async function expectBoardFits(page: Page) {
 	}
 }
 
-test("Apoie-nos aparece apenas no menu e não intercepta cartas do tabuleiro", async ({ page }) => {
+test("Apoie-nos aparece apenas no menu e não intercepta cartas do tabuleiro", async ({
+	page,
+}) => {
 	await page.setViewportSize({ width: 320, height: 568 });
 	await page.goto("/");
 	const support = page.locator(".support-action__trigger");
 	await expect(support).toBeVisible();
 	await support.click();
-	const dialog = page.getByRole("dialog", { name: /Ajude a expandir Ascensão Heróica/ });
+	const dialog = page.getByRole("dialog", {
+		name: /Ajude a expandir Ascensão Heróica/,
+	});
 	await expect(dialog).toBeVisible();
-	await expect(dialog.getByRole("img", { name: "QR Code de pagamento Pix" })).toBeVisible();
+	await expect(
+		dialog.getByRole("img", { name: "QR Code de pagamento Pix" }),
+	).toBeVisible();
 	await dialog.getByRole("button", { name: "✕" }).click();
 	await expect(dialog).toHaveCount(0);
 	await startCombat(page);
 	await expect(support).toHaveCount(0);
 	await expectBoardFits(page);
 	await page.locator(".game-card--room").click();
-	await expect(page.getByRole("dialog", { name: /Passagem das Tochas Mortas/ })).toBeVisible();
+	await expect(
+		page.getByRole("dialog", { name: /Passagem das Tochas Mortas/ }),
+	).toBeVisible();
 });
 
 test("a cena inteira cabe nos doze viewports com quatro heróis e criaturas", async ({
@@ -296,16 +304,12 @@ test("as duas ações do encontro com o chefe cabem em retrato e paisagem", asyn
 }) => {
 	await page.setViewportSize({ width: 320, height: 568 });
 	await startCombat(page);
-	await page.evaluate(async () => {
-		const modulePath = "/src/ui/store/elfStore.ts";
-		const { getElfGameState } = await import(modulePath);
-		(
-			window as unknown as { __loadGameState: (state: unknown) => void }
-		).__loadGameState({
-			...getElfGameState(),
-			status: "BOSS_REVEAL",
-		});
-	});
+	await mutateGame(
+		page,
+		`(state, access, engine) => ({
+			state: engine.withGame(state, (g) => ({ ...g, status: "BOSS_REVEAL" })),
+		})`,
+	);
 	for (const viewport of [
 		{ width: 320, height: 568 },
 		{ width: 568, height: 320 },

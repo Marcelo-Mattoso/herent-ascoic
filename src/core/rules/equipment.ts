@@ -1,7 +1,8 @@
 import type { ItemCard } from "../data/cardTypes";
-import { BACKPACK_LIMIT } from "../config/defaults";
-import { getCardById } from "../data/cards";
-import type { HeroState, ItemSlotType } from "../state/heroState";
+
+import type { HeroRecord, ItemSlotType } from "../state/heroState";
+import { cardById } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
 
 export const EQUIPMENT_SLOTS: readonly ItemSlotType[] = [
 	"clothing1",
@@ -10,7 +11,6 @@ export const EQUIPMENT_SLOTS: readonly ItemSlotType[] = [
 	"hand2",
 	"amulet",
 ];
-export const BACKPACK_CAPACITY = BACKPACK_LIMIT ?? 3;
 
 export function itemFitsSlot(item: ItemCard, slot: ItemSlotType): boolean {
 	if (item.equipmentSlot === "clothing")
@@ -20,24 +20,24 @@ export function itemFitsSlot(item: ItemCard, slot: ItemSlotType): boolean {
 	return item.equipmentSlot === "amulet" && slot === "amulet";
 }
 
-export function itemAllowedForHero(item: ItemCard, hero: HeroState): boolean {
+export function itemAllowedForHero(item: ItemCard, hero: HeroRecord): boolean {
 	return !item.allowedHeroIds || item.allowedHeroIds.includes(hero.cardId);
 }
 
-export function equippedItemAt(
-	hero: HeroState,
+export function equippedItemAt(engine: GameEngine, 
+	hero: HeroRecord,
 	slot: ItemSlotType,
 ): string | undefined {
 	if (slot === "hand2" && !hero.activeItems.hand2 && hero.activeItems.hand1) {
-		const item = getCardById(hero.activeItems.hand1);
+		const item = cardById(engine, hero.activeItems.hand1);
 		if (item?.type === "item" && item.equipmentSlot === "two_hands")
 			return item.id;
 	}
 	return hero.activeItems[slot];
 }
 
-export function freeEquipmentSlot(
-	hero: HeroState,
+export function freeEquipmentSlot(engine: GameEngine, 
+	hero: HeroRecord,
 	item: ItemCard,
 ): ItemSlotType | null {
 	if (
@@ -47,31 +47,31 @@ export function freeEquipmentSlot(
 	)
 		return null;
 	if (item.equipmentSlot === "two_hands") {
-		return !equippedItemAt(hero, "hand1") && !equippedItemAt(hero, "hand2")
+		return !equippedItemAt(engine, hero, "hand1") && !equippedItemAt(engine, hero, "hand2")
 			? "hand1"
 			: null;
 	}
 	return (
 		EQUIPMENT_SLOTS.find(
-			(slot) => itemFitsSlot(item, slot) && !equippedItemAt(hero, slot),
+			(slot) => itemFitsSlot(item, slot) && !equippedItemAt(engine, hero, slot),
 		) ?? null
 	);
 }
 
-export function placeEquipment(
-	hero: HeroState,
+export function placeEquipment(engine: GameEngine, 
+	hero: HeroRecord,
 	item: ItemCard,
 	requestedSlot?: ItemSlotType,
-): { hero: HeroState; displaced: string[] } | null {
+): { hero: HeroRecord; displaced: string[] } | null {
 	if (!item.equipmentSlot || !itemAllowedForHero(item, hero)) return null;
 	if (Object.values(hero.activeItems).includes(item.id)) return null;
 	if (requestedSlot && !itemFitsSlot(item, requestedSlot)) return null;
-	const slot = requestedSlot ?? freeEquipmentSlot(hero, item);
+	const slot = requestedSlot ?? freeEquipmentSlot(engine, hero, item);
 	if (!slot) return null;
 	const conflicts =
 		item.equipmentSlot === "two_hands"
-			? [equippedItemAt(hero, "hand1"), equippedItemAt(hero, "hand2")]
-			: [equippedItemAt(hero, slot)];
+			? [equippedItemAt(engine, hero, "hand1"), equippedItemAt(engine, hero, "hand2")]
+			: [equippedItemAt(engine, hero, slot)];
 	const displaced = [
 		...new Set(conflicts.filter((id): id is string => !!id && id !== item.id)),
 	];

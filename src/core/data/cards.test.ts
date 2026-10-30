@@ -88,4 +88,12 @@ describe("catálogo de cartas", () => {
 			expect(creature.skills.length).toBeGreaterThan(0);
 		}
 	});
+
+	it("preservesDungeonDiscard é dado de herói no catálogo", () => {
+		const flagged = getAllCards().filter(
+			(card) => "preservesDungeonDiscard" in card,
+		);
+		expect(flagged.map((card) => card.id)).toEqual(["hero_rift_rogue"]);
+		expect(flagged.every((card) => card.type === "hero")).toBe(true);
+	});
 });

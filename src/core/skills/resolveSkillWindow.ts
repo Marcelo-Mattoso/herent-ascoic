@@ -1,10 +1,10 @@
 import { drainStack } from "../effects/resolver";
 import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
 import type { GameState } from "../state/gameState";
-import { getCardById } from "../data/cards";
-import { getSkillName } from "../data/skillLocale";
+
+
 import { log } from "../reducer/utils";
-import { lookupSkillById } from "./lookup";
+
 import {
 	collectEventAbilityGrantCandidates,
 	eventGrantMatchesContext,
@@ -19,6 +19,10 @@ import {
 	triggerDecisionFlag,
 	type PendingTriggerInterrupt,
 } from "../triggers/engine";
+import { cardById, skillById, skillName } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+import { pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, withNestedSkillWindow, withPendingSkillWindow, withPendingTriggerInterrupt } from "../state/access";
+import { gameOf, withGame } from "../../engine/state";
 
 export type SkillWindowResume =
 	| { readonly type: "none" }
@@ -123,14 +127,6 @@ export const TRIGGER_EVENT_EMITTERS: Readonly<
 	evt_targeted: ["reducer/combat.resolveExtraEnemyCombatRoll"],
 };
 
-const ITEM_STATS_HANDLED_BY_EQUIPMENT = new Set([
-	"item_skill_deadly_edge",
-	"item_skill_drain_life_and_deadly_edge",
-	"item_skill_block",
-	"item_skill_block_and_last_light_ward",
-	"item_skill_last_light_blade",
-]);
-
 function requestCtx(request: SkillWindowRequest): SkillContext {
 	return {
 		triggeredBy: request.event,
@@ -157,34 +153,34 @@ function eventTargetIds(
 	return ctx.targetHeroIds?.length ? ctx.targetHeroIds : ctx.targetEnemyIds ?? [];
 }
 
-function shouldSkipGrant(candidate: import("../abilities/executor").EventAbilityGrantCandidate): boolean {
+function shouldSkipGrant(engine: GameEngine, candidate: import("../abilities/executor").EventAbilityGrantCandidate): boolean {
 	// O combate de boss tem janelas e regras próprias em reducer/boss.ts.
 	// Não permitir que os mesmos efeitos do catálogo rodem também aqui evita
 	// duplicar Trono Vivo/Ascensão Final.
 	if (candidate.source.kind === "boss" ||
-		lookupSkillById(candidate.grant.abilityId)?.category === "boss_skill") return true;
+		skillById(engine, candidate.grant.abilityId)?.category === "boss_skill") return true;
 	const item =
 		candidate.source.kind === "item"
-			? getCardById(candidate.source.cardId)
+			? cardById(engine, candidate.source.cardId)
 			: undefined;
 	if (
 		candidate.source.kind === "item" &&
 		candidate.grant.id.startsWith("legacy:") &&
-		ITEM_STATS_HANDLED_BY_EQUIPMENT.has(candidate.grant.abilityId) &&
+		skillById(engine, candidate.grant.abilityId)?.rules?.handledByEquipment &&
 		!(item?.type === "item" && item.useTiming)
 	) {
 		return true;
 	}
 	return false;
 }
-export function resolveSkillWindow(
+export function resolveSkillWindow(engine: GameEngine, 
 	state: GameState,
 	request: SkillWindowRequest,
 ): GameState {
 	if (
-		state.pendingTriggerInterrupt ||
-		state.pendingSkillChoice ||
-		state.pendingSkillTarget
+		pendingTriggerInterruptOf(state) ||
+		pendingSkillChoiceOf(state) ||
+		pendingSkillTargetOf(state)
 	) {
 		return state;
 	}
@@ -193,17 +189,17 @@ export function resolveSkillWindow(
 	const resume = request.resume ?? { type: "none" as const };
 	const resolvedCandidateIds = new Set(request.resolvedCandidateIds ?? []);
 	let current = state;
-	const grantCandidates = collectEventAbilityGrantCandidates(
+	const grantCandidates = collectEventAbilityGrantCandidates(engine, 
 		current,
 		request.event,
 	);
 
 	for (const candidate of grantCandidates) {
-		if (shouldSkipGrant(candidate)) continue;
+		if (shouldSkipGrant(engine, candidate)) continue;
 		if (!eventGrantMatchesContext(candidate, request.event, ctx)) continue;
 		const targetIds = eventTargetIds(candidate, ctx);
 		if (
-			canExecuteAbilityGrant(
+			canExecuteAbilityGrant(engine, 
 				current,
 				candidate.source,
 				candidate.grant,
@@ -223,7 +219,7 @@ export function resolveSkillWindow(
 			candidate.grant.id,
 		].join(":");
 		if (resolvedCandidateIds.has(pendingId)) continue;
-		if (current.flags[triggerDecisionFlag(pendingId)]) continue;
+		if (gameOf(current).flags[triggerDecisionFlag(pendingId)]) continue;
 		const grantPreparedKey = candidate.source.sourceHeroId &&
 			(candidate.source.kind === "hero" || candidate.source.kind === "item" || candidate.source.kind === "artifact")
 			? preparedAbilityKey(candidate.source.kind, candidate.source.sourceHeroId,
@@ -232,7 +228,7 @@ export function resolveSkillWindow(
 			: null;
 		if (candidate.grant.activation.decision === "optional" &&
 			(!grantPreparedKey || !isAbilityPrepared(current, grantPreparedKey))) continue;
-		current = executeAbilityGrant(current, {
+		current = executeAbilityGrant(engine, current, {
 			source: candidate.source,
 			grant: candidate.grant,
 			triggeredBy: request.event,
@@ -242,61 +238,46 @@ export function resolveSkillWindow(
 		});
 		if (grantPreparedKey && isAbilityPrepared(current, grantPreparedKey)) {
 			current = log(removePreparedAbility(current, grantPreparedKey),
-				`${getSkillName(candidate.grant.abilityId)} ativada automaticamente em ${request.event}.`);
+				`${skillName(engine, candidate.grant.abilityId)} ativada automaticamente em ${request.event}.`);
 		}
-		if (current.pendingTriggerInterrupt) {
+		if (pendingTriggerInterruptOf(current)) {
 			resolvedCandidateIds.add(pendingId);
 			const parent: PendingSkillWindow = {
 				event: request.event, ctx, resume, parent: request.parent,
 				resolvedCandidateIds: [...resolvedCandidateIds],
 			};
-			return {
-				...current,
-				flags: { ...current.flags, [triggerDecisionFlag(pendingId)]: true },
-				pendingSkillWindow: current.pendingSkillWindow
-					? { ...current.pendingSkillWindow, parent }
-					: parent,
-			};
+			return withNestedSkillWindow(withGame(current, (prevGame) => ({ ...prevGame, flags: { ...gameOf(current).flags, [triggerDecisionFlag(pendingId)]: true } })), parent);
 		}
-		if (current.pendingSkillChoice || current.pendingSkillTarget) {
+		if (pendingSkillChoiceOf(current) || pendingSkillTargetOf(current)) {
 			resolvedCandidateIds.add(pendingId);
-			return {
-				...current,
-				flags: {
-					...current.flags,
+			return withPendingSkillWindow(withGame(current, (prevGame) => ({ ...prevGame, flags: {
+					...gameOf(current).flags,
 					[triggerDecisionFlag(pendingId)]: true,
-				},
-				pendingSkillWindow: {
+				} })), {
 					event: request.event,
 					ctx,
 					resume,
 					parent: request.parent,
 					resolvedCandidateIds: [...resolvedCandidateIds],
-				},
-			};
+				});
 		}
 		resolvedCandidateIds.add(pendingId);
 	}
 
-	return { ...current, pendingSkillWindow: undefined };
+	return withPendingSkillWindow(current, undefined);
 }
 
-export function applySkillWindowDecision(
+export function applySkillWindowDecision(engine: GameEngine, 
 	state: GameState,
 	pending: PendingTriggerInterrupt,
 	window: PendingSkillWindow | undefined,
 ): GameState {
-	const cleared = {
-		...state,
-		pendingTriggerInterrupt: undefined,
-		pendingSkillWindow: undefined,
-		flags: {
-			...state.flags,
+	const cleared = withPendingSkillWindow(withPendingTriggerInterrupt(withGame(state, (prevGame) => ({ ...prevGame, flags: {
+			...gameOf(state).flags,
 			[triggerDecisionFlag(pending.id)]: true,
-		},
-	};
+		} })), undefined), undefined);
 	if (pending.grantId) {
-		const candidate = collectEventAbilityGrantCandidates(
+		const candidate = collectEventAbilityGrantCandidates(engine, 
 			cleared,
 			pending.event,
 		).find(
@@ -307,7 +288,7 @@ export function applySkillWindowDecision(
 				entry.source.sourceEnemyId === pending.sourceEnemyId,
 		);
 		if (!candidate) return cleared;
-		let applied = executeAbilityGrant(cleared, {
+		let applied = executeAbilityGrant(engine, cleared, {
 			source: candidate.source,
 			grant: candidate.grant,
 			triggeredBy: pending.event,
@@ -318,48 +299,33 @@ export function applySkillWindowDecision(
 			value: pending.value,
 		});
 		if (!window) return applied;
-		if (applied.pendingTriggerInterrupt)
-			return {
-				...applied,
-				pendingSkillWindow: applied.pendingSkillWindow
-					? { ...applied.pendingSkillWindow, parent: window }
-					: window,
-			};
-		if (applied.pendingSkillChoice || applied.pendingSkillTarget)
-			return { ...applied, pendingSkillWindow: window };
-		return resolveSkillWindow(applied, window);
+		if (pendingTriggerInterruptOf(applied))
+			return withNestedSkillWindow(applied, window);
+		if (pendingSkillChoiceOf(applied) || pendingSkillTargetOf(applied))
+			return withPendingSkillWindow(applied, window);
+		return resolveSkillWindow(engine, applied, window);
 	}
-	let applied = fireTriggerDecision(cleared, pending);
-	applied = drainStack(applied);
+	let applied = fireTriggerDecision(engine, cleared, pending);
+	applied = drainStack(engine, applied);
 
 	if (!window) return applied;
-	if (applied.pendingTriggerInterrupt)
-		return {
-			...applied,
-			pendingSkillWindow: applied.pendingSkillWindow
-				? { ...applied.pendingSkillWindow, parent: window }
-				: window,
-		};
-	if (applied.pendingSkillChoice || applied.pendingSkillTarget)
-		return { ...applied, pendingSkillWindow: window };
-	return resolveSkillWindow(applied, window);
+	if (pendingTriggerInterruptOf(applied))
+		return withNestedSkillWindow(applied, window);
+	if (pendingSkillChoiceOf(applied) || pendingSkillTargetOf(applied))
+		return withPendingSkillWindow(applied, window);
+	return resolveSkillWindow(engine, applied, window);
 }
 
-export function skipSkillWindowDecision(
+export function skipSkillWindowDecision(engine: GameEngine, 
 	state: GameState,
 	pending: PendingTriggerInterrupt,
 	window: PendingSkillWindow | undefined,
 ): GameState {
-	const skipped = {
-		...state,
-		pendingTriggerInterrupt: undefined,
-		pendingSkillWindow: undefined,
-		flags: {
-			...state.flags,
+	const skipped = withPendingSkillWindow(withPendingTriggerInterrupt(withGame(state, (prevGame) => ({ ...prevGame, flags: {
+			...gameOf(state).flags,
 			[triggerDecisionFlag(pending.id)]: true,
-		},
-	};
+		} })), undefined), undefined);
 
 	if (!window) return skipped;
-	return resolveSkillWindow(skipped, window);
+	return resolveSkillWindow(engine, skipped, window);
 }

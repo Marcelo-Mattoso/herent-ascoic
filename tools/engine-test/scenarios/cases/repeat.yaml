@@ -1,0 +1,12 @@
+name: repeat executa o bloco n vezes, em ordem
+kind: repeat
+given:
+  counters: [{ scope: jogo, id: "-", name: pontos, value: 0 }]
+when:
+  - run:
+      - kind: repeat
+        times: 3
+        do:
+          - { kind: change_counter, counter: { scope: jogo, id: "-", name: pontos }, delta: 2 }
+then:
+  counters: { "jogo:-:pontos": 6 }

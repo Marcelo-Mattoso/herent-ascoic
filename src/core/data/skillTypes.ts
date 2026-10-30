@@ -22,6 +22,21 @@ export type TriggerName = string;
 /** @deprecated Lote C — substituído por target_type + affect_scope + affect_object + affect_limit */
 export type TargetSpec = string;
 
+export interface SkillRules {
+	/** Estatísticas já aplicadas pelo equipamento; a janela de eventos ignora o grant legado. */
+	readonly handledByEquipment?: boolean;
+	/** Bônus de acerto lido do param nomeado enquanto a fonte está ativa. */
+	readonly hitBonusParam?: string;
+	/** Bônus de acerto do param `value` contra a presa marcada pelo herói. */
+	readonly preyHitBonus?: { readonly label: string };
+	/** Bônus de dano só vale com margem de acerto igual ou maior. */
+	readonly minRollMargin?: number;
+	/** Tipo de dano causado por `i_damage` desta habilidade; padrão `physical`. */
+	readonly damageType?: import("../events/types").DamageType;
+	/** Vida recuperada pelo portador ao causar dano. */
+	readonly lifeDrain?: number;
+}
+
 export interface SkillDefinition {
 	readonly id: string;
 	readonly category: SkillCategory;
@@ -52,6 +67,7 @@ export interface SkillDefinition {
 	readonly script?: string;
 	/** Params fixos da habilidade. Mesclados com SkillRef.params como $value. */
 	readonly params?: Readonly<Record<string, unknown>>;
+	readonly rules?: SkillRules;
 	/** Custo da habilidade — debitado antes de executar o efeito. */
 	readonly cost?: {
 		readonly hp?: number;

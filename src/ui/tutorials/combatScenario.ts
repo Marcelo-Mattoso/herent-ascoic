@@ -1,9 +1,13 @@
 import type { Action } from "@/core/actions/types";
 import type { TutorialEntryContext } from "./registry";
 
-export const COMBAT_OPENING_SEED = 2;
-export const COMBAT_FINISHING_SEED = 1;
-export const COMBAT_DEFAULT_HERO = "hero_broken_bastion_warrior";
+import {
+	COMBAT_DEFAULT_HERO,
+	COMBAT_FINISHING_SEED,
+	COMBAT_OPENING_SEED,
+} from "@/data/scenarios/seeds";
+
+export { COMBAT_DEFAULT_HERO, COMBAT_FINISHING_SEED, COMBAT_OPENING_SEED };
 
 export function canReuseCombatBoard({ view }: TutorialEntryContext): boolean {
 	return (

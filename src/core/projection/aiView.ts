@@ -1,12 +1,8 @@
-// Projeção limitada para IA local.
-// Não expõe: RNG interno, world ECS com componentes privados, deck top-cards.
-//
-// Passo 9: esqueleto — tipos e contrato definidos; availableActions e regras
-// de visibilidade serão expandidos quando a IA for implementada.
-
 import type { EntityId, EntityType } from "../ecs/types";
 import type { GameState } from "../state/gameState";
 import type { GameStatus } from "../state/status";
+import { enemiesOf, heroesOf } from "../state/access";
+import { gameOf } from "../../engine/state";
 
 // Vista pública de uma entidade — sem componentes internos nem metadados privados.
 export interface EntityView {
@@ -39,7 +35,7 @@ export function aiView(
 	const visibleEntities: EntityView[] = [];
 
 	// Heróis ativos são visíveis para a IA.
-	for (const hero of state.heroes) {
+	for (const hero of heroesOf(state)) {
 		if (hero.status !== "active") continue;
 		visibleEntities.push({
 			id: hero.id,
@@ -51,7 +47,7 @@ export function aiView(
 	}
 
 	// Inimigos ativos são visíveis para a IA.
-	for (const enemy of state.activeEnemies) {
+	for (const enemy of enemiesOf(state)) {
 		if (enemy.status !== "active") continue;
 		visibleEntities.push({
 			id: enemy.id,
@@ -66,7 +62,7 @@ export function aiView(
 	const availableActions: AiAvailableAction[] = [];
 
 	return {
-		status: state.status,
+		status: gameOf(state).status,
 		visibleEntities,
 		availableActions,
 	};

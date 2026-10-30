@@ -1,0 +1,918 @@
+{
+	"engineVersion": 1,
+	"name": "golden-10",
+	"seed": 10081,
+	"setup": {
+		"heroCardIds": [
+			"hero_last_light_paladin",
+			"hero_broken_bastion_warrior"
+		],
+		"difficulty": "nightmare",
+		"bossCardId": "boss_azhakar",
+		"seed": 10081
+	},
+	"outcome": "DEFEAT",
+	"actions": [
+		{
+			"type": "START_GAME",
+			"payload": {
+				"heroCardIds": [
+					"hero_last_light_paladin",
+					"hero_broken_bastion_warrior"
+				],
+				"difficulty": "nightmare",
+				"bossCardId": "boss_azhakar",
+				"seed": 10081,
+				"gameId": "golden-10081"
+			}
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-ahy3h5-wzyr6c"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-p3mg2d-4zyoqy",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-w55sbo-sm284k",
+				"enemyId": "e-1rel030-1xl8wjq"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		}
+	],
+	"steps": [
+		"61894f66ca762f82",
+		"7464e2a0258fea9d",
+		"fba5f0dd3c08540e",
+		"8a0c53c4b02a738b",
+		"dcdfa3bf1de5bf3b",
+		"e525d8065b5f81f5",
+		"32d24e087b15434e",
+		"6a571aa3c9d6abf9",
+		"ecc6696520c661af",
+		"b1d0207b323edeb1",
+		"4a5e5496e94106b9",
+		"57c3c37fbb26ebae",
+		"3b4623b3343ec16b",
+		"4191432a66b09f80",
+		"7ac298f3e0811b07",
+		"57b7768e88a787bd",
+		"c2a6f8e69e28a1c8",
+		"036c7c32cc04bbdf",
+		"8c2347e0fe1e0866",
+		"231542b2bc55ff3a",
+		"38806afd8c3665c8",
+		"96db20cc098dc2f6",
+		"e6cf3f2e3cfb09c5",
+		"91e9053506976c04",
+		"daa451473651adf6",
+		"372ee27782e37cac",
+		"c8901c6a4a53665e",
+		"cff9526f6a1eb91a",
+		"c768b3ee798186e4",
+		"be10a2ac3796c9dd",
+		"67476581868e4884",
+		"12f87d3b13dd29fc",
+		"6c35fe757748e983",
+		"6fe9091e9df68617",
+		"41a7b57e0e52a673",
+		"f4e422040dbce60a",
+		"3d7b80872dae6077",
+		"ced80042834a6e3a",
+		"c67110c96bd96226",
+		"6950fedd4f5665f2",
+		"5f9e7b69b3351c33",
+		"7b67ad4cbc90dc09",
+		"6c7b5892662f3164",
+		"f2dfb3f982ee5682",
+		"e6dd174a9ae388ff",
+		"be16ae37416d9bcb",
+		"de5891d2d7f5b189",
+		"5bca422d28447fe8",
+		"33a00e8626c42ab3",
+		"d78903e6aae0e5cc",
+		"45d7389ac0f23a08",
+		"4e79f594acee512b",
+		"3cfffe40bb71d3f2",
+		"17f58bb748c72028",
+		"77a3192652983d0c",
+		"b1e84a08aa75f4db",
+		"8620951c362b68f6",
+		"a77c5fbdbe368578",
+		"e7611baee33d0e7c",
+		"7101a6c505bb14e2",
+		"4a1aea22105dbaa8",
+		"ea2f6fce0685e2ae",
+		"723a25472398a813",
+		"f44e1a1e5b3c6749",
+		"42fbd607e2605396",
+		"ae9271c06501ef21",
+		"dd5d3c17c862c83f",
+		"51a550e8c90149c6",
+		"3c770e783aef03be",
+		"d86de5eebcc43997",
+		"1c1c0f70ffc74141",
+		"3635f85bf866d133",
+		"5a72694fa17a6ab8",
+		"475a7b29d05d1306",
+		"60a3895ced566fd1",
+		"1d7303e2c3dce48e",
+		"c9004b4e9b8d050f",
+		"bed3881cd6634cb6",
+		"cca8f283c34b793b",
+		"1b5a44a3ed60aab6",
+		"eca5127dfe40f203",
+		"0b285a6720ee01c3",
+		"5ee84f47a930bdb9",
+		"718da5ac9b002133",
+		"35cc76ad4a0001c0",
+		"d9550e64ef2e9bf3",
+		"d8ffb6d44f6c253c"
+	],
+	"finalSnapshot": {
+		"abilityActionsByHero": {
+			"h-p3mg2d-4zyoqy": [
+				{
+					"abilityId": "skill_final_dawn_light",
+					"activation": "passive",
+					"kind": "skill",
+					"label": "Luz da Aurora Final",
+					"reason": "Condições da habilidade não atendidas.",
+					"sourceCardId": "hero_last_light_paladin",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_last_light_oath",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Juramento da Última Luz",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_last_light_paladin",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			],
+			"h-w55sbo-sm284k": [
+				{
+					"abilityId": "skill_bastion_guard",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Guarda do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_unbreakable_bastion_guard",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Guarda Inquebrável do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			]
+		},
+		"activeInfluences": [
+			{
+				"duration": "até fim do combate",
+				"from": {
+					"id": "e-ahy3h5-wzyr6c",
+					"kind": "enemy",
+					"name": "Kobold das Brasas Baixas"
+				},
+				"icon": "🎯",
+				"id": "skill_pack_courage:hit_bonus:1:add:e-ahy3h5-wzyr6c:0",
+				"kind": "buff",
+				"label": "+1 acerto",
+				"scope": "unknown",
+				"source": "Coragem de Bando",
+				"to": {
+					"id": "e-ahy3h5-wzyr6c",
+					"kind": "enemy",
+					"name": "Kobold das Brasas Baixas"
+				}
+			},
+			{
+				"duration": "até fim da sala",
+				"from": {
+					"kind": "dungeon"
+				},
+				"icon": "🚷",
+				"id": "flag:flee-blocked",
+				"kind": "debuff",
+				"label": "Fuga bloqueada",
+				"scope": "dungeon_to_group",
+				"source": "Efeito de sala/inimigo",
+				"to": {
+					"kind": "group"
+				}
+			}
+		],
+		"bossCardId": "boss_azhakar",
+		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
+		"combat": {
+			"buffsByHero": {},
+			"heroesActed": [
+				"h-p3mg2d-4zyoqy",
+				"h-w55sbo-sm284k"
+			],
+			"lastRoll": {
+				"enemyBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 5
+					}
+				],
+				"enemyId": "e-1rel030-1xl8wjq",
+				"enemyResults": [
+					3,
+					6
+				],
+				"enemyTotal": 14,
+				"heroBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 5
+					}
+				],
+				"heroId": "h-w55sbo-sm284k",
+				"heroResults": [
+					1
+				],
+				"heroTotal": 6
+			},
+			"phase": "direct_damage",
+			"powersUsedThisRoom": {},
+			"round": 7,
+			"selectedHeroId": null
+		},
+		"creaturesDefeated": 0,
+		"currentRoom": {
+			"cardId": "room_crimson_chains_chamber",
+			"currentEnemies": 1,
+			"effect": "Confinamento: criaturas ou heróis nesta sala não podem fugir.",
+			"exits": 3,
+			"reward": 1,
+			"rewardType": "item",
+			"status": "active",
+			"xp": 2
+		},
+		"decks": {
+			"artifactDeck": {
+				"available": [
+					"artifact_ancient_ember_heart",
+					"artifact_last_vigil_brazier",
+					"artifact_lost_forge_hammer",
+					"artifact_first_fire_blade",
+					"artifact_crimson_jailer_chain"
+				],
+				"discarded": 0
+			},
+			"dungeonDeck": {
+				"available": 19,
+				"discarded": []
+			},
+			"enemyDeck": {
+				"available": 16,
+				"discarded": 0
+			},
+			"itemDeck": {
+				"available": [
+					"item_silent_dungeon_charm",
+					"item_cracked_shield",
+					"item_pitch_torch",
+					"item_return_potion",
+					"item_living_ember_potion",
+					"item_incendiary_oil_flask",
+					"item_forge_magic_armor",
+					"item_low_flame_charm",
+					"item_greater_vigor_potion",
+					"item_crimson_rune_staff",
+					"item_tunnel_hood",
+					"item_worn_explorer_rope",
+					"item_reinforced_leather_armor",
+					"item_ancient_iron_key",
+					"item_fury_potion",
+					"item_safe_path_charm",
+					"item_rusty_dagger",
+					"item_warm_blood_charm",
+					"item_light_stone_boots",
+					"item_broken_stone_hammer",
+					"item_rift_bow",
+					"item_last_defense_charm",
+					"item_torn_depths_map",
+					"item_ancient_metal_armor",
+					"item_precision_potion",
+					"item_deep_veil_scythe",
+					"item_ruined_hall_axe",
+					"item_narrow_exit_cloak",
+					"item_last_light_sword",
+					"item_lesser_vigor_potion",
+					"item_hidden_forge_chest",
+					"item_broken_veil_cloak",
+					"item_stoneskin_potion",
+					"item_last_chord_lute"
+				],
+				"discarded": 0
+			}
+		},
+		"despertar": 2,
+		"enemies": [
+			{
+				"cardId": "creature_low_ember_kobold",
+				"conditions": [],
+				"currentLife": 2,
+				"damage": 2,
+				"dice": 2,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 5,
+				"id": "e-ahy3h5-wzyr6c",
+				"isSubboss": false,
+				"maxLife": 3,
+				"status": "active",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 1,
+					"xp": 1
+				}
+			},
+			{
+				"cardId": "creature_deep_rift_rat",
+				"conditions": [],
+				"currentLife": 3,
+				"damage": 1,
+				"dice": 2,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 5,
+				"id": "e-1rel030-1xl8wjq",
+				"isSubboss": false,
+				"maxLife": 3,
+				"status": "active",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 1,
+					"xp": 1
+				}
+			}
+		],
+		"eventLog": [
+			"Partida iniciada. Heróis: Paladino da Última Luz, Guerreiro do Bastião Partido. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Fuga bloqueada.",
+			"Sala sorteada: Câmara das Correntes Rubras.",
+			"2 inimigo(s) aparecem: Kobold das Brasas Baixas, Rato das Fendas Profundas.",
+			"Combate iniciado.",
+			"Herói rolou 8 | Inimigo rolou 13.",
+			"Paladino da Última Luz sofreu 1 de dano. Inimigo: dado(s) [5+3]=8, acerto +5 → 13 vs herói: 8.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-p3mg2d-4zyoqy já agiu nesta rodada.",
+			"[AVISO] Herói h-p3mg2d-4zyoqy já agiu nesta rodada.",
+			"Herói rolou 6 | Inimigo rolou 14.",
+			"Guerreiro do Bastião Partido sofreu 1 de dano. Inimigo: dado(s) [3+6]=9, acerto +5 → 14 vs herói: 6.",
+			"Rodada 2 de combate.",
+			"Herói rolou 7 | Inimigo rolou 18.",
+			"Paladino da Última Luz sofreu 2 de dano. Inimigo: dado(s) [6+6]=12, acerto +5, skill_pack_courage +1 → 18 vs herói: 7.",
+			"Aguardando ação de 1 herói(s).",
+			"Herói rolou 7 | Inimigo rolou 12.",
+			"Guerreiro do Bastião Partido sofreu 1 de dano. Inimigo: dado(s) [6+1]=7, acerto +5 → 12 vs herói: 7.",
+			"Rodada 3 de combate.",
+			"Herói rolou 11 | Inimigo rolou 14.",
+			"Guerreiro do Bastião Partido sofreu 2 de dano. Inimigo: dado(s) [4+4]=8, acerto +5, skill_pack_courage +1 → 14 vs herói: 11.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"Herói rolou 10 | Inimigo rolou 16.",
+			"Paladino da Última Luz sofreu 1 de dano. Inimigo: dado(s) [5+6]=11, acerto +5 → 16 vs herói: 10.",
+			"Rodada 4 de combate.",
+			"Herói rolou 6 | Inimigo rolou 13.",
+			"Guerreiro do Bastião Partido sofreu 1 de dano. Inimigo: dado(s) [4+4]=8, acerto +5 → 13 vs herói: 6.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"Herói rolou 8 | Inimigo rolou 14.",
+			"Paladino da Última Luz sofreu 1 de dano. Inimigo: dado(s) [6+3]=9, acerto +5 → 14 vs herói: 8.",
+			"Rodada 5 de combate.",
+			"Herói rolou 9 | Inimigo rolou 12.",
+			"Guerreiro do Bastião Partido sofreu 1 de dano. Inimigo: dado(s) [3+4]=7, acerto +5 → 12 vs herói: 9.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"Herói rolou 8 | Inimigo rolou 15.",
+			"Paladino da Última Luz sofreu 2 de dano. Inimigo: dado(s) [6+3]=9, acerto +5, skill_pack_courage +1 → 15 vs herói: 8.",
+			"Rodada 6 de combate.",
+			"Herói rolou 6 | Inimigo rolou 16.",
+			"Guerreiro do Bastião Partido sofreu 1 de dano. Inimigo: dado(s) [5+6]=11, acerto +5 → 16 vs herói: 6.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"Herói rolou 11 | Inimigo rolou 11.",
+			"Kobold das Brasas Baixas sofreu 1 de dano (empate). Herói: dado(s) [6]=6, acerto +5 → 11 vs inimigo: 11.",
+			"Paladino da Última Luz sofreu 1 de dano (empate). Inimigo: dado(s) [3+2]=5, acerto +5, skill_pack_courage +1 → 11 vs herói: 11.",
+			"Rodada 7 de combate.",
+			"Herói rolou 6 | Inimigo rolou 14.",
+			"Guerreiro do Bastião Partido sofreu 1 de dano. Inimigo: dado(s) [3+6]=9, acerto +5 → 14 vs herói: 6.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"[AVISO] Herói h-w55sbo-sm284k já agiu nesta rodada.",
+			"Herói rolou 8 | Inimigo rolou 11.",
+			"Paladino da Última Luz sofreu 1 de dano. Inimigo: dado(s) [3+3]=6, acerto +5 → 11 vs herói: 8.",
+			"Rodada 8 de combate.",
+			"Herói rolou 6 | Inimigo rolou 15.",
+			"Paladino da Última Luz sofreu 1 de dano. Inimigo: dado(s) [4+6]=10, acerto +5 → 15 vs herói: 6.",
+			"Aguardando ação de 1 herói(s).",
+			"Herói rolou 6 | Inimigo rolou 14.",
+			"Guerreiro do Bastião Partido sofreu 1 de dano. Inimigo: dado(s) [3+6]=9, acerto +5 → 14 vs herói: 6.",
+			"Ataque extra: Kobold das Brasas Baixas venceu Guerreiro do Bastião Partido e causou 2 de dano. Inimigo: dado(s) [1+5]=6, acerto +5, skill_pack_courage +1 → 12 vs herói: 10.",
+			"Derrota: herói eliminado."
+		],
+		"groupArtifacts": [],
+		"groupBuffs": [
+			{
+				"duration": "até fim da sala",
+				"from": {
+					"kind": "dungeon"
+				},
+				"icon": "🚷",
+				"id": "flag:flee-blocked",
+				"kind": "debuff",
+				"label": "Fuga bloqueada",
+				"scope": "dungeon_to_group",
+				"source": "Efeito de sala/inimigo",
+				"to": {
+					"kind": "group"
+				}
+			}
+		],
+		"groupXp": 0,
+		"heroes": [
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_last_light_paladin",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 3,
+				"dice": 1,
+				"hitBonus": 5,
+				"id": "h-p3mg2d-4zyoqy",
+				"impeto": 0,
+				"maxLife": 10,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_broken_bastion_warrior",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 3,
+				"dice": 1,
+				"hitBonus": 5,
+				"id": "h-w55sbo-sm284k",
+				"impeto": 0,
+				"maxLife": 11,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			}
+		],
+		"inventoryByHero": {
+			"h-p3mg2d-4zyoqy": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 3,
+					"damageBonus": 0,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-w55sbo-sm284k": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 3,
+					"damageBonus": 0,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			}
+		},
+		"mode": "cooperative",
+		"paths": [],
+		"paused": null,
+		"pendingRewards": [],
+		"pendingSkillChoice": null,
+		"pendingSkillTarget": null,
+		"pendingTriggerInterrupt": null,
+		"roomsCleared": 0,
+		"status": "DEFEAT"
+	}
+}

@@ -1,0 +1,11 @@
+name: discard_cards move as primeiras cartas da zona para o descarte
+kind: discard_cards
+given:
+  cards: [{ id: a }, { id: b }, { id: c }]
+  zones:
+    - { id: mao, cards: [a, b, c] }
+    - { id: descarte }
+when:
+  - run: [{ kind: discard_cards, from: mao, to: descarte, count: 2 }]
+then:
+  zones: { mao: [c], descarte: [a, b] }

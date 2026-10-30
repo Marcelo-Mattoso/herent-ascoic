@@ -1,0 +1,668 @@
+{
+	"engineVersion": 1,
+	"name": "golden-06",
+	"seed": 6047,
+	"setup": {
+		"heroCardIds": [
+			"hero_deep_veil_necromancer",
+			"hero_crimson_barbarian"
+		],
+		"difficulty": "very_easy",
+		"bossCardId": "boss_azhakar",
+		"seed": 6047
+	},
+	"outcome": "DEFEAT",
+	"actions": [
+		{
+			"type": "START_GAME",
+			"payload": {
+				"heroCardIds": [
+					"hero_deep_veil_necromancer",
+					"hero_crimson_barbarian"
+				],
+				"difficulty": "very_easy",
+				"bossCardId": "boss_azhakar",
+				"seed": 6047,
+				"gameId": "golden-6047"
+			}
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "SKILL_CHOICE",
+			"payload": {
+				"skillId": "purple_dark_tribute",
+				"choice": "discard_dungeon"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "e-6hd42s-1sbhzq5"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "e-jqn2g9-pdf7dl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "e-1pigofw-1nl3apj"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "e-oar5ch-1d7f55b"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "e-oar5ch-1d7f55b"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "e-1pigofw-1nl3apj"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "SPEND_XP",
+			"payload": {
+				"option": "level_up",
+				"heroId": "h-mindoi-1htx28l"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "REVEAL_BOSS"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		}
+	],
+	"steps": [
+		"82615b7e043fb479",
+		"4343a1b7d4a3e844",
+		"c18d7b3829d299d7",
+		"e4a503271e1f0c0d",
+		"e31c442cd91778a5",
+		"e697cbac9cc14831",
+		"ce77d5892d5c6c30",
+		"62388ba954cf6090",
+		"b0c7a638cdcb8725",
+		"43a70af86ac3c0cd",
+		"8af4f58861c9e29b",
+		"209b1905543fc2ef",
+		"35d07fcfb575acaf",
+		"44c7d853b56397cb",
+		"0627484faa26495e",
+		"0e6309d3436583ce",
+		"0d5b08bf2ae77093",
+		"0d481cd153710f0f",
+		"f0b9b60ae1af1d7e",
+		"2a511a6a08c03a16",
+		"fecb3e04ed6f914e",
+		"caa4d3df0322ca88",
+		"cb0cf5f8fc9c740e",
+		"e960949b4e4f25bd",
+		"d4e1993c1ba37ec9",
+		"c12a45735e59484f",
+		"8a6d17d247f34992",
+		"4bba067524993c35",
+		"56b628cb36552720",
+		"4916ae93fad81d8f",
+		"311113e019c48b53",
+		"fcd31dfe70956d90",
+		"369bac608e5f9282",
+		"1b1c942427922cd0",
+		"cb6116b7417da4ad",
+		"c25ff0aba8ae5584",
+		"65fafea0642c926b",
+		"e39faa22578737b2",
+		"792b395e45dcf4da",
+		"9e6a9628db743d86",
+		"35090a7d2a015b0a",
+		"786a22a9345375e5",
+		"590c497f9eb84bd8",
+		"f93c39b9aa1241bc",
+		"276f9c2aed9c8c71",
+		"cb544fc8d47f96ec",
+		"0aa4dcd029a9ca64",
+		"6dee6da327d271fe",
+		"368e0b2bae20fb4e",
+		"7cb11913fe0dcd6b",
+		"8dc9b64b31456401",
+		"a7141b8820524af2",
+		"dfcb6786d649c996",
+		"9fe0b442e96731e2",
+		"f4f05f22c6e39e27",
+		"9b2908bf7206d6e6",
+		"15ff41d3a263bb1d",
+		"e1dba481b1ab5b8c"
+	],
+	"finalSnapshot": {
+		"abilityActionsByHero": {
+			"h-1grvjlp-nq51w6": [
+				{
+					"abilityId": "skill_crimson_fury",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Fúria Rubra",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_crimson_barbarian",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_mighty_crimson_fury",
+					"activation": "prepare",
+					"kind": "power",
+					"label": "Fúria Rubra Poderosa",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_crimson_barbarian",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			],
+			"h-mindoi-1htx28l": [
+				{
+					"abilityId": "skill_return_rite",
+					"activation": "manual",
+					"kind": "skill",
+					"label": "Rito de Retorno",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_deep_veil_necromancer",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_deep_veil_echo",
+					"activation": "prepare",
+					"kind": "power",
+					"label": "Eco Profundo do Véu",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_deep_veil_necromancer",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			]
+		},
+		"activeInfluences": [],
+		"bossCardId": "boss_azhakar",
+		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
+		"combat": {
+			"buffsByHero": {},
+			"heroesActed": [],
+			"lastRoll": {
+				"enemyBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 13
+					}
+				],
+				"enemyId": "boss",
+				"enemyResults": [
+					3,
+					2,
+					5
+				],
+				"enemyTotal": 23,
+				"heroBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 10
+					},
+					{
+						"source": "Coração de Brasa Antiga",
+						"value": 1
+					}
+				],
+				"heroId": "h-1grvjlp-nq51w6",
+				"heroResults": [
+					4,
+					3
+				],
+				"heroTotal": 18
+			},
+			"phase": "resolving",
+			"powersUsedThisRoom": {},
+			"round": 5,
+			"selectedHeroId": "h-1grvjlp-nq51w6"
+		},
+		"creaturesDefeated": 4,
+		"currentRoom": null,
+		"decks": {
+			"artifactDeck": {
+				"available": [
+					"artifact_lost_forge_hammer",
+					"artifact_first_fire_blade",
+					"artifact_last_vigil_brazier"
+				],
+				"discarded": 0
+			},
+			"dungeonDeck": {
+				"available": 18,
+				"discarded": [
+					"room_abandoned_cell",
+					"room_cracked_abyss"
+				]
+			},
+			"enemyDeck": {
+				"available": 15,
+				"discarded": 0
+			},
+			"itemDeck": {
+				"available": [
+					"item_narrow_exit_cloak",
+					"item_return_potion",
+					"item_tunnel_hood",
+					"item_precision_potion",
+					"item_crimson_rune_staff",
+					"item_incendiary_oil_flask",
+					"item_living_ember_potion",
+					"item_last_light_sword",
+					"item_ancient_iron_key",
+					"item_greater_vigor_potion",
+					"item_cracked_shield",
+					"item_rusty_dagger",
+					"item_low_flame_charm",
+					"item_safe_path_charm",
+					"item_torn_depths_map",
+					"item_ancient_metal_armor",
+					"item_reinforced_leather_armor",
+					"item_deep_veil_scythe",
+					"item_broken_stone_hammer",
+					"item_forge_magic_armor",
+					"item_stoneskin_potion",
+					"item_fury_potion",
+					"item_ruined_hall_axe",
+					"item_silent_dungeon_charm",
+					"item_lesser_vigor_potion",
+					"item_light_stone_boots",
+					"item_hidden_forge_chest",
+					"item_rift_bow",
+					"item_broken_veil_cloak",
+					"item_last_defense_charm"
+				],
+				"discarded": 0
+			}
+		},
+		"despertar": 1,
+		"enemies": [
+			{
+				"cardId": "boss_azhakar",
+				"conditions": [],
+				"currentLife": 22,
+				"damage": 6,
+				"dice": 3,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 13,
+				"id": "boss",
+				"maxLife": 22,
+				"status": "active",
+				"tokens": {}
+			}
+		],
+		"eventLog": [
+			"Partida iniciada. Heróis: Necromante do Véu Profundo, Bárbaro Rubro. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Sala sorteada: Abismo Rachado.",
+			"4 inimigo(s) aparecem: Rato das Fendas Profundas, Cultista da Chama Oculta, Sentinela das Tochas Mortas, Guardião do Abismo Rachado.",
+			"Combate iniciado.",
+			"Herói rolou 14 | Inimigo rolou 9.",
+			"Cultista da Chama Oculta sofreu 4 de dano. Herói: dado(s) [1+3]=4, acerto +10 → 14 vs inimigo: 9.",
+			"Aguardando ação de 1 herói(s).",
+			"Herói rolou 11 | Inimigo rolou 3.",
+			"Rato das Fendas Profundas sofreu 2 de dano. Herói: dado(s) [3+1]=4, acerto +7 → 11 vs inimigo: 3.",
+			"Rodada 2 de combate.",
+			"Herói rolou 18 | Inimigo rolou 12.",
+			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [5+3]=8, acerto +10 → 18 vs inimigo: 12.",
+			"Aguardando ação de 1 herói(s).",
+			"Herói rolou 13 | Inimigo rolou 6.",
+			"Sentinela das Tochas Mortas sofreu 2 de dano. Herói: dado(s) [1+5]=6, acerto +7 → 13 vs inimigo: 6.",
+			"Rodada 3 de combate.",
+			"Herói rolou 11 | Inimigo rolou 9.",
+			"Sentinela das Tochas Mortas sofreu 2 de dano. Herói: dado(s) [2+2]=4, acerto +7 → 11 vs inimigo: 9.",
+			"Aguardando ação de 1 herói(s).",
+			"Herói rolou 17 | Inimigo rolou 8.",
+			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [4+3]=7, acerto +10 → 17 vs inimigo: 8.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +12 XP, 4 item(ns), 2 artefato(s). Resolvendo...",
+			"Encanto do Sangue Quente atribuído a h-1grvjlp-nq51w6.",
+			"Tocha de Breu atribuído a h-mindoi-1htx28l.",
+			"Corda Gasta de Explorador atribuído a h-1grvjlp-nq51w6.",
+			"Alaúde do Último Acorde atribuído a h-mindoi-1htx28l.",
+			"Necromante do Véu Profundo subiu para nível 4. Despertar avança.",
+			"Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
+			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 22, Bônus de Acerto: 13.",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"Herói rolou 21 | Inimigo rolou 22.",
+			"Necromante do Véu Profundo sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"Herói rolou 17 | Inimigo rolou 21.",
+			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"Herói rolou 17 | Inimigo rolou 29.",
+			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Necromante do Véu Profundo selecionado para agir.",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"Herói rolou 16 | Inimigo rolou 25.",
+			"Necromante do Véu Profundo sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Necromante do Véu Profundo selecionado para agir.",
+			"Necromante do Véu Profundo selecionado para agir.",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"Herói rolou 16 | Inimigo rolou 24.",
+			"Necromante do Véu Profundo sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
+			"Herói rolou 18 | Inimigo rolou 23.",
+			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Derrota: herói eliminado pelo boss."
+		],
+		"groupArtifacts": [
+			{
+				"cardId": "artifact_crimson_jailer_chain",
+				"carriedBy": null
+			},
+			{
+				"cardId": "artifact_ancient_ember_heart",
+				"carriedBy": null
+			}
+		],
+		"groupBuffs": [],
+		"groupXp": 2,
+		"heroes": [
+			{
+				"activeItems": {},
+				"backpack": [
+					"item_pitch_torch",
+					"item_last_chord_lute"
+				],
+				"cardId": "hero_deep_veil_necromancer",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 2,
+				"dice": 2,
+				"hitBonus": 10,
+				"id": "h-mindoi-1htx28l",
+				"impeto": 3,
+				"maxLife": 14,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {},
+				"backpack": [
+					"item_warm_blood_charm",
+					"item_worn_explorer_rope"
+				],
+				"cardId": "hero_crimson_barbarian",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 4,
+				"dice": 2,
+				"hitBonus": 10,
+				"id": "h-1grvjlp-nq51w6",
+				"impeto": 2,
+				"maxLife": 16,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			}
+		],
+		"inventoryByHero": {
+			"h-1grvjlp-nq51w6": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 5,
+					"damageBonus": 1,
+					"hit": 11,
+					"hitBonus": 1,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-mindoi-1htx28l": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 3,
+					"damageBonus": 1,
+					"hit": 11,
+					"hitBonus": 1,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			}
+		},
+		"mode": "cooperative",
+		"paths": [],
+		"paused": null,
+		"pendingRewards": [],
+		"pendingSkillChoice": null,
+		"pendingSkillTarget": null,
+		"pendingTriggerInterrupt": null,
+		"roomsCleared": 1,
+		"status": "DEFEAT"
+	}
+}

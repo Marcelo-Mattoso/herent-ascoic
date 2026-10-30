@@ -5,12 +5,13 @@ import { translate } from "@/i18n";
 import { type DragEvent, useEffect, useRef, useState } from "react";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
-import { cardSkills } from "@/core/skills/lookup";
+import { skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
-import type { CombatRollResult } from "@/core/state/combatState";
-import type { EnemyState } from "@/core/state/enemyState";
-import { MAX_HEROES, type GroupArtifact } from "@/core/state/gameState";
-import type { HeroState } from "@/core/state/heroState";
+import type { CombatRollResult } from "@/core/projection/viewTypes";
+import type { EnemyView } from "@/core/projection/viewTypes";
+import { MAX_HEROES, type GroupArtifact } from "@/core/projection/viewTypes";
+import type { HeroView } from "@/core/projection/viewTypes";
 import type { CardImageUrls } from "@/ui/cardImages";
 import { getCardImageUrl } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
@@ -30,11 +31,11 @@ interface BoardProps {
 	onTutorialReveal?: () => void;
 	view: PlayerView;
 	focusedHeroId: string | null;
-	onHeroClick: (hero: HeroState) => void;
+	onHeroClick: (hero: HeroView) => void;
 	onHeroDragStart: (heroId: string) => void;
 	canHeroAttack: (heroId: string) => boolean;
 	onEnemyDrop: (heroId: string, enemyId: string) => void;
-	onEnemyClick: (enemy: EnemyState) => void;
+	onEnemyClick: (enemy: EnemyView) => void;
 	onRoomClick: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	// Ações de grupo
@@ -205,7 +206,7 @@ function ActiveEnemyCard({
 	onDrop,
 	onClick,
 }: {
-	enemy: EnemyState | null;
+	enemy: EnemyView | null;
 	isSelectable: boolean;
 	isDragOver: boolean;
 	imageUrl?: string;
@@ -365,7 +366,7 @@ function BossEncounterCard({
 }: {
 	bossCardId: string;
 	bossName: string;
-	enemy: EnemyState | null;
+	enemy: EnemyView | null;
 	isSelectable: boolean;
 	isDragOver: boolean;
 	imageUrl?: string;
@@ -501,7 +502,7 @@ function ArtifactDisplayCard({
 }: {
 	artifact: GroupArtifact | null;
 	imageUrl?: string;
-	heroes: readonly HeroState[];
+	heroes: readonly HeroView[];
 	onClick: () => void;
 }) {
 	if (!artifact) {
@@ -527,9 +528,9 @@ function ArtifactDisplayCard({
 		);
 	}
 
-	const skills = cardSkills(artifact.cardId);
+	const skills = skillsOf(uiEngine, artifact.cardId);
 	const bonusText = skills[0]
-		? renderSkillLabel(skills[0].ref)
+		? renderSkillLabel(uiEngine, skills[0].ref)
 		: translate("game:components.board.activeArtifact");
 	const bearer = artifact.carriedBy
 		? heroes.find((hero) => hero.id === artifact.carriedBy)
@@ -665,7 +666,7 @@ export function Board({
 	const bossEnemy = enemies.find((e) => e.id === "boss") ?? null;
 
 	function handleDragStart(
-		hero: HeroState,
+		hero: HeroView,
 		event: DragEvent<HTMLButtonElement>,
 	) {
 		if (!canHeroAttack(hero.id)) {

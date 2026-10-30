@@ -1,14 +1,13 @@
 import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
-import { type PlayerView, playerView } from "@/core/projection/playerView";
-import { canStartHeroAttack } from "@/core/rules/attackAvailability";
-import { manualItemOptions } from "@/core/rules/itemEffects";
-import { ActivationTracker } from "@/core/state/activation";
-import type { EnemyState } from "@/core/state/enemyState";
-import type { GameState } from "@/core/state/gameState";
-import type { HeroState } from "@/core/state/heroState";
+import type { PlayerView } from "@/core/projection/playerView";
+export {
+	type HeroCombatActions,
+	selectHeroCombatActions,
+} from "@/core/projection/heroCombatActions";
+import type { EnemyView, HeroView } from "@/core/projection/viewTypes";
 
 // Herói que está atualmente em ação (ou o primeiro ativo)
-export function selectActiveHero(view: PlayerView): HeroState | null {
+export function selectActiveHero(view: PlayerView): HeroView | null {
 	if (!view.combat)
 		return view.heroes.find((h) => h.status === "active") ?? null;
 	const heroesActed = view.combat.heroesActed;
@@ -155,7 +154,7 @@ export function selectXpSpendOptions(view: PlayerView): XpSpendChoice[] {
 }
 
 // Heróis ativos que ainda não agiram na rodada atual
-export function selectHeroesAvailableForRound(view: PlayerView): HeroState[] {
+export function selectHeroesAvailableForRound(view: PlayerView): HeroView[] {
 	const heroesActed = view.combat?.heroesActed ?? [];
 	return view.heroes.filter(
 		(h) => h.status === "active" && !heroesActed.includes(h.id),
@@ -165,7 +164,7 @@ export function selectHeroesAvailableForRound(view: PlayerView): HeroState[] {
 // Inimigos ativos disponíveis como alvo (v2: sem restrição de engajamento)
 export function selectEnemiesAvailableAsTargets(
 	view: PlayerView,
-): EnemyState[] {
+): EnemyView[] {
 	return view.enemies.filter((e) => e.status === "active");
 }
 
@@ -174,109 +173,10 @@ export function selectEnemiesAvailableAsTargets(
 export function selectFocusedHero(
 	view: PlayerView,
 	focusedHeroId: string | null,
-): HeroState | null {
+): HeroView | null {
 	if (focusedHeroId) {
 		const hero = view.heroes.find((h) => h.id === focusedHeroId);
 		if (hero) return hero;
 	}
 	return view.heroes.find((h) => h.status === "active") ?? null;
-}
-
-export interface HeroCombatActions {
-	readonly canStartAttack?: boolean;
-	readonly usableItems?: ReturnType<typeof manualItemOptions>;
-	readonly canAttack: boolean;
-	readonly canPass: boolean;
-	readonly canCancel: boolean;
-	readonly canUsePower: boolean;
-	readonly canUseSkill: boolean;
-	readonly canFlee: boolean;
-	readonly fleeAlreadyDeclared: boolean;
-	readonly skill: {
-		readonly skillId: string;
-		readonly activatable: boolean;
-		readonly alreadyUsed: boolean;
-		readonly prepared: boolean;
-		readonly preparable: boolean;
-		readonly reason?: string;
-	} | null;
-	readonly power: {
-		readonly skillId: string;
-		readonly activatable: boolean;
-		readonly alreadyUsed: boolean;
-		readonly prepared: boolean;
-		readonly preparable: boolean;
-		readonly reason?: string;
-	} | null;
-}
-
-// Descritores de ação de combate para um herói específico.
-// Centraliza a habilitação de botões, consumindo predicados do core.
-export function selectHeroCombatActions(
-	state: GameState,
-	heroId: string,
-): HeroCombatActions {
-	const view = playerView(state);
-	const hero = view.heroes.find((h) => h.id === heroId) ?? null;
-	const combat = view.combat;
-	const isInCombat =
-		state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT";
-
-	const isSelectingTarget =
-		combat?.phase === "selecting_target" && combat.selectedHeroId === heroId;
-	const heroActionUnavailable =
-		hero === null ||
-		(isInCombat && ActivationTracker.isHeroDisabledThisRound(state, heroId));
-
-	const canStartAttack = canStartHeroAttack(state, heroId);
-	const canAttack = isSelectingTarget && canStartAttack;
-	const canPass = isSelectingTarget && !heroActionUnavailable;
-	const canCancel = isSelectingTarget;
-	const canFlee =
-		hero !== null &&
-		!heroActionUnavailable &&
-		hero.currentLife === 1 &&
-		!state.flags["fleeBlocked"];
-
-	const skillAction = view.abilityActionsByHero[heroId]?.find((action) => action.kind === "skill");
-	const skill = skillAction
-		? {
-				skillId: skillAction.abilityId,
-				activatable: skillAction.activation !== "passive",
-				alreadyUsed: skillAction.status === "exhausted" || skillAction.status === "unavailable",
-				prepared: skillAction.status === "prepared",
-				preparable: skillAction.activation === "prepare",
-				reason: skillAction.reason,
-			}
-		: null;
-	const powerAction = view.abilityActionsByHero[heroId]?.find((action) => action.kind === "power");
-	const power = powerAction
-		? {
-				skillId: powerAction.abilityId,
-				activatable: powerAction.activation !== "passive",
-				alreadyUsed: powerAction.status === "exhausted" || powerAction.status === "unavailable",
-				prepared: powerAction.status === "prepared",
-				preparable: powerAction.activation === "prepare",
-				reason: powerAction.reason,
-			}
-		: null;
-	const canUseSkill = Boolean(skillAction && (skillAction.status === "available" || skillAction.status === "prepared"));
-	const canUsePower = Boolean(powerAction && (powerAction.status === "available" || powerAction.status === "prepared"));
-
-	const fleeAlreadyDeclared =
-		state.combat?.fleeAttemptByHero?.[heroId] ?? false;
-
-	return {
-		canAttack,
-		canStartAttack,
-		usableItems: manualItemOptions(state, heroId),
-		canPass,
-		canCancel,
-		canUsePower,
-		canUseSkill,
-		canFlee,
-		fleeAlreadyDeclared,
-		skill,
-		power,
-	};
 }

@@ -1,0 +1,522 @@
+{
+	"engineVersion": 1,
+	"name": "golden-01",
+	"seed": 1000,
+	"setup": {
+		"heroCardIds": [
+			"hero_crimson_barbarian"
+		],
+		"difficulty": "very_easy",
+		"bossCardId": "boss_azhakar",
+		"seed": 1000
+	},
+	"outcome": "DEFEAT",
+	"actions": [
+		{
+			"type": "START_GAME",
+			"payload": {
+				"heroCardIds": [
+					"hero_crimson_barbarian"
+				],
+				"difficulty": "very_easy",
+				"bossCardId": "boss_azhakar",
+				"seed": 1000,
+				"gameId": "golden-1000"
+			}
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "SKILL_CHOICE",
+			"payload": {
+				"skillId": "purple_dark_tribute",
+				"choice": "discard_item"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "e-hva3gr-1f5lt2a"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "e-1w53v33-1k8sam0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "e-1w53v33-1k8sam0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "e-hva3gr-1f5lt2a"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "SPEND_XP",
+			"payload": {
+				"option": "level_up",
+				"heroId": "h-1utkz56-1yfilh1"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "REVEAL_BOSS"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		}
+	],
+	"steps": [
+		"b7af093d6531319b",
+		"44602358c31aa770",
+		"184254682865a9ac",
+		"0a4f67ec6da9b20a",
+		"8580df7b159e8efa",
+		"a678c3b6740f3dff",
+		"1d47440d1b29bbad",
+		"4e39b1f5f5167eda",
+		"eff51e8fee86f85c",
+		"07f0de3e9342e3be",
+		"ab2b168678fc251c",
+		"b400d7ff3b2a3f49",
+		"a1a5e3421bac0de9",
+		"fe70a78b35f03200",
+		"99730842ef8d9b1a",
+		"f15acd8f3703deda",
+		"f7103ecaba7be970",
+		"a97fe12e4bc6e3d4",
+		"721530ad6a9be688",
+		"0197054bcf5c37db",
+		"081f024411f896f5",
+		"f87da421cef401f8",
+		"1e31b163e45f4dbb",
+		"2673cc291f48e095",
+		"84736cba652d4e06",
+		"36410eee5143199d",
+		"dcd4aeef054a39fa",
+		"08bb71c00fdbb023",
+		"9af4b1e5e7bd5bcc",
+		"eaf558d115acbeb8",
+		"4132d4b66b6081e1",
+		"f19d434ed11e9284",
+		"31db1a8fea50e270",
+		"b855b7296a463dd7",
+		"0df552aeea462acb",
+		"c91c3b59cdad26f3",
+		"6bcc5ce9f25039ea",
+		"ff37d7d7c2a0afc2",
+		"2a096272ecda24cd",
+		"66762300700275c9",
+		"63e7e63470a99c26",
+		"e8d2743b3428d569",
+		"3afed60d42c059e3",
+		"eeb186fcda86bd80",
+		"b74ac0715d5519b5",
+		"d7c2f99708fe5421",
+		"e3dd72a72544468e"
+	],
+	"finalSnapshot": {
+		"abilityActionsByHero": {
+			"h-1utkz56-1yfilh1": [
+				{
+					"abilityId": "skill_crimson_fury",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Fúria Rubra",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_crimson_barbarian",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_mighty_crimson_fury",
+					"activation": "prepare",
+					"kind": "power",
+					"label": "Fúria Rubra Poderosa",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_crimson_barbarian",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			]
+		},
+		"activeInfluences": [],
+		"bossCardId": "boss_azhakar",
+		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
+		"combat": {
+			"buffsByHero": {},
+			"heroesActed": [],
+			"lastRoll": {
+				"enemyBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 13
+					}
+				],
+				"enemyId": "boss",
+				"enemyResults": [
+					6,
+					2,
+					4
+				],
+				"enemyTotal": 25,
+				"heroBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 14
+					}
+				],
+				"heroId": "h-1utkz56-1yfilh1",
+				"heroResults": [
+					1,
+					1
+				],
+				"heroTotal": 16
+			},
+			"phase": "resolving",
+			"powersUsedThisRoom": {},
+			"round": 3,
+			"selectedHeroId": "h-1utkz56-1yfilh1"
+		},
+		"creaturesDefeated": 2,
+		"currentRoom": null,
+		"decks": {
+			"artifactDeck": {
+				"available": [
+					"artifact_first_fire_blade",
+					"artifact_ancient_ember_heart",
+					"artifact_crimson_jailer_chain"
+				],
+				"discarded": 0
+			},
+			"dungeonDeck": {
+				"available": 19,
+				"discarded": [
+					"room_jailer_room"
+				]
+			},
+			"enemyDeck": {
+				"available": 17,
+				"discarded": 0
+			},
+			"itemDeck": {
+				"available": [
+					"item_lesser_vigor_potion",
+					"item_rusty_dagger",
+					"item_broken_veil_cloak",
+					"item_return_potion",
+					"item_torn_depths_map",
+					"item_warm_blood_charm",
+					"item_light_stone_boots",
+					"item_crimson_rune_staff",
+					"item_greater_vigor_potion",
+					"item_silent_dungeon_charm",
+					"item_deep_veil_scythe",
+					"item_last_light_sword",
+					"item_worn_explorer_rope",
+					"item_ancient_metal_armor",
+					"item_ruined_hall_axe",
+					"item_last_defense_charm",
+					"item_stoneskin_potion",
+					"item_low_flame_charm",
+					"item_precision_potion",
+					"item_hidden_forge_chest",
+					"item_narrow_exit_cloak",
+					"item_pitch_torch",
+					"item_last_chord_lute",
+					"item_incendiary_oil_flask",
+					"item_ancient_iron_key",
+					"item_fury_potion",
+					"item_rift_bow",
+					"item_living_ember_potion",
+					"item_broken_stone_hammer",
+					"item_forge_magic_armor",
+					"item_cracked_shield",
+					"item_reinforced_leather_armor"
+				],
+				"discarded": 0
+			}
+		},
+		"despertar": 1,
+		"enemies": [
+			{
+				"cardId": "boss_azhakar",
+				"conditions": [],
+				"currentLife": 19,
+				"damage": 6,
+				"dice": 3,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 13,
+				"id": "boss",
+				"maxLife": 22,
+				"status": "active",
+				"tokens": {}
+			}
+		],
+		"eventLog": [
+			"Partida iniciada. Heróis: Bárbaro Rubro. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Sala sorteada: Sala do Carcereiro.",
+			"Prevenção de descarte de dungeon bloqueada.",
+			"2 inimigo(s) aparecem: Esqueleto das Catacumbas, Carcereiro da Masmorra Rubra.",
+			"Combate iniciado.",
+			"Tributo: nenhum item disponível para descartar.",
+			"Herói rolou 18 | Inimigo rolou 9.",
+			"Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 9.",
+			"Ataque extra: Carcereiro da Masmorra Rubra rolou 9 contra Bárbaro Rubro (19) e não causou dano.",
+			"Rodada 2 de combate.",
+			"Herói rolou 15 | Inimigo rolou 7.",
+			"Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [1+4]=5, acerto +10 → 15 vs inimigo: 7.",
+			"Ataque extra: Esqueleto das Catacumbas rolou 8 contra Bárbaro Rubro (15) e não causou dano.",
+			"Rodada 3 de combate.",
+			"Herói rolou 12 | Inimigo rolou 6.",
+			"Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [1+1]=2, acerto +10 → 12 vs inimigo: 6.",
+			"Rodada 4 de combate.",
+			"Herói rolou 18 | Inimigo rolou 6.",
+			"Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 6.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +10 XP, 2 item(ns), 2 artefato(s). Resolvendo...",
+			"Encanto do Caminho Seguro atribuído a h-1utkz56-1yfilh1.",
+			"Capuz do Túnel atribuído a h-1utkz56-1yfilh1.",
+			"Bárbaro Rubro subiu para nível 4. Despertar avança.",
+			"Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
+			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 22, Bônus de Acerto: 13.",
+			"Herói rolou 25 | Inimigo rolou 22.",
+			"Trono Vivo: dano ao boss reduzido em 1.",
+			"Boss sofreu 3 de dano. Vida restante: 19.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Herói rolou 22 | Inimigo rolou 29.",
+			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Herói rolou 22 | Inimigo rolou 24.",
+			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Herói rolou 16 | Inimigo rolou 25.",
+			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Derrota: herói eliminado pelo boss."
+		],
+		"groupArtifacts": [
+			{
+				"cardId": "artifact_lost_forge_hammer",
+				"carriedBy": null
+			},
+			{
+				"cardId": "artifact_last_vigil_brazier",
+				"carriedBy": null
+			}
+		],
+		"groupBuffs": [],
+		"groupXp": 0,
+		"heroes": [
+			{
+				"activeItems": {},
+				"backpack": [
+					"item_safe_path_charm",
+					"item_tunnel_hood"
+				],
+				"cardId": "hero_crimson_barbarian",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 4,
+				"dice": 2,
+				"hitBonus": 14,
+				"id": "h-1utkz56-1yfilh1",
+				"impeto": 3,
+				"maxLife": 18,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			}
+		],
+		"inventoryByHero": {
+			"h-1utkz56-1yfilh1": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 4,
+					"damageBonus": 0,
+					"hit": 14,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			}
+		},
+		"mode": "cooperative",
+		"paths": [],
+		"paused": null,
+		"pendingRewards": [],
+		"pendingSkillChoice": null,
+		"pendingSkillTarget": null,
+		"pendingTriggerInterrupt": null,
+		"roomsCleared": 1,
+		"status": "DEFEAT"
+	}
+}

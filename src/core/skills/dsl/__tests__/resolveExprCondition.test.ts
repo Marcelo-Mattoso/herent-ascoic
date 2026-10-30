@@ -1,19 +1,18 @@
+import { withAwakening } from "@/core/state/access";
+import { testEngine } from "@/core/__tests__/testEngine";
 import { describe, expect, it } from "vitest";
 import type { EvalCtx } from "../types";
 import { SkipEffect, resolveEntityListRef, resolveEntityRef, resolveExpr } from "../resolveExpr";
 import { resolveCondition } from "../resolveCondition";
 import { createInitialGameState } from "../../../state/gameState";
 import type { GameState } from "../../../state/gameState";
+import { settled } from "../../../__tests__/fixtures";
+import { withGame } from "../../../../engine/state";
 
 function ctx(): EvalCtx {
 	const base = createInitialGameState({ heroCardIds: [] });
-	const state: GameState = {
-		...base,
-		heroes: [{ id: "h1", cardId: "hero_crimson_barbarian", maxLife: 10, currentLife: 4, damage: 3, hitBonus: 0, dice: 2, impeto: 0 as const, activeItems: {}, backpack: [], usedPowers: {}, conditions: ["poison"], status: "active" as const, playerIndex: 0, xp: 0 }],
-		activeEnemies: [{ id: "e1", cardId: "creature_dark_cave_goblin", maxLife: 8, currentLife: 6, damage: 2, hitBonus: 0, dice: 1, tokens: {}, conditions: ["burn"], firstDamageTakenThisTurn: false, status: "active" as const }],
-		despertar: 2 as const,
-	};
-	const build = (next = state): EvalCtx => ({ state: next, skillId: "test", params: { value: "7", ids: ["a", "b"], ally: "h1" }, sourceId: "h1", targetId: "e1", targetIds: ["e1"],
+	const state: GameState = withAwakening(settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [{ id: "h1", cardId: "hero_crimson_barbarian", maxLife: 10, currentLife: 4, damage: 3, hitBonus: 0, dice: 2, activeItems: {}, backpack: [], usedPowers: {}, conditions: ["poison"], status: "active" as const, playerIndex: 0, xp: 0 }], activeEnemies: [{ id: "e1", cardId: "creature_dark_cave_goblin", maxLife: 8, currentLife: 6, damage: 2, hitBonus: 0, dice: 1, tokens: {}, conditions: ["burn"], firstDamageTakenThisTurn: false, status: "active" as const }] }))), 2);
+	const build = (next = state): EvalCtx => ({ engine: testEngine, state: next, skillId: "test", params: { value: "7", ids: ["a", "b"], ally: "h1" }, sourceId: "h1", targetId: "e1", targetIds: ["e1"],
 		query: { creatureHasSkill: (id, skill) => id === "e1" && skill === "fang", dungeonLevel: () => 3, roomEnemyCount: () => 1, heroWithLowestLife: () => "h1" },
 		action: { pushEffect: () => next, addComponent: () => next, requestChoice: () => next, log: () => next }, withState: build });
 	return build();

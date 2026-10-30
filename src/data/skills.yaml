@@ -87,6 +87,8 @@ abilities:
     affect_object: obj_friend
   - id: skill_hunter_focus
     category: hero_skill
+    rules:
+      hitBonusParam: value
     script: skill_hunter_focus
     operate_type: op_passive
     nature:
@@ -264,6 +266,9 @@ abilities:
     affect_object: obj_all
   - id: skill_prey_mark
     category: hero_skill
+    rules:
+      preyHitBonus:
+        label: Marca da Presa
     effect:
       - kind: i_mark_target
         to: $target
@@ -960,6 +965,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_raging_flames
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -979,6 +986,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_forge_chains
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: flee
@@ -993,6 +1002,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_ruin_ashes
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_discard
         pile: dungeon
@@ -1008,6 +1019,8 @@ abilities:
     affect_object: obj_all
   - id: purple_crimson_plate
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_prevent_next_damage
         to: $source
@@ -1025,6 +1038,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_ash_protection
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_modifier
         to: $source
@@ -1044,6 +1059,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_dark_awakening
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_advance_dungeon
         amount: 1
@@ -1056,6 +1073,8 @@ abilities:
     affect_object: obj_all
   - id: purple_deadly_awakening
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_advance_dungeon
         amount: 1
@@ -1068,6 +1087,8 @@ abilities:
     affect_object: obj_all
   - id: purple_ember_blood
     category: monster_purple
+    rules:
+      damageType: purple
     operate_type: op_triggered
     trigger:
       event: evt_damage_taken
@@ -1083,6 +1104,8 @@ abilities:
     affect_object: obj_not_friend
   - id: purple_depths_seal
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: power_use
@@ -1094,6 +1117,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_dark_tribute
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_choose_one
         options:
@@ -1119,6 +1144,8 @@ abilities:
     affect_object: obj_all
   - id: purple_blood_tribute
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_choose_one
         options:
@@ -1143,6 +1170,8 @@ abilities:
     affect_object: obj_all
   - id: purple_veil_retaliation
     category: monster_purple
+    rules:
+      damageType: purple
     operate_type: op_triggered
     trigger:
       event: evt_hit
@@ -1158,6 +1187,8 @@ abilities:
     affect_object: obj_not_friend
   - id: purple_healing_rupture
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: heal
@@ -1174,6 +1205,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_ancient_veil_prison
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_modifier
         to: $target
@@ -1196,6 +1229,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_deep_veil_seal
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: dungeon_level_reduction
@@ -1210,6 +1245,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_crimson_shackles
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_modifier
         to: $target
@@ -1239,6 +1276,9 @@ abilities:
     affect_object: obj_friend
   - id: item_skill_deadly_edge
     category: item_skill
+    rules:
+      handledByEquipment: true
+      minRollMargin: 4
     effect:
       - kind: p_modifier
         to: $source
@@ -1264,6 +1304,8 @@ abilities:
     affect_object: obj_friend
   - id: item_skill_block
     category: item_skill
+    rules:
+      handledByEquipment: true
     effect:
       - kind: p_modifier
         to: $source
@@ -1307,6 +1349,8 @@ abilities:
     affect_object: obj_all
   - id: item_skill_last_light_blade
     category: item_skill
+    rules:
+      handledByEquipment: true
     effect:
       - kind: p_modifier
         to: $source
@@ -1519,6 +1563,10 @@ abilities:
     affect_object: obj_not_friend
   - id: item_skill_drain_life_and_deadly_edge
     category: item_skill
+    rules:
+      handledByEquipment: true
+      minRollMargin: 4
+      lifeDrain: 1
     effect:
       - kind: p_modifier
         to: $source
@@ -1548,6 +1596,8 @@ abilities:
     affect_object: obj_friend
   - id: item_skill_block_and_last_light_ward
     category: item_skill
+    rules:
+      handledByEquipment: true
     effect:
       - kind: p_modifier
         to: $source

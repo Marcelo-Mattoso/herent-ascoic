@@ -26,13 +26,6 @@ export interface CombatPair {
 	readonly enemyId: string;
 }
 
-export interface TemporaryEffect {
-	readonly id: string;
-	readonly description: string;
-	// Quantas rodadas o efeito ainda dura (-1 = até a sala terminar)
-	readonly roundsLeft: number;
-}
-
 export type CombatPhase =
 	| "selecting_hero" // aguardando o jogador escolher qual herói age
 	| "selecting_target" // herói selecionado, aguardando escolha de monstro
@@ -54,15 +47,6 @@ export interface CombatState {
 	readonly heroesActed: readonly string[];
 	readonly pairs: readonly CombatPair[];
 	lastRoll: CombatRollResult | null;
-	// Heróis que já usaram o item_cracked_shield neste combate
-	readonly shieldsUsedThisCombat: Readonly<Record<string, boolean>>;
-	// Heróis que usaram o poder do Bárbaro nesta sala
-	readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
-	// Dados extras concedidos por poder (ex: Bárbaro Rubro +1 dado)
-	readonly extraDice: Readonly<Record<string, number>>;
-	// Controle Azhakar: primeiro dano do turno já sofreu redução de Trono Vivo
-	bossFirstDamageReduced: boolean;
-	readonly temporaryEffects: readonly TemporaryEffect[];
 	// Bônus de próximo ataque e redução de dano migrados para ECS world (patch-18 Lote G)
 	// bonusNextAttack → ModifierComponent target="damage_dealt" / target="hit_bonus"
 	// damageReduction → ModifierComponent target="damage_taken"
@@ -70,10 +54,6 @@ export interface CombatState {
 	prey: string | null;
 	// Presa por herói. A marca só beneficia quem a designou.
 	readonly preyByHero: Readonly<Record<string, string>>;
-	// Token do Necromante (Eco): 0 = sem eco, 1 = eco disponível
-	readonly ecoTokens: Readonly<Record<string, number>>;
-	// Herói declarou tentativa de fuga — o próximo confronto resolve a fuga
-	readonly fleeAttemptByHero: Readonly<Record<string, boolean>>;
 	// Seleção interativa de dado pendente (reroll, diceFix)
 	pendingDiceSelection?: {
 		readonly skillId: string;
@@ -86,16 +66,6 @@ export interface CombatState {
 	};
 	// tohitPenaltyByHero migrado para ECS (patch-18 Lote G)
 	// → ModifierComponent target="hit_bonus" com valor negativo
-	// Inimigo ignora 1º efeito de item (Evasão das Fendas)
-	readonly itemControlByEnemy: Readonly<Record<string, boolean>>;
-	// Herói ignora 1º efeito que o escolha como alvo (Véu Protetor)
-	readonly targetProtectionByHero: Readonly<Record<string, boolean>>;
-	// Flags de uso por escopo (guards once_per_*)
-	readonly oncePer: {
-		readonly room: Readonly<Record<string, boolean>>;
-		readonly combat: Readonly<Record<string, boolean>>;
-		readonly round: Readonly<Record<string, boolean>>;
-	};
 	readonly disabled: ActivationLocks;
 }
 
@@ -108,18 +78,8 @@ export function createEmptyCombatState(): CombatState {
 		heroesActed: [],
 		pairs: [],
 		lastRoll: null,
-		shieldsUsedThisCombat: {},
-		powersUsedThisRoom: {},
-		extraDice: {},
-		bossFirstDamageReduced: false,
-		temporaryEffects: [],
-		oncePer: { room: {}, combat: {}, round: {} },
 		disabled: {},
 		prey: null,
 		preyByHero: {},
-		ecoTokens: {},
-		fleeAttemptByHero: {},
-		itemControlByEnemy: {},
-		targetProtectionByHero: {},
 	};
 }

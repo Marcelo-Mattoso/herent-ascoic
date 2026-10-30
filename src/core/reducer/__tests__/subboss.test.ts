@@ -1,18 +1,19 @@
-// Testes de F13 — Subchefes.
-// Verifica injeção de salas ao atingir Despertar 3 e revelação de sala de subchefe.
-
 import { describe, expect, it } from "vitest";
 import { createInitialGameState } from "../../state/gameState";
-import { syncEntityFromEnemy } from "../../ecs/sync";
+import { spawnEnemy } from "../../state/access";
 import { reducer } from "../index";
 import { lowerDespertar } from "../progression";
-import "../../skills/handlers/index"; // popula registry
+import "../../skills/handlers/index";
+import { awakeningOf, deckOf, decksOf, enemiesOf, heroesOf, withAwakening, withDecks } from "@/core/state/access";
+import { settled } from "../../__tests__/fixtures";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { gameOf, withGame } from "../../../engine/state"; // popula registry
 
 function makeState() {
 	let state = createInitialGameState({
 		heroCardIds: ["hero_crimson_barbarian"],
 	});
-	state = reducer(state, {
+	state = reducer(testEngine, state, {
 		type: "START_GAME",
 		payload: {
 			heroCardIds: ["hero_crimson_barbarian"],
@@ -25,69 +26,61 @@ function makeState() {
 describe("F13 — Subchefes", () => {
 	it("inicia com subbosses.available vazio", () => {
 		const state = makeState();
-		expect(state.subbosses.available).toHaveLength(0);
-		expect(state.subbosses.defeated).toHaveLength(0);
+		expect(gameOf(state).subbosses.available).toHaveLength(0);
+		expect(gameOf(state).subbosses.defeated).toHaveLength(0);
 	});
 
 	it("ao subir Despertar para 3, injeta 2 salas de subchefe no deck", () => {
 		let state = makeState();
 		// very_easy: heroOffset=2, então herói já começa em impeto=2 e despertar=0
 		// Forçar despertar para 2 para que level-up avance para 3
-		const heroId = state.heroes[0]!.id;
-		state = {
-			...state,
-			groupXp: 10, // custo de level_up
-			despertar: 2 as import("../../state/color").ColorIndex,
-		};
-		const deckBefore = state.decks.dungeonDeck.available.length;
+		const heroId = heroesOf(state)[0]!.id;
+		state = withAwakening(withGame(state, (prevGame) => ({ ...prevGame, groupXp: 10 })), 2);
+		const deckBefore = deckOf(state, "dungeonDeck").available.length;
 
-		state = reducer(state, {
+		state = reducer(testEngine, state, {
 			type: "SPEND_XP",
 			payload: { option: "level_up", heroId },
 		});
 
 		// Despertar agora é 3
-		expect(state.despertar).toBe(3);
+		expect(awakeningOf(state)).toBe(3);
 		// 2 salas de subchefe foram injetadas
-		expect(state.subbosses.available).toHaveLength(2);
-		expect(state.decks.dungeonDeck.available.length).toBe(deckBefore + 2);
+		expect(gameOf(state).subbosses.available).toHaveLength(2);
+		expect(deckOf(state, "dungeonDeck").available.length).toBe(deckBefore + 2);
 		// Os IDs das salas estão no deck
-		for (const id of state.subbosses.available) {
-			expect(state.decks.dungeonDeck.available).toContain(id);
+		for (const id of gameOf(state).subbosses.available) {
+			expect(deckOf(state, "dungeonDeck").available).toContain(id);
 		}
 	});
 
 	it("não injeta salas novamente se já foram injetadas (idempotência)", () => {
 		let state = makeState();
-		const heroId = state.heroes[0]!.id;
-		state = {
-			...state,
-			groupXp: 99,
-			despertar: 2 as import("../../state/color").ColorIndex,
-		};
+		const heroId = heroesOf(state)[0]!.id;
+		state = withAwakening(withGame(state, (prevGame) => ({ ...prevGame, groupXp: 99 })), 2);
 		// Primeira injeção (despertar 2 → 3)
-		state = reducer(state, {
+		state = reducer(testEngine, state, {
 			type: "SPEND_XP",
 			payload: { option: "level_up", heroId },
 		});
-		expect(state.despertar).toBe(3);
-		const availableAfterFirst = [...state.subbosses.available];
+		expect(awakeningOf(state)).toBe(3);
+		const availableAfterFirst = [...gameOf(state).subbosses.available];
 
 		// Segundo level-up: despertar 3 → 4, subbosses.available.length > 0 → não reinjecta
-		state = reducer(state, {
+		state = reducer(testEngine, state, {
 			type: "SPEND_XP",
 			payload: { option: "level_up", heroId },
 		});
-		expect(state.despertar).toBe(4);
+		expect(awakeningOf(state)).toBe(4);
 		// subbosses.available não cresceu (pode ter diminuído se algum foi derrotado, mas aqui 0 derrotados)
-		expect(state.subbosses.available.length).toBeLessThanOrEqual(
+		expect(gameOf(state).subbosses.available.length).toBeLessThanOrEqual(
 			availableAfterFirst.length,
 		);
 	});
 
 	it("não instala cópias ECS dos gatilhos Roxos de catálogo", () => {
 		let state = makeState();
-		const heroId = state.heroes[0]!.id;
+		const heroId = heroesOf(state)[0]!.id;
 		const enemy = {
 			id: "e-purple",
 			cardId: "creature_dark_cave_goblin",
@@ -101,30 +94,24 @@ describe("F13 — Subchefes", () => {
 			firstDamageTakenThisTurn: false,
 			status: "active" as const,
 		};
-		state = {
-			...state,
-			groupXp: 10,
-			despertar: 3 as import("../../state/color").ColorIndex,
-			activeEnemies: [enemy],
-			world: syncEntityFromEnemy(state.world, enemy),
-		};
+		state = withAwakening(settled(withGame(state, (prevGame) => ({ ...prevGame, groupXp: 10, activeEnemies: [enemy], world: spawnEnemy(gameOf(state).world, enemy) }))), 3);
 
-		state = reducer(state, {
+		state = reducer(testEngine, state, {
 			type: "SPEND_XP",
 			payload: { option: "level_up", heroId },
 		});
-		expect(state.despertar).toBe(4);
+		expect(awakeningOf(state)).toBe(4);
 		expect(
-			state.world.entities[enemy.id]?.components.some(
+			gameOf(state).world.entities[enemy.id]?.components.some(
 				(component) =>
 					"source" in component && component.source === "purple_dark_tribute",
 			),
 		).toBe(false);
 
-		state = lowerDespertar(state);
-		expect(state.despertar).toBe(3);
+		state = lowerDespertar(testEngine, state);
+		expect(awakeningOf(state)).toBe(3);
 		expect(
-			state.world.entities[enemy.id]?.components.some(
+			gameOf(state).world.entities[enemy.id]?.components.some(
 				(component) =>
 					"source" in component && component.source === "purple_dark_tribute",
 			),
@@ -135,45 +122,38 @@ describe("F13 — Subchefes", () => {
 		let state = makeState();
 
 		// Injetar salas de subchefe manualmente no topo do deck
-		state = {
-			...state,
-			currentRoom: null,
-			status: "REVEAL_ROOM",
-			despertar: 3 as import("../../state/color").ColorIndex,
-			subbosses: {
+		state = withDecks(withGame(withAwakening(state, 3), (prevGame) => ({ ...prevGame, currentRoom: null, status: "REVEAL_ROOM", subbosses: {
 				available: [
 					"subboss_room_jailer_chamber",
 					"subboss_room_cracked_abyss_chamber",
 				],
 				defeated: [],
-			},
-			decks: {
-				...state.decks,
+			} })), {
+				...decksOf(state),
 				dungeonDeck: {
-					...state.decks.dungeonDeck,
+					...deckOf(state, "dungeonDeck"),
 					available: ["subboss_room_jailer_chamber"],
 				},
-			},
-		};
-		const enemyDeckSizeBefore = state.decks.enemyDeck.available.length;
+			});
+		const enemyDeckSizeBefore = deckOf(state, "enemyDeck").available.length;
 
-		state = reducer(state, { type: "REVEAL_ROOM" });
+		state = reducer(testEngine, state, { type: "REVEAL_ROOM" });
 
 		// Deve ter ido direto para COMBAT_START
-		expect(state.status).toBe("COMBAT_START");
+		expect(gameOf(state).status).toBe("COMBAT_START");
 		// Sala atual é a câmara
-		expect(state.currentRoom?.cardId).toBe("subboss_room_jailer_chamber");
+		expect(gameOf(state).currentRoom?.cardId).toBe("subboss_room_jailer_chamber");
 		// O subchefe foi spawniado como enemy ativo
-		expect(state.activeEnemies).toHaveLength(1);
-		expect(state.activeEnemies[0]!.cardId).toBe(
+		expect(enemiesOf(state)).toHaveLength(1);
+		expect(enemiesOf(state)[0]!.cardId).toBe(
 			"subboss_crimson_dungeon_jailer",
 		);
-		expect(state.activeEnemies[0]!.isSubboss).toBe(true);
+		expect(enemiesOf(state)[0]!.isSubboss).toBe(true);
 		// Enemy deck não foi tocado
-		expect(state.decks.enemyDeck.available.length).toBe(enemyDeckSizeBefore);
+		expect(deckOf(state, "enemyDeck").available.length).toBe(enemyDeckSizeBefore);
 		// Herói foi selecionado inicialmente via START_GAME — não verificamos aqui
 		// O deck de dungeon consumiu a carta
-		expect(state.decks.dungeonDeck.available).not.toContain(
+		expect(deckOf(state, "dungeonDeck").available).not.toContain(
 			"subboss_room_jailer_chamber",
 		);
 	});

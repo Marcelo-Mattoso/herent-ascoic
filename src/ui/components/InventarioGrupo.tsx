@@ -9,26 +9,20 @@ import { displayCardLocale as getCardLocale, displayCardName as getCardName } fr
 import { getCardById } from "@/core/data/cards";
 import { getSkillLocale } from "@/core/data/skillLocale";
 import {
-	BACKPACK_CAPACITY,
 	EQUIPMENT_SLOTS,
 	equippedItemAt,
 	itemAllowedForHero,
 	itemFitsSlot,
 } from "@/core/rules/equipment";
-import { moveInventoryItem } from "@/core/rules/inventoryMoves";
 import { cardAbilityGrants } from "@/core/data/abilities";
-import {
-	collectHeroDamageBonusesFromItems,
-	collectHeroDamageReductionsFromItems,
-	collectHeroHitBonusesFromItems,
-	itemIsExhausted,
-	manualItemOptions,
-	totalItemValue,
-} from "@/core/rules/itemEffects";
-import { cardSkills } from "@/core/skills/lookup";
+import { backpackCapacity, skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
-import type { GameState } from "@/core/state/gameState";
-import type { HeroState, ItemSlotType } from "@/core/state/heroState";
+import {
+	EMPTY_HERO_INVENTORY,
+	type HeroView,
+	type ItemSlotType,
+} from "@/core/projection/viewTypes";
 import { getCardImageUrl, type CardImageUrls } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
 import { CardDetailModal } from "@/ui/components/modals/CardDetailModal";
@@ -89,7 +83,7 @@ const SLOT_TITLES: Record<ItemSlotType, string> = {
 	hand2: "game:components.inventarioGrupo.slotTitles.hand2",
 	amulet: "game:components.inventarioGrupo.slotTitles.amulet",
 };
-const MAX_BACKPACK = BACKPACK_CAPACITY;
+const MAX_BACKPACK = backpackCapacity(uiEngine);
 
 function shortLabel(name: string): string {
 	const word = name.split(" ")[0] ?? name;
@@ -99,7 +93,7 @@ function shortLabel(name: string): string {
 function artifactRequiresBearer(cardId: string): boolean {
 	const card = getCardById(cardId);
 	if (card?.type !== "artifact") return false;
-	const main = cardSkills(card.id)[0];
+	const main = skillsOf(uiEngine, card.id)[0];
 	if (!main) return false;
 	// A regra mecânica não pode depender do idioma de exibição da habilidade.
 	return (getSkillLocale(main.ref.skillId).label ?? "").toLowerCase().includes("portador");
@@ -107,28 +101,6 @@ function artifactRequiresBearer(cardId: string): boolean {
 
 function signed(value: number): string {
 	return `${value >= 0 ? "+" : ""}${value}`;
-}
-
-function heroItemStats(hero: HeroState, state: GameState) {
-	const hitBonus = totalItemValue(collectHeroHitBonusesFromItems(hero, state));
-	const damageBonus = totalItemValue(
-		collectHeroDamageBonusesFromItems(hero, state, undefined, 4),
-	);
-	const protectionEntries = collectHeroDamageReductionsFromItems(hero, state);
-	const protection = totalItemValue(protectionEntries);
-	return {
-		hit: hero.hitBonus + hitBonus,
-		hitBonus,
-		damage: hero.damage + damageBonus,
-		damageBonus,
-		protection,
-		protectionText:
-			protection > 0
-				? protectionEntries
-						.map((entry) => `${entry.source} -${entry.value}`)
-						.join(", ")
-				: "",
-	};
 }
 
 // ── Tipo do item em voo ───────────────────────────────────────────────────────
@@ -271,7 +243,7 @@ type TooltipTarget = {
 };
 
 interface HeroColumnProps {
-	hero: HeroState;
+	hero: HeroView;
 	imageUrl?: string;
 	dragging: DragItem | null;
 	hoverZone: string | null;
@@ -289,8 +261,7 @@ interface HeroColumnProps {
 		slotType?: ItemSlotType,
 	) => void;
 	onItemDetail: (itemId: string, heroId: string) => void;
-	onHeroDetail: (hero: HeroState) => void;
-	gameState: GameState;
+	onHeroDetail: (hero: HeroView) => void;
 }
 
 function HeroColumn({
@@ -308,7 +279,6 @@ function HeroColumn({
 	onEquipFromBackpack,
 	onItemDetail,
 	onHeroDetail,
-	gameState,
 }: HeroColumnProps) {
 	const equipZone = `hero_equip_${hero.id}`;
 	const mochilaZone = `hero_mochila_${hero.id}`;
@@ -320,9 +290,9 @@ function HeroColumn({
 	const [selectionFeedback, setSelectionFeedback] = useState<string | null>(
 		null,
 	);
-	const usableItemIds = new Set(
-		manualItemOptions(gameState, hero.id).map((item) => item.itemId),
-	);
+	const { view, canMoveInventoryItem } = useGameStore();
+	const inventory = view.inventoryByHero[hero.id] ?? EMPTY_HERO_INVENTORY;
+	const usableItemIds = new Set(inventory.usableItemIds);
 
 	function canEquipDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
@@ -331,7 +301,7 @@ function HeroColumn({
 			card?.type === "item" &&
 			!!card.equipmentSlot &&
 			itemAllowedForHero(card, hero) &&
-			!!moveInventoryItem(gameState, dragging.name, dragging.from, {
+			!!canMoveInventoryItem(dragging.name, dragging.from, {
 				kind: "hero_equip",
 				heroId: hero.id,
 			})
@@ -345,7 +315,7 @@ function HeroColumn({
 			!!dragging &&
 			card?.type === "item" &&
 			itemFitsSlot(card, slotType) &&
-			!!moveInventoryItem(gameState, dragging.name, dragging.from, {
+			!!canMoveInventoryItem(dragging.name, dragging.from, {
 				kind: "hero_equip",
 				heroId: hero.id,
 				slotType,
@@ -382,7 +352,7 @@ function HeroColumn({
 
 	const isDragging = !!dragging;
 	const heroName = getCardName(hero.cardId);
-	const effectiveStats = heroItemStats(hero, gameState);
+	const effectiveStats = inventory.stats;
 	const backpackDropActive = canMochilaDrag();
 
 	function chooseEquipmentSlot(slotType: ItemSlotType) {
@@ -393,7 +363,7 @@ function HeroColumn({
 			index: selectedBackpackItem.index,
 		};
 		const to = { kind: "hero_equip" as const, heroId: hero.id, slotType };
-		if (!moveInventoryItem(gameState, selectedBackpackItem.itemId, from, to)) {
+		if (!canMoveInventoryItem(selectedBackpackItem.itemId, from, to)) {
 			setSelectionFeedback(
 				translate("game:components.inventarioGrupo.incompatibleSlot"),
 			);
@@ -477,10 +447,10 @@ function HeroColumn({
 				}}
 			>
 				{SLOT_TYPES.map((slotType) => {
-					const name = equippedItemAt(hero, slotType);
+					const name = equippedItemAt(uiEngine, hero, slotType);
 					const isTwoHandOverlay =
 						slotType === "hand2" && !!name && !hero.activeItems.hand2;
-					const exhausted = !!name && itemIsExhausted(gameState, hero.id, name);
+					const exhausted = !!name && inventory.exhaustedItemIds.includes(name);
 					const col = name
 						? (SLOT_COLORS_INV[slotType] ?? itemColor(name))
 						: null;
@@ -682,9 +652,8 @@ function HeroColumn({
 									itemCard?.type === "item" && !!itemCard.equipmentSlot;
 								const canEquip =
 									canChooseSlot &&
-									!!moveInventoryItem(
-										gameState,
-										name,
+									!!canMoveInventoryItem(
+																			name,
 										{ kind: "hero_backpack", heroId: hero.id, index: i },
 										{ kind: "hero_equip", heroId: hero.id },
 									);
@@ -817,7 +786,7 @@ export function InventarioGrupo({
 }: {
 	onItemDetailChange?: (itemId: string | null) => void;
 } = {}) {
-	const { view, state, dispatch } = useGameStore();
+	const { view, canMoveInventoryItem, dispatch } = useGameStore();
 	const cardImageUrls = useCardImages();
 	const uiAssets = useUiAssets();
 
@@ -836,7 +805,7 @@ export function InventarioGrupo({
 		() => onItemDetailChange?.(detailCard?.cardId ?? null),
 		[detailCard?.cardId, onItemDetailChange],
 	);
-	const [focusedHero, setFocusedHero] = useState<HeroState | null>(null);
+	const [focusedHero, setFocusedHero] = useState<HeroView | null>(null);
 	const [itemUse, setItemUse] = useState<{
 		heroId: string;
 		itemId?: string;
@@ -904,7 +873,7 @@ export function InventarioGrupo({
 				const [heroId, slotType] = zone
 					.slice("hero_equip_".length)
 					.split(":") as [string, ItemSlotType | undefined];
-				return !!moveInventoryItem(state, dragging.name, dragging.from, {
+				return !!canMoveInventoryItem(dragging.name, dragging.from, {
 					kind: "hero_equip",
 					heroId,
 					slotType,
@@ -1075,7 +1044,7 @@ export function InventarioGrupo({
 		if (!rewardHero) return;
 		const from = { kind: "mesa" as const };
 		const to = { kind: "hero_backpack" as const, heroId: rewardHero.id };
-		if (!moveInventoryItem(state, itemId, from, to)) {
+		if (!canMoveInventoryItem(itemId, from, to)) {
 			setInventoryFeedback(translate("game:components.inventarioGrupo.fullBackpack"));
 			return;
 		}
@@ -1348,7 +1317,6 @@ export function InventarioGrupo({
 											})
 										}
 										onHeroDetail={setFocusedHero}
-										gameState={state}
 									/>
 								))}
 								{heroes.length === 0 && (
@@ -1387,7 +1355,6 @@ export function InventarioGrupo({
 			{focusedHero && (
 				<HeroInventoryModal
 					hero={focusedHero}
-					gameState={state}
 					cardImageUrls={cardImageUrls}
 					onClose={() => setFocusedHero(null)}
 					onItemDetail={(itemId) => {
@@ -1445,21 +1412,21 @@ export function InventarioGrupo({
 
 function HeroInventoryModal({
 	hero,
-	gameState,
 	cardImageUrls,
 	onClose,
 	onItemDetail,
 }: {
-	hero: HeroState;
-	gameState: GameState;
+	hero: HeroView;
 	cardImageUrls: CardImageUrls;
 	onClose: () => void;
 	onItemDetail: (itemId: string) => void;
 }) {
+	const { view } = useGameStore();
+	const inventory = view.inventoryByHero[hero.id] ?? EMPTY_HERO_INVENTORY;
 	const heroName = getCardName(hero.cardId);
 	const heroImage = getCardImageUrl(cardImageUrls, hero.cardId);
 	const passive = getPrimarySkillText(hero.cardId);
-	const effectiveStats = heroItemStats(hero, gameState);
+	const effectiveStats = inventory.stats;
 	const blockText =
 		effectiveStats.protectionText ||
 		(hero.conditions.length > 0
@@ -1493,15 +1460,15 @@ function HeroInventoryModal({
 						<HeroEquipmentCard
 							key={slotType}
 							slotType={slotType}
-							itemId={equippedItemAt(hero, slotType)}
+							itemId={equippedItemAt(uiEngine, hero, slotType)}
 							occupiedByTwoHands={
 								slotType === "hand2" &&
-								!!equippedItemAt(hero, slotType) &&
+								!!equippedItemAt(uiEngine, hero, slotType) &&
 								!hero.activeItems.hand2
 							}
 							exhausted={
 								!!hero.activeItems[slotType] &&
-								itemIsExhausted(gameState, hero.id, hero.activeItems[slotType])
+								inventory.exhaustedItemIds.includes(hero.activeItems[slotType])
 							}
 							cardImageUrls={cardImageUrls}
 							onItemDetail={onItemDetail}
@@ -1551,9 +1518,9 @@ function HeroInventoryModal({
 							</div>
 							<div className="inventory-hero-modal__passive">
 								<strong>{translate("game:components.inventarioGrupo.text037")}</strong>
-								{cardSkills(hero.cardId).length > 0 ? (
-									cardSkills(hero.cardId).map(({ def, ref }) => (
-										<p key={def.id}>{renderSkillLabel(ref)}</p>
+								{skillsOf(uiEngine, hero.cardId).length > 0 ? (
+									skillsOf(uiEngine, hero.cardId).map(({ def, ref }) => (
+										<p key={def.id}>{renderSkillLabel(uiEngine, ref)}</p>
 									))
 								) : (
 									<p>{passive || translate("game:components.inventarioGrupo.dynamic001")}</p>
@@ -1563,10 +1530,10 @@ function HeroInventoryModal({
 					</section>
 					<div className="inventory-hero-modal__backpack">
 						<strong>
-							{translate("game:components.inventarioGrupo.text038")}{hero.backpack.length}/{BACKPACK_CAPACITY})
+							{translate("game:components.inventarioGrupo.text038")}{hero.backpack.length}/{backpackCapacity(uiEngine)})
 						</strong>
 						<div className="inventory-hero-modal__backpack-slots">
-							{Array.from({ length: BACKPACK_CAPACITY }, (_, index) => {
+							{Array.from({ length: backpackCapacity(uiEngine) }, (_, index) => {
 								const itemId = hero.backpack[index];
 								return (
 									<button
@@ -1651,8 +1618,8 @@ function HeroEquipmentCard({
 }
 
 function getPrimarySkillText(cardId: string): string {
-	const entry = cardSkills(cardId)[0];
-	return entry ? renderSkillLabel(entry.ref) : "";
+	const entry = skillsOf(uiEngine, cardId)[0];
+	return entry ? renderSkillLabel(uiEngine, entry.ref) : "";
 }
 
 function InventoryRewardCard({
@@ -1761,8 +1728,8 @@ function ItemTooltipPanel({
 	const tagLine = isItem
 		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
 		: translate("game:components.inventarioGrupo.groupArtifact");
-	const effectEntry = cardSkills(card.id)[0];
-	const effect = effectEntry ? renderSkillLabel(effectEntry.ref) : "";
+	const effectEntry = skillsOf(uiEngine, card.id)[0];
+	const effect = effectEntry ? renderSkillLabel(uiEngine, effectEntry.ref) : "";
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
 	const canUseItem =

@@ -6,9 +6,9 @@ import { translate } from "@/i18n";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import type { PlayerView } from "@/core/projection/playerView";
-import { cardSkills } from "@/core/skills/lookup";
+import { skillsOf } from "@/core/gameEngine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
-import type { HeroState, ItemSlotType } from "@/core/state/heroState";
+import type { HeroView, ItemSlotType } from "@/core/projection/viewTypes";
 import type { CardType } from "@/ui/components/Card";
 import type { HeroCombatActions } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
@@ -16,9 +16,10 @@ import { ActionButton } from "./ActionButton";
 import { ColorBar } from "./ColorBar";
 import { HpBar } from "./HpBar";
 import { ItemChip } from "./ItemChip";
+import { uiEngine } from "@/ui/engine";
 
 interface HeroFocusPanelProps {
-	hero: HeroState | null;
+	hero: HeroView | null;
 	view: PlayerView;
 	heroActions: HeroCombatActions;
 	onAttack: () => void;
@@ -158,7 +159,7 @@ export function HeroFocusPanel({
 					{/* Habilidade + Poder */}
 					{heroCard?.type === "hero" &&
 						(() => {
-							const heroSkills = cardSkills(heroCard.id);
+							const heroSkills = skillsOf(uiEngine, heroCard.id);
 							const habilidade = heroSkills.find(
 								({ def }) => def.category === "hero_skill",
 							);
@@ -220,7 +221,7 @@ export function HeroFocusPanel({
 													lineHeight: 1.4,
 												}}
 											>
-												{renderSkillLabel(habilidade.ref)}
+												{renderSkillLabel(uiEngine, habilidade.ref)}
 											</p>
 											<button type="button" onClick={() => onCardDetail(hero.cardId, "hero")}>{translate("game:components.heroFocusPanel.text008")}</button>
 										</div>
@@ -270,7 +271,7 @@ export function HeroFocusPanel({
 													lineHeight: 1.4,
 												}}
 											>
-												{renderSkillLabel(poder.ref)}
+												{renderSkillLabel(uiEngine, poder.ref)}
 											</p>
 										</div>
 									)}
@@ -395,7 +396,7 @@ function ActionSection({
 	onUseItem,
 }: {
 	heroActions: HeroCombatActions;
-	hero: HeroState;
+	hero: HeroView;
 	isInCombat: boolean;
 	isSelectingHero: boolean;
 	isFocusedHeroSelected: boolean;

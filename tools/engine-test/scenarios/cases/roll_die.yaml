@@ -1,0 +1,16 @@
+name: roll_die consome o dado roteirizado e soma ao contador
+kind: roll_die
+given:
+  dice: [4, 6]
+  counters: [{ scope: jogo, id: "-", name: pontos, value: 1 }]
+when:
+  - run:
+      - { kind: roll_die, faces: 6, counter: { scope: jogo, id: "-", name: pontos } }
+      - { kind: roll_die, faces: 6 }
+then:
+  counters: { "jogo:-:pontos": 5 }
+  dice_left: 0
+  events:
+    - { type: dado.rolado, payload: { faces: 6, value: 4 } }
+    - { type: contador.alterado, payload: { delta: 4, value: 5 } }
+    - { type: dado.rolado, payload: { faces: 6, value: 6 } }

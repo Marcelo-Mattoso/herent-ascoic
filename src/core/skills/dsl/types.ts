@@ -68,19 +68,7 @@ export type DurationNode =
 
 // ── Effects ──────────────────────────────────────────────────────────────────
 
-/** Stats prefixados s_* (patch-21 Lote E). Closed union — stat fora do catálogo = erro de compile. */
-export type ModifierStat =
-	| "s_damage_reduction"
-	| "s_purple_damage_reduction"
-	| "s_hit_bonus"
-	| "s_hit_penalty"
-	| "s_damage_dealt"
-	| "s_damage_penalty"
-	| "s_heal_blocked"
-	| "s_flee_blocked"
-	| "s_dungeon_discard_prevention"
-	| "s_dungeon_discard_locked"
-	| "s_first_damage_prevented";
+export type ModifierStat = string;
 
 export type BlockActionTarget =
 	| "flee"
@@ -336,9 +324,11 @@ export interface TriggerObject {
 // ── EvalCtx — contexto passado para o evaluator ──────────────────────────────
 
 import type { Component } from "../../ecs/types";
+import type { GameEngine } from "../../gameEngine";
 import type { GameState } from "../../state/gameState";
 
 export interface EvalCtx {
+	readonly engine: GameEngine;
 	readonly state: GameState;
 	readonly skillId: string;
 	readonly params: Readonly<Record<string, unknown>>;

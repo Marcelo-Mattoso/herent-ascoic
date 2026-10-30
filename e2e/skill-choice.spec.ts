@@ -1,4 +1,5 @@
 import { expect, test } from "@playwright/test";
+import { setElfState } from "./state";
 
 test("o jogador examina duas cartas reveladas antes de confirmar uma", async ({
 	page,
@@ -7,28 +8,24 @@ test("o jogador examina duas cartas reveladas antes de confirmar uma", async ({
 	page.on("pageerror", (error) => errors.push(error.message));
 	await page.goto("/");
 
-	// Injeta somente o estado de apresentação da escolha para exercitar o fluxo
-	// visual sem depender de uma sequência aleatória de salas no teste de browser.
-	await page.evaluate(async () => {
-		const modulePath = "/src/ui/store/elfStore.ts";
-		const { getElfGameState, setElfStoreProps } = await import(modulePath);
-		setElfStoreProps({
-			gameState: {
-				...getElfGameState(),
-				status: "HERO_ACTION",
-				pendingSkillChoice: {
-					skillId: "skill_forge_spoils",
-					prompt: "Escolha 1 carta para ficar (as outras são descartadas):",
-					kind: "draw_and_choose",
-					discardDeck: "itemDeck",
-					options: [
-						{ id: "item_rusty_dagger", label: "item_rusty_dagger" },
-						{ id: "item_cracked_shield", label: "item_cracked_shield" },
-					],
-				},
+	// Injeta somente o estado de apresentaÃ§Ã£o da escolha para exercitar o fluxo
+	// visual sem depender de uma sequÃªncia aleatÃ³ria de salas no teste de browser.
+	await setElfState(
+		page,
+		`(state, a, e) => a.withPendingSkillChoice(
+			e.withGame(state, (g) => ({ ...g, status: "HERO_ACTION" })),
+			{
+				skillId: "skill_forge_spoils",
+				prompt: "Escolha 1 carta para ficar (as outras são descartadas):",
+				kind: "draw_and_choose",
+				discardDeck: "itemDeck",
+				options: [
+					{ id: "item_rusty_dagger", label: "item_rusty_dagger" },
+					{ id: "item_cracked_shield", label: "item_cracked_shield" },
+				],
 			},
-		});
-	});
+		)`,
+	);
 
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	const cards = page.locator(".skill-choice-option--card");

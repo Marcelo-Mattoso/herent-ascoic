@@ -29,39 +29,12 @@ const ExprNodeSchema: z.ZodType<unknown> = z.union([
 
 // ── Condições ────────────────────────────────────────────────────────────────
 
-const ConditionNodeSchema: z.ZodType<unknown> = z.lazy(() =>
-	z.union([
-		z.discriminatedUnion("kind", [
-			z.object({
-				kind: z.literal("has_skill"),
-				of: z.string(),
-				skillId: z.string(),
-			}),
-			z.object({
-				kind: z.literal("has_condition"),
-				of: z.string(),
-				conditionType: z.string(),
-			}),
-			z.object({
-				kind: z.literal("compare"),
-				op: z.enum(["lt", "lte", "eq", "gte", "gt", "in"]),
-				left: ExprNodeSchema,
-				right: ExprNodeSchema,
-			}),
-			z.object({
-				kind: z.literal("and"),
-				children: z.array(ConditionNodeSchema),
-			}),
-			z.object({
-				kind: z.literal("or"),
-				children: z.array(ConditionNodeSchema),
-			}),
-			z.object({ kind: z.literal("not"), child: ConditionNodeSchema }),
-		]),
-		// any_of — atalho OR sem kind discriminator
-		z.object({ any_of: z.array(ConditionNodeSchema) }),
-	]),
-);
+// A forma de cada condição é validada pelo kind registrado na engine
+// (`engine.kinds.validate`); aqui só o envelope.
+const ConditionNodeSchema: z.ZodType<unknown> = z.union([
+	z.looseObject({ kind: z.string().min(1) }),
+	z.looseObject({ any_of: z.array(z.unknown()) }),
+]);
 
 // ── Durações ─────────────────────────────────────────────────────────────────
 
@@ -77,160 +50,11 @@ const DurationNodeSchema = z.discriminatedUnion("kind", [
 
 // ── Effects ──────────────────────────────────────────────────────────────────
 
-// Stat closed enum for p_modifier
-const ModifierStatSchema = z.enum([
-	"s_damage_reduction",
-	"s_purple_damage_reduction",
-	"s_hit_bonus",
-	"s_hit_penalty",
-	"s_damage_dealt",
-	"s_damage_penalty",
-	"s_heal_blocked",
-	"s_flee_blocked",
-	"s_dungeon_discard_prevention",
-	"s_dungeon_discard_locked",
-	"s_first_damage_prevented",
-]);
-
-const EffectNodeSchema: z.ZodType<unknown> = z.lazy(() =>
-	z.discriminatedUnion("kind", [
-		// Dano / cura (i_*)
-		z.object({
-			kind: z.literal("i_damage"),
-			to: z.string(),
-			amount: ExprNodeSchema,
-			minimum: z.number().optional(),
-		}),
-		z.object({
-			kind: z.literal("i_heal"),
-			to: z.string(),
-			amount: ExprNodeSchema,
-		}),
-		z.object({ kind: z.literal("i_full_heal"), to: z.string() }),
-		z.object({ kind: z.literal("i_prevent_destroy"), to: z.string() }),
-		// Modificadores (p_*)
-		z.object({
-			kind: z.literal("p_modifier"),
-			to: z.string(),
-			stat: ModifierStatSchema,
-			operation: z.enum(["add", "multiply", "set"]),
-			value: ExprNodeSchema,
-			duration: DurationNodeSchema,
-			condition: ConditionNodeSchema.optional(),
-			sourceEntityId: z.string().optional(),
-		}),
-		z.object({
-			kind: z.literal("add_trigger"),
-			to: z.string(),
-			on: z.string(),
-			effect: z.array(EffectNodeSchema),
-			duration: DurationNodeSchema,
-			condition: ConditionNodeSchema.optional(),
-			priority: z.number().optional(),
-		}),
-		z.object({
-			kind: z.literal("p_block"),
-			what: z.enum([
-				"flee",
-				"heal",
-				"dungeon_discard",
-				"power_use",
-				"dungeon_level_reduction",
-			]),
-			duration: DurationNodeSchema.optional(),
-			sourceEntityId: z.string().optional(),
-		}),
-		// Decks (i_*)
-		z.object({
-			kind: z.literal("i_discard"),
-			pile: z.enum(["dungeon", "item"]),
-			count: ExprNodeSchema,
-			who: z.string().optional(),
-		}),
-		z.object({
-			kind: z.literal("i_draw"),
-			pile: z.enum(["dungeon", "item_deck", "artifact_deck"]),
-			count: ExprNodeSchema,
-		}),
-		// Dungeon (i_*)
-		z.object({
-			kind: z.literal("i_advance_dungeon"),
-			amount: ExprNodeSchema,
-		}),
-		// Misc (i_*)
-		z.object({ kind: z.literal("i_set_no_reward"), to: z.string() }),
-		z.object({ kind: z.literal("i_prevent_next_damage"), to: z.string() }),
-		z.object({ kind: z.literal("i_ignore_next_targeting"), to: z.string() }),
-		z.object({ kind: z.literal("i_recover_dungeon"), count: ExprNodeSchema }),
-		z.object({
-			kind: z.literal("i_mark_target"),
-			to: z.string(),
-			hero_id: z.string().optional(),
-		}),
-		z.object({ kind: z.literal("i_prevent_dungeon_discard") }),
-		z.object({
-			kind: z.literal("i_draw_and_choose"),
-			pile: z.enum(["dungeon", "item_deck", "artifact_deck"]),
-			reveal: ExprNodeSchema,
-			keep: ExprNodeSchema,
-			replace_room_loot: z.boolean().optional(),
-		}),
-		z.object({ kind: z.literal("i_reveal_dungeon"), count: ExprNodeSchema }),
-		z.object({
-			kind: z.literal("i_grant_reward"),
-			rewardType: z.enum(["item", "artifact"]),
-			cardId: z.string(),
-		}),
-		// Composição (i_*)
-		z.object({
-			kind: z.literal("i_if"),
-			when: ConditionNodeSchema,
-			then: z.array(EffectNodeSchema),
-			else: z.array(EffectNodeSchema).optional(),
-		}),
-		z.object({
-			kind: z.literal("i_choose_one"),
-			allow_skip: z.boolean().optional(),
-			options: z
-				.array(
-					z.object({
-						id: z.string().regex(/^[a-z_][a-z0-9_]*$/),
-						params: z
-							.record(z.string(), z.union([z.number(), z.string()]))
-							.optional(),
-						effect: z.array(EffectNodeSchema),
-					}),
-				)
-				.min(2),
-		}),
-		z.object({
-			kind: z.literal("i_for_each"),
-			over: z.enum(["targets", "allies", "enemies", "all_heroes", "$each"]),
-			as: z.string(),
-			do: z.array(EffectNodeSchema),
-		}),
-		z.object({ kind: z.literal("i_noop") }),
-		// Dado (Lote F)
-		z.object({
-			kind: z.literal("i_modify_die"),
-			delta: ExprNodeSchema,
-			die_side: z.enum(["hero", "enemy", "any"]),
-		}),
-		z.object({
-			kind: z.literal("i_reroll"),
-			die_side: z.enum(["hero", "enemy", "any"]),
-			only_if_value: ExprNodeSchema.optional(),
-		}),
-		z.object({
-			kind: z.literal("i_set_die"),
-			value: ExprNodeSchema,
-			die_side: z.enum(["hero", "enemy", "any"]),
-		}),
-		// Status (Lote F)
-		z.object({ kind: z.literal("i_dispel"), category: z.string() }),
-		z.object({ kind: z.literal("i_remove_status"), status: z.string() }),
-	]),
-);
+// O schema de cada kind mora no próprio kind registrado; o carregamento do
+// conteúdo valida recursivamente por `engine.kinds.validate`.
+const EffectNodeSchema: z.ZodType<unknown> = z.looseObject({
+	kind: z.string().min(1),
+});
 
 // ── Nature (patch-21 Lote D) ─────────────────────────────────────────────────
 
@@ -400,6 +224,17 @@ export const SkillDefinitionV2Schema = z
 		affect_object: z.enum(["obj_friend", "obj_not_friend", "obj_all"]),
 		affect_limit: z.object({ min: z.number(), max: z.number() }).optional(),
 		params: z.record(z.string(), z.unknown()).optional(),
+		rules: z
+			.object({
+				handledByEquipment: z.boolean().optional(),
+				hitBonusParam: z.string().optional(),
+				preyHitBonus: z.object({ label: z.string() }).strict().optional(),
+				minRollMargin: z.number().optional(),
+				lifeDrain: z.number().optional(),
+				damageType: z.string().min(1).optional(),
+			})
+			.strict()
+			.optional(),
 		cost: CostSchema,
 		effect: z.array(EffectNodeSchema).optional(),
 		script: z.string().optional(),
@@ -485,6 +320,7 @@ const AbilityActivationSchema = z
 			.strict()
 			.optional(),
 		actionCost: z.enum(["none", "consume_hero_action"]).optional(),
+		usableFromReward: z.boolean().optional(),
 		consumeSource: z.enum(["none", "discard", "remove"]).optional(),
 		targeting: AbilityTargetingSchema.optional(),
 	})
