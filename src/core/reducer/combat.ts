@@ -960,6 +960,21 @@ function resolveExtraEnemyCombatRoll(
 	});
 	if (next.pendingTriggerInterrupt) return next;
 
+	const previousAttacks = next.extraAttackFeedback ?? [];
+	const extraAttackId = (previousAttacks.at(-1)?.id ?? 0) + 1;
+	next = {
+		...next,
+		extraAttackFeedback: [
+			...previousAttacks.slice(-31),
+			{
+				id: extraAttackId,
+				enemyId: currentEnemy.id,
+				enemyCardId: currentEnemy.cardId,
+				heroId: currentTarget.id,
+			},
+		],
+	};
+
 	if (enemyCalc.total <= heroCalc.total) {
 		return log(
 			next,
@@ -979,6 +994,7 @@ function resolveExtraEnemyCombatRoll(
 	next = applyDamage(next, currentTarget.id, dmg, {
 		sourceId: currentEnemy.id,
 		damageType: "attack",
+		extraAttackId,
 	});
 	if (next.pendingTriggerInterrupt) return next;
 

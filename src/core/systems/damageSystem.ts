@@ -31,6 +31,8 @@ import type { HeroState } from "../state/heroState";
 export interface DamageOptions {
 	readonly sourceId?: EntityId;
 	readonly damageType?: DamageType;
+	/** Apenas associação visual com uma investida extra já resolvida. */
+	readonly extraAttackId?: number;
 	/** Interno: evita reabrir a mesma janela ao retomar uma decisão pendente. */
 	readonly skipWouldBeDestroyed?: boolean;
 	/** Valor já resolvido pelo bus antes de uma decisão de prevenção letal. */
@@ -388,6 +390,7 @@ export function applyDamage(
 						? "hero"
 						: "enemy",
 					amount: appliedAmount,
+					extraAttackId: opts?.extraAttackId,
 				},
 			],
 		};

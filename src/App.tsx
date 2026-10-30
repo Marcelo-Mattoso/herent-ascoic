@@ -3,6 +3,7 @@ import { useTranslation } from "react-i18next";
 import { exportJournalJson } from "@/core/journal/gameJournal";
 import { Defeat } from "@/ui/screens/Defeat";
 import { CombatFeedback } from "@/ui/components/CombatFeedback";
+import { useCardImages } from "@/ui/hooks/useCardImages";
 import { Exploration } from "@/ui/screens/Exploration";
 import { MainMenu } from "@/ui/screens/MainMenu";
 import { Replay } from "@/ui/screens/Replay";
@@ -48,6 +49,7 @@ type UiScreen = "menu" | "setup" | "tutorialHub";
 function App() {
 	useTranslation(); // Re-renderiza as telas montadas quando o idioma muda.
 	const { view, journal, dispatch, reset, loadTrainingState } = useGameStore();
+	const cardImageUrls = useCardImages();
 	const status = view.status;
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");
 	const [tutorial, setTutorial] = useState<TutorialSession | null>(null);
@@ -315,7 +317,7 @@ function App() {
 	return (
 		<>
 			{screen}
-			<CombatFeedback view={view} />
+			<CombatFeedback view={view} cardImageUrls={cardImageUrls} />
 			{uiScreen === "tutorialHub" && (
 				<TutorialHub
 					onStart={startModule}

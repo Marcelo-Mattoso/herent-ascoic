@@ -4,7 +4,10 @@ import { afterEach, describe, expect, it, vi } from "vitest";
 import type { PlayerView } from "@/core/projection/playerView";
 import { CombatFeedback, rememberCombatTarget } from "./CombatFeedback";
 
-const view = (events: PlayerView["damageFeedback"]) => ({ damageFeedback: events }) as PlayerView;
+const view = (
+	events: PlayerView["damageFeedback"],
+	attacks: PlayerView["extraAttackFeedback"] = [],
+) => ({ damageFeedback: events, extraAttackFeedback: attacks }) as PlayerView;
 
 afterEach(() => {
 	cleanup();
@@ -50,5 +53,33 @@ describe("CombatFeedback", () => {
 		rerender(<CombatFeedback view={view([{ id: 1, targetId: "reduced-test", side: "hero", amount: 20 }])} />);
 		expect(board.classList.contains("game-board-content--shaking")).toBe(false);
 		board.remove();
+	});
+
+	it("encena em sequência ataques extras com dano e sem dano", () => {
+		vi.useFakeTimers();
+		for (const id of ["extra-enemy-1", "extra-enemy-2", "extra-hero"]) {
+			const card = document.createElement("div");
+			card.getBoundingClientRect = () => ({ left: id === "extra-hero" ? 200 : id === "extra-enemy-2" ? 100 : 10, top: 20, width: 60, height: 80 }) as DOMRect;
+			rememberCombatTarget(id, card);
+		}
+		const { rerender } = render(<CombatFeedback view={view([])} />);
+		rerender(<CombatFeedback view={view(
+			[{ id: 1, targetId: "extra-hero", side: "hero", amount: 3, extraAttackId: 1 }],
+			[
+				{ id: 1, enemyId: "extra-enemy-1", enemyCardId: "creature_dark_cave_goblin", heroId: "extra-hero" },
+				{ id: 2, enemyId: "extra-enemy-2", enemyCardId: "creature_deep_rift_rat", heroId: "extra-hero" },
+			],
+		)} />);
+		expect(document.querySelectorAll(".card-attack-animation__card")).toHaveLength(1);
+		expect(document.querySelector(".game-damage-number")).toBeNull();
+		act(() => vi.advanceTimersByTime(308));
+		expect(document.querySelector(".game-damage-number")?.textContent).toBe("-3");
+		act(() => vi.advanceTimersByTime(332));
+		expect(document.querySelectorAll(".card-attack-animation__card")).toHaveLength(1);
+		expect((document.querySelector(".card-attack-animation__card") as HTMLElement).style.left).toBe("100px");
+		act(() => vi.advanceTimersByTime(308));
+		expect(document.querySelectorAll(".game-damage-number")).toHaveLength(1);
+		act(() => vi.advanceTimersByTime(332));
+		expect(document.querySelector(".card-attack-animation")).toBeNull();
 	});
 });
