@@ -1,4 +1,4 @@
-import { type CSSProperties } from "react";
+import { type CSSProperties, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
 
 export interface CardAttackActor {
@@ -18,6 +18,7 @@ interface CardAttackAnimationProps {
 	sourceRect: CardAttackRect;
 	targetRect: CardAttackRect;
 	onFinish?: () => void;
+	onImpact?: () => void;
 }
 
 /**
@@ -32,7 +33,18 @@ export function CardAttackAnimation({
 	sourceRect,
 	targetRect,
 	onFinish,
+	onImpact,
 }: CardAttackAnimationProps) {
+	const impactCallback = useRef(onImpact);
+	impactCallback.current = onImpact;
+	useEffect(() => {
+		if (window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+			impactCallback.current?.();
+			return;
+		}
+		const timer = window.setTimeout(() => impactCallback.current?.(), 640 * 0.48);
+		return () => window.clearTimeout(timer);
+	}, []);
 	const sourceCenterX = sourceRect.left + sourceRect.width / 2;
 	const sourceCenterY = sourceRect.top + sourceRect.height / 2;
 	const targetCenterX = targetRect.left + targetRect.width / 2;

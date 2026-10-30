@@ -362,14 +362,36 @@ export function applyDamage(
 	}
 	if (finalAmount <= 0) return s1;
 	const protection = consumeDestructionPrevention(s1, targetId);
+	const lifeImmediatelyBeforeApply = currentLife(protection.state, targetId);
 
 	// Aplicar o dano com o valor modificado.
-	const s2 = applyDamageRaw(
+	let s2 = applyDamageRaw(
 		protection.state,
 		targetId,
 		finalAmount,
 		protection.minimumLife,
 	);
+	const appliedAmount = Math.max(
+		0,
+		(lifeImmediatelyBeforeApply ?? 0) - (currentLife(s2, targetId) ?? 0),
+	);
+	if (appliedAmount > 0) {
+		const previous = s2.damageFeedback ?? [];
+		s2 = {
+			...s2,
+			damageFeedback: [
+				...previous.slice(-63),
+				{
+					id: (previous.at(-1)?.id ?? 0) + 1,
+					targetId,
+					side: s2.heroes.some((hero) => hero.id === targetId)
+						? "hero"
+						: "enemy",
+					amount: appliedAmount,
+				},
+			],
+		};
+	}
 
 	// Janela pós: listeners reagem ao dano já aplicado.
 	const { state: s3 } = emit(s2, {

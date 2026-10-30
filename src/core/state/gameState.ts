@@ -185,6 +185,13 @@ export interface GameState {
 
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
+	/** Observações visuais do dano realmente subtraído da vida; sem efeito nas regras. */
+	readonly damageFeedback?: readonly {
+		readonly id: number;
+		readonly targetId: string;
+		readonly side: "hero" | "enemy";
+		readonly amount: number;
+	}[];
 
 	// Log autoritativo de todas as actions despachadas (passo 1)
 	readonly actionLog: readonly LoggedAction[];

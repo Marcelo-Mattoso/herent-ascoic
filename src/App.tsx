@@ -2,6 +2,7 @@ import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { exportJournalJson } from "@/core/journal/gameJournal";
 import { Defeat } from "@/ui/screens/Defeat";
+import { CombatFeedback } from "@/ui/components/CombatFeedback";
 import { Exploration } from "@/ui/screens/Exploration";
 import { MainMenu } from "@/ui/screens/MainMenu";
 import { Replay } from "@/ui/screens/Replay";
@@ -314,6 +315,7 @@ function App() {
 	return (
 		<>
 			{screen}
+			<CombatFeedback view={view} />
 			{uiScreen === "tutorialHub" && (
 				<TutorialHub
 					onStart={startModule}

@@ -107,6 +107,7 @@ export interface PlayerView {
 	readonly paths: readonly string[];
 	readonly pendingRewards: readonly PendingReward[];
 	readonly eventLog: readonly string[];
+	readonly damageFeedback: NonNullable<GameState["damageFeedback"]>;
 	// Efeitos que afetam o grupo todo (recursos compartilhados: deck, fuga, sala).
 	// Vivem aqui — não duplicados nas BuffBars dos heróis.
 	readonly groupBuffs: readonly InfluenceView[];
@@ -203,6 +204,7 @@ export function playerView(state: GameState): PlayerView {
 		paths: state.paths,
 		pendingRewards: state.pendingRewards,
 		eventLog: state.eventLog,
+		damageFeedback: state.damageFeedback ?? [],
 		groupBuffs,
 		decks: {
 			dungeonDeck: {

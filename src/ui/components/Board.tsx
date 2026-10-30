@@ -18,6 +18,7 @@ import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
 import { BoardFooter } from "./BoardFooter";
 import { CardAttackAnimation } from "./CardAttackAnimation";
+import { rememberCombatTarget } from "./CombatFeedback";
 import { ColorBar } from "./ColorBar";
 import { DiceSelectionPanel } from "./DiceSelectionPanel";
 import { DiceRollOverlay } from "./DiceRollOverlay";
@@ -642,6 +643,7 @@ export function Board({
 		useState<CombatDragPreviewState | null>(null);
 	const [attackAnimation, setAttackAnimation] =
 		useState<AttackAnimationState | null>(null);
+	const attackResolved = useRef(false);
 	const draggingHeroIdRef = useRef<string | null>(null);
 	const lastAnimatedRollRef = useRef<CombatRollResult | null>(null);
 	const heroCardRefs = useRef(new Map<string, HTMLDivElement>());
@@ -735,6 +737,7 @@ export function Board({
 		}
 
 		setDiceRollAnimation(null);
+		attackResolved.current = false;
 		setAttackAnimation({
 			key: `${winnerId}-${loserId}-${Date.now()}`,
 			attacker: {
@@ -818,7 +821,10 @@ export function Board({
 							className="game-board-boss"
 							ref={(node) => {
 								if (!bossEnemy) return;
-								if (node) enemyCardRefs.current.set(bossEnemy.id, node);
+								if (node) {
+									enemyCardRefs.current.set(bossEnemy.id, node);
+									rememberCombatTarget(bossEnemy.id, node);
+								}
 								else enemyCardRefs.current.delete(bossEnemy.id);
 							}}
 						>
@@ -895,7 +901,10 @@ export function Board({
 									}
 									ref={(node) => {
 										if (!enemy) return;
-										if (node) enemyCardRefs.current.set(enemy.id, node);
+										if (node) {
+											enemyCardRefs.current.set(enemy.id, node);
+											rememberCombatTarget(enemy.id, node);
+										}
 										else enemyCardRefs.current.delete(enemy.id);
 									}}
 									style={{
@@ -1074,7 +1083,10 @@ export function Board({
 										h.id === heroes[0]?.id ? "combat.hero" : undefined
 									}
 									ref={(node) => {
-										if (node) heroCardRefs.current.set(h.id, node);
+										if (node) {
+											heroCardRefs.current.set(h.id, node);
+											rememberCombatTarget(h.id, node);
+										}
 										else heroCardRefs.current.delete(h.id);
 									}}
 									style={{
@@ -1108,9 +1120,14 @@ export function Board({
 					attacker={attackAnimation.attacker}
 					sourceRect={attackAnimation.sourceRect}
 					targetRect={attackAnimation.targetRect}
+					onImpact={() => {
+						if (attackResolved.current) return;
+						attackResolved.current = true;
+						onResolve();
+					}}
 					onFinish={() => {
 						setAttackAnimation(null);
-						onResolve();
+						if (!attackResolved.current) onResolve();
 					}}
 				/>
 			)}

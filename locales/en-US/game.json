@@ -43,7 +43,10 @@
       "ariaLabel001": "Dice roll result",
       "text002": "vs",
       "ariaLabel003": "Resolve attack",
-      "dynamic001": "Resolve attack"
+      "dynamic001": "Resolve attack",
+      "enemyLabel": "Enemy",
+      "heroLabel": "Hero",
+      "rolling": "Rolling..."
     },
     "diceSelectionPanel": {
       "adjustDie_one": "Adjust a die by up to {{count}} point, within the range of 1 to 6.",

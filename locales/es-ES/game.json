@@ -43,7 +43,10 @@
       "ariaLabel001": "Resultado de la tirada de dados",
       "text002": "contra",
       "ariaLabel003": "Resolver ataque",
-      "dynamic001": "Resolver ataque"
+      "dynamic001": "Resolver ataque",
+      "enemyLabel": "Enemigo",
+      "heroLabel": "Héroe",
+      "rolling": "Tirando..."
     },
     "diceSelectionPanel": {
       "adjustDie_one": "Ajusta un dado hasta {{count}} punto, entre 1 y 6.",
