@@ -3,6 +3,7 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { changeLocale, i18n, translate } from "@/i18n";
 import { publishedLocales } from "@/i18n/registry";
+import { AUDIO_CONFIG } from "@/config/audio";
 import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { isMusicManifest, MUSIC_MANIFEST_URL, MusicPlayer } from "./musicPlayer";
 import { sfxPlayer } from "@/ui/audio/sfxPlayer";
@@ -130,10 +131,11 @@ export function GlobalMenu() {
 				</div>
 				<div className="global-menu__section">
 					<h2>{translate("common:globalMenu.globalMenu.sfxTitle")}</h2>
+					{!AUDIO_CONFIG.sfx.enabled && <p className="global-menu__sfx-notice" role="note">{translate("common:globalMenu.globalMenu.sfxDisabled")}</p>}
 					<label className="global-menu__field" htmlFor="global-sfx-volume">{translate("common:globalMenu.globalMenu.sfxVolume")} {sfx.volume}%
-						<input id="global-sfx-volume" type="range" min="0" max="100" value={sfx.volume} onChange={(event) => sfxPlayer.setVolume(Number(event.target.value))} />
+						<input id="global-sfx-volume" type="range" min="0" max="100" disabled={!AUDIO_CONFIG.sfx.enabled} value={sfx.volume} onChange={(event) => sfxPlayer.setVolume(Number(event.target.value))} />
 					</label>
-					<button type="button" onClick={() => sfxPlayer.setMuted(!sfx.muted)}>
+					<button type="button" disabled={!AUDIO_CONFIG.sfx.enabled} onClick={() => sfxPlayer.setMuted(!sfx.muted)}>
 						{translate(sfx.muted ? "common:globalMenu.globalMenu.sfxUnmute" : "common:globalMenu.globalMenu.sfxMute")}
 					</button>
 				</div>
