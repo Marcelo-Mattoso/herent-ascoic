@@ -1,6 +1,22 @@
 {
   "components": {
     "actionButton": {},
+    "alphaLogPanel": {
+      "dialogLabel": "Registro detallado alfa",
+      "title": "Registro completo · alfa",
+      "entryCount_one": "{{count}} registro",
+      "entryCount_many": "{{count}} registros",
+      "entryCount_other": "{{count}} registros",
+      "copied": "Copiado al portapapeles",
+      "copyAll": "Copiar todo",
+      "closeLabel": "Cerrar registro detallado",
+      "close": "Cerrar",
+      "searchPlaceholder": "Buscar acción, héroe, habilidad, daño...",
+      "searchLabel": "Buscar en el registro detallado",
+      "footer_one": "Atajo: Ctrl+Alt+L · Esc cierra · {{count}} entrada visible",
+      "footer_many": "Atajo: Ctrl+Alt+L · Esc cierra · {{count}} entradas visibles",
+      "footer_other": "Atajo: Ctrl+Alt+L · Esc cierra · {{count}} entradas visibles"
+    },
     "board": {
       "activeArtifact": "Artefacto activo",
       "text001": "sin sala",
@@ -85,6 +101,13 @@
     "heroFocusPanel": {
       "actedHint": "Este héroe ya ha actuado en esta ronda.",
       "attackHint": "Arrastra al héroe hasta un enemigo, o pulsa en el héroe y después en el objetivo.",
+      "focusedHero": "Héroe seleccionado",
+      "viewArt": "Ver arte",
+      "closeArt": "Cerrar arte",
+      "hit": "Impacto",
+      "damage": "Daño",
+      "dice": "Dados",
+      "impeto": "Ímpetu",
       "text001": "Héroe seleccionado ·",
       "text002": "pulsa en otro para cambiar",
       "text003": "Vida",
@@ -317,8 +340,14 @@
     "statusBadge": {}
   },
   "screens": {
+    "devPreview": {
+      "badge": "DEV",
+      "toolbarLabel": "Vista previa del desenlace"
+    },
     "defeat": {
       "alt001": "Ascensión Heroica",
+      "rosterTitle": "Héroes de la travesía",
+      "journeyTitle": "El camino recorrido",
       "text002": "Expedición terminada",
       "text003": "Derrota",
       "text004": "La mazmorra ha consumido a los héroes.",
@@ -336,8 +365,17 @@
         "creatures": "Criaturas derrotadas",
         "boss": "Jefe elegido",
         "xp": "XP obtenido",
-        "artifacts": "Artefactos encontrados"
+        "artifacts": "Artefactos encontrados",
+        "heroLevel": "Nivel del héroe",
+        "dungeonLevel": "Nivel de la mazmorra"
       }
+    },
+    "endLevelColors": {
+      "white": "Blanco",
+      "yellow": "Amarillo",
+      "orange": "Naranja",
+      "red": "Rojo",
+      "purple": "Morado"
     },
     "exploration": {
       "groupDrawer": "Grupo y Despertar",
@@ -443,6 +481,11 @@
       }
     },
     "victory": {
+      "kicker": "La leyenda quedó escrita",
+      "rosterTitle": "Los héroes vencedores",
+      "journeyTitle": "La travesía en cifras",
+      "retry": "Jugar de nuevo",
+      "menu": "Volver al menú",
       "text001": "XP —",
       "dynamic001": "Victoria",
       "dynamic002": "Has derrotado al jefe final y sobrevivido a la mazmorra.",
@@ -452,7 +495,7 @@
       "dynamic006": "Artefactos conseguidos",
       "dynamic007": "XP total",
       "dynamic008": "Nivel del héroe",
-      "dynamic009": "Despertar final",
+      "dynamic009": "Nivel de la mazmorra",
       "winnerTitle": "¡Victoria: {{winner}}!",
       "winnerDescription": "{{winner}} ha derrotado al jefe final y gana la partida."
     }

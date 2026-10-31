@@ -36,11 +36,6 @@ async function startCombat(page: Page, heroCount = 1) {
 			},
 		);
 	}, heroCount);
-	await page
-		.getByRole("dialog")
-		.getByRole("button", { name: "Escolher" })
-		.last()
-		.click();
 	await expect
 		.poll(
 			() =>

@@ -1,4 +1,6 @@
 import { translate } from "@/i18n";
+import { useEffect, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 // Painel inferior do herói em foco (Patch 3).
 // Mostra stats, habilidade, poder, mochila e botões de ação.
 // Também cobre ações de não-combate (revelar sala, iniciar combate, etc.).
@@ -19,6 +21,7 @@ import { ItemChip } from "./ItemChip";
 
 interface HeroFocusPanelProps {
 	hero: HeroState | null;
+	heroImageUrl?: string;
 	view: PlayerView;
 	heroActions: HeroCombatActions;
 	onAttack: () => void;
@@ -34,6 +37,7 @@ interface HeroFocusPanelProps {
 
 export function HeroFocusPanel({
 	hero,
+	heroImageUrl,
 	view,
 	heroActions,
 	onAttack,
@@ -46,6 +50,7 @@ export function HeroFocusPanel({
 	onCardDetail,
 	onItemDetail,
 }: HeroFocusPanelProps) {
+	const [artHeroId, setArtHeroId] = useState<string | null>(null);
 	const { status } = view;
 	const phase = view.combat?.phase ?? null;
 
@@ -58,110 +63,41 @@ export function HeroFocusPanel({
 		!!hero && view.combat?.selectedHeroId === hero.id;
 
 	return (
-		<div
-			style={{
-				background: UI.panelBg,
-				border: `1px solid ${UI.border}`,
-				borderRadius: 12,
-				padding: "10px 12px",
-			}}
-		>
+		<div className="hero-focus-panel">
 			{hero ? (
-				<div style={{ display: "flex", flexDirection: "column", gap: 8 }}>
-					{/* Topo: mini-card + stats */}
-					<div style={{ display: "flex", gap: 10, alignItems: "flex-start" }}>
-						{/* Mini-card do herói */}
-						<div
-							style={{
-								width: 56,
-								flexShrink: 0,
-								background: UI.subpanelBg,
-								border: `1px solid ${UI.border}`,
-								borderRadius: 8,
-								padding: "4px 4px 3px",
-							}}
-						>
-							<div
-								style={{
-									height: 44,
-									background: UI.border,
-									borderRadius: 4,
-									display: "flex",
-									alignItems: "center",
-									justifyContent: "center",
-									marginBottom: 3,
-								}}
+				<div className="hero-focus-panel__content">
+					{/* Retrato da carta e identidade */}
+					<div className="hero-focus-overview">
+						{heroImageUrl ? (
+							<button
+								type="button"
+								className="hero-focus-portrait"
+								onClick={() => setArtHeroId(hero.id)}
+								aria-label={`${translate("game:components.heroFocusPanel.viewArt")}: ${getCardName(hero.cardId)}`}
 							>
-								<span style={{ fontSize: 22 }}>🧙</span>
+								<img src={heroImageUrl} alt="" />
+								<span>{translate("game:components.heroFocusPanel.viewArt")}</span>
+							</button>
+						) : (
+							<div className="hero-focus-portrait hero-focus-portrait--empty" aria-hidden="true">
+								<span>{getCardName(hero.cardId).charAt(0)}</span>
 							</div>
-							<p
-								style={{
-									color: UI.textPrimary,
-									fontSize: 9,
-									fontWeight: 500,
-									textAlign: "center",
-									overflow: "hidden",
-									textOverflow: "ellipsis",
-									whiteSpace: "nowrap",
-								}}
-							>
-								{getCardName(hero.cardId).split(",")[0]?.split(" ")[0]}
-							</p>
-							<p title={getCardClass(hero.cardId)} style={{
-								color: UI.textSecondary,
-								fontSize: 8,
-								textAlign: "center",
-								overflow: "hidden",
-								textOverflow: "ellipsis",
-								whiteSpace: "nowrap",
-							}}>
-								{getCardClass(hero.cardId)}
-							</p>
-						</div>
+						)}
 
-						{/* Stats à direita */}
-						<div style={{ flex: 1, minWidth: 0 }}>
-							<div
-								style={{
-									display: "flex",
-									justifyContent: "space-between",
-									alignItems: "baseline",
-									marginBottom: 2,
-								}}
-							>
-								<p style={{ color: UI.textTertiary, fontSize: 10 }}>
-									{translate("game:components.heroFocusPanel.text001")}{" "}
-									<span style={{ color: UI.info.text }}>
-										{translate("game:components.heroFocusPanel.text002")}{" "}</span>
-								</p>
+						<div className="hero-focus-overview__body">
+							<p className="hero-focus-overview__eyebrow">{translate("game:components.heroFocusPanel.focusedHero")}</p>
+							<h2 className="hero-focus-overview__name">{getCardName(hero.cardId)}</h2>
+							<p className="hero-focus-overview__class">{getCardClass(hero.cardId)}</p>
+							<div className="hero-focus-stats">
+								<div><span>{translate("game:components.heroFocusPanel.text003")}</span><strong>{hero.currentLife}/{hero.maxLife}</strong></div>
+								<div><span>{translate("game:components.heroFocusPanel.hit")}</span><strong>{hero.hitBonus >= 0 ? "+" : ""}{hero.hitBonus}</strong></div>
+								<div><span>{translate("game:components.heroFocusPanel.damage")}</span><strong>{hero.damage}</strong></div>
+								<div><span>{translate("game:components.heroFocusPanel.dice")}</span><strong>{hero.dice}d6</strong></div>
 							</div>
-
-							{/* Linha de stats + Ímpeto */}
-							<div
-								style={{
-									display: "grid",
-									gridTemplateColumns: "1fr auto",
-									gap: 8,
-									alignItems: "center",
-									marginBottom: 4,
-								}}
-							>
-								<p style={{ color: UI.textPrimary, fontSize: 11 }}>
-									{translate("game:components.heroFocusPanel.text003")}{" "}
-									<strong>
-										{hero.currentLife}/{hero.maxLife}
-									</strong>{" "}
-									{translate("game:components.heroFocusPanel.text004")}{" "}<strong>+{hero.hitBonus}</strong> {translate("game:components.heroFocusPanel.text005")}{" "}
-									<strong>D{hero.damage}</strong> {translate("game:components.heroFocusPanel.text006")}{" "}
-									<strong>{hero.dice}d6</strong>
-								</p>
-								<div style={{ minWidth: 80 }}>
-									<ColorBar current={hero.impeto} label="Ímpeto" />
-								</div>
+							<div className="hero-focus-overview__meters">
+								<div className="hero-focus-overview__life"><HpBar current={hero.currentLife} max={hero.maxLife} height={8} /></div>
+							<div className="hero-focus-overview__impeto"><ColorBar current={hero.impeto} label={translate("game:components.heroFocusPanel.impeto")} /></div>
 							</div>
-
-							{/* Barra de vida grande */}
-							<HpBar current={hero.currentLife} max={hero.maxLife} height={8} />
 						</div>
 					</div>
 
@@ -182,26 +118,16 @@ export function HeroFocusPanel({
 								(action) => action.abilityId === poder?.def.id,
 							)?.status;
 							return (
-								<div
-									style={{
-										display: "grid",
-										gridTemplateColumns: "1fr 1fr",
-										gap: 6,
-									}}
-								>
+								<div className="hero-focus-feature-grid">
 									{/* Habilidade */}
 									{habilidade && (
 										<div
+											className="hero-focus-feature"
 											data-tutorial-anchor="hero.skill-card"
-											style={{
-												background: UI.subpanelBg,
-												borderRadius: 6,
-												padding: "6px 8px",
-											}}
 										>
 											<p
 												style={{
-													fontSize: 10,
+													fontSize: 11,
 													fontWeight: 500,
 													color: UI.textSecondary,
 													marginBottom: 2,
@@ -226,29 +152,24 @@ export function HeroFocusPanel({
 											<p
 												style={{
 													color: UI.textPrimary,
-													fontSize: 10,
+													fontSize: 11,
 													lineHeight: 1.4,
 												}}
 											>
 												{renderSkillLabel(habilidade.ref)}
 											</p>
-											<button type="button" onClick={() => onCardDetail(hero.cardId, "hero")}>{translate("game:components.heroFocusPanel.text008")}</button>
 										</div>
 									)}
 
 									{/* Poder */}
 									{poder && (
 										<div
+											className="hero-focus-feature"
 											data-tutorial-anchor="hero.power-card"
-											style={{
-												background: UI.subpanelBg,
-												borderRadius: 6,
-												padding: "6px 8px",
-											}}
 										>
 											<p
 												style={{
-													fontSize: 10,
+													fontSize: 11,
 													fontWeight: 500,
 													color: UI.textSecondary,
 													marginBottom: 2,
@@ -276,7 +197,7 @@ export function HeroFocusPanel({
 											<p
 												style={{
 													color: UI.textPrimary,
-													fontSize: 10,
+													fontSize: 11,
 													lineHeight: 1.4,
 												}}
 											>
@@ -289,15 +210,8 @@ export function HeroFocusPanel({
 						})()}
 
 					{/* Mochila */}
-					<div>
-						<p
-							style={{
-								fontSize: 10,
-								color: UI.textSecondary,
-								fontWeight: 500,
-								marginBottom: 4,
-							}}
-						>
+					<div className="hero-focus-inventory">
+						<p className="hero-focus-section-title">
 							{translate("game:components.heroFocusPanel.text010")}{" "}{getCardName(hero.cardId).split(" ")[0]} ·{" "}
 							{hero.backpack.length === 0
 								? "vazia"
@@ -318,15 +232,8 @@ export function HeroFocusPanel({
 
 					{/* Equipamentos ativos */}
 					{Object.keys(hero.activeItems).length > 0 && (
-						<div>
-							<p
-								style={{
-									fontSize: 10,
-									color: UI.textSecondary,
-									fontWeight: 500,
-									marginBottom: 4,
-								}}
-							>
+						<div className="hero-focus-inventory">
+							<p className="hero-focus-section-title">
 								{translate("game:components.heroFocusPanel.text011")}{" "}</p>
 							<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
 								{(
@@ -384,7 +291,42 @@ export function HeroFocusPanel({
 						{translate("game:components.heroFocusPanel.text012")}{" "}</span>
 				</div>
 			)}
+			{hero && artHeroId === hero.id && heroImageUrl && (
+				<HeroArtViewer
+					imageUrl={heroImageUrl}
+					name={getCardName(hero.cardId)}
+					onClose={() => setArtHeroId(null)}
+				/>
+			)}
 		</div>
+	);
+}
+
+function HeroArtViewer({ imageUrl, name, onClose }: {
+	imageUrl: string;
+	name: string;
+	onClose: () => void;
+}) {
+	const closeButton = useRef<HTMLButtonElement>(null);
+	useEffect(() => {
+		closeButton.current?.focus();
+		const handleKeyDown = (event: KeyboardEvent) => {
+			if (event.key === "Escape") onClose();
+		};
+		window.addEventListener("keydown", handleKeyDown);
+		return () => window.removeEventListener("keydown", handleKeyDown);
+	}, [onClose]);
+	return createPortal(
+		<div className="hero-art-viewer" role="dialog" aria-modal="true" aria-label={name}>
+			<button className="hero-art-viewer__backdrop" type="button" onClick={onClose} aria-label={translate("game:components.heroFocusPanel.closeArt")} />
+			<div className="hero-art-viewer__content">
+				<div className="hero-art-viewer__header">
+					<strong>{name}</strong>
+					<button ref={closeButton} type="button" onClick={onClose} aria-label={translate("game:components.heroFocusPanel.closeArt")}>×</button>
+				</div>
+				<img src={imageUrl} alt={name} />
+			</div>
+		</div>, document.body,
 	);
 }
 

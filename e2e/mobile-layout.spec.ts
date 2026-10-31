@@ -43,11 +43,6 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 				},
 			});
 		});
-		await page
-			.getByRole("dialog", { name: "Tochas Mortas" })
-			.getByRole("button", { name: "Escolher" })
-			.last()
-			.click();
 		await expect
 			.poll(
 				() =>
@@ -155,9 +150,6 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 				},
 			});
 		});
-		const roomChoice = page.getByRole("dialog", { name: "Tochas Mortas" });
-		await expect(roomChoice).toBeVisible();
-		await roomChoice.getByRole("button", { name: "Escolher" }).last().tap();
 		const readState = () =>
 			page.evaluate(async () => {
 				const modulePath = "/src/ui/store/elfStore.ts";
@@ -366,9 +358,6 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 					},
 				});
 			});
-			const roomChoice = page.getByRole("dialog", { name: "Tochas Mortas" });
-			await expect(roomChoice).toBeVisible();
-			await roomChoice.getByRole("button", { name: "Escolher" }).last().tap();
 			await expect
 				.poll(() =>
 					page.evaluate(async () => {

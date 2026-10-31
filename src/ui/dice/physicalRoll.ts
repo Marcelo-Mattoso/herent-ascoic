@@ -101,7 +101,7 @@ export async function startPhysicalArena(
 	floor.position.y = -0.18;
 	floor.receiveShadow = true;
 	scene.add(floor);
-	const floorCollider = world.createCollider(RAPIER.ColliderDesc.cuboid(halfWidth, 0.15, halfDepth).setTranslation(0, -0.18, 0).setFriction(0.88).setRestitution(0.25));
+	const floorCollider = world.createCollider(RAPIER.ColliderDesc.cuboid(halfWidth, 0.15, halfDepth).setTranslation(0, -0.18, 0).setFriction(0.88).setRestitution(0.32));
 	const diceColliderHandles = new Set<number>();
 	for (const [x, z, hx, hz] of [
 		[-halfWidth, 0, 0.15, halfDepth], [halfWidth, 0, 0.15, halfDepth],
@@ -136,14 +136,16 @@ export async function startPhysicalArena(
 		observer.observe(arena.element);
 	}
 	for (let index = 0; index < arena.count; index++) {
+		const launchX = (index % 4 - 1.5) * 1.5;
+		const launchZ = index % 2 ? 0.7 : -0.7;
 		const body = world.createRigidBody(RAPIER.RigidBodyDesc.dynamic()
-			.setTranslation((index % 4 - 1.5) * 1.5, 2.8 + Math.floor(index / 4) * 1.25, (index % 2 ? 0.7 : -0.7))
-			.setLinvel((Math.random() - 0.5) * 8, 0, (Math.random() - 0.5) * 7)
-			.setAngvel({ x: Math.random() * 15 - 7.5, y: Math.random() * 14 - 7, z: Math.random() * 15 - 7.5 })
-			.setLinearDamping(0.85).setAngularDamping(1.55));
+			.setTranslation(launchX, 2.8 + Math.floor(index / 4) * 1.25, launchZ)
+			.setLinvel(-launchX * 1.5 + (Math.random() - 0.5) * 4.4, 2 + Math.random() * 1.5, -launchZ * 2 + (Math.random() - 0.5) * 4.4)
+			.setAngvel({ x: Math.random() * 22 - 11, y: Math.random() * 20 - 10, z: Math.random() * 22 - 11 })
+			.setLinearDamping(0.7).setAngularDamping(1.25));
 		body.setRotation({ x: Math.random(), y: Math.random(), z: Math.random(), w: Math.random() }, true);
 		const collider = world.createCollider(RAPIER.ColliderDesc.cuboid(size / 2, size / 2, size / 2)
-			.setFriction(0.72).setRestitution(0.4).setDensity(1)
+			.setFriction(0.72).setRestitution(0.46).setDensity(1)
 			.setActiveEvents(RAPIER.ActiveEvents.COLLISION_EVENTS), body);
 		diceColliderHandles.add(collider.handle);
 		const geometry = new RoundedBoxGeometry(size, size, size, 3, size * 0.11);

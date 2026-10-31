@@ -1,6 +1,22 @@
 {
   "components": {
     "actionButton": {},
+    "alphaLogPanel": {
+      "dialogLabel": "Log detalhado alpha",
+      "title": "Log completo · alpha",
+      "entryCount_one": "{{count}} entrada",
+      "entryCount_many": "{{count}} entradas",
+      "entryCount_other": "{{count}} entradas",
+      "copied": "Copiado",
+      "copyAll": "Copiar tudo",
+      "closeLabel": "Fechar log detalhado",
+      "close": "Fechar",
+      "searchPlaceholder": "Buscar ação, herói, habilidade, dano...",
+      "searchLabel": "Buscar no log detalhado",
+      "footer_one": "Atalho: Ctrl+Alt+L · Esc fecha · {{count}} entrada exibida",
+      "footer_many": "Atalho: Ctrl+Alt+L · Esc fecha · {{count}} entradas exibidas",
+      "footer_other": "Atalho: Ctrl+Alt+L · Esc fecha · {{count}} entradas exibidas"
+    },
     "board": {
       "activeArtifact": "Artefato ativo",
       "text001": "sem sala",
@@ -85,6 +101,13 @@
     "heroFocusPanel": {
       "actedHint": "Este herói já agiu nesta rodada.",
       "attackHint": "Arraste o herói até um inimigo, ou toque/clique no herói e depois no alvo.",
+      "focusedHero": "Herói em foco",
+      "viewArt": "Ver arte",
+      "closeArt": "Fechar arte",
+      "hit": "Acerto",
+      "damage": "Dano",
+      "dice": "Dados",
+      "impeto": "Ímpeto",
       "text001": "Herói em foco ·",
       "text002": "clique em outro para trocar",
       "text003": "Vida",
@@ -317,8 +340,14 @@
     "statusBadge": {}
   },
   "screens": {
+    "devPreview": {
+      "badge": "DEV",
+      "toolbarLabel": "Prévia de encerramento"
+    },
     "defeat": {
       "alt001": "Ascensão Heróica",
+      "rosterTitle": "Heróis da jornada",
+      "journeyTitle": "O caminho percorrido",
       "text002": "Expedição encerrada",
       "text003": "Derrota",
       "text004": "A masmorra consumiu os heróis.",
@@ -336,8 +365,17 @@
         "creatures": "Criaturas derrotadas",
         "boss": "Chefe escolhido",
         "xp": "XP obtido",
-        "artifacts": "Artefatos encontrados"
+        "artifacts": "Artefatos encontrados",
+        "heroLevel": "Nível do herói",
+        "dungeonLevel": "Nível da masmorra"
       }
+    },
+    "endLevelColors": {
+      "white": "Branco",
+      "yellow": "Amarelo",
+      "orange": "Laranja",
+      "red": "Vermelho",
+      "purple": "Roxo"
     },
     "exploration": {
       "groupDrawer": "Grupo e Despertar",
@@ -443,6 +481,11 @@
       }
     },
     "victory": {
+      "kicker": "A lenda foi escrita",
+      "rosterTitle": "Heróis que venceram",
+      "journeyTitle": "A jornada em números",
+      "retry": "Jogar novamente",
+      "menu": "Voltar ao menu",
       "text001": "XP —",
       "dynamic001": "Vitória",
       "dynamic002": "Você derrotou o chefe final e sobreviveu à masmorra.",
@@ -452,7 +495,7 @@
       "dynamic006": "Artefatos obtidos",
       "dynamic007": "XP total",
       "dynamic008": "Nível do herói",
-      "dynamic009": "Despertar final",
+      "dynamic009": "Nível da masmorra",
       "winnerTitle": "Vitória: {{winner}}!",
       "winnerDescription": "{{winner}} derrotou o chefe final e vence a partida."
     }
