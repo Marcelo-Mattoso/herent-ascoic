@@ -304,7 +304,11 @@ export function TutorialOverlay({
 				bottom: Math.max(...rects.map((item) => item.bottom)),
 			}
 		: null;
+	const heroPortraitOpen = !!document.querySelector('[data-tutorial-anchor="hero.portrait"]');
 	const panelPlacement =
+		session.moduleId === "archive-four" && step.id === "abilities-inspect" && viewport.width < 600
+			? heroPortraitOpen ? "bottom" : "top"
+			:
 		session.moduleId === "archive-four" &&
 		(step.id === "hunter-attack" || step.id === "fury-trigger") &&
 		viewport.width < 900

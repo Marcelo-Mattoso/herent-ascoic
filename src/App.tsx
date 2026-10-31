@@ -1,5 +1,6 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translate } from "@/i18n";
 import { exportJournalJson } from "@/core/journal/gameJournal";
 import type { PlayerView } from "@/core/projection/playerView";
 import { Defeat } from "@/ui/screens/Defeat";
@@ -10,6 +11,7 @@ import { MainMenu } from "@/ui/screens/MainMenu";
 import { Replay } from "@/ui/screens/Replay";
 import { Setup } from "@/ui/screens/Setup";
 import { Victory } from "@/ui/screens/Victory";
+import { endScreenPreviewView } from "@/ui/screens/endScreenPreview";
 import { useGameStore } from "@/ui/store/gameStore";
 import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 import { GlobalMenu } from "@/ui/globalMenu/GlobalMenu";
@@ -67,6 +69,7 @@ function App() {
 	const [lastTutorialAudit, setLastTutorialAudit] =
 		useState<TutorialAuditSnapshot | null>(null);
 	const [showReplay, setShowReplay] = useState(false);
+	const [endPreview, setEndPreview] = useState<"victory" | "defeat" | null>(null);
 	const [inventoryOpened, setInventoryOpened] = useState(false);
 	const [inventoryHeroSelected, setInventoryHeroSelected] = useState(false);
 	const [inventoryDetailCardId, setInventoryDetailCardId] = useState<
@@ -277,10 +280,17 @@ function App() {
 
 	if (import.meta.env.DEV && showReplay) {
 		screen = <Replay onClose={() => setShowReplay(false)} />;
+	} else if (import.meta.env.DEV && endPreview) {
+		const previewView = endScreenPreviewView(view, endPreview);
+		const onPlayAgain = () => { setEndPreview(null); setUiScreen("setup"); };
+		const onMenu = () => { setEndPreview(null); setUiScreen("menu"); };
+		screen = endPreview === "victory"
+			? <Victory imageUrls={cardImageUrls} previewView={previewView} onPlayAgain={onPlayAgain} onMenu={onMenu} />
+			: <Defeat imageUrls={cardImageUrls} previewView={previewView} onPlayAgain={onPlayAgain} onMenu={onMenu} />;
 	} else if (status === "VICTORY") {
-		screen = <Victory />;
+		screen = <Victory imageUrls={cardImageUrls} onPlayAgain={() => { reset(); setUiScreen("setup"); }} onMenu={() => { reset(); setUiScreen("menu"); }} />;
 	} else if (status === "DEFEAT") {
-		screen = <Defeat />;
+		screen = <Defeat imageUrls={cardImageUrls} onPlayAgain={() => { reset(); setUiScreen("setup"); }} onMenu={() => { reset(); setUiScreen("menu"); }} />;
 	} else if (status !== "MAIN_MENU") {
 		screen = (
 			<Exploration
@@ -343,6 +353,8 @@ function App() {
 			<MainMenu
 				onNewGame={() => setUiScreen("setup")}
 				onTutorial={() => setUiScreen("tutorialHub")}
+				onPreviewVictory={() => setEndPreview("victory")}
+				onPreviewDefeat={() => setEndPreview("defeat")}
 			/>
 		);
 	}
@@ -350,6 +362,14 @@ function App() {
 	return (
 		<>
 			{screen}
+			{import.meta.env.DEV && endPreview && !showReplay && (
+				<nav className="end-preview-toolbar" aria-label={translate("game:screens.devPreview.toolbarLabel")}>
+					<span>{translate("game:screens.devPreview.badge")}</span>
+					<button type="button" aria-current={endPreview === "victory" ? "page" : undefined} onClick={() => setEndPreview("victory")}>{translate("game:screens.victory.dynamic001")}</button>
+					<button type="button" aria-current={endPreview === "defeat" ? "page" : undefined} onClick={() => setEndPreview("defeat")}>{translate("game:screens.defeat.text003")}</button>
+					<button type="button" onClick={() => setEndPreview(null)} aria-label={translate("game:screens.defeat.text007")}>×</button>
+				</nav>
+			)}
 			<CombatFeedback view={view} cardImageUrls={cardImageUrls} />
 			{uiScreen === "tutorialHub" && (
 				<TutorialHub
@@ -393,7 +413,7 @@ function App() {
 					onPlay={() => leaveTutorial("setup")}
 				/>
 			)}
-			{status === "MAIN_MENU" && uiScreen === "menu" && !tutorial && <SupportAction />}
+			{status === "MAIN_MENU" && uiScreen === "menu" && !tutorial && !endPreview && <SupportAction />}
 			<GlobalMenu />
 		</>
 	);

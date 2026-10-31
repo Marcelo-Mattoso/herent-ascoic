@@ -3,6 +3,9 @@
 // Os reducers e o event bus podem chamar esta camada sem conhecer origem da carta.
 
 import type { SkillRef } from "../data/cardTypes";
+import { getCardName } from "../data/cardLocale";
+import { getSkillName } from "../data/skillLocale";
+import { appendAlphaLog } from "../diagnostics/alphaLog";
 import type { SkillContext, SkillDefinition } from "../data/skillTypes";
 import type { Duration } from "../ecs/types";
 import type { EventType } from "../events/types";
@@ -564,11 +567,11 @@ export function executeTriggerCandidate(
 		}
 	}
 
-	return markSkillGuardUsed(
+	return appendAlphaLog(markSkillGuardUsed(
 		current,
 		candidate.definition,
 		candidate.source.sourceHeroId,
-	);
+	), `Gatilho ${getSkillName(candidate.definition.id)} ativado por ${getCardName(candidate.source.cardId)} (${candidate.source.sourceHeroId ?? candidate.source.sourceEnemyId ?? "grupo"}) em ${candidate.event}; parâmetros ${JSON.stringify(resolveSkillParams(candidate))}.`);
 }
 
 function candidateMatchesDecision(

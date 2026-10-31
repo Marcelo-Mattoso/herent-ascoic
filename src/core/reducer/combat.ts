@@ -4,6 +4,7 @@
 // Implementa efeitos de: item_rusty_dagger, item_cracked_shield, item_lesser_vigor_potion, hero_crimson_barbarian.
 
 import { getCardName } from "../data/cardLocale";
+import { appendAlphaLog } from "../diagnostics/alphaLog";
 import { getCardById } from "../data/cards";
 import { cardAbilityGrants } from "../data/abilities";
 import {
@@ -126,7 +127,9 @@ function endHeroTurnAndAdvance(
 	_reason: string,
 ): GameState {
 	const afterTurn = ActivationTracker.endHeroTurn(state, heroId);
-	return advanceAfterHeroDisabledForRound(afterTurn);
+	return advanceAfterHeroDisabledForRound(afterTurn.combat
+		? { ...afterTurn, combat: { ...afterTurn.combat, lastRoll: null } }
+		: afterTurn);
 }
 
 /**
@@ -367,6 +370,7 @@ export function handleChooseTarget(
 			...afterEmit.combat!,
 			phase: "resolving",
 			selectedHeroId: heroId,
+			lastRoll: null,
 			pairs: [...(afterEmit.combat?.pairs ?? []), pair],
 		},
 	};
@@ -646,7 +650,7 @@ export function handleRollDice(state: GameState): GameState {
 
 /** Prepara a rolagem interativa sem consumir resultados de dados. */
 export function handlePreparePhysicalRoll(state: GameState, skipPreRoll = false): GameState {
-	if (!state.combat || state.combat.pendingPhysicalRoll || state.combat.lastRoll) return state;
+	if (!state.combat || state.combat.pendingPhysicalRoll) return state;
 	if (state.status !== "ROLL_DICE" && state.status !== "BOSS_COMBAT") return state;
 	const boss = state.status === "BOSS_COMBAT" ||
 		state.combat.pairs.some((pair) => pair.enemyId === "boss");
@@ -656,7 +660,10 @@ export function handlePreparePhysicalRoll(state: GameState, skipPreRoll = false)
 	const enemy = state.activeEnemies.find((entry) => entry.id === pair.enemyId);
 	if (!hero || !enemy) return state;
 
-	let prepared = state;
+	// Uma rolagem anterior não pode bloquear a preparação do novo confronto.
+	let prepared: GameState = state.combat.lastRoll
+		? { ...state, combat: { ...state.combat, lastRoll: null } }
+		: state;
 	if (!boss && !skipPreRoll) {
 		prepared = resolveSkillWindow({ ...state, combat: { ...state.combat, physicalRollPreparing: true } }, {
 			event: "evt_attack_declared",
@@ -860,7 +867,9 @@ export function handleResolveAttack(state: GameState): GameState {
 
 	const hero = state.heroes.find((h) => h.id === roll.heroId);
 	const enemy = state.activeEnemies.find((e) => e.id === roll.enemyId);
-	if (!hero || !enemy) return state;
+	if (!hero || !enemy) {
+		return advanceAfterEnemyDefeat(endHeroTurnAndAdvance(state, roll.heroId, "atacou"));
+	}
 
 	const rollMargin = roll.heroTotal - roll.enemyTotal;
 	const heroDamage = effectiveHeroDamage(hero, state, enemy, rollMargin);
@@ -978,6 +987,8 @@ export function handleResolveAttack(state: GameState): GameState {
 		if (next.pendingTriggerInterrupt || next.pendingSkillChoice) return next;
 	}
 
+	next = appendAlphaLog(next,
+		`Cálculo do ataque: ${getCardName(hero.cardId)} (${roll.heroTotal}) × ${getCardName(enemy.cardId)} (${roll.enemyTotal}); margem ${rollMargin >= 0 ? "+" : ""}${rollMargin}; dano do herói ${hero.damage} ${heroDamage.breakdown.map((part) => `${part.source} ${part.value >= 0 ? "+" : ""}${part.value}`).join(", ") || "sem bônus"} = ${heroDamage.damage}; dano do inimigo ${enemy.damage} ${enemyDamage.breakdown.map((part) => `${part.source} ${part.value >= 0 ? "+" : ""}${part.value}`).join(", ") || "sem bônus"} = ${enemyDamage.damage}; dano previsto: herói ${reducedHeroDamage?.damage ?? 0}, inimigo ${result.enemyDamageTaken}.`);
 	const enemyDamageLog =
 		result.enemyDamageTaken > 0
 			? `${getCardName(enemy.cardId)} sofreu ${result.enemyDamageTaken} de dano${result.outcome === "tie" ? " (empate)" : ""}${formatDamageBonusNote(hero.damage, heroDamage.damage, heroDamage.breakdown)}. Herói: ${fmtRoll(roll.heroResults, roll.heroBreakdown, roll.heroTotal)} vs inimigo: ${roll.enemyTotal}.`

@@ -16,6 +16,7 @@ import { BoardFooter } from "@/ui/components/BoardFooter";
 import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
+import { AlphaLogPanel } from "@/ui/components/AlphaLogPanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
 import { JournalPanel } from "@/ui/components/JournalPanel";
 import { InfluencePanel } from "@/ui/components/InfluencePanel";
@@ -129,7 +130,7 @@ export function Exploration({
 		heroId: string;
 		itemId?: string;
 	} | null>(null);
-	const { view, ui, journal, dispatch, setFocusedHero, heroActionsFor } =
+	const { view, state, ui, journal, dispatch, setFocusedHero, heroActionsFor } =
 		useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showHeroFocus, setShowHeroFocus] = useState(false);
@@ -267,7 +268,7 @@ export function Exploration({
 		setShowHeroFocus(false);
 		setCombatAttackHintVisible(false);
 		onTutorialAttackInput?.("drag");
-		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId, inputMethod: "drag" } });
 	}
 
 	function handleEnemyClick(e: EnemyState) {
@@ -284,7 +285,7 @@ export function Exploration({
 			onTutorialAttackInput?.("tap");
 			dispatch({
 				type: "CHOOSE_TARGET",
-				payload: { heroId: selectedHeroId, enemyId: e.id },
+				payload: { heroId: selectedHeroId, enemyId: e.id, inputMethod: "button" },
 			});
 			return;
 		}
@@ -343,6 +344,7 @@ export function Exploration({
 
 	return (
 		<>
+			<AlphaLogPanel entries={state.alphaLog ?? []} />
 			<div
 				className="game-viewport"
 				data-game-layout={gameGeometry.mode}
@@ -540,6 +542,7 @@ export function Exploration({
 							<div className="game-hero-focus-popover">
 								<HeroFocusPanel
 									hero={focusedHero}
+									heroImageUrl={getCardImageUrl(cardImageUrls, focusedHero.cardId)}
 									view={view}
 									heroActions={heroActions}
 									onAttack={handleAttack}
@@ -550,6 +553,7 @@ export function Exploration({
 									onUseSkill={handleUseSkill}
 									onUseItem={() => setItemUse({ heroId: focusedHero.id })}
 									onCardDetail={openCardDetail}
+									onArtInspect={tutorialAbilityMode ? onTutorialAbilityCardInspect : undefined}
 									onItemDetail={(itemId, heroId) =>
 										setDetailCard({ id: itemId, cardType: "item", heroId })
 									}
