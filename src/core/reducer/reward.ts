@@ -3,8 +3,10 @@
 // Itens e artefatos são resolvidos um a um via CHOOSE_ITEM_DESTINATION / CHOOSE_ARTIFACT_BEARER.
 
 import type { InvFromZone, InvToZone } from "../actions/types";
+import { executeAbilityGrant, resolveManualGrantTarget } from "../abilities/executor";
 import type { XpSpendOption } from "../config/defaults";
 import { XP_COSTS } from "../config/defaults";
+import { cardAbilityGrants } from "../data/abilities";
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
 import { tickModifierDurations } from "../ecs/world";
@@ -218,6 +220,29 @@ export function finishGrantRewards(state: GameState): GameState {
 
 // ─── CHOOSE_ITEM_DESTINATION ──────────────────────────────────────────────────
 // Equipa, guarda na mochila ou descarta o primeiro item pendente.
+
+export function handleUseRewardItem(state: GameState, itemId: string, heroId: string): GameState {
+	if (
+		state.status !== "REWARD_PHASE" ||
+		state.paused ||
+		state.pendingSkillChoice ||
+		state.pendingSkillTarget ||
+		state.pendingTriggerInterrupt ||
+		!state.pendingRewards.some((reward) => reward.type === "item" && reward.cardId === itemId) ||
+		!state.heroes.some((hero) => hero.id === heroId && hero.status === "active")
+	) return state;
+	const grant = cardAbilityGrants(itemId).find((entry) =>
+		entry.activation.kind === "manual" && entry.abilityId === "item_skill_mystic_draw");
+	if (!grant) return state;
+	const source = { kind: "item" as const, cardId: itemId, sourceHeroId: heroId };
+	const selection = resolveManualGrantTarget(state, source, grant);
+	if (selection.kind !== "ready")
+		return log(state, `[AVISO] ${selection.kind === "unavailable" ? selection.reason : selection.prompt}`);
+	return executeAbilityGrant(state, {
+		source, grant, triggeredBy: "manual", targetIds: selection.targetIds,
+		consumeFromPendingReward: true,
+	});
+}
 
 export function handleChooseItemDestination(
 	state: GameState,

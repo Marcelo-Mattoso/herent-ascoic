@@ -2,6 +2,7 @@ import { useLayoutEffect, useRef, useState } from "react";
 import type { PlayerView } from "@/core/projection/playerView";
 import { displayCardName } from "@/i18n/catalogs";
 import { getCardImageUrl, type CardImageUrls } from "@/ui/cardImages";
+import { COMBAT_FEEDBACK_CONFIG } from "@/config/combatFeedback";
 import { CardAttackAnimation } from "./CardAttackAnimation";
 import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 
@@ -24,6 +25,7 @@ function targetRect(id: string): DOMRect | undefined {
 
 function showDamage(event: DamageEvent) {
 	if (event.amount <= 0) return;
+	const heavyImpact = event.amount >= COMBAT_FEEDBACK_CONFIG.heavyDamageThreshold;
 	sfxPlayer.play("attack_impact");
 	const rect = targetRect(event.targetId);
 	if (!rect) return;
@@ -31,16 +33,19 @@ function showDamage(event: DamageEvent) {
 	layer.className = "game-damage-layer";
 	layer.setAttribute("aria-hidden", "true");
 	const number = document.createElement("span");
-	number.className = `game-damage-number game-damage-number--${event.side}${event.amount > 8 ? " game-damage-number--heavy" : ""}`;
+	number.className = `game-damage-number game-damage-number--${event.side}${heavyImpact ? " game-damage-number--heavy" : ""}`;
 	number.textContent = `-${event.amount}`;
 	number.style.left = `${rect.left + rect.width / 2}px`;
 	number.style.top = `${rect.top + rect.height * 0.36}px`;
 	layer.appendChild(number);
 	document.body.appendChild(layer);
 	window.setTimeout(() => layer.remove(), 900);
-	if (event.amount > 8 && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
+	if (heavyImpact && !window.matchMedia?.("(prefers-reduced-motion: reduce)").matches) {
 		const board = document.querySelector(".game-board-content");
 		if (board instanceof HTMLElement) {
+			board.style.setProperty("--game-impact-shake-duration", `${COMBAT_FEEDBACK_CONFIG.screenShake.durationMs}ms`);
+			board.style.setProperty("--game-impact-shake-x", `${COMBAT_FEEDBACK_CONFIG.screenShake.horizontalPx}px`);
+			board.style.setProperty("--game-impact-shake-y", `${COMBAT_FEEDBACK_CONFIG.screenShake.verticalPx}px`);
 			board.classList.remove("game-board-content--shaking");
 			void board.offsetWidth;
 			board.classList.add("game-board-content--shaking");

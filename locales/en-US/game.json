@@ -1,6 +1,20 @@
 {
   "components": {
     "actionButton": {},
+    "alphaLogPanel": {
+      "dialogLabel": "Detailed alpha log",
+      "title": "Full log · alpha",
+      "entryCount_one": "{{count}} entry",
+      "entryCount_other": "{{count}} entries",
+      "copied": "Copied",
+      "copyAll": "Copy all",
+      "closeLabel": "Close detailed log",
+      "close": "Close",
+      "searchPlaceholder": "Search action, hero, ability, damage...",
+      "searchLabel": "Search the detailed log",
+      "footer_one": "Shortcut: Ctrl+Alt+L · Esc closes · {{count}} entry shown",
+      "footer_other": "Shortcut: Ctrl+Alt+L · Esc closes · {{count}} entries shown"
+    },
     "board": {
       "activeArtifact": "Active artifact",
       "text001": "no room",
@@ -85,6 +99,13 @@
     "heroFocusPanel": {
       "actedHint": "This hero has already acted this round.",
       "attackHint": "Drag the hero onto an enemy, or tap/click the hero and then the target.",
+      "focusedHero": "Focused hero",
+      "viewArt": "View art",
+      "closeArt": "Close art",
+      "hit": "Hit",
+      "damage": "Damage",
+      "dice": "Dice",
+      "impeto": "Momentum",
       "text001": "Focused hero ·",
       "text002": "click another to switch",
       "text003": "Health",
@@ -317,8 +338,14 @@
     "statusBadge": {}
   },
   "screens": {
+    "devPreview": {
+      "badge": "DEV",
+      "toolbarLabel": "Ending preview"
+    },
     "defeat": {
       "alt001": "Heroic Ascension",
+      "rosterTitle": "Heroes of the journey",
+      "journeyTitle": "The road traveled",
       "text002": "Expedition ended",
       "text003": "Defeat",
       "text004": "The dungeon consumed the heroes.",
@@ -336,8 +363,17 @@
         "creatures": "Creatures defeated",
         "boss": "Selected boss",
         "xp": "XP earned",
-        "artifacts": "Artifacts found"
+        "artifacts": "Artifacts found",
+        "heroLevel": "Hero level",
+        "dungeonLevel": "Dungeon level"
       }
+    },
+    "endLevelColors": {
+      "white": "White",
+      "yellow": "Yellow",
+      "orange": "Orange",
+      "red": "Red",
+      "purple": "Purple"
     },
     "exploration": {
       "groupDrawer": "Group and Awakening",
@@ -443,6 +479,11 @@
       }
     },
     "victory": {
+      "kicker": "A legend is born",
+      "rosterTitle": "The victorious heroes",
+      "journeyTitle": "The journey in numbers",
+      "retry": "Play again",
+      "menu": "Return to menu",
       "text001": "XP —",
       "dynamic001": "Victory",
       "dynamic002": "You defeated the final boss and survived the dungeon.",
@@ -452,7 +493,7 @@
       "dynamic006": "Artifacts acquired",
       "dynamic007": "Total XP",
       "dynamic008": "Hero level",
-      "dynamic009": "Final Awakening",
+      "dynamic009": "Dungeon level",
       "winnerTitle": "Victory: {{winner}}!",
       "winnerDescription": "{{winner}} defeated the final boss and wins the game."
     }

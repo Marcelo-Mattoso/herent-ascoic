@@ -348,8 +348,7 @@ function ActiveEnemyCard({
 							lineHeight: "var(--game-card-line-height, 1)",
 						}}
 					>
-						{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · D
-						{enemy.damage}
+						{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · {translate("game:components.inventarioGrupo.text006")} {enemy.damage}
 					</p>
 				</div>
 			</div>
@@ -459,8 +458,7 @@ function BossEncounterCard({
 								lineHeight: "var(--game-card-line-height, 1)",
 							}}
 						>
-							{enemy.currentLife}/{enemy.maxLife} {translate("game:components.board.text005")}{enemy.hitBonus} · D
-							{enemy.damage}
+							{enemy.currentLife}/{enemy.maxLife} {translate("game:components.board.text005")}{enemy.hitBonus} · {translate("game:components.inventarioGrupo.text006")} {enemy.damage}
 						</p>
 					</>
 				) : (

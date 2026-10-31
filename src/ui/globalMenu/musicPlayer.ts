@@ -22,6 +22,11 @@ export const MUSIC_MANIFEST_URL = publicAssetUrl("generated/music/manifest.json"
 export const MUSIC_VOLUME_KEY = "ascensao.heroica.music.volume";
 export const MUSIC_TRACK_KEY = "ascensao.heroica.music.track";
 export const MUSIC_AUTOPLAY_KEY = "ascensao.heroica.music.autoplay";
+export type EndingTrack = "victory" | "defeat";
+const ENDING_FILES: Record<EndingTrack, string> = {
+	victory: "victory.mp3",
+	defeat: "game-over.mp3",
+};
 
 export type MusicStatus = "stopped" | "loading" | "playing" | "blocked" | "error";
 
@@ -31,6 +36,8 @@ export interface MusicSnapshot {
 	readonly volume: number;
 	readonly status: MusicStatus;
 	readonly message: string;
+	readonly ending: EndingTrack | null;
+	readonly endingAvailable: boolean;
 }
 
 function storedValue(key: string): string | null {
@@ -57,6 +64,10 @@ export class MusicPlayer {
 	private generation = 0;
 	private wantsPlayback = false;
 	private autoplayEnabled = storedValue(MUSIC_AUTOPLAY_KEY) !== "off";
+	private ending: EndingTrack | null = null;
+	private endingTrack: MusicTrack | null = null;
+	private endingResume = false;
+	private allTracks: readonly MusicTrack[] = [];
 	private snapshot: MusicSnapshot;
 
 	constructor(audio: HTMLAudioElement) {
@@ -65,7 +76,7 @@ export class MusicPlayer {
 		const volume = storedValue(MUSIC_VOLUME_KEY) !== null && Number.isFinite(savedVolume)
 			? Math.max(0, Math.min(100, savedVolume)) : 50;
 		this.audio.volume = volume / 100;
-		this.snapshot = { tracks: [], selectedId: null, volume, status: "stopped", message: "" };
+		this.snapshot = { tracks: [], selectedId: null, volume, status: "stopped", message: "", ending: null, endingAvailable: false };
 	}
 
 	activate() {
@@ -85,10 +96,44 @@ export class MusicPlayer {
 
 	setTracks(tracks: readonly MusicTrack[]) {
 		const sorted = [...tracks].sort((a, b) => a.order - b.order);
+		this.allTracks = sorted;
+		const playlist = sorted.filter((track) => !Object.values(ENDING_FILES).includes(track.fileName.toLowerCase()));
 		const previous = this.snapshot.selectedId;
 		const saved = storedValue(MUSIC_TRACK_KEY);
-		const selectedId = [previous, saved].find((id) => sorted.some((track) => track.id === id)) ?? sorted[0]?.id ?? null;
-		this.update({ tracks: sorted, selectedId, message: sorted.length ? "" : "Nenhuma faixa disponível." });
+		const selectedId = [previous, saved].find((id) => playlist.some((track) => track.id === id)) ?? playlist[0]?.id ?? null;
+		this.endingTrack = this.ending ? this.findEndingTrack(this.ending) : null;
+		this.update({ tracks: playlist, selectedId, endingAvailable: !!this.endingTrack, message: playlist.length ? "" : "Nenhuma faixa disponível." });
+		if (this.ending && this.endingTrack && this.autoplayEnabled) void this.play();
+	}
+
+	private findEndingTrack(ending: EndingTrack) {
+		return this.allTracks.find((track) => track.fileName.toLowerCase() === ENDING_FILES[ending]) ?? null;
+	}
+
+	enterEnding(ending: EndingTrack) {
+		if (this.ending === ending) return;
+		this.endingResume = this.wantsPlayback || this.snapshot.status === "blocked";
+		this.generation++;
+		this.wantsPlayback = false;
+		this.audio.pause();
+		this.audio.currentTime = 0;
+		this.ending = ending;
+		this.endingTrack = this.findEndingTrack(ending);
+		this.update({ ending, endingAvailable: !!this.endingTrack, status: "stopped", message: "" });
+		if (this.endingTrack && this.autoplayEnabled) void this.play();
+	}
+
+	leaveEnding(ending: EndingTrack) {
+		if (this.ending !== ending) return;
+		this.generation++;
+		this.wantsPlayback = false;
+		this.audio.pause();
+		this.ending = null;
+		this.endingTrack = null;
+		const resume = this.endingResume && this.autoplayEnabled;
+		this.endingResume = false;
+		this.update({ ending: null, endingAvailable: false, status: "stopped", message: "" });
+		if (resume) void this.play();
 	}
 
 	setVolume(value: number) {
@@ -99,6 +144,7 @@ export class MusicPlayer {
 	}
 
 	select(id: string) {
+		if (this.ending) return;
 		const track = this.snapshot.tracks.find((item) => item.id === id);
 		if (!track) return;
 		const wasPlaying = this.wantsPlayback;
@@ -136,12 +182,13 @@ export class MusicPlayer {
 	async play() {
 		if (!AUDIO_CONFIG.music.enabled) return;
 		if (this.wantsPlayback && (this.snapshot.status === "loading" || this.snapshot.status === "playing")) return;
-		if (!this.snapshot.selectedId) {
+		if (this.ending && !this.endingTrack) return;
+		if (!this.ending && !this.snapshot.selectedId) {
 			this.update({ status: "error", message: "Nenhuma faixa disponível." });
 			return;
 		}
 		this.wantsPlayback = true;
-		const track = this.snapshot.tracks.find((item) => item.id === this.snapshot.selectedId);
+		const track = this.endingTrack ?? this.snapshot.tracks.find((item) => item.id === this.snapshot.selectedId);
 		if (!track) return;
 		const expectedSrc = publicAssetUrl(track.url);
 		if (!this.audio.src || !this.audio.src.endsWith(expectedSrc)) {
@@ -178,6 +225,7 @@ export class MusicPlayer {
 	}
 
 	step(delta: number) {
+		if (this.ending) return;
 		const { tracks, selectedId } = this.snapshot;
 		if (tracks.length < 2) return;
 		const index = tracks.findIndex((track) => track.id === selectedId);
@@ -186,6 +234,11 @@ export class MusicPlayer {
 
 	private onEnded = () => {
 		if (!this.wantsPlayback) return;
+		if (this.ending) {
+			this.wantsPlayback = false;
+			this.update({ status: "stopped", message: "" });
+			return;
+		}
 		if (this.snapshot.tracks.length === 1) {
 			this.audio.currentTime = 0;
 			void this.startPlayback();
@@ -205,4 +258,10 @@ export class MusicPlayer {
 		this.audio.removeEventListener("error", this.onError);
 		this.listeners.clear();
 	}
+}
+
+let sharedMusicPlayer: MusicPlayer | null = null;
+export function getMusicPlayer() {
+	sharedMusicPlayer ??= new MusicPlayer(document.createElement("audio"));
+	return sharedMusicPlayer;
 }

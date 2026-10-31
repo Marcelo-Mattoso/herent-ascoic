@@ -127,9 +127,9 @@ export function DiceRollOverlay({ roll, onResolveAttack }: DiceRollOverlayProps)
 	return createPortal(<div className="game-dice-roll-layer">
 		<div className="game-dice-roll-modal" data-tutorial-anchor="combat.dice" role="dialog" aria-label={translate("game:components.diceRollOverlay.ariaLabel001")}>
 			<div className="game-dice-roll-modal__body">
-				<Cluster side="enemy" label={translate("game:components.diceRollOverlay.enemyLabel")} results={roll.enemyResults} total={roll.enemyTotal} dice={dice} arenaRef={enemyArena} canResolve={canResolve} />
-				<div className="game-dice-roll-versus">{translate("game:components.diceRollOverlay.text002")}</div>
 				<Cluster side="hero" label={translate("game:components.diceRollOverlay.heroLabel")} results={roll.heroResults} total={roll.heroTotal} dice={dice} arenaRef={heroArena} canResolve={canResolve} />
+				<div className="game-dice-roll-versus">{translate("game:components.diceRollOverlay.text002")}</div>
+				<Cluster side="enemy" label={translate("game:components.diceRollOverlay.enemyLabel")} results={roll.enemyResults} total={roll.enemyTotal} dice={dice} arenaRef={enemyArena} canResolve={canResolve} />
 			</div>
 			<button type="button" className="game-dice-roll-action" onClick={onResolveAttack} disabled={!canResolve} aria-label={translate("game:components.diceRollOverlay.ariaLabel003")}>
 				{canResolve ? translate("game:components.diceRollOverlay.dynamic001") : translate("game:components.diceRollOverlay.rolling")}
