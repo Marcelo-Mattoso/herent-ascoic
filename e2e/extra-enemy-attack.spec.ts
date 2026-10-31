@@ -1,4 +1,11 @@
-import { expect, test } from "@playwright/test";
+import { expect, test, type Page } from "@playwright/test";
+
+async function waitForCombat(page: Page) {
+	await expect.poll(() => page.evaluate(async () => {
+		const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
+		return getElfGameState().status;
+	})).toBe("HERO_ACTION");
+}
 
 test("inimigos excedentes atacam com animações sequenciais", async ({ page }) => {
 	await page.goto("/");
@@ -8,8 +15,8 @@ test("inimigos excedentes atacam com animações sequenciais", async ({ page }) 
 			payload: { heroCardIds: ["hero_crimson_barbarian"], mode: "cooperative", difficulty: "normal", seed: 42 },
 		});
 	});
-	await page.getByRole("dialog").getByRole("button", { name: "Escolher" }).last().click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
+	await waitForCombat(page);
 	await page.evaluate(async () => {
 		const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
 		const state = getElfGameState();
@@ -69,8 +76,8 @@ test("ataque excedente usa as faces físicas antes da animação", async ({ page
 			payload: { heroCardIds: ["hero_crimson_barbarian"], mode: "cooperative", difficulty: "normal", seed: 42 },
 		});
 	});
-	await page.getByRole("dialog").getByRole("button", { name: "Escolher" }).last().click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
+	await waitForCombat(page);
 	await page.evaluate(async () => {
 		const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
 		const state = getElfGameState();

@@ -1087,6 +1087,12 @@ export function InventarioGrupo({
 		dispatch({ type: "INV_MOVE", payload: { itemId, from, to } });
 	}
 
+	function handleUseRewardItem(itemId: string) {
+		if (!rewardHero) return;
+		setInventoryFeedback(null);
+		dispatch({ type: "USE_REWARD_ITEM", payload: { itemId, heroId: rewardHero.id } });
+	}
+
 	// ── Mesa — zona de drop (itens voltando de heróis) ────────────────────────
 
 	const mesaDropValid = isValidZone("mesa");
@@ -1160,6 +1166,8 @@ export function InventarioGrupo({
 								<div className="inventory-card-grid">
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
+										const isMysticDraw = cardAbilityGrants(r.cardId).some((grant) =>
+											grant.activation.kind === "manual" && grant.abilityId === "item_skill_mystic_draw");
 										const isMe =
 											dragging?.from.kind === "mesa" &&
 											dragging.name === r.cardId;
@@ -1179,11 +1187,15 @@ export function InventarioGrupo({
 												onInfo={() =>
 													setDetailCard({ cardId: r.cardId, cardType: "item" })
 												}
-												onCollect={
-													rewardHero
-														? () => handleCollectReward(r.cardId)
-														: undefined
-												}
+												onCollect={rewardHero
+													? () => {
+														if (isMysticDraw) handleUseRewardItem(r.cardId);
+														else handleCollectReward(r.cardId);
+													}
+													: undefined}
+												collectLabel={isMysticDraw
+													? translate("game:components.inventarioGrupo.text044")
+													: undefined}
 												onMouseEnter={(e) =>
 													showTooltip({
 														name: r.cardId,
@@ -1671,6 +1683,7 @@ function InventoryRewardCard({
 	onDragEnd,
 	onInfo,
 	onCollect,
+	collectLabel,
 	onMouseEnter,
 	onMouseMove,
 	onMouseLeave,
@@ -1685,6 +1698,7 @@ function InventoryRewardCard({
 	onDragEnd: () => void;
 	onInfo: () => void;
 	onCollect?: () => void;
+	collectLabel?: string;
 	onMouseEnter: (e: React.MouseEvent) => void;
 	onMouseMove: (e: React.MouseEvent) => void;
 	onMouseLeave: () => void;
@@ -1718,7 +1732,8 @@ function InventoryRewardCard({
 					className="inventory-reward-collect"
 					onClick={onCollect}
 				>
-					{translate("game:components.inventarioGrupo.text043")}{" "}</button>
+					{collectLabel ?? translate("game:components.inventarioGrupo.text043")}
+				</button>
 			)}
 			<button
 				type="button"

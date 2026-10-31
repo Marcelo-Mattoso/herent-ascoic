@@ -14,6 +14,17 @@ import {
 } from "./resolveExpr";
 import type { EffectNode, EvalCtx } from "./types";
 
+const unavailableDiscardPenalty: readonly EffectNode[] = [
+	{
+		kind: "i_for_each", over: "all_heroes", as: "$hero",
+		do: [{ kind: "p_modifier", to: "$target", stat: "s_damage_dealt", operation: "add", value: -1, duration: { kind: "until_end_of_combat" } }],
+	},
+	{
+		kind: "i_for_each", over: "all_heroes", as: "$hero",
+		do: [{ kind: "p_modifier", to: "$target", stat: "s_hit_penalty", operation: "add", value: 1, duration: { kind: "until_end_of_combat" } }],
+	},
+];
+
 /**
  * Avalia um array de EffectNode em sequência, encadeando o estado resultante.
  */
@@ -232,6 +243,24 @@ function evaluateOne(
 		}
 
 		case "i_choose_one": {
+			const [itemOption, alternative] = node.options;
+			if (node.options.length === 2 && itemOption && alternative &&
+				itemOption.effect.some((effect) => effect.kind === "i_discard" && effect.pile === "item")) {
+				const availableItems = ctx.state.heroes
+					.filter((hero) => hero.status === "active")
+					.reduce((count, hero) => count + hero.backpack.length + Object.values(hero.activeItems).filter(Boolean).length, 0);
+				const discardCount = (option: typeof itemOption, pile: "item" | "dungeon") =>
+					option.effect.reduce((count, effect) => count +
+						(effect.kind === "i_discard" && effect.pile === pile ? resolveExpr(effect.count, ctx) : 0), 0);
+				const canDiscardItem = availableItems >= discardCount(itemOption, "item");
+				const canUseAlternative = ctx.state.decks.dungeonDeck.available.length >= discardCount(alternative, "dungeon");
+				if (!canDiscardItem && !canUseAlternative) {
+					const penalized = evaluate(unavailableDiscardPenalty, ctx);
+					return ctx.withState(penalized).action.log("Sem item ou carta de masmorra para descartar: heróis recebem -1 de dano e -1 de acerto até o fim do combate.");
+				}
+				if (!canDiscardItem) return evaluate(alternative.effect, ctx);
+				if (!canUseAlternative) return evaluate(itemOption.effect, ctx);
+			}
 			const localeOptions = getSkillLocale(ctx.skillId).options ?? {};
 			const options = node.options.map((opt) => {
 				const template = localeOptions[opt.id] ?? opt.id;
