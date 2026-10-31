@@ -30,7 +30,8 @@
       "sfxTitle": "Efectos de sonido",
       "sfxVolume": "Volumen de los efectos",
       "sfxMute": "Silenciar efectos",
-      "sfxUnmute": "Reactivar efectos"
+      "sfxUnmute": "Reactivar efectos",
+      "sfxDisabled": "Los efectos de sonido están desactivados temporalmente hasta seleccionar los audios definitivos."
     }
   },
   "screens": {

@@ -57,7 +57,7 @@ body {
 .global-menu input[type="range"] { width: 100%; accent-color: #dba64d; touch-action: pan-y; }
 .global-menu__controls { display: flex; gap: 5px; }
 .global-menu__controls button { flex: 1; min-width: 0; min-height: 40px; padding: 5px; }
-.global-menu__status { min-height: 1.35em; margin: 8px 0 0; color: #e4c889; font-size: .8rem; }
+.global-menu__status, .global-menu__sfx-notice { min-height: 1.35em; margin: 8px 0 0; color: #e4c889; font-size: .8rem; }
 .global-menu__links { display: grid; gap: 7px; }
 .global-menu__links a { display: block; padding: 9px; text-decoration: none; }
 .global-menu__links a:hover, .global-menu button:not(:disabled):hover { background: #213a51; }

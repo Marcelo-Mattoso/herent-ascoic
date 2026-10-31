@@ -1,5 +1,9 @@
 # Efeitos sonoros do jogo
 
+> **Estado atual:** efeitos sonoros temporariamente **desabilitados** no jogo. Os arquivos e gatilhos continuam presentes, mas nenhum som de efeito será reproduzido até a liberação explícita em `src/config/audio.ts`. A música continua habilitada e independente.
+>
+> Quando os áudios definitivos estiverem prontos, substitua os arquivos WAV e altere somente `AUDIO_CONFIG.sfx.enabled` para `true` (após revisar os volumes). Preferências antigas do navegador não contornam essa chave.
+
 Os arquivos WAV desta pasta são originais, gerados por `scripts/generate-sfx.py`. Podem ser usados e modificados no projeto sem crédito externo.
 
 O código usa **exatamente estes nomes**. Para trocar um efeito, substitua o WAV correspondente pelo seu áudio com o mesmo nome (PCM WAV recomendado) e execute novamente o build. Durante o desenvolvimento, o Vite copia os arquivos para `public/generated/sfx/`; no GitHub Pages eles são publicados sob o base path do projeto.
