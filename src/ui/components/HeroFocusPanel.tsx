@@ -33,6 +33,7 @@ interface HeroFocusPanelProps {
 	onUseItem?: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	onItemDetail: (itemName: string, heroId: string) => void;
+	onArtInspect?: () => void;
 }
 
 export function HeroFocusPanel({
@@ -49,6 +50,7 @@ export function HeroFocusPanel({
 	onUseItem,
 	onCardDetail,
 	onItemDetail,
+	onArtInspect,
 }: HeroFocusPanelProps) {
 	const [artHeroId, setArtHeroId] = useState<string | null>(null);
 	const { status } = view;
@@ -72,7 +74,11 @@ export function HeroFocusPanel({
 							<button
 								type="button"
 								className="hero-focus-portrait"
-								onClick={() => setArtHeroId(hero.id)}
+								onClick={() => {
+									setArtHeroId(hero.id);
+									onArtInspect?.();
+								}}
+								data-tutorial-anchor="hero.portrait"
 								aria-label={`${translate("game:components.heroFocusPanel.viewArt")}: ${getCardName(hero.cardId)}`}
 							>
 								<img src={heroImageUrl} alt="" />

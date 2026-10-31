@@ -553,6 +553,7 @@ export function Exploration({
 									onUseSkill={handleUseSkill}
 									onUseItem={() => setItemUse({ heroId: focusedHero.id })}
 									onCardDetail={openCardDetail}
+									onArtInspect={tutorialAbilityMode ? onTutorialAbilityCardInspect : undefined}
 									onItemDetail={(itemId, heroId) =>
 										setDetailCard({ id: itemId, cardType: "item", heroId })
 									}

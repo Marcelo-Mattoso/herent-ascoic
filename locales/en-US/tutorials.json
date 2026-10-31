@@ -271,7 +271,7 @@
         "narration": [
           "A traveler's strength lies not only in their weapons. There is knowledge, instinct, and talent that no blade can replace."
         ],
-        "instruction": "Open the Hunter's panel and inspect the card describing their ability and power."
+        "instruction": "Open the Hunter's panel, review their ability and power, then select the portrait to see the full card."
       },
       "prey-mark": {
         "title": "A Manually Activated Ability",
