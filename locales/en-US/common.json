@@ -30,7 +30,8 @@
       "sfxTitle": "Sound effects",
       "sfxVolume": "Effects volume",
       "sfxMute": "Mute effects",
-      "sfxUnmute": "Unmute effects"
+      "sfxUnmute": "Unmute effects",
+      "sfxDisabled": "Sound effects are temporarily disabled until the final audio files are selected."
     }
   },
   "screens": {
