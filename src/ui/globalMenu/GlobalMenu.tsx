@@ -131,7 +131,7 @@ export function GlobalMenu() {
 				</div>
 				<div className="global-menu__section">
 					<h2>{translate("common:globalMenu.globalMenu.sfxTitle")}</h2>
-					{!AUDIO_CONFIG.sfx.enabled && <p className="global-menu__status" role="status">{translate("common:globalMenu.globalMenu.sfxDisabled")}</p>}
+					{!AUDIO_CONFIG.sfx.enabled && <p className="global-menu__sfx-notice" role="note">{translate("common:globalMenu.globalMenu.sfxDisabled")}</p>}
 					<label className="global-menu__field" htmlFor="global-sfx-volume">{translate("common:globalMenu.globalMenu.sfxVolume")} {sfx.volume}%
 						<input id="global-sfx-volume" type="range" min="0" max="100" disabled={!AUDIO_CONFIG.sfx.enabled} value={sfx.volume} onChange={(event) => sfxPlayer.setVolume(Number(event.target.value))} />
 					</label>
