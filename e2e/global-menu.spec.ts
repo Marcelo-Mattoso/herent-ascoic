@@ -203,3 +203,15 @@ test("troca para inglês mantém tabuleiro e música, e persiste a escolha", asy
 	await page.getByRole("button", { name: "Open global menu" }).click();
 	await expect(page.getByLabel("Interface language")).toHaveValue("en-US");
 });
+
+
+test("efeitos desabilitados não interferem no status da música", async ({ page }) => {
+	await page.goto("/");
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.locator(".global-menu__status")).toHaveCount(1);
+	await expect(page.locator(".global-menu__sfx-notice")).toContainText("temporariamente desativados");
+	await expect(page.getByRole("note")).toHaveCount(1);
+	await expect(page.locator("#global-sfx-volume")).toBeDisabled();
+	await expect(page.getByRole("button", { name: /Silenciar efeitos|Reativar efeitos/ })).toBeDisabled();
+	await expect(page.locator("#global-music-volume")).toBeEnabled();
+});
