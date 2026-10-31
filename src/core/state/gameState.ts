@@ -185,6 +185,8 @@ export interface GameState {
 
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
+	/** Histórico técnico exclusivo da fase alpha, separado do log do jogador. */
+	readonly alphaLog?: readonly string[];
 	/** Observações visuais do dano realmente subtraído da vida; sem efeito nas regras. */
 	readonly damageFeedback?: readonly {
 		readonly id: number;

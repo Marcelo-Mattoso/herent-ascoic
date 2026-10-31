@@ -78,8 +78,13 @@ describe("DSL choose_one — dark_tribute", () => {
 	];
 
 	it("abre pendingSkillChoice com opções DSL", () => {
+		const base = createInitialGameState({ heroCardIds: [] });
 		const state = makeState({
 			heroes: [makeHero({ backpack: ["Adaga Enferrujada"] })],
+			decks: {
+				...base.decks,
+				dungeonDeck: { ...base.decks.dungeonDeck, available: ["Sala A"] },
+			},
 		});
 		const ctx = buildScriptCtx(
 			state,

@@ -61,11 +61,11 @@ describe("applyHeal", () => {
 		expect(result.healFeedback?.at(-1)?.amount).toBe(1);
 	});
 
-	it("retorna estado inalterado se healBlocked", () => {
+	it("mantém a vida e registra a cura bloqueada no log alpha", () => {
 		const state = makeState({ currentLife: 5, healBlocked: true });
 		const result = applyHeal(state, "h1", 3);
-		expect(result).toBe(state);
 		expect(result.heroes[0]!.currentLife).toBe(5);
+		expect(result.alphaLog?.at(-1)).toContain("bloqueada");
 	});
 
 	it("retorna estado inalterado para id desconhecido", () => {

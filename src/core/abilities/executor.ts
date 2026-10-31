@@ -1,6 +1,9 @@
 // Executor vNext: separa o efeito da ability do ciclo de vida da fonte.
 
 import { cardAbilityGrants, lookupAbilityById } from "../data/abilities";
+import { getCardName } from "../data/cardLocale";
+import { getSkillName } from "../data/skillLocale";
+import { appendAlphaLog } from "../diagnostics/alphaLog";
 import { getCardById } from "../data/cards";
 import { lookupSkillById } from "../skills/lookup";
 import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
@@ -43,6 +46,7 @@ export interface AbilityGrantExecution {
 	readonly source: AbilityGrantSource;
 	readonly grant: AbilityGrant;
 	readonly triggeredBy: string;
+	readonly consumeFromPendingReward?: boolean;
 	readonly targetIds?: readonly string[];
 	readonly value?: number | string | null;
 	readonly context?: SkillContext;
@@ -178,11 +182,14 @@ function consumeSource(
 	state: GameState,
 	source: AbilityGrantSource,
 	grant: AbilityGrant,
+	consumeFromPendingReward = false,
 ): GameState {
 	if (grant.activation.consumeSource === "none") return state;
 	if (source.kind !== "item" || !source.sourceHeroId) return state;
 	const owner = state.heroes.find((hero) => hero.id === source.sourceHeroId);
-	const owned = owner ? findHeroItemLocation(owner, source.cardId) !== null : false;
+	const owned = !consumeFromPendingReward && owner
+		? findHeroItemLocation(owner, source.cardId) !== null
+		: false;
 	const withoutItem = owned
 		? removeHeroItem(state, source.sourceHeroId, source.cardId)
 		: state;
@@ -286,7 +293,7 @@ export function executeAbilityGrant(
 		({ state: next } = emit(next, { type: "SkillUsed", payload: {
 			sourceId: source.sourceHeroId, skillId: ability.id,
 		} }));
-	next = consumeSource(next, source, grant);
+	next = consumeSource(next, source, grant, request.consumeFromPendingReward);
 	if (hpCost > 0 && source.sourceHeroId) {
 		const hero = next.heroes.find((entry) => entry.id === source.sourceHeroId);
 		if (!hero || hero.currentLife <= hpCost)
@@ -339,7 +346,8 @@ export function executeAbilityGrant(
 	if (grant.activation.actionCost === "consume_hero_action" && source.sourceHeroId) {
 		next = ActivationTracker.endHeroTurn(next, source.sourceHeroId);
 	}
-	return next;
+	return appendAlphaLog(next,
+		`Habilidade ${getSkillName(ability.id)} ativada por ${getCardName(source.cardId)} (${source.sourceHeroId ?? source.sourceEnemyId ?? "grupo"}); evento ${triggeredBy}; alvos [${targetIds.join(", ") || "nenhum"}]; parâmetros ${JSON.stringify(params)}.`);
 }
 
 export function resolveManualGrantTarget(

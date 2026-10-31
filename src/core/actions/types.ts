@@ -41,7 +41,7 @@ export type Action =
 	| { type: "CHOOSE_HERO_FOR_ROUND"; payload: { heroId: string } }
 	| { type: "PASS_HERO_ACTION"; payload: { heroId: string } }
 	| { type: "CANCEL_HERO_SELECTION" }
-	| { type: "CHOOSE_TARGET"; payload: { heroId: string; enemyId: string } }
+	| { type: "CHOOSE_TARGET"; payload: { heroId: string; enemyId: string; inputMethod?: "button" | "drag" } }
 	| { type: "ROLL_DICE" }
 	| { type: "PREPARE_PHYSICAL_ROLL" }
 	| { type: "PREPARE_EXTRA_ATTACK" }
@@ -81,6 +81,7 @@ export type Action =
 				destination: "equip" | "backpack" | "discard";
 			};
 	  }
+	| { type: "USE_REWARD_ITEM"; payload: { itemId: string; heroId: string } }
 	| {
 			type: "CHOOSE_ARTIFACT_BEARER";
 			payload: { heroId: string | null };

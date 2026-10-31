@@ -113,7 +113,7 @@ describe("item_skill_drain_life_and_deadly_edge — tohit_bonus + damage_bonus +
 
 describe("dungeon_skill_dead_torches — choose_one", () => {
 	it("registra escolha pendente com duas opções", () => {
-		const state = stateWithCombat();
+		const state = stateWithCombat({ heroes: [makeHero({ backpack: ["item_rusty_dagger"] })] });
 		const ctx = buildScriptCtx(
 			state,
 			{ triggeredBy: "before_first_combat_in_room", sourceHeroId: "h1" },
@@ -125,7 +125,7 @@ describe("dungeon_skill_dead_torches — choose_one", () => {
 	});
 
 	it("é obrigatória, preserva a origem da sala e aplica -1 somente a todos os heróis", () => {
-		const firstHero = makeHero({ id: "h1" });
+		const firstHero = makeHero({ id: "h1", backpack: ["item_rusty_dagger"] });
 		const secondHero = makeHero({
 			id: "h2",
 			cardId: "hero_last_light_paladin",

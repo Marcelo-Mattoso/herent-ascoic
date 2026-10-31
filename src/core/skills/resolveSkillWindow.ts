@@ -124,7 +124,7 @@ export const TRIGGER_EVENT_EMITTERS: Readonly<
 	evt_targeted: ["reducer/combat.resolveExtraEnemyCombatRoll"],
 };
 
-const ITEM_STATS_HANDLED_BY_EQUIPMENT = new Set([
+const STATS_HANDLED_BY_ITEM_EFFECTS = new Set([
 	"item_skill_deadly_edge",
 	"item_skill_drain_life_and_deadly_edge",
 	"item_skill_block",
@@ -164,15 +164,18 @@ function shouldSkipGrant(candidate: import("../abilities/executor").EventAbility
 	// duplicar Trono Vivo/Ascensão Final.
 	if (candidate.source.kind === "boss" ||
 		lookupSkillById(candidate.grant.abilityId)?.category === "boss_skill") return true;
-	const item =
+	// Itens equipados e artefatos já contribuem estes bônus em itemEffects.
+	// Executar também o grant aplicaria o bônus duas vezes; artefatos sem
+	// portador ainda produziriam um $source sem entidade.
+	const card =
 		candidate.source.kind === "item"
 			? getCardById(candidate.source.cardId)
 			: undefined;
 	if (
-		candidate.source.kind === "item" &&
+		(candidate.source.kind === "item" || candidate.source.kind === "artifact") &&
 		candidate.grant.id.startsWith("legacy:") &&
-		ITEM_STATS_HANDLED_BY_EQUIPMENT.has(candidate.grant.abilityId) &&
-		!(item?.type === "item" && item.useTiming)
+		STATS_HANDLED_BY_ITEM_EFFECTS.has(candidate.grant.abilityId) &&
+		!(card?.type === "item" && card.useTiming)
 	) {
 		return true;
 	}

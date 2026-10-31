@@ -1,7 +1,7 @@
 // Card mini de herói (~64px). Usado no tabuleiro.
 // Suporta drag-and-drop nativo HTML5 para iniciar combate.
 
-import type { DragEvent } from "react";
+import { type DragEvent, useEffect, useRef } from "react";
 import { displayCardClass as getCardClass, displayCardName as getCardName, displayHeroIdentity } from "@/i18n/catalogs";
 import { EQUIPMENT_SLOTS, equippedItemAt } from "@/core/rules/equipment";
 import type { HeroState } from "@/core/state/heroState";
@@ -36,6 +36,8 @@ export function HeroCard({
 	onDragEnd,
 	onClick,
 }: HeroCardProps) {
+	const dragImageRef = useRef<HTMLCanvasElement | null>(null);
+	useEffect(() => () => dragImageRef.current?.remove(), []);
 	const isDefeated = hero.status === "defeated";
 	const hasFled = hero.status === "fled";
 	const isActive = hero.status === "active";
@@ -115,13 +117,25 @@ export function HeroCard({
 					}
 					e.dataTransfer.effectAllowed = "move";
 					e.dataTransfer.setData("heroId", hero.id);
-					const dragImage = new Image();
-					dragImage.src =
-						"data:image/gif;base64,R0lGODlhAQABAAD/ACwAAAAAAQABAAACADs=";
-					e.dataTransfer.setDragImage(dragImage, 0, 0);
 					onDragStart?.(hero.id, e);
+					if (e.defaultPrevented) return;
+					dragImageRef.current?.remove();
+					const dragImage = document.createElement("canvas");
+					dragImage.width = 1;
+					dragImage.height = 1;
+					dragImage.style.position = "fixed";
+					dragImage.style.left = "0";
+					dragImage.style.top = "0";
+					dragImage.style.pointerEvents = "none";
+					document.body.appendChild(dragImage);
+					dragImageRef.current = dragImage;
+					e.dataTransfer.setDragImage(dragImage, 0, 0);
 				}}
-				onDragEnd={onDragEnd}
+				onDragEnd={() => {
+					dragImageRef.current?.remove();
+					dragImageRef.current = null;
+					onDragEnd?.();
+				}}
 				style={{
 					width: card.width,
 					height: card.height,

@@ -77,16 +77,16 @@ function PhysicalDiceRollOverlay({ roll, pending, onConfirm, onResolveAttack }: 
 	return createPortal(<div className="game-dice-roll-layer">
 		<div className="game-dice-roll-modal game-dice-roll-modal--physical" data-tutorial-anchor="combat.dice" role="dialog" aria-label={translate("game:components.diceRollOverlay.ariaLabel001")}>
 			<div className="game-dice-roll-modal__body">
-				<div className="game-dice-roll-cluster game-dice-roll-cluster--enemy">
-					<div className="game-dice-roll-label">{translate("game:components.diceRollOverlay.enemyLabel")}</div>
-					<div className="game-dice-roll-arena game-dice-roll-arena--3d" ref={enemyArena} data-testid="enemy-arena" />
-					{complete && shownRoll && <div className="game-dice-roll-total" data-testid="enemy-total">{shownRoll.enemyTotal}</div>}
-				</div>
-				<div className="game-dice-roll-versus">{translate("game:components.diceRollOverlay.text002")}</div>
 				<div className="game-dice-roll-cluster game-dice-roll-cluster--hero">
 					<div className="game-dice-roll-label">{translate("game:components.diceRollOverlay.heroLabel")}</div>
 					<div className="game-dice-roll-arena game-dice-roll-arena--3d" ref={heroArena} data-testid="hero-arena" />
 					{complete && shownRoll && <div className="game-dice-roll-total" data-testid="hero-total">{shownRoll.heroTotal}</div>}
+				</div>
+				<div className="game-dice-roll-versus">{translate("game:components.diceRollOverlay.text002")}</div>
+				<div className="game-dice-roll-cluster game-dice-roll-cluster--enemy">
+					<div className="game-dice-roll-label">{translate("game:components.diceRollOverlay.enemyLabel")}</div>
+					<div className="game-dice-roll-arena game-dice-roll-arena--3d" ref={enemyArena} data-testid="enemy-arena" />
+					{complete && shownRoll && <div className="game-dice-roll-total" data-testid="enemy-total">{shownRoll.enemyTotal}</div>}
 				</div>
 			</div>
 			{fallback && <div className="game-dice-roll-fallback">{translate("game:components.diceRollOverlay.fallback")}</div>}

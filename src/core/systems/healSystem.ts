@@ -3,6 +3,8 @@
 // Passo 7: applyHeal emite HealAboutToBeApplied (pré) e HealApplied (pós).
 
 import { syncEntityFromHero } from "../ecs/sync";
+import { appendAlphaLog } from "../diagnostics/alphaLog";
+import { getCardName } from "../data/cardLocale";
 import type { EntityId } from "../ecs/types";
 import { emit } from "../events/bus";
 import { consumeOnceBlock } from "../state/blockHelpers";
@@ -38,7 +40,8 @@ export function applyHeal(
 	if (!hero) return state;
 	if (hero.healBlocked) {
 		// Consome bloco `once` para que a próxima cura passe (semântica "próxima cura").
-		return consumeOnceBlock(state, `${targetId}::healBlocked`);
+		return appendAlphaLog(consumeOnceBlock(state, `${targetId}::healBlocked`),
+			`Cura de ${amount} em ${getCardName(hero.cardId)} bloqueada.`);
 	}
 
 	// Janela pré: listeners podem modificar a quantidade de cura.
@@ -57,7 +60,8 @@ export function applyHeal(
 		payload: { targetId, amount: newLife - hero.currentLife },
 	});
 
-	return recordHeal(s3, targetId, newLife - hero.currentLife);
+	return appendAlphaLog(recordHeal(s3, targetId, newLife - hero.currentLife),
+		`${getCardName(hero.cardId)}: cura solicitada ${amount}, após efeitos ${finalAmount}, aplicada ${newLife - hero.currentLife}; vida ${hero.currentLife} → ${newLife}.`);
 }
 
 export function applyFullHeal(state: GameState, targetId: EntityId): GameState {
@@ -73,7 +77,8 @@ export function applyFullHeal(state: GameState, targetId: EntityId): GameState {
 		type: "HealApplied",
 		payload: { targetId, amount: hero.maxLife - hero.currentLife },
 	});
-	return recordHeal(s2, targetId, hero.maxLife - hero.currentLife);
+	return appendAlphaLog(recordHeal(s2, targetId, hero.maxLife - hero.currentLife),
+		`${getCardName(hero.cardId)} recebeu cura completa: ${hero.currentLife} → ${hero.maxLife}.`);
 }
 
 export function applySurvive(state: GameState, targetId: EntityId): GameState {
@@ -97,5 +102,6 @@ export function applyLifeGain(
 	const hero = findHero(state, targetId);
 	if (!hero) return state;
 	const newLife = Math.min(hero.maxLife, hero.currentLife + amount);
-	return replaceHero(state, { ...hero, currentLife: newLife });
+	return appendAlphaLog(replaceHero(state, { ...hero, currentLife: newLife }),
+		`${getCardName(hero.cardId)} ganhou ${newLife - hero.currentLife} de vida por progressão (${hero.currentLife} → ${newLife}).`);
 }

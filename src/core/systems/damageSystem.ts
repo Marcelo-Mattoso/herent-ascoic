@@ -4,6 +4,8 @@
 // applyDamageMin1 é custo de vida (sem janela de bus — não é dano recebido de inimigo).
 
 import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
+import { appendAlphaLog } from "../diagnostics/alphaLog";
+import { getCardName } from "../data/cardLocale";
 import type { EntityId } from "../ecs/types";
 import {
 	removeEntity,
@@ -395,6 +397,12 @@ export function applyDamage(
 			],
 		};
 	}
+	const source = s2.heroes.find((hero) => hero.id === sourceId) ??
+		s2.activeEnemies.find((enemy) => enemy.id === sourceId);
+	const target = s2.heroes.find((hero) => hero.id === targetId) ??
+		s2.activeEnemies.find((enemy) => enemy.id === targetId);
+	s2 = appendAlphaLog(s2,
+		`Dano ${damageType}: ${source ? getCardName(source.cardId) : sourceId} → ${target ? getCardName(target.cardId) : targetId}; solicitado ${amount}, após efeitos ${finalAmount}, aplicado ${appliedAmount}; vida ${lifeImmediatelyBeforeApply ?? "?"} → ${currentLife(s2, targetId) ?? "?"}${purpleReduction ? `; redução roxa ${purpleReduction}` : ""}.`);
 
 	// Janela pós: listeners reagem ao dano já aplicado.
 	const { state: s3 } = emit(s2, {
@@ -433,5 +441,8 @@ export function applyDamageMin1(
 	targetId: EntityId,
 	amount: number,
 ): GameState {
-	return applyDamageRaw(state, targetId, amount, 1);
+	const lifeBefore = currentLife(state, targetId);
+	const next = applyDamageRaw(state, targetId, amount, 1);
+	return appendAlphaLog(next,
+		`Custo de vida em ${targetId}: solicitado ${amount}, aplicado ${(lifeBefore ?? 0) - (currentLife(next, targetId) ?? 0)}; vida ${lifeBefore ?? "?"} → ${currentLife(next, targetId) ?? "?"}.`);
 }

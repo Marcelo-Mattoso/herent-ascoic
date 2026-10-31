@@ -2,6 +2,7 @@
 // Nunca muta o estado — sempre retorna novo objeto.
 
 import type { Action } from "../actions/types";
+import { recordAlphaAction } from "../diagnostics/alphaLog";
 import { getSkillName } from "../data/skillLocale";
 import { drainStack } from "../effects/resolver";
 import type { GameState } from "../state/gameState";
@@ -62,6 +63,7 @@ import {
 	handleInvSetBearer,
 	handleOpenPathsFromXpPhase,
 	handleSpendXp,
+	handleUseRewardItem,
 } from "./reward";
 import "../skills/handlers/index"; // registra todos os handlers no boot
 import { assertTransition } from "../rules/stateMachine";
@@ -313,6 +315,8 @@ function dispatch(state: GameState, action: Action): GameState {
 				action.payload.heroId,
 				action.payload.destination,
 			);
+		case "USE_REWARD_ITEM":
+			return handleUseRewardItem(state, action.payload.itemId, action.payload.heroId);
 
 		case "CHOOSE_ARTIFACT_BEARER":
 			return handleChooseArtifactBearer(state, action.payload.heroId);
@@ -655,7 +659,7 @@ export function reducerCore(state: GameState, action: Action): GameState {
 	const dispatched = dispatch(ready, action);
 	const validated = applyAndValidate(state, action, dispatched);
 	// Drenar a stack ao fim de cada action — toda cadeia de efeitos resolve aqui.
-	return prunePreparedAbilities(drainStack(validated), state);
+	return recordAlphaAction(state, prunePreparedAbilities(drainStack(validated), state), action);
 }
 
 export function reducer(state: GameState, action: Action): GameState {
