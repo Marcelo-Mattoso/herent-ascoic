@@ -2,6 +2,9 @@
   "id": "fornalha-sombria",
   "name": "A Fornalha Sombria",
   "version": "1.0.0",
+  "openings": {
+    "boss_azhakar": "abertura/intro.json"
+  },
   "cards": [
     {
       "id": "hero_eternal_rest_cleric",

@@ -1,6 +1,9 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { translate } from "@/i18n";
+import type { Action } from "@/core/actions/types";
+import { getOpeningForBoss, type StoryOpeningData } from "@/ui/openings/registry";
+import { StoryOpening } from "@/ui/screens/StoryOpening";
 import { exportJournalJson } from "@/core/journal/gameJournal";
 import type { PlayerView } from "@/core/projection/playerView";
 import { Defeat } from "@/ui/screens/Defeat";
@@ -14,6 +17,7 @@ import { Victory } from "@/ui/screens/Victory";
 import { endScreenPreviewView } from "@/ui/screens/endScreenPreview";
 import { useGameStore } from "@/ui/store/gameStore";
 import { sfxPlayer } from "@/ui/audio/sfxPlayer";
+import { getMusicPlayer } from "@/ui/globalMenu/musicPlayer";
 import { GlobalMenu } from "@/ui/globalMenu/GlobalMenu";
 import { SupportAction } from "@/ui/support/SupportAction";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
@@ -42,13 +46,15 @@ import {
 	observeInventoryUi,
 	recordCombatAttackInput,
 	reconcileTutorial,
+	resumeTutorial,
 	selectTutorialHeroes,
 	skipTutorialObservation,
 	startTutorial,
 	type TutorialSession,
 } from "@/ui/tutorials/session";
 
-type UiScreen = "menu" | "setup" | "tutorialHub";
+type UiScreen = "menu" | "setup" | "tutorialHub" | "opening";
+type StartGameAction = Extract<Action, { type: "START_GAME" }>;
 
 function rewardSignature(view: PlayerView): string {
 	const items = [
@@ -65,6 +71,8 @@ function App() {
 	const cardImageUrls = useCardImages();
 	const status = view.status;
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");
+	const [opening, setOpening] = useState<StoryOpeningData | null>(null);
+	const pendingStart = useRef<StartGameAction | null>(null);
 	const [tutorial, setTutorial] = useState<TutorialSession | null>(null);
 	const [lastTutorialAudit, setLastTutorialAudit] =
 		useState<TutorialAuditSnapshot | null>(null);
@@ -137,6 +145,7 @@ function App() {
 		if (
 			!tutorial ||
 			tutorial.moduleId !== "archive-two" ||
+			tutorial.reviewStepIndex !== undefined ||
 			currentTutorialStep(tutorial).id !== "combat-drag" ||
 			tutorial.checkpointReady ||
 			!tutorial.firstAttack ||
@@ -155,6 +164,7 @@ function App() {
 		if (
 			!tutorial ||
 			tutorial.moduleId !== "archive-three" ||
+			tutorial.reviewStepIndex !== undefined ||
 			currentTutorialStep(tutorial).id !== "item-states" ||
 			tutorial.inventoryCheckpointReady ||
 			preparedCheckpoints.current.has(`${tutorial.id}:items`)
@@ -184,7 +194,7 @@ function App() {
 	}, [tutorial, journal, loadTrainingState]);
 
 	useEffect(() => {
-		if (!tutorial || tutorial.moduleId !== "archive-four") return;
+		if (!tutorial || tutorial.moduleId !== "archive-four" || tutorial.reviewStepIndex !== undefined) return;
 		const step = currentTutorialStep(tutorial).id;
 		const checkpoint = step === "fury-prepare" ? "barbarian" : step === "hero-power" ? "warrior" : null;
 		if (!checkpoint || tutorial.abilityCheckpoint === checkpoint || preparedCheckpoints.current.has(`${tutorial.id}:${checkpoint}`)) return;
@@ -268,6 +278,31 @@ function App() {
 		setUiScreen(destination);
 	}
 
+	function handleSetupStart(action: StartGameAction) {
+		if (pendingStart.current) return;
+		const selectedOpening = action.payload.bossCardId
+			? getOpeningForBoss(action.payload.bossCardId)
+			: null;
+		if (!selectedOpening) {
+			dispatch(action);
+			return;
+		}
+		pendingStart.current = action;
+		if (selectedOpening.musicFileName) getMusicPlayer().enterOpening(selectedOpening.musicFileName);
+		setOpening(selectedOpening);
+		setUiScreen("opening");
+	}
+
+	function completeOpening() {
+		const action = pendingStart.current;
+		if (!action) return;
+		pendingStart.current = null;
+		if (opening?.musicFileName) getMusicPlayer().leaveOpening(opening.musicFileName);
+		setOpening(null);
+		setUiScreen("menu");
+		dispatch(action);
+	}
+
 	const entry = tutorial ? getTutorialModule(tutorial.moduleId).entry : null;
 	const nextModule = tutorial
 		? TUTORIAL_MODULES[
@@ -308,7 +343,7 @@ function App() {
 				tutorialCombatMode={tutorial?.moduleId === "archive-two"}
 				tutorialCombatMethod={
 					tutorial?.moduleId === "archive-two" &&
-					currentTutorialStep(tutorial).id === "combat-drag"
+					tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "combat-drag"
 						? tutorial.combatInput
 						: null
 				}
@@ -324,13 +359,16 @@ function App() {
 					)
 				}
 				tutorialRevealEnabled={
-					tutorial ? currentTutorialStep(tutorial).id === "reveal" : false
+					tutorial ? tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "reveal" : false
 				}
 			/>
 		);
+	} else if (uiScreen === "opening" && opening) {
+		screen = <StoryOpening opening={opening} onComplete={completeOpening} />;
 	} else if (uiScreen === "setup") {
 		screen = (
 			<Setup
+				onStart={tutorial ? undefined : handleSetupStart}
 				onBack={() =>
 					tutorial ? leaveTutorial("tutorialHub") : setUiScreen("menu")
 				}
@@ -389,7 +427,7 @@ function App() {
 					nextModule={nextModule?.available ? nextModule : undefined}
 					onNext={() => nextModule && startModule(nextModule.id)}
 					onContinue={() => {
-						if (currentTutorialStep(tutorial).id === "combat-action") {
+						if (tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "combat-action") {
 							if (status === "DIRECT_DAMAGE" || status === "CHECK_COMBAT_END") dispatch({ type: "CHECK_COMBAT_END" });
 						}
 						else
@@ -407,6 +445,7 @@ function App() {
 							current ? backTutorialObservation(current) : current,
 						)
 					}
+					onResume={() => setTutorial((current) => current ? resumeTutorial(current) : current)}
 					onClose={() => leaveTutorial("menu")}
 					onRepeat={() => startModule(tutorial.moduleId)}
 					onHub={() => leaveTutorial("tutorialHub")}
