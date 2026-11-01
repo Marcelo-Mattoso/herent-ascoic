@@ -37,6 +37,12 @@ for (const entry of config.expansions) {
 		assert.equal(intro.type, "prologue");
 		assert.match(intro.id, /^[a-z0-9]+(?:-[a-z0-9]+)*$/);
 		hasTranslation(intro.titleKey);
+		if (intro.audio !== undefined) {
+			assert.equal(typeof intro.audio, "object");
+			assert.match(intro.audio.fileName, /^[\\p{L}\\p{N} _-]+\\.mp3$/u);
+			assert.ok(fs.existsSync(path.resolve("sounds/music", intro.audio.fileName)), `Música ausente: ${intro.audio.fileName}`);
+			for (const key of ["title", "play", "pause", "volume", "blocked", "unavailable"]) hasTranslation(`game:opening.audio.${key}`);
+		}
 		assert.ok(Array.isArray(intro.scenes) && intro.scenes.length > 0);
 		const ids = new Set();
 		for (const scene of intro.scenes) {
