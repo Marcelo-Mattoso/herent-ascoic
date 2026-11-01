@@ -625,6 +625,9 @@
       "dynamic024": "Exit tutorials",
       "dynamic025": "Next point",
       "dynamic026": "Finish combat",
+      "reviewNotice": "Review: you have already reached this step. Going back does not undo actions or let you reuse abilities.",
+      "reviewNext": "Next explanation",
+      "reviewResume": "Resume where I left off",
       "retryCombat": "The creature survived. Select your hero and attack again to finish the fight."
     }
   }

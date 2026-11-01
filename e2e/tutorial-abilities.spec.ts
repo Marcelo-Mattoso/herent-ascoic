@@ -47,6 +47,10 @@ async function completeAbilities(page: Page, viewportName: string) {
 	await expect(page.getByRole("status", { name: "Estado real das habilidades" })).toContainText("limite atingido");
 	await page.getByRole("button", { name: "Continuar" }).click();
 	await expect(page.locator('[data-tutorial-step="abilities-completion"]')).toBeVisible();
+	await page.getByRole("button", { name: "← Voltar" }).click();
+	await expect(page.locator('[data-tutorial-step="ability-limits"][data-tutorial-review="true"]')).toBeVisible();
+	await page.getByRole("button", { name: "Retomar de onde parei" }).click();
+	await expect(page.locator('[data-tutorial-step="abilities-completion"]')).toBeVisible();
 	await page.screenshot({ path: `test-results/tutorial-abilities-completion-${viewportName}.png` });
 	await page.getByRole("button", { name: "Jogar agora" }).click();
 	await expect(page.getByRole("heading", { name: "Preparar Expedição" })).toBeVisible();
@@ -82,4 +86,34 @@ test("Arquivo IV: entrada e spotlight nas cinco geometrias", async ({ page }) =>
 		await page.screenshot({ path: `test-results/tutorial-abilities-${viewport.width}x${viewport.height}.png` });
 		await page.getByRole("button", { name: "Sair do tutorial" }).click();
 	}
+});
+
+
+test("Arquivo IV: rever habilidades já usadas sem reiniciar o combate", async ({ page }) => {
+	await openAbilities(page);
+	await openHeroPanel(page);
+	await page.locator('[data-tutorial-anchor="hero.portrait"]').click();
+	await expect(page.locator('[data-tutorial-step="prey-mark"]')).toBeVisible();
+	await page.getByRole("dialog", { name: "Ravik Dorn" }).getByRole("button", { name: "Fechar arte" }).last().click();
+	await page.locator('[data-tutorial-anchor="hero.skill-action"]').click();
+	await page.locator(".skill-target-option").first().click();
+	await expect(page.locator('[data-tutorial-step="hunter-attack"]')).toBeVisible();
+	await page.getByRole("button", { name: "← Voltar" }).click();
+	await expect(page.locator('[data-tutorial-step="prey-mark"][data-tutorial-review="true"]')).toBeVisible();
+	await expect(page.getByRole("note")).toContainText("não desfaz");
+	await page.getByRole("button", { name: "← Voltar" }).click();
+	await expect(page.locator('[data-tutorial-step="abilities-inspect"][data-tutorial-review="true"]')).toBeVisible();
+	await page.getByRole("button", { name: "Retomar de onde parei" }).click();
+	await expect(page.locator('[data-tutorial-step="hunter-attack"]')).toBeVisible();
+	await page.getByRole("button", { name: "← Voltar" }).click();
+	await page.getByRole("button", { name: "← Voltar" }).click();
+	await expect(page.locator('[data-tutorial-step="abilities-inspect"][data-tutorial-review="true"]')).toBeVisible();
+	await page.getByRole("button", { name: "Próxima explicação" }).click();
+	await expect(page.locator('[data-tutorial-step="prey-mark"][data-tutorial-review="true"]')).toBeVisible();
+	await page.getByRole("button", { name: "Retomar de onde parei" }).click();
+	await expect(page.locator('[data-tutorial-step="hunter-attack"]')).toBeVisible();
+	await expect(page.locator('[data-tutorial-review="true"]')).toHaveCount(0);
+	await page.locator('[data-tutorial-anchor="combat.enemy"]').first().click();
+	await page.locator(".game-dice-roll-action").click();
+	await expect(page.locator('[data-tutorial-step="fury-prepare"]')).toBeVisible();
 });
