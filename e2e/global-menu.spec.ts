@@ -88,6 +88,7 @@ test("uma reprodução segue ativa ao passar por menu, preparação e tabuleiro"
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
@@ -189,6 +190,7 @@ test("troca para inglês mantém tabuleiro e música, e persiste a escolha", asy
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await page.getByLabel("Idioma da interface").selectOption("en-US");

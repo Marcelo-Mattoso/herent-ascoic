@@ -24,6 +24,8 @@ test("uma partida iniciada chega ao tabuleiro de exploração", async ({ page })
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await expect(page.locator(".story-opening")).toBeVisible();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 
 	await expect(page.locator(".game-board-root")).toBeVisible({
 		timeout: 10_000,

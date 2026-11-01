@@ -12,6 +12,7 @@ for (const viewport of [
 		await page.getByRole("button", { name: "JOGAR" }).click();
 		await page.locator(".setup-hero-select-button").first().click();
 		await page.getByRole("button", { name: "Iniciar partida" }).click();
+		await page.getByRole("button", { name: "Pular abertura" }).click();
 		await expect(page.locator(".game-board-root")).toBeVisible();
 		await page
 			.getByRole("button", { name: /Diário/ })

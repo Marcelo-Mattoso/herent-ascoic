@@ -1,4 +1,29 @@
 {
+  "opening": {
+    "controls": {
+      "skip": "Saltar introducción",
+      "previous": "Volver",
+      "next": "Siguiente",
+      "start": "Comenzar aventura"
+    },
+    "loading": "Cargando imagen...",
+    "imageUnavailable": "Imagen no disponible",
+    "fornalha": {
+      "title": "La Forja Sombría",
+      "scene01": "Yo lo registré. Antes de las Grietas, antes de las cenizas, existía un mundo que creía conocer los límites de la propia realidad.",
+      "scene02": "Pero más allá de la materia existía el Velo. Un lugar donde la vida, la muerte y los recuerdos no conocían fronteras.",
+      "scene03": "Hasta que alguien deseó algo más que comprender. Un ser de poder inimaginable intentó dominar aquello que jamás podría poseer.",
+      "scene04": "La prisión no resistió. El Velo cautivo rompió sus cadenas, y la tierra de Alexya fue desgarrada desde dentro.",
+      "scene05": "Nació la Grieta Madre. Y de aquella explosión, fragmentos contaminados se dispersaron por el mundo, dejando cicatrices que nunca se cerraron.",
+      "scene06": "Uno de esos fragmentos alcanzó la mayor forja jamás construida. Un lugar de reyes, artesanos, reliquias y antiguas prisiones.",
+      "scene07": "Allí reposaba Azhakar, el guardián ancestral. El poder del Velo lo alcanzó... y el fuego de la Forja jamás volvió a extinguirse.",
+      "scene08": "Y ahora, tras eras de silencio, las profundidades han vuelto a moverse. La Forja despierta. Y con ella, todo aquello que debería haber permanecido enterrado.",
+      "scene09": "En la superficie, las personas desaparecen. La tierra tiembla. Las criaturas emergen de la oscuridad. Y los vivos comienzan a pagar por una tragedia que no provocaron.",
+      "scene10": "Desde tierras lejanas, ocho caminos convergen. Ninguno de ellos fue elegido por los dioses. Cada uno carga con sus propias pérdidas, promesas y razones para luchar.",
+      "scene11": "En las profundidades aguardan monstruos, caminos olvidados y artefactos perdidos. Más allá, un dragón cuyo poder amenaza con consumir todo cuanto vive en la superficie.",
+      "scene12": "Lo que ocurrió, yo lo registré. Lo que suceda ahora... pertenece a quienes decidan entrar."
+    }
+  },
   "components": {
     "actionButton": {},
     "alphaLogPanel": {

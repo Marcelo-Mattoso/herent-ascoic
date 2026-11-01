@@ -29,6 +29,7 @@ const musicAssetDir = path.join(musicPublicDir, "assets");
 const musicManifestPath = path.join(musicPublicDir, "manifest.json");
 const localeSourceDir = path.resolve(__dirname, "locales");
 const expansionSourceDir = path.resolve(__dirname, "assets/expansions");
+const openingAssetDir = path.resolve(__dirname, "public/generated/openings/assets");
 const localePublicDir = path.resolve(__dirname, "public/generated/locales");
 const musicMimeTypes: Record<string, string> = {
 	".mp3": "audio/mpeg",
@@ -127,7 +128,7 @@ function toPublicUrl(
 	relativeFile: string,
 ) {
 	return `/generated/${kind}/assets/${relativeFile
-		.split(path.sep)
+		.split(/[\\/]/)
 		.map((part) => encodeURIComponent(part))
 		.join("/")}`;
 }
@@ -298,6 +299,35 @@ function writeCardImageManifest() {
 	fs.writeFileSync(cardManifestPath, JSON.stringify(manifest, null, 2) + "\n");
 }
 
+function writeOpeningAssets() {
+	const config = JSON.parse(fs.readFileSync(path.join(expansionSourceDir, "config.json"), "utf8")) as {
+		expansions: Array<{ id: string; enabled: boolean }>;
+	};
+	const copied: string[] = [];
+	for (const entry of config.expansions) {
+		if (!entry.enabled) continue;
+		const packageDir = path.join(expansionSourceDir, entry.id);
+		const pack = JSON.parse(fs.readFileSync(path.join(packageDir, "expansion.json"), "utf8")) as {
+			openings?: Record<string, string>;
+		};
+		for (const relativeIntro of Object.values(pack.openings ?? {})) {
+			if (!/^abertura\/[a-z0-9-]+\.json$/.test(relativeIntro)) continue;
+			const intro = JSON.parse(fs.readFileSync(path.join(packageDir, ...relativeIntro.split("/")), "utf8")) as {
+				scenes?: Array<{ image?: string }>;
+			};
+			for (const scene of intro.scenes ?? []) {
+				if (!scene.image || !/^images\/[a-zA-Z0-9-]+\.webp$/.test(scene.image)) continue;
+				const relative = [entry.id, "abertura", scene.image].join("/");
+				const source = path.join(packageDir, "abertura", ...scene.image.split("/"));
+				const target = path.join(openingAssetDir, ...relative.split("/"));
+				copyImageAsset(source, target);
+				copied.push(relative);
+			}
+		}
+	}
+	pruneGeneratedImages(openingAssetDir, copied);
+}
+
 function writeUiAssetManifest() {
 	fs.mkdirSync(uiAssetDir, { recursive: true });
 
@@ -406,6 +436,7 @@ function writeAssetManifests() {
 	writeBoardManifest();
 	writeBackCardManifest();
 	writeCardImageManifest();
+	writeOpeningAssets();
 	writeUiAssetManifest();
 	writeMusicManifest();
 	writeSfxAssets();
@@ -425,6 +456,7 @@ function watchAssetSources(server: ViteDevServer) {
 		const resolvedFilePath = path.resolve(filePath);
 		if (resolvedFilePath.startsWith(expansionSourceDir + path.sep)) {
 			writeCardImageManifest();
+			writeOpeningAssets();
 			return;
 		}
 		if (resolvedFilePath.startsWith(musicSourceDir)) {
