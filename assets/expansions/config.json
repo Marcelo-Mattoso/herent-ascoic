@@ -1,0 +1,9 @@
+{
+  "version": 1,
+  "expansions": [
+    {
+      "id": "fornalha-sombria",
+      "enabled": true
+    }
+  ]
+}
