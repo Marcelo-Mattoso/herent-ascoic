@@ -50,13 +50,19 @@ describe("sessão do Arquivo I", () => {
 		).toBe("game-observation");
 	});
 
-	it("permite voltar somente entre observações seguras, sem desfazer o motor", () => {
+	it("permite reler uma interação sem mudar a seleção ou desfazer o motor", () => {
 		let session = startTutorial("archive-one");
 		session = continueTutorial(session);
 		session = selectTutorialHeroes(session, ["hero_crimson_barbarian"]);
-		expect(backTutorialObservation(session)).toBe(session);
-		session = selectTutorialHeroes(session, []);
-		expect(continueTutorial(session)).toBe(session);
+		const originalEvents = session.events;
+		session = backTutorialObservation(session);
+		expect(currentTutorialStep(session).id).toBe("choose-hero");
+		expect(session.reviewStepIndex).toBe(1);
+		expect(selectTutorialHeroes(session, [])).toBe(session);
+		session = continueTutorial(session);
+		expect(currentTutorialStep(session).id).toBe("group");
+		expect(session.selectedHeroCardIds).toEqual(["hero_crimson_barbarian"]);
+		expect(session.events).toBe(originalEvents);
 		session = finishTutorial(session);
 		expect(session.status).toBe("cancelled");
 		expect(session.events.at(-1)?.type).toBe("abandoned");
