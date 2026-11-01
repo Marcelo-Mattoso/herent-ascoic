@@ -1,5 +1,6 @@
 import { parse } from "yaml";
 import localeText from "../../data/cards.locale.pt-BR.yaml?raw";
+import { EXPANSION_CARD_LOCALE } from "./expansionCards";
 
 export interface CardLocale {
 	readonly name: string;
@@ -17,10 +18,15 @@ export const CARD_LOCALE: Readonly<Record<string, CardLocale>> = parse(
 	localeText,
 ) as Record<string, CardLocale>;
 
+const ALL_CARD_LOCALE: Readonly<Record<string, CardLocale>> = {
+	...CARD_LOCALE,
+	...EXPANSION_CARD_LOCALE,
+};
+
 export function getCardLocale(cardId: string): CardLocale | undefined {
-	return CARD_LOCALE[cardId];
+	return ALL_CARD_LOCALE[cardId];
 }
 
 export function getCardName(cardId: string): string {
-	return CARD_LOCALE[cardId]?.name ?? cardId;
+	return ALL_CARD_LOCALE[cardId]?.name ?? cardId;
 }

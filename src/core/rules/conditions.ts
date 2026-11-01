@@ -1,5 +1,5 @@
 // Verificação de condição de acesso ao boss.
-// A condição é declarada no campo accessCondition da carta do boss em cards.yaml.
+// A condição é declarada no campo accessCondition da carta do chefe.
 
 import { getCardById } from "../data/cards";
 import type { GameState } from "../state/gameState";
@@ -29,7 +29,7 @@ export function checkBossCondition(
 	const card = getCardById(bossCardId);
 	if (!card || card.type !== "boss") return false;
 
-	const raw = (card as unknown as Record<string, unknown>).accessCondition;
+	const raw = card.accessCondition;
 	if (!raw || typeof raw !== "object") return false;
 
 	return evaluateCondition(raw as AccessCondition, state);

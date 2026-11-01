@@ -42,9 +42,9 @@ export function getCardImageUrl(
 	};
 	const localizedName = getCardName(cardId);
 	return (
+		cardImageUrls[cardId] ??
 		cardImageUrls[normalizeCardImageKey(localizedName)] ??
 		(aliases[cardId] ? cardImageUrls[aliases[cardId]] : undefined) ??
-		cardImageUrls[normalizeCardImageKey(cardId)] ??
-		cardImageUrls[cardId]
+		cardImageUrls[normalizeCardImageKey(cardId)]
 	);
 }

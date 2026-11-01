@@ -144,6 +144,16 @@ export interface BossCard {
 	readonly lifeBase: number;
 	readonly hitBonusBase: number;
 	readonly damage: number;
+	readonly diceCount?: number;
+	readonly awakeningLifePerLevel?: number;
+	readonly awakeningHitBonusPerLevel?: number;
+	readonly artifactLifeRule?: {
+		readonly requiredArtifacts: number;
+		readonly lifeBase: number;
+	};
+	readonly accessCondition?:
+		| { readonly type: "group_artifacts_gte"; readonly value: number }
+		| { readonly type: "always" };
 	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
 	readonly grants?: readonly AbilityGrant[];

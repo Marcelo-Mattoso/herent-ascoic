@@ -56,10 +56,7 @@ export function Setup({
 	const heroIconUrl = getUiAssetUrl(uiAssets, "hero-icon");
 	const monsterIconUrl = getUiAssetUrl(uiAssets, "monster-icon");
 	const diceIconUrl = getUiAssetUrl(uiAssets, "dice-token");
-	const bossImageUrl =
-		cardImageUrls.azhakardragaofornalhasombria ??
-		cardImageUrls.Azhakardragaofornalhasombria ??
-		(boss ? getCardImageUrl(cardImageUrls, boss.id) : undefined);
+	const bossImageUrl = boss ? getCardImageUrl(cardImageUrls, boss.id) : undefined;
 
 	const style = {
 		"--setup-bg": backgroundUrl ? `url("${backgroundUrl}")` : undefined,

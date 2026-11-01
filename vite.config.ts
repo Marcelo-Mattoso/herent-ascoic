@@ -253,7 +253,10 @@ function writeCardImageManifest() {
 		copyImageAsset(filePath, targetPath);
 
 		return {
-			id: toBoardId(relativeFile),
+			// Expansões usam <id-da-carta>.webp dentro da pasta da expansão.
+			id: relativeFile.includes(path.sep)
+				? path.basename(relativeFile, path.extname(relativeFile))
+				: toBoardId(relativeFile),
 			fileName: relativeFile.split(path.sep).join("/"),
 			url: toPublicUrl("cards", relativeFile),
 			sizeBytes: fs.statSync(filePath).size,

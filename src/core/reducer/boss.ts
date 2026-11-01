@@ -2,7 +2,8 @@
 // Implementa: Trono Vivo (reduz 1 no primeiro dano do turno), Ascensão Final (+2 hit abaixo da metade).
 
 import { getCardName } from "../data/cardLocale";
-import { getBoss } from "../data/cards";
+import { getBoss, getCardById } from "../data/cards";
+import { cardSkills } from "../skills/lookup";
 import { syncEntityFromEnemy } from "../ecs/sync";
 import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
 import { calculateTotal, resolveAttack } from "../rules/combat";
@@ -114,13 +115,14 @@ function formatDamageBonusNote(
 // ─── REVEAL_BOSS ─────────────────────────────────────────────────────────────
 
 export function handleRevealBoss(state: GameState): GameState {
-	const bossCard = getBoss();
-	if (!bossCard) return log(state, "[ERRO] Carta do boss não encontrada.");
+	const bossCard = state.bossCardId ? getCardById(state.bossCardId) : getBoss();
+	if (!bossCard || bossCard.type !== "boss") return log(state, "[ERRO] Carta do boss não encontrada.");
 
-	const has3Artifacts = state.groupArtifacts.length >= 3;
-	const lifeBase = has3Artifacts ? 16 : bossCard.lifeBase;
-	const totalLife = lifeBase + state.despertar * 2;
-	const totalHitBonus = bossCard.hitBonusBase + state.despertar;
+	const artifactRule = bossCard.artifactLifeRule;
+	const lifeBase = artifactRule && state.groupArtifacts.length >= artifactRule.requiredArtifacts
+		? artifactRule.lifeBase : bossCard.lifeBase;
+	const totalLife = lifeBase + state.despertar * (bossCard.awakeningLifePerLevel ?? 0);
+	const totalHitBonus = bossCard.hitBonusBase + state.despertar * (bossCard.awakeningHitBonusPerLevel ?? 0);
 
 	const bossEnemy: EnemyState = {
 		id: "boss",
@@ -129,7 +131,7 @@ export function handleRevealBoss(state: GameState): GameState {
 		currentLife: totalLife,
 		damage: bossCard.damage,
 		hitBonus: totalHitBonus,
-		dice: 3, // Azhakar usa 3 dados
+		dice: bossCard.diceCount ?? 3,
 		tokens: {},
 		conditions: [],
 		firstDamageTakenThisTurn: false,
@@ -161,12 +163,14 @@ export function handleBossResolveAttack(state: GameState): GameState {
 	const boss = state.activeEnemies.find((e) => e.id === "boss");
 	if (!hero || !boss) return state;
 
-	// Ascensão Final: +2 hit bonus quando boss está na metade da vida ou menos
+	// Efeitos especiais dependem das habilidades globais referenciadas pela carta.
 	let enemyTotal = roll.enemyTotal;
 	let next = state;
-	if (boss.currentLife <= Math.floor(boss.maxLife / 2)) {
-		enemyTotal += 2;
-		next = log(next, "Ascensão Final ativada: +2 no acerto do boss.");
+	const ascension = cardSkills(boss.cardId).find(({ ref }) => ref.skillId === "boss_skill_azhakar_ascension");
+	if (ascension && boss.currentLife <= Math.floor(boss.maxLife / 2)) {
+		const bonus = Number(ascension.ref.params?.value ?? 2);
+		enemyTotal += bonus;
+		next = log(next, `Ascensão Final ativada: +${bonus} no acerto do boss.`);
 	}
 
 	const heroDamage = effectiveHeroDamage(
@@ -185,15 +189,17 @@ export function handleBossResolveAttack(state: GameState): GameState {
 	if (result.enemyDamageTaken > 0) {
 		let dmg = result.enemyDamageTaken;
 		// Trono Vivo: reduz o primeiro dano do turno em 1
-		if (!state.combat.bossFirstDamageReduced) {
-			dmg = Math.max(0, dmg - 1);
+		const throne = cardSkills(boss.cardId).find(({ ref }) => ref.skillId === "boss_skill_living_ash_throne");
+		if (throne && !state.combat.bossFirstDamageReduced) {
+			const reduction = Number(throne.ref.params?.value ?? 1);
+			dmg = Math.max(0, dmg - reduction);
 			next = {
 				...next,
 				combat: next.combat
 					? { ...next.combat, bossFirstDamageReduced: true }
 					: null,
 			};
-			next = log(next, "Trono Vivo: dano ao boss reduzido em 1.");
+			next = log(next, `Trono Vivo: dano ao boss reduzido em ${reduction}.`);
 		}
 		const newLife = Math.max(0, boss.currentLife - dmg);
 		next = applyDamage(next, "boss", dmg, {
@@ -259,8 +265,10 @@ function checkBossEnd(state: GameState): GameState {
 	// da Forja). A janela genérica ignora boss_skill para não somá-las em dobro.
 	let afterRoundEnd = state;
 
-	if (afterRoundEnd.despertar >= 4) {
-		afterRoundEnd = discardFromDungeonDeck(afterRoundEnd, 1);
+	const pressure = boss && cardSkills(boss.cardId).find(({ ref }) => ref.skillId === "boss_skill_dark_forge_pressure");
+	if (pressure && afterRoundEnd.despertar >= 4) {
+		const amount = Number(pressure.ref.params?.value ?? 1);
+		afterRoundEnd = discardFromDungeonDeck(afterRoundEnd, amount);
 		if (
 			afterRoundEnd.pendingTriggerInterrupt ||
 			afterRoundEnd.pendingSkillChoice ||
@@ -270,7 +278,7 @@ function checkBossEnd(state: GameState): GameState {
 		}
 		afterRoundEnd = log(
 			afterRoundEnd,
-			"Pressão da Forja Sombria: 1 carta de masmorra descartada.",
+			`Pressão da Forja Sombria: ${amount} carta(s) de masmorra descartada(s).`,
 		);
 	}
 

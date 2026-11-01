@@ -1,9 +1,11 @@
-// Loader do catálogo de cartas. Lê YAML estático, valida minimamente e expõe helpers tipados.
+// Loader do catálogo de cartas habilitado: YAML legado e JSON das expansões.
 // Nenhuma lógica de jogo aqui — apenas acesso e filtragem do catálogo.
 
 import { parse } from "yaml";
 import cardsYaml from "../../data/cards.yaml?raw";
 import { getCardLocale } from "./cardLocale";
+import { EXPANSIONS } from "@/config/expansions";
+import { EXPANSION_CARDS } from "./expansionCards";
 import type {
 	AnyCard,
 	ArtifactCard,
@@ -49,9 +51,13 @@ function validateRaw(raw: unknown[]): AnyCard[] {
 	return raw as AnyCard[];
 }
 
-const ALL_CARDS: readonly AnyCard[] = validateRaw(
-	parse(cardsYaml) as unknown[],
-);
+const legacyCards = EXPANSIONS.some((entry) => entry.enabled && "legacy" in entry && entry.legacy)
+	? validateRaw(parse(cardsYaml) as unknown[])
+	: [];
+const ALL_CARDS: readonly AnyCard[] = [...legacyCards, ...EXPANSION_CARDS];
+if (new Set(ALL_CARDS.map((card) => card.id)).size !== ALL_CARDS.length) {
+	throw new Error("IDs de carta duplicados entre expansões habilitadas");
+}
 
 const _byId = new Map<string, AnyCard>(ALL_CARDS.map((c) => [c.id, c]));
 
@@ -111,12 +117,13 @@ export function getBoss(): BossCard | undefined {
 
 // Retorna a quantidade de dados que uma carta usa no índice de cor informado.
 // Criaturas/heróis usam diceByColor[colorIndex].
-// O boss usa string descritiva — extraímos o número por regex (ex.: "3 dados vermelhos" → 3).
+// O chefe usa diceCount; a descrição antiga fica como fallback.
 export function getDiceCount(
 	card: HeroCard | CreatureCard | SubbossCard | BossCard,
 	colorIndex: 0 | 1 | 2 | 3 | 4,
 ): number {
 	if (card.type === "boss") {
+		if (card.diceCount !== undefined) return card.diceCount;
 		const dice = getCardLocale(card.id)?.dice ?? "";
 		const match = dice.match(/\d+/);
 		return match ? Number.parseInt(match[0], 10) : 1;

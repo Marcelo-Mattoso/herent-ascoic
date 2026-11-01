@@ -4,11 +4,13 @@ import { getSkillLocale, type SkillLocaleEntry } from "@/core/data/skillLocale";
 
 export function displayCardName(id: string): string {
 	const field = getCardLocale(id)?.characterName ? "characterName" : "name";
-	return translate(`cards:${id}.${field}`);
+	const key = `cards:${id}.${field}`;
+	return i18n.exists(key) ? translate(key) : (getCardLocale(id)?.[field] ?? id);
 }
 
 export function displayCardClass(id: string): string {
-	return translate(`cards:${id}.name`);
+	const key = `cards:${id}.name`;
+	return i18n.exists(key) ? translate(key) : (getCardLocale(id)?.name ?? id);
 }
 
 export function displayHeroIdentity(id: string): string {

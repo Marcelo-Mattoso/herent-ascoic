@@ -2,6 +2,8 @@
 
 Jogo de cartas cooperativo de exploração de masmorra. **A Fornalha Sombria** é a primeira expansão, não um subtítulo do jogo. Escolha heróis, revele salas, enfrente criaturas, organize espólios e tente derrotar Azhakar. A Alpha Web é estática, sem cadastro ou backend; a partida ainda não é salva ao recarregar.
 
+Para adicionar uma expansão com JSON de cartas e imagens, siga [o guia de expansões](src/data/expansions/README.md). As habilidades continuam no catálogo global.
+
 ## Tecnologia
 
 React 19, TypeScript 6, Vite 8, Tailwind CSS 4 e Elf para a interface; Vitest, Playwright e Biome para validação. O motor de regras fica em `src/core/`, os catálogos em `src/data/` e a UI em `src/ui/`.

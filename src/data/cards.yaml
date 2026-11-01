@@ -1034,6 +1034,12 @@
   lifeBase: 20
   hitBonusBase: 12
   damage: 6
+  diceCount: 3
+  awakeningLifePerLevel: 2
+  awakeningHitBonusPerLevel: 1
+  artifactLifeRule:
+    requiredArtifacts: 3
+    lifeBase: 16
   accessCondition:
     type: group_artifacts_gte
     value: 2
