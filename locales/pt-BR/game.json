@@ -1,4 +1,37 @@
 {
+  "opening": {
+    "audio": {
+      "title": "Antes das Cinzas",
+      "play": "Reproduzir",
+      "pause": "Pausar",
+      "volume": "Volume",
+      "blocked": "Clique em Reproduzir para ouvir a música.",
+      "unavailable": "Música da abertura indisponível."
+    },
+    "controls": {
+      "skip": "Pular abertura",
+      "previous": "Voltar",
+      "next": "Próximo",
+      "start": "Iniciar aventura"
+    },
+    "loading": "Carregando imagem...",
+    "imageUnavailable": "Imagem indisponível",
+    "fornalha": {
+      "title": "A Fornalha Sombria",
+      "scene01": "Eu registrei. Antes das Fendas, antes das cinzas, havia um mundo que acreditava conhecer os limites da própria realidade.",
+      "scene02": "Mas além da matéria existia o Véu. Um lugar onde a vida, a morte e as lembranças não conheciam fronteiras.",
+      "scene03": "Até que alguém desejou mais do que compreender. Um ser de poder inimaginável tentou dominar aquilo que jamais poderia possuir.",
+      "scene04": "A prisão não resistiu. O Véu aprisionado rompeu suas correntes, e a terra de Alexya foi rasgada de dentro para fora.",
+      "scene05": "Nasceu a Fenda-Mãe. E de sua explosão, fragmentos contaminados espalharam-se pelo mundo, deixando cicatrizes que nunca se fecharam.",
+      "scene06": "Um desses fragmentos alcançou a maior forja já construída. Um lugar de reis, artesãos, relíquias e antigas prisões.",
+      "scene07": "Ali repousava Azhakar, o guardião ancestral. O poder do Véu o alcançou... e o fogo da Fornalha jamais voltou a morrer.",
+      "scene08": "E agora, depois de eras de silêncio, as profundezas voltaram a se mover. A Fornalha desperta. E com ela, tudo aquilo que deveria permanecer enterrado.",
+      "scene09": "Na superfície, pessoas desaparecem. O chão treme. Criaturas emergem da escuridão. E os vivos começam a pagar por uma tragédia que não provocaram.",
+      "scene10": "De terras distantes, oito caminhos se aproximam. Nenhum deles foi escolhido pelos deuses. Cada um carrega suas próprias perdas, promessas e razões para lutar.",
+      "scene11": "Nas profundezas aguardam monstros, caminhos esquecidos e artefatos perdidos. Além deles, um dragão cujo poder ameaça consumir tudo que vive acima.",
+      "scene12": "O que aconteceu, eu registrei. O que acontecerá agora... pertence àqueles que escolherem entrar."
+    }
+  },
   "components": {
     "actionButton": {},
     "alphaLogPanel": {
@@ -594,6 +627,9 @@
       "dynamic024": "Sair dos tutoriais",
       "dynamic025": "Próximo ponto",
       "dynamic026": "Concluir combate",
+      "reviewNotice": "Revisão: esta explicação já foi apresentada. Voltar não desfaz ações nem permite usar novamente habilidades já executadas.",
+      "reviewNext": "Próxima explicação",
+      "reviewResume": "Retomar de onde parei",
       "retryCombat": "A criatura resistiu. Selecione o herói e ataque novamente para concluir o combate."
     }
   }

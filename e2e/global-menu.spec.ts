@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("menu publica as cinco faixas e o manual, com controles acessíveis", async ({ page }) => {
+test("menu publica somente as faixas comuns e oferece a trilha exclusiva da abertura", async ({ page }) => {
 	page.on("response", (response) => {
 		if (response.url().includes("/generated/music/manifest.json"))
 			console.log("[e2e music] browser manifest status", response.status(), response.url());
@@ -34,8 +34,10 @@ test("menu publica as cinco faixas e o manual, com controles acessíveis", async
 	await expect(downloadManual).toHaveAttribute("download", "ascensao-heroica-manual.pdf");
 	const manifest = await page.request.get("/generated/music/manifest.json");
 	expect(manifest.ok()).toBe(true);
-	const tracks = (await manifest.json()).tracks as { url: string }[];
-	expect(tracks).toHaveLength(5);
+	const tracks = (await manifest.json()).tracks as { url: string; fileName: string }[];
+	const normalTracks = tracks.filter((track) => track.fileName !== "Antes das Cinzas.mp3");
+	expect(normalTracks).toHaveLength(5);
+	expect(tracks.some((track) => track.fileName === "Antes das Cinzas.mp3")).toBe(true);
 	for (const track of tracks) {
 		const response = await page.request.get(track.url);
 		expect(response.ok()).toBe(true);
@@ -88,10 +90,11 @@ test("uma reprodução segue ativa ao passar por menu, preparação e tabuleiro"
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
-	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(1);
+	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(3);
 	await page.getByRole("button", { name: "Stop" }).click();
 });
 
@@ -189,13 +192,14 @@ test("troca para inglês mantém tabuleiro e música, e persiste a escolha", asy
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await page.getByLabel("Idioma da interface").selectOption("en-US");
 	await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
 	await expect(page.getByRole("heading", { name: "Music" })).toBeVisible();
 	await expect(page.locator(".game-board-root")).toBeVisible();
-	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(1);
+	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(3);
 	await expect(page.locator(".global-menu__status")).toHaveText("Playing");
 	await expect.poll(() => page.evaluate(() => localStorage.getItem("ascensao-heroica:locale:v1"))).toBe("en-US");
 	await page.reload();

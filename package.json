@@ -5,7 +5,8 @@
 	"type": "module",
 	"scripts": {
 		"dev": "vite",
-		"build": "npm run i18n:validate && tsc -b && vite build",
+		"build": "npm run i18n:validate && npm run opening:validate && tsc -b && vite build",
+		"opening:validate": "node scripts/validate-openings.mjs",
 		"verify:build": "node scripts/verify-pages-build.mjs",
 		"preview": "vite preview",
 		"test": "vitest run",

@@ -18,6 +18,7 @@ export interface ExpansionPackage {
 	readonly id: string;
 	readonly name: string;
 	readonly version: string;
+	readonly openings?: Readonly<Record<string, string>>;
 	readonly cards: readonly ExpansionCard[];
 	readonly skills?: readonly SkillDefinition[];
 	readonly abilities?: readonly AbilityDefinition[];
