@@ -45,3 +45,26 @@ test("menu inicial oferece jogar e o PDF de regras em tela pequena", async ({ pa
 	expect(manual.ok()).toBe(true);
 	expect((await manual.body()).subarray(0, 4).toString()).toBe("%PDF");
 });
+
+test("a abertura controla trilha exclusiva sem exibir a faixa na playlist comum", async ({ page }) => {
+	await page.goto("/");
+	await page.getByRole("button", { name: "JOGAR" }).click();
+	await page.locator(".setup-hero-select-button").first().click();
+	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await expect(page.locator(".story-opening__audio")).toBeVisible();
+	await expect(page.locator(".story-opening__audio input[type=range]")).toHaveValue("50");
+	await expect(page.locator(".story-opening__audio button")).toHaveText(/Reproduzir|Pausar/);
+	await page.locator(".story-opening__audio input[type=range]").fill("35");
+	await expect(page.locator(".story-opening__audio input[type=range]")).toHaveValue("35");
+
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.locator(".global-menu__track")).toHaveText("Antes das Cinzas");
+	await expect(page.locator(".global-menu__controls button").first()).toBeDisabled();
+	await page.locator(".global-menu__heading button").click();
+
+	await page.getByRole("button", { name: "Pular abertura" }).click();
+	await expect(page.locator(".game-board-root")).toBeVisible();
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.locator(".global-menu__track")).not.toHaveText("Antes das Cinzas");
+	await expect(page.locator(".global-menu__track")).not.toContainText("Antes das Cinzas");
+});
