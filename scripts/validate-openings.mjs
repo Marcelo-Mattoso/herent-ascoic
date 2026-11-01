@@ -39,7 +39,7 @@ for (const entry of config.expansions) {
 		hasTranslation(intro.titleKey);
 		if (intro.audio !== undefined) {
 			assert.equal(typeof intro.audio, "object");
-			assert.match(intro.audio.fileName, /^[\\p{L}\\p{N} _-]+\\.mp3$/u);
+			assert.match(intro.audio.fileName, /^[\p{L}\p{N} _-]+\.mp3$/u);
 			assert.ok(fs.existsSync(path.resolve("sounds/music", intro.audio.fileName)), `Música ausente: ${intro.audio.fileName}`);
 			for (const key of ["title", "play", "pause", "volume", "blocked", "unavailable"]) hasTranslation(`game:opening.audio.${key}`);
 		}
