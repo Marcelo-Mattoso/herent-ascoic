@@ -29,6 +29,7 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 			await page.screenshot({ path: "test-results/layout-setup-portrait.png" });
 		await page.locator(".setup-hero-select-button").first().click();
 		await page.getByRole("button", { name: "Iniciar partida" }).click();
+		await page.getByRole("button", { name: "Pular abertura" }).click();
 		await expect(page.locator(".game-board-root")).toBeVisible();
 		await page.evaluate(() => {
 			(

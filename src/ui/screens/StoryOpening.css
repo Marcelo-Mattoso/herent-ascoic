@@ -1,0 +1,124 @@
+.story-opening {
+	box-sizing: border-box;
+	width: 100%;
+	height: 100dvh;
+	padding: clamp(0.75rem, 2vw, 1.5rem);
+	background: radial-gradient(ellipse at 50% 35%, #30221e 0%, #100f13 70%);
+	color: #f5ede2;
+	overflow: hidden;
+}
+
+.story-opening__shell {
+	width: min(100%, 1440px);
+	height: 100%;
+	margin: auto;
+	display: flex;
+	flex-direction: column;
+	gap: clamp(0.5rem, 1.5vh, 1rem);
+}
+
+.story-opening__header, .story-opening__controls, .story-opening__steps {
+	display: flex;
+	align-items: center;
+	justify-content: space-between;
+	gap: 0.75rem;
+}
+
+.story-opening__header h1 {
+	margin: 0;
+	font-size: clamp(1.1rem, 2.5vw, 1.8rem);
+	letter-spacing: 0.05em;
+}
+
+.story-opening__progress { color: #d8b99a; white-space: nowrap; font-variant-numeric: tabular-nums; }
+
+.story-opening__audio {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.9rem;
+	min-height: 2.7rem;
+	color: #e8d6c4;
+	font-size: 0.875rem;
+}
+.story-opening__audio-title { font-weight: 600; white-space: nowrap; }
+.story-opening__audio button {
+	padding: 0.35rem 0.8rem;
+	min-height: 2.2rem;
+	border: 1px solid #87644c;
+	border-radius: 0.2rem;
+	background: #291e1b;
+	color: inherit;
+	cursor: pointer;
+}
+.story-opening__audio button:disabled { opacity: 0.5; cursor: default; }
+.story-opening__audio button:focus-visible, .story-opening__volume input:focus-visible { outline: 3px solid #f2be78; outline-offset: 3px; }
+.story-opening__volume { display: inline-flex; align-items: center; gap: 0.55rem; white-space: nowrap; }
+.story-opening__volume input { width: min(23vw, 130px); accent-color: #c28c5e; }
+
+.story-opening__stage {
+	position: relative;
+	flex: 1 1 auto;
+	min-height: 0;
+	display: grid;
+	place-items: center;
+	overflow: hidden;
+	background: #111014;
+	border: 1px solid #6a4a37;
+	box-shadow: 0 12px 38px #0009;
+}
+
+.story-opening__image { width: 100%; height: 100%; object-fit: contain; animation: opening-fade var(--opening-transition) ease-out both; }
+.story-opening__image--slow-zoom-in { animation: opening-fade var(--opening-transition) ease-out both, opening-zoom-in 14s ease-out both; }
+.story-opening__image--slow-zoom-out { animation: opening-fade var(--opening-transition) ease-out both, opening-zoom-out 14s ease-out both; }
+.story-opening__image--slow-pan-left { animation: opening-fade var(--opening-transition) ease-out both, opening-pan-left 14s ease-out both; }
+.story-opening__image--slow-pan-right { animation: opening-fade var(--opening-transition) ease-out both, opening-pan-right 14s ease-out both; }
+
+.story-opening__placeholder { margin: 0; padding: 1rem; color: #c7b7ac; text-align: center; }
+
+.story-opening__narration {
+	box-sizing: border-box;
+	width: 100%;
+	min-height: 4.8rem;
+	margin: 0;
+	padding: 0.9rem 1.15rem;
+	border-left: 3px solid #a56f4a;
+	background: #1b1719;
+	font-size: clamp(0.95rem, 1.45vw, 1.15rem);
+	line-height: 1.5;
+	text-wrap: pretty;
+}
+
+.story-opening__controls button {
+	min-height: 2.8rem;
+	padding: 0.55rem 1rem;
+	border: 1px solid #87644c;
+	border-radius: 0.2rem;
+	background: #291e1b;
+	color: inherit;
+	cursor: pointer;
+}
+
+.story-opening__controls button:hover { background: #3a2922; }
+.story-opening__controls button:focus-visible { outline: 3px solid #f2be78; outline-offset: 3px; }
+.story-opening__controls .story-opening__primary { background: #70401f; border-color: #ce8b52; font-weight: 700; }
+.story-opening__steps { margin-left: auto; }
+
+@keyframes opening-fade { from { opacity: 0; } to { opacity: 1; } }
+@keyframes opening-zoom-in { from { transform: scale(1); } to { transform: scale(1.035); } }
+@keyframes opening-zoom-out { from { transform: scale(1.035); } to { transform: scale(1); } }
+@keyframes opening-pan-left { from { transform: translateX(0.8%); } to { transform: translateX(-0.8%); } }
+@keyframes opening-pan-right { from { transform: translateX(-0.8%); } to { transform: translateX(0.8%); } }
+
+@media (max-width: 600px) {
+	.story-opening__audio { font-size: 0.8rem; gap: 0.35rem 0.6rem; }
+	.story-opening__audio-title { display: none; }
+	.story-opening__volume input { width: min(24vw, 110px); }
+	.story-opening__narration { min-height: 6.5rem; padding: 0.7rem 0.85rem; }
+	.story-opening__controls button { padding-inline: 0.7rem; }
+}
+
+@media (prefers-reduced-motion: reduce) {
+	.story-opening__image, .story-opening__image--slow-zoom-in, .story-opening__image--slow-zoom-out,
+	.story-opening__image--slow-pan-left, .story-opening__image--slow-pan-right { animation: none; }
+}

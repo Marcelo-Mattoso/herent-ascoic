@@ -36,6 +36,24 @@ for (const kind of ["boards", "backcards", "cards", "ui"]) {
 	}
 }
 
+const expansionConfig = JSON.parse(fs.readFileSync(path.resolve("assets/expansions/config.json"), "utf8"));
+let openingScenes = 0;
+for (const entry of expansionConfig.expansions) {
+	if (!entry.enabled) continue;
+	const packageDir = path.resolve("assets/expansions", entry.id);
+	const pack = JSON.parse(fs.readFileSync(path.join(packageDir, "expansion.json"), "utf8"));
+	for (const introPath of Object.values(pack.openings ?? {})) {
+		const intro = JSON.parse(fs.readFileSync(path.join(packageDir, introPath), "utf8"));
+		for (const scene of intro.scenes) {
+			const relative = `${entry.id}/abertura/${scene.image}`;
+			const built = fs.readFileSync(file(`generated/openings/assets/${relative}`));
+			const source = fs.readFileSync(path.join(packageDir, "abertura", scene.image));
+			assert.deepEqual(built, source, `Imagem da abertura divergente: ${relative}`);
+			openingScenes++;
+		}
+	}
+}
+
 const musicManifest = JSON.parse(fs.readFileSync(file("generated/music/manifest.json"), "utf8"));
 assert.equal(musicManifest.version, 1);
 assert.equal(musicManifest.source, "sounds/music");
@@ -98,4 +116,4 @@ for (const locale of localeManifest.locales) {
 }
 
 assert.equal(fs.readFileSync(file("rules/ascensao-heroica-manual.pdf")).subarray(0, 4).toString(), "%PDF");
-console.log(`Build íntegro para base ${base}; ${musicManifest.tracks.length} músicas, ${(musicBytes / 1024 / 1024).toFixed(2)} MiB de áudio; ${publishedCodes.length} idioma(s) publicado(s)`);
+console.log(`Build íntegro para base ${base}; ${openingScenes} cenas de abertura; ${musicManifest.tracks.length} músicas, ${(musicBytes / 1024 / 1024).toFixed(2)} MiB de áudio; ${publishedCodes.length} idioma(s) publicado(s)`);
