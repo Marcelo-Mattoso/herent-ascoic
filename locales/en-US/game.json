@@ -1,5 +1,13 @@
 {
   "opening": {
+    "audio": {
+      "title": "Before the Ashes",
+      "play": "Play",
+      "pause": "Pause",
+      "volume": "Volume",
+      "blocked": "Select Play to hear the music.",
+      "unavailable": "Opening music unavailable."
+    },
     "controls": {
       "skip": "Skip intro",
       "previous": "Back",
