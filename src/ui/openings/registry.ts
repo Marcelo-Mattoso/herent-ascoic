@@ -15,6 +15,7 @@ export interface StoryOpeningData {
 	readonly id: string;
 	readonly bossId: string;
 	readonly titleKey: string;
+	readonly musicFileName: string | null;
 	readonly scenes: readonly OpeningScene[];
 }
 
@@ -38,6 +39,9 @@ export function parseOpening(raw: unknown, expansionId: string, bossId: string):
 		typeof raw.id !== "string" || !/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(raw.id) ||
 		typeof raw.titleKey !== "string" || !/^game:[A-Za-z0-9.]+$/.test(raw.titleKey) ||
 		!Array.isArray(raw.scenes) || raw.scenes.length === 0) return null;
+	const musicFileName = isRecord(raw.audio) && typeof raw.audio.fileName === "string" && /^[\p{L}\p{N} _-]+\.mp3$/u.test(raw.audio.fileName)
+		? raw.audio.fileName : null;
+	if (raw.audio !== undefined && !musicFileName) return null;
 	const ids = new Set<string>();
 	const scenes: OpeningScene[] = [];
 	for (const scene of raw.scenes) {
@@ -56,7 +60,7 @@ export function parseOpening(raw: unknown, expansionId: string, bossId: string):
 			transitionMs: scene.transitionMs,
 		});
 	}
-	return { id: raw.id, bossId, titleKey: raw.titleKey, scenes };
+	return { id: raw.id, bossId, titleKey: raw.titleKey, musicFileName, scenes };
 }
 
 export function getOpeningForBoss(bossId: string): StoryOpeningData | null {
@@ -68,4 +72,18 @@ export function getOpeningForBoss(bossId: string): StoryOpeningData | null {
 		return parseOpening(discovered[file], expansion.id, bossId);
 	}
 	return null;
+}
+
+/** Music assigned to an opening must never enter the ordinary site playlist. */
+export function getOpeningMusicFileNames(): readonly string[] {
+	const files = new Set<string>();
+	for (const expansion of getEnabledExpansions()) {
+		for (const [bossId, relativePath] of Object.entries(expansion.openings ?? {})) {
+			if (!/^abertura\/[a-z0-9-]+\.json$/.test(relativePath)) continue;
+			const file = `../../../assets/expansions/${expansion.id}/${relativePath}`;
+			const opening = parseOpening(discovered[file], expansion.id, bossId);
+			if (opening?.musicFileName) files.add(opening.musicFileName);
+		}
+	}
+	return [...files];
 }
