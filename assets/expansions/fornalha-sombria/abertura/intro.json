@@ -5,6 +5,7 @@
   "bossId": "boss_azhakar",
   "type": "prologue",
   "titleKey": "game:opening.fornalha.title",
+  "audio": { "fileName": "Antes das Cinzas.mp3" },
   "scenes": [
     { "id": "scene-01", "image": "images/scene-01.webp", "textKey": "game:opening.fornalha.scene01", "effect": "slow-zoom-in", "transition": "fade", "transitionMs": 450 },
     { "id": "scene-02", "image": "images/scene-02.webp", "textKey": "game:opening.fornalha.scene02", "effect": "slow-pan-right", "transition": "fade", "transitionMs": 450 },

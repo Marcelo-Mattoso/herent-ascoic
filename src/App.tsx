@@ -17,6 +17,7 @@ import { Victory } from "@/ui/screens/Victory";
 import { endScreenPreviewView } from "@/ui/screens/endScreenPreview";
 import { useGameStore } from "@/ui/store/gameStore";
 import { sfxPlayer } from "@/ui/audio/sfxPlayer";
+import { getMusicPlayer } from "@/ui/globalMenu/musicPlayer";
 import { GlobalMenu } from "@/ui/globalMenu/GlobalMenu";
 import { SupportAction } from "@/ui/support/SupportAction";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
@@ -284,6 +285,7 @@ function App() {
 			return;
 		}
 		pendingStart.current = action;
+		if (selectedOpening.musicFileName) getMusicPlayer().enterOpening(selectedOpening.musicFileName);
 		setOpening(selectedOpening);
 		setUiScreen("opening");
 	}
@@ -292,6 +294,7 @@ function App() {
 		const action = pendingStart.current;
 		if (!action) return;
 		pendingStart.current = null;
+		if (opening?.musicFileName) getMusicPlayer().leaveOpening(opening.musicFileName);
 		setOpening(null);
 		setUiScreen("menu");
 		dispatch(action);

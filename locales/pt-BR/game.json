@@ -1,5 +1,13 @@
 {
   "opening": {
+    "audio": {
+      "title": "Antes das Cinzas",
+      "play": "Reproduzir",
+      "pause": "Pausar",
+      "volume": "Volume",
+      "blocked": "Clique em Reproduzir para ouvir a música.",
+      "unavailable": "Música da abertura indisponível."
+    },
     "controls": {
       "skip": "Pular abertura",
       "previous": "Voltar",

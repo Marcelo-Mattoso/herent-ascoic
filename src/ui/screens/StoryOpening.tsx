@@ -1,6 +1,7 @@
-import { type CSSProperties, useEffect, useRef, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { translate } from "@/i18n";
+import { getMusicPlayer } from "@/ui/globalMenu/musicPlayer";
 import type { StoryOpeningData } from "@/ui/openings/registry";
 import "./StoryOpening.css";
 
@@ -11,12 +12,19 @@ interface StoryOpeningProps {
 
 export function StoryOpening({ opening, onComplete }: StoryOpeningProps) {
 	useTranslation();
+	const [player] = useState(getMusicPlayer);
+	const music = useSyncExternalStore(player.subscribe, player.getSnapshot);
 	const [index, setIndex] = useState(0);
 	const [imageState, setImageState] = useState<{ url: string; status: "loading" | "ready" | "error" }>({ url: "", status: "loading" });
 	const completed = useRef(false);
 	const scene = opening.scenes[index]!;
 	const last = index === opening.scenes.length - 1;
 	const imageStatus = imageState.url === scene.imageUrl ? imageState.status : "loading";
+	const musicPlaying = music.opening === opening.musicFileName && (music.status === "loading" || music.status === "playing");
+
+	useEffect(() => () => {
+		if (opening.musicFileName) player.leaveOpening(opening.musicFileName);
+	}, [opening.musicFileName, player]);
 
 	useEffect(() => {
 		let active = true;
@@ -51,6 +59,17 @@ export function StoryOpening({ opening, onComplete }: StoryOpeningProps) {
 						{index + 1} / {opening.scenes.length}
 					</span>
 				</header>
+				{opening.musicFileName && <div className="story-opening__audio" role="group" aria-label={translate("game:opening.audio.title")}>
+					<span className="story-opening__audio-title">{translate("game:opening.audio.title")}</span>
+					<button type="button" disabled={!music.openingAvailable} onClick={() => musicPlaying ? player.pauseOpening() : void player.playOpening()}>
+						{translate(musicPlaying ? "game:opening.audio.pause" : "game:opening.audio.play")}
+					</button>
+					<label className="story-opening__volume">{translate("game:opening.audio.volume")} {music.volume}%
+						<input type="range" min="0" max="100" value={music.volume} aria-label={translate("game:opening.audio.volume")} onChange={(event) => player.setVolume(Number(event.target.value))}/>
+					</label>
+					{music.opening === opening.musicFileName && music.status === "blocked" && <span role="status">{translate("game:opening.audio.blocked")}</span>}
+					{!music.openingAvailable && <span role="status">{translate("game:opening.audio.unavailable")}</span>}
+				</div>}
 				<div className="story-opening__stage" style={{ "--opening-transition": `${scene.transitionMs}ms` } as CSSProperties}>
 					{imageStatus === "ready" ? (
 						<img key={scene.id} className={`story-opening__image story-opening__image--${scene.effect}`} src={scene.imageUrl} alt="" />
