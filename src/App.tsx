@@ -1,6 +1,9 @@
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { translate } from "@/i18n";
+import type { Action } from "@/core/actions/types";
+import { getOpeningForBoss, type StoryOpeningData } from "@/ui/openings/registry";
+import { StoryOpening } from "@/ui/screens/StoryOpening";
 import { exportJournalJson } from "@/core/journal/gameJournal";
 import type { PlayerView } from "@/core/projection/playerView";
 import { Defeat } from "@/ui/screens/Defeat";
@@ -48,7 +51,8 @@ import {
 	type TutorialSession,
 } from "@/ui/tutorials/session";
 
-type UiScreen = "menu" | "setup" | "tutorialHub";
+type UiScreen = "menu" | "setup" | "tutorialHub" | "opening";
+type StartGameAction = Extract<Action, { type: "START_GAME" }>;
 
 function rewardSignature(view: PlayerView): string {
 	const items = [
@@ -65,6 +69,8 @@ function App() {
 	const cardImageUrls = useCardImages();
 	const status = view.status;
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");
+	const [opening, setOpening] = useState<StoryOpeningData | null>(null);
+	const pendingStart = useRef<StartGameAction | null>(null);
 	const [tutorial, setTutorial] = useState<TutorialSession | null>(null);
 	const [lastTutorialAudit, setLastTutorialAudit] =
 		useState<TutorialAuditSnapshot | null>(null);
@@ -268,6 +274,29 @@ function App() {
 		setUiScreen(destination);
 	}
 
+	function handleSetupStart(action: StartGameAction) {
+		if (pendingStart.current) return;
+		const selectedOpening = action.payload.bossCardId
+			? getOpeningForBoss(action.payload.bossCardId)
+			: null;
+		if (!selectedOpening) {
+			dispatch(action);
+			return;
+		}
+		pendingStart.current = action;
+		setOpening(selectedOpening);
+		setUiScreen("opening");
+	}
+
+	function completeOpening() {
+		const action = pendingStart.current;
+		if (!action) return;
+		pendingStart.current = null;
+		setOpening(null);
+		setUiScreen("menu");
+		dispatch(action);
+	}
+
 	const entry = tutorial ? getTutorialModule(tutorial.moduleId).entry : null;
 	const nextModule = tutorial
 		? TUTORIAL_MODULES[
@@ -328,9 +357,12 @@ function App() {
 				}
 			/>
 		);
+	} else if (uiScreen === "opening" && opening) {
+		screen = <StoryOpening opening={opening} onComplete={completeOpening} />;
 	} else if (uiScreen === "setup") {
 		screen = (
 			<Setup
+				onStart={tutorial ? undefined : handleSetupStart}
 				onBack={() =>
 					tutorial ? leaveTutorial("tutorialHub") : setUiScreen("menu")
 				}

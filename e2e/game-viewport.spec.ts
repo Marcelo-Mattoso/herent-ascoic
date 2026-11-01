@@ -103,6 +103,9 @@ async function setEncounter(
 }
 
 async function expectBoardFits(page: Page) {
+	await expect.poll(() => page.locator(".game-board-content").evaluate((element) =>
+		element.getAnimations().filter((animation) => animation instanceof CSSAnimation && animation.animationName === "game-board-impact-shake").every((animation) => animation.playState !== "running"),
+	)).toBe(true);
 	const geometry = await page.evaluate(() => {
 		const root = document.documentElement;
 		const surface = document.querySelector(

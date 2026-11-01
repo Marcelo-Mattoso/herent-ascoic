@@ -1,0 +1,22 @@
+{
+  "id": "intro-fornalha-sombria",
+  "version": 1,
+  "expansionId": "fornalha-sombria",
+  "bossId": "boss_azhakar",
+  "type": "prologue",
+  "titleKey": "game:opening.fornalha.title",
+  "scenes": [
+    { "id": "scene-01", "image": "images/scene-01.webp", "textKey": "game:opening.fornalha.scene01", "effect": "slow-zoom-in", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-02", "image": "images/scene-02.webp", "textKey": "game:opening.fornalha.scene02", "effect": "slow-pan-right", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-03", "image": "images/scene-03.webp", "textKey": "game:opening.fornalha.scene03", "effect": "slow-zoom-in", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-04", "image": "images/scene-04.webp", "textKey": "game:opening.fornalha.scene04", "effect": "slow-pan-left", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-05", "image": "images/scene-05.webp", "textKey": "game:opening.fornalha.scene05", "effect": "slow-zoom-out", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-06", "image": "images/scene-06.webp", "textKey": "game:opening.fornalha.scene06", "effect": "slow-pan-right", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-07", "image": "images/scene-07.webp", "textKey": "game:opening.fornalha.scene07", "effect": "slow-zoom-in", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-08", "image": "images/scene-08.webp", "textKey": "game:opening.fornalha.scene08", "effect": "slow-pan-left", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-09", "image": "images/scene-09.webp", "textKey": "game:opening.fornalha.scene09", "effect": "slow-zoom-in", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-10", "image": "images/scene-10.webp", "textKey": "game:opening.fornalha.scene10", "effect": "slow-pan-right", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-11", "image": "images/scene-11.webp", "textKey": "game:opening.fornalha.scene11", "effect": "slow-zoom-in", "transition": "fade", "transitionMs": 450 },
+    { "id": "scene-12", "image": "images/scene-12.webp", "textKey": "game:opening.fornalha.scene12", "effect": "slow-zoom-out", "transition": "fade", "transitionMs": 450 }
+  ]
+}

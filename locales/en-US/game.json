@@ -1,4 +1,29 @@
 {
+  "opening": {
+    "controls": {
+      "skip": "Skip intro",
+      "previous": "Back",
+      "next": "Next",
+      "start": "Begin adventure"
+    },
+    "loading": "Loading image...",
+    "imageUnavailable": "Image unavailable",
+    "fornalha": {
+      "title": "The Dark Forge",
+      "scene01": "I recorded it. Before the Rifts, before the ashes, there was a world that believed it knew the limits of reality itself.",
+      "scene02": "But beyond the material world lay the Veil. A place where life, death, and memory knew no boundaries.",
+      "scene03": "Until someone desired more than understanding. A being of unimaginable power tried to control what could never truly be possessed.",
+      "scene04": "The prison could not endure. The captive Veil shattered its chains, and the land of Alexya was torn apart from within.",
+      "scene05": "The Mother Rift was born. From that explosion, corrupted fragments spread across the world, leaving scars that would never heal.",
+      "scene06": "One of those fragments reached the greatest forge ever built. A place of kings, craftsmen, relics, and ancient prisons.",
+      "scene07": "There rested Azhakar, the ancient guardian. The power of the Veil reached him... and the fires of the Forge never died again.",
+      "scene08": "And now, after ages of silence, the depths have begun to stir once more. The Forge awakens. And with it, everything that should have remained buried.",
+      "scene09": "On the surface, people vanish. The ground trembles. Creatures emerge from the darkness. And the living begin to pay for a tragedy they did not cause.",
+      "scene10": "From distant lands, eight paths converge. None of them were chosen by the gods. Each carries their own losses, promises, and reasons to fight.",
+      "scene11": "In the depths await monsters, forgotten paths, and lost artifacts. Beyond them lies a dragon whose power threatens to consume everything living above.",
+      "scene12": "What happened, I recorded. What happens next... belongs to those who choose to enter."
+    }
+  },
   "components": {
     "actionButton": {},
     "alphaLogPanel": {

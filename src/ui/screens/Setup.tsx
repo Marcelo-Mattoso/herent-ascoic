@@ -1,5 +1,6 @@
 import { translate } from "@/i18n";
-import { type CSSProperties, type ReactNode, useState } from "react";
+import { type CSSProperties, type ReactNode, useRef, useState } from "react";
+import type { Action } from "@/core/actions/types";
 import { createPortal } from "react-dom";
 import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getBoss, getHeroes } from "@/core/data/cards";
@@ -19,6 +20,7 @@ const SHOW_GAME_MODE_SELECTOR = false;
 
 interface SetupProps {
 	onBack: () => void;
+	onStart?: (action: Extract<Action, { type: "START_GAME" }>) => void;
 	tutorialSeed?: number;
 	deferInitialRoomReveal?: boolean;
 	onSelectionChange?: (ids: string[]) => void;
@@ -26,6 +28,7 @@ interface SetupProps {
 
 export function Setup({
 	onBack,
+	onStart,
 	tutorialSeed,
 	deferInitialRoomReveal = false,
 	onSelectionChange,
@@ -36,6 +39,7 @@ export function Setup({
 	const [selectedHeroes, setSelectedHeroes] = useState<string[]>([]);
 	const [heroInfoId, setHeroInfoId] = useState<string | null>(null);
 	const [bossInfoOpen, setBossInfoOpen] = useState(false);
+	const starting = useRef(false);
 	const cardImageUrls = useCardImages();
 	const uiAssets = useUiAssets();
 
@@ -82,20 +86,24 @@ export function Setup({
 	}
 
 	function startGame() {
-		if (!canStart) return;
+		if (!canStart || starting.current) return;
+		starting.current = true;
 		const seedValues = new Uint32Array(1);
 		globalThis.crypto?.getRandomValues?.(seedValues);
 		const seed = tutorialSeed ?? (seedValues[0] || Date.now());
-		dispatch({
+		const action = {
 			type: "START_GAME",
 			payload: {
 				heroCardIds: selectedHeroes,
+				...(boss ? { bossCardId: boss.id } : {}),
 				difficulty,
 				mode,
 				seed,
 				...(deferInitialRoomReveal ? { deferInitialRoomReveal: true } : {}),
 			},
-		});
+		} as const;
+		if (onStart) onStart(action);
+		else dispatch(action);
 	}
 
 	return (

@@ -53,6 +53,8 @@ async function completeAbilities(page: Page, viewportName: string) {
 	await expect(page.locator('[data-tutorial-step]')).toHaveCount(0);
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await expect(page.locator(".story-opening")).toBeVisible();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await expect(page.locator(".game-influence-panel")).not.toContainText("Encanto da Chama Baixa");
 }
