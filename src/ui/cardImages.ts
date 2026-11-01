@@ -10,7 +10,7 @@ export interface CardImage {
 
 export interface CardImageManifest {
 	readonly version: 1;
-	readonly source: "imagedata/cards";
+	readonly source: "assets/expansions";
 	readonly cards: readonly CardImage[];
 }
 
@@ -20,7 +20,7 @@ export const CARD_IMAGE_MANIFEST_URL = publicAssetUrl("generated/cards/manifest.
 
 export const EMPTY_CARD_IMAGE_MANIFEST: CardImageManifest = {
 	version: 1,
-	source: "imagedata/cards",
+	source: "assets/expansions",
 	cards: [],
 };
 
@@ -42,6 +42,8 @@ export function getCardImageUrl(
 	};
 	const localizedName = getCardName(cardId);
 	return (
+		cardImageUrls[cardId] ??
+		cardImageUrls[normalizeCardImageKey(cardId)] ??
 		cardImageUrls[normalizeCardImageKey(localizedName)] ??
 		(aliases[cardId] ? cardImageUrls[aliases[cardId]] : undefined) ??
 		cardImageUrls[normalizeCardImageKey(cardId)] ??

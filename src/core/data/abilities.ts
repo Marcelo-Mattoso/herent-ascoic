@@ -9,6 +9,7 @@ import type {
 import { getAllCards, getCardById } from "./cards";
 import type { AnyCard, SkillRef } from "./cardTypes";
 import { SKILLS } from "./skills";
+import { getEnabledExpansions } from "./expansions";
 import type { SkillDefinition } from "./skillTypes";
 import { AbilityCatalogSchema, AbilityGrantSchema } from "../skills/dsl/schema";
 import { isVoluntaryTrigger } from "../skills/activationMode";
@@ -104,8 +105,11 @@ function legacyGrant(
 const legacyById = new Map(
 	SKILLS.abilities.map((definition) => [definition.id, legacyAbility(definition)]),
 );
+const additionalAbilities = getEnabledExpansions().flatMap((pack) => pack.abilities ?? []);
 const authoredById = new Map(
-	authoredCatalog.abilities.map((ability) => [ability.id, ability]),
+	[...authoredCatalog.abilities, ...additionalAbilities].map(
+		(ability) => [ability.id, ability],
+	),
 );
 
 /**

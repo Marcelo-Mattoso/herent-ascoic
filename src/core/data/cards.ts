@@ -1,9 +1,7 @@
-// Loader do catálogo de cartas. Lê YAML estático, valida minimamente e expõe helpers tipados.
-// Nenhuma lógica de jogo aqui — apenas acesso e filtragem do catálogo.
+// Catálogo combinado das expansões habilitadas. Mantém a API atual do motor.
 
-import { parse } from "yaml";
-import cardsYaml from "../../data/cards.yaml?raw";
 import { getCardLocale } from "./cardLocale";
+import { getEnabledExpansionCards } from "./expansions";
 import type {
 	AnyCard,
 	ArtifactCard,
@@ -16,46 +14,8 @@ import type {
 	SubbossRoomCard,
 } from "./cardTypes";
 
-const LOCALE_FIELDS = [
-	"name",
-	"style",
-	"tags",
-	"condition",
-	"victory",
-	"dice",
-	"artifactBonus",
-	"dungeonScaling",
-] as const;
-
-// Valida que cada entrada tem apenas campos mecânicos (sem contaminação pt-BR)
-function validateRaw(raw: unknown[]): AnyCard[] {
-	for (const entry of raw) {
-		if (
-			typeof entry !== "object" ||
-			entry === null ||
-			!("id" in entry) ||
-			!("type" in entry)
-		) {
-			throw new Error(`Carta inválida no YAML: ${JSON.stringify(entry)}`);
-		}
-		for (const field of LOCALE_FIELDS) {
-			if (field in (entry as object)) {
-				throw new Error(
-					`Campo de locale "${field}" encontrado em carta mecânica: ${(entry as { id: string }).id}`,
-				);
-			}
-		}
-	}
-	return raw as AnyCard[];
-}
-
-const ALL_CARDS: readonly AnyCard[] = validateRaw(
-	parse(cardsYaml) as unknown[],
-);
-
-const _byId = new Map<string, AnyCard>(ALL_CARDS.map((c) => [c.id, c]));
-
-// --- Acesso geral ---
+const ALL_CARDS: readonly AnyCard[] = getEnabledExpansionCards();
+const byId = new Map<string, AnyCard>(ALL_CARDS.map((card) => [card.id, card]));
 
 export function getAllCards(): readonly AnyCard[] {
 	return ALL_CARDS;
@@ -65,15 +25,13 @@ export function getCardsByType<T extends AnyCard["type"]>(
 	type: T,
 ): Extract<AnyCard, { type: T }>[] {
 	return ALL_CARDS.filter(
-		(c): c is Extract<AnyCard, { type: T }> => c.type === type,
+		(card): card is Extract<AnyCard, { type: T }> => card.type === type,
 	);
 }
 
 export function getCardById(id: string): AnyCard | undefined {
-	return _byId.get(id);
+	return byId.get(id);
 }
-
-// --- Helpers por tipo ---
 
 export function getHeroes(): HeroCard[] {
 	return getCardsByType("hero");
@@ -107,11 +65,6 @@ export function getBoss(): BossCard | undefined {
 	return getCardsByType("boss")[0];
 }
 
-// --- Utilitário de dados ---
-
-// Retorna a quantidade de dados que uma carta usa no índice de cor informado.
-// Criaturas/heróis usam diceByColor[colorIndex].
-// O boss usa string descritiva — extraímos o número por regex (ex.: "3 dados vermelhos" → 3).
 export function getDiceCount(
 	card: HeroCard | CreatureCard | SubbossCard | BossCard,
 	colorIndex: 0 | 1 | 2 | 3 | 4,

@@ -1,0 +1,2424 @@
+{
+  "id": "fornalha-sombria",
+  "name": "A Fornalha Sombria",
+  "version": "1.0.0",
+  "cards": [
+    {
+      "id": "hero_eternal_rest_cleric",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        9,
+        11,
+        13,
+        15,
+        17
+      ],
+      "hitBonus": [
+        4,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 2,
+      "skills": [
+        {
+          "skillId": "skill_last_light_healing",
+          "params": {
+            "value": 3
+          }
+        },
+        {
+          "skillId": "power_greater_last_light_miracle"
+        }
+      ],
+      "name": "Clérigo do Descanso Eterno",
+      "image": "images/ClérigodoDescansoEterno.webp"
+    },
+    {
+      "id": "hero_broken_bastion_warrior",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        11,
+        13,
+        15,
+        17,
+        19
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 3,
+      "skills": [
+        {
+          "skillId": "skill_bastion_guard",
+          "params": {
+            "value": 3
+          }
+        },
+        {
+          "skillId": "power_unbreakable_bastion_guard",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Guerreiro do Bastião Partido",
+      "image": "images/GuerreirodoBastiãoPartido.webp"
+    },
+    {
+      "id": "hero_rift_rogue",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "hitBonus": [
+        4,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 2,
+      "skills": [
+        {
+          "skillId": "skill_preserved_path"
+        },
+        {
+          "skillId": "power_restored_path",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Ladino das Fendas",
+      "image": "images/LadinodasFendas.webp"
+    },
+    {
+      "id": "hero_crimson_rune_mage",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        8,
+        9,
+        11,
+        13,
+        15
+      ],
+      "hitBonus": [
+        4,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 2,
+      "skills": [
+        {
+          "skillId": "skill_rift_rune",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "power_supreme_rift_rune"
+        }
+      ],
+      "name": "Mago das Runas Rubras",
+      "image": "images/MagodasRunasRubras.webp"
+    },
+    {
+      "id": "hero_crimson_barbarian",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        12,
+        14,
+        16,
+        18,
+        20
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 4,
+      "skills": [
+        {
+          "skillId": "skill_crimson_fury",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "power_mighty_crimson_fury"
+        }
+      ],
+      "name": "Bárbaro Rubro",
+      "image": "images/BárbaroRubro.webp"
+    },
+    {
+      "id": "hero_last_light_paladin",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        10,
+        12,
+        14,
+        16,
+        18
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 3,
+      "skills": [
+        {
+          "skillId": "skill_final_dawn_light",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "power_last_light_oath"
+        }
+      ],
+      "name": "Paladino da Última Luz",
+      "image": "images/PaladinodaÚltimaLuz.webp"
+    },
+    {
+      "id": "hero_deep_veil_necromancer",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "hitBonus": [
+        4,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 2,
+      "skills": [
+        {
+          "skillId": "skill_return_rite",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "power_deep_veil_echo"
+        }
+      ],
+      "name": "Necromante do Véu Profundo",
+      "image": "images/NecromantedoVéuProfundo.webp"
+    },
+    {
+      "id": "hero_broken_veil_hunter",
+      "type": "hero",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        9,
+        10,
+        12,
+        14,
+        16
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 3,
+      "skills": [
+        {
+          "skillId": "skill_prey_mark",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "power_hunter_execution"
+        }
+      ],
+      "name": "Caçador do Véu Partido",
+      "image": "images/CaçadordoVéuPartido.webp"
+    },
+    {
+      "id": "creature_deep_rift_rat",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "hitBonus": [
+        2,
+        3,
+        5,
+        7,
+        10
+      ],
+      "damage": 1,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Rato das Fendas Profundas",
+      "image": "images/RatodasFendasProfundas.webp"
+    },
+    {
+      "id": "creature_dark_cave_goblin",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        1,
+        2,
+        3,
+        5,
+        7
+      ],
+      "hitBonus": [
+        2,
+        3,
+        5,
+        7,
+        10
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_cowardly_flee"
+        },
+        {
+          "skillId": "purple_dark_tribute",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Goblin das Cavernas Escuras",
+      "image": "images/GoblindasCavernasEscuras.webp"
+    },
+    {
+      "id": "creature_wet_stone_slime",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        2,
+        3,
+        5,
+        7,
+        10
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_gelatinous_body",
+          "params": {
+            "value": -1
+          }
+        },
+        {
+          "skillId": "purple_veil_retaliation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Limo das Pedras Úmidas",
+      "image": "images/LimodasPedrasÚmidas.webp"
+    },
+    {
+      "id": "creature_black_ceiling_bat",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 3,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_rift_evasion"
+        },
+        {
+          "skillId": "purple_healing_rupture",
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Morcego do Teto Negro",
+      "image": "images/MorcegodoTetoNegro.webp"
+    },
+    {
+      "id": "creature_ancient_pillar_spider",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        3,
+        4,
+        5,
+        7,
+        9
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 4,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "purple_ancient_veil_prison",
+          "params": {
+            "value": -2
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Aranha dos Pilares Antigos",
+      "image": "images/AranhadosPilaresAntigos.webp"
+    },
+    {
+      "id": "creature_broken_gates_watcher",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        4,
+        5,
+        6,
+        8,
+        10
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 4,
+      "xp": 2,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_charred_plate",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_ash_protection",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Vigia das Portas Quebradas",
+      "image": "images/VigiadasPortasQuebradas.webp"
+    },
+    {
+      "id": "creature_hidden_flame_cultist",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 3,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_hidden_flame_presence",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "purple_deadly_awakening",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Cultista da Chama Oculta",
+      "image": "images/CultistadaChamaOculta.webp"
+    },
+    {
+      "id": "creature_catacomb_skeleton",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        5,
+        6,
+        7,
+        9,
+        11
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 5,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "purple_dark_tribute",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_ash_protection",
+          "params": {
+            "value": 2
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Esqueleto das Catacumbas",
+      "image": "images/EsqueletodasCatacumbas.webp"
+    },
+    {
+      "id": "creature_dead_passage_thief",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        6,
+        7,
+        8,
+        10,
+        12
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 5,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "purple_dark_tribute",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_ruin_ashes",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Ladrão das Passagens Mortas",
+      "image": "images/LadrãodasPassagensMortas.webp"
+    },
+    {
+      "id": "creature_old_chains_knight",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        7,
+        8,
+        9,
+        11,
+        13
+      ],
+      "hitBonus": [
+        6,
+        9,
+        12,
+        16,
+        20
+      ],
+      "damage": 6,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "purple_deep_veil_seal",
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Cavaleiro das Correntes Velhas",
+      "image": "images/CavaleirodasCorrentesVelhas.webp"
+    },
+    {
+      "id": "creature_low_fire_salamander",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        4,
+        5,
+        6,
+        8,
+        10
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 5,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_ember_blood",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Salamandra do Fogo Baixo",
+      "image": "images/SalamandradoFogoBaixo.webp"
+    },
+    {
+      "id": "creature_ruined_hall_ogre",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        5,
+        6,
+        7,
+        9,
+        11
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 5,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "purple_deadly_awakening",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Ogro do Salão Arruinado",
+      "image": "images/OgrodoSalãoArruinado.webp"
+    },
+    {
+      "id": "creature_low_ember_kobold",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        1,
+        2,
+        3,
+        5,
+        7
+      ],
+      "hitBonus": [
+        2,
+        3,
+        5,
+        7,
+        10
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_pack_courage",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_blood_tribute",
+          "params": {
+            "value": 3
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Kobold das Brasas Baixas",
+      "image": "images/KobolddasBrasasBaixas.webp"
+    },
+    {
+      "id": "creature_hot_ash_worm",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        2,
+        3,
+        5,
+        7,
+        10
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_charred_plate",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_veil_retaliation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Verme das Cinzas Quentes",
+      "image": "images/VermedasCinzasQuentes.webp"
+    },
+    {
+      "id": "creature_blazing_skull",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 3,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_rift_evasion"
+        },
+        {
+          "skillId": "purple_ruin_ashes",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Crânio Flamejante",
+      "image": "images/CrânioFlamejante.webp"
+    },
+    {
+      "id": "creature_dead_torch_sentinel",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        4,
+        5,
+        6,
+        8,
+        10
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 4,
+      "xp": 2,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_charred_plate",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_ash_protection",
+          "params": {
+            "value": 2
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Sentinela das Tochas Mortas",
+      "image": "images/SentineladasTochasMortas.webp"
+    },
+    {
+      "id": "creature_forge_acolyte",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 3,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_hidden_flame_presence",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "purple_ruin_ashes",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Acólito da Fornalha",
+      "image": "images/AcólitodaFornalha.webp"
+    },
+    {
+      "id": "creature_broken_chains_brute",
+      "type": "creature",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        5,
+        6,
+        7,
+        9,
+        11
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 5,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_path_corruption"
+        },
+        {
+          "skillId": "purple_deadly_awakening",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Bruto das Correntes Partidas",
+      "image": "images/BrutodasCorrentesPartidas.webp"
+    },
+    {
+      "id": "subboss_crimson_dungeon_jailer",
+      "type": "subboss",
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "life": [
+        6,
+        7,
+        8,
+        10,
+        12
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 5,
+      "xp": 4,
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": [
+        {
+          "skillId": "skill_path_corruption"
+        },
+        {
+          "skillId": "purple_crimson_shackles",
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Carcereiro da Masmorra Rubra",
+      "image": "images/CarcereirodaMasmorraRubra.webp"
+    },
+    {
+      "id": "subboss_cracked_abyss_guardian",
+      "type": "subboss",
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "life": [
+        8,
+        9,
+        10,
+        12,
+        14
+      ],
+      "hitBonus": [
+        6,
+        9,
+        12,
+        16,
+        20
+      ],
+      "damage": 6,
+      "xp": 4,
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": [
+        {
+          "skillId": "purple_dark_tribute",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "purple_deadly_awakening",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ],
+      "name": "Guardião do Abismo Rachado",
+      "image": "images/GuardiãodoAbismoRachado.webp"
+    },
+    {
+      "id": "item_pitch_torch",
+      "type": "item",
+      "itemClass": "utility",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Tocha de Breu",
+      "image": "images/TochadeBreu.webp"
+    },
+    {
+      "id": "item_worn_explorer_rope",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_preserved_path"
+        }
+      ],
+      "grants": [
+        {
+          "id": "worn_rope_prevent_discard",
+          "abilityId": "skill_preserved_path",
+          "activation": {
+            "kind": "event",
+            "event": "evt_dungeon_discard",
+            "window": "dungeon_discard",
+            "decision": "optional",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "name": "Corda Gasta de Explorador",
+      "image": "images/CordaGastadeExplorador.webp"
+    },
+    {
+      "id": "item_rusty_dagger",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Adaga Enferrujada",
+      "image": "images/AdagaEnferrujada.webp"
+    },
+    {
+      "id": "item_cracked_shield",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "name": "Escudo Rachado",
+      "image": "images/EscudoRachado.webp"
+    },
+    {
+      "id": "item_lesser_vigor_potion",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_last_light_healing",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "lesser_vigor_restore_life",
+          "abilityId": "skill_last_light_healing",
+          "params": {
+            "value": 2
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Poção de Vigor Menor",
+      "image": "images/PoçãodeVigorMenor.webp"
+    },
+    {
+      "id": "item_incendiary_oil_flask",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_living_ember_oil",
+          "params": {
+            "value": "item_incendiary_oil_flask.livingEmber"
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "incendiary_oil_damage",
+          "abilityId": "skill_living_ember_oil",
+          "params": {
+            "value": "item_incendiary_oil_flask.livingEmber"
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_enemy",
+              "affectScope": "scp_single",
+              "affectObject": "obj_not_friend"
+            }
+          }
+        }
+      ],
+      "name": "Frasco de Óleo Incendiário",
+      "image": "images/FrascodeÓleoIncendiário.webp"
+    },
+    {
+      "id": "item_ancient_iron_key",
+      "type": "item",
+      "itemClass": "special",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "ancient_key_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "name": "Chave de Ferro Antiga",
+      "image": "images/ChavedeFerroAntiga.webp"
+    },
+    {
+      "id": "item_tunnel_hood",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "skill_focus_deflection",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "name": "Capuz do Túnel",
+      "image": "images/CapuzdoTúnel.webp"
+    },
+    {
+      "id": "item_light_stone_boots",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "skill_rift_light_step"
+        }
+      ],
+      "name": "Botas de Pedra Leve",
+      "image": "images/BotasdePedraLeve.webp"
+    },
+    {
+      "id": "item_crimson_rune_staff",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "skill_minor_rune",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Cajado das Runas Rubras",
+      "image": "images/CajadodasRunasRubras.webp"
+    },
+    {
+      "id": "item_last_light_sword",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_last_light_blade"
+        }
+      ],
+      "name": "Espada da Última Luz",
+      "image": "images/EspadadaÚltimaLuz.webp"
+    },
+    {
+      "id": "item_deep_veil_scythe",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_drain_life_and_deadly_edge",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Foice do Véu Profundo",
+      "image": "images/FoicedoVéuProfundo.webp"
+    },
+    {
+      "id": "item_ruined_hall_axe",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 3
+          }
+        }
+      ],
+      "name": "Machado do Salão Arruinado",
+      "image": "images/MachadodoSalãoArruinado.webp"
+    },
+    {
+      "id": "item_broken_stone_hammer",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "name": "Martelo de Pedra Quebrada",
+      "image": "images/MartelodePedraQuebrada.webp"
+    },
+    {
+      "id": "item_rift_bow",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "skill_opportunity_shot"
+        }
+      ],
+      "name": "Arco das Fendas",
+      "image": "images/ArcodasFendas.webp"
+    },
+    {
+      "id": "item_reinforced_leather_armor",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Armadura de Couro Reforçado",
+      "image": "images/ArmaduradeCouroReforçado.webp"
+    },
+    {
+      "id": "item_ancient_metal_armor",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "name": "Armadura de Metal Antigo",
+      "image": "images/ArmaduradeMetalAntigo.webp"
+    },
+    {
+      "id": "item_forge_magic_armor",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_block_and_last_light_ward",
+          "params": {
+            "armor": 3,
+            "purple": 2
+          }
+        }
+      ],
+      "name": "Armadura Mágica da Fornalha",
+      "image": "images/ArmaduraMágicadaFornalha.webp"
+    },
+    {
+      "id": "item_broken_veil_cloak",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "skill_protective_veil"
+        }
+      ],
+      "name": "Manto do Véu Partido",
+      "image": "images/MantodoVéuPartido.webp"
+    },
+    {
+      "id": "item_fury_potion",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_crimson_fury",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "fury_before_attack",
+          "abilityId": "skill_crimson_fury",
+          "params": {
+            "value": 2
+          },
+          "activation": {
+            "kind": "event",
+            "event": "evt_attack_declared",
+            "window": "before_attack_roll",
+            "decision": "optional",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Poção de Fúria",
+      "image": "images/PoçãodeFúria.webp"
+    },
+    {
+      "id": "item_precision_potion",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_hunter_focus",
+          "params": {
+            "value": 4
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "precision_before_attack",
+          "abilityId": "ability_hit_bonus_once",
+          "params": {
+            "value": 4
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Poção de Precisão",
+      "image": "images/PoçãodePrecisão.webp"
+    },
+    {
+      "id": "item_stoneskin_potion",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "useTiming": "pre_combat",
+      "skills": [
+        {
+          "skillId": "item_skill_potion_stoneskin",
+          "params": {
+            "value": 3
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "stoneskin_pre_combat",
+          "abilityId": "item_skill_potion_stoneskin",
+          "params": {
+            "value": 3
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Poção de Pele de Pedra",
+      "image": "images/PoçãodePeledePedra.webp"
+    },
+    {
+      "id": "item_return_potion",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "power_restored_path",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "return_recover_dungeon",
+          "abilityId": "power_restored_path",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "name": "Poção de Retorno",
+      "image": "images/PoçãodeRetorno.webp"
+    },
+    {
+      "id": "item_living_ember_potion",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_living_ember",
+          "params": {
+            "value": 3
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "living_ember_damage",
+          "abilityId": "skill_living_ember",
+          "params": {
+            "value": 3
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_enemy",
+              "affectScope": "scp_single",
+              "affectObject": "obj_not_friend"
+            }
+          }
+        }
+      ],
+      "name": "Poção de Brasa Viva",
+      "image": "images/PoçãodeBrasaViva.webp"
+    },
+    {
+      "id": "item_greater_vigor_potion",
+      "type": "item",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_last_light_healing",
+          "params": {
+            "value": 4
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "greater_vigor_restore_life",
+          "abilityId": "skill_last_light_healing",
+          "params": {
+            "value": 4
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Poção de Vigor Maior",
+      "image": "images/PoçãodeVigorMaior.webp"
+    },
+    {
+      "id": "item_silent_dungeon_charm",
+      "type": "item",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "skill_path_safeguard"
+        }
+      ],
+      "grants": [
+        {
+          "id": "silent_dungeon_prevent_discard",
+          "abilityId": "skill_path_safeguard",
+          "activation": {
+            "kind": "event",
+            "event": "evt_dungeon_discard",
+            "window": "dungeon_discard",
+            "decision": "optional",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "room",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "name": "Encanto da Masmorra Calada",
+      "image": "images/EncantodaMasmorraCalada.webp"
+    },
+    {
+      "id": "item_low_flame_charm",
+      "type": "item",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "skill_hunter_focus",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "low_flame_equipped_hit_bonus",
+          "abilityId": "ability_hit_bonus_while_equipped",
+          "params": {
+            "value": 2
+          },
+          "activation": {
+            "kind": "continuous",
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Encanto da Chama Baixa",
+      "image": "images/EncantodaChamaBaixa.webp"
+    },
+    {
+      "id": "item_warm_blood_charm",
+      "type": "item",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "useTiming": "damage_response",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 10
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "warm_blood_damage_response",
+          "abilityId": "ability_reduce_current_damage",
+          "params": {
+            "value": 10
+          },
+          "activation": {
+            "kind": "event",
+            "event": "evt_damage_taken",
+            "window": "before_damage",
+            "decision": "optional",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "combat",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Encanto do Sangue Quente",
+      "image": "images/EncantodoSangueQuente.webp"
+    },
+    {
+      "id": "item_safe_path_charm",
+      "type": "item",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "skill_illuminate_path"
+        }
+      ],
+      "grants": [
+        {
+          "id": "safe_path_reveal",
+          "abilityId": "skill_illuminate_path",
+          "activation": {
+            "kind": "event",
+            "event": "evt_room_reveal",
+            "window": "room_enter",
+            "decision": "optional",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "room",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "name": "Encanto do Caminho Seguro",
+      "image": "images/EncantodoCaminhoSeguro.webp"
+    },
+    {
+      "id": "item_last_defense_charm",
+      "type": "item",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "power_greater_last_light_miracle"
+        }
+      ],
+      "grants": [
+        {
+          "id": "last_defense_prevent_destruction",
+          "abilityId": "ability_prevent_current_destruction",
+          "activation": {
+            "kind": "event",
+            "event": "evt_would_be_destroyed",
+            "window": "before_destroy",
+            "decision": "optional",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "combat",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "name": "Encanto da Última Defesa",
+      "image": "images/EncantodaÚltimaDefesa.webp"
+    },
+    {
+      "id": "item_last_chord_lute",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "skill_protective_veil"
+        }
+      ],
+      "name": "Alaúde do Último Acorde",
+      "image": "images/AlaúdedoÚltimoAcorde.webp"
+    },
+    {
+      "id": "item_narrow_exit_cloak",
+      "type": "item",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "skill_illuminate_path"
+        }
+      ],
+      "name": "Manto da Saída Estreita",
+      "image": "images/MantodaSaídaEstreita.webp"
+    },
+    {
+      "id": "item_torn_depths_map",
+      "type": "item",
+      "itemClass": "special",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "torn_map_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "name": "Mapa Rasgado das Profundezas",
+      "image": "images/MapaRasgadodasProfundezas.webp"
+    },
+    {
+      "id": "item_hidden_forge_chest",
+      "type": "item",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "hidden_chest_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "name": "Baú Oculto da Fornalha",
+      "image": "images/BaúOcultodaFornalha.webp"
+    },
+    {
+      "id": "artifact_crimson_jailer_chain",
+      "type": "artifact",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "skill_preserved_path"
+        }
+      ],
+      "name": "Corrente do Carcereiro Rubro",
+      "image": "images/CorrentedoCarcereiroRubro.webp"
+    },
+    {
+      "id": "artifact_ancient_ember_heart",
+      "type": "artifact",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Coração de Brasa Antiga",
+      "image": "images/CoraçãodeBrasaAntiga.webp"
+    },
+    {
+      "id": "artifact_lost_forge_hammer",
+      "type": "artifact",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "power_supreme_rift_rune"
+        }
+      ],
+      "name": "Martelo da Forja Perdida",
+      "image": "images/MartelodaForjaPerdida.webp"
+    },
+    {
+      "id": "artifact_last_vigil_brazier",
+      "type": "artifact",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "power_greater_last_light_miracle"
+        }
+      ],
+      "name": "Braseiro da Última Vigília",
+      "image": "images/BraseirodaÚltimaVigília.webp"
+    },
+    {
+      "id": "artifact_first_fire_blade",
+      "type": "artifact",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "item_skill_crimson_fury_mighty",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "name": "Lâmina do Primeiro Incêndio",
+      "image": "images/LâminadoPrimeiroIncêndio.webp"
+    },
+    {
+      "id": "subboss_room_jailer_chamber",
+      "type": "subboss_room",
+      "exits": 1,
+      "reward": 1,
+      "rewardType": "artifact",
+      "xp": 4,
+      "linkedSubbossId": "subboss_crimson_dungeon_jailer",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_subboss_room"
+        }
+      ],
+      "name": "Câmara do Carcereiro"
+    },
+    {
+      "id": "subboss_room_cracked_abyss_chamber",
+      "type": "subboss_room",
+      "exits": 2,
+      "reward": 1,
+      "rewardType": "artifact",
+      "xp": 4,
+      "linkedSubbossId": "subboss_cracked_abyss_guardian",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_subboss_room"
+        }
+      ],
+      "name": "Câmara do Abismo Rachado"
+    },
+    {
+      "id": "room_narrow_corridor",
+      "type": "room",
+      "exits": 1,
+      "enemiesByPlayers": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_empty_room"
+        }
+      ],
+      "name": "Corredor Estreito",
+      "image": "images/CorredorEstreito.webp"
+    },
+    {
+      "id": "room_dungeon_room",
+      "type": "room",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "xp": 1,
+      "skills": [
+        {
+          "skillId": "dungeon_skill_empty_room"
+        }
+      ],
+      "name": "Sala da Masmorra",
+      "image": "images/SaladaMasmorra.webp"
+    },
+    {
+      "id": "room_crimson_chains_chamber",
+      "type": "room",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "xp": 2,
+      "skills": [
+        {
+          "skillId": "dungeon_skill_confinement"
+        }
+      ],
+      "name": "Câmara das Correntes Rubras",
+      "image": "images/CâmaradasCorrentesRubras.webp"
+    },
+    {
+      "id": "room_dead_torches_passage",
+      "type": "room",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "xp": 2,
+      "skills": [
+        {
+          "skillId": "dungeon_skill_dead_torches"
+        }
+      ],
+      "name": "Passagem das Tochas Mortas",
+      "image": "images/PassagemdasTochasMortas.webp"
+    },
+    {
+      "id": "room_broken_columns_hall",
+      "type": "room",
+      "exits": 4,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "xp": 1,
+      "skills": [
+        {
+          "skillId": "dungeon_skill_column_fall",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Salão das Colunas Quebradas",
+      "image": "images/SalãodasColunasQuebradas.webp"
+    },
+    {
+      "id": "room_depths_stairway",
+      "type": "room",
+      "exits": 2,
+      "enemiesByPlayers": [
+        2,
+        2,
+        3,
+        4
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "xp": 2,
+      "skills": [
+        {
+          "skillId": "dungeon_skill_uneven_floor",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "name": "Escadaria para as Profundezas",
+      "image": "images/EscadariaparaasProfundezas.webp"
+    },
+    {
+      "id": "room_abandoned_cell",
+      "type": "room",
+      "exits": 3,
+      "enemiesByPlayers": [
+        0,
+        1,
+        2,
+        2
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "xp": 1,
+      "skills": [
+        {
+          "skillId": "dungeon_skill_forge_spoils"
+        }
+      ],
+      "name": "Cela Abandonada",
+      "image": "images/CelaAbandonada.webp"
+    },
+    {
+      "id": "room_ruined_forge",
+      "type": "room",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        1,
+        2,
+        3
+      ],
+      "reward": 2,
+      "rewardType": "item",
+      "xp": 2,
+      "skills": [
+        {
+          "skillId": "dungeon_skill_rekindled_forge"
+        }
+      ],
+      "name": "Forja em Ruínas",
+      "image": "images/ForjaemRuínas.webp"
+    },
+    {
+      "id": "room_jailer_room",
+      "type": "room",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "reward": 1,
+      "rewardType": "artifact",
+      "xp": 3,
+      "specialCreatureId": "subboss_crimson_dungeon_jailer",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_summon_guardian"
+        }
+      ],
+      "name": "Sala do Carcereiro",
+      "image": "images/SaladoCarcereiro.webp"
+    },
+    {
+      "id": "room_cracked_abyss",
+      "type": "room",
+      "exits": 4,
+      "enemiesByPlayers": [
+        2,
+        3,
+        4,
+        5
+      ],
+      "reward": 1,
+      "rewardType": "artifact",
+      "xp": 3,
+      "specialCreatureId": "subboss_cracked_abyss_guardian",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_summon_guardian"
+        }
+      ],
+      "name": "Abismo Rachado",
+      "image": "images/AbismoRachado.webp"
+    },
+    {
+      "id": "boss_azhakar",
+      "type": "boss",
+      "lifeBase": 20,
+      "hitBonusBase": 12,
+      "damage": 6,
+      "accessCondition": {
+        "type": "group_artifacts_gte",
+        "value": 2
+      },
+      "skills": [
+        {
+          "skillId": "boss_skill_living_ash_throne",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "boss_skill_dark_forge_pressure",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "boss_skill_azhakar_ascension",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "name": "Azhakar, Dragão da Fornalha Sombria",
+      "image": "images/Azhakardragaofornalhasombria.webp"
+    }
+  ]
+}
