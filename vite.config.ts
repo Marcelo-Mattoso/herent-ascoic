@@ -28,6 +28,7 @@ const musicPublicDir = path.resolve(__dirname, "public/generated/music");
 const musicAssetDir = path.join(musicPublicDir, "assets");
 const musicManifestPath = path.join(musicPublicDir, "manifest.json");
 const localeSourceDir = path.resolve(__dirname, "locales");
+const expansionSourceDir = path.resolve(__dirname, "assets/expansions");
 const localePublicDir = path.resolve(__dirname, "public/generated/locales");
 const musicMimeTypes: Record<string, string> = {
 	".mp3": "audio/mpeg",
@@ -82,7 +83,7 @@ interface CardImageManifestEntry {
 
 interface CardImageManifest {
 	readonly version: 1;
-	readonly source: "imagedata/cards";
+	readonly source: "assets/expansions";
 	readonly cards: readonly CardImageManifestEntry[];
 }
 
@@ -246,28 +247,57 @@ function writeBackCardManifest() {
 
 function writeCardImageManifest() {
 	fs.mkdirSync(cardAssetDir, { recursive: true });
-
-	const cards = listImageFiles(cardSourceDir).map((filePath) => {
-		const relativeFile = path.relative(cardSourceDir, filePath);
-		const targetPath = path.join(cardAssetDir, relativeFile);
-		copyImageAsset(filePath, targetPath);
-
-		return {
-			id: toBoardId(relativeFile),
-			fileName: relativeFile.split(path.sep).join("/"),
-			url: toPublicUrl("cards", relativeFile),
-			sizeBytes: fs.statSync(filePath).size,
-		};
-	});
-
-	pruneGeneratedImages(cardAssetDir, cards.map((asset) => asset.fileName));
-
+	const expansionRoot = path.resolve(__dirname, "assets/expansions");
+	const config = JSON.parse(
+		fs.readFileSync(path.join(expansionRoot, "config.json"), "utf8"),
+	) as { version: number; expansions: Array<{ id: string; enabled: boolean }> };
+	if (config.version !== 1 || !Array.isArray(config.expansions)) {
+		throw new Error("Registro de expansões inválido");
+	}
+	const ids = new Set<string>();
+	const cards: CardImageManifestEntry[] = [];
+	for (const entry of config.expansions) {
+		if (!entry.enabled) continue;
+		if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.id)) {
+			throw new Error("ID de expansão inválido: " + entry.id);
+		}
+		const packageDir = path.join(expansionRoot, entry.id);
+		const pack = JSON.parse(
+			fs.readFileSync(path.join(packageDir, "expansion.json"), "utf8"),
+		) as { id: string; cards: Array<{ id: string; image?: string }> };
+		if (pack.id !== entry.id || !Array.isArray(pack.cards)) {
+			throw new Error("Pacote inválido: " + entry.id);
+		}
+		for (const card of pack.cards) {
+			if (ids.has(card.id)) throw new Error("ID de carta duplicado: " + card.id);
+			ids.add(card.id);
+			if (!card.image) continue;
+			const relative = card.image.split("/");
+			if (relative[0] !== "images" ||
+				relative.some((part) => !part || part === "." || part === "..") ||
+				path.extname(card.image).toLowerCase() !== ".webp") {
+				throw new Error("Imagem inválida para " + card.id);
+			}
+			const source = path.join(packageDir, ...relative);
+			if (!fs.existsSync(source)) throw new Error("Imagem ausente: " + source);
+			const fileName = [entry.id, ...relative].join("/");
+			const target = path.join(cardAssetDir, ...fileName.split("/"));
+			copyImageAsset(source, target);
+			cards.push({
+				id: card.id,
+				fileName,
+				url: toPublicUrl("cards", fileName),
+				sizeBytes: fs.statSync(source).size,
+			});
+		}
+	}
+	pruneGeneratedImages(cardAssetDir, cards.map((card) => card.fileName));
 	const manifest: CardImageManifest = {
 		version: 1,
-		source: "imagedata/cards",
+		source: "assets/expansions",
 		cards,
 	};
-	fs.writeFileSync(cardManifestPath, `${JSON.stringify(manifest, null, 2)}\n`);
+	fs.writeFileSync(cardManifestPath, JSON.stringify(manifest, null, 2) + "\n");
 }
 
 function writeUiAssetManifest() {
@@ -392,8 +422,13 @@ function watchAssetSources(server: ViteDevServer) {
 	if (fs.existsSync(musicSourceDir)) server.watcher.add(musicSourceDir);
 	if (fs.existsSync(sfxSourceDir)) server.watcher.add(sfxSourceDir);
 	if (fs.existsSync(localeSourceDir)) server.watcher.add(localeSourceDir);
+	if (fs.existsSync(expansionSourceDir)) server.watcher.add(expansionSourceDir);
 	server.watcher.on("all", (_event, filePath) => {
 		const resolvedFilePath = path.resolve(filePath);
+		if (resolvedFilePath.startsWith(expansionSourceDir + path.sep)) {
+			writeCardImageManifest();
+			return;
+		}
 		if (resolvedFilePath.startsWith(musicSourceDir)) {
 			writeMusicManifest();
 			return;
