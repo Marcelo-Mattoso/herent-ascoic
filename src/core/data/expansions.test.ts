@@ -20,6 +20,15 @@ describe("pacotes de expansão", () => {
 	it("associa a imagem pelo ID, independentemente da tradução", () => {
 		const meta = getExpansionCardMetadata("hero_crimson_barbarian");
 		expect(meta?.expansionId).toBe("fornalha-sombria");
-		expect(meta?.image).toBe("images/heroes/BárbaroRubro.webp");
+		expect(meta?.image).toBe("images/BárbaroRubro.webp");
+	});
+	it("usa apenas a pasta images, sem subpastas por categoria", () => {
+		const paths = getEnabledExpansions().flatMap((pack) =>
+			pack.cards.map((card) => card.image).filter((image) => image !== undefined),
+		);
+		expect(paths.length).toBe(78);
+		for (const image of paths) {
+			expect(image).toMatch(/^images\/[^/]+\.webp$/);
+		}
 	});
 });

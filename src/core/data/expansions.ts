@@ -61,8 +61,7 @@ for (const entry of config.expansions) {
 		if (metadata.has(card.id)) {
 			throw new Error("ID de carta duplicado entre expansões: " + card.id);
 		}
-		if (card.image && (!card.image.startsWith("images/") ||
-			card.image.split("/").some((part: string) => part === ".." || part === "."))) {
+		if (card.image && !/^images\/[^/]+\.webp$/.test(card.image)) {
 			throw new Error("Imagem com caminho inválido: " + card.image);
 		}
 		metadata.set(card.id, {
