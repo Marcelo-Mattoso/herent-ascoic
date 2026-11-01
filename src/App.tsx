@@ -144,6 +144,7 @@ function App() {
 		if (
 			!tutorial ||
 			tutorial.moduleId !== "archive-two" ||
+			tutorial.reviewStepIndex !== undefined ||
 			currentTutorialStep(tutorial).id !== "combat-drag" ||
 			tutorial.checkpointReady ||
 			!tutorial.firstAttack ||
@@ -162,6 +163,7 @@ function App() {
 		if (
 			!tutorial ||
 			tutorial.moduleId !== "archive-three" ||
+			tutorial.reviewStepIndex !== undefined ||
 			currentTutorialStep(tutorial).id !== "item-states" ||
 			tutorial.inventoryCheckpointReady ||
 			preparedCheckpoints.current.has(`${tutorial.id}:items`)
@@ -191,7 +193,7 @@ function App() {
 	}, [tutorial, journal, loadTrainingState]);
 
 	useEffect(() => {
-		if (!tutorial || tutorial.moduleId !== "archive-four") return;
+		if (!tutorial || tutorial.moduleId !== "archive-four" || tutorial.reviewStepIndex !== undefined) return;
 		const step = currentTutorialStep(tutorial).id;
 		const checkpoint = step === "fury-prepare" ? "barbarian" : step === "hero-power" ? "warrior" : null;
 		if (!checkpoint || tutorial.abilityCheckpoint === checkpoint || preparedCheckpoints.current.has(`${tutorial.id}:${checkpoint}`)) return;
@@ -340,7 +342,7 @@ function App() {
 				tutorialCombatMode={tutorial?.moduleId === "archive-two"}
 				tutorialCombatMethod={
 					tutorial?.moduleId === "archive-two" &&
-					currentTutorialStep(tutorial).id === "combat-drag"
+					tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "combat-drag"
 						? tutorial.combatInput
 						: null
 				}
@@ -356,7 +358,7 @@ function App() {
 					)
 				}
 				tutorialRevealEnabled={
-					tutorial ? currentTutorialStep(tutorial).id === "reveal" : false
+					tutorial ? tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "reveal" : false
 				}
 			/>
 		);
@@ -424,7 +426,7 @@ function App() {
 					nextModule={nextModule?.available ? nextModule : undefined}
 					onNext={() => nextModule && startModule(nextModule.id)}
 					onContinue={() => {
-						if (currentTutorialStep(tutorial).id === "combat-action") {
+						if (tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "combat-action") {
 							if (status === "DIRECT_DAMAGE" || status === "CHECK_COMBAT_END") dispatch({ type: "CHECK_COMBAT_END" });
 						}
 						else

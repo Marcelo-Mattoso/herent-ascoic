@@ -5,7 +5,7 @@ import { playerView } from "@/core/projection/playerView";
 import { reducer } from "@/core/reducer";
 import type { GameState } from "@/core/state/gameState";
 import { ABILITY_BARBARIAN, ABILITY_HUNTER, BASTION_POWER, CRIMSON_FURY, PREY_MARK, prepareAbilityEncounter, preparePowerAndPassiveEncounter } from "./abilitiesScenario";
-import { continueTutorial, currentTutorialStep, markAbilityCheckpointReady, observeAbilityUi, reconcileTutorial, startTutorial } from "./session";
+import { backTutorialObservation, continueTutorial, currentTutorialStep, markAbilityCheckpointReady, observeAbilityUi, reconcileTutorial, startTutorial } from "./session";
 
 describe("Arquivo IV: progressão confirmada pelo Diário", () => {
 	it("conclui as dez etapas apenas após as ações reais", () => {
@@ -58,5 +58,19 @@ describe("Arquivo IV: progressão confirmada pelo Diário", () => {
 		session = continueTutorial(session);
 		expect(currentTutorialStep(session).id).toBe("abilities-completion");
 		expect(session.status).toBe("completed");
+		const beforeReviewEvents = session.events;
+		const checkpoint = session.abilityCheckpoint;
+		session = backTutorialObservation(session);
+		expect(currentTutorialStep(session).id).toBe("ability-limits");
+		expect(session.stepIndex).toBe(9);
+		expect(session.status).toBe("completed");
+		for (let i = 0; i < 5; i++) session = backTutorialObservation(session);
+		expect(currentTutorialStep(session).id).toBe("hunter-attack");
+		expect(reconcileTutorial(session, playerView(state), recorder.get())).toBe(session);
+		for (let i = 0; i < 6; i++) session = continueTutorial(session);
+		expect(currentTutorialStep(session).id).toBe("abilities-completion");
+		expect(session.reviewStepIndex).toBeUndefined();
+		expect(session.abilityCheckpoint).toBe(checkpoint);
+		expect(session.events).toBe(beforeReviewEvents);
 	});
 });

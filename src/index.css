@@ -5526,3 +5526,12 @@ body:has(.tutorial-layer--abilities) .game-dice-roll-layer { z-index: 75; }
 	.tutorial-panel h2 { font-size: 1.08rem; }
 	.tutorial-panel__actions button { padding: 6px 8px; }
 }
+
+.tutorial-panel__review-notice {
+	margin: 0.5rem 0;
+	padding: 0.55rem 0.8rem;
+	border-inline-start: 3px solid #c49b58;
+	background: rgba(26, 22, 16, 0.75);
+	font-size: 0.9rem;
+	line-height: 1.4;
+}

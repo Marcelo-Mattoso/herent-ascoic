@@ -51,6 +51,7 @@ export interface TutorialSession {
 		| "cancelled";
 	readonly stepIndex: number;
 	readonly highlightIndex: number;
+	readonly reviewStepIndex?: number;
 	readonly selectedHeroCardIds: readonly string[];
 	readonly events: readonly TutorialEvent[];
 	readonly combatInput: "drag" | "tap";
@@ -134,6 +135,7 @@ export function markCombatCheckpointReady(
 	session: TutorialSession,
 ): TutorialSession {
 	if (
+		session.reviewStepIndex !== undefined ||
 		session.moduleId !== "archive-two" ||
 		currentTutorialStep(session).id !== "combat-drag" ||
 		session.checkpointReady
@@ -188,6 +190,7 @@ export function recordCombatAttackInput(
 	afterSequence: number,
 ): TutorialSession {
 	if (
+		session.reviewStepIndex !== undefined ||
 		session.moduleId !== "archive-two" ||
 		currentTutorialStep(session).id !== "combat-drag" ||
 		!session.checkpointReady
@@ -210,7 +213,7 @@ export function recordCombatAttackInput(
 }
 
 export function currentTutorialStep(session: TutorialSession) {
-	return getTutorialModule(session.moduleId).steps[session.stepIndex];
+	return getTutorialModule(session.moduleId).steps[session.reviewStepIndex ?? session.stepIndex];
 }
 
 export function markAbilityCheckpointReady(session: TutorialSession, checkpoint: "hunter" | "barbarian" | "warrior"): TutorialSession {
@@ -222,7 +225,7 @@ export function markAbilityCheckpointReady(session: TutorialSession, checkpoint:
 }
 
 export function observeAbilityUi(session: TutorialSession, event: "panel" | "card"): TutorialSession {
-	if (session.moduleId !== "archive-four" || currentTutorialStep(session).id !== "abilities-inspect") return session;
+	if (session.reviewStepIndex !== undefined || session.moduleId !== "archive-four" || currentTutorialStep(session).id !== "abilities-inspect") return session;
 	if (event === "panel") return session.abilityPanelOpened ? session : { ...session, abilityPanelOpened: true };
 	return session.abilityPanelOpened ? nextStep({ ...session, events: [...session.events, { type: "item-inspected", source: "tutorial-ui", stepId: "abilities-inspect", detail: ABILITY_HUNTER }] }) : session;
 }
@@ -233,7 +236,7 @@ export function observeInventoryUi(
 	detailCardId: string | null,
 	view: PlayerView,
 ): TutorialSession {
-	if (session.moduleId !== "archive-three") return session;
+	if (session.reviewStepIndex !== undefined || session.moduleId !== "archive-three") return session;
 	const step = currentTutorialStep(session);
 	if (step.id === "inventory-open" && panelOpen)
 		return nextStep({
@@ -325,7 +328,7 @@ export function selectTutorialHeroes(
 	session: TutorialSession,
 	ids: readonly string[],
 ): TutorialSession {
-	if (ids.join("|") === session.selectedHeroCardIds.join("|")) return session;
+	if (session.reviewStepIndex !== undefined || ids.join("|") === session.selectedHeroCardIds.join("|")) return session;
 	const updated = {
 		...session,
 		selectedHeroCardIds: [...ids],
@@ -350,6 +353,7 @@ export function reconcileTutorial(
 	view: PlayerView,
 	journal?: GameJournal,
 ): TutorialSession {
+	if (session.reviewStepIndex !== undefined) return session;
 	const advance = currentTutorialStep(session).advance;
 	if (session.moduleId === "archive-four") {
 		const latest = journal?.entries.at(-1);
@@ -582,6 +586,16 @@ export function reconcileTutorial(
 }
 
 export function continueTutorial(session: TutorialSession): TutorialSession {
+	if (session.reviewStepIndex !== undefined) {
+		const reviewStep = currentTutorialStep(session);
+		if (reviewStep.highlights && session.highlightIndex < reviewStep.highlights.length - 1)
+			return { ...session, highlightIndex: session.highlightIndex + 1 };
+		const nextReviewStepIndex = session.reviewStepIndex + 1;
+		return { ...session,
+			reviewStepIndex: nextReviewStepIndex < session.stepIndex ? nextReviewStepIndex : undefined,
+			highlightIndex: 0,
+		};
+	}
 	const step = currentTutorialStep(session);
 	if (step.advance !== "manual") return session;
 	if (step.id === "group" && session.selectedHeroCardIds.length === 0)
@@ -595,33 +609,16 @@ export function continueTutorial(session: TutorialSession): TutorialSession {
 export function skipTutorialObservation(
 	session: TutorialSession,
 ): TutorialSession {
-	return currentTutorialStep(session).skippable ? nextStep(session) : session;
+	return session.reviewStepIndex === undefined && currentTutorialStep(session).skippable ? nextStep(session) : session;
 }
 
-export function backTutorialObservation(
-	session: TutorialSession,
-): TutorialSession {
+export function backTutorialObservation(session: TutorialSession): TutorialSession {
 	const step = currentTutorialStep(session);
 	if (step.highlights && session.highlightIndex > 0)
 		return { ...session, highlightIndex: session.highlightIndex - 1 };
-	const previous = getTutorialModule(session.moduleId).steps[
-		session.stepIndex - 1
-	];
-	if (
-		previous &&
-		previous.advance === "manual" &&
-		(step.advance === "manual" ||
-			step.kind === "completion" ||
-			step.id === "combat-action")
-	) {
-		return {
-			...session,
-			stepIndex: session.stepIndex - 1,
-			highlightIndex: 0,
-			status: "running",
-		};
-	}
-	return session;
+	const displayedStepIndex = session.reviewStepIndex ?? session.stepIndex;
+	if (displayedStepIndex === 0) return session;
+	return { ...session, reviewStepIndex: displayedStepIndex - 1, highlightIndex: 0 };
 }
 
 export function finishTutorial(session: TutorialSession): TutorialSession {

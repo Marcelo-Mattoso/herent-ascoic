@@ -62,6 +62,23 @@ describe("sessão do Arquivo I", () => {
 		expect(session.events.at(-1)?.type).toBe("abandoned");
 	});
 
+	it("revisa qualquer etapa sem mudar progresso ou disparar interações novamente", () => {
+		let session = startTutorial("archive-four");
+		session = continueTutorial(session);
+		expect(currentTutorialStep(session).id).toBe("abilities-inspect");
+		const events = session.events;
+		session = backTutorialObservation(session);
+		expect(currentTutorialStep(session).id).toBe("abilities-opening");
+		expect(session.stepIndex).toBe(1);
+		expect(session.reviewStepIndex).toBe(0);
+		expect(reconcileTutorial(session, view("HERO_ACTION"))).toBe(session);
+		expect(skipTutorialObservation(session)).toBe(session);
+		session = continueTutorial(session);
+		expect(currentTutorialStep(session).id).toBe("abilities-inspect");
+		expect(session.reviewStepIndex).toBeUndefined();
+		expect(session.events).toBe(events);
+	});
+
 	it("permite iniciar o quarto arquivo diretamente", () => {
 		expect(currentTutorialStep(startTutorial("archive-four")).id).toBe("abilities-opening");
 	});

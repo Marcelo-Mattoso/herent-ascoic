@@ -627,6 +627,9 @@
       "dynamic024": "Salir de los tutoriales",
       "dynamic025": "Siguiente punto",
       "dynamic026": "Terminar combate",
+      "reviewNotice": "Repaso: ya has llegado a este paso. Volver no deshace acciones ni permite reutilizar habilidades.",
+      "reviewNext": "Siguiente explicación",
+      "reviewResume": "Retomar donde lo dejé",
       "retryCombat": "La criatura resistió. Selecciona al héroe y ataca de nuevo para terminar el combate."
     }
   }
