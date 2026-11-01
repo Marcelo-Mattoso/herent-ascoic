@@ -32,6 +32,30 @@
 
 .story-opening__progress { color: #d8b99a; white-space: nowrap; font-variant-numeric: tabular-nums; }
 
+.story-opening__audio {
+	display: flex;
+	align-items: center;
+	flex-wrap: wrap;
+	gap: 0.5rem 0.9rem;
+	min-height: 2.7rem;
+	color: #e8d6c4;
+	font-size: 0.875rem;
+}
+.story-opening__audio-title { font-weight: 600; white-space: nowrap; }
+.story-opening__audio button {
+	padding: 0.35rem 0.8rem;
+	min-height: 2.2rem;
+	border: 1px solid #87644c;
+	border-radius: 0.2rem;
+	background: #291e1b;
+	color: inherit;
+	cursor: pointer;
+}
+.story-opening__audio button:disabled { opacity: 0.5; cursor: default; }
+.story-opening__audio button:focus-visible, .story-opening__volume input:focus-visible { outline: 3px solid #f2be78; outline-offset: 3px; }
+.story-opening__volume { display: inline-flex; align-items: center; gap: 0.55rem; white-space: nowrap; }
+.story-opening__volume input { width: min(23vw, 130px); accent-color: #c28c5e; }
+
 .story-opening__stage {
 	position: relative;
 	flex: 1 1 auto;
@@ -87,6 +111,9 @@
 @keyframes opening-pan-right { from { transform: translateX(-0.8%); } to { transform: translateX(0.8%); } }
 
 @media (max-width: 600px) {
+	.story-opening__audio { font-size: 0.8rem; gap: 0.35rem 0.6rem; }
+	.story-opening__audio-title { display: none; }
+	.story-opening__volume input { width: min(24vw, 110px); }
 	.story-opening__narration { min-height: 6.5rem; padding: 0.7rem 0.85rem; }
 	.story-opening__controls button { padding-inline: 0.7rem; }
 }
