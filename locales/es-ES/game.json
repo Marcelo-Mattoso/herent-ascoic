@@ -3,7 +3,7 @@
     "audio": {
       "title": "Antes de las Cenizas",
       "play": "Reproducir",
-      "pause": "Pausar",
+      "pause": "Poner en pausa",
       "volume": "Volumen",
       "blocked": "Pulsa Reproducir para escuchar la música.",
       "unavailable": "Música de la introducción no disponible."

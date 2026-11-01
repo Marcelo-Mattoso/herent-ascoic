@@ -54,8 +54,11 @@ test("a abertura controla trilha exclusiva sem exibir a faixa na playlist comum"
 	await expect(page.locator(".story-opening__audio")).toBeVisible();
 	await expect(page.locator(".story-opening__audio input[type=range]")).toHaveValue("50");
 	await expect(page.locator(".story-opening__audio button")).toHaveText(/Reproduzir|Pausar/);
-	await page.locator(".story-opening__audio input[type=range]").fill("35");
-	await expect(page.locator(".story-opening__audio input[type=range]")).toHaveValue("35");
+	const openingVolume = page.locator(".story-opening__audio input[type=range]");
+	await openingVolume.focus();
+	await openingVolume.press("Home");
+	await openingVolume.press("ArrowRight");
+	await expect(openingVolume).toHaveValue("1");
 
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__track")).toHaveText("Antes das Cinzas");

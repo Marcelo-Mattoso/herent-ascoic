@@ -22,9 +22,6 @@ export function StoryOpening({ opening, onComplete }: StoryOpeningProps) {
 	const imageStatus = imageState.url === scene.imageUrl ? imageState.status : "loading";
 	const musicPlaying = music.opening === opening.musicFileName && (music.status === "loading" || music.status === "playing");
 
-	useEffect(() => () => {
-		if (opening.musicFileName) player.leaveOpening(opening.musicFileName);
-	}, [opening.musicFileName, player]);
 
 	useEffect(() => {
 		let active = true;
