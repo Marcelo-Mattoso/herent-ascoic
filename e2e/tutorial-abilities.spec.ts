@@ -103,6 +103,11 @@ test("Arquivo IV: rever habilidades já usadas sem reiniciar o combate", async (
 	await expect(page.getByRole("note")).toContainText("não desfaz");
 	await page.getByRole("button", { name: "← Voltar" }).click();
 	await expect(page.locator('[data-tutorial-step="abilities-inspect"][data-tutorial-review="true"]')).toBeVisible();
+	await page.getByRole("button", { name: "Retomar de onde parei" }).click();
+	await expect(page.locator('[data-tutorial-step="hunter-attack"]')).toBeVisible();
+	await page.getByRole("button", { name: "← Voltar" }).click();
+	await page.getByRole("button", { name: "← Voltar" }).click();
+	await expect(page.locator('[data-tutorial-step="abilities-inspect"][data-tutorial-review="true"]')).toBeVisible();
 	await page.getByRole("button", { name: "Próxima explicação" }).click();
 	await expect(page.locator('[data-tutorial-step="prey-mark"][data-tutorial-review="true"]')).toBeVisible();
 	await page.getByRole("button", { name: "Retomar de onde parei" }).click();

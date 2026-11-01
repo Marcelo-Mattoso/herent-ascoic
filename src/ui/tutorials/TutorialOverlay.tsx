@@ -31,6 +31,7 @@ interface Props {
 	onContinue: () => void;
 	onSkip: () => void;
 	onBack: () => void;
+	onResume: () => void;
 	onClose: () => void;
 	onRepeat: () => void;
 	onHub: () => void;
@@ -63,6 +64,7 @@ export function TutorialOverlay({
 	onContinue,
 	onSkip,
 	onBack,
+	onResume,
 	onClose,
 	onRepeat,
 	onHub,
@@ -626,6 +628,7 @@ export function TutorialOverlay({
 									? translate("game:tutorials.tutorialOverlay.reviewResume")
 									: translate("game:tutorials.tutorialOverlay.reviewNext")}
 							</button>
+							{displayedStepIndex < session.stepIndex - 1 && <button type="button" onClick={onResume}>{translate("game:tutorials.tutorialOverlay.reviewResume")}</button>}
 							{canBack && <button type="button" onClick={onBack}>← {translate("game:tutorials.tutorialOverlay.text047")}</button>}
 						</>
 					) : step.kind === "completion" ? (

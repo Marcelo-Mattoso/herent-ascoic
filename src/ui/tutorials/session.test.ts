@@ -6,6 +6,7 @@ import {
 	currentTutorialStep,
 	finishTutorial,
 	reconcileTutorial,
+	resumeTutorial,
 	selectTutorialHeroes,
 	skipTutorialObservation,
 	startTutorial,
@@ -77,6 +78,9 @@ describe("sessão do Arquivo I", () => {
 		expect(currentTutorialStep(session).id).toBe("abilities-opening");
 		expect(session.stepIndex).toBe(1);
 		expect(session.reviewStepIndex).toBe(0);
+		const resumed = resumeTutorial(session);
+		expect(currentTutorialStep(resumed).id).toBe("abilities-inspect");
+		expect(resumed.events).toBe(events);
 		expect(reconcileTutorial(session, view("HERO_ACTION"))).toBe(session);
 		expect(skipTutorialObservation(session)).toBe(session);
 		session = continueTutorial(session);

@@ -46,6 +46,7 @@ import {
 	observeInventoryUi,
 	recordCombatAttackInput,
 	reconcileTutorial,
+	resumeTutorial,
 	selectTutorialHeroes,
 	skipTutorialObservation,
 	startTutorial,
@@ -444,6 +445,7 @@ function App() {
 							current ? backTutorialObservation(current) : current,
 						)
 					}
+					onResume={() => setTutorial((current) => current ? resumeTutorial(current) : current)}
 					onClose={() => leaveTutorial("menu")}
 					onRepeat={() => startModule(tutorial.moduleId)}
 					onHub={() => leaveTutorial("tutorialHub")}

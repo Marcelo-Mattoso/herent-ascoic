@@ -621,6 +621,12 @@ export function backTutorialObservation(session: TutorialSession): TutorialSessi
 	return { ...session, reviewStepIndex: displayedStepIndex - 1, highlightIndex: 0 };
 }
 
+export function resumeTutorial(session: TutorialSession): TutorialSession {
+	return session.reviewStepIndex === undefined
+		? session
+		: { ...session, reviewStepIndex: undefined, highlightIndex: 0 };
+}
+
 export function finishTutorial(session: TutorialSession): TutorialSession {
 	return session.status === "completed"
 		? session
