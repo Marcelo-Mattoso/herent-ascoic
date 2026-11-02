@@ -154,7 +154,8 @@
       "dynamic001": "available",
       "dynamic002": "unavailable",
       "dynamic003": "available",
-      "dynamic004": "unavailable"
+      "dynamic004": "unavailable",
+      "escapeHint": "Press Esc to close"
     },
     "hpBar": {},
     "influencePanel": {
@@ -251,7 +252,9 @@
       }
     },
     "itemTile": {},
-    "modal": {},
+    "modal": {
+      "escapeHint": "Press Esc to close"
+    },
     "modals": {
       "cardDetailModal": {
         "text001": "Ability",
@@ -455,7 +458,9 @@
         "purple": "Purple abilities",
         "noBonus": "No additional bonuses",
         "nonCumulative": "Each level replaces the previous effects; bonuses do not stack."
-      }
+      },
+      "rotateTitle": "Rotate your phone",
+      "rotateDescription": "To play Ascensão Heróica, turn your phone sideways. Your game will resume where you left off."
     },
     "replay": {
       "invalidJson": "Invalid JSON or unrecognized format.",
@@ -534,7 +539,8 @@
           "label": "Nightmare",
           "hint": "White hero · Yellow dungeon · Recovery 7 XP"
         }
-      }
+      },
+      "expansionLabel": "Expansion"
     },
     "victory": {
       "kicker": "A legend is born",
