@@ -68,8 +68,9 @@
       "dungeon-levels": {
         "title": "The five Awakening levels",
         "narration": [
-          "Dungeon Awakening has five levels: White, Yellow, Orange, Red, and Purple. These describe the dungeon's strength, not floors that must be traversed.",
-          "Creatures use the current Awakening level for health, hit bonuses, and dice. When a hero increases Momentum for 10 XP, Awakening also advances one level, up to Purple. Spending 30 XP can reduce it, unless another rule prevents that reduction."
+          "Dungeon Awakening has five levels: White, Yellow, Orange, Red, and Purple. They represent rising dungeon danger, not physical floors.",
+          "Creatures' health, dice, and hit-bonus progression follow the current color. Each level's universal effect replaces the previous one, without stacking: White has none; Yellow grants +1 hit; Orange grants +1 hit and +1 damage; Red adds Penetration 1; Purple retains these bonuses and unlocks special abilities.",
+          "Raising a hero's Momentum costs 10 XP, but Awakening advances only when ALL heroes have reached a new shared Momentum tier. Other effects can also change Awakening. The party may spend 30 XP to reduce it when allowed."
         ],
         "instruction": "Look at the color scale on the room card. It indicates the current Awakening level."
       },
@@ -84,8 +85,8 @@
       "dungeon-exhaustion": {
         "title": "When the deck runs out",
         "narration": [
-          "Discarding cards does not directly raise Awakening; it reduces the remaining rooms to explore. Some skills and effects also discard dungeon cards.",
-          "If the dungeon deck runs out, the party can spend 5 XP to reshuffle its discarded cards and continue. Without 5 XP or cards to recover, the expedition ends in defeat. The party may also accept defeat instead of paying."
+          "Discarded cards do not directly raise Awakening; they reduce the rooms still available to explore. Skills and other effects may also discard dungeon cards.",
+          "When the dungeon deck runs out, the party can reshuffle discarded cards at a cost based on difficulty: Very Easy 3 XP, Easy 4 XP, Normal 5 XP, Hard 6 XP, and Nightmare 7 XP. Without enough XP or cards to recover, the expedition ends in defeat. The party may also accept defeat instead of paying."
         ],
         "instruction": "Manage your XP: you may need it to keep exploring."
       },
@@ -93,7 +94,8 @@
         "title": "The expedition's objective",
         "narration": [
           "The first door does not define a journey. Nor does the final battle reveal all that came before it.",
-          "In the Dark Forge, every decision changes what may be faced ahead."
+          "In the Dark Forge, every decision changes what may be faced ahead.",
+          "In the Dark Forge, collecting three artifacts permits the party to face Azhakar. Carrying the Heart among them reduces the boss's starting health."
         ],
         "instruction": "Explore the dungeon, face its challenges, and advance toward Azhakar. Victory depends on the expedition's actual conditions."
       },
