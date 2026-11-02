@@ -21,7 +21,7 @@ export function DungeonExhaustedModal() {
 	return (
 		<Modal title={translate("game:components.modals.dungeonExhaustedModal.title001")} maxWidth={440}>
 			<p className="text-sm mb-4" style={{ color: UI.textSecondary }}>
-				{translate("game:components.modals.dungeonExhaustedModal.text002")}{" "}<strong style={{ color: UI.textPrimary }}>{cost} XP</strong>{" "}
+				{translate("game:components.modals.dungeonExhaustedModal.text002")}{" "}<strong style={{ color: UI.textPrimary }}>{translate("game:components.modals.dungeonExhaustedModal.text003", { cost })}</strong>{" "}
 				{translate("game:components.modals.dungeonExhaustedModal.text004")}{" "}</p>
 
 			<p className="text-xs mb-5" style={{ color: UI.textTertiary }}>
