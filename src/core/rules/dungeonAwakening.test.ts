@@ -14,5 +14,6 @@ describe("efeitos do Despertar", () => {
 		expect(piercedItemReduction(1, 1)).toBe(0);
 		expect(piercedItemReduction(3, 1)).toBe(2);
 		expect(piercedItemReduction(2, 0)).toBe(2);
+		expect(piercedItemReduction(-2, 1)).toBe(-2);
 	});
 });
