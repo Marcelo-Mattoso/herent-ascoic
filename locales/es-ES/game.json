@@ -462,7 +462,8 @@
         "nonCumulative": "Cada nivel sustituye los efectos anteriores; las bonificaciones no se acumulan."
       },
       "rotateTitle": "Gira tu teléfono",
-      "rotateDescription": "Para jugar a Ascensão Heróica, coloca el teléfono en horizontal. La partida continuará donde la dejaste."
+      "rotateDescription": "Para jugar a Ascensão Heróica, coloca el teléfono en horizontal. La partida continuará donde la dejaste.",
+      "orientationGameName": "Ascensión Heroica"
     },
     "replay": {
       "invalidJson": "JSON no válido o formato no reconocido.",
