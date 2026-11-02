@@ -6,6 +6,7 @@ import { getBoss } from "../data/cards";
 import { syncEntityFromEnemy } from "../ecs/sync";
 import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
 import { calculateTotal, resolveAttack } from "../rules/combat";
+import { dungeonAwakeningEffect, piercedItemReduction } from "../rules/dungeonAwakening";
 import { rollDiceRng } from "../rules/dice";
 import {
 	collectHeroDamageBonusesFromItems,
@@ -64,7 +65,7 @@ function effectiveHeroDamage(
 function effectiveEnemyDamage(enemy: EnemyState, state: GameState): number {
 	return Math.max(
 		0,
-		enemy.damage +
+		enemy.damage + dungeonAwakeningEffect(state.despertar).damageBonus +
 			totalItemValue(
 				collectWorldModifierEntries(state, enemy.id, "damage_dealt"),
 			),
@@ -84,12 +85,12 @@ function reduceHeroDamage(
 		state,
 		"attack",
 	);
-	const finalDamage = Math.max(
-		0,
-		amount - worldReduction - totalItemValue(itemEntries),
-	);
+	const itemReduction = totalItemValue(itemEntries);
+	const adjustedReduction = piercedItemReduction(itemReduction, dungeonAwakeningEffect(state.despertar).armorPenetration);
+	const finalDamage = Math.max(0, amount - worldReduction - adjustedReduction);
 	const breakdown = [
 		...formatItemBreakdown(itemEntries, "-"),
+		...(itemReduction > adjustedReduction ? [`Penetração ${itemReduction - adjustedReduction}`] : []),
 		...(worldReduction > 0
 			? [`redução -${worldReduction}`]
 			: worldReduction < 0
@@ -345,6 +346,7 @@ export function buildBossRollFromResults(
 	];
 	const bossBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: boss.hitBonus },
+		...(dungeonAwakeningEffect(state.despertar).hitBonus > 0 ? [{ source: "Despertar da Masmorra", value: dungeonAwakeningEffect(state.despertar).hitBonus }] : []),
 		...collectWorldModifierEntries(state, boss.id, "hit_bonus"),
 	];
 
