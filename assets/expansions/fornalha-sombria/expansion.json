@@ -2389,39 +2389,7 @@
       ],
       "name": "Abismo Rachado",
       "image": "images/AbismoRachado.webp"
-    },
-    {
-      "id": "boss_azhakar",
-      "type": "boss",
-      "lifeBase": 20,
-      "hitBonusBase": 12,
-      "damage": 6,
-      "accessCondition": {
-        "type": "group_artifacts_gte",
-        "value": 2
-      },
-      "skills": [
-        {
-          "skillId": "boss_skill_living_ash_throne",
-          "params": {
-            "value": 1
-          }
-        },
-        {
-          "skillId": "boss_skill_dark_forge_pressure",
-          "params": {
-            "value": 1
-          }
-        },
-        {
-          "skillId": "boss_skill_azhakar_ascension",
-          "params": {
-            "value": 2
-          }
-        }
-      ],
-      "name": "Azhakar, Dragão da Fornalha Sombria",
-      "image": "images/Azhakardragaofornalhasombria.webp"
     }
-  ]
+  ],
+  "boss": "boss.json"
 }
