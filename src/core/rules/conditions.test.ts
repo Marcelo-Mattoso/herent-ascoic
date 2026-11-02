@@ -24,8 +24,8 @@ describe("checkBossCondition — Azhakar", () => {
 		expect(checkBossCondition(stateWithArtifacts(1), BOSS)).toBe(false);
 	});
 
-	it("2 artefatos: condição atendida", () => {
-		expect(checkBossCondition(stateWithArtifacts(2), BOSS)).toBe(true);
+	it("2 artefatos: condição não atendida", () => {
+		expect(checkBossCondition(stateWithArtifacts(2), BOSS)).toBe(false);
 	});
 
 	it("3 artefatos: condição atendida", () => {

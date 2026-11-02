@@ -6,6 +6,8 @@ describe("pacotes de expansão", () => {
 	it("carrega a Fornalha Sombria sem alterar os 80 IDs originais", () => {
 		expect(getEnabledExpansions().map((pack) => pack.id)).toEqual(["fornalha-sombria"]);
 		expect(getAllCards()).toHaveLength(80);
+		expect(getEnabledExpansions()[0]?.boss).toBe("boss.json");
+		expect(getEnabledExpansions()[0]?.cards.some((card) => card.type === "boss")).toBe(false);
 		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(80);
 	});
 

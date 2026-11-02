@@ -1,0 +1,152 @@
+{
+  "card": {
+    "id": "boss_azhakar",
+    "type": "boss",
+    "lifeBase": 20,
+    "hitBonusBase": 12,
+    "damage": 6,
+    "accessCondition": {
+      "type": "group_artifacts_gte",
+      "value": 3
+    },
+    "skills": [
+      {
+        "skillId": "boss_skill_living_ash_throne",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "boss_skill_dark_forge_pressure",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "boss_skill_azhakar_ascension",
+        "params": {
+          "value": 2
+        }
+      }
+    ],
+    "name": "Azhakar, Dragão da Fornalha Sombria",
+    "image": "images/Azhakardragaofornalhasombria.webp",
+    "dice": 3,
+    "scaling": {
+      "lifePerAwakening": 2,
+      "hitBonusPerAwakening": 1
+    },
+    "artifactBonus": {
+      "artifactId": "artifact_ancient_ember_heart",
+      "lifeBase": 16
+    }
+  },
+  "skills": [
+    {
+      "id": "boss_skill_living_ash_throne",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "round",
+        "charges": 1
+      },
+      "nature": [
+        "nat_fire",
+        "nat_dark"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "boss_skill_dark_forge_pressure",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_round_end"
+      },
+      "conditions": [
+        {
+          "kind": "compare",
+          "op": "gte",
+          "left": "$dungeon.level",
+          "right": 3
+        }
+      ],
+      "nature": [
+        "nat_dark",
+        "nat_fire"
+      ],
+      "target_type": "tgt_item",
+      "affect_scope": "scp_none",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_if",
+          "when": {
+            "kind": "compare",
+            "op": "gte",
+            "left": "$dungeon.level",
+            "right": 4
+          },
+          "then": [
+            {
+              "kind": "i_discard",
+              "pile": "dungeon",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boss_skill_azhakar_ascension",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$self",
+          "conditionType": "half_life_or_less"
+        }
+      ],
+      "nature": [
+        "nat_dark",
+        "nat_fire"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "permanent"
+          }
+        }
+      ]
+    }
+  ]
+}
