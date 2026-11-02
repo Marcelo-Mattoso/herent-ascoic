@@ -68,8 +68,9 @@
       "dungeon-levels": {
         "title": "Los cinco niveles del Despertar",
         "narration": [
-          "El Despertar de la Mazmorra tiene cinco niveles: Blanco, Amarillo, Naranja, Rojo y Morado. Indican la fuerza de la mazmorra, no pisos que haya que recorrer.",
-          "Las criaturas usan el nivel actual del Despertar para determinar vida, bonificación de acierto y dados. Cuando un héroe sube su Ímpetu por 10 XP, el Despertar también avanza un nivel, hasta Morado. Gastar 30 XP permite reducirlo, salvo que otra regla lo impida."
+          "El Despertar de la Mazmorra tiene cinco niveles: Blanco, Amarillo, Naranja, Rojo y Morado. Representan una amenaza creciente, no pisos físicos.",
+          "La vida, los dados y la progresión de acierto de las criaturas dependen del color actual. Cada nivel sustituye los efectos anteriores, sin acumularlos: Blanco sin bonificación; Amarillo +1 acierto; Naranja +1 acierto y +1 daño; Rojo añade Penetración 1; Morado conserva esos efectos y desbloquea habilidades especiales.",
+          "Subir el Ímpetu de un héroe cuesta 10 XP, pero el Despertar solo aumenta cuando TODOS los héroes alcanzan un nuevo nivel de Ímpetu en conjunto. Otros efectos también pueden cambiar el Despertar. El grupo puede gastar 30 XP para reducirlo cuando esté permitido."
         ],
         "instruction": "Observa la escala de colores de la carta de la sala. Indica el nivel actual del Despertar."
       },
@@ -84,8 +85,8 @@
       "dungeon-exhaustion": {
         "title": "Cuando se agota el mazo",
         "narration": [
-          "Descartar cartas no aumenta directamente el Despertar; reduce las salas restantes por explorar. Algunas habilidades y efectos también pueden descartar cartas de la mazmorra.",
-          "Si se agota el mazo de la mazmorra, el grupo puede gastar 5 XP para barajar los descartes y continuar. Sin 5 XP o sin cartas descartadas que recuperar, la expedición termina en derrota. El grupo también puede aceptar la derrota en vez de pagar."
+          "Descartar cartas no aumenta directamente el Despertar; reduce las salas disponibles para explorar. Las habilidades y otros efectos también pueden descartar cartas de la mazmorra.",
+          "Cuando se agota el mazo de salas, el grupo puede volver a barajar los descartes pagando según la dificultad: Muy Fácil 3 XP, Fácil 4 XP, Normal 5 XP, Difícil 6 XP y Pesadilla 7 XP. Sin suficiente XP o cartas descartadas, la expedición termina en derrota. El grupo también puede aceptar la derrota sin pagar."
         ],
         "instruction": "Administra tus XP: pueden ser necesarios para continuar la expedición."
       },
@@ -93,7 +94,8 @@
         "title": "El objetivo de la expedición",
         "narration": [
           "No es la primera puerta la que define una travesía. Ni la última batalla revela todo lo que sucedió antes.",
-          "En la Forja Oscura, cada decisión cambia aquello a lo que podrás enfrentarte después."
+          "En la Forja Oscura, cada decisión cambia aquello a lo que podrás enfrentarte después.",
+          "En la Forja Oscura, reunir tres artefactos permite enfrentarse a Azhakar. Llevar el Corazón entre ellos reduce la vida inicial del jefe."
         ],
         "instruction": "Explora la mazmorra, afronta sus desafíos y avanza hacia Azhakar. La victoria depende de las condiciones reales de la expedición."
       },
