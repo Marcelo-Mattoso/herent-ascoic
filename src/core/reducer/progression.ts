@@ -41,20 +41,24 @@ export function levelUpHero(state: GameState, heroId: string): GameState {
 	}));
 	next = applyLifeGain(next, heroId, lifeGain);
 
-	// Subir nível também avança o Despertar
-	next = { ...next, despertar: nextColor(next.despertar) };
-	if (next.despertar === PURPLE_AWAKENING) {
-		next = refreshPurpleComponents(next, true);
+	// Cada novo patamar alcançado por TODOS os heróis avança o Despertar UMA vez.
+	// Histórico independente: reduzir Despertar por XP não reativa patamares antigos.
+	const groupFloor = Math.min(...next.heroes.map((member) => member.impeto)) as ColorIndex;
+	const previousMilestone = next.groupImpetoMilestone;
+	if (groupFloor > previousMilestone) {
+		next = { ...next, groupImpetoMilestone: groupFloor };
+		for (let level = previousMilestone; level < groupFloor; level++) {
+			const before = next.despertar;
+			next = { ...next, despertar: nextColor(next.despertar) };
+			if (before !== PURPLE_AWAKENING && next.despertar === PURPLE_AWAKENING)
+				next = refreshPurpleComponents(next, true);
+			if (before < 3 && next.despertar >= 3 && next.subbosses.available.length === 0)
+				next = injectSubbossRooms(next);
+		}
 	}
-
-	// Ao atingir Vermelho (3), injetar salas de subchefe no deck de dungeon
-	if (next.despertar === 3 && next.subbosses.available.length === 0) {
-		next = injectSubbossRooms(next);
-	}
-
 	return log(
 		next,
-		`${getCardName(hero.cardId)} subiu para nível ${newImpeto + 1}. Despertar avança.`,
+		`${getCardName(hero.cardId)} subiu para nível ${newImpeto + 1}. ${groupFloor > previousMilestone ? "O Despertar avança com o grupo." : "O Despertar aguarda os demais heróis."}`,
 	);
 }
 

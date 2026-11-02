@@ -1,6 +1,10 @@
 import { expect, test } from "@playwright/test";
 
 test("cartas, versos, tabuleiros e interface são entregues em WebP", async ({ request }) => {
+	const bossManifestResponse = await request.get("/generated/cards/manifest.json");
+	expect(bossManifestResponse.ok()).toBe(true);
+	const bossManifest = await bossManifestResponse.json();
+	expect(bossManifest.cards.some((entry: { id: string }) => entry.id === "boss_azhakar")).toBe(true);
 	for (const group of ["cards", "backcards", "boards", "ui"]) {
 		const response = await request.get(`/generated/${group}/manifest.json`);
 		expect(response.ok()).toBe(true);

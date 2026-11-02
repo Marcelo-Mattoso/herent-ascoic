@@ -1,11 +1,15 @@
-// Handlers de combate com o boss Azhakar.
-// Implementa: Trono Vivo (reduz 1 no primeiro dano do turno), Ascensão Final (+2 hit abaixo da metade).
+// Combate genérico de bosses: ficha e habilidades pertencem à expansão.
 
 import { getCardName } from "../data/cardLocale";
-import { getBoss } from "../data/cards";
+import { getBossById, getDiceCount } from "../data/cards";
+import { checkBossCondition } from "../rules/conditions";
+import { inlineBossHitBonus, inlineBossDamageReduction, markInlineBossSkillsUsed } from "../rules/bossSkills";
+import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import { drainStack } from "../effects/resolver";
 import { syncEntityFromEnemy } from "../ecs/sync";
 import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
 import { calculateTotal, resolveAttack } from "../rules/combat";
+import { dungeonAwakeningEffect, piercedItemReduction } from "../rules/dungeonAwakening";
 import { rollDiceRng } from "../rules/dice";
 import {
 	collectHeroDamageBonusesFromItems,
@@ -22,7 +26,6 @@ import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { applyDamage } from "../systems/damageSystem";
-import { discardFromDungeonDeck } from "./exploration";
 import { log } from "./utils";
 
 function collectWorldModifierEntries(
@@ -64,7 +67,7 @@ function effectiveHeroDamage(
 function effectiveEnemyDamage(enemy: EnemyState, state: GameState): number {
 	return Math.max(
 		0,
-		enemy.damage +
+		enemy.damage + dungeonAwakeningEffect(state.despertar).damageBonus +
 			totalItemValue(
 				collectWorldModifierEntries(state, enemy.id, "damage_dealt"),
 			),
@@ -84,12 +87,12 @@ function reduceHeroDamage(
 		state,
 		"attack",
 	);
-	const finalDamage = Math.max(
-		0,
-		amount - worldReduction - totalItemValue(itemEntries),
-	);
+	const itemReduction = totalItemValue(itemEntries);
+	const adjustedReduction = piercedItemReduction(itemReduction, dungeonAwakeningEffect(state.despertar).armorPenetration);
+	const finalDamage = Math.max(0, amount - worldReduction - adjustedReduction);
 	const breakdown = [
 		...formatItemBreakdown(itemEntries, "-"),
+		...(itemReduction > adjustedReduction ? [`Penetração ${itemReduction - adjustedReduction}`] : []),
 		...(worldReduction > 0
 			? [`redução -${worldReduction}`]
 			: worldReduction < 0
@@ -114,13 +117,16 @@ function formatDamageBonusNote(
 // ─── REVEAL_BOSS ─────────────────────────────────────────────────────────────
 
 export function handleRevealBoss(state: GameState): GameState {
-	const bossCard = getBoss();
+	const bossCard = getBossById(state.bossCardId);
 	if (!bossCard) return log(state, "[ERRO] Carta do boss não encontrada.");
-
-	const has3Artifacts = state.groupArtifacts.length >= 3;
-	const lifeBase = has3Artifacts ? 16 : bossCard.lifeBase;
-	const totalLife = lifeBase + state.despertar * 2;
-	const totalHitBonus = bossCard.hitBonusBase + state.despertar;
+	if (!checkBossCondition(state, bossCard.id)) {
+		return log(state, "[AVISO] Condição de acesso ao boss ainda não atendida.");
+	}
+	const hasBonusArtifact = bossCard.artifactBonus &&
+		state.groupArtifacts.some((artifact) => artifact.cardId === bossCard.artifactBonus?.artifactId);
+	const lifeBase = hasBonusArtifact ? bossCard.artifactBonus!.lifeBase : bossCard.lifeBase;
+	const totalLife = lifeBase + state.despertar * (bossCard.scaling?.lifePerAwakening ?? 2);
+	const totalHitBonus = bossCard.hitBonusBase + state.despertar * (bossCard.scaling?.hitBonusPerAwakening ?? 1);
 
 	const bossEnemy: EnemyState = {
 		id: "boss",
@@ -129,7 +135,7 @@ export function handleRevealBoss(state: GameState): GameState {
 		currentLife: totalLife,
 		damage: bossCard.damage,
 		hitBonus: totalHitBonus,
-		dice: 3, // Azhakar usa 3 dados
+		dice: getDiceCount(bossCard, state.despertar),
 		tokens: {},
 		conditions: [],
 		firstDamageTakenThisTurn: false,
@@ -161,13 +167,10 @@ export function handleBossResolveAttack(state: GameState): GameState {
 	const boss = state.activeEnemies.find((e) => e.id === "boss");
 	if (!hero || !boss) return state;
 
-	// Ascensão Final: +2 hit bonus quando boss está na metade da vida ou menos
-	let enemyTotal = roll.enemyTotal;
+	const hitBonus = inlineBossHitBonus(boss);
+	const enemyTotal = roll.enemyTotal + hitBonus;
 	let next = state;
-	if (boss.currentLife <= Math.floor(boss.maxLife / 2)) {
-		enemyTotal += 2;
-		next = log(next, "Ascensão Final ativada: +2 no acerto do boss.");
-	}
+	if (hitBonus !== 0) next = log(next, `Habilidade do chefe: ${hitBonus > 0 ? "+" : ""}${hitBonus} no acerto.`);
 
 	const heroDamage = effectiveHeroDamage(
 		hero,
@@ -184,16 +187,11 @@ export function handleBossResolveAttack(state: GameState): GameState {
 
 	if (result.enemyDamageTaken > 0) {
 		let dmg = result.enemyDamageTaken;
-		// Trono Vivo: reduz o primeiro dano do turno em 1
-		if (!state.combat.bossFirstDamageReduced) {
-			dmg = Math.max(0, dmg - 1);
-			next = {
-				...next,
-				combat: next.combat
-					? { ...next.combat, bossFirstDamageReduced: true }
-					: null,
-			};
-			next = log(next, "Trono Vivo: dano ao boss reduzido em 1.");
+		const reduction = inlineBossDamageReduction(next, boss);
+		if (reduction.amount > 0) {
+			dmg = Math.max(0, dmg - reduction.amount);
+			next = markInlineBossSkillsUsed(next, reduction.usedIds);
+			next = log(next, `Habilidade do chefe: dano reduzido em ${reduction.amount}.`);
 		}
 		const newLife = Math.max(0, boss.currentLife - dmg);
 		next = applyDamage(next, "boss", dmg, {
@@ -255,27 +253,17 @@ function checkBossEnd(state: GameState): GameState {
 		);
 	}
 
-	// O boss é dono de suas três regras (Trono Vivo, Ascensão Final e Pressão
-	// da Forja). A janela genérica ignora boss_skill para não somá-las em dobro.
-	let afterRoundEnd = state;
-
-	if (afterRoundEnd.despertar >= 4) {
-		afterRoundEnd = discardFromDungeonDeck(afterRoundEnd, 1);
-		if (
-			afterRoundEnd.pendingTriggerInterrupt ||
-			afterRoundEnd.pendingSkillChoice ||
-			afterRoundEnd.pendingSkillTarget
-		) {
-			return afterRoundEnd;
-		}
-		afterRoundEnd = log(
-			afterRoundEnd,
-			"Pressão da Forja Sombria: 1 carta de masmorra descartada.",
-		);
-	}
+	// Efeitos de rodada são emitidos conforme as skills declaradas na ficha.
+	let afterRoundEnd = resolveSkillWindow(state, {
+		event: "evt_round_end",
+		ctx: { triggeredBy: "evt_round_end", round: state.combat?.round },
+	});
+	if (afterRoundEnd.pendingTriggerInterrupt || afterRoundEnd.pendingSkillChoice ||
+		afterRoundEnd.pendingSkillTarget) return afterRoundEnd;
+	afterRoundEnd = drainStack(afterRoundEnd);
 
 	// Próxima rodada de boss
-	const nextCombat = state.combat
+	const nextCombat = afterRoundEnd.combat
 		? {
 				...afterRoundEnd.combat!,
 				round: afterRoundEnd.combat!.round + 1,
@@ -284,8 +272,7 @@ function checkBossEnd(state: GameState): GameState {
 				pairs: [],
 				heroesActed: [],
 				lastRoll: null,
-				bossFirstDamageReduced: false,
-				disabled: ActivationTracker.clearLocks(
+					disabled: ActivationTracker.clearLocks(
 					afterRoundEnd.combat!.disabled,
 					"round",
 				),
@@ -345,6 +332,7 @@ export function buildBossRollFromResults(
 	];
 	const bossBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: boss.hitBonus },
+		...(dungeonAwakeningEffect(state.despertar).hitBonus > 0 ? [{ source: "Despertar da Masmorra", value: dungeonAwakeningEffect(state.despertar).hitBonus }] : []),
 		...collectWorldModifierEntries(state, boss.id, "hit_bonus"),
 	];
 

@@ -144,6 +144,12 @@ export interface BossCard {
 	readonly lifeBase: number;
 	readonly hitBonusBase: number;
 	readonly damage: number;
+	/** Quantidade de dados do chefe (não depende das traduções). */
+	readonly dice?: number;
+	readonly accessCondition?: { readonly type: "group_artifacts_gte"; readonly value: number } | { readonly type: "always" };
+	readonly scaling?: { readonly lifePerAwakening?: number; readonly hitBonusPerAwakening?: number };
+	/** Modificador de Vida-base ativado por um artefato específico do grupo. */
+	readonly artifactBonus?: { readonly artifactId: string; readonly lifeBase: number };
 	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
 	readonly grants?: readonly AbilityGrant[];

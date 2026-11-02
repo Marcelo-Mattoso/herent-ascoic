@@ -165,7 +165,7 @@ test("Arquivo III abre no celular e mantém controles acessíveis", async ({
 	browser,
 }) => {
 	const context = await browser.newContext({
-		viewport: { width: 390, height: 844 },
+		viewport: { width: 844, height: 390 },
 		isMobile: true,
 		hasTouch: true,
 	});
@@ -192,9 +192,9 @@ test("Arquivo III abre no celular e mantém controles acessíveis", async ({
 			path: `test-results/tutorial-inventory-${viewport.width}x${viewport.height}.png`,
 		});
 	}
-	await page.setViewportSize({ width: 390, height: 844 });
+	await page.setViewportSize({ width: 844, height: 390 });
 	await completeInventoryArchive(page);
-	await page.screenshot({ path: "test-results/tutorial-inventory-mobile.png" });
+	await page.screenshot({ path: "test-results/tutorial-inventory-landscape.png" });
 	await context.close();
 });
 
@@ -242,4 +242,21 @@ test("Arquivo II continua no III no mesmo documento", async ({ page }) => {
 		),
 	).toBe(37);
 	await expect(page.locator(".game-board-root")).toBeVisible();
+});
+
+test("Arquivo III: apenas o item pedido pode ser manipulado no treinamento", async ({ page }) => {
+	await openInventoryArchive(page);
+	for (let i = 0; i < 4; i++)
+		await page.getByRole("button", { name: i < 3 ? "Próximo ponto" : "Continuar" }).click();
+	await expect(page.locator('[data-tutorial-step="item-inspect"]')).toBeVisible();
+	await showBackpack(page);
+	const axe = page.locator(".inventory-backpack-item").filter({ hasText: "Machado do Salão Arruinado" });
+	await axe.click({ force: true });
+	await expect(page.locator(".modal-layer")).toHaveCount(0);
+	await expect(page.locator('[data-tutorial-step="item-inspect"]')).toBeVisible();
+	await page.getByRole("button", { name: /Detalhes de Adaga Enferrujada/ }).click();
+	await expect(page.locator(".modal-layer")).toBeVisible();
+	await page.keyboard.press("Escape");
+	await expect(page.locator(".modal-layer")).toHaveCount(0);
+	await expect(page.locator('[data-tutorial-step="equip-dagger"]')).toBeVisible();
 });

@@ -69,6 +69,8 @@ export interface GameState {
 	// Progressão
 	groupXp: number;
 	despertar: ColorIndex;
+	/** Patamar coletivo de Ímpeto mais alto já atingido por todos os heróis. */
+	groupImpetoMilestone: ColorIndex;
 
 	// Heróis
 	readonly heroes: readonly HeroState[];
@@ -243,6 +245,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 
 		groupXp: 0,
 		despertar: 0,
+		groupImpetoMilestone: 0,
 
 		heroes: [],
 		defeatedHeroes: [],

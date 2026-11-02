@@ -1,4 +1,4 @@
-import { XP_COSTS, type XpSpendOption } from "@/core/config/defaults";
+import { XP_COSTS, getDungeonRecoveryCost, type XpSpendOption } from "@/core/config/defaults";
 import { type PlayerView, playerView } from "@/core/projection/playerView";
 import { canStartHeroAttack } from "@/core/rules/attackAvailability";
 import { manualItemOptions } from "@/core/rules/itemEffects";
@@ -90,7 +90,7 @@ const XP_LABELS: Record<XpSpendOption, string> = {
 export function selectXpSpendOptions(view: PlayerView): XpSpendChoice[] {
 	const xp = view.groupXp;
 	return (Object.keys(XP_COSTS) as XpSpendOption[]).map((option) => {
-		const cost = XP_COSTS[option];
+		const cost = option === "recover_dungeon" ? getDungeonRecoveryCost(view.difficulty) : XP_COSTS[option];
 		const canAfford = xp >= cost;
 		let available = canAfford;
 		let reason: string | undefined;

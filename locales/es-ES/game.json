@@ -156,7 +156,8 @@
       "dynamic001": "disponible",
       "dynamic002": "no disponible",
       "dynamic003": "disponible",
-      "dynamic004": "no disponible"
+      "dynamic004": "no disponible",
+      "escapeHint": "Pulsa Esc para cerrar"
     },
     "hpBar": {},
     "influencePanel": {
@@ -253,7 +254,9 @@
       }
     },
     "itemTile": {},
-    "modal": {},
+    "modal": {
+      "escapeHint": "Pulsa Esc para cerrar"
+    },
     "modals": {
       "cardDetailModal": {
         "text001": "Habilidad",
@@ -265,10 +268,11 @@
       "dungeonExhaustedModal": {
         "title001": "Mazo de mazmorra vacío",
         "text002": "Puedes gastar",
-        "text003": "5 XP",
-        "text004": "para recuperar 1 carta aleatoria de la pila de descartes y continuar. De lo contrario, la partida termina en derrota.",
+        "text003": "{{cost}} puntos de experiencia",
+        "text004": "para volver a barajar todas las cartas descartadas de la mazmorra y continuar. En caso contrario, la expedición termina en derrota.",
         "text005": "XP disponible:",
-        "text006": "· Cartas descartadas:"
+        "text006": "· Cartas descartadas:",
+        "pay": "Pagar {{cost}} XP"
       },
       "fleeReconfigureModal": {
         "title001": "🏃 ¡Huida exitosa!",
@@ -432,7 +436,34 @@
       "text015": "Despertar de la Mazmorra",
       "text016": "Nivel",
       "text017": "Efectos de los niveles",
-      "ariaLabel018": "Niveles de despertar"
+      "ariaLabel018": "Niveles de despertar",
+      "awakening": {
+        "expand": "Mostrar efectos del Despertar",
+        "collapse": "Ocultar efectos del Despertar",
+        "colors": {
+          "white": "Blanco",
+          "yellow": "Amarillo",
+          "orange": "Naranja",
+          "red": "Rojo",
+          "purple": "Morado"
+        },
+        "notes": {
+          "0": "La mazmorra permanece dormida. Las criaturas usan solo sus atributos y habilidades normales.",
+          "1": "Las criaturas reciben una pequeña bonificación de precisión.",
+          "2": "Las criaturas aciertan con más facilidad y causan más daño de ataque.",
+          "3": "Los ataques enemigos ignoran hasta 1 punto de reducción de daño concedida por equipamiento.",
+          "4": "El Despertar máximo mantiene las bonificaciones de combate y activa las habilidades moradas de las criaturas."
+        },
+        "hit": "Acierto",
+        "damage": "Daño",
+        "penetration": "Penetración",
+        "purple": "Habilidades moradas",
+        "noBonus": "Sin bonificaciones adicionales",
+        "nonCumulative": "Cada nivel sustituye los efectos anteriores; las bonificaciones no se acumulan."
+      },
+      "rotateTitle": "Gira tu teléfono",
+      "rotateDescription": "Para jugar a Ascensão Heróica, coloca el teléfono en horizontal. La partida continuará donde la dejaste.",
+      "orientationGameName": "Ascensión Heroica"
     },
     "replay": {
       "invalidJson": "JSON no válido o formato no reconocido.",
@@ -493,25 +524,26 @@
       "difficulty": {
         "very_easy": {
           "label": "Muy fácil",
-          "hint": "Héroe +2, Mazmorra +0"
+          "hint": "Héroe naranja · Mazmorra blanca · Recuperación 3 XP"
         },
         "easy": {
           "label": "Fácil",
-          "hint": "Héroe +1, Mazmorra +0"
+          "hint": "Héroe amarillo · Mazmorra blanca · Recuperación 4 XP"
         },
         "normal": {
           "label": "Normal",
-          "hint": "Héroe +0, Mazmorra +0"
+          "hint": "Héroe blanco · Mazmorra blanca · Recuperación 5 XP"
         },
         "hard": {
           "label": "Difícil",
-          "hint": "Héroe +0, Mazmorra +1"
+          "hint": "Héroe blanco · Mazmorra amarilla · Recuperación 6 XP"
         },
         "nightmare": {
           "label": "Pesadilla",
-          "hint": "Héroe +0, Mazmorra +2"
+          "hint": "Héroe blanco · Mazmorra amarilla · Recuperación 7 XP"
         }
-      }
+      },
+      "expansionLabel": "Expansión"
     },
     "victory": {
       "kicker": "La leyenda quedó escrita",

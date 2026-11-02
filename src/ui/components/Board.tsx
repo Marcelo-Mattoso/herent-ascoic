@@ -196,7 +196,9 @@ function ActiveDungeonCard({
 				>
 					{translate("game:components.board.text002")}{" "}{room.exits} {translate("game:components.board.text003")}{" "}{room.xp}
 				</p>
-				<ColorBar current={despertar} />
+				<div data-tutorial-anchor="board.awakening">
+					<ColorBar current={despertar} />
+				</div>
 			</div>
 		</button>
 	);

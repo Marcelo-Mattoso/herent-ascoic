@@ -168,6 +168,9 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 					),
 				};
 			});
+		await expect(page.locator(".orientation-gate")).toBeVisible();
+		await page.setViewportSize({ width: 844, height: 390 });
+		await expect(page.locator(".orientation-gate")).toHaveCount(0);
 		await expect
 			.poll(async () => (await readState()).status, { timeout: 12_000 })
 			.toBe("HERO_ACTION");
@@ -200,8 +203,8 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 		const diceBounds = await dice.boundingBox();
 		expect(diceBounds).not.toBeNull();
 		expect(diceBounds!.x).toBeGreaterThanOrEqual(0);
-		expect(diceBounds!.x + diceBounds!.width).toBeLessThanOrEqual(390);
-		await page.screenshot({ path: "test-results/layout-dice-portrait.png" });
+		expect(diceBounds!.x + diceBounds!.width).toBeLessThanOrEqual(844);
+		await page.screenshot({ path: "test-results/layout-dice-landscape.png" });
 		await expect(dice.getByRole("button", { name: "Resolver ataque" })).toBeEnabled({ timeout: 15_000 });
 		const attackGeometry = await page.evaluate(async () => {
 			const modulePath = "/src/ui/store/elfStore.ts";
@@ -341,7 +344,7 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 	const page = await context.newPage();
 	try {
 		for (const viewport of [
-			{ width: 360, height: 800, name: "portrait" },
+			{ width: 568, height: 320, name: "small-landscape" },
 			{ width: 667, height: 375, name: "landscape" },
 		]) {
 			await page.setViewportSize(viewport);

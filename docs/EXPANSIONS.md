@@ -1,14 +1,14 @@
 # Sistema de expansões
 
-Cada expansão é uma pasta com um JSON de cartas e as imagens WebP correspondentes. O mesmo motor de regras atende todas as expansões. Não há módulos separados.
+Cada expansão é uma pasta com um JSON de cartas, uma ficha opcional de chefe em boss.json e as imagens WebP correspondentes. O mesmo motor de regras atende todas as expansões. Não há módulos separados.
 
 ## Criar um novo pacote
 
 1. Crie a pasta `assets/expansions/<id>/`.
-2. Crie `expansion.json` com `id`, `name`, `version` e `cards`.
-3. Salve todas as imagens WebP diretamente em `images/`, sem subpastas por categoria.
-4. Registre o ID em `assets/expansions/config.json` e marque `enabled: true`.
-5. Rode `npm run build` e `npm test` antes de promover a alteração.
+2. Crie `expansion.json` com `id`, `name`, `version`, `boss: "boss.json"` e `cards` (sem o chefe).\n3. Crie `boss.json` com `card` (ficha do boss) e `skills` (definições exclusivas).
+4. Salve todas as imagens WebP diretamente em `images/`, sem subpastas por categoria.
+5. Registre o ID em `assets/expansions/config.json` e marque `enabled: true`.
+6. Rode `npm run build` e `npm test` antes de promover a alteração.
 
 ## Exemplo de config.json
 
@@ -52,3 +52,7 @@ Os IDs das cartas são globais e devem ser únicos. O campo `name` é um nome pa
 Os 80 registros mecânicos foram migrados de `src/data/cards.yaml` para `assets/expansions/fornalha-sombria/expansion.json`, conservando os IDs, atributos e referências de habilidades. 78 imagens WebP ficam diretamente na pasta `images/` do próprio pacote. Duas salas especiais não tinham arte com nome correspondente e permanecem sem imagem específica: `subboss_room_jailer_chamber` e `subboss_room_cracked_abyss_chamber`.
 
 Os YAMLs legados de cartas, habilidades e os catálogos de tradução permanecem no repositório para referência e compatibilidade, mas **a lista de cartas em jogo agora vem dos pacotes habilitados**. A pasta `assets/webp/cards/` continua temporariamente por causa do pipeline de otimização existente; imagens servidas ao jogador são lidas dos pacotes de expansão.
+
+## Chefe isolado por expansão
+
+O boss fica em `boss.json` do próprio pacote, com `card` contendo `id`, `type: "boss"`, `dice`, `lifeBase`, `hitBonusBase`, `damage`, `accessCondition`, `scaling`, `artifactBonus` e referências `skills[]`. As definições dessas habilidades são declaradas em `boss.json.skills[]`, com IDs únicos. O catálogo combinado registra o chefe sem misturar as cartas das expansões na partida. O chefe de Azhakar exige ao menos três artefatos; com `artifact_ancient_ember_heart` no grupo, sua Vida-base passa de 20 para 16, antes da escala por Despertar.

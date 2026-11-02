@@ -339,11 +339,11 @@
         6
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 1,
       "xp": 1,
@@ -385,11 +385,11 @@
         7
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -428,11 +428,11 @@
         8
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -474,11 +474,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -514,11 +514,11 @@
         9
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 4,
       "xp": 2,
@@ -560,11 +560,11 @@
         10
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 4,
       "xp": 2,
@@ -606,11 +606,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -652,11 +652,11 @@
         11
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -698,11 +698,11 @@
         12
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -744,11 +744,11 @@
         13
       ],
       "hitBonus": [
-        6,
+        5,
+        7,
         9,
-        12,
-        16,
-        20
+        10,
+        12
       ],
       "damage": 6,
       "xp": 3,
@@ -787,11 +787,11 @@
         10
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -833,11 +833,11 @@
         11
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -879,11 +879,11 @@
         7
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -925,11 +925,11 @@
         8
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -971,11 +971,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -1014,11 +1014,11 @@
         10
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 4,
       "xp": 2,
@@ -1060,11 +1060,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -1106,11 +1106,11 @@
         11
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -1149,11 +1149,11 @@
         12
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 4,
@@ -1189,11 +1189,11 @@
         14
       ],
       "hitBonus": [
-        6,
+        5,
+        7,
         9,
-        12,
-        16,
-        20
+        10,
+        12
       ],
       "damage": 6,
       "xp": 4,
@@ -2389,39 +2389,7 @@
       ],
       "name": "Abismo Rachado",
       "image": "images/AbismoRachado.webp"
-    },
-    {
-      "id": "boss_azhakar",
-      "type": "boss",
-      "lifeBase": 20,
-      "hitBonusBase": 12,
-      "damage": 6,
-      "accessCondition": {
-        "type": "group_artifacts_gte",
-        "value": 2
-      },
-      "skills": [
-        {
-          "skillId": "boss_skill_living_ash_throne",
-          "params": {
-            "value": 1
-          }
-        },
-        {
-          "skillId": "boss_skill_dark_forge_pressure",
-          "params": {
-            "value": 1
-          }
-        },
-        {
-          "skillId": "boss_skill_azhakar_ascension",
-          "params": {
-            "value": 2
-          }
-        }
-      ],
-      "name": "Azhakar, Dragão da Fornalha Sombria",
-      "image": "images/Azhakardragaofornalhasombria.webp"
     }
-  ]
+  ],
+  "boss": "boss.json"
 }

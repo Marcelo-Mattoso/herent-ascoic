@@ -1,5 +1,6 @@
 import { drainStack } from "../effects/resolver";
 import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
+import { isInlineBossSkill } from "../rules/bossSkills";
 import type { GameState } from "../state/gameState";
 import { getCardById } from "../data/cards";
 import { getSkillName } from "../data/skillLocale";
@@ -159,11 +160,10 @@ function eventTargetIds(
 }
 
 function shouldSkipGrant(candidate: import("../abilities/executor").EventAbilityGrantCandidate): boolean {
-	// O combate de boss tem janelas e regras próprias em reducer/boss.ts.
-	// Não permitir que os mesmos efeitos do catálogo rodem também aqui evita
-	// duplicar Trono Vivo/Ascensão Final.
-	if (candidate.source.kind === "boss" ||
-		lookupSkillById(candidate.grant.abilityId)?.category === "boss_skill") return true;
+	// Modificadores de roll/dano do boss agem antes da resolução do ataque.
+	// Todos os demais grants do chefe usam o motor de gatilhos normal.
+	if (candidate.source.kind === "boss" &&
+		isInlineBossSkill(lookupSkillById(candidate.grant.abilityId))) return true;
 	// Itens equipados e artefatos já contribuem estes bônus em itemEffects.
 	// Executar também o grant aplicaria o bônus duas vezes; artefatos sem
 	// portador ainda produziriam um $source sem entidade.

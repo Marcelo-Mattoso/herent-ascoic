@@ -6,7 +6,11 @@ Estado local em 27/10/2026. O [site público](https://marcelo-mattoso.github.io/
 
 A Alpha abre sem cadastro. Escolha **JOGAR**, selecione de 1 a 4 heróis, modo e dificuldade e inicie a expedição. Revele salas, enfrente criaturas, use ataque, habilidades, poderes e itens, organize espólios, gaste XP, abra caminhos e avance até Azhakar. O botão ☰ no canto superior direito abre **Música** e **Regras** em todas as telas. Escolha uma faixa e pressione **Play**; **Stop** interrompe e reinicia a faixa. O volume começa em 50% e persiste com a faixa escolhida, mas a reprodução não recomeça após recarregar. Em Regras, é possível ler ou baixar o manual PDF. Vitória e derrota têm telas próprias.
 
-**TUTORIAL** abre quatro arquivos independentes. O Arquivo I guia a seleção de heróis, o tabuleiro e a revelação de uma sala. O Arquivo II ensina combate com seleção, arrasto ou toque, dados e dano reais. O Arquivo III ensina inventário e equipamentos. O Arquivo IV ensina a Marca da Presa, o ataque após a habilidade, a preparação e execução da Fúria Rubra, um poder do Guerreiro, o passivo de um encanto e o limite por partida. O Arquivista narra sobre a interface; use os controles destacados e **Continuar** nas observações. No fim, é possível repetir, escolher arquivo ou abrir a preparação de uma partida normal sem recarregar. O registro do treinamento pode ser baixado em JSON com o Diário.
+**TUTORIAL** abre quatro arquivos independentes. O treinamento é guiado:
+
+**No celular**
+
+**TUTORIAL** abre quatro arquivos independentes. O Arquivo I guia a seleção de heróis, o tabuleiro, a revelação de salas, o Despertar coletivo, as cores e os descartes da masmorra. O Arquivo II ensina combate com seleção, arrasto ou toque, dados e dano reais. O Arquivo III ensina inventário e equipamentos. O Arquivo IV ensina a Marca da Presa, o ataque após a habilidade, a preparação e execução da Fúria Rubra, um poder do Guerreiro, o passivo de um encanto e o limite por partida. O Arquivista narra sobre a interface; use os controles destacados e **Continuar** nas observações. No fim, é possível repetir, escolher arquivo ou abrir a preparação de uma partida normal sem recarregar. O registro do treinamento pode ser baixado em JSON com o Diário.
 
 Para relatar um problema, anote carta, herói, sala, ação, resultado esperado e observado e as últimas mensagens do log. O replay determinístico e as ferramentas de console ficam disponíveis apenas no modo de desenvolvimento.
 
@@ -15,7 +19,7 @@ Para relatar um problema, anote carta, herói, sala, ação, resultado esperado 
 | Prioridade | Estado | Consequência / próximo teste |
 |---|---|---|
 | P1 | `enableSave = false`. | Recarregar ou fechar a aba perde a partida; avise os participantes antes de começar. |
-| P1 | O tabuleiro agora cabe em retrato e paisagem sem rolagem da arena nos viewports automatizados. | Confirmar legibilidade, safe areas e barras dinâmicas em aparelhos reais antes da publicação. |
+| P1 | O jogo solicita orientação horizontal em celulares com toque e largura até 600 px quando estão em retrato; a partida não é reiniciada ao girar. | Confirmar legibilidade, áreas de toque, safe areas e barras dinâmicas em aparelhos Android/iOS reais; garantir ausência de rolagem na paisagem. |
 | P1 | O harness marcou sete casos `no-effect` em cenários sintéticos: `skill_rift_evasion`, `skill_cowardly_flee`, `skill_opportunity_shot`, `skill_minor_rune`, `boss_skill_dark_forge_pressure`, `dungeon_skill_subboss_room`, `dungeon_skill_empty_room`. | Fazer partidas dirigidas e reproduzir uma falha antes de mudar regras. Não há skill classificada como sem implementação ou erro pelo harness anterior. |
 | P1 | O motor de habilidades foi consolidado localmente: uso manual preserva o ataque e reação opcional exige preparação anterior ao evento. | Validar Caçador, Fúria, poderes e itens em aparelhos reais; observar se estado preparado, custo, efeito e diário ficam claros. |
 | P1 | Fuga de criatura para `skill_cowardly_flee` ainda não tem transição/emissor próprios. | Testar a carta em uma situação real e definir comportamento com o autor. |
