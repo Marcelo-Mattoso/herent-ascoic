@@ -22,5 +22,5 @@ export function dungeonAwakeningEffect(level: ColorIndex): DungeonAwakeningEffec
 
 /** Penetração afeta somente a proteção positiva fornecida por equipamentos. */
 export function piercedItemReduction(reduction: number, penetration: number): number {
-	return Math.max(0, reduction - Math.min(Math.max(0, reduction), Math.max(0, penetration)));
+	return reduction - Math.min(Math.max(0, reduction), Math.max(0, penetration));
 }
