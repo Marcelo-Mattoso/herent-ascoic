@@ -40,12 +40,14 @@ const atributos: readonly AttributeDef[] = [
 	{ id: "mana_max", kind: "stat" },
 	{ id: "mana", kind: "pool", max: { attr: "mana_max" } },
 	{ id: "armadura", kind: "stat", min: 0 },
+	{ id: "resistencia_arcana", kind: "stat" },
 ];
 
 export const regras: UnitRules = {
 	attributes: atributos,
 	lifePool: "vida",
 	mitigation: [{ type: "fisico", attr: "armadura" }],
+	resistance: [{ type: "arcano", attr: "resistencia_arcana" }],
 };
 
 const naoNoLago = { kind: "in_area", area: LAGO, negate: true };
@@ -74,6 +76,18 @@ export const habilidades: readonly AbilityDef[] = [
 		effects: [
 			{ kind: "damage", target: "@target", amount: 12, type: "arcano", source: "@self" },
 		],
+	},
+	{
+		id: "pele_abissal",
+		activation: "static",
+		effects: [],
+		modifiers: [{ attr: "resistencia_arcana", op: "add", value: 25 }],
+	},
+	{
+		id: "sangue_frio",
+		activation: "static",
+		effects: [],
+		immunities: ["veneno"],
 	},
 	{
 		id: "vigor_sereno",
@@ -190,9 +204,7 @@ export const unidades: readonly UnitDef[] = [
 		id: "espreitador_do_junco",
 		tags: ["criatura"],
 		base: { constituicao: 3, armadura: 3 },
-		abilities: ["enlace", "investida"],
-		immunities: ["veneno"],
-		resist: { arcano: 0.25 },
+		abilities: ["enlace", "investida", "pele_abissal", "sangue_frio"],
 	},
 	{
 		id: "cota_de_escamas",

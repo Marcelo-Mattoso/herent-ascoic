@@ -1,4 +1,4 @@
-import { clampPools } from "./attributes";
+import { abilitiesOf, clampPools } from "./attributes";
 import type { EventMeta } from "./events";
 import type { ScopeRegistry } from "./scopes";
 import { type EngineEventMap, type EngineState, recordEvent } from "./state";
@@ -34,7 +34,9 @@ export function isImmune<TMap extends EngineEventMap>(
 	unit: UnitId,
 	status: string,
 ): string | undefined {
-	const immunities = catalog.unitDef(unitOf(state, unit).def).immunities ?? [];
+	const immunities = abilitiesOf(state, catalog, unit).flatMap((ref) =>
+		ref.def.activation === "static" ? (ref.def.immunities ?? []) : [],
+	);
 	const def = catalog.statusDef(status);
 	return immunities.find(
 		(entry) => entry === def.id || def.tags.includes(entry),

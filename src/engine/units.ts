@@ -62,6 +62,7 @@ export interface AbilityDef {
 		readonly tickOn?: "start" | "end";
 	};
 	readonly modifiers?: readonly ModifierDecl[];
+	readonly immunities?: readonly string[];
 	readonly on?: TriggerDecl;
 	readonly priority?: number;
 	readonly limit?: { readonly scope: string; readonly times: number };
@@ -80,8 +81,6 @@ export interface UnitDef {
 	readonly tags: readonly string[];
 	readonly base: Readonly<Record<string, number>>;
 	readonly abilities: readonly string[];
-	readonly immunities?: readonly string[];
-	readonly resist?: Readonly<Record<string, number>>;
 	readonly slot?: string;
 	readonly equipModifiers?: readonly ModifierDecl[];
 	readonly equipAbilities?: readonly string[];
@@ -183,6 +182,10 @@ export interface UnitRules {
 	readonly attributes: readonly AttributeDef[];
 	readonly lifePool: string;
 	readonly mitigation?: readonly {
+		readonly type: string;
+		readonly attr: string;
+	}[];
+	readonly resistance?: readonly {
 		readonly type: string;
 		readonly attr: string;
 	}[];
@@ -306,6 +309,9 @@ export function createUnitCatalog(init: UnitContentInit): UnitCatalog {
 	for (const rule of rules.mitigation ?? []) {
 		attributeKnown(rule.attr, `mitigação de "${rule.type}"`);
 	}
+	for (const rule of rules.resistance ?? []) {
+		attributeKnown(rule.attr, `resistência a "${rule.type}"`);
+	}
 	const hookIds = new Set<string>();
 	for (const hook of [
 		...(rules.damageHooks ?? []),
@@ -332,6 +338,9 @@ export function createUnitCatalog(init: UnitContentInit): UnitCatalog {
 		}
 		if (ability.activation !== "static" && ability.modifiers?.length) {
 			fail(`${where} só estática tem modificadores`);
+		}
+		if (ability.activation !== "static" && ability.immunities?.length) {
+			fail(`${where} só estática tem imunidades`);
 		}
 		for (const cost of ability.cost ?? []) {
 			poolKnown(cost.pool, where);
@@ -366,9 +375,6 @@ export function createUnitCatalog(init: UnitContentInit): UnitCatalog {
 		}
 		checkModifiers(unit.equipModifiers, where);
 		checkModifiers(unit.aura?.modifiers, `${where} > aura`);
-		for (const [type, share] of Object.entries(unit.resist ?? {})) {
-			if (!(share <= 1)) fail(`${where} com resistência inválida a "${type}"`);
-		}
 	}
 	const statusRefs = [
 		...[...abilities.values()].flatMap((a) => nodesIn(a)),

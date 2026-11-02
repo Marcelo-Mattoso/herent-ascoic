@@ -61,7 +61,7 @@ interface AbilityDef {
   on?; priority?;               // triggered
   limit?: {scope, times};
 }
-interface UnitDef { id; tags; base; abilities; immunities?; resist?: Record<tipo, 0..1>;
+interface UnitDef { id; tags; base; abilities;
   equipModifiers?; equipAbilities?; aura?: AuraDef }
 interface AuraDef { filter?; modifiers?; onEnter?; onLeave?; onTurnStart? }
 canUseAbility(s, unit, ability, targets) → ok | {reason: "cooldown" | "custo" | "bloqueada" | "condicao" | "alvo"}
@@ -90,7 +90,7 @@ applyStatus (imunidade → status.imune; política de empilhamento), removeStatu
 
 ### Pipeline de dano e cura
 
-- **Dano**: `dano.proposto` → hooks do jogo (<100) → resistência por tipo → mitigação (ex.: armadura só contra `fisico`, piso 0) → hooks (≥100) → débito na vida → `dano.aplicado` → se vida 0, `unidade.derrotada`.
+- **Dano**: `dano.proposto` → hooks do jogo (<100) → resistência por tipo (`rules.resistance`: atributo em %, limitado a 100) → mitigação (ex.: armadura só contra `fisico`, piso 0) → hooks (≥100) → débito na vida → `dano.aplicado` → se vida 0, `unidade.derrotada`.
 - **Cura**: hooks → `healGate` (status bloqueia cura sem tag permitida → `cura.bloqueada`, efetivo 0) → crédito com clamp no máximo → `cura.aplicada`.
 - Hooks (`DamageHook`/`HealHook`) são o ponto de extensão para regras de um jogo (ex.: a regra roxa do Ascensão vira hook na F11b).
 
@@ -132,7 +132,9 @@ Rodada = turno de A + turno de E; uma ação aceita por turno; ação rejeitada 
 - **Lago Turvo** (área): aura com armadura −2 para quem está dentro; ao entrar, aplica **Cólera**.
 - **Cólera** (status, tag `veneno`, permanente, não empilha): bloqueia cura sem a tag `antidoto`; habilidade própria `sangrar`, que causa 5 de dano `veneno` no início do turno do portador.
 - **Raiz** (status, tag `controle`, 2 turnos, tick no fim do turno do portador): bloqueia `mover`.
-- **Espreitador do Junco (E)**: constituição 3 (vida 30), armadura 3, resistência 25% a `arcano`, imune a `veneno`.
+- **Espreitador do Junco (E)**: constituição 3 (vida 30), armadura 3; passivas Pele Abissal (+25 `resistencia_arcana`) e Sangue Frio (imune a `veneno`).
+
+Regra: unidade só tem atributos base e habilidades. Resistência e imunidade vêm de habilidades estáticas (`modifiers`, `immunities`), então itens, status e auras podem concedê-las.
   - `enlace`: aplica Raiz.
   - `investida`: 9 de dano `fisico`.
   - Roteiro: turno 1 usa `enlace` em A; depois sempre `investida`.

@@ -60,8 +60,13 @@ export function applyDamage<TMap extends EngineEventMap>(
 	}
 
 	const target = unitOf(current, proposal.target);
-	const resist = catalog.unitDef(target.def).resist?.[proposal.type] ?? 0;
-	let factor = 1 - resist;
+	let factor = 1;
+	for (const rule of rules.resistance ?? []) {
+		if (rule.type === proposal.type) {
+			const percent = attributeOf(current, catalog, proposal.target, rule.attr);
+			factor *= 1 - Math.min(percent, 100) / 100;
+		}
+	}
 	for (const entry of target.statuses) {
 		factor *= catalog.statusDef(entry.status).damageTaken?.[proposal.type] ?? 1;
 	}

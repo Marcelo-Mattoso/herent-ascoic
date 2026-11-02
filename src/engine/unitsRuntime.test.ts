@@ -76,9 +76,11 @@ const rules: UnitRules = {
 		{ id: "mana", kind: "pool", max: { attr: "mana_max" } },
 		{ id: "guarda", kind: "stat", min: 0, round: "floor" },
 		{ id: "ritmo", kind: "stat", default: 1, max: 4 },
+		{ id: "resiste_arcano", kind: "stat" },
 	],
 	lifePool: "vida",
 	mitigation: [{ type: "fisico", attr: "guarda" }],
+	resistance: [{ type: "arcano", attr: "resiste_arcano" }],
 };
 
 const mod = (
@@ -142,6 +144,18 @@ const abilities: AbilityDef[] = [
 				],
 			},
 		],
+	},
+	{
+		id: "casca_arcana",
+		activation: "static",
+		effects: [],
+		modifiers: [mod("resiste_arcano", "add", 50)],
+	},
+	{
+		id: "sem_dot",
+		activation: "static",
+		effects: [],
+		immunities: ["dot"],
 	},
 	{
 		id: "passo",
@@ -278,9 +292,7 @@ const units: UnitDef[] = [
 		id: "alvo",
 		tags: ["vivo"],
 		base: { forca: 3, guarda: 1 },
-		abilities: ["eco_tardio", "eco_cedo"],
-		resist: { arcano: 0.5 },
-		immunities: ["dot"],
+		abilities: ["eco_tardio", "eco_cedo", "casca_arcana", "sem_dot"],
 	},
 	{ id: "ecoante", tags: [], base: { forca: 2 }, abilities: ["laco"] },
 	{
@@ -466,8 +478,9 @@ describe("createUnitCatalog", () => {
 			make({ units: [{ ...units[0], id: "u", base: { nada: 1 } }] }),
 		).toThrow(/atributo desconhecido/);
 		expect(
-			make({ units: [{ ...units[0], id: "u", resist: { x: 2 } }] }),
-		).toThrow(/resistência/);
+			make({ rules: { ...rules, resistance: [{ type: "x", attr: "nada" }] } }),
+		).toThrow(/atributo desconhecido/);
+		expect(make(ab({ immunities: ["dot"] }))).toThrow(/só estática/);
 	});
 
 	it("lista os nós para validação e acha nós aninhados", () => {
