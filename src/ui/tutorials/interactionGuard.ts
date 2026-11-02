@@ -52,7 +52,7 @@ export function tutorialAllowsInteraction(target: Element, ctx: TutorialInteract
 	const heroInventoryDialog = document.querySelector(".inventory-hero-modal-overlay");
 	if (heroInventoryDialog) return heroInventoryDialog.contains(target) && matches(target, ".inventory-hero-modal__close");
 	const journal = document.querySelector(".journal-layer");
-	if (journal) return journal.contains(target) && matches(target, '.journal-layer__backdrop, button[aria-label*="Fechar"], button[aria-label*="Close"], button[aria-label*="Cerrar"], button:not(:disabled)');
+	if (journal) return journal.contains(target) && matches(target, '.journal-layer__backdrop, .journal-panel button:not(:disabled), .journal-layer button:not(:disabled)');
 	// Never open the game settings or unrelated side panels during an archive.
 	if (matches(target, ".global-menu, .support-action, .game-portable-drawer-layer")) return false;
 

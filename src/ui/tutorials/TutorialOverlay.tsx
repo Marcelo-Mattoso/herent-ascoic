@@ -213,7 +213,7 @@ export function TutorialOverlay({
 		const primary = document.querySelector<HTMLElement>(
 			".tutorial-panel__primary",
 		);
-		if (!document.querySelector(".flow-modal-overlay, .game-dice-roll-layer"))
+		if (!document.querySelector(".flow-modal-overlay, .game-dice-roll-layer, .modal-layer, .hero-art-viewer"))
 			(target ?? primary)?.focus({ preventScroll: true });
 	}, [anchors, step.kind]);
 

@@ -100,6 +100,7 @@ export function Exploration({
 	tutorialRevealEnabled = false,
 	tutorialCombatMode = false,
 	tutorialCombatMethod = null,
+	tutorialStepId,
 	onTutorialAttackInput,
 	tutorialInventoryMode = false,
 	tutorialInventoryOpen = false,

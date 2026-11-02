@@ -72,14 +72,14 @@ export function Modal({
 					{onClose && (
 						<div className="modal-close-controls">
 							<small className="modal-escape-hint">{translate("game:components.modal.escapeHint")}</small>
-						<button
-							type="button"
-							onClick={onClose}
-							className="modal-close w-7 h-7 flex items-center justify-center rounded hover:opacity-70 text-sm"
+							<button
+								type="button"
+								onClick={onClose}
+								className="modal-close w-7 h-7 flex items-center justify-center rounded hover:opacity-70 text-sm"
 							style={{ color: UI.textSecondary }}
 						>
-							✕
-						</button>
+								✕
+							</button>
 						</div>
 					)}
 				</div>
