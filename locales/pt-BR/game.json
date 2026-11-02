@@ -266,7 +266,7 @@
         "title001": "Deck de dungeon vazio",
         "text002": "Você pode gastar",
         "text003": "5 XP",
-        "text004": "para recuperar 1 carta aleatória do descarte e continuar. Caso contrário, a partida termina em derrota.",
+        "text004": "para reembaralhar todas as cartas descartadas e continuar. Caso contrário, a partida termina em derrota.",
         "text005": "XP disponível:",
         "text006": "· Cartas no descarte:"
       },
@@ -432,7 +432,31 @@
       "text015": "Despertar da Masmorra",
       "text016": "Nível",
       "text017": "Efeitos dos níveis",
-      "ariaLabel018": "Níveis do despertar"
+      "ariaLabel018": "Níveis do despertar",
+      "awakening": {
+        "expand": "Mostrar efeitos do Despertar",
+        "collapse": "Ocultar efeitos do Despertar",
+        "colors": {
+          "white": "Branco",
+          "yellow": "Amarelo",
+          "orange": "Laranja",
+          "red": "Vermelho",
+          "purple": "Roxo"
+        },
+        "notes": {
+          "0": "A masmorra permanece adormecida. As criaturas usam apenas seus atributos e habilidades normais.",
+          "1": "As criaturas recebem um pequeno impulso de precisão.",
+          "2": "As criaturas tornam-se mais precisas e seus ataques causam mais dano.",
+          "3": "A masmorra permite que ataques inimigos ignorem até 1 ponto de redução de dano concedida por equipamentos.",
+          "4": "O Despertar máximo mantém os bônus de combate e libera as habilidades especiais roxas das criaturas."
+        },
+        "hit": "Acerto",
+        "damage": "Dano",
+        "penetration": "Penetração",
+        "purple": "Habilidades roxas",
+        "noBonus": "Sem bônus adicionais",
+        "nonCumulative": "Os efeitos de cada nível substituem os anteriores; não são cumulativos."
+      }
     },
     "replay": {
       "invalidJson": "JSON inválido ou formato não reconhecido.",
@@ -493,23 +517,23 @@
       "difficulty": {
         "very_easy": {
           "label": "Muito fácil",
-          "hint": "Herói +2, Masmorra +0"
+          "hint": "Herói Laranja · Masmorra Branca · Recuperação 3 XP"
         },
         "easy": {
           "label": "Fácil",
-          "hint": "Herói +1, Masmorra +0"
+          "hint": "Herói Amarelo · Masmorra Branca · Recuperação 4 XP"
         },
         "normal": {
           "label": "Padrão",
-          "hint": "Herói +0, Masmorra +0"
+          "hint": "Herói Branco · Masmorra Branca · Recuperação 5 XP"
         },
         "hard": {
           "label": "Difícil",
-          "hint": "Herói +0, Masmorra +1"
+          "hint": "Herói Branco · Masmorra Amarela · Recuperação 6 XP"
         },
         "nightmare": {
           "label": "Pesadelo",
-          "hint": "Herói +0, Masmorra +2"
+          "hint": "Herói Branco · Masmorra Amarela · Recuperação 7 XP"
         }
       }
     },
