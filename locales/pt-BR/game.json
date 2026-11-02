@@ -268,7 +268,8 @@
         "text003": "5 XP",
         "text004": "para reembaralhar todas as cartas descartadas e continuar. Caso contrário, a partida termina em derrota.",
         "text005": "XP disponível:",
-        "text006": "· Cartas no descarte:"
+        "text006": "· Cartas no descarte:",
+        "pay": "Gastar {{cost}} XP"
       },
       "fleeReconfigureModal": {
         "title001": "🏃 Fuga bem-sucedida!",
