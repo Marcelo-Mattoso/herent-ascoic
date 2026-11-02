@@ -2,11 +2,14 @@ import { describe, expect, it } from "vitest";
 import { ABILITIES, cardAbilityGrants, lookupAbilityById } from "../../data/abilities";
 import { getAllCards, getCardsByType } from "../../data/cards";
 import { SKILLS } from "../../data/skills";
-import { lookupSkillById } from "../lookup";
+
 import { TRIGGER_EVENT_EMITTERS } from "../resolveSkillWindow";
 import { createInitialGameState } from "../../state/gameState";
 import { reducer } from "../../reducer";
 import { playerView } from "../../projection/playerView";
+import { skillById } from "@/core/gameEngine";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { gameOf } from "../../../engine/state";
 
 describe("auditoria estrutural do catálogo Alpha", () => {
 	it("todos os IDs são únicos, referenciados e os eventos têm emissores", () => {
@@ -18,7 +21,7 @@ describe("auditoria estrutural do catálogo Alpha", () => {
 		expect(new Set(abilityIds).size).toBe(abilityIds.length);
 		for (const card of cards) {
 			for (const ref of card.skills) {
-				expect(lookupSkillById(ref.skillId), `${card.id}/${ref.skillId}`).not.toBeNull();
+				expect(skillById(testEngine, ref.skillId), `${card.id}/${ref.skillId}`).not.toBeNull();
 			}
 			for (const grant of cardAbilityGrants(card.id)) {
 				expect(lookupAbilityById(grant.abilityId), `${card.id}/${grant.id}`).not.toBeNull();
@@ -36,9 +39,9 @@ describe("auditoria estrutural do catálogo Alpha", () => {
 		expect(heroes).toHaveLength(8);
 		for (const card of heroes) {
 			const base = createInitialGameState({ heroCardIds: [card.id] });
-			const state = reducer(base, { type: "START_GAME", payload: { heroCardIds: [card.id] } });
-			const heroId = state.heroes[0]!.id;
-			const actions = playerView(state).abilityActionsByHero[heroId];
+			const state = reducer(testEngine, base, { type: "START_GAME", payload: { heroCardIds: [card.id] } });
+			const heroId = gameOf(state).heroes[0]!.id;
+			const actions = playerView(testEngine, state).abilityActionsByHero[heroId];
 			expect(actions?.some((action) => action.kind === "skill"), card.id).toBe(true);
 			expect(actions?.some((action) => action.kind === "power"), card.id).toBe(true);
 		}

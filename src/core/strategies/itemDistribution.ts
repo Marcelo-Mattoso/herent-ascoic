@@ -3,22 +3,23 @@
 
 import type { ItemCard } from "../data/cardTypes";
 import { freeEquipmentSlot } from "../rules/equipment";
-import type { HeroState, ItemSlotType } from "../state/heroState";
+import type { HeroRecord, ItemSlotType } from "../state/heroState";
+import type { GameEngine } from "../gameEngine";
 
 export type ItemDestination = "equip" | "backpack" | "discard";
 
-export function getItemEquipmentSlot(
+export function getItemEquipmentSlot(engine: GameEngine, 
 	item: ItemCard,
-	hero: HeroState,
+	hero: HeroRecord,
 ): ItemSlotType | null {
-	return freeEquipmentSlot(hero, item);
+	return freeEquipmentSlot(engine, hero, item);
 }
 
-export function defaultItemDestination(
-	hero: HeroState,
+export function defaultItemDestination(engine: GameEngine, 
+	hero: HeroRecord,
 	item: ItemCard,
 ): ItemDestination {
-	const slot = getItemEquipmentSlot(item, hero);
+	const slot = getItemEquipmentSlot(engine, item, hero);
 	if (!slot) return "backpack";
 	return "equip";
 }

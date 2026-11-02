@@ -1,21 +1,19 @@
-// Utilitários internos do reducer: shuffle, fábricas de HeroState/EnemyState, log.
-// Não exportar para fora do módulo reducer.
-
 import type { CreatureCard, HeroCard, SubbossCard } from "../data/cardTypes";
 import type { RngState } from "../ports/random";
 import { nextFloat, nextId } from "../ports/random";
 import type { ColorIndex } from "../state/color";
-import type { EnemyState } from "../state/enemyState";
+import type { EnemyRecord, EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
-import type { HeroState } from "../state/heroState";
+import type { HeroRecord, HeroState } from "../state/heroState";
+import { gameOf, withGame } from "../../engine/state";
 
 // Helper de threading: extrai RNG do state, executa fn, devolve state com RNG avançado.
 export function withRng<T>(
 	state: GameState,
 	fn: (rng: RngState) => { value: T; next: RngState },
 ): { state: GameState; value: T } {
-	const { value, next } = fn(state.rng);
-	return { state: { ...state, rng: next }, value };
+	const { value, next } = fn(gameOf(state).rng);
+	return { state: withGame(state, (prevGame) => ({ ...prevGame, rng: next })), value };
 }
 
 // Fisher-Yates determinístico usando RngState.
@@ -49,7 +47,6 @@ export function createHeroFromCard(
 		damage: card.damage,
 		hitBonus: card.hitBonus[colorIndex],
 		dice: card.diceByColor[colorIndex],
-		impeto: colorIndex,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -89,33 +86,27 @@ export function createEnemyFromCard(
 }
 
 export function log(state: GameState, message: string): GameState {
-	return { ...state, eventLog: [...state.eventLog, message] };
+	return withGame(state, (prevGame) => ({ ...prevGame, eventLog: [...gameOf(state).eventLog, message] }));
 }
 
-export function getActiveHero(state: GameState): HeroState | undefined {
-	return state.heroes.find((h) => h.status === "active");
+export function getActiveHero(state: GameState): HeroRecord | undefined {
+	return gameOf(state).heroes.find((h) => h.status === "active");
 }
 
 export function mapHero(
 	state: GameState,
 	heroId: string,
-	fn: (h: HeroState) => HeroState,
+	fn: (h: HeroRecord) => HeroRecord,
 ): GameState {
-	return {
-		...state,
-		heroes: state.heroes.map((h) => (h.id === heroId ? fn(h) : h)),
-	};
+	return withGame(state, (prevGame) => ({ ...prevGame, heroes: gameOf(state).heroes.map((h) => (h.id === heroId ? fn(h) : h)) }));
 }
 
 export function mapEnemy(
 	state: GameState,
 	enemyId: string,
-	fn: (e: EnemyState) => EnemyState,
+	fn: (e: EnemyRecord) => EnemyRecord,
 ): GameState {
-	return {
-		...state,
-		activeEnemies: state.activeEnemies.map((e) =>
+	return withGame(state, (prevGame) => ({ ...prevGame, activeEnemies: gameOf(state).activeEnemies.map((e) =>
 			e.id === enemyId ? fn(e) : e,
-		),
-	};
+		) }));
 }

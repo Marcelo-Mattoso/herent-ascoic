@@ -1,15 +1,17 @@
 import { log } from "@/core/reducer/utils";
-import type { ScriptHandler } from "@/core/scripts/types";
-import { registerContinuation } from "@/core/skills/registry";
+import type { ScriptHandler, SkillContinuation } from "@/core/scripts/types";
 import type { PendingReward } from "@/core/state/gameState";
 
+import { deckOf, decksOf, withDecks } from "@/core/state/access";
+import { withPendingSkillChoice } from "../../core/state/access";
+import { withGame, gameOf } from "../../engine/state";
 // skill_rekindled_forge — Forja Reacesa
 // Ao vencer a sala, o grupo pode recuperar 1 item descartado e equipá-lo.
 // Apresenta escolha dos itens em itemDeck.discarded.
 export const run: ScriptHandler = (ctx) => {
 	if (!ctx.skillId) return ctx.state;
 
-	const discarded = ctx.state.decks.itemDeck.discarded;
+	const discarded = deckOf(ctx.state, "itemDeck").discarded;
 	if (discarded.length === 0) {
 		return ctx.action.log(
 			"Forja Reacesa: nenhum item descartado disponível para recuperar.",
@@ -21,43 +23,37 @@ export const run: ScriptHandler = (ctx) => {
 		label: name as string,
 	}));
 
-	return {
-		...ctx.state,
-		pendingSkillChoice: {
+	return withPendingSkillChoice(ctx.state, {
 			skillId: ctx.skillId,
 			prompt:
 				"Forja Reacesa: escolha 1 item descartado para recuperar e equipar:",
 			options,
 			sourceHeroId: ctx.sourceId ?? undefined,
-		},
-	};
+		});
 };
 
 // Continuação: adiciona o item escolhido às recompensas pendentes e o remove do descarte.
-registerContinuation(
-	"skill_rekindled_forge",
-	(state, _ctx, choice): ReturnType<typeof log> => {
-		const discarded = state.decks.itemDeck.discarded;
-		if (!discarded.includes(choice)) return state;
+export const continuation: SkillContinuation = (
+	state,
+	_ctx,
+	choice,
+) => {
+	const discarded = deckOf(state, "itemDeck").discarded;
+	if (!discarded.includes(choice)) return state;
 
-		const reward: PendingReward = {
-			type: "item",
-			cardId: choice,
-			requiresBearer: false,
-		};
-		return log(
-			{
-				...state,
-				decks: {
-					...state.decks,
-					itemDeck: {
-						...state.decks.itemDeck,
-						discarded: discarded.filter((n) => n !== choice),
-					},
+	const reward: PendingReward = {
+		type: "item",
+		cardId: choice,
+		requiresBearer: false,
+	};
+	return log(
+		withDecks(withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: [...gameOf(state).pendingRewards, reward] })), {
+				...decksOf(state),
+				itemDeck: {
+					...deckOf(state, "itemDeck"),
+					discarded: discarded.filter((n) => n !== choice),
 				},
-				pendingRewards: [...state.pendingRewards, reward],
-			},
-			`Forja Reacesa: ${choice} recuperado do descarte.`,
-		);
-	},
-);
+			}),
+		`Forja Reacesa: ${choice} recuperado do descarte.`,
+	);
+};

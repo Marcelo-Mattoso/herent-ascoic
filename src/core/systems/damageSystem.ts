@@ -1,14 +1,6 @@
-// Sistema de dano — ponto único para toda aplicação de dano no jogo.
-// Atualiza tanto os arrays legados (heroes/enemies) quanto o ECS world.
-// Passo 7: applyDamage emite DamageAboutToBeDealt (pré) e DamageDealt (pós).
-// applyDamageMin1 é custo de vida (sem janela de bus — não é dano recebido de inimigo).
-
-import { syncEntityFromEnemy, syncEntityFromHero } from "../ecs/sync";
 import { appendAlphaLog } from "../diagnostics/alphaLog";
-import { getCardName } from "../data/cardLocale";
 import type { EntityId } from "../ecs/types";
 import {
-	removeEntity,
 	removeComponent,
 	removeModifiersAppliedBySource,
 	removeModifiersForSource,
@@ -26,10 +18,11 @@ import {
 	removeBlocksAppliedBySource,
 	removeBlocksForSource,
 } from "../state/blockHelpers";
-import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
-import type { HeroState } from "../state/heroState";
+import { cardName, type GameEngine } from "../gameEngine";
 
+import { enemyOf, heroOf, statOf, withEnemyRecord, withEntityRetired, withHeroRecord, withUnitStats, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
+import { gameOf, withGame } from "../../engine/state";
 export interface DamageOptions {
 	readonly sourceId?: EntityId;
 	readonly damageType?: DamageType;
@@ -51,11 +44,13 @@ export interface DamageContinuation {
 }
 
 function currentLife(state: GameState, targetId: EntityId): number | null {
-	return (
-		state.heroes.find((hero) => hero.id === targetId)?.currentLife ??
-		state.activeEnemies.find((enemy) => enemy.id === targetId)?.currentLife ??
-		null
-	);
+	if (
+		!gameOf(state).heroes.some((hero) => hero.id === targetId) &&
+		!gameOf(state).activeEnemies.some((enemy) => enemy.id === targetId)
+	) {
+		return null;
+	}
+	return statOf(state, targetId, "currentLife") ?? null;
 }
 
 function consumeDestructionPrevention(
@@ -63,9 +58,9 @@ function consumeDestructionPrevention(
 	targetId: EntityId,
 ): { readonly state: GameState; readonly minimumLife: number } {
 	const flag = destructionPreventionFlag(targetId);
-	if (!state.flags[flag]) return { state, minimumLife: 0 };
-	const { [flag]: _used, ...flags } = state.flags;
-	return { state: { ...state, flags }, minimumLife: 1 };
+	if (!gameOf(state).flags[flag]) return { state, minimumLife: 0 };
+	const { [flag]: _used, ...flags } = gameOf(state).flags;
+	return { state: withGame(state, (prevGame) => ({ ...prevGame, flags })), minimumLife: 1 };
 }
 
 function damageTriggerContext(
@@ -74,18 +69,18 @@ function damageTriggerContext(
 	targetId: EntityId,
 	amount: number,
 ) {
-	const sourceHeroId = state.heroes.some((hero) => hero.id === sourceId)
+	const sourceHeroId = gameOf(state).heroes.some((hero) => hero.id === sourceId)
 		? sourceId
 		: undefined;
-	const sourceEnemyId = state.activeEnemies.some(
+	const sourceEnemyId = gameOf(state).activeEnemies.some(
 		(enemy) => enemy.id === sourceId,
 	)
 		? sourceId
 		: undefined;
-	const targetHeroIds = state.heroes.some((hero) => hero.id === targetId)
+	const targetHeroIds = gameOf(state).heroes.some((hero) => hero.id === targetId)
 		? [targetId]
 		: [];
-	const targetEnemyIds = state.activeEnemies.some(
+	const targetEnemyIds = gameOf(state).activeEnemies.some(
 		(enemy) => enemy.id === targetId,
 	)
 		? [targetId]
@@ -96,7 +91,7 @@ function damageTriggerContext(
 		targetHeroIds,
 		targetEnemyIds,
 		value: amount,
-		round: state.combat?.round ?? 0,
+		round: gameOf(state).combat?.round ?? 0,
 	};
 }
 
@@ -107,45 +102,21 @@ function applyDamageRaw(
 	amount: number,
 	minLife: number,
 ): GameState {
-	const heroIdx = state.heroes.findIndex((h) => h.id === targetId);
-	if (heroIdx >= 0) {
-		const hero = state.heroes[heroIdx] as HeroState;
-		const newLife = Math.max(minLife, hero.currentLife - amount);
-		const updated: HeroState = {
-			...hero,
-			currentLife: newLife,
-			status: newLife <= 0 ? "defeated" : hero.status,
-		};
-		return {
-			...state,
-			heroes: state.heroes.map((h) => (h.id === targetId ? updated : h)),
-			world: syncEntityFromHero(state.world, updated),
-		};
+	const isHero = gameOf(state).heroes.some((h) => h.id === targetId);
+	if (!isHero && !gameOf(state).activeEnemies.some((e) => e.id === targetId)) {
+		return state;
 	}
-
-	const enemyIdx = state.activeEnemies.findIndex((e) => e.id === targetId);
-	if (enemyIdx >= 0) {
-		const enemy = state.activeEnemies[enemyIdx] as EnemyState;
-		const newLife = Math.max(minLife, enemy.currentLife - amount);
-		const updated: EnemyState = {
-			...enemy,
-			currentLife: newLife,
-			status: newLife <= 0 ? "defeated" : enemy.status,
-		};
-		return {
-			...state,
-			activeEnemies: state.activeEnemies.map((e) =>
-				e.id === targetId ? updated : e,
-			),
-			world: syncEntityFromEnemy(state.world, updated),
-		};
-	}
-
-	return state;
+	const life = statOf(state, targetId, "currentLife") as number;
+	const newLife = Math.max(minLife, life - amount);
+	const next = withUnitStats(state, targetId, { currentLife: newLife });
+	if (newLife > 0) return next;
+	return isHero
+		? withHeroRecord(next, targetId, (h) => ({ ...h, status: "defeated" }))
+		: withEnemyRecord(next, targetId, (e) => ({ ...e, status: "defeated" }));
 }
 
 /** Retoma somente as etapas ainda não executadas após uma escolha reativa. */
-export function continueDamage(
+export function continueDamage(engine: GameEngine, 
 	state: GameState,
 	continuation: DamageContinuation,
 ): GameState {
@@ -155,7 +126,7 @@ export function continueDamage(
 
 	if (continuation.stage === "after_dealt") {
 		if (attackHit && ctx.sourceHeroId && ctx.targetEnemyIds.length > 0) {
-			next = resolveSkillWindow(next, {
+			next = resolveSkillWindow(engine, next, {
 				event: "evt_hit",
 				ctx: {
 					triggeredBy: "evt_hit",
@@ -169,9 +140,9 @@ export function continueDamage(
 				},
 			});
 			if (
-				next.pendingTriggerInterrupt ||
-				next.pendingSkillChoice ||
-				next.pendingSkillTarget
+				pendingTriggerInterruptOf(next) ||
+				pendingSkillChoiceOf(next) ||
+				pendingSkillTargetOf(next)
 			)
 				return next;
 		}
@@ -181,32 +152,29 @@ export function continueDamage(
 		continuation.stage === "after_dealt" ||
 		continuation.stage === "after_hit"
 	) {
-		const defeatedHero = next.heroes.find(
+		const defeatedHero = gameOf(next).heroes.find(
 			(hero) => hero.id === targetId && hero.status === "defeated",
 		);
 		if (defeatedHero) {
-			({ state: next } = emit(next, {
+			({ state: next } = emit(engine, next, {
 				type: "HeroDefeated",
 				payload: { heroId: targetId, sourceId },
 			}));
-			next = {
-				...next,
-				world: removeTriggersAppliedBySource(
+			next = withWorld(next, removeTriggersAppliedBySource(
 					removeComponent(
-						removeModifiersAppliedBySource(next.world, targetId),
+						removeModifiersAppliedBySource(worldOf(next), targetId),
 						targetId,
 						(component) => component.type === "trigger",
 					),
 					targetId,
-				),
-			};
+				));
 			next = removeBlocksAppliedBySource(next, targetId);
 		}
-		const defeatedEnemy = next.activeEnemies.find(
+		const defeatedEnemy = gameOf(next).activeEnemies.find(
 			(enemy) => enemy.id === targetId && enemy.status === "defeated",
 		);
 		if (!defeatedEnemy) return next;
-		next = resolveSkillWindow(next, {
+		next = resolveSkillWindow(engine, next, {
 			event: "evt_destroy",
 			ctx: {
 				triggeredBy: "evt_destroy",
@@ -219,15 +187,15 @@ export function continueDamage(
 			},
 		});
 		if (
-			next.pendingTriggerInterrupt ||
-			next.pendingSkillChoice ||
-			next.pendingSkillTarget
+			pendingTriggerInterruptOf(next) ||
+			pendingSkillChoiceOf(next) ||
+			pendingSkillTargetOf(next)
 		)
 			return next;
 	}
 
 	if (
-		!next.activeEnemies.some(
+		!gameOf(next).activeEnemies.some(
 			(enemy) => enemy.id === targetId && enemy.status === "defeated",
 		)
 	)
@@ -235,7 +203,7 @@ export function continueDamage(
 	if (continuation.stage !== "after_kill") {
 		const killCtx = damageTriggerContext(next, sourceId, targetId, amount);
 		if (killCtx.sourceHeroId) {
-			next = resolveSkillWindow(next, {
+			next = resolveSkillWindow(engine, next, {
 				event: "evt_kill",
 				ctx: { triggeredBy: "evt_kill", ...killCtx },
 				resume: {
@@ -245,9 +213,9 @@ export function continueDamage(
 				},
 			});
 			if (
-				next.pendingTriggerInterrupt ||
-				next.pendingSkillChoice ||
-				next.pendingSkillTarget
+				pendingTriggerInterruptOf(next) ||
+				pendingSkillChoiceOf(next) ||
+				pendingSkillTargetOf(next)
 			)
 				return next;
 		}
@@ -256,46 +224,40 @@ export function continueDamage(
 	// A entidade derrotada permanece no array até a fase de recompensas, mas
 	// seus componentes e efeitos vinculados não podem sobreviver à destruição.
 	const preyByHero = Object.fromEntries(
-		Object.entries(next.combat?.preyByHero ?? {}).filter(
+		Object.entries(gameOf(next).combat?.preyByHero ?? {}).filter(
 			([, preyId]) => preyId !== targetId,
 		),
 	);
-	if (next.combat) {
-		next = {
-			...next,
-			combat: {
-				...next.combat,
-				prey: next.combat.prey === targetId ? null : next.combat.prey,
+	if (gameOf(next).combat) {
+		next = withGame(next, (prevGame) => ({ ...prevGame, combat: {
+				...gameOf(next).combat!,
+				prey: gameOf(next).combat!.prey === targetId ? null : gameOf(next).combat!.prey,
 				preyByHero,
-			},
-		};
+			} }));
 	}
-	const roomFirstKill = next.creaturesDefeated === 0;
-	({ state: next } = emit(next, {
+	const roomFirstKill = gameOf(next).creaturesDefeated === 0;
+	({ state: next } = emit(engine, next, {
 		type: "EnemyDestroyed",
 		payload: { enemyId: targetId, sourceId, roomFirstKill },
 	}));
-	const worldAfterRemove = removeEntity(next.world, targetId);
-	next = {
-		...next,
-		world: removeTriggersAppliedBySource(
-			removeModifiersForSource(worldAfterRemove, targetId),
+	next = withEntityRetired(next, targetId);
+	next = withWorld(next, removeTriggersAppliedBySource(
+			removeModifiersForSource(worldOf(next), targetId),
 			targetId,
-		),
-	};
+		));
 	return removeBlocksForSource(next, targetId);
 }
 
 // Aplica dano com janela de pré-evento (bus): ouvintes podem modificar o amount.
-export function applyDamage(
+export function applyDamage(engine: GameEngine, 
 	state: GameState,
 	targetId: EntityId,
 	amount: number,
 	opts?: DamageOptions,
 ): GameState {
 	if (
-		!state.heroes.some((hero) => hero.id === targetId && hero.status === "active") &&
-		!state.activeEnemies.some((enemy) => enemy.id === targetId && enemy.status === "active")
+		!gameOf(state).heroes.some((hero) => hero.id === targetId && hero.status === "active") &&
+		!gameOf(state).activeEnemies.some((enemy) => enemy.id === targetId && enemy.status === "active")
 	) {
 		return state;
 	}
@@ -305,13 +267,13 @@ export function applyDamage(
 	// Janela pré: listeners podem reduzir/aumentar o dano.
 	const preDamage =
 		opts?.resolvedAmount === undefined
-			? emit(state, {
+			? emit(engine, state, {
 					type: "DamageAboutToBeDealt",
 					payload: { sourceId, targetId, damageType, amount },
 				})
 			: null;
 	let s1 = preDamage?.state ?? state;
-	if (s1.pendingTriggerInterrupt) return s1;
+	if (pendingTriggerInterruptOf(s1)) return s1;
 	const amountAfterBus = preDamage
 		? (preDamage.event.payload as { amount: number }).amount
 		: (opts?.resolvedAmount ?? amount);
@@ -319,7 +281,7 @@ export function applyDamage(
 		damageType === "purple"
 			? Math.max(
 					0,
-					-getModifierTotal(s1.world, targetId, "purple_damage_taken"),
+					-getModifierTotal(worldOf(s1), targetId, "purple_damage_taken"),
 				)
 			: 0;
 	const finalAmount =
@@ -333,11 +295,11 @@ export function applyDamage(
 		lifeBeforeDamage !== null &&
 		finalAmount >= lifeBeforeDamage
 	) {
-		const { state: sBeforeDestroy } = emit(s1, {
+		const { state: sBeforeDestroy } = emit(engine, s1, {
 			type: "EntityWouldBeDestroyed",
 			payload: { sourceId, targetId, damageType, amount: finalAmount },
 		});
-		const pending = resolveSkillWindow(sBeforeDestroy, {
+		const pending = resolveSkillWindow(engine, sBeforeDestroy, {
 			event: "evt_would_be_destroyed",
 			ctx: {
 				triggeredBy: "evt_would_be_destroyed",
@@ -357,9 +319,9 @@ export function applyDamage(
 			},
 		});
 		if (
-			pending.pendingTriggerInterrupt ||
-			pending.pendingSkillChoice ||
-			pending.pendingSkillTarget
+			pendingTriggerInterruptOf(pending) ||
+			pendingSkillChoiceOf(pending) ||
+			pendingSkillTargetOf(pending)
 		)
 			return pending;
 		s1 = pending;
@@ -380,36 +342,33 @@ export function applyDamage(
 		(lifeImmediatelyBeforeApply ?? 0) - (currentLife(s2, targetId) ?? 0),
 	);
 	if (appliedAmount > 0) {
-		const previous = s2.damageFeedback ?? [];
-		s2 = {
-			...s2,
+		const previous = gameOf(s2).damageFeedback ?? [];
+		const side = heroOf(s2, targetId) ? ("hero" as const) : ("enemy" as const);
+		s2 = withGame(s2, (game) => ({
+			...game,
 			damageFeedback: [
 				...previous.slice(-63),
 				{
 					id: (previous.at(-1)?.id ?? 0) + 1,
 					targetId,
-					side: s2.heroes.some((hero) => hero.id === targetId)
-						? "hero"
-						: "enemy",
+					side,
 					amount: appliedAmount,
 					extraAttackId: opts?.extraAttackId,
 				},
 			],
-		};
+		}));
 	}
-	const source = s2.heroes.find((hero) => hero.id === sourceId) ??
-		s2.activeEnemies.find((enemy) => enemy.id === sourceId);
-	const target = s2.heroes.find((hero) => hero.id === targetId) ??
-		s2.activeEnemies.find((enemy) => enemy.id === targetId);
+	const source = sourceId ? (heroOf(s2, sourceId) ?? enemyOf(s2, sourceId)) : undefined;
+	const target = heroOf(s2, targetId) ?? enemyOf(s2, targetId);
 	s2 = appendAlphaLog(s2,
-		`Dano ${damageType}: ${source ? getCardName(source.cardId) : sourceId} → ${target ? getCardName(target.cardId) : targetId}; solicitado ${amount}, após efeitos ${finalAmount}, aplicado ${appliedAmount}; vida ${lifeImmediatelyBeforeApply ?? "?"} → ${currentLife(s2, targetId) ?? "?"}${purpleReduction ? `; redução roxa ${purpleReduction}` : ""}.`);
+		`Dano ${damageType}: ${source ? cardName(engine, source.cardId) : sourceId} → ${target ? cardName(engine, target.cardId) : targetId}; solicitado ${amount}, após efeitos ${finalAmount}, aplicado ${appliedAmount}; vida ${lifeImmediatelyBeforeApply ?? "?"} → ${currentLife(s2, targetId) ?? "?"}${purpleReduction ? `; redução roxa ${purpleReduction}` : ""}.`);
 
 	// Janela pós: listeners reagem ao dano já aplicado.
-	const { state: s3 } = emit(s2, {
+	const { state: s3 } = emit(engine, s2, {
 		type: "DamageDealt",
 		payload: { sourceId, targetId, damageType, amount: finalAmount },
 	});
-	if (s3.pendingTriggerInterrupt) return s3;
+	if (pendingTriggerInterruptOf(s3)) return s3;
 
 	const ctx = damageTriggerContext(s3, sourceId, targetId, finalAmount);
 	const attackHit = damageType === "attack" && finalAmount > 0;
@@ -420,18 +379,18 @@ export function applyDamage(
 		amount: finalAmount,
 		attackHit,
 	};
-	const s4 = resolveSkillWindow(s3, {
+	const s4 = resolveSkillWindow(engine, s3, {
 		event: "evt_damage_dealt",
 		ctx: { triggeredBy: "evt_damage_dealt", ...ctx },
 		resume: { type: "continue_damage", ...continuation },
 	});
 	if (
-		s4.pendingTriggerInterrupt ||
-		s4.pendingSkillChoice ||
-		s4.pendingSkillTarget
+		pendingTriggerInterruptOf(s4) ||
+		pendingSkillChoiceOf(s4) ||
+		pendingSkillTargetOf(s4)
 	)
 		return s4;
-	return continueDamage(s4, continuation);
+	return continueDamage(engine, s4, continuation);
 }
 
 // Aplica custo de vida mínimo 1 (skill cost / self-damage).

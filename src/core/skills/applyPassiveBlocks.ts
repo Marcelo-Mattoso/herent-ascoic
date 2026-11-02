@@ -4,11 +4,13 @@
 
 import type { SkillContext } from "../data/skillTypes";
 import { drainStack } from "../effects/resolver";
-import { awakeningRequirementMet } from "../rules/awakening";
 import { buildScriptCtx } from "../scripts/context";
 import { evaluate } from "./dsl/evaluate";
-import { cardSkills } from "./lookup";
+
 import type { GameState } from "../state/gameState";
+import { skillsOf } from "../gameEngine";
+import { refRequirementMet } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
 
 export interface PassiveBlockSource {
 	readonly cardId: string;
@@ -17,13 +19,13 @@ export interface PassiveBlockSource {
 	readonly sourceEnemyId?: string;
 }
 
-export function applyDeclaredPassiveBlocks(
+export function applyDeclaredPassiveBlocks(engine: GameEngine, 
 	state: GameState,
 	source: PassiveBlockSource,
 ): GameState {
 	let next = state;
-	for (const { def, ref } of cardSkills(source.cardId)) {
-		if (!awakeningRequirementMet(next.despertar, ref.requiresAwakening)) {
+	for (const { def, ref } of skillsOf(engine, source.cardId)) {
+		if (!refRequirementMet(engine, next, ref.requiresAwakening)) {
 			continue;
 		}
 		if (def.operate_type !== "op_passive" || !def.effect) continue;
@@ -44,11 +46,11 @@ export function applyDeclaredPassiveBlocks(
 			...(source.sourceHeroId ? { sourceHeroId: source.sourceHeroId } : {}),
 			...(source.sourceEnemyId ? { sourceEnemyId: source.sourceEnemyId } : {}),
 		};
-		const ctx = buildScriptCtx(next, context, {
+		const ctx = buildScriptCtx(engine, next, context, {
 			...(def.params ?? {}),
 			...(ref.params ?? {}),
 		});
-		next = drainStack(evaluate(blocks, ctx));
+		next = drainStack(engine, evaluate(blocks, ctx));
 	}
 	return next;
 }

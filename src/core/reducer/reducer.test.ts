@@ -1,6 +1,3 @@
-// Testes de integração do reducer.
-// Cada teste percorre um caminho completo do loop de jogo.
-
 import { describe, expect, it } from "vitest";
 import { getHeroes } from "../data/cards";
 import { createEmptyCombatState } from "../state/combatState";
@@ -10,6 +7,11 @@ import { createInitialGameState } from "../state/gameState";
 import type { RoomState } from "../state/roomState";
 import { getModifierTotal } from "../ecs/world";
 import { reducer, reducerCore } from "./index";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { deckOf, decksOf, enemiesOf, heroesOf, withAwakening, withDecks } from "@/core/state/access";
+import { settled } from "../__tests__/fixtures";
+import { pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, scopedFlagOf, withPendingSkillTarget } from "../state/access";
+import { gameOf, withGame } from "../../engine/state";
 
 const HERO = "hero_crimson_barbarian";
 const CLERIC = "hero_eternal_rest_cleric";
@@ -18,19 +20,21 @@ const WARRIOR = "hero_broken_bastion_warrior";
 const BOSS_NAME = "boss_azhakar";
 
 function rollDiceWithApprovals(state: GameState): GameState {
-	let next = reducer(state, { type: "ROLL_DICE" });
+	let next = reducer(testEngine, state, { type: "ROLL_DICE" });
 	let guard = 0;
-	while (next.pendingTriggerInterrupt && guard < 10) {
-		const interruptedStatus = next.status;
-		const interruptId = next.pendingTriggerInterrupt.id;
-		next = reducer(next, {
+	let interrupt = pendingTriggerInterruptOf(next);
+	while (interrupt && guard < 10) {
+		const interruptedStatus = gameOf(next).status;
+		const interruptId = interrupt.id;
+		next = reducer(testEngine, next, {
 			type: "APPLY_TRIGGER_INTERRUPT",
 			payload: { interruptId },
 		});
-		if (interruptedStatus === "ROLL_DICE" && next.status === "ROLL_DICE") {
-			next = reducer(next, { type: "ROLL_DICE" });
+		if (interruptedStatus === "ROLL_DICE" && gameOf(next).status === "ROLL_DICE") {
+			next = reducer(testEngine, next, { type: "ROLL_DICE" });
 		}
 		guard += 1;
+		interrupt = pendingTriggerInterruptOf(next);
 	}
 	return next;
 }
@@ -38,12 +42,12 @@ function rollDiceWithApprovals(state: GameState): GameState {
 // Constrói um estado com sala e inimigo pré-definidos para evitar aleatoriedade
 function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 	const base = createInitialGameState({ heroCardIds: [HERO] });
-	const s = reducer(base, {
+	const s = reducer(testEngine, base, {
 		type: "START_GAME",
 		payload: { heroCardIds: [HERO] },
 	});
 
-	const hero = s.heroes[0];
+	const hero = heroesOf(s)[0];
 	if (!hero) throw new Error("no hero");
 
 	const enemy: EnemyState = {
@@ -71,34 +75,26 @@ function stateWithRoomAndEnemy(lifeHero = 12, lifeEnemy = 1): GameState {
 		status: "active",
 	};
 
-	return {
-		...s,
-		heroes: [{ ...hero, currentLife: lifeHero, hitBonus: 100 }], // hitBonus alto → herói sempre vence
-		currentRoom: room,
-		activeEnemies: [enemy],
-		status: "COMBAT_START",
-		oncePer: {
-			...s.oncePer,
+	return withDecks(settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, currentLife: lifeHero, hitBonus: 100 }], currentRoom: room, activeEnemies: [enemy], status: "COMBAT_START", oncePer: {
+			...gameOf(s).oncePer,
 			game: {
-				...s.oncePer.game,
+				...gameOf(s).oncePer.game,
 				[`power_mighty_crimson_fury::${hero.id}`]: true,
 			},
-		},
-		decks: {
-			...s.decks,
+		} }))), {
+			...decksOf(s),
 			dungeonDeck: {
 				available: ["room_narrow_corridor", "room_dungeon_room"],
 				discarded: [],
 				removed: [],
 			},
 			itemDeck: { available: [], discarded: [], removed: [] },
-		},
-	};
+		});
 }
 
 function stateWithHeroesAndEnemy(heroCardIds: string[]): GameState {
 	const base = createInitialGameState({ heroCardIds });
-	const started = reducer(base, {
+	const started = reducer(testEngine, base, {
 		type: "START_GAME",
 		payload: { heroCardIds },
 	});
@@ -128,17 +124,11 @@ function stateWithHeroesAndEnemy(heroCardIds: string[]): GameState {
 		status: "active",
 	};
 
-	return {
-		...started,
-		heroes: started.heroes.map((h) => ({
+	return settled(withGame(started, (prevGame) => ({ ...prevGame, heroes: heroesOf(started).map((h) => ({
 			...h,
 			currentLife: h.maxLife,
 			hitBonus: 100,
-		})),
-		currentRoom: room,
-		activeEnemies: [enemy],
-		status: "COMBAT_START",
-	};
+		})), currentRoom: room, activeEnemies: [enemy], status: "COMBAT_START" })));
 }
 
 // ─── Testes de setup ─────────────────────────────────────────────────────────
@@ -146,7 +136,7 @@ function stateWithHeroesAndEnemy(heroCardIds: string[]): GameState {
 describe("START_GAME", () => {
 	it("seed do tutorial oferece um encontro válido a cada herói disponível", () => {
 		for (const hero of getHeroes()) {
-			let state = reducer(createInitialGameState({ heroCardIds: [hero.id] }), {
+			let state = reducer(testEngine, createInitialGameState({ heroCardIds: [hero.id] }), {
 				type: "START_GAME",
 				payload: {
 					heroCardIds: [hero.id],
@@ -154,81 +144,81 @@ describe("START_GAME", () => {
 					deferInitialRoomReveal: true,
 				},
 			});
-			state = reducer(state, { type: "REVEAL_ROOM" });
-			if (state.status === "ROOM_EFFECT")
-				state = reducer(state, { type: "RESOLVE_ROOM_EFFECT" });
-			if (state.status === "SPAWN_ENEMIES")
-				state = reducer(state, { type: "SPAWN_ENEMIES" });
-			expect(state.status, hero.id).toBe("COMBAT_START");
-			expect(state.currentRoom, hero.id).not.toBeNull();
-			expect(state.activeEnemies.length, hero.id).toBeGreaterThan(0);
-			expect(state.pendingSkillChoice, hero.id).toBeFalsy();
+			state = reducer(testEngine, state, { type: "REVEAL_ROOM" });
+			if (gameOf(state).status === "ROOM_EFFECT")
+				state = reducer(testEngine, state, { type: "RESOLVE_ROOM_EFFECT" });
+			if (gameOf(state).status === "SPAWN_ENEMIES")
+				state = reducer(testEngine, state, { type: "SPAWN_ENEMIES" });
+			expect(gameOf(state).status, hero.id).toBe("COMBAT_START");
+			expect(gameOf(state).currentRoom, hero.id).not.toBeNull();
+			expect(enemiesOf(state).length, hero.id).toBeGreaterThan(0);
+			expect(pendingSkillChoiceOf(state), hero.id).toBeFalsy();
 		}
 	});
 
 	it("pode aguardar a primeira revelação sem alterar o fluxo normal", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		const prepared = reducer(base, {
+		const prepared = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO], seed: 2, deferInitialRoomReveal: true },
 		});
-		expect(prepared.status).toBe("REVEAL_ROOM");
-		expect(prepared.currentRoom).toBeNull();
-		expect(prepared.decks.dungeonDeck.available.length).toBeGreaterThan(0);
-		const revealed = reducer(prepared, { type: "REVEAL_ROOM" });
-		expect(revealed.status).toBe("ROOM_EFFECT");
-		expect(revealed.currentRoom).not.toBeNull();
-		const normal = reducer(base, {
+		expect(gameOf(prepared).status).toBe("REVEAL_ROOM");
+		expect(gameOf(prepared).currentRoom).toBeNull();
+		expect(deckOf(prepared, "dungeonDeck").available.length).toBeGreaterThan(0);
+		const revealed = reducer(testEngine, prepared, { type: "REVEAL_ROOM" });
+		expect(gameOf(revealed).status).toBe("ROOM_EFFECT");
+		expect(gameOf(revealed).currentRoom).not.toBeNull();
+		const normal = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO], seed: 2 },
 		});
-		expect(normal.currentRoom?.cardId).toBe(revealed.currentRoom?.cardId);
+		expect(gameOf(normal).currentRoom?.cardId).toBe(gameOf(revealed).currentRoom?.cardId);
 	});
 
 	it("cria herói e embaralha decks", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		const s = reducer(base, {
+		const s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		expect(s.heroes).toHaveLength(1);
-		expect(s.heroes[0]?.cardId).toBe(HERO);
-		expect(s.status).toBe("ROOM_EFFECT");
-		expect(s.currentRoom).not.toBeNull();
-		expect(s.decks.dungeonDeck.available.length).toBeGreaterThan(0);
+		expect(heroesOf(s)).toHaveLength(1);
+		expect(heroesOf(s)[0]?.cardId).toBe(HERO);
+		expect(gameOf(s).status).toBe("ROOM_EFFECT");
+		expect(gameOf(s).currentRoom).not.toBeNull();
+		expect(deckOf(s, "dungeonDeck").available.length).toBeGreaterThan(0);
 	});
 
 	it("rejeita partidas com mais de quatro heróis", () => {
 		const heroCardIds = [HERO, CLERIC, PALADIN, WARRIOR, "hero_rift_rogue"];
 		const base = createInitialGameState({ heroCardIds });
-		const s = reducer(base, {
+		const s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds },
 		});
 
-		expect(s.heroes).toHaveLength(0);
-		expect(s.status).toBe("MAIN_MENU");
-		expect(s.eventLog.at(-1)).toBe("[ERRO] Selecione no máximo 4 heróis.");
+		expect(heroesOf(s)).toHaveLength(0);
+		expect(gameOf(s).status).toBe("MAIN_MENU");
+		expect(gameOf(s).eventLog.at(-1)).toBe("[ERRO] Selecione no máximo 4 heróis.");
 	});
 
 	it("inicia Guerreiro do Bastião Partido com bônus de acerto base 5 no normal", () => {
 		const warrior = "hero_broken_bastion_warrior";
 		const base = createInitialGameState({ heroCardIds: [warrior] });
-		const s = reducer(base, {
+		const s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [warrior], difficulty: "normal" },
 		});
-		expect(s.heroes[0]?.cardId).toBe(warrior);
-		expect(s.heroes[0]?.hitBonus).toBe(5);
+		expect(heroesOf(s)[0]?.cardId).toBe(warrior);
+		expect(heroesOf(s)[0]?.hitBonus).toBe(5);
 	});
 
 	it("define o boss corretamente", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		const s = reducer(base, {
+		const s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		expect(s.bossCardId).toBe(BOSS_NAME);
+		expect(gameOf(s).bossCardId).toBe(BOSS_NAME);
 	});
 });
 
@@ -237,104 +227,91 @@ describe("START_GAME", () => {
 describe("USE_ITEM", () => {
 	it("Caminho Preservado aguarda a janela de descarte de dungeon", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		const started = reducer(base, {
+		const started = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		const hero = started.heroes[0];
+		const hero = heroesOf(started)[0];
 		if (!hero) throw new Error("no hero");
 		const itemId = "item_worn_explorer_rope";
 
-		const result = reducer(
-			{
-				...started,
-				heroes: [{ ...hero, backpack: [itemId] }],
-			},
+		const result = reducer(testEngine, 
+			settled(withGame(started, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, backpack: [itemId] }] }))),
 			{ type: "USE_ITEM", payload: { itemId, heroId: hero.id } },
 		);
 
-		expect(result.heroes[0]?.backpack).toContain(itemId);
-		expect(result.flags.dungeonDiscardPrevented).not.toBe(true);
+		expect(heroesOf(result)[0]?.backpack).toContain(itemId);
+		expect(gameOf(result).flags.dungeonDiscardPrevented).not.toBe(true);
 	});
 
 	it("Saque Místico equipado descarta o item e ativa o artefato no grupo", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		const started = reducer(base, {
+		const started = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		const hero = started.heroes[0];
+		const hero = heroesOf(started)[0];
 		if (!hero) throw new Error("no hero");
 
 		const itemId = "item_ancient_iron_key";
 		const artifactId = "artifact_crimson_jailer_chain";
-		const state: GameState = {
-			...started,
-			heroes: [{ ...hero, activeItems: { amulet: itemId } }],
-			decks: {
-				...started.decks,
+		const state: GameState = withDecks(settled(withGame(started, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, activeItems: { amulet: itemId } }], pendingRewards: [] }))), {
+				...decksOf(started),
 				artifactDeck: {
 					available: [artifactId],
 					discarded: [],
 					removed: [],
 				},
-			},
-			pendingRewards: [],
-		};
+			});
 
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "USE_ITEM",
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.heroes[0]?.activeItems.amulet).toBeUndefined();
-		expect(result.pendingRewards).toHaveLength(0);
-		expect(result.groupArtifacts).toContainEqual({
+		expect(heroesOf(result)[0]?.activeItems.amulet).toBeUndefined();
+		expect(gameOf(result).pendingRewards).toHaveLength(0);
+		expect(gameOf(result).groupArtifacts).toContainEqual({
 			cardId: artifactId,
 			carriedBy: null,
 		});
-		expect(result.decks.artifactDeck.available).not.toContain(artifactId);
+		expect(deckOf(result, "artifactDeck").available).not.toContain(artifactId);
 	});
 
 	it("Saque Místico descarta o item mesmo quando ele está equipado no slot especial", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		const started = reducer(base, {
+		const started = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		const hero = started.heroes[0];
+		const hero = heroesOf(started)[0];
 		if (!hero) throw new Error("no hero");
 
 		const itemId = "item_torn_depths_map";
 		const artifactId = "artifact_ancient_ember_heart";
-		const state: GameState = {
-			...started,
-			heroes: [
+		const state: GameState = withDecks(settled(withGame(started, (prevGame) => ({ ...prevGame, heroes: [
 				{
 					...hero,
 					activeItems: { ...hero.activeItems, amulet: itemId },
 					backpack: [],
 				},
-			],
-			decks: {
-				...started.decks,
+			], pendingRewards: [] }))), {
+				...decksOf(started),
 				artifactDeck: {
 					available: [artifactId],
 					discarded: [],
 					removed: [],
 				},
-			},
-			pendingRewards: [],
-		};
+			});
 
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "USE_ITEM",
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.heroes[0]?.activeItems.amulet).toBeUndefined();
-		expect(result.pendingRewards).toHaveLength(0);
-		expect(result.groupArtifacts[0]).toMatchObject({
+		expect(heroesOf(result)[0]?.activeItems.amulet).toBeUndefined();
+		expect(gameOf(result).pendingRewards).toHaveLength(0);
+		expect(gameOf(result).groupArtifacts[0]).toMatchObject({
 			cardId: artifactId,
 			carriedBy: null,
 		});
@@ -342,58 +319,50 @@ describe("USE_ITEM", () => {
 
 	it("não permite usar item guardado na mochila durante o combate", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
-		s = reducer(s, { type: "START_COMBAT" });
-		const hero = s.heroes[0];
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const hero = heroesOf(s)[0];
 		if (!hero) throw new Error("no hero");
 		const itemId = "item_ancient_iron_key";
 		const artifactId = "artifact_crimson_jailer_chain";
-		s = {
-			...s,
-			heroes: [{ ...hero, backpack: [itemId] }, ...s.heroes.slice(1)],
-			decks: {
-				...s.decks,
+		s = withDecks(settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, backpack: [itemId] }, ...heroesOf(s).slice(1)] }))), {
+				...decksOf(s),
 				artifactDeck: {
 					available: [artifactId],
 					discarded: [],
 					removed: [],
 				},
-			},
-		};
-		s = reducer(s, {
+			});
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_HERO_FOR_ROUND",
 			payload: { heroId: hero.id },
 		});
 
-		const result = reducer(s, {
+		const result = reducer(testEngine, s, {
 			type: "USE_ITEM",
 			payload: { itemId, heroId: hero.id },
 		});
 
-		expect(result.heroes[0]?.backpack).toContain(itemId);
-		expect(result.combat?.heroesActed).not.toContain(hero.id);
-		expect(result.combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
-		expect(result.status).toBe("HERO_ACTION");
-		expect(result.combat?.phase).toBe("selecting_target");
-		expect(result.groupArtifacts).toHaveLength(0);
+		expect(heroesOf(result)[0]?.backpack).toContain(itemId);
+		expect(gameOf(result).combat?.heroesActed).not.toContain(hero.id);
+		expect(gameOf(result).combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
+		expect(gameOf(result).status).toBe("HERO_ACTION");
+		expect(gameOf(result).combat?.phase).toBe("selecting_target");
+		expect(gameOf(result).groupArtifacts).toHaveLength(0);
 	});
 
 	it("item que derrota a última criatura encaminha o combate para recompensa", () => {
 		let s = stateWithRoomAndEnemy(10, 1);
-		s = reducer(s, { type: "START_COMBAT" });
-		const hero = s.heroes[0];
-		const enemy = s.activeEnemies[0];
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const hero = heroesOf(s)[0];
+		const enemy = enemiesOf(s)[0];
 		if (!hero || !enemy) throw new Error("estado de combate inválido");
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_HERO_FOR_ROUND",
 			payload: { heroId: hero.id },
 		});
-		s = {
-			...s,
-			heroes: [{ ...hero, activeItems: { hand1: "item_living_ember_potion" } }],
-			activeEnemies: [{ ...enemy, currentLife: 1 }],
-		};
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, activeItems: { hand1: "item_living_ember_potion" } }], activeEnemies: [{ ...enemy, currentLife: 1 }] })));
 
-		const afterItem = reducer(s, {
+		const afterItem = reducer(testEngine, s, {
 			type: "USE_ITEM",
 			payload: {
 				itemId: "item_living_ember_potion",
@@ -402,24 +371,24 @@ describe("USE_ITEM", () => {
 			},
 		});
 
-		expect(afterItem.activeEnemies[0]?.status).toBe("defeated");
-		expect(afterItem.status).toBe("CHECK_COMBAT_END");
-		const completed = reducer(afterItem, { type: "CHECK_COMBAT_END" });
-		expect(completed.status).toBe("REWARD_PHASE");
-		expect(completed.activeEnemies).toEqual([]);
+		expect(enemiesOf(afterItem)[0]?.status).toBe("defeated");
+		expect(gameOf(afterItem).status).toBe("CHECK_COMBAT_END");
+		const completed = reducer(testEngine, afterItem, { type: "CHECK_COMBAT_END" });
+		expect(gameOf(completed).status).toBe("REWARD_PHASE");
+		expect(enemiesOf(completed)).toEqual([]);
 	});
 
 	it("usar habilidade manual preserva o ataque", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
-		s = reducer(s, { type: "START_COMBAT" });
-		const hero = s.heroes[0];
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const hero = heroesOf(s)[0];
 		if (!hero) throw new Error("no hero");
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_HERO_FOR_ROUND",
 			payload: { heroId: hero.id },
 		});
 
-		const afterSkill = reducer(s, {
+		const afterSkill = reducer(testEngine, s, {
 			type: "USE_SKILL",
 			payload: {
 				skillId: "skill_last_light_healing",
@@ -427,75 +396,67 @@ describe("USE_ITEM", () => {
 				targetIds: [hero.id],
 			},
 		});
-		const attack = reducer(afterSkill, {
+		const attack = reducer(testEngine, afterSkill, {
 			type: "CHOOSE_TARGET",
-			payload: { heroId: hero.id, enemyId: s.activeEnemies[0]!.id },
+			payload: { heroId: hero.id, enemyId: enemiesOf(s)[0]!.id },
 		});
 
-		expect(afterSkill.combat?.heroesActed).not.toContain(hero.id);
-		expect(afterSkill.combat?.phase).toBe("selecting_target");
-		expect(attack.status).toBe("ROLL_DICE");
+		expect(gameOf(afterSkill).combat?.heroesActed).not.toContain(hero.id);
+		expect(gameOf(afterSkill).combat?.phase).toBe("selecting_target");
+		expect(gameOf(attack).status).toBe("ROLL_DICE");
 	});
 
 	it("habilidade manual com múltiplos alvos abre seleção e resolve no alvo escolhido", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
-		s = reducer(s, { type: "START_COMBAT" });
-		const cleric = s.heroes.find((h) => h.cardId === CLERIC);
-		const ally = s.heroes.find((h) => h.cardId === HERO);
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const cleric = heroesOf(s).find((h) => h.cardId === CLERIC);
+		const ally = heroesOf(s).find((h) => h.cardId === HERO);
 		if (!cleric || !ally) throw new Error("invalid heroes");
 
-		s = {
-			...s,
-			heroes: s.heroes.map((h) =>
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: heroesOf(s).map((h) =>
 				h.id === ally.id ? { ...h, currentLife: 5 } : h,
-			),
-		};
-		s = reducer(s, {
+			) })));
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_HERO_FOR_ROUND",
 			payload: { heroId: cleric.id },
 		});
 
-		const pending = reducer(s, {
+		const pending = reducer(testEngine, s, {
 			type: "USE_SKILL",
 			payload: {
 				skillId: "skill_last_light_healing",
 				sourceId: cleric.id,
 			},
 		});
-		expect(pending.pendingSkillTarget).toMatchObject({
+		expect(pendingSkillTargetOf(pending)).toMatchObject({
 			skillId: "skill_last_light_healing",
 			sourceId: cleric.id,
 		});
-		expect(pending.pendingSkillTarget?.candidates.map((c) => c.id)).toEqual(
+		expect(pendingSkillTargetOf(pending)?.candidates.map((c) => c.id)).toEqual(
 			expect.arrayContaining([cleric.id, ally.id]),
 		);
 
-		const result = reducer(pending, {
+		const result = reducer(testEngine, pending, {
 			type: "SELECT_SKILL_TARGET",
 			payload: { targetId: ally.id },
 		});
 
-		expect(result.pendingSkillTarget).toBeUndefined();
-		expect(result.heroes.find((h) => h.id === ally.id)?.currentLife).toBe(8);
-		expect(result.combat?.heroesActed).not.toContain(cleric.id);
-		expect(result.combat?.phase).toBe("selecting_target");
+		expect(pendingSkillTargetOf(result)).toBeUndefined();
+		expect(heroesOf(result).find((h) => h.id === ally.id)?.currentLife).toBe(8);
+		expect(gameOf(result).combat?.heroesActed).not.toContain(cleric.id);
+		expect(gameOf(result).combat?.phase).toBe("selecting_target");
 	});
 
 	it("habilidade ativa pode ser usada fora de combate sem consumir ação de rodada", () => {
 		const s = stateWithHeroesAndEnemy([CLERIC, HERO]);
-		const cleric = s.heroes.find((h) => h.cardId === CLERIC);
-		const ally = s.heroes.find((h) => h.cardId === HERO);
+		const cleric = heroesOf(s).find((h) => h.cardId === CLERIC);
+		const ally = heroesOf(s).find((h) => h.cardId === HERO);
 		if (!cleric || !ally) throw new Error("invalid heroes");
 
-		const result = reducer(
-			{
-				...s,
-				status: "XP_SPEND_PHASE",
-				combat: null,
-				heroes: s.heroes.map((h) =>
+		const result = reducer(testEngine, 
+			settled(withGame(s, (prevGame) => ({ ...prevGame, status: "XP_SPEND_PHASE", combat: null, heroes: heroesOf(s).map((h) =>
 					h.id === ally.id ? { ...h, currentLife: 5 } : h,
-				),
-			},
+				) }))),
 			{
 				type: "USE_SKILL",
 				payload: {
@@ -506,21 +467,21 @@ describe("USE_ITEM", () => {
 			},
 		);
 
-		expect(result.heroes.find((h) => h.id === ally.id)?.currentLife).toBe(8);
-		expect(result.combat).toBeNull();
-		expect(result.status).toBe("XP_SPEND_PHASE");
+		expect(heroesOf(result).find((h) => h.id === ally.id)?.currentLife).toBe(8);
+		expect(gameOf(result).combat).toBeNull();
+		expect(gameOf(result).status).toBe("XP_SPEND_PHASE");
 	});
 
 	it("nova rodada reativa heróis desativados por rodada", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC]);
-		s = reducer(s, { type: "START_COMBAT" });
-		const hero = s.heroes[0];
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const hero = heroesOf(s)[0];
 		if (!hero) throw new Error("no hero");
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_HERO_FOR_ROUND",
 			payload: { heroId: hero.id },
 		});
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "USE_SKILL",
 			payload: {
 				skillId: "skill_last_light_healing",
@@ -529,49 +490,46 @@ describe("USE_ITEM", () => {
 			},
 		});
 
-		const nextRound = reducer(s, { type: "CHECK_COMBAT_END" });
+		const nextRound = reducer(testEngine, s, { type: "CHECK_COMBAT_END" });
 
-		expect(nextRound.combat?.heroesActed).toHaveLength(0);
-		expect(nextRound.combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
-		expect(nextRound.status).toBe("HERO_ACTION");
-		expect(nextRound.combat?.phase).toBe("selecting_hero");
+		expect(gameOf(nextRound).combat?.heroesActed).toHaveLength(0);
+		expect(gameOf(nextRound).combat?.disabled[`hero:${hero.id}`]).toBeUndefined();
+		expect(gameOf(nextRound).status).toBe("HERO_ACTION");
+		expect(gameOf(nextRound).combat?.phase).toBe("selecting_hero");
 	});
 
 	it("habilidade do Paladino dispara automaticamente no início do combate em dungeon 3+", () => {
 		let s = stateWithHeroesAndEnemy([PALADIN]);
-		const hero = s.heroes[0];
+		const hero = heroesOf(s)[0];
 		if (!hero) throw new Error("no hero");
 
-		s = reducer({ ...s, despertar: 3 }, { type: "START_COMBAT" });
+		s = reducer(testEngine, withAwakening(s, 3), { type: "START_COMBAT" });
 
-		expect(s.pendingTriggerInterrupt).toBeUndefined();
-		expect(getModifierTotal(s.world, hero.id, "hit_bonus")).toBe(2);
-		expect(getModifierTotal(s.world, hero.id, "damage_dealt")).toBe(2);
+		expect(pendingTriggerInterruptOf(s)).toBeUndefined();
+		expect(getModifierTotal(gameOf(s).world, hero.id, "hit_bonus")).toBe(2);
+		expect(getModifierTotal(gameOf(s).world, hero.id, "damage_dealt")).toBe(2);
 	});
 
 	it("habilidade do Guerreiro pode proteger aliado antes do dano sem desativá-lo", () => {
 		let s = stateWithHeroesAndEnemy([WARRIOR, CLERIC]);
-		s = reducer(s, { type: "START_COMBAT" });
-		const warrior = s.heroes.find((h) => h.cardId === WARRIOR);
-		const cleric = s.heroes.find((h) => h.cardId === CLERIC);
-		const enemy = s.activeEnemies[0];
-		if (!warrior || !cleric || !enemy || !s.combat) {
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const warrior = heroesOf(s).find((h) => h.cardId === WARRIOR);
+		const cleric = heroesOf(s).find((h) => h.cardId === CLERIC);
+		const enemy = enemiesOf(s)[0];
+		if (!warrior || !cleric || !enemy || !gameOf(s).combat) {
 			throw new Error("invalid combat");
 		}
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "USE_SKILL",
 			payload: {
 				skillId: "skill_bastion_guard",
 				sourceId: warrior.id,
 			},
 		});
-		expect(s.preparedAbilities).toBeDefined();
+		expect(gameOf(s).preparedAbilities).toBeDefined();
 
-		s = {
-			...s,
-			status: "RESOLVE_ATTACK",
-			combat: {
-				...s.combat!,
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, status: "RESOLVE_ATTACK", combat: {
+				...gameOf(s).combat!,
 				phase: "resolving",
 				selectedHeroId: cleric.id,
 				pairs: [{ heroId: cleric.id, enemyId: enemy.id }],
@@ -585,43 +543,35 @@ describe("USE_ITEM", () => {
 					enemyTotal: 6,
 					enemyBreakdown: [],
 				},
-			},
-			heroes: s.heroes.map((hero) =>
+			}, heroes: heroesOf(s).map((hero) =>
 				hero.id === cleric.id ? { ...hero, currentLife: 10 } : hero,
-			),
-			activeEnemies: [{ ...enemy, damage: 5 }],
-		};
+			), activeEnemies: [{ ...enemy, damage: 5 }] })));
 
-		const result = reducer(s, { type: "RESOLVE_ATTACK" });
-		expect(result.pendingTriggerInterrupt).toBeUndefined();
+		const result = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
+		expect(pendingTriggerInterruptOf(result)).toBeUndefined();
 
-		const updatedCleric = result.heroes.find((h) => h.id === cleric.id);
+		const updatedCleric = heroesOf(result).find((h) => h.id === cleric.id);
 		expect(updatedCleric?.currentLife).toBe(10 - (6 - 3));
-		expect(result.combat?.disabled[`hero:${warrior.id}`]).toBeUndefined();
+		expect(gameOf(result).combat?.disabled[`hero:${warrior.id}`]).toBeUndefined();
 	});
 
 	it("item equipado de bloqueio reduz o dano sofrido pelo herói", () => {
 		let s = stateWithRoomAndEnemy(12, 8);
-		s = reducer(s, { type: "START_COMBAT" });
-		const hero = s.heroes[0];
-		const enemy = s.activeEnemies[0];
-		if (!hero || !enemy || !s.combat) throw new Error("invalid combat");
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const hero = heroesOf(s)[0];
+		const enemy = enemiesOf(s)[0];
+		if (!hero || !enemy || !gameOf(s).combat) throw new Error("invalid combat");
 
-		const result = reducer(
-			{
-				...s,
-				status: "RESOLVE_ATTACK",
-				heroes: [
+		const result = reducer(testEngine, 
+			settled(withGame(s, (prevGame) => ({ ...prevGame, status: "RESOLVE_ATTACK", heroes: [
 					{
 						...hero,
 						currentLife: 12,
 						hitBonus: 0,
 						activeItems: { hand1: "item_ancient_metal_armor" },
 					},
-				],
-				activeEnemies: [{ ...enemy, damage: 5, currentLife: 8 }],
-				combat: {
-					...s.combat,
+				], activeEnemies: [{ ...enemy, damage: 5, currentLife: 8 }], combat: {
+					...gameOf(s).combat!,
 					lastRoll: {
 						heroId: hero.id,
 						enemyId: enemy.id,
@@ -632,35 +582,29 @@ describe("USE_ITEM", () => {
 						enemyTotal: 6,
 						enemyBreakdown: [],
 					},
-				},
-			},
+				} }))),
 			{ type: "RESOLVE_ATTACK" },
 		);
 
-		expect(result.heroes[0]?.currentLife).toBe(8);
-		expect(result.eventLog.at(-1)).toContain("Armadura de Metal Antigo -2");
+		expect(heroesOf(result)[0]?.currentLife).toBe(8);
+		expect(gameOf(result).eventLog.at(-1)).toContain("Armadura de Metal Antigo -2");
 	});
 
 	it("item equipado de dano aumenta o dano efetivo quando a margem da rolagem permite", () => {
 		let s = stateWithRoomAndEnemy(12, 10);
-		s = reducer(s, { type: "START_COMBAT" });
-		const hero = s.heroes[0];
-		const enemy = s.activeEnemies[0];
-		if (!hero || !enemy || !s.combat) throw new Error("invalid combat");
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const hero = heroesOf(s)[0];
+		const enemy = enemiesOf(s)[0];
+		if (!hero || !enemy || !gameOf(s).combat) throw new Error("invalid combat");
 
-		const result = reducer(
-			{
-				...s,
-				status: "RESOLVE_ATTACK",
-				heroes: [
+		const result = reducer(testEngine, 
+			settled(withGame(s, (prevGame) => ({ ...prevGame, status: "RESOLVE_ATTACK", heroes: [
 					{
 						...hero,
 						activeItems: { hand1: "item_broken_stone_hammer" },
 					},
-				],
-				activeEnemies: [{ ...enemy, currentLife: 10 }],
-				combat: {
-					...s.combat,
+				], activeEnemies: [{ ...enemy, currentLife: 10 }], combat: {
+					...gameOf(s).combat!,
 					lastRoll: {
 						heroId: hero.id,
 						enemyId: enemy.id,
@@ -671,40 +615,33 @@ describe("USE_ITEM", () => {
 						enemyTotal: 6,
 						enemyBreakdown: [],
 					},
-				},
-			},
+				} }))),
 			{ type: "RESOLVE_ATTACK" },
 		);
 
-		expect(result.activeEnemies[0]?.currentLife).toBe(10 - hero.damage - 2);
-		expect(result.eventLog.join("\n")).toContain(
+		expect(enemiesOf(result)[0]?.currentLife).toBe(10 - hero.damage - 2);
+		expect(gameOf(result).eventLog.join("\n")).toContain(
 			"Martelo de Pedra Quebrada +2",
 		);
 	});
 
 	it("ataque normal preserva o herói como fonte para gatilhos após acertar", () => {
 		let s = stateWithRoomAndEnemy(12, 5);
-		s = reducer(s, { type: "START_COMBAT" });
-		const hero = s.heroes[0];
-		const enemy = s.activeEnemies[0];
-		if (!hero || !enemy || !s.combat) throw new Error("invalid combat");
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const hero = heroesOf(s)[0];
+		const enemy = enemiesOf(s)[0];
+		if (!hero || !enemy || !gameOf(s).combat) throw new Error("invalid combat");
 
-		const result = reducer(
-			{
-				...s,
-				despertar: 4,
-				oncePer: { ...s.oncePer, game: {} },
-				status: "RESOLVE_ATTACK",
-				activeEnemies: [
+		const result = reducer(testEngine, 
+			settled(withGame(withAwakening(s, 4), (prevGame) => ({ ...prevGame, oncePer: { ...gameOf(s).oncePer, game: {} }, status: "RESOLVE_ATTACK", activeEnemies: [
 					{
 						...enemy,
 						cardId: "creature_wet_stone_slime",
 						maxLife: 5,
 						currentLife: 5,
 					},
-				],
-				combat: {
-					...s.combat,
+				], combat: {
+					...gameOf(s).combat!,
 					lastRoll: {
 						heroId: hero.id,
 						enemyId: enemy.id,
@@ -715,43 +652,37 @@ describe("USE_ITEM", () => {
 						enemyTotal: 6,
 						enemyBreakdown: [],
 					},
-				},
-			},
+				} }))),
 			{ type: "RESOLVE_ATTACK" },
 		);
-		expect(result.pendingTriggerInterrupt).toBeUndefined();
+		expect(pendingTriggerInterruptOf(result)).toBeUndefined();
 	});
 });
 
 describe("cancelamento de habilidade voluntária", () => {
 	it("cancelar seleção de alvo preserva uso e ataque", () => {
-		const started = reducer(createInitialGameState({ heroCardIds: [HERO] }), {
+		const started = reducer(testEngine, createInitialGameState({ heroCardIds: [HERO] }), {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		const hero = started.heroes[0]!;
-		const state: GameState = {
-			...started,
-			status: "HERO_ACTION",
-			combat: {
-				...started.combat!,
+		const hero = heroesOf(started)[0]!;
+		const state: GameState = withPendingSkillTarget(withGame(started, (prevGame) => ({ ...prevGame, status: "HERO_ACTION", combat: {
+				...gameOf(started).combat!,
 				phase: "selecting_target",
 				selectedHeroId: hero.id,
-			},
-			pendingSkillTarget: {
+			} })), {
 				skillId: "skill_rift_second_chance",
 				sourceId: hero.id,
 				prompt: "Escolha um alvo",
 				candidates: [{ id: "e1", label: "Inimigo", kind: "enemy" }],
-			},
-		};
+			});
 
-		const result = reducer(state, { type: "CANCEL_SKILL_TARGET" });
-		expect(result.pendingSkillTarget).toBeUndefined();
+		const result = reducer(testEngine, state, { type: "CANCEL_SKILL_TARGET" });
+		expect(pendingSkillTargetOf(result)).toBeUndefined();
 		expect(
-			result.combat?.oncePer.combat[`skill_rift_second_chance::${hero.id}`],
+			scopedFlagOf(result, "combat", "oncePer", `skill_rift_second_chance::${hero.id}`) || undefined,
 		).toBeUndefined();
-		expect(result.combat?.heroesActed).not.toContain(hero.id);
+		expect(gameOf(result).combat?.heroesActed).not.toContain(hero.id);
 	});
 });
 
@@ -760,60 +691,48 @@ describe("cancelamento de habilidade voluntária", () => {
 describe("REVEAL_ROOM", () => {
 	it("remove carta do deck e cria sala atual", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		const deckSizeBefore = s.decks.dungeonDeck.available.length;
-		s = { ...s, currentRoom: null, status: "REVEAL_ROOM" };
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		expect(s.currentRoom).not.toBeNull();
-		expect(s.decks.dungeonDeck.available.length).toBe(deckSizeBefore - 1);
-		expect(s.status).toBe("ROOM_EFFECT");
+		const deckSizeBefore = deckOf(s, "dungeonDeck").available.length;
+		s = withGame(s, (prevGame) => ({ ...prevGame, currentRoom: null, status: "REVEAL_ROOM" }));
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		expect(gameOf(s).currentRoom).not.toBeNull();
+		expect(deckOf(s, "dungeonDeck").available.length).toBe(deckSizeBefore - 1);
+		expect(gameOf(s).status).toBe("ROOM_EFFECT");
 	});
 
 	it("transita para DUNGEON_EXHAUSTED quando deck vazio e XP suficiente", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		s = {
-			...s,
-			groupXp: 10,
-			currentRoom: null,
-			status: "REVEAL_ROOM",
-			decks: {
-				...s.decks,
+		s = withDecks(withGame(s, (prevGame) => ({ ...prevGame, groupXp: 10, currentRoom: null, status: "REVEAL_ROOM" })), {
+				...decksOf(s),
 				dungeonDeck: {
 					available: [],
 					discarded: ["room_narrow_corridor"],
 					removed: [],
 				},
-			},
-		};
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		expect(s.status).toBe("DUNGEON_EXHAUSTED");
+			});
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		expect(gameOf(s).status).toBe("DUNGEON_EXHAUSTED");
 	});
 
 	it("transita para DEFEAT quando deck vazio sem XP", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		s = {
-			...s,
-			groupXp: 0,
-			currentRoom: null,
-			status: "REVEAL_ROOM",
-			decks: {
-				...s.decks,
+		s = withDecks(withGame(s, (prevGame) => ({ ...prevGame, groupXp: 0, currentRoom: null, status: "REVEAL_ROOM" })), {
+				...decksOf(s),
 				dungeonDeck: { available: [], discarded: [], removed: [] },
-			},
-		};
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		expect(s.status).toBe("DEFEAT");
+			});
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		expect(gameOf(s).status).toBe("DEFEAT");
 	});
 });
 
@@ -824,79 +743,79 @@ describe("loop de sala completo", () => {
 		let s = stateWithRoomAndEnemy();
 
 		// Combate
-		s = reducer(s, { type: "START_COMBAT" });
-		expect(s.status).toBe("HERO_ACTION");
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		expect(gameOf(s).status).toBe("HERO_ACTION");
 
-		const heroId = s.heroes[0]?.id ?? "";
-		const enemyId = s.activeEnemies[0]?.id ?? "";
+		const heroId = heroesOf(s)[0]?.id ?? "";
+		const enemyId = enemiesOf(s)[0]?.id ?? "";
 
-		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
-		expect(s.status).toBe("ROLL_DICE");
+		s = reducer(testEngine, s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+		expect(gameOf(s).status).toBe("ROLL_DICE");
 
 		s = rollDiceWithApprovals(s);
-		expect(s.status).toBe("RESOLVE_ATTACK");
+		expect(gameOf(s).status).toBe("RESOLVE_ATTACK");
 
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 		// Após RESOLVE_ATTACK → DIRECT_DAMAGE (sem inimigos não engajados)
-		s = reducer(s, { type: "CHECK_COMBAT_END" });
+		s = reducer(testEngine, s, { type: "CHECK_COMBAT_END" });
 
 		// Com hitBonus=100, herói sempre vence; inimigo tem vida=1 → é derrotado
-		if (s.status === "HERO_ACTION") {
+		if (gameOf(s).status === "HERO_ACTION") {
 			// Inimigo sobreviveu — faz mais uma rodada
-			s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+			s = reducer(testEngine, s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 			s = rollDiceWithApprovals(s);
-			s = reducer(s, { type: "RESOLVE_ATTACK" });
-			s = reducer(s, { type: "CHECK_COMBAT_END" });
+			s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
+			s = reducer(testEngine, s, { type: "CHECK_COMBAT_END" });
 		}
 
-		expect(s.status).toBe("REWARD_PHASE");
+		expect(gameOf(s).status).toBe("REWARD_PHASE");
 
 		// Recompensa
-		s = reducer(s, { type: "GRANT_REWARDS" });
-		expect(s.status).toBe("XP_SPEND_PHASE");
-		expect(s.groupXp).toBeGreaterThan(0);
+		s = reducer(testEngine, s, { type: "GRANT_REWARDS" });
+		expect(gameOf(s).status).toBe("XP_SPEND_PHASE");
+		expect(gameOf(s).groupXp).toBeGreaterThan(0);
 
 		// Pular gasto de XP avança por sorteio oculto da próxima sala
-		s = reducer(s, { type: "CHECK_BOSS_CONDITION" });
+		s = reducer(testEngine, s, { type: "CHECK_BOSS_CONDITION" });
 
 		// Sem artefatos suficientes → avança para REVEAL_ROOM
-		expect(s.status).toBe("ROOM_EFFECT");
-		expect(s.currentRoom).not.toBeNull();
-		expect(s.paths).toHaveLength(0);
-		expect(s.roomsCleared).toBe(1);
+		expect(gameOf(s).status).toBe("ROOM_EFFECT");
+		expect(gameOf(s).currentRoom).not.toBeNull();
+		expect(gameOf(s).paths).toHaveLength(0);
+		expect(gameOf(s).roomsCleared).toBe(1);
 	});
 
 	it("habilidade preparada resolve sem confirmação antes da rolagem", () => {
 		let s = stateWithRoomAndEnemy();
-		s = reducer(s, { type: "START_COMBAT" });
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
 
-		const heroId = s.heroes[0]?.id ?? "";
-		const enemyId = s.activeEnemies[0]?.id ?? "";
-		s = reducer(s, {
+		const heroId = heroesOf(s)[0]?.id ?? "";
+		const enemyId = enemiesOf(s)[0]?.id ?? "";
+		s = reducer(testEngine, s, {
 			type: "USE_SKILL",
 			payload: { skillId: "skill_crimson_fury", sourceId: heroId },
 		});
-		expect(Object.values(s.preparedAbilities ?? {})).toHaveLength(1);
-		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+		expect(Object.values(gameOf(s).preparedAbilities ?? {})).toHaveLength(1);
+		s = reducer(testEngine, s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 
-		s = reducer(s, { type: "ROLL_DICE" });
-		expect(s.pendingTriggerInterrupt).toBeUndefined();
-		expect(s.status).toBe("RESOLVE_ATTACK");
-		expect(s.heroes[0]?.currentLife).toBeLessThan(12);
-		expect(Object.values(s.preparedAbilities ?? {})).toHaveLength(0);
+		s = reducer(testEngine, s, { type: "ROLL_DICE" });
+		expect(pendingTriggerInterruptOf(s)).toBeUndefined();
+		expect(gameOf(s).status).toBe("RESOLVE_ATTACK");
+		expect(heroesOf(s)[0]?.currentLife).toBeLessThan(12);
+		expect(Object.values(gameOf(s).preparedAbilities ?? {})).toHaveLength(0);
 	});
 
 	it("habilidade não preparada não interrompe a rolagem", () => {
 		let s = stateWithRoomAndEnemy();
-		s = reducer(s, { type: "START_COMBAT" });
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
 
-		const heroId = s.heroes[0]?.id ?? "";
-		const enemyId = s.activeEnemies[0]?.id ?? "";
-		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
-		s = reducer(s, { type: "ROLL_DICE" });
+		const heroId = heroesOf(s)[0]?.id ?? "";
+		const enemyId = enemiesOf(s)[0]?.id ?? "";
+		s = reducer(testEngine, s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+		s = reducer(testEngine, s, { type: "ROLL_DICE" });
 
-		expect(s.pendingTriggerInterrupt).toBeUndefined();
-		expect(s.status).toBe("RESOLVE_ATTACK");
+		expect(pendingTriggerInterruptOf(s)).toBeUndefined();
+		expect(gameOf(s).status).toBe("RESOLVE_ATTACK");
 	});
 });
 
@@ -906,31 +825,27 @@ describe("derrota por herói", () => {
 	it("herói com 1 de vida morre no dano direto", () => {
 		let s = stateWithRoomAndEnemy(1, 999); // herói fraco, inimigo imortal
 
-		s = reducer(s, { type: "START_COMBAT" });
-		const heroId = s.heroes[0]?.id ?? "";
-		const enemyId = s.activeEnemies[0]?.id ?? "";
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const heroId = heroesOf(s)[0]?.id ?? "";
+		const enemyId = enemiesOf(s)[0]?.id ?? "";
 
 		// Torna o herói fraco e o inimigo forte no par
-		s = {
-			...s,
-			heroes: s.heroes.map((h) => ({ ...h, hitBonus: 0, currentLife: 1 })),
-			activeEnemies: s.activeEnemies.map((e) => ({
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: heroesOf(s).map((h) => ({ ...h, hitBonus: 0, currentLife: 1 })), activeEnemies: enemiesOf(s).map((e) => ({
 				...e,
 				hitBonus: 1000,
 				damage: 99,
-			})),
-		};
+			})) })));
 
-		s = reducer(s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+		s = reducer(testEngine, s, { type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
 		// Após damage, herói deve estar com vida <= 0
-		const hero = s.heroes[0];
+		const hero = heroesOf(s)[0];
 		expect(hero?.currentLife).toBeLessThanOrEqual(0);
 
-		s = reducer(s, { type: "CHECK_COMBAT_END" });
-		expect(s.status).toBe("DEFEAT");
+		s = reducer(testEngine, s, { type: "CHECK_COMBAT_END" });
+		expect(gameOf(s).status).toBe("DEFEAT");
 	});
 });
 
@@ -939,55 +854,43 @@ describe("derrota por herói", () => {
 describe("derrota por deck esgotado", () => {
 	it("sem XP e sem cartas → derrota direta", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		s = {
-			...s,
-			groupXp: 0,
-			currentRoom: null,
-			status: "REVEAL_ROOM",
-			decks: {
-				...s.decks,
+		s = withDecks(withGame(s, (prevGame) => ({ ...prevGame, groupXp: 0, currentRoom: null, status: "REVEAL_ROOM" })), {
+				...decksOf(s),
 				dungeonDeck: { available: [], discarded: [], removed: [] },
-			},
-		};
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		expect(s.status).toBe("DEFEAT");
+			});
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		expect(gameOf(s).status).toBe("DEFEAT");
 	});
 
 	it("com XP → DUNGEON_EXHAUSTED; gastar 5 XP → reembaralha", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		s = {
-			...s,
-			groupXp: 10,
-			currentRoom: null,
-			status: "REVEAL_ROOM",
-			decks: {
-				...s.decks,
+		s = withDecks(withGame(s, (prevGame) => ({ ...prevGame, groupXp: 10, currentRoom: null, status: "REVEAL_ROOM" })), {
+				...decksOf(s),
 				dungeonDeck: {
 					available: [],
 					discarded: ["room_narrow_corridor", "room_dungeon_room"],
 					removed: [],
 				},
-			},
-		};
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		expect(s.status).toBe("DUNGEON_EXHAUSTED");
+			});
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		expect(gameOf(s).status).toBe("DUNGEON_EXHAUSTED");
 
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "SPEND_XP",
 			payload: { option: "recover_dungeon" },
 		});
-		expect(s.status).toBe("ROOM_EFFECT");
-		expect(s.currentRoom).not.toBeNull();
-		expect(s.groupXp).toBe(5);
-		expect(s.decks.dungeonDeck.available.length).toBe(1);
+		expect(gameOf(s).status).toBe("ROOM_EFFECT");
+		expect(gameOf(s).currentRoom).not.toBeNull();
+		expect(gameOf(s).groupXp).toBe(5);
+		expect(deckOf(s, "dungeonDeck").available.length).toBe(1);
 	});
 });
 
@@ -997,7 +900,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 	function stateWithTwoHeroesOneEnemy(): GameState {
 		const HERO2 = PALADIN;
 		const base = createInitialGameState({ heroCardIds: [HERO, HERO2] });
-		const s = reducer(base, {
+		const s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO, HERO2] },
 		});
@@ -1027,47 +930,40 @@ describe("combate múltiplo v2 (§8.8)", () => {
 			status: "active",
 		};
 
-		return {
-			...s,
-			heroes: s.heroes.map((h) => ({ ...h, hitBonus: 100 })),
-			currentRoom: room,
-			activeEnemies: [enemy],
-			status: "COMBAT_START",
-			oncePer: {
-				...s.oncePer,
+		return settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: heroesOf(s).map((h) => ({ ...h, hitBonus: 100 })), currentRoom: room, activeEnemies: [enemy], status: "COMBAT_START", oncePer: {
+				...gameOf(s).oncePer,
 				game: {
-					...s.oncePer.game,
-					[`power_mighty_crimson_fury::${s.heroes[0]?.id ?? ""}`]: true,
+					...gameOf(s).oncePer.game,
+					[`power_mighty_crimson_fury::${heroesOf(s)[0]?.id ?? ""}`]: true,
 				},
-			},
-		};
+			} })));
 	}
 
 	it("dois heróis podem atacar o mesmo inimigo (antes era rejeitado)", () => {
 		let s = stateWithTwoHeroesOneEnemy();
-		s = reducer(s, { type: "START_COMBAT" });
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
 
-		const [hero1, hero2] = s.heroes;
-		const enemyId = s.activeEnemies[0]?.id ?? "";
+		const [hero1, hero2] = heroesOf(s);
+		const enemyId = enemiesOf(s)[0]?.id ?? "";
 
 		// Herói 1 seleciona o inimigo
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero1!.id, enemyId },
 		});
-		expect(s.status).toBe("ROLL_DICE");
+		expect(gameOf(s).status).toBe("ROLL_DICE");
 
 		// Rola e resolve o combate do herói 1
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
 		// Agora herói 2 deve poder selecionar o MESMO inimigo — v2 permite
-		expect(s.status).toBe("HERO_ACTION");
-		s = reducer(s, {
+		expect(gameOf(s).status).toBe("HERO_ACTION");
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero2!.id, enemyId },
 		});
-		expect(s.status).toBe("ROLL_DICE");
+		expect(gameOf(s).status).toBe("ROLL_DICE");
 	});
 
 	it("criatura sem atacante não age se não houver inimigo excedente", () => {
@@ -1087,34 +983,34 @@ describe("combate múltiplo v2 (§8.8)", () => {
 			firstDamageTakenThisTurn: false,
 			status: "active",
 		};
-		s = { ...s, activeEnemies: [...s.activeEnemies, unattacked] };
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, activeEnemies: [...enemiesOf(s), unattacked] })));
 
-		s = reducer(s, { type: "START_COMBAT" });
-		const [hero1, hero2] = s.heroes;
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const [hero1, hero2] = heroesOf(s);
 		const attackedId = "e1";
 
 		// Ambos heróis atacam o mesmo inimigo (e1), deixando e2 sem atacante
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero1!.id, enemyId: attackedId },
 		});
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero2!.id, enemyId: attackedId },
 		});
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
 		// Sem inimigo excedente numérico, e2 não faz rolagem extra.
-		const totalLifeBefore = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
-		s = reducer(s, { type: "DIRECT_DAMAGE" });
-		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
+		const totalLifeBefore = heroesOf(s).reduce((acc, h) => acc + h.currentLife, 0);
+		s = reducer(testEngine, s, { type: "DIRECT_DAMAGE" });
+		const totalLifeAfter = heroesOf(s).reduce((acc, h) => acc + h.currentLife, 0);
 
 		expect(totalLifeAfter).toBe(totalLifeBefore);
-		expect(s.extraAttackFeedback).toBeUndefined();
+		expect(gameOf(s).extraAttackFeedback).toBeUndefined();
 	});
 
 	it("inimigo excedente rola combate e só causa dano se vencer", () => {
@@ -1148,69 +1044,71 @@ describe("combate múltiplo v2 (§8.8)", () => {
 				status: "active",
 			},
 		];
-		s = { ...s, activeEnemies: [...s.activeEnemies, ...extraEnemies] };
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, activeEnemies: [...enemiesOf(s), ...extraEnemies] })));
 
-		s = reducer(s, { type: "START_COMBAT" });
-		const [hero1, hero2] = s.heroes;
+		s = reducer(testEngine, s, { type: "START_COMBAT" });
+		const [hero1, hero2] = heroesOf(s);
 		const attackedId = "e1";
 
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero1!.id, enemyId: attackedId },
 		});
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
-		s = reducer(s, {
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero2!.id, enemyId: attackedId },
 		});
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
-		const totalLifeBefore = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
-		s = reducer(s, { type: "DIRECT_DAMAGE" });
-		const totalLifeAfter = s.heroes.reduce((acc, h) => acc + h.currentLife, 0);
+		const totalLifeBefore = heroesOf(s).reduce((acc, h) => acc + h.currentLife, 0);
+		s = reducer(testEngine, s, { type: "DIRECT_DAMAGE" });
+		const totalLifeAfter = heroesOf(s).reduce((acc, h) => acc + h.currentLife, 0);
 
-		expect(s.pendingTriggerInterrupt).toBeUndefined();
+		expect(pendingTriggerInterruptOf(s)).toBeUndefined();
 		expect(totalLifeBefore - totalLifeAfter).toBe(3);
-		expect(s.eventLog.some((entry) => entry.includes("Ataque extra"))).toBe(
+		expect(gameOf(s).eventLog.some((entry) => entry.includes("Ataque extra"))).toBe(
 			true,
 		);
-		expect(s.extraAttackFeedback?.at(-1)).toMatchObject({
+		expect(gameOf(s).extraAttackFeedback?.at(-1)).toMatchObject({
 			enemyId: "e2",
 			enemyCardId: "test_extra_enemy_wins",
 		});
-		expect(s.damageFeedback?.at(-1)?.extraAttackId).toBe(
-			s.extraAttackFeedback?.at(-1)?.id,
+		expect(gameOf(s).damageFeedback?.at(-1)?.extraAttackId).toBe(
+			gameOf(s).extraAttackFeedback?.at(-1)?.id,
 		);
 	});
 
 	it("inimigo excedente que erra ainda registra a investida visual", () => {
 		const base = stateWithTwoHeroesOneEnemy();
-		const hero = { ...base.heroes[0]!, hitBonus: 1000 };
+		const [firstHero, secondHero] = heroesOf(base);
+		const firstEnemy = enemiesOf(base)[0]!;
+		const hero = { ...firstHero!, hitBonus: 1000 };
 		const enemy = {
-			...base.activeEnemies[0]!,
+			...firstEnemy,
 			id: "e2",
 			cardId: "test_extra_enemy_misses",
 			hitBonus: -1000,
 		};
-		const state: GameState = {
-			...base,
+		const state: GameState = settled(withGame(base, (prevGame) => ({
+			...prevGame,
 			status: "DIRECT_DAMAGE",
-			heroes: [hero, { ...base.heroes[1]!, status: "defeated" }],
-			activeEnemies: [base.activeEnemies[0]!, enemy],
+			heroes: [hero, { ...secondHero!, status: "defeated" }],
+			activeEnemies: [firstEnemy, enemy],
 			combat: {
 				...createEmptyCombatState(),
 				pairs: [{ heroId: hero.id, enemyId: "e1" }],
 			},
-		};
-		const result = reducer(state, { type: "DIRECT_DAMAGE" });
-		expect(result.extraAttackFeedback?.at(-1)).toMatchObject({
+		})));
+		const result = reducer(testEngine, state, { type: "DIRECT_DAMAGE" });
+		expect(gameOf(result).extraAttackFeedback?.at(-1)).toMatchObject({
 			enemyId: "e2",
 			heroId: hero.id,
 		});
-		expect(result.damageFeedback).toBeUndefined();
+		expect(gameOf(result).damageFeedback).toBeUndefined();
 	});
 });
 
@@ -1219,15 +1117,13 @@ describe("combate múltiplo v2 (§8.8)", () => {
 describe("vitória contra boss", () => {
 	it("boss com 1 de vida é derrotado na primeira rodada", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
 
 		// Força 3 artefatos (condição do Azhakar) e vai pelo fluxo correto
-		s = {
-			...s,
-			groupArtifacts: [
+		s = withGame(s, (prevGame) => ({ ...prevGame, groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
 					carriedBy: null,
@@ -1240,35 +1136,29 @@ describe("vitória contra boss", () => {
 					cardId: "artifact_lost_forge_hammer",
 					carriedBy: null,
 				},
-			],
-			status: "BOSS_REVEAL" as const,
-		};
+			], status: "BOSS_REVEAL" as const }));
 
-		s = reducer(s, { type: "REVEAL_BOSS" });
-		expect(s.status).toBe("BOSS_COMBAT");
+		s = reducer(testEngine, s, { type: "REVEAL_BOSS" });
+		expect(gameOf(s).status).toBe("BOSS_COMBAT");
 
-		const bossId = s.activeEnemies.find((e) => e.id === "boss")?.id ?? "";
+		const bossId = enemiesOf(s).find((e) => e.id === "boss")?.id ?? "";
 		expect(bossId).toBe("boss");
 
 		// Seta boss com 1 de vida e herói com hitBonus altíssimo
-		s = {
-			...s,
-			heroes: s.heroes.map((h) => ({ ...h, hitBonus: 1000, damage: 99 })),
-			activeEnemies: s.activeEnemies.map((e) =>
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: heroesOf(s).map((h) => ({ ...h, hitBonus: 1000, damage: 99 })), activeEnemies: enemiesOf(s).map((e) =>
 				e.id === "boss" ? { ...e, currentLife: 1, hitBonus: 0 } : e,
-			),
-		};
+			) })));
 
-		const heroId = s.heroes[0]?.id ?? "";
-		s = reducer(s, {
+		const heroId = heroesOf(s)[0]?.id ?? "";
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId, enemyId: "boss" },
 		});
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
-		expect(s.status).toBe("VICTORY");
-		expect(s.bossDefeated).toBe(true);
+		expect(gameOf(s).status).toBe("VICTORY");
+		expect(gameOf(s).bossDefeated).toBe(true);
 	});
 });
 
@@ -1277,14 +1167,12 @@ describe("vitória contra boss", () => {
 describe("boss sobrevive a uma rodada", () => {
 	it("após RESOLVE_ATTACK phase reinicia para selecting_hero", () => {
 		const base = createInitialGameState({ heroCardIds: [HERO] });
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
 
-		s = {
-			...s,
-			groupArtifacts: [
+		s = withGame(s, (prevGame) => ({ ...prevGame, groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
 					carriedBy: null,
@@ -1297,34 +1185,28 @@ describe("boss sobrevive a uma rodada", () => {
 					cardId: "artifact_lost_forge_hammer",
 					carriedBy: null,
 				},
-			],
-			status: "BOSS_REVEAL" as const,
-		};
+			], status: "BOSS_REVEAL" as const }));
 
-		s = reducer(s, { type: "REVEAL_BOSS" });
+		s = reducer(testEngine, s, { type: "REVEAL_BOSS" });
 
 		// Boss com vida alta e herói com dano baixo → boss sobrevive
-		s = {
-			...s,
-			heroes: s.heroes.map((h) => ({ ...h, hitBonus: 1000, damage: 1 })),
-			activeEnemies: s.activeEnemies.map((e) =>
+		s = settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: heroesOf(s).map((h) => ({ ...h, hitBonus: 1000, damage: 1 })), activeEnemies: enemiesOf(s).map((e) =>
 				e.id === "boss" ? { ...e, currentLife: 999, hitBonus: 0 } : e,
-			),
-		};
+			) })));
 
-		const heroId = s.heroes[0]?.id ?? "";
-		s = reducer(s, {
+		const heroId = heroesOf(s)[0]?.id ?? "";
+		s = reducer(testEngine, s, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId, enemyId: "boss" },
 		});
 		s = rollDiceWithApprovals(s);
-		s = reducer(s, { type: "RESOLVE_ATTACK" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
-		expect(s.status).toBe("BOSS_COMBAT");
-		expect(s.combat?.phase).toBe("selecting_hero");
-		expect(s.combat?.selectedHeroId).toBeNull();
-		expect(s.combat?.pairs).toHaveLength(0);
-		expect(s.combat?.heroesActed).toHaveLength(0);
+		expect(gameOf(s).status).toBe("BOSS_COMBAT");
+		expect(gameOf(s).combat?.phase).toBe("selecting_hero");
+		expect(gameOf(s).combat?.selectedHeroId).toBeNull();
+		expect(gameOf(s).combat?.pairs).toHaveLength(0);
+		expect(gameOf(s).combat?.heroesActed).toHaveLength(0);
 	});
 });
 
@@ -1334,30 +1216,30 @@ describe("actionLog", () => {
 	const base = () => createInitialGameState({ heroCardIds: [HERO] });
 
 	it("actionLog.length === N após N dispatches", () => {
-		let s = reducer(base(), {
+		let s = reducer(testEngine, base(), {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
 		// START_GAME reinicia o log com exatamente 1 entrada
-		expect(s.actionLog).toHaveLength(1);
+		expect(gameOf(s).actionLog).toHaveLength(1);
 
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		expect(s.actionLog).toHaveLength(2);
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		expect(gameOf(s).actionLog).toHaveLength(2);
 
-		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
-		expect(s.actionLog).toHaveLength(3);
+		s = reducer(testEngine, s, { type: "RESOLVE_ROOM_EFFECT" });
+		expect(gameOf(s).actionLog).toHaveLength(3);
 	});
 
 	it("actionLog[i].seq === i para todo i", () => {
-		let s = reducer(base(), {
+		let s = reducer(testEngine, base(), {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ROOM_EFFECT" });
 
-		for (let i = 0; i < s.actionLog.length; i++) {
-			expect(s.actionLog[i]?.seq).toBe(i);
+		for (let i = 0; i < gameOf(s).actionLog.length; i++) {
+			expect(gameOf(s).actionLog[i]?.seq).toBe(i);
 		}
 	});
 
@@ -1368,25 +1250,25 @@ describe("actionLog", () => {
 		};
 		const revealAction = { type: "REVEAL_ROOM" as const };
 
-		let s = reducer(base(), startAction);
-		s = reducer(s, revealAction);
+		let s = reducer(testEngine, base(), startAction);
+		s = reducer(testEngine, s, revealAction);
 
-		expect(s.actionLog[0]?.action).toEqual(startAction);
-		expect(s.actionLog[1]?.action).toEqual(revealAction);
+		expect(gameOf(s).actionLog[0]?.action).toEqual(startAction);
+		expect(gameOf(s).actionLog[1]?.action).toEqual(revealAction);
 	});
 
 	it("START_GAME reinicia o actionLog com exatamente uma entrada", () => {
-		let s = reducer(base(), {
+		let s = reducer(testEngine, base(), {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		expect(s.actionLog).toHaveLength(2);
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		expect(gameOf(s).actionLog).toHaveLength(2);
 
 		// Segunda partida: log deve recomeçar do zero
-		s = reducer(s, { type: "START_GAME", payload: { heroCardIds: [HERO] } });
-		expect(s.actionLog).toHaveLength(1);
-		expect(s.actionLog[0]?.action.type).toBe("START_GAME");
+		s = reducer(testEngine, s, { type: "START_GAME", payload: { heroCardIds: [HERO] } });
+		expect(gameOf(s).actionLog).toHaveLength(1);
+		expect(gameOf(s).actionLog[0]?.action.type).toBe("START_GAME");
 	});
 });
 
@@ -1400,70 +1282,70 @@ describe("determinismo via seed", () => {
 	const init = () => createInitialGameState({ heroCardIds: [HERO] });
 
 	it("mesma seed + mesma sequência → mesmo GameState final (executando 2× separadamente)", () => {
-		let s1 = reducer(init(), startAction);
-		s1 = reducer(s1, { type: "REVEAL_ROOM" });
-		s1 = reducer(s1, { type: "RESOLVE_ROOM_EFFECT" });
-		s1 = reducer(s1, { type: "SPAWN_ENEMIES" });
+		let s1 = reducer(testEngine, init(), startAction);
+		s1 = reducer(testEngine, s1, { type: "REVEAL_ROOM" });
+		s1 = reducer(testEngine, s1, { type: "RESOLVE_ROOM_EFFECT" });
+		s1 = reducer(testEngine, s1, { type: "SPAWN_ENEMIES" });
 
-		let s2 = reducer(init(), startAction);
-		s2 = reducer(s2, { type: "REVEAL_ROOM" });
-		s2 = reducer(s2, { type: "RESOLVE_ROOM_EFFECT" });
-		s2 = reducer(s2, { type: "SPAWN_ENEMIES" });
+		let s2 = reducer(testEngine, init(), startAction);
+		s2 = reducer(testEngine, s2, { type: "REVEAL_ROOM" });
+		s2 = reducer(testEngine, s2, { type: "RESOLVE_ROOM_EFFECT" });
+		s2 = reducer(testEngine, s2, { type: "SPAWN_ENEMIES" });
 
 		// Estados finais são idênticos
-		expect(s1.decks.dungeonDeck.available).toEqual(
-			s2.decks.dungeonDeck.available,
+		expect(deckOf(s1, "dungeonDeck").available).toEqual(
+			deckOf(s2, "dungeonDeck").available,
 		);
-		expect(s1.heroes[0]?.id).toBe(s2.heroes[0]?.id);
-		expect(s1.rng).toEqual(s2.rng);
+		expect(heroesOf(s1)[0]?.id).toBe(heroesOf(s2)[0]?.id);
+		expect(gameOf(s1).rng).toEqual(gameOf(s2).rng);
 	});
 
 	it("replay determinístico: aplicar actionLog produz o mesmo GameState final", () => {
 		// Constrói uma sequência de actions
-		let s = reducer(init(), startAction);
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
-		s = reducer(s, { type: "SPAWN_ENEMIES" });
+		let s = reducer(testEngine, init(), startAction);
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		s = reducer(testEngine, s, { type: "RESOLVE_ROOM_EFFECT" });
+		s = reducer(testEngine, s, { type: "SPAWN_ENEMIES" });
 		const finalState = s;
-		const log = s.actionLog;
+		const log = gameOf(s).actionLog;
 
 		// Replay: aplica o log sobre estado inicial via reducerCore
 		const replayed = log.reduce(
-			(acc, entry) => reducerCore(acc, entry.action),
+			(acc, entry) => reducerCore(testEngine, acc, entry.action),
 			init(),
 		);
 
-		expect(replayed.decks.dungeonDeck.available).toEqual(
-			finalState.decks.dungeonDeck.available,
+		expect(deckOf(replayed, "dungeonDeck").available).toEqual(
+			deckOf(finalState, "dungeonDeck").available,
 		);
-		expect(replayed.heroes[0]?.id).toBe(finalState.heroes[0]?.id);
-		expect(replayed.rng).toEqual(finalState.rng);
+		expect(heroesOf(replayed)[0]?.id).toBe(heroesOf(finalState)[0]?.id);
+		expect(gameOf(replayed).rng).toEqual(gameOf(finalState).rng);
 	});
 
 	it("seeds diferentes → ao menos um resultado de deck diferente", () => {
-		const s1 = reducer(init(), {
+		const s1 = reducer(testEngine, init(), {
 			...startAction,
 			payload: { ...startAction.payload, seed: 1 },
 		});
-		const s2 = reducer(init(), {
+		const s2 = reducer(testEngine, init(), {
 			...startAction,
 			payload: { ...startAction.payload, seed: 999 },
 		});
 		const same =
-			s1.decks.dungeonDeck.available.join(",") ===
-			s2.decks.dungeonDeck.available.join(",");
+			deckOf(s1, "dungeonDeck").available.join(",") ===
+			deckOf(s2, "dungeonDeck").available.join(",");
 		expect(same).toBe(false);
 	});
 
 	it("counter do RNG cresce monotonicamente entre actions (sem reset em meio de partida)", () => {
-		let s = reducer(init(), startAction);
-		const c0 = s.rng.counter;
-		s = reducer(s, { type: "REVEAL_ROOM" });
-		const c1 = s.rng.counter;
+		let s = reducer(testEngine, init(), startAction);
+		const c0 = gameOf(s).rng.counter;
+		s = reducer(testEngine, s, { type: "REVEAL_ROOM" });
+		const c1 = gameOf(s).rng.counter;
 		// Segue o fluxo correto: ROOM_EFFECT → SPAWN_ENEMIES → COMBAT_START
-		s = reducer(s, { type: "RESOLVE_ROOM_EFFECT" });
-		s = reducer(s, { type: "SPAWN_ENEMIES" });
-		const c2 = s.rng.counter;
+		s = reducer(testEngine, s, { type: "RESOLVE_ROOM_EFFECT" });
+		s = reducer(testEngine, s, { type: "SPAWN_ENEMIES" });
+		const c2 = gameOf(s).rng.counter;
 		expect(c1).toBeGreaterThanOrEqual(c0);
 		expect(c2).toBeGreaterThanOrEqual(c1);
 	});

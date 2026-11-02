@@ -1,7 +1,7 @@
 // Funções de fábrica para criar actions com tipagem correta.
 // Wrappers finos — sem lógica.
 
-import type { XpSpendOption } from "../config/defaults";
+import type { XpSpendOption } from "../gameEngine";
 import type { GameConfig } from "../state/gameState";
 import type { Action } from "./types";
 

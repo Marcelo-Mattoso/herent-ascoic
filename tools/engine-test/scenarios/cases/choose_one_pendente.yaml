@@ -1,0 +1,12 @@
+name: choose_one deixa a escolha pendente até a resposta
+kind: choose_one
+given:
+  players: [p]
+when:
+  - run:
+      - kind: choose_one
+        options:
+          - { id: x, do: [{ kind: noop }] }
+          - { id: y, do: [{ kind: noop }] }
+then:
+  pending: { id: choose_one, player: p, options: [x, y], min: 1, max: 1 }

@@ -5723,3 +5723,9 @@ body:has(.tutorial-layer) .support-action { display: none; }
 .tutorial-layer--inventory[data-tutorial-step="inventory-open"] .tutorial-panel summary {
 	pointer-events: auto;
 }
+/* Em paisagem no celular o registro fica sobre a carta do herói. */
+@media (max-height: 500px) {
+	.tutorial-layer--inventory[data-tutorial-step="inventory-open"] .tutorial-panel summary {
+		pointer-events: none;
+	}
+}

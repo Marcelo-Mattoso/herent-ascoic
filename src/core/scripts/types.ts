@@ -1,9 +1,17 @@
 import type { SkillContext } from "../data/skillTypes";
 import type { Component } from "../ecs/types";
 import type { EffectNode } from "../skills/dsl/types";
+import type { GameEngine } from "../gameEngine";
 import type { GameState } from "../state/gameState";
 
+export type SkillContinuation = (
+	state: GameState,
+	ctx: SkillContext,
+	choice: string,
+) => GameState;
+
 export interface ScriptCtx {
+	readonly engine: GameEngine;
 	readonly state: GameState;
 	/** Contexto legado do dispatcher — mantido para compat enquanto handlers antigos existem. */
 	readonly skillCtx: SkillContext;

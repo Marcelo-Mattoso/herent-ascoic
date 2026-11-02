@@ -12,3 +12,5 @@ export const COLORS: readonly Color[] = [
 ] as const;
 
 export type ColorIndex = 0 | 1 | 2 | 3 | 4;
+
+export const MAX_COLOR_INDEX = 4;

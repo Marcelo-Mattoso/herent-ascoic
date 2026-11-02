@@ -1,0 +1,9 @@
+name: modify_attribute recusa modo incompatível com o tipo do atributo
+kind: modify_attribute
+given:
+  units:
+    - { id: aria, def: aria, controller: a }
+when:
+  - run: [{ kind: modify_attribute, target: aria, attr: vida, delta: 1, mode: base }]
+then:
+  error: é um recurso

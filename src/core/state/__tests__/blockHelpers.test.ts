@@ -6,16 +6,17 @@ import {
 } from "../blockHelpers";
 import type { GameState } from "../gameState";
 import { createInitialGameState } from "../gameState";
+import { heroesOf } from "../access";
+import { settled } from "../../__tests__/fixtures";
+import { withGame, gameOf } from "../../../engine/state";
 
 function base(): GameState {
 	return createInitialGameState({ heroCardIds: [] });
 }
 
 function withHero(state: GameState, heroId: string): GameState {
-	return {
-		...state,
-		heroes: [
-			...state.heroes,
+	return settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: [
+			...heroesOf(state),
 			{
 				id: heroId,
 				cardId: "test",
@@ -24,7 +25,6 @@ function withHero(state: GameState, heroId: string): GameState {
 				damage: 1,
 				hitBonus: 0,
 				dice: 1,
-				impeto: 0,
 				activeItems: {},
 				backpack: [],
 				usedPowers: {},
@@ -33,8 +33,7 @@ function withHero(state: GameState, heroId: string): GameState {
 				playerIndex: 0,
 				xp: 0,
 			},
-		],
-	};
+		] })));
 }
 
 // ── tickBlockEntries ──────────────────────────────────────────────────────────
@@ -42,49 +41,38 @@ function withHero(state: GameState, heroId: string): GameState {
 describe("tickBlockEntries — until_end_of_round", () => {
 	it("remove entradas until_end_of_round no scope end_of_round e limpa flag", () => {
 		let state = base();
-		state = {
-			...state,
-			flags: { ...state.flags, fleeBlocked: true },
-			blocks: {
+		state = withGame(state, (prevGame) => ({ ...prevGame, flags: { ...gameOf(state).flags, fleeBlocked: true }, blocks: {
 				fleeBlocked: [
 					{
 						source: "skill_crimson_chains",
 						duration: { kind: "until_end_of_round" },
 					},
 				],
-			},
-		};
+			} }));
 
 		const after = tickBlockEntries(state, "end_of_round");
 
-		expect(after.blocks.fleeBlocked ?? []).toHaveLength(0);
-		expect(after.flags.fleeBlocked).toBeFalsy();
+		expect(gameOf(after).blocks.fleeBlocked ?? []).toHaveLength(0);
+		expect(gameOf(after).flags.fleeBlocked).toBeFalsy();
 	});
 
 	it("mantém entradas permanent no scope end_of_round", () => {
 		let state = base();
-		state = {
-			...state,
-			flags: { ...state.flags, fleeBlocked: true },
-			blocks: {
+		state = withGame(state, (prevGame) => ({ ...prevGame, flags: { ...gameOf(state).flags, fleeBlocked: true }, blocks: {
 				fleeBlocked: [
 					{ source: "skill_sealed_door", duration: { kind: "permanent" } },
 				],
-			},
-		};
+			} }));
 
 		const after = tickBlockEntries(state, "end_of_round");
 
-		expect(after.blocks.fleeBlocked).toHaveLength(1);
-		expect(after.flags.fleeBlocked).toBeTruthy();
+		expect(gameOf(after).blocks.fleeBlocked).toHaveLength(1);
+		expect(gameOf(after).flags.fleeBlocked).toBeTruthy();
 	});
 
 	it("remove apenas a entrada que expira — mantém outras", () => {
 		let state = base();
-		state = {
-			...state,
-			flags: { ...state.flags, fleeBlocked: true },
-			blocks: {
+		state = withGame(state, (prevGame) => ({ ...prevGame, flags: { ...gameOf(state).flags, fleeBlocked: true }, blocks: {
 				fleeBlocked: [
 					{
 						source: "skill_crimson_chains",
@@ -92,37 +80,32 @@ describe("tickBlockEntries — until_end_of_round", () => {
 					},
 					{ source: "skill_sealed_door", duration: { kind: "permanent" } },
 				],
-			},
-		};
+			} }));
 
 		const after = tickBlockEntries(state, "end_of_round");
 
-		expect(after.blocks.fleeBlocked).toHaveLength(1);
-		expect(after.flags.fleeBlocked).toBeTruthy(); // ainda tem o permanente
+		expect(gameOf(after).blocks.fleeBlocked).toHaveLength(1);
+		expect(gameOf(after).flags.fleeBlocked).toBeTruthy(); // ainda tem o permanente
 	});
 
 	it("limpa hero.healBlocked quando bloco until_end_of_round expira", () => {
 		let state = withHero(base(), "hero_1");
-		state = {
-			...state,
-			heroes: state.heroes.map((h) =>
+		state = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((h) =>
 				h.id === "hero_1" ? { ...h, healBlocked: true } : h,
-			),
-			blocks: {
+			), blocks: {
 				"hero_1::healBlocked": [
 					{
 						source: "skill_forge_smoke",
 						duration: { kind: "until_end_of_round" },
 					},
 				],
-			},
-		};
+			} })));
 
 		const after = tickBlockEntries(state, "end_of_round");
 
-		expect(after.blocks["hero_1::healBlocked"] ?? []).toHaveLength(0);
+		expect(gameOf(after).blocks["hero_1::healBlocked"] ?? []).toHaveLength(0);
 		expect(
-			after.heroes.find((h) => h.id === "hero_1")?.healBlocked,
+			heroesOf(after).find((h) => h.id === "hero_1")?.healBlocked,
 		).toBeFalsy();
 	});
 });
@@ -130,20 +113,16 @@ describe("tickBlockEntries — until_end_of_round", () => {
 describe("tickBlockEntries — until_end_of_combat", () => {
 	it("remove entradas until_end_of_combat no scope end_of_combat", () => {
 		let state = base();
-		state = {
-			...state,
-			flags: { ...state.flags, fleeBlocked: true },
-			blocks: {
+		state = withGame(state, (prevGame) => ({ ...prevGame, flags: { ...gameOf(state).flags, fleeBlocked: true }, blocks: {
 				fleeBlocked: [
 					{ source: "some_skill", duration: { kind: "until_end_of_combat" } },
 				],
-			},
-		};
+			} }));
 
 		const after = tickBlockEntries(state, "end_of_combat");
 
-		expect(after.blocks.fleeBlocked ?? []).toHaveLength(0);
-		expect(after.flags.fleeBlocked).toBeFalsy();
+		expect(gameOf(after).blocks.fleeBlocked ?? []).toHaveLength(0);
+		expect(gameOf(after).flags.fleeBlocked).toBeFalsy();
 	});
 });
 
@@ -152,10 +131,7 @@ describe("tickBlockEntries — until_end_of_combat", () => {
 describe("removeBlocksForSource — while_in_play", () => {
 	it("remove blocos while_in_play ao remover fonte e limpa flag", () => {
 		let state = base();
-		state = {
-			...state,
-			flags: { ...state.flags, fleeBlocked: true },
-			blocks: {
+		state = withGame(state, (prevGame) => ({ ...prevGame, flags: { ...gameOf(state).flags, fleeBlocked: true }, blocks: {
 				fleeBlocked: [
 					{
 						source: "purple_forge_chains",
@@ -163,21 +139,17 @@ describe("removeBlocksForSource — while_in_play", () => {
 						sourceEntityId: "enemy_1",
 					},
 				],
-			},
-		};
+			} }));
 
 		const after = removeBlocksForSource(state, "enemy_1");
 
-		expect(after.blocks.fleeBlocked ?? []).toHaveLength(0);
-		expect(after.flags.fleeBlocked).toBeFalsy();
+		expect(gameOf(after).blocks.fleeBlocked ?? []).toHaveLength(0);
+		expect(gameOf(after).flags.fleeBlocked).toBeFalsy();
 	});
 
 	it("não remove blocos de outras fontes", () => {
 		let state = base();
-		state = {
-			...state,
-			flags: { ...state.flags, fleeBlocked: true },
-			blocks: {
+		state = withGame(state, (prevGame) => ({ ...prevGame, flags: { ...gameOf(state).flags, fleeBlocked: true }, blocks: {
 				fleeBlocked: [
 					{
 						source: "purple_forge_chains",
@@ -185,13 +157,12 @@ describe("removeBlocksForSource — while_in_play", () => {
 						sourceEntityId: "enemy_2",
 					},
 				],
-			},
-		};
+			} }));
 
 		const after = removeBlocksForSource(state, "enemy_1");
 
-		expect(after.blocks.fleeBlocked).toHaveLength(1);
-		expect(after.flags.fleeBlocked).toBeTruthy();
+		expect(gameOf(after).blocks.fleeBlocked).toHaveLength(1);
+		expect(gameOf(after).flags.fleeBlocked).toBeTruthy();
 	});
 });
 
@@ -200,34 +171,27 @@ describe("removeBlocksForSource — while_in_play", () => {
 describe("consumeOnceBlock", () => {
 	it("remove primeira entrada once e limpa heroBlocked quando array esvazia", () => {
 		let state = withHero(base(), "hero_1");
-		state = {
-			...state,
-			heroes: state.heroes.map((h) =>
+		state = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((h) =>
 				h.id === "hero_1" ? { ...h, healBlocked: true } : h,
-			),
-			blocks: {
+			), blocks: {
 				"hero_1::healBlocked": [
 					{ source: "purple_healing_rupture", duration: { kind: "once" } },
 				],
-			},
-		};
+			} })));
 
 		const after = consumeOnceBlock(state, "hero_1::healBlocked");
 
-		expect(after.blocks["hero_1::healBlocked"] ?? []).toHaveLength(0);
+		expect(gameOf(after).blocks["hero_1::healBlocked"] ?? []).toHaveLength(0);
 		expect(
-			after.heroes.find((h) => h.id === "hero_1")?.healBlocked,
+			heroesOf(after).find((h) => h.id === "hero_1")?.healBlocked,
 		).toBeFalsy();
 	});
 
 	it("mantém outras entradas ao consumir o once", () => {
 		let state = withHero(base(), "hero_1");
-		state = {
-			...state,
-			heroes: state.heroes.map((h) =>
+		state = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((h) =>
 				h.id === "hero_1" ? { ...h, healBlocked: true } : h,
-			),
-			blocks: {
+			), blocks: {
 				"hero_1::healBlocked": [
 					{ source: "purple_healing_rupture", duration: { kind: "once" } },
 					{
@@ -235,14 +199,13 @@ describe("consumeOnceBlock", () => {
 						duration: { kind: "until_end_of_round" },
 					},
 				],
-			},
-		};
+			} })));
 
 		const after = consumeOnceBlock(state, "hero_1::healBlocked");
 
-		expect(after.blocks["hero_1::healBlocked"]).toHaveLength(1);
+		expect(gameOf(after).blocks["hero_1::healBlocked"]).toHaveLength(1);
 		expect(
-			after.heroes.find((h) => h.id === "hero_1")?.healBlocked,
+			heroesOf(after).find((h) => h.id === "hero_1")?.healBlocked,
 		).toBeTruthy();
 	});
 

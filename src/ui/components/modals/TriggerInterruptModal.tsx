@@ -4,7 +4,8 @@ import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import { displaySkillName as getSkillName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
-import { cardSkills } from "@/core/skills/lookup";
+import { skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillText } from "@/core/skills/renderLabel";
 import type {
 	PendingTriggerInterrupt,
@@ -52,11 +53,11 @@ function effectText(pending: PendingTriggerInterrupt): string {
 	if (pending.description && pending.description !== pending.skillId) {
 		return pending.description;
 	}
-	const sourceSkill = cardSkills(pending.sourceCardId).find(
+	const sourceSkill = skillsOf(uiEngine, pending.sourceCardId).find(
 		({ ref }) => ref.skillId === pending.skillId,
 	);
 	if (!sourceSkill) return getSkillName(pending.skillId);
-	return renderSkillText(sourceSkill.ref);
+	return renderSkillText(uiEngine, sourceSkill.ref);
 }
 
 function sourceText(

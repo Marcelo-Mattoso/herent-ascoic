@@ -1,0 +1,13 @@
+name: repeat com zero repetições não faz nada
+kind: repeat
+given:
+  counters: [{ scope: jogo, id: "-", name: pontos, value: 1 }]
+when:
+  - run:
+      - kind: repeat
+        times: 0
+        do:
+          - { kind: change_counter, counter: { scope: jogo, id: "-", name: pontos }, delta: 9 }
+then:
+  counters: { "jogo:-:pontos": 1 }
+  events: []

@@ -1,6 +1,3 @@
-// Testes de skill_living_ember_oil após migração para DSL (patch-21 Lote G).
-// Usa evaluate() diretamente, pois o script foi removido.
-
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../data/skills";
 import { drainStack } from "../../effects/resolver";
@@ -8,6 +5,10 @@ import { buildScriptCtx } from "../../scripts/context";
 import { evaluate } from "../../skills/dsl/evaluate";
 import type { EnemyState } from "../../state/enemyState";
 import { createInitialGameState } from "../../state/gameState";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { enemiesOf, effectStackOf } from "../../state/access";
+import { settled } from "../../__tests__/fixtures";
+import { withGame } from "../../../engine/state";
 
 const goblin: EnemyState = {
 	id: "e_goblin",
@@ -44,8 +45,8 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const state = { ...base, activeEnemies: [goblin] };
-		const ctx = buildScriptCtx(
+		const state = settled(withGame(base, (prevGame) => ({ ...prevGame, activeEnemies: [goblin] })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "on_use",
@@ -55,8 +56,8 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 			{},
 		);
 		const next = evaluate(def.effect!, ctx);
-		expect(next.effectStack.pending).toHaveLength(1);
-		expect(next.effectStack.pending[0]!.effect).toMatchObject({
+		expect(effectStackOf(next).pending).toHaveLength(1);
+		expect(effectStackOf(next).pending[0]!.effect).toMatchObject({
 			kind: "i_damage",
 			to: "e_goblin",
 			amount: 2,
@@ -67,8 +68,8 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const state = { ...base, activeEnemies: [slime] };
-		const ctx = buildScriptCtx(
+		const state = settled(withGame(base, (prevGame) => ({ ...prevGame, activeEnemies: [slime] })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "on_use",
@@ -78,8 +79,8 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 			{},
 		);
 		const next = evaluate(def.effect!, ctx);
-		expect(next.effectStack.pending).toHaveLength(1);
-		expect(next.effectStack.pending[0]!.effect).toMatchObject({
+		expect(effectStackOf(next).pending).toHaveLength(1);
+		expect(effectStackOf(next).pending[0]!.effect).toMatchObject({
 			kind: "i_damage",
 			to: "e_slime",
 			amount: 3,
@@ -90,8 +91,8 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const state = { ...base, activeEnemies: [goblin] };
-		const ctx = buildScriptCtx(
+		const state = settled(withGame(base, (prevGame) => ({ ...prevGame, activeEnemies: [goblin] })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "on_use",
@@ -100,9 +101,9 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 			},
 			{},
 		);
-		const result = drainStack(evaluate(def.effect!, ctx));
+		const result = drainStack(testEngine, evaluate(def.effect!, ctx));
 		expect(
-			result.activeEnemies.find((e) => e.id === "e_goblin")?.currentLife,
+			enemiesOf(result).find((e) => e.id === "e_goblin")?.currentLife,
 		).toBe(2);
 	});
 
@@ -110,14 +111,14 @@ describe("skill_living_ember_oil — Frasco de Óleo Incendiário", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			base,
 			{ triggeredBy: "on_use", skillId: "skill_living_ember_oil" },
 			{},
 		);
 		// Sem targetEnemyIds, $target não resolve → i_if/i_damage noops
-		const result = drainStack(evaluate(def.effect!, ctx));
+		const result = drainStack(testEngine, evaluate(def.effect!, ctx));
 		// Nenhum inimigo na lista, estado praticamente inalterado
-		expect(result.activeEnemies).toHaveLength(0);
+		expect(enemiesOf(result)).toHaveLength(0);
 	});
 });

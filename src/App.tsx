@@ -1,3 +1,4 @@
+import { uiEngine } from "@/ui/engine";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { translate } from "@/i18n";
@@ -52,6 +53,7 @@ import {
 	startTutorial,
 	type TutorialSession,
 } from "@/ui/tutorials/session";
+import { gameOf } from "./engine/state";
 
 type UiScreen = "menu" | "setup" | "tutorialHub" | "opening";
 type StartGameAction = Extract<Action, { type: "START_GAME" }>;
@@ -171,14 +173,14 @@ function App() {
 		)
 			return;
 		preparedCheckpoints.current.add(`${tutorial.id}:items`);
-		const previousJournalJson = exportJournalJson(journal);
+		const previousJournalJson = exportJournalJson(uiEngine, journal);
 		let training: ReturnType<typeof prepareExhaustedInventoryTraining>;
 		try {
-			training = prepareExhaustedInventoryTraining(
+			training = prepareExhaustedInventoryTraining(uiEngine,
 				tutorial.selectedHeroCardIds[0],
 			);
 		} catch {
-			training = prepareExhaustedInventoryTraining();
+			training = prepareExhaustedInventoryTraining(uiEngine);
 		}
 		loadTrainingState(training);
 		setInventoryOpened(false);
@@ -187,7 +189,7 @@ function App() {
 				? markInventoryCheckpointReady(
 						current,
 						previousJournalJson,
-						training.heroes[0].cardId,
+						gameOf(training).heroes[0].cardId,
 					)
 				: current,
 		);
@@ -199,7 +201,7 @@ function App() {
 		const checkpoint = step === "fury-prepare" ? "barbarian" : step === "hero-power" ? "warrior" : null;
 		if (!checkpoint || tutorial.abilityCheckpoint === checkpoint || preparedCheckpoints.current.has(`${tutorial.id}:${checkpoint}`)) return;
 		preparedCheckpoints.current.add(`${tutorial.id}:${checkpoint}`);
-		loadTrainingState(checkpoint === "barbarian" ? prepareAbilityEncounter(ABILITY_BARBARIAN) : preparePowerAndPassiveEncounter());
+		loadTrainingState(checkpoint === "barbarian" ? prepareAbilityEncounter(uiEngine, ABILITY_BARBARIAN) : preparePowerAndPassiveEncounter(uiEngine));
 		setTutorial((current) => current ? markAbilityCheckpointReady(current, checkpoint) : current);
 	}, [tutorial, loadTrainingState]);
 
@@ -232,10 +234,10 @@ function App() {
 			let training: ReturnType<typeof prepareInventoryTraining>;
 			let heroId = preferredHero;
 			try {
-				training = prepareInventoryTraining(preferredHero);
+				training = prepareInventoryTraining(uiEngine, preferredHero);
 			} catch {
 				heroId = "hero_broken_bastion_warrior";
-				training = prepareInventoryTraining(heroId);
+				training = prepareInventoryTraining(uiEngine, heroId);
 			}
 			loadTrainingState(training);
 			setTutorial(startTutorial(id, [heroId]));
@@ -243,7 +245,7 @@ function App() {
 			return;
 		}
 		if (id === "archive-four") {
-			loadTrainingState(prepareAbilityEncounter(ABILITY_HUNTER));
+			loadTrainingState(prepareAbilityEncounter(uiEngine, ABILITY_HUNTER));
 			setTutorial(markAbilityCheckpointReady(startTutorial(id, [ABILITY_HUNTER]), "hunter"));
 			setUiScreen("menu");
 			return;
@@ -270,7 +272,7 @@ function App() {
 		if (tutorial)
 			setLastTutorialAudit({
 				session: finishTutorial(tutorial),
-				gameJournalJson: exportJournalJson(journal),
+				gameJournalJson: exportJournalJson(uiEngine, journal),
 			});
 		if (destination !== "tutorialHub" || tutorial?.status !== "completed")
 			reset();

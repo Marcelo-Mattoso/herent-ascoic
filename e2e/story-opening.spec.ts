@@ -12,7 +12,7 @@ async function gameState(page: Page) {
 	return page.evaluate(async () => {
 		const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
 		const state = getElfGameState();
-		return { status: state.status, bossCardId: state.bossCardId, difficulty: state.difficulty, mode: state.mode, heroes: state.heroes.map((hero) => hero.cardId), seed: state.rng.seed, actions: state.actionLog, starts: state.actionLog.flatMap((entry) => entry.action.type === "START_GAME" ? [entry.action.payload] : []) };
+		return { status: state.game.status, bossCardId: state.game.bossCardId, difficulty: state.game.difficulty, mode: state.game.mode, heroes: state.game.heroes.map((hero) => hero.cardId), seed: state.game.rng.seed, actions: state.game.actionLog, starts: state.game.actionLog.flatMap((entry) => entry.action.type === "START_GAME" ? [entry.action.payload] : []) };
 	});
 }
 

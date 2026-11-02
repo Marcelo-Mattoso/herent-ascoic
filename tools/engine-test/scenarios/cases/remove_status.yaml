@@ -1,0 +1,19 @@
+name: remove_status remove por tag e por id, e não emite nada sem correspondência
+kind: remove_status
+given:
+  units:
+    - id: aria
+      def: aria
+      controller: a
+      statuses: [{ status: colera }, { status: raiz, remaining: 2 }]
+when:
+  - run:
+      - { kind: remove_status, target: aria, tag: veneno }
+      - { kind: remove_status, target: aria, tag: veneno }
+      - { kind: remove_status, target: aria, status: raiz }
+then:
+  events:
+    - { type: status.removido, payload: { unit: aria, status: colera, reason: removido } }
+    - { type: status.removido, payload: { unit: aria, status: raiz, reason: removido } }
+  units:
+    aria: { statuses: [] }

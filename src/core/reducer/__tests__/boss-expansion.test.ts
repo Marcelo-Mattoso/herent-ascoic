@@ -3,7 +3,10 @@ import { getBoss, getBossById, getAllCards } from "../../data/cards";
 import { getExpansionCardMetadata } from "../../data/expansions";
 import { SKILLS } from "../../data/skills";
 import { inlineBossDamageReduction, inlineBossHitBonus, markInlineBossSkillsUsed } from "../../rules/bossSkills";
+import { testEngine } from "../../__tests__/testEngine";
+import { decksOf, enemiesOf, withAwakening } from "../../state/access";
 import { createInitialGameState } from "../../state/gameState";
+import { gameOf, withGame } from "../../../engine/state";
 import { handleRevealBoss } from "../boss";
 import { handleStartGame } from "../setup";
 
@@ -17,12 +20,11 @@ const artifactIds = [
 
 function withArtifacts(ids: readonly string[], despertar: 0 | 1 | 2 | 3 | 4 = 0) {
 	const state = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"], bossCardId: bossId });
-	return {
-		...state,
-		despertar,
+	return withAwakening(withGame(state, (game) => ({
+		...game,
 		bossCardId: bossId,
 		groupArtifacts: ids.map((cardId) => ({ cardId, carriedBy: null })),
-	};
+	})), despertar);
 }
 
 describe("boss separado por expansão", () => {
@@ -41,54 +43,54 @@ describe("boss separado por expansão", () => {
 	});
 
 	it("não revela o boss com menos de três artefatos", () => {
-		const blocked = handleRevealBoss(withArtifacts(artifactIds.slice(0, 2)));
-		expect(blocked.activeEnemies).toHaveLength(0);
-		expect(blocked.status).not.toBe("BOSS_COMBAT");
+		const blocked = handleRevealBoss(testEngine, withArtifacts(artifactIds.slice(0, 2)));
+		expect(enemiesOf(blocked)).toHaveLength(0);
+		expect(gameOf(blocked).status).not.toBe("BOSS_COMBAT");
 	});
 
 	it("três artefatos sem o Coração mantêm 20 de Vida-base", () => {
-		const revealed = handleRevealBoss(withArtifacts(artifactIds));
-		expect(revealed.status).toBe("BOSS_COMBAT");
-		expect(revealed.activeEnemies[0]?.maxLife).toBe(20);
-		expect(revealed.activeEnemies[0]?.dice).toBe(3);
+		const revealed = handleRevealBoss(testEngine, withArtifacts(artifactIds));
+		expect(gameOf(revealed).status).toBe("BOSS_COMBAT");
+		expect(enemiesOf(revealed)[0]?.maxLife).toBe(20);
+		expect(enemiesOf(revealed)[0]?.dice).toBe(3);
 	});
 
 	it("Coração entre os três artefatos reduz a Vida-base para 16", () => {
 		const ids = [heart, ...artifactIds.slice(0, 2)];
-		const revealed = handleRevealBoss(withArtifacts(ids));
-		expect(revealed.activeEnemies[0]?.maxLife).toBe(16);
+		const revealed = handleRevealBoss(testEngine, withArtifacts(ids));
+		expect(enemiesOf(revealed)[0]?.maxLife).toBe(16);
 	});
 
 	it("aplica a escala de Despertar após o bônus do Coração", () => {
 		const ids = [heart, ...artifactIds.slice(0, 2)];
-		const revealed = handleRevealBoss(withArtifacts(ids, 4));
-		expect(revealed.activeEnemies[0]?.maxLife).toBe(24);
-		expect(revealed.activeEnemies[0]?.hitBonus).toBe(16);
+		const revealed = handleRevealBoss(testEngine, withArtifacts(ids, 4));
+		expect(enemiesOf(revealed)[0]?.maxLife).toBe(24);
+		expect(enemiesOf(revealed)[0]?.hitBonus).toBe(16);
 	});
 
 	it("executa os modificadores declarados do chefe sem repetir na mesma rodada", () => {
-		const state = handleRevealBoss(withArtifacts(artifactIds));
-		const boss = state.activeEnemies[0]!;
-		expect(inlineBossDamageReduction(state, boss).amount).toBe(1);
-		const used = markInlineBossSkillsUsed(state, inlineBossDamageReduction(state, boss).usedIds);
-		expect(inlineBossDamageReduction(used, boss).amount).toBe(0);
-		expect(inlineBossHitBonus(boss)).toBe(0);
-		expect(inlineBossHitBonus({ ...boss, currentLife: 10 })).toBe(2);
+		const state = handleRevealBoss(testEngine, withArtifacts(artifactIds));
+		const boss = enemiesOf(state)[0]!;
+		expect(inlineBossDamageReduction(testEngine, state, boss).amount).toBe(1);
+		const used = markInlineBossSkillsUsed(state, inlineBossDamageReduction(testEngine, state, boss).usedIds);
+		expect(inlineBossDamageReduction(testEngine, used, boss).amount).toBe(0);
+		expect(inlineBossHitBonus(testEngine, boss)).toBe(0);
+		expect(inlineBossHitBonus(testEngine, { ...boss, currentLife: 10 })).toBe(2);
 	});
 
 	it("usa apenas cartas da expansão escolhida ao montar os decks", () => {
 		const initial = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
-		const state = handleStartGame(initial, {
+		const state = handleStartGame(testEngine, initial, {
 			heroCardIds: ["hero_crimson_barbarian"],
 			bossCardId: bossId,
 			seed: 123,
 			deferInitialRoomReveal: true,
 		});
 		const ids = [
-			...state.decks.dungeonDeck.available,
-			...state.decks.enemyDeck.available,
-			...state.decks.itemDeck.available,
-			...state.decks.artifactDeck.available,
+			...decksOf(state).dungeonDeck.available,
+			...decksOf(state).enemyDeck.available,
+			...decksOf(state).itemDeck.available,
+			...decksOf(state).artifactDeck.available,
 		];
 		expect(ids.length).toBeGreaterThan(0);
 		expect(ids.every((id) => getExpansionCardMetadata(id)?.expansionId === "fornalha-sombria")).toBe(true);

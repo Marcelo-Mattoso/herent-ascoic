@@ -3,10 +3,12 @@ import { addComponent, createEntity, upsertEntity } from "../../ecs/world";
 import { reducer } from "../../reducer/index";
 import { createInitialGameState } from "../../state/gameState";
 import { playerView } from "../playerView";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { gameOf, withGame } from "../../../engine/state";
 
 function buildStartedState(heroNames: string[]) {
 	const base = createInitialGameState({ heroCardIds: heroNames });
-	return reducer(base, {
+	return reducer(testEngine, base, {
 		type: "START_GAME",
 		payload: { heroCardIds: heroNames },
 	});
@@ -15,16 +17,16 @@ function buildStartedState(heroNames: string[]) {
 describe("projectActiveInfluences", () => {
 	it("retorna lista vazia quando não há modifiers no world", () => {
 		const state = buildStartedState(["hero_crimson_barbarian"]);
-		const view = playerView(state);
+		const view = playerView(testEngine, state);
 		// Sem combate ativo, world pode ter passivas mas activeInfluences reflete isso
 		expect(Array.isArray(view.activeInfluences)).toBe(true);
 	});
 
 	it("detecta modifier de herói → herói (hero_to_self)", () => {
 		let state = buildStartedState(["hero_crimson_barbarian"]);
-		const heroId = state.heroes[0].id;
+		const heroId = gameOf(state).heroes[0].id;
 		// Injeta modifier diretamente no world (simula bônus de dano)
-		let world = state.world;
+		let world = gameOf(state).world;
 		if (!world.entities[heroId]) {
 			world = upsertEntity(world, createEntity(heroId, "hero"));
 		}
@@ -36,9 +38,9 @@ describe("projectActiveInfluences", () => {
 			source: "skill_bastion_guard",
 			duration: { kind: "this_turn" },
 		});
-		state = { ...state, world };
+		state = withGame(state, (prevGame) => ({ ...prevGame, world }));
 
-		const view = playerView(state);
+		const view = playerView(testEngine, state);
 		const infs = view.activeInfluences;
 		expect(infs.length).toBeGreaterThan(0);
 
@@ -58,8 +60,8 @@ describe("projectActiveInfluences", () => {
 		let state = buildStartedState(heroes);
 
 		// Injeta o mesmo modifier (power_unbreakable_bastion_guard) em todos os heróis
-		let world = state.world;
-		for (const hero of state.heroes) {
+		let world = gameOf(state).world;
+		for (const hero of gameOf(state).heroes) {
 			if (!world.entities[hero.id]) {
 				world = upsertEntity(world, createEntity(hero.id, "hero"));
 			}
@@ -72,9 +74,9 @@ describe("projectActiveInfluences", () => {
 				duration: { kind: "this_turn" },
 			});
 		}
-		state = { ...state, world };
+		state = withGame(state, (prevGame) => ({ ...prevGame, world }));
 
-		const view = playerView(state);
+		const view = playerView(testEngine, state);
 		const grouped = view.activeInfluences.filter((i) =>
 			i.source.includes("Inquebrável"),
 		);
@@ -87,9 +89,9 @@ describe("projectActiveInfluences", () => {
 	it("não colapsa quando só um herói tem o modifier", () => {
 		const heroes = ["hero_crimson_barbarian", "hero_broken_bastion_warrior"];
 		let state = buildStartedState(heroes);
-		const heroId = state.heroes[0].id;
+		const heroId = gameOf(state).heroes[0].id;
 
-		let world = state.world;
+		let world = gameOf(state).world;
 		if (!world.entities[heroId]) {
 			world = upsertEntity(world, createEntity(heroId, "hero"));
 		}
@@ -101,9 +103,9 @@ describe("projectActiveInfluences", () => {
 			source: "power_unbreakable_bastion_guard",
 			duration: { kind: "this_turn" },
 		});
-		state = { ...state, world };
+		state = withGame(state, (prevGame) => ({ ...prevGame, world }));
 
-		const view = playerView(state);
+		const view = playerView(testEngine, state);
 		const grouped = view.activeInfluences.filter((i) =>
 			i.source.includes("Inquebrável"),
 		);
@@ -115,8 +117,8 @@ describe("projectActiveInfluences", () => {
 
 	it("classifica modifier negativo em damage_taken como buff", () => {
 		let state = buildStartedState(["hero_crimson_barbarian"]);
-		const heroId = state.heroes[0].id;
-		let world = state.world;
+		const heroId = gameOf(state).heroes[0].id;
+		let world = gameOf(state).world;
 		if (!world.entities[heroId]) {
 			world = upsertEntity(world, createEntity(heroId, "hero"));
 		}
@@ -128,9 +130,9 @@ describe("projectActiveInfluences", () => {
 			source: "power_unbreakable_bastion_guard",
 			duration: { kind: "permanent" },
 		});
-		state = { ...state, world };
+		state = withGame(state, (prevGame) => ({ ...prevGame, world }));
 
-		const inf = playerView(state).activeInfluences.find((i) =>
+		const inf = playerView(testEngine, state).activeInfluences.find((i) =>
 			i.source.includes("Inquebrável"),
 		);
 		expect(inf!.kind).toBe("buff");
@@ -139,8 +141,8 @@ describe("projectActiveInfluences", () => {
 
 	it("classifica modifier negativo em hit_bonus como debuff (penalidade de acerto)", () => {
 		let state = buildStartedState(["hero_crimson_barbarian"]);
-		const heroId = state.heroes[0].id;
-		let world = state.world;
+		const heroId = gameOf(state).heroes[0].id;
+		let world = gameOf(state).world;
 		if (!world.entities[heroId]) {
 			world = upsertEntity(world, createEntity(heroId, "hero"));
 		}
@@ -152,9 +154,9 @@ describe("projectActiveInfluences", () => {
 			source: "skill_some_enemy_debuff",
 			duration: { kind: "this_combat" },
 		});
-		state = { ...state, world };
+		state = withGame(state, (prevGame) => ({ ...prevGame, world }));
 
-		const inf = playerView(state).activeInfluences[0];
+		const inf = playerView(testEngine, state).activeInfluences[0];
 		expect(inf.kind).toBe("debuff");
 		expect(inf.duration).toBe("até fim do combate");
 		expect(inf.label).toContain("-2");
@@ -162,8 +164,8 @@ describe("projectActiveInfluences", () => {
 
 	it("item_to_hero scope para modifier de skill de item", () => {
 		let state = buildStartedState(["hero_crimson_barbarian"]);
-		const heroId = state.heroes[0].id;
-		let world = state.world;
+		const heroId = gameOf(state).heroes[0].id;
+		let world = gameOf(state).world;
 		if (!world.entities[heroId]) {
 			world = upsertEntity(world, createEntity(heroId, "hero"));
 		}
@@ -176,9 +178,9 @@ describe("projectActiveInfluences", () => {
 			source: "skill_hunter_focus",
 			duration: { kind: "permanent" },
 		});
-		state = { ...state, world };
+		state = withGame(state, (prevGame) => ({ ...prevGame, world }));
 
-		const inf = playerView(state).activeInfluences.find((i) =>
+		const inf = playerView(testEngine, state).activeInfluences.find((i) =>
 			i.source.includes("Caçador"),
 		);
 		expect(inf).toBeDefined();
@@ -188,8 +190,8 @@ describe("projectActiveInfluences", () => {
 
 	it("activeInfluences não quebra buffsByHero existente", () => {
 		let state = buildStartedState(["hero_crimson_barbarian"]);
-		const heroId = state.heroes[0].id;
-		let world = state.world;
+		const heroId = gameOf(state).heroes[0].id;
+		let world = gameOf(state).world;
 		if (!world.entities[heroId]) {
 			world = upsertEntity(world, createEntity(heroId, "hero"));
 		}
@@ -201,8 +203,8 @@ describe("projectActiveInfluences", () => {
 			source: "skill_bastion_guard",
 			duration: { kind: "once" },
 		});
-		state = { ...state, world };
-		const view = playerView(state);
+		state = withGame(state, (prevGame) => ({ ...prevGame, world }));
+		const view = playerView(testEngine, state);
 		// activeInfluences funciona independente de ter ou não combate ativo
 		expect(view.activeInfluences.length).toBeGreaterThan(0);
 		// buffsByHero existe quando há combate

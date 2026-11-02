@@ -1,6 +1,6 @@
 import { translate } from "@/i18n";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
-import type { ItemSlotType } from "@/core/state/heroState";
+import type { ItemSlotType } from "@/core/projection/viewTypes";
 import { UI } from "@/ui/theme";
 import { ItemTile } from "./ItemTile";
 

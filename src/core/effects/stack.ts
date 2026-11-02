@@ -4,6 +4,8 @@
 // Passo 8: efeitos encadeados são enfileirados aqui em vez de aplicados
 // imediatamente, permitindo resolução ordenada sem recursão direta no call stack.
 
+import type { PendingChoice } from "../../engine/choice";
+import { orderEntries, pushEntry } from "../../engine/stack";
 import type { EffectDescriptor, EntityId } from "../ecs/types";
 
 export const MAX_STACK_DEPTH = 64;
@@ -21,7 +23,7 @@ export interface EffectStack {
 	readonly resolving: PendingEffect | null;
 }
 
-export type PauseReason = "skill_choice" | "target_select";
+export type PauseReason = string;
 
 export interface ChoiceOption {
 	readonly id: string;
@@ -29,8 +31,7 @@ export interface ChoiceOption {
 }
 
 export interface PausedState {
-	readonly reason: PauseReason;
-	readonly options: readonly ChoiceOption[];
+	readonly choice: PendingChoice;
 	readonly resumeFrom: PendingEffect;
 }
 
@@ -44,12 +45,7 @@ export function addPending(
 	stack: EffectStack,
 	params: Omit<PendingEffect, "id" | "seq">,
 ): EffectStack {
-	const seq = stack.pending.length + (stack.resolving ? 1 : 0);
-	const id = `effect-${seq}-${params.cause}`;
-	return {
-		...stack,
-		pending: [...stack.pending, { ...params, id, seq }],
-	};
+	return pushEntry(stack, params) as EffectStack;
 }
 
 // Ordem de resolução para cada tipo de evento, conforme event_rules.json.
@@ -59,6 +55,5 @@ export function orderPending(
 	pending: readonly PendingEffect[],
 	rule: "lifo" | "fifo",
 ): readonly PendingEffect[] {
-	const sorted = [...pending].sort((a, b) => a.seq - b.seq);
-	return rule === "lifo" ? sorted.reverse() : sorted;
+	return orderEntries(pending, rule) as readonly PendingEffect[];
 }

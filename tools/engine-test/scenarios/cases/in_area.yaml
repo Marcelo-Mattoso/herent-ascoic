@@ -1,0 +1,12 @@
+name: in_area testa a presença por id ou definição da área, com negate
+kind: in_area
+given:
+  units:
+    - { id: lago, def: lago_turvo }
+    - { id: aria, def: aria, controller: a, presentIn: [lago] }
+    - { id: espreitador, def: espreitador_do_junco, controller: e }
+when:
+  - test: { subject: aria, node: { kind: in_area, area: lago }, expect: true }
+  - test: { subject: aria, node: { kind: in_area, area: lago_turvo }, expect: true }
+  - test: { subject: aria, node: { kind: in_area, area: lago, negate: true }, expect: false }
+  - test: { subject: espreitador, node: { kind: in_area, area: lago }, expect: false }

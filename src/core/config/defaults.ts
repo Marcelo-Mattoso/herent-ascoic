@@ -38,10 +38,4 @@ export const FEATURE_FLAGS = {
 
 // Ao sair de alpha, altere stage para "release": o registro detalhado deixa
 // de ser produzido e o painel oculto desaparece.
-export const DIAGNOSTIC_LOG = {
-	stage: "alpha" as "alpha" | "release",
-	enabled: true,
-} as const;
-
-export const ALPHA_LOG_ENABLED =
-	DIAGNOSTIC_LOG.stage === "alpha" && DIAGNOSTIC_LOG.enabled;
+export { ALPHA_LOG_ENABLED, DIAGNOSTIC_LOG } from "../diagnostics/config";

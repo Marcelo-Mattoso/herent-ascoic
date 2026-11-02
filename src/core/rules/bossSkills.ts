@@ -1,6 +1,7 @@
 // Modificadores de chefe que precisam agir ANTES do dano e da rolagem.
 // O restante das habilidades executa pelo motor declarativo normal.
-import { cardSkills } from "../skills/lookup";
+import { type GameEngine, skillsOf } from "../gameEngine";
+import { scopedFlagOf, withScopedFlag } from "../state/access";
 import type { SkillDefinition } from "../data/skillTypes";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
@@ -34,9 +35,9 @@ function conditionsMet(def: SkillDefinition, boss: EnemyState): boolean {
 
 function appliedKey(skillId: string): string { return "boss:inline:" + skillId; }
 
-export function inlineBossHitBonus(boss: EnemyState): number {
+export function inlineBossHitBonus(engine: GameEngine, boss: EnemyState): number {
 	let bonus = 0;
-	for (const { def, ref } of cardSkills(boss.cardId)) {
+	for (const { def, ref } of skillsOf(engine, boss.cardId)) {
 		if (!isInlineBossSkill(def) || !conditionsMet(def, boss)) continue;
 		for (const effect of def.effect ?? [])
 			if (effect.kind === "p_modifier" && effect.stat === "s_hit_bonus")
@@ -46,13 +47,13 @@ export function inlineBossHitBonus(boss: EnemyState): number {
 }
 
 export function inlineBossDamageReduction(
-	state: GameState, boss: EnemyState,
+	engine: GameEngine, state: GameState, boss: EnemyState,
 ): { readonly amount: number; readonly usedIds: readonly string[] } {
 	let amount = 0;
 	const usedIds: string[] = [];
-	for (const { def, ref } of cardSkills(boss.cardId)) {
+	for (const { def, ref } of skillsOf(engine, boss.cardId)) {
 		if (!isInlineBossSkill(def) || !conditionsMet(def, boss)) continue;
-		if (state.combat?.oncePer.round[appliedKey(def.id)]) continue;
+		if (scopedFlagOf(state, "round", appliedKey(def.id), "boss")) continue;
 		let reduction = 0;
 		for (const effect of def.effect ?? [])
 			if (effect.kind === "p_modifier" && effect.stat === "s_damage_reduction")
@@ -63,8 +64,8 @@ export function inlineBossDamageReduction(
 }
 
 export function markInlineBossSkillsUsed(state: GameState, skillIds: readonly string[]): GameState {
-	if (!state.combat || skillIds.length === 0) return state;
-	const used = { ...state.combat.oncePer.round };
-	for (const id of skillIds) used[appliedKey(id)] = true;
-	return { ...state, combat: { ...state.combat, oncePer: { ...state.combat.oncePer, round: used } } };
+	return skillIds.reduce(
+		(next, id) => withScopedFlag(next, "round", appliedKey(id), "boss"),
+		state,
+	);
 }

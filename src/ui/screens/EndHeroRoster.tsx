@@ -1,9 +1,9 @@
-import type { HeroState } from "@/core/state/heroState";
+import type { HeroView } from "@/core/projection/viewTypes";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardImageUrl, type CardImageUrls } from "@/ui/cardImages";
 
 interface EndHeroRosterProps {
-	heroes: readonly HeroState[];
+	heroes: readonly HeroView[];
 	imageUrls: CardImageUrls;
 	title: string;
 }

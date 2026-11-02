@@ -30,7 +30,7 @@ test("celular em retrato solicita paisagem e retoma o mesmo jogo após girar", a
 		await page.screenshot({ path: "test-results/mobile-portrait-rotate-notice.png" });
 		const readStatus = () => page.evaluate(async () => {
 			const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
-			return getElfGameState().status;
+			return getElfGameState().game.status;
 		});
 		await expect.poll(readStatus, { timeout: 12_000 }).toBe("HERO_ACTION");
 		const statusBeforeRotation = await readStatus();

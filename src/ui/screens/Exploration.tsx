@@ -9,8 +9,8 @@ import type { Action } from "@/core/actions/types";
 import { dungeonAwakeningEffect } from "@/core/rules/dungeonAwakening";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
-import type { EnemyState } from "@/core/state/enemyState";
-import type { HeroState } from "@/core/state/heroState";
+import type { EnemyView } from "@/core/projection/viewTypes";
+import type { HeroView } from "@/core/projection/viewTypes";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { Board } from "@/ui/components/Board";
 import { BoardFooter } from "@/ui/components/BoardFooter";
@@ -133,7 +133,7 @@ export function Exploration({
 		heroId: string;
 		itemId?: string;
 	} | null>(null);
-	const { view, state, ui, journal, dispatch, setFocusedHero, heroActionsFor } =
+	const { view, ui, journal, dispatch, setFocusedHero, heroActionsFor } =
 		useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
 	const [showHeroFocus, setShowHeroFocus] = useState(false);
@@ -235,7 +235,7 @@ export function Exploration({
 	}
 
 	// Clique em card de herói: muda foco + seleciona para combate se válido
-	function handleHeroClick(h: HeroState) {
+	function handleHeroClick(h: HeroView) {
 		if (h.status !== "active") return;
 		// The drag lesson must not change combat phase on a harmless click.
 		// Touch devices use the separate tap-then-target path below.
@@ -292,7 +292,7 @@ export function Exploration({
 		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId, inputMethod: "drag" } });
 	}
 
-	function handleEnemyClick(e: EnemyState) {
+	function handleEnemyClick(e: EnemyView) {
 		const selectedHeroId = combat?.selectedHeroId;
 		if (
 			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
@@ -377,7 +377,7 @@ export function Exploration({
 
 	return (
 		<>
-			<AlphaLogPanel entries={state.alphaLog ?? []} />
+			<AlphaLogPanel entries={view.alphaLog} />
 			<div
 				className="game-viewport"
 				data-game-layout={gameGeometry.mode}

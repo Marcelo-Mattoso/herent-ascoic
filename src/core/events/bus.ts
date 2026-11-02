@@ -1,29 +1,23 @@
-// Barramento de eventos síncrono com janelas pré/pós.
-// Passo 8: recursão é permitida quando chamada via drainStack → resolveEffect → system.
-// Listeners devem usar push_to_stack (em vez de emit direto) para encadear efeitos.
-// Patch-18 Lote F: suporte a condition com evento, consumeAfterFire.
-//
-// Fluxo:
-//   emit(state, event)
-//     → coleta TriggerComponents que escutam event.type
-//     → ordena por priority (menor = primeiro), tiebreak por entityId
-//     → aplica cada efeito via effectResolver (pode modificar event ou push à stack)
-//     → retorna { state, event } com accumulator final
-
+import { stampEvent } from "../../engine/events";
 import type { Entity, TriggerComponent } from "../ecs/types";
 import { removeComponent } from "../ecs/world";
-import { cardSkills } from "../skills/lookup";
+
 import type { GameState } from "../state/gameState";
 import { applyEffect } from "./effectResolver";
-import type { GameEvent } from "./types";
+import { type GameEventDraft, type GameEventMap, isPreWindowEvent } from "./types";
+import { skillsOf } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
 
+import { withWorld, worldOf, pendingTriggerInterruptOf } from "../state/access";
+import { scopedFlagOf, withScopedFlag } from "../state/access";
+import { gameOf, withGame } from "../../engine/state";
 /**
  * Saves anteriores à pipeline canônica podem conter cópias ECS de gatilhos
  * declarados no catálogo. O TriggerEngine é o dono desses gatilhos; o bus só
  * executa componentes criados em runtime. Sem essa guarda, uma mesma skill
  * seria executada uma vez por cada pipeline.
  */
-function isCatalogTriggerComponent(
+function isCatalogTriggerComponent(engine: GameEngine,
 	state: GameState,
 	entityId: string,
 	trigger: TriggerComponent,
@@ -35,21 +29,21 @@ function isCatalogTriggerComponent(
 	const skillId = trigger.effect["skillId"];
 	if (typeof skillId !== "string") return false;
 	const cardId =
-		state.heroes.find((hero) => hero.id === entityId)?.cardId ??
-		state.activeEnemies.find((enemy) => enemy.id === entityId)?.cardId;
+		gameOf(state).heroes.find((hero) => hero.id === entityId)?.cardId ??
+		gameOf(state).activeEnemies.find((enemy) => enemy.id === entityId)?.cardId;
 	if (!cardId) return false;
-	return cardSkills(cardId).some(
+	return skillsOf(engine, cardId).some(
 		({ def }) => def.id === skillId && def.operate_type === "op_triggered",
 	);
 }
 
-export function emit(
+export function emit(engine: GameEngine,
 	state: GameState,
-	event: GameEvent,
-): { state: GameState; event: GameEvent } {
+	event: GameEventDraft,
+): { state: GameState; event: GameEventDraft } {
 	// Coletar todos os TriggerComponents que escutam este tipo de evento.
 	const matching: Array<{ entity: Entity; trigger: TriggerComponent }> = [];
-	for (const entity of Object.values(state.world.entities)) {
+	for (const entity of Object.values(worldOf(state).entities)) {
 		for (const comp of entity.components) {
 			if (comp.type === "trigger") {
 				const trigger = comp as TriggerComponent;
@@ -71,12 +65,12 @@ export function emit(
 	let currentState = state;
 	let currentEvent = event;
 	for (const { entity, trigger } of matching) {
-		if (isCatalogTriggerComponent(currentState, entity.id, trigger)) continue;
+		if (isCatalogTriggerComponent(engine, currentState, entity.id, trigger)) continue;
 
 		// Verificar condição opcional (com acesso ao evento e world).
 		if (
 			trigger.condition &&
-			!trigger.condition(entity, currentEvent, currentState.world)
+			!trigger.condition(entity, currentEvent, worldOf(currentState))
 		)
 			continue;
 
@@ -88,10 +82,10 @@ export function emit(
 				| "combat"
 				| "round";
 			const key = `${trigger.source}::${entity.id}`;
-			if (currentState.combat?.oncePer?.[scope]?.[key]) continue; // já consumido neste scope
+			if (scopedFlagOf(currentState, scope, "oncePer", key)) continue; // já consumido neste scope
 		}
 
-		const result = applyEffect(
+		const result = applyEffect(engine,
 			currentState,
 			currentEvent,
 			entity.id,
@@ -99,19 +93,16 @@ export function emit(
 		);
 		currentState = result.state;
 		currentEvent = result.event;
-		if (currentState.pendingTriggerInterrupt) break;
+		if (pendingTriggerInterruptOf(currentState)) break;
 
 		if (trigger.consumeAfterFire) {
 			if (trigger.consumeAfterFire.scope === "game") {
 				// Remoção permanente (uma vez por jogo — sem reset).
-				currentState = {
-					...currentState,
-					world: removeComponent(
-						currentState.world,
+				currentState = withWorld(currentState, removeComponent(
+						worldOf(currentState),
 						entity.id,
 						(c) => c === trigger,
-					),
-				};
+					));
 			} else {
 				// Marca no oncePer registry; o trigger é reinstalado automaticamente ao reset do scope.
 				const scope = trigger.consumeAfterFire.scope as
@@ -119,33 +110,15 @@ export function emit(
 					| "combat"
 					| "round";
 				const key = `${trigger.source}::${entity.id}`;
-				if (scope === "room") {
-					currentState = {
-						...currentState,
-						oncePer: {
-							...currentState.oncePer,
-							room: {
-								...(currentState.oncePer.room ??
-									currentState.combat?.oncePer.room),
-								[key]: true,
-							},
-						},
-					};
-				} else if (currentState.combat) {
-					currentState = {
-						...currentState,
-						combat: {
-							...currentState.combat,
-							oncePer: {
-								...currentState.combat.oncePer,
-								[scope]: { ...currentState.combat.oncePer[scope], [key]: true },
-							},
-						},
-					};
+				if (scope === "room" || gameOf(currentState).combat) {
+					currentState = withScopedFlag(currentState, scope, "oncePer", key);
 				}
 			}
 		}
 	}
 
+	if (!isPreWindowEvent(currentEvent.type)) {
+		currentState = withGame(currentState, (prevGame) => ({ ...prevGame, events: stampEvent<GameEventMap>(gameOf(currentState).events, currentEvent) }));
+	}
 	return { state: currentState, event: currentEvent };
 }

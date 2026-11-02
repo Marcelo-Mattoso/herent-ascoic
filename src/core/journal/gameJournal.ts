@@ -1,18 +1,22 @@
 import type { Action } from "../actions/types";
-import packageJson from "../../../package.json";
-import { cardAbilityGrants } from "../data/abilities";
-import { getCardLocale, getCardName } from "../data/cardLocale";
-import { getCardById } from "../data/cards";
-import { getSkillLocale, getSkillName } from "../data/skillLocale";
 import type { ModifierComponent } from "../ecs/types";
-import { itemIsExhausted } from "../rules/itemEffects";
-import { lookupSkillById } from "../skills/lookup";
-import { BACKPACK_CAPACITY, EQUIPMENT_SLOTS } from "../rules/equipment";
-import { ActivationTracker } from "../state/activation";
+
+import { EQUIPMENT_SLOTS } from "../rules/equipment";
 import type { CombatRollResult } from "../state/combatState";
+import type { AscensaoGame, GameState } from "../state/gameState";
 import type { EnemyState } from "../state/enemyState";
-import type { GameState } from "../state/gameState";
 import type { HeroState, ItemSlotType } from "../state/heroState";
+import {
+	type JournalEnemySource,
+	type JournalHeroSource,
+	type JournalSnapshot,
+	journalSnapshotOf,
+} from "./journalSnapshot";
+import { abilityGrants, backpackCapacity, cardById, cardName, cardScaling, gameVersion, skillById, skillName, skillText } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+
+import type { DeckName } from "../state/access";
+export { type JournalSnapshot, journalSnapshotOf };
 
 export const JOURNAL_SCHEMA_VERSION = 1;
 export const DEFAULT_JOURNAL_LIMIT = 160;
@@ -91,9 +95,9 @@ export interface JournalStateSnapshot {
 	readonly sequence: number;
 	readonly timestamp: number;
 	readonly gameId: string;
-	readonly status: GameState["status"];
-	readonly mode: GameState["mode"];
-	readonly difficulty: GameState["difficulty"];
+	readonly status: AscensaoGame["status"];
+	readonly mode: AscensaoGame["mode"];
+	readonly difficulty: AscensaoGame["difficulty"];
 	readonly round: number | null;
 	readonly combatPhase: string | null;
 	readonly selectedHeroId: string | null;
@@ -119,7 +123,7 @@ export interface JournalStateSnapshot {
 		state: "available" | "active" | "disabled";
 	}[];
 	readonly decks: readonly {
-		id: keyof GameState["decks"];
+		id: DeckName;
 		available: number;
 		discarded: readonly JournalCard[];
 		removed: number;
@@ -130,11 +134,6 @@ export interface JournalStateSnapshot {
 	readonly flags: readonly string[];
 	readonly blocks: readonly { key: string; sources: readonly string[] }[];
 	readonly tokens: readonly { key: string; count: number }[];
-	readonly temporaryEffects: readonly {
-		id: string;
-		description: string;
-		roundsLeft: number;
-	}[];
 	readonly roomModifiers: readonly {
 		targetId: string;
 		modifier: JournalModifier;
@@ -171,16 +170,15 @@ export interface GameJournal {
 	readonly omittedEntries: number;
 }
 
-function skillsForCard(
+function skillsForCard(engine: GameEngine,
 	cardId: string,
 	usedPowers: Readonly<Record<string, boolean>> = {},
 ): JournalSkill[] {
-	return cardAbilityGrants(cardId).map((grant) => {
-		const locale = getSkillLocale(grant.abilityId);
+	return abilityGrants(engine, cardId).map((grant) => {
 		return {
 			id: grant.abilityId,
-			name: getSkillName(grant.abilityId),
-			text: locale.text ?? locale.notes ?? "",
+			name: skillName(engine, grant.abilityId),
+			text: skillText(engine, grant.abilityId),
 			activation: grant.activation.kind,
 			requirements: [
 				grant.requiresAwakening ? "Requer Despertar" : "",
@@ -196,36 +194,36 @@ function skillsForCard(
 	});
 }
 
-function cardProjection(
+function cardProjection(engine: GameEngine,
 	id: string,
 	state?: "ready" | "exhausted",
 	includeSkills = true,
 ): JournalCard {
-	const card = getCardById(id);
+	const card = cardById(engine, id);
 	return {
 		id,
-		name: getCardName(id),
+		name: cardName(engine, id),
 		type: card?.type ?? "unknown",
 		...(state ? { state } : {}),
-		skills: includeSkills ? skillsForCard(id) : [],
+		skills: includeSkills ? skillsForCard(engine, id) : [],
 		...(card?.type === "item" && card.allowedHeroIds?.length
 			? {
-					restriction: `Heróis permitidos: ${card.allowedHeroIds.map(getCardName).join(", ")}`,
+					restriction: `Heróis permitidos: ${card.allowedHeroIds.map((heroId) => cardName(engine, heroId)).join(", ")}`,
 				}
 			: {}),
 	};
 }
 
-function modifierProjection(mod: ModifierComponent): JournalModifier {
+function modifierProjection(engine: GameEngine, mod: ModifierComponent): JournalModifier {
 	return {
 		target: mod.target,
 		operation: mod.operation,
 		value: mod.value,
 		sourceId: mod.source,
 		source:
-			getSkillName(mod.source) !== mod.source
-				? getSkillName(mod.source)
-				: getCardName(mod.source),
+			skillName(engine, mod.source) !== mod.source
+				? skillName(engine, mod.source)
+				: cardName(engine, mod.source),
 		duration:
 			mod.duration.kind === "rounds"
 				? `${mod.duration.remaining} rodada(s)`
@@ -234,20 +232,12 @@ function modifierProjection(mod: ModifierComponent): JournalModifier {
 	};
 }
 
-function modifiersFor(state: GameState, entityId: string): JournalModifier[] {
-	return (state.world.entities[entityId]?.components ?? [])
-		.filter(
-			(component): component is ModifierComponent =>
-				component.type === "modifier",
-		)
-		.map(modifierProjection);
-}
-
-function heroProjection(state: GameState, hero: HeroState): JournalHero {
+function heroProjection(engine: GameEngine, source: JournalHeroSource): JournalHero {
+	const { hero } = source;
 	const equipment = EQUIPMENT_SLOTS.map((slot) => {
 		const cardId = hero.activeItems[slot];
 		if (slot === "hand2" && !cardId && hero.activeItems.hand1) {
-			const firstHand = getCardById(hero.activeItems.hand1);
+			const firstHand = cardById(engine, hero.activeItems.hand1);
 			if (
 				firstHand?.type === "item" &&
 				firstHand.equipmentSlot === "two_hands"
@@ -258,9 +248,9 @@ function heroProjection(state: GameState, hero: HeroState): JournalHero {
 		return {
 			slot,
 			card: cardId
-				? cardProjection(
+				? cardProjection(engine,
 						cardId,
-						itemIsExhausted(state, hero.id, cardId) ? "exhausted" : "ready",
+						source.exhaustedItemIds.includes(cardId) ? "exhausted" : "ready",
 					)
 				: null,
 		};
@@ -268,14 +258,14 @@ function heroProjection(state: GameState, hero: HeroState): JournalHero {
 	return {
 		id: hero.id,
 		cardId: hero.cardId,
-		name: getCardName(hero.cardId),
+		name: cardName(engine, hero.cardId),
 		status: hero.status,
 		life: hero.currentLife,
 		maxLife: hero.maxLife,
 		damage: hero.damage,
 		hitBonus: hero.hitBonus,
 		dice: hero.dice,
-		impeto: hero.impeto,
+		impeto: source.impeto,
 		xp: hero.xp,
 		healBlocked: Boolean(hero.healBlocked),
 		conditions: [...hero.conditions],
@@ -283,34 +273,32 @@ function heroProjection(state: GameState, hero: HeroState): JournalHero {
 			...Object.entries(hero.usedPowers)
 				.filter(([, used]) => used)
 				.map(([id]) => id),
-			...(state.combat?.powersUsedThisRoom[hero.id]
-				? ["Poder usado nesta sala"]
-				: []),
+			...(source.powerUsedThisRoom ? ["Poder usado nesta sala"] : []),
 		],
-		skills: skillsForCard(hero.cardId, hero.usedPowers).map((skill) => ({
+		skills: skillsForCard(engine, hero.cardId, hero.usedPowers).map((skill) => ({
 			...skill,
 			used:
 				skill.used ||
 				Boolean(
-					state.combat?.powersUsedThisRoom[hero.id] &&
-						lookupSkillById(skill.id)?.category === "hero_power",
+					source.powerUsedThisRoom &&
+						skillById(engine, skill.id)?.category === "hero_power",
 				),
 		})),
 		equipment,
 		backpack: Array.from(
-			{ length: Math.max(BACKPACK_CAPACITY, hero.backpack.length) },
+			{ length: Math.max(backpackCapacity(engine), hero.backpack.length) },
 			(_, index) =>
-				hero.backpack[index] ? cardProjection(hero.backpack[index]) : null,
+				hero.backpack[index] ? cardProjection(engine, hero.backpack[index]) : null,
 		),
-		modifiers: modifiersFor(state, hero.id),
+		modifiers: source.modifiers.map((modifier) => modifierProjection(engine, modifier)),
 	};
 }
 
-function enemyProjection(state: GameState, enemy: EnemyState): JournalEnemy {
+function enemyProjection(engine: GameEngine, { enemy, modifiers }: JournalEnemySource): JournalEnemy {
 	return {
 		id: enemy.id,
 		cardId: enemy.cardId,
-		name: getCardName(enemy.cardId),
+		name: cardName(engine, enemy.cardId),
 		status: enemy.status,
 		life: enemy.currentLife,
 		maxLife: enemy.maxLife,
@@ -319,25 +307,21 @@ function enemyProjection(state: GameState, enemy: EnemyState): JournalEnemy {
 		dice: enemy.dice,
 		conditions: [...enemy.conditions],
 		tokens: { ...enemy.tokens },
-		skills: skillsForCard(enemy.cardId),
-		modifiers: modifiersFor(state, enemy.id),
+		skills: skillsForCard(engine, enemy.cardId),
+		modifiers: modifiers.map((modifier) => modifierProjection(engine, modifier)),
 	};
 }
 
-function detectIssues(state: GameState): string[] {
+function detectIssues(engine: GameEngine, snap: JournalSnapshot): string[] {
 	const issues: string[] = [];
-	for (const hero of [
-		...state.heroes,
-		...state.defeatedHeroes,
-		...state.fledHeroes,
-	]) {
-		const name = getCardName(hero.cardId);
+	for (const { hero } of snap.heroes) {
+		const name = cardName(engine, hero.cardId);
 		if (hero.currentLife < 0 || hero.currentLife > hero.maxLife)
 			issues.push(
 				`${name}: vida ${hero.currentLife} fora do intervalo 0–${hero.maxLife}`,
 			);
-		if (hero.backpack.length > BACKPACK_CAPACITY)
-			issues.push(`${name}: mochila acima de ${BACKPACK_CAPACITY} cartas`);
+		if (hero.backpack.length > backpackCapacity(engine))
+			issues.push(`${name}: mochila acima de ${backpackCapacity(engine)} cartas`);
 		const equipped = Object.values(hero.activeItems).filter(
 			(id): id is string => Boolean(id),
 		);
@@ -346,7 +330,7 @@ function detectIssues(state: GameState): string[] {
 		if (equipped.some((id) => hero.backpack.includes(id)))
 			issues.push(`${name}: item simultaneamente equipado e na mochila`);
 		const firstHand = hero.activeItems.hand1
-			? getCardById(hero.activeItems.hand1)
+			? cardById(engine, hero.activeItems.hand1)
 			: undefined;
 		if (
 			firstHand?.type === "item" &&
@@ -355,89 +339,66 @@ function detectIssues(state: GameState): string[] {
 		)
 			issues.push(`${name}: item de duas mãos conflita com Mão 2`);
 	}
-	for (const enemy of [...state.activeEnemies, ...state.enemyGraveyard]) {
+	for (const { enemy } of [...snap.enemies, ...snap.defeatedEnemies]) {
 		if (enemy.currentLife < 0 || enemy.currentLife > enemy.maxLife)
 			issues.push(
-				`${getCardName(enemy.cardId)}: vida ${enemy.currentLife} fora do intervalo 0–${enemy.maxLife}`,
+				`${cardName(engine, enemy.cardId)}: vida ${enemy.currentLife} fora do intervalo 0–${enemy.maxLife}`,
 			);
 	}
 	return issues;
 }
 
-export function projectJournalState(
-	state: GameState,
+export function projectJournalSnapshot(engine: GameEngine,
+	snap: JournalSnapshot,
 	timestamp = Date.now(),
 ): JournalStateSnapshot {
-	const activeModifiers = Object.values(state.world.entities).flatMap(
-		(entity) =>
-			entity.components
-				.filter(
-					(component): component is ModifierComponent =>
-						component.type === "modifier",
-				)
-				.map((component) => ({
-					targetId: entity.id,
-					modifier: modifierProjection(component),
-				})),
-	);
+	const activeModifiers = snap.worldModifiers.map(({ targetId, modifier }) => ({
+		targetId,
+		modifier: modifierProjection(engine, modifier),
+	}));
+	const room = snap.currentRoom;
 	const roomSkillIds = new Set(
-		state.currentRoom
-			? cardAbilityGrants(state.currentRoom.cardId).map(
-					(grant) => grant.abilityId,
-				)
-			: [],
+		room ? abilityGrants(engine, room.cardId).map((grant) => grant.abilityId) : [],
 	);
+	const combat = snap.combat;
+	const interrupt = snap.pendingInterrupt;
 	return {
 		schemaVersion: JOURNAL_SCHEMA_VERSION,
-		sequence: state.actionLog.length,
+		sequence: snap.actionCount,
 		timestamp,
-		gameId: state.gameId,
-		status: state.status,
-		mode: state.mode,
-		difficulty: state.difficulty,
-		round: state.combat?.round ?? null,
-		combatPhase: state.combat?.phase ?? null,
-		selectedHeroId: state.combat?.selectedHeroId ?? null,
-		combatPairs: state.combat?.pairs.map((pair) => ({ ...pair })) ?? [],
-		heroesActed: [...(state.combat?.heroesActed ?? [])],
-		preparedAbilities: Object.values(state.preparedAbilities ?? {}).map((entry) => ({
-			key: entry.key, abilityId: entry.abilityId,
-			sourceCardId: entry.sourceCardId, event: entry.event,
-		})),
-		groupXp: state.groupXp,
-		despertar: state.despertar,
-		roomsCleared: state.roomsCleared,
-		creaturesDefeated: state.creaturesDefeated,
-		room: state.currentRoom
+		gameId: snap.gameId,
+		status: snap.status,
+		mode: snap.mode,
+		difficulty: snap.difficulty,
+		round: combat?.round ?? null,
+		combatPhase: combat?.phase ?? null,
+		selectedHeroId: combat?.selectedHeroId ?? null,
+		combatPairs: combat?.pairs.map((pair) => ({ ...pair })) ?? [],
+		heroesActed: [...(combat?.heroesActed ?? [])],
+		preparedAbilities: snap.preparedAbilities.map((entry) => ({ ...entry })),
+		groupXp: snap.groupXp,
+		despertar: snap.despertar,
+		roomsCleared: snap.roomsCleared,
+		creaturesDefeated: snap.creaturesDefeated,
+		room: room
 			? {
-					card: cardProjection(state.currentRoom.cardId),
-					status: state.currentRoom.status,
+					card: cardProjection(engine, room.cardId),
+					status: room.status,
 					effect:
-						state.currentRoom.effect ||
-						getCardLocale(state.currentRoom.cardId)?.dungeonScaling ||
-						"",
+						room.effect || cardScaling(engine, room.cardId),
 				}
 			: null,
-		heroes: [...state.heroes, ...state.defeatedHeroes, ...state.fledHeroes].map(
-			(hero) => heroProjection(state, hero),
-		),
-		enemies: state.activeEnemies.map((enemy) => enemyProjection(state, enemy)),
-		defeatedEnemies: state.enemyGraveyard.map((enemy) =>
-			enemyProjection(state, enemy),
-		),
-		artifacts: state.groupArtifacts.map((artifact) => {
+		heroes: snap.heroes.map((source) => heroProjection(engine, source)),
+		enemies: snap.enemies.map((source) => enemyProjection(engine, source)),
+		defeatedEnemies: snap.defeatedEnemies.map((source) => enemyProjection(engine, source)),
+		artifacts: snap.artifacts.map((artifact) => {
 			const grantIds = new Set(
-				cardAbilityGrants(artifact.cardId).map((grant) => grant.abilityId),
-			);
-			const disabled = ActivationTracker.isDisabled(
-				state,
-				"artifact",
-				artifact.cardId,
+				abilityGrants(engine, artifact.cardId).map((grant) => grant.abilityId),
 			);
 			return {
-				card: cardProjection(artifact.cardId),
+				card: cardProjection(engine, artifact.cardId),
 				carriedBy: artifact.carriedBy,
-				state: disabled
+				state: artifact.disabled
 					? ("disabled" as const)
 					: activeModifiers.some(({ modifier }) =>
 								grantIds.has(modifier.sourceId),
@@ -446,55 +407,50 @@ export function projectJournalState(
 						: ("available" as const),
 			};
 		}),
-		decks: (Object.keys(state.decks) as (keyof GameState["decks"])[]).map(
-			(id) => ({
-				id,
-				available: state.decks[id].available.length,
-				discarded: state.decks[id].discarded.map((cardId) =>
-					cardProjection(cardId, undefined, false),
-				),
-				removed: state.decks[id].removed.length,
-			}),
-		),
-		revealedPaths: state.paths.map((id) => cardProjection(id)),
-		pendingRewards: state.pendingRewards.map((reward) =>
-			cardProjection(reward.cardId),
-		),
+		decks: snap.decks.map((deck) => ({
+			id: deck.id,
+			available: deck.available,
+			discarded: deck.discarded.map((cardId) =>
+				cardProjection(engine, cardId, undefined, false),
+			),
+			removed: deck.removed,
+		})),
+		revealedPaths: snap.paths.map((id) => cardProjection(engine, id)),
+		pendingRewards: snap.pendingRewardCardIds.map((id) => cardProjection(engine, id)),
 		pendingChoices: [
-			state.pendingSkillChoice
-				? `${state.pendingSkillChoice.prompt}: ${state.pendingSkillChoice.options.map((option) => option.label).join(", ")}`
+			snap.pendingSkillChoice
+				? `${snap.pendingSkillChoice.prompt}: ${snap.pendingSkillChoice.optionLabels.join(", ")}`
 				: undefined,
-			state.pendingSkillTarget
-				? `${state.pendingSkillTarget.prompt}: ${state.pendingSkillTarget.candidates.map((candidate) => candidate.label).join(", ")}`
+			snap.pendingSkillTarget
+				? `${snap.pendingSkillTarget.prompt}: ${snap.pendingSkillTarget.candidateLabels.join(", ")}`
 				: undefined,
-			state.pendingTriggerInterrupt
-				? `Interrupção: ${getSkillName(state.pendingTriggerInterrupt.skillId)} (${getCardName(state.pendingTriggerInterrupt.sourceCardId)}) — ${state.pendingTriggerInterrupt.reason}`
+			interrupt
+				? `Interrupção: ${skillName(engine, interrupt.skillId)} (${cardName(engine, interrupt.sourceCardId)}) — ${interrupt.reason}`
 				: undefined,
 		].filter(
 			(value): value is string => typeof value === "string" && value.length > 0,
 		),
-		flags: Object.entries(state.flags)
-			.filter(([, enabled]) => enabled)
-			.map(([key]) => key),
-		blocks: Object.entries(state.blocks).map(([key, entries]) => ({
-			key,
-			sources: entries.map((entry) => entry.source),
+		flags: [...snap.enabledFlags],
+		blocks: snap.blocks.map((block) => ({
+			key: block.key,
+			sources: [...block.sources],
 		})),
-		tokens: Object.entries(state.tokens).map(([key, token]) => ({
-			key,
-			count: token.count,
-		})),
-		temporaryEffects: (state.combat?.temporaryEffects ?? []).map((effect) => ({
-			...effect,
-		})),
+		tokens: snap.tokens.map((token) => ({ ...token })),
 		roomModifiers: activeModifiers.filter(({ modifier }) =>
 			roomSkillIds.has(modifier.sourceId),
 		),
-		issues: detectIssues(state),
+		issues: detectIssues(engine, snap),
 	};
 }
 
-function changed(
+export function projectJournalState(engine: GameEngine,
+	state: GameState,
+	timestamp = Date.now(),
+): JournalStateSnapshot {
+	return projectJournalSnapshot(engine, journalSnapshotOf(state), timestamp);
+}
+
+function changed(engine: GameEngine,
 	before: JournalStateSnapshot,
 	after: JournalStateSnapshot,
 ): string[] {
@@ -513,11 +469,11 @@ function changed(
 		changes.push("Ações da rodada alteradas");
 	for (const entry of after.preparedAbilities) {
 		if (!before.preparedAbilities.some((old) => old.key === entry.key))
-			changes.push(`${getSkillName(entry.abilityId)} preparado para ${entry.event}`);
+			changes.push(`${skillName(engine, entry.abilityId)} preparado para ${entry.event}`);
 	}
 	for (const entry of before.preparedAbilities) {
 		if (!after.preparedAbilities.some((current) => current.key === entry.key))
-			changes.push(`${getSkillName(entry.abilityId)}: preparação encerrada`);
+			changes.push(`${skillName(engine, entry.abilityId)}: preparação encerrada`);
 	}
 	if (before.room?.card.id !== after.room?.card.id)
 		changes.push(
@@ -617,7 +573,7 @@ function changed(
 	return changes;
 }
 
-function actionSummary(
+function actionSummary(engine: GameEngine,
 	action: Action,
 	changes: readonly string[],
 	before: JournalStateSnapshot,
@@ -626,10 +582,10 @@ function actionSummary(
 	if (action.type === "USE_ITEM" || action.type === "USE_SKILL" || action.type === "USE_POWER") {
 		const added = after.preparedAbilities.find((entry) =>
 			!before.preparedAbilities.some((previous) => previous.key === entry.key));
-		if (added) return `Preparada: ${getSkillName(added.abilityId)}`;
+		if (added) return `Preparada: ${skillName(engine, added.abilityId)}`;
 		const removed = before.preparedAbilities.find((entry) =>
 			!after.preparedAbilities.some((current) => current.key === entry.key));
-		if (removed) return `Preparação cancelada: ${getSkillName(removed.abilityId)}`;
+		if (removed) return `Preparação cancelada: ${skillName(engine, removed.abilityId)}`;
 	}
 	if (
 		action.type === "APPLY_TRIGGER_INTERRUPT" ||
@@ -637,15 +593,15 @@ function actionSummary(
 	)
 		return `${action.type === "APPLY_TRIGGER_INTERRUPT" ? "Interrupção aplicada" : "Interrupção ignorada"}: ${action.payload?.interruptId ?? "sem ID"}`;
 	if (action.type === "INV_MOVE" || action.type === "INV_ASSIGN_ITEM")
-		return `Movimento: ${getCardName(action.payload.itemId)}`;
+		return `Movimento: ${cardName(engine, action.payload.itemId)}`;
 	if (action.type === "USE_ITEM")
-		return `Item usado: ${getCardName(action.payload.itemId)}`;
+		return `Item usado: ${cardName(engine, action.payload.itemId)}`;
 	if (action.type === "USE_SKILL")
-		return `Habilidade: ${getSkillName(action.payload.skillId)}`;
+		return `Habilidade: ${skillName(engine, action.payload.skillId)}`;
 	if (action.type === "SKILL_CHOICE")
-		return `Escolha: ${getSkillName(action.payload.skillId)} — ${action.payload.choice}`;
+		return `Escolha: ${skillName(engine, action.payload.skillId)} — ${action.payload.choice}`;
 	if (action.type === "CHOOSE_PATH")
-		return `Caminho escolhido: ${getCardName(action.payload.cardId)}`;
+		return `Caminho escolhido: ${cardName(engine, action.payload.cardId)}`;
 	if (
 		action.type === "CHOOSE_HERO_FOR_ROUND" ||
 		action.type === "USE_POWER" ||
@@ -658,14 +614,15 @@ function actionSummary(
 	return changes[0] ?? action.type.replaceAll("_", " ");
 }
 
-export function createGameJournal(
+export function createGameJournal(engine: GameEngine,
 	initial: GameState,
 	limit = DEFAULT_JOURNAL_LIMIT,
 ) {
 	let entries: JournalEntry[] = [];
 	let omittedEntries = 0;
-	let current = projectJournalState(initial);
 	let lastState = initial;
+	let lastSnap = journalSnapshotOf(initial);
+	let current = projectJournalSnapshot(engine, lastSnap);
 	const maxEntries = Math.max(1, Math.floor(limit));
 	return {
 		get(): GameJournal {
@@ -687,34 +644,37 @@ export function createGameJournal(
 				omittedEntries = 0;
 			}
 			const timestamp = Date.now();
-			const before =
-				beforeState === lastState
-					? current
-					: projectJournalState(beforeState, timestamp);
-			const after = projectJournalState(afterState, timestamp);
+			const reuse = beforeState === lastState;
+			const beforeSnap = reuse ? lastSnap : journalSnapshotOf(beforeState);
+			const afterSnap = journalSnapshotOf(afterState);
+			const before = reuse
+				? current
+				: projectJournalSnapshot(engine, beforeSnap, timestamp);
+			const after = projectJournalSnapshot(engine, afterSnap, timestamp);
 			current = after;
 			lastState = afterState;
+			lastSnap = afterSnap;
 			if (afterState === beforeState) return;
-			const sequence = afterState.actionLog.at(-1)?.seq ?? entries.length;
-			const changes = changed(before, after);
-			const messages = afterState.eventLog.slice(
+			const sequence = afterSnap.lastActionSeq ?? entries.length;
+			const changes = changed(engine, before, after);
+			const messages = afterSnap.eventLog.slice(
 				action.type === "START_GAME" ||
-					afterState.eventLog.length < beforeState.eventLog.length
+					afterSnap.eventLog.length < beforeSnap.eventLog.length
 					? 0
-					: beforeState.eventLog.length,
+					: beforeSnap.eventLog.length,
 			);
 			const rollChanged =
-				afterState.combat?.lastRoll !== beforeState.combat?.lastRoll;
+				afterSnap.combat?.lastRoll !== beforeSnap.combat?.lastRoll;
 			const roll =
-				(rollChanged ? afterState.combat?.lastRoll : null) ??
+				(rollChanged ? afterSnap.combat?.lastRoll : null) ??
 				(action.type === "RESOLVE_ATTACK"
-					? beforeState.combat?.lastRoll
+					? beforeSnap.combat?.lastRoll
 					: null) ??
 				null;
 			const entry: JournalEntry = {
 				sequence,
 				timestamp,
-				actionId: `${afterState.gameId}:${sequence}`,
+				actionId: `${afterSnap.gameId}:${sequence}`,
 				actionType: action.type,
 				interrupt: (() => {
 					const decision =
@@ -725,8 +685,8 @@ export function createGameJournal(
 								: ("opened" as const);
 					const pending =
 						decision === "opened"
-							? afterState.pendingTriggerInterrupt
-							: beforeState.pendingTriggerInterrupt;
+							? afterSnap.pendingInterrupt
+							: beforeSnap.pendingInterrupt;
 					return pending
 						? {
 								id: pending.id,
@@ -734,16 +694,14 @@ export function createGameJournal(
 								event: pending.event,
 								sourceCardId: pending.sourceCardId,
 								decision,
-								continuation:
-									(decision === "opened" ? afterState : beforeState)
-										.pendingSkillWindow?.resume.type ?? "none",
+								continuation: pending.continuation,
 							}
 						: undefined;
 				})(),
-				summary: beforeState.pendingTriggerInterrupt &&
+				summary: beforeSnap.pendingInterrupt &&
 					(action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT")
-					? `${action.type === "APPLY_TRIGGER_INTERRUPT" ? "Interrupção aplicada" : "Interrupção ignorada"}: ${getSkillName(beforeState.pendingTriggerInterrupt.skillId)}`
-					: actionSummary(action, changes, before, after),
+					? `${action.type === "APPLY_TRIGGER_INTERRUPT" ? "Interrupção aplicada" : "Interrupção ignorada"}: ${skillName(engine, beforeSnap.pendingInterrupt.skillId)}`
+					: actionSummary(engine, action, changes, before, after),
 				messages: [...messages],
 				changes,
 				roll: roll
@@ -767,17 +725,18 @@ export function createGameJournal(
 		sync(state: GameState): void {
 			entries = [];
 			omittedEntries = 0;
-			current = projectJournalState(state);
+			lastSnap = journalSnapshotOf(state);
+			current = projectJournalSnapshot(engine, lastSnap);
 			lastState = state;
 		},
 	};
 }
 
-export function exportJournalJson(journal: GameJournal): string {
+export function exportJournalJson(engine: GameEngine, journal: GameJournal): string {
 	return JSON.stringify(
 		{
 			schemaVersion: journal.schemaVersion,
-			gameVersion: packageJson.version,
+			gameVersion: gameVersion(engine),
 			gameId: journal.gameId,
 			omittedEntries: journal.omittedEntries,
 			entries: journal.entries,
@@ -864,10 +823,10 @@ function snapshotText(snapshot: JournalStateSnapshot): string[] {
 	return lines;
 }
 
-export function exportJournalText(journal: GameJournal): string {
+export function exportJournalText(engine: GameEngine, journal: GameJournal): string {
 	const lines = [
 		`DIÁRIO DE PARTIDA — ${journal.gameId}`,
-		`Versão: ${packageJson.version} · Registros omitidos pelo limite: ${journal.omittedEntries}`,
+		`Versão: ${gameVersion(engine)} · Registros omitidos pelo limite: ${journal.omittedEntries}`,
 		`Fase final: ${journal.current.status} · Sala: ${journal.current.room?.card.name ?? "nenhuma"}`,
 		"",
 		"HISTÓRICO",

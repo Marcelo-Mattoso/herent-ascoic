@@ -1,0 +1,15 @@
+name: heal credita no recurso com clamp no máximo
+kind: heal
+given:
+  units:
+    - { id: aria, def: aria, controller: a, pools: { vida: 20 } }
+when:
+  - run:
+      - { kind: heal, target: aria, amount: 100, tags: [pocao] }
+      - { kind: heal, target: aria, amount: 5, pool: mana }
+then:
+  events:
+    - { type: cura.aplicada, payload: { pool: vida, tags: [pocao], requested: 100, amount: 30 } }
+    - { type: cura.aplicada, payload: { pool: mana, requested: 5, amount: 0 } }
+  units:
+    aria: { attributes: { vida: 50 } }

@@ -24,6 +24,7 @@
         value: 1
 - id: hero_rift_rogue
   type: hero
+  preservesDungeonDiscard: true
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 8, 10, 12, 14, 16 ]
   hitBonus: [ 4, 5, 7, 10, 14 ]
@@ -510,6 +511,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -799,9 +801,13 @@
   equipmentSlot: amulet
   skills:
     - skillId: skill_illuminate_path
+      params:
+        value: 1
   grants:
     - id: safe_path_reveal
       abilityId: skill_illuminate_path
+      params:
+        value: 1
       activation:
         kind: event
         event: evt_room_reveal
@@ -847,6 +853,8 @@
   equipmentSlot: clothing
   skills:
     - skillId: skill_illuminate_path
+      params:
+        value: 1
 - id: item_torn_depths_map
   type: item
   itemClass: special
@@ -861,6 +869,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -881,6 +890,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:

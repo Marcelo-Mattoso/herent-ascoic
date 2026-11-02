@@ -1,17 +1,12 @@
-// Projeção do estado de jogo para a UI.
-// Camada de tradução entre GameState (shape interno) e PlayerView (contrato estável da UI).
-// Quando o shape interno mudar (ECS, effect stack), a UI continua lendo a mesma forma.
-//
-// Passo 9: adicionados campos pós-ECS — paused e pendingSkillChoice.
-
-import { getCardName } from "../data/cardLocale";
 import { projectAbilityActionsForHero, type AbilityActionView } from "./abilityActions";
-import { getCardById } from "../data/cards";
-import { getSkillName } from "../data/skillLocale";
+
+
+import { type HeroInventoryView, projectHeroInventory } from "./inventoryView";
+import { projectSkillChoice } from "./skillChoiceView";
 import type { TargetCandidate } from "../data/skillTypes";
 import type { ModifierComponent } from "../ecs/types";
-import type { PausedState } from "../effects/stack";
-import { cardSkills, lookupSkillById, skillUsedBy } from "../skills/lookup";
+import type { ChoiceOption, PauseReason, PendingEffect } from "../effects/stack";
+
 import type { ColorIndex } from "../state/color";
 import type {
 	CombatPhase,
@@ -34,10 +29,33 @@ import type { HeroState } from "../state/heroState";
 import type { RoomState } from "../state/roomState";
 import type { GameStatus } from "../state/status";
 import type { PendingTriggerInterrupt } from "../triggers/engine";
+import { cardById, cardName, skillById, skillName, skillOwners, skillsOf } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
 
+import type { PausedState } from "../effects/stack";
+import { pileCards, pileCount } from "./zoneView";
+import { scopedCountOf, scopedFlagOf, awakeningOf, countersOf, enemiesOf, heroesOf, impetoOf, powerUsedThisRoom, worldOf, pausedOf, pendingSkillTargetOf, pendingTriggerInterruptOf } from "../state/access";
+import { gameOf } from "../../engine/state";
 // Aliases estruturais — iguais ao shape interno por enquanto.
 // Mudam quando ECS entra plenamente: a projeção reconstruirá HeroView a partir de componentes.
-export type HeroView = HeroState;
+export type HeroView = HeroState & { readonly impeto: ColorIndex };
+
+const heroViewCache = new WeakMap<
+	readonly HeroState[],
+	{ counters: unknown; views: readonly HeroView[] }
+>();
+
+function heroViews(state: GameState): readonly HeroView[] {
+	const heroes = heroesOf(state);
+	const cached = heroViewCache.get(heroes);
+	if (cached && cached.counters === countersOf(state)) return cached.views;
+	const views = heroes.map((hero) => ({
+		...hero,
+		impeto: impetoOf(state, hero.id),
+	}));
+	heroViewCache.set(heroes, { counters: countersOf(state), views });
+	return views;
+}
 export type EnemyView = EnemyState;
 export type RoomView = RoomState;
 
@@ -79,11 +97,32 @@ export interface InfluenceView {
 	readonly scope: InfluenceScope;
 }
 
+export type SkillChoiceView = NonNullable<
+	ReturnType<typeof projectSkillChoice>
+>;
+
+export interface PausedView {
+	readonly reason: PauseReason;
+	readonly options: readonly ChoiceOption[];
+	readonly resumeFrom: PendingEffect;
+}
+
+function pausedViewOf(paused: PausedState | null): PausedView | null {
+	if (!paused) return null;
+	const labels = (paused.choice.data as { labels?: Record<string, string> } | undefined)?.labels;
+	return {
+		reason: paused.choice.id,
+		options: paused.choice.options.map((id) => ({ id, label: labels?.[id] ?? id })),
+		resumeFrom: paused.resumeFrom,
+	};
+}
+
 export interface PlayerView {
 	readonly status: GameStatus;
 	readonly mode: GameMode;
 	readonly difficulty: Difficulty;
 	readonly heroes: readonly HeroView[];
+	readonly inventoryByHero: Readonly<Record<string, HeroInventoryView>>;
 	readonly abilityActionsByHero: Readonly<Record<string, readonly AbilityActionView[]>>;
 	readonly enemies: readonly EnemyView[];
 	readonly currentRoom: RoomView | null;
@@ -94,8 +133,8 @@ export interface PlayerView {
 		readonly heroesActed: readonly string[];
 		readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
 		readonly lastRoll: CombatRollResult | null;
-		readonly pendingPhysicalRoll: CombatState["pendingPhysicalRoll"];
-		readonly extraEnemiesRemaining: CombatState["extraEnemiesRemaining"];
+		readonly pendingPhysicalRoll?: CombatState["pendingPhysicalRoll"];
+		readonly extraEnemiesRemaining?: CombatState["extraEnemiesRemaining"];
 		readonly pendingDiceSelection: CombatState["pendingDiceSelection"];
 		readonly buffsByHero: Readonly<Record<string, readonly InfluenceView[]>>;
 	} | null;
@@ -105,14 +144,15 @@ export interface PlayerView {
 	readonly roomsCleared: number;
 	readonly creaturesDefeated: number;
 	readonly bossCardId: string;
-	readonly bossCardName: string; // derivado de getCardById(bossCardId).name
+	readonly bossCardName: string; // derivado de cardById(engine, bossCardId).name
 	readonly winner: string | undefined;
 	readonly paths: readonly string[];
 	readonly pendingRewards: readonly PendingReward[];
 	readonly eventLog: readonly string[];
-	readonly damageFeedback: NonNullable<GameState["damageFeedback"]>;
-	readonly healFeedback: NonNullable<GameState["healFeedback"]>;
-	readonly extraAttackFeedback: NonNullable<GameState["extraAttackFeedback"]>;
+	readonly alphaLog: readonly string[];
+	readonly damageFeedback: NonNullable<import("../state/gameState").AscensaoGame["damageFeedback"]>;
+	readonly healFeedback: NonNullable<import("../state/gameState").AscensaoGame["healFeedback"]>;
+	readonly extraAttackFeedback: NonNullable<import("../state/gameState").AscensaoGame["extraAttackFeedback"]>;
 	// Efeitos que afetam o grupo todo (recursos compartilhados: deck, fuga, sala).
 	// Vivem aqui — não duplicados nas BuffBars dos heróis.
 	readonly groupBuffs: readonly InfluenceView[];
@@ -136,18 +176,9 @@ export interface PlayerView {
 		};
 	};
 	// Passo 8: estado de pausa para input do jogador durante resolução de efeitos.
-	readonly paused: PausedState | null;
+	readonly paused: PausedView | null;
 	// Escolha de skill pendente (integrada ao paused no futuro; mantida para compatibilidade).
-	readonly pendingSkillChoice: {
-		readonly skillId: string;
-		readonly prompt: string;
-		readonly allowSkip?: boolean;
-		readonly options: readonly {
-			readonly id: string;
-			readonly label: string;
-		}[];
-		readonly sourceHeroId?: string;
-	} | null;
+	readonly pendingSkillChoice: SkillChoiceView | null;
 	readonly pendingSkillTarget: {
 		readonly skillId: string;
 		readonly sourceId: string;
@@ -157,13 +188,13 @@ export interface PlayerView {
 	readonly pendingTriggerInterrupt: PendingTriggerInterrupt | null;
 }
 
-export function playerView(state: GameState): PlayerView {
-	const activeInfluences = projectActiveInfluences(state);
-	const heroIds = new Set(state.heroes.map((h) => h.id));
+export function playerView(engine: GameEngine, state: GameState): PlayerView {
+	const activeInfluences = projectActiveInfluences(engine, state);
+	const heroIds = new Set(heroesOf(state).map((h) => h.id));
 
 	// buffsByHero: influências cujo alvo é um herói específico
 	const buffsByHero: Record<string, InfluenceView[]> = {};
-	if (state.combat) {
+	if (gameOf(state).combat) {
 		for (const inf of activeInfluences) {
 			if (inf.to.kind === "hero" && heroIds.has(inf.to.id)) {
 				if (!buffsByHero[inf.to.id]) buffsByHero[inf.to.id] = [];
@@ -178,121 +209,133 @@ export function playerView(state: GameState): PlayerView {
 	);
 
 	return {
-		status: state.status,
-		mode: state.mode,
-		difficulty: state.difficulty,
-		heroes: state.heroes,
-		abilityActionsByHero: Object.fromEntries(state.heroes.map((hero) => [
-			hero.id, projectAbilityActionsForHero(state, hero.id),
+		status: gameOf(state).status,
+		mode: gameOf(state).mode,
+		difficulty: gameOf(state).difficulty,
+		heroes: heroViews(state),
+		inventoryByHero: Object.fromEntries(
+			heroesOf(state).map((hero) => [hero.id, projectHeroInventory(engine, state, hero)]),
+		),
+		abilityActionsByHero: Object.fromEntries(heroesOf(state).map((hero) => [
+			hero.id, projectAbilityActionsForHero(engine, state, hero.id),
 		])),
-		enemies: state.activeEnemies,
-		currentRoom: state.currentRoom,
-		combat: state.combat
+		enemies: enemiesOf(state),
+		currentRoom: gameOf(state).currentRoom,
+		combat: gameOf(state).combat
 			? {
-					phase: state.combat.phase,
-					selectedHeroId: state.combat.selectedHeroId,
-					round: state.combat.round,
-					heroesActed: state.combat.heroesActed,
-					powersUsedThisRoom: state.combat.powersUsedThisRoom,
-					lastRoll: state.combat.lastRoll,
-					pendingPhysicalRoll: state.combat.pendingPhysicalRoll,
-					extraEnemiesRemaining: state.combat.extraEnemiesRemaining,
-					pendingDiceSelection: state.combat.pendingDiceSelection,
+					phase: gameOf(state).combat!.phase,
+					selectedHeroId: gameOf(state).combat!.selectedHeroId,
+					round: gameOf(state).combat!.round,
+					heroesActed: gameOf(state).combat!.heroesActed,
+					powersUsedThisRoom: Object.fromEntries(
+						heroesOf(state)
+							.filter((hero) => powerUsedThisRoom(state, hero.id))
+							.map((hero) => [hero.id, true]),
+					),
+					lastRoll: gameOf(state).combat!.lastRoll,
+					...(gameOf(state).combat!.pendingPhysicalRoll
+						? { pendingPhysicalRoll: gameOf(state).combat!.pendingPhysicalRoll }
+						: {}),
+					...(gameOf(state).combat!.extraEnemiesRemaining
+						? { extraEnemiesRemaining: gameOf(state).combat!.extraEnemiesRemaining }
+						: {}),
+					pendingDiceSelection: gameOf(state).combat!.pendingDiceSelection,
 					buffsByHero,
 				}
 			: null,
-		groupXp: state.groupXp,
-		despertar: state.despertar,
-		groupArtifacts: state.groupArtifacts,
-		roomsCleared: state.roomsCleared,
-		creaturesDefeated: state.creaturesDefeated,
-		bossCardId: state.bossCardId,
-		bossCardName: getCardName(state.bossCardId),
-		winner: state.winner,
-		paths: state.paths,
-		pendingRewards: state.pendingRewards,
-		eventLog: state.eventLog,
-		damageFeedback: state.damageFeedback ?? [],
-		healFeedback: state.healFeedback ?? [],
-		extraAttackFeedback: state.extraAttackFeedback ?? [],
+		groupXp: gameOf(state).groupXp,
+		despertar: awakeningOf(state),
+		groupArtifacts: gameOf(state).groupArtifacts,
+		roomsCleared: gameOf(state).roomsCleared,
+		creaturesDefeated: gameOf(state).creaturesDefeated,
+		bossCardId: gameOf(state).bossCardId,
+		bossCardName: cardName(engine, gameOf(state).bossCardId),
+		winner: gameOf(state).winner,
+		paths: gameOf(state).paths,
+		pendingRewards: gameOf(state).pendingRewards,
+		eventLog: gameOf(state).eventLog,
+		alphaLog: gameOf(state).alphaLog ?? [],
+		damageFeedback: gameOf(state).damageFeedback ?? [],
+		healFeedback: gameOf(state).healFeedback ?? [],
+		extraAttackFeedback: gameOf(state).extraAttackFeedback ?? [],
 		groupBuffs,
 		decks: {
 			dungeonDeck: {
-				available: state.decks.dungeonDeck.available.length,
-				discarded: state.decks.dungeonDeck.discarded,
+				available: pileCount(state, "dungeonDeck", "available"),
+				discarded: pileCards(state, "dungeonDeck", "discarded"),
 			},
 			enemyDeck: {
-				available: state.decks.enemyDeck.available.length,
-				discarded: state.decks.enemyDeck.discarded.length,
+				available: pileCount(state, "enemyDeck", "available"),
+				discarded: pileCount(state, "enemyDeck", "discarded"),
 			},
 			artifactDeck: {
-				available: state.decks.artifactDeck.available,
-				discarded: state.decks.artifactDeck.discarded.length,
+				available: pileCards(state, "artifactDeck", "available"),
+				discarded: pileCount(state, "artifactDeck", "discarded"),
 			},
 			itemDeck: {
-				available: state.decks.itemDeck.available,
-				discarded: state.decks.itemDeck.discarded.length,
+				available: pileCards(state, "itemDeck", "available"),
+				discarded: pileCount(state, "itemDeck", "discarded"),
 			},
 		},
-		paused: state.paused,
-		pendingSkillChoice: state.pendingSkillChoice ?? null,
-		pendingSkillTarget: state.pendingSkillTarget ?? null,
-		pendingTriggerInterrupt: state.pendingTriggerInterrupt ?? null,
+		paused: pausedViewOf(pausedOf(state)),
+		pendingSkillChoice: projectSkillChoice(engine, state),
+		pendingSkillTarget: pendingSkillTargetOf(state) ?? null,
+		pendingTriggerInterrupt: pendingTriggerInterruptOf(state) ?? null,
 		activeInfluences,
 	};
 }
 
 // ── projectActiveInfluences ──────────────────────────────────────────────────
 
-function resolveFromActor(skillId: string, state: GameState): InfluenceActor {
-	const cardIds = skillUsedBy(skillId);
+function resolveFromActor(engine: GameEngine, skillId: string, state: GameState): InfluenceActor {
+	const cardIds = skillOwners(engine, skillId);
 	for (const cardId of cardIds) {
-		const card = getCardById(cardId);
+		const card = cardById(engine, cardId);
 		if (!card) continue;
 		if (card.type === "hero") {
-			const hero = state.heroes.find((h) => h.cardId === cardId);
+			const hero = heroesOf(state).find((h) => h.cardId === cardId);
 			if (hero)
-				return { kind: "hero", id: hero.id, name: getCardName(card.id) };
+				return { kind: "hero", id: hero.id, name: cardName(engine, card.id) };
 		}
 		if (card.type === "creature" || card.type === "subboss") {
-			const enemy = state.activeEnemies.find((e) => e.cardId === cardId);
+			const enemy = enemiesOf(state).find((e) => e.cardId === cardId);
 			if (enemy)
-				return { kind: "enemy", id: enemy.id, name: getCardName(card.id) };
+				return { kind: "enemy", id: enemy.id, name: cardName(engine, card.id) };
 		}
 		if (card.type === "room" || card.type === "subboss_room") {
-			if (state.currentRoom?.cardId === cardId) {
-				return { kind: "room", id: cardId, name: getCardName(card.id) };
+			if (gameOf(state).currentRoom?.cardId === cardId) {
+				return { kind: "room", id: cardId, name: cardName(engine, card.id) };
 			}
 		}
 		if (card.type === "item" || card.type === "artifact") {
 			// Passiva while_equipped — "from" é o item
-			return { kind: "item", id: cardId, name: getCardName(card.id) };
+			return { kind: "item", id: cardId, name: cardName(engine, card.id) };
 		}
 	}
 	return { kind: "dungeon" };
 }
 
-function resolveToActor(
+function resolveToActor(engine: GameEngine, 
 	entityId: string,
 	entityType: string,
 	state: GameState,
 ): InfluenceActor {
 	if (entityType === "hero") {
-		const hero = state.heroes.find((h) => h.id === entityId);
+		const hero = heroesOf(state).find((h) => h.id === entityId);
 		if (hero)
 			return {
 				kind: "hero",
 				id: hero.id,
-				name: getCardName(hero.cardId),
+				name: cardName(engine, hero.cardId),
 			};
 	}
 	if (entityType === "enemy" || entityType === "subboss") {
-		const enemy = state.activeEnemies.find((e) => e.id === entityId);
+		const enemy = enemiesOf(state).find((e) => e.id === entityId);
 		if (enemy)
 			return {
 				kind: "enemy",
 				id: enemy.id,
-				name: getCardName(enemy.cardId),
+				name: cardName(engine, enemy.cardId),
 			};
 	}
 	if (entityType === "room") {
@@ -380,9 +423,9 @@ function durationText(d: ModifierComponent["duration"]): string {
 	return "temporário";
 }
 
-function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
-	const world = state.world;
-	const heroIds = new Set(state.heroes.map((h) => h.id));
+function projectActiveInfluences(engine: GameEngine, state: GameState): readonly InfluenceView[] {
+	const world = worldOf(state);
+	const heroIds = new Set(heroesOf(state).map((h) => h.id));
 
 	// Collect all (entityId, modifier) pairs
 	type ModEntry = {
@@ -419,9 +462,9 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 		const first = entries[0];
 		const mod = first.modifier;
 		const skillId = mod.source;
-		const skillDef = lookupSkillById(skillId);
-		const sourceName = skillDef ? getSkillName(skillId) : skillId;
-		const fromActor = resolveFromActor(skillId, state);
+		const skillDef = skillById(engine, skillId);
+		const sourceName = skillDef ? skillName(engine, skillId) : skillId;
+		const fromActor = resolveFromActor(engine, skillId, state);
 
 		// Fan-out: all targets are heroes and covers all (or most) heroes → collapse to group
 		const targetIds = entries.map((e) => e.entityId);
@@ -444,7 +487,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 		} else {
 			for (let i = 0; i < entries.length; i++) {
 				const entry = entries[i];
-				const toActor = resolveToActor(entry.entityId, entry.entityType, state);
+				const toActor = resolveToActor(engine, entry.entityId, entry.entityType, state);
 				influences.push({
 					id: `${key}:${entry.entityId}:${i}`,
 					from: fromActor,
@@ -463,13 +506,16 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 	// ── Efeitos de estado legacy (combat + flags) ───────────────────────────
 
 	// Flags globais → influências dungeon/group
-	if (state.flags.dungeonDiscardPrevented) {
-		const ladino = state.heroes.find((h) => h.cardId === "hero_rift_rogue");
+	if (gameOf(state).flags.dungeonDiscardPrevented) {
+		const ladino = heroesOf(state).find((h) => {
+			const card = cardById(engine, h.cardId);
+			return card?.type === "hero" && card.preservesDungeonDiscard === true;
+		});
 		const from: InfluenceActor = ladino
 			? {
 					kind: "hero",
 					id: ladino.id,
-					name: getCardName(ladino.cardId),
+					name: cardName(engine, ladino.cardId),
 				}
 			: { kind: "dungeon" };
 		influences.push({
@@ -484,7 +530,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			scope: "hero_to_dungeon",
 		});
 	}
-	if (state.flags.fleeBlocked) {
+	if (gameOf(state).flags.fleeBlocked) {
 		influences.push({
 			id: "flag:flee-blocked",
 			from: { kind: "dungeon" },
@@ -497,7 +543,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			scope: "dungeon_to_group",
 		});
 	}
-	if (state.flags.discardDungeonLocked) {
+	if (gameOf(state).flags.discardDungeonLocked) {
 		influences.push({
 			id: "flag:discard-dungeon-locked",
 			from: { kind: "dungeon" },
@@ -512,50 +558,34 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 	}
 
 	// Efeitos de combate legacy (não migrados para ECS world ainda)
-	if (state.combat) {
-		const combat = state.combat;
+	if (gameOf(state).combat) {
+		const combat = gameOf(state).combat;
 
 		// Marca da Presa
-		for (const [heroId, preyId] of Object.entries(combat.preyByHero)) {
-			const hero = state.heroes.find((entry) => entry.id === heroId);
-			const preyEnemy = state.activeEnemies.find((entry) => entry.id === preyId);
+		for (const [heroId, preyId] of Object.entries(combat!.preyByHero)) {
+			const hero = heroesOf(state).find((entry) => entry.id === heroId);
+			const preyEnemy = enemiesOf(state).find((entry) => entry.id === preyId);
 			if (!hero || !preyEnemy) continue;
 			influences.push({
 				id: `prey:${hero.id}`,
-				from: { kind: "hero", id: hero.id, name: getCardName(hero.cardId) },
-				to: { kind: "enemy", id: preyEnemy.id, name: getCardName(preyEnemy.cardId) },
+				from: { kind: "hero", id: hero.id, name: cardName(engine, hero.cardId) },
+				to: { kind: "enemy", id: preyEnemy.id, name: cardName(engine, preyEnemy.cardId) },
 				kind: "buff",
 				icon: "🎯",
-				label: `Marca: ${getCardName(preyEnemy.cardId)}`,
+				label: `Marca: ${cardName(engine, preyEnemy.cardId)}`,
 				source: "Caçador",
 				duration: "até matar a presa",
 				scope: "hero_to_enemy",
 			});
 		}
 
-		for (const hero of state.heroes) {
+		for (const hero of heroesOf(state)) {
 			const id = hero.id;
-			const heroName = getCardName(hero.cardId);
+			const heroName = cardName(engine, hero.cardId);
 			const toActor: InfluenceActor = { kind: "hero", id, name: heroName };
 
-			// Dado extra
-			const extra = combat.extraDice[id] ?? 0;
-			if (extra > 0) {
-				influences.push({
-					id: `extra-dice:${id}`,
-					from: { kind: "hero", id, name: heroName },
-					to: toActor,
-					kind: "buff",
-					icon: "🎲",
-					label: `+${extra} dado`,
-					source: "Poder do herói",
-					duration: "próxima rolagem",
-					scope: "hero_to_self",
-				});
-			}
-
 			// Eco do Necromante
-			const eco = combat.ecoTokens[id] ?? 0;
+			const eco = scopedCountOf(state, "combat", "eco", id);
 			if (eco > 0) {
 				influences.push({
 					id: `eco:${id}`,
@@ -571,13 +601,13 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			}
 
 			// Véu Protetor
-			if (combat.targetProtectionByHero[id]) {
+			if (scopedFlagOf(state, "combat", "targetProtection", id)) {
 				influences.push({
 					id: `veil:${id}`,
 					from: {
 						kind: "hero",
 						id,
-						name: getCardName(hero.cardId),
+						name: cardName(engine, hero.cardId),
 					},
 					to: toActor,
 					kind: "buff",
@@ -590,13 +620,13 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 			}
 
 			// Fuga declarada
-			if (combat.fleeAttemptByHero[id]) {
+			if (scopedFlagOf(state, "combat", "fleeAttempt", id)) {
 				influences.push({
 					id: `flee:${id}`,
 					from: {
 						kind: "hero",
 						id,
-						name: getCardName(hero.cardId),
+						name: cardName(engine, hero.cardId),
 					},
 					to: toActor,
 					kind: "neutral",
@@ -613,10 +643,10 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 				(id): id is string => typeof id === "string" && id.length > 0,
 			);
 			for (const itemId of equippedItems) {
-				const itemCard = getCardById(itemId);
+				const itemCard = cardById(engine, itemId);
 				if (!itemCard) continue;
-				const itemName = getCardName(itemCard.id);
-				for (const { def } of cardSkills(itemCard.id)) {
+				const itemName = cardName(engine, itemCard.id);
+				for (const { def } of skillsOf(engine, itemCard.id)) {
 					if (def.operate_type !== "op_passive") continue;
 					influences.push({
 						id: `equipped:${itemId}:${def.id}`,
@@ -624,7 +654,7 @@ function projectActiveInfluences(state: GameState): readonly InfluenceView[] {
 						to: toActor,
 						kind: "buff",
 						icon: "🔮",
-						label: getSkillName(def.id),
+						label: skillName(engine, def.id),
 						source: itemName,
 						duration: "passivo",
 						scope: "item_to_hero",

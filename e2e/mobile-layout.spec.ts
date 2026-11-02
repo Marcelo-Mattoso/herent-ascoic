@@ -18,7 +18,9 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 		await page.setViewportSize(viewport);
 		await page.goto("/");
 		await expect(page.getByRole("button", { name: "JOGAR" })).toBeVisible();
-		await expect(page.getByRole("button", { name: "Abrir menu global" })).toBeVisible();
+		await expect(
+			page.getByRole("button", { name: "Abrir menu global" }),
+		).toBeVisible();
 		if (viewport.width === 360)
 			await page.screenshot({ path: "test-results/layout-menu-portrait.png" });
 		await page.getByRole("button", { name: "JOGAR" }).click();
@@ -50,7 +52,7 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 					page.evaluate(async () => {
 						const modulePath = "/src/ui/store/elfStore.ts";
 						const { getElfGameState } = await import(modulePath);
-						return getElfGameState().status;
+						return getElfGameState().game.status;
 					}),
 				{ timeout: 12_000 },
 			)
@@ -78,7 +80,9 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 			.toBe(true);
 		await expect(page.locator(".game-board-stacks")).toHaveCount(0);
 		await expect(page.locator(".orientation-gate")).toHaveCount(0);
-		await expect(page.getByRole("button", { name: "Abrir menu global" })).toBeVisible();
+		await expect(
+			page.getByRole("button", { name: "Abrir menu global" }),
+		).toBeVisible();
 
 		if (viewport.width <= 900) {
 			await expect(
@@ -155,15 +159,15 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 			page.evaluate(async () => {
 				const modulePath = "/src/ui/store/elfStore.ts";
 				const { getElfGameState } = await import(modulePath);
-				const state = getElfGameState();
+				const { game } = getElfGameState();
 				return {
-					status: state.status,
-					phase: state.combat.phase,
-					enemyCount: state.activeEnemies.filter(
+					status: game.status,
+					phase: game.combat.phase,
+					enemyCount: game.activeEnemies.filter(
 						(enemy: { status: string }) => enemy.status === "active",
 					).length,
-					selectedHeroId: state.combat.selectedHeroId,
-					actionTypes: state.actionLog.map(
+					selectedHeroId: game.combat.selectedHeroId,
+					actionTypes: game.actionLog.map(
 						(entry: { action: { type: string } }) => entry.action.type,
 					),
 				};
@@ -183,10 +187,15 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 			.poll(async () => (await readState()).phase)
 			.toBe("selecting_target");
 		await hero.tap({ timeout: 5_000 });
-		await page.getByRole("button", { name: "Preparar habilidade" }).tap({ timeout: 5_000 });
-		await expect(page.getByRole("button", { name: "Cancelar preparação" })).toBeVisible({ timeout: 5_000 });
+		await page
+			.getByRole("button", { name: "Preparar habilidade" })
+			.tap({ timeout: 5_000 });
+		await expect(
+			page.getByRole("button", { name: "Cancelar preparação" }),
+		).toBeVisible({ timeout: 5_000 });
 		await page.getByRole("button", { name: "Fechar herói em foco" }).tap({
-			position: { x: 5, y: 5 }, timeout: 5_000,
+			position: { x: 5, y: 5 },
+			timeout: 5_000,
 		});
 		const enemy = page.locator(".game-board-active-cards button").nth(1);
 		await enemy.tap();
@@ -195,7 +204,9 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 				(await readState()).actionTypes.includes("CHOOSE_TARGET"),
 			)
 			.toBe(true);
-		await expect(page.getByRole("dialog", { name: "Fúria Rubra" })).toHaveCount(0);
+		await expect(page.getByRole("dialog", { name: "Fúria Rubra" })).toHaveCount(
+			0,
+		);
 		const dice = page.getByRole("dialog", {
 			name: "Resultado da rolagem de dados",
 		});
@@ -209,7 +220,7 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 		const attackGeometry = await page.evaluate(async () => {
 			const modulePath = "/src/ui/store/elfStore.ts";
 			const { getElfGameState } = await import(modulePath);
-			const roll = getElfGameState().combat.lastRoll;
+			const roll = getElfGameState().game.combat.lastRoll;
 			if (!roll || roll.heroTotal === roll.enemyTotal) return null;
 			const source = document
 				.querySelector(
@@ -265,7 +276,7 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 		if (!attackGeometry) {
 			const tied = await page.evaluate(async () => {
 				const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
-				const roll = getElfGameState().combat.lastRoll;
+				const roll = getElfGameState().game.combat.lastRoll;
 				return !!roll && roll.heroTotal === roll.enemyTotal;
 			});
 			expect(tied).toBe(true);
@@ -367,7 +378,7 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 					page.evaluate(async () => {
 						const modulePath = "/src/ui/store/elfStore.ts";
 						const { getElfGameState } = await import(modulePath);
-						return getElfGameState().status;
+						return getElfGameState().game.status;
 					}),
 				)
 				.toBe("HERO_ACTION");
@@ -378,23 +389,26 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 				const modulePath = "/src/ui/store/elfStore.ts";
 				const { getElfGameState } = await import(modulePath);
 				const state = getElfGameState();
-				const itemId = state.decks.itemDeck.available[0];
+				const access = await import("/src/core/state/access.ts");
+				const engine = await import("/src/engine/state.ts");
+				const pile = access.deckOf(state, "itemDeck");
+				const itemId = pile.available[0];
+				const next = engine.withGame(
+					access.withDeck(state, "itemDeck", {
+						...pile,
+						available: pile.available.slice(1),
+					}),
+					(g) => ({
+						...g,
+						status: "REWARD_PHASE",
+						pendingRewards: [
+							{ type: "item", cardId: itemId, requiresBearer: false },
+						],
+					}),
+				);
 				(
 					window as unknown as { __loadGameState: (state: unknown) => void }
-				).__loadGameState({
-					...state,
-					status: "REWARD_PHASE",
-					pendingRewards: [
-						{ type: "item", cardId: itemId, requiresBearer: false },
-					],
-					decks: {
-						...state.decks,
-						itemDeck: {
-							...state.decks.itemDeck,
-							available: state.decks.itemDeck.available.slice(1),
-						},
-					},
-				});
+				).__loadGameState(next);
 				return itemId;
 			});
 			expect(rewardItemId).toBeTruthy();
@@ -402,21 +416,24 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 				page.evaluate(async (nextStatus) => {
 					const modulePath = "/src/ui/store/elfStore.ts";
 					const { getElfGameState } = await import(modulePath);
+					const access = await import("/src/core/state/access.ts");
+					const engine = await import("/src/engine/state.ts");
+					let next = engine.withGame(getElfGameState(), (g) => ({
+						...g,
+						status: nextStatus,
+					}));
+					next = access.withPendingSkillChoice(next, undefined);
+					next = access.withPendingTriggerInterrupt(next, undefined);
 					(
 						window as unknown as { __loadGameState: (state: unknown) => void }
-					).__loadGameState({
-						...getElfGameState(),
-						status: nextStatus,
-						pendingSkillChoice: undefined,
-						pendingTriggerInterrupt: undefined,
-					});
+					).__loadGameState(next);
 				}, status);
 			await expect
 				.poll(() =>
 					page.evaluate(async () => {
 						const modulePath = "/src/ui/store/elfStore.ts";
 						const { getElfGameState } = await import(modulePath);
-						return getElfGameState().status;
+						return getElfGameState().game.status;
 					}),
 				)
 				.toBe("REWARD_PHASE");
@@ -432,7 +449,9 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 					page.evaluate(async (itemId) => {
 						const modulePath = "/src/ui/store/elfStore.ts";
 						const { getElfGameState } = await import(modulePath);
-						return getElfGameState().heroes[0]?.backpack.includes(itemId);
+						return (await import("/src/core/state/access.ts"))
+							.heroesOf(getElfGameState())[0]
+							?.backpack.includes(itemId);
 					}, rewardItemId!),
 				)
 				.toBe(true);
@@ -450,7 +469,9 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 						const modulePath = "/src/ui/store/elfStore.ts";
 						const { getElfGameState } = await import(modulePath);
 						return Object.values(
-							getElfGameState().heroes[0]?.activeItems ?? {},
+							(await import("/src/core/state/access.ts")).heroesOf(
+								getElfGameState(),
+							)[0]?.activeItems ?? {},
 						).includes(itemId);
 					}, rewardItemId!),
 				)

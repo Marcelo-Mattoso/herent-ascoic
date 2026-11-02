@@ -6,6 +6,11 @@ import { manualItemOptions } from "../../rules/itemEffects";
 import { applyDamage } from "../../systems/damageSystem";
 import type { EnemyState } from "../../state/enemyState";
 import { createInitialGameState, type GameState } from "../../state/gameState";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { deckOf, heroesOf, withAwakening } from "@/core/state/access";
+import { settled } from "../../__tests__/fixtures";
+import { pendingSkillTargetOf, pendingTriggerInterruptOf, pendingSkillChoiceOf } from "../../state/access";
+import { withGame, gameOf } from "../../../engine/state";
 
 function enemy(id: string): EnemyState {
 	return {
@@ -17,140 +22,133 @@ function enemy(id: string): EnemyState {
 
 function combat(heroCardId: string): GameState {
 	const initial = createInitialGameState({ heroCardIds: [heroCardId] });
-	const started = reducer(initial, {
+	const started = reducer(testEngine, initial, {
 		type: "START_GAME", payload: { heroCardIds: [heroCardId], seed: 42 },
 	});
-	return reducer({
-		...started,
-		status: "COMBAT_START",
-		currentRoom: {
+	return reducer(testEngine, settled(withGame(started, (prevGame) => ({ ...prevGame, status: "COMBAT_START", currentRoom: {
 			cardId: "room_dungeon_room", exits: 2, currentEnemies: 2,
 			reward: 0, rewardType: "item", effect: "", xp: 1, status: "active",
-		},
-		activeEnemies: [enemy("e1"), enemy("e2")],
-	}, { type: "START_COMBAT" });
+		}, activeEnemies: [enemy("e1"), enemy("e2")] }))), { type: "START_COMBAT" });
 }
 
 describe("fluxo de habilidade, preparação e ataque", () => {
 	it("Caçador marca só a presa escolhida e ainda ataca com o bônus declarado", () => {
 		let state = combat("hero_broken_veil_hunter");
-		const heroId = state.heroes[0]!.id;
-		state = reducer(state, { type: "USE_SKILL", payload: {
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
 			skillId: "skill_prey_mark", sourceId: heroId,
 		} });
-		expect(state.pendingSkillTarget?.candidates.map((target) => target.id)).toEqual(["e1", "e2"]);
-		expect(state.combat?.phase).toBe("selecting_hero");
-		state = reducer(state, { type: "SELECT_SKILL_TARGET", payload: { targetId: "e1" } });
-		expect(state.combat?.preyByHero[heroId]).toBe("e1");
-		expect(state.combat?.heroesActed).toEqual([]);
+		expect(pendingSkillTargetOf(state)?.candidates.map((target) => target.id)).toEqual(["e1", "e2"]);
+		expect(gameOf(state).combat?.phase).toBe("selecting_hero");
+		state = reducer(testEngine, state, { type: "SELECT_SKILL_TARGET", payload: { targetId: "e1" } });
+		expect(gameOf(state).combat?.preyByHero[heroId]).toBe("e1");
+		expect(gameOf(state).combat?.heroesActed).toEqual([]);
 		expect(canStartHeroAttack(state, heroId, "e1")).toBe(true);
-		expect(playerView(state).activeInfluences.some((entry) => entry.id === `prey:${heroId}`)).toBe(true);
-		state = reducer(state, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "e1" } });
-		state = reducer(state, { type: "ROLL_DICE" });
-		expect(state.pendingTriggerInterrupt).toBeUndefined();
-		expect(state.combat?.lastRoll?.heroBreakdown).toContainEqual({ source: "Marca da Presa", value: 1 });
-		expect(state.combat?.heroesActed).toEqual([]);
+		expect(playerView(testEngine, state).activeInfluences.some((entry) => entry.id === `prey:${heroId}`)).toBe(true);
+		state = reducer(testEngine, state, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "e1" } });
+		state = reducer(testEngine, state, { type: "ROLL_DICE" });
+		expect(pendingTriggerInterruptOf(state)).toBeUndefined();
+		expect(gameOf(state).combat?.lastRoll?.heroBreakdown).toContainEqual({ source: "Marca da Presa", value: 1 });
+		expect(gameOf(state).combat?.heroesActed).toEqual([]);
 	});
 
 	it("poder preparado do Caçador só dispara ao rolar contra a presa", () => {
 		let state = combat("hero_broken_veil_hunter");
-		const heroId = state.heroes[0]!.id;
-		state = reducer(state, { type: "USE_SKILL", payload: {
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
 			skillId: "skill_prey_mark", sourceId: heroId, targetIds: ["e1"],
 		} });
-		state = reducer(state, { type: "USE_POWER", payload: { heroId } });
-		expect(Object.values(state.preparedAbilities ?? {}).map((entry) => entry.abilityId)).toContain("power_hunter_execution");
-		state = reducer(state, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "e1" } });
-		state = reducer(state, { type: "ROLL_DICE" });
-		expect(state.pendingTriggerInterrupt).toBeUndefined();
-		expect(state.combat?.pendingDiceSelection?.skillId).toBe("power_hunter_execution");
-		expect(state.oncePer.game[`power_hunter_execution::${heroId}`]).toBe(true);
+		state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
+		expect(Object.values(gameOf(state).preparedAbilities ?? {}).map((entry) => entry.abilityId)).toContain("power_hunter_execution");
+		state = reducer(testEngine, state, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "e1" } });
+		state = reducer(testEngine, state, { type: "ROLL_DICE" });
+		expect(pendingTriggerInterruptOf(state)).toBeUndefined();
+		expect(gameOf(state).combat?.pendingDiceSelection?.skillId).toBe("power_hunter_execution");
+		expect(gameOf(state).oncePer.game[`power_hunter_execution::${heroId}`]).toBe(true);
 	});
 
 	it("Fúria preparada executa uma vez e não inicia outra rolagem", () => {
 		let state = combat("hero_crimson_barbarian");
-		const heroId = state.heroes[0]!.id;
-		const beforeLife = state.heroes[0]!.currentLife;
-		state = reducer(state, { type: "USE_SKILL", payload: {
+		const heroId = heroesOf(state)[0]!.id;
+		const beforeLife = heroesOf(state)[0]!.currentLife;
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
 			skillId: "skill_crimson_fury", sourceId: heroId,
 		} });
-		expect(state.combat?.heroesActed).toEqual([]);
-		state = reducer(state, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "e1" } });
-		state = reducer(state, { type: "ROLL_DICE" });
-		expect(state.pendingTriggerInterrupt).toBeUndefined();
-		expect(state.heroes[0]!.currentLife).toBe(beforeLife - 2);
-		expect(state.combat?.lastRoll?.heroResults).toHaveLength(state.heroes[0]!.dice);
-		expect(Object.values(state.preparedAbilities ?? {})).toHaveLength(0);
+		expect(gameOf(state).combat?.heroesActed).toEqual([]);
+		state = reducer(testEngine, state, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "e1" } });
+		state = reducer(testEngine, state, { type: "ROLL_DICE" });
+		expect(pendingTriggerInterruptOf(state)).toBeUndefined();
+		expect(heroesOf(state)[0]!.currentLife).toBe(beforeLife - 2);
+		expect(gameOf(state).combat?.lastRoll?.heroResults).toHaveLength(heroesOf(state)[0]!.dice);
+		expect(Object.values(gameOf(state).preparedAbilities ?? {})).toHaveLength(0);
 		expect(canStartHeroAttack(state, heroId)).toBe(false);
 	});
 
 	it("poção equipada cura, é descartada e preserva a oportunidade de ataque", () => {
 		let state = combat("hero_eternal_rest_cleric");
-		const heroId = state.heroes[0]!.id;
-		state = { ...state, heroes: state.heroes.map((hero) => ({
+		const heroId = heroesOf(state)[0]!.id;
+		state = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((hero) => ({
 			...hero, currentLife: hero.currentLife - 4,
 			activeItems: { ...hero.activeItems, hand1: "item_lesser_vigor_potion" },
-		})) };
-		expect(manualItemOptions(state, heroId).map((item) => item.itemId)).toContain("item_lesser_vigor_potion");
-		const beforeLife = state.heroes[0]!.currentLife;
-		state = reducer(state, { type: "USE_ITEM", payload: {
+		})) })));
+		expect(manualItemOptions(testEngine, state, heroId).map((item) => item.itemId)).toContain("item_lesser_vigor_potion");
+		const beforeLife = heroesOf(state)[0]!.currentLife;
+		state = reducer(testEngine, state, { type: "USE_ITEM", payload: {
 			itemId: "item_lesser_vigor_potion", heroId, targetHeroId: heroId,
 		} });
-		expect(state.heroes[0]!.currentLife).toBeGreaterThan(beforeLife);
-		expect(state.heroes[0]!.activeItems.hand1).toBeUndefined();
-		expect(state.decks.itemDeck.discarded).toContain("item_lesser_vigor_potion");
-		expect(state.combat?.heroesActed).toEqual([]);
+		expect(heroesOf(state)[0]!.currentLife).toBeGreaterThan(beforeLife);
+		expect(heroesOf(state)[0]!.activeItems.hand1).toBeUndefined();
+		expect(deckOf(state, "itemDeck").discarded).toContain("item_lesser_vigor_potion");
+		expect(gameOf(state).combat?.heroesActed).toEqual([]);
 		expect(canStartHeroAttack(state, heroId, "e1")).toBe(true);
 	});
 
 	it("item pendente de recompensa não pode ser ativado antes de equipar", () => {
 		const base = combat("hero_eternal_rest_cleric");
-		const heroId = base.heroes[0]!.id;
-		const state: GameState = {
-			...base, status: "REWARD_PHASE", pendingRewards: [{
+		const heroId = heroesOf(base)[0]!.id;
+		const state: GameState = withGame(base, (prevGame) => ({ ...prevGame, status: "REWARD_PHASE", pendingRewards: [{
 				type: "item", cardId: "item_lesser_vigor_potion", requiresBearer: false,
-			}],
-		};
-		const result = reducer(state, { type: "USE_ITEM", payload: {
+			}] }));
+		const result = reducer(testEngine, state, { type: "USE_ITEM", payload: {
 			itemId: "item_lesser_vigor_potion", heroId, targetHeroId: heroId,
 		} });
-		expect(result.heroes[0]!.activeItems).toEqual(state.heroes[0]!.activeItems);
-		expect(result.pendingRewards).toEqual(state.pendingRewards);
-		expect(result.eventLog.at(-1)).toContain("não pertence ao herói");
+		expect(heroesOf(result)[0]!.activeItems).toEqual(heroesOf(state)[0]!.activeItems);
+		expect(gameOf(result).pendingRewards).toEqual(gameOf(state).pendingRewards);
+		expect(gameOf(result).eventLog.at(-1)).toContain("não pertence ao herói");
 	});
 
 	it("passiva condicional só aparece ativa quando a condição é satisfeita", () => {
 		const state = combat("hero_last_light_paladin");
-		const heroId = state.heroes[0]!.id;
-		const manualAttempt = reducer(state, { type: "USE_SKILL", payload: {
+		const heroId = heroesOf(state)[0]!.id;
+		const manualAttempt = reducer(testEngine, state, { type: "USE_SKILL", payload: {
 			skillId: "skill_final_dawn_light", sourceId: heroId,
 		} });
-		expect(Object.values(manualAttempt.preparedAbilities ?? {})).toHaveLength(0);
-		const action = playerView(state).abilityActionsByHero[heroId]!
+		expect(Object.values(gameOf(manualAttempt).preparedAbilities ?? {})).toHaveLength(0);
+		const action = playerView(testEngine, state).abilityActionsByHero[heroId]!
 			.find((entry) => entry.abilityId === "skill_final_dawn_light")!;
 		expect(action.status).toBe("unavailable");
-		const awakened = playerView({ ...state, despertar: 4 }).abilityActionsByHero[heroId]!
+		const awakened = playerView(testEngine, withAwakening(state, 4)).abilityActionsByHero[heroId]!
 			.find((entry) => entry.abilityId === "skill_final_dawn_light")!;
 		expect(awakened.status).toBe("active");
 	});
 
 	it("item reativo preparado protege sem modal e sem consumir ataque", () => {
 		let state = combat("hero_eternal_rest_cleric");
-		const heroId = state.heroes[0]!.id;
-		state = { ...state, heroes: state.heroes.map((hero) => ({
+		const heroId = heroesOf(state)[0]!.id;
+		state = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: heroesOf(state).map((hero) => ({
 			...hero, currentLife: 2,
 			activeItems: { ...hero.activeItems, amulet: "item_last_defense_charm" },
-		})) };
-		expect(manualItemOptions(state, heroId).find((item) => item.itemId === "item_last_defense_charm")?.activation).toBe("prepare");
-		state = reducer(state, { type: "USE_ITEM", payload: {
+		})) })));
+		expect(manualItemOptions(testEngine, state, heroId).find((item) => item.itemId === "item_last_defense_charm")?.activation).toBe("prepare");
+		state = reducer(testEngine, state, { type: "USE_ITEM", payload: {
 			itemId: "item_last_defense_charm", heroId,
 		} });
-		expect(Object.values(state.preparedAbilities ?? {})).toHaveLength(1);
-		state = applyDamage(state, heroId, 5);
-		expect(state.pendingTriggerInterrupt).toBeUndefined();
-		expect(state.heroes[0]?.currentLife).toBe(1);
-		expect(state.combat?.heroesActed).toEqual([]);
-		expect(Object.values(state.preparedAbilities ?? {})).toHaveLength(0);
+		expect(Object.values(gameOf(state).preparedAbilities ?? {})).toHaveLength(1);
+		state = applyDamage(testEngine, state, heroId, 5);
+		expect(pendingTriggerInterruptOf(state)).toBeUndefined();
+		expect(heroesOf(state)[0]?.currentLife).toBe(1);
+		expect(gameOf(state).combat?.heroesActed).toEqual([]);
+		expect(Object.values(gameOf(state).preparedAbilities ?? {})).toHaveLength(0);
 	});
 
 	it.each([
@@ -164,18 +162,18 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		["hero_broken_veil_hunter", "skill_prey_mark", "power_hunter_execution"],
 	])("%s expõe e permite ativar seu poder sem consumir ataque", (cardId, skillId, powerId) => {
 		let state = combat(cardId);
-		const heroId = state.heroes[0]!.id;
-		const actions = playerView(state).abilityActionsByHero[heroId]!;
+		const heroId = heroesOf(state)[0]!.id;
+		const actions = playerView(testEngine, state).abilityActionsByHero[heroId]!;
 		expect(actions.find((action) => action.abilityId === skillId)).toBeDefined();
 		expect(actions.find((action) => action.abilityId === powerId)?.status).toBe("available");
-		state = reducer(state, { type: "USE_POWER", payload: { heroId } });
+		state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
 		const power = actions.find((action) => action.abilityId === powerId)!;
 		if (power.activation === "prepare") {
-			expect(Object.values(state.preparedAbilities ?? {}).some((entry) => entry.abilityId === powerId)).toBe(true);
+			expect(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) => entry.abilityId === powerId)).toBe(true);
 		} else {
-			expect(state.oncePer.game[`${powerId}::${heroId}`]).toBe(true);
+			expect(gameOf(state).oncePer.game[`${powerId}::${heroId}`]).toBe(true);
 		}
-		expect(state.combat?.heroesActed).toEqual([]);
-		expect(canStartHeroAttack(state, heroId, "e1") || !!state.pendingSkillChoice).toBe(true);
+		expect(gameOf(state).combat?.heroesActed).toEqual([]);
+		expect(canStartHeroAttack(state, heroId, "e1") || !!pendingSkillChoiceOf(state)).toBe(true);
 	});
 });

@@ -1,0 +1,27 @@
+name: choose_one abre escolha para o jogador ativo e retoma o ramo escolhido
+kind: choose_one
+given:
+  players: [p, q]
+  cards: [{ id: a }]
+  zones: [{ id: pilha, cards: [a] }, { id: mao }]
+  counters: [{ scope: jogo, id: "-", name: pontos, value: 0 }]
+  turn: { order: [q, p], phases: [principal] }
+when:
+  - run:
+      - kind: choose_one
+        options:
+          - id: comprar
+            do: [{ kind: draw_cards, from: pilha, to: mao, count: 1 }]
+          - id: pontuar
+            do: [{ kind: change_counter, counter: { scope: jogo, id: "-", name: pontos }, delta: 4 }]
+      - { kind: change_counter, counter: { scope: jogo, id: "-", name: pontos }, delta: 1 }
+  - answer: { choice: choose_one, player: q, picks: [pontuar] }
+then:
+  pending: null
+  counters: { "jogo:-:pontos": 5 }
+  zones: { pilha: [a], mao: [] }
+  events:
+    - { type: escolha.aberta, payload: { choice: choose_one, player: q } }
+    - { type: escolha.respondida, payload: { choice: choose_one, player: q, picks: [pontuar] } }
+    - { type: contador.alterado, payload: { delta: 4, value: 4 } }
+    - { type: contador.alterado, payload: { delta: 1, value: 5 } }

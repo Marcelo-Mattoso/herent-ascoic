@@ -1,10 +1,9 @@
 import { getBoss, getHeroes } from "@/core/data/cards";
-import type { PlayerView } from "@/core/projection/playerView";
-import type { HeroState } from "@/core/state/heroState";
+import type { HeroView, PlayerView } from "@/core/projection/playerView";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 
 export function endScreenPreviewView(view: PlayerView, ending: "victory" | "defeat"): PlayerView {
-	const heroes: HeroState[] = getHeroes().slice(0, 3).map((card, index): HeroState => {
+	const heroes: HeroView[] = getHeroes().slice(0, 3).map((card, index): HeroView => {
 		const maxLife = card.life[2];
 		return {
 			id: `preview-hero-${index}`,

@@ -124,7 +124,8 @@
         }
       ],
       "name": "Ladino das Fendas",
-      "image": "images/LadinodasFendas.webp"
+      "image": "images/LadinodasFendas.webp",
+      "preservesDungeonDiscard": true
     },
     {
       "id": "hero_crimson_rune_mage",
@@ -1395,7 +1396,8 @@
               "targetType": "tgt_item",
               "affectScope": "scp_none",
               "affectObject": "obj_all"
-            }
+            },
+            "usableFromReward": true
           }
         }
       ],
@@ -1916,7 +1918,10 @@
       "equipmentSlot": "amulet",
       "skills": [
         {
-          "skillId": "skill_illuminate_path"
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
         }
       ],
       "grants": [
@@ -1939,6 +1944,9 @@
               "affectScope": "scp_none",
               "affectObject": "obj_all"
             }
+          },
+          "params": {
+            "value": 1
           }
         }
       ],
@@ -2001,7 +2009,10 @@
       "equipmentSlot": "clothing",
       "skills": [
         {
-          "skillId": "skill_illuminate_path"
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
         }
       ],
       "name": "Manto da Saída Estreita",
@@ -2035,7 +2046,8 @@
               "targetType": "tgt_item",
               "affectScope": "scp_none",
               "affectObject": "obj_all"
-            }
+            },
+            "usableFromReward": true
           }
         }
       ],
@@ -2070,7 +2082,8 @@
               "targetType": "tgt_item",
               "affectScope": "scp_none",
               "affectObject": "obj_all"
-            }
+            },
+            "usableFromReward": true
           }
         }
       ],

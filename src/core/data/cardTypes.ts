@@ -32,6 +32,8 @@ export interface HeroCard {
 	readonly life: readonly [number, number, number, number, number];
 	readonly hitBonus: readonly [number, number, number, number, number];
 	readonly damage: number;
+	/** Herói cuja habilidade impede o descarte da masmorra (influência exibida pela projeção). */
+	readonly preservesDungeonDiscard?: boolean;
 	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
 	readonly grants?: readonly AbilityGrant[];
