@@ -11,11 +11,17 @@ import {
 	engineBuiltinKinds,
 	type GameState,
 	type KindNode,
+	patchUnit,
 	remainingScripted,
-	runWithChoices,
+	runReactive,
 	scriptedDice,
+	spawnUnit,
 	startTurns,
+	type UnitCtx,
+	unitKinds,
+	unitView,
 } from "../../../src/engine";
+import { criarCatalogo } from "../rpg/conteudo";
 
 type S = GameState<null, EngineEventMap>;
 
@@ -38,7 +44,33 @@ const CounterSchema = z.object({
 	name: z.string(),
 	value: z.number(),
 });
+const UnitGivenSchema = z.object({
+	id: z.string(),
+	def: z.string(),
+	controller: z.string().optional(),
+	base: z.record(z.string(), z.number()).optional(),
+	pools: z.record(z.string(), z.number()).optional(),
+	statuses: z
+		.array(
+			z.object({
+				status: z.string(),
+				stacks: z.number().optional(),
+				remaining: z.number().nullable().optional(),
+			}),
+		)
+		.optional(),
+	presentIn: z.array(z.string()).optional(),
+	equippedTo: z.string().optional(),
+	cooldowns: z.record(z.string(), z.number()).optional(),
+});
 const StepSchema = z.union([
+	z.object({
+		test: z.object({
+			subject: z.string(),
+			node: NodeSchema,
+			expect: z.boolean(),
+		}),
+	}),
 	z.object({ run: z.array(NodeSchema), cause: z.number().optional() }),
 	z.object({
 		answer: z.object({
@@ -59,6 +91,7 @@ export const ScenarioSchema = z.object({
 			cards: z.array(CardSchema).optional(),
 			zones: z.array(ZoneSchema).optional(),
 			counters: z.array(CounterSchema).optional(),
+			units: z.array(UnitGivenSchema).optional(),
 			dice: z.array(z.number()).optional(),
 			turn: z
 				.object({ order: z.array(z.string()), phases: z.array(z.string()) })
@@ -71,6 +104,7 @@ export const ScenarioSchema = z.object({
 			events: z.array(z.looseObject({ type: z.string() })).optional(),
 			zones: z.record(z.string(), z.array(z.string())).optional(),
 			counters: z.record(z.string(), z.number()).optional(),
+			units: z.record(z.string(), z.looseObject({})).optional(),
 			dice_left: z.number().optional(),
 			pending: z.union([z.null(), z.looseObject({})]).optional(),
 			error: z.string().optional(),
@@ -80,8 +114,11 @@ export const ScenarioSchema = z.object({
 
 export type Scenario = z.infer<typeof ScenarioSchema>;
 
-export const registro = createKindRegistryFrom<S, { cause?: number }>(
+export const catalogo = criarCatalogo();
+
+export const registro = createKindRegistryFrom<S, UnitCtx>(
 	engineBuiltinKinds<null>(),
+	unitKinds<null>(),
 );
 
 export function parseScenario(source: string, origin: string): Scenario {
@@ -116,6 +153,21 @@ export function buildState(given: Scenario["given"]): S {
 		zones: given.zones ?? [],
 		counters: given.counters ?? [],
 	});
+	for (const unit of given.units ?? []) {
+		engine = spawnUnit(engine, catalogo, unit);
+	}
+	for (const unit of given.units ?? []) {
+		engine = patchUnit(engine, unit.id, {
+			statuses: (unit.statuses ?? []).map((entry) => ({
+				status: entry.status,
+				stacks: entry.stacks ?? 1,
+				remaining: entry.remaining ?? null,
+			})),
+			presentIn: unit.presentIn ?? [],
+			cooldowns: unit.cooldowns ?? {},
+			...(unit.equippedTo === undefined ? {} : { equippedTo: unit.equippedTo }),
+		});
+	}
 	if (given.turn) {
 		engine = startTurns(configureTurns(engine, given.turn));
 	}
@@ -163,11 +215,24 @@ function execute(scenario: Scenario): { state: S; before: number; failure?: stri
 	for (const step of scenario.when) {
 		try {
 			if ("run" in step) {
-				state = runWithChoices(registro, state, step.run as KindNode[], {
+				state = runReactive(registro, state, catalogo, step.run as KindNode[], {
 					cause: step.cause,
 				});
 			} else if ("answer" in step) {
-				state = answerPending(registro, state, step.answer, {});
+				state = answerPending(registro, state, step.answer, {
+					units: catalogo,
+				});
+			} else if ("test" in step) {
+				const held = registro.test(step.test.node as KindNode, {
+					units: catalogo,
+					world: state.engine,
+					subject: step.test.subject,
+				});
+				if (held !== step.test.expect) {
+					throw new Error(
+						`condição ${step.test.node.kind} deu ${held}, esperado ${step.test.expect}`,
+					);
+				}
 			} else {
 				registro.validateAll(step.validate as KindNode[], scenario.name);
 			}
@@ -221,6 +286,11 @@ export function runScenario(scenario: Scenario): void {
 				value,
 				`counters.${key}`,
 			),
+		);
+	}
+	for (const [id, expected] of Object.entries(then.units ?? {})) {
+		problems.push(
+			...matchPartial(unitView(state.engine, catalogo, id), expected, `units.${id}`),
 		);
 	}
 	if (then.dice_left !== undefined) {

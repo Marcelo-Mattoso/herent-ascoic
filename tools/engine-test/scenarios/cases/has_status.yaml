@@ -1,0 +1,11 @@
+name: has_status testa por id ou por tag, com negate
+kind: has_status
+given:
+  units:
+    - { id: aria, def: aria, controller: a, statuses: [{ status: colera }] }
+    - { id: espreitador, def: espreitador_do_junco, controller: e }
+when:
+  - test: { subject: aria, node: { kind: has_status, status: colera }, expect: true }
+  - test: { subject: aria, node: { kind: has_status, tag: veneno }, expect: true }
+  - test: { subject: aria, node: { kind: has_status, tag: controle }, expect: false }
+  - test: { subject: espreitador, node: { kind: has_status, tag: veneno, negate: true }, expect: true }

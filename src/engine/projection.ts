@@ -9,6 +9,8 @@ import type {
 	ZoneVisibility,
 } from "./state";
 import type { TurnState } from "./turn";
+import { attributeOf } from "./attributes";
+import { type UnitCatalog, type UnitId, type UnitInstance, unitOf, unitsOf } from "./units";
 
 export interface ProjectedZone {
 	readonly id: string;
@@ -35,12 +37,60 @@ export interface ProjectedEngine<TMap extends EngineEventMap = EngineEventMap> {
 	readonly cards: Readonly<Record<CardInstanceId, CardInstance>>;
 	readonly counters: Readonly<Record<string, number>>;
 	readonly pending?: ProjectedChoice;
+	readonly units?: Readonly<Record<UnitId, UnitView>>;
 	readonly events: readonly EngineEvent<TMap>[];
+}
+
+export interface UnitView {
+	readonly id: UnitId;
+	readonly def: string;
+	readonly controller?: string;
+	readonly tags: readonly string[];
+	readonly attributes: Readonly<Record<string, number>>;
+	readonly statuses: readonly {
+		readonly status: string;
+		readonly stacks: number;
+		readonly remaining: number | null;
+	}[];
+	readonly cooldowns: Readonly<Record<string, number>>;
+	readonly blocks: readonly { readonly action: string; readonly remaining: number }[];
+	readonly presentIn: readonly UnitId[];
+	readonly equippedTo?: UnitId;
 }
 
 export interface ProjectOptions {
 	zoneVisibility?(zone: Zone, viewer: PlayerId): ZoneVisibility;
 	counterVisible?(key: string, viewer: PlayerId): boolean;
+	units?: UnitCatalog;
+	unitVisible?(unit: UnitInstance, viewer: PlayerId): boolean;
+}
+
+export function unitView<TMap extends EngineEventMap>(
+	state: EngineState<TMap>,
+	catalog: UnitCatalog,
+	unit: UnitId,
+): UnitView {
+	const instance = unitOf(state, unit);
+	return {
+		id: instance.id,
+		def: instance.def,
+		...(instance.controller === undefined ? {} : { controller: instance.controller }),
+		tags: instance.tags,
+		attributes: Object.fromEntries(
+			catalog
+				.attributeDefs()
+				.map((def) => [def.id, attributeOf(state, catalog, unit, def.id)]),
+		),
+		statuses: instance.statuses.map(({ status, stacks, remaining }) => ({
+			status,
+			stacks,
+			remaining,
+		})),
+		cooldowns: instance.cooldowns,
+		blocks: instance.blocks,
+		presentIn: instance.presentIn,
+		...(instance.equippedTo === undefined ? {} : { equippedTo: instance.equippedTo }),
+	};
 }
 
 const HIDDEN_CARD = "?";
@@ -134,6 +184,17 @@ export function project<TMap extends EngineEventMap>(
 		? projectChoice(state.pending.choice, viewer)
 		: undefined;
 
+	const units = options.units
+		? Object.fromEntries(
+				unitsOf(state)
+					.filter((unit) => options.unitVisible?.(unit, viewer) ?? true)
+					.map((unit) => [
+						unit.id,
+						unitView(state, options.units as UnitCatalog, unit.id),
+					]),
+			)
+		: undefined;
+
 	return {
 		viewer,
 		players: state.players,
@@ -142,6 +203,7 @@ export function project<TMap extends EngineEventMap>(
 		cards,
 		counters,
 		...(pending ? { pending } : {}),
+		...(units ? { units } : {}),
 		events,
 	};
 }

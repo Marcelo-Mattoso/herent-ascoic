@@ -8,6 +8,7 @@ import {
 import type { PendingResolution } from "./choice";
 import { EMPTY_STACK, type EngineStack } from "./stack";
 import { NO_TURNS, type TurnState } from "./turn";
+import type { UnitInstance } from "./units";
 import type { ResponseWindow } from "./windows";
 
 export type CardInstanceId = string;
@@ -69,6 +70,63 @@ export type EngineEventMap = {
 		targets: readonly string[];
 		reason: string;
 	};
+	"unidade.criada": { unit: string; def: string };
+	"unidade.removida": { unit: string };
+	"unidade.derrotada": { unit: string; by?: string };
+	"atributo.alterado": {
+		unit: string;
+		attr: string;
+		from: number;
+		to: number;
+		reason: string;
+	};
+	"item.equipado": { item: string; holder: string; slot?: string };
+	"item.desequipado": { item: string; holder: string };
+	"area.entrou": { unit: string; area: string };
+	"area.saiu": { unit: string; area: string; reason?: string };
+	"habilidade.usada": {
+		unit: string;
+		ability: string;
+		targets: readonly string[];
+	};
+	"acao.bloqueada": { unit: string; action: string; by: string };
+	"dano.proposto": {
+		target: string;
+		source?: string;
+		type: string;
+		amount: number;
+	};
+	"dano.aplicado": {
+		target: string;
+		source?: string;
+		type: string;
+		proposed: number;
+		amount: number;
+		life: number;
+	};
+	"cura.aplicada": {
+		target: string;
+		source?: string;
+		pool: string;
+		tags: readonly string[];
+		requested: number;
+		amount: number;
+	};
+	"cura.bloqueada": {
+		target: string;
+		source?: string;
+		tags: readonly string[];
+		amount: number;
+		by: string;
+	};
+	"status.aplicado": {
+		unit: string;
+		status: string;
+		stacks: number;
+		source?: string;
+	};
+	"status.removido": { unit: string; status: string; reason: string };
+	"status.imune": { unit: string; status: string; by: string };
 };
 
 export interface EngineState<TMap extends EngineEventMap = EngineEventMap> {
@@ -76,6 +134,7 @@ export interface EngineState<TMap extends EngineEventMap = EngineEventMap> {
 	readonly cards: Readonly<Record<CardInstanceId, CardInstance>>;
 	readonly zones: Readonly<Record<string, Zone>>;
 	readonly counters: Readonly<Record<string, number>>;
+	readonly units?: Readonly<Record<string, UnitInstance>>;
 	readonly dice: Dice;
 	readonly turn: TurnState;
 	readonly pending?: PendingResolution;

@@ -1,0 +1,21 @@
+name: damage aplica resistência por tipo, armadura só no físico e piso zero
+kind: damage
+given:
+  units:
+    - { id: aria, def: aria, controller: a }
+    - { id: alvo, def: espreitador_do_junco, controller: e }
+when:
+  - run:
+      - { kind: damage, target: alvo, amount: 9, type: fisico, source: aria }
+      - { kind: damage, target: alvo, amount: 12, type: arcano, source: aria }
+      - { kind: damage, target: alvo, amount: 2, type: fisico, source: aria }
+then:
+  events:
+    - { type: dano.proposto, payload: { target: alvo, type: fisico, amount: 9 } }
+    - { type: dano.aplicado, payload: { target: alvo, proposed: 9, amount: 6, life: 24 } }
+    - { type: dano.proposto, payload: { type: arcano, amount: 12 } }
+    - { type: dano.aplicado, payload: { proposed: 12, amount: 9, life: 15 } }
+    - { type: dano.proposto, payload: { amount: 2 } }
+    - { type: dano.aplicado, payload: { proposed: 2, amount: 0, life: 15 } }
+  units:
+    alvo: { attributes: { vida: 15, armadura: 3 } }

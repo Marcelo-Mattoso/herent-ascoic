@@ -7,6 +7,7 @@ import {
 	type EngineState,
 	recordEvent,
 } from "./state";
+import { isArea, type UnitId, type UnitTargetSelector, unitOf, unitsOf } from "./units";
 
 export type ControllerFilter = "self" | "opponent" | "any";
 
@@ -148,4 +149,53 @@ export function resolveTargeted<TMap extends EngineEventMap>(
 		});
 	}
 	return apply(state, targets);
+}
+
+export function legalUnitTargets<TMap extends EngineEventMap>(
+	state: EngineState<TMap>,
+	selector: UnitTargetSelector,
+	caster: UnitId,
+): readonly UnitId[] {
+	const self = unitOf(state, caster);
+	if (selector.who === "self") return [caster];
+	return unitsOf(state)
+		.filter((unit) => {
+			if (isArea(unit) || unit.controller === undefined) return false;
+			if (selector.who === "ally" && unit.controller !== self.controller) {
+				return false;
+			}
+			if (selector.who === "enemy" && unit.controller === self.controller) {
+				return false;
+			}
+			if (selector.tags?.some((tag) => !unit.tags.includes(tag))) return false;
+			const area = selector.inArea;
+			return (
+				area === undefined ||
+				unit.presentIn.some(
+					(entry) => entry === area || state.units?.[entry]?.def === area,
+				)
+			);
+		})
+		.map((unit) => unit.id);
+}
+
+export function checkUnitTargets<TMap extends EngineEventMap>(
+	state: EngineState<TMap>,
+	selector: UnitTargetSelector,
+	caster: UnitId,
+	chosen: readonly UnitId[],
+): TargetCheck {
+	const min = selector.who === "self" ? 1 : (selector.min ?? 1);
+	const max = selector.who === "self" ? 1 : (selector.max ?? 1);
+	if (chosen.length < min || chosen.length > max) {
+		return { ok: false, reason: `exige entre ${min} e ${max} alvos` };
+	}
+	if (new Set(chosen).size !== chosen.length) {
+		return { ok: false, reason: "alvo repetido" };
+	}
+	const legal = new Set(legalUnitTargets(state, selector, caster));
+	const illegal = chosen.find((unit) => !legal.has(unit));
+	return illegal === undefined
+		? { ok: true }
+		: { ok: false, reason: `alvo ilegal "${illegal}"` };
 }

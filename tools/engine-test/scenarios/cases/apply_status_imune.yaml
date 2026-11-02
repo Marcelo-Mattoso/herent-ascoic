@@ -1,0 +1,12 @@
+name: apply_status em unidade imune emite status.imune e não aplica
+kind: apply_status
+given:
+  units:
+    - { id: alvo, def: espreitador_do_junco, controller: e }
+when:
+  - run: [{ kind: apply_status, target: alvo, status: colera }]
+then:
+  events:
+    - { type: status.imune, payload: { unit: alvo, status: colera, by: veneno } }
+  units:
+    alvo: { statuses: [] }

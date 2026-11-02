@@ -24,6 +24,9 @@ tools/engine-test/
     fluxo.ts                 # PhaseHandler + tabela de transições + janela de resposta
     roteiro.ts               # partida completa como lista de actions
     tcg.test.ts  janela.test.ts  partida.test.ts  projecao.test.ts
+  rpg/                       # "Margem do Lago Turvo" (F11a): unidades, atributos, status, áreas
+    conteudo.ts  jogo.ts  roteiro.ts
+    rpg.test.ts  negativos.test.ts  aleatorio.test.ts
   scenarios/                 # cenários Given/When/Then em YAML
     runner.ts  scenarios.test.ts  cases/*.yaml
   contratos.test.ts          # contratos da engine com conteúdo inventado (erros, bordas)
@@ -54,9 +57,17 @@ Dois jogadores (`a`, `b`), vida e mana por jogador (pool), baralho oculto, mão 
 - Partida pré-calculada (`roteiro.ts`, vida 6, dado `[5]`): no turno 3, `a` ataca e lança duas Centelhas; `b` responde com `Sorte` (dado 5) e `Bênção`. Em LIFO a cura resolve antes do dano e `b` fica com 3; com a política FIFO a mesma sequência derrota `b` no turno 3. A partida segue até `b` vencer no turno 8 (vida de `a` = 0, vida de `b` = 1).
 - Projeção por jogador (`projecao.test.ts`): a cada passo da partida, o JSON de `project(estado.engine, viewer)` não contém nenhum id de carta na mão do oponente; os eventos `compra_privada` (`visibleTo: [dono]`) só chegam ao dono; os `carta.movida` de compras do oponente saem com `card: "?"`; as opções da escolha pendente só aparecem a quem decide.
 
+## RPG: Margem do Lago Turvo (`rpg/`)
+
+Prova as unidades da engine (F11a) com o cenário original de `docs/F11_SPEC.md`. `conteudo.ts` declara atributos (`constituicao`, `vida_max` = constituição × 10, `vida`, `mana_max`, `mana`, `armadura`), regras (recurso de vida e mitigação do tipo `fisico` pela armadura), habilidades, status (`colera`, `raiz` e três de apoio ao empilhamento: `bruma` refresh, `fervor` stack até 3, `marca` replace) e unidades (Aria, Espreitador do Junco, Cota de Escamas, Lago Turvo). `jogo.ts` monta a mesa (Aria equipa a Cota e fica com vida 60; o espreitador entra no lago e fica imune) e expõe `jogarTurno`, `fecharTurno` e `abrirTurno`; `roteiro.ts` tem as duas partidas como tentativas por turno.
+
+- `rpg.test.ts`: vitória (rodada 7: Aria com 32/60 de vida, 4/20 de mana, armadura efetiva 1, sem status, recarga 0) e derrota (rodada 8, espreitador com 5). Em todo turno confere vida, mana, armadura efetiva, status (com duração restante), recarga do `lampejo`, as recusas esperadas (`bloqueada`, `cooldown`, `custo`) e a sequência de tipos de evento do turno. Cada linha é lida depois do fim do turno e antes do começo do seguinte.
+- `negativos.test.ts`: os 8 casos da spec (Raiz bloqueia `mover`; cura sob Cólera; recarga N/N+1/N+2; mana insuficiente; imunidade; fonte sai e o efeito some; empilhamento `refresh`/`stack`/`replace`/`ignore`; Raiz expira no fim do 2º turno do portador).
+- `aleatorio.test.ts`: 40 sementes jogam ações legais e mudam fontes (equipar, desequipar, sair do lago, remover o lago). A cada passo todo modificador ativo tem fonte viva, os recursos ficam dentro do máximo e o estado serializa sem a chave `modifiers` e volta igual de JSON.
+
 ## Cenários YAML por kind (`scenarios/`)
 
-Um arquivo em `scenarios/cases/*.yaml` por comportamento. O runner (`runner.ts`) valida o formato com zod, monta o estado inicial, aplica os passos e compara. Há ao menos um cenário por kind genérico de `src/engine/builtinKinds.ts` (`noop`, `move_card`, `draw_cards`, `discard_cards`, `change_counter`, `roll_die`, `repeat`, `if_counter`, `choose_one`), além de recusa de kind não registrado e de payload inválido. `scenarios.test.ts` falha se algum kind do registro ficar sem cenário.
+Um arquivo em `scenarios/cases/*.yaml` por comportamento. O runner (`runner.ts`) valida o formato com zod, monta o estado inicial, aplica os passos e compara. Há ao menos um cenário por kind genérico de `src/engine/builtinKinds.ts` (`noop`, `move_card`, `draw_cards`, `discard_cards`, `change_counter`, `roll_die`, `repeat`, `if_counter`, `choose_one`) e por kind de unidade de `src/engine/unitKinds.ts` (`damage`, `heal`, `apply_status`, `remove_status`, `modify_attribute`, `block_action`, `move_to_area` e as condições `in_area`, `has_status`, `attr_compare`), além de recusa de kind não registrado e de payload inválido. `scenarios.test.ts` falha se algum kind do registro ficar sem cenário.
 
 ```yaml
 name: roll_die consome o dado roteirizado e soma ao contador
@@ -66,6 +77,8 @@ given:                              # estado inicial (tudo opcional)
   cards: [{ id: a, def: carta, owner: p }]
   zones: [{ id: pilha, owner: p, visibility: owner, ordered: true, cards: [a] }]
   counters: [{ scope: jogo, id: "-", name: pontos, value: 1 }]
+  units:                            # unidades do catálogo do RPG (spawn + ajustes)
+    - { id: aria, def: aria, controller: a, pools: { vida: 20 }, statuses: [{ status: raiz, remaining: 2 }], presentIn: [lago] }
   dice: [4, 6]                      # ScriptedDice
   turn: { order: [p, q], phases: [principal] }
 when:                               # passos, em ordem
@@ -73,10 +86,12 @@ when:                               # passos, em ordem
     cause: 7                        # opcional, vai para o ctx e para os eventos
   - answer: { choice: choose_one, player: p, picks: [x] }   # responde a escolha pendente
   - validate: [{ kind: repeat, times: 1, do: [] }]          # validação de conteúdo (sem executar)
+  - test: { subject: aria, node: { kind: in_area, area: lago }, expect: true }   # avalia uma condição
 then:                               # tudo opcional; comparação parcial
   events: [{ type: dado.rolado, payload: { value: 4 } }]    # só os emitidos durante o `when`, lista exata
   zones: { pilha: [a] }                                      # conteúdo exato
   counters: { "jogo:-:pontos": 5 }                           # chave escopo:id:nome
+  units: { aria: { attributes: { vida: 20 } } }              # unitView, comparação parcial
   dice_left: 0
   pending: null                                              # ou { id, player, options, min, max }
   error: "trecho da mensagem"                                # o `when` deve falhar com esta mensagem
@@ -90,7 +105,7 @@ Testes de bordas e mensagens de erro da engine com conteúdo inventado (registro
 
 ## Cobertura
 
-`npm run engine-test:coverage` mede `src/engine/**` (exceto `*.test.ts` e `index.ts`) apenas com `tools/engine-test`. Limiar: 85% de linhas. Resultado atual: 99,7% de linhas, 96,2% de ramos; sem `contratos.test.ts` (só jogos + cenários), 85,3% de linhas.
+`npm run engine-test:coverage` mede `src/engine/**` (exceto `*.test.ts` e `index.ts`) apenas com `tools/engine-test`. Limiar: 85% de linhas. Resultado atual (com o RPG da F11a): 93,5% de linhas, 83,0% de ramos. Os testes de unidade de `src/engine/*.test.ts` rodam no `npm test` e não entram nesta medida.
 
 ## Limitações conhecidas
 

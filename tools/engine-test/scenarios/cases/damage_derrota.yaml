@@ -1,0 +1,19 @@
+name: damage que zera a vida emite unidade.derrotada uma única vez
+kind: damage
+given:
+  units:
+    - { id: aria, def: aria, controller: a }
+    - { id: alvo, def: espreitador_do_junco, controller: e, pools: { vida: 4 } }
+when:
+  - run:
+      - { kind: damage, target: alvo, amount: 50, type: veneno, source: aria }
+      - { kind: damage, target: alvo, amount: 5, type: veneno, source: aria }
+then:
+  events:
+    - { type: dano.proposto }
+    - { type: dano.aplicado, payload: { amount: 50, life: 0 } }
+    - { type: unidade.derrotada, payload: { unit: alvo, by: aria } }
+    - { type: dano.proposto }
+    - { type: dano.aplicado, payload: { amount: 5, life: 0 } }
+  units:
+    alvo: { attributes: { vida: 0 } }

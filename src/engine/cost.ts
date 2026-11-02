@@ -1,11 +1,14 @@
 import type { PlayerId } from "./events";
+import { setPool } from "./attributes";
 import {
 	addToCounter,
 	counterOf,
 	type CounterRef,
 	type EngineEventMap,
 	type EngineState,
+	recordEvent,
 } from "./state";
+import { unitOf } from "./units";
 
 export type CostCheck =
 	| { readonly ok: true }
@@ -103,5 +106,29 @@ export function resourceCost<TMap extends EngineEventMap = EngineEventMap>(
 				? PAYABLE
 				: { ok: false, reason: `Recurso "${name}" insuficiente (${amount})` },
 		pay: (state, payer) => spendPool(state, payer, name, amount),
+	};
+}
+
+export function unitResourceCost<TMap extends EngineEventMap = EngineEventMap>(
+	pool: string,
+	amount: number,
+): Cost<EngineState<TMap>> {
+	if (!Number.isInteger(amount) || amount < 0) {
+		throw new Error(`Custo inválido para "${pool}": ${amount}`);
+	}
+	return {
+		id: `unidade:${pool}`,
+		canPay: (state, payer) =>
+			(unitOf(state, payer).pools[pool] ?? 0) >= amount
+				? PAYABLE
+				: { ok: false, reason: `Recurso "${pool}" insuficiente (${amount})` },
+		pay: (state, payer) => {
+			const from = unitOf(state, payer).pools[pool] ?? 0;
+			return recordEvent(
+				setPool(state, payer, pool, from - amount),
+				"atributo.alterado",
+				{ unit: payer, attr: pool, from, to: from - amount, reason: "custo" },
+			);
+		},
 	};
 }

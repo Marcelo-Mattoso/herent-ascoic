@@ -1,0 +1,10 @@
+name: block_action registra o bloqueio da ação por um número de turnos
+kind: block_action
+given:
+  units:
+    - { id: aria, def: aria, controller: a }
+when:
+  - run: [{ kind: block_action, target: aria, action: mover, turns: 2 }]
+then:
+  units:
+    aria: { blocks: [{ action: mover, remaining: 2 }] }

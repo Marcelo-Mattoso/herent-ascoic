@@ -1,6 +1,15 @@
 import type { Dice } from "./dice";
 import type { KindNode, KindRegistry } from "./kinds";
 import type { ScopeRegistry } from "./scopes";
+import {
+	type AbilityDef,
+	createUnitCatalog,
+	type StatusDef,
+	type UnitCatalog,
+	type UnitDef,
+	type UnitRules,
+	unitContentNodes,
+} from "./units";
 
 export interface SourceRef {
 	readonly kind: string;
@@ -16,6 +25,9 @@ export interface ContentPort<TCard, TAbility> {
 	ability(id: string): TAbility;
 	hasAbility(id: string): boolean;
 	text(key: string, params?: Record<string, unknown>): string;
+	unitDefs?(): readonly UnitDef[];
+	abilityDefs?(): readonly AbilityDef[];
+	statusDefs?(): readonly StatusDef[];
 }
 
 export interface RequirementPort<S> {
@@ -57,6 +69,7 @@ export interface EngineConfig<
 	requirements: RequirementPort<S>;
 	scopes: ScopePort<S>;
 	flow?: TFlow;
+	units?: UnitRules;
 }
 
 export interface Engine<
@@ -76,6 +89,7 @@ export interface Engine<
 	readonly requirements: RequirementPort<S>;
 	readonly scopes: ScopePort<S>;
 	readonly flow: TFlow;
+	readonly units?: UnitCatalog;
 }
 
 function deepFreeze<T>(value: T, seen = new WeakSet<object>()): T {
@@ -140,6 +154,32 @@ export function createEngine<
 		}
 	}
 
+	let units: UnitCatalog | undefined;
+	const hasUnitContent =
+		content.unitDefs !== undefined ||
+		content.abilityDefs !== undefined ||
+		content.statusDefs !== undefined;
+	if (cfg.units === undefined && hasUnitContent) {
+		fail("conteúdo de unidades sem regras de unidades (units)");
+	}
+	if (cfg.units !== undefined) {
+		try {
+			units = createUnitCatalog({
+				rules: cfg.units,
+				units: content.unitDefs?.() ?? [],
+				abilities: content.abilityDefs?.() ?? [],
+				statuses: content.statusDefs?.() ?? [],
+			});
+			for (const { origin, nodes } of unitContentNodes(units)) {
+				cfg.kinds.validateAll(nodes, origin);
+			}
+		} catch (error) {
+			fail(
+				`unidades inválidas: ${error instanceof Error ? error.message : String(error)}`,
+			);
+		}
+	}
+
 	const cardsById = new Map<string, TCard>(
 		all.map((card) => [(card as { id: string }).id, card]),
 	);
@@ -167,5 +207,6 @@ export function createEngine<
 		requirements: cfg.requirements,
 		scopes: cfg.scopes,
 		flow: cfg.flow as TFlow,
+		...(units === undefined ? {} : { units }),
 	});
 }
