@@ -511,7 +511,8 @@
           "label": "Pesadilla",
           "hint": "Héroe +0, Mazmorra +2"
         }
-      }
+      },
+      "expansionLabel": "Expansión"
     },
     "victory": {
       "kicker": "La leyenda quedó escrita",

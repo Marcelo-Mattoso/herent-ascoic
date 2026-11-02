@@ -5,10 +5,12 @@ import { DIFFICULTY_PRESETS } from "../config/defaults";
 import { getCardName } from "../data/cardLocale";
 import {
 	getArtifacts,
+	getBossById,
 	getCardById,
 	getCreatures,
 	getItems,
 } from "../data/cards";
+import { getExpansionCardMetadata } from "../data/expansions";
 import { installPassive } from "../ecs/installPassive";
 import { syncHeroesAndEnemies } from "../ecs/sync";
 import { createEmptyWorld } from "../ecs/world";
@@ -45,6 +47,16 @@ export function handleStartGame(
 		return log(state, `[ERRO] Selecione no máximo ${MAX_HEROES} heróis.`);
 	}
 
+	const bossId = payload.bossCardId ?? selectBoss();
+	if (!getBossById(bossId)) return log(state, "[ERRO] Boss inválido na configuração da partida.");
+	const expansionId = getExpansionCardMetadata(bossId)?.expansionId;
+	if (!expansionId) return log(state, "[ERRO] Expansão do boss não encontrada.");
+	for (const id of heroIds) {
+		if (getExpansionCardMetadata(id)?.expansionId !== expansionId) {
+			return log(state, "[ERRO] Herói de outra expansão não pode entrar nesta masmorra.");
+		}
+	}
+
 	// Seed e gameId vêm do payload (injetados pela UI ou testes).
 	// Fallback determinístico para testes que não fornecem seed.
 	const seed = payload.seed ?? 0;
@@ -77,12 +89,11 @@ export function handleStartGame(
 		rng = next;
 	}
 
-	const bossId = payload.bossCardId ?? selectBoss();
-
-	const roomIds = buildDungeonRoomDeck();
-	const creatureIds = getCreatures().map((c) => c.id);
-	const itemIds = getItems().map((c) => c.id);
-	const artifactIds = getArtifacts().map((c) => c.id);
+	const belongsToExpansion = (id: string) => getExpansionCardMetadata(id)?.expansionId === expansionId;
+	const roomIds = buildDungeonRoomDeck(expansionId);
+	const creatureIds = getCreatures().filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const itemIds = getItems().filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const artifactIds = getArtifacts().filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 
 	const mode = payload.mode ?? "cooperative";
 

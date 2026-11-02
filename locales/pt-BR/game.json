@@ -511,7 +511,8 @@
           "label": "Pesadelo",
           "hint": "Herói +0, Masmorra +2"
         }
-      }
+      },
+      "expansionLabel": "Expansão"
     },
     "victory": {
       "kicker": "A lenda foi escrita",

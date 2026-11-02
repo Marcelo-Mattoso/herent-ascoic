@@ -509,7 +509,8 @@
           "label": "Nightmare",
           "hint": "Hero +0, Dungeon +2"
         }
-      }
+      },
+      "expansionLabel": "Expansion"
     },
     "victory": {
       "kicker": "A legend is born",
