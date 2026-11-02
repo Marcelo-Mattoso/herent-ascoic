@@ -265,7 +265,7 @@
       "dungeonExhaustedModal": {
         "title001": "Mazo de mazmorra vacío",
         "text002": "Puedes gastar",
-        "text003": "5 XP",
+        "text003": "{{cost}} puntos de experiencia",
         "text004": "para volver a barajar todas las cartas descartadas de la mazmorra y continuar. En caso contrario, la expedición termina en derrota.",
         "text005": "XP disponible:",
         "text006": "· Cartas descartadas:",
