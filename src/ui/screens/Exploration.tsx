@@ -115,6 +115,7 @@ export function Exploration({
 	tutorialRevealEnabled?: boolean;
 	tutorialCombatMode?: boolean;
 	tutorialCombatMethod?: "drag" | "tap" | null;
+	tutorialStepId?: string;
 	onTutorialAttackInput?: (method: "drag" | "tap") => void;
 	tutorialInventoryMode?: boolean;
 	tutorialInventoryOpen?: boolean;
@@ -247,6 +248,14 @@ export function Exploration({
 			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
 			return;
 		}
+		// In combat training a second hero click must never open a panel over
+		// the required target. Only the ability archive explicitly opens it.
+		const tutorialAllowsHeroPanel = !tutorialMode ||
+			(tutorialAbilityMode && ["abilities-inspect", "prey-mark", "fury-prepare", "hero-power"].includes(tutorialStepId ?? ""));
+		if (!tutorialAllowsHeroPanel) {
+			setShowHeroFocus(false);
+			return;
+		}
 		setShowHeroFocus(true);
 		if (tutorialAbilityMode) onTutorialAbilityPanelOpen?.();
 	}
@@ -289,8 +298,20 @@ export function Exploration({
 			});
 			return;
 		}
+		if (tutorialMode) return;
 		openCardDetail(e.cardId, e.id === "boss" ? "boss" : "enemy");
 	}
+
+	useEffect(() => {
+		if (!showHeroFocus) return;
+		const closeOnEscape = (event: KeyboardEvent) => {
+			if (event.key !== "Escape" || document.querySelector(".hero-art-viewer, .modal-layer, .flow-modal-overlay, .journal-layer")) return;
+			event.preventDefault();
+			setShowHeroFocus(false);
+		};
+		window.addEventListener("keydown", closeOnEscape);
+		return () => window.removeEventListener("keydown", closeOnEscape);
+	}, [showHeroFocus]);
 
 	function handleAttack() {
 		setShowHeroFocus(false);
@@ -540,6 +561,7 @@ export function Exploration({
 								aria-label={translate("game:screens.exploration.ariaLabel012")}
 							/>
 							<div className="game-hero-focus-popover">
+								<p className="game-hero-focus-escape-hint">{translate("game:components.heroFocusPanel.escapeHint")}</p>
 								<HeroFocusPanel
 									hero={focusedHero}
 									heroImageUrl={getCardImageUrl(cardImageUrls, focusedHero.cardId)}

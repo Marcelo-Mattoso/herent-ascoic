@@ -156,7 +156,8 @@
       "dynamic001": "disponível",
       "dynamic002": "indisponível",
       "dynamic003": "disponível",
-      "dynamic004": "indisponível"
+      "dynamic004": "indisponível",
+      "escapeHint": "Pressione Esc para fechar"
     },
     "hpBar": {},
     "influencePanel": {
@@ -253,7 +254,9 @@
       }
     },
     "itemTile": {},
-    "modal": {},
+    "modal": {
+      "escapeHint": "Pressione Esc para fechar"
+    },
     "modals": {
       "cardDetailModal": {
         "text001": "Habilidade",

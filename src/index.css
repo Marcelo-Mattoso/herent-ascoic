@@ -5535,3 +5535,11 @@ body:has(.tutorial-layer--abilities) .game-dice-roll-layer { z-index: 75; }
 	font-size: 0.9rem;
 	line-height: 1.4;
 }
+
+/* Tutorial is a guided training scene, never an interactive settings menu. */
+body:has(.tutorial-layer) .global-menu,
+body:has(.tutorial-layer) .support-action { display: none; }
+.modal-close-controls { display: flex; align-items: center; gap: 8px; }
+.modal-escape-hint { font-size: 11px; opacity: .75; white-space: nowrap; }
+.game-hero-focus-escape-hint { margin: 0 0 5px; font-size: 11px; text-align: right; opacity: .8; }
+.hero-art-viewer__escape-hint { font-size: 12px; opacity: .8; }
