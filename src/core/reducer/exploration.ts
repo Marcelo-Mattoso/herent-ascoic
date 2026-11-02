@@ -23,6 +23,7 @@ import {
 } from "../ecs/world";
 import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
+import { getExpansionCardMetadata } from "../data/expansions";
 import { cardSkills } from "../skills/lookup";
 import { applyDeclaredPassiveBlocks } from "../skills/applyPassiveBlocks";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
@@ -38,10 +39,10 @@ import { awakeningRequirementMet } from "../rules/awakening";
 
 const DUNGEON_ROOM_COPIES = 2;
 
-export function buildDungeonRoomDeck(): string[] {
-	return getRooms().flatMap((card) =>
-		Array.from({ length: DUNGEON_ROOM_COPIES }, () => card.id),
-	);
+export function buildDungeonRoomDeck(expansionId?: string): string[] {
+	return getRooms()
+		.filter((card) => !expansionId || getExpansionCardMetadata(card.id)?.expansionId === expansionId)
+		.flatMap((card) => Array.from({ length: DUNGEON_ROOM_COPIES }, () => card.id));
 }
 
 export function handleRevealRoom(state: GameState): GameState {
@@ -614,10 +615,13 @@ export function handleRestartDungeon(
 	state: GameState,
 	keepEquipment: boolean,
 ): GameState {
-	const roomIds = buildDungeonRoomDeck();
-	const creatureIds = getCreatures().map((c) => c.id);
-	const itemIds = getItems().map((c) => c.id);
-	const artifactIds = getArtifacts().map((c) => c.id);
+	const expansionId = getExpansionCardMetadata(state.bossCardId)?.expansionId;
+	const belongsToExpansion = (id: string) =>
+		!expansionId || getExpansionCardMetadata(id)?.expansionId === expansionId;
+	const roomIds = buildDungeonRoomDeck(expansionId);
+	const creatureIds = getCreatures().filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const itemIds = getItems().filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const artifactIds = getArtifacts().filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 
 	let rng = state.rng;
 	let shuffledRooms: string[],
