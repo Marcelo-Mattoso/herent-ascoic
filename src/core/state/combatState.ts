@@ -81,8 +81,6 @@ export interface CombatState {
 	readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
 	// Dados extras concedidos por poder (ex: Bárbaro Rubro +1 dado)
 	readonly extraDice: Readonly<Record<string, number>>;
-	// Controle Azhakar: primeiro dano do turno já sofreu redução de Trono Vivo
-	bossFirstDamageReduced: boolean;
 	readonly temporaryEffects: readonly TemporaryEffect[];
 	// Bônus de próximo ataque e redução de dano migrados para ECS world (patch-18 Lote G)
 	// bonusNextAttack → ModifierComponent target="damage_dealt" / target="hit_bonus"
@@ -132,7 +130,6 @@ export function createEmptyCombatState(): CombatState {
 		shieldsUsedThisCombat: {},
 		powersUsedThisRoom: {},
 		extraDice: {},
-		bossFirstDamageReduced: false,
 		temporaryEffects: [],
 		oncePer: { room: {}, combat: {}, round: {} },
 		disabled: {},
