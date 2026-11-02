@@ -684,7 +684,7 @@ export function Exploration({
 				>
 					<div className="orientation-gate__card">
 						<div className="orientation-gate__phone" aria-hidden="true"><span /></div>
-						<p className="orientation-gate__eyebrow">Ascensão Heróica</p>
+						<p className="orientation-gate__eyebrow">{translate("game:screens.exploration.orientationGameName")}</p>
 						<h2 id="orientation-gate-title">{translate("game:screens.exploration.rotateTitle")}</h2>
 						<p id="orientation-gate-description">{translate("game:screens.exploration.rotateDescription")}</p>
 					</div>
