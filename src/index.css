@@ -5535,3 +5535,78 @@ body:has(.tutorial-layer--abilities) .game-dice-roll-layer { z-index: 75; }
 	font-size: 0.9rem;
 	line-height: 1.4;
 }
+
+/* Despertar: indicador compacto; regras só aparecem ao expandir. */
+.game-awakening-marker--compact {
+	padding: 8px 11px;
+}
+.game-awakening-marker--compact .game-awakening-marker__heading {
+	margin-bottom: 8px;
+}
+.game-awakening-marker__controls {
+	display: flex;
+	align-items: center;
+	gap: 7px;
+}
+.game-awakening-marker__flame {
+	font-size: 1.15rem;
+	line-height: 1;
+}
+.game-awakening-marker__toggle {
+	position: relative;
+	z-index: 2;
+	width: 32px;
+	height: 30px;
+	border: 1px solid rgba(32, 18, 4, 0.3);
+	border-radius: 6px;
+	background: rgba(255, 246, 210, 0.55);
+	color: inherit;
+	font-size: 1.3rem;
+	font-weight: bold;
+	cursor: pointer;
+}
+.game-awakening-marker__toggle:focus-visible {
+	outline: 3px solid #ffffff;
+	outline-offset: 2px;
+}
+.game-awakening-marker--compact .game-awakening-marker__level {
+	min-height: 11px;
+	height: 11px;
+	border-radius: 4px;
+}
+.game-awakening-marker__details {
+	position: relative;
+	z-index: 1;
+	margin-top: 10px;
+	padding: 10px;
+	border: 1px solid rgba(32, 18, 4, 0.24);
+	border-radius: 7px;
+	background: rgba(255, 246, 210, 0.55);
+	font-size: 0.78rem;
+}
+.game-awakening-marker__details strong {
+	display: block;
+	margin-bottom: 5px;
+	font-size: 0.91rem;
+}
+.game-awakening-marker__details p {
+	margin: 0 0 8px;
+	line-height: 1.45;
+}
+.game-awakening-marker__details small {
+	display: block;
+	margin-top: 8px;
+	line-height: 1.4;
+}
+.game-awakening-marker__bonuses {
+	display: flex;
+	flex-wrap: wrap;
+	gap: 5px;
+}
+.game-awakening-marker__bonuses span {
+	padding: 4px 7px;
+	border: 1px solid rgba(32, 18, 4, 0.25);
+	border-radius: 5px;
+	background: rgba(65, 36, 13, 0.09);
+	font-weight: 700;
+}
