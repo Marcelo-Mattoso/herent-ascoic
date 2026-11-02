@@ -783,8 +783,14 @@
 		{
 			"type": "SPEND_XP",
 			"payload": {
-				"option": "level_up",
-				"heroId": "h-35uto3-18hukp3"
+				"option": "buy_item"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-j0enwe-tf5mqd",
+				"destination": "discard"
 			}
 		},
 		{
@@ -792,55 +798,6 @@
 		},
 		{
 			"type": "REVEAL_BOSS"
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-35uto3-18hukp3"
-			}
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-j0enwe-tf5mqd"
-			}
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-zqzlw5-ew9n9i"
-			}
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-zqzlw5-ew9n9i",
-				"enemyId": "boss"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-35uto3-18hukp3"
-			}
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-35uto3-18hukp3"
-			}
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-j0enwe-tf5mqd"
-			}
 		},
 		{
 			"type": "CHOOSE_TARGET",
@@ -856,54 +813,33 @@
 			"type": "RESOLVE_ATTACK"
 		},
 		{
-			"type": "CHOOSE_TARGET",
+			"type": "CHOOSE_HERO_FOR_ROUND",
 			"payload": {
-				"heroId": "h-zqzlw5-ew9n9i",
-				"enemyId": "boss"
+				"heroId": "h-j0enwe-tf5mqd"
 			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-35uto3-18hukp3",
-				"enemyId": "boss"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "START_BOSS_COMBAT"
-		},
-		{
-			"type": "START_BOSS_COMBAT"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-zqzlw5-ew9n9i",
-				"enemyId": "boss"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
 		},
 		{
 			"type": "CHOOSE_HERO_FOR_ROUND",
 			"payload": {
 				"heroId": "h-35uto3-18hukp3"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-zqzlw5-ew9n9i"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-zqzlw5-ew9n9i"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-zqzlw5-ew9n9i"
 			}
 		},
 		{
@@ -913,12 +849,9 @@
 			}
 		},
 		{
-			"type": "START_BOSS_COMBAT"
-		},
-		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-35uto3-18hukp3",
+				"heroId": "h-zqzlw5-ew9n9i",
 				"enemyId": "boss"
 			}
 		},
@@ -927,12 +860,6 @@
 		},
 		{
 			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-35uto3-18hukp3"
-			}
 		},
 		{
 			"type": "CHOOSE_TARGET",
@@ -1106,42 +1033,25 @@
 		"bd2a284deb96dc07",
 		"5365738c1da64fe8",
 		"4399ddcca3260ca5",
-		"08310889f463d945",
-		"f79cbe004f820dc7",
-		"8000840a48b32065",
-		"739cd2c85514a9d3",
-		"2e83c081c6e4c921",
-		"f86f2816de91b458",
-		"69f24a91ab73ab97",
-		"f947332100ecd4be",
-		"77dbfef8356b4e92",
-		"2117c7fada67132b",
-		"205cb230c8fe4352",
-		"f870706b8c68b0a6",
-		"d090687707b828a7",
-		"6fe87704b951820d",
-		"0d7254dab9c85406",
-		"8d5ca9c4aecc1238",
-		"0c641266c11e9240",
-		"7365cb1d6339c4bf",
-		"9ca08728a1d3e9d1",
-		"c4f0987f8df75f9f",
-		"6ccee85153101690",
-		"2365a15af3c68040",
-		"2eb1a7c0e3fb0a0c",
-		"2677bf3934f7420d",
-		"d17a8ce2ab4355d2",
-		"9202bfaa30459d70",
-		"1eefebf26401f11d",
-		"94331d1f776ecac7",
-		"d17d91ac14c76d82",
-		"6033a15ce35855ce",
-		"bb47d23c6ea9a56d",
-		"b54a981a809dce1f",
-		"5736500d30cbfba0",
-		"08a58f9190a39b67",
-		"42876a99af16b73e",
-		"197f86ce5457853d"
+		"71fb52a2b57b6fd2",
+		"f00802c54922e0da",
+		"ef76b93971c57a95",
+		"776fffb7345fec89",
+		"6dc666177283d39c",
+		"34f83786c9ea163f",
+		"8070d089c6aa0674",
+		"be61a8229ec15b7c",
+		"195e66fb1fec57b3",
+		"2a9f0f218d8f4e30",
+		"0d7c28dcdf5c8c7a",
+		"83da1a115372129d",
+		"b024d4a8dc5b618b",
+		"98dc32b3704d706b",
+		"20340afaf157472c",
+		"c88bee90295c830d",
+		"f1b2f1e00e9a5ee0",
+		"a3da2ca712b624e0",
+		"c4551c89f9c3a869"
 	],
 	"finalSnapshot": {
 		"abilityActionsByHero": {
@@ -1156,6 +1066,7 @@
 					"targetRequired": true,
 					"validTargetIds": [
 						"h-j0enwe-tf5mqd",
+						"h-zqzlw5-ew9n9i",
 						"h-35uto3-18hukp3"
 					]
 				},
@@ -1169,6 +1080,7 @@
 					"targetRequired": true,
 					"validTargetIds": [
 						"h-j0enwe-tf5mqd",
+						"h-zqzlw5-ew9n9i",
 						"h-35uto3-18hukp3"
 					]
 				},
@@ -1238,6 +1150,7 @@
 					"targetRequired": false,
 					"validTargetIds": [
 						"h-j0enwe-tf5mqd",
+						"h-zqzlw5-ew9n9i",
 						"h-35uto3-18hukp3"
 					]
 				},
@@ -1269,7 +1182,7 @@
 					"activation": "manual",
 					"kind": "skill",
 					"label": "Marca da Presa",
-					"reason": "Herói incapacitado.",
+					"reason": "Nenhum alvo válido disponível.",
 					"sourceCardId": "hero_broken_veil_hunter",
 					"status": "unavailable",
 					"targetRequired": false,
@@ -1280,9 +1193,8 @@
 					"activation": "prepare",
 					"kind": "power",
 					"label": "Execução do Caçador",
-					"reason": "Herói incapacitado.",
 					"sourceCardId": "hero_broken_veil_hunter",
-					"status": "unavailable",
+					"status": "available",
 					"targetRequired": false,
 					"validTargetIds": []
 				},
@@ -1301,7 +1213,7 @@
 					"activation": "prepare",
 					"kind": "item",
 					"label": "Encanto do Caminho Seguro",
-					"reason": "Herói inválido ou inativo.",
+					"reason": "Aguarde uma janela de ação para usar o item.",
 					"sourceCardId": "item_safe_path_charm",
 					"status": "unavailable",
 					"targetRequired": false,
@@ -1312,12 +1224,13 @@
 					"activation": "manual",
 					"kind": "item",
 					"label": "Poção de Vigor Maior",
-					"reason": "Herói inválido ou inativo.",
+					"reason": "Aguarde uma janela de ação para usar o item.",
 					"sourceCardId": "item_greater_vigor_potion",
 					"status": "unavailable",
 					"targetRequired": true,
 					"validTargetIds": [
 						"h-j0enwe-tf5mqd",
+						"h-zqzlw5-ew9n9i",
 						"h-35uto3-18hukp3"
 					]
 				}
@@ -2479,15 +2392,18 @@
 			"XP do grupo: 26 → 16 (-10).",
 			"Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) recuperou 2 de vida (17 → 19).",
 			"Log atual: Guerreiro do Bastião Partido subiu para nível 5. O grupo ainda não alcançou o próximo patamar.",
-			"#158 Ação SPEND_XP. Dados: {\"type\":\"SPEND_XP\",\"payload\":{\"option\":\"level_up\",\"heroId\":\"h-35uto3-18hukp3\"}}",
-			"Clérigo do Descanso Eterno ganhou 2 de vida por progressão (11 → 13).",
-			"XP do grupo: 16 → 6 (-10).",
-			"Despertar: 0 → 1.",
-			"Clérigo do Descanso Eterno (h-35uto3-18hukp3) recuperou 2 de vida (11 → 13).",
-			"Detalhe técnico groupImpetoMilestone: 2 → 3.",
-			"Detalhe técnico events: [] → [{\"type\":\"DespertarChanged\",\"payload\":{\"from\":0,\"to\":1,\"cause\":\"level_up\"},\"seq\":0}].",
-			"Log atual: Clérigo do Descanso Eterno subiu para nível 4. O Despertar avança com o grupo.",
-			"#159 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
+			"#158 Ação SPEND_XP. Dados: {\"type\":\"SPEND_XP\",\"payload\":{\"option\":\"buy_item\"}}",
+			"Fase: XP_SPEND_PHASE → REWARD_PHASE.",
+			"XP do grupo: 16 → 1 (-15).",
+			"Recompensas na mesa: [] → [{\"type\":\"item\",\"cardId\":\"item_pitch_torch\",\"requiresBearer\":false}].",
+			"itemDeck.available: 10 → 9; adicionadas [], retiradas [\"item_pitch_torch\"].",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"XP_SPEND_PHASE\",\"to\":\"REWARD_PHASE\",\"action\":\"SPEND_XP\"},\"seq\":0}].",
+			"#159 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"destination\":\"discard\"}}",
+			"Fase: REWARD_PHASE → XP_SPEND_PHASE.",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_pitch_torch\",\"requiresBearer\":false}] → [].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemDiscarded\",\"payload\":{\"itemId\":\"item_pitch_torch\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"REWARD_PHASE\",\"to\":\"XP_SPEND_PHASE\",\"action\":\"CHOOSE_ITEM_DESTINATION\"},\"seq\":1}].",
+			"Log atual: Tocha de Breu descartado.",
+			"#160 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
 			"Fase: XP_SPEND_PHASE → BOSS_REVEAL.",
 			"Etapa de combate: direct_damage → selecting_hero.",
 			"Rodada: 4 → 0.",
@@ -2495,220 +2411,102 @@
 			"dungeonDeck.discarded: 9 → 10; adicionadas [\"room_cracked_abyss\"], retiradas [].",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"XP_SPEND_PHASE\",\"to\":\"BOSS_REVEAL\",\"action\":\"CHECK_BOSS_CONDITION\"},\"seq\":0}].",
 			"Log atual: Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
-			"#160 Ação REVEAL_BOSS. Dados: {\"type\":\"REVEAL_BOSS\"}",
+			"#161 Ação REVEAL_BOSS. Dados: {\"type\":\"REVEAL_BOSS\"}",
 			"Fase: BOSS_REVEAL → BOSS_COMBAT.",
 			"Azhakar, Dragão da Fornalha Sombria (boss) entrou em jogo.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_REVEAL\",\"to\":\"BOSS_COMBAT\",\"action\":\"REVEAL_BOSS\"},\"seq\":0}].",
-			"Log atual: Azhakar, Dragão da Fornalha Sombria revelado! Vida: 18, Bônus de Acerto: 13.",
-			"#161 Herói selecionado: Clérigo do Descanso Eterno (h-35uto3-18hukp3). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\"}}",
-			"Etapa de combate: selecting_hero → selecting_target.",
-			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-35uto3-18hukp3).",
-			"Log atual: Clérigo do Descanso Eterno selecionado para agir.",
-			"#162 Herói selecionado: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\"}}",
-			"Herói em foco no combate: Clérigo do Descanso Eterno (h-35uto3-18hukp3) → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
-			"Log atual: Guerreiro do Bastião Partido selecionado para agir.",
-			"#163 Herói selecionado: Caçador do Véu Partido (h-zqzlw5-ew9n9i). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\"}}",
-			"Herói em foco no combate: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) → Caçador do Véu Partido (h-zqzlw5-ew9n9i).",
-			"Log atual: Caçador do Véu Partido selecionado para agir.",
-			"#164 Caçador do Véu Partido (h-zqzlw5-ew9n9i) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}}",
+			"Log atual: Azhakar, Dragão da Fornalha Sombria revelado! Vida: 16, Bônus de Acerto: 12.",
+			"#162 Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}}",
 			"Fase: BOSS_COMBAT → ROLL_DICE.",
-			"Etapa de combate: selecting_target → resolving.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
 			"Detalhe técnico flags: {\"discardDungeonLocked\":false,\"targetChosen::e-1g1n3xt-12xoatw\":true,\"targetChosen::e-mgfask-wml3p6\":true,\"targetChosen::e-ytlpde-70aizg\":true,\"targetChosen::e-p5yz5o-5whhdv\":true,\"targetChosen::e-1oivwov-1360jr0\":true,\"targetChosen::e-jezz17-16m3fig\":true,\"targetChosen::e-14bw4yy-1w8itfn\":true,\"targetChosen::e-1q3chpc-1jxkg8a\":true,\"targetChosen::e-1j9g2s9-yujff1\":true,\"targetChosen::e-hyhgdj-1baez30\":true,\"targetChosen::e-1lugw9b-qfllyt\":true,\"targetChosen::e-1ajox1t-k0cqly\":true,\"targetChosen::e-1i9tmct-z8cnbf\":true,\"targetChosen::e-l3wjy5-1v37a6t\":true,\"targetChosen::e-1ybflh1-1x919op\":true} → {\"discardDungeonLocked\":false,\"targetChosen::e-1g1n3xt-12xoatw\":true,\"targetChosen::e-mgfask-wml3p6\":true,\"targetChosen::e-ytlpde-70aizg\":true,\"targetChosen::e-p5yz5o-5whhdv\":true,\"targetChosen::e-1oivwov-1360jr0\":true,\"targetChosen::e-jezz17-16m3fig\":true,\"targetChosen::e-14bw4yy-1w8itfn\":true,\"targetChosen::e-1q3chpc-1jxkg8a\":true,\"targetChosen::e-1j9g2s9-yujff1\":true,\"targetChosen::e-hyhgdj-1baez30\":true,\"targetChosen::e-1lugw9b-qfllyt\":true,\"targetChosen::e-1ajox1t-k0cqly\":true,\"targetChosen::e-1i9tmct-z8cnbf\":true,\"targetChosen::e-l3wjy5-1v37a6t\":true,\"targetChosen::e-1ybflh1-1x919op\":true,\"targetChosen::boss\":true}.",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-zqzlw5-ew9n9i\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}].",
-			"#165 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Caçador do Véu Partido (h-zqzlw5-ew9n9i): dados [4, 3], hitBonus +14, Coração de Brasa Antiga +1 = 22.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [4, 1, 6], hitBonus +13, Despertar da Masmorra +1 = 25. Margem -3.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-j0enwe-tf5mqd\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}].",
+			"#163 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-j0enwe-tf5mqd): dados [4, 3, 4], hitBonus +18, Encanto da Chama Baixa +2, Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1 = 34.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [1, 6, 4], hitBonus +12 = 23. Margem +11.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":13108,\"counter\":315} → {\"seed\":13108,\"counter\":320}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\",\"heroTotal\":22,\"enemyTotal\":25,\"heroResults\":[4,3],\"enemyResults\":[4,1,6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 22 | Inimigo rolou 25.",
-			"#166 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Caçador do Véu Partido; solicitado 6, após efeitos 6, aplicado 6; vida 14 → 8.",
+			"Detalhe técnico rng: {\"seed\":13108,\"counter\":315} → {\"seed\":13108,\"counter\":321}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\",\"heroTotal\":34,\"enemyTotal\":23,\"heroResults\":[4,3,4],\"enemyResults\":[1,6,4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 34 | Inimigo rolou 23.",
+			"#164 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Guerreiro do Bastião Partido → Azhakar, Dragão da Fornalha Sombria; solicitado 11, após efeitos 11, aplicado 11; vida 16 → 5.",
 			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
 			"Etapa de combate: resolving → selecting_hero.",
 			"Rodada: 0 → 1.",
-			"Herói em foco no combate: Caçador do Véu Partido (h-zqzlw5-ew9n9i) → desconhecido.",
-			"Caçador do Véu Partido (h-zqzlw5-ew9n9i) recebeu 6 de dano (14 → 8).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-zqzlw5-ew9n9i\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Caçador do Véu Partido sofreu 6 de dano do boss.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) → desconhecido.",
+			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 11 de dano (16 → 5).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-j0enwe-tf5mqd\",\"targetId\":\"boss\",\"damageType\":\"attack\",\"amount\":11},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Habilidade do chefe: dano reduzido em 1.",
+			"Log atual: Boss sofreu 11 de dano [dano 3→12: Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1, Lâmina do Primeiro Incêndio +6]. Vida restante: 5.",
 			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#167 Herói selecionado: Clérigo do Descanso Eterno (h-35uto3-18hukp3). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\"}}",
+			"#165 Herói selecionado: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\"}}",
 			"Etapa de combate: selecting_hero → selecting_target.",
-			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-35uto3-18hukp3).",
-			"Log atual: Clérigo do Descanso Eterno selecionado para agir.",
-			"#168 Herói selecionado: Clérigo do Descanso Eterno (h-35uto3-18hukp3). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\"}}",
-			"Log atual: Clérigo do Descanso Eterno selecionado para agir.",
-			"#169 Herói selecionado: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\"}}",
-			"Herói em foco no combate: Clérigo do Descanso Eterno (h-35uto3-18hukp3) → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
 			"Log atual: Guerreiro do Bastião Partido selecionado para agir.",
-			"#170 Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}}",
+			"#166 Herói selecionado: Clérigo do Descanso Eterno (h-35uto3-18hukp3). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\"}}",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) → Clérigo do Descanso Eterno (h-35uto3-18hukp3).",
+			"Log atual: Clérigo do Descanso Eterno selecionado para agir.",
+			"#167 Herói selecionado: Caçador do Véu Partido (h-zqzlw5-ew9n9i). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\"}}",
+			"Herói em foco no combate: Clérigo do Descanso Eterno (h-35uto3-18hukp3) → Caçador do Véu Partido (h-zqzlw5-ew9n9i).",
+			"Log atual: Caçador do Véu Partido selecionado para agir.",
+			"#168 Herói selecionado: Caçador do Véu Partido (h-zqzlw5-ew9n9i). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\"}}",
+			"Log atual: Caçador do Véu Partido selecionado para agir.",
+			"#169 Herói selecionado: Caçador do Véu Partido (h-zqzlw5-ew9n9i). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\"}}",
+			"Log atual: Caçador do Véu Partido selecionado para agir.",
+			"#170 Herói selecionado: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\"}}",
+			"Herói em foco no combate: Caçador do Véu Partido (h-zqzlw5-ew9n9i) → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
+			"Log atual: Guerreiro do Bastião Partido selecionado para agir.",
+			"#171 Caçador do Véu Partido (h-zqzlw5-ew9n9i) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}}",
 			"Fase: BOSS_COMBAT → ROLL_DICE.",
 			"Etapa de combate: selecting_target → resolving.",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-j0enwe-tf5mqd\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}].",
-			"#171 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Guerreiro do Bastião Partido (h-j0enwe-tf5mqd): dados [4, 2, 3], hitBonus +18, Encanto da Chama Baixa +2, Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1 = 32.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [4, 2, 3], hitBonus +13, Despertar da Masmorra +1 = 23. Margem +9.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) → Caçador do Véu Partido (h-zqzlw5-ew9n9i).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-zqzlw5-ew9n9i\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}].",
+			"#172 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Caçador do Véu Partido (h-zqzlw5-ew9n9i): dados [2, 3], hitBonus +14, Coração de Brasa Antiga +1 = 20.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [4, 2, 3], hitBonus +12 = 21. Margem -1.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":13108,\"counter\":320} → {\"seed\":13108,\"counter\":326}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\",\"heroTotal\":32,\"enemyTotal\":23,\"heroResults\":[4,2,3],\"enemyResults\":[4,2,3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 32 | Inimigo rolou 23.",
-			"#172 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Guerreiro do Bastião Partido → Azhakar, Dragão da Fornalha Sombria; solicitado 11, após efeitos 11, aplicado 11; vida 18 → 7.",
+			"Detalhe técnico rng: {\"seed\":13108,\"counter\":321} → {\"seed\":13108,\"counter\":326}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\",\"heroTotal\":20,\"enemyTotal\":21,\"heroResults\":[2,3],\"enemyResults\":[4,2,3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 20 | Inimigo rolou 21.",
+			"#173 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Caçador do Véu Partido; solicitado 6, após efeitos 6, aplicado 6; vida 14 → 8.",
 			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
 			"Etapa de combate: resolving → selecting_hero.",
 			"Rodada: 1 → 2.",
-			"Herói em foco no combate: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) → desconhecido.",
-			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 11 de dano (18 → 7).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-j0enwe-tf5mqd\",\"targetId\":\"boss\",\"damageType\":\"attack\",\"amount\":11},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Habilidade do chefe: dano reduzido em 1.",
-			"Log atual: Boss sofreu 11 de dano [dano 3→12: Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1, Lâmina do Primeiro Incêndio +6]. Vida restante: 7.",
-			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#173 Caçador do Véu Partido (h-zqzlw5-ew9n9i) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}}",
-			"Fase: BOSS_COMBAT → ROLL_DICE.",
-			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Caçador do Véu Partido (h-zqzlw5-ew9n9i).",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-zqzlw5-ew9n9i\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}].",
-			"#174 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Caçador do Véu Partido (h-zqzlw5-ew9n9i): dados [1, 4], hitBonus +14, Coração de Brasa Antiga +1 = 20.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [4, 4, 5], hitBonus +13, Despertar da Masmorra +1 = 27. Margem -7.",
-			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":13108,\"counter\":326} → {\"seed\":13108,\"counter\":331}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\",\"heroTotal\":20,\"enemyTotal\":27,\"heroResults\":[1,4],\"enemyResults\":[4,4,5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 20 | Inimigo rolou 27.",
-			"#175 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Caçador do Véu Partido; solicitado 6, após efeitos 6, aplicado 6; vida 8 → 2.",
-			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
-			"Etapa de combate: resolving → selecting_hero.",
-			"Rodada: 2 → 3.",
 			"Herói em foco no combate: Caçador do Véu Partido (h-zqzlw5-ew9n9i) → desconhecido.",
-			"Caçador do Véu Partido (h-zqzlw5-ew9n9i) recebeu 6 de dano (8 → 2).",
+			"Caçador do Véu Partido (h-zqzlw5-ew9n9i) recebeu 6 de dano (14 → 8).",
 			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-zqzlw5-ew9n9i\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":26,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6}].",
 			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}] → [].",
 			"Log atual: Habilidade do chefe: +2 no acerto.",
 			"Log atual: Caçador do Véu Partido sofreu 6 de dano do boss.",
 			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#176 Clérigo do Descanso Eterno (h-35uto3-18hukp3) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\"}}",
+			"#174 Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}}",
 			"Fase: BOSS_COMBAT → ROLL_DICE.",
 			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-35uto3-18hukp3).",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-35uto3-18hukp3\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\"}].",
-			"#177 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Clérigo do Descanso Eterno (h-35uto3-18hukp3): dados [5, 2], hitBonus +10, Coração de Brasa Antiga +1 = 18.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [1, 4, 6], hitBonus +13, Despertar da Masmorra +1 = 25. Margem -7.",
-			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":13108,\"counter\":331} → {\"seed\":13108,\"counter\":336}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\",\"heroTotal\":18,\"enemyTotal\":25,\"heroResults\":[5,2],\"enemyResults\":[1,4,6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 18 | Inimigo rolou 25.",
-			"#178 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Clérigo do Descanso Eterno; solicitado 6, após efeitos 6, aplicado 6; vida 13 → 7.",
-			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
-			"Etapa de combate: resolving → selecting_hero.",
-			"Rodada: 3 → 4.",
-			"Herói em foco no combate: Clérigo do Descanso Eterno (h-35uto3-18hukp3) → desconhecido.",
-			"Clérigo do Descanso Eterno (h-35uto3-18hukp3) recebeu 6 de dano (13 → 7).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-35uto3-18hukp3\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":28,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Habilidade do chefe: +2 no acerto.",
-			"Log atual: Clérigo do Descanso Eterno sofreu 6 de dano do boss.",
-			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#179 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
-			"#180 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
-			"#181 Caçador do Véu Partido (h-zqzlw5-ew9n9i) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}}",
-			"Fase: BOSS_COMBAT → ROLL_DICE.",
-			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Caçador do Véu Partido (h-zqzlw5-ew9n9i).",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-zqzlw5-ew9n9i\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}].",
-			"#182 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Caçador do Véu Partido (h-zqzlw5-ew9n9i): dados [3, 2], hitBonus +14, Coração de Brasa Antiga +1 = 20.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [6, 2, 5], hitBonus +13, Despertar da Masmorra +1 = 27. Margem -7.",
-			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":13108,\"counter\":336} → {\"seed\":13108,\"counter\":341}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\",\"heroTotal\":20,\"enemyTotal\":27,\"heroResults\":[3,2],\"enemyResults\":[6,2,5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 20 | Inimigo rolou 27.",
-			"#183 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Caçador do Véu Partido; solicitado 6, após efeitos 6, aplicado 2; vida 2 → 0.",
-			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
-			"Etapa de combate: resolving → selecting_hero.",
-			"Rodada: 4 → 5.",
-			"Herói em foco no combate: Caçador do Véu Partido (h-zqzlw5-ew9n9i) → desconhecido.",
-			"Caçador do Véu Partido (h-zqzlw5-ew9n9i) recebeu 2 de dano (2 → 0).",
-			"Caçador do Véu Partido (h-zqzlw5-ew9n9i): estado active → defeated.",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-zqzlw5-ew9n9i\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-zqzlw5-ew9n9i\",\"sourceId\":\"boss\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":28,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":28,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6},{\"id\":29,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":2}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-zqzlw5-ew9n9i\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Habilidade do chefe: +2 no acerto.",
-			"Log atual: Caçador do Véu Partido sofreu 6 de dano do boss.",
-			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#184 Herói selecionado: Clérigo do Descanso Eterno (h-35uto3-18hukp3). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\"}}",
-			"Etapa de combate: selecting_hero → selecting_target.",
-			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-35uto3-18hukp3).",
-			"Log atual: Clérigo do Descanso Eterno selecionado para agir.",
-			"#185 Herói selecionado: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\"}}",
-			"Herói em foco no combate: Clérigo do Descanso Eterno (h-35uto3-18hukp3) → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
-			"Log atual: Guerreiro do Bastião Partido selecionado para agir.",
-			"#186 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
-			"#187 Clérigo do Descanso Eterno (h-35uto3-18hukp3) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\"}}",
-			"Fase: BOSS_COMBAT → ROLL_DICE.",
-			"Etapa de combate: selecting_target → resolving.",
-			"Herói em foco no combate: Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) → Clérigo do Descanso Eterno (h-35uto3-18hukp3).",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-35uto3-18hukp3\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\"}].",
-			"#188 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Clérigo do Descanso Eterno (h-35uto3-18hukp3): dados [2, 2], hitBonus +10, Coração de Brasa Antiga +1 = 15.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [4, 3, 3], hitBonus +13, Despertar da Masmorra +1 = 24. Margem -9.",
-			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":13108,\"counter\":341} → {\"seed\":13108,\"counter\":346}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\",\"heroTotal\":15,\"enemyTotal\":24,\"heroResults\":[2,2],\"enemyResults\":[4,3,3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 15 | Inimigo rolou 24.",
-			"#189 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Clérigo do Descanso Eterno; solicitado 6, após efeitos 6, aplicado 6; vida 7 → 1.",
-			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
-			"Etapa de combate: resolving → selecting_hero.",
-			"Rodada: 5 → 6.",
-			"Herói em foco no combate: Clérigo do Descanso Eterno (h-35uto3-18hukp3) → desconhecido.",
-			"Clérigo do Descanso Eterno (h-35uto3-18hukp3) recebeu 6 de dano (7 → 1).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-35uto3-18hukp3\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":28,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6},{\"id\":29,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":28,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6},{\"id\":29,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":2},{\"id\":30,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-35uto3-18hukp3\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Habilidade do chefe: +2 no acerto.",
-			"Log atual: Clérigo do Descanso Eterno sofreu 6 de dano do boss.",
-			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#190 Herói selecionado: Clérigo do Descanso Eterno (h-35uto3-18hukp3). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-35uto3-18hukp3\"}}",
-			"Etapa de combate: selecting_hero → selecting_target.",
-			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-35uto3-18hukp3).",
-			"Log atual: Clérigo do Descanso Eterno selecionado para agir.",
-			"#191 Guerreiro do Bastião Partido (h-j0enwe-tf5mqd) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}}",
-			"Fase: BOSS_COMBAT → ROLL_DICE.",
-			"Etapa de combate: selecting_target → resolving.",
-			"Herói em foco no combate: Clérigo do Descanso Eterno (h-35uto3-18hukp3) → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-j0enwe-tf5mqd).",
 			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-j0enwe-tf5mqd\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
 			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\"}].",
-			"#192 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Guerreiro do Bastião Partido (h-j0enwe-tf5mqd): dados [2, 2, 4], hitBonus +18, Encanto da Chama Baixa +2, Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1 = 31.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [1, 1, 1], hitBonus +13, Despertar da Masmorra +1 = 17. Margem +14.",
+			"#175 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-j0enwe-tf5mqd): dados [1, 4, 4], hitBonus +18, Encanto da Chama Baixa +2, Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1 = 32.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [4, 5, 5], hitBonus +12 = 26. Margem +6.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":13108,\"counter\":346} → {\"seed\":13108,\"counter\":352}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\",\"heroTotal\":31,\"enemyTotal\":17,\"heroResults\":[2,2,4],\"enemyResults\":[1,1,1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 31 | Inimigo rolou 17.",
-			"#193 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Guerreiro do Bastião Partido → Azhakar, Dragão da Fornalha Sombria; solicitado 11, após efeitos 11, aplicado 7; vida 7 → 0.",
+			"Detalhe técnico rng: {\"seed\":13108,\"counter\":326} → {\"seed\":13108,\"counter\":332}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-j0enwe-tf5mqd\",\"enemyId\":\"boss\",\"heroTotal\":32,\"enemyTotal\":26,\"heroResults\":[1,4,4],\"enemyResults\":[4,5,5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 32 | Inimigo rolou 26.",
+			"#176 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Guerreiro do Bastião Partido → Azhakar, Dragão da Fornalha Sombria; solicitado 11, após efeitos 11, aplicado 5; vida 5 → 0.",
 			"Fase: RESOLVE_ATTACK → VICTORY.",
-			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 7 de dano (7 → 0).",
+			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 5 de dano (5 → 0).",
 			"Azhakar, Dragão da Fornalha Sombria (boss): estado active → defeated.",
 			"Detalhe técnico bossDefeated: false → true.",
 			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-j0enwe-tf5mqd\",\"targetId\":\"boss\",\"damageType\":\"attack\",\"amount\":11},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"boss\",\"sourceId\":\"h-j0enwe-tf5mqd\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"VICTORY\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":28,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6},{\"id\":29,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":2},{\"id\":30,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":26,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":27,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":28,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6},{\"id\":29,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":2},{\"id\":30,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":6},{\"id\":31,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":7}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":26,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":3},{\"id\":2,\"targetId\":\"e-mgfask-wml3p6\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":4,\"targetId\":\"e-1g1n3xt-12xoatw\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"e-ytlpde-70aizg\",\"side\":\"enemy\",\"amount\":3},{\"id\":7,\"targetId\":\"e-p5yz5o-5whhdv\",\"side\":\"enemy\",\"amount\":1},{\"id\":8,\"targetId\":\"e-1oivwov-1360jr0\",\"side\":\"enemy\",\"amount\":2},{\"id\":9,\"targetId\":\"e-jezz17-16m3fig\",\"side\":\"enemy\",\"amount\":1},{\"id\":10,\"targetId\":\"e-14bw4yy-1w8itfn\",\"side\":\"enemy\",\"amount\":2},{\"id\":11,\"targetId\":\"e-1q3chpc-1jxkg8a\",\"side\":\"enemy\",\"amount\":2},{\"id\":12,\"targetId\":\"e-1j9g2s9-yujff1\",\"side\":\"enemy\",\"amount\":5},{\"id\":13,\"targetId\":\"e-hyhgdj-1baez30\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-35uto3-18hukp3\",\"side\":\"hero\",\"amount\":2},{\"id\":15,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":2},{\"id\":16,\"targetId\":\"e-1lugw9b-qfllyt\",\"side\":\"enemy\",\"amount\":5},{\"id\":17,\"targetId\":\"e-1ajox1t-k0cqly\",\"side\":\"enemy\",\"amount\":3},{\"id\":18,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":19,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":3},{\"id\":20,\"targetId\":\"e-l3wjy5-1v37a6t\",\"side\":\"enemy\",\"amount\":2},{\"id\":21,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":3},{\"id\":22,\"targetId\":\"e-1ybflh1-1x919op\",\"side\":\"enemy\",\"amount\":5},{\"id\":23,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":2},{\"id\":24,\"targetId\":\"e-1i9tmct-z8cnbf\",\"side\":\"enemy\",\"amount\":1},{\"id\":25,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":11},{\"id\":26,\"targetId\":\"h-zqzlw5-ew9n9i\",\"side\":\"hero\",\"amount\":6},{\"id\":27,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":5}].",
 			"Log atual: Habilidade do chefe: +2 no acerto.",
 			"Log atual: Habilidade do chefe: dano reduzido em 1.",
 			"Log atual: Boss sofreu 11 de dano [dano 3→12: Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1, Lâmina do Primeiro Incêndio +6]. Vida restante: 0.",
@@ -2766,20 +2564,16 @@
 				"enemyBreakdown": [
 					{
 						"source": "hitBonus",
-						"value": 13
-					},
-					{
-						"source": "Despertar da Masmorra",
-						"value": 1
+						"value": 12
 					}
 				],
 				"enemyId": "boss",
 				"enemyResults": [
-					1,
-					1,
-					1
+					4,
+					5,
+					5
 				],
-				"enemyTotal": 17,
+				"enemyTotal": 26,
 				"heroBreakdown": [
 					{
 						"source": "hitBonus",
@@ -2800,15 +2594,15 @@
 				],
 				"heroId": "h-j0enwe-tf5mqd",
 				"heroResults": [
-					2,
-					2,
+					1,
+					4,
 					4
 				],
-				"heroTotal": 31
+				"heroTotal": 32
 			},
 			"phase": "resolving",
 			"powersUsedThisRoom": {},
-			"round": 6,
+			"round": 2,
 			"selectedHeroId": "h-j0enwe-tf5mqd"
 		},
 		"creaturesDefeated": 15,
@@ -2959,44 +2753,20 @@
 				"targetId": "e-1i9tmct-z8cnbf"
 			},
 			{
-				"amount": 6,
-				"id": 25,
-				"side": "hero",
-				"targetId": "h-zqzlw5-ew9n9i"
-			},
-			{
 				"amount": 11,
-				"id": 26,
+				"id": 25,
 				"side": "enemy",
 				"targetId": "boss"
 			},
 			{
 				"amount": 6,
+				"id": 26,
+				"side": "hero",
+				"targetId": "h-zqzlw5-ew9n9i"
+			},
+			{
+				"amount": 5,
 				"id": 27,
-				"side": "hero",
-				"targetId": "h-zqzlw5-ew9n9i"
-			},
-			{
-				"amount": 6,
-				"id": 28,
-				"side": "hero",
-				"targetId": "h-35uto3-18hukp3"
-			},
-			{
-				"amount": 2,
-				"id": 29,
-				"side": "hero",
-				"targetId": "h-zqzlw5-ew9n9i"
-			},
-			{
-				"amount": 6,
-				"id": 30,
-				"side": "hero",
-				"targetId": "h-35uto3-18hukp3"
-			},
-			{
-				"amount": 7,
-				"id": 31,
 				"side": "enemy",
 				"targetId": "boss"
 			}
@@ -3029,7 +2799,6 @@
 			},
 			"itemDeck": {
 				"available": [
-					"item_pitch_torch",
 					"item_torn_depths_map",
 					"item_stoneskin_potion",
 					"item_hidden_forge_chest",
@@ -3043,7 +2812,7 @@
 				"discarded": 0
 			}
 		},
-		"despertar": 1,
+		"despertar": 0,
 		"difficulty": "very_easy",
 		"enemies": [
 			{
@@ -3053,9 +2822,9 @@
 				"damage": 6,
 				"dice": 3,
 				"firstDamageTakenThisTurn": false,
-				"hitBonus": 13,
+				"hitBonus": 12,
 				"id": "boss",
-				"maxLife": 18,
+				"maxLife": 16,
 				"status": "defeated",
 				"tokens": {}
 			}
@@ -3205,42 +2974,24 @@
 			"Adaga Enferrujada descartado.",
 			"Machado do Salão Arruinado descartado.",
 			"Guerreiro do Bastião Partido subiu para nível 5. O grupo ainda não alcançou o próximo patamar.",
-			"Clérigo do Descanso Eterno subiu para nível 4. O Despertar avança com o grupo.",
+			"Tocha de Breu descartado.",
 			"Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
-			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 18, Bônus de Acerto: 13.",
-			"Clérigo do Descanso Eterno selecionado para agir.",
-			"Guerreiro do Bastião Partido selecionado para agir.",
-			"Caçador do Véu Partido selecionado para agir.",
-			"Herói rolou 22 | Inimigo rolou 25.",
-			"Caçador do Véu Partido sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
-			"Clérigo do Descanso Eterno selecionado para agir.",
-			"Clérigo do Descanso Eterno selecionado para agir.",
-			"Guerreiro do Bastião Partido selecionado para agir.",
-			"Herói rolou 32 | Inimigo rolou 23.",
+			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 16, Bônus de Acerto: 12.",
+			"Herói rolou 34 | Inimigo rolou 23.",
 			"Habilidade do chefe: dano reduzido em 1.",
-			"Boss sofreu 11 de dano [dano 3→12: Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1, Lâmina do Primeiro Incêndio +6]. Vida restante: 7.",
+			"Boss sofreu 11 de dano [dano 3→12: Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1, Lâmina do Primeiro Incêndio +6]. Vida restante: 5.",
 			"Boss sobreviveu. Próxima rodada.",
-			"Herói rolou 20 | Inimigo rolou 27.",
-			"Habilidade do chefe: +2 no acerto.",
-			"Caçador do Véu Partido sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
-			"Herói rolou 18 | Inimigo rolou 25.",
-			"Habilidade do chefe: +2 no acerto.",
-			"Clérigo do Descanso Eterno sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
-			"Herói rolou 20 | Inimigo rolou 27.",
-			"Habilidade do chefe: +2 no acerto.",
-			"Caçador do Véu Partido sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
-			"Clérigo do Descanso Eterno selecionado para agir.",
 			"Guerreiro do Bastião Partido selecionado para agir.",
-			"Herói rolou 15 | Inimigo rolou 24.",
-			"Habilidade do chefe: +2 no acerto.",
-			"Clérigo do Descanso Eterno sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
 			"Clérigo do Descanso Eterno selecionado para agir.",
-			"Herói rolou 31 | Inimigo rolou 17.",
+			"Caçador do Véu Partido selecionado para agir.",
+			"Caçador do Véu Partido selecionado para agir.",
+			"Caçador do Véu Partido selecionado para agir.",
+			"Guerreiro do Bastião Partido selecionado para agir.",
+			"Herói rolou 20 | Inimigo rolou 21.",
+			"Habilidade do chefe: +2 no acerto.",
+			"Caçador do Véu Partido sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Herói rolou 32 | Inimigo rolou 26.",
 			"Habilidade do chefe: +2 no acerto.",
 			"Habilidade do chefe: dano reduzido em 1.",
 			"Boss sofreu 11 de dano [dano 3→12: Martelo de Pedra Quebrada +2, Coração de Brasa Antiga +1, Lâmina do Primeiro Incêndio +6]. Vida restante: 0.",
@@ -3266,7 +3017,7 @@
 			}
 		],
 		"groupBuffs": [],
-		"groupXp": 6,
+		"groupXp": 1,
 		"healFeedback": [],
 		"heroes": [
 			{
@@ -3306,7 +3057,7 @@
 				],
 				"cardId": "hero_broken_veil_hunter",
 				"conditions": [],
-				"currentLife": 0,
+				"currentLife": 8,
 				"damage": 3,
 				"dice": 2,
 				"hitBonus": 14,
@@ -3314,7 +3065,7 @@
 				"impeto": 3,
 				"maxLife": 14,
 				"playerIndex": 0,
-				"status": "defeated",
+				"status": "active",
 				"usedPowers": {},
 				"xp": 0
 			},
@@ -3332,13 +3083,13 @@
 				],
 				"cardId": "hero_eternal_rest_cleric",
 				"conditions": [],
-				"currentLife": 1,
+				"currentLife": 11,
 				"damage": 2,
 				"dice": 2,
-				"hitBonus": 10,
+				"hitBonus": 7,
 				"id": "h-35uto3-18hukp3",
-				"impeto": 3,
-				"maxLife": 15,
+				"impeto": 2,
+				"maxLife": 13,
 				"playerIndex": 0,
 				"status": "active",
 				"usedPowers": {},
@@ -3351,7 +3102,7 @@
 				"stats": {
 					"damage": 9,
 					"damageBonus": 7,
-					"hit": 11,
+					"hit": 8,
 					"hitBonus": 1,
 					"protection": 0,
 					"protectionText": ""

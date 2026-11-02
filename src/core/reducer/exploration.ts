@@ -294,6 +294,14 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 	}
 	state = withGame(state, (prevGame) => ({ ...prevGame, rng }));
 
+	// Baralho de criaturas esgotado: sem isso o combate abriria sem alvo e travaria.
+	if (enemies.length === 0) {
+		return log(
+			withGame(state, (prevGame) => ({ ...prevGame, status: "REWARD_PHASE" })),
+			"Sala sem inimigos. Indo para recompensa.",
+		);
+	}
+
 	// Passivos ficam no ECS; gatilhos de catálogo seguem o TriggerEngine.
 	let worldWithEnemies = worldOf(state);
 	for (const enemy of enemies) {

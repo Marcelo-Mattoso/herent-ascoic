@@ -28,6 +28,10 @@ export function handleGrantRewards(engine: GameEngine, state: GameState): GameSt
 	if (!gameOf(state).currentRoom) return state;
 	// Evitar processar duas vezes (fila já preenchida)
 	if (gameOf(state).pendingRewards.length > 0) return state;
+	// Sala já paga: conceder de novo duplicaria XP e travaria a fase.
+	if (gameOf(state).currentRoom!.status === "cleared") {
+		return withGame(state, (prevGame) => ({ ...prevGame, status: "XP_SPEND_PHASE" }));
+	}
 
 	const afterRoomWin = resolveSkillWindow(engine, state, {
 		event: "evt_room_won",

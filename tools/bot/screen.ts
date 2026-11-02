@@ -102,7 +102,7 @@ async function playStep(
 		}
 		tried.add(key);
 		const result = await output.perform(action, snap).catch((error: Error) => {
-			say(`  falhou ${action.type}: ${error.message.split("\n")[0]}`);
+			say(`  falhou ${action.type}: ${error.message.split("\n").filter((line) => /^locator|intercepts|outside/.test(line.trim())).slice(0, 3).join(" | ").slice(0, 300)}`);
 			return "unsupported" as const;
 		});
 		if (result === "done") {

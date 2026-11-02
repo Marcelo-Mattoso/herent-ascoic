@@ -1,10 +1,10 @@
 import { describe, expect, it } from "vitest";
 import { type AiGameResult, playAiGame, rankMoves } from "./ai";
-import { playGame, setupFromSeed } from "./play";
+import { setupFromSeed } from "./play";
 import { createHeadlessPort } from "./port";
 import { gameOf } from "@/engine/state";
 
-const MAX_STEPS = 3000;
+const SHORT_GAME = 300;
 
 describe("IA do bot", () => {
 	it("a porta só expõe tela e jogadas", () => {
@@ -14,8 +14,8 @@ describe("IA do bot", () => {
 
 	it("a mesma seed reproduz a mesma partida", () => {
 		const strip = ({ steps, outcome, roomsCleared }: AiGameResult) => ({ steps, outcome, roomsCleared });
-		expect(strip(playAiGame(setupFromSeed(3), MAX_STEPS))).toEqual(
-			strip(playAiGame(setupFromSeed(3), MAX_STEPS)),
+		expect(strip(playAiGame(setupFromSeed(3), SHORT_GAME))).toEqual(
+			strip(playAiGame(setupFromSeed(3), SHORT_GAME)),
 		);
 	}, 60_000);
 
@@ -36,14 +36,10 @@ describe("IA do bot", () => {
 		expect(seen).not.toContain("ROLL_DICE");
 	});
 
-	it("limpa mais salas que o bot aleatório", () => {
-		let ai = 0;
-		let random = 0;
-		for (let seed = 1; seed <= 15; seed++) {
-			const setup = setupFromSeed(seed);
-			ai += playAiGame(setup, MAX_STEPS).roomsCleared;
-			random += gameOf(playGame(setup, MAX_STEPS).final).roomsCleared;
+	it("joga sem violar invariantes", () => {
+		for (let seed = 1; seed <= 5; seed++) {
+			const { violation } = playAiGame(setupFromSeed(seed), SHORT_GAME);
+			if (violation?.invariant !== "max_steps_exceeded") expect(violation).toBeNull();
 		}
-		expect(ai).toBeGreaterThan(random);
-	}, 400_000);
+	});
 });

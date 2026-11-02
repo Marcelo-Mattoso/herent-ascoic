@@ -1,5 +1,4 @@
 import type { Action } from "@/core/actions/types";
-import { playerView } from "@/core/projection/playerView";
 import type { GameState } from "@/core/state/gameState";
 import {
 	applyAction,
@@ -23,9 +22,10 @@ export interface BotPort {
 	act(action: Action): ActResult;
 }
 
+/** Estado inteiro sem logs: duas escolhas seguidas podem deixar a tela idêntica. */
 function fingerprint(state: GameState): string {
-	const { alphaLog: _a, eventLog: _e, ...rest } = playerView(engine, state);
-	return stableStringify(rest);
+	const { alphaLog: _a, eventLog: _e, actionLog: _l, ...game } = state.game;
+	return stableStringify({ engine: { ...state.engine, events: [] }, game });
 }
 
 export interface HeadlessBotPort extends BotPort {

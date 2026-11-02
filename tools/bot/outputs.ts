@@ -150,13 +150,22 @@ async function spendXp(
 		.filter({ has: page.getByRole("button") })
 		.last();
 	const button = row.getByRole("button").first();
-	if (!(await usable(button))) return "unsupported";
+	if (!(await usable(button))) {
+		// Masmorra esgotada tem modal próprio: pagar é o primeiro botão de ação.
+		if (action.payload.option !== "recover_dungeon") return "unsupported";
+		const pay = page.getByRole("dialog").last().getByRole("button", { name: /XP/ }).first();
+		if (!(await usable(pay))) return "unsupported";
+		await pay.click({ timeout: 3000 });
+		return "done";
+	}
 	await button.click({ timeout: 3000 });
 	if (action.payload.option === "level_up") {
-		await page
-			.locator(".xp-level-choice__grid button")
-			.nth(facts.activeHeroes.indexOf(action.payload.heroId ?? ""))
-			.click({ timeout: 3000 });
+		// A grade só lista heróis que ainda podem subir, não todos os ativos.
+		const choices = page.locator(".xp-level-choice__grid button:enabled");
+		const index = facts.activeHeroes.indexOf(action.payload.heroId ?? "");
+		const count = await choices.count();
+		if (count === 0) return "unsupported";
+		await choices.nth(Math.min(Math.max(index, 0), count - 1)).click({ timeout: 3000 });
 	}
 	return "done";
 }
