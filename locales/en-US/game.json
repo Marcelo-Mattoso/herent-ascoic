@@ -266,7 +266,8 @@
         "text003": "5 XP",
         "text004": "to reshuffle all discarded dungeon cards and continue. Otherwise, the expedition ends in defeat.",
         "text005": "Available XP:",
-        "text006": "· Cards in discard pile:"
+        "text006": "· Cards in discard pile:",
+        "pay": "Spend {{cost}} XP"
       },
       "fleeReconfigureModal": {
         "title001": "🏃 Escape successful!",
