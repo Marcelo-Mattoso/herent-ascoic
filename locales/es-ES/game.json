@@ -156,7 +156,8 @@
       "dynamic001": "disponible",
       "dynamic002": "no disponible",
       "dynamic003": "disponible",
-      "dynamic004": "no disponible"
+      "dynamic004": "no disponible",
+      "escapeHint": "Pulsa Esc para cerrar"
     },
     "hpBar": {},
     "influencePanel": {
@@ -253,7 +254,9 @@
       }
     },
     "itemTile": {},
-    "modal": {},
+    "modal": {
+      "escapeHint": "Pulsa Esc para cerrar"
+    },
     "modals": {
       "cardDetailModal": {
         "text001": "Habilidad",
@@ -457,7 +460,9 @@
         "purple": "Habilidades moradas",
         "noBonus": "Sin bonificaciones adicionales",
         "nonCumulative": "Cada nivel sustituye los efectos anteriores; las bonificaciones no se acumulan."
-      }
+      },
+      "rotateTitle": "Gira tu teléfono",
+      "rotateDescription": "Para jugar a Ascensão Heróica, coloca el teléfono en horizontal. La partida continuará donde la dejaste."
     },
     "replay": {
       "invalidJson": "JSON no válido o formato no reconocido.",
@@ -536,7 +541,8 @@
           "label": "Pesadilla",
           "hint": "Héroe blanco · Mazmorra amarilla · Recuperación 7 XP"
         }
-      }
+      },
+      "expansionLabel": "Expansión"
     },
     "victory": {
       "kicker": "La leyenda quedó escrita",
