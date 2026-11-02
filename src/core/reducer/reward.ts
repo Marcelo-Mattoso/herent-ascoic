@@ -1,5 +1,8 @@
 import type { InvFromZone, InvToZone } from "../actions/types";
 
+import { executeAbilityGrant, resolveManualGrantTarget } from "../abilities/executor";
+import { abilityGrants } from "../gameEngine";
+import { pausedOf } from "../state/access";
 
 import { tickModifierDurations } from "../ecs/world";
 import { moveInventoryItem } from "../rules/inventoryMoves";
@@ -200,6 +203,30 @@ export function finishGrantRewards(state: GameState): GameState {
 
 // ─── CHOOSE_ITEM_DESTINATION ──────────────────────────────────────────────────
 // Equipa, guarda na mochila ou descarta o primeiro item pendente.
+
+export function handleUseRewardItem(engine: GameEngine, state: GameState, itemId: string, heroId: string): GameState {
+	const game = gameOf(state);
+	if (
+		game.status !== "REWARD_PHASE" ||
+		pausedOf(state) ||
+		pendingSkillChoiceOf(state) ||
+		pendingSkillTargetOf(state) ||
+		pendingTriggerInterruptOf(state) ||
+		!game.pendingRewards.some((reward) => reward.type === "item" && reward.cardId === itemId) ||
+		!heroesOf(state).some((hero) => hero.id === heroId && hero.status === "active")
+	) return state;
+	const grant = abilityGrants(engine, itemId).find((entry) =>
+		entry.activation.kind === "manual" && entry.activation.usableFromReward);
+	if (!grant) return state;
+	const source = { kind: "item" as const, cardId: itemId, sourceHeroId: heroId };
+	const selection = resolveManualGrantTarget(engine, state, source, grant);
+	if (selection.kind !== "ready")
+		return log(state, `[AVISO] ${selection.kind === "unavailable" ? selection.reason : selection.prompt}`);
+	return executeAbilityGrant(engine, state, {
+		source, grant, triggeredBy: "manual", targetIds: selection.targetIds,
+		consumeFromPendingReward: true,
+	});
+}
 
 export function handleChooseItemDestination(engine: GameEngine,
 	state: GameState,
@@ -409,6 +436,7 @@ export const rewardHandler: GameHandler = {
 	actions: [
 		"GRANT_REWARDS",
 		"CHOOSE_ITEM_DESTINATION",
+		"USE_REWARD_ITEM",
 		"CHOOSE_ARTIFACT_BEARER",
 		"INV_MOVE",
 		"INV_ASSIGN_ITEM",
@@ -450,6 +478,8 @@ export const rewardHandler: GameHandler = {
 					action.payload.heroId,
 					action.payload.destination,
 				);
+			case "USE_REWARD_ITEM":
+				return handleUseRewardItem(engine, state, action.payload.itemId, action.payload.heroId);
 			case "CHOOSE_ARTIFACT_BEARER":
 				return handleChooseArtifactBearer(engine, state, action.payload.heroId);
 			case "INV_MOVE":

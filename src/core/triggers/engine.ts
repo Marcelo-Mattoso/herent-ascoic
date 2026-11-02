@@ -1,9 +1,10 @@
 import type { SkillRef } from "../data/cardTypes";
+import { appendAlphaLog } from "../diagnostics/alphaLog";
 import type { SkillContext, SkillDefinition } from "../data/skillTypes";
 import type { Duration } from "../ecs/types";
 import type { EventType } from "../events/types";
 import { buildScriptCtx } from "../scripts/context";
-import { scriptOf } from "../gameEngine";
+import { cardName, skillName, scriptOf } from "../gameEngine";
 import { evaluate } from "../skills/dsl/evaluate";
 import { resolveCondition } from "../skills/dsl/resolveCondition";
 import type { EventName } from "../skills/dsl/types";
@@ -537,11 +538,11 @@ export function executeTriggerCandidate(engine: GameEngine,
 		}
 	}
 
-	return markSkillGuardUsed(
+	return appendAlphaLog(markSkillGuardUsed(
 		current,
 		candidate.definition,
 		candidate.source.sourceHeroId,
-	);
+	), `Gatilho ${skillName(engine, candidate.definition.id)} ativado por ${cardName(engine, candidate.source.cardId)} (${candidate.source.sourceHeroId ?? candidate.source.sourceEnemyId ?? "grupo"}) em ${candidate.event}; parâmetros ${JSON.stringify(resolveSkillParams(candidate))}.`);
 }
 
 function candidateMatchesDecision(

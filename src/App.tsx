@@ -1,14 +1,24 @@
 import { uiEngine } from "@/ui/engine";
 import { type ReactNode, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { translate } from "@/i18n";
+import type { Action } from "@/core/actions/types";
+import { getOpeningForBoss, type StoryOpeningData } from "@/ui/openings/registry";
+import { StoryOpening } from "@/ui/screens/StoryOpening";
 import { exportJournalJson } from "@/core/journal/gameJournal";
+import type { PlayerView } from "@/core/projection/playerView";
 import { Defeat } from "@/ui/screens/Defeat";
+import { CombatFeedback } from "@/ui/components/CombatFeedback";
+import { useCardImages } from "@/ui/hooks/useCardImages";
 import { Exploration } from "@/ui/screens/Exploration";
 import { MainMenu } from "@/ui/screens/MainMenu";
 import { Replay } from "@/ui/screens/Replay";
 import { Setup } from "@/ui/screens/Setup";
 import { Victory } from "@/ui/screens/Victory";
+import { endScreenPreviewView } from "@/ui/screens/endScreenPreview";
 import { useGameStore } from "@/ui/store/gameStore";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
+import { getMusicPlayer } from "@/ui/globalMenu/musicPlayer";
 import { GlobalMenu } from "@/ui/globalMenu/GlobalMenu";
 import { SupportAction } from "@/ui/support/SupportAction";
 import { TutorialHub } from "@/ui/tutorials/TutorialHub";
@@ -37,6 +47,7 @@ import {
 	observeInventoryUi,
 	recordCombatAttackInput,
 	reconcileTutorial,
+	resumeTutorial,
 	selectTutorialHeroes,
 	skipTutorialObservation,
 	startTutorial,
@@ -44,24 +55,63 @@ import {
 } from "@/ui/tutorials/session";
 import { gameOf } from "./engine/state";
 
-type UiScreen = "menu" | "setup" | "tutorialHub";
+type UiScreen = "menu" | "setup" | "tutorialHub" | "opening";
+type StartGameAction = Extract<Action, { type: "START_GAME" }>;
+
+function rewardSignature(view: PlayerView): string {
+	const items = [
+		...view.groupArtifacts.map((artifact) => artifact.cardId),
+		...view.pendingRewards.map((reward) => reward.cardId),
+		...view.heroes.flatMap((hero) => [...hero.backpack, ...new Set(Object.values(hero.activeItems).filter((id): id is string => !!id))]),
+	].sort();
+	return JSON.stringify([view.groupXp, items]);
+}
 
 function App() {
 	useTranslation(); // Re-renderiza as telas montadas quando o idioma muda.
 	const { view, journal, dispatch, reset, loadTrainingState } = useGameStore();
+	const cardImageUrls = useCardImages();
 	const status = view.status;
 	const [uiScreen, setUiScreen] = useState<UiScreen>("menu");
+	const [opening, setOpening] = useState<StoryOpeningData | null>(null);
+	const pendingStart = useRef<StartGameAction | null>(null);
 	const [tutorial, setTutorial] = useState<TutorialSession | null>(null);
 	const [lastTutorialAudit, setLastTutorialAudit] =
 		useState<TutorialAuditSnapshot | null>(null);
 	const [showReplay, setShowReplay] = useState(false);
+	const [endPreview, setEndPreview] = useState<"victory" | "defeat" | null>(null);
 	const [inventoryOpened, setInventoryOpened] = useState(false);
 	const [inventoryHeroSelected, setInventoryHeroSelected] = useState(false);
 	const [inventoryDetailCardId, setInventoryDetailCardId] = useState<
 		string | null
 	>(null);
 	const preparedCheckpoints = useRef(new Set<string>());
+	const lastSfxState = useRef({
+		room: view.currentRoom?.cardId ?? null,
+		enemies: view.enemies.filter((enemy) => enemy.status === "active").map((enemy) => enemy.id).join("|"),
+		rewards: rewardSignature(view),
+	});
+	const lastCombatSound = useRef({ roll: view.combat?.lastRoll ?? null, damageId: view.damageFeedback.at(-1)?.id ?? 0 });
 	const tutorialRevision = tutorial?.events.length ?? 0;
+	useEffect(() => {
+		const previous = lastSfxState.current;
+		const room = view.currentRoom?.cardId ?? null;
+		const enemies = view.enemies.filter((enemy) => enemy.status === "active").map((enemy) => enemy.id).join("|");
+		const rewards = rewardSignature(view);
+		if (room && room !== previous.room) sfxPlayer.play("room_reveal");
+		if (enemies && enemies !== previous.enemies && (view.status === "COMBAT_START" || view.status === "HERO_ACTION" || view.status === "BOSS_COMBAT")) sfxPlayer.play("enemy_reveal");
+		if (rewards !== previous.rewards && view.status === "REWARD_PHASE") sfxPlayer.play("reward_gain");
+		lastSfxState.current = { room, enemies, rewards };
+	}, [view]);
+	useEffect(() => {
+		const previous = lastCombatSound.current;
+		const currentRoll = view.combat?.lastRoll ?? null;
+		const damageId = view.damageFeedback.at(-1)?.id ?? 0;
+		if (previous.roll && !currentRoll && damageId === previous.damageId && previous.roll.heroTotal !== previous.roll.enemyTotal) {
+			sfxPlayer.play("attack_defend");
+		}
+		lastCombatSound.current = { roll: currentRoll, damageId };
+	}, [view.combat?.lastRoll, view.damageFeedback]);
 
 	useEffect(() => {
 		function handleKeyDown(e: KeyboardEvent) {
@@ -97,6 +147,7 @@ function App() {
 		if (
 			!tutorial ||
 			tutorial.moduleId !== "archive-two" ||
+			tutorial.reviewStepIndex !== undefined ||
 			currentTutorialStep(tutorial).id !== "combat-drag" ||
 			tutorial.checkpointReady ||
 			!tutorial.firstAttack ||
@@ -105,10 +156,7 @@ function App() {
 			return;
 		preparedCheckpoints.current.add(tutorial.id);
 		reset();
-		for (const action of prepareCombatCheckpoint(
-			tutorial.firstAttack.heroCardId,
-		))
-			dispatch(action);
+		for (const action of prepareCombatCheckpoint(tutorial.firstAttack.heroCardId)) dispatch(action);
 		setTutorial((current) =>
 			current ? markCombatCheckpointReady(current) : current,
 		);
@@ -118,6 +166,7 @@ function App() {
 		if (
 			!tutorial ||
 			tutorial.moduleId !== "archive-three" ||
+			tutorial.reviewStepIndex !== undefined ||
 			currentTutorialStep(tutorial).id !== "item-states" ||
 			tutorial.inventoryCheckpointReady ||
 			preparedCheckpoints.current.has(`${tutorial.id}:items`)
@@ -147,7 +196,7 @@ function App() {
 	}, [tutorial, journal, loadTrainingState]);
 
 	useEffect(() => {
-		if (!tutorial || tutorial.moduleId !== "archive-four") return;
+		if (!tutorial || tutorial.moduleId !== "archive-four" || tutorial.reviewStepIndex !== undefined) return;
 		const step = currentTutorialStep(tutorial).id;
 		const checkpoint = step === "fury-prepare" ? "barbarian" : step === "hero-power" ? "warrior" : null;
 		if (!checkpoint || tutorial.abilityCheckpoint === checkpoint || preparedCheckpoints.current.has(`${tutorial.id}:${checkpoint}`)) return;
@@ -231,6 +280,31 @@ function App() {
 		setUiScreen(destination);
 	}
 
+	function handleSetupStart(action: StartGameAction) {
+		if (pendingStart.current) return;
+		const selectedOpening = action.payload.bossCardId
+			? getOpeningForBoss(action.payload.bossCardId)
+			: null;
+		if (!selectedOpening) {
+			dispatch(action);
+			return;
+		}
+		pendingStart.current = action;
+		if (selectedOpening.musicFileName) getMusicPlayer().enterOpening(selectedOpening.musicFileName);
+		setOpening(selectedOpening);
+		setUiScreen("opening");
+	}
+
+	function completeOpening() {
+		const action = pendingStart.current;
+		if (!action) return;
+		pendingStart.current = null;
+		if (opening?.musicFileName) getMusicPlayer().leaveOpening(opening.musicFileName);
+		setOpening(null);
+		setUiScreen("menu");
+		dispatch(action);
+	}
+
 	const entry = tutorial ? getTutorialModule(tutorial.moduleId).entry : null;
 	const nextModule = tutorial
 		? TUTORIAL_MODULES[
@@ -243,10 +317,17 @@ function App() {
 
 	if (import.meta.env.DEV && showReplay) {
 		screen = <Replay onClose={() => setShowReplay(false)} />;
+	} else if (import.meta.env.DEV && endPreview) {
+		const previewView = endScreenPreviewView(view, endPreview);
+		const onPlayAgain = () => { setEndPreview(null); setUiScreen("setup"); };
+		const onMenu = () => { setEndPreview(null); setUiScreen("menu"); };
+		screen = endPreview === "victory"
+			? <Victory imageUrls={cardImageUrls} previewView={previewView} onPlayAgain={onPlayAgain} onMenu={onMenu} />
+			: <Defeat imageUrls={cardImageUrls} previewView={previewView} onPlayAgain={onPlayAgain} onMenu={onMenu} />;
 	} else if (status === "VICTORY") {
-		screen = <Victory />;
+		screen = <Victory imageUrls={cardImageUrls} onPlayAgain={() => { reset(); setUiScreen("setup"); }} onMenu={() => { reset(); setUiScreen("menu"); }} />;
 	} else if (status === "DEFEAT") {
-		screen = <Defeat />;
+		screen = <Defeat imageUrls={cardImageUrls} onPlayAgain={() => { reset(); setUiScreen("setup"); }} onMenu={() => { reset(); setUiScreen("menu"); }} />;
 	} else if (status !== "MAIN_MENU") {
 		screen = (
 			<Exploration
@@ -264,7 +345,7 @@ function App() {
 				tutorialCombatMode={tutorial?.moduleId === "archive-two"}
 				tutorialCombatMethod={
 					tutorial?.moduleId === "archive-two" &&
-					currentTutorialStep(tutorial).id === "combat-drag"
+					tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "combat-drag"
 						? tutorial.combatInput
 						: null
 				}
@@ -280,13 +361,16 @@ function App() {
 					)
 				}
 				tutorialRevealEnabled={
-					tutorial ? currentTutorialStep(tutorial).id === "reveal" : false
+					tutorial ? tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "reveal" : false
 				}
 			/>
 		);
+	} else if (uiScreen === "opening" && opening) {
+		screen = <StoryOpening opening={opening} onComplete={completeOpening} />;
 	} else if (uiScreen === "setup") {
 		screen = (
 			<Setup
+				onStart={tutorial ? undefined : handleSetupStart}
 				onBack={() =>
 					tutorial ? leaveTutorial("tutorialHub") : setUiScreen("menu")
 				}
@@ -309,6 +393,8 @@ function App() {
 			<MainMenu
 				onNewGame={() => setUiScreen("setup")}
 				onTutorial={() => setUiScreen("tutorialHub")}
+				onPreviewVictory={() => setEndPreview("victory")}
+				onPreviewDefeat={() => setEndPreview("defeat")}
 			/>
 		);
 	}
@@ -316,6 +402,15 @@ function App() {
 	return (
 		<>
 			{screen}
+			{import.meta.env.DEV && endPreview && !showReplay && (
+				<nav className="end-preview-toolbar" aria-label={translate("game:screens.devPreview.toolbarLabel")}>
+					<span>{translate("game:screens.devPreview.badge")}</span>
+					<button type="button" aria-current={endPreview === "victory" ? "page" : undefined} onClick={() => setEndPreview("victory")}>{translate("game:screens.victory.dynamic001")}</button>
+					<button type="button" aria-current={endPreview === "defeat" ? "page" : undefined} onClick={() => setEndPreview("defeat")}>{translate("game:screens.defeat.text003")}</button>
+					<button type="button" onClick={() => setEndPreview(null)} aria-label={translate("game:screens.defeat.text007")}>×</button>
+				</nav>
+			)}
+			<CombatFeedback view={view} cardImageUrls={cardImageUrls} />
 			{uiScreen === "tutorialHub" && (
 				<TutorialHub
 					onStart={startModule}
@@ -334,8 +429,9 @@ function App() {
 					nextModule={nextModule?.available ? nextModule : undefined}
 					onNext={() => nextModule && startModule(nextModule.id)}
 					onContinue={() => {
-						if (currentTutorialStep(tutorial).id === "combat-action")
-							dispatch({ type: "CHECK_COMBAT_END" });
+						if (tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "combat-action") {
+							if (status === "DIRECT_DAMAGE" || status === "CHECK_COMBAT_END") dispatch({ type: "CHECK_COMBAT_END" });
+						}
 						else
 							setTutorial((current) =>
 								current ? continueTutorial(current) : current,
@@ -351,13 +447,14 @@ function App() {
 							current ? backTutorialObservation(current) : current,
 						)
 					}
+					onResume={() => setTutorial((current) => current ? resumeTutorial(current) : current)}
 					onClose={() => leaveTutorial("menu")}
 					onRepeat={() => startModule(tutorial.moduleId)}
 					onHub={() => leaveTutorial("tutorialHub")}
 					onPlay={() => leaveTutorial("setup")}
 				/>
 			)}
-			{status === "MAIN_MENU" && uiScreen === "menu" && !tutorial && <SupportAction />}
+			{status === "MAIN_MENU" && uiScreen === "menu" && !tutorial && !endPreview && <SupportAction />}
 			<GlobalMenu />
 		</>
 	);

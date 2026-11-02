@@ -121,6 +121,7 @@ export function EnemyCard({
 			<HpBar current={enemy.currentLife} max={enemy.maxLife} height={3} />
 			{/* Stats */}
 			<p
+				title={`${translate("game:components.inventarioGrupo.text006")}: ${enemy.damage}`}
 				style={{
 					color: UI.textTertiary,
 					fontSize: 9,
@@ -128,8 +129,7 @@ export function EnemyCard({
 					lineHeight: 1,
 				}}
 			>
-				{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · D
-				{enemy.damage}
+				{enemy.currentLife}/{enemy.maxLife} · +{enemy.hitBonus} · {enemy.damage}
 			</p>
 			{isEngaged && (
 				<p style={{ color: UI.textTertiary, fontSize: 9, marginTop: 1 }}>

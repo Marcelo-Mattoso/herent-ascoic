@@ -132,6 +132,8 @@ export interface PlayerView {
 		readonly heroesActed: readonly string[];
 		readonly powersUsedThisRoom: Readonly<Record<string, boolean>>;
 		readonly lastRoll: CombatRollResult | null;
+		readonly pendingPhysicalRoll?: CombatState["pendingPhysicalRoll"];
+		readonly extraEnemiesRemaining?: CombatState["extraEnemiesRemaining"];
 		readonly pendingDiceSelection: CombatState["pendingDiceSelection"];
 		readonly buffsByHero: Readonly<Record<string, readonly InfluenceView[]>>;
 	} | null;
@@ -146,6 +148,10 @@ export interface PlayerView {
 	readonly paths: readonly string[];
 	readonly pendingRewards: readonly PendingReward[];
 	readonly eventLog: readonly string[];
+	readonly alphaLog: readonly string[];
+	readonly damageFeedback: NonNullable<import("../state/gameState").AscensaoGame["damageFeedback"]>;
+	readonly healFeedback: NonNullable<import("../state/gameState").AscensaoGame["healFeedback"]>;
+	readonly extraAttackFeedback: NonNullable<import("../state/gameState").AscensaoGame["extraAttackFeedback"]>;
 	// Efeitos que afetam o grupo todo (recursos compartilhados: deck, fuga, sala).
 	// Vivem aqui — não duplicados nas BuffBars dos heróis.
 	readonly groupBuffs: readonly InfluenceView[];
@@ -225,6 +231,12 @@ export function playerView(engine: GameEngine, state: GameState): PlayerView {
 							.map((hero) => [hero.id, true]),
 					),
 					lastRoll: gameOf(state).combat!.lastRoll,
+					...(gameOf(state).combat!.pendingPhysicalRoll
+						? { pendingPhysicalRoll: gameOf(state).combat!.pendingPhysicalRoll }
+						: {}),
+					...(gameOf(state).combat!.extraEnemiesRemaining
+						? { extraEnemiesRemaining: gameOf(state).combat!.extraEnemiesRemaining }
+						: {}),
 					pendingDiceSelection: gameOf(state).combat!.pendingDiceSelection,
 					buffsByHero,
 				}
@@ -240,6 +252,10 @@ export function playerView(engine: GameEngine, state: GameState): PlayerView {
 		paths: gameOf(state).paths,
 		pendingRewards: gameOf(state).pendingRewards,
 		eventLog: gameOf(state).eventLog,
+		alphaLog: gameOf(state).alphaLog ?? [],
+		damageFeedback: gameOf(state).damageFeedback ?? [],
+		healFeedback: gameOf(state).healFeedback ?? [],
+		extraAttackFeedback: gameOf(state).extraAttackFeedback ?? [],
 		groupBuffs,
 		decks: {
 			dungeonDeck: {

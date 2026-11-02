@@ -6,9 +6,11 @@ import { getUiAssetUrl } from "@/ui/uiAssets";
 interface MainMenuProps {
 	onNewGame: () => void;
 	onTutorial: () => void;
+	onPreviewVictory?: () => void;
+	onPreviewDefeat?: () => void;
 }
 
-export function MainMenu({ onNewGame, onTutorial }: MainMenuProps) {
+export function MainMenu({ onNewGame, onTutorial, onPreviewVictory, onPreviewDefeat }: MainMenuProps) {
 	const uiAssets = useUiAssets();
 	const logoUrl =
 		getUiAssetUrl(uiAssets, "logo-completa") ??
@@ -46,6 +48,13 @@ export function MainMenu({ onNewGame, onTutorial }: MainMenuProps) {
 						>
 							{translate("common:screens.mainMenu.text004")}{" "}</button>
 					</div>
+					{import.meta.env.DEV && onPreviewVictory && onPreviewDefeat && (
+						<div className="menu-dev-preview">
+							<span className="menu-dev-preview__badge">{translate("game:screens.devPreview.badge")}</span>
+							<button type="button" onClick={onPreviewVictory}>{translate("game:screens.victory.dynamic001")}</button>
+							<button type="button" onClick={onPreviewDefeat}>{translate("game:screens.defeat.text003")}</button>
+						</div>
+					)}
 				</section>
 			</div>
 		</main>

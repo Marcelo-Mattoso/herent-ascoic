@@ -36,16 +36,9 @@
 			"type": "START_COMBAT"
 		},
 		{
-			"type": "SKILL_CHOICE",
-			"payload": {
-				"skillId": "purple_dark_tribute",
-				"choice": "discard_dungeon"
-			}
-		},
-		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-1grvjlp-nq51w6",
+				"heroId": "h-mindoi-1htx28l",
 				"enemyId": "e-6hd42s-1sbhzq5"
 			}
 		},
@@ -63,6 +56,13 @@
 			}
 		},
 		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "e-oar5ch-1d7f55b"
+			}
+		},
+		{
 			"type": "ROLL_DICE"
 		},
 		{
@@ -73,6 +73,33 @@
 		},
 		{
 			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "e-jqn2g9-pdf7dl"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "e-1pigofw-1nl3apj"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "e-1pigofw-1nl3apj"
+			}
 		},
 		{
 			"type": "CHOOSE_TARGET",
@@ -88,36 +115,10 @@
 			"type": "RESOLVE_ATTACK"
 		},
 		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-mindoi-1htx28l",
-				"enemyId": "e-oar5ch-1d7f55b"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
 			"type": "DIRECT_DAMAGE"
 		},
 		{
 			"type": "CHECK_COMBAT_END"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-mindoi-1htx28l",
-				"enemyId": "e-oar5ch-1d7f55b"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
 		},
 		{
 			"type": "CHOOSE_TARGET",
@@ -170,7 +171,7 @@
 			"type": "SPEND_XP",
 			"payload": {
 				"option": "level_up",
-				"heroId": "h-mindoi-1htx28l"
+				"heroId": "h-1grvjlp-nq51w6"
 			}
 		},
 		{
@@ -182,52 +183,7 @@
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-mindoi-1htx28l",
-				"enemyId": "boss"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
 				"heroId": "h-1grvjlp-nq51w6",
-				"enemyId": "boss"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1grvjlp-nq51w6",
-				"enemyId": "boss"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-mindoi-1htx28l"
-			}
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-mindoi-1htx28l",
 				"enemyId": "boss"
 			}
 		},
@@ -250,9 +206,44 @@
 			}
 		},
 		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-mindoi-1htx28l",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6",
+				"enemyId": "boss"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
 			"type": "CHOOSE_HERO_FOR_ROUND",
 			"payload": {
-				"heroId": "h-mindoi-1htx28l"
+				"heroId": "h-1grvjlp-nq51w6"
+			}
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6"
 			}
 		},
 		{
@@ -269,6 +260,27 @@
 			"type": "RESOLVE_ATTACK"
 		},
 		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-1grvjlp-nq51w6"
+			}
+		},
+		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
 				"heroId": "h-1grvjlp-nq51w6",
@@ -283,64 +295,67 @@
 		}
 	],
 	"steps": [
-		"82615b7e043fb479",
-		"4343a1b7d4a3e844",
-		"c18d7b3829d299d7",
-		"e4a503271e1f0c0d",
-		"e31c442cd91778a5",
-		"e697cbac9cc14831",
-		"ce77d5892d5c6c30",
-		"62388ba954cf6090",
-		"b0c7a638cdcb8725",
-		"43a70af86ac3c0cd",
-		"8af4f58861c9e29b",
-		"209b1905543fc2ef",
-		"35d07fcfb575acaf",
-		"44c7d853b56397cb",
-		"0627484faa26495e",
-		"0e6309d3436583ce",
-		"0d5b08bf2ae77093",
-		"0d481cd153710f0f",
-		"f0b9b60ae1af1d7e",
-		"2a511a6a08c03a16",
-		"fecb3e04ed6f914e",
-		"caa4d3df0322ca88",
-		"cb0cf5f8fc9c740e",
-		"e960949b4e4f25bd",
-		"d4e1993c1ba37ec9",
-		"c12a45735e59484f",
-		"8a6d17d247f34992",
-		"4bba067524993c35",
-		"56b628cb36552720",
-		"4916ae93fad81d8f",
-		"311113e019c48b53",
-		"fcd31dfe70956d90",
-		"369bac608e5f9282",
-		"1b1c942427922cd0",
-		"cb6116b7417da4ad",
-		"c25ff0aba8ae5584",
-		"65fafea0642c926b",
-		"e39faa22578737b2",
-		"792b395e45dcf4da",
-		"9e6a9628db743d86",
-		"35090a7d2a015b0a",
-		"786a22a9345375e5",
-		"590c497f9eb84bd8",
-		"f93c39b9aa1241bc",
-		"276f9c2aed9c8c71",
-		"cb544fc8d47f96ec",
-		"0aa4dcd029a9ca64",
-		"6dee6da327d271fe",
-		"368e0b2bae20fb4e",
-		"7cb11913fe0dcd6b",
-		"8dc9b64b31456401",
-		"a7141b8820524af2",
-		"dfcb6786d649c996",
-		"9fe0b442e96731e2",
-		"f4f05f22c6e39e27",
-		"9b2908bf7206d6e6",
-		"15ff41d3a263bb1d",
-		"e1dba481b1ab5b8c"
+		"fea2b36f133caa15",
+		"5e1b238606885016",
+		"faa9ae538d0dc2cc",
+		"2a410bdd6c2ae671",
+		"9465a53e6474b2e8",
+		"965cc8c3224ba48c",
+		"06fc5533919658d0",
+		"ad0b62a6fefc11fb",
+		"3d2fa358b0c8d904",
+		"0c9365019f361266",
+		"82a52c5a18b4ea2b",
+		"9cc04a0e87400513",
+		"10f00ef4889f0864",
+		"258d97a25560cf2f",
+		"0b0d31091bc99cf2",
+		"8ae1dd4f97b1cc78",
+		"595f366c468aeb5c",
+		"53769a498ea53d49",
+		"c6ea0fd927ca1a76",
+		"84797de83d0fd344",
+		"4cd41a3c755b768f",
+		"ba333b4bcc9780b3",
+		"7927a4f2f9dc4a96",
+		"9ea0cb604b4a887c",
+		"9499fea7bc1a5164",
+		"7c415fe4d59b0ebc",
+		"9e544593f942d582",
+		"af1eb95c226beed3",
+		"13d4d58f20ac0243",
+		"d2c4bf2b5639a22b",
+		"ccb1267dddfd6f78",
+		"ce5631c0a186fd2a",
+		"cd41f500138a3ab5",
+		"4f529c603e9c6f44",
+		"3c405212d94d4d72",
+		"32b8cc5be76a0584",
+		"9a56ee02ff059a57",
+		"7c5a7dcf982907b2",
+		"a65114cb55eb9759",
+		"162adf279bf01a06",
+		"ff8288693d3f3202",
+		"d2e07a4299369e41",
+		"4f8516705caa0223",
+		"d67b946ebc1cbd14",
+		"38d5eb6c4943110e",
+		"b8e2516467010674",
+		"2986c0444966e889",
+		"4d83bea52065b3ae",
+		"95af1a39480307cb",
+		"07164eb5aeaef344",
+		"2a3cfefb70da7702",
+		"9f899d0d77b9e53c",
+		"69796d6da07f9d78",
+		"33e73a2306f73f3d",
+		"ddb63fa4884eedac",
+		"93e25f657bdd89fc",
+		"22c88663f5bcbeb5",
+		"8fa07c9ea0510f4e",
+		"4179d193943ec332",
+		"f4046953a09df416",
+		"22920366edc4401e"
 	],
 	"finalSnapshot": {
 		"abilityActionsByHero": {
@@ -394,6 +409,412 @@
 			]
 		},
 		"activeInfluences": [],
+		"alphaLog": [
+			"#1 Ação START_GAME. Dados: {\"type\":\"START_GAME\",\"payload\":{\"heroCardIds\":[\"hero_deep_veil_necromancer\",\"hero_crimson_barbarian\"],\"difficulty\":\"very_easy\",\"bossCardId\":\"boss_azhakar\",\"seed\":6047,\"gameId\":\"golden-6047\"}}",
+			"Fase: MAIN_MENU → ROOM_EFFECT.",
+			"Sala: nenhuma → Abismo Rachado.",
+			"Necromante do Véu Profundo (h-mindoi-1htx28l) entrou em jogo.",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6) entrou em jogo.",
+			"dungeonDeck.available: 0 → 19; adicionadas [\"room_abandoned_cell\",\"room_jailer_room\",\"room_ruined_forge\",\"room_narrow_corridor\",\"room_broken_columns_hall\",\"room_jailer_room\",\"room_depths_stairway\",\"room_abandoned_cell\",\"room_crimson_chains_chamber\",\"room_dead_torches_passage\",\"room_broken_columns_hall\",\"room_ruined_forge\",\"room_depths_stairway\",\"room_dungeon_room\",\"room_crimson_chains_chamber\",\"room_cracked_abyss\",\"room_dead_torches_passage\",\"room_dungeon_room\",\"room_narrow_corridor\"], retiradas [].",
+			"enemyDeck.available: 0 → 18; adicionadas [\"creature_deep_rift_rat\",\"creature_hidden_flame_cultist\",\"creature_dead_torch_sentinel\",\"creature_dark_cave_goblin\",\"creature_blazing_skull\",\"creature_black_ceiling_bat\",\"creature_old_chains_knight\",\"creature_wet_stone_slime\",\"creature_low_ember_kobold\",\"creature_low_fire_salamander\",\"creature_ruined_hall_ogre\",\"creature_ancient_pillar_spider\",\"creature_hot_ash_worm\",\"creature_forge_acolyte\",\"creature_broken_gates_watcher\",\"creature_broken_chains_brute\",\"creature_catacomb_skeleton\",\"creature_dead_passage_thief\"], retiradas [].",
+			"itemDeck.available: 0 → 34; adicionadas [\"item_warm_blood_charm\",\"item_pitch_torch\",\"item_worn_explorer_rope\",\"item_last_chord_lute\",\"item_narrow_exit_cloak\",\"item_return_potion\",\"item_tunnel_hood\",\"item_precision_potion\",\"item_crimson_rune_staff\",\"item_incendiary_oil_flask\",\"item_living_ember_potion\",\"item_last_light_sword\",\"item_ancient_iron_key\",\"item_greater_vigor_potion\",\"item_cracked_shield\",\"item_rusty_dagger\",\"item_low_flame_charm\",\"item_safe_path_charm\",\"item_torn_depths_map\",\"item_ancient_metal_armor\",\"item_reinforced_leather_armor\",\"item_deep_veil_scythe\",\"item_broken_stone_hammer\",\"item_forge_magic_armor\",\"item_stoneskin_potion\",\"item_fury_potion\",\"item_ruined_hall_axe\",\"item_silent_dungeon_charm\",\"item_lesser_vigor_potion\",\"item_light_stone_boots\",\"item_hidden_forge_chest\",\"item_rift_bow\",\"item_broken_veil_cloak\",\"item_last_defense_charm\"], retiradas [].",
+			"artifactDeck.available: 0 → 5; adicionadas [\"artifact_crimson_jailer_chain\",\"artifact_ancient_ember_heart\",\"artifact_lost_forge_hammer\",\"artifact_first_fire_blade\",\"artifact_last_vigil_brazier\"], retiradas [].",
+			"Detalhe técnico gameId: \"__PREGAME__\" → \"golden-6047\".",
+			"Detalhe técnico rng: {\"seed\":0,\"counter\":0} → {\"seed\":6047,\"counter\":96}.",
+			"Detalhe técnico bossCardId: \"\" → \"boss_azhakar\".",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_cracked_abyss\"},\"seq\":0}].",
+			"Log atual: Partida iniciada. Heróis: Necromante do Véu Profundo, Bárbaro Rubro. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Log atual: Sala sorteada: Abismo Rachado.",
+			"#2 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
+			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
+			"#3 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
+			"Fase: SPAWN_ENEMIES → COMBAT_START.",
+			"Rato das Fendas Profundas (e-jqn2g9-pdf7dl) entrou em jogo.",
+			"Cultista da Chama Oculta (e-6hd42s-1sbhzq5) entrou em jogo.",
+			"Sentinela das Tochas Mortas (e-oar5ch-1d7f55b) entrou em jogo.",
+			"Guardião do Abismo Rachado (e-1pigofw-1nl3apj) entrou em jogo.",
+			"enemyDeck.available: 18 → 15; adicionadas [], retiradas [\"creature_deep_rift_rat\",\"creature_hidden_flame_cultist\",\"creature_dead_torch_sentinel\"].",
+			"Efeitos em Rato das Fendas Profundas (e-jqn2g9-pdf7dl): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Cultista da Chama Oculta (e-6hd42s-1sbhzq5): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Sentinela das Tochas Mortas (e-oar5ch-1d7f55b): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Guardião do Abismo Rachado (e-1pigofw-1nl3apj): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":4},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":0},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":1}].",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":96} → {\"seed\":6047,\"counter\":104}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
+			"Log atual: 4 inimigo(s) aparecem: Rato das Fendas Profundas, Cultista da Chama Oculta, Sentinela das Tochas Mortas, Guardião do Abismo Rachado.",
+			"#4 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
+			"Habilidade Presença da Chama Oculta ativada por Cultista da Chama Oculta (e-6hd42s-1sbhzq5); evento evt_combat_start; alvos [h-mindoi-1htx28l, h-1grvjlp-nq51w6]; parâmetros {\"value\":2}.",
+			"Habilidade Tributo Sombrio ativada por Guardião do Abismo Rachado (e-1pigofw-1nl3apj); evento evt_combat_start; alvos [h-mindoi-1htx28l, h-1grvjlp-nq51w6]; parâmetros {\"value\":1}.",
+			"Fase: COMBAT_START → HERO_ACTION.",
+			"dungeonDeck.available: 19 → 18; adicionadas [], retiradas [\"room_abandoned_cell\"].",
+			"dungeonDeck.discarded: 0 → 1; adicionadas [\"room_abandoned_cell\"], retiradas [].",
+			"Efeitos em Cultista da Chama Oculta (e-6hd42s-1sbhzq5): [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":2,\"source\":\"skill_hidden_flame_presence\",\"duration\":{\"kind\":\"this_combat\"}}].",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
+			"Log atual: Combate iniciado.",
+			"#5 Necromante do Véu Profundo (h-mindoi-1htx28l) iniciou ataque contra Cultista da Chama Oculta (e-6hd42s-1sbhzq5) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-6hd42s-1sbhzq5\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Necromante do Véu Profundo (h-mindoi-1htx28l).",
+			"Detalhe técnico flags: {} → {\"targetChosen::e-6hd42s-1sbhzq5\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-mindoi-1htx28l\",\"targetId\":\"e-6hd42s-1sbhzq5\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-6hd42s-1sbhzq5\"}].",
+			"#6 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Necromante do Véu Profundo (h-mindoi-1htx28l): dados [1, 3], hitBonus +7 = 11.",
+			"Rolagem de Cultista da Chama Oculta (e-6hd42s-1sbhzq5): dados [4], hitBonus +3, skill_hidden_flame_presence +2 = 9. Margem +2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":104} → {\"seed\":6047,\"counter\":107}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-6hd42s-1sbhzq5\",\"heroTotal\":11,\"enemyTotal\":9,\"heroResults\":[1,3],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 11 | Inimigo rolou 9.",
+			"#7 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Necromante do Véu Profundo (11) × Cultista da Chama Oculta (9); margem +2; dano do herói 2 sem bônus = 2; dano do inimigo 3 sem bônus = 3; dano previsto: herói 0, inimigo 2.",
+			"Dano attack: Necromante do Véu Profundo → Cultista da Chama Oculta; solicitado 2, após efeitos 2, aplicado 2; vida 2 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Necromante do Véu Profundo (h-mindoi-1htx28l) → desconhecido.",
+			"Cultista da Chama Oculta (e-6hd42s-1sbhzq5) recebeu 2 de dano (2 → 0).",
+			"Cultista da Chama Oculta (e-6hd42s-1sbhzq5): estado active → defeated.",
+			"Efeitos em Cultista da Chama Oculta (e-6hd42s-1sbhzq5): [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":2,\"source\":\"skill_hidden_flame_presence\",\"duration\":{\"kind\":\"this_combat\"}}] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-mindoi-1htx28l\",\"targetId\":\"e-6hd42s-1sbhzq5\",\"damageType\":\"attack\",\"amount\":2},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-6hd42s-1sbhzq5\",\"sourceId\":\"h-mindoi-1htx28l\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: undefined → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-mindoi-1htx28l\"].",
+			"Log atual: Cultista da Chama Oculta sofreu 2 de dano. Herói: dado(s) [1+3]=4, acerto +7 → 11 vs inimigo: 9.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#8 Necromante do Véu Profundo (h-mindoi-1htx28l) iniciou ataque contra Rato das Fendas Profundas (e-jqn2g9-pdf7dl) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-jqn2g9-pdf7dl\"}}",
+			"Log atual: [AVISO] Herói h-mindoi-1htx28l já agiu nesta rodada.",
+			"#9 Bárbaro Rubro (h-1grvjlp-nq51w6) iniciou ataque contra Sentinela das Tochas Mortas (e-oar5ch-1d7f55b) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-oar5ch-1d7f55b\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Detalhe técnico flags: {\"targetChosen::e-6hd42s-1sbhzq5\":true} → {\"targetChosen::e-6hd42s-1sbhzq5\":true,\"targetChosen::e-oar5ch-1d7f55b\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"e-oar5ch-1d7f55b\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-6hd42s-1sbhzq5\"}] → [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-6hd42s-1sbhzq5\"},{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-oar5ch-1d7f55b\"}].",
+			"#10 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1grvjlp-nq51w6): dados [3, 1], hitBonus +10 = 14.",
+			"Rolagem de Sentinela das Tochas Mortas (e-oar5ch-1d7f55b): dados [1], hitBonus +3 = 4. Margem +10.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":107} → {\"seed\":6047,\"counter\":110}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-oar5ch-1d7f55b\",\"heroTotal\":14,\"enemyTotal\":4,\"heroResults\":[3,1],\"enemyResults\":[1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 14 | Inimigo rolou 4.",
+			"#11 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (14) × Sentinela das Tochas Mortas (4); margem +10; dano do herói 4 sem bônus = 4; dano do inimigo 4 sem bônus = 4; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Sentinela das Tochas Mortas; solicitado 4, após efeitos 4, aplicado 4; vida 4 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1grvjlp-nq51w6) → desconhecido.",
+			"Sentinela das Tochas Mortas (e-oar5ch-1d7f55b) recebeu 4 de dano (4 → 0).",
+			"Sentinela das Tochas Mortas (e-oar5ch-1d7f55b): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"e-oar5ch-1d7f55b\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-oar5ch-1d7f55b\",\"sourceId\":\"h-1grvjlp-nq51w6\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [\"h-mindoi-1htx28l\"] → [\"h-mindoi-1htx28l\",\"h-1grvjlp-nq51w6\"].",
+			"Log atual: Sentinela das Tochas Mortas sofreu 4 de dano. Herói: dado(s) [3+1]=4, acerto +10 → 14 vs inimigo: 4.",
+			"#12 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#13 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-mindoi-1htx28l\",\"h-1grvjlp-nq51w6\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-6hd42s-1sbhzq5\"},{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-oar5ch-1d7f55b\"}] → [].",
+			"Log atual: Rodada 2 de combate.",
+			"#14 Necromante do Véu Profundo (h-mindoi-1htx28l) iniciou ataque contra Rato das Fendas Profundas (e-jqn2g9-pdf7dl) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-jqn2g9-pdf7dl\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Necromante do Véu Profundo (h-mindoi-1htx28l).",
+			"Detalhe técnico flags: {\"targetChosen::e-6hd42s-1sbhzq5\":true,\"targetChosen::e-oar5ch-1d7f55b\":true} → {\"targetChosen::e-6hd42s-1sbhzq5\":true,\"targetChosen::e-oar5ch-1d7f55b\":true,\"targetChosen::e-jqn2g9-pdf7dl\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-mindoi-1htx28l\",\"targetId\":\"e-jqn2g9-pdf7dl\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-jqn2g9-pdf7dl\"}].",
+			"#15 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Necromante do Véu Profundo (h-mindoi-1htx28l): dados [5, 3], hitBonus +7 = 15.",
+			"Rolagem de Rato das Fendas Profundas (e-jqn2g9-pdf7dl): dados [6], hitBonus +2 = 8. Margem +7.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":110} → {\"seed\":6047,\"counter\":113}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-jqn2g9-pdf7dl\",\"heroTotal\":15,\"enemyTotal\":8,\"heroResults\":[5,3],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 15 | Inimigo rolou 8.",
+			"#16 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Necromante do Véu Profundo (15) × Rato das Fendas Profundas (8); margem +7; dano do herói 2 sem bônus = 2; dano do inimigo 1 sem bônus = 1; dano previsto: herói 0, inimigo 2.",
+			"Dano attack: Necromante do Véu Profundo → Rato das Fendas Profundas; solicitado 2, após efeitos 2, aplicado 1; vida 1 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Necromante do Véu Profundo (h-mindoi-1htx28l) → desconhecido.",
+			"Rato das Fendas Profundas (e-jqn2g9-pdf7dl) recebeu 1 de dano (1 → 0).",
+			"Rato das Fendas Profundas (e-jqn2g9-pdf7dl): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-mindoi-1htx28l\",\"targetId\":\"e-jqn2g9-pdf7dl\",\"damageType\":\"attack\",\"amount\":2},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-jqn2g9-pdf7dl\",\"sourceId\":\"h-mindoi-1htx28l\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-mindoi-1htx28l\"].",
+			"Log atual: Rato das Fendas Profundas sofreu 2 de dano. Herói: dado(s) [5+3]=8, acerto +7 → 15 vs inimigo: 8.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#17 Necromante do Véu Profundo (h-mindoi-1htx28l) iniciou ataque contra Guardião do Abismo Rachado (e-1pigofw-1nl3apj) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-1pigofw-1nl3apj\"}}",
+			"Log atual: [AVISO] Herói h-mindoi-1htx28l já agiu nesta rodada.",
+			"#18 Necromante do Véu Profundo (h-mindoi-1htx28l) iniciou ataque contra Guardião do Abismo Rachado (e-1pigofw-1nl3apj) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-1pigofw-1nl3apj\"}}",
+			"Log atual: [AVISO] Herói h-mindoi-1htx28l já agiu nesta rodada.",
+			"#19 Bárbaro Rubro (h-1grvjlp-nq51w6) iniciou ataque contra Guardião do Abismo Rachado (e-1pigofw-1nl3apj) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Detalhe técnico flags: {\"targetChosen::e-6hd42s-1sbhzq5\":true,\"targetChosen::e-oar5ch-1d7f55b\":true,\"targetChosen::e-jqn2g9-pdf7dl\":true} → {\"targetChosen::e-6hd42s-1sbhzq5\":true,\"targetChosen::e-oar5ch-1d7f55b\":true,\"targetChosen::e-jqn2g9-pdf7dl\":true,\"targetChosen::e-1pigofw-1nl3apj\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"e-1pigofw-1nl3apj\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-jqn2g9-pdf7dl\"}] → [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-jqn2g9-pdf7dl\"},{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\"}].",
+			"#20 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1grvjlp-nq51w6): dados [1, 5], hitBonus +10 = 16.",
+			"Rolagem de Guardião do Abismo Rachado (e-1pigofw-1nl3apj): dados [3], hitBonus +6 = 9. Margem +7.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":113} → {\"seed\":6047,\"counter\":116}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\",\"heroTotal\":16,\"enemyTotal\":9,\"heroResults\":[1,5],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 16 | Inimigo rolou 9.",
+			"#21 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (16) × Guardião do Abismo Rachado (9); margem +7; dano do herói 4 sem bônus = 4; dano do inimigo 6 sem bônus = 6; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Guardião do Abismo Rachado; solicitado 4, após efeitos 4, aplicado 4; vida 8 → 4.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1grvjlp-nq51w6) → desconhecido.",
+			"Guardião do Abismo Rachado (e-1pigofw-1nl3apj) recebeu 4 de dano (8 → 4).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"e-1pigofw-1nl3apj\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [\"h-mindoi-1htx28l\"] → [\"h-mindoi-1htx28l\",\"h-1grvjlp-nq51w6\"].",
+			"Log atual: Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [1+5]=6, acerto +10 → 16 vs inimigo: 9.",
+			"#22 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#23 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 1 → 2.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-mindoi-1htx28l\",\"h-1grvjlp-nq51w6\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"e-jqn2g9-pdf7dl\"},{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\"}] → [].",
+			"Log atual: Rodada 3 de combate.",
+			"#24 Bárbaro Rubro (h-1grvjlp-nq51w6) iniciou ataque contra Guardião do Abismo Rachado (e-1pigofw-1nl3apj) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"e-1pigofw-1nl3apj\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\"}].",
+			"#25 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1grvjlp-nq51w6): dados [2, 2], hitBonus +10 = 14.",
+			"Rolagem de Guardião do Abismo Rachado (e-1pigofw-1nl3apj): dados [6], hitBonus +6 = 12. Margem +2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":116} → {\"seed\":6047,\"counter\":119}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\",\"heroTotal\":14,\"enemyTotal\":12,\"heroResults\":[2,2],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 14 | Inimigo rolou 12.",
+			"#26 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (14) × Guardião do Abismo Rachado (12); margem +2; dano do herói 4 sem bônus = 4; dano do inimigo 6 sem bônus = 6; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Guardião do Abismo Rachado; solicitado 4, após efeitos 4, aplicado 4; vida 4 → 0.",
+			"Fase: RESOLVE_ATTACK → CHECK_COMBAT_END.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1grvjlp-nq51w6) → desconhecido.",
+			"Guardião do Abismo Rachado (e-1pigofw-1nl3apj) recebeu 4 de dano (4 → 0).",
+			"Guardião do Abismo Rachado (e-1pigofw-1nl3apj): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"e-1pigofw-1nl3apj\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-1pigofw-1nl3apj\",\"sourceId\":\"h-1grvjlp-nq51w6\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1grvjlp-nq51w6\"].",
+			"Log atual: Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [2+2]=4, acerto +10 → 14 vs inimigo: 12.",
+			"#27 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → REWARD_PHASE.",
+			"Rodada: 2 → 3.",
+			"Detalhe técnico creaturesDefeated: 0 → 4.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"REWARD_PHASE\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1grvjlp-nq51w6\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"e-1pigofw-1nl3apj\"}] → [].",
+			"Log atual: Sala limpa! Avançando para recompensa.",
+			"#28 Ação GRANT_REWARDS. Dados: {\"type\":\"GRANT_REWARDS\"}",
+			"XP do grupo: 0 → 12 (+12).",
+			"Recompensas na mesa: [] → [{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_pitch_torch\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_worn_explorer_rope\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}].",
+			"Artefatos do grupo: [] → [{\"cardId\":\"artifact_crimson_jailer_chain\",\"carriedBy\":null},{\"cardId\":\"artifact_ancient_ember_heart\",\"carriedBy\":null}].",
+			"itemDeck.available: 34 → 30; adicionadas [], retiradas [\"item_warm_blood_charm\",\"item_pitch_torch\",\"item_worn_explorer_rope\",\"item_last_chord_lute\"].",
+			"artifactDeck.available: 5 → 3; adicionadas [], retiradas [\"artifact_crimson_jailer_chain\",\"artifact_ancient_ember_heart\"].",
+			"Detalhe técnico subbosses: {\"available\":[],\"defeated\":[]} → {\"available\":[],\"defeated\":[\"subboss_cracked_abyss_guardian\"]}.",
+			"Detalhe técnico roomsCleared: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomWon\",\"payload\":{\"roomId\":\"room_cracked_abyss\"},\"seq\":0},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"xp\",\"amount\":12},\"seq\":1},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_crimson_jailer_chain\"},\"seq\":2},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_ancient_ember_heart\"},\"seq\":3},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_warm_blood_charm\"},\"seq\":4},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_pitch_torch\"},\"seq\":5},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_worn_explorer_rope\"},\"seq\":6},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_last_chord_lute\"},\"seq\":7}].",
+			"Log atual: Recompensas: +12 XP, 4 item(ns), 2 artefato(s). Resolvendo...",
+			"#29 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"destination\":\"backpack\"}}",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6): mochila [] → [\"item_warm_blood_charm\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_pitch_torch\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_worn_explorer_rope\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_pitch_torch\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_worn_explorer_rope\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"itemId\":\"item_warm_blood_charm\"},\"seq\":0}].",
+			"Log atual: Encanto do Sangue Quente atribuído a h-1grvjlp-nq51w6.",
+			"#30 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"destination\":\"backpack\"}}",
+			"Necromante do Véu Profundo (h-mindoi-1htx28l): mochila [] → [\"item_pitch_torch\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_pitch_torch\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_worn_explorer_rope\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_worn_explorer_rope\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"itemId\":\"item_pitch_torch\"},\"seq\":0}].",
+			"Log atual: Tocha de Breu atribuído a h-mindoi-1htx28l.",
+			"#31 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"destination\":\"backpack\"}}",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6): mochila [\"item_warm_blood_charm\"] → [\"item_warm_blood_charm\",\"item_worn_explorer_rope\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_worn_explorer_rope\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"itemId\":\"item_worn_explorer_rope\"},\"seq\":0}].",
+			"Log atual: Corda Gasta de Explorador atribuído a h-1grvjlp-nq51w6.",
+			"#32 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"destination\":\"backpack\"}}",
+			"Fase: REWARD_PHASE → XP_SPEND_PHASE.",
+			"Necromante do Véu Profundo (h-mindoi-1htx28l): mochila [\"item_pitch_torch\"] → [\"item_pitch_torch\",\"item_last_chord_lute\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_last_chord_lute\",\"requiresBearer\":false}] → [].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"itemId\":\"item_last_chord_lute\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"REWARD_PHASE\",\"to\":\"XP_SPEND_PHASE\",\"action\":\"CHOOSE_ITEM_DESTINATION\"},\"seq\":1}].",
+			"Log atual: Alaúde do Último Acorde atribuído a h-mindoi-1htx28l.",
+			"#33 Ação SPEND_XP. Dados: {\"type\":\"SPEND_XP\",\"payload\":{\"option\":\"level_up\",\"heroId\":\"h-1grvjlp-nq51w6\"}}",
+			"Bárbaro Rubro ganhou 2 de vida por progressão (16 → 18).",
+			"XP do grupo: 12 → 2 (-10).",
+			"Despertar: 0 → 1.",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6) recuperou 2 de vida (16 → 18).",
+			"Detalhe técnico events: [] → [{\"type\":\"DespertarChanged\",\"payload\":{\"from\":0,\"to\":1,\"cause\":\"level_up\"},\"seq\":0}].",
+			"Log atual: Bárbaro Rubro subiu para nível 4. Despertar avança.",
+			"#34 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
+			"Fase: XP_SPEND_PHASE → BOSS_REVEAL.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 3 → 0.",
+			"Sala: Abismo Rachado → nenhuma.",
+			"dungeonDeck.discarded: 1 → 2; adicionadas [\"room_cracked_abyss\"], retiradas [].",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"XP_SPEND_PHASE\",\"to\":\"BOSS_REVEAL\",\"action\":\"CHECK_BOSS_CONDITION\"},\"seq\":0}].",
+			"Log atual: Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
+			"#35 Ação REVEAL_BOSS. Dados: {\"type\":\"REVEAL_BOSS\"}",
+			"Fase: BOSS_REVEAL → BOSS_COMBAT.",
+			"Azhakar, Dragão da Fornalha Sombria (boss) entrou em jogo.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_REVEAL\",\"to\":\"BOSS_COMBAT\",\"action\":\"REVEAL_BOSS\"},\"seq\":0}].",
+			"Log atual: Azhakar, Dragão da Fornalha Sombria revelado! Vida: 22, Bônus de Acerto: 13.",
+			"#36 Bárbaro Rubro (h-1grvjlp-nq51w6) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}}",
+			"Fase: BOSS_COMBAT → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Detalhe técnico flags: {\"targetChosen::e-6hd42s-1sbhzq5\":true,\"targetChosen::e-oar5ch-1d7f55b\":true,\"targetChosen::e-jqn2g9-pdf7dl\":true,\"targetChosen::e-1pigofw-1nl3apj\":true} → {\"targetChosen::e-6hd42s-1sbhzq5\":true,\"targetChosen::e-oar5ch-1d7f55b\":true,\"targetChosen::e-jqn2g9-pdf7dl\":true,\"targetChosen::e-1pigofw-1nl3apj\":true,\"targetChosen::boss\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}].",
+			"#37 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1grvjlp-nq51w6): dados [4, 3], hitBonus +14, Coração de Brasa Antiga +1 = 22.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [2, 6, 4], hitBonus +13 = 25. Margem -3.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":119} → {\"seed\":6047,\"counter\":124}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\",\"heroTotal\":22,\"enemyTotal\":25,\"heroResults\":[4,3],\"enemyResults\":[2,6,4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 22 | Inimigo rolou 25.",
+			"#38 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Bárbaro Rubro; solicitado 6, após efeitos 6, aplicado 6; vida 18 → 12.",
+			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Rodada: 0 → 1.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1grvjlp-nq51w6) → desconhecido.",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6) recebeu 6 de dano (18 → 12).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-1grvjlp-nq51w6\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Log atual: Boss sobreviveu. Próxima rodada.",
+			"#39 Herói selecionado: Bárbaro Rubro (h-1grvjlp-nq51w6). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\"}}",
+			"Etapa de combate: selecting_hero → selecting_target.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Log atual: Bárbaro Rubro selecionado para agir.",
+			"#40 Herói selecionado: Necromante do Véu Profundo (h-mindoi-1htx28l). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\"}}",
+			"Herói em foco no combate: Bárbaro Rubro (h-1grvjlp-nq51w6) → Necromante do Véu Profundo (h-mindoi-1htx28l).",
+			"Log atual: Necromante do Véu Profundo selecionado para agir.",
+			"#41 Necromante do Véu Profundo (h-mindoi-1htx28l) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\"}}",
+			"Fase: BOSS_COMBAT → ROLL_DICE.",
+			"Etapa de combate: selecting_target → resolving.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-mindoi-1htx28l\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\"}].",
+			"#42 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Necromante do Véu Profundo (h-mindoi-1htx28l): dados [3, 1], hitBonus +7, Coração de Brasa Antiga +1 = 12.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [5, 3, 3], hitBonus +13 = 24. Margem -12.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":124} → {\"seed\":6047,\"counter\":129}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\",\"heroTotal\":12,\"enemyTotal\":24,\"heroResults\":[3,1],\"enemyResults\":[5,3,3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 12 | Inimigo rolou 24.",
+			"#43 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Necromante do Véu Profundo; solicitado 6, após efeitos 6, aplicado 6; vida 12 → 6.",
+			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Rodada: 1 → 2.",
+			"Herói em foco no combate: Necromante do Véu Profundo (h-mindoi-1htx28l) → desconhecido.",
+			"Necromante do Véu Profundo (h-mindoi-1htx28l) recebeu 6 de dano (12 → 6).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-mindoi-1htx28l\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Necromante do Véu Profundo sofreu 6 de dano do boss.",
+			"Log atual: Boss sobreviveu. Próxima rodada.",
+			"#44 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#45 Bárbaro Rubro (h-1grvjlp-nq51w6) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}}",
+			"Fase: BOSS_COMBAT → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}].",
+			"#46 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1grvjlp-nq51w6): dados [1, 1], hitBonus +14, Coração de Brasa Antiga +1 = 17.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [6, 2, 4], hitBonus +13 = 25. Margem -8.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":129} → {\"seed\":6047,\"counter\":134}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\",\"heroTotal\":17,\"enemyTotal\":25,\"heroResults\":[1,1],\"enemyResults\":[6,2,4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 17 | Inimigo rolou 25.",
+			"#47 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Bárbaro Rubro; solicitado 6, após efeitos 6, aplicado 6; vida 12 → 6.",
+			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Rodada: 2 → 3.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1grvjlp-nq51w6) → desconhecido.",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6) recebeu 6 de dano (12 → 6).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-1grvjlp-nq51w6\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6},{\"id\":8,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Log atual: Boss sobreviveu. Próxima rodada.",
+			"#48 Herói selecionado: Bárbaro Rubro (h-1grvjlp-nq51w6). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\"}}",
+			"Etapa de combate: selecting_hero → selecting_target.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Log atual: Bárbaro Rubro selecionado para agir.",
+			"#49 Herói selecionado: Bárbaro Rubro (h-1grvjlp-nq51w6). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\"}}",
+			"Log atual: Bárbaro Rubro selecionado para agir.",
+			"#50 Necromante do Véu Profundo (h-mindoi-1htx28l) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\"}}",
+			"Fase: BOSS_COMBAT → ROLL_DICE.",
+			"Etapa de combate: selecting_target → resolving.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1grvjlp-nq51w6) → Necromante do Véu Profundo (h-mindoi-1htx28l).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-mindoi-1htx28l\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\"}].",
+			"#51 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Necromante do Véu Profundo (h-mindoi-1htx28l): dados [5, 6], hitBonus +7, Coração de Brasa Antiga +1 = 19.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [5, 3, 2], hitBonus +13 = 23. Margem -4.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":134} → {\"seed\":6047,\"counter\":139}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\",\"heroTotal\":19,\"enemyTotal\":23,\"heroResults\":[5,6],\"enemyResults\":[5,3,2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 19 | Inimigo rolou 23.",
+			"#52 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Necromante do Véu Profundo; solicitado 6, após efeitos 6, aplicado 6; vida 6 → 0.",
+			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Rodada: 3 → 4.",
+			"Herói em foco no combate: Necromante do Véu Profundo (h-mindoi-1htx28l) → desconhecido.",
+			"Necromante do Véu Profundo (h-mindoi-1htx28l) recebeu 6 de dano (6 → 0).",
+			"Necromante do Véu Profundo (h-mindoi-1htx28l): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-mindoi-1htx28l\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-mindoi-1htx28l\",\"sourceId\":\"boss\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6},{\"id\":8,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6},{\"id\":8,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":9,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-mindoi-1htx28l\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Necromante do Véu Profundo sofreu 6 de dano do boss.",
+			"Log atual: Boss sobreviveu. Próxima rodada.",
+			"#53 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#54 Herói selecionado: Bárbaro Rubro (h-1grvjlp-nq51w6). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\"}}",
+			"Etapa de combate: selecting_hero → selecting_target.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1grvjlp-nq51w6).",
+			"Log atual: Bárbaro Rubro selecionado para agir.",
+			"#55 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#56 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#57 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#58 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#59 Bárbaro Rubro (h-1grvjlp-nq51w6) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}}",
+			"Fase: BOSS_COMBAT → ROLL_DICE.",
+			"Etapa de combate: selecting_target → resolving.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1grvjlp-nq51w6\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\"}].",
+			"#60 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1grvjlp-nq51w6): dados [2, 4], hitBonus +14, Coração de Brasa Antiga +1 = 21.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [6, 3, 2], hitBonus +13 = 24. Margem -3.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":6047,\"counter\":139} → {\"seed\":6047,\"counter\":144}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"enemyId\":\"boss\",\"heroTotal\":21,\"enemyTotal\":24,\"heroResults\":[2,4],\"enemyResults\":[6,3,2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 21 | Inimigo rolou 24.",
+			"#61 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Bárbaro Rubro; solicitado 6, após efeitos 6, aplicado 6; vida 6 → 0.",
+			"Fase: RESOLVE_ATTACK → DEFEAT.",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6) recebeu 6 de dano (6 → 0).",
+			"Bárbaro Rubro (h-1grvjlp-nq51w6): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-1grvjlp-nq51w6\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-1grvjlp-nq51w6\",\"sourceId\":\"boss\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DEFEAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6},{\"id\":8,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":9,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-6hd42s-1sbhzq5\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-oar5ch-1d7f55b\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-jqn2g9-pdf7dl\",\"side\":\"enemy\",\"amount\":1},{\"id\":4,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1pigofw-1nl3apj\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6},{\"id\":8,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6},{\"id\":9,\"targetId\":\"h-mindoi-1htx28l\",\"side\":\"hero\",\"amount\":6},{\"id\":10,\"targetId\":\"h-1grvjlp-nq51w6\",\"side\":\"hero\",\"amount\":6}].",
+			"Log atual: Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Log atual: Derrota: herói eliminado pelo boss."
+		],
 		"bossCardId": "boss_azhakar",
 		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
 		"combat": {
@@ -408,15 +829,15 @@
 				],
 				"enemyId": "boss",
 				"enemyResults": [
+					6,
 					3,
-					2,
-					5
+					2
 				],
-				"enemyTotal": 23,
+				"enemyTotal": 24,
 				"heroBreakdown": [
 					{
 						"source": "hitBonus",
-						"value": 10
+						"value": 14
 					},
 					{
 						"source": "Coração de Brasa Antiga",
@@ -425,18 +846,80 @@
 				],
 				"heroId": "h-1grvjlp-nq51w6",
 				"heroResults": [
-					4,
-					3
+					2,
+					4
 				],
-				"heroTotal": 18
+				"heroTotal": 21
 			},
 			"phase": "resolving",
 			"powersUsedThisRoom": {},
-			"round": 5,
+			"round": 4,
 			"selectedHeroId": "h-1grvjlp-nq51w6"
 		},
 		"creaturesDefeated": 4,
 		"currentRoom": null,
+		"damageFeedback": [
+			{
+				"amount": 2,
+				"id": 1,
+				"side": "enemy",
+				"targetId": "e-6hd42s-1sbhzq5"
+			},
+			{
+				"amount": 4,
+				"id": 2,
+				"side": "enemy",
+				"targetId": "e-oar5ch-1d7f55b"
+			},
+			{
+				"amount": 1,
+				"id": 3,
+				"side": "enemy",
+				"targetId": "e-jqn2g9-pdf7dl"
+			},
+			{
+				"amount": 4,
+				"id": 4,
+				"side": "enemy",
+				"targetId": "e-1pigofw-1nl3apj"
+			},
+			{
+				"amount": 4,
+				"id": 5,
+				"side": "enemy",
+				"targetId": "e-1pigofw-1nl3apj"
+			},
+			{
+				"amount": 6,
+				"id": 6,
+				"side": "hero",
+				"targetId": "h-1grvjlp-nq51w6"
+			},
+			{
+				"amount": 6,
+				"id": 7,
+				"side": "hero",
+				"targetId": "h-mindoi-1htx28l"
+			},
+			{
+				"amount": 6,
+				"id": 8,
+				"side": "hero",
+				"targetId": "h-1grvjlp-nq51w6"
+			},
+			{
+				"amount": 6,
+				"id": 9,
+				"side": "hero",
+				"targetId": "h-mindoi-1htx28l"
+			},
+			{
+				"amount": 6,
+				"id": 10,
+				"side": "hero",
+				"targetId": "h-1grvjlp-nq51w6"
+			}
+		],
 		"decks": {
 			"artifactDeck": {
 				"available": [
@@ -514,67 +997,54 @@
 			"Sala sorteada: Abismo Rachado.",
 			"4 inimigo(s) aparecem: Rato das Fendas Profundas, Cultista da Chama Oculta, Sentinela das Tochas Mortas, Guardião do Abismo Rachado.",
 			"Combate iniciado.",
-			"Herói rolou 14 | Inimigo rolou 9.",
-			"Cultista da Chama Oculta sofreu 4 de dano. Herói: dado(s) [1+3]=4, acerto +10 → 14 vs inimigo: 9.",
-			"Aguardando ação de 1 herói(s).",
-			"Herói rolou 11 | Inimigo rolou 3.",
-			"Rato das Fendas Profundas sofreu 2 de dano. Herói: dado(s) [3+1]=4, acerto +7 → 11 vs inimigo: 3.",
-			"Rodada 2 de combate.",
-			"Herói rolou 18 | Inimigo rolou 12.",
-			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [5+3]=8, acerto +10 → 18 vs inimigo: 12.",
-			"Aguardando ação de 1 herói(s).",
-			"Herói rolou 13 | Inimigo rolou 6.",
-			"Sentinela das Tochas Mortas sofreu 2 de dano. Herói: dado(s) [1+5]=6, acerto +7 → 13 vs inimigo: 6.",
-			"Rodada 3 de combate.",
 			"Herói rolou 11 | Inimigo rolou 9.",
-			"Sentinela das Tochas Mortas sofreu 2 de dano. Herói: dado(s) [2+2]=4, acerto +7 → 11 vs inimigo: 9.",
+			"Cultista da Chama Oculta sofreu 2 de dano. Herói: dado(s) [1+3]=4, acerto +7 → 11 vs inimigo: 9.",
 			"Aguardando ação de 1 herói(s).",
-			"Herói rolou 17 | Inimigo rolou 8.",
-			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [4+3]=7, acerto +10 → 17 vs inimigo: 8.",
+			"[AVISO] Herói h-mindoi-1htx28l já agiu nesta rodada.",
+			"Herói rolou 14 | Inimigo rolou 4.",
+			"Sentinela das Tochas Mortas sofreu 4 de dano. Herói: dado(s) [3+1]=4, acerto +10 → 14 vs inimigo: 4.",
+			"Rodada 2 de combate.",
+			"Herói rolou 15 | Inimigo rolou 8.",
+			"Rato das Fendas Profundas sofreu 2 de dano. Herói: dado(s) [5+3]=8, acerto +7 → 15 vs inimigo: 8.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-mindoi-1htx28l já agiu nesta rodada.",
+			"[AVISO] Herói h-mindoi-1htx28l já agiu nesta rodada.",
+			"Herói rolou 16 | Inimigo rolou 9.",
+			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [1+5]=6, acerto +10 → 16 vs inimigo: 9.",
+			"Rodada 3 de combate.",
+			"Herói rolou 14 | Inimigo rolou 12.",
+			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [2+2]=4, acerto +10 → 14 vs inimigo: 12.",
 			"Sala limpa! Avançando para recompensa.",
 			"Recompensas: +12 XP, 4 item(ns), 2 artefato(s). Resolvendo...",
 			"Encanto do Sangue Quente atribuído a h-1grvjlp-nq51w6.",
 			"Tocha de Breu atribuído a h-mindoi-1htx28l.",
 			"Corda Gasta de Explorador atribuído a h-1grvjlp-nq51w6.",
 			"Alaúde do Último Acorde atribuído a h-mindoi-1htx28l.",
-			"Necromante do Véu Profundo subiu para nível 4. Despertar avança.",
+			"Bárbaro Rubro subiu para nível 4. Despertar avança.",
 			"Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
 			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 22, Bônus de Acerto: 13.",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"Herói rolou 21 | Inimigo rolou 22.",
-			"Necromante do Véu Profundo sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"Herói rolou 17 | Inimigo rolou 21.",
+			"Herói rolou 22 | Inimigo rolou 25.",
 			"Bárbaro Rubro sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"Herói rolou 17 | Inimigo rolou 29.",
-			"Bárbaro Rubro sofreu 6 de dano do boss.",
-			"Boss sobreviveu. Próxima rodada.",
-			"Necromante do Véu Profundo selecionado para agir.",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"Herói rolou 16 | Inimigo rolou 25.",
-			"Necromante do Véu Profundo sofreu 6 de dano do boss.",
 			"Boss sobreviveu. Próxima rodada.",
 			"Bárbaro Rubro selecionado para agir.",
 			"Necromante do Véu Profundo selecionado para agir.",
-			"Necromante do Véu Profundo selecionado para agir.",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"Herói rolou 16 | Inimigo rolou 24.",
+			"Herói rolou 12 | Inimigo rolou 24.",
 			"Necromante do Véu Profundo sofreu 6 de dano do boss.",
 			"Boss sobreviveu. Próxima rodada.",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"[ERRO] p_modifier: referência de entidade \"$source\" não resolveu para a habilidade \"item_skill_deadly_edge\".",
-			"Herói rolou 18 | Inimigo rolou 23.",
+			"Herói rolou 17 | Inimigo rolou 25.",
+			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Herói rolou 19 | Inimigo rolou 23.",
+			"Necromante do Véu Profundo sofreu 6 de dano do boss.",
+			"Boss sobreviveu. Próxima rodada.",
+			"Bárbaro Rubro selecionado para agir.",
+			"Herói rolou 21 | Inimigo rolou 24.",
 			"Bárbaro Rubro sofreu 6 de dano do boss.",
 			"Derrota: herói eliminado pelo boss."
 		],
+		"extraAttackFeedback": [],
 		"groupArtifacts": [
 			{
 				"cardId": "artifact_crimson_jailer_chain",
@@ -587,6 +1057,7 @@
 		],
 		"groupBuffs": [],
 		"groupXp": 2,
+		"healFeedback": [],
 		"heroes": [
 			{
 				"activeItems": {},
@@ -599,10 +1070,10 @@
 				"currentLife": 0,
 				"damage": 2,
 				"dice": 2,
-				"hitBonus": 10,
+				"hitBonus": 7,
 				"id": "h-mindoi-1htx28l",
-				"impeto": 3,
-				"maxLife": 14,
+				"impeto": 2,
+				"maxLife": 12,
 				"playerIndex": 0,
 				"status": "defeated",
 				"usedPowers": {},
@@ -619,10 +1090,10 @@
 				"currentLife": 0,
 				"damage": 4,
 				"dice": 2,
-				"hitBonus": 10,
+				"hitBonus": 14,
 				"id": "h-1grvjlp-nq51w6",
-				"impeto": 2,
-				"maxLife": 16,
+				"impeto": 3,
+				"maxLife": 18,
 				"playerIndex": 0,
 				"status": "defeated",
 				"usedPowers": {},
@@ -635,7 +1106,7 @@
 				"stats": {
 					"damage": 5,
 					"damageBonus": 1,
-					"hit": 11,
+					"hit": 15,
 					"hitBonus": 1,
 					"protection": 0,
 					"protectionText": ""
@@ -647,7 +1118,7 @@
 				"stats": {
 					"damage": 3,
 					"damageBonus": 1,
-					"hit": 11,
+					"hit": 8,
 					"hitBonus": 1,
 					"protection": 0,
 					"protectionText": ""

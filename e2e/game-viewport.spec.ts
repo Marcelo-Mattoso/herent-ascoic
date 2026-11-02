@@ -37,11 +37,6 @@ async function startCombat(page: Page, heroCount = 1) {
 			},
 		);
 	}, heroCount);
-	await page
-		.getByRole("dialog")
-		.getByRole("button", { name: "Escolher" })
-		.last()
-		.click();
 	await expect
 		.poll(() => readGame(page, "(s, a) => s.game.status"), {
 			timeout: 12_000,
@@ -108,6 +103,9 @@ async function setEncounter(
 }
 
 async function expectBoardFits(page: Page) {
+	await expect.poll(() => page.locator(".game-board-content").evaluate((element) =>
+		element.getAnimations().filter((animation) => animation instanceof CSSAnimation && animation.animationName === "game-board-impact-shake").every((animation) => animation.playState !== "running"),
+	)).toBe(true);
 	const geometry = await page.evaluate(() => {
 		const root = document.documentElement;
 		const surface = document.querySelector(

@@ -2,6 +2,7 @@
 // Respeita healBlocked (ex: Fumaça da Fornalha).
 // Passo 7: applyHeal emite HealAboutToBeApplied (pré) e HealApplied (pós).
 
+import { appendAlphaLog } from "../diagnostics/alphaLog";
 import type { EntityId } from "../ecs/types";
 import { emit } from "../events/bus";
 import {
@@ -11,13 +12,24 @@ import {
 } from "../state/access";
 import { consumeOnceBlock } from "../state/blockHelpers";
 import type { GameState } from "../state/gameState";
-import type { GameEngine } from "../gameEngine";
+import { cardName, type GameEngine } from "../gameEngine";
+import { withGame } from "../../engine/state";
 
 function findHero(state: GameState, targetId: EntityId) {
 	return heroesOf(state).find((hero) => hero.id === targetId);
 }
 
-export function applyHeal(engine: GameEngine, 
+function recordHeal(state: GameState, targetId: EntityId, amount: number): GameState {
+	if (amount <= 0) return state;
+	return withGame(state, (game) => {
+		const previous = game.healFeedback ?? [];
+		return { ...game, healFeedback: [...previous.slice(-63), {
+			id: (previous.at(-1)?.id ?? 0) + 1, targetId, amount,
+		}] };
+	});
+}
+
+export function applyHeal(engine: GameEngine,
 	state: GameState,
 	targetId: EntityId,
 	amount: number,
@@ -26,7 +38,8 @@ export function applyHeal(engine: GameEngine,
 	if (!hero) return state;
 	if (hero.healBlocked) {
 		// Consome bloco `once` para que a próxima cura passe (semântica "próxima cura").
-		return consumeOnceBlock(state, `${targetId}::healBlocked`);
+		return appendAlphaLog(consumeOnceBlock(state, `${targetId}::healBlocked`),
+			`Cura de ${amount} em ${cardName(engine, hero.cardId)} bloqueada.`);
 	}
 
 	// Janela pré: listeners podem modificar a quantidade de cura.
@@ -45,7 +58,8 @@ export function applyHeal(engine: GameEngine,
 		payload: { targetId, amount: newLife - hero.currentLife },
 	});
 
-	return s3;
+	return appendAlphaLog(recordHeal(s3, targetId, newLife - hero.currentLife),
+		`${cardName(engine, hero.cardId)}: cura solicitada ${amount}, após efeitos ${finalAmount}, aplicada ${newLife - hero.currentLife}; vida ${hero.currentLife} → ${newLife}.`);
 }
 
 export function applyFullHeal(engine: GameEngine, state: GameState, targetId: EntityId): GameState {
@@ -60,7 +74,8 @@ export function applyFullHeal(engine: GameEngine, state: GameState, targetId: En
 		type: "HealApplied",
 		payload: { targetId, amount: hero.maxLife - hero.currentLife },
 	});
-	return s2;
+	return appendAlphaLog(recordHeal(s2, targetId, hero.maxLife - hero.currentLife),
+		`${cardName(engine, hero.cardId)} recebeu cura completa: ${hero.currentLife} → ${hero.maxLife}.`);
 }
 
 export function applySurvive(state: GameState, targetId: EntityId): GameState {
@@ -78,6 +93,7 @@ export function applySurvive(state: GameState, targetId: EntityId): GameState {
 // Aplica ganho de vida sem verificar healBlocked (usado em progressão/level-up).
 // Sem janela de bus — é um ajuste de stats, não cura em jogo.
 export function applyLifeGain(
+	engine: GameEngine,
 	state: GameState,
 	targetId: EntityId,
 	amount: number,
@@ -85,5 +101,6 @@ export function applyLifeGain(
 	const hero = findHero(state, targetId);
 	if (!hero) return state;
 	const newLife = Math.min(hero.maxLife, hero.currentLife + amount);
-	return withUnitStats(state, targetId, { currentLife: newLife });
+	return appendAlphaLog(withUnitStats(state, targetId, { currentLife: newLife }),
+		`${cardName(engine, hero.cardId)} ganhou ${newLife - hero.currentLife} de vida por progressão (${hero.currentLife} → ${newLife}).`);
 }

@@ -1,5 +1,6 @@
 import type { Action } from "../actions/types";
 import { prunePreparedAbilities } from "../abilities/prepared";
+import { recordAlphaAction } from "../diagnostics/alphaLog";
 import { drainStack } from "../effects/resolver";
 import { clearEvents, recordEvent } from "../events/record";
 import type { GameEngine } from "../gameEngine";
@@ -51,7 +52,7 @@ export function reducerCore(
 					action: action.type,
 				})
 			: result.state;
-	return prunePreparedAbilities(engine, drainStack(engine, validated), state);
+	return recordAlphaAction(engine, state, prunePreparedAbilities(engine, drainStack(engine, validated), state), action);
 }
 
 export function reducer(

@@ -3,7 +3,7 @@ import ptCards from "../../locales/pt-BR/cards.json";
 import enCards from "../../locales/en-US/cards.json";
 import esCards from "../../locales/es-ES/cards.json";
 import { getCardLocale } from "@/core/data/cardLocale";
-import { displayCardName } from "./catalogs";
+import { displayCardClass, displayCardName, displayHeroIdentity } from "./catalogs";
 
 const heroes: Record<string, string> = {
 	hero_eternal_rest_cleric: "Letícia Morane",
@@ -40,6 +40,18 @@ describe("nomes próprios dos oito heróis", () => {
 			expect(displayCardName(id)).toBe(characterName);
 			expect(getCardLocale(id)?.characterName).toBe(characterName);
 			expect(getCardLocale(id)?.name).not.toBe(characterName);
+		}
+	});
+
+	it("mantém nome e classe juntos para todos os heróis", () => {
+		for (const [id, characterName] of Object.entries(heroes)) {
+			const cardClass = catalogs["pt-BR"][id].name;
+			expect(displayCardClass(id)).toBe(cardClass);
+			expect(displayHeroIdentity(id)).toBe(`${characterName} — ${cardClass}`);
+			for (const catalog of Object.values(catalogs)) {
+				expect(catalog[id].characterName).toBe(characterName);
+				expect(catalog[id].name).toBeTruthy();
+			}
 		}
 	});
 

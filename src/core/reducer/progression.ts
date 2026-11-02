@@ -41,7 +41,7 @@ export function levelUpHero(engine: GameEngine, state: GameState, heroId: string
 		dice: card.diceByColor[ci],
 	});
 	next = withImpeto(next, heroId, newImpeto);
-	next = applyLifeGain(next, heroId, lifeGain);
+	next = applyLifeGain(engine, next, heroId, lifeGain);
 
 	// Subir nível também avança o Despertar
 	const despertarBefore = awakeningOf(next);

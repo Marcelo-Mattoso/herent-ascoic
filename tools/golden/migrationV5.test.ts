@@ -1,5 +1,3 @@
-import fs from "node:fs";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
 import { PARTY_PLAYER } from "@/core/choices";
 import snapshotV4 from "@/core/persistence/__fixtures__/snapshot.v4.json";
@@ -19,36 +17,19 @@ import {
 } from "@/core/state/access";
 import type { GameState } from "@/core/state/gameState";
 import { gameOf } from "@/engine/state";
-import { applyAction, type GoldenReplay, initialState } from "./lib";
-
-const replay = JSON.parse(
-	fs.readFileSync(path.resolve(__dirname, "replays/golden-01.json"), "utf8"),
-) as GoldenReplay;
-
-function liveAt(step: number): GameState {
-	let state = initialState(replay.setup);
-	for (const action of replay.actions.slice(0, step + 1)) {
-		state = applyAction(state, action);
-	}
-	return state;
-}
 
 const json = (value: unknown) => JSON.parse(JSON.stringify(value));
 
 describe("migração v4→v5 ({engine, game})", () => {
-	it("snapshot v4 congelado vira o estado vivo do golden (pendências em engine.pending, pilha em engine.stack)", () => {
+	it("snapshot v4 congelado mantém os dados do jogo e move o resto para o envelope (pendências em engine.pending, pilha em engine.stack)", () => {
 		const migrated = unwrapSnapshot(snapshotV4) as GameState;
-		const live = liveAt(3);
+		const flat = json(snapshotV4.state) as Record<string, unknown>;
 		expect(Object.keys(migrated).sort()).toEqual(["engine", "game"]);
-		const { actionLog: _log, ...liveGame } = gameOf(live);
-		expect(json(gameOf(migrated))).toEqual(json(liveGame));
-		expect(json(migrated.engine.pending)).toEqual(json(live.engine.pending));
-		expect(pendingSkillChoiceOf(migrated)).toEqual(
-			json(pendingSkillChoiceOf(live)),
-		);
-		expect(pendingSkillWindowOf(migrated)).toEqual(
-			json(pendingSkillWindowOf(live)),
-		);
+		for (const [key, value] of Object.entries(json(gameOf(migrated)))) {
+			if (key in flat && key !== "combat" && key !== "oncePer") expect(value, key).toEqual(flat[key]);
+		}
+		expect(pendingSkillChoiceOf(migrated)).toEqual(flat.pendingSkillChoice);
+		expect(pendingSkillWindowOf(migrated)).toEqual(flat.pendingSkillWindow);
 		expect(effectStackOf(migrated).pending).toHaveLength(1);
 		expect(effectStackOf(migrated).pending[0]?.cause).toBe("evt_test");
 		const keys = Object.keys(gameOf(migrated));

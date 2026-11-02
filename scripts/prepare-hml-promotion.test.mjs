@@ -57,7 +57,9 @@ test("promotes code and changed/new WebP while stripping modified and new PNG or
 		// Simulate GitHub Actions: the checkout has no user.name or user.email.
 		git(work, "config", "--local", "--unset", "user.name");
 		git(work, "config", "--local", "--unset", "user.email");
-		const env = { ...process.env, GIT_CONFIG_GLOBAL: os.devNull, GIT_CONFIG_NOSYSTEM: "1" };
+		const autocrlf = spawnSync("git", ["config", "--get", "core.autocrlf"], { cwd: work, encoding: "utf8" }).stdout.trim();
+		put(root, "empty-global-config", autocrlf ? `[core]\n\tautocrlf = ${autocrlf}\n` : "");
+		const env = { ...process.env, GIT_CONFIG_GLOBAL: path.join(root, "empty-global-config"), GIT_CONFIG_NOSYSTEM: "1" };
 		assert.notEqual(spawnSync("git", ["var", "GIT_COMMITTER_IDENT"], { cwd: work, env, encoding: "utf8" }).status, 0);
 		const result = spawnSync(process.execPath, [script], { cwd: work, encoding: "utf8", env });
 		assert.equal(result.status, 0, result.stderr || result.stdout);

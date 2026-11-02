@@ -38,16 +38,54 @@
 			"type": "START_COMBAT"
 		},
 		{
-			"type": "SKILL_CHOICE",
+			"type": "CHOOSE_TARGET",
 			"payload": {
-				"skillId": "purple_dark_tribute",
-				"choice": "discard_item"
+				"heroId": "h-9plvs2-asl8nb",
+				"enemyId": "e-14u3vjw-7grv3t"
 			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
 		},
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
 				"heroId": "h-10xhow7-13jpfid",
+				"enemyId": "e-14u3vjw-7grv3t"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1o75sl3-1d06jmb",
+				"enemyId": "e-14u3vjw-7grv3t"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-9plvs2-asl8nb",
 				"enemyId": "e-1u7u839-r3lxss"
 			}
 		},
@@ -60,51 +98,6 @@
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-9plvs2-asl8nb",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1o75sl3-1d06jmb",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "DIRECT_DAMAGE"
-		},
-		{
-			"type": "CHECK_COMBAT_END"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1o75sl3-1d06jmb",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
 				"heroId": "h-10xhow7-13jpfid",
 				"enemyId": "e-14u3vjw-7grv3t"
 			}
@@ -114,27 +107,6 @@
 		},
 		{
 			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-10xhow7-13jpfid",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1o75sl3-1d06jmb",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-10xhow7-13jpfid",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
 		},
 		{
 			"type": "CHOOSE_TARGET",
@@ -151,54 +123,9 @@
 			}
 		},
 		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "DIRECT_DAMAGE"
-		},
-		{
-			"type": "CHECK_COMBAT_END"
-		},
-		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
 				"heroId": "h-1o75sl3-1d06jmb",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-9plvs2-asl8nb",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1o75sl3-1d06jmb",
-				"enemyId": "e-14u3vjw-7grv3t"
-			}
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-10xhow7-13jpfid",
 				"enemyId": "e-14u3vjw-7grv3t"
 			}
 		},
@@ -231,7 +158,7 @@
 		{
 			"type": "CHOOSE_ITEM_DESTINATION",
 			"payload": {
-				"heroId": "h-1o75sl3-1d06jmb",
+				"heroId": "h-9plvs2-asl8nb",
 				"destination": "backpack"
 			}
 		},
@@ -264,8 +191,8 @@
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-9plvs2-asl8nb",
-				"enemyId": "e-42wj42-pgpqr9"
+				"heroId": "h-1o75sl3-1d06jmb",
+				"enemyId": "e-h53ase-1n2ywd3"
 			}
 		},
 		{
@@ -278,7 +205,14 @@
 			"type": "CHOOSE_TARGET",
 			"payload": {
 				"heroId": "h-1o75sl3-1d06jmb",
-				"enemyId": "e-42wj42-pgpqr9"
+				"enemyId": "e-1v2ucw-1jq1fw4"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-9plvs2-asl8nb",
+				"enemyId": "e-h53ase-1n2ywd3"
 			}
 		},
 		{
@@ -290,15 +224,8 @@
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-9plvs2-asl8nb",
-				"enemyId": "e-28h9da-yjt5ei"
-			}
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
 				"heroId": "h-10xhow7-13jpfid",
-				"enemyId": "e-3jasxo-lgbo7p"
+				"enemyId": "e-h53ase-1n2ywd3"
 			}
 		},
 		{
@@ -316,34 +243,8 @@
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-9plvs2-asl8nb",
-				"enemyId": "e-3jasxo-lgbo7p"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
 				"heroId": "h-1o75sl3-1d06jmb",
-				"enemyId": "e-28h9da-yjt5ei"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-10xhow7-13jpfid",
-				"enemyId": "e-rmbtoi-33f1uk"
+				"enemyId": "e-1eg486u-1w97pri"
 			}
 		},
 		{
@@ -361,8 +262,27 @@
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-10xhow7-13jpfid",
-				"enemyId": "e-rmbtoi-33f1uk"
+				"heroId": "h-1o75sl3-1d06jmb",
+				"enemyId": "e-h53ase-1n2ywd3"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1o75sl3-1d06jmb",
+				"enemyId": "e-1eg486u-1w97pri"
 			}
 		},
 		{
@@ -379,86 +299,70 @@
 		}
 	],
 	"steps": [
-		"c11ab70282f5b463",
-		"addd0cf4ef9684cf",
-		"2b87d4da92ea21c6",
-		"b9003d42958a4918",
-		"37b0ddb2dd223bb8",
-		"8e67d992c0c7e006",
-		"4fb4432e277a2c95",
-		"9acbc996bd4aad22",
-		"1e3c62d4d68b6803",
-		"65ad3533f6787df0",
-		"a9d20e367faf182a",
-		"e5fc8f0c9dabdc03",
-		"e4dc994979e575dd",
-		"43b2173ad8e4ea88",
-		"416aa24d35b8b208",
-		"b7506194f17696d8",
-		"48363b0b46dbe91c",
-		"028095908a367178",
-		"8aaae15a5c31967f",
-		"a4b06246a81bd909",
-		"03be581294911ca6",
-		"14f4c8ed5e801b79",
-		"2a728fb555c3ba1f",
-		"3a173055e25fa136",
-		"44436e973d33af18",
-		"7b69d6d1e633dfb7",
-		"b90974215268faa8",
-		"fbe2d44113759bb7",
-		"54c4543c09e5e1fe",
-		"25d04eb4d1e71005",
-		"6769a6714f6e156f",
-		"e9330dc8b5e0201c",
-		"6cd8a0e77a010d85",
-		"4904550a00ac2444",
-		"26778921df4fa7bf",
-		"09a14fa04519e0ac",
-		"3a707249381a880c",
-		"62f52d7dc5d506d6",
-		"22c59db66d80a7ea",
-		"2881a3cbcdf3d5ed",
-		"5af126561e6093ff",
-		"db5f7af29cfa9192",
-		"454a58ddb5411028",
-		"7f5247d9ed8c8a38",
-		"0d39e1b48a6d0445",
-		"24b0c4d13c1f2a38",
-		"5ef606cb9ee3148e",
-		"19d2a7a0be563e27",
-		"71f75b9111b77ab2",
-		"86ebd7cf0e8faf4e",
-		"063da22b95d9a973",
-		"20c8ce89aa093f54",
-		"b81fea359c72a582",
-		"efe8039ff4a8c6e2",
-		"214e0f91a2dea346",
-		"179efbb225901e38",
-		"4b2b48ee42e98801",
-		"2efc15c823c0aca7",
-		"1340af235a10be25",
-		"221864ff75fa5058",
-		"8bc1bc477703f366",
-		"7cee829c69fafd14",
-		"79f5a39bf74ad802",
-		"8cda992b32e1db06",
-		"90a6726ed464f902",
-		"a338a20f99db6352",
-		"895083921d6028e7",
-		"d52ca7ad6f01ea68",
-		"f2b4013e789cd823",
-		"000d7cf35b02e181",
-		"8fc5418cbb6cd4ac",
-		"ef46fbe5513047f9",
-		"1d096fe7a287bae9",
-		"ae9adea5a6f60e65",
-		"3959d83cd01c992a",
-		"e3d598c55b670d23",
-		"5ae3c3a4ccf8c235",
-		"1b5c22c1505d1cc1",
-		"cef2281d25bfca36",
-		"9ec3bad20783ae7b"
+		"cf7eaa0a573e9c78",
+		"7c716d1da88cd2ce",
+		"dba97785b853cad1",
+		"1231ce2696c1e1e8",
+		"f54c7dd1114298da",
+		"550b9664cf2e6685",
+		"1597f768ea7b912e",
+		"47f8d47ed2fc5b5d",
+		"9a16d70942d317e8",
+		"904cdedf57dc2c9e",
+		"d763b6ac77073c8c",
+		"d88c1fcd4c615fc6",
+		"9dcaf9e53c8dfec3",
+		"639070edee7ec88b",
+		"2b79744017b49801",
+		"a5a7a4f095e9808d",
+		"a9fc01e7f3d91c1b",
+		"e0edc0672453612f",
+		"ba4ae3b813ad787a",
+		"d7e8ac124d62c3c9",
+		"0277153619d9c143",
+		"49b6c0661ff37441",
+		"21bd3de27791e68a",
+		"5fb7b707b9574341",
+		"cbd16f50c6e9b522",
+		"138700b1891625ad",
+		"eb61d4af02c17546",
+		"cf4d14dc0b8bd667",
+		"a48f3aa927b00923",
+		"5b06400efe1b4428",
+		"4fafc54e2aa4689a",
+		"5c4fcbc8576d28c1",
+		"4daf798f3d559ba6",
+		"029439c80f4155d7",
+		"0bc0888c4003cfa7",
+		"b4494afa3b2defc3",
+		"0f72ed6da9073085",
+		"44e8dd09359c7f05",
+		"bcaf215254128a0a",
+		"910eedfc5b1d04cd",
+		"558be65e35912ab4",
+		"87a0211783089c7e",
+		"3bf66b66ac079495",
+		"08c6b269dfdbb74a",
+		"5b6143943bc0a9e6",
+		"24dba4a7f5136bbd",
+		"de2fb8771361efbb",
+		"be9d84640ac19a2f",
+		"6444e7efc04e23dc",
+		"ba1d4420276929b0",
+		"abab1cb74fafbbcc",
+		"26a3d368841337ef",
+		"f2f5d6d1beaba625",
+		"4c2c6d55c659e5b4",
+		"00eb721493bdc64a",
+		"afd75a11fc661c14",
+		"412bedef65503c4f",
+		"1f6552c2a4a8dccc",
+		"b465801c412379ec",
+		"45e45116a73f0432",
+		"d72c8bb2b37fc62c",
+		"dcb706c1cfb2a3b1",
+		"cae0073852966cbf",
+		"128168e531424a95"
 	],
 	"finalSnapshot": {
 		"abilityActionsByHero": {
@@ -541,6 +445,21 @@
 				"from": {
 					"kind": "dungeon"
 				},
+				"icon": "🚷",
+				"id": "flag:flee-blocked",
+				"kind": "debuff",
+				"label": "Fuga bloqueada",
+				"scope": "dungeon_to_group",
+				"source": "Efeito de sala/inimigo",
+				"to": {
+					"kind": "group"
+				}
+			},
+			{
+				"duration": "até fim da sala",
+				"from": {
+					"kind": "dungeon"
+				},
 				"icon": "🔒",
 				"id": "flag:discard-dungeon-locked",
 				"kind": "neutral",
@@ -552,54 +471,624 @@
 				}
 			}
 		],
+		"alphaLog": [
+			"#1 Ação START_GAME. Dados: {\"type\":\"START_GAME\",\"payload\":{\"heroCardIds\":[\"hero_eternal_rest_cleric\",\"hero_deep_veil_necromancer\",\"hero_crimson_barbarian\"],\"difficulty\":\"normal\",\"bossCardId\":\"boss_azhakar\",\"seed\":3018,\"gameId\":\"golden-3018\"}}",
+			"Fase: MAIN_MENU → ROOM_EFFECT.",
+			"Sala: nenhuma → Sala da Masmorra.",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb) entrou em jogo.",
+			"Necromante do Véu Profundo (h-10xhow7-13jpfid) entrou em jogo.",
+			"Bárbaro Rubro (h-1o75sl3-1d06jmb) entrou em jogo.",
+			"dungeonDeck.available: 0 → 19; adicionadas [\"room_narrow_corridor\",\"room_crimson_chains_chamber\",\"room_depths_stairway\",\"room_abandoned_cell\",\"room_narrow_corridor\",\"room_dead_torches_passage\",\"room_crimson_chains_chamber\",\"room_cracked_abyss\",\"room_broken_columns_hall\",\"room_depths_stairway\",\"room_ruined_forge\",\"room_dungeon_room\",\"room_jailer_room\",\"room_jailer_room\",\"room_ruined_forge\",\"room_broken_columns_hall\",\"room_cracked_abyss\",\"room_dead_torches_passage\",\"room_abandoned_cell\"], retiradas [].",
+			"enemyDeck.available: 0 → 18; adicionadas [\"creature_dead_passage_thief\",\"creature_deep_rift_rat\",\"creature_broken_chains_brute\",\"creature_catacomb_skeleton\",\"creature_broken_gates_watcher\",\"creature_forge_acolyte\",\"creature_dark_cave_goblin\",\"creature_ancient_pillar_spider\",\"creature_ruined_hall_ogre\",\"creature_low_ember_kobold\",\"creature_low_fire_salamander\",\"creature_wet_stone_slime\",\"creature_hot_ash_worm\",\"creature_black_ceiling_bat\",\"creature_blazing_skull\",\"creature_dead_torch_sentinel\",\"creature_hidden_flame_cultist\",\"creature_old_chains_knight\"], retiradas [].",
+			"itemDeck.available: 0 → 34; adicionadas [\"item_fury_potion\",\"item_cracked_shield\",\"item_forge_magic_armor\",\"item_warm_blood_charm\",\"item_broken_stone_hammer\",\"item_hidden_forge_chest\",\"item_pitch_torch\",\"item_rift_bow\",\"item_light_stone_boots\",\"item_reinforced_leather_armor\",\"item_last_defense_charm\",\"item_ruined_hall_axe\",\"item_greater_vigor_potion\",\"item_return_potion\",\"item_stoneskin_potion\",\"item_living_ember_potion\",\"item_crimson_rune_staff\",\"item_rusty_dagger\",\"item_deep_veil_scythe\",\"item_ancient_metal_armor\",\"item_tunnel_hood\",\"item_precision_potion\",\"item_silent_dungeon_charm\",\"item_last_light_sword\",\"item_worn_explorer_rope\",\"item_low_flame_charm\",\"item_lesser_vigor_potion\",\"item_ancient_iron_key\",\"item_torn_depths_map\",\"item_broken_veil_cloak\",\"item_incendiary_oil_flask\",\"item_safe_path_charm\",\"item_narrow_exit_cloak\",\"item_last_chord_lute\"], retiradas [].",
+			"artifactDeck.available: 0 → 5; adicionadas [\"artifact_lost_forge_hammer\",\"artifact_last_vigil_brazier\",\"artifact_first_fire_blade\",\"artifact_ancient_ember_heart\",\"artifact_crimson_jailer_chain\"], retiradas [].",
+			"Detalhe técnico gameId: \"__PREGAME__\" → \"golden-3018\".",
+			"Detalhe técnico rng: {\"seed\":0,\"counter\":0} → {\"seed\":3018,\"counter\":98}.",
+			"Detalhe técnico bossCardId: \"\" → \"boss_azhakar\".",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_dungeon_room\"},\"seq\":0}].",
+			"Log atual: Partida iniciada. Heróis: Clérigo do Descanso Eterno, Necromante do Véu Profundo, Bárbaro Rubro. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Log atual: Sala sorteada: Sala da Masmorra.",
+			"#2 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
+			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
+			"#3 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
+			"Fase: SPAWN_ENEMIES → COMBAT_START.",
+			"Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) entrou em jogo.",
+			"Rato das Fendas Profundas (e-1u7u839-r3lxss) entrou em jogo.",
+			"enemyDeck.available: 18 → 16; adicionadas [], retiradas [\"creature_dead_passage_thief\",\"creature_deep_rift_rat\"].",
+			"Efeitos em Ladrão das Passagens Mortas (e-14u3vjw-7grv3t): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Rato das Fendas Profundas (e-1u7u839-r3lxss): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":98} → {\"seed\":3018,\"counter\":102}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
+			"Log atual: 2 inimigo(s) aparecem: Ladrão das Passagens Mortas, Rato das Fendas Profundas.",
+			"#4 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
+			"Habilidade Tributo Sombrio ativada por Ladrão das Passagens Mortas (e-14u3vjw-7grv3t); evento evt_combat_start; alvos [h-9plvs2-asl8nb, h-10xhow7-13jpfid, h-1o75sl3-1d06jmb]; parâmetros {\"value\":1}.",
+			"Fase: COMBAT_START → HERO_ACTION.",
+			"dungeonDeck.available: 19 → 18; adicionadas [], retiradas [\"room_narrow_corridor\"].",
+			"dungeonDeck.discarded: 0 → 1; adicionadas [\"room_narrow_corridor\"], retiradas [].",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
+			"Log atual: Combate iniciado.",
+			"#5 Clérigo do Descanso Eterno (h-9plvs2-asl8nb) iniciou ataque contra Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-9plvs2-asl8nb).",
+			"Detalhe técnico flags: {} → {\"targetChosen::e-14u3vjw-7grv3t\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-9plvs2-asl8nb\",\"targetId\":\"e-14u3vjw-7grv3t\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}].",
+			"#6 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Clérigo do Descanso Eterno (h-9plvs2-asl8nb): dados [5], hitBonus +4 = 9.",
+			"Rolagem de Ladrão das Passagens Mortas (e-14u3vjw-7grv3t): dados [6], hitBonus +5 = 11. Margem -2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":102} → {\"seed\":3018,\"counter\":104}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\",\"heroTotal\":9,\"enemyTotal\":11,\"heroResults\":[5],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 9 | Inimigo rolou 11.",
+			"#7 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Clérigo do Descanso Eterno (9) × Ladrão das Passagens Mortas (11); margem -2; dano do herói 2 sem bônus = 2; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Ladrão das Passagens Mortas → Clérigo do Descanso Eterno; solicitado 5, após efeitos 5, aplicado 5; vida 9 → 4.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Clérigo do Descanso Eterno (h-9plvs2-asl8nb) → desconhecido.",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb) recebeu 5 de dano (9 → 4).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-14u3vjw-7grv3t\",\"targetId\":\"h-9plvs2-asl8nb\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: undefined → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-9plvs2-asl8nb\"].",
+			"Log atual: Clérigo do Descanso Eterno sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +5 → 11 vs herói: 9.",
+			"Log atual: Aguardando ação de 2 herói(s).",
+			"#8 Necromante do Véu Profundo (h-10xhow7-13jpfid) iniciou ataque contra Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Necromante do Véu Profundo (h-10xhow7-13jpfid).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-10xhow7-13jpfid\",\"targetId\":\"e-14u3vjw-7grv3t\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}] → [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"}].",
+			"#9 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Necromante do Véu Profundo (h-10xhow7-13jpfid): dados [5], hitBonus +4 = 9.",
+			"Rolagem de Ladrão das Passagens Mortas (e-14u3vjw-7grv3t): dados [4], hitBonus +5 = 9. Margem +0.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":104} → {\"seed\":3018,\"counter\":106}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\",\"heroTotal\":9,\"enemyTotal\":9,\"heroResults\":[5],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 9 | Inimigo rolou 9.",
+			"#10 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Necromante do Véu Profundo (9) × Ladrão das Passagens Mortas (9); margem +0; dano do herói 2 sem bônus = 2; dano do inimigo 5 sem bônus = 5; dano previsto: herói 1, inimigo 1.",
+			"Dano attack: Necromante do Véu Profundo → Ladrão das Passagens Mortas; solicitado 1, após efeitos 1, aplicado 1; vida 6 → 5.",
+			"Dano attack: Ladrão das Passagens Mortas → Necromante do Véu Profundo; solicitado 1, após efeitos 1, aplicado 1; vida 8 → 7.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Necromante do Véu Profundo (h-10xhow7-13jpfid) → desconhecido.",
+			"Necromante do Véu Profundo (h-10xhow7-13jpfid) recebeu 1 de dano (8 → 7).",
+			"Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) recebeu 1 de dano (6 → 5).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-10xhow7-13jpfid\",\"targetId\":\"e-14u3vjw-7grv3t\",\"damageType\":\"attack\",\"amount\":1},\"seq\":0},{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-14u3vjw-7grv3t\",\"targetId\":\"h-10xhow7-13jpfid\",\"damageType\":\"attack\",\"amount\":1},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1}].",
+			"Detalhe técnico combate.heroesActed: [\"h-9plvs2-asl8nb\"] → [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\"].",
+			"Log atual: Ladrão das Passagens Mortas sofreu 1 de dano (empate). Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 9.",
+			"Log atual: Necromante do Véu Profundo sofreu 1 de dano (empate). Inimigo: dado(s) [4]=4, acerto +5 → 9 vs herói: 9.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#11 Bárbaro Rubro (h-1o75sl3-1d06jmb) iniciou ataque contra Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1o75sl3-1d06jmb).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-14u3vjw-7grv3t\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"}] → [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}].",
+			"#12 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1o75sl3-1d06jmb): dados [1], hitBonus +5 = 6.",
+			"Rolagem de Ladrão das Passagens Mortas (e-14u3vjw-7grv3t): dados [5], hitBonus +5 = 10. Margem -4.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":106} → {\"seed\":3018,\"counter\":108}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\",\"heroTotal\":6,\"enemyTotal\":10,\"heroResults\":[1],\"enemyResults\":[5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 6 | Inimigo rolou 10.",
+			"#13 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (6) × Ladrão das Passagens Mortas (10); margem -4; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Ladrão das Passagens Mortas → Bárbaro Rubro; solicitado 5, após efeitos 5, aplicado 5; vida 12 → 7.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1o75sl3-1d06jmb) → desconhecido.",
+			"Bárbaro Rubro (h-1o75sl3-1d06jmb) recebeu 5 de dano (12 → 7).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-14u3vjw-7grv3t\",\"targetId\":\"h-1o75sl3-1d06jmb\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5}].",
+			"Detalhe técnico combate.heroesActed: [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\"] → [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"].",
+			"Log atual: Bárbaro Rubro sofreu 5 de dano. Inimigo: dado(s) [5]=5, acerto +5 → 10 vs herói: 6.",
+			"#14 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#15 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}] → [].",
+			"Log atual: Rodada 2 de combate.",
+			"#16 Clérigo do Descanso Eterno (h-9plvs2-asl8nb) iniciou ataque contra Rato das Fendas Profundas (e-1u7u839-r3lxss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-9plvs2-asl8nb).",
+			"Detalhe técnico flags: {\"targetChosen::e-14u3vjw-7grv3t\":true} → {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-9plvs2-asl8nb\",\"targetId\":\"e-1u7u839-r3lxss\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\"}].",
+			"#17 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Clérigo do Descanso Eterno (h-9plvs2-asl8nb): dados [5], hitBonus +4 = 9.",
+			"Rolagem de Rato das Fendas Profundas (e-1u7u839-r3lxss): dados [6], hitBonus +2 = 8. Margem +1.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":108} → {\"seed\":3018,\"counter\":110}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\",\"heroTotal\":9,\"enemyTotal\":8,\"heroResults\":[5],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 9 | Inimigo rolou 8.",
+			"#18 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Clérigo do Descanso Eterno (9) × Rato das Fendas Profundas (8); margem +1; dano do herói 2 sem bônus = 2; dano do inimigo 1 sem bônus = 1; dano previsto: herói 0, inimigo 2.",
+			"Dano attack: Clérigo do Descanso Eterno → Rato das Fendas Profundas; solicitado 2, após efeitos 2, aplicado 1; vida 1 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Clérigo do Descanso Eterno (h-9plvs2-asl8nb) → desconhecido.",
+			"Rato das Fendas Profundas (e-1u7u839-r3lxss) recebeu 1 de dano (1 → 0).",
+			"Rato das Fendas Profundas (e-1u7u839-r3lxss): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-9plvs2-asl8nb\",\"targetId\":\"e-1u7u839-r3lxss\",\"damageType\":\"attack\",\"amount\":2},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-1u7u839-r3lxss\",\"sourceId\":\"h-9plvs2-asl8nb\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-9plvs2-asl8nb\"].",
+			"Log atual: Rato das Fendas Profundas sofreu 2 de dano. Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 8.",
+			"Log atual: Aguardando ação de 2 herói(s).",
+			"#19 Necromante do Véu Profundo (h-10xhow7-13jpfid) iniciou ataque contra Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Necromante do Véu Profundo (h-10xhow7-13jpfid).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-10xhow7-13jpfid\",\"targetId\":\"e-14u3vjw-7grv3t\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\"}] → [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"}].",
+			"#20 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Necromante do Véu Profundo (h-10xhow7-13jpfid): dados [6], hitBonus +4 = 10.",
+			"Rolagem de Ladrão das Passagens Mortas (e-14u3vjw-7grv3t): dados [3], hitBonus +5 = 8. Margem +2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":110} → {\"seed\":3018,\"counter\":112}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\",\"heroTotal\":10,\"enemyTotal\":8,\"heroResults\":[6],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 10 | Inimigo rolou 8.",
+			"#21 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Necromante do Véu Profundo (10) × Ladrão das Passagens Mortas (8); margem +2; dano do herói 2 sem bônus = 2; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 2.",
+			"Dano attack: Necromante do Véu Profundo → Ladrão das Passagens Mortas; solicitado 2, após efeitos 2, aplicado 2; vida 5 → 3.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Necromante do Véu Profundo (h-10xhow7-13jpfid) → desconhecido.",
+			"Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) recebeu 2 de dano (5 → 3).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-10xhow7-13jpfid\",\"targetId\":\"e-14u3vjw-7grv3t\",\"damageType\":\"attack\",\"amount\":2},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [\"h-9plvs2-asl8nb\"] → [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\"].",
+			"Log atual: Ladrão das Passagens Mortas sofreu 2 de dano. Herói: dado(s) [6]=6, acerto +4 → 10 vs inimigo: 8.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#22 Necromante do Véu Profundo (h-10xhow7-13jpfid) iniciou ataque contra Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"}}",
+			"Log atual: [AVISO] Herói h-10xhow7-13jpfid já agiu nesta rodada.",
+			"#23 Clérigo do Descanso Eterno (h-9plvs2-asl8nb) iniciou ataque contra Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}}",
+			"Log atual: [AVISO] Herói h-9plvs2-asl8nb já agiu nesta rodada.",
+			"#24 Bárbaro Rubro (h-1o75sl3-1d06jmb) iniciou ataque contra Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1o75sl3-1d06jmb).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-14u3vjw-7grv3t\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"}] → [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}].",
+			"#25 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1o75sl3-1d06jmb): dados [5], hitBonus +5 = 10.",
+			"Rolagem de Ladrão das Passagens Mortas (e-14u3vjw-7grv3t): dados [4], hitBonus +5 = 9. Margem +1.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":112} → {\"seed\":3018,\"counter\":114}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\",\"heroTotal\":10,\"enemyTotal\":9,\"heroResults\":[5],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 10 | Inimigo rolou 9.",
+			"#26 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (10) × Ladrão das Passagens Mortas (9); margem +1; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Ladrão das Passagens Mortas; solicitado 4, após efeitos 4, aplicado 3; vida 3 → 0.",
+			"Fase: RESOLVE_ATTACK → CHECK_COMBAT_END.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1o75sl3-1d06jmb) → desconhecido.",
+			"Ladrão das Passagens Mortas (e-14u3vjw-7grv3t) recebeu 3 de dano (3 → 0).",
+			"Ladrão das Passagens Mortas (e-14u3vjw-7grv3t): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-14u3vjw-7grv3t\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-14u3vjw-7grv3t\",\"sourceId\":\"h-1o75sl3-1d06jmb\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3}].",
+			"Detalhe técnico combate.heroesActed: [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\"] → [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"].",
+			"Log atual: Ladrão das Passagens Mortas sofreu 4 de dano. Herói: dado(s) [5]=5, acerto +5 → 10 vs inimigo: 9.",
+			"#27 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → REWARD_PHASE.",
+			"Rodada: 1 → 2.",
+			"Detalhe técnico creaturesDefeated: 0 → 2.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"REWARD_PHASE\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-1u7u839-r3lxss\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-14u3vjw-7grv3t\"},{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-14u3vjw-7grv3t\"}] → [].",
+			"Log atual: Sala limpa! Avançando para recompensa.",
+			"#28 Ação GRANT_REWARDS. Dados: {\"type\":\"GRANT_REWARDS\"}",
+			"XP do grupo: 0 → 5 (+5).",
+			"Recompensas na mesa: [] → [{\"type\":\"item\",\"cardId\":\"item_fury_potion\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_cracked_shield\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}].",
+			"itemDeck.available: 34 → 30; adicionadas [], retiradas [\"item_fury_potion\",\"item_cracked_shield\",\"item_forge_magic_armor\",\"item_warm_blood_charm\"].",
+			"Detalhe técnico roomsCleared: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomWon\",\"payload\":{\"roomId\":\"room_dungeon_room\"},\"seq\":0},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"xp\",\"amount\":5},\"seq\":1},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_fury_potion\"},\"seq\":2},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_cracked_shield\"},\"seq\":3},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_forge_magic_armor\"},\"seq\":4},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_warm_blood_charm\"},\"seq\":5}].",
+			"Log atual: Recompensas: +5 XP, 4 item(ns), 0 artefato(s). Resolvendo...",
+			"#29 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"destination\":\"backpack\"}}",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb): mochila [] → [\"item_fury_potion\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_fury_potion\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_cracked_shield\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_cracked_shield\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"itemId\":\"item_fury_potion\"},\"seq\":0}].",
+			"Log atual: Poção de Fúria atribuído a h-9plvs2-asl8nb.",
+			"#30 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"destination\":\"backpack\"}}",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb): mochila [\"item_fury_potion\"] → [\"item_fury_potion\",\"item_cracked_shield\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_cracked_shield\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"itemId\":\"item_cracked_shield\"},\"seq\":0}].",
+			"Log atual: Escudo Rachado atribuído a h-9plvs2-asl8nb.",
+			"#31 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"destination\":\"backpack\"}}",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb): mochila [\"item_fury_potion\",\"item_cracked_shield\"] → [\"item_fury_potion\",\"item_cracked_shield\",\"item_forge_magic_armor\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"itemId\":\"item_forge_magic_armor\"},\"seq\":0}].",
+			"Log atual: Armadura Mágica da Fornalha atribuído a h-9plvs2-asl8nb.",
+			"#32 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"destination\":\"backpack\"}}",
+			"Fase: REWARD_PHASE → XP_SPEND_PHASE.",
+			"Bárbaro Rubro (h-1o75sl3-1d06jmb): mochila [] → [\"item_warm_blood_charm\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_warm_blood_charm\",\"requiresBearer\":false}] → [].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"itemId\":\"item_warm_blood_charm\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"REWARD_PHASE\",\"to\":\"XP_SPEND_PHASE\",\"action\":\"CHOOSE_ITEM_DESTINATION\"},\"seq\":1}].",
+			"Log atual: Encanto do Sangue Quente atribuído a h-1o75sl3-1d06jmb.",
+			"#33 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
+			"Fase: XP_SPEND_PHASE → ROOM_EFFECT.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 2 → 0.",
+			"Sala: Sala da Masmorra → Câmara das Correntes Rubras.",
+			"dungeonDeck.available: 18 → 16; adicionadas [], retiradas [\"room_crimson_chains_chamber\",\"room_broken_columns_hall\"].",
+			"dungeonDeck.discarded: 1 → 3; adicionadas [\"room_dungeon_room\",\"room_broken_columns_hall\"], retiradas [].",
+			"Efeitos em e-14u3vjw-7grv3t: [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [].",
+			"Efeitos em e-1u7u839-r3lxss: [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [].",
+			"Bloqueios: {} → {\"fleeBlocked\":[{\"source\":\"dungeon_skill_confinement\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"room_crimson_chains_chamber\"}]}.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":114} → {\"seed\":3018,\"counter\":148}.",
+			"Detalhe técnico flags: {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true} → {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_crimson_chains_chamber\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"XP_SPEND_PHASE\",\"to\":\"ROOM_EFFECT\",\"action\":\"CHECK_BOSS_CONDITION\"},\"seq\":1}].",
+			"Log atual: Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
+			"Log atual: Fuga bloqueada.",
+			"Log atual: Sala sorteada: Câmara das Correntes Rubras.",
+			"#34 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
+			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
+			"#35 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
+			"Fase: SPAWN_ENEMIES → COMBAT_START.",
+			"Bruto das Correntes Partidas (e-1eg486u-1w97pri) entrou em jogo.",
+			"Esqueleto das Catacumbas (e-h53ase-1n2ywd3) entrou em jogo.",
+			"Vigia das Portas Quebradas (e-1v2ucw-1jq1fw4) entrou em jogo.",
+			"enemyDeck.available: 16 → 13; adicionadas [], retiradas [\"creature_broken_chains_brute\",\"creature_catacomb_skeleton\",\"creature_broken_gates_watcher\"].",
+			"Efeitos em Bruto das Correntes Partidas (e-1eg486u-1w97pri): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Esqueleto das Catacumbas (e-h53ase-1n2ywd3): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Vigia das Portas Quebradas (e-1v2ucw-1jq1fw4): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Bloqueios: {\"fleeBlocked\":[{\"source\":\"dungeon_skill_confinement\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"room_crimson_chains_chamber\"}]} → {\"fleeBlocked\":[{\"source\":\"dungeon_skill_confinement\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"room_crimson_chains_chamber\"}],\"discardDungeonLocked\":[{\"source\":\"skill_path_corruption\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"e-1eg486u-1w97pri\"}]}.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":148} → {\"seed\":3018,\"counter\":154}.",
+			"Detalhe técnico flags: {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true} → {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true,\"discardDungeonLocked\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
+			"Log atual: Prevenção de descarte de dungeon bloqueada.",
+			"Log atual: 3 inimigo(s) aparecem: Bruto das Correntes Partidas, Esqueleto das Catacumbas, Vigia das Portas Quebradas.",
+			"#36 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
+			"Habilidade Tributo Sombrio ativada por Esqueleto das Catacumbas (e-h53ase-1n2ywd3); evento evt_combat_start; alvos [h-9plvs2-asl8nb, h-10xhow7-13jpfid, h-1o75sl3-1d06jmb]; parâmetros {\"value\":1}.",
+			"Fase: COMBAT_START → HERO_ACTION.",
+			"Escolha aberta: Tributo Sombrio — Escolha uma opção:.",
+			"Detalhe técnico flags: {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true,\"discardDungeonLocked\":true} → {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true,\"discardDungeonLocked\":true,\"triggerInterruptResolved::grant:evt_combat_start:e-h53ase-1n2ywd3:creature_catacomb_skeleton:legacy:creature_catacomb_skeleton:0:purple_dark_tribute\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
+			"Detalhe técnico pendingSkillChoice: undefined → {\"skillId\":\"purple_dark_tribute\",\"prompt\":\"Escolha uma opção:\",\"allowSkip\":false,\"options\":[{\"id\":\"discard_item\",\"label\":\"Descartar 1 item\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"item\",\"count\":1}]},{\"id\":\"discard_dungeon\",\"label\":\"Descartar 1 carta de dungeon\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"dungeon\",\"count\":1}]}],\"sourceEnemyId\":\"e-h53ase-1n2ywd3\",\"targetHeroIds\":[\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"],\"targetEnemyIds\":[],\"context\":{\"triggeredBy\":\"evt_combat_start\",\"targetEnemyIds\":[],\"targetHeroIds\":[\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"],\"sourceEnemyId\":\"e-h53ase-1n2ywd3\",\"skillId\":\"purple_dark_tribute\",\"value\":1}}.",
+			"Log atual: Combate iniciado.",
+			"#37 Escolha em Tributo Sombrio: discard_item. Dados: {\"type\":\"SKILL_CHOICE\",\"payload\":{\"skillId\":\"purple_dark_tribute\",\"choice\":\"discard_item\"}}",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb): mochila [\"item_fury_potion\",\"item_cracked_shield\",\"item_forge_magic_armor\"] → [\"item_cracked_shield\",\"item_forge_magic_armor\"].",
+			"Detalhe técnico pendingSkillChoice: {\"skillId\":\"purple_dark_tribute\",\"prompt\":\"Escolha uma opção:\",\"allowSkip\":false,\"options\":[{\"id\":\"discard_item\",\"label\":\"Descartar 1 item\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"item\",\"count\":1}]},{\"id\":\"discard_dungeon\",\"label\":\"Descartar 1 carta de dungeon\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"dungeon\",\"count\":1}]}],\"sourceEnemyId\":\"e-h53ase-1n2ywd3\",\"targetHeroIds\":[\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"],\"targetEnemyIds\":[],\"context\":{\"triggeredBy\":\"evt_combat_start\",\"targetEnemyIds\":[],\"targetHeroIds\":[\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\",\"h-1o75sl3-1d06jmb\"],\"sourceEnemyId\":\"e-h53ase-1n2ywd3\",\"skillId\":\"purple_dark_tribute\",\"value\":1}} → undefined.",
+			"Log atual: Tributo: item_fury_potion descartado da mochila.",
+			"#38 Bárbaro Rubro (h-1o75sl3-1d06jmb) iniciou ataque contra Esqueleto das Catacumbas (e-h53ase-1n2ywd3) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1o75sl3-1d06jmb).",
+			"Detalhe técnico flags: {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true,\"discardDungeonLocked\":true,\"triggerInterruptResolved::grant:evt_combat_start:e-h53ase-1n2ywd3:creature_catacomb_skeleton:legacy:creature_catacomb_skeleton:0:purple_dark_tribute\":true} → {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true,\"discardDungeonLocked\":true,\"targetChosen::e-h53ase-1n2ywd3\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-h53ase-1n2ywd3\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}].",
+			"#39 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1o75sl3-1d06jmb): dados [5], hitBonus +5 = 10.",
+			"Rolagem de Esqueleto das Catacumbas (e-h53ase-1n2ywd3): dados [3], hitBonus +5 = 8. Margem +2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":154} → {\"seed\":3018,\"counter\":156}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\",\"heroTotal\":10,\"enemyTotal\":8,\"heroResults\":[5],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 10 | Inimigo rolou 8.",
+			"#40 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (10) × Esqueleto das Catacumbas (8); margem +2; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Esqueleto das Catacumbas; solicitado 4, após efeitos 4, aplicado 4; vida 5 → 1.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1o75sl3-1d06jmb) → desconhecido.",
+			"Esqueleto das Catacumbas (e-h53ase-1n2ywd3) recebeu 4 de dano (5 → 1).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-h53ase-1n2ywd3\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1o75sl3-1d06jmb\"].",
+			"Log atual: Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [5]=5, acerto +5 → 10 vs inimigo: 8.",
+			"Log atual: Aguardando ação de 2 herói(s).",
+			"#41 Bárbaro Rubro (h-1o75sl3-1d06jmb) iniciou ataque contra Vigia das Portas Quebradas (e-1v2ucw-1jq1fw4) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1v2ucw-1jq1fw4\"}}",
+			"Log atual: [AVISO] Herói h-1o75sl3-1d06jmb já agiu nesta rodada.",
+			"#42 Clérigo do Descanso Eterno (h-9plvs2-asl8nb) iniciou ataque contra Esqueleto das Catacumbas (e-h53ase-1n2ywd3) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Clérigo do Descanso Eterno (h-9plvs2-asl8nb).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-9plvs2-asl8nb\",\"targetId\":\"e-h53ase-1n2ywd3\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}] → [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"},{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}].",
+			"#43 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Clérigo do Descanso Eterno (h-9plvs2-asl8nb): dados [1], hitBonus +4 = 5.",
+			"Rolagem de Esqueleto das Catacumbas (e-h53ase-1n2ywd3): dados [2], hitBonus +5 = 7. Margem -2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":156} → {\"seed\":3018,\"counter\":158}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-h53ase-1n2ywd3\",\"heroTotal\":5,\"enemyTotal\":7,\"heroResults\":[1],\"enemyResults\":[2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 5 | Inimigo rolou 7.",
+			"#44 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Clérigo do Descanso Eterno (5) × Esqueleto das Catacumbas (7); margem -2; dano do herói 2 sem bônus = 2; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Esqueleto das Catacumbas → Clérigo do Descanso Eterno; solicitado 5, após efeitos 5, aplicado 4; vida 4 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Clérigo do Descanso Eterno (h-9plvs2-asl8nb) → desconhecido.",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb) recebeu 4 de dano (4 → 0).",
+			"Clérigo do Descanso Eterno (h-9plvs2-asl8nb): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-h53ase-1n2ywd3\",\"targetId\":\"h-9plvs2-asl8nb\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-9plvs2-asl8nb\",\"sourceId\":\"e-h53ase-1n2ywd3\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1o75sl3-1d06jmb\"] → [\"h-1o75sl3-1d06jmb\",\"h-9plvs2-asl8nb\"].",
+			"Log atual: Clérigo do Descanso Eterno sofreu 5 de dano. Inimigo: dado(s) [2]=2, acerto +5 → 7 vs herói: 5.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#45 Necromante do Véu Profundo (h-10xhow7-13jpfid) iniciou ataque contra Esqueleto das Catacumbas (e-h53ase-1n2ywd3) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-h53ase-1n2ywd3\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Necromante do Véu Profundo (h-10xhow7-13jpfid).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-10xhow7-13jpfid\",\"targetId\":\"e-h53ase-1n2ywd3\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"},{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}] → [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"},{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-h53ase-1n2ywd3\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-h53ase-1n2ywd3\"}].",
+			"#46 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Necromante do Véu Profundo (h-10xhow7-13jpfid): dados [1], hitBonus +4 = 5.",
+			"Rolagem de Esqueleto das Catacumbas (e-h53ase-1n2ywd3): dados [3], hitBonus +5 = 8. Margem -3.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":158} → {\"seed\":3018,\"counter\":160}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-h53ase-1n2ywd3\",\"heroTotal\":5,\"enemyTotal\":8,\"heroResults\":[1],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 5 | Inimigo rolou 8.",
+			"#47 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Necromante do Véu Profundo (5) × Esqueleto das Catacumbas (8); margem -3; dano do herói 2 sem bônus = 2; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Esqueleto das Catacumbas → Necromante do Véu Profundo; solicitado 5, após efeitos 5, aplicado 5; vida 7 → 2.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Necromante do Véu Profundo (h-10xhow7-13jpfid) → desconhecido.",
+			"Necromante do Véu Profundo (h-10xhow7-13jpfid) recebeu 5 de dano (7 → 2).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-h53ase-1n2ywd3\",\"targetId\":\"h-10xhow7-13jpfid\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1o75sl3-1d06jmb\",\"h-9plvs2-asl8nb\"] → [\"h-1o75sl3-1d06jmb\",\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\"].",
+			"Log atual: Necromante do Véu Profundo sofreu 5 de dano. Inimigo: dado(s) [3]=3, acerto +5 → 8 vs herói: 5.",
+			"#48 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Dano attack: Bruto das Correntes Partidas → Necromante do Véu Profundo; solicitado 5, após efeitos 5, aplicado 2; vida 2 → 0.",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Necromante do Véu Profundo (h-10xhow7-13jpfid) recebeu 2 de dano (2 → 0).",
+			"Necromante do Véu Profundo (h-10xhow7-13jpfid): estado active → defeated.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":160} → {\"seed\":3018,\"counter\":162}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-1eg486u-1w97pri\",\"heroTotal\":5,\"enemyTotal\":8,\"heroResults\":[1],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1eg486u-1w97pri\",\"targetId\":\"h-10xhow7-13jpfid\",\"damageType\":\"attack\",\"amount\":5},\"seq\":1},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-10xhow7-13jpfid\",\"sourceId\":\"e-1eg486u-1w97pri\"},\"seq\":2},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":3}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1}].",
+			"Detalhe técnico extraAttackFeedback: undefined → [{\"id\":1,\"enemyId\":\"e-1eg486u-1w97pri\",\"enemyCardId\":\"creature_broken_chains_brute\",\"heroId\":\"h-10xhow7-13jpfid\"}].",
+			"Log atual: Ataque extra: Bruto das Correntes Partidas venceu Necromante do Véu Profundo e causou 5 de dano. Inimigo: dado(s) [3]=3, acerto +5 → 8 vs herói: 5.",
+			"#49 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1o75sl3-1d06jmb\",\"h-9plvs2-asl8nb\",\"h-10xhow7-13jpfid\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"},{\"heroId\":\"h-9plvs2-asl8nb\",\"enemyId\":\"e-h53ase-1n2ywd3\"},{\"heroId\":\"h-10xhow7-13jpfid\",\"enemyId\":\"e-h53ase-1n2ywd3\"}] → [].",
+			"Log atual: Rodada 2 de combate.",
+			"#50 Bárbaro Rubro (h-1o75sl3-1d06jmb) iniciou ataque contra Bruto das Correntes Partidas (e-1eg486u-1w97pri) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1o75sl3-1d06jmb).",
+			"Detalhe técnico flags: {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true,\"discardDungeonLocked\":true,\"targetChosen::e-h53ase-1n2ywd3\":true} → {\"targetChosen::e-14u3vjw-7grv3t\":true,\"targetChosen::e-1u7u839-r3lxss\":true,\"fleeBlocked\":true,\"discardDungeonLocked\":true,\"targetChosen::e-h53ase-1n2ywd3\":true,\"targetChosen::e-1eg486u-1w97pri\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-1eg486u-1w97pri\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\"}].",
+			"#51 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1o75sl3-1d06jmb): dados [3], hitBonus +5 = 8.",
+			"Rolagem de Bruto das Correntes Partidas (e-1eg486u-1w97pri): dados [1], hitBonus +5 = 6. Margem +2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":162} → {\"seed\":3018,\"counter\":164}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\",\"heroTotal\":8,\"enemyTotal\":6,\"heroResults\":[3],\"enemyResults\":[1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 8 | Inimigo rolou 6.",
+			"#52 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (8) × Bruto das Correntes Partidas (6); margem +2; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Bruto das Correntes Partidas; solicitado 4, após efeitos 4, aplicado 4; vida 5 → 1.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1o75sl3-1d06jmb) → desconhecido.",
+			"Bruto das Correntes Partidas (e-1eg486u-1w97pri) recebeu 4 de dano (5 → 1).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-1eg486u-1w97pri\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":12,\"targetId\":\"e-1eg486u-1w97pri\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1o75sl3-1d06jmb\"].",
+			"Log atual: Bruto das Correntes Partidas sofreu 4 de dano. Herói: dado(s) [3]=3, acerto +5 → 8 vs inimigo: 6.",
+			"#53 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":164} → {\"seed\":3018,\"counter\":168}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\",\"heroTotal\":8,\"enemyTotal\":8,\"heroResults\":[3],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1v2ucw-1jq1fw4\",\"heroTotal\":8,\"enemyTotal\":7,\"heroResults\":[3],\"enemyResults\":[4]},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":2}].",
+			"Detalhe técnico extraAttackFeedback: [{\"id\":1,\"enemyId\":\"e-1eg486u-1w97pri\",\"enemyCardId\":\"creature_broken_chains_brute\",\"heroId\":\"h-10xhow7-13jpfid\"}] → [{\"id\":1,\"enemyId\":\"e-1eg486u-1w97pri\",\"enemyCardId\":\"creature_broken_chains_brute\",\"heroId\":\"h-10xhow7-13jpfid\"},{\"id\":2,\"enemyId\":\"e-h53ase-1n2ywd3\",\"enemyCardId\":\"creature_catacomb_skeleton\",\"heroId\":\"h-1o75sl3-1d06jmb\"},{\"id\":3,\"enemyId\":\"e-1v2ucw-1jq1fw4\",\"enemyCardId\":\"creature_broken_gates_watcher\",\"heroId\":\"h-1o75sl3-1d06jmb\"}].",
+			"Log atual: Ataque extra: Esqueleto das Catacumbas rolou 8 contra Bárbaro Rubro (8) e não causou dano.",
+			"Log atual: Ataque extra: Vigia das Portas Quebradas rolou 7 contra Bárbaro Rubro (8) e não causou dano.",
+			"#54 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 1 → 2.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1o75sl3-1d06jmb\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\"}] → [].",
+			"Log atual: Rodada 3 de combate.",
+			"#55 Bárbaro Rubro (h-1o75sl3-1d06jmb) iniciou ataque contra Esqueleto das Catacumbas (e-h53ase-1n2ywd3) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1o75sl3-1d06jmb).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-h53ase-1n2ywd3\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}].",
+			"#56 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1o75sl3-1d06jmb): dados [4], hitBonus +5 = 9.",
+			"Rolagem de Esqueleto das Catacumbas (e-h53ase-1n2ywd3): dados [3], hitBonus +5 = 8. Margem +1.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":168} → {\"seed\":3018,\"counter\":170}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\",\"heroTotal\":9,\"enemyTotal\":8,\"heroResults\":[4],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 9 | Inimigo rolou 8.",
+			"#57 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (9) × Esqueleto das Catacumbas (8); margem +1; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Esqueleto das Catacumbas; solicitado 4, após efeitos 4, aplicado 1; vida 1 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1o75sl3-1d06jmb) → desconhecido.",
+			"Esqueleto das Catacumbas (e-h53ase-1n2ywd3) recebeu 1 de dano (1 → 0).",
+			"Esqueleto das Catacumbas (e-h53ase-1n2ywd3): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-h53ase-1n2ywd3\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-h53ase-1n2ywd3\",\"sourceId\":\"h-1o75sl3-1d06jmb\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":12,\"targetId\":\"e-1eg486u-1w97pri\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":12,\"targetId\":\"e-1eg486u-1w97pri\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":1}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1o75sl3-1d06jmb\"].",
+			"Log atual: Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4]=4, acerto +5 → 9 vs inimigo: 8.",
+			"#58 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Dano attack: Bruto das Correntes Partidas → Bárbaro Rubro; solicitado 5, após efeitos 5, aplicado 5; vida 7 → 2.",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Bárbaro Rubro (h-1o75sl3-1d06jmb) recebeu 5 de dano (7 → 2).",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":170} → {\"seed\":3018,\"counter\":172}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\",\"heroTotal\":10,\"enemyTotal\":11,\"heroResults\":[5],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1eg486u-1w97pri\",\"targetId\":\"h-1o75sl3-1d06jmb\",\"damageType\":\"attack\",\"amount\":5},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":12,\"targetId\":\"e-1eg486u-1w97pri\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":12,\"targetId\":\"e-1eg486u-1w97pri\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5,\"extraAttackId\":4}].",
+			"Detalhe técnico extraAttackFeedback: [{\"id\":1,\"enemyId\":\"e-1eg486u-1w97pri\",\"enemyCardId\":\"creature_broken_chains_brute\",\"heroId\":\"h-10xhow7-13jpfid\"},{\"id\":2,\"enemyId\":\"e-h53ase-1n2ywd3\",\"enemyCardId\":\"creature_catacomb_skeleton\",\"heroId\":\"h-1o75sl3-1d06jmb\"},{\"id\":3,\"enemyId\":\"e-1v2ucw-1jq1fw4\",\"enemyCardId\":\"creature_broken_gates_watcher\",\"heroId\":\"h-1o75sl3-1d06jmb\"}] → [{\"id\":1,\"enemyId\":\"e-1eg486u-1w97pri\",\"enemyCardId\":\"creature_broken_chains_brute\",\"heroId\":\"h-10xhow7-13jpfid\"},{\"id\":2,\"enemyId\":\"e-h53ase-1n2ywd3\",\"enemyCardId\":\"creature_catacomb_skeleton\",\"heroId\":\"h-1o75sl3-1d06jmb\"},{\"id\":3,\"enemyId\":\"e-1v2ucw-1jq1fw4\",\"enemyCardId\":\"creature_broken_gates_watcher\",\"heroId\":\"h-1o75sl3-1d06jmb\"},{\"id\":4,\"enemyId\":\"e-1eg486u-1w97pri\",\"enemyCardId\":\"creature_broken_chains_brute\",\"heroId\":\"h-1o75sl3-1d06jmb\"}].",
+			"Log atual: Ataque extra: Bruto das Correntes Partidas venceu Bárbaro Rubro e causou 5 de dano. Inimigo: dado(s) [6]=6, acerto +5 → 11 vs herói: 10.",
+			"#59 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 2 → 3.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1o75sl3-1d06jmb\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-h53ase-1n2ywd3\"}] → [].",
+			"Log atual: Rodada 4 de combate.",
+			"#60 Bárbaro Rubro (h-1o75sl3-1d06jmb) iniciou ataque contra Bruto das Correntes Partidas (e-1eg486u-1w97pri) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1o75sl3-1d06jmb).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1o75sl3-1d06jmb\",\"targetId\":\"e-1eg486u-1w97pri\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\"}].",
+			"#61 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-1o75sl3-1d06jmb): dados [1], hitBonus +5 = 6.",
+			"Rolagem de Bruto das Correntes Partidas (e-1eg486u-1w97pri): dados [2], hitBonus +5 = 7. Margem -1.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":3018,\"counter\":172} → {\"seed\":3018,\"counter\":174}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"enemyId\":\"e-1eg486u-1w97pri\",\"heroTotal\":6,\"enemyTotal\":7,\"heroResults\":[1],\"enemyResults\":[2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 6 | Inimigo rolou 7.",
+			"#62 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (6) × Bruto das Correntes Partidas (7); margem -1; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Bruto das Correntes Partidas → Bárbaro Rubro; solicitado 5, após efeitos 5, aplicado 2; vida 2 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-1o75sl3-1d06jmb) → desconhecido.",
+			"Bárbaro Rubro (h-1o75sl3-1d06jmb) recebeu 2 de dano (2 → 0).",
+			"Bárbaro Rubro (h-1o75sl3-1d06jmb): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1eg486u-1w97pri\",\"targetId\":\"h-1o75sl3-1d06jmb\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-1o75sl3-1d06jmb\",\"sourceId\":\"e-1eg486u-1w97pri\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":12,\"targetId\":\"e-1eg486u-1w97pri\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5,\"extraAttackId\":4}] → [{\"id\":1,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":5},{\"id\":2,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":1},{\"id\":3,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":1},{\"id\":4,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"e-1u7u839-r3lxss\",\"side\":\"enemy\",\"amount\":1},{\"id\":6,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":2},{\"id\":7,\"targetId\":\"e-14u3vjw-7grv3t\",\"side\":\"enemy\",\"amount\":3},{\"id\":8,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":4},{\"id\":9,\"targetId\":\"h-9plvs2-asl8nb\",\"side\":\"hero\",\"amount\":4},{\"id\":10,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":5},{\"id\":11,\"targetId\":\"h-10xhow7-13jpfid\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":12,\"targetId\":\"e-1eg486u-1w97pri\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"e-h53ase-1n2ywd3\",\"side\":\"enemy\",\"amount\":1},{\"id\":14,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":5,\"extraAttackId\":4},{\"id\":15,\"targetId\":\"h-1o75sl3-1d06jmb\",\"side\":\"hero\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1o75sl3-1d06jmb\"].",
+			"Log atual: Bárbaro Rubro sofreu 5 de dano. Inimigo: dado(s) [2]=2, acerto +5 → 7 vs herói: 6.",
+			"#63 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#64 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → DEFEAT.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"DEFEAT\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Log atual: Derrota: herói eliminado."
+		],
 		"bossCardId": "boss_azhakar",
 		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
 		"combat": {
 			"buffsByHero": {},
 			"heroesActed": [
-				"h-10xhow7-13jpfid"
+				"h-1o75sl3-1d06jmb"
 			],
-			"lastRoll": {
-				"enemyBreakdown": [
-					{
-						"source": "hitBonus",
-						"value": 5
-					}
-				],
-				"enemyId": "e-rmbtoi-33f1uk",
-				"enemyResults": [
-					5
-				],
-				"enemyTotal": 10,
-				"heroBreakdown": [
-					{
-						"source": "hitBonus",
-						"value": 4
-					}
-				],
-				"heroId": "h-10xhow7-13jpfid",
-				"heroResults": [
-					6
-				],
-				"heroTotal": 10
-			},
+			"lastRoll": null,
 			"phase": "direct_damage",
 			"powersUsedThisRoom": {},
-			"round": 2,
+			"round": 3,
 			"selectedHeroId": null
 		},
 		"creaturesDefeated": 2,
 		"currentRoom": {
-			"cardId": "room_jailer_room",
+			"cardId": "room_crimson_chains_chamber",
 			"currentEnemies": 1,
-			"effect": "Invocar Guardião (?): revele o ? junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o ? seja derrotado, remova esta carta do jogo.",
-			"exits": 2,
+			"effect": "Confinamento: criaturas ou heróis nesta sala não podem fugir.",
+			"exits": 3,
 			"reward": 1,
-			"rewardType": "artifact",
-			"specialCreatureId": "subboss_crimson_dungeon_jailer",
+			"rewardType": "item",
 			"status": "active",
-			"xp": 3
+			"xp": 2
 		},
+		"damageFeedback": [
+			{
+				"amount": 5,
+				"id": 1,
+				"side": "hero",
+				"targetId": "h-9plvs2-asl8nb"
+			},
+			{
+				"amount": 1,
+				"id": 2,
+				"side": "enemy",
+				"targetId": "e-14u3vjw-7grv3t"
+			},
+			{
+				"amount": 1,
+				"id": 3,
+				"side": "hero",
+				"targetId": "h-10xhow7-13jpfid"
+			},
+			{
+				"amount": 5,
+				"id": 4,
+				"side": "hero",
+				"targetId": "h-1o75sl3-1d06jmb"
+			},
+			{
+				"amount": 1,
+				"id": 5,
+				"side": "enemy",
+				"targetId": "e-1u7u839-r3lxss"
+			},
+			{
+				"amount": 2,
+				"id": 6,
+				"side": "enemy",
+				"targetId": "e-14u3vjw-7grv3t"
+			},
+			{
+				"amount": 3,
+				"id": 7,
+				"side": "enemy",
+				"targetId": "e-14u3vjw-7grv3t"
+			},
+			{
+				"amount": 4,
+				"id": 8,
+				"side": "enemy",
+				"targetId": "e-h53ase-1n2ywd3"
+			},
+			{
+				"amount": 4,
+				"id": 9,
+				"side": "hero",
+				"targetId": "h-9plvs2-asl8nb"
+			},
+			{
+				"amount": 5,
+				"id": 10,
+				"side": "hero",
+				"targetId": "h-10xhow7-13jpfid"
+			},
+			{
+				"amount": 2,
+				"extraAttackId": 1,
+				"id": 11,
+				"side": "hero",
+				"targetId": "h-10xhow7-13jpfid"
+			},
+			{
+				"amount": 4,
+				"id": 12,
+				"side": "enemy",
+				"targetId": "e-1eg486u-1w97pri"
+			},
+			{
+				"amount": 1,
+				"id": 13,
+				"side": "enemy",
+				"targetId": "e-h53ase-1n2ywd3"
+			},
+			{
+				"amount": 5,
+				"extraAttackId": 4,
+				"id": 14,
+				"side": "hero",
+				"targetId": "h-1o75sl3-1d06jmb"
+			},
+			{
+				"amount": 2,
+				"id": 15,
+				"side": "hero",
+				"targetId": "h-1o75sl3-1d06jmb"
+			}
+		],
 		"decks": {
 			"artifactDeck": {
 				"available": [
@@ -612,10 +1101,11 @@
 				"discarded": 0
 			},
 			"dungeonDeck": {
-				"available": 17,
+				"available": 16,
 				"discarded": [
+					"room_narrow_corridor",
 					"room_dungeon_room",
-					"room_crimson_chains_chamber"
+					"room_broken_columns_hall"
 				]
 			},
 			"enemyDeck": {
@@ -663,12 +1153,12 @@
 			{
 				"cardId": "creature_broken_chains_brute",
 				"conditions": [],
-				"currentLife": 4,
+				"currentLife": 1,
 				"damage": 5,
 				"dice": 1,
 				"firstDamageTakenThisTurn": false,
 				"hitBonus": 5,
-				"id": "e-3jasxo-lgbo7p",
+				"id": "e-1eg486u-1w97pri",
 				"isSubboss": false,
 				"maxLife": 5,
 				"status": "active",
@@ -681,15 +1171,15 @@
 			{
 				"cardId": "creature_catacomb_skeleton",
 				"conditions": [],
-				"currentLife": 5,
+				"currentLife": 0,
 				"damage": 5,
 				"dice": 1,
 				"firstDamageTakenThisTurn": false,
 				"hitBonus": 5,
-				"id": "e-28h9da-yjt5ei",
+				"id": "e-h53ase-1n2ywd3",
 				"isSubboss": false,
 				"maxLife": 5,
-				"status": "active",
+				"status": "defeated",
 				"tokens": {
 					"reward_artifact": 0,
 					"reward_item": 2,
@@ -699,37 +1189,19 @@
 			{
 				"cardId": "creature_broken_gates_watcher",
 				"conditions": [],
-				"currentLife": 0,
+				"currentLife": 4,
 				"damage": 4,
 				"dice": 1,
 				"firstDamageTakenThisTurn": false,
 				"hitBonus": 3,
-				"id": "e-42wj42-pgpqr9",
+				"id": "e-1v2ucw-1jq1fw4",
 				"isSubboss": false,
 				"maxLife": 4,
-				"status": "defeated",
+				"status": "active",
 				"tokens": {
 					"reward_artifact": 0,
 					"reward_item": 2,
 					"xp": 2
-				}
-			},
-			{
-				"cardId": "subboss_crimson_dungeon_jailer",
-				"conditions": [],
-				"currentLife": 5,
-				"damage": 5,
-				"dice": 1,
-				"firstDamageTakenThisTurn": false,
-				"hitBonus": 5,
-				"id": "e-rmbtoi-33f1uk",
-				"isSubboss": true,
-				"maxLife": 6,
-				"status": "active",
-				"tokens": {
-					"reward_artifact": 1,
-					"reward_item": 0,
-					"xp": 4
 				}
 			}
 		],
@@ -738,82 +1210,106 @@
 			"Sala sorteada: Sala da Masmorra.",
 			"2 inimigo(s) aparecem: Ladrão das Passagens Mortas, Rato das Fendas Profundas.",
 			"Combate iniciado.",
-			"Tributo: nenhum item disponível para descartar.",
-			"Herói rolou 9 | Inimigo rolou 8.",
-			"Rato das Fendas Profundas sofreu 2 de dano. Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 8.",
+			"Herói rolou 9 | Inimigo rolou 11.",
+			"Clérigo do Descanso Eterno sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +5 → 11 vs herói: 9.",
 			"Aguardando ação de 2 herói(s).",
 			"Herói rolou 9 | Inimigo rolou 9.",
 			"Ladrão das Passagens Mortas sofreu 1 de dano (empate). Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 9.",
-			"Clérigo do Descanso Eterno sofreu 1 de dano (empate). Inimigo: dado(s) [4]=4, acerto +5 → 9 vs herói: 9.",
+			"Necromante do Véu Profundo sofreu 1 de dano (empate). Inimigo: dado(s) [4]=4, acerto +5 → 9 vs herói: 9.",
 			"Aguardando ação de 1 herói(s).",
 			"Herói rolou 6 | Inimigo rolou 10.",
 			"Bárbaro Rubro sofreu 5 de dano. Inimigo: dado(s) [5]=5, acerto +5 → 10 vs herói: 6.",
 			"Rodada 2 de combate.",
-			"Herói rolou 10 | Inimigo rolou 11.",
-			"Bárbaro Rubro sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +5 → 11 vs herói: 10.",
+			"Herói rolou 9 | Inimigo rolou 8.",
+			"Rato das Fendas Profundas sofreu 2 de dano. Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 8.",
 			"Aguardando ação de 2 herói(s).",
 			"Herói rolou 10 | Inimigo rolou 8.",
 			"Ladrão das Passagens Mortas sofreu 2 de dano. Herói: dado(s) [6]=6, acerto +4 → 10 vs inimigo: 8.",
 			"Aguardando ação de 1 herói(s).",
 			"[AVISO] Herói h-10xhow7-13jpfid já agiu nesta rodada.",
-			"[AVISO] Herói h-1o75sl3-1d06jmb já agiu nesta rodada.",
-			"[AVISO] Herói h-10xhow7-13jpfid já agiu nesta rodada.",
-			"[AVISO] Herói h-10xhow7-13jpfid já agiu nesta rodada.",
-			"Herói rolou 9 | Inimigo rolou 9.",
-			"Ladrão das Passagens Mortas sofreu 1 de dano (empate). Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 9.",
-			"Clérigo do Descanso Eterno sofreu 1 de dano (empate). Inimigo: dado(s) [4]=4, acerto +5 → 9 vs herói: 9.",
-			"Rodada 3 de combate.",
-			"Herói rolou 6 | Inimigo rolou 6.",
-			"Ladrão das Passagens Mortas sofreu 1 de dano (empate). Herói: dado(s) [1]=1, acerto +5 → 6 vs inimigo: 6.",
-			"Bárbaro Rubro sofreu 1 de dano (empate). Inimigo: dado(s) [1]=1, acerto +5 → 6 vs herói: 6.",
-			"Aguardando ação de 2 herói(s).",
-			"Herói rolou 6 | Inimigo rolou 10.",
-			"Clérigo do Descanso Eterno sofreu 5 de dano. Inimigo: dado(s) [5]=5, acerto +5 → 10 vs herói: 6.",
-			"Aguardando ação de 1 herói(s).",
-			"[AVISO] Herói h-1o75sl3-1d06jmb já agiu nesta rodada.",
-			"Herói rolou 8 | Inimigo rolou 8.",
-			"Ladrão das Passagens Mortas sofreu 1 de dano (empate). Herói: dado(s) [4]=4, acerto +4 → 8 vs inimigo: 8.",
-			"Necromante do Véu Profundo sofreu 1 de dano (empate). Inimigo: dado(s) [3]=3, acerto +5 → 8 vs herói: 8.",
+			"[AVISO] Herói h-9plvs2-asl8nb já agiu nesta rodada.",
+			"Herói rolou 10 | Inimigo rolou 9.",
+			"Ladrão das Passagens Mortas sofreu 4 de dano. Herói: dado(s) [5]=5, acerto +5 → 10 vs inimigo: 9.",
 			"Sala limpa! Avançando para recompensa.",
 			"Recompensas: +5 XP, 4 item(ns), 0 artefato(s). Resolvendo...",
 			"Poção de Fúria atribuído a h-9plvs2-asl8nb.",
 			"Escudo Rachado atribuído a h-9plvs2-asl8nb.",
-			"Armadura Mágica da Fornalha atribuído a h-1o75sl3-1d06jmb.",
+			"Armadura Mágica da Fornalha atribuído a h-9plvs2-asl8nb.",
 			"Encanto do Sangue Quente atribuído a h-1o75sl3-1d06jmb.",
 			"Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
-			"Sala sorteada: Sala do Carcereiro.",
+			"Fuga bloqueada.",
+			"Sala sorteada: Câmara das Correntes Rubras.",
 			"Prevenção de descarte de dungeon bloqueada.",
-			"Prevenção de descarte de dungeon bloqueada.",
-			"4 inimigo(s) aparecem: Bruto das Correntes Partidas, Esqueleto das Catacumbas, Vigia das Portas Quebradas, Carcereiro da Masmorra Rubra.",
+			"3 inimigo(s) aparecem: Bruto das Correntes Partidas, Esqueleto das Catacumbas, Vigia das Portas Quebradas.",
 			"Combate iniciado.",
 			"Tributo: item_fury_potion descartado da mochila.",
-			"Herói rolou 7 | Inimigo rolou 6.",
-			"Vigia das Portas Quebradas sofreu 2 de dano. Herói: dado(s) [3]=3, acerto +4 → 7 vs inimigo: 6.",
+			"Herói rolou 10 | Inimigo rolou 8.",
+			"Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [5]=5, acerto +5 → 10 vs inimigo: 8.",
 			"Aguardando ação de 2 herói(s).",
-			"Herói rolou 8 | Inimigo rolou 7.",
-			"Vigia das Portas Quebradas sofreu 4 de dano. Herói: dado(s) [3]=3, acerto +5 → 8 vs inimigo: 7.",
-			"Aguardando ação de 1 herói(s).",
-			"[AVISO] Herói h-9plvs2-asl8nb já agiu nesta rodada.",
-			"Herói rolou 8 | Inimigo rolou 8.",
-			"Bruto das Correntes Partidas sofreu 1 de dano (empate). Herói: dado(s) [4]=4, acerto +4 → 8 vs inimigo: 8.",
-			"Necromante do Véu Profundo sofreu 1 de dano (empate). Inimigo: dado(s) [3]=3, acerto +5 → 8 vs herói: 8.",
-			"Rodada 2 de combate.",
-			"Herói rolou 9 | Inimigo rolou 11.",
-			"Clérigo do Descanso Eterno sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +5 → 11 vs herói: 9.",
-			"Aguardando ação de 2 herói(s).",
-			"Herói rolou 6 | Inimigo rolou 7.",
-			"Bárbaro Rubro sofreu 5 de dano. Inimigo: dado(s) [2]=2, acerto +5 → 7 vs herói: 6.",
+			"[AVISO] Herói h-1o75sl3-1d06jmb já agiu nesta rodada.",
+			"Herói rolou 5 | Inimigo rolou 7.",
+			"Clérigo do Descanso Eterno sofreu 5 de dano. Inimigo: dado(s) [2]=2, acerto +5 → 7 vs herói: 5.",
 			"Aguardando ação de 1 herói(s).",
 			"Herói rolou 5 | Inimigo rolou 8.",
 			"Necromante do Véu Profundo sofreu 5 de dano. Inimigo: dado(s) [3]=3, acerto +5 → 8 vs herói: 5.",
+			"Ataque extra: Bruto das Correntes Partidas venceu Necromante do Véu Profundo e causou 5 de dano. Inimigo: dado(s) [3]=3, acerto +5 → 8 vs herói: 5.",
+			"Rodada 2 de combate.",
+			"Herói rolou 8 | Inimigo rolou 6.",
+			"Bruto das Correntes Partidas sofreu 4 de dano. Herói: dado(s) [3]=3, acerto +5 → 8 vs inimigo: 6.",
+			"Ataque extra: Esqueleto das Catacumbas rolou 8 contra Bárbaro Rubro (8) e não causou dano.",
+			"Ataque extra: Vigia das Portas Quebradas rolou 7 contra Bárbaro Rubro (8) e não causou dano.",
 			"Rodada 3 de combate.",
-			"Herói rolou 10 | Inimigo rolou 10.",
-			"Carcereiro da Masmorra Rubra sofreu 1 de dano (empate). Herói: dado(s) [6]=6, acerto +4 → 10 vs inimigo: 10.",
-			"Necromante do Véu Profundo sofreu 1 de dano (empate). Inimigo: dado(s) [5]=5, acerto +5 → 10 vs herói: 10.",
+			"Herói rolou 9 | Inimigo rolou 8.",
+			"Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4]=4, acerto +5 → 9 vs inimigo: 8.",
+			"Ataque extra: Bruto das Correntes Partidas venceu Bárbaro Rubro e causou 5 de dano. Inimigo: dado(s) [6]=6, acerto +5 → 11 vs herói: 10.",
+			"Rodada 4 de combate.",
+			"Herói rolou 6 | Inimigo rolou 7.",
+			"Bárbaro Rubro sofreu 5 de dano. Inimigo: dado(s) [2]=2, acerto +5 → 7 vs herói: 6.",
 			"Derrota: herói eliminado."
+		],
+		"extraAttackFeedback": [
+			{
+				"enemyCardId": "creature_broken_chains_brute",
+				"enemyId": "e-1eg486u-1w97pri",
+				"heroId": "h-10xhow7-13jpfid",
+				"id": 1
+			},
+			{
+				"enemyCardId": "creature_catacomb_skeleton",
+				"enemyId": "e-h53ase-1n2ywd3",
+				"heroId": "h-1o75sl3-1d06jmb",
+				"id": 2
+			},
+			{
+				"enemyCardId": "creature_broken_gates_watcher",
+				"enemyId": "e-1v2ucw-1jq1fw4",
+				"heroId": "h-1o75sl3-1d06jmb",
+				"id": 3
+			},
+			{
+				"enemyCardId": "creature_broken_chains_brute",
+				"enemyId": "e-1eg486u-1w97pri",
+				"heroId": "h-1o75sl3-1d06jmb",
+				"id": 4
+			}
 		],
 		"groupArtifacts": [],
 		"groupBuffs": [
+			{
+				"duration": "até fim da sala",
+				"from": {
+					"kind": "dungeon"
+				},
+				"icon": "🚷",
+				"id": "flag:flee-blocked",
+				"kind": "debuff",
+				"label": "Fuga bloqueada",
+				"scope": "dungeon_to_group",
+				"source": "Efeito de sala/inimigo",
+				"to": {
+					"kind": "group"
+				}
+			},
 			{
 				"duration": "até fim da sala",
 				"from": {
@@ -831,11 +1327,13 @@
 			}
 		],
 		"groupXp": 5,
+		"healFeedback": [],
 		"heroes": [
 			{
 				"activeItems": {},
 				"backpack": [
-					"item_cracked_shield"
+					"item_cracked_shield",
+					"item_forge_magic_armor"
 				],
 				"cardId": "hero_eternal_rest_cleric",
 				"conditions": [],
@@ -871,7 +1369,6 @@
 			{
 				"activeItems": {},
 				"backpack": [
-					"item_forge_magic_armor",
 					"item_warm_blood_charm"
 				],
 				"cardId": "hero_crimson_barbarian",

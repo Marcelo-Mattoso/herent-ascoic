@@ -1,3 +1,4 @@
+import { appendAlphaLog } from "../diagnostics/alphaLog";
 import type { EntityId } from "../ecs/types";
 import {
 	removeComponent,
@@ -18,13 +19,15 @@ import {
 	removeBlocksForSource,
 } from "../state/blockHelpers";
 import type { GameState } from "../state/gameState";
-import type { GameEngine } from "../gameEngine";
+import { cardName, type GameEngine } from "../gameEngine";
 
-import { statOf, withEnemyRecord, withEntityRetired, withHeroRecord, withUnitStats, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
+import { enemyOf, heroOf, statOf, withEnemyRecord, withEntityRetired, withHeroRecord, withUnitStats, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 export interface DamageOptions {
 	readonly sourceId?: EntityId;
 	readonly damageType?: DamageType;
+	/** Apenas associação visual com uma investida extra já resolvida. */
+	readonly extraAttackId?: number;
 	/** Interno: evita reabrir a mesma janela ao retomar uma decisão pendente. */
 	readonly skipWouldBeDestroyed?: boolean;
 	/** Valor já resolvido pelo bus antes de uma decisão de prevenção letal. */
@@ -325,14 +328,40 @@ export function applyDamage(engine: GameEngine,
 	}
 	if (finalAmount <= 0) return s1;
 	const protection = consumeDestructionPrevention(s1, targetId);
+	const lifeImmediatelyBeforeApply = currentLife(protection.state, targetId);
 
 	// Aplicar o dano com o valor modificado.
-	const s2 = applyDamageRaw(
+	let s2 = applyDamageRaw(
 		protection.state,
 		targetId,
 		finalAmount,
 		protection.minimumLife,
 	);
+	const appliedAmount = Math.max(
+		0,
+		(lifeImmediatelyBeforeApply ?? 0) - (currentLife(s2, targetId) ?? 0),
+	);
+	if (appliedAmount > 0) {
+		const previous = gameOf(s2).damageFeedback ?? [];
+		const side = heroOf(s2, targetId) ? ("hero" as const) : ("enemy" as const);
+		s2 = withGame(s2, (game) => ({
+			...game,
+			damageFeedback: [
+				...previous.slice(-63),
+				{
+					id: (previous.at(-1)?.id ?? 0) + 1,
+					targetId,
+					side,
+					amount: appliedAmount,
+					extraAttackId: opts?.extraAttackId,
+				},
+			],
+		}));
+	}
+	const source = sourceId ? (heroOf(s2, sourceId) ?? enemyOf(s2, sourceId)) : undefined;
+	const target = heroOf(s2, targetId) ?? enemyOf(s2, targetId);
+	s2 = appendAlphaLog(s2,
+		`Dano ${damageType}: ${source ? cardName(engine, source.cardId) : sourceId} → ${target ? cardName(engine, target.cardId) : targetId}; solicitado ${amount}, após efeitos ${finalAmount}, aplicado ${appliedAmount}; vida ${lifeImmediatelyBeforeApply ?? "?"} → ${currentLife(s2, targetId) ?? "?"}${purpleReduction ? `; redução roxa ${purpleReduction}` : ""}.`);
 
 	// Janela pós: listeners reagem ao dano já aplicado.
 	const { state: s3 } = emit(engine, s2, {
@@ -371,5 +400,8 @@ export function applyDamageMin1(
 	targetId: EntityId,
 	amount: number,
 ): GameState {
-	return applyDamageRaw(state, targetId, amount, 1);
+	const lifeBefore = currentLife(state, targetId);
+	const next = applyDamageRaw(state, targetId, amount, 1);
+	return appendAlphaLog(next,
+		`Custo de vida em ${targetId}: solicitado ${amount}, aplicado ${(lifeBefore ?? 0) - (currentLife(next, targetId) ?? 0)}; vida ${lifeBefore ?? "?"} → ${currentLife(next, targetId) ?? "?"}.`);
 }

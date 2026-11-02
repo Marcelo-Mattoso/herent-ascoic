@@ -27,6 +27,7 @@ import { gameOf, withGame } from "../../engine/state";
 export type SkillWindowResume =
 	| { readonly type: "none" }
 	| { readonly type: "roll_dice" }
+	| { readonly type: "prepare_physical_roll" }
 	| { readonly type: "resolve_attack" }
 	| { readonly type: "continue_rewards_after_room_win" }
 	| { readonly type: "finish_rewards" }
@@ -159,15 +160,18 @@ function shouldSkipGrant(engine: GameEngine, candidate: import("../abilities/exe
 	// duplicar Trono Vivo/Ascensão Final.
 	if (candidate.source.kind === "boss" ||
 		skillById(engine, candidate.grant.abilityId)?.category === "boss_skill") return true;
-	const item =
+	// Itens equipados e artefatos já contribuem estes bônus em itemEffects.
+	// Executar também o grant aplicaria o bônus duas vezes; artefatos sem
+	// portador ainda produziriam um $source sem entidade.
+	const card =
 		candidate.source.kind === "item"
 			? cardById(engine, candidate.source.cardId)
 			: undefined;
 	if (
-		candidate.source.kind === "item" &&
+		(candidate.source.kind === "item" || candidate.source.kind === "artifact") &&
 		candidate.grant.id.startsWith("legacy:") &&
 		skillById(engine, candidate.grant.abilityId)?.rules?.handledByEquipment &&
-		!(item?.type === "item" && item.useTiming)
+		!(card?.type === "item" && card.useTiming)
 	) {
 		return true;
 	}

@@ -6,6 +6,7 @@
   "status": "published",
   "version": 1,
   "retained": {
+    "game:screens.devPreview.badge": "Technical development abbreviation shared across locales.",
     "cards:item_ancient_metal_armor.tags[2]": "Metal é a mesma palavra em inglês.",
     "cards:item_fury_potion.tags[1]": "Deserto Rubro é um nome próprio da lore, preservado também no estilo do herói.",
     "cards:item_return_potion.tags[1]": "Dungeon já é um termo em inglês.",

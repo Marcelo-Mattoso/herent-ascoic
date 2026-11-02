@@ -1,5 +1,5 @@
-export type { ColorIndex } from "../state/color";
-export type { BonusEntry, CombatRollResult } from "../state/combatState";
+export { COLORS, type ColorIndex } from "../state/color";
+export type { BonusEntry, CombatRollResult, PendingPhysicalRoll } from "../state/combatState";
 export { MAX_HEROES } from "../state/gameState";
 export type { GroupArtifact } from "../state/gameState";
 export type { ItemSlotType } from "../state/heroState";

@@ -70,6 +70,31 @@ function makeState(
 // ── applyDamage ───────────────────────────────────────────────────────────────
 
 describe("applyDamage — herói", () => {
+	it.each([0, 1, 8, 9, 20])("registra somente o dano efetivo de %i, limitado pela vida", (amount) => {
+		const result = applyDamage(testEngine, makeState({ currentLife: 12 }), "h1", amount);
+		const expected = Math.min(amount, 12);
+		expect(gameOf(result).damageFeedback?.at(-1)?.amount ?? 0).toBe(expected);
+		expect(gameOf(result).damageFeedback?.length ?? 0).toBe(expected ? 1 : 0);
+	});
+
+	it("registra os dois alvos de dano simultâneo sem misturar os valores", () => {
+		const first = applyDamage(testEngine, makeState({ currentLife: 12 }, { currentLife: 5 }), "e1", 9, { sourceId: "h1" });
+		const second = applyDamage(testEngine, first, "h1", 8, { sourceId: "e1" });
+		expect(gameOf(second).damageFeedback?.map(({ side, amount }) => [side, amount])).toEqual([
+			["enemy", 5], ["hero", 8],
+		]);
+	});
+
+	it("registra dano letal real no chefe", () => {
+		const state = makeState({}, { id: "boss", currentLife: 5, maxLife: 20 });
+		const result = applyDamage(testEngine, state, "boss", 20, { sourceId: "h1", damageType: "attack" });
+		expect(gameOf(result).damageFeedback?.at(-1)).toMatchObject({ targetId: "boss", side: "enemy", amount: 5 });
+	});
+
+	it("não registra dano anulado antes da aplicação", () => {
+		const state = makeState();
+		expect(gameOf(applyDamage(testEngine, state, "h1", 0)).damageFeedback).toBeUndefined();
+	});
 	it("reduz vida do herói pelo valor do dano", () => {
 		const state = makeState({ currentLife: 8 });
 		const result = applyDamage(testEngine, state, "h1", 3);

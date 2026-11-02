@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getHeroes } from "../data/cards";
+import { createEmptyCombatState } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
@@ -1009,6 +1010,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		const totalLifeAfter = heroesOf(s).reduce((acc, h) => acc + h.currentLife, 0);
 
 		expect(totalLifeAfter).toBe(totalLifeBefore);
+		expect(gameOf(s).extraAttackFeedback).toBeUndefined();
 	});
 
 	it("inimigo excedente rola combate e só causa dano se vencer", () => {
@@ -1071,6 +1073,42 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		expect(gameOf(s).eventLog.some((entry) => entry.includes("Ataque extra"))).toBe(
 			true,
 		);
+		expect(gameOf(s).extraAttackFeedback?.at(-1)).toMatchObject({
+			enemyId: "e2",
+			enemyCardId: "test_extra_enemy_wins",
+		});
+		expect(gameOf(s).damageFeedback?.at(-1)?.extraAttackId).toBe(
+			gameOf(s).extraAttackFeedback?.at(-1)?.id,
+		);
+	});
+
+	it("inimigo excedente que erra ainda registra a investida visual", () => {
+		const base = stateWithTwoHeroesOneEnemy();
+		const [firstHero, secondHero] = heroesOf(base);
+		const firstEnemy = enemiesOf(base)[0]!;
+		const hero = { ...firstHero!, hitBonus: 1000 };
+		const enemy = {
+			...firstEnemy,
+			id: "e2",
+			cardId: "test_extra_enemy_misses",
+			hitBonus: -1000,
+		};
+		const state: GameState = settled(withGame(base, (prevGame) => ({
+			...prevGame,
+			status: "DIRECT_DAMAGE",
+			heroes: [hero, { ...secondHero!, status: "defeated" }],
+			activeEnemies: [firstEnemy, enemy],
+			combat: {
+				...createEmptyCombatState(),
+				pairs: [{ heroId: hero.id, enemyId: "e1" }],
+			},
+		})));
+		const result = reducer(testEngine, state, { type: "DIRECT_DAMAGE" });
+		expect(gameOf(result).extraAttackFeedback?.at(-1)).toMatchObject({
+			enemyId: "e2",
+			heroId: hero.id,
+		});
+		expect(gameOf(result).damageFeedback).toBeUndefined();
 	});
 });
 

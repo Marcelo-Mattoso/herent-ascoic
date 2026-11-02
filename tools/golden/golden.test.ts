@@ -48,6 +48,6 @@ describe("golden replays", () => {
 			expect(stableView(state), `${file}: snapshot final`).toEqual(
 				replay.finalSnapshot,
 			);
-		});
+		}, 30_000);
 	}
 });

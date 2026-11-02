@@ -32,6 +32,7 @@ interface Props {
 	onContinue: () => void;
 	onSkip: () => void;
 	onBack: () => void;
+	onResume: () => void;
 	onClose: () => void;
 	onRepeat: () => void;
 	onHub: () => void;
@@ -64,6 +65,7 @@ export function TutorialOverlay({
 	onContinue,
 	onSkip,
 	onBack,
+	onResume,
 	onClose,
 	onRepeat,
 	onHub,
@@ -71,15 +73,12 @@ export function TutorialOverlay({
 }: Props) {
 	const module = getTutorialModule(session.moduleId);
 	const step = currentTutorialStep(session);
-	const previousStep = module.steps[session.stepIndex - 1];
-	const canBack =
-		session.highlightIndex > 0 ||
-		(previousStep?.advance === "manual" &&
-			(step.advance === "manual" ||
-				step.kind === "completion" ||
-				step.id === "combat-action"));
+	const isReview = session.reviewStepIndex !== undefined;
+	const displayedStepIndex = session.reviewStepIndex ?? session.stepIndex;
+	const canBack = session.highlightIndex > 0 || displayedStepIndex > 0;
 	const highlight = step.highlights?.[session.highlightIndex];
 	const anchors = useMemo(() => {
+		if (isReview) return [];
 		const base = highlight
 			? [highlight.anchor]
 			: (step.anchors ?? (step.anchor ? [step.anchor] : []));
@@ -97,7 +96,7 @@ export function TutorialOverlay({
 					...(step.id === "use-item" ? ["item.use-action"] : []),
 				]
 			: base;
-	}, [highlight, step.anchors, step.anchor, step.id, session.moduleId]);
+	}, [highlight, step.anchors, step.anchor, step.id, session.moduleId, isReview]);
 	const [rects, setRects] = useState<Rect[]>([]);
 	const [viewport, setViewport] = useState({
 		width: window.innerWidth,
@@ -305,7 +304,11 @@ export function TutorialOverlay({
 				bottom: Math.max(...rects.map((item) => item.bottom)),
 			}
 		: null;
+	const heroPortraitOpen = !!document.querySelector('[data-tutorial-anchor="hero.portrait"]');
 	const panelPlacement =
+		session.moduleId === "archive-four" && step.id === "abilities-inspect" && viewport.width < 600
+			? heroPortraitOpen ? "bottom" : "top"
+			:
 		session.moduleId === "archive-four" &&
 		(step.id === "hunter-attack" || step.id === "fury-trigger") &&
 		viewport.width < 900
@@ -363,6 +366,7 @@ export function TutorialOverlay({
 		<div
 			className={`tutorial-layer${step.id === "combat-dice" ? " tutorial-layer--dice" : ""}${session.moduleId === "archive-three" ? " tutorial-layer--inventory" : ""}${session.moduleId === "archive-four" ? " tutorial-layer--abilities" : ""}`}
 			data-tutorial-step={step.id}
+			data-tutorial-review={isReview ? "true" : undefined}
 		>
 			{masks}
 			{rects.map((spotlight, index) => (
@@ -407,7 +411,7 @@ export function TutorialOverlay({
 				<div className="tutorial-panel__meta">
 					<span>{tutorialText(module.id, "title")}</span>
 					<span>
-						{translate("game:tutorials.tutorialOverlay.text002")}{" "}{session.stepIndex + 1} {translate("game:tutorials.tutorialOverlay.text003")}{" "}{module.steps.length}
+						{translate("game:tutorials.tutorialOverlay.text002")}{" "}{displayedStepIndex + 1} {translate("game:tutorials.tutorialOverlay.text003")}{" "}{module.steps.length}
 					</span>
 				</div>
 				<button
@@ -424,7 +428,8 @@ export function TutorialOverlay({
 					<p key={paragraph}>{paragraph}</p>
 				))}
 				<p className="tutorial-panel__instruction">{instruction}</p>
-				{session.moduleId === "archive-four" &&
+				{isReview && <p className="tutorial-panel__review-notice" role="note">{translate("game:tutorials.tutorialOverlay.reviewNotice")}</p>}
+				{!isReview && session.moduleId === "archive-four" &&
 					["prey-mark", "hunter-attack", "fury-prepare", "fury-trigger", "hero-power", "passive-effect", "ability-limits"].includes(step.id) && (
 						<div className="tutorial-panel__combat-detail" role="status" aria-label={translate("game:tutorials.tutorialOverlay.ariaLabel006")}>
 							{view.heroes[0] && view.abilityActionsByHero[view.heroes[0].id]?.filter((action) => action.kind !== "item" && (step.id === "passive-effect" ? false : step.id === "ability-limits" ? action.kind === "power" : true)).map((action) => (
@@ -617,8 +622,19 @@ export function TutorialOverlay({
 					</p>
 				)}
 				<div className="tutorial-panel__actions">
-					{step.kind === "completion" ? (
+					{isReview ? (
 						<>
+							<button type="button" className="tutorial-panel__primary" onClick={onContinue}>
+								{displayedStepIndex === session.stepIndex - 1 && (!step.highlights || session.highlightIndex === step.highlights.length - 1)
+									? translate("game:tutorials.tutorialOverlay.reviewResume")
+									: translate("game:tutorials.tutorialOverlay.reviewNext")}
+							</button>
+							{displayedStepIndex < session.stepIndex - 1 && <button type="button" onClick={onResume}>{translate("game:tutorials.tutorialOverlay.reviewResume")}</button>}
+							{canBack && <button type="button" onClick={onBack}>← {translate("game:tutorials.tutorialOverlay.text047")}</button>}
+						</>
+					) : step.kind === "completion" ? (
+						<>
+							{canBack && <button type="button" onClick={onBack}>← {translate("game:tutorials.tutorialOverlay.text047")}</button>}
 							{nextModule && <button type="button" onClick={onNext}>
 								{translate("game:tutorials.tutorialOverlay.text045")}{" "}{nextModule.title}
 							</button>}
@@ -637,7 +653,10 @@ export function TutorialOverlay({
 						</>
 					) : (
 						<>
-							{(step.advance === "manual" || step.id === "combat-action") && (
+							{step.id === "combat-action" && view.status === "HERO_ACTION" && (
+								<p className="tutorial-panel__waiting">{translate("game:tutorials.tutorialOverlay.retryCombat")}</p>
+							)}
+							{(step.advance === "manual" || (step.id === "combat-action" && (view.status === "DIRECT_DAMAGE" || view.status === "CHECK_COMBAT_END"))) && (
 								<button
 									type="button"
 									className="tutorial-panel__primary"
@@ -661,7 +680,7 @@ export function TutorialOverlay({
 							)}
 							{canBack && (
 								<button type="button" onClick={onBack}>
-									{translate("game:tutorials.tutorialOverlay.text047")}{" "}</button>
+									← {translate("game:tutorials.tutorialOverlay.text047")}{" "}</button>
 							)}
 							{step.kind === "interaction" && (
 								<span className="tutorial-panel__waiting">

@@ -5,7 +5,7 @@ import { translate } from "@/i18n";
 
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
-import { displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
+import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import { getSkillLocale } from "@/core/data/skillLocale";
 import {
@@ -559,6 +559,10 @@ function HeroColumn({
 				)}
 			</div>
 
+			<div className="inventory-hero-card__identity" style={{ textAlign: "center", marginBottom: 6 }}>
+				<strong style={{ display: "block", color: "#f2dfad", fontSize: 12, lineHeight: 1.2 }}>{heroName}</strong>
+				<small style={{ display: "block", color: "#cbb991", fontSize: 10, lineHeight: 1.2 }}>{getCardClass(hero.cardId)}</small>
+			</div>
 			<div className="inventory-hero-stats">
 				<span>
 					<strong>{translate("game:components.inventarioGrupo.text003")}</strong>
@@ -1052,6 +1056,12 @@ export function InventarioGrupo({
 		dispatch({ type: "INV_MOVE", payload: { itemId, from, to } });
 	}
 
+	function handleUseRewardItem(itemId: string) {
+		if (!rewardHero) return;
+		setInventoryFeedback(null);
+		dispatch({ type: "USE_REWARD_ITEM", payload: { itemId, heroId: rewardHero.id } });
+	}
+
 	// ── Mesa — zona de drop (itens voltando de heróis) ────────────────────────
 
 	const mesaDropValid = isValidZone("mesa");
@@ -1125,6 +1135,8 @@ export function InventarioGrupo({
 								<div className="inventory-card-grid">
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
+										const isMysticDraw = cardAbilityGrants(r.cardId).some((grant) =>
+											grant.activation.kind === "manual" && grant.abilityId === "item_skill_mystic_draw");
 										const isMe =
 											dragging?.from.kind === "mesa" &&
 											dragging.name === r.cardId;
@@ -1144,11 +1156,15 @@ export function InventarioGrupo({
 												onInfo={() =>
 													setDetailCard({ cardId: r.cardId, cardType: "item" })
 												}
-												onCollect={
-													rewardHero
-														? () => handleCollectReward(r.cardId)
-														: undefined
-												}
+												onCollect={rewardHero
+													? () => {
+														if (isMysticDraw) handleUseRewardItem(r.cardId);
+														else handleCollectReward(r.cardId);
+													}
+													: undefined}
+												collectLabel={isMysticDraw
+													? translate("game:components.inventarioGrupo.text044")
+													: undefined}
 												onMouseEnter={(e) =>
 													showTooltip({
 														name: r.cardId,
@@ -1485,6 +1501,7 @@ function HeroInventoryModal({
 						</div>
 						<div className="inventory-hero-modal__copy">
 							<h2>{heroName}</h2>
+							<p style={{ color: "#d4bf91", fontSize: "0.8rem", fontWeight: 600, marginBottom: 8 }}>{getCardClass(hero.cardId)}</p>
 							<div className="inventory-hero-modal__stats">
 								<span>
 									<strong>{translate("game:components.inventarioGrupo.text031")}</strong>
@@ -1633,6 +1650,7 @@ function InventoryRewardCard({
 	onDragEnd,
 	onInfo,
 	onCollect,
+	collectLabel,
 	onMouseEnter,
 	onMouseMove,
 	onMouseLeave,
@@ -1647,6 +1665,7 @@ function InventoryRewardCard({
 	onDragEnd: () => void;
 	onInfo: () => void;
 	onCollect?: () => void;
+	collectLabel?: string;
 	onMouseEnter: (e: React.MouseEvent) => void;
 	onMouseMove: (e: React.MouseEvent) => void;
 	onMouseLeave: () => void;
@@ -1680,7 +1699,8 @@ function InventoryRewardCard({
 					className="inventory-reward-collect"
 					onClick={onCollect}
 				>
-					{translate("game:components.inventarioGrupo.text043")}{" "}</button>
+					{collectLabel ?? translate("game:components.inventarioGrupo.text043")}
+				</button>
 			)}
 			<button
 				type="button"

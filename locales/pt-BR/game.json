@@ -1,6 +1,55 @@
 {
+  "opening": {
+    "audio": {
+      "title": "Antes das Cinzas",
+      "play": "Reproduzir",
+      "pause": "Pausar",
+      "volume": "Volume",
+      "blocked": "Clique em Reproduzir para ouvir a música.",
+      "unavailable": "Música da abertura indisponível."
+    },
+    "controls": {
+      "skip": "Pular abertura",
+      "previous": "Voltar",
+      "next": "Próximo",
+      "start": "Iniciar aventura"
+    },
+    "loading": "Carregando imagem...",
+    "imageUnavailable": "Imagem indisponível",
+    "fornalha": {
+      "title": "A Fornalha Sombria",
+      "scene01": "Eu registrei. Antes das Fendas, antes das cinzas, havia um mundo que acreditava conhecer os limites da própria realidade.",
+      "scene02": "Mas além da matéria existia o Véu. Um lugar onde a vida, a morte e as lembranças não conheciam fronteiras.",
+      "scene03": "Até que alguém desejou mais do que compreender. Um ser de poder inimaginável tentou dominar aquilo que jamais poderia possuir.",
+      "scene04": "A prisão não resistiu. O Véu aprisionado rompeu suas correntes, e a terra de Alexya foi rasgada de dentro para fora.",
+      "scene05": "Nasceu a Fenda-Mãe. E de sua explosão, fragmentos contaminados espalharam-se pelo mundo, deixando cicatrizes que nunca se fecharam.",
+      "scene06": "Um desses fragmentos alcançou a maior forja já construída. Um lugar de reis, artesãos, relíquias e antigas prisões.",
+      "scene07": "Ali repousava Azhakar, o guardião ancestral. O poder do Véu o alcançou... e o fogo da Fornalha jamais voltou a morrer.",
+      "scene08": "E agora, depois de eras de silêncio, as profundezas voltaram a se mover. A Fornalha desperta. E com ela, tudo aquilo que deveria permanecer enterrado.",
+      "scene09": "Na superfície, pessoas desaparecem. O chão treme. Criaturas emergem da escuridão. E os vivos começam a pagar por uma tragédia que não provocaram.",
+      "scene10": "De terras distantes, oito caminhos se aproximam. Nenhum deles foi escolhido pelos deuses. Cada um carrega suas próprias perdas, promessas e razões para lutar.",
+      "scene11": "Nas profundezas aguardam monstros, caminhos esquecidos e artefatos perdidos. Além deles, um dragão cujo poder ameaça consumir tudo que vive acima.",
+      "scene12": "O que aconteceu, eu registrei. O que acontecerá agora... pertence àqueles que escolherem entrar."
+    }
+  },
   "components": {
     "actionButton": {},
+    "alphaLogPanel": {
+      "dialogLabel": "Log detalhado alpha",
+      "title": "Log completo · alpha",
+      "entryCount_one": "{{count}} entrada",
+      "entryCount_many": "{{count}} entradas",
+      "entryCount_other": "{{count}} entradas",
+      "copied": "Copiado",
+      "copyAll": "Copiar tudo",
+      "closeLabel": "Fechar log detalhado",
+      "close": "Fechar",
+      "searchPlaceholder": "Buscar ação, herói, habilidade, dano...",
+      "searchLabel": "Buscar no log detalhado",
+      "footer_one": "Atalho: Ctrl+Alt+L · Esc fecha · {{count}} entrada exibida",
+      "footer_many": "Atalho: Ctrl+Alt+L · Esc fecha · {{count}} entradas exibidas",
+      "footer_other": "Atalho: Ctrl+Alt+L · Esc fecha · {{count}} entradas exibidas"
+    },
     "board": {
       "activeArtifact": "Artefato ativo",
       "text001": "sem sala",
@@ -43,7 +92,12 @@
       "ariaLabel001": "Resultado da rolagem de dados",
       "text002": "vs",
       "ariaLabel003": "Resolver ataque",
-      "dynamic001": "Resolver ataque"
+      "dynamic001": "Resolver ataque",
+      "enemyLabel": "Inimigo",
+      "heroLabel": "Herói",
+      "rolling": "Rolando...",
+      "fallback": "Modo simplificado: resultado gerado pela partida.",
+      "reroll": "Rolando um dado novamente"
     },
     "diceSelectionPanel": {
       "adjustDie_one": "Ajuste um dado em até {{count}} ponto, entre 1 e 6.",
@@ -80,6 +134,13 @@
     "heroFocusPanel": {
       "actedHint": "Este herói já agiu nesta rodada.",
       "attackHint": "Arraste o herói até um inimigo, ou toque/clique no herói e depois no alvo.",
+      "focusedHero": "Herói em foco",
+      "viewArt": "Ver arte",
+      "closeArt": "Fechar arte",
+      "hit": "Acerto",
+      "damage": "Dano",
+      "dice": "Dados",
+      "impeto": "Ímpeto",
       "text001": "Herói em foco ·",
       "text002": "clique em outro para trocar",
       "text003": "Vida",
@@ -312,8 +373,14 @@
     "statusBadge": {}
   },
   "screens": {
+    "devPreview": {
+      "badge": "DEV",
+      "toolbarLabel": "Prévia de encerramento"
+    },
     "defeat": {
       "alt001": "Ascensão Heróica",
+      "rosterTitle": "Heróis da jornada",
+      "journeyTitle": "O caminho percorrido",
       "text002": "Expedição encerrada",
       "text003": "Derrota",
       "text004": "A masmorra consumiu os heróis.",
@@ -331,8 +398,17 @@
         "creatures": "Criaturas derrotadas",
         "boss": "Chefe escolhido",
         "xp": "XP obtido",
-        "artifacts": "Artefatos encontrados"
+        "artifacts": "Artefatos encontrados",
+        "heroLevel": "Nível do herói",
+        "dungeonLevel": "Nível da masmorra"
       }
+    },
+    "endLevelColors": {
+      "white": "Branco",
+      "yellow": "Amarelo",
+      "orange": "Laranja",
+      "red": "Vermelho",
+      "purple": "Roxo"
     },
     "exploration": {
       "groupDrawer": "Grupo e Despertar",
@@ -438,6 +514,11 @@
       }
     },
     "victory": {
+      "kicker": "A lenda foi escrita",
+      "rosterTitle": "Heróis que venceram",
+      "journeyTitle": "A jornada em números",
+      "retry": "Jogar novamente",
+      "menu": "Voltar ao menu",
       "text001": "XP —",
       "dynamic001": "Vitória",
       "dynamic002": "Você derrotou o chefe final e sobreviveu à masmorra.",
@@ -447,7 +528,7 @@
       "dynamic006": "Artefatos obtidos",
       "dynamic007": "XP total",
       "dynamic008": "Nível do herói",
-      "dynamic009": "Despertar final",
+      "dynamic009": "Nível da masmorra",
       "winnerTitle": "Vitória: {{winner}}!",
       "winnerDescription": "{{winner}} derrotou o chefe final e vence a partida."
     }
@@ -545,7 +626,11 @@
       "dynamic023": "Voltar ao menu",
       "dynamic024": "Sair dos tutoriais",
       "dynamic025": "Próximo ponto",
-      "dynamic026": "Concluir combate"
+      "dynamic026": "Concluir combate",
+      "reviewNotice": "Revisão: esta explicação já foi apresentada. Voltar não desfaz ações nem permite usar novamente habilidades já executadas.",
+      "reviewNext": "Próxima explicação",
+      "reviewResume": "Retomar de onde parei",
+      "retryCombat": "A criatura resistiu. Selecione o herói e ataque novamente para concluir o combate."
     }
   }
 }

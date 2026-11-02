@@ -1,6 +1,55 @@
 {
+  "opening": {
+    "audio": {
+      "title": "Antes de las Cenizas",
+      "play": "Reproducir",
+      "pause": "Poner en pausa",
+      "volume": "Volumen",
+      "blocked": "Pulsa Reproducir para escuchar la música.",
+      "unavailable": "Música de la introducción no disponible."
+    },
+    "controls": {
+      "skip": "Saltar introducción",
+      "previous": "Volver",
+      "next": "Siguiente",
+      "start": "Comenzar aventura"
+    },
+    "loading": "Cargando imagen...",
+    "imageUnavailable": "Imagen no disponible",
+    "fornalha": {
+      "title": "La Forja Sombría",
+      "scene01": "Yo lo registré. Antes de las Grietas, antes de las cenizas, existía un mundo que creía conocer los límites de la propia realidad.",
+      "scene02": "Pero más allá de la materia existía el Velo. Un lugar donde la vida, la muerte y los recuerdos no conocían fronteras.",
+      "scene03": "Hasta que alguien deseó algo más que comprender. Un ser de poder inimaginable intentó dominar aquello que jamás podría poseer.",
+      "scene04": "La prisión no resistió. El Velo cautivo rompió sus cadenas, y la tierra de Alexya fue desgarrada desde dentro.",
+      "scene05": "Nació la Grieta Madre. Y de aquella explosión, fragmentos contaminados se dispersaron por el mundo, dejando cicatrices que nunca se cerraron.",
+      "scene06": "Uno de esos fragmentos alcanzó la mayor forja jamás construida. Un lugar de reyes, artesanos, reliquias y antiguas prisiones.",
+      "scene07": "Allí reposaba Azhakar, el guardián ancestral. El poder del Velo lo alcanzó... y el fuego de la Forja jamás volvió a extinguirse.",
+      "scene08": "Y ahora, tras eras de silencio, las profundidades han vuelto a moverse. La Forja despierta. Y con ella, todo aquello que debería haber permanecido enterrado.",
+      "scene09": "En la superficie, las personas desaparecen. La tierra tiembla. Las criaturas emergen de la oscuridad. Y los vivos comienzan a pagar por una tragedia que no provocaron.",
+      "scene10": "Desde tierras lejanas, ocho caminos convergen. Ninguno de ellos fue elegido por los dioses. Cada uno carga con sus propias pérdidas, promesas y razones para luchar.",
+      "scene11": "En las profundidades aguardan monstruos, caminos olvidados y artefactos perdidos. Más allá, un dragón cuyo poder amenaza con consumir todo cuanto vive en la superficie.",
+      "scene12": "Lo que ocurrió, yo lo registré. Lo que suceda ahora... pertenece a quienes decidan entrar."
+    }
+  },
   "components": {
     "actionButton": {},
+    "alphaLogPanel": {
+      "dialogLabel": "Registro detallado alfa",
+      "title": "Registro completo · alfa",
+      "entryCount_one": "{{count}} registro",
+      "entryCount_many": "{{count}} registros",
+      "entryCount_other": "{{count}} registros",
+      "copied": "Copiado al portapapeles",
+      "copyAll": "Copiar todo",
+      "closeLabel": "Cerrar registro detallado",
+      "close": "Cerrar",
+      "searchPlaceholder": "Buscar acción, héroe, habilidad, daño...",
+      "searchLabel": "Buscar en el registro detallado",
+      "footer_one": "Atajo: Ctrl+Alt+L · Esc cierra · {{count}} entrada visible",
+      "footer_many": "Atajo: Ctrl+Alt+L · Esc cierra · {{count}} entradas visibles",
+      "footer_other": "Atajo: Ctrl+Alt+L · Esc cierra · {{count}} entradas visibles"
+    },
     "board": {
       "activeArtifact": "Artefacto activo",
       "text001": "sin sala",
@@ -43,7 +92,12 @@
       "ariaLabel001": "Resultado de la tirada de dados",
       "text002": "contra",
       "ariaLabel003": "Resolver ataque",
-      "dynamic001": "Resolver ataque"
+      "dynamic001": "Resolver ataque",
+      "enemyLabel": "Enemigo",
+      "heroLabel": "Héroe",
+      "rolling": "Tirando...",
+      "fallback": "Modo simplificado: resultado generado por la partida.",
+      "reroll": "Volviendo a tirar un dado"
     },
     "diceSelectionPanel": {
       "adjustDie_one": "Ajusta un dado hasta {{count}} punto, entre 1 y 6.",
@@ -80,6 +134,13 @@
     "heroFocusPanel": {
       "actedHint": "Este héroe ya ha actuado en esta ronda.",
       "attackHint": "Arrastra al héroe hasta un enemigo, o pulsa en el héroe y después en el objetivo.",
+      "focusedHero": "Héroe seleccionado",
+      "viewArt": "Ver arte",
+      "closeArt": "Cerrar arte",
+      "hit": "Impacto",
+      "damage": "Daño",
+      "dice": "Dados",
+      "impeto": "Ímpetu",
       "text001": "Héroe seleccionado ·",
       "text002": "pulsa en otro para cambiar",
       "text003": "Vida",
@@ -312,8 +373,14 @@
     "statusBadge": {}
   },
   "screens": {
+    "devPreview": {
+      "badge": "DEV",
+      "toolbarLabel": "Vista previa del desenlace"
+    },
     "defeat": {
       "alt001": "Ascensión Heroica",
+      "rosterTitle": "Héroes de la travesía",
+      "journeyTitle": "El camino recorrido",
       "text002": "Expedición terminada",
       "text003": "Derrota",
       "text004": "La mazmorra ha consumido a los héroes.",
@@ -331,8 +398,17 @@
         "creatures": "Criaturas derrotadas",
         "boss": "Jefe elegido",
         "xp": "XP obtenido",
-        "artifacts": "Artefactos encontrados"
+        "artifacts": "Artefactos encontrados",
+        "heroLevel": "Nivel del héroe",
+        "dungeonLevel": "Nivel de la mazmorra"
       }
+    },
+    "endLevelColors": {
+      "white": "Blanco",
+      "yellow": "Amarillo",
+      "orange": "Naranja",
+      "red": "Rojo",
+      "purple": "Morado"
     },
     "exploration": {
       "groupDrawer": "Grupo y Despertar",
@@ -438,6 +514,11 @@
       }
     },
     "victory": {
+      "kicker": "La leyenda quedó escrita",
+      "rosterTitle": "Los héroes vencedores",
+      "journeyTitle": "La travesía en cifras",
+      "retry": "Jugar de nuevo",
+      "menu": "Volver al menú",
       "text001": "XP —",
       "dynamic001": "Victoria",
       "dynamic002": "Has derrotado al jefe final y sobrevivido a la mazmorra.",
@@ -447,7 +528,7 @@
       "dynamic006": "Artefactos conseguidos",
       "dynamic007": "XP total",
       "dynamic008": "Nivel del héroe",
-      "dynamic009": "Despertar final",
+      "dynamic009": "Nivel de la mazmorra",
       "winnerTitle": "¡Victoria: {{winner}}!",
       "winnerDescription": "{{winner}} ha derrotado al jefe final y gana la partida."
     }
@@ -545,7 +626,11 @@
       "dynamic023": "Volver al menú",
       "dynamic024": "Salir de los tutoriales",
       "dynamic025": "Siguiente punto",
-      "dynamic026": "Terminar combate"
+      "dynamic026": "Terminar combate",
+      "reviewNotice": "Repaso: ya has llegado a este paso. Volver no deshace acciones ni permite reutilizar habilidades.",
+      "reviewNext": "Siguiente explicación",
+      "reviewResume": "Retomar donde lo dejé",
+      "retryCombat": "La criatura resistió. Selecciona al héroe y ataca de nuevo para terminar el combate."
     }
   }
 }

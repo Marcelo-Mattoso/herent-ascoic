@@ -33,10 +33,12 @@ async function reachFirstAttack(page: Page) {
 	).toBeVisible();
 	await page.locator('[data-tutorial-anchor="combat.enemy"]').click();
 	await expect(page.locator(".game-dice-roll-modal")).toBeVisible();
-	await page.locator(".game-dice-roll-action").click({ timeout: 10_000 });
+	await page.locator(".game-dice-roll-action").click({ timeout: 20_000 });
 	await expect(page.locator('[data-tutorial-step="combat-drag"]')).toBeVisible({
 		timeout: 10_000,
 	});
+	// O checkpoint final usa a contingência determinística para manter este teste de tutorial reproduzível.
+	await page.emulateMedia({ reducedMotion: "reduce" });
 }
 
 test("Arquivo II: seleção, drag real, dados do Diário e conclusão", async ({

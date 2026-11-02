@@ -64,12 +64,26 @@ jobs:
             import fs from 'node:fs';
             import path from 'node:path';
             const manifest = JSON.parse(fs.readFileSync('dist/generated/music/manifest.json', 'utf8'));
-            if (manifest.tracks?.length !== 5) throw new Error('Expected five music tracks in dist');
+            if (!Array.isArray(manifest.tracks) || manifest.tracks.length === 0) throw new Error('Music manifest is empty or invalid');
+            const tracksByFile = new Map();
             for (const track of manifest.tracks) {
+              if (tracksByFile.has(track.fileName)) throw new Error('Duplicate music track: ' + track.fileName);
+              tracksByFile.set(track.fileName, track);
               const asset = path.join('dist', 'generated', 'music', 'assets', track.fileName);
               if (!fs.existsSync(asset)) throw new Error('Missing music asset: ' + asset);
             }
-            console.log('Verified five bundled music tracks');
+            const root = 'assets/expansions';
+            const config = JSON.parse(fs.readFileSync(path.join(root, 'config.json'), 'utf8'));
+            for (const expansion of config.expansions.filter(entry => entry.enabled)) {
+              const packageDir = path.join(root, expansion.id);
+              const pack = JSON.parse(fs.readFileSync(path.join(packageDir, 'expansion.json'), 'utf8'));
+              for (const openingPath of Object.values(pack.openings ?? {})) {
+                const opening = JSON.parse(fs.readFileSync(path.join(packageDir, openingPath), 'utf8'));
+                const name = opening.audio?.fileName;
+                if (name && !tracksByFile.has(name)) throw new Error('Opening music missing from manifest: ' + name);
+              }
+            }
+            console.log('Verified ' + manifest.tracks.length + ' bundled music tracks and boss opening soundtracks');
           "
       - run: npx playwright install --with-deps chromium
       - run: npm run test:e2e

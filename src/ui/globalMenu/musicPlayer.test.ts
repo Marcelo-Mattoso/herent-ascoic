@@ -149,4 +149,53 @@ describe("MusicPlayer", () => {
 		expect(player.getSnapshot()).toMatchObject({ status: "error", message: "Nenhuma faixa disponível." });
 		player.dispose();
 	});
+	it("interrompe a playlist, toca exclusivamente a abertura e retoma ao sair", async () => {
+		const audio = new FakeAudio();
+		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
+		player.activate();
+		const intro = { ...tracks[0], id: "opening", title: "Antes das Cinzas", fileName: "Antes das Cinzas.mp3", url: "/generated/music/assets/Antes%20das%20Cinzas.mp3" };
+		player.setTracks([...tracks, intro], ["Antes das Cinzas.mp3"]);
+		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "two"]);
+		await player.play();
+		const oldPlayCount = audio.play.mock.calls.length;
+		player.enterOpening("Antes das Cinzas.mp3");
+		await Promise.resolve();
+		expect(audio.pause).toHaveBeenCalled();
+		expect(audio.src).toContain("Antes%20das%20Cinzas.mp3");
+		expect(player.getSnapshot()).toMatchObject({ opening: "Antes das Cinzas.mp3", openingAvailable: true, status: "playing" });
+		expect(audio.play.mock.calls.length).toBe(oldPlayCount + 1);
+		await player.playFromControls();
+		expect(audio.play.mock.calls.length).toBe(oldPlayCount + 1);
+		player.pauseOpening();
+		expect(player.getSnapshot().status).toBe("stopped");
+		await player.playOpening();
+		expect(player.getSnapshot().status).toBe("playing");
+		audio.dispatchEvent(new Event("ended"));
+		await Promise.resolve();
+		expect(player.getSnapshot().opening).toBe("Antes das Cinzas.mp3");
+		expect(audio.currentTime).toBe(0);
+		player.leaveOpening("Antes das Cinzas.mp3");
+		await Promise.resolve();
+		expect(player.getSnapshot().opening).toBe(null);
+		expect(audio.src).toContain("/one.mp3");
+		player.dispose();
+	});
+
+	it("toca abertura com playlist desligada e ignora carregamento atrasado após sair", async () => {
+		const audio = new FakeAudio();
+		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
+		player.activate();
+		player.stopFromControls();
+		player.enterOpening("Antes das Cinzas.mp3");
+		expect(player.getSnapshot().openingAvailable).toBe(false);
+		const intro = { ...tracks[0], id: "opening", title: "Antes das Cinzas", fileName: "Antes das Cinzas.mp3", url: "/generated/music/assets/Antes%20das%20Cinzas.mp3" };
+		player.setTracks([...tracks, intro], [intro.fileName]);
+		await Promise.resolve();
+		expect(player.getSnapshot().status).toBe("playing");
+		player.leaveOpening(intro.fileName);
+		expect(player.getSnapshot().status).toBe("stopped");
+		expect(audio.play).toHaveBeenCalledTimes(1);
+		player.dispose();
+	});
+
 });

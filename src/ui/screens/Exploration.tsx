@@ -16,6 +16,7 @@ import { BoardFooter } from "@/ui/components/BoardFooter";
 import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
+import { AlphaLogPanel } from "@/ui/components/AlphaLogPanel";
 import { HeroFocusPanel } from "@/ui/components/HeroFocusPanel";
 import { JournalPanel } from "@/ui/components/JournalPanel";
 import { InfluencePanel } from "@/ui/components/InfluencePanel";
@@ -40,9 +41,9 @@ const AUTO_ADVANCE: Partial<Record<string, Action>> = {
 	ROOM_EFFECT: { type: "RESOLVE_ROOM_EFFECT" },
 	SPAWN_ENEMIES: { type: "SPAWN_ENEMIES" },
 	COMBAT_START: { type: "START_COMBAT" },
-	ROLL_DICE: { type: "ROLL_DICE" },
+	ROLL_DICE: { type: "PREPARE_PHYSICAL_ROLL" },
 	CHECK_COMBAT_END: { type: "CHECK_COMBAT_END" },
-	DIRECT_DAMAGE: { type: "DIRECT_DAMAGE" },
+	DIRECT_DAMAGE: { type: "PREPARE_EXTRA_ATTACK" },
 };
 
 type ModalType =
@@ -196,11 +197,13 @@ export function Exploration({
 			(status === "DIRECT_DAMAGE" || status === "CHECK_COMBAT_END")
 		)
 			return;
+		if (view.pendingTriggerInterrupt || view.pendingSkillChoice || view.pendingSkillTarget) return;
+		if (status === "DIRECT_DAMAGE" && !view.combat) return;
 		const action = AUTO_ADVANCE[status];
 		if (!action) return;
 		const t = setTimeout(() => dispatch(action), 400);
 		return () => clearTimeout(t);
-	}, [status, dispatch, tutorialMode, tutorialCombatMode]);
+	}, [status, dispatch, tutorialMode, tutorialCombatMode, view.pendingTriggerInterrupt, view.pendingSkillChoice, view.pendingSkillTarget, view.combat]);
 
 	useEffect(() => {
 		if (!attackPromptTrigger) {
@@ -265,7 +268,7 @@ export function Exploration({
 		setShowHeroFocus(false);
 		setCombatAttackHintVisible(false);
 		onTutorialAttackInput?.("drag");
-		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
+		dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId, inputMethod: "drag" } });
 	}
 
 	function handleEnemyClick(e: EnemyView) {
@@ -282,7 +285,7 @@ export function Exploration({
 			onTutorialAttackInput?.("tap");
 			dispatch({
 				type: "CHOOSE_TARGET",
-				payload: { heroId: selectedHeroId, enemyId: e.id },
+				payload: { heroId: selectedHeroId, enemyId: e.id, inputMethod: "button" },
 			});
 			return;
 		}
@@ -341,6 +344,7 @@ export function Exploration({
 
 	return (
 		<>
+			<AlphaLogPanel entries={view.alphaLog} />
 			<div
 				className="game-viewport"
 				data-game-layout={gameGeometry.mode}
@@ -387,6 +391,7 @@ export function Exploration({
 									dispatch({ type: "CONTINUE_EXPLORATION" })
 								}
 								onResolve={handleResolveAttack}
+								onConfirmDiceRoll={(payload) => dispatch({ type: "CONFIRM_DICE_ROLL", payload })}
 								onSelectDie={(side, index, value) =>
 									dispatch({
 										type: "SELECT_DIE",
@@ -537,6 +542,7 @@ export function Exploration({
 							<div className="game-hero-focus-popover">
 								<HeroFocusPanel
 									hero={focusedHero}
+									heroImageUrl={getCardImageUrl(cardImageUrls, focusedHero.cardId)}
 									view={view}
 									heroActions={heroActions}
 									onAttack={handleAttack}
@@ -547,6 +553,7 @@ export function Exploration({
 									onUseSkill={handleUseSkill}
 									onUseItem={() => setItemUse({ heroId: focusedHero.id })}
 									onCardDetail={openCardDetail}
+									onArtInspect={tutorialAbilityMode ? onTutorialAbilityCardInspect : undefined}
 									onItemDetail={(itemId, heroId) =>
 										setDetailCard({ id: itemId, cardType: "item", heroId })
 									}

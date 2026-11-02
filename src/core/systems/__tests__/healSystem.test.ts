@@ -50,19 +50,21 @@ describe("applyHeal", () => {
 		const state = makeState({ currentLife: 5 });
 		const result = applyHeal(testEngine, state, "h1", 3);
 		expect(heroesOf(result)[0]!.currentLife).toBe(8);
+		expect(gameOf(result).healFeedback?.at(-1)).toMatchObject({ targetId: "h1", amount: 3 });
 	});
 
 	it("não ultrapassa maxLife", () => {
 		const state = makeState({ currentLife: 9, maxLife: 10 });
 		const result = applyHeal(testEngine, state, "h1", 5);
 		expect(heroesOf(result)[0]!.currentLife).toBe(10);
+		expect(gameOf(result).healFeedback?.at(-1)?.amount).toBe(1);
 	});
 
-	it("retorna estado inalterado se healBlocked", () => {
+	it("mantém a vida e registra a cura bloqueada no log alpha", () => {
 		const state = makeState({ currentLife: 5, healBlocked: true });
 		const result = applyHeal(testEngine, state, "h1", 3);
-		expect(result).toBe(state);
 		expect(heroesOf(result)[0]!.currentLife).toBe(5);
+		expect(gameOf(result).alphaLog?.at(-1)).toContain("bloqueada");
 	});
 
 	it("retorna estado inalterado para id desconhecido", () => {
@@ -148,31 +150,31 @@ describe("applySurvive", () => {
 describe("applyLifeGain", () => {
 	it("aumenta vida mesmo com healBlocked ativo", () => {
 		const state = makeState({ currentLife: 5, healBlocked: true });
-		const result = applyLifeGain(state, "h1", 3);
+		const result = applyLifeGain(testEngine, state, "h1", 3);
 		expect(heroesOf(result)[0]!.currentLife).toBe(8);
 	});
 
 	it("não ultrapassa maxLife", () => {
 		const state = makeState({ currentLife: 9, maxLife: 10 });
-		const result = applyLifeGain(state, "h1", 5);
+		const result = applyLifeGain(testEngine, state, "h1", 5);
 		expect(heroesOf(result)[0]!.currentLife).toBe(10);
 	});
 
 	it("aplica ganho de vida normal sem healBlocked", () => {
 		const state = makeState({ currentLife: 4 });
-		const result = applyLifeGain(state, "h1", 2);
+		const result = applyLifeGain(testEngine, state, "h1", 2);
 		expect(heroesOf(result)[0]!.currentLife).toBe(6);
 	});
 
 	it("retorna estado inalterado para id desconhecido", () => {
 		const state = makeState();
-		const result = applyLifeGain(state, "unknown_id", 3);
+		const result = applyLifeGain(testEngine, state, "unknown_id", 3);
 		expect(result).toBe(state);
 	});
 
 	it("sincroniza HealthComponent no ECS world", () => {
 		const state = makeState({ currentLife: 5, healBlocked: true });
-		const result = applyLifeGain(state, "h1", 3);
+		const result = applyLifeGain(testEngine, state, "h1", 3);
 		const health = getComponent<HealthComponent>(gameOf(result).world, "h1", "health");
 		expect(health?.current).toBe(8);
 	});

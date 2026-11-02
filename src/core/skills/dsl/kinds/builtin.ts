@@ -31,7 +31,7 @@ import {
 	DurationNodeSchema,
 	ExprNodeSchema,
 } from "../schema";
-import type { ConditionNode, DurationNode, EvalCtx } from "../types";
+import type { ConditionNode, DurationNode, EffectNode, EvalCtx } from "../types";
 import {
 	asKindNode,
 	ConditionLike,
@@ -43,7 +43,7 @@ import {
 	modifierStatSpec,
 } from "./shared";
 
-import { enemiesOf, heroesOf, withScopedFlag, withUnitStats, withWorld, worldOf } from "../../../state/access";
+import { deckOf, enemiesOf, heroesOf, withScopedFlag, withUnitStats, withWorld, worldOf } from "../../../state/access";
 import { gameOf, withGame } from "../../../../engine/state";
 const DIE_SIDES = ["hero", "enemy", "any"] as const;
 const FOR_EACH_OVER = [
@@ -331,6 +331,17 @@ const ifKind = effectKind({
 	},
 });
 
+const unavailableDiscardPenalty: readonly EffectNode[] = [
+	{
+		kind: "i_for_each", over: "all_heroes", as: "$hero",
+		do: [{ kind: "p_modifier", to: "$target", stat: "s_damage_dealt", operation: "add", value: -1, duration: { kind: "until_end_of_combat" } }],
+	},
+	{
+		kind: "i_for_each", over: "all_heroes", as: "$hero",
+		do: [{ kind: "p_modifier", to: "$target", stat: "s_hit_penalty", operation: "add", value: 1, duration: { kind: "until_end_of_combat" } }],
+	},
+];
+
 const chooseOne = effectKind({
 	kind: "i_choose_one",
 	schema: z.object({
@@ -351,6 +362,24 @@ const chooseOne = effectKind({
 	children: (node) =>
 		node.options.flatMap((option) => option.effect as never[]),
 	evaluate: (node, ctx) => {
+		const [itemOption, alternative] = node.options;
+		if (node.options.length === 2 && itemOption && alternative &&
+			(itemOption.effect as readonly EffectNode[]).some((effect) => effect.kind === "i_discard" && effect.pile === "item")) {
+			const availableItems = heroesOf(ctx.state)
+				.filter((hero) => hero.status === "active")
+				.reduce((count, hero) => count + hero.backpack.length + Object.values(hero.activeItems).filter(Boolean).length, 0);
+			const discardCount = (option: typeof itemOption, pile: "item" | "dungeon") =>
+				(option.effect as readonly EffectNode[]).reduce((count, effect) => count +
+					(effect.kind === "i_discard" && effect.pile === pile ? resolveExpr(effect.count, ctx) : 0), 0);
+			const canDiscardItem = availableItems >= discardCount(itemOption, "item");
+			const canUseAlternative = deckOf(ctx.state, "dungeonDeck").available.length >= discardCount(alternative, "dungeon");
+			if (!canDiscardItem && !canUseAlternative) {
+				const penalized = evaluate(unavailableDiscardPenalty, ctx);
+				return ctx.withState(penalized).action.log("Sem item ou carta de masmorra para descartar: heróis recebem -1 de dano e -1 de acerto até o fim do combate.");
+			}
+			if (!canDiscardItem) return evaluate(alternative.effect as readonly EffectNode[], ctx);
+			if (!canUseAlternative) return evaluate(itemOption.effect as readonly EffectNode[], ctx);
+		}
 		const options = node.options.map((opt) => {
 			const template = skillOptionLabel(ctx.engine, ctx.skillId, opt.id);
 			const label = template.replace(/\{(\w+)\}/g, (_m, k: string) =>

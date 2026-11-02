@@ -1,5 +1,6 @@
-import { type CSSProperties } from "react";
+import { type CSSProperties, useEffect, useRef } from "react";
 import { createPortal } from "react-dom";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 
 export interface CardAttackActor {
 	name: string;
@@ -18,6 +19,7 @@ interface CardAttackAnimationProps {
 	sourceRect: CardAttackRect;
 	targetRect: CardAttackRect;
 	onFinish?: () => void;
+	onImpact?: () => void;
 }
 
 /**
@@ -25,14 +27,37 @@ interface CardAttackAnimationProps {
  *
  * O chamador fornece as posições já renderizadas de atacante e alvo. A regra de
  * combate continua independente: este componente apenas encena a investida,
- * impacto e retorno da carta vencedora.
+ * impacto e retorno da carta atacante.
  */
 export function CardAttackAnimation({
 	attacker,
 	sourceRect,
 	targetRect,
 	onFinish,
+	onImpact,
 }: CardAttackAnimationProps) {
+	const impactCallback = useRef(onImpact);
+	const finishCallback = useRef(onFinish);
+	const finished = useRef(false);
+	impactCallback.current = onImpact;
+	finishCallback.current = onFinish;
+	useEffect(() => {
+		sfxPlayer.play("attack_whoosh");
+		const reducedMotion = window.matchMedia?.("(prefers-reduced-motion: reduce)").matches;
+		if (reducedMotion) {
+			impactCallback.current?.();
+		}
+		const impactTimer = reducedMotion ? null : window.setTimeout(() => impactCallback.current?.(), 640 * 0.48);
+		const finishTimer = window.setTimeout(() => {
+			if (finished.current) return;
+			finished.current = true;
+			finishCallback.current?.();
+		}, reducedMotion ? 1 : 640);
+		return () => {
+			if (impactTimer !== null) window.clearTimeout(impactTimer);
+			window.clearTimeout(finishTimer);
+		};
+	}, []);
 	const sourceCenterX = sourceRect.left + sourceRect.width / 2;
 	const sourceCenterY = sourceRect.top + sourceRect.height / 2;
 	const targetCenterX = targetRect.left + targetRect.width / 2;
@@ -61,7 +86,11 @@ export function CardAttackAnimation({
 							: undefined,
 					} as CSSProperties
 				}
-				onAnimationEnd={onFinish}
+				onAnimationEnd={() => {
+					if (finished.current) return;
+					finished.current = true;
+					finishCallback.current?.();
+				}}
 			>
 				{attacker.imageUrl ? null : (
 					<span className="card-attack-animation__fallback">{attacker.name}</span>

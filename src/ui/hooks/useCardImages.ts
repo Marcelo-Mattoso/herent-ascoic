@@ -13,7 +13,7 @@ function isCardImageManifest(value: unknown): value is CardImageManifest {
 	const manifest = value as Partial<CardImageManifest>;
 	return (
 		manifest.version === 1 &&
-		manifest.source === "imagedata/cards" &&
+		manifest.source === "assets/expansions" &&
 		Array.isArray(manifest.cards)
 	);
 }

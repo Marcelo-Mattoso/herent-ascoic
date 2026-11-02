@@ -334,7 +334,31 @@ export function buildBossRoll(engine: GameEngine,
 
 	const { result: heroRoll, next: rng1 } = rollDiceRng(hero.dice, gameOf(state).rng);
 	const { result: bossRoll, next: rng2 } = rollDiceRng(boss.dice, rng1);
+	const roll = buildBossRollFromResults(engine, state, heroRoll.results, bossRoll.results);
+	if (!roll) return null;
+	return {
+		roll,
+		nextState: recordEvent(withGame(state, (prevGame) => ({ ...prevGame, rng: rng2 })), "RollResolved", {
+			heroId: hero.id,
+			enemyId: boss.id,
+			heroTotal: roll.heroTotal,
+			enemyTotal: roll.enemyTotal,
+			heroResults: heroRoll.results,
+			enemyResults: bossRoll.results,
+		}),
+	};
+}
 
+export function buildBossRollFromResults(
+	engine: GameEngine,
+	state: GameState,
+	heroResults: readonly number[],
+	bossResults: readonly number[],
+): CombatRollResult | null {
+	const pair = gameOf(state).combat?.pairs[0];
+	const hero = heroesOf(state).find((h) => h.id === pair?.heroId);
+	const boss = enemiesOf(state).find((e) => e.id === "boss");
+	if (!hero || !boss) return null;
 	const heroBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: hero.hitBonus },
 		...collectWorldModifierEntries(state, hero.id, "hit_bonus"),
@@ -345,30 +369,20 @@ export function buildBossRoll(engine: GameEngine,
 		...collectWorldModifierEntries(state, boss.id, "hit_bonus"),
 	];
 
-	const heroCalc = calculateTotal(heroRoll.results, heroBonuses);
-	const bossCalc = calculateTotal(bossRoll.results, bossBonuses);
+	const heroCalc = calculateTotal(heroResults, heroBonuses);
+	const bossCalc = calculateTotal(bossResults, bossBonuses);
 
 	const roll: CombatRollResult = {
 		heroId: hero.id,
 		enemyId: boss.id,
-		heroResults: heroRoll.results,
+		heroResults,
 		heroTotal: heroCalc.total,
 		heroBreakdown: heroBonuses,
-		enemyResults: bossRoll.results,
+		enemyResults: bossResults,
 		enemyTotal: bossCalc.total,
 		enemyBreakdown: bossBonuses,
 	};
-	return {
-		roll,
-		nextState: recordEvent(withGame(state, (prevGame) => ({ ...prevGame, rng: rng2 })), "RollResolved", {
-			heroId: hero.id,
-			enemyId: boss.id,
-			heroTotal: heroCalc.total,
-			enemyTotal: bossCalc.total,
-			heroResults: heroRoll.results,
-			enemyResults: bossRoll.results,
-		}),
-	};
+	return roll;
 }
 
 export function isBossRoll(state: GameState): boolean {

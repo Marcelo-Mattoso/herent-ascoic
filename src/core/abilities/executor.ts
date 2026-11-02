@@ -17,7 +17,8 @@ import type { GameState } from "../state/gameState";
 import { log } from "../reducer/utils";
 import type { SkillContext } from "../data/skillTypes";
 import type { EventName } from "../skills/dsl/types";
-import { abilityById, abilityGrants, cardById, skillById } from "../gameEngine";
+import { abilityById, abilityGrants, cardById, cardName, skillById, skillName } from "../gameEngine";
+import { appendAlphaLog } from "../diagnostics/alphaLog";
 import { checkCosts, payCosts } from "../../engine/cost";
 import { awakeningCost, lifeCostOf } from "./costs";
 import type { GameEngine } from "../gameEngine";
@@ -43,6 +44,7 @@ export interface AbilityGrantExecution {
 	readonly source: AbilityGrantSource;
 	readonly grant: AbilityGrant;
 	readonly triggeredBy: string;
+	readonly consumeFromPendingReward?: boolean;
 	readonly targetIds?: readonly string[];
 	readonly value?: number | string | null;
 	readonly context?: SkillContext;
@@ -181,11 +183,14 @@ function consumeSource(
 	state: GameState,
 	source: AbilityGrantSource,
 	grant: AbilityGrant,
+	consumeFromPendingReward = false,
 ): GameState {
 	if (grant.activation.consumeSource === "none") return state;
 	if (source.kind !== "item" || !source.sourceHeroId) return state;
 	const owner = heroOf(state, source.sourceHeroId);
-	const owned = owner ? findHeroItemLocation(owner, source.cardId) !== null : false;
+	const owned = !consumeFromPendingReward && owner
+		? findHeroItemLocation(owner, source.cardId) !== null
+		: false;
 	const withoutItem = owned
 		? removeHeroItem(state, source.sourceHeroId, source.cardId)
 		: state;
@@ -277,7 +282,7 @@ export function executeAbilityGrant(engine: GameEngine,
 		({ state: next } = emit(engine, next, { type: "SkillUsed", payload: {
 			sourceId: source.sourceHeroId, skillId: ability.id,
 		} }));
-	next = consumeSource(next, source, grant);
+	next = consumeSource(next, source, grant, request.consumeFromPendingReward);
 	const lifeCost = lifeCostOf(grant, source.sourceHeroId);
 	if (lifeCost && source.sourceHeroId) {
 		const unpaid = checkCosts([lifeCost], next, source.sourceHeroId);
@@ -322,7 +327,8 @@ export function executeAbilityGrant(engine: GameEngine,
 	if (grant.activation.actionCost === "consume_hero_action" && source.sourceHeroId) {
 		next = ActivationTracker.endHeroTurn(next, source.sourceHeroId);
 	}
-	return next;
+	return appendAlphaLog(next,
+		`Habilidade ${skillName(engine, ability.id)} ativada por ${cardName(engine, source.cardId)} (${source.sourceHeroId ?? source.sourceEnemyId ?? "grupo"}); evento ${triggeredBy}; alvos [${targetIds.join(", ") || "nenhum"}]; parâmetros ${JSON.stringify(params)}.`);
 }
 
 export function resolveManualGrantTarget(engine: GameEngine,

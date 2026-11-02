@@ -34,6 +34,7 @@ import {
 	advanceAfterHeroDisabledForRound,
 	handleCancelSkillTarget,
 	handleResolveAttack,
+	handlePreparePhysicalRoll,
 	handleRollDice,
 	handleSelectSkillTarget,
 	resumeAttackAfterDamage,
@@ -58,7 +59,9 @@ export function resumeAfterTriggerDecision(
 		pendingWindow === "before_attack_roll" &&
 		gameOf(state).status === "ROLL_DICE"
 	) {
-		return handleRollDice(engine, state);
+		return gameOf(state).combat?.physicalRollPreparing
+			? handlePreparePhysicalRoll(engine, state, true)
+			: handleRollDice(engine, state);
 	}
 	return state;
 }
@@ -101,6 +104,8 @@ export function resumeAfterSkillWindow(
 		switch (window.resume.type) {
 			case "roll_dice":
 				return handleRollDice(engine, afterStack);
+			case "prepare_physical_roll":
+				return handlePreparePhysicalRoll(engine, afterStack, true);
 			case "resolve_attack":
 				return handleResolveAttack(engine, afterStack);
 			case "continue_rewards_after_room_win":

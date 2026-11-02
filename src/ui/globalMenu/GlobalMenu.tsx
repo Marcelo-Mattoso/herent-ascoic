@@ -3,8 +3,11 @@ import { createPortal } from "react-dom";
 import { useTranslation } from "react-i18next";
 import { changeLocale, i18n, translate } from "@/i18n";
 import { publishedLocales } from "@/i18n/registry";
+import { AUDIO_CONFIG } from "@/config/audio";
 import { publicAssetUrl } from "@/ui/publicAssetUrl";
-import { isMusicManifest, MUSIC_MANIFEST_URL, MusicPlayer } from "./musicPlayer";
+import { getMusicPlayer, isMusicManifest, MUSIC_MANIFEST_URL } from "./musicPlayer";
+import { getOpeningMusicFileNames } from "@/ui/openings/registry";
+import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 
 const MANUAL_URL = publicAssetUrl("rules/ascensao-heroica-manual.pdf");
 const MUSIC_MESSAGES: Record<string, string> = {
@@ -16,8 +19,9 @@ const MUSIC_MESSAGES: Record<string, string> = {
 
 export function GlobalMenu() {
 	useTranslation();
-	const [player] = useState(() => new MusicPlayer(document.createElement("audio")));
+	const [player] = useState(getMusicPlayer);
 	const music = useSyncExternalStore(player.subscribe, player.getSnapshot);
+	const sfx = useSyncExternalStore(sfxPlayer.subscribe, sfxPlayer.getSnapshot);
 	const [open, setOpen] = useState(false);
 	const [catalogError, setCatalogError] = useState("");
 	const [localeLoading, setLocaleLoading] = useState(false);
@@ -35,7 +39,7 @@ export function GlobalMenu() {
 			})
 			.then((data: unknown) => {
 				if (!isMusicManifest(data)) throw new Error("Manifesto inválido");
-				player.setTracks(data.tracks);
+				player.setTracks(data.tracks, getOpeningMusicFileNames());
 				void player.autoplay();
 			})
 			.catch(() => {
@@ -105,26 +109,36 @@ export function GlobalMenu() {
 			<button ref={buttonRef} type="button" className="global-menu__toggle" aria-label={translate(open ? "common:globalMenu.globalMenu.toggleClose" : "common:globalMenu.globalMenu.toggleOpen")} aria-expanded={open} aria-controls="global-menu-panel" onClick={() => setOpen((value) => !value)}>
 				<span aria-hidden="true">{open ? "×" : "☰"}</span>
 			</button>
-			{music.status === "blocked" && <button type="button" className="global-menu__music-prompt" onClick={() => void player.playFromControls()}>{translate("common:globalMenu.globalMenu.startMusic")}</button>}
+			{music.status === "blocked" && !music.opening && <button type="button" className="global-menu__music-prompt" onClick={() => void player.playFromControls()}>{translate("common:globalMenu.globalMenu.startMusic")}</button>}
 			{open && <section ref={panelRef} id="global-menu-panel" className="global-menu__panel" aria-label={translate("common:globalMenu.globalMenu.ariaLabel001")}>
 				<div className="global-menu__heading"><span>{translate("common:globalMenu.globalMenu.text002")}</span><button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel003")} onClick={() => { setOpen(false); buttonRef.current?.focus(); }}>×</button></div>
 				<div className="global-menu__section">
 					<h2>{translate("common:globalMenu.globalMenu.text004")}</h2>
-					<p className="global-menu__track" aria-live="polite">{selected ? `${music.tracks.findIndex((track) => track.id === selected.id) + 1} / ${music.tracks.length} · ${selected.title}` : translate("common:globalMenu.globalMenu.noTrack")}</p>
-					{music.tracks.length > 0 && <label className="global-menu__field">{translate("common:globalMenu.globalMenu.text005")}{" "}<select value={music.selectedId ?? ""} onChange={(event) => player.select(event.target.value)}>
+					<p className="global-menu__track" aria-live="polite">{music.opening ? music.opening.replace(/\.mp3$/i, "") : music.ending ? translate(music.ending === "victory" ? "game:screens.victory.dynamic001" : "game:screens.defeat.text003") : selected ? `${music.tracks.findIndex((track) => track.id === selected.id) + 1} / ${music.tracks.length} · ${selected.title}` : translate("common:globalMenu.globalMenu.noTrack")}</p>
+					{music.tracks.length > 0 && !music.ending && !music.opening && <label className="global-menu__field">{translate("common:globalMenu.globalMenu.text005")}{" "}<select value={music.selectedId ?? ""} onChange={(event) => player.select(event.target.value)}>
 							{music.tracks.map((track) => <option key={track.id} value={track.id}>{track.title}</option>)}
 						</select>
 					</label>}
 					<div className="global-menu__controls">
-						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel006")} disabled={music.tracks.length < 2} onClick={() => player.step(-1)}>◀|</button>
-						<button type="button" disabled={!selected || music.status === "loading"} onClick={() => void player.playFromControls()}>{translate("common:globalMenu.globalMenu.text007")}</button>
-						<button type="button" disabled={music.status === "stopped"} onClick={() => player.stopFromControls()}>{translate("common:globalMenu.globalMenu.text008")}</button>
-						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel009")} disabled={music.tracks.length < 2} onClick={() => player.step(1)}>|▶</button>
+						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel006")} disabled={!!music.ending || !!music.opening || music.tracks.length < 2} onClick={() => player.step(-1)}>◀|</button>
+						<button type="button" disabled={!!music.opening || (music.ending ? !music.endingAvailable || music.status === "loading" : !selected || music.status === "loading")} onClick={() => void player.playFromControls()}>{translate("common:globalMenu.globalMenu.text007")}</button>
+						<button type="button" disabled={!!music.opening || music.status === "stopped"} onClick={() => player.stopFromControls()}>{translate("common:globalMenu.globalMenu.text008")}</button>
+						<button type="button" aria-label={translate("common:globalMenu.globalMenu.ariaLabel009")} disabled={!!music.ending || !!music.opening || music.tracks.length < 2} onClick={() => player.step(1)}>|▶</button>
 					</div>
 					<label className="global-menu__field" htmlFor="global-music-volume">{translate("common:globalMenu.globalMenu.text010")}{" "}{music.volume}%
 						<input id="global-music-volume" type="range" min="0" max="100" value={music.volume} onChange={(event) => player.setVolume(Number(event.target.value))} />
 					</label>
 					<p className="global-menu__status" role="status">{catalogError ? translate(catalogError) : music.message ? translate(MUSIC_MESSAGES[music.message] ?? "common:globalMenu.globalMenu.musicError") : music.status === "playing" ? translate("common:globalMenu.globalMenu.playing") : music.status === "blocked" ? translate("common:globalMenu.globalMenu.autoplayBlocked") : music.status === "stopped" ? translate("common:globalMenu.globalMenu.stopped") : ""}</p>
+				</div>
+				<div className="global-menu__section">
+					<h2>{translate("common:globalMenu.globalMenu.sfxTitle")}</h2>
+					{!AUDIO_CONFIG.sfx.enabled && <p className="global-menu__sfx-notice" role="note">{translate("common:globalMenu.globalMenu.sfxDisabled")}</p>}
+					<label className="global-menu__field" htmlFor="global-sfx-volume">{translate("common:globalMenu.globalMenu.sfxVolume")} {sfx.volume}%
+						<input id="global-sfx-volume" type="range" min="0" max="100" disabled={!AUDIO_CONFIG.sfx.enabled} value={sfx.volume} onChange={(event) => sfxPlayer.setVolume(Number(event.target.value))} />
+					</label>
+					<button type="button" disabled={!AUDIO_CONFIG.sfx.enabled} onClick={() => sfxPlayer.setMuted(!sfx.muted)}>
+						{translate(sfx.muted ? "common:globalMenu.globalMenu.sfxUnmute" : "common:globalMenu.globalMenu.sfxMute")}
+					</button>
 				</div>
 				<div className="global-menu__section">
 					<h2>{translate("common:globalMenu.globalMenu.text011")}</h2>

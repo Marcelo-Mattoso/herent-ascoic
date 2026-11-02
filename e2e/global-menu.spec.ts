@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("menu publica as cinco faixas e o manual, com controles acessíveis", async ({ page }) => {
+test("menu publica somente as faixas comuns e oferece a trilha exclusiva da abertura", async ({ page }) => {
 	page.on("response", (response) => {
 		if (response.url().includes("/generated/music/manifest.json"))
 			console.log("[e2e music] browser manifest status", response.status(), response.url());
@@ -34,8 +34,10 @@ test("menu publica as cinco faixas e o manual, com controles acessíveis", async
 	await expect(downloadManual).toHaveAttribute("download", "ascensao-heroica-manual.pdf");
 	const manifest = await page.request.get("/generated/music/manifest.json");
 	expect(manifest.ok()).toBe(true);
-	const tracks = (await manifest.json()).tracks as { url: string }[];
-	expect(tracks).toHaveLength(5);
+	const tracks = (await manifest.json()).tracks as { url: string; fileName: string }[];
+	const normalTracks = tracks.filter((track) => track.fileName !== "Antes das Cinzas.mp3");
+	expect(normalTracks).toHaveLength(5);
+	expect(tracks.some((track) => track.fileName === "Antes das Cinzas.mp3")).toBe(true);
 	for (const track of tracks) {
 		const response = await page.request.get(track.url);
 		expect(response.ok()).toBe(true);
@@ -51,7 +53,7 @@ test("player mantém seleção e volume ao navegar, respeitando Stop ao recarreg
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
 	await page.locator(".global-menu__track + label select").selectOption({ index: 1 });
-	await page.getByLabel(/Volume/).fill("68");
+	await page.locator("#global-music-volume").fill("68");
 	await page.getByRole("button", { name: "Play" }).click();
 	await expect(page.locator(".global-menu__status")).toContainText(/Reproduzindo|Não foi possível/);
 	await page.getByRole("button", { name: "Stop" }).click();
@@ -60,19 +62,21 @@ test("player mantém seleção e volume ao navegar, respeitando Stop ao recarreg
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__track + label select")).toHaveValue("o_chamado_da_fornalha");
-	await expect(page.getByLabel(/Volume/)).toHaveValue("68");
+	await expect(page.locator("#global-music-volume")).toHaveValue("68");
 	await page.reload();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__status")).toHaveText("Parado");
-	await expect(page.getByLabel(/Volume/)).toHaveValue("68");
+	await expect(page.locator("#global-music-volume")).toHaveValue("68");
 });
 
 test("uma reprodução segue ativa ao passar por menu, preparação e tabuleiro", async ({ page }) => {
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicAudio?: HTMLMediaElement; __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicAudio = this;
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) {
+				state.__musicAudio = this;
+				state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			}
 			return Promise.resolve();
 		};
 		HTMLMediaElement.prototype.load = function () {};
@@ -86,10 +90,11 @@ test("uma reprodução segue ativa ao passar por menu, preparação e tabuleiro"
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
-	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(1);
+	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(3);
 	await page.getByRole("button", { name: "Stop" }).click();
 });
 
@@ -97,7 +102,7 @@ test("música começa sozinha quando o navegador permite e não volta após Stop
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
 			return Promise.resolve();
 		};
 		HTMLMediaElement.prototype.load = function () {};
@@ -118,7 +123,7 @@ test("autoplay bloqueado exibe convite e funciona após interação", async ({ p
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
 			return state.__musicPlayCount === 1
 				? Promise.reject(Object.assign(new Error("blocked"), { name: "NotAllowedError" }))
 				: Promise.resolve();
@@ -169,7 +174,7 @@ test("troca para inglês mantém tabuleiro e música, e persiste a escolha", asy
 	await page.addInitScript(() => {
 		const state = window as Window & { __musicPlayCount?: number };
 		HTMLMediaElement.prototype.play = function () {
-			state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
+			if (this.src.includes("/generated/music/")) state.__musicPlayCount = (state.__musicPlayCount ?? 0) + 1;
 			return Promise.resolve();
 		};
 		HTMLMediaElement.prototype.load = function () {};
@@ -187,17 +192,30 @@ test("troca para inglês mantém tabuleiro e música, e persiste a escolha", asy
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
 	await page.getByLabel("Idioma da interface").selectOption("en-US");
 	await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
 	await expect(page.getByRole("heading", { name: "Music" })).toBeVisible();
 	await expect(page.locator(".game-board-root")).toBeVisible();
-	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(1);
+	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(3);
 	await expect(page.locator(".global-menu__status")).toHaveText("Playing");
 	await expect.poll(() => page.evaluate(() => localStorage.getItem("ascensao-heroica:locale:v1"))).toBe("en-US");
 	await page.reload();
 	await expect(page.locator("html")).toHaveAttribute("lang", "en-US");
 	await page.getByRole("button", { name: "Open global menu" }).click();
 	await expect(page.getByLabel("Interface language")).toHaveValue("en-US");
+});
+
+
+test("efeitos desabilitados não interferem no status da música", async ({ page }) => {
+	await page.goto("/");
+	await page.getByRole("button", { name: "Abrir menu global" }).click();
+	await expect(page.locator(".global-menu__status")).toHaveCount(1);
+	await expect(page.locator(".global-menu__sfx-notice")).toContainText("temporariamente desativados");
+	await expect(page.getByRole("note")).toHaveCount(1);
+	await expect(page.locator("#global-sfx-volume")).toBeDisabled();
+	await expect(page.getByRole("button", { name: /Silenciar efeitos|Reativar efeitos/ })).toBeDisabled();
+	await expect(page.locator("#global-music-volume")).toBeEnabled();
 });
