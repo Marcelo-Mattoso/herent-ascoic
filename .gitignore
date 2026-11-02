@@ -12,8 +12,8 @@ node_modules/
 package.json
 package-lock.json
 
-# In hml only WebP is tracked. Original PNG masters stay in dev.
-imagedata/
+# Keep PNG master artwork tracked in dev for the WebP optimizer.
+# Release promotion filters PNG masters out of hml/main.
 public/generated/
 
 dist
