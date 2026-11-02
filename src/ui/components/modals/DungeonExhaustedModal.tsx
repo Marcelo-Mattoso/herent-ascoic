@@ -31,7 +31,7 @@ export function DungeonExhaustedModal() {
 
 			<div className="flex gap-3">
 				<ActionButton
-					label={`Gastar ${cost} XP`}
+					label={translate("game:components.modals.dungeonExhaustedModal.pay", { cost })}
 					variant="primary"
 					disabled={!canPay}
 					onClick={payXp}
