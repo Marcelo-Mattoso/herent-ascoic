@@ -5610,3 +5610,104 @@ body:has(.tutorial-layer--abilities) .game-dice-roll-layer { z-index: 75; }
 	background: rgba(65, 36, 13, 0.09);
 	font-weight: 700;
 }
+
+/* Tutorial is a guided training scene, never an interactive settings menu. */
+body:has(.tutorial-layer) .global-menu,
+body:has(.tutorial-layer) .support-action { display: none; }
+.modal-close-controls { display: flex; align-items: center; gap: 8px; }
+.modal-escape-hint { font-size: 11px; opacity: .75; white-space: nowrap; }
+.game-hero-focus-escape-hint { margin: 0 0 5px; font-size: 11px; text-align: right; opacity: .8; }
+.hero-art-viewer__escape-hint { font-size: 12px; opacity: .8; }
+
+.setup-info-close-controls { display: flex; align-items: center; gap: 8px; }
+
+/* Mobile gameplay is landscape-only. Menus can still be navigated in portrait. */
+.orientation-gate {
+	position: fixed;
+	inset: 0;
+	z-index: 10000;
+	display: grid;
+	place-items: center;
+	box-sizing: border-box;
+	width: 100%;
+	height: 100dvh;
+	padding:
+		max(20px, env(safe-area-inset-top))
+		max(20px, env(safe-area-inset-right))
+		max(20px, env(safe-area-inset-bottom))
+		max(20px, env(safe-area-inset-left));
+	overflow: hidden;
+	color: #f4e3bb;
+	text-align: center;
+	background:
+		radial-gradient(ellipse at 50% 45%, rgba(63, 51, 35, .95), transparent 72%),
+		#0b1522;
+}
+.orientation-gate__card {
+	display: grid;
+	justify-items: center;
+	gap: clamp(10px, 2dvh, 20px);
+	width: min(100%, 380px);
+	max-height: 100%;
+	overflow: auto;
+	padding: clamp(16px, 4vw, 28px);
+	border: 1px solid rgba(230, 177, 65, .56);
+	border-radius: 18px;
+	background: rgba(8, 20, 37, .86);
+	box-shadow: 0 18px 55px rgba(0, 0, 0, .55);
+}
+.orientation-gate__phone {
+	display: grid;
+	place-items: center;
+	width: 43px;
+	height: 76px;
+	margin: 16px 0;
+	border: 4px solid #f4d28f;
+	border-radius: 11px;
+	transform: rotate(-90deg);
+	box-shadow: 0 0 22px rgba(244, 210, 143, .2);
+}
+.orientation-gate__phone span {
+	width: 24px;
+	height: 3px;
+	border-radius: 3px;
+	background: #f4d28f;
+}
+.orientation-gate__eyebrow {
+	margin: 0;
+	color: #d6ae64;
+	font-size: .8rem;
+	font-weight: 800;
+	letter-spacing: .18em;
+	text-transform: uppercase;
+}
+.orientation-gate h2 {
+	margin: 0;
+	color: #ffe3ab;
+	font: bold clamp(1.35rem, 6vw, 2rem)/1.15 Georgia, serif;
+}
+.orientation-gate p:last-child {
+	max-width: 32ch;
+	margin: 0;
+	font-size: clamp(.94rem, 3.5vw, 1.05rem);
+	line-height: 1.5;
+}
+
+@media (orientation: landscape) and (max-height: 430px) and (pointer: coarse) {
+	.game-viewport[data-game-layout="compact-landscape"] .game-play-space {
+		padding-bottom: calc(56px + env(safe-area-inset-bottom));
+	}
+	.game-viewport[data-game-layout="compact-landscape"] .game-portable-action-bar {
+		gap: 4px;
+	}
+	.game-viewport[data-game-layout="compact-landscape"] .game-portable-action-bar button,
+	.game-viewport[data-game-layout="compact-landscape"] .game-portable-action-bar a {
+		min-height: 44px;
+		padding-inline: 4px;
+		font-size: clamp(10px, 1.7vw, 12px);
+	}
+	.game-viewport[data-game-layout="compact-landscape"] .game-portable-drawer {
+		bottom: calc(56px + env(safe-area-inset-bottom));
+		max-height: calc(100dvh - 72px - env(safe-area-inset-bottom));
+	}
+}
