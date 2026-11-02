@@ -462,7 +462,8 @@
         "nonCumulative": "Os efeitos de cada nível substituem os anteriores; não são cumulativos."
       },
       "rotateTitle": "Gire seu celular",
-      "rotateDescription": "Para jogar Ascensão Heróica, coloque o aparelho na horizontal. Sua partida continuará de onde parou."
+      "rotateDescription": "Para jogar Ascensão Heróica, coloque o aparelho na horizontal. Sua partida continuará de onde parou.",
+      "orientationGameName": "Ascensão Heróica"
     },
     "replay": {
       "invalidJson": "JSON inválido ou formato não reconhecido.",
