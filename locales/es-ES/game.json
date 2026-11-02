@@ -269,7 +269,7 @@
         "text004": "para volver a barajar todas las cartas descartadas de la mazmorra y continuar. En caso contrario, la expedición termina en derrota.",
         "text005": "XP disponible:",
         "text006": "· Cartas descartadas:",
-        "pay": "Gastar {{cost}} XP"
+        "pay": "Pagar {{cost}} XP"
       },
       "fleeReconfigureModal": {
         "title001": "🏃 ¡Huida exitosa!",
