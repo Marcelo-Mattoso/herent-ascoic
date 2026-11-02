@@ -3,7 +3,7 @@ import { translate } from "@/i18n";
 // Layout: TopBar · Board (tabuleiro coletivo) · HeroFocusPanel (herói em foco).
 
 import { UseItemModal } from "@/ui/components/modals/UseItemModal";
-import { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
 import { dungeonAwakeningEffect } from "@/core/rules/dungeonAwakening";
@@ -101,6 +101,7 @@ export function Exploration({
 	tutorialRevealEnabled = false,
 	tutorialCombatMode = false,
 	tutorialCombatMethod = null,
+	tutorialStepId,
 	onTutorialAttackInput,
 	tutorialInventoryMode = false,
 	tutorialInventoryOpen = false,
@@ -116,6 +117,7 @@ export function Exploration({
 	tutorialRevealEnabled?: boolean;
 	tutorialCombatMode?: boolean;
 	tutorialCombatMethod?: "drag" | "tap" | null;
+	tutorialStepId?: string;
 	onTutorialAttackInput?: (method: "drag" | "tap") => void;
 	tutorialInventoryMode?: boolean;
 	tutorialInventoryOpen?: boolean;
@@ -146,6 +148,10 @@ export function Exploration({
 	const { selectedBoard } = useBoardBackgrounds();
 	const cardImageUrls = useCardImages();
 	const gameGeometry = useGameViewport();
+	const orientationNoticeRef = useRef<HTMLElement>(null);
+	useEffect(() => {
+		if (gameGeometry.requiresLandscape) orientationNoticeRef.current?.focus();
+	}, [gameGeometry.requiresLandscape]);
 
 	const status = view.status;
 	const combat = view.combat;
@@ -231,6 +237,12 @@ export function Exploration({
 	// Clique em card de herói: muda foco + seleciona para combate se válido
 	function handleHeroClick(h: HeroState) {
 		if (h.status !== "active") return;
+		// The drag lesson must not change combat phase on a harmless click.
+		// Touch devices use the separate tap-then-target path below.
+		if (tutorialStepId === "combat-drag" && tutorialCombatMethod === "drag") {
+			setShowHeroFocus(false);
+			return;
+		}
 		setFocusedHero(h.id);
 		if (tutorialInventoryMode && !tutorialInventoryOpen) {
 			setShowHeroFocus(false);
@@ -246,6 +258,14 @@ export function Exploration({
 			setShowHeroFocus(false);
 			setCombatAttackHintVisible(false);
 			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
+			return;
+		}
+		// In combat training a second hero click must never open a panel over
+		// the required target. Only the ability archive explicitly opens it.
+		const tutorialAllowsHeroPanel = !tutorialMode ||
+			(tutorialAbilityMode && ["abilities-inspect", "prey-mark", "fury-prepare", "hero-power"].includes(tutorialStepId ?? ""));
+		if (!tutorialAllowsHeroPanel) {
+			setShowHeroFocus(false);
 			return;
 		}
 		setShowHeroFocus(true);
@@ -290,8 +310,20 @@ export function Exploration({
 			});
 			return;
 		}
+		if (tutorialMode) return;
 		openCardDetail(e.cardId, e.id === "boss" ? "boss" : "enemy");
 	}
+
+	useEffect(() => {
+		if (!showHeroFocus) return;
+		const closeOnEscape = (event: KeyboardEvent) => {
+			if (event.key !== "Escape" || document.querySelector(".hero-art-viewer, .modal-layer, .flow-modal-overlay, .journal-layer")) return;
+			event.preventDefault();
+			setShowHeroFocus(false);
+		};
+		window.addEventListener("keydown", closeOnEscape);
+		return () => window.removeEventListener("keydown", closeOnEscape);
+	}, [showHeroFocus]);
 
 	function handleAttack() {
 		setShowHeroFocus(false);
@@ -349,6 +381,8 @@ export function Exploration({
 			<div
 				className="game-viewport"
 				data-game-layout={gameGeometry.mode}
+				inert={gameGeometry.requiresLandscape}
+				aria-hidden={gameGeometry.requiresLandscape}
 				style={
 					{
 						"--game-card-width": `min(${gameGeometry.cardWidth}px, calc((100dvw - env(safe-area-inset-left) - env(safe-area-inset-right) - 48px) / 5))`,
@@ -541,6 +575,7 @@ export function Exploration({
 								aria-label={translate("game:screens.exploration.ariaLabel012")}
 							/>
 							<div className="game-hero-focus-popover">
+								<p className="game-hero-focus-escape-hint">{translate("game:components.heroFocusPanel.escapeHint")}</p>
 								<HeroFocusPanel
 									hero={focusedHero}
 									heroImageUrl={getCardImageUrl(cardImageUrls, focusedHero.cardId)}
@@ -637,6 +672,25 @@ export function Exploration({
 				(!tutorialInventoryMode || tutorialInventoryOpen) && (
 					<InventarioGrupo onItemDetailChange={onTutorialItemDetailChange} />
 				)}
+			{gameGeometry.requiresLandscape && createPortal(
+				<section
+					ref={orientationNoticeRef}
+					className="orientation-gate"
+					role="alertdialog"
+					aria-modal="true"
+					aria-labelledby="orientation-gate-title"
+					aria-describedby="orientation-gate-description"
+					tabIndex={-1}
+				>
+					<div className="orientation-gate__card">
+						<div className="orientation-gate__phone" aria-hidden="true"><span /></div>
+						<p className="orientation-gate__eyebrow">Ascensão Heróica</p>
+						<h2 id="orientation-gate-title">{translate("game:screens.exploration.rotateTitle")}</h2>
+						<p id="orientation-gate-description">{translate("game:screens.exploration.rotateDescription")}</p>
+					</div>
+				</section>,
+				document.body,
+			)}
 		</>
 	);
 }
