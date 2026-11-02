@@ -5711,3 +5711,15 @@ body:has(.tutorial-layer) .support-action { display: none; }
 		max-height: calc(100dvh - 72px - env(safe-area-inset-bottom));
 	}
 }
+
+/* Na seleção de herói do tutorial de inventário, a fala do Arquivista
+   não pode bloquear o clique/toque sobre a carta destacada. Os botões
+   reais do painel continuam interativos. */
+.tutorial-layer--inventory[data-tutorial-step="inventory-open"] .tutorial-panel {
+	pointer-events: none;
+}
+.tutorial-layer--inventory[data-tutorial-step="inventory-open"] .tutorial-panel button,
+.tutorial-layer--inventory[data-tutorial-step="inventory-open"] .tutorial-panel a,
+.tutorial-layer--inventory[data-tutorial-step="inventory-open"] .tutorial-panel summary {
+	pointer-events: auto;
+}
