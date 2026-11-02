@@ -156,7 +156,8 @@
       "dynamic001": "disponível",
       "dynamic002": "indisponível",
       "dynamic003": "disponível",
-      "dynamic004": "indisponível"
+      "dynamic004": "indisponível",
+      "escapeHint": "Pressione Esc para fechar"
     },
     "hpBar": {},
     "influencePanel": {
@@ -253,7 +254,9 @@
       }
     },
     "itemTile": {},
-    "modal": {},
+    "modal": {
+      "escapeHint": "Pressione Esc para fechar"
+    },
     "modals": {
       "cardDetailModal": {
         "text001": "Habilidade",
@@ -457,7 +460,9 @@
         "purple": "Habilidades roxas",
         "noBonus": "Sem bônus adicionais",
         "nonCumulative": "Os efeitos de cada nível substituem os anteriores; não são cumulativos."
-      }
+      },
+      "rotateTitle": "Gire seu celular",
+      "rotateDescription": "Para jogar Ascensão Heróica, coloque o aparelho na horizontal. Sua partida continuará de onde parou."
     },
     "replay": {
       "invalidJson": "JSON inválido ou formato não reconhecido.",
@@ -536,7 +541,8 @@
           "label": "Pesadelo",
           "hint": "Herói Branco · Masmorra Amarela · Recuperação 7 XP"
         }
-      }
+      },
+      "expansionLabel": "Expansão"
     },
     "victory": {
       "kicker": "A lenda foi escrita",
