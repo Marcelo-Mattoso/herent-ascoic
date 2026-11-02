@@ -24,6 +24,7 @@ import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
 import { calculateTotal, resolveAttack } from "../rules/combat";
+import { dungeonAwakeningEffect, piercedItemReduction } from "../rules/dungeonAwakening";
 import { isEligibleDie, dieReplacementValues } from "../rules/diceSelection";
 import { canStartHeroAttack } from "../rules/attackAvailability";
 import { rollDiceRng } from "../rules/dice";
@@ -419,6 +420,8 @@ function collectEnemyBonuses(
 	state: GameState,
 ): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: enemy.hitBonus }];
+	const influence = dungeonAwakeningEffect(state.despertar);
+	if (influence.hitBonus > 0) bonuses.push({ source: "Despertar da Masmorra", value: influence.hitBonus });
 	const enemyEntity = state.world.entities[enemy.id];
 	if (enemyEntity) {
 		for (const comp of enemyEntity.components) {
@@ -488,7 +491,7 @@ function effectiveEnemyDamage(
 		"damage_dealt",
 	);
 	return {
-		damage: Math.max(0, enemy.damage + totalItemValue(breakdown)),
+		damage: Math.max(0, enemy.damage + totalItemValue(breakdown) + dungeonAwakeningEffect(state.despertar).damageBonus),
 		breakdown,
 	};
 }
@@ -511,9 +514,12 @@ function reduceHeroDamage(
 		damageType,
 	);
 	const itemReduction = totalItemValue(itemEntries);
-	const finalDamage = Math.max(0, amount - worldReduction - itemReduction);
+	const penetration = damageType === "attack" ? dungeonAwakeningEffect(state.despertar).armorPenetration : 0;
+	const adjustedReduction = piercedItemReduction(itemReduction, penetration);
+	const finalDamage = Math.max(0, amount - worldReduction - adjustedReduction);
 	const breakdown = [
 		...formatItemBreakdown(itemEntries, "-"),
+		...(itemReduction > adjustedReduction ? [`Penetração ${itemReduction - adjustedReduction}`] : []),
 		...(worldReduction > 0
 			? [`redução -${worldReduction}`]
 			: worldReduction < 0
@@ -947,7 +953,7 @@ export function handleResolveAttack(state: GameState): GameState {
 	// ataque inteiro sem repetir o dano que já foi aplicado ao outro lado.
 	const reducedHeroDamage =
 		result.heroDamageTaken > 0
-			? reduceHeroDamage(next, hero, result.heroDamageTaken)
+			? reduceHeroDamage(next, hero, result.heroDamageTaken, "attack")
 			: null;
 	if (
 		result.enemyDamageTaken >= enemy.currentLife &&
