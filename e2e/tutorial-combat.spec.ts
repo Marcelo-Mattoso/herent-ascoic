@@ -187,7 +187,10 @@ test("Arquivo I continua no Arquivo II sem recarregar a página", async ({
 	await page.getByRole("button", { name: "Revelar sala" }).click();
 	await expect(page.locator('[data-tutorial-step="encounter"]')).toBeVisible();
 	await page.getByRole("button", { name: "Pular observação" }).click();
-	await page.getByRole("button", { name: "Continuar" }).click();
+	for (const step of ["dungeon-levels", "dungeon-discards", "dungeon-exhaustion", "goal"]) {
+		await expect(page.locator(`[data-tutorial-step="${step}"]`)).toBeVisible();
+		await page.getByRole("button", { name: "Continuar" }).click();
+	}
 	await expect(page.locator('[data-tutorial-step="completion"]')).toBeVisible();
 	await page.evaluate(
 		() =>
