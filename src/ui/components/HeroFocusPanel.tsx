@@ -329,6 +329,7 @@ function HeroArtViewer({ imageUrl, name, onClose }: {
 			<div className="hero-art-viewer__content">
 				<div className="hero-art-viewer__header">
 					<strong>{name}</strong>
+					<span className="hero-art-viewer__escape-hint">{translate("game:components.modal.escapeHint")}</span>
 					<button ref={closeButton} type="button" onClick={onClose} aria-label={translate("game:components.heroFocusPanel.closeArt")}>×</button>
 				</div>
 				<img src={imageUrl} alt={name} />

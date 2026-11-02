@@ -43,7 +43,7 @@ describe("assertTransition", () => {
 });
 
 describe("checkBossCondition via dados", () => {
-	it("condição lida de cards.yaml — integração", async () => {
+	it("condição lida do boss.json — integração", async () => {
 		const { checkBossCondition } = await import("./conditions");
 		const { createInitialGameState } = await import("../state/gameState");
 		const { reducer } = await import("../reducer/index");
@@ -59,7 +59,7 @@ describe("checkBossCondition via dados", () => {
 		// Sem artefatos → false
 		expect(checkBossCondition(testEngine, s, gameOf(s).bossCardId)).toBe(false);
 
-		// Com 2 artefatos → true (accessCondition: group_artifacts_gte: 2)
+		// Com 2 artefatos ainda não atende à condição
 		s = withGame(s, (prevGame) => ({ ...prevGame, groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
@@ -70,6 +70,11 @@ describe("checkBossCondition via dados", () => {
 					carriedBy: null,
 				},
 			] }));
+		expect(checkBossCondition(testEngine, s, gameOf(s).bossCardId)).toBe(false);
+		s = withGame(s, (prevGame) => ({ ...prevGame, groupArtifacts: [
+			...prevGame.groupArtifacts,
+			{ cardId: "artifact_lost_forge_hammer", carriedBy: null },
+		] }));
 		expect(checkBossCondition(testEngine, s, gameOf(s).bossCardId)).toBe(true);
 	}, 15_000);
 });

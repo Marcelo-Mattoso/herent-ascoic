@@ -43,26 +43,31 @@ export function levelUpHero(engine: GameEngine, state: GameState, heroId: string
 	next = withImpeto(next, heroId, newImpeto);
 	next = applyLifeGain(engine, next, heroId, lifeGain);
 
-	// Subir nível também avança o Despertar
-	const despertarBefore = awakeningOf(next);
-	next = withAwakening(next, nextColor(awakeningOf(next)));
-	next = recordEvent(next, "DespertarChanged", {
-		from: despertarBefore,
-		to: awakeningOf(next),
-		cause: "level_up",
-	});
-	if (refRequirementMet(engine, next, true)) {
-		next = refreshRequirementComponents(engine, next, true);
+	// Cada novo patamar alcançado por TODOS os heróis avança o Despertar UMA vez.
+	// Histórico independente: reduzir Despertar por XP não reativa patamares antigos.
+	const groupFloor = Math.min(...heroesOf(next).map((member) => impetoOf(next, member.id))) as ColorIndex;
+	const previousMilestone = gameOf(next).groupImpetoMilestone ?? 0;
+	if (groupFloor > previousMilestone) {
+		next = withGame(next, (game) => ({ ...game, groupImpetoMilestone: groupFloor }));
+		for (let level = previousMilestone; level < groupFloor; level++) {
+			const before = awakeningOf(next);
+			next = withAwakening(next, nextColor(before));
+			next = recordEvent(next, "DespertarChanged", {
+				from: before,
+				to: awakeningOf(next),
+				cause: "level_up",
+			});
+			if (!refRequirementMet(engine, withAwakening(next, before), true) && refRequirementMet(engine, next, true)) {
+				next = refreshRequirementComponents(engine, next, true);
+			}
+			if (before < 3 && awakeningOf(next) >= 3 && gameOf(next).subbosses.available.length === 0) {
+				next = injectSubbossRooms(engine, next);
+			}
+		}
 	}
-
-	// Ao atingir Vermelho (3), injetar salas de subchefe no deck de dungeon
-	if (awakeningOf(next) === 3 && gameOf(next).subbosses.available.length === 0) {
-		next = injectSubbossRooms(engine, next);
-	}
-
 	return log(
 		next,
-		`${cardName(engine, hero.cardId)} subiu para nível ${newImpeto + 1}. Despertar avança.`,
+		`${cardName(engine, hero.cardId)} subiu para nível ${newImpeto + 1}. ${groupFloor > previousMilestone ? "O Despertar avança com o grupo." : "O grupo ainda não alcançou o próximo patamar."}`,
 	);
 }
 
@@ -219,7 +224,7 @@ export function handleSpendXp(engine: GameEngine,
 						removed,
 					},
 				});
-			return log(next, "5 XP: deck de dungeon reembaralhado.");
+			return log(next, `${cost} XP: deck de dungeon reembaralhado.`);
 		}
 		case "level_up": {
 			return levelUpHero(engine, next, heroId!);

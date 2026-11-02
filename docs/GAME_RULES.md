@@ -4,9 +4,13 @@ O [manual em PDF](../public/rules/ascensao-heroica-manual.pdf) é a referência 
 
 ## Preparação e progressão
 
+- O Despertar da Masmorra só sobe por evolução do grupo quando **todos os heróis** alcançam um novo patamar de Ímpeto; outros efeitos que o alterem permanecem independentes. Os bônus universais por cor substituem os anteriores: Branco nenhum, Amarelo +1 acerto, Laranja +1 acerto e +1 dano, Vermelho e Roxo adicionam Penetração 1 (ignora até 1 de proteção de itens em ataques). O Roxo libera também as habilidades marcadas por Despertar.
+- A curva de acerto de criaturas foi suavizada usando 1/3/5/6/8 como referência; diferenças entre criaturas continuam representadas por seus offsets. Vida e dados de cada carta permanecem inalterados.
+
+
 - A Alpha permite **1 a 4 heróis** (`MAX_HEROES = 4`), embora o manual v2 publicado descreva até 8. Modos cooperativo e competitivo, dificuldade, decks com seed, salas, recompensas, XP, caminhos, chefe, vitória e derrota são tratados pelo core.
 - `enableSubBosses` está desligado. Conteúdo de subchefes descrito no manual não aparece nesta Alpha.
-- A partida termina por derrota do grupo ou pela exaustão do deck quando o jogador recusa pagar 5 XP para continuar. O progresso não persiste ao recarregar a página (`enableSave = false`).
+- A partida termina por derrota do grupo ou pela exaustão do deck quando o jogador recusa pagar XP para continuar (custos conforme dificuldade: Muito Fácil 3, Fácil 4, Normal 5, Difícil 6, Pesadelo 7). O progresso não persiste ao recarregar a página (`enableSave = false`).
 
 ## Ações, itens e habilidades
 

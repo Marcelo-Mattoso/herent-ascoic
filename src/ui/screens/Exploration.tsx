@@ -3,9 +3,10 @@ import { translate } from "@/i18n";
 // Layout: TopBar · Board (tabuleiro coletivo) · HeroFocusPanel (herói em foco).
 
 import { UseItemModal } from "@/ui/components/modals/UseItemModal";
-import { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
+import { dungeonAwakeningEffect } from "@/core/rules/dungeonAwakening";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { EnemyView } from "@/core/projection/viewTypes";
@@ -100,6 +101,7 @@ export function Exploration({
 	tutorialRevealEnabled = false,
 	tutorialCombatMode = false,
 	tutorialCombatMethod = null,
+	tutorialStepId,
 	onTutorialAttackInput,
 	tutorialInventoryMode = false,
 	tutorialInventoryOpen = false,
@@ -115,6 +117,7 @@ export function Exploration({
 	tutorialRevealEnabled?: boolean;
 	tutorialCombatMode?: boolean;
 	tutorialCombatMethod?: "drag" | "tap" | null;
+	tutorialStepId?: string;
 	onTutorialAttackInput?: (method: "drag" | "tap") => void;
 	tutorialInventoryMode?: boolean;
 	tutorialInventoryOpen?: boolean;
@@ -145,6 +148,10 @@ export function Exploration({
 	const { selectedBoard } = useBoardBackgrounds();
 	const cardImageUrls = useCardImages();
 	const gameGeometry = useGameViewport();
+	const orientationNoticeRef = useRef<HTMLElement>(null);
+	useEffect(() => {
+		if (gameGeometry.requiresLandscape) orientationNoticeRef.current?.focus();
+	}, [gameGeometry.requiresLandscape]);
 
 	const status = view.status;
 	const combat = view.combat;
@@ -230,6 +237,12 @@ export function Exploration({
 	// Clique em card de herói: muda foco + seleciona para combate se válido
 	function handleHeroClick(h: HeroView) {
 		if (h.status !== "active") return;
+		// The drag lesson must not change combat phase on a harmless click.
+		// Touch devices use the separate tap-then-target path below.
+		if (tutorialStepId === "combat-drag" && tutorialCombatMethod === "drag") {
+			setShowHeroFocus(false);
+			return;
+		}
 		setFocusedHero(h.id);
 		if (tutorialInventoryMode && !tutorialInventoryOpen) {
 			setShowHeroFocus(false);
@@ -245,6 +258,14 @@ export function Exploration({
 			setShowHeroFocus(false);
 			setCombatAttackHintVisible(false);
 			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
+			return;
+		}
+		// In combat training a second hero click must never open a panel over
+		// the required target. Only the ability archive explicitly opens it.
+		const tutorialAllowsHeroPanel = !tutorialMode ||
+			(tutorialAbilityMode && ["abilities-inspect", "prey-mark", "fury-prepare", "hero-power"].includes(tutorialStepId ?? ""));
+		if (!tutorialAllowsHeroPanel) {
+			setShowHeroFocus(false);
 			return;
 		}
 		setShowHeroFocus(true);
@@ -289,8 +310,20 @@ export function Exploration({
 			});
 			return;
 		}
+		if (tutorialMode) return;
 		openCardDetail(e.cardId, e.id === "boss" ? "boss" : "enemy");
 	}
+
+	useEffect(() => {
+		if (!showHeroFocus) return;
+		const closeOnEscape = (event: KeyboardEvent) => {
+			if (event.key !== "Escape" || document.querySelector(".hero-art-viewer, .modal-layer, .flow-modal-overlay, .journal-layer")) return;
+			event.preventDefault();
+			setShowHeroFocus(false);
+		};
+		window.addEventListener("keydown", closeOnEscape);
+		return () => window.removeEventListener("keydown", closeOnEscape);
+	}, [showHeroFocus]);
 
 	function handleAttack() {
 		setShowHeroFocus(false);
@@ -348,6 +381,8 @@ export function Exploration({
 			<div
 				className="game-viewport"
 				data-game-layout={gameGeometry.mode}
+				inert={gameGeometry.requiresLandscape}
+				aria-hidden={gameGeometry.requiresLandscape}
 				style={
 					{
 						"--game-card-width": `min(${gameGeometry.cardWidth}px, calc((100dvw - env(safe-area-inset-left) - env(safe-area-inset-right) - 48px) / 5))`,
@@ -540,6 +575,7 @@ export function Exploration({
 								aria-label={translate("game:screens.exploration.ariaLabel012")}
 							/>
 							<div className="game-hero-focus-popover">
+								<p className="game-hero-focus-escape-hint">{translate("game:components.heroFocusPanel.escapeHint")}</p>
 								<HeroFocusPanel
 									hero={focusedHero}
 									heroImageUrl={getCardImageUrl(cardImageUrls, focusedHero.cardId)}
@@ -636,6 +672,25 @@ export function Exploration({
 				(!tutorialInventoryMode || tutorialInventoryOpen) && (
 					<InventarioGrupo onItemDetailChange={onTutorialItemDetailChange} />
 				)}
+			{gameGeometry.requiresLandscape && createPortal(
+				<section
+					ref={orientationNoticeRef}
+					className="orientation-gate"
+					role="alertdialog"
+					aria-modal="true"
+					aria-labelledby="orientation-gate-title"
+					aria-describedby="orientation-gate-description"
+					tabIndex={-1}
+				>
+					<div className="orientation-gate__card">
+						<div className="orientation-gate__phone" aria-hidden="true"><span /></div>
+						<p className="orientation-gate__eyebrow">{translate("game:screens.exploration.orientationGameName")}</p>
+						<h2 id="orientation-gate-title">{translate("game:screens.exploration.rotateTitle")}</h2>
+						<p id="orientation-gate-description">{translate("game:screens.exploration.rotateDescription")}</p>
+					</div>
+				</section>,
+				document.body,
+			)}
 		</>
 	);
 }
@@ -719,7 +774,10 @@ function DungeonAwakeningMarker({
 }: {
 	current: PlayerView["despertar"];
 }) {
+	const [expanded, setExpanded] = useState(false);
 	const active = AWAKENING_LEVELS[current];
+	const effect = dungeonAwakeningEffect(current);
+	const colors = ["white", "yellow", "orange", "red", "purple"] as const;
 	const markerStyle = {
 		"--awakening-bg": active.bg,
 		"--awakening-border": active.border,
@@ -727,39 +785,53 @@ function DungeonAwakeningMarker({
 	} as CSSProperties;
 
 	return (
-		<section className="game-awakening-marker" style={markerStyle}>
-			<div className="game-awakening-marker__heading">
+		<section className="game-awakening-marker game-awakening-marker--compact" style={markerStyle}>
+			<header className="game-awakening-marker__heading">
 				<span>{translate("game:screens.exploration.text015")}</span>
-				<strong>{translate("game:screens.exploration.text016")}{" "}{current + 1}</strong>
-			</div>
-			<div className="game-awakening-marker__rule">{translate("game:screens.exploration.text017")}</div>
+				<div className="game-awakening-marker__controls">
+					<span className="game-awakening-marker__flame" aria-hidden="true">🔥</span>
+					<button
+						type="button"
+						className="game-awakening-marker__toggle"
+						aria-expanded={expanded}
+						aria-label={translate(expanded ? "game:screens.exploration.awakening.collapse" : "game:screens.exploration.awakening.expand")}
+						onClick={() => setExpanded((value) => !value)}
+					>
+						<span aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
+					</button>
+				</div>
+			</header>
 			<ul
 				className="game-awakening-marker__levels"
-				aria-label={translate("game:screens.exploration.ariaLabel018")}
+				aria-label={`${translate("game:screens.exploration.ariaLabel018")}: ${current + 1}`}
 			>
-				{AWAKENING_LEVELS.map((level, index) => {
-					const isCurrent = index === current;
-					return (
-						<li
-							key={level.name}
-							className={`game-awakening-marker__level${
-								isCurrent ? " is-current" : ""
-							}`}
-							style={
-								{
-									"--level-bg": level.bg,
-									"--level-border": level.border,
-									"--level-text": level.text,
-								} as CSSProperties
-							}
-							title={`${index + 1} · ${level.name}`}
-						>
-							<span>{index + 1}</span>
-							<small>{level.name}</small>
-						</li>
-					);
-				})}
+				{AWAKENING_LEVELS.map((level, index) => (
+					<li
+						key={level.name}
+						className={`game-awakening-marker__level${index === current ? " is-current" : ""}`}
+						style={{
+							"--level-bg": level.bg,
+							"--level-border": level.border,
+							"--level-text": level.text,
+						} as CSSProperties}
+						title={`${index + 1} · ${translate(`game:screens.exploration.awakening.colors.${colors[index]}`)}`}
+					/>
+				))}
 			</ul>
+			{expanded && (
+				<div className="game-awakening-marker__details">
+					<strong>{translate("game:screens.exploration.text016")} {current + 1} — {translate(`game:screens.exploration.awakening.colors.${colors[current]}`)}</strong>
+					<p>{translate(`game:screens.exploration.awakening.notes.${current}`)}</p>
+					<div className="game-awakening-marker__bonuses">
+						{effect.hitBonus > 0 && <span>{translate("game:screens.exploration.awakening.hit")} +{effect.hitBonus}</span>}
+						{effect.damageBonus > 0 && <span>{translate("game:screens.exploration.awakening.damage")} +{effect.damageBonus}</span>}
+						{effect.armorPenetration > 0 && <span>{translate("game:screens.exploration.awakening.penetration")} {effect.armorPenetration}</span>}
+						{effect.purpleSkillsEnabled && <span>{translate("game:screens.exploration.awakening.purple")}</span>}
+						{!effect.hitBonus && !effect.damageBonus && !effect.armorPenetration && <span>{translate("game:screens.exploration.awakening.noBonus")}</span>}
+					</div>
+					<small>{translate("game:screens.exploration.awakening.nonCumulative")}</small>
+				</div>
+			)}
 		</section>
 	);
 }

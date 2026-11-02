@@ -13,6 +13,7 @@ import {
 } from "./data/abilities";
 import { getCardLocale } from "./data/cardLocale";
 import { getAllCards, getCardById, getCardsByType } from "./data/cards";
+import { getExpansionCardMetadata } from "./data/expansions";
 import type { AnyCard, SkillRef } from "./data/cardTypes";
 import { getSkillLocale } from "./data/skillLocale";
 import { SKILLS } from "./data/skills";
@@ -101,6 +102,7 @@ const content: GameContent = {
 	hasCard: (id) => getCardById(id) !== undefined,
 	cards: () => getAllCards(),
 	cardsOfType: (type) => getCardsByType(type),
+	expansionOf: (cardId) => getExpansionCardMetadata(cardId)?.expansionId,
 	abilitiesOf: skillRefsOf,
 	ability(id) {
 		const definition = skillDefsById.get(id);

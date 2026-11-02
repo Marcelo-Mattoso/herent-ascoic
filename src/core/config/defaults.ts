@@ -2,6 +2,8 @@
 
 import BALANCE from "../../data/balance.json";
 
+import type { Difficulty } from "../state/gameState";
+
 // Re-exporta os valores de balanceamento do JSON como constantes tipadas.
 export const XP_COSTS = BALANCE.xpCosts as {
 	recover_dungeon: number;
@@ -14,13 +16,16 @@ export const XP_COSTS = BALANCE.xpCosts as {
 export type XpSpendOption = keyof typeof XP_COSTS;
 
 export const DUNGEON_EXHAUSTION_COST: number = BALANCE.dungeonExhaustionCost;
+export function getDungeonRecoveryCost(difficulty: Difficulty): number {
+	return BALANCE.difficultyPresets[difficulty]?.recoverCost ?? DUNGEON_EXHAUSTION_COST;
+}
 
 export const DIFFICULTY_PRESETS = BALANCE.difficultyPresets as {
-	very_easy: { heroOffset: number; despertarOffset: number };
-	easy: { heroOffset: number; despertarOffset: number };
-	normal: { heroOffset: number; despertarOffset: number };
-	hard: { heroOffset: number; despertarOffset: number };
-	nightmare: { heroOffset: number; despertarOffset: number };
+	very_easy: { heroOffset: number; despertarOffset: number; recoverCost: number };
+	easy: { heroOffset: number; despertarOffset: number; recoverCost: number };
+	normal: { heroOffset: number; despertarOffset: number; recoverCost: number };
+	hard: { heroOffset: number; despertarOffset: number; recoverCost: number };
+	nightmare: { heroOffset: number; despertarOffset: number; recoverCost: number };
 };
 
 export const BACKPACK_LIMIT: number | null = BALANCE.backpackLimit;

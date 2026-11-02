@@ -400,6 +400,7 @@ function HeroColumn({
 	return (
 		<div
 			className="inventory-hero-card"
+			data-tutorial-pending-equip={selectedBackpackItem ? "true" : undefined}
 			style={{
 				width: 208,
 			}}
@@ -666,6 +667,7 @@ function HeroColumn({
 									<div
 										key={`${name}-${i}`}
 										className="inventory-backpack-item"
+										data-tutorial-item-id={name}
 										role="button"
 										tabIndex={0}
 										aria-label={`Detalhes de ${itemName}`}
@@ -720,6 +722,7 @@ function HeroColumn({
 										{canUse && (
 											<button
 												type="button"
+												data-tutorial-inventory-action="use"
 												onMouseDown={(event) => event.stopPropagation()}
 												onClick={(event) => {
 													event.stopPropagation();
@@ -732,6 +735,7 @@ function HeroColumn({
 										{canEquip && (
 											<button
 												type="button"
+												data-tutorial-inventory-action="equip"
 												onMouseDown={(event) => event.stopPropagation()}
 												onClick={(event) => {
 													event.stopPropagation();
@@ -744,6 +748,7 @@ function HeroColumn({
 										{canChooseSlot && !canEquip && (
 											<button
 												type="button"
+												data-tutorial-inventory-action="swap"
 												onMouseDown={(event) => event.stopPropagation()}
 												onClick={(event) => {
 													event.stopPropagation();

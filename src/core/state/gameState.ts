@@ -1,3 +1,4 @@
+import type { ColorIndex } from "./color";
 // Estado raiz da partida. Contém tudo que o reducer precisa para processar qualquer action.
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
@@ -49,6 +50,8 @@ export interface AscensaoGame {
 
 	// Progressão
 	groupXp: number;
+	/** Patamar coletivo de Ímpeto mais alto já atingido por todos os heróis. */
+	groupImpetoMilestone: ColorIndex;
 
 	// Heróis
 	readonly heroes: readonly HeroRecord[];
@@ -182,6 +185,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 		world: createEmptyWorld(),
 
 		groupXp: 0,
+		groupImpetoMilestone: 0,
 
 		heroes: [],
 		defeatedHeroes: [],

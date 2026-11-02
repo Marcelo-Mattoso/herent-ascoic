@@ -418,7 +418,7 @@
     "name": "Azhakar, Dragon of the Dark Forge",
     "dice": "3 red dice",
     "condition": "the group must have at least 3 Artifacts.",
-    "artifactBonus": "if the group has the Crimson Jailer’s Chain, Heart of the Ancient Ember, and Hammer of the Lost Forge, Azhakar starts the fight with 16 Health instead of 20.",
+    "artifactBonus": "if the group has the Heart of the Ancient Ember among its artifacts, Azhakar begins with 16 base Health instead of 20.",
     "dungeonScaling": "Azhakar gains +1 to Hit Bonus for each dungeon level and +2 Health for each dungeon level.",
     "victory": "when Azhakar is defeated, the players win the game."
   }

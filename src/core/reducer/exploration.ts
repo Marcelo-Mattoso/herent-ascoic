@@ -23,7 +23,7 @@ import type { RoomState } from "../state/roomState";
 import { applyFullHeal } from "../systems/healSystem";
 import { recordEvent } from "../events/record";
 import { createEnemyFromCard, log, shuffleRng } from "./utils";
-import { balanceOf, cardById, cardName, cardsOfType, skillsOf } from "../gameEngine";
+import { dungeonRecoveryCost, expansionOf, cardById, cardName, cardsOfType, skillsOf } from "../gameEngine";
 
 import { refRequirementMet } from "../gameEngine";
 import type { GameEngine, GameHandler } from "../gameEngine";
@@ -31,10 +31,10 @@ import { awakeningOf, dealDecksInto, deckOf, decksOf, discardDeckTop, isStatComp
 import { gameOf, withGame } from "../../engine/state";
 const DUNGEON_ROOM_COPIES = 2;
 
-export function buildDungeonRoomDeck(engine: GameEngine): string[] {
-	return cardsOfType(engine, "room").flatMap((card) =>
-		Array.from({ length: DUNGEON_ROOM_COPIES }, () => card.id),
-	);
+export function buildDungeonRoomDeck(engine: GameEngine, expansionId?: string): string[] {
+	return cardsOfType(engine, "room")
+		.filter((card) => !expansionId || expansionOf(engine, card.id) === expansionId)
+		.flatMap((card) => Array.from({ length: DUNGEON_ROOM_COPIES }, () => card.id));
 }
 
 export function handleRevealRoom(engine: GameEngine, state: GameState): GameState {
@@ -48,10 +48,10 @@ function drawRandomDungeonRoom(engine: GameEngine,
 	const { available, discarded } = deckOf(state, "dungeonDeck");
 
 	if (available.length === 0) {
-		if (gameOf(state).groupXp >= balanceOf(engine).dungeonExhaustionCost && discarded.length > 0) {
+		if (gameOf(state).groupXp >= dungeonRecoveryCost(engine, gameOf(state).difficulty) && discarded.length > 0) {
 			return log(
 				withGame(state, (prevGame) => ({ ...prevGame, status: "DUNGEON_EXHAUSTED" })),
-				"Deck de dungeon esgotado. Gaste 5 XP para continuar.",
+				`Deck de dungeon esgotado. Gaste ${dungeonRecoveryCost(engine, gameOf(state).difficulty)} XP para continuar.`,
 			);
 		}
 		return log(
@@ -204,10 +204,10 @@ function handleRevealSubbossRoom(engine: GameEngine,
 
 function handleDungeonDeckEmpty(engine: GameEngine, state: GameState): GameState {
 	const { discarded } = deckOf(state, "dungeonDeck");
-	if (gameOf(state).groupXp >= balanceOf(engine).dungeonExhaustionCost && discarded.length > 0) {
+	if (gameOf(state).groupXp >= dungeonRecoveryCost(engine, gameOf(state).difficulty) && discarded.length > 0) {
 		return log(
 			withGame(state, (prevGame) => ({ ...prevGame, status: "DUNGEON_EXHAUSTED" })),
-			"Deck de dungeon esgotado. Gaste 5 XP para continuar.",
+			`Deck de dungeon esgotado. Gaste ${dungeonRecoveryCost(engine, gameOf(state).difficulty)} XP para continuar.`,
 		);
 	}
 	return log(
@@ -568,11 +568,13 @@ export function handleRestartDungeon(engine: GameEngine,
 	state: GameState,
 	keepEquipment: boolean,
 ): GameState {
-	const roomIds = buildDungeonRoomDeck(engine);
-	const creatureIds = cardsOfType(engine, "creature").map((c) => c.id);
-	const itemIds = cardsOfType(engine, "item").map((c) => c.id);
-	const artifactIds = cardsOfType(engine, "artifact").map((c) => c.id);
-
+	const expansionId = expansionOf(engine, gameOf(state).bossCardId);
+	const belongsToExpansion = (id: string) =>
+		!expansionId || expansionOf(engine, id) === expansionId;
+	const roomIds = buildDungeonRoomDeck(engine, expansionId);
+	const creatureIds = cardsOfType(engine, "creature").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const itemIds = cardsOfType(engine, "item").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const artifactIds = cardsOfType(engine, "artifact").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 
 	const restoredHeroes = gameOf(state).fledHeroes.map((h) => ({
 		...h,
@@ -599,9 +601,11 @@ export function handleRestartDungeon(engine: GameEngine,
 
 export function handleDungeonExhaustedSpend(engine: GameEngine, state: GameState): GameState {
 	const { discarded } = deckOf(state, "dungeonDeck");
+	const cost = dungeonRecoveryCost(engine, gameOf(state).difficulty);
+	if (discarded.length === 0 || gameOf(state).groupXp < cost) return state;
 	const { value: reshuffled, next: rng } = shuffleRng(discarded, gameOf(state).rng);
 	const next = log(
-		withDecks(withGame(state, (prevGame) => ({ ...prevGame, rng, groupXp: gameOf(state).groupXp - balanceOf(engine).dungeonExhaustionCost })), {
+		withDecks(withGame(state, (prevGame) => ({ ...prevGame, rng, groupXp: gameOf(state).groupXp - cost })), {
 				...decksOf(state),
 				dungeonDeck: {
 					available: reshuffled,
@@ -609,7 +613,7 @@ export function handleDungeonExhaustedSpend(engine: GameEngine, state: GameState
 					removed: deckOf(state, "dungeonDeck").removed,
 				},
 			}),
-		"5 XP gastos. Deck de dungeon reembaralhado.",
+		`${cost} XP gastos. Deck de dungeon reembaralhado.`,
 	);
 	return handleRevealRoom(engine, next);
 }

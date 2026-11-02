@@ -55,13 +55,7 @@ const CARDS: readonly AnyCard[] = [
 		lifeBase: 5,
 		hitBonusBase: 1,
 		damage: 1,
-		rules: {
-			dice: 3,
-			fullArtifacts: { count: 3, life: 16 },
-			firstDamageReduction: 1,
-			ascension: { hitBonus: 2, atOrBelowLifeFraction: 0.5 },
-			pressure: { atAwakening: 4, discardDungeon: 1 },
-		},
+		dice: 3,
 		skills: [],
 	},
 	{
@@ -95,6 +89,7 @@ const NAMES: Record<string, string> = {
 };
 
 const fakeContent: GameContent = {
+	expansionOf: () => "fake",
 	card(id) {
 		const card = CARDS.find((c) => c.id === id);
 		if (!card) throw new Error(`Carta inexistente: ${id}`);

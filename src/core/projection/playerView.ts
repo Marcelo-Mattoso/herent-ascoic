@@ -120,6 +120,7 @@ function pausedViewOf(paused: PausedState | null): PausedView | null {
 export interface PlayerView {
 	readonly status: GameStatus;
 	readonly mode: GameMode;
+	readonly difficulty: Difficulty;
 	readonly heroes: readonly HeroView[];
 	readonly inventoryByHero: Readonly<Record<string, HeroInventoryView>>;
 	readonly abilityActionsByHero: Readonly<Record<string, readonly AbilityActionView[]>>;
@@ -210,6 +211,7 @@ export function playerView(engine: GameEngine, state: GameState): PlayerView {
 	return {
 		status: gameOf(state).status,
 		mode: gameOf(state).mode,
+		difficulty: gameOf(state).difficulty,
 		heroes: heroViews(state),
 		inventoryByHero: Object.fromEntries(
 			heroesOf(state).map((hero) => [hero.id, projectHeroInventory(engine, state, hero)]),

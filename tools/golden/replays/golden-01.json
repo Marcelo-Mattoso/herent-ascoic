@@ -1,16 +1,16 @@
 {
 	"engineVersion": 1,
 	"name": "golden-01",
-	"seed": 1000,
+	"seed": 1002,
 	"setup": {
 		"heroCardIds": [
 			"hero_crimson_barbarian"
 		],
 		"difficulty": "very_easy",
 		"bossCardId": "boss_azhakar",
-		"seed": 1000
+		"seed": 1002
 	},
-	"outcome": "DEFEAT",
+	"outcome": "VICTORY",
 	"actions": [
 		{
 			"type": "START_GAME",
@@ -20,8 +20,8 @@
 				],
 				"difficulty": "very_easy",
 				"bossCardId": "boss_azhakar",
-				"seed": 1000,
-				"gameId": "golden-1000"
+				"seed": 1002,
+				"gameId": "golden-1002"
 			}
 		},
 		{
@@ -36,65 +36,8 @@
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
-				"enemyId": "e-hva3gr-1f5lt2a"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "DIRECT_DAMAGE"
-		},
-		{
-			"type": "CHECK_COMBAT_END"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
-				"enemyId": "e-1w53v33-1k8sam0"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "DIRECT_DAMAGE"
-		},
-		{
-			"type": "CHECK_COMBAT_END"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
-				"enemyId": "e-1w53v33-1k8sam0"
-			}
-		},
-		{
-			"type": "ROLL_DICE"
-		},
-		{
-			"type": "RESOLVE_ATTACK"
-		},
-		{
-			"type": "DIRECT_DAMAGE"
-		},
-		{
-			"type": "CHECK_COMBAT_END"
-		},
-		{
-			"type": "CHOOSE_TARGET",
-			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
-				"enemyId": "e-hva3gr-1f5lt2a"
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-x92ns7-4mltxg"
 			}
 		},
 		{
@@ -112,22 +55,221 @@
 		{
 			"type": "CHOOSE_ITEM_DESTINATION",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
+				"heroId": "h-ubxiic-xlqfc0",
 				"destination": "backpack"
 			}
 		},
 		{
 			"type": "CHOOSE_ITEM_DESTINATION",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
+				"heroId": "h-ubxiic-xlqfc0",
 				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "SKILL_CHOICE",
+			"payload": {
+				"skillId": "purple_dark_tribute",
+				"choice": "discard_dungeon"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-1nrtnje-d3zs0l"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-1xj58pn-cwar2f"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-t6fufr-9bgo0l"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-1xj58pn-cwar2f"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-t6fufr-9bgo0l"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"destination": "backpack"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"destination": "equip"
+			}
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"destination": "equip"
 			}
 		},
 		{
 			"type": "SPEND_XP",
 			"payload": {
 				"option": "level_up",
-				"heroId": "h-1utkz56-1yfilh1"
+				"heroId": "h-ubxiic-xlqfc0"
+			}
+		},
+		{
+			"type": "CHECK_BOSS_CONDITION"
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-pp8j9m-fb764w"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"enemyId": "e-1v4awco-uuuha4"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "GRANT_REWARDS"
+		},
+		{
+			"type": "CHOOSE_ITEM_DESTINATION",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0",
+				"destination": "discard"
+			}
+		},
+		{
+			"type": "SPEND_XP",
+			"payload": {
+				"option": "level_up",
+				"heroId": "h-ubxiic-xlqfc0"
 			}
 		},
 		{
@@ -140,15 +282,9 @@
 			"type": "START_BOSS_COMBAT"
 		},
 		{
-			"type": "CHOOSE_HERO_FOR_ROUND",
-			"payload": {
-				"heroId": "h-1utkz56-1yfilh1"
-			}
-		},
-		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
+				"heroId": "h-ubxiic-xlqfc0",
 				"enemyId": "boss"
 			}
 		},
@@ -159,15 +295,18 @@
 			"type": "RESOLVE_ATTACK"
 		},
 		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
 			"type": "CHOOSE_HERO_FOR_ROUND",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1"
+				"heroId": "h-ubxiic-xlqfc0"
 			}
 		},
 		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
+				"heroId": "h-ubxiic-xlqfc0",
 				"enemyId": "boss"
 			}
 		},
@@ -178,27 +317,27 @@
 			"type": "RESOLVE_ATTACK"
 		},
 		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
 			"type": "CHOOSE_HERO_FOR_ROUND",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1"
+				"heroId": "h-ubxiic-xlqfc0"
 			}
 		},
 		{
 			"type": "CHOOSE_HERO_FOR_ROUND",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1"
+				"heroId": "h-ubxiic-xlqfc0"
 			}
 		},
 		{
 			"type": "START_BOSS_COMBAT"
 		},
 		{
-			"type": "START_BOSS_COMBAT"
-		},
-		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
+				"heroId": "h-ubxiic-xlqfc0",
 				"enemyId": "boss"
 			}
 		},
@@ -209,9 +348,18 @@
 			"type": "RESOLVE_ATTACK"
 		},
 		{
+			"type": "START_BOSS_COMBAT"
+		},
+		{
+			"type": "CHOOSE_HERO_FOR_ROUND",
+			"payload": {
+				"heroId": "h-ubxiic-xlqfc0"
+			}
+		},
+		{
 			"type": "CHOOSE_TARGET",
 			"payload": {
-				"heroId": "h-1utkz56-1yfilh1",
+				"heroId": "h-ubxiic-xlqfc0",
 				"enemyId": "boss"
 			}
 		},
@@ -223,66 +371,101 @@
 		}
 	],
 	"steps": [
-		"21804aeac5f62b63",
-		"7a41cac899474497",
-		"76b78f07d11c889f",
-		"3a581de8ad3d9ec2",
-		"e55661dd7c57a6b7",
-		"c42eefcb47976991",
-		"2c67e95675339131",
-		"11e40363256a58a8",
-		"eb208e59be1d0e74",
-		"b0fa710fad210896",
-		"6d4e919b0abada20",
-		"b7e045c732e92b61",
-		"9110d573a1f5ab6c",
-		"15093fef2f1a2827",
-		"5f1b00fb3aa76ede",
-		"1239e3bc9b148adb",
-		"538981e0d6b9faf6",
-		"a729460f5c63a428",
-		"0c22a8395fe9e4a9",
-		"560cad475f720f23",
-		"d35c2a4214e62782",
-		"5f5957ef6f94d44f",
-		"4300fad5d7956982",
-		"93f6576f7ad79738",
-		"4e0d9d68319dfccb",
-		"b57e54fc9d2e4183",
-		"72e8f73306582ba9",
-		"7fcbeada6dbf928d",
-		"59247c5cf2657a21",
-		"1e07cc4dc8ab67aa",
-		"3c445269dbf02534",
-		"a42fb1a03cd76362",
-		"c1e9ab9ed8439ff1",
-		"9c7b8fd76fb66beb",
-		"a559f03bd61c24df",
-		"5581071b4036debc",
-		"82df1ef38aab4e72",
-		"4515d0cbd55c908e",
-		"92b8128c8f385e94",
-		"d8b30a0c89accac8",
-		"fc3e6c777da3cff5",
-		"73e9b912c602f490",
-		"2058a27e95d607ab",
-		"481cd5924c572914",
-		"286601025975e843",
-		"fa92f93ba23caf58",
-		"16700fdfdb8ea94b",
-		"6e7d7154a29e619c"
+		"946a652e064deb70",
+		"47c338bcb5ac8252",
+		"c3989929ef346ef4",
+		"f202683e3d595f32",
+		"1891adef5a86a7f3",
+		"78f50f87068939ab",
+		"db2dc913c7cc703c",
+		"fe3470feab8746f7",
+		"19da4ca2f84f37d6",
+		"c59451c9a45c6f18",
+		"9b28f63e1deec6b2",
+		"ce6a3b775d34eb13",
+		"9691960e8416c8c4",
+		"5e2d3ee4af29f2e0",
+		"b9b7b5df4de5c35f",
+		"a5f1442633deda27",
+		"cf07b93dac2d907b",
+		"bc90c5808c8dda5f",
+		"5365af7c75078a43",
+		"5d3d19734ef8d52d",
+		"a463316114d605aa",
+		"5992123f4f14ffc6",
+		"c2ff36168c44a799",
+		"b7d331cf50a06f33",
+		"3252f4e6085a2715",
+		"f9171fb488579dbe",
+		"b018fc2d6fefb33f",
+		"f84017902d06e9a4",
+		"c5f6e95112792a5a",
+		"f9000c496bdb24fe",
+		"15791a46ebaf21b4",
+		"0a6596b28ee17fe5",
+		"0edc0866eef95667",
+		"bfa8234f17bb0b55",
+		"ae5a52bc75e94728",
+		"8e3ecb9e2a8363b6",
+		"fe2f3a657686460b",
+		"528fba3758ca6144",
+		"0a388954c56a3512",
+		"d88a8c1c380e7517",
+		"120c4f544b3a9770",
+		"1e87f13c9c8c6074",
+		"96d0bdb1712d7ab2",
+		"9b15318a34f8e96f",
+		"dfa46f4e683d6f0e",
+		"067aa82daa1d8abe",
+		"86e36a1e5fc08055",
+		"72c1f0438eb4dd24",
+		"6beb94971450955a",
+		"01e6400b4774d6d4",
+		"52828235a869ea77",
+		"caa69f428ef40298",
+		"0d5843a169ae1b89",
+		"f5bd2736837ae3a5",
+		"f1a9f23fec313e04",
+		"99d474ce1031f295",
+		"7f9d8f6aff8b3e0d",
+		"d5f4b02aa0538fea",
+		"756ae0407dc788a9",
+		"1ed819b6f112f78f",
+		"f90bfb2306273ea1",
+		"ab84615637dd6cdf",
+		"0eb01fe9a3edf56d",
+		"51c81bd4c54b7a6f",
+		"9095444149c58866",
+		"2c6d9761095eac61",
+		"98ceb53275a18010",
+		"7f6ee73d350fa722",
+		"6453fcf73d6d741b",
+		"a6dcaf9d862d5ac6",
+		"20b95adcc1967988",
+		"6501e2db0488b683",
+		"d940d62ef2376056",
+		"bffe22c1fad66d01",
+		"fb74d8e09ed801ee",
+		"c18f4a34a63c99c5",
+		"abee5dc56ae89953",
+		"8c5516f341fbaab2",
+		"81a4b16d8e4d01ac",
+		"6b4c3324729b04ee",
+		"1486b0b200a6fbf5",
+		"b1db3d06937bee74",
+		"f75172da40ce5e34",
+		"de11d6b5055ae435"
 	],
 	"finalSnapshot": {
 		"abilityActionsByHero": {
-			"h-1utkz56-1yfilh1": [
+			"h-ubxiic-xlqfc0": [
 				{
 					"abilityId": "skill_crimson_fury",
 					"activation": "prepare",
 					"kind": "skill",
 					"label": "Fúria Rubra",
-					"reason": "Herói incapacitado.",
 					"sourceCardId": "hero_crimson_barbarian",
-					"status": "unavailable",
+					"status": "available",
 					"targetRequired": false,
 					"validTargetIds": []
 				},
@@ -291,8 +474,31 @@
 					"activation": "prepare",
 					"kind": "power",
 					"label": "Fúria Rubra Poderosa",
-					"reason": "Herói incapacitado.",
 					"sourceCardId": "hero_crimson_barbarian",
+					"status": "available",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "skill_last_light_healing",
+					"activation": "manual",
+					"kind": "item",
+					"label": "Poção de Vigor Maior",
+					"reason": "Aguarde uma janela de ação para usar o item.",
+					"sourceCardId": "item_greater_vigor_potion",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": [
+						"h-ubxiic-xlqfc0"
+					]
+				},
+				{
+					"abilityId": "item_skill_deadly_edge",
+					"activation": "prepare",
+					"kind": "item",
+					"label": "Adaga Enferrujada",
+					"reason": "Aguarde uma janela de ação para usar o item.",
+					"sourceCardId": "item_rusty_dagger",
 					"status": "unavailable",
 					"targetRequired": false,
 					"validTargetIds": []
@@ -301,346 +507,613 @@
 		},
 		"activeInfluences": [],
 		"alphaLog": [
-			"#1 Ação START_GAME. Dados: {\"type\":\"START_GAME\",\"payload\":{\"heroCardIds\":[\"hero_crimson_barbarian\"],\"difficulty\":\"very_easy\",\"bossCardId\":\"boss_azhakar\",\"seed\":1000,\"gameId\":\"golden-1000\"}}",
+			"#1 Ação START_GAME. Dados: {\"type\":\"START_GAME\",\"payload\":{\"heroCardIds\":[\"hero_crimson_barbarian\"],\"difficulty\":\"very_easy\",\"bossCardId\":\"boss_azhakar\",\"seed\":1002,\"gameId\":\"golden-1002\"}}",
 			"Fase: MAIN_MENU → ROOM_EFFECT.",
-			"Sala: nenhuma → Sala do Carcereiro.",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1) entrou em jogo.",
-			"dungeonDeck.available: 0 → 19; adicionadas [\"room_broken_columns_hall\",\"room_depths_stairway\",\"room_dead_torches_passage\",\"room_dungeon_room\",\"room_cracked_abyss\",\"room_broken_columns_hall\",\"room_abandoned_cell\",\"room_crimson_chains_chamber\",\"room_abandoned_cell\",\"room_dead_torches_passage\",\"room_ruined_forge\",\"room_crimson_chains_chamber\",\"room_narrow_corridor\",\"room_jailer_room\",\"room_depths_stairway\",\"room_cracked_abyss\",\"room_narrow_corridor\",\"room_ruined_forge\",\"room_dungeon_room\"], retiradas [].",
-			"enemyDeck.available: 0 → 18; adicionadas [\"creature_catacomb_skeleton\",\"creature_old_chains_knight\",\"creature_low_ember_kobold\",\"creature_wet_stone_slime\",\"creature_black_ceiling_bat\",\"creature_ancient_pillar_spider\",\"creature_deep_rift_rat\",\"creature_low_fire_salamander\",\"creature_hidden_flame_cultist\",\"creature_broken_chains_brute\",\"creature_hot_ash_worm\",\"creature_broken_gates_watcher\",\"creature_dead_passage_thief\",\"creature_forge_acolyte\",\"creature_dark_cave_goblin\",\"creature_dead_torch_sentinel\",\"creature_ruined_hall_ogre\",\"creature_blazing_skull\"], retiradas [].",
-			"itemDeck.available: 0 → 34; adicionadas [\"item_safe_path_charm\",\"item_tunnel_hood\",\"item_lesser_vigor_potion\",\"item_rusty_dagger\",\"item_broken_veil_cloak\",\"item_return_potion\",\"item_torn_depths_map\",\"item_warm_blood_charm\",\"item_light_stone_boots\",\"item_crimson_rune_staff\",\"item_greater_vigor_potion\",\"item_silent_dungeon_charm\",\"item_deep_veil_scythe\",\"item_last_light_sword\",\"item_worn_explorer_rope\",\"item_ancient_metal_armor\",\"item_ruined_hall_axe\",\"item_last_defense_charm\",\"item_stoneskin_potion\",\"item_low_flame_charm\",\"item_precision_potion\",\"item_hidden_forge_chest\",\"item_narrow_exit_cloak\",\"item_pitch_torch\",\"item_last_chord_lute\",\"item_incendiary_oil_flask\",\"item_ancient_iron_key\",\"item_fury_potion\",\"item_rift_bow\",\"item_living_ember_potion\",\"item_broken_stone_hammer\",\"item_forge_magic_armor\",\"item_cracked_shield\",\"item_reinforced_leather_armor\"], retiradas [].",
-			"artifactDeck.available: 0 → 5; adicionadas [\"artifact_lost_forge_hammer\",\"artifact_last_vigil_brazier\",\"artifact_first_fire_blade\",\"artifact_ancient_ember_heart\",\"artifact_crimson_jailer_chain\"], retiradas [].",
-			"Detalhe técnico gameId: \"__PREGAME__\" → \"golden-1000\".",
-			"Detalhe técnico rng: {\"seed\":0,\"counter\":0} → {\"seed\":1000,\"counter\":94}.",
+			"Sala: nenhuma → Sala da Masmorra.",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0) entrou em jogo.",
+			"dungeonDeck.available: 0 → 19; adicionadas [\"room_jailer_room\",\"room_ruined_forge\",\"room_cracked_abyss\",\"room_jailer_room\",\"room_crimson_chains_chamber\",\"room_abandoned_cell\",\"room_depths_stairway\",\"room_broken_columns_hall\",\"room_broken_columns_hall\",\"room_cracked_abyss\",\"room_narrow_corridor\",\"room_abandoned_cell\",\"room_ruined_forge\",\"room_dead_torches_passage\",\"room_narrow_corridor\",\"room_depths_stairway\",\"room_dead_torches_passage\",\"room_dungeon_room\",\"room_crimson_chains_chamber\"], retiradas [].",
+			"enemyDeck.available: 0 → 18; adicionadas [\"creature_black_ceiling_bat\",\"creature_hot_ash_worm\",\"creature_ruined_hall_ogre\",\"creature_wet_stone_slime\",\"creature_deep_rift_rat\",\"creature_dead_passage_thief\",\"creature_broken_gates_watcher\",\"creature_dead_torch_sentinel\",\"creature_ancient_pillar_spider\",\"creature_blazing_skull\",\"creature_catacomb_skeleton\",\"creature_old_chains_knight\",\"creature_dark_cave_goblin\",\"creature_hidden_flame_cultist\",\"creature_low_fire_salamander\",\"creature_low_ember_kobold\",\"creature_forge_acolyte\",\"creature_broken_chains_brute\"], retiradas [].",
+			"itemDeck.available: 0 → 34; adicionadas [\"item_forge_magic_armor\",\"item_low_flame_charm\",\"item_cracked_shield\",\"item_greater_vigor_potion\",\"item_rusty_dagger\",\"item_last_light_sword\",\"item_tunnel_hood\",\"item_fury_potion\",\"item_light_stone_boots\",\"item_lesser_vigor_potion\",\"item_crimson_rune_staff\",\"item_living_ember_potion\",\"item_worn_explorer_rope\",\"item_precision_potion\",\"item_torn_depths_map\",\"item_deep_veil_scythe\",\"item_narrow_exit_cloak\",\"item_warm_blood_charm\",\"item_broken_stone_hammer\",\"item_stoneskin_potion\",\"item_last_chord_lute\",\"item_pitch_torch\",\"item_return_potion\",\"item_last_defense_charm\",\"item_hidden_forge_chest\",\"item_broken_veil_cloak\",\"item_rift_bow\",\"item_incendiary_oil_flask\",\"item_ruined_hall_axe\",\"item_ancient_metal_armor\",\"item_reinforced_leather_armor\",\"item_silent_dungeon_charm\",\"item_safe_path_charm\",\"item_ancient_iron_key\"], retiradas [].",
+			"artifactDeck.available: 0 → 5; adicionadas [\"artifact_lost_forge_hammer\",\"artifact_first_fire_blade\",\"artifact_ancient_ember_heart\",\"artifact_last_vigil_brazier\",\"artifact_crimson_jailer_chain\"], retiradas [].",
+			"Detalhe técnico gameId: \"__PREGAME__\" → \"golden-1002\".",
+			"Detalhe técnico rng: {\"seed\":0,\"counter\":0} → {\"seed\":1002,\"counter\":94}.",
+			"Detalhe técnico groupImpetoMilestone: 0 → 2.",
 			"Detalhe técnico bossCardId: \"\" → \"boss_azhakar\".",
-			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_jailer_room\"},\"seq\":0}].",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_dungeon_room\"},\"seq\":0}].",
 			"Log atual: Partida iniciada. Heróis: Bárbaro Rubro. Boss: Azhakar, Dragão da Fornalha Sombria.",
-			"Log atual: Sala sorteada: Sala do Carcereiro.",
+			"Log atual: Sala sorteada: Sala da Masmorra.",
 			"#2 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
 			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
 			"#3 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
 			"Fase: SPAWN_ENEMIES → COMBAT_START.",
-			"Esqueleto das Catacumbas (e-hva3gr-1f5lt2a) entrou em jogo.",
-			"Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0) entrou em jogo.",
-			"enemyDeck.available: 18 → 17; adicionadas [], retiradas [\"creature_catacomb_skeleton\"].",
-			"Efeitos em Esqueleto das Catacumbas (e-hva3gr-1f5lt2a): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
-			"Efeitos em Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":4},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":0},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":1}].",
-			"Bloqueios: {} → {\"discardDungeonLocked\":[{\"source\":\"skill_path_corruption\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"e-1w53v33-1k8sam0\"}]}.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":94} → {\"seed\":1000,\"counter\":98}.",
-			"Detalhe técnico flags: {} → {\"discardDungeonLocked\":true}.",
+			"Morcego do Teto Negro (e-x92ns7-4mltxg) entrou em jogo.",
+			"enemyDeck.available: 18 → 17; adicionadas [], retiradas [\"creature_black_ceiling_bat\"].",
+			"Efeitos em Morcego do Teto Negro (e-x92ns7-4mltxg): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":94} → {\"seed\":1002,\"counter\":96}.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
-			"Log atual: Prevenção de descarte de dungeon bloqueada.",
-			"Log atual: 2 inimigo(s) aparecem: Esqueleto das Catacumbas, Carcereiro da Masmorra Rubra.",
+			"Log atual: 1 inimigo(s) aparecem: Morcego do Teto Negro.",
 			"#4 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
-			"Habilidade Tributo Sombrio ativada por Esqueleto das Catacumbas (e-hva3gr-1f5lt2a); evento evt_combat_start; alvos [h-1utkz56-1yfilh1]; parâmetros {\"value\":1}.",
 			"Fase: COMBAT_START → HERO_ACTION.",
-			"dungeonDeck.available: 19 → 18; adicionadas [], retiradas [\"room_broken_columns_hall\"].",
-			"dungeonDeck.discarded: 0 → 1; adicionadas [\"room_broken_columns_hall\"], retiradas [].",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
 			"Log atual: Combate iniciado.",
-			"#5 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Esqueleto das Catacumbas (e-hva3gr-1f5lt2a) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\"}}",
+			"#5 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Morcego do Teto Negro (e-x92ns7-4mltxg) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-x92ns7-4mltxg\"}}",
 			"Fase: HERO_ACTION → ROLL_DICE.",
 			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
-			"Detalhe técnico flags: {\"discardDungeonLocked\":true} → {\"discardDungeonLocked\":true,\"targetChosen::e-hva3gr-1f5lt2a\":true}.",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-hva3gr-1f5lt2a\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\"}].",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico flags: {} → {\"targetChosen::e-x92ns7-4mltxg\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-x92ns7-4mltxg\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-x92ns7-4mltxg\"}].",
 			"#6 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [4, 4], hitBonus +10 = 18.",
-			"Rolagem de Esqueleto das Catacumbas (e-hva3gr-1f5lt2a): dados [4], hitBonus +5 = 9. Margem +9.",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [4, 4], hitBonus +10 = 18.",
+			"Rolagem de Morcego do Teto Negro (e-x92ns7-4mltxg): dados [6], hitBonus +2 = 8. Margem +10.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":98} → {\"seed\":1000,\"counter\":101}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\",\"heroTotal\":18,\"enemyTotal\":9,\"heroResults\":[4,4],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 18 | Inimigo rolou 9.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":96} → {\"seed\":1002,\"counter\":99}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-x92ns7-4mltxg\",\"heroTotal\":18,\"enemyTotal\":8,\"heroResults\":[4,4],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 18 | Inimigo rolou 8.",
 			"#7 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Cálculo do ataque: Bárbaro Rubro (18) × Esqueleto das Catacumbas (9); margem +9; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
-			"Dano attack: Bárbaro Rubro → Esqueleto das Catacumbas; solicitado 4, após efeitos 4, aplicado 4; vida 5 → 1.",
+			"Cálculo do ataque: Bárbaro Rubro (18) × Morcego do Teto Negro (8); margem +10; dano do herói 4 sem bônus = 4; dano do inimigo 3 sem bônus = 3; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Morcego do Teto Negro; solicitado 4, após efeitos 4, aplicado 2; vida 2 → 0.",
+			"Fase: RESOLVE_ATTACK → CHECK_COMBAT_END.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Morcego do Teto Negro (e-x92ns7-4mltxg) recebeu 2 de dano (2 → 0).",
+			"Morcego do Teto Negro (e-x92ns7-4mltxg): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-x92ns7-4mltxg\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-x92ns7-4mltxg\",\"sourceId\":\"h-ubxiic-xlqfc0\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: undefined → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Morcego do Teto Negro sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 8.",
+			"#8 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → REWARD_PHASE.",
+			"Rodada: 0 → 1.",
+			"Detalhe técnico creaturesDefeated: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"REWARD_PHASE\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-x92ns7-4mltxg\"}] → [].",
+			"Log atual: Sala limpa! Avançando para recompensa.",
+			"#9 Ação GRANT_REWARDS. Dados: {\"type\":\"GRANT_REWARDS\"}",
+			"XP do grupo: 0 → 3 (+3).",
+			"Recompensas na mesa: [] → [{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_low_flame_charm\",\"requiresBearer\":false}].",
+			"itemDeck.available: 34 → 32; adicionadas [], retiradas [\"item_forge_magic_armor\",\"item_low_flame_charm\"].",
+			"Detalhe técnico roomsCleared: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomWon\",\"payload\":{\"roomId\":\"room_dungeon_room\"},\"seq\":0},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"xp\",\"amount\":3},\"seq\":1},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_forge_magic_armor\"},\"seq\":2},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_low_flame_charm\"},\"seq\":3}].",
+			"Log atual: Recompensas: +3 XP, 2 item(ns), 0 artefato(s). Resolvendo...",
+			"#10 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"destination\":\"backpack\"}}",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0): mochila [] → [\"item_forge_magic_armor\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_forge_magic_armor\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_low_flame_charm\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_low_flame_charm\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"itemId\":\"item_forge_magic_armor\"},\"seq\":0}].",
+			"Log atual: Armadura Mágica da Fornalha atribuído a h-ubxiic-xlqfc0.",
+			"#11 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"destination\":\"backpack\"}}",
+			"Fase: REWARD_PHASE → XP_SPEND_PHASE.",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0): mochila [\"item_forge_magic_armor\"] → [\"item_forge_magic_armor\",\"item_low_flame_charm\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_low_flame_charm\",\"requiresBearer\":false}] → [].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"itemId\":\"item_low_flame_charm\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"REWARD_PHASE\",\"to\":\"XP_SPEND_PHASE\",\"action\":\"CHOOSE_ITEM_DESTINATION\"},\"seq\":1}].",
+			"Log atual: Encanto da Chama Baixa atribuído a h-ubxiic-xlqfc0.",
+			"#12 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
+			"Fase: XP_SPEND_PHASE → ROOM_EFFECT.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 1 → 0.",
+			"Sala: Sala da Masmorra → Abismo Rachado.",
+			"dungeonDeck.available: 19 → 17; adicionadas [], retiradas [\"room_cracked_abyss\",\"room_abandoned_cell\"].",
+			"dungeonDeck.discarded: 0 → 2; adicionadas [\"room_dungeon_room\",\"room_abandoned_cell\"], retiradas [].",
+			"Efeitos em e-x92ns7-4mltxg: [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [].",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":99} → {\"seed\":1002,\"counter\":135}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_cracked_abyss\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"XP_SPEND_PHASE\",\"to\":\"ROOM_EFFECT\",\"action\":\"CHECK_BOSS_CONDITION\"},\"seq\":1}].",
+			"Log atual: Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
+			"Log atual: Sala sorteada: Abismo Rachado.",
+			"#13 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
+			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
+			"#14 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
+			"Fase: SPAWN_ENEMIES → COMBAT_START.",
+			"Verme das Cinzas Quentes (e-1nrtnje-d3zs0l) entrou em jogo.",
+			"Ogro do Salão Arruinado (e-t6fufr-9bgo0l) entrou em jogo.",
+			"Guardião do Abismo Rachado (e-1xj58pn-cwar2f) entrou em jogo.",
+			"enemyDeck.available: 17 → 15; adicionadas [], retiradas [\"creature_hot_ash_worm\",\"creature_ruined_hall_ogre\"].",
+			"Efeitos em Verme das Cinzas Quentes (e-1nrtnje-d3zs0l): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Ogro do Salão Arruinado (e-t6fufr-9bgo0l): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Guardião do Abismo Rachado (e-1xj58pn-cwar2f): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":4},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":0},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":1}].",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":135} → {\"seed\":1002,\"counter\":141}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
+			"Log atual: 3 inimigo(s) aparecem: Verme das Cinzas Quentes, Ogro do Salão Arruinado, Guardião do Abismo Rachado.",
+			"#15 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
+			"Habilidade Tributo Sombrio ativada por Guardião do Abismo Rachado (e-1xj58pn-cwar2f); evento evt_combat_start; alvos [h-ubxiic-xlqfc0]; parâmetros {\"value\":1}.",
+			"Fase: COMBAT_START → HERO_ACTION.",
+			"Escolha aberta: Tributo Sombrio — Escolha uma opção:.",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"triggerInterruptResolved::grant:evt_combat_start:e-1xj58pn-cwar2f:subboss_cracked_abyss_guardian:legacy:subboss_cracked_abyss_guardian:0:purple_dark_tribute\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
+			"Detalhe técnico pendingSkillChoice: undefined → {\"skillId\":\"purple_dark_tribute\",\"prompt\":\"Escolha uma opção:\",\"allowSkip\":false,\"options\":[{\"id\":\"discard_item\",\"label\":\"Descartar 1 item\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"item\",\"count\":1}]},{\"id\":\"discard_dungeon\",\"label\":\"Descartar 1 carta de dungeon\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"dungeon\",\"count\":1}]}],\"sourceEnemyId\":\"e-1xj58pn-cwar2f\",\"targetHeroIds\":[\"h-ubxiic-xlqfc0\"],\"targetEnemyIds\":[],\"context\":{\"triggeredBy\":\"evt_combat_start\",\"targetEnemyIds\":[],\"targetHeroIds\":[\"h-ubxiic-xlqfc0\"],\"sourceEnemyId\":\"e-1xj58pn-cwar2f\",\"skillId\":\"purple_dark_tribute\",\"value\":1}}.",
+			"Log atual: Combate iniciado.",
+			"#16 Escolha em Tributo Sombrio: discard_dungeon. Dados: {\"type\":\"SKILL_CHOICE\",\"payload\":{\"skillId\":\"purple_dark_tribute\",\"choice\":\"discard_dungeon\"}}",
+			"dungeonDeck.available: 17 → 16; adicionadas [], retiradas [\"room_narrow_corridor\"].",
+			"dungeonDeck.discarded: 2 → 3; adicionadas [\"room_narrow_corridor\"], retiradas [].",
+			"Detalhe técnico pendingSkillChoice: {\"skillId\":\"purple_dark_tribute\",\"prompt\":\"Escolha uma opção:\",\"allowSkip\":false,\"options\":[{\"id\":\"discard_item\",\"label\":\"Descartar 1 item\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"item\",\"count\":1}]},{\"id\":\"discard_dungeon\",\"label\":\"Descartar 1 carta de dungeon\",\"effect\":[{\"kind\":\"i_discard\",\"pile\":\"dungeon\",\"count\":1}]}],\"sourceEnemyId\":\"e-1xj58pn-cwar2f\",\"targetHeroIds\":[\"h-ubxiic-xlqfc0\"],\"targetEnemyIds\":[],\"context\":{\"triggeredBy\":\"evt_combat_start\",\"targetEnemyIds\":[],\"targetHeroIds\":[\"h-ubxiic-xlqfc0\"],\"sourceEnemyId\":\"e-1xj58pn-cwar2f\",\"skillId\":\"purple_dark_tribute\",\"value\":1}} → undefined.",
+			"#17 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Verme das Cinzas Quentes (e-1nrtnje-d3zs0l) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1nrtnje-d3zs0l\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"triggerInterruptResolved::grant:evt_combat_start:e-1xj58pn-cwar2f:subboss_cracked_abyss_guardian:legacy:subboss_cracked_abyss_guardian:0:purple_dark_tribute\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1nrtnje-d3zs0l\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1nrtnje-d3zs0l\"}].",
+			"#18 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [4, 6], hitBonus +10 = 20.",
+			"Rolagem de Verme das Cinzas Quentes (e-1nrtnje-d3zs0l): dados [1], hitBonus +1 = 2. Margem +18.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":141} → {\"seed\":1002,\"counter\":144}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1nrtnje-d3zs0l\",\"heroTotal\":20,\"enemyTotal\":2,\"heroResults\":[4,6],\"enemyResults\":[1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 20 | Inimigo rolou 2.",
+			"#19 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (20) × Verme das Cinzas Quentes (2); margem +18; dano do herói 4 sem bônus = 4; dano do inimigo 2 sem bônus = 2; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Verme das Cinzas Quentes; solicitado 4, após efeitos 4, aplicado 2; vida 2 → 0.",
 			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
 			"Etapa de combate: resolving → direct_damage.",
-			"Herói em foco no combate: Bárbaro Rubro (h-1utkz56-1yfilh1) → desconhecido.",
-			"Esqueleto das Catacumbas (e-hva3gr-1f5lt2a) recebeu 4 de dano (5 → 1).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-hva3gr-1f5lt2a\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: undefined → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4}].",
-			"Detalhe técnico combate.heroesActed: [] → [\"h-1utkz56-1yfilh1\"].",
-			"Log atual: Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 9.",
-			"#8 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Verme das Cinzas Quentes (e-1nrtnje-d3zs0l) recebeu 2 de dano (2 → 0).",
+			"Verme das Cinzas Quentes (e-1nrtnje-d3zs0l): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1nrtnje-d3zs0l\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-1nrtnje-d3zs0l\",\"sourceId\":\"h-ubxiic-xlqfc0\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Verme das Cinzas Quentes sofreu 4 de dano. Herói: dado(s) [4+6]=10, acerto +10 → 20 vs inimigo: 2.",
+			"#20 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
 			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":101} → {\"seed\":1000,\"counter\":104}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\",\"heroTotal\":19,\"enemyTotal\":9,\"heroResults\":[4,5],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":1}].",
-			"Detalhe técnico extraAttackFeedback: undefined → [{\"id\":1,\"enemyId\":\"e-1w53v33-1k8sam0\",\"enemyCardId\":\"subboss_crimson_dungeon_jailer\",\"heroId\":\"h-1utkz56-1yfilh1\"}].",
-			"Log atual: Ataque extra: Carcereiro da Masmorra Rubra rolou 9 contra Bárbaro Rubro (19) e não causou dano.",
-			"#9 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":144} → {\"seed\":1002,\"counter\":147}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\",\"heroTotal\":15,\"enemyTotal\":7,\"heroResults\":[1,4],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":1}].",
+			"Detalhe técnico extraAttackFeedback: undefined → [{\"id\":1,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"}].",
+			"Log atual: Ataque extra: Ogro do Salão Arruinado rolou 7 contra Bárbaro Rubro (15) e não causou dano.",
+			"#21 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
 			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
 			"Etapa de combate: direct_damage → selecting_hero.",
 			"Rodada: 0 → 1.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
-			"Detalhe técnico combate.heroesActed: [\"h-1utkz56-1yfilh1\"] → [].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\"}] → [].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1nrtnje-d3zs0l\"}] → [].",
 			"Log atual: Rodada 2 de combate.",
-			"#10 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\"}}",
+			"#22 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Guardião do Abismo Rachado (e-1xj58pn-cwar2f) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\"}}",
 			"Fase: HERO_ACTION → ROLL_DICE.",
 			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
-			"Detalhe técnico flags: {\"discardDungeonLocked\":true,\"targetChosen::e-hva3gr-1f5lt2a\":true} → {\"discardDungeonLocked\":true,\"targetChosen::e-hva3gr-1f5lt2a\":true,\"targetChosen::e-1w53v33-1k8sam0\":true}.",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-1w53v33-1k8sam0\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\"}].",
-			"#11 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [1, 4], hitBonus +10 = 15.",
-			"Rolagem de Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0): dados [2], hitBonus +5 = 7. Margem +8.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1xj58pn-cwar2f\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\"}].",
+			"#23 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [4, 6], hitBonus +10 = 20.",
+			"Rolagem de Guardião do Abismo Rachado (e-1xj58pn-cwar2f): dados [1], hitBonus +5 = 6. Margem +14.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":104} → {\"seed\":1000,\"counter\":107}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\",\"heroTotal\":15,\"enemyTotal\":7,\"heroResults\":[1,4],\"enemyResults\":[2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 15 | Inimigo rolou 7.",
-			"#12 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Cálculo do ataque: Bárbaro Rubro (15) × Carcereiro da Masmorra Rubra (7); margem +8; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
-			"Dano attack: Bárbaro Rubro → Carcereiro da Masmorra Rubra; solicitado 4, após efeitos 4, aplicado 4; vida 6 → 2.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":147} → {\"seed\":1002,\"counter\":150}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\",\"heroTotal\":20,\"enemyTotal\":6,\"heroResults\":[4,6],\"enemyResults\":[1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 20 | Inimigo rolou 6.",
+			"#24 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (20) × Guardião do Abismo Rachado (6); margem +14; dano do herói 4 sem bônus = 4; dano do inimigo 6 sem bônus = 6; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Guardião do Abismo Rachado; solicitado 4, após efeitos 4, aplicado 4; vida 8 → 4.",
 			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
 			"Etapa de combate: resolving → direct_damage.",
-			"Herói em foco no combate: Bárbaro Rubro (h-1utkz56-1yfilh1) → desconhecido.",
-			"Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0) recebeu 4 de dano (6 → 2).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-1w53v33-1k8sam0\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4}].",
-			"Detalhe técnico combate.heroesActed: [] → [\"h-1utkz56-1yfilh1\"].",
-			"Log atual: Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [1+4]=5, acerto +10 → 15 vs inimigo: 7.",
-			"#13 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Guardião do Abismo Rachado (e-1xj58pn-cwar2f) recebeu 4 de dano (8 → 4).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1xj58pn-cwar2f\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [4+6]=10, acerto +10 → 20 vs inimigo: 6.",
+			"#25 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
 			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":107} → {\"seed\":1000,\"counter\":110}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\",\"heroTotal\":15,\"enemyTotal\":8,\"heroResults\":[4,1],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":1}].",
-			"Detalhe técnico extraAttackFeedback: [{\"id\":1,\"enemyId\":\"e-1w53v33-1k8sam0\",\"enemyCardId\":\"subboss_crimson_dungeon_jailer\",\"heroId\":\"h-1utkz56-1yfilh1\"}] → [{\"id\":1,\"enemyId\":\"e-1w53v33-1k8sam0\",\"enemyCardId\":\"subboss_crimson_dungeon_jailer\",\"heroId\":\"h-1utkz56-1yfilh1\"},{\"id\":2,\"enemyId\":\"e-hva3gr-1f5lt2a\",\"enemyCardId\":\"creature_catacomb_skeleton\",\"heroId\":\"h-1utkz56-1yfilh1\"}].",
-			"Log atual: Ataque extra: Esqueleto das Catacumbas rolou 8 contra Bárbaro Rubro (15) e não causou dano.",
-			"#14 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":150} → {\"seed\":1002,\"counter\":153}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\",\"heroTotal\":13,\"enemyTotal\":9,\"heroResults\":[2,1],\"enemyResults\":[5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":1}].",
+			"Detalhe técnico extraAttackFeedback: [{\"id\":1,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"}] → [{\"id\":1,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"},{\"id\":2,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"}].",
+			"Log atual: Ataque extra: Ogro do Salão Arruinado rolou 9 contra Bárbaro Rubro (13) e não causou dano.",
+			"#26 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
 			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
 			"Etapa de combate: direct_damage → selecting_hero.",
 			"Rodada: 1 → 2.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
-			"Detalhe técnico combate.heroesActed: [\"h-1utkz56-1yfilh1\"] → [].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\"}] → [].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\"}] → [].",
 			"Log atual: Rodada 3 de combate.",
-			"#15 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\"}}",
+			"#27 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Ogro do Salão Arruinado (e-t6fufr-9bgo0l) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\"}}",
 			"Fase: HERO_ACTION → ROLL_DICE.",
 			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-1w53v33-1k8sam0\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\"}].",
-			"#16 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [1, 1], hitBonus +10 = 12.",
-			"Rolagem de Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0): dados [1], hitBonus +5 = 6. Margem +6.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-t6fufr-9bgo0l\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\"}].",
+			"#28 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [4, 5], hitBonus +10 = 19.",
+			"Rolagem de Ogro do Salão Arruinado (e-t6fufr-9bgo0l): dados [3], hitBonus +4 = 7. Margem +12.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":110} → {\"seed\":1000,\"counter\":113}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\",\"heroTotal\":12,\"enemyTotal\":6,\"heroResults\":[1,1],\"enemyResults\":[1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 12 | Inimigo rolou 6.",
-			"#17 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Cálculo do ataque: Bárbaro Rubro (12) × Carcereiro da Masmorra Rubra (6); margem +6; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
-			"Dano attack: Bárbaro Rubro → Carcereiro da Masmorra Rubra; solicitado 4, após efeitos 4, aplicado 2; vida 2 → 0.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":153} → {\"seed\":1002,\"counter\":156}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\",\"heroTotal\":19,\"enemyTotal\":7,\"heroResults\":[4,5],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 19 | Inimigo rolou 7.",
+			"#29 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (19) × Ogro do Salão Arruinado (7); margem +12; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Ogro do Salão Arruinado; solicitado 4, após efeitos 4, aplicado 4; vida 5 → 1.",
 			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
 			"Etapa de combate: resolving → direct_damage.",
-			"Herói em foco no combate: Bárbaro Rubro (h-1utkz56-1yfilh1) → desconhecido.",
-			"Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0) recebeu 2 de dano (2 → 0).",
-			"Carcereiro da Masmorra Rubra (e-1w53v33-1k8sam0): estado active → defeated.",
-			"Bloqueios: {\"discardDungeonLocked\":[{\"source\":\"skill_path_corruption\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"e-1w53v33-1k8sam0\"}]} → {\"discardDungeonLocked\":[]}.",
-			"Detalhe técnico flags: {\"discardDungeonLocked\":true,\"targetChosen::e-hva3gr-1f5lt2a\":true,\"targetChosen::e-1w53v33-1k8sam0\":true} → {\"discardDungeonLocked\":false,\"targetChosen::e-hva3gr-1f5lt2a\":true,\"targetChosen::e-1w53v33-1k8sam0\":true}.",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-1w53v33-1k8sam0\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-1w53v33-1k8sam0\",\"sourceId\":\"h-1utkz56-1yfilh1\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2}].",
-			"Detalhe técnico combate.heroesActed: [] → [\"h-1utkz56-1yfilh1\"].",
-			"Log atual: Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [1+1]=2, acerto +10 → 12 vs inimigo: 6.",
-			"#18 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Ogro do Salão Arruinado (e-t6fufr-9bgo0l) recebeu 4 de dano (5 → 1).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-t6fufr-9bgo0l\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Ogro do Salão Arruinado sofreu 4 de dano. Herói: dado(s) [4+5]=9, acerto +10 → 19 vs inimigo: 7.",
+			"#30 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
 			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
-			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
-			"#19 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":156} → {\"seed\":1002,\"counter\":159}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\",\"heroTotal\":12,\"enemyTotal\":9,\"heroResults\":[1,1],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":1}].",
+			"Detalhe técnico extraAttackFeedback: [{\"id\":1,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"},{\"id\":2,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"}] → [{\"id\":1,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"},{\"id\":2,\"enemyId\":\"e-t6fufr-9bgo0l\",\"enemyCardId\":\"creature_ruined_hall_ogre\",\"heroId\":\"h-ubxiic-xlqfc0\"},{\"id\":3,\"enemyId\":\"e-1xj58pn-cwar2f\",\"enemyCardId\":\"subboss_cracked_abyss_guardian\",\"heroId\":\"h-ubxiic-xlqfc0\"}].",
+			"Log atual: Ataque extra: Guardião do Abismo Rachado rolou 9 contra Bárbaro Rubro (12) e não causou dano.",
+			"#31 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
 			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
 			"Etapa de combate: direct_damage → selecting_hero.",
 			"Rodada: 2 → 3.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
-			"Detalhe técnico combate.heroesActed: [\"h-1utkz56-1yfilh1\"] → [].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-1w53v33-1k8sam0\"}] → [].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\"}] → [].",
 			"Log atual: Rodada 4 de combate.",
-			"#20 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Esqueleto das Catacumbas (e-hva3gr-1f5lt2a) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\"}}",
+			"#32 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Guardião do Abismo Rachado (e-1xj58pn-cwar2f) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\"}}",
 			"Fase: HERO_ACTION → ROLL_DICE.",
 			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-hva3gr-1f5lt2a\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\"}].",
-			"#21 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [4, 4], hitBonus +10 = 18.",
-			"Rolagem de Esqueleto das Catacumbas (e-hva3gr-1f5lt2a): dados [1], hitBonus +5 = 6. Margem +12.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1xj58pn-cwar2f\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\"}].",
+			"#33 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [1, 2], hitBonus +10 = 13.",
+			"Rolagem de Guardião do Abismo Rachado (e-1xj58pn-cwar2f): dados [6], hitBonus +5 = 11. Margem +2.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":113} → {\"seed\":1000,\"counter\":116}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\",\"heroTotal\":18,\"enemyTotal\":6,\"heroResults\":[4,4],\"enemyResults\":[1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 18 | Inimigo rolou 6.",
-			"#22 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Cálculo do ataque: Bárbaro Rubro (18) × Esqueleto das Catacumbas (6); margem +12; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
-			"Dano attack: Bárbaro Rubro → Esqueleto das Catacumbas; solicitado 4, após efeitos 4, aplicado 1; vida 1 → 0.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":159} → {\"seed\":1002,\"counter\":162}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\",\"heroTotal\":13,\"enemyTotal\":11,\"heroResults\":[1,2],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 13 | Inimigo rolou 11.",
+			"#34 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (13) × Guardião do Abismo Rachado (11); margem +2; dano do herói 4 sem bônus = 4; dano do inimigo 6 sem bônus = 6; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Guardião do Abismo Rachado; solicitado 4, após efeitos 4, aplicado 4; vida 4 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Guardião do Abismo Rachado (e-1xj58pn-cwar2f) recebeu 4 de dano (4 → 0).",
+			"Guardião do Abismo Rachado (e-1xj58pn-cwar2f): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1xj58pn-cwar2f\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-1xj58pn-cwar2f\",\"sourceId\":\"h-ubxiic-xlqfc0\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [1+2]=3, acerto +10 → 13 vs inimigo: 11.",
+			"#35 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#36 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 3 → 4.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1xj58pn-cwar2f\"}] → [].",
+			"Log atual: Rodada 5 de combate.",
+			"#37 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Ogro do Salão Arruinado (e-t6fufr-9bgo0l) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-t6fufr-9bgo0l\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\"}].",
+			"#38 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [3, 4], hitBonus +10 = 17.",
+			"Rolagem de Ogro do Salão Arruinado (e-t6fufr-9bgo0l): dados [4], hitBonus +4 = 8. Margem +9.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":162} → {\"seed\":1002,\"counter\":165}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\",\"heroTotal\":17,\"enemyTotal\":8,\"heroResults\":[3,4],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 17 | Inimigo rolou 8.",
+			"#39 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (17) × Ogro do Salão Arruinado (8); margem +9; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Bárbaro Rubro → Ogro do Salão Arruinado; solicitado 4, após efeitos 4, aplicado 1; vida 1 → 0.",
 			"Fase: RESOLVE_ATTACK → CHECK_COMBAT_END.",
 			"Etapa de combate: resolving → direct_damage.",
-			"Herói em foco no combate: Bárbaro Rubro (h-1utkz56-1yfilh1) → desconhecido.",
-			"Esqueleto das Catacumbas (e-hva3gr-1f5lt2a) recebeu 1 de dano (1 → 0).",
-			"Esqueleto das Catacumbas (e-hva3gr-1f5lt2a): estado active → defeated.",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"e-hva3gr-1f5lt2a\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-hva3gr-1f5lt2a\",\"sourceId\":\"h-1utkz56-1yfilh1\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1}].",
-			"Detalhe técnico combate.heroesActed: [] → [\"h-1utkz56-1yfilh1\"].",
-			"Log atual: Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 6.",
-			"#23 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Ogro do Salão Arruinado (e-t6fufr-9bgo0l) recebeu 1 de dano (1 → 0).",
+			"Ogro do Salão Arruinado (e-t6fufr-9bgo0l): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-t6fufr-9bgo0l\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-t6fufr-9bgo0l\",\"sourceId\":\"h-ubxiic-xlqfc0\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Ogro do Salão Arruinado sofreu 4 de dano. Herói: dado(s) [3+4]=7, acerto +10 → 17 vs inimigo: 8.",
+			"#40 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
 			"Fase: CHECK_COMBAT_END → REWARD_PHASE.",
-			"Rodada: 3 → 4.",
-			"Detalhe técnico creaturesDefeated: 0 → 2.",
+			"Rodada: 4 → 5.",
+			"Detalhe técnico creaturesDefeated: 1 → 4.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"REWARD_PHASE\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
-			"Detalhe técnico combate.heroesActed: [\"h-1utkz56-1yfilh1\"] → [].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"e-hva3gr-1f5lt2a\"}] → [].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-t6fufr-9bgo0l\"}] → [].",
 			"Log atual: Sala limpa! Avançando para recompensa.",
-			"#24 Ação GRANT_REWARDS. Dados: {\"type\":\"GRANT_REWARDS\"}",
-			"XP do grupo: 0 → 10 (+10).",
-			"Recompensas na mesa: [] → [{\"type\":\"item\",\"cardId\":\"item_safe_path_charm\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_tunnel_hood\",\"requiresBearer\":false}].",
-			"Artefatos do grupo: [] → [{\"cardId\":\"artifact_lost_forge_hammer\",\"carriedBy\":null},{\"cardId\":\"artifact_last_vigil_brazier\",\"carriedBy\":null}].",
-			"itemDeck.available: 34 → 32; adicionadas [], retiradas [\"item_safe_path_charm\",\"item_tunnel_hood\"].",
-			"artifactDeck.available: 5 → 3; adicionadas [], retiradas [\"artifact_lost_forge_hammer\",\"artifact_last_vigil_brazier\"].",
-			"Detalhe técnico subbosses: {\"available\":[],\"defeated\":[]} → {\"available\":[],\"defeated\":[\"subboss_crimson_dungeon_jailer\"]}.",
-			"Detalhe técnico roomsCleared: 0 → 1.",
-			"Detalhe técnico events: [] → [{\"type\":\"RoomWon\",\"payload\":{\"roomId\":\"room_jailer_room\"},\"seq\":0},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"xp\",\"amount\":10},\"seq\":1},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_lost_forge_hammer\"},\"seq\":2},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_last_vigil_brazier\"},\"seq\":3},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_safe_path_charm\"},\"seq\":4},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_tunnel_hood\"},\"seq\":5}].",
-			"Log atual: Recompensas: +10 XP, 2 item(ns), 2 artefato(s). Resolvendo...",
-			"#25 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"destination\":\"backpack\"}}",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1): mochila [] → [\"item_safe_path_charm\"].",
-			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_safe_path_charm\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_tunnel_hood\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_tunnel_hood\",\"requiresBearer\":false}].",
-			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"itemId\":\"item_safe_path_charm\"},\"seq\":0}].",
-			"Log atual: Encanto do Caminho Seguro atribuído a h-1utkz56-1yfilh1.",
-			"#26 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"destination\":\"backpack\"}}",
+			"#41 Ação GRANT_REWARDS. Dados: {\"type\":\"GRANT_REWARDS\"}",
+			"XP do grupo: 3 → 14 (+11).",
+			"Recompensas na mesa: [] → [{\"type\":\"item\",\"cardId\":\"item_cracked_shield\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_greater_vigor_potion\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_rusty_dagger\",\"requiresBearer\":false}].",
+			"Artefatos do grupo: [] → [{\"cardId\":\"artifact_lost_forge_hammer\",\"carriedBy\":null},{\"cardId\":\"artifact_first_fire_blade\",\"carriedBy\":null}].",
+			"itemDeck.available: 32 → 29; adicionadas [], retiradas [\"item_cracked_shield\",\"item_greater_vigor_potion\",\"item_rusty_dagger\"].",
+			"artifactDeck.available: 5 → 3; adicionadas [], retiradas [\"artifact_lost_forge_hammer\",\"artifact_first_fire_blade\"].",
+			"Detalhe técnico subbosses: {\"available\":[],\"defeated\":[]} → {\"available\":[],\"defeated\":[\"subboss_cracked_abyss_guardian\"]}.",
+			"Detalhe técnico roomsCleared: 1 → 2.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomWon\",\"payload\":{\"roomId\":\"room_cracked_abyss\"},\"seq\":0},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"xp\",\"amount\":11},\"seq\":1},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_lost_forge_hammer\"},\"seq\":2},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_first_fire_blade\"},\"seq\":3},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_cracked_shield\"},\"seq\":4},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_greater_vigor_potion\"},\"seq\":5},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_rusty_dagger\"},\"seq\":6}].",
+			"Log atual: Recompensas: +11 XP, 3 item(ns), 2 artefato(s). Resolvendo...",
+			"#42 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"destination\":\"backpack\"}}",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0): mochila [\"item_forge_magic_armor\",\"item_low_flame_charm\"] → [\"item_forge_magic_armor\",\"item_low_flame_charm\",\"item_cracked_shield\"].",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_cracked_shield\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_greater_vigor_potion\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_rusty_dagger\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_greater_vigor_potion\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_rusty_dagger\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"itemId\":\"item_cracked_shield\"},\"seq\":0}].",
+			"Log atual: Escudo Rachado atribuído a h-ubxiic-xlqfc0.",
+			"#43 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"destination\":\"equip\"}}",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0): equipamentos {} → {\"hand1\":\"item_greater_vigor_potion\"}.",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_greater_vigor_potion\",\"requiresBearer\":false},{\"type\":\"item\",\"cardId\":\"item_rusty_dagger\",\"requiresBearer\":false}] → [{\"type\":\"item\",\"cardId\":\"item_rusty_dagger\",\"requiresBearer\":false}].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemEquipped\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"itemId\":\"item_greater_vigor_potion\"},\"seq\":0}].",
+			"Log atual: Poção de Vigor Maior atribuído a h-ubxiic-xlqfc0.",
+			"#44 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"destination\":\"equip\"}}",
 			"Fase: REWARD_PHASE → XP_SPEND_PHASE.",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1): mochila [\"item_safe_path_charm\"] → [\"item_safe_path_charm\",\"item_tunnel_hood\"].",
-			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_tunnel_hood\",\"requiresBearer\":false}] → [].",
-			"Detalhe técnico events: [] → [{\"type\":\"ItemStored\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"itemId\":\"item_tunnel_hood\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"REWARD_PHASE\",\"to\":\"XP_SPEND_PHASE\",\"action\":\"CHOOSE_ITEM_DESTINATION\"},\"seq\":1}].",
-			"Log atual: Capuz do Túnel atribuído a h-1utkz56-1yfilh1.",
-			"#27 Ação SPEND_XP. Dados: {\"type\":\"SPEND_XP\",\"payload\":{\"option\":\"level_up\",\"heroId\":\"h-1utkz56-1yfilh1\"}}",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0): equipamentos {\"hand1\":\"item_greater_vigor_potion\"} → {\"hand1\":\"item_greater_vigor_potion\",\"hand2\":\"item_rusty_dagger\"}.",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_rusty_dagger\",\"requiresBearer\":false}] → [].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemEquipped\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"itemId\":\"item_rusty_dagger\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"REWARD_PHASE\",\"to\":\"XP_SPEND_PHASE\",\"action\":\"CHOOSE_ITEM_DESTINATION\"},\"seq\":1}].",
+			"Log atual: Adaga Enferrujada atribuído a h-ubxiic-xlqfc0.",
+			"#45 Ação SPEND_XP. Dados: {\"type\":\"SPEND_XP\",\"payload\":{\"option\":\"level_up\",\"heroId\":\"h-ubxiic-xlqfc0\"}}",
 			"Bárbaro Rubro ganhou 2 de vida por progressão (16 → 18).",
-			"XP do grupo: 10 → 0 (-10).",
+			"XP do grupo: 14 → 4 (-10).",
 			"Despertar: 0 → 1.",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1) recuperou 2 de vida (16 → 18).",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0) recuperou 2 de vida (16 → 18).",
+			"Detalhe técnico groupImpetoMilestone: 2 → 3.",
 			"Detalhe técnico events: [] → [{\"type\":\"DespertarChanged\",\"payload\":{\"from\":0,\"to\":1,\"cause\":\"level_up\"},\"seq\":0}].",
-			"Log atual: Bárbaro Rubro subiu para nível 4. Despertar avança.",
-			"#28 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
+			"Log atual: Bárbaro Rubro subiu para nível 4. O Despertar avança com o grupo.",
+			"#46 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
+			"Fase: XP_SPEND_PHASE → ROOM_EFFECT.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 5 → 0.",
+			"Sala: Abismo Rachado → Sala do Carcereiro.",
+			"dungeonDeck.available: 16 → 14; adicionadas [], retiradas [\"room_jailer_room\",\"room_jailer_room\"].",
+			"dungeonDeck.discarded: 3 → 5; adicionadas [\"room_cracked_abyss\",\"room_jailer_room\"], retiradas [].",
+			"Efeitos em e-1nrtnje-d3zs0l: [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [].",
+			"Efeitos em e-t6fufr-9bgo0l: [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [].",
+			"Efeitos em e-1xj58pn-cwar2f: [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":4},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":0},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":1}] → [].",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":165} → {\"seed\":1002,\"counter\":196}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_jailer_room\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"XP_SPEND_PHASE\",\"to\":\"ROOM_EFFECT\",\"action\":\"CHECK_BOSS_CONDITION\"},\"seq\":1}].",
+			"Log atual: Caminho sorteado em segredo: 4 carta(s), 1 descarte(s).",
+			"Log atual: Sala sorteada: Sala do Carcereiro.",
+			"#47 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
+			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
+			"#48 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
+			"Fase: SPAWN_ENEMIES → COMBAT_START.",
+			"Limo das Pedras Úmidas (e-1v4awco-uuuha4) entrou em jogo.",
+			"Carcereiro da Masmorra Rubra (e-pp8j9m-fb764w) entrou em jogo.",
+			"enemyDeck.available: 15 → 14; adicionadas [], retiradas [\"creature_wet_stone_slime\"].",
+			"Efeitos em Limo das Pedras Úmidas (e-1v4awco-uuuha4): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":-1,\"source\":\"skill_gelatinous_body\",\"duration\":{\"kind\":\"while_source_in_play\"},\"sourceEntityId\":\"e-1v4awco-uuuha4\"}].",
+			"Efeitos em Carcereiro da Masmorra Rubra (e-pp8j9m-fb764w): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":4},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":0},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":1}].",
+			"Bloqueios: {} → {\"discardDungeonLocked\":[{\"source\":\"skill_path_corruption\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"e-pp8j9m-fb764w\"}]}.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":196} → {\"seed\":1002,\"counter\":200}.",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
+			"Log atual: Prevenção de descarte de dungeon bloqueada.",
+			"Log atual: 2 inimigo(s) aparecem: Limo das Pedras Úmidas, Carcereiro da Masmorra Rubra.",
+			"#49 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
+			"Fase: COMBAT_START → HERO_ACTION.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
+			"Log atual: Combate iniciado.",
+			"#50 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Carcereiro da Masmorra Rubra (e-pp8j9m-fb764w) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-pp8j9m-fb764w\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":true,\"targetChosen::e-pp8j9m-fb764w\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-pp8j9m-fb764w\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-pp8j9m-fb764w\"}].",
+			"#51 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [5, 3], hitBonus +14, Adaga Enferrujada +1 = 23.",
+			"Rolagem de Carcereiro da Masmorra Rubra (e-pp8j9m-fb764w): dados [1, 4], hitBonus +6, Despertar da Masmorra +1 = 12. Margem +11.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":200} → {\"seed\":1002,\"counter\":204}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-pp8j9m-fb764w\",\"heroTotal\":23,\"enemyTotal\":12,\"heroResults\":[5,3],\"enemyResults\":[1,4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 23 | Inimigo rolou 12.",
+			"#52 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (23) × Carcereiro da Masmorra Rubra (12); margem +11; dano do herói 4 Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6 = 11; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 11.",
+			"Dano attack: Bárbaro Rubro → Carcereiro da Masmorra Rubra; solicitado 11, após efeitos 11, aplicado 7; vida 7 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Carcereiro da Masmorra Rubra (e-pp8j9m-fb764w) recebeu 7 de dano (7 → 0).",
+			"Carcereiro da Masmorra Rubra (e-pp8j9m-fb764w): estado active → defeated.",
+			"Bloqueios: {\"discardDungeonLocked\":[{\"source\":\"skill_path_corruption\",\"duration\":{\"kind\":\"while_in_play\"},\"sourceEntityId\":\"e-pp8j9m-fb764w\"}]} → {\"discardDungeonLocked\":[]}.",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":true,\"targetChosen::e-pp8j9m-fb764w\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":false,\"targetChosen::e-pp8j9m-fb764w\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-pp8j9m-fb764w\",\"damageType\":\"attack\",\"amount\":11},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-pp8j9m-fb764w\",\"sourceId\":\"h-ubxiic-xlqfc0\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Carcereiro da Masmorra Rubra sofreu 11 de dano [dano 4→11: Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6]. Herói: dado(s) [5+3]=8, acerto +14, Adaga Enferrujada +1 → 23 vs inimigo: 12.",
+			"#53 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#54 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-pp8j9m-fb764w\"}] → [].",
+			"Log atual: Rodada 2 de combate.",
+			"#55 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Limo das Pedras Úmidas (e-1v4awco-uuuha4) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1v4awco-uuuha4\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":false,\"targetChosen::e-pp8j9m-fb764w\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":false,\"targetChosen::e-pp8j9m-fb764w\":true,\"targetChosen::e-1v4awco-uuuha4\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1v4awco-uuuha4\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1v4awco-uuuha4\"}].",
+			"#56 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [5, 4], hitBonus +14, Adaga Enferrujada +1 = 24.",
+			"Rolagem de Limo das Pedras Úmidas (e-1v4awco-uuuha4): dados [5], hitBonus +3, Despertar da Masmorra +1, skill_gelatinous_body -1 = 8. Margem +16.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":204} → {\"seed\":1002,\"counter\":207}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1v4awco-uuuha4\",\"heroTotal\":24,\"enemyTotal\":8,\"heroResults\":[5,4],\"enemyResults\":[5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 24 | Inimigo rolou 8.",
+			"#57 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Bárbaro Rubro (24) × Limo das Pedras Úmidas (8); margem +16; dano do herói 4 Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6 = 11; dano do inimigo 2 sem bônus = 2; dano previsto: herói 0, inimigo 11.",
+			"Dano attack: Bárbaro Rubro → Limo das Pedras Úmidas; solicitado 11, após efeitos 11, aplicado 3; vida 3 → 0.",
+			"Fase: RESOLVE_ATTACK → CHECK_COMBAT_END.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Limo das Pedras Úmidas (e-1v4awco-uuuha4) recebeu 3 de dano (3 → 0).",
+			"Limo das Pedras Úmidas (e-1v4awco-uuuha4): estado active → defeated.",
+			"Efeitos em Limo das Pedras Úmidas (e-1v4awco-uuuha4): [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":-1,\"source\":\"skill_gelatinous_body\",\"duration\":{\"kind\":\"while_source_in_play\"},\"sourceEntityId\":\"e-1v4awco-uuuha4\"}] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"e-1v4awco-uuuha4\",\"damageType\":\"attack\",\"amount\":11},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-1v4awco-uuuha4\",\"sourceId\":\"h-ubxiic-xlqfc0\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ubxiic-xlqfc0\"].",
+			"Log atual: Limo das Pedras Úmidas sofreu 11 de dano [dano 4→11: Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6]. Herói: dado(s) [5+4]=9, acerto +14, Adaga Enferrujada +1 → 24 vs inimigo: 8.",
+			"#58 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → REWARD_PHASE.",
+			"Rodada: 1 → 2.",
+			"Detalhe técnico creaturesDefeated: 4 → 6.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"REWARD_PHASE\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-ubxiic-xlqfc0\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"e-1v4awco-uuuha4\"}] → [].",
+			"Log atual: Sala limpa! Avançando para recompensa.",
+			"#59 Ação GRANT_REWARDS. Dados: {\"type\":\"GRANT_REWARDS\"}",
+			"XP do grupo: 4 → 12 (+8).",
+			"Recompensas na mesa: [] → [{\"type\":\"item\",\"cardId\":\"item_last_light_sword\",\"requiresBearer\":false}].",
+			"Artefatos do grupo: [{\"cardId\":\"artifact_lost_forge_hammer\",\"carriedBy\":null},{\"cardId\":\"artifact_first_fire_blade\",\"carriedBy\":null}] → [{\"cardId\":\"artifact_lost_forge_hammer\",\"carriedBy\":null},{\"cardId\":\"artifact_first_fire_blade\",\"carriedBy\":null},{\"cardId\":\"artifact_ancient_ember_heart\",\"carriedBy\":null},{\"cardId\":\"artifact_last_vigil_brazier\",\"carriedBy\":null}].",
+			"itemDeck.available: 29 → 28; adicionadas [], retiradas [\"item_last_light_sword\"].",
+			"artifactDeck.available: 3 → 1; adicionadas [], retiradas [\"artifact_ancient_ember_heart\",\"artifact_last_vigil_brazier\"].",
+			"Detalhe técnico subbosses: {\"available\":[],\"defeated\":[\"subboss_cracked_abyss_guardian\"]} → {\"available\":[],\"defeated\":[\"subboss_cracked_abyss_guardian\",\"subboss_crimson_dungeon_jailer\"]}.",
+			"Detalhe técnico roomsCleared: 2 → 3.",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomWon\",\"payload\":{\"roomId\":\"room_jailer_room\"},\"seq\":0},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"xp\",\"amount\":8},\"seq\":1},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_ancient_ember_heart\"},\"seq\":2},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"artifact\",\"cardId\":\"artifact_last_vigil_brazier\"},\"seq\":3},{\"type\":\"RewardGranted\",\"payload\":{\"kind\":\"item\",\"cardId\":\"item_last_light_sword\"},\"seq\":4}].",
+			"Log atual: Recompensas: +8 XP, 1 item(ns), 2 artefato(s). Resolvendo...",
+			"#60 Ação CHOOSE_ITEM_DESTINATION. Dados: {\"type\":\"CHOOSE_ITEM_DESTINATION\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"destination\":\"discard\"}}",
+			"Fase: REWARD_PHASE → XP_SPEND_PHASE.",
+			"Recompensas na mesa: [{\"type\":\"item\",\"cardId\":\"item_last_light_sword\",\"requiresBearer\":false}] → [].",
+			"Detalhe técnico events: [] → [{\"type\":\"ItemDiscarded\",\"payload\":{\"itemId\":\"item_last_light_sword\"},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"REWARD_PHASE\",\"to\":\"XP_SPEND_PHASE\",\"action\":\"CHOOSE_ITEM_DESTINATION\"},\"seq\":1}].",
+			"Log atual: Espada da Última Luz descartado.",
+			"#61 Ação SPEND_XP. Dados: {\"type\":\"SPEND_XP\",\"payload\":{\"option\":\"level_up\",\"heroId\":\"h-ubxiic-xlqfc0\"}}",
+			"Bárbaro Rubro ganhou 2 de vida por progressão (18 → 20).",
+			"XP do grupo: 12 → 2 (-10).",
+			"Despertar: 1 → 2.",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0) recuperou 2 de vida (18 → 20).",
+			"Detalhe técnico groupImpetoMilestone: 3 → 4.",
+			"Detalhe técnico events: [] → [{\"type\":\"DespertarChanged\",\"payload\":{\"from\":1,\"to\":2,\"cause\":\"level_up\"},\"seq\":0}].",
+			"Log atual: Bárbaro Rubro subiu para nível 5. O Despertar avança com o grupo.",
+			"#62 Ação CHECK_BOSS_CONDITION. Dados: {\"type\":\"CHECK_BOSS_CONDITION\"}",
 			"Fase: XP_SPEND_PHASE → BOSS_REVEAL.",
 			"Etapa de combate: direct_damage → selecting_hero.",
-			"Rodada: 4 → 0.",
+			"Rodada: 2 → 0.",
 			"Sala: Sala do Carcereiro → nenhuma.",
-			"dungeonDeck.discarded: 1 → 2; adicionadas [\"room_jailer_room\"], retiradas [].",
+			"dungeonDeck.discarded: 5 → 6; adicionadas [\"room_jailer_room\"], retiradas [].",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"XP_SPEND_PHASE\",\"to\":\"BOSS_REVEAL\",\"action\":\"CHECK_BOSS_CONDITION\"},\"seq\":0}].",
 			"Log atual: Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
-			"#29 Ação REVEAL_BOSS. Dados: {\"type\":\"REVEAL_BOSS\"}",
+			"#63 Ação REVEAL_BOSS. Dados: {\"type\":\"REVEAL_BOSS\"}",
 			"Fase: BOSS_REVEAL → BOSS_COMBAT.",
 			"Azhakar, Dragão da Fornalha Sombria (boss) entrou em jogo.",
 			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_REVEAL\",\"to\":\"BOSS_COMBAT\",\"action\":\"REVEAL_BOSS\"},\"seq\":0}].",
-			"Log atual: Azhakar, Dragão da Fornalha Sombria revelado! Vida: 22, Bônus de Acerto: 13.",
-			"#30 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
-			"#31 Herói selecionado: Bárbaro Rubro (h-1utkz56-1yfilh1). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\"}}",
-			"Etapa de combate: selecting_hero → selecting_target.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
-			"Log atual: Bárbaro Rubro selecionado para agir.",
-			"#32 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}}",
+			"Log atual: Azhakar, Dragão da Fornalha Sombria revelado! Vida: 20, Bônus de Acerto: 14.",
+			"#64 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#65 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}}",
 			"Fase: BOSS_COMBAT → ROLL_DICE.",
-			"Etapa de combate: selecting_target → resolving.",
-			"Detalhe técnico flags: {\"discardDungeonLocked\":false,\"targetChosen::e-hva3gr-1f5lt2a\":true,\"targetChosen::e-1w53v33-1k8sam0\":true} → {\"discardDungeonLocked\":false,\"targetChosen::e-hva3gr-1f5lt2a\":true,\"targetChosen::e-1w53v33-1k8sam0\":true,\"targetChosen::boss\":true}.",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}].",
-			"#33 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [5, 6], hitBonus +14 = 25.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [1, 6, 2], hitBonus +13 = 22. Margem +3.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Detalhe técnico flags: {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":false,\"targetChosen::e-pp8j9m-fb764w\":true,\"targetChosen::e-1v4awco-uuuha4\":true} → {\"targetChosen::e-x92ns7-4mltxg\":true,\"targetChosen::e-1nrtnje-d3zs0l\":true,\"targetChosen::e-1xj58pn-cwar2f\":true,\"targetChosen::e-t6fufr-9bgo0l\":true,\"discardDungeonLocked\":false,\"targetChosen::e-pp8j9m-fb764w\":true,\"targetChosen::e-1v4awco-uuuha4\":true,\"targetChosen::boss\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}].",
+			"#66 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [4, 1, 3], hitBonus +18, Adaga Enferrujada +1, Coração de Brasa Antiga +1 = 28.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [3, 5, 3], hitBonus +14, Despertar da Masmorra +1 = 26. Margem +2.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":116} → {\"seed\":1000,\"counter\":121}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\",\"heroTotal\":25,\"enemyTotal\":22,\"heroResults\":[5,6],\"enemyResults\":[1,6,2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 25 | Inimigo rolou 22.",
-			"#34 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Bárbaro Rubro → Azhakar, Dragão da Fornalha Sombria; solicitado 3, após efeitos 3, aplicado 3; vida 22 → 19.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":207} → {\"seed\":1002,\"counter\":213}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\",\"heroTotal\":28,\"enemyTotal\":26,\"heroResults\":[4,1,3],\"enemyResults\":[3,5,3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 28 | Inimigo rolou 26.",
+			"#67 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Bárbaro Rubro → Azhakar, Dragão da Fornalha Sombria; solicitado 9, após efeitos 9, aplicado 9; vida 20 → 11.",
 			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
 			"Etapa de combate: resolving → selecting_hero.",
 			"Rodada: 0 → 1.",
-			"Herói em foco no combate: Bárbaro Rubro (h-1utkz56-1yfilh1) → desconhecido.",
-			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 3 de dano (22 → 19).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"boss\",\"damageType\":\"attack\",\"amount\":3},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":3}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Trono Vivo: dano ao boss reduzido em 1.",
-			"Log atual: Boss sofreu 3 de dano. Vida restante: 19.",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 9 de dano (20 → 11).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"boss\",\"damageType\":\"attack\",\"amount\":9},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3},{\"id\":9,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Habilidade do chefe: dano reduzido em 1.",
+			"Log atual: Boss sofreu 9 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 11.",
 			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#35 Herói selecionado: Bárbaro Rubro (h-1utkz56-1yfilh1). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\"}}",
+			"#68 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#69 Herói selecionado: Bárbaro Rubro (h-ubxiic-xlqfc0). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\"}}",
 			"Etapa de combate: selecting_hero → selecting_target.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
 			"Log atual: Bárbaro Rubro selecionado para agir.",
-			"#36 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}}",
+			"#70 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}}",
 			"Fase: BOSS_COMBAT → ROLL_DICE.",
 			"Etapa de combate: selecting_target → resolving.",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}].",
-			"#37 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [4, 4], hitBonus +14 = 22.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [5, 5, 6], hitBonus +13 = 29. Margem -7.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}].",
+			"#71 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [4, 3, 2], hitBonus +18, Adaga Enferrujada +1, Coração de Brasa Antiga +1 = 29.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [2, 6, 6], hitBonus +14, Despertar da Masmorra +1 = 29. Margem +0.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":121} → {\"seed\":1000,\"counter\":126}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\",\"heroTotal\":22,\"enemyTotal\":29,\"heroResults\":[4,4],\"enemyResults\":[5,5,6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 22 | Inimigo rolou 29.",
-			"#38 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Bárbaro Rubro; solicitado 6, após efeitos 6, aplicado 6; vida 18 → 12.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":213} → {\"seed\":1002,\"counter\":219}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\",\"heroTotal\":29,\"enemyTotal\":29,\"heroResults\":[4,3,2],\"enemyResults\":[2,6,6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 29 | Inimigo rolou 29.",
+			"#72 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Bárbaro Rubro; solicitado 1, após efeitos 1, aplicado 1; vida 20 → 19.",
 			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
 			"Etapa de combate: resolving → selecting_hero.",
 			"Rodada: 1 → 2.",
-			"Herói em foco no combate: Bárbaro Rubro (h-1utkz56-1yfilh1) → desconhecido.",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1) recebeu 6 de dano (18 → 12).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-1utkz56-1yfilh1\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":3}] → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Bárbaro Rubro (h-ubxiic-xlqfc0) recebeu 1 de dano (20 → 19).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-ubxiic-xlqfc0\",\"damageType\":\"attack\",\"amount\":1},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3},{\"id\":9,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3},{\"id\":9,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9},{\"id\":10,\"targetId\":\"h-ubxiic-xlqfc0\",\"side\":\"hero\",\"amount\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Habilidade do chefe: dano reduzido em 1.",
+			"Log atual: Boss sofreu 0 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 11.",
+			"Log atual: Bárbaro Rubro sofreu 1 de dano do boss.",
 			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#39 Herói selecionado: Bárbaro Rubro (h-1utkz56-1yfilh1). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\"}}",
+			"#73 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#74 Herói selecionado: Bárbaro Rubro (h-ubxiic-xlqfc0). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\"}}",
 			"Etapa de combate: selecting_hero → selecting_target.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
 			"Log atual: Bárbaro Rubro selecionado para agir.",
-			"#40 Herói selecionado: Bárbaro Rubro (h-1utkz56-1yfilh1). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\"}}",
+			"#75 Herói selecionado: Bárbaro Rubro (h-ubxiic-xlqfc0). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\"}}",
 			"Log atual: Bárbaro Rubro selecionado para agir.",
-			"#41 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
-			"#42 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
-			"#43 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}}",
+			"#76 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#77 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}}",
 			"Fase: BOSS_COMBAT → ROLL_DICE.",
 			"Etapa de combate: selecting_target → resolving.",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}].",
-			"#44 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [4, 4], hitBonus +14 = 22.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [2, 4, 5], hitBonus +13 = 24. Margem -2.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}].",
+			"#78 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [1, 1, 6], hitBonus +18, Adaga Enferrujada +1, Coração de Brasa Antiga +1 = 28.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [5, 5, 1], hitBonus +14, Despertar da Masmorra +1 = 26. Margem +2.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":126} → {\"seed\":1000,\"counter\":131}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\",\"heroTotal\":22,\"enemyTotal\":24,\"heroResults\":[4,4],\"enemyResults\":[2,4,5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 22 | Inimigo rolou 24.",
-			"#45 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Bárbaro Rubro; solicitado 6, após efeitos 6, aplicado 6; vida 12 → 6.",
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":219} → {\"seed\":1002,\"counter\":225}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\",\"heroTotal\":28,\"enemyTotal\":26,\"heroResults\":[1,1,6],\"enemyResults\":[5,5,1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 28 | Inimigo rolou 26.",
+			"#79 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Bárbaro Rubro → Azhakar, Dragão da Fornalha Sombria; solicitado 9, após efeitos 9, aplicado 9; vida 11 → 2.",
 			"Fase: RESOLVE_ATTACK → BOSS_COMBAT.",
 			"Etapa de combate: resolving → selecting_hero.",
 			"Rodada: 2 → 3.",
-			"Herói em foco no combate: Bárbaro Rubro (h-1utkz56-1yfilh1) → desconhecido.",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1) recebeu 6 de dano (12 → 6).",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-1utkz56-1yfilh1\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6}].",
-			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}] → [].",
-			"Log atual: Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Herói em foco no combate: Bárbaro Rubro (h-ubxiic-xlqfc0) → desconhecido.",
+			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 9 de dano (11 → 2).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"boss\",\"damageType\":\"attack\",\"amount\":9},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"BOSS_COMBAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3},{\"id\":9,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9},{\"id\":10,\"targetId\":\"h-ubxiic-xlqfc0\",\"side\":\"hero\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3},{\"id\":9,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9},{\"id\":10,\"targetId\":\"h-ubxiic-xlqfc0\",\"side\":\"hero\",\"amount\":1},{\"id\":11,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}] → [].",
+			"Log atual: Habilidade do chefe: dano reduzido em 1.",
+			"Log atual: Boss sofreu 9 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 2.",
 			"Log atual: Boss sobreviveu. Próxima rodada.",
-			"#46 Bárbaro Rubro (h-1utkz56-1yfilh1) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}}",
+			"#80 Ação START_BOSS_COMBAT. Dados: {\"type\":\"START_BOSS_COMBAT\"}",
+			"#81 Herói selecionado: Bárbaro Rubro (h-ubxiic-xlqfc0). Dados: {\"type\":\"CHOOSE_HERO_FOR_ROUND\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\"}}",
+			"Etapa de combate: selecting_hero → selecting_target.",
+			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-ubxiic-xlqfc0).",
+			"Log atual: Bárbaro Rubro selecionado para agir.",
+			"#82 Bárbaro Rubro (h-ubxiic-xlqfc0) iniciou ataque contra Azhakar, Dragão da Fornalha Sombria (boss) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}}",
 			"Fase: BOSS_COMBAT → ROLL_DICE.",
-			"Etapa de combate: selecting_hero → resolving.",
-			"Herói em foco no combate: desconhecido → Bárbaro Rubro (h-1utkz56-1yfilh1).",
-			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1utkz56-1yfilh1\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
-			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\"}].",
-			"#47 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
-			"Rolagem de Bárbaro Rubro (h-1utkz56-1yfilh1): dados [1, 1], hitBonus +14 = 16.",
-			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [6, 2, 4], hitBonus +13 = 25. Margem -9.",
+			"Etapa de combate: selecting_target → resolving.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"boss\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"BOSS_COMBAT\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\"}].",
+			"#83 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Bárbaro Rubro (h-ubxiic-xlqfc0): dados [5, 4, 2], hitBonus +18, Adaga Enferrujada +1, Coração de Brasa Antiga +1 = 31.",
+			"Rolagem de Azhakar, Dragão da Fornalha Sombria (boss): dados [3, 2, 2], hitBonus +14, Despertar da Masmorra +1 = 22. Margem +9.",
 			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
-			"Detalhe técnico rng: {\"seed\":1000,\"counter\":131} → {\"seed\":1000,\"counter\":136}.",
-			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"enemyId\":\"boss\",\"heroTotal\":16,\"enemyTotal\":25,\"heroResults\":[1,1],\"enemyResults\":[6,2,4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
-			"Log atual: Herói rolou 16 | Inimigo rolou 25.",
-			"#48 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
-			"Dano attack: Azhakar, Dragão da Fornalha Sombria → Bárbaro Rubro; solicitado 6, após efeitos 6, aplicado 6; vida 6 → 0.",
-			"Fase: RESOLVE_ATTACK → DEFEAT.",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1) recebeu 6 de dano (6 → 0).",
-			"Bárbaro Rubro (h-1utkz56-1yfilh1): estado active → defeated.",
-			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"boss\",\"targetId\":\"h-1utkz56-1yfilh1\",\"damageType\":\"attack\",\"amount\":6},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-1utkz56-1yfilh1\",\"sourceId\":\"boss\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DEFEAT\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
-			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6}] → [{\"id\":1,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":4},{\"id\":2,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":4},{\"id\":3,\"targetId\":\"e-1w53v33-1k8sam0\",\"side\":\"enemy\",\"amount\":2},{\"id\":4,\"targetId\":\"e-hva3gr-1f5lt2a\",\"side\":\"enemy\",\"amount\":1},{\"id\":5,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":3},{\"id\":6,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6},{\"id\":7,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6},{\"id\":8,\"targetId\":\"h-1utkz56-1yfilh1\",\"side\":\"hero\",\"amount\":6}].",
-			"Log atual: Bárbaro Rubro sofreu 6 de dano do boss.",
-			"Log atual: Derrota: herói eliminado pelo boss."
+			"Detalhe técnico rng: {\"seed\":1002,\"counter\":225} → {\"seed\":1002,\"counter\":231}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ubxiic-xlqfc0\",\"enemyId\":\"boss\",\"heroTotal\":31,\"enemyTotal\":22,\"heroResults\":[5,4,2],\"enemyResults\":[3,2,2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 31 | Inimigo rolou 22.",
+			"#84 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Dano attack: Bárbaro Rubro → Azhakar, Dragão da Fornalha Sombria; solicitado 11, após efeitos 11, aplicado 2; vida 2 → 0.",
+			"Fase: RESOLVE_ATTACK → VICTORY.",
+			"Azhakar, Dragão da Fornalha Sombria (boss) recebeu 2 de dano (2 → 0).",
+			"Azhakar, Dragão da Fornalha Sombria (boss): estado active → defeated.",
+			"Detalhe técnico bossDefeated: false → true.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ubxiic-xlqfc0\",\"targetId\":\"boss\",\"damageType\":\"attack\",\"amount\":11},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"boss\",\"sourceId\":\"h-ubxiic-xlqfc0\",\"roomFirstKill\":false},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"VICTORY\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3},{\"id\":9,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9},{\"id\":10,\"targetId\":\"h-ubxiic-xlqfc0\",\"side\":\"hero\",\"amount\":1},{\"id\":11,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9}] → [{\"id\":1,\"targetId\":\"e-x92ns7-4mltxg\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"e-1nrtnje-d3zs0l\",\"side\":\"enemy\",\"amount\":2},{\"id\":3,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":4,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":4},{\"id\":5,\"targetId\":\"e-1xj58pn-cwar2f\",\"side\":\"enemy\",\"amount\":4},{\"id\":6,\"targetId\":\"e-t6fufr-9bgo0l\",\"side\":\"enemy\",\"amount\":1},{\"id\":7,\"targetId\":\"e-pp8j9m-fb764w\",\"side\":\"enemy\",\"amount\":7},{\"id\":8,\"targetId\":\"e-1v4awco-uuuha4\",\"side\":\"enemy\",\"amount\":3},{\"id\":9,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9},{\"id\":10,\"targetId\":\"h-ubxiic-xlqfc0\",\"side\":\"hero\",\"amount\":1},{\"id\":11,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":9},{\"id\":12,\"targetId\":\"boss\",\"side\":\"enemy\",\"amount\":2}].",
+			"Log atual: Habilidade do chefe: +2 no acerto.",
+			"Log atual: Habilidade do chefe: dano reduzido em 1.",
+			"Log atual: Boss sofreu 11 de dano [dano 4→12: Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6, Coração de Brasa Antiga +1]. Vida restante: 0.",
+			"Log atual: Boss derrotado! Vitória!"
 		],
 		"bossCardId": "boss_azhakar",
 		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
@@ -651,216 +1124,291 @@
 				"enemyBreakdown": [
 					{
 						"source": "hitBonus",
-						"value": 13
+						"value": 14
+					},
+					{
+						"source": "Despertar da Masmorra",
+						"value": 1
 					}
 				],
 				"enemyId": "boss",
 				"enemyResults": [
-					6,
+					3,
 					2,
-					4
+					2
 				],
-				"enemyTotal": 25,
+				"enemyTotal": 22,
 				"heroBreakdown": [
 					{
 						"source": "hitBonus",
-						"value": 14
+						"value": 18
+					},
+					{
+						"source": "Adaga Enferrujada",
+						"value": 1
+					},
+					{
+						"source": "Coração de Brasa Antiga",
+						"value": 1
 					}
 				],
-				"heroId": "h-1utkz56-1yfilh1",
+				"heroId": "h-ubxiic-xlqfc0",
 				"heroResults": [
-					1,
-					1
+					5,
+					4,
+					2
 				],
-				"heroTotal": 16
+				"heroTotal": 31
 			},
 			"phase": "resolving",
 			"powersUsedThisRoom": {},
 			"round": 3,
-			"selectedHeroId": "h-1utkz56-1yfilh1"
+			"selectedHeroId": "h-ubxiic-xlqfc0"
 		},
-		"creaturesDefeated": 2,
+		"creaturesDefeated": 6,
 		"currentRoom": null,
 		"damageFeedback": [
 			{
-				"amount": 4,
+				"amount": 2,
 				"id": 1,
 				"side": "enemy",
-				"targetId": "e-hva3gr-1f5lt2a"
-			},
-			{
-				"amount": 4,
-				"id": 2,
-				"side": "enemy",
-				"targetId": "e-1w53v33-1k8sam0"
+				"targetId": "e-x92ns7-4mltxg"
 			},
 			{
 				"amount": 2,
+				"id": 2,
+				"side": "enemy",
+				"targetId": "e-1nrtnje-d3zs0l"
+			},
+			{
+				"amount": 4,
 				"id": 3,
 				"side": "enemy",
-				"targetId": "e-1w53v33-1k8sam0"
+				"targetId": "e-1xj58pn-cwar2f"
+			},
+			{
+				"amount": 4,
+				"id": 4,
+				"side": "enemy",
+				"targetId": "e-t6fufr-9bgo0l"
+			},
+			{
+				"amount": 4,
+				"id": 5,
+				"side": "enemy",
+				"targetId": "e-1xj58pn-cwar2f"
 			},
 			{
 				"amount": 1,
-				"id": 4,
+				"id": 6,
 				"side": "enemy",
-				"targetId": "e-hva3gr-1f5lt2a"
+				"targetId": "e-t6fufr-9bgo0l"
+			},
+			{
+				"amount": 7,
+				"id": 7,
+				"side": "enemy",
+				"targetId": "e-pp8j9m-fb764w"
 			},
 			{
 				"amount": 3,
-				"id": 5,
+				"id": 8,
+				"side": "enemy",
+				"targetId": "e-1v4awco-uuuha4"
+			},
+			{
+				"amount": 9,
+				"id": 9,
 				"side": "enemy",
 				"targetId": "boss"
 			},
 			{
-				"amount": 6,
-				"id": 6,
+				"amount": 1,
+				"id": 10,
 				"side": "hero",
-				"targetId": "h-1utkz56-1yfilh1"
+				"targetId": "h-ubxiic-xlqfc0"
 			},
 			{
-				"amount": 6,
-				"id": 7,
-				"side": "hero",
-				"targetId": "h-1utkz56-1yfilh1"
+				"amount": 9,
+				"id": 11,
+				"side": "enemy",
+				"targetId": "boss"
 			},
 			{
-				"amount": 6,
-				"id": 8,
-				"side": "hero",
-				"targetId": "h-1utkz56-1yfilh1"
+				"amount": 2,
+				"id": 12,
+				"side": "enemy",
+				"targetId": "boss"
 			}
 		],
 		"decks": {
 			"artifactDeck": {
 				"available": [
-					"artifact_first_fire_blade",
-					"artifact_ancient_ember_heart",
 					"artifact_crimson_jailer_chain"
 				],
 				"discarded": 0
 			},
 			"dungeonDeck": {
-				"available": 18,
+				"available": 14,
 				"discarded": [
-					"room_broken_columns_hall",
+					"room_dungeon_room",
+					"room_abandoned_cell",
+					"room_narrow_corridor",
+					"room_cracked_abyss",
+					"room_jailer_room",
 					"room_jailer_room"
 				]
 			},
 			"enemyDeck": {
-				"available": 17,
+				"available": 14,
 				"discarded": 0
 			},
 			"itemDeck": {
 				"available": [
-					"item_lesser_vigor_potion",
-					"item_rusty_dagger",
-					"item_broken_veil_cloak",
-					"item_return_potion",
-					"item_torn_depths_map",
-					"item_warm_blood_charm",
-					"item_light_stone_boots",
-					"item_crimson_rune_staff",
-					"item_greater_vigor_potion",
-					"item_silent_dungeon_charm",
-					"item_deep_veil_scythe",
-					"item_last_light_sword",
-					"item_worn_explorer_rope",
-					"item_ancient_metal_armor",
-					"item_ruined_hall_axe",
-					"item_last_defense_charm",
-					"item_stoneskin_potion",
-					"item_low_flame_charm",
-					"item_precision_potion",
-					"item_hidden_forge_chest",
-					"item_narrow_exit_cloak",
-					"item_pitch_torch",
-					"item_last_chord_lute",
-					"item_incendiary_oil_flask",
-					"item_ancient_iron_key",
+					"item_tunnel_hood",
 					"item_fury_potion",
-					"item_rift_bow",
+					"item_light_stone_boots",
+					"item_lesser_vigor_potion",
+					"item_crimson_rune_staff",
 					"item_living_ember_potion",
+					"item_worn_explorer_rope",
+					"item_precision_potion",
+					"item_torn_depths_map",
+					"item_deep_veil_scythe",
+					"item_narrow_exit_cloak",
+					"item_warm_blood_charm",
 					"item_broken_stone_hammer",
-					"item_forge_magic_armor",
-					"item_cracked_shield",
-					"item_reinforced_leather_armor"
+					"item_stoneskin_potion",
+					"item_last_chord_lute",
+					"item_pitch_torch",
+					"item_return_potion",
+					"item_last_defense_charm",
+					"item_hidden_forge_chest",
+					"item_broken_veil_cloak",
+					"item_rift_bow",
+					"item_incendiary_oil_flask",
+					"item_ruined_hall_axe",
+					"item_ancient_metal_armor",
+					"item_reinforced_leather_armor",
+					"item_silent_dungeon_charm",
+					"item_safe_path_charm",
+					"item_ancient_iron_key"
 				],
 				"discarded": 0
 			}
 		},
-		"despertar": 1,
+		"despertar": 2,
+		"difficulty": "very_easy",
 		"enemies": [
 			{
 				"cardId": "boss_azhakar",
 				"conditions": [],
-				"currentLife": 19,
+				"currentLife": 0,
 				"damage": 6,
 				"dice": 3,
 				"firstDamageTakenThisTurn": false,
-				"hitBonus": 13,
+				"hitBonus": 14,
 				"id": "boss",
-				"maxLife": 22,
-				"status": "active",
+				"maxLife": 20,
+				"status": "defeated",
 				"tokens": {}
 			}
 		],
 		"eventLog": [
 			"Partida iniciada. Heróis: Bárbaro Rubro. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Sala sorteada: Sala da Masmorra.",
+			"1 inimigo(s) aparecem: Morcego do Teto Negro.",
+			"Combate iniciado.",
+			"Herói rolou 18 | Inimigo rolou 8.",
+			"Morcego do Teto Negro sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 8.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +3 XP, 2 item(ns), 0 artefato(s). Resolvendo...",
+			"Armadura Mágica da Fornalha atribuído a h-ubxiic-xlqfc0.",
+			"Encanto da Chama Baixa atribuído a h-ubxiic-xlqfc0.",
+			"Caminho sorteado em segredo: 3 carta(s), 1 descarte(s).",
+			"Sala sorteada: Abismo Rachado.",
+			"3 inimigo(s) aparecem: Verme das Cinzas Quentes, Ogro do Salão Arruinado, Guardião do Abismo Rachado.",
+			"Combate iniciado.",
+			"Herói rolou 20 | Inimigo rolou 2.",
+			"Verme das Cinzas Quentes sofreu 4 de dano. Herói: dado(s) [4+6]=10, acerto +10 → 20 vs inimigo: 2.",
+			"Ataque extra: Ogro do Salão Arruinado rolou 7 contra Bárbaro Rubro (15) e não causou dano.",
+			"Rodada 2 de combate.",
+			"Herói rolou 20 | Inimigo rolou 6.",
+			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [4+6]=10, acerto +10 → 20 vs inimigo: 6.",
+			"Ataque extra: Ogro do Salão Arruinado rolou 9 contra Bárbaro Rubro (13) e não causou dano.",
+			"Rodada 3 de combate.",
+			"Herói rolou 19 | Inimigo rolou 7.",
+			"Ogro do Salão Arruinado sofreu 4 de dano. Herói: dado(s) [4+5]=9, acerto +10 → 19 vs inimigo: 7.",
+			"Ataque extra: Guardião do Abismo Rachado rolou 9 contra Bárbaro Rubro (12) e não causou dano.",
+			"Rodada 4 de combate.",
+			"Herói rolou 13 | Inimigo rolou 11.",
+			"Guardião do Abismo Rachado sofreu 4 de dano. Herói: dado(s) [1+2]=3, acerto +10 → 13 vs inimigo: 11.",
+			"Rodada 5 de combate.",
+			"Herói rolou 17 | Inimigo rolou 8.",
+			"Ogro do Salão Arruinado sofreu 4 de dano. Herói: dado(s) [3+4]=7, acerto +10 → 17 vs inimigo: 8.",
+			"Sala limpa! Avançando para recompensa.",
+			"Recompensas: +11 XP, 3 item(ns), 2 artefato(s). Resolvendo...",
+			"Escudo Rachado atribuído a h-ubxiic-xlqfc0.",
+			"Poção de Vigor Maior atribuído a h-ubxiic-xlqfc0.",
+			"Adaga Enferrujada atribuído a h-ubxiic-xlqfc0.",
+			"Bárbaro Rubro subiu para nível 4. O Despertar avança com o grupo.",
+			"Caminho sorteado em segredo: 4 carta(s), 1 descarte(s).",
 			"Sala sorteada: Sala do Carcereiro.",
 			"Prevenção de descarte de dungeon bloqueada.",
-			"2 inimigo(s) aparecem: Esqueleto das Catacumbas, Carcereiro da Masmorra Rubra.",
+			"2 inimigo(s) aparecem: Limo das Pedras Úmidas, Carcereiro da Masmorra Rubra.",
 			"Combate iniciado.",
-			"Herói rolou 18 | Inimigo rolou 9.",
-			"Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 9.",
-			"Ataque extra: Carcereiro da Masmorra Rubra rolou 9 contra Bárbaro Rubro (19) e não causou dano.",
+			"Herói rolou 23 | Inimigo rolou 12.",
+			"Carcereiro da Masmorra Rubra sofreu 11 de dano [dano 4→11: Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6]. Herói: dado(s) [5+3]=8, acerto +14, Adaga Enferrujada +1 → 23 vs inimigo: 12.",
 			"Rodada 2 de combate.",
-			"Herói rolou 15 | Inimigo rolou 7.",
-			"Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [1+4]=5, acerto +10 → 15 vs inimigo: 7.",
-			"Ataque extra: Esqueleto das Catacumbas rolou 8 contra Bárbaro Rubro (15) e não causou dano.",
-			"Rodada 3 de combate.",
-			"Herói rolou 12 | Inimigo rolou 6.",
-			"Carcereiro da Masmorra Rubra sofreu 4 de dano. Herói: dado(s) [1+1]=2, acerto +10 → 12 vs inimigo: 6.",
-			"Rodada 4 de combate.",
-			"Herói rolou 18 | Inimigo rolou 6.",
-			"Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 6.",
+			"Herói rolou 24 | Inimigo rolou 8.",
+			"Limo das Pedras Úmidas sofreu 11 de dano [dano 4→11: Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6]. Herói: dado(s) [5+4]=9, acerto +14, Adaga Enferrujada +1 → 24 vs inimigo: 8.",
 			"Sala limpa! Avançando para recompensa.",
-			"Recompensas: +10 XP, 2 item(ns), 2 artefato(s). Resolvendo...",
-			"Encanto do Caminho Seguro atribuído a h-1utkz56-1yfilh1.",
-			"Capuz do Túnel atribuído a h-1utkz56-1yfilh1.",
-			"Bárbaro Rubro subiu para nível 4. Despertar avança.",
+			"Recompensas: +8 XP, 1 item(ns), 2 artefato(s). Resolvendo...",
+			"Espada da Última Luz descartado.",
+			"Bárbaro Rubro subiu para nível 5. O Despertar avança com o grupo.",
 			"Condição do boss atendida! O grupo pode enfrentar o chefe ou continuar explorando.",
-			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 22, Bônus de Acerto: 13.",
-			"Bárbaro Rubro selecionado para agir.",
-			"Herói rolou 25 | Inimigo rolou 22.",
-			"Trono Vivo: dano ao boss reduzido em 1.",
-			"Boss sofreu 3 de dano. Vida restante: 19.",
+			"Azhakar, Dragão da Fornalha Sombria revelado! Vida: 20, Bônus de Acerto: 14.",
+			"Herói rolou 28 | Inimigo rolou 26.",
+			"Habilidade do chefe: dano reduzido em 1.",
+			"Boss sofreu 9 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 11.",
 			"Boss sobreviveu. Próxima rodada.",
 			"Bárbaro Rubro selecionado para agir.",
-			"Herói rolou 22 | Inimigo rolou 29.",
-			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Herói rolou 29 | Inimigo rolou 29.",
+			"Habilidade do chefe: dano reduzido em 1.",
+			"Boss sofreu 0 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 11.",
+			"Bárbaro Rubro sofreu 1 de dano do boss.",
 			"Boss sobreviveu. Próxima rodada.",
 			"Bárbaro Rubro selecionado para agir.",
 			"Bárbaro Rubro selecionado para agir.",
-			"Herói rolou 22 | Inimigo rolou 24.",
-			"Bárbaro Rubro sofreu 6 de dano do boss.",
+			"Herói rolou 28 | Inimigo rolou 26.",
+			"Habilidade do chefe: dano reduzido em 1.",
+			"Boss sofreu 9 de dano [dano 4→10: Lâmina do Primeiro Incêndio +6]. Vida restante: 2.",
 			"Boss sobreviveu. Próxima rodada.",
-			"Herói rolou 16 | Inimigo rolou 25.",
-			"Bárbaro Rubro sofreu 6 de dano do boss.",
-			"Derrota: herói eliminado pelo boss."
+			"Bárbaro Rubro selecionado para agir.",
+			"Herói rolou 31 | Inimigo rolou 22.",
+			"Habilidade do chefe: +2 no acerto.",
+			"Habilidade do chefe: dano reduzido em 1.",
+			"Boss sofreu 11 de dano [dano 4→12: Adaga Enferrujada +1, Lâmina do Primeiro Incêndio +6, Coração de Brasa Antiga +1]. Vida restante: 0.",
+			"Boss derrotado! Vitória!"
 		],
 		"extraAttackFeedback": [
 			{
-				"enemyCardId": "subboss_crimson_dungeon_jailer",
-				"enemyId": "e-1w53v33-1k8sam0",
-				"heroId": "h-1utkz56-1yfilh1",
+				"enemyCardId": "creature_ruined_hall_ogre",
+				"enemyId": "e-t6fufr-9bgo0l",
+				"heroId": "h-ubxiic-xlqfc0",
 				"id": 1
 			},
 			{
-				"enemyCardId": "creature_catacomb_skeleton",
-				"enemyId": "e-hva3gr-1f5lt2a",
-				"heroId": "h-1utkz56-1yfilh1",
+				"enemyCardId": "creature_ruined_hall_ogre",
+				"enemyId": "e-t6fufr-9bgo0l",
+				"heroId": "h-ubxiic-xlqfc0",
 				"id": 2
+			},
+			{
+				"enemyCardId": "subboss_cracked_abyss_guardian",
+				"enemyId": "e-1xj58pn-cwar2f",
+				"heroId": "h-ubxiic-xlqfc0",
+				"id": 3
 			}
 		],
 		"groupArtifacts": [
@@ -869,43 +1417,55 @@
 				"carriedBy": null
 			},
 			{
+				"cardId": "artifact_first_fire_blade",
+				"carriedBy": null
+			},
+			{
+				"cardId": "artifact_ancient_ember_heart",
+				"carriedBy": null
+			},
+			{
 				"cardId": "artifact_last_vigil_brazier",
 				"carriedBy": null
 			}
 		],
 		"groupBuffs": [],
-		"groupXp": 0,
+		"groupXp": 2,
 		"healFeedback": [],
 		"heroes": [
 			{
-				"activeItems": {},
+				"activeItems": {
+					"hand1": "item_greater_vigor_potion",
+					"hand2": "item_rusty_dagger"
+				},
 				"backpack": [
-					"item_safe_path_charm",
-					"item_tunnel_hood"
+					"item_forge_magic_armor",
+					"item_low_flame_charm",
+					"item_cracked_shield"
 				],
 				"cardId": "hero_crimson_barbarian",
 				"conditions": [],
-				"currentLife": 0,
+				"currentLife": 19,
 				"damage": 4,
-				"dice": 2,
-				"hitBonus": 14,
-				"id": "h-1utkz56-1yfilh1",
-				"impeto": 3,
-				"maxLife": 18,
+				"dice": 3,
+				"hitBonus": 18,
+				"id": "h-ubxiic-xlqfc0",
+				"impeto": 4,
+				"maxLife": 20,
 				"playerIndex": 0,
-				"status": "defeated",
+				"status": "active",
 				"usedPowers": {},
 				"xp": 0
 			}
 		],
 		"inventoryByHero": {
-			"h-1utkz56-1yfilh1": {
+			"h-ubxiic-xlqfc0": {
 				"exhaustedItemIds": [],
 				"stats": {
-					"damage": 4,
-					"damageBonus": 0,
-					"hit": 14,
-					"hitBonus": 0,
+					"damage": 12,
+					"damageBonus": 8,
+					"hit": 20,
+					"hitBonus": 2,
 					"protection": 0,
 					"protectionText": ""
 				},
@@ -919,7 +1479,7 @@
 		"pendingSkillChoice": null,
 		"pendingSkillTarget": null,
 		"pendingTriggerInterrupt": null,
-		"roomsCleared": 1,
-		"status": "DEFEAT"
+		"roomsCleared": 3,
+		"status": "VICTORY"
 	}
 }

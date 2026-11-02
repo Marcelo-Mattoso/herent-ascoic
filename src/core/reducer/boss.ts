@@ -1,5 +1,10 @@
+import { checkBossCondition } from "../rules/conditions";
+import { inlineBossHitBonus, inlineBossDamageReduction, markInlineBossSkillsUsed } from "../rules/bossSkills";
+import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import { drainStack } from "../effects/resolver";
 import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
 import { calculateTotal, resolveAttack } from "../rules/combat";
+import { dungeonAwakeningEffect, piercedItemReduction } from "../rules/dungeonAwakening";
 import { rollDiceRng } from "../rules/dice";
 import {
 	collectHeroDamageBonusesFromItems,
@@ -16,16 +21,14 @@ import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { applyDamage } from "../systems/damageSystem";
-import { discardFromDungeonDeck } from "./exploration";
 import { recordEvent } from "../events/record";
 import { log } from "./utils";
-import { bossCard as bossCardOf, cardName } from "../gameEngine";
+import { cardById, cardName } from "../gameEngine";
 import type { GameEngine, GameHandler } from "../gameEngine";
 import type { Action } from "../actions/types";
 import { activeEnemies, partyHeroIds } from "./legal";
 
 import { awakeningOf, enemiesOf, heroesOf, recordOfEnemy, spawnEnemy, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
-import { scopedFlagOf, withScopedFlag } from "../state/access";
 import { beginCombat, beginRound } from "../state/lifecycle";
 import { gameOf, withGame } from "../../engine/state";
 function collectWorldModifierEntries(
@@ -67,7 +70,7 @@ function effectiveHeroDamage(engine: GameEngine,
 function effectiveEnemyDamage(enemy: EnemyState, state: GameState): number {
 	return Math.max(
 		0,
-		enemy.damage +
+		enemy.damage + dungeonAwakeningEffect(awakeningOf(state)).damageBonus +
 			totalItemValue(
 				collectWorldModifierEntries(state, enemy.id, "damage_dealt"),
 			),
@@ -87,12 +90,12 @@ function reduceHeroDamage(engine: GameEngine,
 		state,
 		"attack",
 	);
-	const finalDamage = Math.max(
-		0,
-		amount - worldReduction - totalItemValue(itemEntries),
-	);
+	const itemReduction = totalItemValue(itemEntries);
+	const adjustedReduction = piercedItemReduction(itemReduction, dungeonAwakeningEffect(awakeningOf(state)).armorPenetration);
+	const finalDamage = Math.max(0, amount - worldReduction - adjustedReduction);
 	const breakdown = [
 		...formatItemBreakdown(itemEntries, "-"),
+		...(itemReduction > adjustedReduction ? [`Penetração ${itemReduction - adjustedReduction}`] : []),
 		...(worldReduction > 0
 			? [`redução -${worldReduction}`]
 			: worldReduction < 0
@@ -114,24 +117,20 @@ function formatDamageBonusNote(
 	return ` [dano ${baseDamage}→${damage}: ${parts.join(", ")}]`;
 }
 
-function bossRulesOf(engine: GameEngine) {
-	const card = bossCardOf(engine);
-	if (!card) throw new Error("Carta do boss não encontrada");
-	return card.rules;
-}
-
 // ─── REVEAL_BOSS ─────────────────────────────────────────────────────────────
 
 export function handleRevealBoss(engine: GameEngine, state: GameState): GameState {
-	const bossCard = bossCardOf(engine);
+	const card = cardById(engine, gameOf(state).bossCardId);
+	const bossCard = card?.type === "boss" ? card : undefined;
 	if (!bossCard) return log(state, "[ERRO] Carta do boss não encontrada.");
-
-	const { rules } = bossCard;
-	const hasFullArtifacts =
-		gameOf(state).groupArtifacts.length >= rules.fullArtifacts.count;
-	const lifeBase = hasFullArtifacts ? rules.fullArtifacts.life : bossCard.lifeBase;
-	const totalLife = lifeBase + awakeningOf(state) * 2;
-	const totalHitBonus = bossCard.hitBonusBase + awakeningOf(state);
+	if (!checkBossCondition(engine, state, bossCard.id)) {
+		return log(state, "[AVISO] Condição de acesso ao boss ainda não atendida.");
+	}
+	const hasBonusArtifact = bossCard.artifactBonus &&
+		gameOf(state).groupArtifacts.some((artifact) => artifact.cardId === bossCard.artifactBonus?.artifactId);
+	const lifeBase = hasBonusArtifact ? bossCard.artifactBonus!.lifeBase : bossCard.lifeBase;
+	const totalLife = lifeBase + awakeningOf(state) * (bossCard.scaling?.lifePerAwakening ?? 2);
+	const totalHitBonus = bossCard.hitBonusBase + awakeningOf(state) * (bossCard.scaling?.hitBonusPerAwakening ?? 1);
 
 	const bossEnemy: EnemyState = {
 		id: "boss",
@@ -140,7 +139,7 @@ export function handleRevealBoss(engine: GameEngine, state: GameState): GameStat
 		currentLife: totalLife,
 		damage: bossCard.damage,
 		hitBonus: totalHitBonus,
-		dice: rules.dice,
+		dice: bossCard.dice ?? 1,
 		tokens: {},
 		conditions: [],
 		firstDamageTakenThisTurn: false,
@@ -166,19 +165,10 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 	const boss = enemiesOf(state).find((e) => e.id === "boss");
 	if (!hero || !boss) return state;
 
-	const rules = bossRulesOf(engine);
-	let enemyTotal = roll!.enemyTotal;
+	const hitBonus = inlineBossHitBonus(engine, boss);
+	const enemyTotal = roll!.enemyTotal + hitBonus;
 	let next = state;
-	if (
-		boss.currentLife <=
-		Math.floor(boss.maxLife * rules.ascension.atOrBelowLifeFraction)
-	) {
-		enemyTotal += rules.ascension.hitBonus;
-		next = log(
-			next,
-			`Ascensão Final ativada: +${rules.ascension.hitBonus} no acerto do boss.`,
-		);
-	}
+	if (hitBonus !== 0) next = log(next, `Habilidade do chefe: ${hitBonus > 0 ? "+" : ""}${hitBonus} no acerto.`);
 
 	const heroDamage = effectiveHeroDamage(engine,
 		hero,
@@ -195,15 +185,11 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 
 	if (result.enemyDamageTaken > 0) {
 		let dmg = result.enemyDamageTaken;
-		if (!scopedFlagOf(state, "round", "bossFirstDamageReduced", "boss")) {
-			dmg = Math.max(0, dmg - rules.firstDamageReduction);
-			if (gameOf(next).combat) {
-				next = withScopedFlag(next, "round", "bossFirstDamageReduced", "boss");
-			}
-			next = log(
-				next,
-				`Trono Vivo: dano ao boss reduzido em ${rules.firstDamageReduction}.`,
-			);
+		const reduction = inlineBossDamageReduction(engine, next, boss);
+		if (reduction.amount > 0) {
+			dmg = Math.max(0, dmg - reduction.amount);
+			next = markInlineBossSkillsUsed(next, reduction.usedIds);
+			next = log(next, `Habilidade do chefe: dano reduzido em ${reduction.amount}.`);
 		}
 		const newLife = Math.max(0, boss.currentLife - dmg);
 		next = applyDamage(engine, next, "boss", dmg, {
@@ -265,32 +251,17 @@ function checkBossEnd(engine: GameEngine, state: GameState): GameState {
 		);
 	}
 
-	// O boss é dono de suas três regras (Trono Vivo, Ascensão Final e Pressão
-	// da Forja). A janela genérica ignora boss_skill para não somá-las em dobro.
-	let afterRoundEnd = state;
-
-	const { pressure } = bossRulesOf(engine);
-	if (awakeningOf(afterRoundEnd) >= pressure.atAwakening) {
-		afterRoundEnd = discardFromDungeonDeck(
-			engine,
-			afterRoundEnd,
-			pressure.discardDungeon,
-		);
-		if (
-			pendingTriggerInterruptOf(afterRoundEnd) ||
-			pendingSkillChoiceOf(afterRoundEnd) ||
-			pendingSkillTargetOf(afterRoundEnd)
-		) {
-			return afterRoundEnd;
-		}
-		afterRoundEnd = log(
-			afterRoundEnd,
-			`Pressão da Forja Sombria: ${pressure.discardDungeon} carta de masmorra descartada.`,
-		);
-	}
+	// Efeitos de rodada são emitidos conforme as skills declaradas na ficha.
+	let afterRoundEnd = resolveSkillWindow(engine, state, {
+		event: "evt_round_end",
+		ctx: { triggeredBy: "evt_round_end", round: gameOf(state).combat?.round },
+	});
+	if (pendingTriggerInterruptOf(afterRoundEnd) || pendingSkillChoiceOf(afterRoundEnd) ||
+		pendingSkillTargetOf(afterRoundEnd)) return afterRoundEnd;
+	afterRoundEnd = drainStack(engine, afterRoundEnd);
 
 	// Próxima rodada de boss
-	const nextCombat = gameOf(state).combat
+	const nextCombat = gameOf(afterRoundEnd).combat
 		? {
 				...gameOf(afterRoundEnd).combat!,
 				round: gameOf(afterRoundEnd).combat!.round + 1,
@@ -366,6 +337,7 @@ export function buildBossRollFromResults(
 	];
 	const bossBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: boss.hitBonus },
+		...(dungeonAwakeningEffect(awakeningOf(state)).hitBonus > 0 ? [{ source: "Despertar da Masmorra", value: dungeonAwakeningEffect(awakeningOf(state)).hitBonus }] : []),
 		...collectWorldModifierEntries(state, boss.id, "hit_bonus"),
 	];
 

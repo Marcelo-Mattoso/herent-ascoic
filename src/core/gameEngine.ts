@@ -18,6 +18,7 @@ export interface GameContent extends ContentPort<AnyCard, SkillDefinition> {
 	cardsOfType<T extends AnyCard["type"]>(
 		type: T,
 	): Extract<AnyCard, { type: T }>[];
+	expansionOf(cardId: string): string | undefined;
 	grants(cardId: string): readonly AbilityGrant[];
 	abilityDef(id: string): AbilityDefinition | null;
 	script(ref: string): ScriptHandler | null;
@@ -36,7 +37,7 @@ export interface GameBalance {
 	readonly difficultyPresets: Readonly<
 		Record<
 			"very_easy" | "easy" | "normal" | "hard" | "nightmare",
-			{ readonly heroOffset: number; readonly despertarOffset: number }
+			{ readonly heroOffset: number; readonly despertarOffset: number; readonly recoverCost: number }
 		>
 	>;
 	readonly backpackLimit: number | null;
@@ -148,6 +149,18 @@ export function abilityById(
 	id: string,
 ): AbilityDefinition | null {
 	return engine.content.abilityDef(id);
+}
+
+export function expansionOf(engine: GameEngine, cardId: string): string | undefined {
+	return engine.content.expansionOf(cardId);
+}
+
+export function dungeonRecoveryCost(
+	engine: GameEngine,
+	difficulty: keyof GameBalance["difficultyPresets"],
+): number {
+	const balance = engine.ruleset.balance;
+	return balance.difficultyPresets[difficulty]?.recoverCost ?? balance.dungeonExhaustionCost;
 }
 
 export function balanceOf(engine: GameEngine): GameBalance {

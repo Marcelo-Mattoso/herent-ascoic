@@ -1,0 +1,177 @@
+{
+  "card": {
+    "id": "boss_azhakar",
+    "type": "boss",
+    "lifeBase": 20,
+    "hitBonusBase": 12,
+    "damage": 6,
+    "accessCondition": {
+      "type": "group_artifacts_gte",
+      "value": 3
+    },
+    "skills": [
+      {
+        "skillId": "boss_skill_living_ash_throne",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "boss_skill_dark_forge_pressure",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "boss_skill_azhakar_ascension",
+        "params": {
+          "value": 2
+        }
+      }
+    ],
+    "name": "Azhakar, Dragão da Fornalha Sombria",
+    "image": "images/Azhakardragaofornalhasombria.webp",
+    "dice": 3,
+    "scaling": {
+      "lifePerAwakening": 2,
+      "hitBonusPerAwakening": 1
+    },
+    "artifactBonus": {
+      "artifactId": "artifact_ancient_ember_heart",
+      "lifeBase": 16
+    }
+  },
+  "skills": [
+    {
+      "id": "boss_skill_living_ash_throne",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "round",
+        "charges": 1
+      },
+      "nature": [
+        "nat_fire",
+        "nat_dark"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "boss_skill_dark_forge_pressure",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_round_end"
+      },
+      "conditions": [
+        {
+          "kind": "compare",
+          "op": "gte",
+          "left": "$dungeon.level",
+          "right": 3
+        }
+      ],
+      "nature": [
+        "nat_dark",
+        "nat_fire"
+      ],
+      "target_type": "tgt_item",
+      "affect_scope": "scp_none",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_if",
+          "when": {
+            "kind": "compare",
+            "op": "gte",
+            "left": "$dungeon.level",
+            "right": 4
+          },
+          "then": [
+            {
+              "kind": "i_discard",
+              "pile": "dungeon",
+              "count": 1
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "boss_skill_azhakar_ascension",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$self",
+          "conditionType": "half_life_or_less"
+        }
+      ],
+      "nature": [
+        "nat_dark",
+        "nat_fire"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "permanent"
+          }
+        }
+      ]
+    }
+  ],
+  "skillLocales": {
+    "boss_skill_living_ash_throne": {
+      "name": "Trono de Cinzas Vivas",
+      "label": "Trono de Cinzas Vivas (1): o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1.",
+      "text": "o primeiro dano que Azhakar sofre em cada rodada é reduzido em 1."
+    },
+    "boss_skill_dark_forge_pressure": {
+      "name": "Pressão da Fornalha Sombria",
+      "label": "Pressão da Fornalha Sombria (1): após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon.",
+      "text": "após cada rodada de combate, se o Despertar da Masmorra estiver em nível Roxo, descarte a carta do topo do deck de dungeon."
+    },
+    "boss_skill_azhakar_ascension": {
+      "name": "Ascensão de Azhakar",
+      "label": "Ascensão de Azhakar (2): quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto.",
+      "text": "quando Azhakar chegar à metade da vida ou menos, recebe +2 no Bônus de Acerto."
+    }
+  },
+  "locale": {
+    "name": "Azhakar, Dragão da Fornalha Sombria",
+    "dice": "3 dados vermelhos",
+    "condition": "o grupo precisa possuir ao menos 3 Artefatos.",
+    "artifactBonus": "se o grupo possuir o Coração de Brasa Antiga entre seus artefatos, Azhakar começa a luta com 16 de Vida-base em vez de 20.",
+    "dungeonScaling": "Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.",
+    "victory": "ao derrotar Azhakar, os jogadores vencem a partida."
+  }
+}

@@ -1122,7 +1122,7 @@ describe("vitória contra boss", () => {
 			payload: { heroCardIds: [HERO] },
 		});
 
-		// Força 2 artefatos (condição do Azhakar) e vai pelo fluxo correto
+		// Força 3 artefatos (condição do Azhakar) e vai pelo fluxo correto
 		s = withGame(s, (prevGame) => ({ ...prevGame, groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
@@ -1130,6 +1130,10 @@ describe("vitória contra boss", () => {
 				},
 				{
 					cardId: "artifact_ancient_ember_heart",
+					carriedBy: null,
+				},
+				{
+					cardId: "artifact_lost_forge_hammer",
 					carriedBy: null,
 				},
 			], status: "BOSS_REVEAL" as const }));
@@ -1175,6 +1179,10 @@ describe("boss sobrevive a uma rodada", () => {
 				},
 				{
 					cardId: "artifact_ancient_ember_heart",
+					carriedBy: null,
+				},
+				{
+					cardId: "artifact_lost_forge_hammer",
 					carriedBy: null,
 				},
 			], status: "BOSS_REVEAL" as const }));

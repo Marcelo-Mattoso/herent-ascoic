@@ -13,7 +13,7 @@ import type { HeroState } from "../state/heroState";
 import { selectBoss } from "../strategies/bossSelection";
 import { buildDungeonRoomDeck, handleRevealRoom } from "./exploration";
 import { createHeroFromCard, log } from "./utils";
-import { balanceOf, cardById, cardName, cardsOfType, skillsOf } from "../gameEngine";
+import { expansionOf, balanceOf, cardById, cardName, cardsOfType, skillsOf } from "../gameEngine";
 import { refRequirementMet } from "../gameEngine";
 import type { GameEngine, GameHandler } from "../gameEngine";
 
@@ -35,6 +35,16 @@ export function handleStartGame(engine: GameEngine,
 	}
 	if (heroIds.length > MAX_HEROES) {
 		return log(state, `[ERRO] Selecione no máximo ${MAX_HEROES} heróis.`);
+	}
+
+	const bossId = payload.bossCardId ?? selectBoss(engine);
+	if (cardById(engine, bossId)?.type !== "boss") return log(state, "[ERRO] Boss inválido na configuração da partida.");
+	const expansionId = expansionOf(engine, bossId);
+	if (!expansionId) return log(state, "[ERRO] Expansão do boss não encontrada.");
+	for (const id of heroIds) {
+		if (expansionOf(engine, id) !== expansionId) {
+			return log(state, "[ERRO] Herói de outra expansão não pode entrar nesta masmorra.");
+		}
 	}
 
 	// Seed e gameId vêm do payload (injetados pela UI ou testes).
@@ -69,12 +79,11 @@ export function handleStartGame(engine: GameEngine,
 		rng = next;
 	}
 
-	const bossId = payload.bossCardId ?? selectBoss(engine);
-
-	const roomIds = buildDungeonRoomDeck(engine);
-	const creatureIds = cardsOfType(engine, "creature").map((c) => c.id);
-	const itemIds = cardsOfType(engine, "item").map((c) => c.id);
-	const artifactIds = cardsOfType(engine, "artifact").map((c) => c.id);
+	const belongsToExpansion = (id: string) => expansionOf(engine, id) === expansionId;
+	const roomIds = buildDungeonRoomDeck(engine, expansionId);
+	const creatureIds = cardsOfType(engine, "creature").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const itemIds = cardsOfType(engine, "item").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const artifactIds = cardsOfType(engine, "artifact").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 
 	const mode = payload.mode ?? "cooperative";
 
@@ -97,7 +106,7 @@ export function handleStartGame(engine: GameEngine,
 
 	const heroNames = heroes.map((h) => cardName(engine, h.cardId));
 
-	const dealt: GameState = withWorld(withAwakening(dealDecksInto(withGame(state, (prevGame) => ({ ...prevGame, gameId, rng, difficulty, mode, status: "REVEAL_ROOM", groupXp: 0, heroes: heroes.map(recordOfHero), defeatedHeroes: [], fledHeroes: [], activeEnemies: [], enemyGraveyard: [], bossCardId: bossId, bossDefeated: false, subbosses: { available: [], defeated: [] }, groupArtifacts: [], currentRoom: null, paths: [], roomsCleared: 0, creaturesDefeated: 0, combat: createEmptyCombatState(), pendingRewards: [], eventLog: [
+	const dealt: GameState = withWorld(withAwakening(dealDecksInto(withGame(state, (prevGame) => ({ ...prevGame, gameId, rng, difficulty, mode, status: "REVEAL_ROOM", groupXp: 0, groupImpetoMilestone: heroColorIndex, heroes: heroes.map(recordOfHero), defeatedHeroes: [], fledHeroes: [], activeEnemies: [], enemyGraveyard: [], bossCardId: bossId, bossDefeated: false, subbosses: { available: [], defeated: [] }, groupArtifacts: [], currentRoom: null, paths: [], roomsCleared: 0, creaturesDefeated: 0, combat: createEmptyCombatState(), pendingRewards: [], eventLog: [
 			`Partida iniciada. Heróis: ${heroNames.join(", ")}. Boss: ${cardName(engine, bossId)}.`,
 		], events: [] })), {
 		dungeonDeck: roomIds,

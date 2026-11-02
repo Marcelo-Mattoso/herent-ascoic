@@ -139,7 +139,7 @@ test("autoplay bloqueado exibe convite e funciona após interação", async ({ p
 	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount)).toBe(2);
 });
 
-test("menu global permanece disponível no arquivo de tutoriais e durante a narração", async ({ page }) => {
+test("menu global fica indisponível durante o tutorial guiado", async ({ page }) => {
 	await page.goto("/");
 	await page.getByRole("button", { name: "TUTORIAL" }).click();
 	await expect(page.getByRole("heading", { name: "Arquivos de treinamento" })).toBeVisible();
@@ -148,8 +148,9 @@ test("menu global permanece disponível no arquivo de tutoriais e durante a narr
 	await page.keyboard.press("Escape");
 	await page.locator(".tutorial-hub__module").first().getByRole("button", { name: "Iniciar arquivo" }).click();
 	await expect(page.locator('[data-tutorial-step="opening"]')).toBeVisible();
-	await page.getByRole("button", { name: "Abrir menu global" }).click();
-	await expect(page.getByRole("heading", { name: "Regras" })).toBeVisible();
+	await expect(page.getByRole("button", { name: "Abrir menu global" })).toBeHidden();
+	await page.getByRole("button", { name: "Sair do tutorial" }).click();
+	await expect(page.getByRole("button", { name: "Abrir menu global" })).toBeVisible();
 });
 
 test("menu cabe em telas pequenas, paisagem, tablet e desktop", async ({ page }) => {

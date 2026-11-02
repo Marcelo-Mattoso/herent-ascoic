@@ -14,6 +14,7 @@ import { drainStack } from "../effects/resolver";
 import { emit } from "../events/bus";
 import type { DamageType } from "../events/types";
 import { calculateTotal, resolveAttack } from "../rules/combat";
+import { dungeonAwakeningEffect, piercedItemReduction } from "../rules/dungeonAwakening";
 import { isEligibleDie, dieReplacementValues } from "../rules/diceSelection";
 import { canStartHeroAttack } from "../rules/attackAvailability";
 import { rollDiceRng } from "../rules/dice";
@@ -61,7 +62,7 @@ import type { Action } from "../actions/types";
 import { abilityGrants, cardById, cardName, skillById, skillsOf } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
 
-import { deckOf, decksOf, enemiesOf, extraDiceOf, fledHeroesOf, heroesOf, shuffleDeck, withDeck, withDecks, withEntityRetired, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, pendingSkillWindowOf, pausedOf, withPendingSkillWindow, withPendingSkillTarget } from "../state/access";
+import { awakeningOf, deckOf, decksOf, enemiesOf, extraDiceOf, fledHeroesOf, heroesOf, shuffleDeck, withDeck, withDecks, withEntityRetired, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, pendingSkillWindowOf, pausedOf, withPendingSkillWindow, withPendingSkillTarget } from "../state/access";
 import { scopedFlagOf, withScopedFlag } from "../state/access";
 import type { GameHandler } from "../gameEngine";
 import { buildBossRollFromResults, isBossAttack, isBossRoll } from "./boss";
@@ -377,6 +378,8 @@ function collectEnemyBonuses(
 	state: GameState,
 ): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: enemy.hitBonus }];
+	const influence = dungeonAwakeningEffect(awakeningOf(state));
+	if (influence.hitBonus > 0) bonuses.push({ source: "Despertar da Masmorra", value: influence.hitBonus });
 	const enemyEntity = worldOf(state).entities[enemy.id];
 	if (enemyEntity) {
 		for (const comp of enemyEntity.components) {
@@ -446,7 +449,7 @@ function effectiveEnemyDamage(
 		"damage_dealt",
 	);
 	return {
-		damage: Math.max(0, enemy.damage + totalItemValue(breakdown)),
+		damage: Math.max(0, enemy.damage + totalItemValue(breakdown) + dungeonAwakeningEffect(awakeningOf(state)).damageBonus),
 		breakdown,
 	};
 }
@@ -469,9 +472,12 @@ function reduceHeroDamage(engine: GameEngine,
 		damageType,
 	);
 	const itemReduction = totalItemValue(itemEntries);
-	const finalDamage = Math.max(0, amount - worldReduction - itemReduction);
+	const penetration = damageType === "attack" ? dungeonAwakeningEffect(awakeningOf(state)).armorPenetration : 0;
+	const adjustedReduction = piercedItemReduction(itemReduction, penetration);
+	const finalDamage = Math.max(0, amount - worldReduction - adjustedReduction);
 	const breakdown = [
 		...formatItemBreakdown(itemEntries, "-"),
+		...(itemReduction > adjustedReduction ? [`Penetração ${itemReduction - adjustedReduction}`] : []),
 		...(worldReduction > 0
 			? [`redução -${worldReduction}`]
 			: worldReduction < 0
@@ -909,7 +915,7 @@ export function handleResolveAttack(engine: GameEngine, state: GameState): GameS
 	// ataque inteiro sem repetir o dano que já foi aplicado ao outro lado.
 	const reducedHeroDamage =
 		result.heroDamageTaken > 0
-			? reduceHeroDamage(engine, next, hero, result.heroDamageTaken)
+			? reduceHeroDamage(engine, next, hero, result.heroDamageTaken, "attack")
 			: null;
 	if (
 		result.enemyDamageTaken >= enemy.currentLife &&

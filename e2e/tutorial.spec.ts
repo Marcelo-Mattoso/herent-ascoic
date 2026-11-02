@@ -57,6 +57,13 @@ test("menu, ações reais e conclusão do Arquivo I", async ({ page }) => {
 		page.locator('[data-tutorial-anchor="board.active-enemies"]'),
 	).toBeVisible();
 	await page.getByRole("button", { name: "Pular observação" }).click();
+	await expect(page.locator('[data-tutorial-step="dungeon-levels"]')).toBeVisible();
+	await expect(page.locator('[data-tutorial-anchor="board.awakening"]')).toBeVisible();
+	await page.getByRole("button", { name: "Continuar" }).click();
+	await expect(page.locator('[data-tutorial-step="dungeon-discards"]')).toBeVisible();
+	await page.getByRole("button", { name: "Continuar" }).click();
+	await expect(page.locator('[data-tutorial-step="dungeon-exhaustion"]')).toBeVisible();
+	await page.getByRole("button", { name: "Continuar" }).click();
 	await expect(page.locator('[data-tutorial-step="goal"]')).toBeVisible();
 	await page.getByRole("button", { name: "Continuar" }).click();
 	await expect(page.locator('[data-tutorial-step="completion"]')).toBeVisible();
@@ -140,7 +147,10 @@ test("escolher outro arquivo após concluir mantém o tabuleiro até a saída", 
 		timeout: 10_000,
 	});
 	await page.getByRole("button", { name: "Pular observação" }).click();
-	await page.getByRole("button", { name: "Continuar" }).click();
+	for (const step of ["dungeon-levels", "dungeon-discards", "dungeon-exhaustion", "goal"]) {
+		await expect(page.locator(`[data-tutorial-step="${step}"]`)).toBeVisible();
+		await page.getByRole("button", { name: "Continuar" }).click();
+	}
 	await page.getByRole("button", { name: "Escolher arquivo" }).click();
 	await expect(
 		page.getByRole("dialog", { name: "Arquivos de treinamento" }),

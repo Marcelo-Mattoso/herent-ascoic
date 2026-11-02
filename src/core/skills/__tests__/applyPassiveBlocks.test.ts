@@ -54,12 +54,19 @@ describe("applyDeclaredPassiveBlocks", () => {
 	});
 });
 
+const AzhakarArtifacts = [
+	{ cardId: "artifact_crimson_jailer_chain", carriedBy: null },
+	{ cardId: "artifact_ancient_ember_heart", carriedBy: null },
+	{ cardId: "artifact_lost_forge_hammer", carriedBy: null },
+];
+
 describe("boss content setup", () => {
 	it("revela Azhakar também como entidade ECS", () => {
 		const state = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
+			bossCardId: "boss_azhakar",
 		});
-		const revealed = handleRevealBoss(testEngine, state);
+		const revealed = handleRevealBoss(testEngine, withGame(state, (g) => ({ ...g, groupArtifacts: AzhakarArtifacts })));
 		expect(gameOf(revealed).activeEnemies[0]?.id).toBe("boss");
 		expect(gameOf(revealed).world.entities.boss?.type).toBe("enemy");
 	});
@@ -72,7 +79,7 @@ describe("boss content setup", () => {
 			type: "START_GAME",
 			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
-		const revealed = handleRevealBoss(testEngine, withAwakening(started, 4));
+		const revealed = handleRevealBoss(testEngine, withGame(withAwakening(started, 4), (g) => ({ ...g, groupArtifacts: AzhakarArtifacts })));
 		const heroId = gameOf(revealed).heroes[0]!.id;
 		const prepared = withDeck(revealed, "dungeonDeck", {
 			...deckOf(revealed, "dungeonDeck"),

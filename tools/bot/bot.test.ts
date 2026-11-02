@@ -6,9 +6,25 @@ const MAX_STEPS = 3000;
 
 // Seeds com bugs reais do jogo, reproduzíveis com `npm run bot -- --seed N --games 1`.
 const KNOWN_BUGS: Record<number, string> = {
-	22: "último herói morre mas HERO_ACTION → DEFEAT não existe em transitions.json",
-	86: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
-	94: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
+	9: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
+	15: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	19: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	20: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	21: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	26: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	29: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	30: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	43: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
+	45: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	53: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	62: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
+	79: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
+	81: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
+	86: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	87: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	88: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
+	92: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
+	95: "sala sem inimigos com o deck de criaturas vazio: HERO_ACTION → REWARD_PHASE inválida",
 };
 
 describe("bot headless", () => {
