@@ -82,6 +82,7 @@ export interface InfluenceView {
 export interface PlayerView {
 	readonly status: GameStatus;
 	readonly mode: GameMode;
+	readonly difficulty: Difficulty;
 	readonly heroes: readonly HeroView[];
 	readonly abilityActionsByHero: Readonly<Record<string, readonly AbilityActionView[]>>;
 	readonly enemies: readonly EnemyView[];
@@ -179,6 +180,7 @@ export function playerView(state: GameState): PlayerView {
 	return {
 		status: state.status,
 		mode: state.mode,
+		difficulty: state.difficulty,
 		heroes: state.heroes,
 		abilityActionsByHero: Object.fromEntries(state.heroes.map((hero) => [
 			hero.id, projectAbilityActionsForHero(state, hero.id),
