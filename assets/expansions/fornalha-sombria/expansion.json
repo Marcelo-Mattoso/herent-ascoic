@@ -1918,7 +1918,10 @@
       "equipmentSlot": "amulet",
       "skills": [
         {
-          "skillId": "skill_illuminate_path"
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
         }
       ],
       "grants": [
@@ -1941,6 +1944,9 @@
               "affectScope": "scp_none",
               "affectObject": "obj_all"
             }
+          },
+          "params": {
+            "value": 1
           }
         }
       ],
@@ -2003,7 +2009,10 @@
       "equipmentSlot": "clothing",
       "skills": [
         {
-          "skillId": "skill_illuminate_path"
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
         }
       ],
       "name": "Manto da Saída Estreita",

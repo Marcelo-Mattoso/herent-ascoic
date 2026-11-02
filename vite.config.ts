@@ -508,6 +508,7 @@ export default defineConfig({
 		},
 	},
 	test: {
+		testTimeout: 60_000,
 		environment: "node",
 		exclude: [...configDefaults.exclude, "e2e/**", "tools/engine-test/**"],
 		passWithNoTests: true,

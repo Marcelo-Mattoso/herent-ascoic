@@ -6,12 +6,9 @@ const MAX_STEPS = 3000;
 
 // Seeds com bugs reais do jogo, reproduzíveis com `npm run bot -- --seed N --games 1`.
 const KNOWN_BUGS: Record<number, string> = {
-	2: "CHECK_BOSS_CONDITION: resolveExpr recebe id de sala em param value",
-	15: "CHECK_BOSS_CONDITION: resolveExpr recebe id de sala em param value",
 	22: "último herói morre mas HERO_ACTION → DEFEAT não existe em transitions.json",
-	53: "CHECK_BOSS_CONDITION: resolveExpr recebe id de sala em param value",
 	86: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
-	94: "CHECK_BOSS_CONDITION: resolveExpr recebe id de sala em param value",
+	94: "GRANT_REWARDS repetido em REWARD_PHASE concede XP/sala sem avançar",
 };
 
 describe("bot headless", () => {

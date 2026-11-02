@@ -128,7 +128,12 @@ async function playGame(page: Page, index: number) {
 	let printed = 0;
 	let reported = 0;
 	for (;;) {
-		const snap = await read(page);
+		const snap = await read(page).catch(() => null);
+		// Recarga da página (HMR) destrói o contexto: lê de novo na próxima volta.
+		if (!snap) {
+			await page.waitForTimeout(PAUSE);
+			continue;
+		}
 		for (const line of snap.log.slice(printed)) say(`  · ${line}`);
 		printed = snap.log.length;
 		if (errors.length > reported && errors.at(-1) !== errors[reported - 1]) {

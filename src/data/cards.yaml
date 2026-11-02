@@ -801,9 +801,13 @@
   equipmentSlot: amulet
   skills:
     - skillId: skill_illuminate_path
+      params:
+        value: 1
   grants:
     - id: safe_path_reveal
       abilityId: skill_illuminate_path
+      params:
+        value: 1
       activation:
         kind: event
         event: evt_room_reveal
@@ -849,6 +853,8 @@
   equipmentSlot: clothing
   skills:
     - skillId: skill_illuminate_path
+      params:
+        value: 1
 - id: item_torn_depths_map
   type: item
   itemClass: special
