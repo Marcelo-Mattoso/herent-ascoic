@@ -125,6 +125,7 @@ export function handleStartGame(
 		world,
 		groupXp: 0,
 		despertar: despertarIndex,
+		groupImpetoMilestone: heroColorIndex,
 		heroes,
 		defeatedHeroes: [],
 		fledHeroes: [],
