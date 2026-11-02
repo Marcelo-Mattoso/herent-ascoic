@@ -265,7 +265,7 @@
       "dungeonExhaustedModal": {
         "title001": "Deck de dungeon vazio",
         "text002": "Você pode gastar",
-        "text003": "5 XP",
+        "text003": "{{cost}} XP",
         "text004": "para reembaralhar todas as cartas descartadas e continuar. Caso contrário, a partida termina em derrota.",
         "text005": "XP disponível:",
         "text006": "· Cartas no descarte:",
