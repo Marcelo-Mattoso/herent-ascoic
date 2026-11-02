@@ -411,6 +411,8 @@
       "purple": "Morado"
     },
     "exploration": {
+      "rotateTitle": "Gira tu teléfono",
+      "rotateDescription": "Para jugar a Ascensão Heróica, coloca el teléfono en horizontal. La partida continuará donde la dejaste.",
       "groupDrawer": "Grupo y Despertar",
       "influencesDrawer": "Influencias",
       "logDrawer": "Registro de partida",

@@ -411,6 +411,8 @@
       "purple": "Roxo"
     },
     "exploration": {
+      "rotateTitle": "Gire seu celular",
+      "rotateDescription": "Para jogar Ascensão Heróica, coloque o aparelho na horizontal. Sua partida continuará de onde parou.",
       "groupDrawer": "Grupo e Despertar",
       "influencesDrawer": "Influências",
       "logDrawer": "Log da partida",

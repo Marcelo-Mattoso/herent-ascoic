@@ -409,6 +409,8 @@
       "purple": "Purple"
     },
     "exploration": {
+      "rotateTitle": "Rotate your phone",
+      "rotateDescription": "To play Ascensão Heróica, turn your phone sideways. Your game will resume where you left off.",
       "groupDrawer": "Group and Awakening",
       "influencesDrawer": "Influences",
       "logDrawer": "Game log",

@@ -3,7 +3,7 @@ import { translate } from "@/i18n";
 // Layout: TopBar · Board (tabuleiro coletivo) · HeroFocusPanel (herói em foco).
 
 import { UseItemModal } from "@/ui/components/modals/UseItemModal";
-import { type CSSProperties, useEffect, useState } from "react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
@@ -145,6 +145,10 @@ export function Exploration({
 	const { selectedBoard } = useBoardBackgrounds();
 	const cardImageUrls = useCardImages();
 	const gameGeometry = useGameViewport();
+	const orientationNoticeRef = useRef<HTMLElement>(null);
+	useEffect(() => {
+		if (gameGeometry.requiresLandscape) orientationNoticeRef.current?.focus();
+	}, [gameGeometry.requiresLandscape]);
 
 	const status = view.status;
 	const combat = view.combat;
@@ -348,6 +352,8 @@ export function Exploration({
 			<div
 				className="game-viewport"
 				data-game-layout={gameGeometry.mode}
+				inert={gameGeometry.requiresLandscape}
+				aria-hidden={gameGeometry.requiresLandscape}
 				style={
 					{
 						"--game-card-width": `min(${gameGeometry.cardWidth}px, calc((100dvw - env(safe-area-inset-left) - env(safe-area-inset-right) - 48px) / 5))`,
@@ -636,6 +642,25 @@ export function Exploration({
 				(!tutorialInventoryMode || tutorialInventoryOpen) && (
 					<InventarioGrupo onItemDetailChange={onTutorialItemDetailChange} />
 				)}
+			{gameGeometry.requiresLandscape && createPortal(
+				<section
+					ref={orientationNoticeRef}
+					className="orientation-gate"
+					role="alertdialog"
+					aria-modal="true"
+					aria-labelledby="orientation-gate-title"
+					aria-describedby="orientation-gate-description"
+					tabIndex={-1}
+				>
+					<div className="orientation-gate__card">
+						<div className="orientation-gate__phone" aria-hidden="true"><span /></div>
+						<p className="orientation-gate__eyebrow">Ascensão Heróica</p>
+						<h2 id="orientation-gate-title">{translate("game:screens.exploration.rotateTitle")}</h2>
+						<p id="orientation-gate-description">{translate("game:screens.exploration.rotateDescription")}</p>
+					</div>
+				</section>,
+				document.body,
+			)}
 		</>
 	);
 }

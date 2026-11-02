@@ -165,7 +165,7 @@ test("Arquivo III abre no celular e mantém controles acessíveis", async ({
 	browser,
 }) => {
 	const context = await browser.newContext({
-		viewport: { width: 390, height: 844 },
+		viewport: { width: 844, height: 390 },
 		isMobile: true,
 		hasTouch: true,
 	});
@@ -192,9 +192,9 @@ test("Arquivo III abre no celular e mantém controles acessíveis", async ({
 			path: `test-results/tutorial-inventory-${viewport.width}x${viewport.height}.png`,
 		});
 	}
-	await page.setViewportSize({ width: 390, height: 844 });
+	await page.setViewportSize({ width: 844, height: 390 });
 	await completeInventoryArchive(page);
-	await page.screenshot({ path: "test-results/tutorial-inventory-mobile.png" });
+	await page.screenshot({ path: "test-results/tutorial-inventory-landscape.png" });
 	await context.close();
 });
 
