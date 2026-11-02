@@ -1036,7 +1036,7 @@
   damage: 6
   accessCondition:
     type: group_artifacts_gte
-    value: 2
+    value: 3
   skills:
     - skillId: boss_skill_living_ash_throne
       params:

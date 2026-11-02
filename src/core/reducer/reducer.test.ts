@@ -1224,7 +1224,7 @@ describe("vitória contra boss", () => {
 			payload: { heroCardIds: [HERO] },
 		});
 
-		// Força 2 artefatos (condição do Azhakar) e vai pelo fluxo correto
+		// Força 3 artefatos (condição do Azhakar) e vai pelo fluxo correto
 		s = {
 			...s,
 			groupArtifacts: [
@@ -1234,6 +1234,10 @@ describe("vitória contra boss", () => {
 				},
 				{
 					cardId: "artifact_ancient_ember_heart",
+					carriedBy: null,
+				},
+				{
+					cardId: "artifact_lost_forge_hammer",
 					carriedBy: null,
 				},
 			],
@@ -1287,6 +1291,10 @@ describe("boss sobrevive a uma rodada", () => {
 				},
 				{
 					cardId: "artifact_ancient_ember_heart",
+					carriedBy: null,
+				},
+				{
+					cardId: "artifact_lost_forge_hammer",
 					carriedBy: null,
 				},
 			],
