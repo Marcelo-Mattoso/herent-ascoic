@@ -14,6 +14,9 @@ function modifierValue(value: unknown, params?: Readonly<Record<string, number |
 export function isInlineBossSkill(def: SkillDefinition | null): boolean {
 	return Boolean(def?.category === "boss_skill" && def.operate_type === "op_triggered" &&
 		def.trigger?.event === "evt_damage_taken" &&
+		(def.conditions ?? []).every((condition) =>
+			"kind" in condition && condition.kind === "has_condition" &&
+			condition.of === "$self" && condition.conditionType === "half_life_or_less") &&
 		(!def.cooldown || (def.cooldown.scope === "round" && def.cooldown.charges === 1)) &&
 		def.effect?.length && def.effect.every((e) =>
 			e.kind === "p_modifier" && (e.stat === "s_hit_bonus" || e.stat === "s_damage_reduction"),
@@ -22,7 +25,7 @@ export function isInlineBossSkill(def: SkillDefinition | null): boolean {
 
 function conditionsMet(def: SkillDefinition, boss: EnemyState): boolean {
 	return (def.conditions ?? []).every((condition) => {
-		if (condition.kind === "has_condition" && condition.of === "$self" &&
+		if ("kind" in condition && condition.kind === "has_condition" && condition.of === "$self" &&
 			condition.conditionType === "half_life_or_less")
 			return boss.currentLife <= Math.floor(boss.maxLife / 2);
 		return false;
