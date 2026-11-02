@@ -69,8 +69,7 @@ export function tutorialAllowsInteraction(target: Element, ctx: TutorialInteract
 		case "combat-select-target":
 			return matches(target, SELECT_ENEMY);
 		case "combat-drag":
-			return matches(target, SELECT_ENEMY) ||
-				(ctx.combatPhase !== "selecting_target" && matches(target, SELECT_HERO));
+			return matches(target, `${SELECT_HERO}, ${SELECT_ENEMY}`);
 		case "abilities-inspect":
 			return matches(target, `${SELECT_HERO}, [data-tutorial-anchor="hero.portrait"]`);
 		case "prey-mark":
@@ -80,8 +79,7 @@ export function tutorialAllowsInteraction(target: Element, ctx: TutorialInteract
 			return matches(target, `${SELECT_HERO}, [data-tutorial-anchor="hero.power-action"]`);
 		case "hunter-attack":
 		case "fury-trigger":
-			return matches(target, SELECT_ENEMY) ||
-				(ctx.combatPhase !== "selecting_target" && matches(target, SELECT_HERO));
+			return matches(target, `${SELECT_HERO}, ${SELECT_ENEMY}`);
 		case "inventory-open":
 			return matches(target, '[data-tutorial-anchor="board.heroes"] .game-card--hero, [data-tutorial-anchor="inventory.open"]');
 		case "item-inspect":

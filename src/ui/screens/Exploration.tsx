@@ -232,6 +232,12 @@ export function Exploration({
 	// Clique em card de herói: muda foco + seleciona para combate se válido
 	function handleHeroClick(h: HeroState) {
 		if (h.status !== "active") return;
+		// The drag lesson must not change combat phase on a harmless click.
+		// Touch devices use the separate tap-then-target path below.
+		if (tutorialStepId === "combat-drag" && tutorialCombatMethod === "drag") {
+			setShowHeroFocus(false);
+			return;
+		}
 		setFocusedHero(h.id);
 		if (tutorialInventoryMode && !tutorialInventoryOpen) {
 			setShowHeroFocus(false);

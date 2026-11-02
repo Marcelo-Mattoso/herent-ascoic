@@ -212,3 +212,15 @@ test("Arquivo I continua no Arquivo II sem recarregar a página", async ({
 		)
 		.toBe(true);
 });
+
+test("Arquivo II impede painel fora de hora durante o arrasto e mantém o ataque disponível", async ({ page }) => {
+	await reachFirstAttack(page);
+	const hero = page.locator('[data-tutorial-anchor="combat.hero"] .game-card');
+	await hero.click();
+	await hero.click();
+	await expect(page.locator(".game-hero-focus-popover")).toHaveCount(0);
+	await expect(page.locator('[data-tutorial-step="combat-drag"]')).toBeVisible();
+	await hero.dragTo(page.locator('[data-tutorial-anchor="combat.enemy"]'));
+	await expect(page.locator('[data-tutorial-step="combat-dice"]')).toBeVisible();
+	await expect(page.locator(".game-dice-roll-action")).toBeVisible();
+});
