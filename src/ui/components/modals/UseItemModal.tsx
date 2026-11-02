@@ -61,6 +61,7 @@ export function UseItemModal({
 					(selected ? [selected] : items).map((item) => (
 						<ActionButton
 							key={item.itemId}
+							tutorialAnchor={item.itemId === "item_precision_potion" ? "item.confirm-use" : undefined}
 							label={item.prepared ? `Cancelar preparação: ${item.name}` :
 								item.activation === "prepare" ? `Preparar ${item.name}` : `Usar ${item.name}`}
 							variant="secondary"

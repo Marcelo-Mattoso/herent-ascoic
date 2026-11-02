@@ -2,7 +2,7 @@
   "archive-one": {
     "title": "Archive I — The Beginning of the Journey",
     "subtitle": "Narrative and dungeon mechanics",
-    "summary": "Heroes, rooms, creatures, and progression.",
+    "summary": "Heroes, rooms, Awakening, discards, and progression.",
     "steps": {
       "opening": {
         "title": "Opening",
@@ -64,6 +64,30 @@
           "These creatures prevent progress until the encounter is resolved.",
           "XP, artifacts, and the boss-related condition appear here."
         ]
+      },
+      "dungeon-levels": {
+        "title": "The five Awakening levels",
+        "narration": [
+          "Dungeon Awakening has five levels: White, Yellow, Orange, Red, and Purple. These describe the dungeon's strength, not floors that must be traversed.",
+          "Creatures use the current Awakening level for health, hit bonuses, and dice. When a hero increases Momentum for 10 XP, Awakening also advances one level, up to Purple. Spending 30 XP can reduce it, unless another rule prevents that reduction."
+        ],
+        "instruction": "Look at the color scale on the room card. It indicates the current Awakening level."
+      },
+      "dungeon-discards": {
+        "title": "Discarding dungeon cards",
+        "narration": [
+          "When the party leaves a room, its card enters the dungeon discard pile. The room's number of exits determines how many additional path cards may be lost.",
+          "One exit causes no extra discard. Two to four exits discard one card; five or more discard up to two. The engine secretly draws the next room and returns the other undiscarded options to the deck. Card effects can prevent discards."
+        ],
+        "instruction": "Check the exits shown on the current room card. Each discarded card reduces the options left in the deck."
+      },
+      "dungeon-exhaustion": {
+        "title": "When the deck runs out",
+        "narration": [
+          "Discarding cards does not directly raise Awakening; it reduces the remaining rooms to explore. Some skills and effects also discard dungeon cards.",
+          "If the dungeon deck runs out, the party can spend 5 XP to reshuffle its discarded cards and continue. Without 5 XP or cards to recover, the expedition ends in defeat. The party may also accept defeat instead of paying."
+        ],
+        "instruction": "Manage your XP: you may need it to keep exploring."
       },
       "goal": {
         "title": "The expedition's objective",

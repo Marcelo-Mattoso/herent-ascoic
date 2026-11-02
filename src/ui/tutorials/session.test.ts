@@ -49,6 +49,14 @@ describe("sessão do Arquivo I", () => {
 		expect(
 			session.events.find((event) => event.type === "room-revealed")?.source,
 		).toBe("game-observation");
+		session = skipTutorialObservation(session);
+		expect(currentTutorialStep(session).id).toBe("dungeon-levels");
+		session = continueTutorial(session);
+		expect(currentTutorialStep(session).id).toBe("dungeon-discards");
+		session = continueTutorial(session);
+		expect(currentTutorialStep(session).id).toBe("dungeon-exhaustion");
+		session = continueTutorial(session);
+		expect(currentTutorialStep(session).id).toBe("goal");
 	});
 
 	it("permite reler uma interação sem mudar a seleção ou desfazer o motor", () => {

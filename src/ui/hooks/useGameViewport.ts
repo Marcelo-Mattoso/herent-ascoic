@@ -8,6 +8,7 @@ export type GameLayoutMode =
 interface GameViewportGeometry {
 	mode: GameLayoutMode;
 	cardWidth: number;
+	requiresLandscape: boolean;
 }
 
 const CARD_RATIO = 172 / 124;
@@ -21,20 +22,21 @@ function measureViewport(): GameViewportGeometry {
 		window.innerHeight,
 		window.visualViewport?.height ?? window.innerHeight,
 	);
+	const requiresLandscape = window.matchMedia?.("(orientation: portrait) and (max-width: 600px) and (pointer: coarse)")?.matches ?? false;
 	const mode: GameLayoutMode =
 		width > 1200 && height > 500
 			? "desktop"
 			: height > width
 				? "portrait-mobile"
 				: "compact-landscape";
-	if (mode === "desktop") return { mode, cardWidth: 124 };
+	if (mode === "desktop") return { mode, cardWidth: 124, requiresLandscape: false };
 
 	// Five encounter slots and two card rows must fit together with the action
 	// line and portable HUD. The boss shares the encounter row with artifacts.
 	const horizontal = (width - 28 - 4 * 5) / 5;
-	const vertical = (height - 104) / (2 * CARD_RATIO);
+	const vertical = (height - (width > height && height <= 430 && window.matchMedia?.("(pointer: coarse)")?.matches ? 114 : 104)) / (2 * CARD_RATIO);
 	const cardWidth = Math.max(38, Math.min(124, horizontal, vertical));
-	return { mode, cardWidth };
+	return { mode, cardWidth, requiresLandscape };
 }
 
 export function useGameViewport(): GameViewportGeometry {
@@ -44,16 +46,20 @@ export function useGameViewport(): GameViewportGeometry {
 			const next = measureViewport();
 			setGeometry((current) =>
 				current.mode === next.mode &&
+				current.requiresLandscape === next.requiresLandscape &&
 				Math.abs(current.cardWidth - next.cardWidth) < 0.1
 					? current
 					: next,
 			);
 		};
+		const orientationMedia = window.matchMedia?.("(orientation: portrait) and (max-width: 600px) and (pointer: coarse)");
 		window.addEventListener("resize", update);
 		window.visualViewport?.addEventListener("resize", update);
+		orientationMedia?.addEventListener?.("change", update);
 		return () => {
 			window.removeEventListener("resize", update);
 			window.visualViewport?.removeEventListener("resize", update);
+			orientationMedia?.removeEventListener?.("change", update);
 		};
 	}, []);
 	return geometry;

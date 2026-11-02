@@ -341,6 +341,7 @@ function App() {
 				onTutorialItemDetailChange={setInventoryDetailCardId}
 				tutorialMode={!!tutorial || uiScreen === "tutorialHub"}
 				tutorialCombatMode={tutorial?.moduleId === "archive-two"}
+				tutorialStepId={tutorial ? currentTutorialStep(tutorial).id : undefined}
 				tutorialCombatMethod={
 					tutorial?.moduleId === "archive-two" &&
 					tutorial.reviewStepIndex === undefined && currentTutorialStep(tutorial).id === "combat-drag"
