@@ -263,7 +263,7 @@
       "dungeonExhaustedModal": {
         "title001": "Dungeon deck empty",
         "text002": "You can spend",
-        "text003": "5 XP",
+        "text003": "{{cost}} XP",
         "text004": "to reshuffle all discarded dungeon cards and continue. Otherwise, the expedition ends in defeat.",
         "text005": "Available XP:",
         "text006": "· Cards in discard pile:",
