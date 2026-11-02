@@ -46,7 +46,7 @@ export function Modal({
 			ref={layerRef}
 			className="modal-layer fixed inset-0 z-50 flex items-center justify-center"
 			style={{ background: "rgba(0,0,0,0.45)" }}
-			onClick={onClose}
+			onClick={(event) => { if (event.target === event.currentTarget) onClose?.(); }}
 		>
 			<div
 				ref={dialogRef}
@@ -63,7 +63,6 @@ export function Modal({
 					overflowY: "auto",
 					color: UI.textPrimary,
 				}}
-				onClick={(e) => e.stopPropagation()}
 			>
 				<div className="flex items-center justify-between mb-4">
 					<h2 className="text-lg font-medium" style={{ color: UI.textPrimary }}>
