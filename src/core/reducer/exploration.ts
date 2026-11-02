@@ -1,6 +1,6 @@
 // Handlers de exploração: revelar sala, efeito, spawnar inimigos, caminhos.
 
-import { DUNGEON_EXHAUSTION_COST } from "../config/defaults";
+import { getDungeonRecoveryCost } from "../config/defaults";
 import { getCardName } from "../data/cardLocale";
 import {
 	getArtifacts,
@@ -55,10 +55,10 @@ function drawRandomDungeonRoom(
 	const { available, discarded } = state.decks.dungeonDeck;
 
 	if (available.length === 0) {
-		if (state.groupXp >= DUNGEON_EXHAUSTION_COST && discarded.length > 0) {
+		if (state.groupXp >= getDungeonRecoveryCost(state.difficulty) && discarded.length > 0) {
 			return log(
 				{ ...state, status: "DUNGEON_EXHAUSTED" },
-				"Deck de dungeon esgotado. Gaste 5 XP para continuar.",
+				`Deck de dungeon esgotado. Gaste ${getDungeonRecoveryCost(state.difficulty)} XP para continuar.`,
 			);
 		}
 		return log(
@@ -226,10 +226,10 @@ function handleRevealSubbossRoom(
 
 function handleDungeonDeckEmpty(state: GameState): GameState {
 	const { discarded } = state.decks.dungeonDeck;
-	if (state.groupXp >= DUNGEON_EXHAUSTION_COST && discarded.length > 0) {
+	if (state.groupXp >= getDungeonRecoveryCost(state.difficulty) && discarded.length > 0) {
 		return log(
 			{ ...state, status: "DUNGEON_EXHAUSTED" },
-			"Deck de dungeon esgotado. Gaste 5 XP para continuar.",
+			`Deck de dungeon esgotado. Gaste ${getDungeonRecoveryCost(state.difficulty)} XP para continuar.`,
 		);
 	}
 	return log(
@@ -683,12 +683,14 @@ export function handleRestartDungeon(
 
 export function handleDungeonExhaustedSpend(state: GameState): GameState {
 	const { discarded } = state.decks.dungeonDeck;
+	const cost = getDungeonRecoveryCost(state.difficulty);
+	if (discarded.length === 0 || state.groupXp < cost) return state;
 	const { value: reshuffled, next: rng } = shuffleRng(discarded, state.rng);
 	const next = log(
 		{
 			...state,
 			rng,
-			groupXp: state.groupXp - DUNGEON_EXHAUSTION_COST,
+			groupXp: state.groupXp - cost,
 			decks: {
 				...state.decks,
 				dungeonDeck: {
@@ -698,7 +700,7 @@ export function handleDungeonExhaustedSpend(state: GameState): GameState {
 				},
 			},
 		},
-		"5 XP gastos. Deck de dungeon reembaralhado.",
+		`${cost} XP gastos. Deck de dungeon reembaralhado.`,
 	);
 	return handleRevealRoom(next);
 }
