@@ -25,6 +25,8 @@
 		"golden:record": "npx vite-node tools/golden/record.ts",
 		"coupling": "npx vite-node tools/golden/coupling.ts",
 		"bot": "npx vite-node tools/bot/run.ts --",
+		"bot:watch": "npx vite-node tools/bot/watch.ts --",
+		"bot:screen": "npx vite-node tools/bot/screen.ts --",
 		"typecheck:engine": "tsc -p tsconfig.engine.json",
 		"typecheck:tools": "tsc -p tsconfig.tools.json",
 		"engine-test": "vitest run --config tools/engine-test/vitest.config.ts",
