@@ -6,6 +6,7 @@ import { UseItemModal } from "@/ui/components/modals/UseItemModal";
 import { type CSSProperties, useEffect, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
+import { dungeonAwakeningEffect } from "@/core/rules/dungeonAwakening";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { EnemyState } from "@/core/state/enemyState";
@@ -719,7 +720,10 @@ function DungeonAwakeningMarker({
 }: {
 	current: PlayerView["despertar"];
 }) {
+	const [expanded, setExpanded] = useState(false);
 	const active = AWAKENING_LEVELS[current];
+	const effect = dungeonAwakeningEffect(current);
+	const colors = ["white", "yellow", "orange", "red", "purple"] as const;
 	const markerStyle = {
 		"--awakening-bg": active.bg,
 		"--awakening-border": active.border,
@@ -727,39 +731,53 @@ function DungeonAwakeningMarker({
 	} as CSSProperties;
 
 	return (
-		<section className="game-awakening-marker" style={markerStyle}>
-			<div className="game-awakening-marker__heading">
+		<section className="game-awakening-marker game-awakening-marker--compact" style={markerStyle}>
+			<header className="game-awakening-marker__heading">
 				<span>{translate("game:screens.exploration.text015")}</span>
-				<strong>{translate("game:screens.exploration.text016")}{" "}{current + 1}</strong>
-			</div>
-			<div className="game-awakening-marker__rule">{translate("game:screens.exploration.text017")}</div>
+				<div className="game-awakening-marker__controls">
+					<span className="game-awakening-marker__flame" aria-hidden="true">🔥</span>
+					<button
+						type="button"
+						className="game-awakening-marker__toggle"
+						aria-expanded={expanded}
+						aria-label={translate(expanded ? "game:screens.exploration.awakening.collapse" : "game:screens.exploration.awakening.expand")}
+						onClick={() => setExpanded((value) => !value)}
+					>
+						<span aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
+					</button>
+				</div>
+			</header>
 			<ul
 				className="game-awakening-marker__levels"
-				aria-label={translate("game:screens.exploration.ariaLabel018")}
+				aria-label={`${translate("game:screens.exploration.ariaLabel018")}: ${current + 1}`}
 			>
-				{AWAKENING_LEVELS.map((level, index) => {
-					const isCurrent = index === current;
-					return (
-						<li
-							key={level.name}
-							className={`game-awakening-marker__level${
-								isCurrent ? " is-current" : ""
-							}`}
-							style={
-								{
-									"--level-bg": level.bg,
-									"--level-border": level.border,
-									"--level-text": level.text,
-								} as CSSProperties
-							}
-							title={`${index + 1} · ${level.name}`}
-						>
-							<span>{index + 1}</span>
-							<small>{level.name}</small>
-						</li>
-					);
-				})}
+				{AWAKENING_LEVELS.map((level, index) => (
+					<li
+						key={level.name}
+						className={`game-awakening-marker__level${index === current ? " is-current" : ""}`}
+						style={{
+							"--level-bg": level.bg,
+							"--level-border": level.border,
+							"--level-text": level.text,
+						} as CSSProperties}
+						title={`${index + 1} · ${translate(`game:screens.exploration.awakening.colors.${colors[index]}`)}`}
+					/>
+				))}
 			</ul>
+			{expanded && (
+				<div className="game-awakening-marker__details">
+					<strong>{translate("game:screens.exploration.text016")} {current + 1} — {translate(`game:screens.exploration.awakening.colors.${colors[current]}`)}</strong>
+					<p>{translate(`game:screens.exploration.awakening.notes.${current}`)}</p>
+					<div className="game-awakening-marker__bonuses">
+						{effect.hitBonus > 0 && <span>{translate("game:screens.exploration.awakening.hit")} +{effect.hitBonus}</span>}
+						{effect.damageBonus > 0 && <span>{translate("game:screens.exploration.awakening.damage")} +{effect.damageBonus}</span>}
+						{effect.armorPenetration > 0 && <span>{translate("game:screens.exploration.awakening.penetration")} {effect.armorPenetration}</span>}
+						{effect.purpleSkillsEnabled && <span>{translate("game:screens.exploration.awakening.purple")}</span>}
+						{!effect.hitBonus && !effect.damageBonus && !effect.armorPenetration && <span>{translate("game:screens.exploration.awakening.noBonus")}</span>}
+					</div>
+					<small>{translate("game:screens.exploration.awakening.nonCumulative")}</small>
+				</div>
+			)}
 		</section>
 	);
 }
