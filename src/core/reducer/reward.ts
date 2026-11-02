@@ -5,7 +5,7 @@
 import type { InvFromZone, InvToZone } from "../actions/types";
 import { executeAbilityGrant, resolveManualGrantTarget } from "../abilities/executor";
 import type { XpSpendOption } from "../config/defaults";
-import { XP_COSTS } from "../config/defaults";
+import { XP_COSTS, getDungeonRecoveryCost } from "../config/defaults";
 import { cardAbilityGrants } from "../data/abilities";
 import { getCardName } from "../data/cardLocale";
 import { getCardById } from "../data/cards";
@@ -332,7 +332,7 @@ export function handleSpendXp(
 		return handleDungeonExhaustedSpend(state);
 	}
 
-	const cost = XP_COSTS[option];
+	const cost = option === "recover_dungeon" ? getDungeonRecoveryCost(state.difficulty) : XP_COSTS[option];
 	if (state.groupXp < cost) {
 		return log(
 			state,
@@ -376,7 +376,7 @@ export function handleSpendXp(
 					},
 				},
 			};
-			return log(next, "5 XP: deck de dungeon reembaralhado.");
+			return log(next, `${cost} XP: deck de dungeon reembaralhado.`);
 		}
 		case "level_up": {
 			return levelUpHero(next, heroId!);
