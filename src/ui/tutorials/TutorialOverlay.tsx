@@ -98,13 +98,12 @@ export function TutorialOverlay({
 			: base;
 	}, [highlight, step.anchors, step.anchor, step.id, session.moduleId, isReview]);
 	const [rects, setRects] = useState<Rect[]>([]);
-	const permission = {
-		stepId: step.id,
-		review: isReview,
-		combatPhase: view.combat?.phase,
-	};
-
 	useEffect(() => {
+		const permission = {
+			stepId: step.id,
+			review: isReview,
+			combatPhase: view.combat?.phase,
+		};
 		const intercept = (event: Event) => {
 			if (event instanceof KeyboardEvent && !["Enter", " "].includes(event.key)) return;
 			const target = event.target;
