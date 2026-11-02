@@ -2,7 +2,7 @@
   "archive-one": {
     "title": "Archivo I — El Inicio del Viaje",
     "subtitle": "Narrativa y mecánicas de la mazmorra",
-    "summary": "Héroes, salas, criaturas y progresión.",
+    "summary": "Héroes, salas, Despertar, descartes y progresión.",
     "steps": {
       "opening": {
         "title": "Introducción",
@@ -64,6 +64,30 @@
           "Estas criaturas impiden avanzar hasta resolver el encuentro.",
           "Aquí aparecen los XP, los artefactos y la condición para enfrentarse al jefe."
         ]
+      },
+      "dungeon-levels": {
+        "title": "Los cinco niveles del Despertar",
+        "narration": [
+          "El Despertar de la Mazmorra tiene cinco niveles: Blanco, Amarillo, Naranja, Rojo y Morado. Indican la fuerza de la mazmorra, no pisos que haya que recorrer.",
+          "Las criaturas usan el nivel actual del Despertar para determinar vida, bonificación de acierto y dados. Cuando un héroe sube su Ímpetu por 10 XP, el Despertar también avanza un nivel, hasta Morado. Gastar 30 XP permite reducirlo, salvo que otra regla lo impida."
+        ],
+        "instruction": "Observa la escala de colores de la carta de la sala. Indica el nivel actual del Despertar."
+      },
+      "dungeon-discards": {
+        "title": "Los descartes de la mazmorra",
+        "narration": [
+          "Cuando el grupo abandona una sala, su carta pasa a la pila de descartes de la mazmorra. La cantidad de salidas determina cuántas cartas adicionales de camino pueden perderse.",
+          "Una salida no causa descartes extra. De dos a cuatro salidas se descarta una carta; con cinco o más, hasta dos. El motor sortea la siguiente sala en secreto y devuelve al mazo las demás opciones no descartadas. Los efectos de cartas pueden impedir descartes."
+        ],
+        "instruction": "Fíjate en el número de salidas de la sala actual. Cada descarte reduce las opciones que quedan en el mazo."
+      },
+      "dungeon-exhaustion": {
+        "title": "Cuando se agota el mazo",
+        "narration": [
+          "Descartar cartas no aumenta directamente el Despertar; reduce las salas restantes por explorar. Algunas habilidades y efectos también pueden descartar cartas de la mazmorra.",
+          "Si se agota el mazo de la mazmorra, el grupo puede gastar 5 XP para barajar los descartes y continuar. Sin 5 XP o sin cartas descartadas que recuperar, la expedición termina en derrota. El grupo también puede aceptar la derrota en vez de pagar."
+        ],
+        "instruction": "Administra tus XP: pueden ser necesarios para continuar la expedición."
       },
       "goal": {
         "title": "El objetivo de la expedición",

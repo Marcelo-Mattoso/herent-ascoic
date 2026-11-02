@@ -2,7 +2,7 @@
   "archive-one": {
     "title": "Arquivo I — O Início da Jornada",
     "subtitle": "Narrativa e mecânicas da masmorra",
-    "summary": "Heróis, salas, criaturas e progressão.",
+    "summary": "Heróis, salas, Despertar, descartes e progressão.",
     "steps": {
       "opening": {
         "title": "Abertura",
@@ -64,6 +64,30 @@
           "Estas criaturas impedem a progressão até que o encontro seja resolvido.",
           "Aqui aparecem o XP, os artefatos e a condição ligada ao chefe."
         ]
+      },
+      "dungeon-levels": {
+        "title": "Os cinco níveis do Despertar",
+        "narration": [
+          "O Despertar da Masmorra tem cinco níveis: Branco, Amarelo, Laranja, Vermelho e Roxo. Eles indicam a força da masmorra, não andares que precisam ser percorridos.",
+          "As criaturas usam o nível atual do Despertar para definir vida, bônus de acerto e dados. Quando um herói sobe seu Ímpeto com 10 XP, o Despertar também avança um nível, até Roxo. Gastar 30 XP permite reduzi-lo, salvo quando uma regra impede essa redução."
+        ],
+        "instruction": "Observe a faixa de cores na carta da sala. Ela mostra o nível atual do Despertar."
+      },
+      "dungeon-discards": {
+        "title": "Os descartes da masmorra",
+        "narration": [
+          "Quando o grupo deixa uma sala, sua carta vai para o descarte da masmorra. E o número de saídas da sala determina quantas cartas adicionais de caminho podem ser perdidas.",
+          "Com uma saída, não há descarte extra. Com duas a quatro saídas, uma carta é descartada; com cinco ou mais, até duas. O motor sorteia a próxima sala em segredo e devolve ao baralho as outras opções não descartadas. Efeitos de cartas podem impedir descartes."
+        ],
+        "instruction": "Veja o número de saídas na carta da sala atual. Cada descarte reduz as possibilidades restantes no baralho."
+      },
+      "dungeon-exhaustion": {
+        "title": "Quando o baralho acaba",
+        "narration": [
+          "Descartar não aumenta diretamente o Despertar; reduz as cartas disponíveis para explorar. Algumas habilidades e efeitos também podem descartar cartas da masmorra.",
+          "Se o baralho de salas se esgotar, o grupo pode gastar 5 XP para reembaralhar as cartas descartadas e continuar. Sem 5 XP ou sem cartas descartadas para recuperar, a expedição termina em derrota. O grupo também pode aceitar a derrota em vez de pagar."
+        ],
+        "instruction": "Administre o XP: ele também pode ser necessário para manter a expedição em andamento."
       },
       "goal": {
         "title": "O objetivo da expedição",
