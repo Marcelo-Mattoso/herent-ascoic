@@ -525,6 +525,8 @@ function SetupInfoModal({
 							<p>{subtitle}</p>
 						</div>
 					</div>
+					<div className="setup-info-close-controls">
+						<small className="modal-escape-hint">{translate("game:components.modal.escapeHint")}</small>
 					<button
 						type="button"
 						className="setup-info-close-button"
@@ -533,6 +535,7 @@ function SetupInfoModal({
 					>
 						X
 					</button>
+					</div>
 				</header>
 				<div className="setup-info-modal__body">{children}</div>
 			</section>

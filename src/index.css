@@ -5543,3 +5543,5 @@ body:has(.tutorial-layer) .support-action { display: none; }
 .modal-escape-hint { font-size: 11px; opacity: .75; white-space: nowrap; }
 .game-hero-focus-escape-hint { margin: 0 0 5px; font-size: 11px; text-align: right; opacity: .8; }
 .hero-art-viewer__escape-hint { font-size: 12px; opacity: .8; }
+
+.setup-info-close-controls { display: flex; align-items: center; gap: 8px; }
