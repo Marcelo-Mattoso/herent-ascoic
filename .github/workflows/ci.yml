@@ -17,7 +17,7 @@ jobs:
   quality:
     runs-on: ubuntu-24.04
     permissions:
-      contents: read
+      contents: write
       pages: write
     env:
       PAGES_BASE_PATH: /${{ github.event.repository.name }}/
@@ -28,6 +28,24 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
+      # TEMPORÁRIO: produzir novos golden replays após a correção de invocação.
+      # Retirar este bloco e voltar a contents: read após o commit gerado.
+      - name: Re-record goldens for summon cap fix (temporary)
+        if: github.event_name == 'pull_request' && github.head_ref == 'fix/room-summon-cap-dev-counter-20261103'
+        run: |
+          set -euo pipefail
+          git fetch origin refs/heads/fix/room-summon-cap-dev-counter-20261103
+          git switch -C fix/room-summon-cap-dev-counter-20261103 FETCH_HEAD
+          npm run golden:record
+          git add tools/golden/replays
+          if git diff --cached --quiet; then
+            echo "Golden replays already up to date"
+          else
+            git config user.name "github-actions[bot]"
+            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+            git commit -m "test(golden): regravar partidas com limite de invocações corrigido"
+            git push origin HEAD:refs/heads/fix/room-summon-cap-dev-counter-20261103
+          fi
       - name: Test promotion safety guards
         run: node --test scripts/verify-webp-assets.test.mjs scripts/prepare-hml-promotion.test.mjs
       - run: npm run i18n:validate
