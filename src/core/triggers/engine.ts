@@ -1,27 +1,25 @@
-// Motor central de triggers.
-// A regra de "quando uma habilidade em jogo reage a uma fase/evento" mora aqui.
-// Os reducers e o event bus podem chamar esta camada sem conhecer origem da carta.
-
 import type { SkillRef } from "../data/cardTypes";
-import { getCardName } from "../data/cardLocale";
-import { getSkillName } from "../data/skillLocale";
 import { appendAlphaLog } from "../diagnostics/alphaLog";
 import type { SkillContext, SkillDefinition } from "../data/skillTypes";
 import type { Duration } from "../ecs/types";
 import type { EventType } from "../events/types";
 import { buildScriptCtx } from "../scripts/context";
-import { getScript } from "../scripts/registry";
+import { cardName, skillName, scriptOf } from "../gameEngine";
 import { evaluate } from "../skills/dsl/evaluate";
 import { resolveCondition } from "../skills/dsl/resolveCondition";
 import type { EventName } from "../skills/dsl/types";
-import { cardSkills } from "../skills/lookup";
+
 import { ActivationTracker } from "../state/activation";
-import { awakeningRequirementMet } from "../rules/awakening";
 import type { GameState } from "../state/gameState";
-import { syncEntityFromHero } from "../ecs/sync";
 import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
 import { isVoluntaryTrigger } from "../skills/activationMode";
+import { skillsOf } from "../gameEngine";
+import { refRequirementMet } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
 
+import { enemiesOf, heroesOf, withUnitStats, pendingTriggerInterruptOf } from "../state/access";
+import { type FlagScope, scopedCountOf, withScopedCount, scopedFlagOf, withScopedFlag } from "../state/access";
+import { gameOf, withGame } from "../../engine/state";
 export type TriggerWindow =
 	| "room_enter"
 	| "paths_open"
@@ -197,7 +195,8 @@ export function triggerMode(
 ): TriggerMode {
 	if (def.operate_type === "op_passive") return "passive";
 	if (sourceKind === "hero" && def.operate_type === "op_triggered") {
-		return "prompt";
+		// Reações de herói são opt-in por padrão; uma declaração explícita auto prevalece.
+		return def.interrupt?.mode ?? "prompt";
 	}
 	return def.interrupt?.mode ?? "auto";
 }
@@ -205,7 +204,7 @@ export function triggerMode(
 function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 	const sources: TriggerSource[] = [];
 
-	for (const hero of state.heroes.filter((h) => h.status === "active")) {
+	for (const hero of heroesOf(state).filter((h) => h.status === "active")) {
 		if (!ActivationTracker.isDisabled(state, "hero", hero.id)) {
 			sources.push({
 				kind: "hero",
@@ -234,7 +233,7 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 			? (enemy: { status: string }) =>
 					enemy.status === "active" || enemy.status === "defeated"
 			: (enemy: { status: string }) => enemy.status === "active";
-	for (const enemy of state.activeEnemies.filter(enemyFilter)) {
+	for (const enemy of enemiesOf(state).filter(enemyFilter)) {
 		const kind = enemy.id === "boss" ? "boss" : "enemy";
 		if (ActivationTracker.isDisabled(state, kind, enemy.id)) continue;
 		sources.push({
@@ -245,19 +244,19 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 		});
 	}
 
-	if (state.currentRoom) {
+	if (gameOf(state).currentRoom) {
 		if (
-			!ActivationTracker.isDisabled(state, "room", state.currentRoom.cardId)
+			!ActivationTracker.isDisabled(state, "room", gameOf(state).currentRoom!.cardId)
 		) {
 			sources.push({
 				kind: "room",
-				cardId: state.currentRoom.cardId,
-				entityId: state.currentRoom.cardId,
+				cardId: gameOf(state).currentRoom!.cardId,
+				entityId: gameOf(state).currentRoom!.cardId,
 			});
 		}
 	}
 
-	for (const artifact of state.groupArtifacts) {
+	for (const artifact of gameOf(state).groupArtifacts) {
 		if (ActivationTracker.isDisabled(state, "artifact", artifact.cardId)) {
 			continue;
 		}
@@ -272,15 +271,15 @@ function inPlaySources(state: GameState, event: EventName): TriggerSource[] {
 	return sources;
 }
 
-export function collectTriggerCandidates(
+export function collectTriggerCandidates(engine: GameEngine,
 	state: GameState,
 	event: EventName,
 ): TriggerCandidate[] {
 	const candidates: TriggerCandidate[] = [];
 
 	for (const source of inPlaySources(state, event)) {
-		for (const { def, ref } of cardSkills(source.cardId)) {
-			if (!awakeningRequirementMet(state.despertar, ref.requiresAwakening))
+		for (const { def, ref } of skillsOf(engine, source.cardId)) {
+			if (!refRequirementMet(engine, state, ref.requiresAwakening))
 				continue;
 			if (def.operate_type !== "op_triggered") continue;
 			if (def.trigger?.event !== event) continue;
@@ -305,23 +304,23 @@ export function collectTriggerCandidates(
 	});
 }
 
-export function collectPromptTriggers(
+export function collectPromptTriggers(engine: GameEngine,
 	state: GameState,
 	event: EventName,
 	ctx: SkillContext,
 ): TriggerCandidate[] {
-	return collectTriggerCandidates(state, event).filter(
+	return collectTriggerCandidates(engine, state, event).filter(
 		(candidate) =>
-			candidate.mode === "prompt" && candidateCanFire(state, candidate, ctx),
+			candidate.mode === "prompt" && candidateCanFire(engine, state, candidate, ctx),
 	);
 }
 
-export function hasPromptTriggers(
+export function hasPromptTriggers(engine: GameEngine,
 	state: GameState,
 	event: EventName,
 	ctx: SkillContext,
 ): boolean {
-	return collectPromptTriggers(state, event, ctx).length > 0;
+	return collectPromptTriggers(engine, state, event, ctx).length > 0;
 }
 
 export function guardPassed(
@@ -333,16 +332,19 @@ export function guardPassed(
 	if (!cooldown) return true;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
+	if (cooldown.charges > 1) {
+		return scopedCountOf(state, cooldown.scope, "skillUses", key) < cooldown.charges;
+	}
 
 	switch (cooldown.scope) {
 		case "game":
-			return !state.oncePer?.game?.[key];
+			return !gameOf(state).oncePer?.game?.[key];
 		case "room":
-			return !(state.oncePer.room ?? state.combat?.oncePer?.room)?.[key];
+			return !scopedFlagOf(state, "room", "oncePer", key);
 		case "combat":
-			return !state.combat?.oncePer?.combat?.[key];
+			return !scopedFlagOf(state, "combat", "oncePer", key);
 		case "round":
-			return !state.combat?.oncePer?.round?.[key];
+			return !scopedFlagOf(state, "round", "oncePer", key);
 	}
 }
 
@@ -363,40 +365,22 @@ export function markSkillGuardUsed(
 	if (!cooldown) return state;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
+	if (cooldown.charges > 1) {
+		return withScopedCount(state, cooldown.scope, "skillUses", key,
+			scopedCountOf(state, cooldown.scope, "skillUses", key) + 1);
+	}
 
 	if (cooldown.scope === "room") {
-		return {
-			...state,
-			oncePer: {
-				...state.oncePer,
-				room: {
-					...(state.oncePer.room ?? state.combat?.oncePer.room),
-					[key]: true,
-				},
-			},
-		};
+		return withScopedFlag(state, "room", "oncePer", key);
 	}
 	if (cooldown.scope === "game") {
-		return {
-			...state,
-			oncePer: {
-				...state.oncePer,
-				game: { ...(state.oncePer?.game ?? {}), [key]: true },
-			},
-		};
+		return withGame(state, (prevGame) => ({ ...prevGame, oncePer: {
+				...gameOf(state).oncePer,
+				game: { ...(gameOf(state).oncePer?.game ?? {}), [key]: true },
+			} }));
 	}
-	if (state.combat) {
-		const scope = cooldown.scope as "room" | "combat" | "round";
-		return {
-			...state,
-			combat: {
-				...state.combat,
-				oncePer: {
-					...(state.combat.oncePer ?? {}),
-					[scope]: { ...(state.combat.oncePer?.[scope] ?? {}), [key]: true },
-				},
-			},
-		};
+	if (gameOf(state).combat) {
+		return withScopedFlag(state, cooldown.scope as FlagScope, "oncePer", key);
 	}
 	return state;
 }
@@ -494,7 +478,7 @@ function resolveSkillParams(
 	};
 }
 
-export function candidateCanFire(
+export function candidateCanFire(engine: GameEngine,
 	state: GameState,
 	candidate: TriggerCandidate,
 	ctx: SkillContext,
@@ -507,7 +491,7 @@ export function candidateCanFire(
 	}
 	const hpCost = candidate.definition.cost?.hp ?? 0;
 	if (hpCost > 0 && candidate.source.sourceHeroId) {
-		const hero = state.heroes.find(
+		const hero = heroesOf(state).find(
 			(entry) => entry.id === candidate.source.sourceHeroId,
 		);
 		if (!hero || hero.currentLife <= hpCost) return false;
@@ -517,7 +501,7 @@ export function candidateCanFire(
 		candidate.definition.conditions &&
 		candidate.definition.conditions.length > 0
 	) {
-		const evalCtx = buildScriptCtx(
+		const evalCtx = buildScriptCtx(engine,
 			state,
 			resolveSkillContext(candidate, ctx),
 			resolveSkillParams(candidate),
@@ -530,7 +514,7 @@ export function candidateCanFire(
 	return true;
 }
 
-export function executeTriggerCandidate(
+export function executeTriggerCandidate(engine: GameEngine,
 	state: GameState,
 	candidate: TriggerCandidate,
 	ctx: SkillContext,
@@ -538,31 +522,26 @@ export function executeTriggerCandidate(
 	let current = state;
 	const hpCost = candidate.definition.cost?.hp ?? 0;
 	if (hpCost > 0 && candidate.source.sourceHeroId) {
-		const hero = current.heroes.find(
+		const hero = heroesOf(current).find(
 			(entry) => entry.id === candidate.source.sourceHeroId,
 		);
 		if (!hero || hero.currentLife <= hpCost) return state;
-		const paidHero = { ...hero, currentLife: hero.currentLife - hpCost };
-		current = {
-			...current,
-			heroes: current.heroes.map((entry) =>
-				entry.id === hero.id ? paidHero : entry,
-			),
-			world: syncEntityFromHero(current.world, paidHero),
-		};
+		current = withUnitStats(current, hero.id, {
+			currentLife: hero.currentLife - hpCost,
+		});
 	}
 
 	if (candidate.definition.effect) {
 		const resolvedCtx = resolveSkillContext(candidate, ctx);
 		const params = resolveSkillParams(candidate);
-		const evalCtx = buildScriptCtx(current, resolvedCtx, params);
+		const evalCtx = buildScriptCtx(engine, current, resolvedCtx, params);
 		current = evaluate(candidate.definition.effect, evalCtx);
 	} else if (candidate.definition.script) {
-		const fn = getScript(`${candidate.definition.script}.run`);
+		const fn = scriptOf(engine, `${candidate.definition.script}.run`);
 		if (fn) {
 			const resolvedCtx = resolveSkillContext(candidate, ctx);
 			const params = resolveSkillParams(candidate);
-			const scriptCtx = buildScriptCtx(current, resolvedCtx, params);
+			const scriptCtx = buildScriptCtx(engine, current, resolvedCtx, params);
 			current = fn(scriptCtx);
 		}
 	}
@@ -571,7 +550,7 @@ export function executeTriggerCandidate(
 		current,
 		candidate.definition,
 		candidate.source.sourceHeroId,
-	), `Gatilho ${getSkillName(candidate.definition.id)} ativado por ${getCardName(candidate.source.cardId)} (${candidate.source.sourceHeroId ?? candidate.source.sourceEnemyId ?? "grupo"}) em ${candidate.event}; parâmetros ${JSON.stringify(resolveSkillParams(candidate))}.`);
+	), `Gatilho ${skillName(engine, candidate.definition.id)} ativado por ${cardName(engine, candidate.source.cardId)} (${candidate.source.sourceHeroId ?? candidate.source.sourceEnemyId ?? "grupo"}) em ${candidate.event}; parâmetros ${JSON.stringify(resolveSkillParams(candidate))}.`);
 }
 
 function candidateMatchesDecision(
@@ -652,11 +631,11 @@ export function createPendingTriggerInterrupt(
 	};
 }
 
-export function fireTriggerDecision(
+export function fireTriggerDecision(engine: GameEngine,
 	state: GameState,
 	decision: TriggerDecision,
 ): GameState {
-	const candidate = collectTriggerCandidates(state, decision.event).find((c) =>
+	const candidate = collectTriggerCandidates(engine, state, decision.event).find((c) =>
 		candidateMatchesDecision(c, decision),
 	);
 	if (!candidate) return state;
@@ -672,35 +651,35 @@ export function fireTriggerDecision(
 		targetEnemyIds: decision.targetEnemyIds,
 		value: decision.value ?? null,
 	};
-	if (!candidateCanFire(state, candidate, ctx)) return state;
-	return executeTriggerCandidate(state, candidate, ctx);
+	if (!candidateCanFire(engine, state, candidate, ctx)) return state;
+	return executeTriggerCandidate(engine, state, candidate, ctx);
 }
 
-export function fireTrigger(
+export function fireTrigger(engine: GameEngine,
 	state: GameState,
 	event: EventName,
 	ctx: SkillContext,
 ): GameState {
-	const candidates = collectTriggerCandidates(state, event);
+	const candidates = collectTriggerCandidates(engine, state, event);
 	let current = state;
-	if (current.pendingTriggerInterrupt) return current;
+	if (pendingTriggerInterruptOf(current)) return current;
 
 	for (const candidate of candidates) {
 		if (isVoluntaryTrigger(candidate.definition, candidate.source.kind, event)) {
-			if (!candidateCanFire(current, candidate, ctx)) continue;
+			if (!candidateCanFire(engine, current, candidate, ctx)) continue;
 			const sourceHeroId = candidate.source.sourceHeroId;
 			if (!sourceHeroId ||
 				(candidate.source.kind !== "hero" && candidate.source.kind !== "item" && candidate.source.kind !== "artifact")) continue;
 			const key = preparedAbilityKey(candidate.source.kind, sourceHeroId,
 				candidate.source.cardId, candidate.definition.id);
 			if (!isAbilityPrepared(current, key)) continue;
-			current = removePreparedAbility(executeTriggerCandidate(current, candidate, ctx), key);
+			current = removePreparedAbility(executeTriggerCandidate(engine, current, candidate, ctx), key);
 			continue;
 		}
 		if (candidate.definition.operate_type === "op_passive") continue;
-		if (!candidateCanFire(current, candidate, ctx)) continue;
+		if (!candidateCanFire(engine, current, candidate, ctx)) continue;
 
-		current = executeTriggerCandidate(current, candidate, ctx);
+		current = executeTriggerCandidate(engine, current, candidate, ctx);
 	}
 
 	return current;

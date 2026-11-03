@@ -1,0 +1,100 @@
+{
+	"gameId": "golden-1000",
+	"seed": 1000,
+	"actionLog": [
+		{
+			"seq": 0,
+			"action": {
+				"type": "START_GAME",
+				"payload": {
+					"heroCardIds": [
+						"hero_crimson_barbarian"
+					],
+					"difficulty": "very_easy",
+					"bossCardId": "boss_azhakar",
+					"seed": 1000,
+					"gameId": "golden-1000"
+				}
+			}
+		},
+		{
+			"seq": 1,
+			"action": {
+				"type": "RESOLVE_ROOM_EFFECT"
+			}
+		},
+		{
+			"seq": 2,
+			"action": {
+				"type": "SPAWN_ENEMIES"
+			}
+		},
+		{
+			"seq": 3,
+			"action": {
+				"type": "START_COMBAT"
+			}
+		},
+		{
+			"seq": 4,
+			"action": {
+				"type": "SKILL_CHOICE",
+				"payload": {
+					"skillId": "purple_dark_tribute",
+					"choice": "discard_item"
+				}
+			}
+		},
+		{
+			"seq": 5,
+			"action": {
+				"type": "CHOOSE_TARGET",
+				"payload": {
+					"heroId": "h-1utkz56-1yfilh1",
+					"enemyId": "e-hva3gr-1f5lt2a"
+				}
+			}
+		},
+		{
+			"seq": 6,
+			"action": {
+				"type": "ROLL_DICE"
+			}
+		},
+		{
+			"seq": 7,
+			"action": {
+				"type": "RESOLVE_ATTACK"
+			}
+		},
+		{
+			"seq": 8,
+			"action": {
+				"type": "DIRECT_DAMAGE"
+			}
+		},
+		{
+			"seq": 9,
+			"action": {
+				"type": "CHECK_COMBAT_END"
+			}
+		},
+		{
+			"seq": 10,
+			"action": {
+				"type": "CHOOSE_TARGET",
+				"payload": {
+					"heroId": "h-1utkz56-1yfilh1",
+					"enemyId": "e-1w53v33-1k8sam0"
+				}
+			}
+		},
+		{
+			"seq": 11,
+			"action": {
+				"type": "ROLL_DICE"
+			}
+		}
+	],
+	"stateVersion": 1
+}

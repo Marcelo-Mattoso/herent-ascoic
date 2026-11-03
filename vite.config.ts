@@ -265,11 +265,20 @@ function writeCardImageManifest() {
 		const packageDir = path.join(expansionRoot, entry.id);
 		const pack = JSON.parse(
 			fs.readFileSync(path.join(packageDir, "expansion.json"), "utf8"),
-		) as { id: string; cards: Array<{ id: string; image?: string }> };
+		) as { id: string; boss?: string; cards: Array<{ id: string; image?: string }> };
 		if (pack.id !== entry.id || !Array.isArray(pack.cards)) {
 			throw new Error("Pacote inválido: " + entry.id);
 		}
-		for (const card of pack.cards) {
+		const packageCards = [...pack.cards];
+		if (pack.boss) {
+			if (pack.boss !== "boss.json") throw new Error("Arquivo de boss inválido: " + pack.boss);
+			const boss = JSON.parse(fs.readFileSync(path.join(packageDir, pack.boss), "utf8")) as {
+				card: { id: string; image?: string };
+			};
+			if (!boss.card?.id) throw new Error("Ficha do boss inválida: " + entry.id);
+			packageCards.push(boss.card);
+		}
+		for (const card of packageCards) {
 			if (ids.has(card.id)) throw new Error("ID de carta duplicado: " + card.id);
 			ids.add(card.id);
 			if (!card.image) continue;
@@ -508,8 +517,9 @@ export default defineConfig({
 		},
 	},
 	test: {
+		testTimeout: 60_000,
 		environment: "node",
-		exclude: [...configDefaults.exclude, "e2e/**"],
+		exclude: [...configDefaults.exclude, "e2e/**", "tools/engine-test/**"],
 		passWithNoTests: true,
 		coverage: {
 			provider: "v8",

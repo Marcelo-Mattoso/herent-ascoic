@@ -15,6 +15,9 @@ categories:
 abilities:
   - id: skill_crimson_fury
     category: hero_skill
+    cooldown:
+      scope: round
+      charges: 1
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
@@ -42,6 +45,10 @@ abilities:
     affect_object: obj_friend
   - id: skill_last_light_healing
     category: hero_skill
+    action_cost: consume_hero_action
+    cooldown:
+      scope: round
+      charges: 1
     effect:
       - kind: i_heal
         to: $target
@@ -55,6 +62,10 @@ abilities:
     affect_object: obj_friend
   - id: skill_bastion_guard
     category: hero_skill
+    action_cost: consume_hero_action
+    cooldown:
+      scope: round
+      charges: 1
     effect:
       - kind: p_modifier
         to: $target
@@ -73,20 +84,21 @@ abilities:
     affect_object: obj_friend
   - id: skill_rift_rune
     category: hero_skill
-    operate_type: op_triggered
-    trigger:
-      event: evt_roll
+    script: skill_rift_rune
+    operate_type: op_active
+    action_cost: consume_hero_action
+    cooldown:
+      scope: round
+      charges: 1
     nature:
       - nat_magical
-    effect:
-      - kind: i_modify_die
-        delta: $value
-        die_side: hero
-    target_type: tgt_self
+    target_type: tgt_target
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_hunter_focus
     category: hero_skill
+    rules:
+      hitBonusParam: value
     script: skill_hunter_focus
     operate_type: op_passive
     nature:
@@ -155,8 +167,8 @@ abilities:
     trigger:
       event: evt_dungeon_discard
     cooldown:
-      scope: room
-      charges: 1
+      scope: game
+      charges: 3
     nature:
       - nat_magical
     target_type: tgt_item
@@ -264,6 +276,9 @@ abilities:
     affect_object: obj_all
   - id: skill_prey_mark
     category: hero_skill
+    rules:
+      preyHitBonus:
+        label: Marca da Presa
     effect:
       - kind: i_mark_target
         to: $target
@@ -282,7 +297,6 @@ abilities:
       - kind: i_recover_dungeon
         count: $value
     operate_type: op_active
-    cooldown: *a2
     nature:
       - nat_magical
       - nat_dark
@@ -291,27 +305,11 @@ abilities:
     affect_object: obj_all
   - id: skill_final_dawn_light
     category: hero_skill
-    effect:
-      - kind: p_modifier
-        to: $source
-        stat: s_hit_bonus
-        operation: add
-        value: 2
-        duration:
-          kind: until_end_of_combat
-      - kind: p_modifier
-        to: $source
-        stat: s_damage_dealt
-        operation: add
-        value: 2
-        duration:
-          kind: until_end_of_combat
+    effect: []
     params:
       tohit: 2
       damage: 2
-    operate_type: op_triggered
-    trigger:
-      event: evt_combat_start
+    operate_type: op_passive
     conditions:
       - kind: compare
         op: gte
@@ -852,9 +850,18 @@ abilities:
     nature:
       - nat_magical
     effect:
-      - kind: i_set_die
-        value: 6
-        die_side: any
+      - kind: i_choose_one
+        options:
+          - id: ally_six
+            effect:
+              - kind: i_set_die
+                value: 6
+                die_side: hero
+          - id: enemy_min
+            effect:
+              - kind: i_set_die
+                value: 1
+                die_side: enemy
     target_type: tgt_target
     affect_scope: scp_single
     affect_object: obj_all
@@ -922,9 +929,20 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_kill
+    interrupt:
+      mode: auto
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_magical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
+  - id: spend_deep_veil_echo
+    category: hero_power
+    script: spend_deep_veil_echo
+    operate_type: op_active
     nature:
       - nat_magical
     target_type: tgt_self
@@ -934,7 +952,7 @@ abilities:
     category: hero_power
     operate_type: op_triggered
     trigger:
-      event: evt_roll
+      event: evt_attack_declared
     cooldown:
       scope: game
       charges: 1
@@ -947,19 +965,25 @@ abilities:
     effect:
       - kind: p_modifier
         to: $source
-        stat: s_damage_dealt
+        stat: s_hit_bonus
         operation: add
-        value: 1
+        value: 6
         duration:
           kind: once
-      - kind: i_set_die
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_dealt
+        operation: add
         value: 6
-        die_side: hero
-    target_type: tgt_self
+        duration:
+          kind: once
+    target_type: tgt_enemy
     affect_scope: scp_single
-    affect_object: obj_friend
+    affect_object: obj_not_friend
   - id: purple_raging_flames
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -979,6 +1003,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_forge_chains
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: flee
@@ -993,6 +1019,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_ruin_ashes
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_discard
         pile: dungeon
@@ -1008,6 +1036,8 @@ abilities:
     affect_object: obj_all
   - id: purple_crimson_plate
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_prevent_next_damage
         to: $source
@@ -1025,6 +1055,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_ash_protection
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_modifier
         to: $source
@@ -1044,6 +1076,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_dark_awakening
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_advance_dungeon
         amount: 1
@@ -1056,6 +1090,8 @@ abilities:
     affect_object: obj_all
   - id: purple_deadly_awakening
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_advance_dungeon
         amount: 1
@@ -1068,6 +1104,8 @@ abilities:
     affect_object: obj_all
   - id: purple_ember_blood
     category: monster_purple
+    rules:
+      damageType: purple
     operate_type: op_triggered
     trigger:
       event: evt_damage_taken
@@ -1083,6 +1121,8 @@ abilities:
     affect_object: obj_not_friend
   - id: purple_depths_seal
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: power_use
@@ -1094,6 +1134,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_dark_tribute
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_choose_one
         options:
@@ -1119,6 +1161,8 @@ abilities:
     affect_object: obj_all
   - id: purple_blood_tribute
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: i_choose_one
         options:
@@ -1143,6 +1187,8 @@ abilities:
     affect_object: obj_all
   - id: purple_veil_retaliation
     category: monster_purple
+    rules:
+      damageType: purple
     operate_type: op_triggered
     trigger:
       event: evt_hit
@@ -1158,6 +1204,8 @@ abilities:
     affect_object: obj_not_friend
   - id: purple_healing_rupture
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: heal
@@ -1174,6 +1222,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_ancient_veil_prison
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_modifier
         to: $target
@@ -1196,6 +1246,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_deep_veil_seal
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_block
         what: dungeon_level_reduction
@@ -1210,6 +1262,8 @@ abilities:
     affect_object: obj_friend
   - id: purple_crimson_shackles
     category: monster_purple
+    rules:
+      damageType: purple
     effect:
       - kind: p_modifier
         to: $target
@@ -1239,6 +1293,9 @@ abilities:
     affect_object: obj_friend
   - id: item_skill_deadly_edge
     category: item_skill
+    rules:
+      handledByEquipment: true
+      minRollMargin: 4
     effect:
       - kind: p_modifier
         to: $source
@@ -1264,6 +1321,8 @@ abilities:
     affect_object: obj_friend
   - id: item_skill_block
     category: item_skill
+    rules:
+      handledByEquipment: true
     effect:
       - kind: p_modifier
         to: $source
@@ -1307,6 +1366,8 @@ abilities:
     affect_object: obj_all
   - id: item_skill_last_light_blade
     category: item_skill
+    rules:
+      handledByEquipment: true
     effect:
       - kind: p_modifier
         to: $source
@@ -1448,77 +1509,12 @@ abilities:
     target_type: tgt_enemy
     affect_scope: scp_single
     affect_object: obj_not_friend
-  - id: boss_skill_living_ash_throne
-    category: boss_skill
-    effect:
-      - kind: p_modifier
-        to: $source
-        stat: s_damage_reduction
-        operation: add
-        value: $value
-        duration:
-          kind: once
-    operate_type: op_triggered
-    trigger: *a12
-    cooldown: *a13
-    nature:
-      - nat_fire
-      - nat_dark
-    target_type: tgt_self
-    affect_scope: scp_single
-    affect_object: obj_not_friend
-  - id: boss_skill_dark_forge_pressure
-    category: boss_skill
-    effect:
-      - kind: i_if
-        when:
-          kind: compare
-          op: gte
-          left: $dungeon.level
-          right: 4
-        then:
-          - kind: i_discard
-            pile: dungeon
-            count: 1
-    operate_type: op_triggered
-    trigger:
-      event: evt_round_end
-    conditions:
-      - kind: compare
-        op: gte
-        left: $dungeon.level
-        right: 3
-    nature:
-      - nat_dark
-      - nat_fire
-    target_type: tgt_item
-    affect_scope: scp_none
-    affect_object: obj_all
-  - id: boss_skill_azhakar_ascension
-    category: boss_skill
-    effect:
-      - kind: p_modifier
-        to: $source
-        stat: s_hit_bonus
-        operation: add
-        value: 2
-        duration:
-          kind: permanent
-    operate_type: op_triggered
-    trigger:
-      event: evt_damage_taken
-    conditions:
-      - kind: has_condition
-        of: $self
-        conditionType: half_life_or_less
-    nature:
-      - nat_dark
-      - nat_fire
-    target_type: tgt_self
-    affect_scope: scp_single
-    affect_object: obj_not_friend
   - id: item_skill_drain_life_and_deadly_edge
     category: item_skill
+    rules:
+      handledByEquipment: true
+      minRollMargin: 4
+      lifeDrain: 1
     effect:
       - kind: p_modifier
         to: $source
@@ -1548,6 +1544,8 @@ abilities:
     affect_object: obj_friend
   - id: item_skill_block_and_last_light_ward
     category: item_skill
+    rules:
+      handledByEquipment: true
     effect:
       - kind: p_modifier
         to: $source

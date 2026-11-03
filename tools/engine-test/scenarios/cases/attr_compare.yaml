@@ -1,0 +1,12 @@
+name: attr_compare compara o valor final do atributo com todos os operadores
+kind: attr_compare
+given:
+  units:
+    - { id: aria, def: aria, controller: a, pools: { vida: 20 } }
+when:
+  - test: { subject: aria, node: { kind: attr_compare, attr: vida, op: lt, value: 21 }, expect: true }
+  - test: { subject: aria, node: { kind: attr_compare, attr: vida, op: lte, value: 20 }, expect: true }
+  - test: { subject: aria, node: { kind: attr_compare, attr: vida, op: eq, value: 20 }, expect: true }
+  - test: { subject: aria, node: { kind: attr_compare, attr: vida, op: gte, value: 21 }, expect: false }
+  - test: { subject: aria, node: { kind: attr_compare, attr: vida_max, op: gt, value: 49 }, expect: true }
+  - test: { subject: aria, node: { kind: attr_compare, attr: vida, op: gt, value: 20, negate: true }, expect: true }

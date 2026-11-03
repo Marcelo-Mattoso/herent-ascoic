@@ -1,7 +1,7 @@
 import { translate } from "@/i18n";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { CombatRollResult } from "@/core/state/combatState";
+import type { CombatRollResult } from "@/core/projection/viewTypes";
 
 interface DiceRollOverlayProps {
 	roll: CombatRollResult;

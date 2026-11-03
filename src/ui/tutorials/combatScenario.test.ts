@@ -17,6 +17,9 @@ import {
 	recordCombatAttackInput,
 	startTutorial,
 } from "./session";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { enemiesOf, heroesOf } from "../../core/state/access";
+import { gameOf } from "../../engine/state";
 
 const HERO = COMBAT_DEFAULT_HERO;
 const HEROES = [
@@ -32,10 +35,10 @@ const HEROES = [
 
 function encounter(actions: readonly Action[], heroCardId = HERO) {
 	let state = createInitialGameState({ heroCardIds: [heroCardId] });
-	const journal = createGameJournal(state);
+	const journal = createGameJournal(testEngine, state);
 	const dispatch = (action: Action) => {
 		const before = state;
-		state = reducer(state, action);
+		state = reducer(testEngine, state, action);
 		journal.record(action, before, state);
 	};
 	for (const action of actions) dispatch(action);
@@ -51,7 +54,7 @@ function encounter(actions: readonly Action[], heroCardId = HERO) {
 describe("Arquivo II — encontro e progressão pelo motor", () => {
 	it("as seeds mantêm a entrada e o golpe final válidos para os oito heróis", () => {
 		for (const heroCardId of HEROES) {
-			const initialView = playerView(
+			const initialView = playerView(testEngine, 
 				createInitialGameState({ heroCardIds: [heroCardId] }),
 			);
 			const opening = encounter(
@@ -61,44 +64,44 @@ describe("Arquivo II — encontro e progressão pelo motor", () => {
 				}),
 				heroCardId,
 			);
-			expect(opening.state.status, heroCardId).toBe("HERO_ACTION");
-			expect(opening.state.activeEnemies, heroCardId).toHaveLength(1);
+			expect(gameOf(opening.state).status, heroCardId).toBe("HERO_ACTION");
+			expect(enemiesOf(opening.state), heroCardId).toHaveLength(1);
 			expect(
-				playerView(opening.state).pendingSkillChoice,
+				playerView(testEngine, opening.state).pendingSkillChoice,
 				heroCardId,
 			).toBeNull();
 			const finish = encounter(prepareCombatCheckpoint(heroCardId), heroCardId);
-			const heroId = finish.state.heroes[0].id;
-			const enemyId = finish.state.activeEnemies[0].id;
+			const heroId = heroesOf(finish.state)[0].id;
+			const enemyId = enemiesOf(finish.state)[0].id;
 			finish.dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 			finish.dispatch({ type: "ROLL_DICE" });
 			finish.dispatch({ type: "RESOLVE_ATTACK" });
 			expect(
-				finish.state.activeEnemies.find((enemy) => enemy.id === enemyId)
+				enemiesOf(finish.state).find((enemy) => enemy.id === enemyId)
 					?.currentLife,
 				heroCardId,
 			).toBe(0);
 			finish.dispatch({ type: "CHECK_COMBAT_END" });
-			expect(finish.state.status, heroCardId).toBe("REWARD_PHASE");
+			expect(gameOf(finish.state).status, heroCardId).toBe("REWARD_PHASE");
 		}
 	});
 	it("prepara duas situações reais sem decisões pendentes e resolve vitória com o core", () => {
-		const initialView = playerView(
+		const initialView = playerView(testEngine, 
 			createInitialGameState({ heroCardIds: [HERO] }),
 		);
 		const opening = encounter(
 			prepareCombatEntry({ view: initialView, selectedHeroCardIds: [HERO] }),
 		);
-		expect(opening.state.status).toBe("HERO_ACTION");
-		expect(opening.state.activeEnemies).toHaveLength(1);
-		expect(opening.state.currentRoom).toBeTruthy();
-		expect(playerView(opening.state).pendingSkillChoice).toBeNull();
+		expect(gameOf(opening.state).status).toBe("HERO_ACTION");
+		expect(enemiesOf(opening.state)).toHaveLength(1);
+		expect(gameOf(opening.state).currentRoom).toBeTruthy();
+		expect(playerView(testEngine, opening.state).pendingSkillChoice).toBeNull();
 		const finish = encounter(prepareCombatCheckpoint(HERO));
-		const heroId = finish.state.heroes[0].id;
-		const enemyId = finish.state.activeEnemies[0].id;
+		const heroId = heroesOf(finish.state)[0].id;
+		const enemyId = enemiesOf(finish.state)[0].id;
 		finish.dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 		finish.dispatch({ type: "ROLL_DICE" });
-		const roll = finish.state.combat?.lastRoll;
+		const roll = gameOf(finish.state).combat?.lastRoll;
 		expect(roll).toBeTruthy();
 		finish.dispatch({ type: "RESOLVE_ATTACK" });
 		const entry = finish.journal.get().entries.at(-1);
@@ -108,11 +111,11 @@ describe("Arquivo II — encontro e progressão pelo motor", () => {
 			entry?.after.enemies.find((enemy) => enemy.id === enemyId)?.life,
 		).toBe(0);
 		finish.dispatch({ type: "CHECK_COMBAT_END" });
-		expect(finish.state.status).toBe("REWARD_PHASE");
+		expect(gameOf(finish.state).status).toBe("REWARD_PHASE");
 	});
 
 	it("avança apenas após ações correlacionadas ao segundo checkpoint", () => {
-		const initialView = playerView(
+		const initialView = playerView(testEngine, 
 			createInitialGameState({ heroCardIds: [HERO] }),
 		);
 		const game = encounter(
@@ -122,24 +125,24 @@ describe("Arquivo II — encontro e progressão pelo motor", () => {
 		session = continueTutorial(session);
 		for (let i = 0; i < 4; i++) session = continueTutorial(session);
 		expect(currentTutorialStep(session).id).toBe("combat-select-hero");
-		const heroId = game.state.heroes[0].id;
-		const enemyId = game.state.activeEnemies[0].id;
+		const heroId = heroesOf(game.state)[0].id;
+		const enemyId = enemiesOf(game.state)[0].id;
 		game.dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
 		session = reconcileTutorial(
 			session,
-			playerView(game.state),
+			playerView(testEngine, game.state),
 			game.journal.get(),
 		);
 		expect(currentTutorialStep(session).id).toBe("combat-select-target");
 		game.dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });
 		game.dispatch({ type: "ROLL_DICE" });
 		expect(
-			reconcileTutorial(session, playerView(game.state), game.journal.get()),
+			reconcileTutorial(session, playerView(testEngine, game.state), game.journal.get()),
 		).toBe(session);
 		game.dispatch({ type: "RESOLVE_ATTACK" });
 		session = reconcileTutorial(
 			session,
-			playerView(game.state),
+			playerView(testEngine, game.state),
 			game.journal.get(),
 		);
 		expect(currentTutorialStep(session).id).toBe("combat-drag");
@@ -148,15 +151,15 @@ describe("Arquivo II — encontro e progressão pelo motor", () => {
 		session = markCombatCheckpointReady(session);
 		const sequence = checkpoint.journal.get().entries.at(-1)?.sequence ?? 0;
 		session = recordCombatAttackInput(session, "drag", sequence);
-		const nextHero = checkpoint.state.heroes[0].id;
-		const nextEnemy = checkpoint.state.activeEnemies[0].id;
+		const nextHero = heroesOf(checkpoint.state)[0].id;
+		const nextEnemy = enemiesOf(checkpoint.state)[0].id;
 		checkpoint.dispatch({
 			type: "CHOOSE_TARGET",
 			payload: { heroId: nextHero, enemyId: nextEnemy },
 		});
 		session = reconcileTutorial(
 			session,
-			playerView(checkpoint.state),
+			playerView(testEngine, checkpoint.state),
 			checkpoint.journal.get(),
 		);
 		expect(currentTutorialStep(session).id).toBe("combat-dice");
@@ -164,7 +167,7 @@ describe("Arquivo II — encontro e progressão pelo motor", () => {
 		checkpoint.dispatch({ type: "RESOLVE_ATTACK" });
 		session = reconcileTutorial(
 			session,
-			playerView(checkpoint.state),
+			playerView(testEngine, checkpoint.state),
 			checkpoint.journal.get(),
 		);
 		expect(currentTutorialStep(session).id).toBe("combat-result");

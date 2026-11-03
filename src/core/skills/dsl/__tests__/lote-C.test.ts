@@ -1,10 +1,13 @@
-// Testes de aceite Lote C (patch-21) — $each itera sobre affect_scope.
 import { describe, expect, it } from "vitest";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
 import { evaluate } from "../evaluate";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { heroesOf } from "../../../state/access";
+import { settled } from "../../../__tests__/fixtures";
+import { withGame } from "../../../../engine/state";
 
 function makeHero(id: string, life = 10): HeroState {
 	return {
@@ -15,7 +18,6 @@ function makeHero(id: string, life = 10): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -33,16 +35,16 @@ describe("$each — iteração sobre affect_scope", () => {
 		});
 		const h1 = makeHero("h1");
 		const h2 = makeHero("h2");
-		const state = { ...base, heroes: [h1, h2] };
+		const state = settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [h1, h2] })));
 
 		// Popula targetIds com todos os heróis (simula dispatcher com scp_party_full)
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "evt_combat_start", targetHeroIds: ["h1", "h2"] },
 			{},
 		);
 
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -57,8 +59,8 @@ describe("$each — iteração sobre affect_scope", () => {
 		);
 
 		// Ambos heróis devem ter sofrido 1 de dano
-		expect(result.heroes.find((h) => h.id === "h1")?.currentLife).toBe(9);
-		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(9);
+		expect(heroesOf(result).find((h) => h.id === "h1")?.currentLife).toBe(9);
+		expect(heroesOf(result).find((h) => h.id === "h2")?.currentLife).toBe(9);
 	});
 
 	it("$each em over resolve para targetIds (scp_single — só h1)", () => {
@@ -67,16 +69,16 @@ describe("$each — iteração sobre affect_scope", () => {
 		});
 		const h1 = makeHero("h1");
 		const h2 = makeHero("h2");
-		const state = { ...base, heroes: [h1, h2] };
+		const state = settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [h1, h2] })));
 
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "evt_combat_start", targetHeroIds: ["h1"] },
 			{},
 		);
 
 		// $each em over itera sobre targetIds (h1 apenas)
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -90,7 +92,7 @@ describe("$each — iteração sobre affect_scope", () => {
 			),
 		);
 
-		expect(result.heroes.find((h) => h.id === "h1")?.currentLife).toBe(8);
-		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(10);
+		expect(heroesOf(result).find((h) => h.id === "h1")?.currentLife).toBe(8);
+		expect(heroesOf(result).find((h) => h.id === "h2")?.currentLife).toBe(10);
 	});
 });

@@ -1,0 +1,18 @@
+name: if_counter executa o ramo then quando a comparação vale
+kind: if_counter
+given:
+  counters:
+    - { scope: jogo, id: "-", name: pontos, value: 5 }
+    - { scope: jogo, id: "-", name: bonus, value: 0 }
+when:
+  - run:
+      - kind: if_counter
+        counter: { scope: jogo, id: "-", name: pontos }
+        op: gte
+        value: 5
+        then:
+          - { kind: change_counter, counter: { scope: jogo, id: "-", name: bonus }, delta: 1 }
+        else:
+          - { kind: change_counter, counter: { scope: jogo, id: "-", name: bonus }, delta: 100 }
+then:
+  counters: { "jogo:-:bonus": 1 }

@@ -1,0 +1,13 @@
+name: damage de tipo sem mitigação ignora a armadura
+kind: damage
+given:
+  units:
+    - { id: alvo, def: espreitador_do_junco, controller: e }
+when:
+  - run: [{ kind: damage, target: alvo, amount: 5, type: veneno }]
+then:
+  events:
+    - { type: dano.proposto, payload: { type: veneno, amount: 5 } }
+    - { type: dano.aplicado, payload: { amount: 5, life: 25 } }
+  units:
+    alvo: { attributes: { vida: 25 } }

@@ -1,5 +1,3 @@
-﻿// Testes de aceite Patch-16 Lote B — novos kinds DSL e skills #7-#20.
-
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../../data/skills";
 import { drainStack } from "../../../effects/resolver";
@@ -12,6 +10,11 @@ import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { deckOf, decksOf, heroesOf, withDecks } from "@/core/state/access";
+import { settledWith, type LooseGame } from "../../../__tests__/fixtures";
+import { pendingSkillChoiceOf, scopedFlagOf, withPendingSkillChoice } from "../../../state/access";
+import { gameOf, withGame } from "../../../../engine/state";
 
 const CFG = { heroCardIds: [] };
 
@@ -24,7 +27,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -36,13 +38,12 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	};
 }
 
-function stateWithCombat(extra: Partial<GameState> = {}): GameState {
-	return {
-		...createInitialGameState(CFG),
+function stateWithCombat(extra: Partial<LooseGame> = {}): GameState {
+	return settledWith(createInitialGameState(CFG), {
 		heroes: [makeHero()],
 		combat: createEmptyCombatState(),
 		...extra,
-	};
+	});
 }
 
 function defEffect(id: string) {
@@ -56,7 +57,7 @@ function defEffect(id: string) {
 describe("prevent_next_damage (kinds #7 / #9)", () => {
 	it("seta flag firstDamagePrevented para o alvo", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "once_per_round_on_damage_taken",
@@ -65,15 +66,15 @@ describe("prevent_next_damage (kinds #7 / #9)", () => {
 			},
 			{},
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "i_prevent_next_damage", to: "$target" }], ctx),
 		);
-		expect(result.flags["firstDamagePrevented::h1"]).toBe(true);
+		expect(gameOf(result).flags["firstDamagePrevented::h1"]).toBe(true);
 	});
 
 	it("#9 skill_last_light_shield — efeito via catalog", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "once_per_round_on_damage_taken",
@@ -82,21 +83,21 @@ describe("prevent_next_damage (kinds #7 / #9)", () => {
 			},
 			{},
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(defEffect("skill_last_light_shield"), ctx),
 		);
-		expect(result.flags["firstDamagePrevented::h1"]).toBe(true);
+		expect(gameOf(result).flags["firstDamagePrevented::h1"]).toBe(true);
 	});
 
 	it("#7 purple_crimson_plate — seta flag no source (inimigo)", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "first_damage_each_round", sourceEnemyId: "e1" },
 			{},
 		);
-		const result = drainStack(evaluate(defEffect("purple_crimson_plate"), ctx));
-		expect(result.flags["firstDamagePrevented::e1"]).toBe(true);
+		const result = drainStack(testEngine, evaluate(defEffect("purple_crimson_plate"), ctx));
+		expect(gameOf(result).flags["firstDamagePrevented::e1"]).toBe(true);
 	});
 });
 
@@ -105,7 +106,7 @@ describe("prevent_next_damage (kinds #7 / #9)", () => {
 describe("ignore_next_targeting — skill_protective_veil (#10)", () => {
 	it("seta targetProtectionByHero para o herói-fonte", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "once_per_room_on_targeted_by_effect",
@@ -113,10 +114,10 @@ describe("ignore_next_targeting — skill_protective_veil (#10)", () => {
 			},
 			{},
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(defEffect("skill_protective_veil"), ctx),
 		);
-		expect(result.combat?.targetProtectionByHero["h1"]).toBe(true);
+		expect(scopedFlagOf(result, "combat", "targetProtection", "h1")).toBe(true);
 	});
 });
 
@@ -124,48 +125,46 @@ describe("ignore_next_targeting — skill_protective_veil (#10)", () => {
 
 describe("i_recover_dungeon", () => {
 	it("#11 skill_return_rite — paga 3 vida e recupera 1 carta do descarte", () => {
-		const state = {
+		const state = withDecks({
 			...stateWithCombat({ heroes: [makeHero({ currentLife: 8 })] }),
-			decks: {
-				...createInitialGameState(CFG).decks,
+		}, {
+				...decksOf(createInitialGameState(CFG)),
 				dungeonDeck: {
 					available: [],
 					discarded: ["Sala A", "Sala B"],
 					removed: [] as string[],
 				},
-			},
-		};
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "once_per_room", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(evaluate(defEffect("skill_return_rite"), ctx));
-		expect(result.heroes[0].currentLife).toBe(5); // 8 - 3
-		expect(result.decks.dungeonDeck.available).toHaveLength(1);
-		expect(result.decks.dungeonDeck.discarded).toHaveLength(1);
+		const result = drainStack(testEngine, evaluate(defEffect("skill_return_rite"), ctx));
+		expect(heroesOf(result)[0].currentLife).toBe(5); // 8 - 3
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(1);
+		expect(deckOf(result, "dungeonDeck").discarded).toHaveLength(1);
 	});
 
 	it("#12 power_restored_path — recupera 1 carta sem custo", () => {
-		const state = {
+		const state = withDecks({
 			...stateWithCombat(),
-			decks: {
-				...createInitialGameState(CFG).decks,
+		}, {
+				...decksOf(createInitialGameState(CFG)),
 				dungeonDeck: {
 					available: [],
 					discarded: ["Sala X"],
 					removed: [] as string[],
 				},
-			},
-		};
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "once_per_game", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(evaluate(defEffect("power_restored_path"), ctx));
-		expect(result.decks.dungeonDeck.available).toHaveLength(1);
-		expect(result.heroes[0].currentLife).toBe(10); // sem custo
+		const result = drainStack(testEngine, evaluate(defEffect("power_restored_path"), ctx));
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(1);
+		expect(heroesOf(result)[0].currentLife).toBe(10); // sem custo
 	});
 });
 
@@ -174,7 +173,7 @@ describe("i_recover_dungeon", () => {
 describe("mark_target — skill_prey_mark (#13)", () => {
 	it("define prey global e por herói", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "start_of_combat",
@@ -183,9 +182,9 @@ describe("mark_target — skill_prey_mark (#13)", () => {
 			},
 			{ value: 1 },
 		);
-		const result = drainStack(evaluate(defEffect("skill_prey_mark"), ctx));
-		expect(result.combat?.prey).toBe("e1");
-		expect(result.combat?.preyByHero).toEqual({ h1: "e1" });
+		const result = drainStack(testEngine, evaluate(defEffect("skill_prey_mark"), ctx));
+		expect(gameOf(result).combat?.prey).toBe("e1");
+		expect(gameOf(result).combat?.preyByHero).toEqual({ h1: "e1" });
 	});
 });
 
@@ -193,30 +192,29 @@ describe("mark_target — skill_prey_mark (#13)", () => {
 
 describe("draw_from — item_skill_mystic_draw (#14)", () => {
 	it("move 1 artefato do deck para os artefatos ativos do grupo", () => {
-		const state = {
+		const state = withDecks({
 			...stateWithCombat(),
-			decks: {
-				...createInitialGameState(CFG).decks,
+		}, {
+				...decksOf(createInitialGameState(CFG)),
 				artifactDeck: {
 					available: ["Amuleto Antigo", "Anel de Fogo"],
 					discarded: [],
 					removed: [] as string[],
 				},
-			},
-		};
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_use", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(defEffect("item_skill_mystic_draw"), ctx),
 		);
-		expect(result.pendingRewards).toHaveLength(0);
-		expect(result.groupArtifacts).toHaveLength(1);
-		expect(result.groupArtifacts[0].cardId).toBeTruthy(); // was cardName: "Amuleto Antigo");
-		expect(result.groupArtifacts[0].carriedBy).toBeNull();
-		expect(result.decks.artifactDeck.available).toHaveLength(1);
+		expect(gameOf(result).pendingRewards).toHaveLength(0);
+		expect(gameOf(result).groupArtifacts).toHaveLength(1);
+		expect(gameOf(result).groupArtifacts[0].cardId).toBeTruthy(); // was cardName: "Amuleto Antigo");
+		expect(gameOf(result).groupArtifacts[0].carriedBy).toBeNull();
+		expect(deckOf(result, "artifactDeck").available).toHaveLength(1);
 	});
 });
 
@@ -225,48 +223,40 @@ describe("draw_from — item_skill_mystic_draw (#14)", () => {
 describe("i_prevent_dungeon_discard", () => {
 	it("#15 skill_preserved_path — seta flag dungeonDiscardPrevented", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "once_per_room_on_dungeon_discard", sourceHeroId: "h1" },
 			{},
 		);
-		const result = drainStack(evaluate(defEffect("skill_preserved_path"), ctx));
-		expect(result.flags.dungeonDiscardPrevented).toBe(true);
+		const result = drainStack(testEngine, evaluate(defEffect("skill_preserved_path"), ctx));
+		expect(gameOf(result).flags.dungeonDiscardPrevented).toBe(true);
 	});
 
 	it("quando dungeonDiscardPrevented=true, discardFromDungeonDeck é cancelado", () => {
-		const state = {
-			...stateWithCombat(),
-			flags: { dungeonDiscardPrevented: true },
-			decks: {
-				...createInitialGameState(CFG).decks,
+		const state = withDecks(withGame(stateWithCombat(), (prevGame) => ({ ...prevGame, flags: { dungeonDiscardPrevented: true } })), {
+				...decksOf(createInitialGameState(CFG)),
 				dungeonDeck: {
 					available: ["Sala A", "Sala B"],
 					discarded: [],
 					removed: [] as string[],
 				},
-			},
-		};
-		const result = discardFromDungeonDeck(state, 1);
-		expect(result.decks.dungeonDeck.available).toHaveLength(2); // não descartou
-		expect(result.flags.dungeonDiscardPrevented).toBe(false); // flag consumida
+			});
+		const result = discardFromDungeonDeck(testEngine, state, 1);
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(2); // não descartou
+		expect(gameOf(result).flags.dungeonDiscardPrevented).toBe(false); // flag consumida
 	});
 
 	it("quando discardDungeonLocked=true, prevenção é ignorada", () => {
-		const state = {
-			...stateWithCombat(),
-			flags: { dungeonDiscardPrevented: true, discardDungeonLocked: true },
-			decks: {
-				...createInitialGameState(CFG).decks,
+		const state = withDecks(withGame(stateWithCombat(), (prevGame) => ({ ...prevGame, flags: { dungeonDiscardPrevented: true, discardDungeonLocked: true } })), {
+				...decksOf(createInitialGameState(CFG)),
 				dungeonDeck: {
 					available: ["Sala A", "Sala B"],
 					discarded: [],
 					removed: [] as string[],
 				},
-			},
-		};
-		const result = discardFromDungeonDeck(state, 1);
-		expect(result.decks.dungeonDeck.available).toHaveLength(1); // descartou normalmente
+			});
+		const result = discardFromDungeonDeck(testEngine, state, 1);
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(1); // descartou normalmente
 	});
 });
 
@@ -274,37 +264,30 @@ describe("i_prevent_dungeon_discard", () => {
 
 describe("draw_and_choose — skill_forge_spoils (#18)", () => {
 	it("remove 2 itens do deck e define pendingSkillChoice", () => {
-		const state = {
+		const state = withDecks({
 			...stateWithCombat(),
-			decks: {
-				...createInitialGameState(CFG).decks,
+		}, {
+				...decksOf(createInitialGameState(CFG)),
 				itemDeck: {
 					available: ["Espada", "Escudo", "Poção"],
 					discarded: [],
 					removed: [] as string[],
 				},
-			},
-		};
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_win_room", sourceHeroId: "h1" },
 			{},
 		);
-		const result = drainStack(evaluate(defEffect("skill_forge_spoils"), ctx));
-		expect(result.decks.itemDeck.available).toHaveLength(1); // 2 removidos
-		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options).toHaveLength(2);
-		expect(result.pendingSkillChoice?.options[0].effect).toBeDefined();
+		const result = drainStack(testEngine, evaluate(defEffect("skill_forge_spoils"), ctx));
+		expect(deckOf(result, "itemDeck").available).toHaveLength(1); // 2 removidos
+		expect(pendingSkillChoiceOf(result)).toBeDefined();
+		expect(pendingSkillChoiceOf(result)?.options).toHaveLength(2);
+		expect(pendingSkillChoiceOf(result)?.options[0].effect).toBeDefined();
 	});
 
 	it("descarta uma revelada sem fechar a escolha e guarda a outra", () => {
-		const state = {
-			...stateWithCombat(),
-			decks: {
-				...createInitialGameState(CFG).decks,
-				itemDeck: { available: [], discarded: [], removed: [] as string[] },
-			},
-			pendingSkillChoice: {
+		const state = withDecks(withPendingSkillChoice(stateWithCombat(), {
 				skillId: "skill_forge_spoils",
 				prompt: "Escolha 1 carta para ficar",
 				kind: "draw_and_choose" as const,
@@ -333,54 +316,53 @@ describe("draw_and_choose — skill_forge_spoils (#18)", () => {
 						],
 					},
 				],
-			},
-		};
-		const afterDiscard = reducer(state, {
+			}), {
+				...decksOf(createInitialGameState(CFG)),
+				itemDeck: { available: [], discarded: [], removed: [] as string[] },
+			});
+		const afterDiscard = reducer(testEngine, state, {
 			type: "SKILL_CHOICE",
 			payload: {
 				skillId: "skill_forge_spoils",
 				choice: "__discard__:item_rusty_dagger",
 			},
 		});
-		expect(afterDiscard.pendingSkillChoice?.options).toHaveLength(1);
-		expect(afterDiscard.decks.itemDeck.discarded).toContain(
+		expect(pendingSkillChoiceOf(afterDiscard)?.options).toHaveLength(1);
+		expect(deckOf(afterDiscard, "itemDeck").discarded).toContain(
 			"item_rusty_dagger",
 		);
 
-		const afterKeep = reducer(afterDiscard, {
+		const afterKeep = reducer(testEngine, afterDiscard, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "skill_forge_spoils", choice: "item_cracked_shield" },
 		});
-		expect(afterKeep.pendingSkillChoice).toBeUndefined();
-		expect(afterKeep.pendingRewards.map((reward) => reward.cardId)).toContain(
+		expect(pendingSkillChoiceOf(afterKeep)).toBeUndefined();
+		expect(gameOf(afterKeep).pendingRewards.map((reward) => reward.cardId)).toContain(
 			"item_cracked_shield",
 		);
 	});
 
 	it("recusa opção ou skillId inválidos sem consumir a escolha pendente", () => {
-		const state: GameState = {
-			...stateWithCombat(),
-			pendingSkillChoice: {
+		const state: GameState = withPendingSkillChoice(stateWithCombat(), {
 				skillId: "skill_forge_spoils",
 				prompt: "Escolha um item",
 				kind: "draw_and_choose",
 				discardDeck: "itemDeck",
 				options: [{ id: "item_rusty_dagger", label: "item_rusty_dagger" }],
-			},
-		};
+			});
 		for (const [skillId, choice] of [
 			["outra_skill", "item_rusty_dagger"],
 			["skill_forge_spoils", "item_cracked_shield"],
 			["skill_forge_spoils", "__discard__:item_cracked_shield"],
 			["skill_forge_spoils", "__skip__"],
 		]) {
-			const result = reducer(state, {
+			const result = reducer(testEngine, state, {
 				type: "SKILL_CHOICE",
 				payload: { skillId, choice },
 			});
-			expect(result.pendingSkillChoice).toEqual(state.pendingSkillChoice);
-			expect(result.decks).toEqual(state.decks);
-			expect(result.pendingRewards).toEqual(state.pendingRewards);
+			expect(pendingSkillChoiceOf(result)).toEqual(pendingSkillChoiceOf(state));
+			expect(decksOf(result)).toEqual(decksOf(state));
+			expect(gameOf(result).pendingRewards).toEqual(gameOf(state).pendingRewards);
 		}
 	});
 });
@@ -389,30 +371,29 @@ describe("draw_and_choose — skill_forge_spoils (#18)", () => {
 
 describe("reveal_dungeon — skill_illuminate_path (#20)", () => {
 	it("mostra N cartas do topo do deck em pendingSkillChoice", () => {
-		const state = {
+		const state = withDecks({
 			...stateWithCombat(),
-			decks: {
-				...createInitialGameState(CFG).decks,
+		}, {
+				...decksOf(createInitialGameState(CFG)),
 				dungeonDeck: {
 					available: ["Sala Oculta", "Sala B"],
 					discarded: [],
 					removed: [] as string[],
 				},
-			},
-		};
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_reveal_paths", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(defEffect("skill_illuminate_path"), ctx),
 		);
-		expect(result.pendingSkillChoice).toBeDefined();
+		expect(pendingSkillChoiceOf(result)).toBeDefined();
 		expect(
-			result.pendingSkillChoice?.options.some((o) => o.label === "Sala Oculta"),
+			pendingSkillChoiceOf(result)?.options.some((o) => o.label === "Sala Oculta"),
 		).toBe(true);
 		// deck não é modificado (apenas mostra)
-		expect(result.decks.dungeonDeck.available).toHaveLength(2);
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(2);
 	});
 });

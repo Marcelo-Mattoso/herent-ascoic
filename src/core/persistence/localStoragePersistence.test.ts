@@ -1,11 +1,19 @@
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { createInitialGameState } from "../state/gameState";
-import { localStoragePersistence } from "./localStoragePersistence";
+import { testEngine } from "../__tests__/testEngine";
+import { createLocalStoragePersistence } from "./localStoragePersistence";
 
-vi.mock("../config/defaults", async (importOriginal) => {
-	const original = await importOriginal<typeof import("../config/defaults")>();
-	return { ...original, FEATURE_FLAGS: { ...original.FEATURE_FLAGS, enableSave: true } };
-});
+const engineWithSave = {
+	...testEngine,
+	ruleset: {
+		...testEngine.ruleset,
+		balance: {
+			...testEngine.ruleset.balance,
+			featureFlags: { enableSubBosses: false, enableSave: true },
+		},
+	},
+};
+const localStoragePersistence = createLocalStoragePersistence(engineWithSave);
 
 const values = new Map<string, string>();
 
@@ -24,7 +32,7 @@ describe("persistência local quando habilitada", () => {
 	it("salva e limpa snapshot e log sem duplicar o actionLog no snapshot", () => {
 		const state = createInitialGameState({ heroCardIds: [] });
 		localStoragePersistence.saveSnapshot(state);
-		expect(localStoragePersistence.loadSnapshot()?.status).toBe("MAIN_MENU");
+		expect(localStoragePersistence.loadSnapshot()?.game.status).toBe("MAIN_MENU");
 		expect(JSON.parse(values.get("ascensao_heroica_snapshot") ?? "null")).not.toHaveProperty("actionLog");
 
 		const entry = { seq: 0, action: { type: "START_GAME" as const, payload: { heroCardIds: ["hero_crimson_barbarian"] } } };

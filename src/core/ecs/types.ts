@@ -2,10 +2,11 @@
 // Componentes são dados puros — sem métodos, sem referências vivas.
 // Entidades são apenas IDs + listas de componentes.
 
-import type { ColorIndex } from "../state/color";
 import type { ItemSlotType } from "../state/heroState";
 
 export type EntityId = string;
+
+export type StatName = string;
 
 export type EntityType = "hero" | "enemy" | "room" | "item_in_play" | "subboss";
 
@@ -21,7 +22,7 @@ export type EffectDescriptor = Readonly<Record<string, unknown>>;
 // Predicate de componente: recebe entidade + contexto do evento para filtros reativos.
 export type ComponentPredicate = (
 	entity: Entity,
-	event?: import("../events/types").GameEvent,
+	event?: import("../events/types").GameEventDraft,
 	world?: import("./world").World,
 ) => boolean;
 
@@ -55,11 +56,6 @@ export interface DiceComponent {
 	readonly count: number;
 }
 
-export interface ImpetoComponent {
-	readonly type: "impeto";
-	readonly level: ColorIndex;
-}
-
 // ── Componentes plugáveis (adicionados/removidos dinamicamente) ──────────────
 
 export interface ConditionComponent {
@@ -87,13 +83,7 @@ export interface TokenComponent {
 
 export interface ModifierComponent {
 	readonly type: "modifier";
-	readonly target:
-		| "damage_dealt"
-		| "damage_taken"
-		| "purple_damage_taken"
-		| "healing_received"
-		| "dice_count"
-		| "hit_bonus";
+	readonly target: StatName;
 	readonly operation: "add" | "multiply" | "set" | "clamp";
 	readonly value: number;
 	readonly source: EntityId;
@@ -123,7 +113,6 @@ export type Component =
 	| HealthComponent
 	| DamageStatComponent
 	| DiceComponent
-	| ImpetoComponent
 	| ConditionComponent
 	| ItemEquippedComponent
 	| ItemBackpackComponent

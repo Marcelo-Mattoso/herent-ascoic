@@ -19,6 +19,10 @@ import { renderSkillLabel, renderSkillText } from "./skills/renderLabel";
 import { parseTrigger } from "./skills/dispatch";
 import { createInitialGameState } from "./state/gameState";
 import { reducer } from "./reducer";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { settled } from "./__tests__/fixtures";
+import { heroesOf } from "./state/access";
+import { withGame } from "../engine/state";
 
 describe("action creators", () => {
 	it("produzem as actions e payloads públicos", () => {
@@ -84,13 +88,13 @@ describe("helpers puros sem fluxo de UI", () => {
 
 	it("aplica estratégias de ordem, distribuição, desempate e integridade", () => {
 		expect(compareEffectOrder("room", "boss")).toBeLessThan(0);
-		const hero: HeroState = { id: "h1", maxLife: 10, currentLife: 6, activeItems: {}, cardId: "hero_crimson_barbarian", damage: 4, hitBonus: 5, dice: 1, impeto: 0, backpack: [], usedPowers: {}, conditions: [], status: "active", playerIndex: 0, xp: 0 };
+		const hero: HeroState = { id: "h1", maxLife: 10, currentLife: 6, activeItems: {}, cardId: "hero_crimson_barbarian", damage: 4, hitBonus: 5, dice: 1, backpack: [], usedPowers: {}, conditions: [], status: "active", playerIndex: 0, xp: 0 };
 		const dagger = getCardById("item_rusty_dagger");
 		const potion = getCardById("item_lesser_vigor_potion");
 		if (dagger?.type !== "item" || potion?.type !== "item") throw new Error("Item ausente");
-		expect(defaultItemDestination(hero, dagger)).toBe("equip");
-		expect(defaultItemDestination({ ...hero, activeItems: { hand1: "item_rusty_dagger" } }, dagger)).toBe("backpack");
-		expect(defaultItemDestination(hero, potion)).toBe("equip");
+		expect(defaultItemDestination(testEngine, hero, dagger)).toBe("equip");
+		expect(defaultItemDestination(testEngine, { ...hero, activeItems: { hand1: "item_rusty_dagger" } }, dagger)).toBe("backpack");
+		expect(defaultItemDestination(testEngine, hero, potion)).toBe("equip");
 		expect(tiebreakHero([hero, { ...hero, id: "h2", currentLife: 5, maxLife: 10 }]).id).toBe("h2");
 		const start: LoggedAction = { seq: 0, action: { type: "START_GAME", payload: { heroCardIds: [] } } };
 		expect(isLogIntact([start, { ...start, seq: 1, action: { type: "REVEAL_ROOM" } }])).toBe(true);
@@ -101,16 +105,12 @@ describe("helpers puros sem fluxo de UI", () => {
 
 	it("projeta informação pública e textos de habilidade", () => {
 		const base = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
-		const started = reducer(base, { type: "START_GAME", payload: { heroCardIds: ["hero_crimson_barbarian"] } });
-		const state = {
-			...started,
-			heroes: [{ ...started.heroes[0]!, id: "h1", status: "active" as const }],
-			activeEnemies: [{ id: "e1", cardId: "creature_deep_rift_rat", maxLife: 2, currentLife: 2, damage: 1, hitBonus: 0, dice: 1, tokens: { xp: 1, reward_item: 0, reward_artifact: 0 }, conditions: [], firstDamageTakenThisTurn: false, status: "active" as const }],
-		};
+		const started = reducer(testEngine, base, { type: "START_GAME", payload: { heroCardIds: ["hero_crimson_barbarian"] } });
+		const state = settled(withGame(started, (prevGame) => ({ ...prevGame, heroes: [{ ...heroesOf(started)[0]!, id: "h1", status: "active" as const }], activeEnemies: [{ id: "e1", cardId: "creature_deep_rift_rat", maxLife: 2, currentLife: 2, damage: 1, hitBonus: 0, dice: 1, tokens: { xp: 1, reward_item: 0, reward_artifact: 0 }, conditions: [], firstDamageTakenThisTurn: false, status: "active" as const }] })));
 		expect(aiView(state, { playerIndex: 0 }).visibleEntities.map((entry) => entry.id)).toEqual(["h1", "e1"]);
-		expect(renderSkillLabel({ skillId: "skill_last_light_healing", params: { value: 3 } })).toContain("3");
-		expect(renderSkillText({ skillId: "skill_last_light_healing", params: { value: 3 } })).toContain("3");
-		expect(renderSkillLabel({ skillId: "missing" })).toBe("missing");
+		expect(renderSkillLabel(testEngine, { skillId: "skill_last_light_healing", params: { value: 3 } })).toContain("3");
+		expect(renderSkillText(testEngine, { skillId: "skill_last_light_healing", params: { value: 3 } })).toContain("3");
+		expect(renderSkillLabel(testEngine, { skillId: "missing" })).toBe("missing");
 		expect(parseTrigger("before_attack")).toEqual({ guard: null, base: "before_attack" });
 	});
 });

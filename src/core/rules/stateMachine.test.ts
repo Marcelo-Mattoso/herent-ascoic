@@ -1,7 +1,9 @@
 import { describe, expect, it } from "vitest";
 import TRANSITIONS from "../../data/transitions.json";
 import type { GameStatus } from "../state/status";
+import { testEngine } from "@/core/__tests__/testEngine";
 import { assertTransition, canTransition } from "./stateMachine";
+import { gameOf, withGame } from "../../engine/state";
 
 const table = TRANSITIONS as Partial<Record<GameStatus, readonly GameStatus[]>>;
 
@@ -10,38 +12,38 @@ describe("canTransition", () => {
 		// Verifica cada entrada da tabela
 		for (const [from, targets] of Object.entries(table)) {
 			for (const to of targets as string[]) {
-				expect(canTransition(from as GameStatus, to as GameStatus)).toBe(true);
+				expect(canTransition(testEngine, from as GameStatus, to as GameStatus)).toBe(true);
 			}
 		}
 	});
 
 	it("transição inválida retorna false", () => {
-		expect(canTransition("VICTORY", "MAIN_MENU")).toBe(false);
-		expect(canTransition("MAIN_MENU", "BOSS_COMBAT")).toBe(false);
-		expect(canTransition("DEFEAT", "HERO_ACTION")).toBe(false);
+		expect(canTransition(testEngine, "VICTORY", "MAIN_MENU")).toBe(false);
+		expect(canTransition(testEngine, "MAIN_MENU", "BOSS_COMBAT")).toBe(false);
+		expect(canTransition(testEngine, "DEFEAT", "HERO_ACTION")).toBe(false);
 	});
 });
 
 describe("assertTransition", () => {
 	it("mesma origem e destino não lança (transição sem mudança)", () => {
-		expect(() => assertTransition("HERO_ACTION", "HERO_ACTION")).not.toThrow();
+		expect(() => assertTransition(testEngine, "HERO_ACTION", "HERO_ACTION")).not.toThrow();
 	});
 
 	it("transição inválida lança erro claro em dev/test", () => {
-		expect(() => assertTransition("VICTORY", "MAIN_MENU")).toThrow(
+		expect(() => assertTransition(testEngine, "VICTORY", "MAIN_MENU")).toThrow(
 			"[StateMachine] Transição inválida: VICTORY → MAIN_MENU",
 		);
 	});
 
 	it("transição válida não lança", () => {
-		expect(() => assertTransition("MAIN_MENU", "REVEAL_ROOM")).not.toThrow();
-		expect(() => assertTransition("REVEAL_ROOM", "ROOM_EFFECT")).not.toThrow();
-		expect(() => assertTransition("HERO_ACTION", "ROLL_DICE")).not.toThrow();
+		expect(() => assertTransition(testEngine, "MAIN_MENU", "REVEAL_ROOM")).not.toThrow();
+		expect(() => assertTransition(testEngine, "REVEAL_ROOM", "ROOM_EFFECT")).not.toThrow();
+		expect(() => assertTransition(testEngine, "HERO_ACTION", "ROLL_DICE")).not.toThrow();
 	});
 });
 
 describe("checkBossCondition via dados", () => {
-	it("condição lida de cards.yaml — integração", async () => {
+	it("condição lida do boss.json — integração", async () => {
 		const { checkBossCondition } = await import("./conditions");
 		const { createInitialGameState } = await import("../state/gameState");
 		const { reducer } = await import("../reducer/index");
@@ -49,18 +51,16 @@ describe("checkBossCondition via dados", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		let s = reducer(base, {
+		let s = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
 
 		// Sem artefatos → false
-		expect(checkBossCondition(s, s.bossCardId)).toBe(false);
+		expect(checkBossCondition(testEngine, s, gameOf(s).bossCardId)).toBe(false);
 
-		// Com 2 artefatos → true (accessCondition: group_artifacts_gte: 2)
-		s = {
-			...s,
-			groupArtifacts: [
+		// Com 2 artefatos ainda não atende à condição
+		s = withGame(s, (prevGame) => ({ ...prevGame, groupArtifacts: [
 				{
 					cardId: "artifact_crimson_jailer_chain",
 					carriedBy: null,
@@ -69,8 +69,12 @@ describe("checkBossCondition via dados", () => {
 					cardId: "artifact_ancient_ember_heart",
 					carriedBy: null,
 				},
-			],
-		};
-		expect(checkBossCondition(s, s.bossCardId)).toBe(true);
+			] }));
+		expect(checkBossCondition(testEngine, s, gameOf(s).bossCardId)).toBe(false);
+		s = withGame(s, (prevGame) => ({ ...prevGame, groupArtifacts: [
+			...prevGame.groupArtifacts,
+			{ cardId: "artifact_lost_forge_hammer", carriedBy: null },
+		] }));
+		expect(checkBossCondition(testEngine, s, gameOf(s).bossCardId)).toBe(true);
 	}, 15_000);
 });

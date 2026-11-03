@@ -1,0 +1,1427 @@
+{
+	"engineVersion": 1,
+	"name": "golden-04",
+	"seed": 4027,
+	"setup": {
+		"heroCardIds": [
+			"hero_rift_rogue",
+			"hero_crimson_rune_mage",
+			"hero_last_light_paladin",
+			"hero_broken_bastion_warrior"
+		],
+		"difficulty": "hard",
+		"bossCardId": "boss_azhakar",
+		"seed": 4027
+	},
+	"outcome": "DEFEAT",
+	"actions": [
+		{
+			"type": "START_GAME",
+			"payload": {
+				"heroCardIds": [
+					"hero_rift_rogue",
+					"hero_crimson_rune_mage",
+					"hero_last_light_paladin",
+					"hero_broken_bastion_warrior"
+				],
+				"difficulty": "hard",
+				"bossCardId": "boss_azhakar",
+				"seed": 4027,
+				"gameId": "golden-4027"
+			}
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-158m12q-zj4n28"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1n4snwj-10jo0d6",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-1rnmt5f-1b267d7"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-68efpt-rf1rpo"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1n4snwj-10jo0d6",
+				"enemyId": "e-68efpt-rf1rpo"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-wp0ylr-6jzp",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-68efpt-rf1rpo"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-1rnmt5f-1b267d7"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-68efpt-rf1rpo"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-1rnmt5f-1b267d7"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1n4snwj-10jo0d6",
+				"enemyId": "e-1rnmt5f-1b267d7"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-1rnmt5f-1b267d7"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-68efpt-rf1rpo"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-wp0ylr-6jzp",
+				"enemyId": "e-68efpt-rf1rpo"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1rnmt5f-1b267d7"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-ktu9rr-ndfuf6",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-76d7m0-1p2gvdu",
+				"enemyId": "e-1l7dxkl-1by3w7n"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		}
+	],
+	"steps": [
+		"3bb7fd3d1bcd0df2",
+		"26c0d55bddaee428",
+		"b715d87fbc25475c",
+		"3a2c27eb2c8133d8",
+		"2654d6200cc95814",
+		"1bc095dae1ea017e",
+		"6907dd368f31e674",
+		"dd5ca986fa893862",
+		"cdb1d955a83b850d",
+		"db8bd306dc2efa02",
+		"880af00c45783e69",
+		"b99a90de3c533dda",
+		"81aaa374ac1eab91",
+		"085ed95be05e922b",
+		"7162f614484fe1dc",
+		"cbdcdca2c52c8e8a",
+		"2b138ee5a2df4cf3",
+		"f4fb5392409652ff",
+		"20ae5cd024c5222e",
+		"22da32a27d6109cc",
+		"4549f75eef34411c",
+		"17dbcc75a50c4c1e",
+		"06f80d9d41af7c02",
+		"44399bfa3a112395",
+		"489061ed61046be0",
+		"4a8307e1c034bfd0",
+		"2ae92dc2c25e1131",
+		"5f8fada75e1cefb6",
+		"42ce2b73a64ddcf3",
+		"45ac6d81736a355b",
+		"61bce4a7fef6519e",
+		"1ebc96bf1000d918",
+		"741c0da16ce6a789",
+		"312b65742210d251",
+		"ded8c95641490764",
+		"130f02d1205fa313",
+		"f8581f96b854391f",
+		"5fe77a5ce5420089",
+		"0f0a994d5923126e",
+		"6a16bf888491ed48",
+		"b650ce1fccf2d1ed",
+		"8cbb08013f650c8b",
+		"59174ebb8809871e",
+		"8537bd6b8d8c14fb",
+		"d361cca69cb9f67d",
+		"d4d71716cd3e5b91",
+		"b38a1230fa22587b",
+		"06198beef8a21a77",
+		"aa158427c2da7025",
+		"7632c268a71b60fe",
+		"14bb6571d307b9d0",
+		"341acb89a76cf946",
+		"7105748f5025105e",
+		"37279d707ceca41d",
+		"914c63bb2016ef0f",
+		"e11bcd25ac4ed329",
+		"2d11e9b3b841b657",
+		"526b191009c932ba",
+		"c165141ffaf6232a",
+		"0822ec9044fa7a4d",
+		"9cdce4ac359d4651",
+		"893fb95ce61eb06d",
+		"faf4c623bb025212",
+		"df52cda5f97bcb4e",
+		"732c49d0346c28de"
+	],
+	"finalSnapshot": {
+		"abilityActionsByHero": {
+			"h-1n4snwj-10jo0d6": [
+				{
+					"abilityId": "skill_preserved_path",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Caminho Preservado",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_rift_rogue",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_restored_path",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Caminho Restaurado",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_rift_rogue",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			],
+			"h-76d7m0-1p2gvdu": [
+				{
+					"abilityId": "skill_bastion_guard",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Guarda do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_unbreakable_bastion_guard",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Guarda Inquebrável do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			],
+			"h-ktu9rr-ndfuf6": [
+				{
+					"abilityId": "skill_final_dawn_light",
+					"activation": "passive",
+					"kind": "skill",
+					"label": "Luz da Aurora Final",
+					"reason": "Condições da habilidade não atendidas.",
+					"sourceCardId": "hero_last_light_paladin",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_last_light_oath",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Juramento da Última Luz",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_last_light_paladin",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			],
+			"h-wp0ylr-6jzp": [
+				{
+					"abilityId": "skill_rift_rune",
+					"activation": "manual",
+					"kind": "skill",
+					"label": "Runa das Fendas",
+					"reason": "Disponível apenas durante o combate.",
+					"sourceCardId": "hero_crimson_rune_mage",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_supreme_rift_rune",
+					"activation": "prepare",
+					"kind": "power",
+					"label": "Runa Suprema das Fendas",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_crimson_rune_mage",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			]
+		},
+		"activeInfluences": [],
+		"alphaLog": [
+			"#1 Ação START_GAME. Dados: {\"type\":\"START_GAME\",\"payload\":{\"heroCardIds\":[\"hero_rift_rogue\",\"hero_crimson_rune_mage\",\"hero_last_light_paladin\",\"hero_broken_bastion_warrior\"],\"difficulty\":\"hard\",\"bossCardId\":\"boss_azhakar\",\"seed\":4027,\"gameId\":\"golden-4027\"}}",
+			"Fase: MAIN_MENU → ROOM_EFFECT.",
+			"Sala: nenhuma → Salão das Colunas Quebradas.",
+			"Despertar: 0 → 1.",
+			"Ladino das Fendas (h-1n4snwj-10jo0d6) entrou em jogo.",
+			"Mago das Runas Rubras (h-wp0ylr-6jzp) entrou em jogo.",
+			"Paladino da Última Luz (h-ktu9rr-ndfuf6) entrou em jogo.",
+			"Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) entrou em jogo.",
+			"dungeonDeck.available: 0 → 19; adicionadas [\"room_broken_columns_hall\",\"room_abandoned_cell\",\"room_ruined_forge\",\"room_jailer_room\",\"room_cracked_abyss\",\"room_crimson_chains_chamber\",\"room_cracked_abyss\",\"room_dead_torches_passage\",\"room_dead_torches_passage\",\"room_narrow_corridor\",\"room_abandoned_cell\",\"room_depths_stairway\",\"room_crimson_chains_chamber\",\"room_dungeon_room\",\"room_depths_stairway\",\"room_ruined_forge\",\"room_narrow_corridor\",\"room_dungeon_room\",\"room_jailer_room\"], retiradas [].",
+			"enemyDeck.available: 0 → 18; adicionadas [\"creature_dead_passage_thief\",\"creature_dark_cave_goblin\",\"creature_low_ember_kobold\",\"creature_forge_acolyte\",\"creature_hidden_flame_cultist\",\"creature_broken_gates_watcher\",\"creature_hot_ash_worm\",\"creature_dead_torch_sentinel\",\"creature_wet_stone_slime\",\"creature_black_ceiling_bat\",\"creature_ruined_hall_ogre\",\"creature_old_chains_knight\",\"creature_low_fire_salamander\",\"creature_deep_rift_rat\",\"creature_ancient_pillar_spider\",\"creature_broken_chains_brute\",\"creature_catacomb_skeleton\",\"creature_blazing_skull\"], retiradas [].",
+			"itemDeck.available: 0 → 34; adicionadas [\"item_deep_veil_scythe\",\"item_tunnel_hood\",\"item_ruined_hall_axe\",\"item_last_defense_charm\",\"item_silent_dungeon_charm\",\"item_return_potion\",\"item_reinforced_leather_armor\",\"item_last_chord_lute\",\"item_broken_veil_cloak\",\"item_torn_depths_map\",\"item_pitch_torch\",\"item_ancient_metal_armor\",\"item_worn_explorer_rope\",\"item_crimson_rune_staff\",\"item_precision_potion\",\"item_rusty_dagger\",\"item_incendiary_oil_flask\",\"item_fury_potion\",\"item_lesser_vigor_potion\",\"item_warm_blood_charm\",\"item_greater_vigor_potion\",\"item_low_flame_charm\",\"item_cracked_shield\",\"item_rift_bow\",\"item_living_ember_potion\",\"item_stoneskin_potion\",\"item_ancient_iron_key\",\"item_last_light_sword\",\"item_light_stone_boots\",\"item_narrow_exit_cloak\",\"item_forge_magic_armor\",\"item_broken_stone_hammer\",\"item_hidden_forge_chest\",\"item_safe_path_charm\"], retiradas [].",
+			"artifactDeck.available: 0 → 5; adicionadas [\"artifact_crimson_jailer_chain\",\"artifact_lost_forge_hammer\",\"artifact_last_vigil_brazier\",\"artifact_first_fire_blade\",\"artifact_ancient_ember_heart\"], retiradas [].",
+			"Detalhe técnico gameId: \"__PREGAME__\" → \"golden-4027\".",
+			"Detalhe técnico rng: {\"seed\":0,\"counter\":0} → {\"seed\":4027,\"counter\":100}.",
+			"Detalhe técnico bossCardId: \"\" → \"boss_azhakar\".",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_broken_columns_hall\"},\"seq\":0}].",
+			"Log atual: Partida iniciada. Heróis: Ladino das Fendas, Mago das Runas Rubras, Paladino da Última Luz, Guerreiro do Bastião Partido. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Log atual: Sala sorteada: Salão das Colunas Quebradas.",
+			"#2 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
+			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
+			"#3 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
+			"Fase: SPAWN_ENEMIES → COMBAT_START.",
+			"Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) entrou em jogo.",
+			"Goblin das Cavernas Escuras (e-158m12q-zj4n28) entrou em jogo.",
+			"Kobold das Brasas Baixas (e-68efpt-rf1rpo) entrou em jogo.",
+			"Acólito da Fornalha (e-1rnmt5f-1b267d7) entrou em jogo.",
+			"enemyDeck.available: 18 → 14; adicionadas [], retiradas [\"creature_dead_passage_thief\",\"creature_dark_cave_goblin\",\"creature_low_ember_kobold\",\"creature_forge_acolyte\"].",
+			"Efeitos em Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":3},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Goblin das Cavernas Escuras (e-158m12q-zj4n28): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Kobold das Brasas Baixas (e-68efpt-rf1rpo): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Efeitos em Acólito da Fornalha (e-1rnmt5f-1b267d7): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":100} → {\"seed\":4027,\"counter\":108}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
+			"Log atual: 4 inimigo(s) aparecem: Ladrão das Passagens Mortas, Goblin das Cavernas Escuras, Kobold das Brasas Baixas, Acólito da Fornalha.",
+			"#4 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
+			"Habilidade Tributo Sombrio ativada por Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n); evento evt_combat_start; alvos [h-1n4snwj-10jo0d6, h-wp0ylr-6jzp, h-ktu9rr-ndfuf6, h-76d7m0-1p2gvdu]; parâmetros {\"value\":1}.",
+			"Habilidade Presença da Chama Oculta ativada por Acólito da Fornalha (e-1rnmt5f-1b267d7); evento evt_combat_start; alvos [h-1n4snwj-10jo0d6, h-wp0ylr-6jzp, h-ktu9rr-ndfuf6, h-76d7m0-1p2gvdu]; parâmetros {\"value\":2}.",
+			"Habilidade Coragem de Bando ativada por Kobold das Brasas Baixas (e-68efpt-rf1rpo); evento evt_combat_start; alvos [e-68efpt-rf1rpo]; parâmetros {\"value\":1}.",
+			"Fase: COMBAT_START → HERO_ACTION.",
+			"dungeonDeck.available: 19 → 18; adicionadas [], retiradas [\"room_broken_columns_hall\"].",
+			"dungeonDeck.discarded: 0 → 1; adicionadas [\"room_broken_columns_hall\"], retiradas [].",
+			"Efeitos em Kobold das Brasas Baixas (e-68efpt-rf1rpo): [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":1,\"source\":\"skill_pack_courage\",\"duration\":{\"kind\":\"this_combat\"}}].",
+			"Efeitos em Acólito da Fornalha (e-1rnmt5f-1b267d7): [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":2,\"source\":\"skill_hidden_flame_presence\",\"duration\":{\"kind\":\"this_combat\"}}].",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
+			"Log atual: Combate iniciado.",
+			"#5 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Goblin das Cavernas Escuras (e-158m12q-zj4n28) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu).",
+			"Detalhe técnico flags: {} → {\"targetChosen::e-158m12q-zj4n28\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-76d7m0-1p2gvdu\",\"targetId\":\"e-158m12q-zj4n28\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"}].",
+			"#6 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu): dados [3], hitBonus +5 = 8.",
+			"Rolagem de Goblin das Cavernas Escuras (e-158m12q-zj4n28): dados [2], hitBonus +3, Despertar da Masmorra +1 = 6. Margem +2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":108} → {\"seed\":4027,\"counter\":110}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\",\"heroTotal\":8,\"enemyTotal\":6,\"heroResults\":[3],\"enemyResults\":[2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 8 | Inimigo rolou 6.",
+			"#7 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (8) × Goblin das Cavernas Escuras (6); margem +2; dano do herói 4 sem bônus = 4; dano do inimigo 2 sem bônus = 2; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Guerreiro do Bastião Partido → Goblin das Cavernas Escuras; solicitado 4, após efeitos 4, aplicado 2; vida 2 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) → desconhecido.",
+			"Goblin das Cavernas Escuras (e-158m12q-zj4n28) recebeu 2 de dano (2 → 0).",
+			"Goblin das Cavernas Escuras (e-158m12q-zj4n28): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-76d7m0-1p2gvdu\",\"targetId\":\"e-158m12q-zj4n28\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-158m12q-zj4n28\",\"sourceId\":\"h-76d7m0-1p2gvdu\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: undefined → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-76d7m0-1p2gvdu\"].",
+			"Log atual: Goblin das Cavernas Escuras sofreu 4 de dano. Herói: dado(s) [3]=3, acerto +5 → 8 vs inimigo: 6.",
+			"Log atual: Aguardando ação de 3 herói(s).",
+			"#8 Ladino das Fendas (h-1n4snwj-10jo0d6) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Ladino das Fendas (h-1n4snwj-10jo0d6).",
+			"Detalhe técnico flags: {\"targetChosen::e-158m12q-zj4n28\":true} → {\"targetChosen::e-158m12q-zj4n28\":true,\"targetChosen::e-1l7dxkl-1by3w7n\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1n4snwj-10jo0d6\",\"targetId\":\"e-1l7dxkl-1by3w7n\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"}] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}].",
+			"#9 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Ladino das Fendas (h-1n4snwj-10jo0d6): dados [4], hitBonus +4 = 8.",
+			"Rolagem de Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n): dados [6], hitBonus +6, Despertar da Masmorra +1 = 13. Margem -5.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":110} → {\"seed\":4027,\"counter\":112}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"heroTotal\":8,\"enemyTotal\":13,\"heroResults\":[4],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 8 | Inimigo rolou 13.",
+			"#10 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Ladino das Fendas (8) × Ladrão das Passagens Mortas (13); margem -5; dano do herói 3 sem bônus = 3; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Ladrão das Passagens Mortas → Ladino das Fendas; solicitado 5, após efeitos 5, aplicado 5; vida 8 → 3.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Ladino das Fendas (h-1n4snwj-10jo0d6) → desconhecido.",
+			"Ladino das Fendas (h-1n4snwj-10jo0d6) recebeu 5 de dano (8 → 3).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1l7dxkl-1by3w7n\",\"targetId\":\"h-1n4snwj-10jo0d6\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\"] → [\"h-76d7m0-1p2gvdu\",\"h-1n4snwj-10jo0d6\"].",
+			"Log atual: Ladino das Fendas sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +6, Despertar da Masmorra +1 → 13 vs herói: 8.",
+			"Log atual: Aguardando ação de 2 herói(s).",
+			"#11 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Acólito da Fornalha (e-1rnmt5f-1b267d7) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Paladino da Última Luz (h-ktu9rr-ndfuf6).",
+			"Detalhe técnico flags: {\"targetChosen::e-158m12q-zj4n28\":true,\"targetChosen::e-1l7dxkl-1by3w7n\":true} → {\"targetChosen::e-158m12q-zj4n28\":true,\"targetChosen::e-1l7dxkl-1by3w7n\":true,\"targetChosen::e-1rnmt5f-1b267d7\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ktu9rr-ndfuf6\",\"targetId\":\"e-1rnmt5f-1b267d7\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}].",
+			"#12 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Paladino da Última Luz (h-ktu9rr-ndfuf6): dados [4], hitBonus +5 = 9.",
+			"Rolagem de Acólito da Fornalha (e-1rnmt5f-1b267d7): dados [5], hitBonus +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 = 12. Margem -3.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":112} → {\"seed\":4027,\"counter\":114}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\",\"heroTotal\":9,\"enemyTotal\":12,\"heroResults\":[4],\"enemyResults\":[5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 9 | Inimigo rolou 12.",
+			"#13 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Paladino da Última Luz (9) × Acólito da Fornalha (12); margem -3; dano do herói 4 sem bônus = 4; dano do inimigo 3 sem bônus = 3; dano previsto: herói 3, inimigo 0.",
+			"Dano attack: Acólito da Fornalha → Paladino da Última Luz; solicitado 3, após efeitos 3, aplicado 3; vida 10 → 7.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Paladino da Última Luz (h-ktu9rr-ndfuf6) → desconhecido.",
+			"Paladino da Última Luz (h-ktu9rr-ndfuf6) recebeu 3 de dano (10 → 7).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1rnmt5f-1b267d7\",\"targetId\":\"h-ktu9rr-ndfuf6\",\"damageType\":\"attack\",\"amount\":3},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\",\"h-1n4snwj-10jo0d6\"] → [\"h-76d7m0-1p2gvdu\",\"h-1n4snwj-10jo0d6\",\"h-ktu9rr-ndfuf6\"].",
+			"Log atual: Paladino da Última Luz sofreu 3 de dano. Inimigo: dado(s) [5]=5, acerto +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 → 12 vs herói: 9.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#14 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Log atual: [AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"#15 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Kobold das Brasas Baixas (e-68efpt-rf1rpo) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-68efpt-rf1rpo\"}}",
+			"Log atual: [AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"#16 Ladino das Fendas (h-1n4snwj-10jo0d6) iniciou ataque contra Kobold das Brasas Baixas (e-68efpt-rf1rpo) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-68efpt-rf1rpo\"}}",
+			"Log atual: [AVISO] Herói h-1n4snwj-10jo0d6 já agiu nesta rodada.",
+			"#17 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Log atual: [AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"#18 Mago das Runas Rubras (h-wp0ylr-6jzp) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Mago das Runas Rubras (h-wp0ylr-6jzp).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-wp0ylr-6jzp\",\"targetId\":\"e-1l7dxkl-1by3w7n\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}].",
+			"#19 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Mago das Runas Rubras (h-wp0ylr-6jzp): dados [6], hitBonus +4 = 10.",
+			"Rolagem de Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n): dados [5], hitBonus +6, Despertar da Masmorra +1 = 12. Margem -2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":114} → {\"seed\":4027,\"counter\":116}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"heroTotal\":10,\"enemyTotal\":12,\"heroResults\":[6],\"enemyResults\":[5]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 10 | Inimigo rolou 12.",
+			"#20 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Mago das Runas Rubras (10) × Ladrão das Passagens Mortas (12); margem -2; dano do herói 3 sem bônus = 3; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Ladrão das Passagens Mortas → Mago das Runas Rubras; solicitado 5, após efeitos 5, aplicado 5; vida 8 → 3.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Mago das Runas Rubras (h-wp0ylr-6jzp) → desconhecido.",
+			"Mago das Runas Rubras (h-wp0ylr-6jzp) recebeu 5 de dano (8 → 3).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1l7dxkl-1by3w7n\",\"targetId\":\"h-wp0ylr-6jzp\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\",\"h-1n4snwj-10jo0d6\",\"h-ktu9rr-ndfuf6\"] → [\"h-76d7m0-1p2gvdu\",\"h-1n4snwj-10jo0d6\",\"h-ktu9rr-ndfuf6\",\"h-wp0ylr-6jzp\"].",
+			"Log atual: Mago das Runas Rubras sofreu 5 de dano. Inimigo: dado(s) [5]=5, acerto +6, Despertar da Masmorra +1 → 12 vs herói: 10.",
+			"#21 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Dano attack: Kobold das Brasas Baixas → Ladino das Fendas; solicitado 2, após efeitos 2, aplicado 2; vida 3 → 1.",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Ladino das Fendas (h-1n4snwj-10jo0d6) recebeu 2 de dano (3 → 1).",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":116} → {\"seed\":4027,\"counter\":118}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-68efpt-rf1rpo\",\"heroTotal\":5,\"enemyTotal\":8,\"heroResults\":[1],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-68efpt-rf1rpo\",\"targetId\":\"h-1n4snwj-10jo0d6\",\"damageType\":\"attack\",\"amount\":2},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1}].",
+			"Detalhe técnico extraAttackFeedback: undefined → [{\"id\":1,\"enemyId\":\"e-68efpt-rf1rpo\",\"enemyCardId\":\"creature_low_ember_kobold\",\"heroId\":\"h-1n4snwj-10jo0d6\"}].",
+			"Log atual: Ataque extra: Kobold das Brasas Baixas venceu Ladino das Fendas e causou 2 de dano. Inimigo: dado(s) [3]=3, acerto +3, Despertar da Masmorra +1, skill_pack_courage +1 → 8 vs herói: 5.",
+			"#22 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\",\"h-1n4snwj-10jo0d6\",\"h-ktu9rr-ndfuf6\",\"h-wp0ylr-6jzp\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-158m12q-zj4n28\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}] → [].",
+			"Log atual: Rodada 2 de combate.",
+			"#23 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Kobold das Brasas Baixas (e-68efpt-rf1rpo) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu).",
+			"Detalhe técnico flags: {\"targetChosen::e-158m12q-zj4n28\":true,\"targetChosen::e-1l7dxkl-1by3w7n\":true,\"targetChosen::e-1rnmt5f-1b267d7\":true} → {\"targetChosen::e-158m12q-zj4n28\":true,\"targetChosen::e-1l7dxkl-1by3w7n\":true,\"targetChosen::e-1rnmt5f-1b267d7\":true,\"targetChosen::e-68efpt-rf1rpo\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-76d7m0-1p2gvdu\",\"targetId\":\"e-68efpt-rf1rpo\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"}].",
+			"#24 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu): dados [3], hitBonus +5 = 8.",
+			"Rolagem de Kobold das Brasas Baixas (e-68efpt-rf1rpo): dados [6], hitBonus +3, Despertar da Masmorra +1, skill_pack_courage +1 = 11. Margem -3.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":118} → {\"seed\":4027,\"counter\":120}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\",\"heroTotal\":8,\"enemyTotal\":11,\"heroResults\":[3],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 8 | Inimigo rolou 11.",
+			"#25 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (8) × Kobold das Brasas Baixas (11); margem -3; dano do herói 4 sem bônus = 4; dano do inimigo 2 sem bônus = 2; dano previsto: herói 2, inimigo 0.",
+			"Dano attack: Kobold das Brasas Baixas → Guerreiro do Bastião Partido; solicitado 2, após efeitos 2, aplicado 2; vida 11 → 9.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) → desconhecido.",
+			"Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) recebeu 2 de dano (11 → 9).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-68efpt-rf1rpo\",\"targetId\":\"h-76d7m0-1p2gvdu\",\"damageType\":\"attack\",\"amount\":2},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-76d7m0-1p2gvdu\"].",
+			"Log atual: Guerreiro do Bastião Partido sofreu 2 de dano. Inimigo: dado(s) [6]=6, acerto +3, Despertar da Masmorra +1, skill_pack_courage +1 → 11 vs herói: 8.",
+			"Log atual: Aguardando ação de 3 herói(s).",
+			"#26 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Acólito da Fornalha (e-1rnmt5f-1b267d7) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Paladino da Última Luz (h-ktu9rr-ndfuf6).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ktu9rr-ndfuf6\",\"targetId\":\"e-1rnmt5f-1b267d7\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"}] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}].",
+			"#27 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Paladino da Última Luz (h-ktu9rr-ndfuf6): dados [3], hitBonus +5 = 8.",
+			"Rolagem de Acólito da Fornalha (e-1rnmt5f-1b267d7): dados [4], hitBonus +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 = 11. Margem -3.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":120} → {\"seed\":4027,\"counter\":122}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\",\"heroTotal\":8,\"enemyTotal\":11,\"heroResults\":[3],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 8 | Inimigo rolou 11.",
+			"#28 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Paladino da Última Luz (8) × Acólito da Fornalha (11); margem -3; dano do herói 4 sem bônus = 4; dano do inimigo 3 sem bônus = 3; dano previsto: herói 3, inimigo 0.",
+			"Dano attack: Acólito da Fornalha → Paladino da Última Luz; solicitado 3, após efeitos 3, aplicado 3; vida 7 → 4.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Paladino da Última Luz (h-ktu9rr-ndfuf6) → desconhecido.",
+			"Paladino da Última Luz (h-ktu9rr-ndfuf6) recebeu 3 de dano (7 → 4).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1rnmt5f-1b267d7\",\"targetId\":\"h-ktu9rr-ndfuf6\",\"damageType\":\"attack\",\"amount\":3},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\"] → [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\"].",
+			"Log atual: Paladino da Última Luz sofreu 3 de dano. Inimigo: dado(s) [4]=4, acerto +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 → 11 vs herói: 8.",
+			"Log atual: Aguardando ação de 2 herói(s).",
+			"#29 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Kobold das Brasas Baixas (e-68efpt-rf1rpo) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-68efpt-rf1rpo\"}}",
+			"Log atual: [AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"#30 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Acólito da Fornalha (e-1rnmt5f-1b267d7) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}}",
+			"Log atual: [AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"#31 Ladino das Fendas (h-1n4snwj-10jo0d6) iniciou ataque contra Acólito da Fornalha (e-1rnmt5f-1b267d7) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Ladino das Fendas (h-1n4snwj-10jo0d6).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1n4snwj-10jo0d6\",\"targetId\":\"e-1rnmt5f-1b267d7\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}].",
+			"#32 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Ladino das Fendas (h-1n4snwj-10jo0d6): dados [4], hitBonus +4 = 8.",
+			"Rolagem de Acólito da Fornalha (e-1rnmt5f-1b267d7): dados [3], hitBonus +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 = 10. Margem -2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":122} → {\"seed\":4027,\"counter\":124}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1rnmt5f-1b267d7\",\"heroTotal\":8,\"enemyTotal\":10,\"heroResults\":[4],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 8 | Inimigo rolou 10.",
+			"#33 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Ladino das Fendas (8) × Acólito da Fornalha (10); margem -2; dano do herói 3 sem bônus = 3; dano do inimigo 3 sem bônus = 3; dano previsto: herói 3, inimigo 0.",
+			"Dano attack: Acólito da Fornalha → Ladino das Fendas; solicitado 3, após efeitos 3, aplicado 1; vida 1 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Ladino das Fendas (h-1n4snwj-10jo0d6) → desconhecido.",
+			"Ladino das Fendas (h-1n4snwj-10jo0d6) recebeu 1 de dano (1 → 0).",
+			"Ladino das Fendas (h-1n4snwj-10jo0d6): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1rnmt5f-1b267d7\",\"targetId\":\"h-1n4snwj-10jo0d6\",\"damageType\":\"attack\",\"amount\":3},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-1n4snwj-10jo0d6\",\"sourceId\":\"e-1rnmt5f-1b267d7\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\"] → [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\",\"h-1n4snwj-10jo0d6\"].",
+			"Log atual: Ladino das Fendas sofreu 3 de dano. Inimigo: dado(s) [3]=3, acerto +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 → 10 vs herói: 8.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#34 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Log atual: [AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"#35 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Acólito da Fornalha (e-1rnmt5f-1b267d7) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}}",
+			"Log atual: [AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"#36 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Kobold das Brasas Baixas (e-68efpt-rf1rpo) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"}}",
+			"Log atual: [AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"#37 Mago das Runas Rubras (h-wp0ylr-6jzp) iniciou ataque contra Kobold das Brasas Baixas (e-68efpt-rf1rpo) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-68efpt-rf1rpo\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Mago das Runas Rubras (h-wp0ylr-6jzp).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-wp0ylr-6jzp\",\"targetId\":\"e-68efpt-rf1rpo\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-68efpt-rf1rpo\"}].",
+			"#38 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Mago das Runas Rubras (h-wp0ylr-6jzp): dados [5], hitBonus +4 = 9.",
+			"Rolagem de Kobold das Brasas Baixas (e-68efpt-rf1rpo): dados [2], hitBonus +3, Despertar da Masmorra +1, skill_pack_courage +1 = 7. Margem +2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":124} → {\"seed\":4027,\"counter\":126}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-68efpt-rf1rpo\",\"heroTotal\":9,\"enemyTotal\":7,\"heroResults\":[5],\"enemyResults\":[2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 9 | Inimigo rolou 7.",
+			"#39 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Mago das Runas Rubras (9) × Kobold das Brasas Baixas (7); margem +2; dano do herói 3 sem bônus = 3; dano do inimigo 2 sem bônus = 2; dano previsto: herói 0, inimigo 3.",
+			"Dano attack: Mago das Runas Rubras → Kobold das Brasas Baixas; solicitado 3, após efeitos 3, aplicado 2; vida 2 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Mago das Runas Rubras (h-wp0ylr-6jzp) → desconhecido.",
+			"Kobold das Brasas Baixas (e-68efpt-rf1rpo) recebeu 2 de dano (2 → 0).",
+			"Kobold das Brasas Baixas (e-68efpt-rf1rpo): estado active → defeated.",
+			"Efeitos em Kobold das Brasas Baixas (e-68efpt-rf1rpo): [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":1,\"source\":\"skill_pack_courage\",\"duration\":{\"kind\":\"this_combat\"}}] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-wp0ylr-6jzp\",\"targetId\":\"e-68efpt-rf1rpo\",\"damageType\":\"attack\",\"amount\":3},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-68efpt-rf1rpo\",\"sourceId\":\"h-wp0ylr-6jzp\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\",\"h-1n4snwj-10jo0d6\"] → [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\",\"h-1n4snwj-10jo0d6\",\"h-wp0ylr-6jzp\"].",
+			"Log atual: Kobold das Brasas Baixas sofreu 3 de dano. Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 7.",
+			"#40 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Dano attack: Ladrão das Passagens Mortas → Mago das Runas Rubras; solicitado 5, após efeitos 5, aplicado 3; vida 3 → 0.",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Mago das Runas Rubras (h-wp0ylr-6jzp) recebeu 3 de dano (3 → 0).",
+			"Mago das Runas Rubras (h-wp0ylr-6jzp): estado active → defeated.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":126} → {\"seed\":4027,\"counter\":128}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"heroTotal\":7,\"enemyTotal\":10,\"heroResults\":[3],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1l7dxkl-1by3w7n\",\"targetId\":\"h-wp0ylr-6jzp\",\"damageType\":\"attack\",\"amount\":5},\"seq\":1},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-wp0ylr-6jzp\",\"sourceId\":\"e-1l7dxkl-1by3w7n\"},\"seq\":2},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":3}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2}].",
+			"Detalhe técnico extraAttackFeedback: [{\"id\":1,\"enemyId\":\"e-68efpt-rf1rpo\",\"enemyCardId\":\"creature_low_ember_kobold\",\"heroId\":\"h-1n4snwj-10jo0d6\"}] → [{\"id\":1,\"enemyId\":\"e-68efpt-rf1rpo\",\"enemyCardId\":\"creature_low_ember_kobold\",\"heroId\":\"h-1n4snwj-10jo0d6\"},{\"id\":2,\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"enemyCardId\":\"creature_dead_passage_thief\",\"heroId\":\"h-wp0ylr-6jzp\"}].",
+			"Log atual: Ataque extra: Ladrão das Passagens Mortas venceu Mago das Runas Rubras e causou 5 de dano. Inimigo: dado(s) [3]=3, acerto +6, Despertar da Masmorra +1 → 10 vs herói: 7.",
+			"#41 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 1 → 2.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\",\"h-1n4snwj-10jo0d6\",\"h-wp0ylr-6jzp\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-68efpt-rf1rpo\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-1n4snwj-10jo0d6\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-wp0ylr-6jzp\",\"enemyId\":\"e-68efpt-rf1rpo\"}] → [].",
+			"Log atual: Rodada 3 de combate.",
+			"#42 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Acólito da Fornalha (e-1rnmt5f-1b267d7) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-76d7m0-1p2gvdu\",\"targetId\":\"e-1rnmt5f-1b267d7\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}].",
+			"#43 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu): dados [6], hitBonus +5 = 11.",
+			"Rolagem de Acólito da Fornalha (e-1rnmt5f-1b267d7): dados [3], hitBonus +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 = 10. Margem +1.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":128} → {\"seed\":4027,\"counter\":130}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1rnmt5f-1b267d7\",\"heroTotal\":11,\"enemyTotal\":10,\"heroResults\":[6],\"enemyResults\":[3]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 11 | Inimigo rolou 10.",
+			"#44 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (11) × Acólito da Fornalha (10); margem +1; dano do herói 4 sem bônus = 4; dano do inimigo 3 sem bônus = 3; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Guerreiro do Bastião Partido → Acólito da Fornalha; solicitado 4, após efeitos 4, aplicado 3; vida 3 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) → desconhecido.",
+			"Acólito da Fornalha (e-1rnmt5f-1b267d7) recebeu 3 de dano (3 → 0).",
+			"Acólito da Fornalha (e-1rnmt5f-1b267d7): estado active → defeated.",
+			"Efeitos em Acólito da Fornalha (e-1rnmt5f-1b267d7): [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0},{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":2,\"source\":\"skill_hidden_flame_presence\",\"duration\":{\"kind\":\"this_combat\"}}] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":1},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-76d7m0-1p2gvdu\",\"targetId\":\"e-1rnmt5f-1b267d7\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"EnemyDestroyed\",\"payload\":{\"enemyId\":\"e-1rnmt5f-1b267d7\",\"sourceId\":\"h-76d7m0-1p2gvdu\",\"roomFirstKill\":true},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-76d7m0-1p2gvdu\"].",
+			"Log atual: Acólito da Fornalha sofreu 4 de dano. Herói: dado(s) [6]=6, acerto +5 → 11 vs inimigo: 10.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#45 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Log atual: [AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"#46 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Log atual: [AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"#47 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Log atual: [AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"#48 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Paladino da Última Luz (h-ktu9rr-ndfuf6).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ktu9rr-ndfuf6\",\"targetId\":\"e-1l7dxkl-1by3w7n\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1rnmt5f-1b267d7\"}] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}].",
+			"#49 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Paladino da Última Luz (h-ktu9rr-ndfuf6): dados [4], hitBonus +5 = 9.",
+			"Rolagem de Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n): dados [1], hitBonus +6, Despertar da Masmorra +1 = 8. Margem +1.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":130} → {\"seed\":4027,\"counter\":132}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"heroTotal\":9,\"enemyTotal\":8,\"heroResults\":[4],\"enemyResults\":[1]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 9 | Inimigo rolou 8.",
+			"#50 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Paladino da Última Luz (9) × Ladrão das Passagens Mortas (8); margem +1; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 0, inimigo 4.",
+			"Dano attack: Paladino da Última Luz → Ladrão das Passagens Mortas; solicitado 4, após efeitos 4, aplicado 4; vida 7 → 3.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Paladino da Última Luz (h-ktu9rr-ndfuf6) → desconhecido.",
+			"Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) recebeu 4 de dano (7 → 3).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"h-ktu9rr-ndfuf6\",\"targetId\":\"e-1l7dxkl-1by3w7n\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3},{\"id\":12,\"targetId\":\"e-1l7dxkl-1by3w7n\",\"side\":\"enemy\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\"] → [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\"].",
+			"Log atual: Ladrão das Passagens Mortas sofreu 4 de dano. Herói: dado(s) [4]=4, acerto +5 → 9 vs inimigo: 8.",
+			"#51 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#52 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 2 → 3.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-76d7m0-1p2gvdu\",\"h-ktu9rr-ndfuf6\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1rnmt5f-1b267d7\"},{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}] → [].",
+			"Log atual: Rodada 4 de combate.",
+			"#53 Paladino da Última Luz (h-ktu9rr-ndfuf6) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Paladino da Última Luz (h-ktu9rr-ndfuf6).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-ktu9rr-ndfuf6\",\"targetId\":\"e-1l7dxkl-1by3w7n\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}].",
+			"#54 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Paladino da Última Luz (h-ktu9rr-ndfuf6): dados [6], hitBonus +5 = 11.",
+			"Rolagem de Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n): dados [6], hitBonus +6, Despertar da Masmorra +1 = 13. Margem -2.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":132} → {\"seed\":4027,\"counter\":134}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"heroTotal\":11,\"enemyTotal\":13,\"heroResults\":[6],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 11 | Inimigo rolou 13.",
+			"#55 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Paladino da Última Luz (11) × Ladrão das Passagens Mortas (13); margem -2; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Ladrão das Passagens Mortas → Paladino da Última Luz; solicitado 5, após efeitos 5, aplicado 4; vida 4 → 0.",
+			"Fase: RESOLVE_ATTACK → HERO_ACTION.",
+			"Etapa de combate: resolving → selecting_hero.",
+			"Herói em foco no combate: Paladino da Última Luz (h-ktu9rr-ndfuf6) → desconhecido.",
+			"Paladino da Última Luz (h-ktu9rr-ndfuf6) recebeu 4 de dano (4 → 0).",
+			"Paladino da Última Luz (h-ktu9rr-ndfuf6): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1l7dxkl-1by3w7n\",\"targetId\":\"h-ktu9rr-ndfuf6\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-ktu9rr-ndfuf6\",\"sourceId\":\"e-1l7dxkl-1by3w7n\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"HERO_ACTION\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3},{\"id\":12,\"targetId\":\"e-1l7dxkl-1by3w7n\",\"side\":\"enemy\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3},{\"id\":12,\"targetId\":\"e-1l7dxkl-1by3w7n\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-ktu9rr-ndfuf6\"].",
+			"Log atual: Paladino da Última Luz sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +6, Despertar da Masmorra +1 → 13 vs herói: 11.",
+			"Log atual: Aguardando ação de 1 herói(s).",
+			"#56 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-76d7m0-1p2gvdu\",\"targetId\":\"e-1l7dxkl-1by3w7n\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}] → [{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"},{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}].",
+			"#57 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu): dados [1], hitBonus +5 = 6.",
+			"Rolagem de Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n): dados [2], hitBonus +6, Despertar da Masmorra +1 = 9. Margem -3.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":134} → {\"seed\":4027,\"counter\":136}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"heroTotal\":6,\"enemyTotal\":9,\"heroResults\":[1],\"enemyResults\":[2]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 6 | Inimigo rolou 9.",
+			"#58 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (6) × Ladrão das Passagens Mortas (9); margem -3; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Ladrão das Passagens Mortas → Guerreiro do Bastião Partido; solicitado 5, após efeitos 5, aplicado 5; vida 9 → 4.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) → desconhecido.",
+			"Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) recebeu 5 de dano (9 → 4).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1l7dxkl-1by3w7n\",\"targetId\":\"h-76d7m0-1p2gvdu\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3},{\"id\":12,\"targetId\":\"e-1l7dxkl-1by3w7n\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3},{\"id\":12,\"targetId\":\"e-1l7dxkl-1by3w7n\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":4},{\"id\":14,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":5}].",
+			"Detalhe técnico combate.heroesActed: [\"h-ktu9rr-ndfuf6\"] → [\"h-ktu9rr-ndfuf6\",\"h-76d7m0-1p2gvdu\"].",
+			"Log atual: Guerreiro do Bastião Partido sofreu 5 de dano. Inimigo: dado(s) [2]=2, acerto +6, Despertar da Masmorra +1 → 9 vs herói: 6.",
+			"#59 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#60 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 3 → 4.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-ktu9rr-ndfuf6\",\"h-76d7m0-1p2gvdu\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-ktu9rr-ndfuf6\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"},{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}] → [].",
+			"Log atual: Rodada 5 de combate.",
+			"#61 Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) iniciou ataque contra Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-76d7m0-1p2gvdu\",\"targetId\":\"e-1l7dxkl-1by3w7n\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\"}].",
+			"#62 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu): dados [3], hitBonus +5 = 8.",
+			"Rolagem de Ladrão das Passagens Mortas (e-1l7dxkl-1by3w7n): dados [6], hitBonus +6, Despertar da Masmorra +1 = 13. Margem -5.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":4027,\"counter\":136} → {\"seed\":4027,\"counter\":138}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"enemyId\":\"e-1l7dxkl-1by3w7n\",\"heroTotal\":8,\"enemyTotal\":13,\"heroResults\":[3],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 8 | Inimigo rolou 13.",
+			"#63 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (8) × Ladrão das Passagens Mortas (13); margem -5; dano do herói 4 sem bônus = 4; dano do inimigo 5 sem bônus = 5; dano previsto: herói 5, inimigo 0.",
+			"Dano attack: Ladrão das Passagens Mortas → Guerreiro do Bastião Partido; solicitado 5, após efeitos 5, aplicado 4; vida 4 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) → desconhecido.",
+			"Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu) recebeu 4 de dano (4 → 0).",
+			"Guerreiro do Bastião Partido (h-76d7m0-1p2gvdu): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1l7dxkl-1by3w7n\",\"targetId\":\"h-76d7m0-1p2gvdu\",\"damageType\":\"attack\",\"amount\":5},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-76d7m0-1p2gvdu\",\"sourceId\":\"e-1l7dxkl-1by3w7n\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3},{\"id\":12,\"targetId\":\"e-1l7dxkl-1by3w7n\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":4},{\"id\":14,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":5}] → [{\"id\":1,\"targetId\":\"e-158m12q-zj4n28\",\"side\":\"enemy\",\"amount\":2},{\"id\":2,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":5},{\"id\":3,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":4,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":5},{\"id\":5,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":2,\"extraAttackId\":1},{\"id\":6,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":2},{\"id\":7,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":3},{\"id\":8,\"targetId\":\"h-1n4snwj-10jo0d6\",\"side\":\"hero\",\"amount\":1},{\"id\":9,\"targetId\":\"e-68efpt-rf1rpo\",\"side\":\"enemy\",\"amount\":2},{\"id\":10,\"targetId\":\"h-wp0ylr-6jzp\",\"side\":\"hero\",\"amount\":3,\"extraAttackId\":2},{\"id\":11,\"targetId\":\"e-1rnmt5f-1b267d7\",\"side\":\"enemy\",\"amount\":3},{\"id\":12,\"targetId\":\"e-1l7dxkl-1by3w7n\",\"side\":\"enemy\",\"amount\":4},{\"id\":13,\"targetId\":\"h-ktu9rr-ndfuf6\",\"side\":\"hero\",\"amount\":4},{\"id\":14,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":5},{\"id\":15,\"targetId\":\"h-76d7m0-1p2gvdu\",\"side\":\"hero\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-76d7m0-1p2gvdu\"].",
+			"Log atual: Guerreiro do Bastião Partido sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +6, Despertar da Masmorra +1 → 13 vs herói: 8.",
+			"#64 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#65 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → DEFEAT.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"DEFEAT\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Log atual: Derrota: herói eliminado."
+		],
+		"bossCardId": "boss_azhakar",
+		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
+		"combat": {
+			"buffsByHero": {},
+			"heroesActed": [
+				"h-76d7m0-1p2gvdu"
+			],
+			"lastRoll": null,
+			"phase": "direct_damage",
+			"powersUsedThisRoom": {},
+			"round": 4,
+			"selectedHeroId": null
+		},
+		"creaturesDefeated": 0,
+		"currentRoom": {
+			"cardId": "room_broken_columns_hall",
+			"currentEnemies": 1,
+			"effect": "Queda de Coluna: a primeira criatura destruída nesta sala derruba uma coluna. Escolha uma criatura restante, ela sofre 1 de dano.",
+			"exits": 4,
+			"reward": 1,
+			"rewardType": "item",
+			"status": "active",
+			"xp": 1
+		},
+		"damageFeedback": [
+			{
+				"amount": 2,
+				"id": 1,
+				"side": "enemy",
+				"targetId": "e-158m12q-zj4n28"
+			},
+			{
+				"amount": 5,
+				"id": 2,
+				"side": "hero",
+				"targetId": "h-1n4snwj-10jo0d6"
+			},
+			{
+				"amount": 3,
+				"id": 3,
+				"side": "hero",
+				"targetId": "h-ktu9rr-ndfuf6"
+			},
+			{
+				"amount": 5,
+				"id": 4,
+				"side": "hero",
+				"targetId": "h-wp0ylr-6jzp"
+			},
+			{
+				"amount": 2,
+				"extraAttackId": 1,
+				"id": 5,
+				"side": "hero",
+				"targetId": "h-1n4snwj-10jo0d6"
+			},
+			{
+				"amount": 2,
+				"id": 6,
+				"side": "hero",
+				"targetId": "h-76d7m0-1p2gvdu"
+			},
+			{
+				"amount": 3,
+				"id": 7,
+				"side": "hero",
+				"targetId": "h-ktu9rr-ndfuf6"
+			},
+			{
+				"amount": 1,
+				"id": 8,
+				"side": "hero",
+				"targetId": "h-1n4snwj-10jo0d6"
+			},
+			{
+				"amount": 2,
+				"id": 9,
+				"side": "enemy",
+				"targetId": "e-68efpt-rf1rpo"
+			},
+			{
+				"amount": 3,
+				"extraAttackId": 2,
+				"id": 10,
+				"side": "hero",
+				"targetId": "h-wp0ylr-6jzp"
+			},
+			{
+				"amount": 3,
+				"id": 11,
+				"side": "enemy",
+				"targetId": "e-1rnmt5f-1b267d7"
+			},
+			{
+				"amount": 4,
+				"id": 12,
+				"side": "enemy",
+				"targetId": "e-1l7dxkl-1by3w7n"
+			},
+			{
+				"amount": 4,
+				"id": 13,
+				"side": "hero",
+				"targetId": "h-ktu9rr-ndfuf6"
+			},
+			{
+				"amount": 5,
+				"id": 14,
+				"side": "hero",
+				"targetId": "h-76d7m0-1p2gvdu"
+			},
+			{
+				"amount": 4,
+				"id": 15,
+				"side": "hero",
+				"targetId": "h-76d7m0-1p2gvdu"
+			}
+		],
+		"decks": {
+			"artifactDeck": {
+				"available": [
+					"artifact_crimson_jailer_chain",
+					"artifact_lost_forge_hammer",
+					"artifact_last_vigil_brazier",
+					"artifact_first_fire_blade",
+					"artifact_ancient_ember_heart"
+				],
+				"discarded": 0
+			},
+			"dungeonDeck": {
+				"available": 18,
+				"discarded": [
+					"room_broken_columns_hall"
+				]
+			},
+			"enemyDeck": {
+				"available": 14,
+				"discarded": 0
+			},
+			"itemDeck": {
+				"available": [
+					"item_deep_veil_scythe",
+					"item_tunnel_hood",
+					"item_ruined_hall_axe",
+					"item_last_defense_charm",
+					"item_silent_dungeon_charm",
+					"item_return_potion",
+					"item_reinforced_leather_armor",
+					"item_last_chord_lute",
+					"item_broken_veil_cloak",
+					"item_torn_depths_map",
+					"item_pitch_torch",
+					"item_ancient_metal_armor",
+					"item_worn_explorer_rope",
+					"item_crimson_rune_staff",
+					"item_precision_potion",
+					"item_rusty_dagger",
+					"item_incendiary_oil_flask",
+					"item_fury_potion",
+					"item_lesser_vigor_potion",
+					"item_warm_blood_charm",
+					"item_greater_vigor_potion",
+					"item_low_flame_charm",
+					"item_cracked_shield",
+					"item_rift_bow",
+					"item_living_ember_potion",
+					"item_stoneskin_potion",
+					"item_ancient_iron_key",
+					"item_last_light_sword",
+					"item_light_stone_boots",
+					"item_narrow_exit_cloak",
+					"item_forge_magic_armor",
+					"item_broken_stone_hammer",
+					"item_hidden_forge_chest",
+					"item_safe_path_charm"
+				],
+				"discarded": 0
+			}
+		},
+		"despertar": 1,
+		"difficulty": "hard",
+		"enemies": [
+			{
+				"cardId": "creature_dead_passage_thief",
+				"conditions": [],
+				"currentLife": 3,
+				"damage": 5,
+				"dice": 1,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 6,
+				"id": "e-1l7dxkl-1by3w7n",
+				"isSubboss": false,
+				"maxLife": 7,
+				"status": "active",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 2,
+					"xp": 3
+				}
+			},
+			{
+				"cardId": "creature_dark_cave_goblin",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 2,
+				"dice": 1,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 3,
+				"id": "e-158m12q-zj4n28",
+				"isSubboss": false,
+				"maxLife": 2,
+				"status": "defeated",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 1,
+					"xp": 1
+				}
+			},
+			{
+				"cardId": "creature_low_ember_kobold",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 2,
+				"dice": 1,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 3,
+				"id": "e-68efpt-rf1rpo",
+				"isSubboss": false,
+				"maxLife": 2,
+				"status": "defeated",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 1,
+					"xp": 1
+				}
+			},
+			{
+				"cardId": "creature_forge_acolyte",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 3,
+				"dice": 1,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 4,
+				"id": "e-1rnmt5f-1b267d7",
+				"isSubboss": false,
+				"maxLife": 3,
+				"status": "defeated",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 1,
+					"xp": 2
+				}
+			}
+		],
+		"eventLog": [
+			"Partida iniciada. Heróis: Ladino das Fendas, Mago das Runas Rubras, Paladino da Última Luz, Guerreiro do Bastião Partido. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Sala sorteada: Salão das Colunas Quebradas.",
+			"4 inimigo(s) aparecem: Ladrão das Passagens Mortas, Goblin das Cavernas Escuras, Kobold das Brasas Baixas, Acólito da Fornalha.",
+			"Combate iniciado.",
+			"Herói rolou 8 | Inimigo rolou 6.",
+			"Goblin das Cavernas Escuras sofreu 4 de dano. Herói: dado(s) [3]=3, acerto +5 → 8 vs inimigo: 6.",
+			"Aguardando ação de 3 herói(s).",
+			"Herói rolou 8 | Inimigo rolou 13.",
+			"Ladino das Fendas sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +6, Despertar da Masmorra +1 → 13 vs herói: 8.",
+			"Aguardando ação de 2 herói(s).",
+			"Herói rolou 9 | Inimigo rolou 12.",
+			"Paladino da Última Luz sofreu 3 de dano. Inimigo: dado(s) [5]=5, acerto +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 → 12 vs herói: 9.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"[AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"[AVISO] Herói h-1n4snwj-10jo0d6 já agiu nesta rodada.",
+			"[AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"Herói rolou 10 | Inimigo rolou 12.",
+			"Mago das Runas Rubras sofreu 5 de dano. Inimigo: dado(s) [5]=5, acerto +6, Despertar da Masmorra +1 → 12 vs herói: 10.",
+			"Ataque extra: Kobold das Brasas Baixas venceu Ladino das Fendas e causou 2 de dano. Inimigo: dado(s) [3]=3, acerto +3, Despertar da Masmorra +1, skill_pack_courage +1 → 8 vs herói: 5.",
+			"Rodada 2 de combate.",
+			"Herói rolou 8 | Inimigo rolou 11.",
+			"Guerreiro do Bastião Partido sofreu 2 de dano. Inimigo: dado(s) [6]=6, acerto +3, Despertar da Masmorra +1, skill_pack_courage +1 → 11 vs herói: 8.",
+			"Aguardando ação de 3 herói(s).",
+			"Herói rolou 8 | Inimigo rolou 11.",
+			"Paladino da Última Luz sofreu 3 de dano. Inimigo: dado(s) [4]=4, acerto +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 → 11 vs herói: 8.",
+			"Aguardando ação de 2 herói(s).",
+			"[AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"[AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"Herói rolou 8 | Inimigo rolou 10.",
+			"Ladino das Fendas sofreu 3 de dano. Inimigo: dado(s) [3]=3, acerto +4, Despertar da Masmorra +1, skill_hidden_flame_presence +2 → 10 vs herói: 8.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"[AVISO] Herói h-ktu9rr-ndfuf6 já agiu nesta rodada.",
+			"[AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"Herói rolou 9 | Inimigo rolou 7.",
+			"Kobold das Brasas Baixas sofreu 3 de dano. Herói: dado(s) [5]=5, acerto +4 → 9 vs inimigo: 7.",
+			"Ataque extra: Ladrão das Passagens Mortas venceu Mago das Runas Rubras e causou 5 de dano. Inimigo: dado(s) [3]=3, acerto +6, Despertar da Masmorra +1 → 10 vs herói: 7.",
+			"Rodada 3 de combate.",
+			"Herói rolou 11 | Inimigo rolou 10.",
+			"Acólito da Fornalha sofreu 4 de dano. Herói: dado(s) [6]=6, acerto +5 → 11 vs inimigo: 10.",
+			"Aguardando ação de 1 herói(s).",
+			"[AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"[AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"[AVISO] Herói h-76d7m0-1p2gvdu já agiu nesta rodada.",
+			"Herói rolou 9 | Inimigo rolou 8.",
+			"Ladrão das Passagens Mortas sofreu 4 de dano. Herói: dado(s) [4]=4, acerto +5 → 9 vs inimigo: 8.",
+			"Rodada 4 de combate.",
+			"Herói rolou 11 | Inimigo rolou 13.",
+			"Paladino da Última Luz sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +6, Despertar da Masmorra +1 → 13 vs herói: 11.",
+			"Aguardando ação de 1 herói(s).",
+			"Herói rolou 6 | Inimigo rolou 9.",
+			"Guerreiro do Bastião Partido sofreu 5 de dano. Inimigo: dado(s) [2]=2, acerto +6, Despertar da Masmorra +1 → 9 vs herói: 6.",
+			"Rodada 5 de combate.",
+			"Herói rolou 8 | Inimigo rolou 13.",
+			"Guerreiro do Bastião Partido sofreu 5 de dano. Inimigo: dado(s) [6]=6, acerto +6, Despertar da Masmorra +1 → 13 vs herói: 8.",
+			"Derrota: herói eliminado."
+		],
+		"extraAttackFeedback": [
+			{
+				"enemyCardId": "creature_low_ember_kobold",
+				"enemyId": "e-68efpt-rf1rpo",
+				"heroId": "h-1n4snwj-10jo0d6",
+				"id": 1
+			},
+			{
+				"enemyCardId": "creature_dead_passage_thief",
+				"enemyId": "e-1l7dxkl-1by3w7n",
+				"heroId": "h-wp0ylr-6jzp",
+				"id": 2
+			}
+		],
+		"groupArtifacts": [],
+		"groupBuffs": [],
+		"groupXp": 0,
+		"healFeedback": [],
+		"heroes": [
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_rift_rogue",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 3,
+				"dice": 1,
+				"eco": 0,
+				"hitBonus": 4,
+				"id": "h-1n4snwj-10jo0d6",
+				"impeto": 0,
+				"maxLife": 8,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_crimson_rune_mage",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 3,
+				"dice": 1,
+				"eco": 0,
+				"hitBonus": 4,
+				"id": "h-wp0ylr-6jzp",
+				"impeto": 0,
+				"maxLife": 8,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_last_light_paladin",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 4,
+				"dice": 1,
+				"eco": 0,
+				"hitBonus": 5,
+				"id": "h-ktu9rr-ndfuf6",
+				"impeto": 0,
+				"maxLife": 10,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			},
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_broken_bastion_warrior",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 4,
+				"dice": 1,
+				"eco": 0,
+				"hitBonus": 5,
+				"id": "h-76d7m0-1p2gvdu",
+				"impeto": 0,
+				"maxLife": 11,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			}
+		],
+		"inventoryByHero": {
+			"h-1n4snwj-10jo0d6": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 3,
+					"damageBonus": 0,
+					"hit": 4,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-76d7m0-1p2gvdu": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 4,
+					"damageBonus": 0,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-ktu9rr-ndfuf6": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 4,
+					"damageBonus": 0,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			},
+			"h-wp0ylr-6jzp": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 3,
+					"damageBonus": 0,
+					"hit": 4,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			}
+		},
+		"mode": "cooperative",
+		"paths": [],
+		"paused": null,
+		"pendingRewards": [],
+		"pendingSkillChoice": null,
+		"pendingSkillTarget": null,
+		"pendingTriggerInterrupt": null,
+		"roomsCleared": 0,
+		"status": "DEFEAT"
+	}
+}

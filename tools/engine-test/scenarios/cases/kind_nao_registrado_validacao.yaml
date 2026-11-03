@@ -1,0 +1,9 @@
+name: validar conteúdo com kind aninhado não registrado aponta o caminho
+kind: nao_registrado
+when:
+  - validate:
+      - kind: repeat
+        times: 2
+        do: [{ kind: kind_que_nao_existe }]
+then:
+  error: 'repeat[0]: kind "kind_que_nao_existe" sem implementação registrada'

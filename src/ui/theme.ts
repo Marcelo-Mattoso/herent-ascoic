@@ -1,7 +1,7 @@
 // Constantes visuais do design system do MVP 1.
 // Todas as cores vêm daqui — nenhuma cor hardcoded em outro arquivo.
 
-import type { ColorIndex } from "@/core/state/color";
+import type { ColorIndex } from "@/core/projection/viewTypes";
 
 export const COLORS_MAP = [
 	{

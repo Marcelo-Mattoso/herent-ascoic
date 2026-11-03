@@ -1,58 +1,58 @@
-// Resolvedor de efeitos declarativos para o event bus.
-// Interpreta EffectDescriptor e aplica o efeito correspondente.
-// Passo 7: accumulator effects (modify_damage_amount, modify_heal_amount).
-// Passo 8: push_to_stack — adia efeito para drenagem posterior (sem recursão direta).
-// Patch-18 Lote F: run_skill — executa efeito de skill via DSL/script.
-
-import { SKILLS } from "../data/skills";
-import { awakeningRequirementMet } from "../rules/awakening";
-import { cardSkills } from "../skills/lookup";
 import type { SkillContext } from "../data/skillTypes";
 import type { EffectDescriptor, EntityId } from "../ecs/types";
 import { addPending } from "../effects/stack";
 import { buildScriptCtx } from "../scripts/context";
-import { getScript } from "../scripts/registry";
+import { scriptOf } from "../gameEngine";
 import { evaluate } from "../skills/dsl/evaluate";
 import { resolveCondition } from "../skills/dsl/resolveCondition";
 import type { EventName } from "../skills/dsl/types";
 import type { GameState } from "../state/gameState";
-import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
+import {
+	isAbilityPrepared,
+	preparedAbilityKey,
+	removePreparedAbility,
+} from "../abilities/prepared";
 import {
 	collectPromptTriggers,
 	executeTriggerCandidate,
 } from "../triggers/engine";
-import type { GameEvent } from "./types";
+import type { GameEventDraft } from "./types";
+import { skillById, skillsOf } from "../gameEngine";
+import { refRequirementMet } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+import { pendingTriggerInterruptOf, withEffectStack, effectStackOf } from "../state/access";
+import { gameOf } from "../../engine/state";
 
 /**
  * Defesa de última linha para componentes ECS persistidos/restaurados: a
  * instalação já filtra referências Roxas, mas um componente criado antes de
  * uma transição de Despertar não pode burlar a regra ao receber um evento.
  */
-function sourceSkillIsAwakened(
+function sourceSkillIsAwakened(engine: GameEngine,
 	state: GameState,
 	entityId: EntityId,
 	skillId: string,
 ): boolean {
 	const cardId =
-		state.heroes.find((hero) => hero.id === entityId)?.cardId ??
-		state.activeEnemies.find((enemy) => enemy.id === entityId)?.cardId;
+		gameOf(state).heroes.find((hero) => hero.id === entityId)?.cardId ??
+		gameOf(state).activeEnemies.find((enemy) => enemy.id === entityId)?.cardId;
 	if (!cardId) return true;
-	const refs = cardSkills(cardId).filter(({ def }) => def.id === skillId);
+	const refs = skillsOf(engine, cardId).filter(({ def }) => def.id === skillId);
 	if (refs.length === 0) return true;
 	return refs.some(({ ref }) =>
-		awakeningRequirementMet(state.despertar, ref.requiresAwakening),
+		refRequirementMet(engine, state, ref.requiresAwakening),
 	);
 }
 
 function skillContextFromEvent(
 	state: GameState,
-	event: GameEvent,
+	event: GameEventDraft,
 	entityId: EntityId,
 	skillId: string,
 	params: Record<string, unknown>,
 ): SkillContext {
-	const entityIsHero = state.heroes.some((h) => h.id === entityId);
-	const entityIsEnemy = state.activeEnemies.some((e) => e.id === entityId);
+	const entityIsHero = gameOf(state).heroes.some((h) => h.id === entityId);
+	const entityIsEnemy = gameOf(state).activeEnemies.some((e) => e.id === entityId);
 	const payload = event.payload as Record<string, unknown>;
 
 	let eventHeroId: string | undefined;
@@ -62,7 +62,7 @@ function skillContextFromEvent(
 		const dmgTarget = payload["targetId"] as string | undefined;
 		const otherParty = entityId === dmgTarget ? dmgSource : dmgTarget;
 		if (otherParty) {
-			if (state.heroes.some((h) => h.id === otherParty)) {
+			if (gameOf(state).heroes.some((h) => h.id === otherParty)) {
 				eventHeroId = otherParty;
 			} else {
 				eventEnemyId = otherParty;
@@ -88,16 +88,16 @@ function skillContextFromEvent(
 		round:
 			typeof payload["round"] === "number"
 				? payload["round"]
-				: (state.combat?.round ?? undefined),
+				: (gameOf(state).combat?.round ?? undefined),
 	};
 }
 
-export function applyEffect(
+export function applyEffect(engine: GameEngine,
 	state: GameState,
-	event: GameEvent,
+	event: GameEventDraft,
 	entityId: EntityId,
 	effect: EffectDescriptor,
-): { state: GameState; event: GameEvent } {
+): { state: GameState; event: GameEventDraft } {
 	const effectType = effect["type"] as string | undefined;
 
 	switch (effectType) {
@@ -147,22 +147,22 @@ export function applyEffect(
 			}
 			const cause = (effect["cause"] as string | undefined) ?? event.type;
 			const innerEffect = effect["innerEffect"] as EffectDescriptor;
-			const newStack = addPending(state.effectStack, {
+			const newStack = addPending(effectStackOf(state), {
 				cause,
 				effect: innerEffect,
 				source: entityId,
 			});
-			return { state: { ...state, effectStack: newStack }, event };
+			return { state: withEffectStack(state, newStack), event };
 		}
 
 		case "queue_trigger_interrupt": {
-			if (state.pendingTriggerInterrupt) return { state, event };
+			if (pendingTriggerInterruptOf(state)) return { state, event };
 
 			const skillId = effect["skillId"] as string;
 			const triggerEvent = effect["triggerEvent"] as EventName | undefined;
 			const params = (effect["params"] as Record<string, unknown>) ?? {};
 			if (!skillId || !triggerEvent) return { state, event };
-			if (!sourceSkillIsAwakened(state, entityId, skillId))
+			if (!sourceSkillIsAwakened(engine, state, entityId, skillId))
 				return { state, event };
 
 			const skillCtx = skillContextFromEvent(
@@ -172,7 +172,11 @@ export function applyEffect(
 				skillId,
 				params,
 			);
-			const candidate = collectPromptTriggers(state, triggerEvent, skillCtx).find(
+			const candidate = collectPromptTriggers(engine,
+				state,
+				triggerEvent,
+				skillCtx,
+			).find(
 				(c) =>
 					c.definition.id === skillId &&
 					(c.source.entityId ?? c.source.cardId) === entityId,
@@ -180,13 +184,27 @@ export function applyEffect(
 			if (!candidate) return { state, event };
 
 			const sourceHeroId = candidate.source.sourceHeroId;
-			if (!sourceHeroId ||
-				(candidate.source.kind !== "hero" && candidate.source.kind !== "item" && candidate.source.kind !== "artifact"))
+			if (
+				!sourceHeroId ||
+				(candidate.source.kind !== "hero" &&
+					candidate.source.kind !== "item" &&
+					candidate.source.kind !== "artifact")
+			)
 				return { state, event };
-			const key = preparedAbilityKey(candidate.source.kind, sourceHeroId,
-				candidate.source.cardId, candidate.definition.id);
+			const key = preparedAbilityKey(
+				candidate.source.kind,
+				sourceHeroId,
+				candidate.source.cardId,
+				candidate.definition.id,
+			);
 			if (!isAbilityPrepared(state, key)) return { state, event };
-			return { state: removePreparedAbility(executeTriggerCandidate(state, candidate, skillCtx), key), event };
+			return {
+				state: removePreparedAbility(
+					executeTriggerCandidate(engine, state, candidate, skillCtx),
+					key,
+				),
+				event,
+			};
 		}
 
 		// Lote F: run_skill — executa skill DSL/script em resposta a um evento do bus
@@ -194,9 +212,9 @@ export function applyEffect(
 			const skillId = effect["skillId"] as string;
 			const params = (effect["params"] as Record<string, unknown>) ?? {};
 
-			const def = SKILLS.abilities.find((a) => a.id === skillId);
+			const def = skillById(engine, skillId);
 			if (!def) return { state, event };
-			if (!sourceSkillIsAwakened(state, entityId, skillId))
+			if (!sourceSkillIsAwakened(engine, state, entityId, skillId))
 				return { state, event };
 
 			const skillCtx = skillContextFromEvent(
@@ -207,7 +225,7 @@ export function applyEffect(
 				params,
 			);
 
-			const evalCtx = buildScriptCtx(state, skillCtx, params);
+			const evalCtx = buildScriptCtx(engine, state, skillCtx, params);
 
 			// Checa def.conditions antes de avaliar — mesma semântica do path manual (dispatch.ts)
 			if (def.conditions && def.conditions.length > 0) {
@@ -222,7 +240,7 @@ export function applyEffect(
 				return { state: newState, event };
 			}
 			if (def.script) {
-				const fn = getScript(`${def.script}.run`);
+				const fn = scriptOf(engine, `${def.script}.run`);
 				if (fn) return { state: fn(evalCtx), event };
 			}
 			return { state, event };

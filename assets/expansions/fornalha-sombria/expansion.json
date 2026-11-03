@@ -30,7 +30,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_last_light_healing",
@@ -69,7 +69,7 @@
         14,
         18
       ],
-      "damage": 3,
+      "damage": 4,
       "skills": [
         {
           "skillId": "skill_bastion_guard",
@@ -111,7 +111,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_preserved_path"
@@ -124,7 +124,8 @@
         }
       ],
       "name": "Ladino das Fendas",
-      "image": "images/LadinodasFendas.webp"
+      "image": "images/LadinodasFendas.webp",
+      "preservesDungeonDiscard": true
     },
     {
       "id": "hero_crimson_rune_mage",
@@ -150,7 +151,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_rift_rune",
@@ -189,7 +190,7 @@
         14,
         18
       ],
-      "damage": 4,
+      "damage": 5,
       "skills": [
         {
           "skillId": "skill_crimson_fury",
@@ -228,7 +229,7 @@
         14,
         18
       ],
-      "damage": 3,
+      "damage": 4,
       "skills": [
         {
           "skillId": "skill_final_dawn_light",
@@ -267,7 +268,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_return_rite",
@@ -277,6 +278,9 @@
         },
         {
           "skillId": "power_deep_veil_echo"
+        },
+        {
+          "skillId": "spend_deep_veil_echo"
         }
       ],
       "name": "Necromante do Véu Profundo",
@@ -306,7 +310,7 @@
         14,
         18
       ],
-      "damage": 3,
+      "damage": 4,
       "skills": [
         {
           "skillId": "skill_prey_mark",
@@ -339,11 +343,11 @@
         6
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 1,
       "xp": 1,
@@ -385,11 +389,11 @@
         7
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -428,11 +432,11 @@
         8
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -474,11 +478,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -514,11 +518,11 @@
         9
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 4,
       "xp": 2,
@@ -560,11 +564,11 @@
         10
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 4,
       "xp": 2,
@@ -606,11 +610,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -652,11 +656,11 @@
         11
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -698,11 +702,11 @@
         12
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -744,11 +748,11 @@
         13
       ],
       "hitBonus": [
-        6,
+        5,
+        7,
         9,
-        12,
-        16,
-        20
+        10,
+        12
       ],
       "damage": 6,
       "xp": 3,
@@ -787,11 +791,11 @@
         10
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -833,11 +837,11 @@
         11
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -879,11 +883,11 @@
         7
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -925,11 +929,11 @@
         8
       ],
       "hitBonus": [
-        2,
+        1,
         3,
         5,
-        7,
-        10
+        6,
+        8
       ],
       "damage": 2,
       "xp": 1,
@@ -971,11 +975,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -1014,11 +1018,11 @@
         10
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 4,
       "xp": 2,
@@ -1060,11 +1064,11 @@
         8
       ],
       "hitBonus": [
-        3,
-        5,
+        2,
+        4,
+        6,
         7,
-        10,
-        14
+        9
       ],
       "damage": 3,
       "xp": 2,
@@ -1106,11 +1110,11 @@
         11
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 3,
@@ -1149,11 +1153,11 @@
         12
       ],
       "hitBonus": [
-        5,
-        7,
-        10,
-        14,
-        18
+        4,
+        6,
+        8,
+        9,
+        11
       ],
       "damage": 5,
       "xp": 4,
@@ -1189,11 +1193,11 @@
         14
       ],
       "hitBonus": [
-        6,
+        5,
+        7,
         9,
-        12,
-        16,
-        20
+        10,
+        12
       ],
       "damage": 6,
       "xp": 4,
@@ -1395,7 +1399,8 @@
               "targetType": "tgt_item",
               "affectScope": "scp_none",
               "affectObject": "obj_all"
-            }
+            },
+            "usableFromReward": true
           }
         }
       ],
@@ -1916,7 +1921,10 @@
       "equipmentSlot": "amulet",
       "skills": [
         {
-          "skillId": "skill_illuminate_path"
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
         }
       ],
       "grants": [
@@ -1939,6 +1947,9 @@
               "affectScope": "scp_none",
               "affectObject": "obj_all"
             }
+          },
+          "params": {
+            "value": 1
           }
         }
       ],
@@ -2001,7 +2012,10 @@
       "equipmentSlot": "clothing",
       "skills": [
         {
-          "skillId": "skill_illuminate_path"
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
         }
       ],
       "name": "Manto da Saída Estreita",
@@ -2035,7 +2049,8 @@
               "targetType": "tgt_item",
               "affectScope": "scp_none",
               "affectObject": "obj_all"
-            }
+            },
+            "usableFromReward": true
           }
         }
       ],
@@ -2070,7 +2085,8 @@
               "targetType": "tgt_item",
               "affectScope": "scp_none",
               "affectObject": "obj_all"
-            }
+            },
+            "usableFromReward": true
           }
         }
       ],
@@ -2389,39 +2405,7 @@
       ],
       "name": "Abismo Rachado",
       "image": "images/AbismoRachado.webp"
-    },
-    {
-      "id": "boss_azhakar",
-      "type": "boss",
-      "lifeBase": 20,
-      "hitBonusBase": 12,
-      "damage": 6,
-      "accessCondition": {
-        "type": "group_artifacts_gte",
-        "value": 2
-      },
-      "skills": [
-        {
-          "skillId": "boss_skill_living_ash_throne",
-          "params": {
-            "value": 1
-          }
-        },
-        {
-          "skillId": "boss_skill_dark_forge_pressure",
-          "params": {
-            "value": 1
-          }
-        },
-        {
-          "skillId": "boss_skill_azhakar_ascension",
-          "params": {
-            "value": 2
-          }
-        }
-      ],
-      "name": "Azhakar, Dragão da Fornalha Sombria",
-      "image": "images/Azhakardragaofornalhasombria.webp"
     }
-  ]
+  ],
+  "boss": "boss.json"
 }

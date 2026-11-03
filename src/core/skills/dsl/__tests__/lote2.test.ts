@@ -1,11 +1,5 @@
-﻿// Testes de aceite Lote 2 (Patch-12 Fase 4) — DSL com add_modifier.
-
 import { describe, expect, it } from "vitest";
-import {
-	createEntity,
-	getModifierTotal,
-	upsertEntity,
-} from "../../../ecs/world";
+import { getModifierTotal } from "../../../ecs/world";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
 import { createEmptyCombatState } from "../../../state/combatState";
@@ -14,6 +8,10 @@ import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { settled, settledWith, type LooseGame } from "../../../__tests__/fixtures";
+import { ensureEntity } from "../../../__tests__/fixtures";
+import { gameOf, withGame } from "../../../../engine/state";
 
 const CFG = { heroCardIds: [] };
 
@@ -26,7 +24,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -38,13 +35,12 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	};
 }
 
-function stateWithCombat(extra: Partial<GameState> = {}): GameState {
-	return {
-		...createInitialGameState(CFG),
+function stateWithCombat(extra: Partial<LooseGame> = {}): GameState {
+	return settledWith(createInitialGameState(CFG), {
 		heroes: [makeHero()],
 		combat: createEmptyCombatState(),
 		...extra,
-	};
+	});
 }
 
 // ── add_modifier stat:"s_damage_dealt" → ECS world (patch-18 Lote G) ──────────
@@ -52,12 +48,12 @@ function stateWithCombat(extra: Partial<GameState> = {}): GameState {
 describe("add_modifier damage_bonus → bonusNextAttack", () => {
 	it("adiciona bônus ao herói-fonte após drainStack", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "combat", sourceHeroId: "h1" },
 			{ value: 2 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -72,7 +68,7 @@ describe("add_modifier damage_bonus → bonusNextAttack", () => {
 				ctx,
 			),
 		);
-		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(2);
+		expect(getModifierTotal(gameOf(result).world, "h1", "damage_dealt")).toBe(2);
 	});
 });
 
@@ -81,16 +77,13 @@ describe("add_modifier damage_bonus → bonusNextAttack", () => {
 describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 	it("adiciona bônus de acerto ao inimigo-fonte", () => {
 		const base = stateWithCombat();
-		const state = {
-			...base,
-			world: upsertEntity(base.world, createEntity("e1", "enemy", [])),
-		};
-		const ctx = buildScriptCtx(
+		const state = withGame(base, (prevGame) => ({ ...prevGame, world: ensureEntity(gameOf(base).world, "e1", "enemy") }));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "combat_if_alone_in_room", sourceEnemyId: "e1" },
 			{ value: 1 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -105,7 +98,7 @@ describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 				ctx,
 			),
 		);
-		expect(getModifierTotal(result.world, "e1", "hit_bonus")).toBe(1);
+		expect(getModifierTotal(gameOf(result).world, "e1", "hit_bonus")).toBe(1);
 	});
 });
 
@@ -114,12 +107,12 @@ describe("add_modifier tohit_bonus → bonusNextAttack", () => {
 describe("add_modifier damage_reduction → damageReduction", () => {
 	it("adiciona redução de dano ao herói após drainStack", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_take_damage", sourceHeroId: "h1" },
 			{ value: 3 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -135,7 +128,7 @@ describe("add_modifier damage_reduction → damageReduction", () => {
 			),
 		);
 		// damage_reduction → damage_taken ECS com valor negativo
-		expect(getModifierTotal(result.world, "h1", "damage_taken")).toBe(-3);
+		expect(getModifierTotal(gameOf(result).world, "h1", "damage_taken")).toBe(-3);
 	});
 });
 
@@ -144,12 +137,12 @@ describe("add_modifier damage_reduction → damageReduction", () => {
 describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fix)", () => {
 	it("armazena redução roxa no ECS, sem usar flags booleanas", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_purple_effect_damage_taken", sourceHeroId: "h1" },
 			{ value: 2 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -164,19 +157,19 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 				ctx,
 			),
 		);
-		expect(getModifierTotal(result.world, "h1", "purple_damage_taken")).toBe(
+		expect(getModifierTotal(gameOf(result).world, "h1", "purple_damage_taken")).toBe(
 			-2,
 		);
 	});
 
 	it("acumula corretamente em múltiplas aplicações", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_take_damage", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const r1 = drainStack(
+		const r1 = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -191,12 +184,12 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 				ctx,
 			),
 		);
-		const ctx2 = buildScriptCtx(
+		const ctx2 = buildScriptCtx(testEngine, 
 			r1,
 			{ triggeredBy: "on_take_damage", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const r2 = drainStack(
+		const r2 = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -211,7 +204,7 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 				ctx2,
 			),
 		);
-		expect(getModifierTotal(r2.world, "h1", "purple_damage_taken")).toBe(
+		expect(getModifierTotal(gameOf(r2).world, "h1", "purple_damage_taken")).toBe(
 			-2,
 		);
 	});
@@ -222,17 +215,13 @@ describe("add_modifier purple_damage_reduction — skill_last_light_ward (bug fi
 describe("for_each + add_modifier — power_unbreakable_bastion_guard", () => {
 	it("aplica damage_reduction a todos os heróis ativos", () => {
 		const base = createInitialGameState(CFG);
-		const state: GameState = {
-			...base,
-			heroes: [makeHero({ id: "h1" }), makeHero({ id: "h2" })],
-			combat: createEmptyCombatState(),
-		};
-		const ctx = buildScriptCtx(
+		const state: GameState = settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [makeHero({ id: "h1" }), makeHero({ id: "h2" })], combat: createEmptyCombatState() })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_use", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -255,7 +244,7 @@ describe("for_each + add_modifier — power_unbreakable_bastion_guard", () => {
 			),
 		);
 		// damage_reduction → damage_taken ECS com valor negativo
-		expect(getModifierTotal(result.world, "h1", "damage_taken")).toBe(-1);
-		expect(getModifierTotal(result.world, "h2", "damage_taken")).toBe(-1);
+		expect(getModifierTotal(gameOf(result).world, "h1", "damage_taken")).toBe(-1);
+		expect(getModifierTotal(gameOf(result).world, "h2", "damage_taken")).toBe(-1);
 	});
 });

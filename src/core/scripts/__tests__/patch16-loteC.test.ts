@@ -1,5 +1,3 @@
-// Testes de aceite Patch-16 Lote C — scripts para skills #21-#30.
-
 import { describe, expect, it } from "vitest";
 import type { ModifierComponent } from "../../ecs/types";
 import { getComponents } from "../../ecs/world";
@@ -10,7 +8,7 @@ import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { buildScriptCtx } from "../context";
-import { getScript } from "../registry";
+import { scriptOf } from "@/core/gameEngine";
 
 // Importar scripts para registrá-los
 // skill_rift_rune, power_supreme_rift_rune, power_hunter_execution migrados para DSL (patch-21 Lote F)
@@ -34,7 +32,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -63,20 +60,19 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	};
 }
 
-function baseState(extra: Partial<GameState> = {}): GameState {
-	return {
-		...createInitialGameState(CFG),
+function baseState(extra: Partial<LooseGame> = {}): GameState {
+	return settledWith(createInitialGameState(CFG), {
 		heroes: [makeHero()],
 		combat: createEmptyCombatState(),
 		...extra,
-	};
+	});
 }
 
 function runScript(
 	id: string,
 	ctx: ReturnType<typeof buildScriptCtx>,
 ): GameState {
-	const fn = getScript(`${id}.run`);
+	const fn = scriptOf(testEngine, `${id}.run`);
 	if (!fn) throw new Error(`Script ${id} não registrado`);
 	return fn(ctx);
 }
@@ -84,6 +80,17 @@ function runScript(
 // ── #21 skill_rift_rune — migrado para DSL i_modify_die (patch-21 Lote F) ─────
 
 import { evaluate } from "../../skills/dsl/evaluate";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { deckOf, decksOf, enemiesOf, withDecks } from "@/core/state/access";
+import { settledWith, type LooseGame } from "../../__tests__/fixtures";
+import {
+	pendingSkillChoiceOf,
+	scopedCountOf,
+	scopedFlagOf,
+	withScopedCount,
+	withScopedFlag,
+} from "../../state/access";
+import { gameOf } from "../../../engine/state";
 
 describe("skill_rift_rune — i_modify_die (patch-21 Lote F)", () => {
 	it("define pendingDiceSelection para herói-fonte com lastRoll presente", () => {
@@ -101,7 +108,7 @@ describe("skill_rift_rune — i_modify_die (patch-21 Lote F)", () => {
 			},
 		};
 		const state = baseState({ combat });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "evt_roll",
@@ -110,19 +117,19 @@ describe("skill_rift_rune — i_modify_die (patch-21 Lote F)", () => {
 			},
 			{ value: 2 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine,
 			evaluate(
 				[{ kind: "i_modify_die", delta: "$value", die_side: "hero" }],
 				ctx,
 			),
 		);
-		expect(result.combat?.pendingDiceSelection).toBeDefined();
-		expect(result.combat?.pendingDiceSelection?.heroId).toBe("h1");
+		expect(gameOf(result).combat?.pendingDiceSelection).toBeDefined();
+		expect(gameOf(result).combat?.pendingDiceSelection?.heroId).toBe("h1");
 	});
 
 	it("retorna estado inalterado sem lastRoll", () => {
 		const state = baseState();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "evt_roll",
@@ -131,13 +138,13 @@ describe("skill_rift_rune — i_modify_die (patch-21 Lote F)", () => {
 			},
 			{ value: 2 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine,
 			evaluate(
 				[{ kind: "i_modify_die", delta: "$value", die_side: "hero" }],
 				ctx,
 			),
 		);
-		expect(result.combat?.pendingDiceSelection).toBeUndefined();
+		expect(gameOf(result).combat?.pendingDiceSelection).toBeUndefined();
 	});
 });
 
@@ -159,7 +166,7 @@ describe("power_supreme_rift_rune — i_set_die (patch-21 Lote F)", () => {
 			},
 		};
 		const state = baseState({ combat });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "evt_roll",
@@ -168,12 +175,12 @@ describe("power_supreme_rift_rune — i_set_die (patch-21 Lote F)", () => {
 			},
 			{},
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine,
 			evaluate([{ kind: "i_set_die", value: 6, die_side: "any" }], ctx),
 		);
-		expect(result.combat?.pendingDiceSelection?.action).toBe("set_to");
-		expect(result.combat?.pendingDiceSelection?.setToValue).toBe(6);
-		expect(result.combat?.pendingDiceSelection?.side).toBe("any");
+		expect(gameOf(result).combat?.pendingDiceSelection?.action).toBe("set_to");
+		expect(gameOf(result).combat?.pendingDiceSelection?.setToValue).toBe(6);
+		expect(gameOf(result).combat?.pendingDiceSelection?.side).toBe("any");
 	});
 });
 
@@ -197,7 +204,7 @@ describe("power_hunter_execution — p_modifier + i_set_die (patch-21 Lote F)", 
 			},
 		};
 		const state = baseState({ combat, activeEnemies: [makeEnemy()] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "evt_roll",
@@ -206,7 +213,7 @@ describe("power_hunter_execution — p_modifier + i_set_die (patch-21 Lote F)", 
 			},
 			{},
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine,
 			evaluate(
 				[
 					{
@@ -223,12 +230,12 @@ describe("power_hunter_execution — p_modifier + i_set_die (patch-21 Lote F)", 
 			),
 		);
 		const mods = getComponents<ModifierComponent>(
-			result.world,
+			gameOf(result).world,
 			"h1",
 			"modifier",
 		).filter((m) => m.target === "damage_dealt");
 		expect(mods.some((m) => m.value === 1)).toBe(true);
-		expect(result.combat?.pendingDiceSelection?.action).toBe("set_to");
+		expect(gameOf(result).combat?.pendingDiceSelection?.action).toBe("set_to");
 	});
 });
 
@@ -237,7 +244,7 @@ describe("power_hunter_execution — p_modifier + i_set_die (patch-21 Lote F)", 
 describe("skill_focus_deflection (#24)", () => {
 	it("define pendingSkillChoice com opções de redirect ou tohit", () => {
 		const state = baseState();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "once_per_room_on_targeted",
@@ -247,9 +254,9 @@ describe("skill_focus_deflection (#24)", () => {
 			{ value: 2 },
 		);
 		const result = runScript("skill_focus_deflection", ctx);
-		expect(result.pendingSkillChoice).toBeDefined();
+		expect(pendingSkillChoiceOf(result)).toBeDefined();
 		expect(
-			result.pendingSkillChoice?.options.some((o) => o.id === "tohit"),
+			pendingSkillChoiceOf(result)?.options.some((o) => o.id === "tohit"),
 		).toBe(true);
 	});
 });
@@ -259,7 +266,7 @@ describe("skill_focus_deflection (#24)", () => {
 describe("skill_opportunity_shot (#25)", () => {
 	it("causa dano igual ao damage base do herói na criatura alvo", () => {
 		const state = baseState({ activeEnemies: [makeEnemy()] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "once_per_combat_instead_of_attack",
@@ -269,15 +276,15 @@ describe("skill_opportunity_shot (#25)", () => {
 			},
 			{},
 		);
-		const result = drainStack(runScript("skill_opportunity_shot", ctx));
-		const enemy = result.activeEnemies.find((e) => e.id === "e1");
+		const result = drainStack(testEngine, runScript("skill_opportunity_shot", ctx));
+		const enemy = enemiesOf(result).find((e) => e.id === "e1");
 		// hero.damage = 3, enemy starts at 4 → 4 - 3 = 1
 		expect(enemy?.currentLife).toBe(1);
 	});
 
 	it("retorna estado inalterado sem alvo válido", () => {
 		const state = baseState();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "once_per_combat_instead_of_attack",
@@ -295,18 +302,17 @@ describe("skill_opportunity_shot (#25)", () => {
 
 describe("skill_rekindled_forge (#26)", () => {
 	it("abre pendingSkillChoice com itens descartados", () => {
-		const state = {
+		const state = withDecks({
 			...baseState(),
-			decks: {
-				...createInitialGameState(CFG).decks,
+		}, {
+				...decksOf(createInitialGameState(CFG)),
 				itemDeck: {
 					available: [],
 					discarded: ["Espada Velha", "Escudo Lascado"],
 					removed: [] as string[],
 				},
-			},
-		};
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "on_win_room",
@@ -316,13 +322,13 @@ describe("skill_rekindled_forge (#26)", () => {
 			{},
 		);
 		const result = runScript("skill_rekindled_forge", ctx);
-		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options).toHaveLength(2);
+		expect(pendingSkillChoiceOf(result)).toBeDefined();
+		expect(pendingSkillChoiceOf(result)?.options).toHaveLength(2);
 	});
 
 	it("loga se não há itens descartados", () => {
 		const state = baseState();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "on_win_room",
@@ -332,7 +338,7 @@ describe("skill_rekindled_forge (#26)", () => {
 			{},
 		);
 		const result = runScript("skill_rekindled_forge", ctx);
-		expect(result.eventLog.some((l) => l.includes("nenhum item"))).toBe(true);
+		expect(gameOf(result).eventLog.some((l) => l.includes("nenhum item"))).toBe(true);
 	});
 });
 
@@ -340,18 +346,17 @@ describe("skill_rekindled_forge (#26)", () => {
 
 describe("dungeon_skill_rekindled_forge (#27)", () => {
 	it("retira primeiro item do deck disponível e coloca em pendingRewards", () => {
-		const state = {
+		const state = withDecks({
 			...baseState(),
-			decks: {
-				...createInitialGameState(CFG).decks,
+		}, {
+				...decksOf(createInitialGameState(CFG)),
 				itemDeck: {
 					available: ["Adaga", "Escudo"],
 					discarded: [],
 					removed: [] as string[],
 				},
-			},
-		};
-		const ctx = buildScriptCtx(
+			});
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "on_win_room",
@@ -361,9 +366,9 @@ describe("dungeon_skill_rekindled_forge (#27)", () => {
 			{},
 		);
 		const result = runScript("dungeon_skill_rekindled_forge", ctx);
-		expect(result.pendingRewards).toHaveLength(1);
-		expect(result.pendingRewards[0].cardId).toBeTruthy(); // was cardName: "Adaga");
-		expect(result.decks.itemDeck.available).toHaveLength(1);
+		expect(gameOf(result).pendingRewards).toHaveLength(1);
+		expect(gameOf(result).pendingRewards[0].cardId).toBeTruthy(); // was cardName: "Adaga");
+		expect(deckOf(result, "itemDeck").available).toHaveLength(1);
 	});
 });
 
@@ -372,7 +377,7 @@ describe("dungeon_skill_rekindled_forge (#27)", () => {
 describe("skill_rift_evasion (#28)", () => {
 	it("ativa itemControlByEnemy para o inimigo-fonte", () => {
 		const state = baseState({ activeEnemies: [makeEnemy()] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "first_item_effect_received",
@@ -382,16 +387,17 @@ describe("skill_rift_evasion (#28)", () => {
 			{},
 		);
 		const result = runScript("skill_rift_evasion", ctx);
-		expect(result.combat?.itemControlByEnemy["e1"]).toBe(true);
+		expect(scopedFlagOf(result, "combat", "itemControl", "e1")).toBe(true);
 	});
 
 	it("não ativa duas vezes no mesmo combate", () => {
-		const combat = {
-			...createEmptyCombatState(),
-			oncePer: { room: {}, combat: { "itemControl::e1": true }, round: {} },
-		};
-		const state = baseState({ activeEnemies: [makeEnemy()], combat });
-		const ctx = buildScriptCtx(
+		const state = withScopedFlag(
+			baseState({ activeEnemies: [makeEnemy()] }),
+			"combat",
+			"oncePer",
+			"itemControl::e1",
+		);
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "first_item_effect_received",
@@ -410,7 +416,7 @@ describe("skill_rift_evasion (#28)", () => {
 describe("dungeon_skill_summon_guardian (#29)", () => {
 	it("seta discardDungeonLocked=true quando guardião é revelado", () => {
 		const state = baseState();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "on_room_reveal",
@@ -419,7 +425,7 @@ describe("dungeon_skill_summon_guardian (#29)", () => {
 			{ value: "Carcereiro" },
 		);
 		const result = runScript("dungeon_skill_summon_guardian", ctx);
-		expect(result.flags.discardDungeonLocked).toBe(true);
+		expect(gameOf(result).flags.discardDungeonLocked).toBe(true);
 	});
 });
 
@@ -428,7 +434,7 @@ describe("dungeon_skill_summon_guardian (#29)", () => {
 describe("power_deep_veil_echo (#30)", () => {
 	it("concede 1 Eco ao herói-fonte", () => {
 		const state = baseState();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "once_per_game_on_defeat_creature",
@@ -438,13 +444,12 @@ describe("power_deep_veil_echo (#30)", () => {
 			{},
 		);
 		const result = runScript("power_deep_veil_echo", ctx);
-		expect(result.combat?.ecoTokens?.["h1"]).toBe(1);
+		expect(scopedCountOf(result, "game", "eco", "h1")).toBe(1);
 	});
 
 	it("acumula eco existente", () => {
-		const combat = { ...createEmptyCombatState(), ecoTokens: { h1: 1 } };
-		const state = baseState({ combat });
-		const ctx = buildScriptCtx(
+		const state = withScopedCount(baseState(), "game", "eco", "h1", 1);
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
 				triggeredBy: "once_per_game_on_defeat_creature",
@@ -454,6 +459,6 @@ describe("power_deep_veil_echo (#30)", () => {
 			{},
 		);
 		const result = runScript("power_deep_veil_echo", ctx);
-		expect(result.combat?.ecoTokens?.["h1"]).toBe(2);
+		expect(scopedCountOf(result, "game", "eco", "h1")).toBe(2);
 	});
 });

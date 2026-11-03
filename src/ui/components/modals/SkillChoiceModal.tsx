@@ -4,9 +4,10 @@ import { useRef, useState } from "react";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
 import { displaySkillName as getSkillName } from "@/i18n/catalogs";
-import { cardSkills, skillUsedBy } from "@/core/skills/lookup";
+import { skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillText } from "@/core/skills/renderLabel";
-import type { GameState } from "@/core/state/gameState";
+import type { PlayerView } from "@/core/projection/playerView";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { ActionButton } from "@/ui/components/ActionButton";
 import type { CardType } from "@/ui/components/Card";
@@ -16,8 +17,7 @@ import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useGameStore } from "@/ui/store/gameStore";
 
-type PendingChoice = NonNullable<GameState["pendingSkillChoice"]>;
-type ChoiceOption = PendingChoice["options"][number];
+type PendingChoice = NonNullable<PlayerView["pendingSkillChoice"]>;
 
 function cardTypeForModal(cardId: string): CardType | null {
 	const card = getCardById(cardId);
@@ -27,72 +27,22 @@ function cardTypeForModal(cardId: string): CardType | null {
 	return card.type;
 }
 
-// Para escolhas da dungeon, card_0/card_1 são IDs de decisão. O rótulo
-// contém o ID real, validado contra o trecho do baralho que o efeito revelou.
-export function choiceCardId(
-	state: GameState,
-	pending: PendingChoice,
-	option: ChoiceOption,
-): string | null {
-	if (getCardById(option.id)) return option.id;
-	const match = /^card_(\d+)$/.exec(option.id);
-	if (!match) return null;
-	const index = Number(match[1]);
-	const revealedCount = pending.options.filter((candidate) =>
-		/^card_\d+$/.test(candidate.id),
-	).length;
-	return index < revealedCount &&
-		state.decks.dungeonDeck.available[index] === option.label &&
-		getCardById(option.label)
-		? option.label
-		: null;
-}
-
-export function choiceSourceCardId(
-	state: GameState,
-	pending: PendingChoice,
-): string | null {
-	if (pending.sourceCardId && getCardById(pending.sourceCardId))
-		return pending.sourceCardId;
-	const owners = new Set(skillUsedBy(pending.skillId));
-	const candidates = new Set<string>();
-	if (state.currentRoom && owners.has(state.currentRoom.cardId))
-		candidates.add(state.currentRoom.cardId);
-	const enemy = state.activeEnemies.find(
-		(candidate) => candidate.id === pending.sourceEnemyId,
-	);
-	if (enemy && owners.has(enemy.cardId)) candidates.add(enemy.cardId);
-	const hero = state.heroes.find(
-		(candidate) => candidate.id === pending.sourceHeroId,
-	);
-	if (hero) {
-		for (const cardId of [
-			hero.cardId,
-			...Object.values(hero.activeItems),
-			...hero.backpack,
-		]) {
-			if (cardId && owners.has(cardId)) candidates.add(cardId);
-		}
-	}
-	return candidates.size === 1 ? [...candidates][0] : null;
-}
-
 export function SkillChoiceModal() {
-	const { state, dispatch } = useGameStore();
+	const { view, dispatch } = useGameStore();
 	const cardImageUrls = useCardImages();
 	const [detailCardId, setDetailCardId] = useState<string | null>(null);
 	const submittedFor = useRef<PendingChoice | null>(null);
-	const pending = state.pendingSkillChoice;
+	const pending = view.pendingSkillChoice;
 	if (!pending) return null;
 
-	const sourceId = choiceSourceCardId(state, pending);
+	const sourceId = pending.resolvedSourceCardId;
 	const sourceSkill = sourceId
-		? cardSkills(sourceId).find(({ ref }) => ref.skillId === pending.skillId)
+		? skillsOf(uiEngine, sourceId).find(({ ref }) => ref.skillId === pending.skillId)
 		: undefined;
 	const sourceType = sourceId ? cardTypeForModal(sourceId) : null;
 	const cardOptions = pending.options.map((option) => ({
 		option,
-		cardId: choiceCardId(state, pending, option),
+		cardId: option.cardId,
 	}));
 	const hasCards = cardOptions.some(({ cardId }) => !!cardId);
 	const detailType = detailCardId ? cardTypeForModal(detailCardId) : null;
@@ -115,7 +65,7 @@ export function SkillChoiceModal() {
 					{sourceSkill && (
 						<section className="skill-choice-effect">
 							<p>{translate("game:components.modals.skillChoiceModal.text001")}</p>
-							<strong>{renderSkillText(sourceSkill.ref)}</strong>
+							<strong>{renderSkillText(uiEngine, sourceSkill.ref)}</strong>
 						</section>
 					)}
 					{sourceId && sourceType && (

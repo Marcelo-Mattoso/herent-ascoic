@@ -1,6 +1,3 @@
-// Testes do Passo 12 — Persistência.
-// Testa: porta mock, isLogIntact, replay de log, e localStoragePersistence (com mock do localStorage).
-
 import { describe, expect, it } from "vitest";
 import type { LoggedAction } from "../actions/types";
 import { reducer, reducerCore } from "../reducer/index";
@@ -8,6 +5,9 @@ import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
 import type { PersistencePort } from "./persistence";
 import { isLogIntact } from "./persistence";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { heroesOf } from "../state/access";
+import { gameOf } from "../../engine/state";
 
 const HERO = "hero_crimson_barbarian";
 
@@ -21,7 +21,7 @@ function buildLog(n: number): readonly LoggedAction[] {
 
 	const log: LoggedAction[] = [];
 	for (let i = 0; i < n && i < actions.length; i++) {
-		state = reducer(state, actions[i]!);
+		state = reducer(testEngine, state, actions[i]!);
 		log.push({ seq: i, action: actions[i]! });
 	}
 	return log;
@@ -157,21 +157,21 @@ describe("boot — replay do log", () => {
 		let directState = initial;
 		const log: LoggedAction[] = [];
 		for (let i = 0; i < actions.length; i++) {
-			directState = reducer(directState, actions[i]!);
+			directState = reducer(testEngine, directState, actions[i]!);
 			log.push({ seq: i, action: actions[i]! });
 		}
 
 		// Estado via replay do log
 		const replayedState = log.reduce<GameState>(
-			(s, entry) => reducerCore(s, entry.action),
+			(s, entry) => reducerCore(testEngine, s, entry.action),
 			initial,
 		);
 
-		expect(replayedState.status).toBe(directState.status);
-		expect(replayedState.heroes.map((h) => h.currentLife)).toEqual(
-			directState.heroes.map((h) => h.currentLife),
+		expect(gameOf(replayedState).status).toBe(gameOf(directState).status);
+		expect(heroesOf(replayedState).map((h) => h.currentLife)).toEqual(
+			heroesOf(directState).map((h) => h.currentLife),
 		);
-		expect(replayedState.groupXp).toBe(directState.groupXp);
+		expect(gameOf(replayedState).groupXp).toBe(gameOf(directState).groupXp);
 	});
 });
 
@@ -204,6 +204,6 @@ describe("boot — sem dados salvos", () => {
 		expect(isLogIntact([])).toBe(false);
 		// Sem persistência, a aplicação começa no estado inicial
 		const initial = createInitialGameState({ heroCardIds: [] });
-		expect(initial.status).toBe("MAIN_MENU");
+		expect(gameOf(initial).status).toBe("MAIN_MENU");
 	});
 });

@@ -1,0 +1,14 @@
+name: draw_cards compra do topo da zona ordenada
+kind: draw_cards
+given:
+  cards: [{ id: a }, { id: b }, { id: c }]
+  zones:
+    - { id: pilha, cards: [a, b, c] }
+    - { id: mao }
+when:
+  - run: [{ kind: draw_cards, from: pilha, to: mao, count: 2 }]
+then:
+  events:
+    - { type: carta.movida, payload: { card: a, from: pilha, to: mao } }
+    - { type: carta.movida, payload: { card: b, from: pilha, to: mao } }
+  zones: { pilha: [c], mao: [a, b] }

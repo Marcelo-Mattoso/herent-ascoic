@@ -1,4 +1,5 @@
 import type { ScriptHandler } from "@/core/scripts/types";
+import { enemiesOf } from "@/core/state/access";
 
 // skill_piercing_strike — Golpe Trespassante
 // Quando destruir uma criatura com um ataque, causa 1 de dano direto a outra criatura da mesma sala.
@@ -6,7 +7,7 @@ import type { ScriptHandler } from "@/core/scripts/types";
 // Trigger: on_destroy_creature_with_attack. $source = inimigo destruído (ctx.sourceEnemyId).
 export const run: ScriptHandler = (ctx) => {
 	// Encontra outra criatura ativa (excluindo a que foi destruída)
-	const others = ctx.state.activeEnemies.filter(
+	const others = enemiesOf(ctx.state).filter(
 		(e) => e.status === "active" && e.id !== ctx.sourceId,
 	);
 	if (others.length === 0) return ctx.state;

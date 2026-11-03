@@ -14,12 +14,14 @@ import {
 } from "@/core/journal/gameJournal";
 import { downloadTutorialAudit } from "./audit";
 import { currentTutorialStep, type TutorialSession } from "./session";
+import { tutorialAllowsInteraction } from "./interactionGuard";
 import { getTutorialModule, type TutorialModule } from "./registry";
 import type { PlayerView } from "@/core/projection/playerView";
-import type { BonusEntry } from "@/core/state/combatState";
+import type { BonusEntry } from "@/core/projection/viewTypes";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { displaySkillName as getSkillName } from "@/i18n/catalogs";
-import { cardSkills } from "@/core/skills/lookup";
+import { skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 
 interface Props {
@@ -97,6 +99,26 @@ export function TutorialOverlay({
 			: base;
 	}, [highlight, step.anchors, step.anchor, step.id, session.moduleId, isReview]);
 	const [rects, setRects] = useState<Rect[]>([]);
+	useEffect(() => {
+		const permission = {
+			stepId: step.id,
+			review: isReview,
+			combatPhase: view.combat?.phase,
+		};
+		const intercept = (event: Event) => {
+			if (event instanceof KeyboardEvent && !["Enter", " "].includes(event.key)) return;
+			const target = event.target;
+			if (!(target instanceof Element) || tutorialAllowsInteraction(target, permission)) return;
+			event.preventDefault();
+			event.stopImmediatePropagation();
+		};
+		for (const name of ["pointerdown", "mousedown", "touchstart", "click", "dragstart", "drop", "keydown"])
+			document.addEventListener(name, intercept, true);
+		return () => {
+			for (const name of ["pointerdown", "mousedown", "touchstart", "click", "dragstart", "drop", "keydown"])
+				document.removeEventListener(name, intercept, true);
+		};
+	}, [step.id, isReview, view.combat?.phase]);
 	const [viewport, setViewport] = useState({
 		width: window.innerWidth,
 		height: window.innerHeight,
@@ -191,7 +213,7 @@ export function TutorialOverlay({
 		const primary = document.querySelector<HTMLElement>(
 			".tutorial-panel__primary",
 		);
-		if (!document.querySelector(".flow-modal-overlay, .game-dice-roll-layer"))
+		if (!document.querySelector(".flow-modal-overlay, .game-dice-roll-layer, .modal-layer, .hero-art-viewer"))
 			(target ?? primary)?.focus({ preventScroll: true });
 	}, [anchors, step.kind]);
 
@@ -212,7 +234,7 @@ export function TutorialOverlay({
 							.filter((target) => target !== null)
 					: [];
 			const modal = document.querySelector(
-				".flow-modal-overlay, .game-dice-roll-layer",
+				".modal-layer, .flow-modal-overlay, .game-dice-roll-layer, .hero-art-viewer, .journal-layer",
 			);
 			const close = panel?.querySelector<HTMLElement>(".tutorial-panel__close");
 			const allowed = (
@@ -228,7 +250,9 @@ export function TutorialOverlay({
 							]),
 							...(panel?.querySelectorAll<HTMLElement>(selector) ?? []),
 						]
-			).filter((element) => element.getClientRects().length > 0);
+			).filter((element) => element.getClientRects().length > 0 && tutorialAllowsInteraction(element, {
+				stepId: step.id, review: isReview, combatPhase: view.combat?.phase,
+			}));
 			if (!allowed.length) return;
 			const current = allowed.indexOf(document.activeElement as HTMLElement);
 			const next =
@@ -241,7 +265,7 @@ export function TutorialOverlay({
 		}
 		document.addEventListener("keydown", trapTab);
 		return () => document.removeEventListener("keydown", trapTab);
-	}, [anchors, step.kind, step.id]);
+	}, [anchors, step.kind, step.id, isReview, view.combat?.phase]);
 
 	const mask = (
 		top: number,
@@ -329,7 +353,7 @@ export function TutorialOverlay({
 	const visibleRoll = step.id === "combat-dice" ? view.combat?.lastRoll : null;
 	const result = session.finalAttack;
 	const powerDefinition = session.moduleId === "archive-four" && view.heroes[0]
-		? cardSkills(view.heroes[0].cardId).find(({ def }) => def.category === "hero_power")?.def
+		? skillsOf(uiEngine, view.heroes[0].cardId).find(({ def }) => def.category === "hero_power")?.def
 		: undefined;
 	const powerScope = powerDefinition?.cooldown?.scope;
 	const powerLimit = powerScope === "game" ? translate("game:tutorials.tutorialOverlay.perGame") : powerScope === "room" ? translate("game:tutorials.tutorialOverlay.perRoom") : powerScope === "combat" ? translate("game:tutorials.tutorialOverlay.perCombat") : powerScope === "round" ? translate("game:tutorials.tutorialOverlay.perRound") : undefined;
@@ -357,7 +381,7 @@ export function TutorialOverlay({
 	function downloadAudit() {
 		downloadTutorialAudit({
 			session,
-			gameJournalJson: exportJournalJson(journal),
+			gameJournalJson: exportJournalJson(uiEngine, journal),
 		});
 	}
 
@@ -463,9 +487,9 @@ export function TutorialOverlay({
 								: {getCardName(session.inventoryResult.itemId)}.
 							</p>
 							{session.inventoryResult.itemId !== "item_precision_potion" &&
-								cardSkills(session.inventoryResult.itemId).map(({ ref }) => (
+								skillsOf(uiEngine, session.inventoryResult.itemId).map(({ ref }) => (
 									<p key={ref.skillId}>
-										{translate("game:tutorials.tutorialOverlay.text012")}{" "}{renderSkillLabel(ref)}
+										{translate("game:tutorials.tutorialOverlay.text012")}{" "}{renderSkillLabel(uiEngine, ref)}
 									</p>
 								))}
 							{session.inventoryResult.changes.slice(0, 3).map((change) => (

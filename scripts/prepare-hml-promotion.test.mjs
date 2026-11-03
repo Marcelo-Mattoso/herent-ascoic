@@ -46,6 +46,8 @@ test("promotes code and changed/new WebP while stripping modified and new PNG or
 		git(work, "commit", "-m", "Exclude PNG masters from hml");
 		git(work, "push", "origin", "hml");
 		git(work, "switch", "dev");
+		// dev must track PNG originals, even when hml keeps imagedata ignored.
+		put(work, ".gitignore", "public/generated/\n# dev tracks original images\n");
 		put(work, "imagedata/cards/hero.png", "updated master");
 		put(work, "imagedata/cards/new.png", "new master");
 		put(work, "assets/webp/cards/hero.webp", "new optimized webp");
@@ -66,6 +68,8 @@ test("promotes code and changed/new WebP while stripping modified and new PNG or
 		assert.match(result.stdout, /promotion_changed=true/u);
 		assert.equal(git(work, "branch", "--show-current"), "promotion/dev-to-hml");
 		assert.equal(git(work, "ls-files", "--", "imagedata"), "");
+		assert.match(fs.readFileSync(path.join(work, ".gitignore"), "utf8"), /^imagedata\/$/m);
+		assert.equal(spawnSync("git", ["check-ignore", "--no-index", "-q", "imagedata/example.png"], { cwd: work }).status, 0);
 		assert.equal(git(work, "diff", "--name-only", "origin/dev", "--", "assets/webp"), "");
 		assert.equal(fs.readFileSync(path.join(work, "game.txt"), "utf8"), "updated game");
 		assert.equal(git(work, "rev-list", "--parents", "-n", "1", "HEAD").split(" ").length, 3);

@@ -9,6 +9,7 @@ import {
 	isSkillGuardConsumed,
 } from "../triggers/engine";
 import type { EventName } from "./dsl/types";
+import type { GameEngine } from "../gameEngine";
 
 /** @deprecated Legado — usava trigger string. Mantido para compat de testes. */
 export function parseTrigger(_trigger: string): {
@@ -20,10 +21,10 @@ export function parseTrigger(_trigger: string): {
 
 export { guardPassed, isSkillGuardConsumed };
 
-export function fireTrigger(
+export function fireTrigger(engine: GameEngine, 
 	state: GameState,
 	event: EventName,
 	ctx: SkillContext,
 ): GameState {
-	return fireTriggerFromEngine(state, event, ctx);
+	return fireTriggerFromEngine(engine, state, event, ctx);
 }

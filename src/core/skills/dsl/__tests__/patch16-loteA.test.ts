@@ -1,5 +1,3 @@
-// Testes de aceite Patch-16 Lote A — skills #1-#6 convertidas de type legado para DSL.
-
 import { describe, expect, it } from "vitest";
 import { SKILLS } from "../../../data/skills";
 import { getModifierTotal } from "../../../ecs/world";
@@ -12,6 +10,10 @@ import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { heroesOf, pendingSkillChoiceOf } from "../../../state/access";
+import { settled, settledWith, type LooseGame } from "../../../__tests__/fixtures";
+import { withGame, gameOf } from "../../../../engine/state";
 
 const CFG = { heroCardIds: [] };
 
@@ -24,7 +26,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -36,13 +37,12 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	};
 }
 
-function stateWithCombat(extra: Partial<GameState> = {}): GameState {
-	return {
-		...createInitialGameState(CFG),
+function stateWithCombat(extra: Partial<LooseGame> = {}): GameState {
+	return settledWith(createInitialGameState(CFG), {
 		heroes: [makeHero()],
 		combat: createEmptyCombatState(),
 		...extra,
-	};
+	});
 }
 
 function defEffect(id: string) {
@@ -55,17 +55,14 @@ function defEffect(id: string) {
 
 describe("skill_life_drain — apply_heal to $source", () => {
 	it("cura o herói-fonte em value de vida", () => {
-		const state = {
-			...createInitialGameState(CFG),
-			heroes: [makeHero({ currentLife: 5 })],
-		};
-		const ctx = buildScriptCtx(
+		const state = settled(withGame(createInitialGameState(CFG), (prevGame) => ({ ...prevGame, heroes: [makeHero({ currentLife: 5 })] })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_deal_damage", sourceHeroId: "h1" },
 			{ value: 3 },
 		);
-		const result = drainStack(evaluate(defEffect("skill_life_drain"), ctx));
-		expect(result.heroes[0].currentLife).toBe(8);
+		const result = drainStack(testEngine, evaluate(defEffect("skill_life_drain"), ctx));
+		expect(heroesOf(result)[0].currentLife).toBe(8);
 	});
 });
 
@@ -74,17 +71,17 @@ describe("skill_life_drain — apply_heal to $source", () => {
 describe("item_skill_deadly_edge — tohit_bonus + damage_bonus", () => {
 	it("adiciona bônus de acerto e dano em bonusNextAttack", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "combat", sourceHeroId: "h1" },
 			{ value: 2 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(defEffect("item_skill_deadly_edge"), ctx),
 		);
 		// Patch-18 Lote G: bonusNextAttack migrado para ECS (hit_bonus + damage_dealt)
-		expect(getModifierTotal(result.world, "h1", "hit_bonus")).toBe(2);
-		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(2);
+		expect(getModifierTotal(gameOf(result).world, "h1", "hit_bonus")).toBe(2);
+		expect(getModifierTotal(gameOf(result).world, "h1", "damage_dealt")).toBe(2);
 	});
 });
 
@@ -93,19 +90,19 @@ describe("item_skill_deadly_edge — tohit_bonus + damage_bonus", () => {
 describe("item_skill_drain_life_and_deadly_edge — tohit_bonus + damage_bonus + heal", () => {
 	it("adiciona dois modificadores e cura 1 de vida no herói-fonte", () => {
 		const state = stateWithCombat({ heroes: [makeHero({ currentLife: 5 })] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "combat_and_on_damage_dealt", sourceHeroId: "h1" },
 			{ value: 1 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(defEffect("item_skill_drain_life_and_deadly_edge"), ctx),
 		);
 		// Patch-18 Lote G: dois modificadores no ECS world
-		const hitBonus = getModifierTotal(result.world, "h1", "hit_bonus");
-		const dmgDealt = getModifierTotal(result.world, "h1", "damage_dealt");
+		const hitBonus = getModifierTotal(gameOf(result).world, "h1", "hit_bonus");
+		const dmgDealt = getModifierTotal(gameOf(result).world, "h1", "damage_dealt");
 		expect(hitBonus + dmgDealt).toBeGreaterThan(0);
-		expect(result.heroes[0].currentLife).toBe(6);
+		expect(heroesOf(result)[0].currentLife).toBe(6);
 	});
 });
 
@@ -114,14 +111,14 @@ describe("item_skill_drain_life_and_deadly_edge — tohit_bonus + damage_bonus +
 describe("dungeon_skill_dead_torches — choose_one", () => {
 	it("registra escolha pendente com duas opções", () => {
 		const state = stateWithCombat({ heroes: [makeHero({ backpack: ["item_rusty_dagger"] })] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{ triggeredBy: "before_first_combat_in_room", sourceHeroId: "h1" },
 			{},
 		);
 		const result = evaluate(defEffect("dungeon_skill_dead_torches"), ctx);
-		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options.length).toBe(2);
+		expect(pendingSkillChoiceOf(result)).toBeDefined();
+		expect(pendingSkillChoiceOf(result)?.options.length).toBe(2);
 	});
 
 	it("é obrigatória, preserva a origem da sala e aplica -1 somente a todos os heróis", () => {
@@ -131,7 +128,7 @@ describe("dungeon_skill_dead_torches — choose_one", () => {
 			cardId: "hero_last_light_paladin",
 		});
 		const state = stateWithCombat({ heroes: [firstHero, secondHero] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "evt_combat_start",
@@ -146,7 +143,7 @@ describe("dungeon_skill_dead_torches — choose_one", () => {
 		);
 		const pending = evaluate(defEffect("dungeon_skill_dead_torches"), ctx);
 
-		expect(pending.pendingSkillChoice).toMatchObject({
+		expect(pendingSkillChoiceOf(pending)).toMatchObject({
 			allowSkip: false,
 			sourceCardId: "room_dead_torches",
 			sourceEntityId: "room_dead_torches",
@@ -160,19 +157,19 @@ describe("dungeon_skill_dead_torches — choose_one", () => {
 			},
 		});
 
-		const skipped = reducer(pending, {
+		const skipped = reducer(testEngine, pending, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "dungeon_skill_dead_torches", choice: "__skip__" },
 		});
-		expect(skipped.pendingSkillChoice).toBeDefined();
+		expect(pendingSkillChoiceOf(skipped)).toBeDefined();
 
-		const resolved = reducer(pending, {
+		const resolved = reducer(testEngine, pending, {
 			type: "SKILL_CHOICE",
 			payload: { skillId: "dungeon_skill_dead_torches", choice: "hit_penalty" },
 		});
-		expect(getModifierTotal(resolved.world, "h1", "hit_bonus")).toBe(-1);
-		expect(getModifierTotal(resolved.world, "h2", "hit_bonus")).toBe(-1);
-		expect(getModifierTotal(resolved.world, "room_dead_torches", "hit_bonus")).toBe(0);
+		expect(getModifierTotal(gameOf(resolved).world, "h1", "hit_bonus")).toBe(-1);
+		expect(getModifierTotal(gameOf(resolved).world, "h2", "hit_bonus")).toBe(-1);
+		expect(getModifierTotal(gameOf(resolved).world, "room_dead_torches", "hit_bonus")).toBe(0);
 	});
 });
 
@@ -186,14 +183,14 @@ describe("power_mighty_crimson_fury — damage_bonus until_end_of_combat", () =>
 		);
 		if (!def?.effect) throw new Error("skill sem effect");
 		const params = { ...(def.params ?? {}), value: null };
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "once_per_game_on_use_furia_rubra", sourceHeroId: "h1" },
 			params,
 		);
-		const result = drainStack(evaluate(def.effect, ctx));
+		const result = drainStack(testEngine, evaluate(def.effect, ctx));
 		// Patch-18 Lote G: damage_bonus → damage_dealt no ECS world
-		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(6);
+		expect(getModifierTotal(gameOf(result).world, "h1", "damage_dealt")).toBe(6);
 	});
 });
 
@@ -202,16 +199,16 @@ describe("power_mighty_crimson_fury — damage_bonus until_end_of_combat", () =>
 describe("item_skill_crimson_fury_mighty — self_damage + damage_bonus", () => {
 	it("causa 2 de dano ao herói-fonte e adiciona +6 de dano até fim do combate", () => {
 		const state = stateWithCombat({ heroes: [makeHero({ currentLife: 10 })] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "before_attack_once_per_game", sourceHeroId: "h1" },
 			{ value: 2 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate(defEffect("item_skill_crimson_fury_mighty"), ctx),
 		);
-		expect(result.heroes[0].currentLife).toBe(8);
+		expect(heroesOf(result)[0].currentLife).toBe(8);
 		// Patch-18 Lote G: damage_bonus → damage_dealt no ECS world
-		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(6);
+		expect(getModifierTotal(gameOf(result).world, "h1", "damage_dealt")).toBe(6);
 	});
 });

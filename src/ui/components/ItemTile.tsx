@@ -1,4 +1,4 @@
-import type { ItemSlotType } from "@/core/state/heroState";
+import type { ItemSlotType } from "@/core/projection/viewTypes";
 
 interface ItemTileProps {
 	slot: ItemSlotType;

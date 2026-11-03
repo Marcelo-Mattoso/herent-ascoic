@@ -1,5 +1,3 @@
-// Testes da mecânica de fuga (Patch-8 F3).
-
 import { describe, expect, it } from "vitest";
 import "../../skills/handlers/index"; // registra handlers
 import { createEmptyCombatState } from "../../state/combatState";
@@ -8,6 +6,10 @@ import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { reducer } from "../index";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { enemiesOf, fledHeroesOf, heroesOf, scopedFlagOf, withScopedFlag } from "../../state/access";
+import { settled, settledWith, type LooseGame } from "../../__tests__/fixtures";
+import { gameOf, withGame } from "../../../engine/state";
 
 // ─── helpers ─────────────────────────────────────────────────────────────────
 
@@ -20,7 +22,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 1,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -49,18 +50,17 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 	};
 }
 
-function makeState(overrides: Partial<GameState> = {}): GameState {
+function makeState(overrides: Partial<LooseGame> = {}): GameState {
 	const base = createInitialGameState({
 		heroCardIds: ["hero_crimson_barbarian"],
 	});
-	return {
-		...base,
+	return settledWith(base, {
 		heroes: [makeHero()],
 		activeEnemies: [makeEnemy()],
 		combat: createEmptyCombatState(),
 		status: "HERO_ACTION",
 		...overrides,
-	};
+	});
 }
 
 // ─── DECLARE_FLEE ─────────────────────────────────────────────────────────────
@@ -68,40 +68,40 @@ function makeState(overrides: Partial<GameState> = {}): GameState {
 describe("DECLARE_FLEE", () => {
 	it("marca fleeAttemptByHero quando herói tem 1 de vida e há combate", () => {
 		const state = makeState();
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "DECLARE_FLEE",
 			payload: { heroId: "h1" },
 		});
-		expect(result.combat?.fleeAttemptByHero["h1"]).toBe(true);
+		expect(scopedFlagOf(result, "combat", "fleeAttempt", "h1")).toBe(true);
 	});
 
 	it("ignora se herói tem vida > 1", () => {
 		const state = makeState({
 			heroes: [makeHero({ currentLife: 5 })],
 		});
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "DECLARE_FLEE",
 			payload: { heroId: "h1" },
 		});
-		expect(result.combat?.fleeAttemptByHero["h1"]).toBeFalsy();
+		expect(scopedFlagOf(result, "combat", "fleeAttempt", "h1")).toBeFalsy();
 	});
 
 	it("ignora se não há combate", () => {
 		const state = makeState({ combat: null });
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "DECLARE_FLEE",
 			payload: { heroId: "h1" },
 		});
-		expect(result.combat).toBeNull();
+		expect(gameOf(result).combat).toBeNull();
 	});
 
 	it("ignora se fleeBlocked está ativo", () => {
 		const state = makeState({ flags: { fleeBlocked: true } });
-		const result = reducer(state, {
+		const result = reducer(testEngine, state, {
 			type: "DECLARE_FLEE",
 			payload: { heroId: "h1" },
 		});
-		expect(result.combat?.fleeAttemptByHero["h1"]).toBeFalsy();
+		expect(scopedFlagOf(result, "combat", "fleeAttempt", "h1")).toBeFalsy();
 	});
 });
 
@@ -120,7 +120,7 @@ describe("handleResolveAttack — fuga", () => {
 			enemyTotal: 1,
 			enemyBreakdown: [],
 		};
-		const state = makeState({
+		const state = withScopedFlag(makeState({
 			status: "RESOLVE_ATTACK",
 			combat: {
 				...createEmptyCombatState(),
@@ -128,22 +128,21 @@ describe("handleResolveAttack — fuga", () => {
 				selectedHeroId: "h1",
 				pairs: [{ heroId: "h1", enemyId: "e1" }],
 				lastRoll: roll,
-				fleeAttemptByHero: { h1: true },
 			},
-		});
+		}), "combat", "fleeAttempt", "h1");
 
-		const result = reducer(state, { type: "RESOLVE_ATTACK" });
+		const result = reducer(testEngine, state, { type: "RESOLVE_ATTACK" });
 
 		// Herói foi para fledHeroes
-		expect(result.fledHeroes).toHaveLength(1);
-		expect(result.fledHeroes[0].id).toBe("h1");
-		expect(result.fledHeroes[0].status).toBe("fled");
+		expect(fledHeroesOf(result)).toHaveLength(1);
+		expect(fledHeroesOf(result)[0].id).toBe("h1");
+		expect(fledHeroesOf(result)[0].status).toBe("fled");
 
 		// Herói saiu de heroes
-		expect(result.heroes.find((h) => h.id === "h1")).toBeUndefined();
+		expect(heroesOf(result).find((h) => h.id === "h1")).toBeUndefined();
 
 		// Inimigo permanece ativo (não foi derrotado)
-		const enemy = result.activeEnemies.find((e) => e.id === "e1");
+		const enemy = enemiesOf(result).find((e) => e.id === "e1");
 		expect(enemy?.status).toBe("active");
 	});
 
@@ -159,7 +158,7 @@ describe("handleResolveAttack — fuga", () => {
 			enemyTotal: 6,
 			enemyBreakdown: [],
 		};
-		const state = makeState({
+		const state = withScopedFlag(makeState({
 			status: "RESOLVE_ATTACK",
 			heroes: [makeHero({ currentLife: 1, maxLife: 10 })],
 			combat: {
@@ -168,19 +167,18 @@ describe("handleResolveAttack — fuga", () => {
 				selectedHeroId: "h1",
 				pairs: [{ heroId: "h1", enemyId: "e1" }],
 				lastRoll: roll,
-				fleeAttemptByHero: { h1: true },
 			},
-		});
+		}), "combat", "fleeAttempt", "h1");
 
-		const result = reducer(state, { type: "RESOLVE_ATTACK" });
+		const result = reducer(testEngine, state, { type: "RESOLVE_ATTACK" });
 
 		// Herói tomou dano e deve estar derrotado (vida 1 - dano mínimo 1)
-		const hero = result.heroes.find((h) => h.id === "h1");
+		const hero = heroesOf(result).find((h) => h.id === "h1");
 		expect(hero?.currentLife).toBe(0);
 		expect(hero?.status).toBe("defeated");
 
 		// Nenhum herói em fledHeroes
-		expect(result.fledHeroes).toHaveLength(0);
+		expect(fledHeroesOf(result)).toHaveLength(0);
 	});
 });
 
@@ -188,26 +186,15 @@ describe("handleResolveAttack — fuga", () => {
 
 describe("handleCheckCombatEnd — fuga", () => {
 	it("todos fugiram com inimigos vivos → DUNGEON_RESTART_PROMPT", () => {
-		const state: GameState = {
-			...makeState(),
-			status: "CHECK_COMBAT_END",
-			heroes: [], // todos saíram
-			fledHeroes: [makeHero({ status: "fled" })],
-			activeEnemies: [makeEnemy()], // inimigo ainda ativo
-		};
-		const result = reducer(state, { type: "CHECK_COMBAT_END" });
-		expect(result.status).toBe("DUNGEON_RESTART_PROMPT");
+		const state: GameState = settled(withGame(makeState(), (prevGame) => ({ ...prevGame, status: "CHECK_COMBAT_END", heroes: [], fledHeroes: [makeHero({ status: "fled" })], activeEnemies: [makeEnemy()] })));
+		const result = reducer(testEngine, state, { type: "CHECK_COMBAT_END" });
+		expect(gameOf(result).status).toBe("DUNGEON_RESTART_PROMPT");
 	});
 
 	it("derrota sem fuga permanece DEFEAT", () => {
-		const state: GameState = {
-			...makeState(),
-			status: "CHECK_COMBAT_END",
-			heroes: [makeHero({ status: "defeated", currentLife: 0 })],
-			activeEnemies: [makeEnemy()],
-		};
-		const result = reducer(state, { type: "CHECK_COMBAT_END" });
-		expect(result.status).toBe("DEFEAT");
+		const state: GameState = settled(withGame(makeState(), (prevGame) => ({ ...prevGame, status: "CHECK_COMBAT_END", heroes: [makeHero({ status: "defeated", currentLife: 0 })], activeEnemies: [makeEnemy()] })));
+		const result = reducer(testEngine, state, { type: "CHECK_COMBAT_END" });
+		expect(gameOf(result).status).toBe("DEFEAT");
 	});
 });
 
@@ -215,20 +202,15 @@ describe("handleCheckCombatEnd — fuga", () => {
 
 describe("RESTART_DUNGEON", () => {
 	it("restaura heróis fugidos com vida máxima", () => {
-		const state: GameState = {
-			...makeState(),
-			status: "DUNGEON_RESTART_PROMPT",
-			heroes: [],
-			fledHeroes: [makeHero({ currentLife: 1, status: "fled" })],
-		};
-		const result = reducer(state, {
+		const state: GameState = settled(withGame(makeState(), (prevGame) => ({ ...prevGame, status: "DUNGEON_RESTART_PROMPT", heroes: [], fledHeroes: [makeHero({ currentLife: 1, status: "fled" })] })));
+		const result = reducer(testEngine, state, {
 			type: "RESTART_DUNGEON",
 			payload: { keepEquipment: false },
 		});
-		expect(result.heroes).toHaveLength(1);
-		expect(result.heroes[0].currentLife).toBe(result.heroes[0].maxLife);
-		expect(result.heroes[0].status).toBe("active");
-		expect(result.fledHeroes).toHaveLength(0);
+		expect(heroesOf(result)).toHaveLength(1);
+		expect(heroesOf(result)[0].currentLife).toBe(heroesOf(result)[0].maxLife);
+		expect(heroesOf(result)[0].status).toBe("active");
+		expect(fledHeroesOf(result)).toHaveLength(0);
 	});
 
 	it("com keepEquipment=true, mantém activeItems e backpack", () => {
@@ -238,18 +220,13 @@ describe("RESTART_DUNGEON", () => {
 			activeItems: { hand1: "item_rusty_dagger" },
 			backpack: ["item_lesser_vigor_potion"],
 		});
-		const state: GameState = {
-			...makeState(),
-			status: "DUNGEON_RESTART_PROMPT",
-			heroes: [],
-			fledHeroes: [hero],
-		};
-		const result = reducer(state, {
+		const state: GameState = settled(withGame(makeState(), (prevGame) => ({ ...prevGame, status: "DUNGEON_RESTART_PROMPT", heroes: [], fledHeroes: [hero] })));
+		const result = reducer(testEngine, state, {
 			type: "RESTART_DUNGEON",
 			payload: { keepEquipment: true },
 		});
-		expect(result.heroes[0].activeItems.hand1).toBe("item_rusty_dagger");
-		expect(result.heroes[0].backpack).toContain("item_lesser_vigor_potion");
+		expect(heroesOf(result)[0].activeItems.hand1).toBe("item_rusty_dagger");
+		expect(heroesOf(result)[0].backpack).toContain("item_lesser_vigor_potion");
 	});
 
 	it("com keepEquipment=false, limpa equipamentos", () => {
@@ -259,17 +236,12 @@ describe("RESTART_DUNGEON", () => {
 			activeItems: { hand1: "item_rusty_dagger" },
 			backpack: ["item_lesser_vigor_potion"],
 		});
-		const state: GameState = {
-			...makeState(),
-			status: "DUNGEON_RESTART_PROMPT",
-			heroes: [],
-			fledHeroes: [hero],
-		};
-		const result = reducer(state, {
+		const state: GameState = settled(withGame(makeState(), (prevGame) => ({ ...prevGame, status: "DUNGEON_RESTART_PROMPT", heroes: [], fledHeroes: [hero] })));
+		const result = reducer(testEngine, state, {
 			type: "RESTART_DUNGEON",
 			payload: { keepEquipment: false },
 		});
-		expect(Object.keys(result.heroes[0].activeItems)).toHaveLength(0);
-		expect(result.heroes[0].backpack).toHaveLength(0);
+		expect(Object.keys(heroesOf(result)[0].activeItems)).toHaveLength(0);
+		expect(heroesOf(result)[0].backpack).toHaveLength(0);
 	});
 });

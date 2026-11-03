@@ -5,12 +5,14 @@ import { translate } from "@/i18n";
 import { type DragEvent, useEffect, useRef, useState } from "react";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
-import { cardSkills } from "@/core/skills/lookup";
+import { MAX_ROOM_ENEMIES } from "@/core/rules/encounterLimits";
+import { skillsOf } from "@/core/gameEngine";
+import { uiEngine } from "@/ui/engine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
-import type { CombatRollResult, PendingPhysicalRoll } from "@/core/state/combatState";
-import type { EnemyState } from "@/core/state/enemyState";
-import { MAX_HEROES, type GroupArtifact } from "@/core/state/gameState";
-import type { HeroState } from "@/core/state/heroState";
+import type { CombatRollResult, PendingPhysicalRoll } from "@/core/projection/viewTypes";
+import type { EnemyView } from "@/core/projection/viewTypes";
+import { MAX_HEROES, type GroupArtifact } from "@/core/projection/viewTypes";
+import type { HeroView } from "@/core/projection/viewTypes";
 import type { CardImageUrls } from "@/ui/cardImages";
 import { getCardImageUrl } from "@/ui/cardImages";
 import type { CardType } from "@/ui/components/Card";
@@ -33,11 +35,11 @@ interface BoardProps {
 	onTutorialReveal?: () => void;
 	view: PlayerView;
 	focusedHeroId: string | null;
-	onHeroClick: (hero: HeroState) => void;
+	onHeroClick: (hero: HeroView) => void;
 	onHeroDragStart: (heroId: string) => void;
 	canHeroAttack: (heroId: string) => boolean;
 	onEnemyDrop: (heroId: string, enemyId: string) => void;
-	onEnemyClick: (enemy: EnemyState) => void;
+	onEnemyClick: (enemy: EnemyView) => void;
 	onRoomClick: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
 	// Ações de grupo
@@ -57,10 +59,10 @@ const ACTIVE_DUNGEON_CARD = {
 	radius: "var(--game-card-radius, 10px)",
 };
 
-const ACTIVE_CARD_SLOT_COUNT = 4;
+const ACTIVE_CARD_SLOT_COUNT = MAX_ROOM_ENEMIES;
 const BOSS_CARD = {
-	width: "var(--game-boss-width, 180px)",
-	height: "var(--game-boss-height, 252px)",
+	width: "var(--game-boss-width, 208px)",
+	height: "var(--game-boss-height, 291px)",
 	radius: "var(--game-card-radius, 12px)",
 };
 const CARD_CONTACT_SHADOW =
@@ -196,7 +198,9 @@ function ActiveDungeonCard({
 				>
 					{translate("game:components.board.text002")}{" "}{room.exits} {translate("game:components.board.text003")}{" "}{room.xp}
 				</p>
-				<ColorBar current={despertar} />
+				<div data-tutorial-anchor="board.awakening">
+					<ColorBar current={despertar} />
+				</div>
 			</div>
 		</button>
 	);
@@ -209,7 +213,7 @@ function ActiveEnemyCard({
 	onDrop,
 	onClick,
 }: {
-	enemy: EnemyState | null;
+	enemy: EnemyView | null;
 	isSelectable: boolean;
 	isDragOver: boolean;
 	imageUrl?: string;
@@ -368,7 +372,7 @@ function BossEncounterCard({
 }: {
 	bossCardId: string;
 	bossName: string;
-	enemy: EnemyState | null;
+	enemy: EnemyView | null;
 	isSelectable: boolean;
 	isDragOver: boolean;
 	imageUrl?: string;
@@ -503,7 +507,7 @@ function ArtifactDisplayCard({
 }: {
 	artifact: GroupArtifact | null;
 	imageUrl?: string;
-	heroes: readonly HeroState[];
+	heroes: readonly HeroView[];
 	onClick: () => void;
 }) {
 	if (!artifact) {
@@ -529,9 +533,9 @@ function ArtifactDisplayCard({
 		);
 	}
 
-	const skills = cardSkills(artifact.cardId);
+	const skills = skillsOf(uiEngine, artifact.cardId);
 	const bonusText = skills[0]
-		? renderSkillLabel(skills[0].ref)
+		? renderSkillLabel(uiEngine, skills[0].ref)
 		: translate("game:components.board.activeArtifact");
 	const bearer = artifact.carriedBy
 		? heroes.find((hero) => hero.id === artifact.carriedBy)
@@ -657,12 +661,15 @@ export function Board({
 	const selectedHeroId = view.combat?.selectedHeroId ?? null;
 	const status = view.status;
 	const pendingDiceSelection = view.combat?.pendingDiceSelection;
+	const pendingCombatDecision = Boolean(view.pendingSkillChoice || view.pendingSkillTarget || view.pendingTriggerInterrupt);
 	useEffect(() => {
 		if (!pendingDiceSelection) setRerollingDie(null);
 	}, [pendingDiceSelection]);
 	const pendingPhysicalRoll: PendingPhysicalRoll | undefined = view.combat?.pendingPhysicalRoll;
 
-	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL";
+	// Nas fases de rolagem/resolução, o status muda, mas a arena do boss não.
+	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL"
+		|| view.enemies.some((enemy) => enemy.id === "boss");
 	const canDropAttack =
 		draggingHeroId !== null && canHeroAttack(draggingHeroId);
 	const canTapTarget =
@@ -675,7 +682,7 @@ export function Board({
 	const bossEnemy = enemies.find((e) => e.id === "boss") ?? null;
 
 	function handleDragStart(
-		hero: HeroState,
+		hero: HeroView,
 		event: DragEvent<HTMLButtonElement>,
 	) {
 		if (!canHeroAttack(hero.id)) {
@@ -946,7 +953,7 @@ export function Board({
 					</div>
 				)}
 
-				{(pendingPhysicalRoll || (roll?.physicalRollId && status === "RESOLVE_ATTACK" && !pendingDiceSelection && dismissedPhysicalRollId !== roll.physicalRollId)) && (
+				{!pendingCombatDecision && (pendingPhysicalRoll || (roll?.physicalRollId && status === "RESOLVE_ATTACK" && !pendingDiceSelection && dismissedPhysicalRollId !== roll.physicalRollId)) && (
 					<DiceRollOverlay
 						key={pendingPhysicalRoll?.id ?? roll?.physicalRollId}
 						pending={pendingPhysicalRoll}
@@ -955,7 +962,7 @@ export function Board({
 						onResolveAttack={resolveAttackWithAnimation}
 					/>
 				)}
-				{diceRollAnimation && (
+				{diceRollAnimation && !pendingCombatDecision && (
 					<DiceRollOverlay
 						key={diceRollAnimation.key}
 						roll={diceRollAnimation.roll}

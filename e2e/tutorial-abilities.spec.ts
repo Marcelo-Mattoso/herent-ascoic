@@ -117,3 +117,29 @@ test("Arquivo IV: rever habilidades já usadas sem reiniciar o combate", async (
 	await page.locator(".game-dice-roll-action").click();
 	await expect(page.locator('[data-tutorial-step="fury-prepare"]')).toBeVisible();
 });
+
+test("Arquivo IV fecha o visualizador por Escape e impede ações fora da sequência", async ({ page }) => {
+	await openAbilities(page);
+	await expect(page.locator('[data-tutorial-step="abilities-inspect"]')).toBeVisible();
+	await openHeroPanel(page);
+	await page.locator('[data-tutorial-anchor="hero.portrait"]').click();
+	const art = page.locator(".hero-art-viewer");
+	await expect(art).toBeVisible();
+	await page.keyboard.press("Escape");
+	await expect(art).toHaveCount(0);
+	await expect(page.locator('[data-tutorial-step="prey-mark"]')).toBeVisible();
+	await page.locator('[data-tutorial-anchor="hero.skill-action"]').click();
+	await expect(page.locator(".skill-target-option")).toHaveCount(2);
+	const phaseBefore = await page.evaluate(async () => {
+		const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
+		return getElfGameState().combat?.phase;
+	});
+	await page.locator('[data-tutorial-anchor="combat.enemy"]').first().click({ force: true });
+	await expect(page.locator(".skill-target-option")).toHaveCount(2);
+	expect(await page.evaluate(async () => {
+		const { getElfGameState } = await import("/src/ui/store/elfStore.ts");
+		return getElfGameState().combat?.phase;
+	})).toBe(phaseBefore);
+	await page.locator(".skill-target-option").first().click();
+	await expect(page.locator('[data-tutorial-step="hunter-attack"]')).toBeVisible();
+});

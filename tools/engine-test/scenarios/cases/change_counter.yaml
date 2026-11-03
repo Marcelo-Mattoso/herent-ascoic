@@ -1,0 +1,15 @@
+name: change_counter soma e subtrai e registra o valor resultante
+kind: change_counter
+given:
+  counters: [{ scope: jogo, id: "-", name: pontos, value: 10 }]
+when:
+  - run:
+      - { kind: change_counter, counter: { scope: jogo, id: "-", name: pontos }, delta: 5 }
+      - { kind: change_counter, counter: { scope: jogo, id: "-", name: pontos }, delta: -3 }
+then:
+  counters: { "jogo:-:pontos": 12 }
+  events:
+    - type: contador.alterado
+      payload: { delta: 5, value: 15 }
+    - type: contador.alterado
+      payload: { delta: -3, value: 12 }

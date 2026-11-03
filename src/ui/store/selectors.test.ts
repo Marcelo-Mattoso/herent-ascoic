@@ -5,6 +5,10 @@ import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
 import type { RoomState } from "@/core/state/roomState";
 import { selectHeroCombatActions } from "./selectors";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { heroesOf } from "../../core/state/access";
+import { settled } from "../../core/__tests__/fixtures";
+import { withGame, gameOf } from "../../engine/state";
 
 const BARBARO = "hero_crimson_barbarian";
 const CLERIGO = "hero_eternal_rest_cleric";
@@ -12,12 +16,12 @@ const LADINO = "hero_rift_rogue";
 
 function buildCombatStartState(heroId: string): GameState {
 	const base = createInitialGameState({ heroCardIds: [heroId] });
-	const s = reducer(base, {
+	const s = reducer(testEngine, base, {
 		type: "START_GAME",
 		payload: { heroCardIds: [heroId] },
 	});
 
-	const hero = s.heroes[0];
+	const hero = heroesOf(s)[0];
 	if (!hero) throw new Error("no hero");
 
 	const enemy: EnemyState = {
@@ -45,13 +49,7 @@ function buildCombatStartState(heroId: string): GameState {
 		status: "active",
 	};
 
-	return {
-		...s,
-		heroes: [{ ...hero, hitBonus: 100 }],
-		currentRoom: room,
-		activeEnemies: [enemy],
-		status: "COMBAT_START",
-	};
+	return settled(withGame(s, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, hitBonus: 100 }], currentRoom: room, activeEnemies: [enemy], status: "COMBAT_START" })));
 }
 
 function buildSelectingTargetState(heroName: string): {
@@ -59,9 +57,9 @@ function buildSelectingTargetState(heroName: string): {
 	heroId: string;
 } {
 	const base = buildCombatStartState(heroName);
-	const afterStart = reducer(base, { type: "START_COMBAT" });
-	const heroId = afterStart.heroes[0]!.id;
-	const afterChoose = reducer(afterStart, {
+	const afterStart = reducer(testEngine, base, { type: "START_COMBAT" });
+	const heroId = heroesOf(afterStart)[0]!.id;
+	const afterChoose = reducer(testEngine, afterStart, {
 		type: "CHOOSE_HERO_FOR_ROUND",
 		payload: { heroId },
 	});
@@ -71,9 +69,9 @@ function buildSelectingTargetState(heroName: string): {
 describe("selectHeroCombatActions — selecting_target", () => {
 	it("herói selecionado com inimigo ativo → pode atacar, passar e cancelar", () => {
 		const { state, heroId } = buildSelectingTargetState(BARBARO);
-		expect(state.combat?.phase).toBe("selecting_target");
+		expect(gameOf(state).combat?.phase).toBe("selecting_target");
 
-		const actions = selectHeroCombatActions(state, heroId);
+		const actions = selectHeroCombatActions(testEngine, state, heroId);
 		expect(actions.canAttack).toBe(true);
 		expect(actions.canPass).toBe(true);
 		expect(actions.canCancel).toBe(true);
@@ -83,7 +81,7 @@ describe("selectHeroCombatActions — selecting_target", () => {
 	it("herói NÃO selecionado → todas as ações de alvo desabilitadas", () => {
 		const { state } = buildSelectingTargetState(BARBARO);
 		const outroId = "id-que-nao-existe";
-		const actions = selectHeroCombatActions(state, outroId);
+		const actions = selectHeroCombatActions(testEngine, state, outroId);
 		expect(actions.canAttack).toBe(false);
 		expect(actions.canPass).toBe(false);
 		expect(actions.canCancel).toBe(false);
@@ -92,27 +90,24 @@ describe("selectHeroCombatActions — selecting_target", () => {
 
 	it("poder já usado → canUsePower false", () => {
 		const { state, heroId } = buildSelectingTargetState(BARBARO);
-		const withPowerUsed: GameState = {
-			...state,
-			oncePer: { ...state.oncePer, game: {
-				...state.oncePer.game, [`power_mighty_crimson_fury::${heroId}`]: true,
-			} },
-		};
-		const actions = selectHeroCombatActions(withPowerUsed, heroId);
+		const withPowerUsed: GameState = withGame(state, (prevGame) => ({ ...prevGame, oncePer: { ...gameOf(state).oncePer, game: {
+				...gameOf(state).oncePer.game, [`power_mighty_crimson_fury::${heroId}`]: true,
+			} } }));
+		const actions = selectHeroCombatActions(testEngine, withPowerUsed, heroId);
 		expect(actions.canUsePower).toBe(false);
 		expect(actions.canAttack).toBe(true);
 	});
 
 	it("Ladino das Fendas → habilidade reativa pode ser preparada", () => {
 		const { state, heroId } = buildSelectingTargetState(LADINO);
-		const actions = selectHeroCombatActions(state, heroId);
+		const actions = selectHeroCombatActions(testEngine, state, heroId);
 		expect(actions.skill).not.toBeNull();
 		expect(actions.skill?.activatable).toBe(true);
 	});
 
 	it("Clérigo → skill.activatable true; antes de usar alreadyUsed false", () => {
 		const { state, heroId } = buildSelectingTargetState(CLERIGO);
-		const actions = selectHeroCombatActions(state, heroId);
+		const actions = selectHeroCombatActions(testEngine, state, heroId);
 		expect(actions.skill).not.toBeNull();
 		expect(actions.skill?.activatable).toBe(true);
 		expect(actions.skill?.alreadyUsed).toBe(false);
@@ -120,24 +115,15 @@ describe("selectHeroCombatActions — selecting_target", () => {
 
 	it("canFlee apenas quando vida=1 e fleeBlocked não setado", () => {
 		const { state, heroId } = buildSelectingTargetState(BARBARO);
-		const hero = state.heroes[0]!;
+		const hero = heroesOf(state)[0]!;
 
-		const comVidaAlta: GameState = {
-			...state,
-			heroes: [{ ...hero, currentLife: 5 }],
-		};
-		expect(selectHeroCombatActions(comVidaAlta, heroId).canFlee).toBe(false);
+		const comVidaAlta: GameState = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, currentLife: 5 }] })));
+		expect(selectHeroCombatActions(testEngine, comVidaAlta, heroId).canFlee).toBe(false);
 
-		const comVida1: GameState = {
-			...state,
-			heroes: [{ ...hero, currentLife: 1 }],
-		};
-		expect(selectHeroCombatActions(comVida1, heroId).canFlee).toBe(true);
+		const comVida1: GameState = settled(withGame(state, (prevGame) => ({ ...prevGame, heroes: [{ ...hero, currentLife: 1 }] })));
+		expect(selectHeroCombatActions(testEngine, comVida1, heroId).canFlee).toBe(true);
 
-		const bloqueado: GameState = {
-			...comVida1,
-			flags: { fleeBlocked: true },
-		};
-		expect(selectHeroCombatActions(bloqueado, heroId).canFlee).toBe(false);
+		const bloqueado: GameState = withGame(comVida1, (prevGame) => ({ ...prevGame, flags: { fleeBlocked: true } }));
+		expect(selectHeroCombatActions(testEngine, bloqueado, heroId).canFlee).toBe(false);
 	});
 });

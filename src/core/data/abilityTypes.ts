@@ -79,6 +79,8 @@ export interface AbilityActivation {
 		readonly mp?: number;
 	};
 	readonly actionCost?: AbilityActionCost;
+	/** Ativável na fase de recompensa enquanto a carta ainda é uma recompensa pendente. */
+	readonly usableFromReward?: boolean;
 	readonly consumeSource?: SourceConsumption;
 	readonly targeting?: AbilityTargeting;
 }

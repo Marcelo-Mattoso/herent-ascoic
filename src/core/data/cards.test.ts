@@ -31,7 +31,7 @@ describe("catálogo de cartas", () => {
 		expect(card).toBeDefined();
 		expect(card?.type).toBe("hero");
 		if (card?.type === "hero") {
-			expect(card.damage).toBe(4);
+			expect(card.damage).toBe(5);
 		}
 	});
 
@@ -86,6 +86,28 @@ describe("catálogo de cartas", () => {
 		if (creature?.type === "creature") {
 			expect(Array.isArray(creature.skills)).toBe(true);
 			expect(creature.skills.length).toBeGreaterThan(0);
+		}
+	});
+
+	it("preservesDungeonDiscard é dado de herói no catálogo", () => {
+		const flagged = getAllCards().filter(
+			(card) => "preservesDungeonDiscard" in card,
+		);
+		expect(flagged.map((card) => card.id)).toEqual(["hero_rift_rogue"]);
+		expect(flagged.every((card) => card.type === "hero")).toBe(true);
+	});
+});
+
+describe("Iluminar o Caminho", () => {
+	it("toda carta informa quantas salas revela", () => {
+		for (const card of getAllCards()) {
+			const refs = [
+				...((card as unknown as { skills?: { skillId: string; params?: { value?: unknown } }[] }).skills ?? []),
+				...((card as unknown as { grants?: { abilityId: string; params?: { value?: unknown } }[] }).grants ?? []).map((grant) => ({ skillId: grant.abilityId, params: grant.params })),
+			];
+			for (const ref of refs) {
+				if (ref.skillId === "skill_illuminate_path") expect(ref.params?.value, card.id).toBe(1);
+			}
 		}
 	});
 });

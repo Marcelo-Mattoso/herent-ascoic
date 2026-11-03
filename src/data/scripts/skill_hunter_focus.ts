@@ -1,4 +1,5 @@
 import type { ScriptHandler } from "@/core/scripts/types";
+import { gameOf } from "../../engine/state";
 
 // skill_hunter_focus — Foco do Caçador
 // Enquanto este item estiver equipado, herói recebe +{value} no Bônus de Acerto.
@@ -7,7 +8,7 @@ import type { ScriptHandler } from "@/core/scripts/types";
 // Este script registra o bônus no bonusNextAttack para o herói portador.
 export const run: ScriptHandler = (ctx) => {
 	const bonus = (ctx.params.value as number) ?? 0;
-	if (!bonus || !ctx.sourceId || !ctx.state.combat) return ctx.state;
+	if (!bonus || !ctx.sourceId || !gameOf(ctx.state).combat) return ctx.state;
 	return ctx.action.pushEffect({
 		kind: "p_modifier",
 		to: ctx.sourceId,

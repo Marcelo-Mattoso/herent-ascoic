@@ -1,29 +1,32 @@
 import type { InvFromZone, InvToZone } from "../actions/types";
-import { getCardById } from "../data/cards";
-import type { GameState, PendingReward } from "../state/gameState";
-import type { HeroState, ItemSlotType } from "../state/heroState";
-import { BACKPACK_CAPACITY, itemFitsSlot, placeEquipment } from "./equipment";
 
-type HeroDraft = Omit<HeroState, "activeItems" | "backpack"> & {
+import type { GameState, PendingReward } from "../state/gameState";
+import type { HeroRecord, ItemSlotType } from "../state/heroState";
+import { itemFitsSlot, placeEquipment } from "./equipment";
+import { backpackCapacity, cardById } from "../gameEngine";
+
+import type { GameEngine } from "../gameEngine";
+import { gameOf, withGame } from "../../engine/state";
+type HeroDraft = Omit<HeroRecord, "activeItems" | "backpack"> & {
 	activeItems: Partial<Record<ItemSlotType, string>>;
 	backpack: string[];
 };
 
-export function moveInventoryItem(
+export function moveInventoryItem(engine: GameEngine,
 	state: GameState,
 	itemId: string,
 	from: InvFromZone,
 	to: InvToZone,
 ): GameState | null {
-	if (state.status !== "REWARD_PHASE") return null;
-	const card = getCardById(itemId);
+	if (gameOf(state).status !== "REWARD_PHASE") return null;
+	const card = cardById(engine, itemId);
 	if (card?.type !== "item") return null;
-	const heroes: HeroDraft[] = state.heroes.map((hero) => ({
+	const heroes: HeroDraft[] = gameOf(state).heroes.map((hero) => ({
 		...hero,
 		activeItems: { ...hero.activeItems },
 		backpack: [...hero.backpack],
 	}));
-	const pendingRewards = [...state.pendingRewards];
+	const pendingRewards = [...gameOf(state).pendingRewards];
 	const heroById = (heroId: string) =>
 		heroes.find((hero) => hero.id === heroId && hero.status === "active");
 	const rewardFor = (id: string): PendingReward => ({
@@ -36,7 +39,7 @@ export function moveInventoryItem(
 		id: string,
 		index?: number,
 	): boolean => {
-		if (hero.backpack.length >= BACKPACK_CAPACITY) return false;
+		if (hero.backpack.length >= backpackCapacity(engine)) return false;
 		const backpack = [...hero.backpack];
 		backpack.splice(index ?? backpack.length, 0, id);
 		hero.backpack = backpack;
@@ -47,9 +50,9 @@ export function moveInventoryItem(
 		id: string,
 		slot?: ItemSlotType,
 	): string[] | null => {
-		const item = getCardById(id);
+		const item = cardById(engine, id);
 		if (item?.type !== "item") return null;
-		const result = placeEquipment(hero, item, slot);
+		const result = placeEquipment(engine, hero, item, slot);
 		if (!result) return null;
 		hero.activeItems = result.hero.activeItems;
 		return result.displaced;
@@ -104,7 +107,7 @@ export function moveInventoryItem(
 			if (from.kind === "hero_backpack") {
 				if (!addBackpack(source, displacedId, from.index)) return null;
 			} else {
-				const displacedCard = getCardById(displacedId);
+				const displacedCard = cardById(engine, displacedId);
 				if (displacedCard?.type !== "item") return null;
 				if (
 					itemFitsSlot(displacedCard, from.slotType) &&
@@ -119,5 +122,5 @@ export function moveInventoryItem(
 		}
 	}
 
-	return { ...state, heroes, pendingRewards };
+	return withGame(state, (prevGame) => ({ ...prevGame, heroes, pendingRewards }));
 }

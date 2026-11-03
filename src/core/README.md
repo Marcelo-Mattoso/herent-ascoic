@@ -10,7 +10,7 @@ Núcleo de regras do **Ascensão Heróica**. Puro TypeScript: sem React, sem DOM
 
 ```
                      ┌──────────────────────┐
-   UI dispatches ──▶ │   reducer(state, A)  │ ──▶ next GameState
+   UI dispatches ──▶ │ reducer(engine, s, A)│ ──▶ next GameState
                      └──────────┬───────────┘
                                 │
                   ┌─────────────┼──────────────┐
