@@ -1,3 +1,4 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import type { GameState } from "../state/gameState";
 import { cardById, skillsOf } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
@@ -70,9 +71,9 @@ export function prunePreparedAbilities(engine: GameEngine, state: GameState, pre
 				(candidate) => candidate.id === entry.sourceHeroId && candidate.status === "active",
 			);
 			if (!hero) return false;
-			if (entry.abilityId === "power_supreme_rift_rune" && entry.roundPrepared !== gameOf(state).combat?.round) return false;
+			if (entry.abilityId === HERO_ABILITY_IDS.power_supreme_rift_rune && entry.roundPrepared !== gameOf(state).combat?.round) return false;
 			if (gameOf(state).combat?.heroesActed.includes(hero.id) &&
-				!["power_supreme_rift_rune", "skill_preserved_path"].includes(entry.abilityId)) return false;
+				![HERO_ABILITY_IDS.power_supreme_rift_rune, HERO_ABILITY_IDS.skill_preserved_path].includes(entry.abilityId)) return false;
 			if (entry.sourceKind === "hero" && hero.cardId !== entry.sourceCardId) return false;
 			if (
 				entry.sourceKind === "item" &&
