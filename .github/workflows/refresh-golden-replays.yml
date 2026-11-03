@@ -2,6 +2,9 @@ name: Refresh golden replays for current game rules
 on:
   pull_request:
     branches: [dev]
+concurrency:
+  group: refresh-golden-${{ github.event.pull_request.number }}
+  cancel-in-progress: true
 permissions:
   contents: write
 jobs:
@@ -33,4 +36,5 @@ jobs:
           fi
           git diff --cached --name-only
           git commit -m "test(golden): regravar partidas determinísticas com regras atualizadas"
+          git pull --rebase origin ${{ github.event.pull_request.head.ref }}
           git push origin HEAD:refs/heads/${{ github.event.pull_request.head.ref }}
