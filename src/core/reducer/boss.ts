@@ -233,9 +233,9 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 		if (!scopedFlagOf(next, "combat", "riftRuneTarget", key)) continue;
 		next = withScopedFlag(next, "combat", "riftRuneTarget", key, false);
 		next = withWorld(next, removeComponent(worldOf(next), hero.id,
-			(component) => component.type === "modifier" && component.source === `skill_rift_rune:${mage.id}`));
+			(component) => component.type === "modifier" && component.source === `${HERO_ABILITY_IDS.skill_rift_rune}:${mage.id}`));
 		if (enemiesOf(next).some((enemy) => enemy.id === "boss" && enemy.status === "defeated")) {
-			next = withScopedFlag(next, "round", "oncePer", `skill_rift_rune::${mage.id}`, false);
+			next = withScopedFlag(next, "round", "oncePer", `${HERO_ABILITY_IDS.skill_rift_rune}::${mage.id}`, false);
 			next = applyDamage(engine, next, mage.id, 2, { sourceId: mage.id, damageType: "direct" });
 		}
 	}
