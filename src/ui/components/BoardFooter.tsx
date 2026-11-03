@@ -18,6 +18,18 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 		? boss.accessCondition.value
 		: 0;
 	const missing = Math.max(0, requiredArtifacts - view.groupArtifacts.length);
+	// Fica na mesma linha do título de XP para não aumentar a altura do rodapé
+	// nos viewports pequenos. O build publicado remove todo este indicador.
+	const devDungeonDeckCounter = import.meta.env.DEV ? (
+		<span
+			data-testid="dev-dungeon-deck-count"
+			title={translate("game:components.boardFooter.devDungeonDeck", { count: view.decks.dungeonDeck.available })}
+			aria-label={translate("game:components.boardFooter.devDungeonDeck", { count: view.decks.dungeonDeck.available })}
+			style={{ color: UI.textTertiary, fontSize: 10, marginLeft: 5, whiteSpace: "nowrap" }}
+		>
+			{"🃏"} {view.decks.dungeonDeck.available}
+		</span>
+	) : null;
 
 	return (
 		<div
@@ -36,8 +48,9 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 			<div style={{ textAlign: "center" }}>
 				{view.mode === "competitive" ? (
 					<>
-						<p style={{ color: UI.textSecondary, fontSize: 10 }}>
-							{translate("game:components.boardFooter.text001")}{" "}</p>
+						<p style={{ color: UI.textSecondary, fontSize: 10, whiteSpace: "nowrap" }}>
+							{translate("game:components.boardFooter.text001")} {devDungeonDeckCounter}
+						</p>
 						<div
 							style={{
 								display: "flex",
@@ -64,7 +77,9 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 					</>
 				) : (
 					<>
-						<p style={{ color: UI.textSecondary, fontSize: 10 }}>{translate("game:components.boardFooter.text002")}</p>
+						<p style={{ color: UI.textSecondary, fontSize: 10, whiteSpace: "nowrap" }}>
+							{translate("game:components.boardFooter.text002")} {devDungeonDeckCounter}
+						</p>
 						<p
 							style={{
 								color: UI.textPrimary,
@@ -76,15 +91,6 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 							{view.groupXp}
 						</p>
 					</>
-				)}
-				{/* Informativo de desenvolvimento: não aparece nos builds publicados. */}
-				{import.meta.env.DEV && (
-					<p
-						data-testid="dev-dungeon-deck-count"
-						style={{ color: UI.textTertiary, fontSize: 10, marginTop: 4 }}
-					>
-						{translate("game:components.boardFooter.devDungeonDeck", { count: view.decks.dungeonDeck.available })}
-					</p>
 				)}
 			</div>
 
