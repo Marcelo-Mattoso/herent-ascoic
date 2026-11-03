@@ -77,7 +77,7 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 				: def.id === HERO_ABILITY_IDS.spend_deep_veil_echo && (!["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) || scopedCountOf(state, "game", "eco", heroId) <= 0) ? "Não há Eco disponível neste combate."
 				: def.id === HERO_ABILITY_IDS.skill_rift_rune && !["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) ? "Disponível apenas durante o combate."
 				: (activation === "passive" ? null :
-					[HERO_ABILITY_IDS.skill_return_rite, HERO_ABILITY_IDS.skill_prey_mark, HERO_ABILITY_IDS.skill_preserved_path, HERO_ABILITY_IDS.spend_deep_veil_echo, HERO_ABILITY_IDS.power_supreme_rift_rune].includes(def.id)
+					[HERO_ABILITY_IDS.skill_return_rite, HERO_ABILITY_IDS.skill_prey_mark, HERO_ABILITY_IDS.skill_preserved_path, HERO_ABILITY_IDS.spend_deep_veil_echo, HERO_ABILITY_IDS.power_supreme_rift_rune].some((allowedId) => allowedId === def.id)
 						? commonUnavailable(state, heroId, true) : commonReason) ??
 					(preyAlreadyMarked ? "Derrote a Presa atual antes de marcar outra."
 					: hero.currentLife <= (def.cost?.hp ?? 0) ? "Vida insuficiente para pagar o custo."
