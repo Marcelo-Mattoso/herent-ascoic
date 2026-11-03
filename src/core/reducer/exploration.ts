@@ -10,6 +10,7 @@ import {
 } from "../ecs/world";
 import { createEmptyEffectStack } from "../effects/stack";
 import { checkBossCondition } from "../rules/conditions";
+import { MAX_ROOM_ENEMIES } from "../rules/encounterLimits";
 
 import { applyDeclaredPassiveBlocks } from "../skills/applyPassiveBlocks";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
@@ -236,7 +237,7 @@ function getEnemyCount(
 	activeHeroesCount: number,
 ): number {
 	const playerIndex = Math.min(Math.max(activeHeroesCount, 1), 4) - 1;
-	return enemiesByPlayers[playerIndex]!;
+	return Math.min(MAX_ROOM_ENEMIES, enemiesByPlayers[playerIndex]!);
 }
 
 export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameState {
