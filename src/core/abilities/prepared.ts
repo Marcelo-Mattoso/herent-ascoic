@@ -73,7 +73,7 @@ export function prunePreparedAbilities(engine: GameEngine, state: GameState, pre
 			if (!hero) return false;
 			if (entry.abilityId === HERO_ABILITY_IDS.power_supreme_rift_rune && entry.roundPrepared !== gameOf(state).combat?.round) return false;
 			if (gameOf(state).combat?.heroesActed.includes(hero.id) &&
-				![HERO_ABILITY_IDS.power_supreme_rift_rune, HERO_ABILITY_IDS.skill_preserved_path].includes(entry.abilityId)) return false;
+				![HERO_ABILITY_IDS.power_supreme_rift_rune, HERO_ABILITY_IDS.skill_preserved_path].some((allowedId) => allowedId === entry.abilityId)) return false;
 			if (entry.sourceKind === "hero" && hero.cardId !== entry.sourceCardId) return false;
 			if (
 				entry.sourceKind === "item" &&
