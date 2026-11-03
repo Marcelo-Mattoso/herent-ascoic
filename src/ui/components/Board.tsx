@@ -5,6 +5,7 @@ import { translate } from "@/i18n";
 import { type DragEvent, useEffect, useRef, useState } from "react";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import type { PlayerView } from "@/core/projection/playerView";
+import { MAX_ROOM_ENEMIES } from "@/core/rules/encounterLimits";
 import { skillsOf } from "@/core/gameEngine";
 import { uiEngine } from "@/ui/engine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -58,7 +59,7 @@ const ACTIVE_DUNGEON_CARD = {
 	radius: "var(--game-card-radius, 10px)",
 };
 
-const ACTIVE_CARD_SLOT_COUNT = 4;
+const ACTIVE_CARD_SLOT_COUNT = MAX_ROOM_ENEMIES;
 const BOSS_CARD = {
 	width: "var(--game-boss-width, 208px)",
 	height: "var(--game-boss-height, 291px)",
