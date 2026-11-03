@@ -31,7 +31,7 @@ describe("catálogo de cartas", () => {
 		expect(card).toBeDefined();
 		expect(card?.type).toBe("hero");
 		if (card?.type === "hero") {
-			expect(card.damage).toBe(4);
+			expect(card.damage).toBe(5);
 		}
 	});
 
