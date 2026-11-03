@@ -1078,9 +1078,9 @@ export function resumeAttackAfterDamage(engine: GameEngine,
 		if (!scopedFlagOf(next, "combat", "riftRuneTarget", key)) continue;
 		next = withScopedFlag(next, "combat", "riftRuneTarget", key, false);
 		next = withWorld(next, removeComponent(worldOf(next), attack.heroId,
-			(component) => component.type === "modifier" && component.source === `skill_rift_rune:${mage.id}`));
+			(component) => component.type === "modifier" && component.source === `${HERO_ABILITY_IDS.skill_rift_rune}:${mage.id}`));
 		if (enemiesOf(next).some((enemy) => enemy.id === attack.enemyId && enemy.status === "defeated")) {
-			next = withScopedFlag(next, "round", "oncePer", `skill_rift_rune::${mage.id}`, false);
+			next = withScopedFlag(next, "round", "oncePer", `${HERO_ABILITY_IDS.skill_rift_rune}::${mage.id}`, false);
 			next = applyDamage(engine, next, mage.id, 2, { sourceId: mage.id, damageType: "direct" });
 			if (pendingTriggerInterruptOf(next) || pendingSkillChoiceOf(next) || pendingSkillTargetOf(next)) {
 				return attachAttackResume(next, { ...attack, stage: "after_hero_damage" });
