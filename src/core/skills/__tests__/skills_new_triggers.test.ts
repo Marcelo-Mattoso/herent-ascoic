@@ -183,6 +183,7 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 			?.find((entry) => entry.abilityId === "skill_final_dawn_light");
 		expect(action?.status).toBe("active");
 	});
+});
 
 // ── on_destroyed — dungeonLevel (Despertar Mortal) ────────────────────────────
 
