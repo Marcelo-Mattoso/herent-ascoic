@@ -249,6 +249,15 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 		roomCard?.type === "room"
 			? getEnemyCount(roomCard.enemiesByPlayers, activeHeroesCount)
 			: gameOf(state).currentRoom!.currentEnemies;
+	// A criatura invocada pela sala faz parte do limite enemiesByPlayers,
+	// não é um inimigo extra somado à compra do baralho.
+	const specialId = gameOf(state).currentRoom!.specialCreatureId;
+	const possibleSpecial = specialId ? cardById(engine, specialId) : undefined;
+	const specialCard =
+		possibleSpecial?.type === "creature" || possibleSpecial?.type === "subboss"
+			? possibleSpecial
+			: undefined;
+	const regularCount = Math.max(0, count - (specialCard ? 1 : 0));
 
 	if (count === 0) {
 		return log(
@@ -261,7 +270,7 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 	const drawn: string[] = [];
 	const remaining = [...available];
 
-	for (let i = 0; i < count && remaining.length > 0; i++) {
+	for (let i = 0; i < regularCount && remaining.length > 0; i++) {
 		drawn.push(remaining.shift() as string);
 	}
 
@@ -276,21 +285,15 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 		rng = next;
 	}
 
-	// Spawn da criatura especial da sala (ex.: Carcereiro, Guardião do Abismo)
-	if (gameOf(state).currentRoom!.specialCreatureId) {
-		const specialCard = cardById(engine, gameOf(state).currentRoom!.specialCreatureId!);
-		if (
-			specialCard &&
-			(specialCard.type === "creature" || specialCard.type === "subboss")
-		) {
-			const { enemy, next } = createEnemyFromCard(
-				specialCard,
-				awakeningOf(state),
-				rng,
-			);
-			enemies.push(enemy);
-			rng = next;
-		}
+	// A invocação usa uma vaga da sala e não consome carta do baralho.
+	if (count > 0 && specialCard) {
+		const { enemy, next } = createEnemyFromCard(
+			specialCard,
+			awakeningOf(state),
+			rng,
+		);
+		enemies.push(enemy);
+		rng = next;
 	}
 	state = withGame(state, (prevGame) => ({ ...prevGame, rng }));
 
