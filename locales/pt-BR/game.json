@@ -33,6 +33,14 @@
     }
   },
   "components": {
+    "groupArtifactPanel": {
+      "title": "Artefatos do grupo",
+      "count": "Artefatos: {{count}}",
+      "empty": "Nenhum artefato encontrado. Os artefatos coletados aparecerão aqui com suas habilidades.",
+      "bearer": "Portador: {{name}}",
+      "shared": "Compartilhado pelo grupo",
+      "hint": "Os efeitos respeitam suas condições e momentos de ativação; não ocupam os equipamentos normais."
+    },
     "actionButton": {},
     "alphaLogPanel": {
       "dialogLabel": "Log detalhado alpha",
