@@ -83,7 +83,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 						data-testid="dev-dungeon-deck-count"
 						style={{ color: UI.textTertiary, fontSize: 10, marginTop: 4 }}
 					>
-						Masmorra: {view.decks.dungeonDeck.available} carta(s) no baralho
+						{translate("game:components.boardFooter.devDungeonDeck", { count: view.decks.dungeonDeck.available })}
 					</p>
 				)}
 			</div>
