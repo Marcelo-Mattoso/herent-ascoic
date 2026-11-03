@@ -660,6 +660,7 @@ export function Board({
 	const selectedHeroId = view.combat?.selectedHeroId ?? null;
 	const status = view.status;
 	const pendingDiceSelection = view.combat?.pendingDiceSelection;
+	const pendingCombatDecision = Boolean(view.pendingSkillChoice || view.pendingSkillTarget || view.pendingTriggerInterrupt);
 	useEffect(() => {
 		if (!pendingDiceSelection) setRerollingDie(null);
 	}, [pendingDiceSelection]);
@@ -951,7 +952,7 @@ export function Board({
 					</div>
 				)}
 
-				{(pendingPhysicalRoll || (roll?.physicalRollId && status === "RESOLVE_ATTACK" && !pendingDiceSelection && dismissedPhysicalRollId !== roll.physicalRollId)) && (
+				{!pendingCombatDecision && (pendingPhysicalRoll || (roll?.physicalRollId && status === "RESOLVE_ATTACK" && !pendingDiceSelection && dismissedPhysicalRollId !== roll.physicalRollId)) && (
 					<DiceRollOverlay
 						key={pendingPhysicalRoll?.id ?? roll?.physicalRollId}
 						pending={pendingPhysicalRoll}
@@ -960,7 +961,7 @@ export function Board({
 						onResolveAttack={resolveAttackWithAnimation}
 					/>
 				)}
-				{diceRollAnimation && (
+				{diceRollAnimation && !pendingCombatDecision && (
 					<DiceRollOverlay
 						key={diceRollAnimation.key}
 						roll={diceRollAnimation.roll}

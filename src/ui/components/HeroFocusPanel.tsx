@@ -278,6 +278,7 @@ export function HeroFocusPanel({
 					{spendEcho && hero.eco > 0 && (
 						<ActionButton
 							label={`${translate("skills:spend_deep_veil_echo.name")} (${hero.eco})`}
+							abilityId="spend_deep_veil_echo"
 							title={spendEcho.reason}
 							icon="👻"
 							variant="secondary"
@@ -399,6 +400,7 @@ function ActionSection({
 				{skill && (
 					<ActionButton
 						tutorialAnchor="hero.skill-action"
+						abilityId={skill.skillId}
 						label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 						title={skill.reason}
 						icon="✨"
@@ -410,6 +412,7 @@ function ActionSection({
 				{power && (
 					<ActionButton
 						tutorialAnchor="hero.power-action"
+						abilityId={power.skillId}
 						label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
 						title={power.reason}
 						icon="⚡"
@@ -449,6 +452,7 @@ function ActionSection({
 					{skill && (
 						<ActionButton
 							tutorialAnchor="hero.skill-action"
+							abilityId={skill.skillId}
 							label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 							title={skill.reason}
 							icon="✨"
@@ -460,6 +464,7 @@ function ActionSection({
 					{power && (
 					<ActionButton
 							tutorialAnchor="hero.power-action"
+							abilityId={power.skillId}
 							label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
 							title={power.reason}
 						icon="⚡"
@@ -506,6 +511,7 @@ function ActionSection({
 			{skill && (
 				<ActionButton
 				tutorialAnchor="hero.skill-action"
+				abilityId={skill.skillId}
 				label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 				title={skill.reason}
 					icon="✨"
@@ -517,6 +523,7 @@ function ActionSection({
 			{power && (
 				<ActionButton
 				tutorialAnchor="hero.power-action"
+				abilityId={power.skillId}
 				label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
 				title={power.reason}
 					icon="⚡"

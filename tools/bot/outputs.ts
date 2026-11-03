@@ -179,6 +179,17 @@ export function screenOutput(page: Page): ActionOutput {
 			}
 			const dialog = page.getByRole("dialog").last();
 			switch (action.type) {
+				case "SELECT_DIE": {
+					const { side, index, value } = action.payload;
+					const die = page.locator(`.dice-choice__side--${side} .dice-choice__die`).nth(index);
+					if (!(await usable(die))) return "unsupported";
+					await die.click({ timeout: 3000 });
+					if (value !== undefined) {
+						await page.getByRole("button", { name: `Novo valor ${value}` }).click({ timeout: 3000 });
+					}
+					await page.getByRole("button", { name: /Aplicar alteração|Confirmar e rerrolar/ }).click({ timeout: 3000 });
+					return "done";
+				}
 				case "SKILL_CHOICE":
 					await page
 						.locator(".skill-choice-option")
@@ -189,7 +200,7 @@ export function screenOutput(page: Page): ActionOutput {
 					return "done";
 				case "SELECT_SKILL_TARGET":
 					await dialog
-						.getByRole("button")
+						.locator(".skill-target-option")
 						.nth(facts.targets.indexOf(action.payload.targetId))
 						.click({ timeout: 3000 });
 					return "done";
@@ -213,7 +224,8 @@ export function screenOutput(page: Page): ActionOutput {
 				case "USE_POWER":
 					return clickInHeroPanel(page, facts, action.payload.heroId, page.locator('[data-tutorial-anchor="hero.power-action"]'));
 				case "USE_SKILL":
-					return clickInHeroPanel(page, facts, action.payload.sourceId, page.locator('[data-tutorial-anchor="hero.skill-action"]'));
+					return clickInHeroPanel(page, facts, action.payload.sourceId,
+						page.locator(`[data-ability-id="${action.payload.skillId}"]`));
 				case "USE_ITEM":
 					return clickInHeroPanel(page, facts, action.payload.heroId, page.getByRole("button", { name: "Usar item" }));
 				case "CHOOSE_TARGET": {

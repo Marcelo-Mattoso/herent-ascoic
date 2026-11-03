@@ -14,6 +14,7 @@ export type InvariantName =
 	| "effect_stack_not_drained"
 	| "no_legal_action"
 	| "max_steps_exceeded"
+	| "boss_stalemate"
 	| "no_progress";
 
 export interface Violation {
