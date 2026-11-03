@@ -78,6 +78,7 @@
       params:
         value: 1
     - skillId: power_deep_veil_echo
+    - skillId: spend_deep_veil_echo
 - id: hero_broken_veil_hunter
   type: hero
   diceByColor: [ 1, 1, 2, 2, 3 ]

@@ -441,6 +441,9 @@ export function eventGrantMatchesContext(
 		event === "evt_destroy" ||
 		event === "evt_kill"
 	) {
+		if (event === "evt_roll" && candidate.grant.abilityId === "power_supreme_rift_rune") {
+			return Boolean(ctx.targetHeroIds?.length);
+		}
 		return heroId === ctx.sourceHeroId;
 	}
 	if (event === "evt_damage_taken" || event === "evt_would_be_destroyed")

@@ -205,6 +205,7 @@ export const SkillDefinitionV2Schema = z
 		interrupt: InterruptSchema,
 		conditions: z.array(ConditionNodeSchema).optional(),
 		cooldown: CooldownSchema,
+		action_cost: z.enum(["none", "consume_hero_action"]).optional(),
 		// Targeting v2 (Lote C)
 		target_type: z.enum([
 			"tgt_self",

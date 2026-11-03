@@ -14,6 +14,7 @@ export function endScreenPreviewView(view: PlayerView, ending: "victory" | "defe
 			hitBonus: card.hitBonus[2],
 			dice: card.diceByColor[2],
 			impeto: 2,
+  eco: 0,
 			activeItems: {},
 			backpack: [],
 			usedPowers: {},

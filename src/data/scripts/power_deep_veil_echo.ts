@@ -4,7 +4,6 @@ import { log } from "@/core/reducer/utils";
 import type { ScriptHandler, SkillContinuation } from "@/core/scripts/types";
 
 import {
-	deckOf,
 	scopedCountOf,
 	withScopedCount,
 	withWorld,
@@ -18,9 +17,9 @@ export const run: ScriptHandler = (ctx) => {
 	if (!ctx.sourceId || !gameOf(ctx.state).combat) return ctx.state;
 
 	const sourceId = ctx.sourceId;
-	const currentEco = scopedCountOf(ctx.state, "combat", "eco", sourceId);
+	const currentEco = scopedCountOf(ctx.state, "game", "eco", sourceId);
 	return withGame(
-		withScopedCount(ctx.state, "combat", "eco", sourceId, currentEco + 1),
+		withScopedCount(ctx.state, "game", "eco", sourceId, currentEco + 1),
 		(prevGame) => ({ ...prevGame, eventLog: [
 			...gameOf(ctx.state).eventLog,
 			`Necromante: Eco Profundo — 1 Eco ganho (total: ${currentEco + 1}).`,
@@ -31,17 +30,13 @@ export const run: ScriptHandler = (ctx) => {
 // Apresenta 3 opções.
 export const spend: ScriptHandler = (ctx) => {
 	if (!ctx.sourceId || !ctx.skillId) return ctx.state;
-	const eco = scopedCountOf(ctx.state, "combat", "eco", ctx.sourceId);
+	const eco = scopedCountOf(ctx.state, "game", "eco", ctx.sourceId);
 	if (eco <= 0) {
 		return ctx.action.log("Eco Profundo: nenhum Eco disponível para gastar.");
 	}
 	return ctx.action.requestChoice([
-		{ id: "tohit", label: "+3 no total de acerto neste ataque" },
-		{ id: "damage_reduction", label: "Reduzir 2 de dano sofrido" },
-		{
-			id: "peek_enemies",
-			label: "Ver as 2 cartas do topo do deck de inimigos",
-		},
+		{ id: "tohit", label: "+2 de acerto no próximo ataque" },
+		{ id: "damage", label: "+2 de dano no próximo ataque" },
 	]);
 };
 
@@ -54,10 +49,10 @@ export const continuation: SkillContinuation = (
 	if (!ctx.sourceHeroId || !gameOf(state).combat) return state;
 
 	const tokensAfterUse =
-		scopedCountOf(state, "combat", "eco", ctx.sourceHeroId) - 1;
+		scopedCountOf(state, "game", "eco", ctx.sourceHeroId) - 1;
 	const spent = withScopedCount(
 		state,
-		"combat",
+		"game",
 		"eco",
 		ctx.sourceHeroId,
 		tokensAfterUse > 0 ? tokensAfterUse : 0,
@@ -69,39 +64,30 @@ export const continuation: SkillContinuation = (
 			type: "modifier",
 			target: "hit_bonus",
 			operation: "add",
-			value: 3,
-			source: "power_deep_veil_echo",
-			duration: { kind: "once" },
-		};
-		const newWorld = addComponent(worldOf(state), ctx.sourceHeroId, mod);
-		return log(
-			withWorld(spent, newWorld),
-			"Eco Profundo gasto: +3 de acerto neste ataque.",
-		);
-	}
-
-	if (choice === "damage_reduction") {
-		// Patch-18 Lote G: usa ECS world (damage_taken negativo) em vez de damageReduction
-		const mod: ModifierComponent = {
-			type: "modifier",
-			target: "damage_taken",
-			operation: "add",
-			value: -2,
+			value: 2,
 			source: "power_deep_veil_echo",
 			duration: { kind: "this_combat" },
 		};
 		const newWorld = addComponent(worldOf(state), ctx.sourceHeroId, mod);
 		return log(
 			withWorld(spent, newWorld),
-			"Eco Profundo gasto: -2 no próximo dano sofrido.",
+			"Eco Profundo gasto: +2 de acerto no próximo ataque.",
 		);
 	}
 
-	if (choice === "peek_enemies") {
-		const topTwo = deckOf(state, "enemyDeck").available.slice(0, 2);
+	if (choice === "damage") {
+		const mod: ModifierComponent = {
+			type: "modifier",
+			target: "damage_dealt",
+			operation: "add",
+			value: 2,
+			source: "power_deep_veil_echo",
+			duration: { kind: "this_combat" },
+		};
+		const newWorld = addComponent(worldOf(state), ctx.sourceHeroId, mod);
 		return log(
-			spent,
-			`Eco Profundo gasto: próximos inimigos — ${topTwo.join(", ") || "deck vazio"}.`,
+			withWorld(spent, newWorld),
+			"Eco Profundo gasto: +2 de dano no próximo ataque.",
 		);
 	}
 

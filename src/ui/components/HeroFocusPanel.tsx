@@ -11,7 +11,6 @@ import type { PlayerView } from "@/core/projection/playerView";
 import { skillsOf } from "@/core/gameEngine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { HeroView, ItemSlotType } from "@/core/projection/viewTypes";
-import type { CardType } from "@/ui/components/Card";
 import type { HeroCombatActions } from "@/ui/store/selectors";
 import { UI } from "@/ui/theme";
 import { ActionButton } from "./ActionButton";
@@ -32,7 +31,6 @@ interface HeroFocusPanelProps {
 	onFlee: () => void;
 	onUseSkill?: (skillId: string, sourceId: string) => void;
 	onUseItem?: () => void;
-	onCardDetail: (name: string, type: CardType) => void;
 	onItemDetail: (itemName: string, heroId: string) => void;
 	onArtInspect?: () => void;
 }
@@ -49,7 +47,6 @@ export function HeroFocusPanel({
 	onFlee,
 	onUseSkill,
 	onUseItem,
-	onCardDetail,
 	onItemDetail,
 	onArtInspect,
 }: HeroFocusPanelProps) {
@@ -59,6 +56,8 @@ export function HeroFocusPanel({
 
 	const heroCard = hero ? getCardById(hero.cardId) : null;
 	const powerUsed = heroActions.power?.alreadyUsed ?? false;
+	const spendEcho = hero ? view.abilityActionsByHero[hero.id]?.find(
+		(action) => action.abilityId === "spend_deep_veil_echo") : undefined;
 
 	const isInCombat = status === "HERO_ACTION" || status === "BOSS_COMBAT";
 	const isSelectingHero = isInCombat && phase === "selecting_hero";
@@ -276,6 +275,16 @@ export function HeroFocusPanel({
 						onUseSkill={onUseSkill}
 						onUseItem={onUseItem}
 					/>
+					{spendEcho && hero.eco > 0 && (
+						<ActionButton
+							label={`${translate("skills:spend_deep_veil_echo.name")} (${hero.eco})`}
+							title={spendEcho.reason}
+							icon="👻"
+							variant="secondary"
+							disabled={spendEcho.status !== "available"}
+							onClick={() => onUseSkill?.("spend_deep_veil_echo", hero.id)}
+						/>
+					)}
 				</div>
 			) : (
 				<div

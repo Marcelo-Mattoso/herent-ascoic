@@ -12,7 +12,7 @@ import type { GameState } from "../state/gameState";
 import { guardPassed } from "../triggers/engine";
 import { cardById, cardName, skillName, skillsOf } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
-import { enemiesOf, heroesOf, pausedOf, pendingSkillTargetOf, pendingSkillChoiceOf, pendingTriggerInterruptOf } from "../state/access";
+import { deckOf, scopedCountOf, enemiesOf, heroesOf, pausedOf, pendingSkillTargetOf, pendingSkillChoiceOf, pendingTriggerInterruptOf } from "../state/access";
 import { gameOf } from "../../engine/state";
 
 export interface AbilityActionView {
@@ -27,12 +27,12 @@ export interface AbilityActionView {
 	readonly validTargetIds: readonly string[];
 }
 
-function commonUnavailable(state: GameState, heroId: string): string | null {
+function commonUnavailable(state: GameState, heroId: string, allowAfterActed = false): string | null {
 	const hero = heroesOf(state).find((entry) => entry.id === heroId);
 	if (!hero || hero.status !== "active") return "Herói incapacitado.";
 	if (pausedOf(state) || pendingSkillTargetOf(state) || pendingSkillChoiceOf(state) || pendingTriggerInterruptOf(state))
 		return "Conclua a escolha pendente primeiro.";
-	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, heroId))
+	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, heroId) && !allowAfterActed)
 		return "Este herói já encerrou sua ação nesta rodada.";
 	if ((gameOf(state).status === "HERO_ACTION" || gameOf(state).status === "BOSS_COMBAT") &&
 		!(["selecting_hero", "selecting_target"].includes(gameOf(state).combat?.phase ?? "")))
@@ -72,7 +72,12 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 				enemiesOf(state).some((enemy) => enemy.id === gameOf(state).combat?.preyByHero[heroId] && enemy.status === "active");
 			const reason = exhausted ? "Limite de uso atingido."
 				: !conditionsMet ? "Condições da habilidade não atendidas."
-				: (activation === "passive" ? null : commonReason) ??
+				: def.id === "skill_return_rite" && deckOf(state, "dungeonDeck").discarded.length === 0 ? "Não há cartas descartadas para recuperar."
+				: def.id === "spend_deep_veil_echo" && (!["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) || scopedCountOf(state, "game", "eco", heroId) <= 0) ? "Não há Eco disponível neste combate."
+				: def.id === "skill_rift_rune" && !["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) ? "Disponível apenas durante o combate."
+				: (activation === "passive" ? null :
+					["skill_return_rite", "skill_prey_mark", "skill_preserved_path", "spend_deep_veil_echo", "power_supreme_rift_rune"].includes(def.id)
+						? commonUnavailable(state, heroId, true) : commonReason) ??
 					(preyAlreadyMarked ? "Derrote a Presa atual antes de marcar outra."
 					: hero.currentLife <= (def.cost?.hp ?? 0) ? "Vida insuficiente para pagar o custo."
 						: target?.kind === "unavailable" ? target.reason : null);

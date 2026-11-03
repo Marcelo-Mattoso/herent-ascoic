@@ -39,7 +39,7 @@
       "empty": "Nenhum artefato encontrado. Os artefatos coletados aparecerão aqui com suas habilidades.",
       "bearer": "Portador: {{name}}",
       "shared": "Compartilhado pelo grupo",
-      "hint": "Os efeitos respeitam suas condições e momentos de ativação; não ocupam os equipamentos normais."
+      "hint": "Os efeitos respeitam suas condições e momentos de ativação; não ocupam os espaços normais de equipamento."
     },
     "actionButton": {},
     "alphaLogPanel": {
@@ -80,7 +80,7 @@
       "text003": "Artefatos",
       "text004": "falta",
       "text005": "Condição do chefe",
-      "text006": "2 Artefatos ("
+      "text006": "Artefatos necessários: {{required}} ({{current}}/{{required}})"
     },
     "buffBar": {
       "text001": "sem efeitos ativos"

@@ -2,7 +2,7 @@ import { checkBossCondition } from "../rules/conditions";
 import { inlineBossHitBonus, inlineBossDamageReduction, markInlineBossSkillsUsed } from "../rules/bossSkills";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { drainStack } from "../effects/resolver";
-import { decrementRoundsModifiers, tickModifierDurations } from "../ecs/world";
+import { decrementRoundsModifiers, removeComponent, tickModifierDurations } from "../ecs/world";
 import { calculateTotal, resolveAttack } from "../rules/combat";
 import { dungeonAwakeningEffect, piercedItemReduction } from "../rules/dungeonAwakening";
 import { rollDiceRng } from "../rules/dice";
@@ -23,12 +23,12 @@ import type { HeroState } from "../state/heroState";
 import { applyDamage } from "../systems/damageSystem";
 import { recordEvent } from "../events/record";
 import { log } from "./utils";
-import { cardById, cardName } from "../gameEngine";
+import { cardById, cardName, skillsOf } from "../gameEngine";
 import type { GameEngine, GameHandler } from "../gameEngine";
 import type { Action } from "../actions/types";
 import { activeEnemies, partyHeroIds } from "./legal";
 
-import { awakeningOf, enemiesOf, heroesOf, recordOfEnemy, spawnEnemy, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
+import { awakeningOf, enemiesOf, heroesOf, recordOfEnemy, spawnEnemy, scopedFlagOf, withScopedFlag, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
 import { beginCombat, beginRound } from "../state/lifecycle";
 import { gameOf, withGame } from "../../engine/state";
 function collectWorldModifierEntries(
@@ -61,6 +61,9 @@ function effectiveHeroDamage(engine: GameEngine,
 		...collectWorldModifierEntries(state, hero.id, "damage_dealt"),
 		...collectHeroDamageBonusesFromItems(engine, hero, state, boss, rollMargin),
 	];
+	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")) {
+		breakdown.push({ source: "Luz da Aurora Final", value: 2 });
+	}
 	return {
 		damage: Math.max(0, hero.damage + totalItemValue(breakdown)),
 		breakdown,
@@ -223,6 +226,21 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 		);
 	}
 
+	for (const mage of heroesOf(next).filter((entry) =>
+		skillsOf(engine, entry.cardId).some(({ def }) => def.id === "skill_rift_rune"))) {
+		const key = `${mage.id}:${hero.id}`;
+		if (!scopedFlagOf(next, "combat", "riftRuneTarget", key)) continue;
+		next = withScopedFlag(next, "combat", "riftRuneTarget", key, false);
+		next = withWorld(next, removeComponent(worldOf(next), hero.id,
+			(component) => component.type === "modifier" && component.source === `skill_rift_rune:${mage.id}`));
+		if (enemiesOf(next).some((enemy) => enemy.id === "boss" && enemy.status === "defeated")) {
+			next = withScopedFlag(next, "round", "oncePer", `skill_rift_rune::${mage.id}`, false);
+			next = applyDamage(engine, next, mage.id, 2, { sourceId: mage.id, damageType: "direct" });
+		}
+	}
+	next = withWorld(next, removeComponent(worldOf(next), hero.id,
+		(component) => component.type === "modifier" && component.source === "power_deep_veil_echo"));
+	next = withWorld(next, tickModifierDurations(worldOf(next), "once_consumed"));
 	return checkBossEnd(engine, next);
 }
 
@@ -332,6 +350,8 @@ export function buildBossRollFromResults(
 	if (!hero || !boss) return null;
 	const heroBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: hero.hitBonus },
+		...(awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")
+			? [{ source: "Luz da Aurora Final", value: 2 }] : []),
 		...collectWorldModifierEntries(state, hero.id, "hit_bonus"),
 		...collectHeroHitBonusesFromItems(engine, hero, state, boss),
 	];

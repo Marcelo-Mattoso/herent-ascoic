@@ -55,6 +55,7 @@ export interface SkillDefinition {
 	};
 	readonly conditions?: readonly import("../skills/dsl/types").ConditionNode[];
 	readonly cooldown?: import("../skills/dsl/types").CooldownNode;
+	readonly action_cost?: "none" | "consume_hero_action";
 	// ── Targeting v2 (patch-21 Lote C) ──────────────────────────────────
 	readonly target_type: import("../skills/dsl/types").TargetType;
 	readonly affect_scope: import("../skills/dsl/types").AffectScope;

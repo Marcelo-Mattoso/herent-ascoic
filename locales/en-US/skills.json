@@ -1,23 +1,23 @@
 {
   "skill_crimson_fury": {
     "name": "Crimson Fury",
-    "label": "Crimson Fury ({value}): this character takes {value} damage to deal additional damage equal to 3 times the damage taken on their next attack.",
-    "text": "this character takes {value} damage to deal additional damage equal to 3 times the damage taken on their next attack."
+    "label": "Crimson Fury ({value}): Once per round, this character takes {value} damage to deal extra damage equal to three times the damage taken on this attack.",
+    "text": "once per round, this character takes {value} damage to deal extra damage equal to three times the damage taken on this attack."
   },
   "skill_last_light_healing": {
     "name": "Last Light Healing",
-    "label": "Last Light Healing ({value}): heal {value} Health on one hero or allied creature.",
-    "text": "heal {value} Health on one hero or allied creature."
+    "label": "Last Light Healing ({value}): Once per round, spend the cleric's action to heal {value} Health on an allied hero or creature.",
+    "text": "once per round, spend the cleric's action to heal {value} Health on an allied hero or creature."
   },
   "skill_bastion_guard": {
     "name": "Bastion Guard",
-    "label": "Bastion Guard ({value}): reduce the damage a hero or ally would take by {value}.",
-    "text": "reduce the damage a hero or ally would take by {value}."
+    "label": "Bastion Guard ({value}): Once per round, reduce damage an ally would take by {value}. If the guard triggers, Brennar loses his action.",
+    "text": "once per round, reduce damage an ally would take by {value}. If the guard triggers, Brennar loses his action."
   },
   "skill_rift_rune": {
     "name": "Rift Rune",
-    "label": "Rift Rune ({value}): after rolling, adjust the result of 1 allied die by up to {value}, without exceeding 6 or going below 1.",
-    "text": "after rolling, adjust the result of 1 allied die by up to {value}, without exceeding 6 or going below 1."
+    "label": "Rift Rune: Once per round, choose an allied hero. They gain +3 to hit on their next attack. If they defeat the creature, the mage takes 2 damage and may use the rune again.",
+    "text": "once per round, choose an allied hero. They gain +3 to hit on their next attack. If they defeat the creature, the mage takes 2 damage and may use the rune again."
   },
   "skill_hunter_focus": {
     "name": "Hunter's Focus",
@@ -41,8 +41,8 @@
   },
   "skill_preserved_path": {
     "name": "Preserved Path",
-    "label": "Preserved Path: once per room, when a dungeon card would be discarded by an effect, return that card to the top of the dungeon deck.",
-    "text": "once per room, when a dungeon card would be discarded by an effect, return that card to the top of the dungeon deck."
+    "label": "Preserved Path: Up to 3 times per game, prevent a dungeon card from being discarded by an effect or the normal round discard.",
+    "text": "up to 3 times per game, prevent a dungeon card from being discarded by an effect or the normal round discard."
   },
   "skill_rekindled_forge": {
     "name": "Rekindled Forge",
@@ -80,13 +80,13 @@
   },
   "skill_prey_mark": {
     "name": "Prey Mark",
-    "label": "Prey Mark ({value}): choose 1 creature as your Prey. Gain +{value} to hit against it until it is defeated.",
-    "text": "choose 1 creature as your Prey. Gain +{value} to hit against it until it is defeated."
+    "label": "Prey Mark ({value}): Without spending an action, choose one creature as your Prey. Gain +{value} to hit against it until it is defeated.",
+    "text": "without spending an action, choose one creature as your Prey. Gain +{value} to hit against it until it is defeated."
   },
   "skill_return_rite": {
     "name": "Rite of Return",
-    "label": "Rite of Return ({value}): once per room, you may pay 3 Health to recover {value} discarded dungeon card and shuffle it into the deck.",
-    "text": "once per room, you may pay 3 Health to recover {value} discarded dungeon card and shuffle it into the deck."
+    "label": "Rite of Return ({value}): Pay 3 Health to recover {value} discarded dungeon card and shuffle it into the deck. Repeat while discarded cards remain; this does not use an action.",
+    "text": "pay 3 Health to recover {value} discarded dungeon card and shuffle it into the deck. Repeat while discarded cards remain; this does not use an action."
   },
   "skill_final_dawn_light": {
     "name": "Light of the Final Dawn",
@@ -254,8 +254,12 @@
   },
   "power_supreme_rift_rune": {
     "name": "Supreme Rift Rune",
-    "label": "Supreme Rift Rune: after any roll, change 1 allied die to a 6 or 1 enemy die to a 1.",
-    "text": "after any roll, change 1 allied die to a 6 or 1 enemy die to a 1."
+    "label": "Supreme Rift Rune: Once per game, after a roll this round, choose to change one allied die to 6 or one enemy die to 1.",
+    "text": "once per game, after a roll this round, choose to change one allied die to 6 or one enemy die to 1.",
+    "options": {
+      "ally_six": "Set allied die to 6",
+      "enemy_min": "Set enemy die to 1"
+    }
   },
   "power_mighty_crimson_fury": {
     "name": "Mighty Crimson Fury",
@@ -273,13 +277,13 @@
   },
   "power_deep_veil_echo": {
     "name": "Deep Echo of the Veil",
-    "label": "Deep Echo of the Veil: once per game, when defeating a creature, store 1 Greater Echo. Spend that Echo to gain +3 to your total hit roll, reduce damage taken by 2, or look at the top 2 cards of the enemy deck.",
-    "text": "once per game, when defeating a creature, store 1 Greater Echo. Spend that Echo to gain +3 to your total hit roll, reduce damage taken by 2, or look at the top 2 cards of the enemy deck."
+    "label": "Deep Echo of the Veil: Once per game, automatically gain 1 permanent Echo when you defeat a creature. Spend it manually for +2 to hit or +2 damage on your next attack.",
+    "text": "once per game, automatically gain 1 permanent Echo when you defeat a creature. Spend it manually for +2 to hit or +2 damage on your next attack."
   },
   "power_hunter_execution": {
     "name": "Hunter's Execution",
-    "label": "Hunter's Execution: once per game, after rolling against your Prey, change 1 blue die to a 6 and deal +1 damage if you hit.",
-    "text": "once per game, after rolling against your Prey, change 1 blue die to a 6 and deal +1 damage if you hit."
+    "label": "Hunter's Execution: Once per game, when attacking your Prey, gain +6 to hit and +6 damage for this attack.",
+    "text": "once per game, when attacking your Prey, gain +6 to hit and +6 damage for this attack."
   },
   "purple_raging_flames": {
     "name": "Raging Flames",
@@ -473,5 +477,10 @@
     "name": "Empty Room",
     "label": "Empty Room: no additional effect.",
     "text": "no additional effect."
+  },
+  "spend_deep_veil_echo": {
+    "name": "Spend Echo",
+    "label": "Spend Echo: choose +2 to hit or +2 damage on your next attack.",
+    "text": "choose +2 to hit or +2 damage on your next attack."
   }
 }

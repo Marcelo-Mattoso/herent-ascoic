@@ -78,7 +78,7 @@
       "text003": "Artifacts",
       "text004": "missing",
       "text005": "Boss condition",
-      "text006": "2 Artifacts ("
+      "text006": "Artifacts needed: {{required}} ({{current}}/{{required}})"
     },
     "buffBar": {
       "text001": "no active effects"

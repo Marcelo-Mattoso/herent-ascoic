@@ -131,7 +131,10 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 				<p style={{ color: UI.textSecondary, fontSize: 10 }}>
 					{translate("game:components.boardFooter.text005")}{" "}</p>
 				<p style={{ color: UI.textPrimary, fontSize: 11 }}>
-					{translate("game:components.boardFooter.text006")}{view.groupArtifacts.length}/{requiredArtifacts})
+					{translate("game:components.boardFooter.text006", {
+						current: view.groupArtifacts.length,
+						required: requiredArtifacts,
+					})}
 				</p>
 			</div>
 		</div>
