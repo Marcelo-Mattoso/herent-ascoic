@@ -223,16 +223,20 @@ describe("trigger engine", () => {
 		expect(gameOf(ownKill).preparedAbilities?.[key]).toBeUndefined();
 	});
 
-	it("mantém cooldown de sala até a sala encerrar e permite novo uso na próxima", () => {
+	it("mantém três cargas de Caminho Preservado por jogo, inclusive entre salas", () => {
 		const skill = skillById(testEngine, "skill_preserved_path");
 		expect(skill).toBeDefined();
 		if (!skill) return;
 
-		const used = markSkillGuardUsed(stateWithBarbarianAndDagger(), skill, "h1");
-		expect(guardPassed(used, skill, "h1")).toBe(false);
+		const first = markSkillGuardUsed(stateWithBarbarianAndDagger(), skill, "h1");
+		expect(guardPassed(first, skill, "h1")).toBe(true);
+		const second = markSkillGuardUsed(first, skill, "h1");
+		expect(guardPassed(second, skill, "h1")).toBe(true);
+		const third = markSkillGuardUsed(second, skill, "h1");
+		expect(guardPassed(third, skill, "h1")).toBe(false);
 
-		const nextRoom = beginRoom(testEngine, used);
-		expect(guardPassed(nextRoom, skill, "h1")).toBe(true);
+		const nextRoom = beginRoom(testEngine, third);
+		expect(guardPassed(nextRoom, skill, "h1")).toBe(false);
 	});
 
 	it("reação sem cooldown exige nova preparação para outro evento", () => {
