@@ -24,7 +24,6 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 		<span
 			data-testid="dev-dungeon-deck-count"
 			title={translate("game:components.boardFooter.devDungeonDeck", { count: view.decks.dungeonDeck.available })}
-			aria-label={translate("game:components.boardFooter.devDungeonDeck", { count: view.decks.dungeonDeck.available })}
 			style={{ color: UI.textTertiary, fontSize: 10, marginLeft: 5, whiteSpace: "nowrap" }}
 		>
 			{"🃏"} {view.decks.dungeonDeck.available}
