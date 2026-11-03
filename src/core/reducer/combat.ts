@@ -6,6 +6,7 @@ import {
 import { preparedAbilityKey, togglePreparedAbility, isAbilityPrepared } from "../abilities/prepared";
 import {
 	decrementRoundsModifiers,
+	removeComponent,
 	removeModifiersForSource,
 	removeTriggersAppliedBySource,
 	tickModifierDurations,
@@ -63,7 +64,7 @@ import { abilityGrants, cardById, cardName, skillById, skillsOf } from "../gameE
 import type { GameEngine } from "../gameEngine";
 
 import { awakeningOf, deckOf, decksOf, enemiesOf, extraDiceOf, fledHeroesOf, heroesOf, shuffleDeck, withDeck, withDecks, withEntityRetired, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, pendingSkillWindowOf, pausedOf, withPendingSkillWindow, withPendingSkillTarget } from "../state/access";
-import { scopedFlagOf, withScopedFlag } from "../state/access";
+import { scopedCountOf, scopedFlagOf, withScopedFlag } from "../state/access";
 import type { GameHandler } from "../gameEngine";
 import { buildBossRollFromResults, isBossAttack, isBossRoll } from "./boss";
 import { targetPairs } from "./legal";
@@ -340,6 +341,9 @@ function collectHeroBonuses(engine: GameEngine,
 	enemy?: EnemyState,
 ): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
+	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")) {
+		bonuses.push({ source: "Luz da Aurora Final", value: 2 });
+	}
 
 	// Bônus de acerto — lê do ECS world (Lote C)
 	const entity = worldOf(state).entities[hero.id];
@@ -433,6 +437,9 @@ function effectiveHeroDamage(engine: GameEngine,
 		rollMargin,
 	);
 	const breakdown = [...worldEntries, ...itemEntries];
+	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")) {
+		breakdown.push({ source: "Luz da Aurora Final", value: 2 });
+	}
 	return {
 		damage: Math.max(0, hero.damage + totalItemValue(breakdown)),
 		breakdown,
@@ -687,9 +694,10 @@ export function handlePrepareExtraAttack(engine: GameEngine, state: GameState): 
 	const remaining = combat.extraEnemiesRemaining ?? (() => {
 		const attacked = new Set(combat.pairs.map((pair) => pair.enemyId));
 		const activeEnemies = enemiesOf(state).filter((enemy) => enemy.status === "active");
-		const activeHeroes = heroesOf(state).filter((hero) => hero.status === "active");
+		// A morte de criaturas engajadas não cancela a reação das que ainda não lutaram.
+		// Contar somente "vivos - heróis" fazia a última criatura perder sua ação.
 		return activeEnemies.filter((enemy) => !attacked.has(enemy.id))
-			.slice(0, Math.max(0, activeEnemies.length - activeHeroes.length)).map((enemy) => enemy.id);
+			.map((enemy) => enemy.id);
 	})();
 	if (remaining.length === 0) {
 		return withGame(state, (g) => ({ ...g, status: "CHECK_COMBAT_END", combat: { ...g.combat!, extraEnemiesRemaining: undefined } }));
@@ -1063,6 +1071,23 @@ export function resumeAttackAfterDamage(engine: GameEngine,
 		}
 	}
 	if (attack.heroDamageLog) next = log(next, attack.heroDamageLog);
+	for (const mage of heroesOf(next).filter((entry) =>
+		skillsOf(engine, entry.cardId).some(({ def }) => def.id === "skill_rift_rune"))) {
+		const key = `${mage.id}:${attack.heroId}`;
+		if (!scopedFlagOf(next, "combat", "riftRuneTarget", key)) continue;
+		next = withScopedFlag(next, "combat", "riftRuneTarget", key, false);
+		next = withWorld(next, removeComponent(worldOf(next), attack.heroId,
+			(component) => component.type === "modifier" && component.source === `skill_rift_rune:${mage.id}`));
+		if (enemiesOf(next).some((enemy) => enemy.id === attack.enemyId && enemy.status === "defeated")) {
+			next = withScopedFlag(next, "round", "oncePer", `skill_rift_rune::${mage.id}`, false);
+			next = applyDamage(engine, next, mage.id, 2, { sourceId: mage.id, damageType: "direct" });
+			if (pendingTriggerInterruptOf(next) || pendingSkillChoiceOf(next) || pendingSkillTargetOf(next)) {
+				return attachAttackResume(next, { ...attack, stage: "after_hero_damage" });
+			}
+		}
+	}
+	next = withWorld(next, removeComponent(worldOf(next), attack.heroId,
+		(component) => component.type === "modifier" && component.source === "power_deep_veil_echo"));
 	next = withWorld(next, tickModifierDurations(worldOf(next), "once_consumed"));
 	return advanceAfterEnemyDefeat(
 		endHeroTurnAndAdvance(next, attack.heroId, "atacou"),
@@ -1206,14 +1231,10 @@ export function handleDirectDamage(engine: GameEngine, state: GameState): GameSt
 	const activeEnemies = enemiesOf(state).filter(
 		(e) => e.status === "active",
 	);
-	const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
-	const extraEnemyCount = Math.max(
-		0,
-		activeEnemies.length - activeHeroes.length,
-	);
-	const unengaged = activeEnemies.filter((e) => !attacked.has(e.id));
+	// Mantém a mesma regra para o caminho legado sem rolagem física.
+	// Inimigos que não tiveram par na rodada ainda têm direito ao ataque.
+	const extraEnemies = activeEnemies.filter((e) => !attacked.has(e.id));
 	let next = state;
-	const extraEnemies = unengaged.slice(0, extraEnemyCount);
 	if (extraEnemies.length === 0)
 		return withGame(state, (prevGame) => ({ ...prevGame, status: "CHECK_COMBAT_END" }));
 
@@ -1567,7 +1588,8 @@ export function handleUseSkill(engine: GameEngine,
 			return log(state, "[AVISO] Esta habilidade não pertence ao herói.");
 		const key = preparedAbilityKey("hero", hero.id, hero.cardId, skillDef.id);
 		if (!isAbilityPrepared(state, key) && (
-			(gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, hero.id)) ||
+			(gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, hero.id) &&
+				!["power_supreme_rift_rune", "skill_preserved_path"].includes(skillDef.id)) ||
 			!guardPassed(state, skillDef, hero.id) ||
 			hero.currentLife <= (skillDef.cost?.hp ?? 0)
 		)) return log(state, "[AVISO] Esta reação está indisponível.");
@@ -1575,6 +1597,7 @@ export function handleUseSkill(engine: GameEngine,
 			key, sourceKind: "hero", sourceHeroId: hero.id,
 			sourceCardId: hero.cardId, abilityId: skillDef.id,
 			event: skillDef.trigger!.event,
+			...(skillDef.id === "power_supreme_rift_rune" ? { roundPrepared: gameOf(state).combat?.round } : {}),
 		}), `${skillDef.id}: ${isAbilityPrepared(state, key) ? "preparação cancelada" : "preparada"}.`);
 	}
 	if (!isManuallyActivatable(skillDef)) return fireOnUseSkill(engine, state, payload);
@@ -1594,7 +1617,8 @@ export function handleUseSkill(engine: GameEngine,
 		return log(state, "[AVISO] Aguarde uma janela de ação para usar a habilidade.");
 	}
 
-	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId)) {
+	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId) &&
+		!(["skill_return_rite", "skill_prey_mark", "spend_deep_veil_echo"].includes(skillDef.id))) {
 		return log(
 			state,
 			`[AVISO] Herói ${payload.sourceId} já agiu nesta rodada.`,
@@ -1623,6 +1647,15 @@ export function handleUseSkill(engine: GameEngine,
 			"[AVISO] Habilidade indisponível: limite de uso ou custo de vida.",
 		);
 	}
+	if (skillDef.id === "skill_return_rite" && deckOf(state, "dungeonDeck").discarded.length === 0) {
+		return log(state, "[AVISO] Não há cartas de masmorra descartadas para recuperar.");
+	}
+	if (skillDef.id === "skill_rift_rune" && !["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status)) {
+		return log(state, "[AVISO] Runa das Fendas só pode ser usada durante o combate.");
+	}
+	if (skillDef.id === "spend_deep_veil_echo" && (!["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) || scopedCountOf(state, "game", "eco", hero.id) <= 0)) {
+		return log(state, "[AVISO] Não há Eco disponível para gastar neste combate.");
+	}
 
 	const target = resolveManualSkillTarget(engine, 
 		state,
@@ -1642,9 +1675,12 @@ export function handleUseSkill(engine: GameEngine,
 			});
 	}
 
-	return advanceAfterEnemyDefeat(fireOnUseSkill(engine, state, {
+	const used = advanceAfterEnemyDefeat(fireOnUseSkill(engine, state, {
 		...payload, targetIds: [...target.targetIds],
 	}));
+	return skillDef.action_cost === "consume_hero_action" && gameOf(used).combat &&
+		!pendingSkillChoiceOf(used) && !pendingSkillTargetOf(used) && !pendingTriggerInterruptOf(used)
+		? advanceAfterHeroDisabledForRound(used) : used;
 }
 
 export function handleSelectSkillTarget(engine: GameEngine, 

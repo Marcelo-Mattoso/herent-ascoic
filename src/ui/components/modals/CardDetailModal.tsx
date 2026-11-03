@@ -161,10 +161,10 @@ export function CardDetailModal({
 						(() => {
 							const itemSkills = skillsOf(uiEngine, card.id);
 							const main = itemSkills[0];
-							const canUseItem =
-								!!onUseItem &&
-								(card.itemClass === "consumable" ||
-									main?.ref.skillId === "item_skill_mystic_draw");
+							// A tela chamadora já valida se o item equipado pode ser usado.
+							// Itens não consumíveis com ativação manual (Arco das Fendas)
+							// também precisam exibir o botão.
+							const canUseItem = !!onUseItem;
 							return (
 								<>
 									<Row label="Tipo" value={card.itemClass} />

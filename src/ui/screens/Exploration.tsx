@@ -14,6 +14,7 @@ import type { HeroView } from "@/core/projection/viewTypes";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { Board } from "@/ui/components/Board";
 import { BoardFooter } from "@/ui/components/BoardFooter";
+import { GroupArtifactPanel } from "@/ui/components/GroupArtifactPanel";
 import { BuffBar } from "@/ui/components/BuffBar";
 import type { CardType } from "@/ui/components/Card";
 import { EventLogPanel } from "@/ui/components/EventLogPanel";
@@ -452,6 +453,7 @@ export function Exploration({
 										{translate("game:screens.exploration.text001")}{" "}</button>
 								)}
 							<DungeonAwakeningMarker current={view.despertar} />
+							<GroupArtifactPanel view={view} onArtifactClick={openCardDetail} />
 							<div className="game-influence-panel">
 								<InfluencePanel influences={view.activeInfluences} />
 							</div>
@@ -588,7 +590,6 @@ export function Exploration({
 									onFlee={handleFlee}
 									onUseSkill={handleUseSkill}
 									onUseItem={() => setItemUse({ heroId: focusedHero.id })}
-									onCardDetail={openCardDetail}
 									onArtInspect={tutorialAbilityMode ? onTutorialAbilityCardInspect : undefined}
 									onItemDetail={(itemId, heroId) =>
 										setDetailCard({ id: itemId, cardType: "item", heroId })
@@ -747,6 +748,7 @@ function PortableGameDrawer({
 					{type === "awakening" ? (
 						<>
 							<DungeonAwakeningMarker current={despertar} />
+							<GroupArtifactPanel view={view} onArtifactClick={onArtifactClick} />
 							<BoardFooter view={view} onArtifactClick={onArtifactClick} />
 						</>
 					) : null}

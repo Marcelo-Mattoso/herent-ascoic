@@ -14,6 +14,7 @@ export interface PreparedAbility {
 	readonly grantId?: string;
 	readonly event: import("../skills/dsl/types").EventName;
 	readonly targetIds?: readonly string[];
+	readonly roundPrepared?: number;
 }
 
 export function preparedAbilityKey(
@@ -68,7 +69,10 @@ export function prunePreparedAbilities(engine: GameEngine, state: GameState, pre
 			const hero = gameOf(state).heroes.find(
 				(candidate) => candidate.id === entry.sourceHeroId && candidate.status === "active",
 			);
-			if (!hero || gameOf(state).combat?.heroesActed.includes(hero.id)) return false;
+			if (!hero) return false;
+			if (entry.abilityId === "power_supreme_rift_rune" && entry.roundPrepared !== gameOf(state).combat?.round) return false;
+			if (gameOf(state).combat?.heroesActed.includes(hero.id) &&
+				!["power_supreme_rift_rune", "skill_preserved_path"].includes(entry.abilityId)) return false;
 			if (entry.sourceKind === "hero" && hero.cardId !== entry.sourceCardId) return false;
 			if (
 				entry.sourceKind === "item" &&

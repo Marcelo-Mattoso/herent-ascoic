@@ -15,6 +15,9 @@ categories:
 abilities:
   - id: skill_crimson_fury
     category: hero_skill
+    cooldown:
+      scope: round
+      charges: 1
     operate_type: op_triggered
     trigger:
       event: evt_attack_declared
@@ -42,6 +45,10 @@ abilities:
     affect_object: obj_friend
   - id: skill_last_light_healing
     category: hero_skill
+    action_cost: consume_hero_action
+    cooldown:
+      scope: round
+      charges: 1
     effect:
       - kind: i_heal
         to: $target
@@ -55,6 +62,10 @@ abilities:
     affect_object: obj_friend
   - id: skill_bastion_guard
     category: hero_skill
+    action_cost: consume_hero_action
+    cooldown:
+      scope: round
+      charges: 1
     effect:
       - kind: p_modifier
         to: $target
@@ -73,16 +84,15 @@ abilities:
     affect_object: obj_friend
   - id: skill_rift_rune
     category: hero_skill
-    operate_type: op_triggered
-    trigger:
-      event: evt_roll
+    script: skill_rift_rune
+    operate_type: op_active
+    action_cost: consume_hero_action
+    cooldown:
+      scope: round
+      charges: 1
     nature:
       - nat_magical
-    effect:
-      - kind: i_modify_die
-        delta: $value
-        die_side: hero
-    target_type: tgt_self
+    target_type: tgt_target
     affect_scope: scp_single
     affect_object: obj_friend
   - id: skill_hunter_focus
@@ -157,8 +167,8 @@ abilities:
     trigger:
       event: evt_dungeon_discard
     cooldown:
-      scope: room
-      charges: 1
+      scope: game
+      charges: 3
     nature:
       - nat_magical
     target_type: tgt_item
@@ -287,7 +297,6 @@ abilities:
       - kind: i_recover_dungeon
         count: $value
     operate_type: op_active
-    cooldown: *a2
     nature:
       - nat_magical
       - nat_dark
@@ -296,32 +305,11 @@ abilities:
     affect_object: obj_all
   - id: skill_final_dawn_light
     category: hero_skill
-    effect:
-      - kind: p_modifier
-        to: $source
-        stat: s_hit_bonus
-        operation: add
-        value: 2
-        duration:
-          kind: until_end_of_combat
-      - kind: p_modifier
-        to: $source
-        stat: s_damage_dealt
-        operation: add
-        value: 2
-        duration:
-          kind: until_end_of_combat
+    effect: []
     params:
       tohit: 2
       damage: 2
-    operate_type: op_triggered
-    trigger:
-      event: evt_combat_start
-    conditions:
-      - kind: compare
-        op: gte
-        left: $dungeon.level
-        right: 3
+    operate_type: op_passive
     nature:
       - nat_physical
       - nat_fire
@@ -857,9 +845,18 @@ abilities:
     nature:
       - nat_magical
     effect:
-      - kind: i_set_die
-        value: 6
-        die_side: any
+      - kind: i_choose_one
+        options:
+          - id: ally_six
+            effect:
+              - kind: i_set_die
+                value: 6
+                die_side: hero
+          - id: enemy_min
+            effect:
+              - kind: i_set_die
+                value: 1
+                die_side: enemy
     target_type: tgt_target
     affect_scope: scp_single
     affect_object: obj_all
@@ -927,9 +924,20 @@ abilities:
     operate_type: op_triggered
     trigger:
       event: evt_kill
+    interrupt:
+      mode: auto
     cooldown:
       scope: game
       charges: 1
+    nature:
+      - nat_magical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
+  - id: spend_deep_veil_echo
+    category: hero_power
+    script: spend_deep_veil_echo
+    operate_type: op_active
     nature:
       - nat_magical
     target_type: tgt_self
@@ -939,7 +947,7 @@ abilities:
     category: hero_power
     operate_type: op_triggered
     trigger:
-      event: evt_roll
+      event: evt_attack_declared
     cooldown:
       scope: game
       charges: 1
@@ -952,17 +960,21 @@ abilities:
     effect:
       - kind: p_modifier
         to: $source
-        stat: s_damage_dealt
+        stat: s_hit_bonus
         operation: add
-        value: 1
+        value: 6
         duration:
           kind: once
-      - kind: i_set_die
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_dealt
+        operation: add
         value: 6
-        die_side: hero
-    target_type: tgt_self
+        duration:
+          kind: once
+    target_type: tgt_enemy
     affect_scope: scp_single
-    affect_object: obj_friend
+    affect_object: obj_not_friend
   - id: purple_raging_flames
     category: monster_purple
     rules:

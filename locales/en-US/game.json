@@ -33,6 +33,14 @@
     }
   },
   "components": {
+    "groupArtifactPanel": {
+      "title": "Group artifacts",
+      "count": "Artifacts: {{count}}",
+      "empty": "No artifacts found yet. Collected artifacts will appear here with their abilities.",
+      "bearer": "Bearer: {{name}}",
+      "shared": "Shared by the group",
+      "hint": "Effects follow their conditions and activation windows; they do not occupy regular equipment slots."
+    },
     "actionButton": {},
     "alphaLogPanel": {
       "dialogLabel": "Detailed alpha log",
@@ -70,7 +78,7 @@
       "text003": "Artifacts",
       "text004": "missing",
       "text005": "Boss condition",
-      "text006": "2 Artifacts ("
+      "text006": "Artifacts needed: {{required}} ({{current}}/{{required}})"
     },
     "buffBar": {
       "text001": "no active effects"

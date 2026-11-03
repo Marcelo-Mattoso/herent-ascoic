@@ -200,7 +200,7 @@ export function pilesOf(state: GameState, deck: DeckName): DeckPiles {
 	return readPiles(state.engine, deck);
 }
 
-export type FlagScope = "room" | "combat" | "round";
+export type FlagScope = "game" | "room" | "combat" | "round";
 
 export function scopedCountOf(
 	state: GameState,

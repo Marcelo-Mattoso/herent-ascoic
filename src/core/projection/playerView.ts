@@ -38,7 +38,7 @@ import { scopedCountOf, scopedFlagOf, awakeningOf, countersOf, enemiesOf, heroes
 import { gameOf } from "../../engine/state";
 // Aliases estruturais — iguais ao shape interno por enquanto.
 // Mudam quando ECS entra plenamente: a projeção reconstruirá HeroView a partir de componentes.
-export type HeroView = HeroState & { readonly impeto: ColorIndex };
+export type HeroView = HeroState & { readonly impeto: ColorIndex; readonly eco: number };
 
 const heroViewCache = new WeakMap<
 	readonly HeroState[],
@@ -52,6 +52,7 @@ function heroViews(state: GameState): readonly HeroView[] {
 	const views = heroes.map((hero) => ({
 		...hero,
 		impeto: impetoOf(state, hero.id),
+		eco: scopedCountOf(state, "game", "eco", hero.id),
 	}));
 	heroViewCache.set(heroes, { counters: countersOf(state), views });
 	return views;
@@ -585,7 +586,7 @@ function projectActiveInfluences(engine: GameEngine, state: GameState): readonly
 			const toActor: InfluenceActor = { kind: "hero", id, name: heroName };
 
 			// Eco do Necromante
-			const eco = scopedCountOf(state, "combat", "eco", id);
+			const eco = scopedCountOf(state, "game", "eco", id);
 			if (eco > 0) {
 				influences.push({
 					id: `eco:${id}`,

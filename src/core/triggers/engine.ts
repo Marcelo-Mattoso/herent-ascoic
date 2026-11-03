@@ -18,7 +18,7 @@ import { refRequirementMet } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
 
 import { enemiesOf, heroesOf, withUnitStats, pendingTriggerInterruptOf } from "../state/access";
-import { type FlagScope, scopedFlagOf, withScopedFlag } from "../state/access";
+import { type FlagScope, scopedCountOf, withScopedCount, scopedFlagOf, withScopedFlag } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 export type TriggerWindow =
 	| "room_enter"
@@ -331,6 +331,9 @@ export function guardPassed(
 	if (!cooldown) return true;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
+	if (cooldown.charges > 1) {
+		return scopedCountOf(state, cooldown.scope, "skillUses", key) < cooldown.charges;
+	}
 
 	switch (cooldown.scope) {
 		case "game":
@@ -361,6 +364,10 @@ export function markSkillGuardUsed(
 	if (!cooldown) return state;
 
 	const key = sourceHeroId ? `${skill.id}::${sourceHeroId}` : skill.id;
+	if (cooldown.charges > 1) {
+		return withScopedCount(state, cooldown.scope, "skillUses", key,
+			scopedCountOf(state, cooldown.scope, "skillUses", key) + 1);
+	}
 
 	if (cooldown.scope === "room") {
 		return withScopedFlag(state, "room", "oncePer", key);

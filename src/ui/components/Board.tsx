@@ -60,8 +60,8 @@ const ACTIVE_DUNGEON_CARD = {
 
 const ACTIVE_CARD_SLOT_COUNT = 4;
 const BOSS_CARD = {
-	width: "var(--game-boss-width, 180px)",
-	height: "var(--game-boss-height, 252px)",
+	width: "var(--game-boss-width, 208px)",
+	height: "var(--game-boss-height, 291px)",
 	radius: "var(--game-card-radius, 12px)",
 };
 const CARD_CONTACT_SHADOW =
@@ -665,7 +665,9 @@ export function Board({
 	}, [pendingDiceSelection]);
 	const pendingPhysicalRoll: PendingPhysicalRoll | undefined = view.combat?.pendingPhysicalRoll;
 
-	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL";
+	// Nas fases de rolagem/resolução, o status muda, mas a arena do boss não.
+	const isBossEncounter = status === "BOSS_COMBAT" || status === "BOSS_REVEAL"
+		|| view.enemies.some((enemy) => enemy.id === "boss");
 	const canDropAttack =
 		draggingHeroId !== null && canHeroAttack(draggingHeroId);
 	const canTapTarget =

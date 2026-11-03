@@ -1,19 +1,19 @@
 skill_crimson_fury:
   name: Fúria Rubra
-  label: "Fúria Rubra ({value}): este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido no próximo ataque."
-  text: este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido no próximo ataque.
+  label: "Fúria Rubra ({value}): uma vez por rodada, este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido neste ataque."
+  text: uma vez por rodada, este personagem sofre {value} de dano para causar dano adicional igual a 3 vezes o valor sofrido neste ataque.
 skill_last_light_healing:
   name: Cura da Última Luz
-  label: "Cura da Última Luz ({value}): cure {value} de vida de um herói ou criatura aliada."
-  text: cure {value} de vida de um herói ou criatura aliada.
+  label: "Cura da Última Luz ({value}): uma vez por rodada, use a ação do clérigo para curar {value} de vida de um herói ou criatura aliada."
+  text: uma vez por rodada, use a ação do clérigo para curar {value} de vida de um herói ou criatura aliada.
 skill_bastion_guard:
   name: Guarda do Bastião
-  label: "Guarda do Bastião ({value}): reduza em {value} o dano que um herói ou aliado sofreria."
-  text: reduza em {value} o dano que um herói ou aliado sofreria.
+  label: "Guarda do Bastião ({value}): uma vez por rodada, reduza em {value} o dano que um aliado sofreria. Se a proteção disparar, Brennar perde sua ação."
+  text: uma vez por rodada, reduza em {value} o dano que um aliado sofreria. Se a proteção disparar, Brennar perde sua ação.
 skill_rift_rune:
   name: Runa das Fendas
-  label: "Runa das Fendas ({value}): depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1."
-  text: depois de rolar, altere o resultado de 1 dado aliado em até {value}, sem passar de 6 nem ficar abaixo de 1.
+  label: "Runa das Fendas: uma vez por rodada, escolha um herói aliado. Ele recebe +3 de acerto no próximo ataque. Se abater a criatura, o mago sofre 2 de dano e pode usar a runa novamente."
+  text: uma vez por rodada, escolha um herói aliado. Ele recebe +3 de acerto no próximo ataque. Se abater a criatura, o mago sofre 2 de dano e pode usar a runa novamente.
 skill_hunter_focus:
   name: Foco do Caçador
   label: "Foco do Caçador ({value}): enquanto este item estiver equipado, este herói recebe +{value} no Bônus de Acerto."
@@ -32,8 +32,8 @@ skill_last_light_shield:
   text: uma vez por rodada, impeça todo o dano que um herói sofreria.
 skill_preserved_path:
   name: Caminho Preservado
-  label: "Caminho Preservado: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon."
-  text: uma vez por sala, quando uma carta de dungeon seria descartada por efeito, devolva essa carta ao topo do deck da dungeon.
+  label: "Caminho Preservado: até 3 vezes por jogo, impeça o descarte de uma carta de masmorra, por efeito ou pelo descarte normal da rodada."
+  text: até 3 vezes por jogo, impeça o descarte de uma carta de masmorra, por efeito ou pelo descarte normal da rodada.
 skill_rekindled_forge:
   name: Forja Reacesa
   label: "Forja Reacesa: ao vencer esta sala, o grupo pode recuperar 1 item descartado e equipá-lo imediatamente em um herói."
@@ -63,12 +63,12 @@ skill_forge_spoils:
   text: ao vencer esta sala, olhe as 2 cartas do topo do deck de Itens, fique com 1 e descarte a outra; isso substitui o passo de saque e descarte de dungeon.
 skill_prey_mark:
   name: Marca da Presa
-  label: "Marca da Presa ({value}): escolha 1 criatura como Presa. Contra ela, receba +{value} no acerto até derrotá-la."
-  text: escolha 1 criatura como Presa. Contra ela, receba +{value} no acerto até derrotá-la.
+  label: "Marca da Presa ({value}): sem gastar ação, escolha 1 criatura como Presa. Contra ela, receba +{value} no acerto até derrotá-la."
+  text: sem gastar ação, escolha 1 criatura como Presa. Contra ela, receba +{value} no acerto até derrotá-la.
 skill_return_rite:
   name: Rito de Retorno
-  label: "Rito de Retorno ({value}): uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck."
-  text: uma vez por sala, pode pagar 3 de vida e recuperar {value} carta de dungeon descartada, embaralhando-a no deck.
+  label: "Rito de Retorno ({value}): pague 3 de vida para recuperar {value} carta de masmorra descartada e embaralhá-la no deck. Pode repetir enquanto houver cartas descartadas; não consome ação."
+  text: pague 3 de vida para recuperar {value} carta de masmorra descartada e embaralhá-la no deck. Pode repetir enquanto houver cartas descartadas; não consome ação.
 skill_final_dawn_light:
   name: Luz da Aurora Final
   label: "Luz da Aurora Final ({value}): contra criaturas, subchefes ou chefes enquanto o Despertar da Masmorra estiver no nível Vermelho ou Roxo, receba +{value} no ataque e +{value} de dano."
@@ -202,8 +202,11 @@ power_restored_path:
   text: recupere 1 carta da pilha de descarte da dungeon e embaralhe no deck da dungeon.
 power_supreme_rift_rune:
   name: Runa Suprema das Fendas
-  label: "Runa Suprema das Fendas: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
-  text: depois de qualquer rolagem, transforme 1 dado aliado em 6 ou 1 dado inimigo em 1.
+  label: "Runa Suprema das Fendas: uma vez por jogo, escolha após uma rolagem nesta rodada: transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
+  text: "uma vez por jogo, escolha após uma rolagem nesta rodada: transforme 1 dado aliado em 6 ou 1 dado inimigo em 1."
+  options:
+    ally_six: "Dado aliado vira 6"
+    enemy_min: "Dado inimigo vira 1"
 power_mighty_crimson_fury:
   name: Fúria Rubra Poderosa
   label: "Fúria Rubra Poderosa: ao usar Fúria Rubra, o dano adicional dura até o fim do combate."
@@ -217,12 +220,16 @@ power_last_light_oath:
     damage_bonus_holy: "+{value} dano sagrado"
 power_deep_veil_echo:
   name: Eco Profundo do Véu
-  label: "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos."
-  text: uma vez por jogo, ao derrotar uma criatura, guarde 1 Eco maior. Gaste esse Eco para receber +3 no total de acerto, reduzir 2 de dano sofrido ou olhar as 2 cartas do topo do deck de inimigos.
+  label: "Eco Profundo do Véu: uma vez por jogo, ao derrotar uma criatura, ganhe automaticamente 1 Eco permanente. Gaste-o manualmente para receber +2 de acerto ou +2 de dano no próximo ataque."
+  text: "uma vez por jogo, ao derrotar uma criatura, ganhe automaticamente 1 Eco permanente. Gaste-o manualmente para receber +2 de acerto ou +2 de dano no próximo ataque."
+spend_deep_veil_echo:
+  name: Gastar Eco
+  label: "Gastar Eco: escolha +2 de acerto ou +2 de dano no próximo ataque."
+  text: "escolha +2 de acerto ou +2 de dano no próximo ataque."
 power_hunter_execution:
   name: Execução do Caçador
-  label: "Execução do Caçador: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar."
-  text: uma vez por jogo, depois de rolar contra sua Presa, transforme 1 dado azul em 6 e cause +1 de dano se acertar.
+  label: "Execução do Caçador: uma vez por jogo, ao atacar sua Presa, receba +6 de acerto e +6 de dano neste ataque."
+  text: uma vez por jogo, ao atacar sua Presa, receba +6 de acerto e +6 de dano neste ataque.
 purple_raging_flames:
   name: Chamas Vorazes
   label: "Chamas Vorazes: ao entrar em jogo, cause 1 de dano direto a todos os heróis."

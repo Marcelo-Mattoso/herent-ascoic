@@ -33,6 +33,14 @@
     }
   },
   "components": {
+    "groupArtifactPanel": {
+      "title": "Artefactos del grupo",
+      "count": "Artefactos: {{count}}",
+      "empty": "Aún no se encontraron artefactos. Los artefactos recogidos aparecerán aquí con sus habilidades.",
+      "bearer": "Lo lleva: {{name}}",
+      "shared": "Compartido por el grupo",
+      "hint": "Los efectos respetan sus condiciones y momentos de activación; no ocupan las ranuras de equipo normales."
+    },
     "actionButton": {},
     "alphaLogPanel": {
       "dialogLabel": "Registro detallado alfa",
@@ -72,7 +80,7 @@
       "text003": "Artefactos",
       "text004": "falta",
       "text005": "Condición del jefe",
-      "text006": "2 artefactos ("
+      "text006": "Artefactos necesarios: {{required}} ({{current}}/{{required}})"
     },
     "buffBar": {
       "text001": "sin efectos activos"

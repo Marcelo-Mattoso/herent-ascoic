@@ -435,7 +435,7 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 
 	// A prevenção precisa ser escolhida antes de remover cartas do baralho.
 	// O resumo guarda a continuação para que a ação seja retomada após o modal.
-	if (discardTarget > 0 && !gameOf(state).flags.discardDungeonLocked) {
+	if (discardTarget > 0 && available.length > 1 && !gameOf(state).flags.discardDungeonLocked) {
 		const opened = resolveSkillWindow(engine, state, {
 			event: "evt_dungeon_discard",
 			resume: { type: "advance_dungeon", exits },
@@ -520,7 +520,7 @@ export function discardFromDungeonDeck(engine: GameEngine,
 	reason: "effect" | "extra" = "effect",
 	skipWindow = false,
 ): GameState {
-	if (!skipWindow) {
+	if (!skipWindow && n > 0 && deckOf(state, "dungeonDeck").available.length > 0) {
 		const opened = resolveSkillWindow(engine, state, {
 			event: "evt_dungeon_discard",
 			resume: { type: "discard_dungeon", count: n, reason },

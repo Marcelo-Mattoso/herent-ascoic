@@ -278,6 +278,9 @@
         },
         {
           "skillId": "power_deep_veil_echo"
+        },
+        {
+          "skillId": "spend_deep_veil_echo"
         }
       ],
       "name": "Necromante do Véu Profundo",
