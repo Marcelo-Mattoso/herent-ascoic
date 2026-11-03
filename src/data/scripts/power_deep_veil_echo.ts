@@ -12,7 +12,7 @@ import {
 import { gameOf, withGame } from "../../engine/state";
 // power_deep_veil_echo — Eco Profundo do Véu
 // Uma vez por jogo, ao derrotar uma criatura: ganha 1 Eco.
-// Gaste o Eco via USE_SKILL → escolha: +3 acerto, -2 dano sofrido, ou ver 2 cartas inimigo.
+// Gaste o Eco manualmente para +2 acerto ou +2 dano no próximo ataque.
 export const run: ScriptHandler = (ctx) => {
 	if (!ctx.sourceId || !gameOf(ctx.state).combat) return ctx.state;
 
@@ -27,7 +27,7 @@ export const run: ScriptHandler = (ctx) => {
 };
 
 // spend — ativado por USE_SKILL quando o jogador decide gastar o Eco.
-// Apresenta 3 opções.
+// Apresenta as duas formas de gastar um Eco.
 export const spend: ScriptHandler = (ctx) => {
 	if (!ctx.sourceId || !ctx.skillId) return ctx.state;
 	const eco = scopedCountOf(ctx.state, "game", "eco", ctx.sourceId);
@@ -66,7 +66,7 @@ export const continuation: SkillContinuation = (
 			operation: "add",
 			value: 2,
 			source: "power_deep_veil_echo",
-			duration: { kind: "this_combat" },
+			duration: { kind: "once" },
 		};
 		const newWorld = addComponent(worldOf(state), ctx.sourceHeroId, mod);
 		return log(
@@ -82,7 +82,7 @@ export const continuation: SkillContinuation = (
 			operation: "add",
 			value: 2,
 			source: "power_deep_veil_echo",
-			duration: { kind: "this_combat" },
+			duration: { kind: "once" },
 		};
 		const newWorld = addComponent(worldOf(state), ctx.sourceHeroId, mod);
 		return log(

@@ -7,6 +7,7 @@ import type { ModifierComponent } from "../../ecs/types";
 import { getComponents } from "../../ecs/world";
 import { drainStack } from "../../effects/resolver";
 import { handleStartCombat } from "../../reducer/combat";
+import { playerView } from "../../projection/playerView";
 import { createEmptyCombatState } from "../../state/combatState";
 import { createInitialGameState } from "../../state/gameState";
 import { preparedAbilityKey } from "../../abilities/prepared";
@@ -165,38 +166,22 @@ describe("combat_if_dungeon_red_or_purple — Luz da Aurora Final", () => {
 		expect(mods.length).toBe(0);
 	});
 
-	it("aplica bônus ao Paladino quando despertar >= 3", () => {
+	it("expõe a passiva do Paladino como ativa com Despertar 3", () => {
 		const state = makeStateWithPaladino(3 as ColorIndex);
-		const prompted = fireTrigger(testEngine, state, "evt_combat_start", {
-				triggeredBy: "evt_combat_start",
-				sourceHeroId: "h1",
-				sourceEnemyId: "e1",
-		});
-		const result = approvePendingTrigger(prompted);
-		// Paladino tem skill value "2/2" → tohit_bonus=2 + damage_bonus=2 no ECS world
-		const mods = getComponents<ModifierComponent>(
-			gameOf(result).world,
-			"h1",
-			"modifier",
-		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
-		expect(mods.length).toBeGreaterThanOrEqual(2);
-		expect(mods.every((m) => m.value === 2)).toBe(true);
+		const action = playerView(testEngine, state).abilityActionsByHero.h1
+			?.find((entry) => entry.abilityId === "skill_final_dawn_light");
+		expect(action?.status).toBe("active");
+		// Bônus da passiva são calculados durante a rolagem, sem modificador persistente no ECS.
+		const modifiers = getComponents<ModifierComponent>(gameOf(state).world, "h1", "modifier")
+			.filter((entry) => entry.target === "hit_bonus" || entry.target === "damage_dealt");
+		expect(modifiers).toHaveLength(0);
 	});
 
-	it("fireTrigger combat_if_dungeon_red_or_purple dispara no Despertar 4 também", () => {
+	it("mantém passiva ativa com Despertar 4", () => {
 		const state = makeStateWithPaladino(4 as ColorIndex);
-		const prompted = fireTrigger(testEngine, state, "evt_combat_start", {
-				triggeredBy: "evt_combat_start",
-				sourceHeroId: "h1",
-				sourceEnemyId: "e1",
-		});
-		const result = approvePendingTrigger(prompted);
-		const mods = getComponents<ModifierComponent>(
-			gameOf(result).world,
-			"h1",
-			"modifier",
-		).filter((m) => m.target === "hit_bonus" || m.target === "damage_dealt");
-		expect(mods.length).toBeGreaterThanOrEqual(2);
+		const action = playerView(testEngine, state).abilityActionsByHero.h1
+			?.find((entry) => entry.abilityId === "skill_final_dawn_light");
+		expect(action?.status).toBe("active");
 	});
 });
 

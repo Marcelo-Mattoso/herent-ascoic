@@ -378,7 +378,7 @@ describe("USE_ITEM", () => {
 		expect(enemiesOf(completed)).toEqual([]);
 	});
 
-	it("usar habilidade manual preserva o ataque", () => {
+	it("cura manual consome a ação da Clériga nesta rodada", () => {
 		let s = stateWithHeroesAndEnemy([CLERIC, HERO]);
 		s = reducer(testEngine, s, { type: "START_COMBAT" });
 		const hero = heroesOf(s)[0];
@@ -401,9 +401,8 @@ describe("USE_ITEM", () => {
 			payload: { heroId: hero.id, enemyId: enemiesOf(s)[0]!.id },
 		});
 
-		expect(gameOf(afterSkill).combat?.heroesActed).not.toContain(hero.id);
-		expect(gameOf(afterSkill).combat?.phase).toBe("selecting_target");
-		expect(gameOf(attack).status).toBe("ROLL_DICE");
+		expect(gameOf(afterSkill).combat?.heroesActed).toContain(hero.id);
+		expect(gameOf(attack).status).not.toBe("ROLL_DICE");
 	});
 
 	it("habilidade manual com múltiplos alvos abre seleção e resolve no alvo escolhido", () => {
@@ -443,8 +442,7 @@ describe("USE_ITEM", () => {
 
 		expect(pendingSkillTargetOf(result)).toBeUndefined();
 		expect(heroesOf(result).find((h) => h.id === ally.id)?.currentLife).toBe(8);
-		expect(gameOf(result).combat?.heroesActed).not.toContain(cleric.id);
-		expect(gameOf(result).combat?.phase).toBe("selecting_target");
+		expect(gameOf(result).combat?.heroesActed).toContain(cleric.id);
 	});
 
 	it("habilidade ativa pode ser usada fora de combate sem consumir ação de rodada", () => {
@@ -498,7 +496,7 @@ describe("USE_ITEM", () => {
 		expect(gameOf(nextRound).combat?.phase).toBe("selecting_hero");
 	});
 
-	it("habilidade do Paladino dispara automaticamente no início do combate em dungeon 3+", () => {
+	it("passiva do Paladino concede +2 acerto no ataque com Despertar 3+", () => {
 		let s = stateWithHeroesAndEnemy([PALADIN]);
 		const hero = heroesOf(s)[0];
 		if (!hero) throw new Error("no hero");
@@ -506,8 +504,15 @@ describe("USE_ITEM", () => {
 		s = reducer(testEngine, withAwakening(s, 3), { type: "START_COMBAT" });
 
 		expect(pendingTriggerInterruptOf(s)).toBeUndefined();
-		expect(getModifierTotal(gameOf(s).world, hero.id, "hit_bonus")).toBe(2);
-		expect(getModifierTotal(gameOf(s).world, hero.id, "damage_dealt")).toBe(2);
+		// A passiva não grava modificadores persistentes: é calculada em cada rolagem.
+		expect(getModifierTotal(gameOf(s).world, hero.id, "hit_bonus")).toBe(0);
+		s = reducer(testEngine, s, { type: "CHOOSE_TARGET", payload: {
+			heroId: hero.id, enemyId: enemiesOf(s)[0]!.id,
+		} });
+		s = rollDiceWithApprovals(s);
+		expect(gameOf(s).combat?.lastRoll?.heroBreakdown).toContainEqual({
+			source: "Luz da Aurora Final", value: 2,
+		});
 	});
 
 	it("habilidade do Guerreiro pode proteger aliado antes do dano sem desativá-lo", () => {
@@ -966,7 +971,7 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		expect(gameOf(s).status).toBe("ROLL_DICE");
 	});
 
-	it("criatura sem atacante não age se não houver inimigo excedente", () => {
+	it("criatura sem atacante age mesmo quando há tantos heróis quanto inimigos", () => {
 		let s = stateWithTwoHeroesOneEnemy();
 
 		// Segundo inimigo que não será atacado, mas há dois heróis para dois inimigos.
@@ -1004,13 +1009,13 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		s = rollDiceWithApprovals(s);
 		s = reducer(testEngine, s, { type: "RESOLVE_ATTACK" });
 
-		// Sem inimigo excedente numérico, e2 não faz rolagem extra.
+		// O inimigo e2 não recebeu nenhum ataque nesta rodada e deve poder reagir.
 		const totalLifeBefore = heroesOf(s).reduce((acc, h) => acc + h.currentLife, 0);
 		s = reducer(testEngine, s, { type: "DIRECT_DAMAGE" });
 		const totalLifeAfter = heroesOf(s).reduce((acc, h) => acc + h.currentLife, 0);
 
-		expect(totalLifeAfter).toBe(totalLifeBefore);
-		expect(gameOf(s).extraAttackFeedback).toBeUndefined();
+		expect(totalLifeAfter).toBeLessThanOrEqual(totalLifeBefore);
+		expect(gameOf(s).extraAttackFeedback?.some((entry) => entry.enemyId === "e2")).toBe(true);
 	});
 
 	it("inimigo excedente rola combate e só causa dano se vencer", () => {
@@ -1073,13 +1078,13 @@ describe("combate múltiplo v2 (§8.8)", () => {
 		expect(gameOf(s).eventLog.some((entry) => entry.includes("Ataque extra"))).toBe(
 			true,
 		);
-		expect(gameOf(s).extraAttackFeedback?.at(-1)).toMatchObject({
+		const winningExtra = gameOf(s).extraAttackFeedback?.find((entry) => entry.enemyId === "e2");
+		expect(winningExtra).toMatchObject({
 			enemyId: "e2",
 			enemyCardId: "test_extra_enemy_wins",
 		});
-		expect(gameOf(s).damageFeedback?.at(-1)?.extraAttackId).toBe(
-			gameOf(s).extraAttackFeedback?.at(-1)?.id,
-		);
+		expect(gameOf(s).extraAttackFeedback?.some((entry) => entry.enemyId === "e3")).toBe(true);
+		expect(gameOf(s).damageFeedback?.at(-1)?.extraAttackId).toBe(winningExtra?.id);
 	});
 
 	it("inimigo excedente que erra ainda registra a investida visual", () => {

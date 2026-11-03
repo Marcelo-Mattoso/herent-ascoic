@@ -15,7 +15,7 @@ import {
 } from "./engine";
 import { skillById, skillsOf } from "@/core/gameEngine";
 import { testEngine } from "@/core/__tests__/testEngine";
-import { decksOf, heroesOf, withDecks } from "@/core/state/access";
+import { decksOf, heroesOf, scopedCountOf, withDecks } from "@/core/state/access";
 import { settled } from "../__tests__/fixtures";
 import { beginRoom } from "../state/lifecycle";
 import { pendingTriggerInterruptOf, effectStackOf } from "../state/access";
@@ -210,29 +210,31 @@ describe("trigger engine", () => {
 		});
 		expect(pendingTriggerInterruptOf(anotherHeroKill)).toBeUndefined();
 
-		const key = preparedAbilityKey("hero", "h1", "hero_deep_veil_necromancer", "power_deep_veil_echo");
-		const ownKill = fireTrigger(testEngine, withGame(state, (prevGame) => ({ ...prevGame, preparedAbilities: { [key]: {
-			key, sourceKind: "hero", sourceHeroId: "h1", sourceCardId: "hero_deep_veil_necromancer",
-			abilityId: "power_deep_veil_echo", event: "evt_kill",
-		} } })), "evt_kill", {
+		expect(scopedCountOf(anotherHeroKill, "game", "eco", "h1")).toBe(0);
+		const ownKill = fireTrigger(testEngine, state, "evt_kill", {
 			triggeredBy: "evt_kill",
 			sourceHeroId: "h1",
 			targetEnemyIds: ["e1"],
 		});
 		expect(pendingTriggerInterruptOf(ownKill)).toBeUndefined();
-		expect(gameOf(ownKill).preparedAbilities?.[key]).toBeUndefined();
+		expect(scopedCountOf(ownKill, "game", "eco", "h1")).toBe(1);
+		expect(gameOf(ownKill).oncePer.game["power_deep_veil_echo::h1"]).toBe(true);
 	});
 
-	it("mantém cooldown de sala até a sala encerrar e permite novo uso na próxima", () => {
+	it("mantém três cargas de Caminho Preservado por jogo, inclusive entre salas", () => {
 		const skill = skillById(testEngine, "skill_preserved_path");
 		expect(skill).toBeDefined();
 		if (!skill) return;
 
-		const used = markSkillGuardUsed(stateWithBarbarianAndDagger(), skill, "h1");
-		expect(guardPassed(used, skill, "h1")).toBe(false);
+		const first = markSkillGuardUsed(stateWithBarbarianAndDagger(), skill, "h1");
+		expect(guardPassed(first, skill, "h1")).toBe(true);
+		const second = markSkillGuardUsed(first, skill, "h1");
+		expect(guardPassed(second, skill, "h1")).toBe(true);
+		const third = markSkillGuardUsed(second, skill, "h1");
+		expect(guardPassed(third, skill, "h1")).toBe(false);
 
-		const nextRoom = beginRoom(testEngine, used);
-		expect(guardPassed(nextRoom, skill, "h1")).toBe(true);
+		const nextRoom = beginRoom(testEngine, third);
+		expect(guardPassed(nextRoom, skill, "h1")).toBe(false);
 	});
 
 	it("reação sem cooldown exige nova preparação para outro evento", () => {

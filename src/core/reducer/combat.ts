@@ -1,3 +1,4 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import {
 	canExecuteAbilityGrant,
 	executeAbilityGrant,
@@ -341,7 +342,7 @@ function collectHeroBonuses(engine: GameEngine,
 	enemy?: EnemyState,
 ): BonusEntry[] {
 	const bonuses: BonusEntry[] = [{ source: "hitBonus", value: hero.hitBonus }];
-	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")) {
+	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === HERO_ABILITY_IDS.skill_final_dawn_light)) {
 		bonuses.push({ source: "Luz da Aurora Final", value: 2 });
 	}
 
@@ -437,7 +438,7 @@ function effectiveHeroDamage(engine: GameEngine,
 		rollMargin,
 	);
 	const breakdown = [...worldEntries, ...itemEntries];
-	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")) {
+	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === HERO_ABILITY_IDS.skill_final_dawn_light)) {
 		breakdown.push({ source: "Luz da Aurora Final", value: 2 });
 	}
 	return {
@@ -1072,14 +1073,14 @@ export function resumeAttackAfterDamage(engine: GameEngine,
 	}
 	if (attack.heroDamageLog) next = log(next, attack.heroDamageLog);
 	for (const mage of heroesOf(next).filter((entry) =>
-		skillsOf(engine, entry.cardId).some(({ def }) => def.id === "skill_rift_rune"))) {
+		skillsOf(engine, entry.cardId).some(({ def }) => def.id === HERO_ABILITY_IDS.skill_rift_rune))) {
 		const key = `${mage.id}:${attack.heroId}`;
 		if (!scopedFlagOf(next, "combat", "riftRuneTarget", key)) continue;
 		next = withScopedFlag(next, "combat", "riftRuneTarget", key, false);
 		next = withWorld(next, removeComponent(worldOf(next), attack.heroId,
-			(component) => component.type === "modifier" && component.source === `skill_rift_rune:${mage.id}`));
+			(component) => component.type === "modifier" && component.source === `${HERO_ABILITY_IDS.skill_rift_rune}:${mage.id}`));
 		if (enemiesOf(next).some((enemy) => enemy.id === attack.enemyId && enemy.status === "defeated")) {
-			next = withScopedFlag(next, "round", "oncePer", `skill_rift_rune::${mage.id}`, false);
+			next = withScopedFlag(next, "round", "oncePer", `${HERO_ABILITY_IDS.skill_rift_rune}::${mage.id}`, false);
 			next = applyDamage(engine, next, mage.id, 2, { sourceId: mage.id, damageType: "direct" });
 			if (pendingTriggerInterruptOf(next) || pendingSkillChoiceOf(next) || pendingSkillTargetOf(next)) {
 				return attachAttackResume(next, { ...attack, stage: "after_hero_damage" });
@@ -1087,7 +1088,7 @@ export function resumeAttackAfterDamage(engine: GameEngine,
 		}
 	}
 	next = withWorld(next, removeComponent(worldOf(next), attack.heroId,
-		(component) => component.type === "modifier" && component.source === "power_deep_veil_echo"));
+		(component) => component.type === "modifier" && component.source === HERO_ABILITY_IDS.power_deep_veil_echo));
 	next = withWorld(next, tickModifierDurations(worldOf(next), "once_consumed"));
 	return advanceAfterEnemyDefeat(
 		endHeroTurnAndAdvance(next, attack.heroId, "atacou"),
@@ -1589,7 +1590,7 @@ export function handleUseSkill(engine: GameEngine,
 		const key = preparedAbilityKey("hero", hero.id, hero.cardId, skillDef.id);
 		if (!isAbilityPrepared(state, key) && (
 			(gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, hero.id) &&
-				!["power_supreme_rift_rune", "skill_preserved_path"].includes(skillDef.id)) ||
+				![HERO_ABILITY_IDS.power_supreme_rift_rune, HERO_ABILITY_IDS.skill_preserved_path].some((allowedId) => allowedId === skillDef.id)) ||
 			!guardPassed(state, skillDef, hero.id) ||
 			hero.currentLife <= (skillDef.cost?.hp ?? 0)
 		)) return log(state, "[AVISO] Esta reação está indisponível.");
@@ -1597,7 +1598,7 @@ export function handleUseSkill(engine: GameEngine,
 			key, sourceKind: "hero", sourceHeroId: hero.id,
 			sourceCardId: hero.cardId, abilityId: skillDef.id,
 			event: skillDef.trigger!.event,
-			...(skillDef.id === "power_supreme_rift_rune" ? { roundPrepared: gameOf(state).combat?.round } : {}),
+			...(skillDef.id === HERO_ABILITY_IDS.power_supreme_rift_rune ? { roundPrepared: gameOf(state).combat?.round } : {}),
 		}), `${skillDef.id}: ${isAbilityPrepared(state, key) ? "preparação cancelada" : "preparada"}.`);
 	}
 	if (!isManuallyActivatable(skillDef)) return fireOnUseSkill(engine, state, payload);
@@ -1618,7 +1619,7 @@ export function handleUseSkill(engine: GameEngine,
 	}
 
 	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId) &&
-		!(["skill_return_rite", "skill_prey_mark", "spend_deep_veil_echo"].includes(skillDef.id))) {
+		!([HERO_ABILITY_IDS.skill_return_rite, HERO_ABILITY_IDS.skill_prey_mark, HERO_ABILITY_IDS.spend_deep_veil_echo].some((allowedId) => allowedId === skillDef.id))) {
 		return log(
 			state,
 			`[AVISO] Herói ${payload.sourceId} já agiu nesta rodada.`,
@@ -1647,13 +1648,13 @@ export function handleUseSkill(engine: GameEngine,
 			"[AVISO] Habilidade indisponível: limite de uso ou custo de vida.",
 		);
 	}
-	if (skillDef.id === "skill_return_rite" && deckOf(state, "dungeonDeck").discarded.length === 0) {
+	if (skillDef.id === HERO_ABILITY_IDS.skill_return_rite && deckOf(state, "dungeonDeck").discarded.length === 0) {
 		return log(state, "[AVISO] Não há cartas de masmorra descartadas para recuperar.");
 	}
-	if (skillDef.id === "skill_rift_rune" && !["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status)) {
+	if (skillDef.id === HERO_ABILITY_IDS.skill_rift_rune && !["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status)) {
 		return log(state, "[AVISO] Runa das Fendas só pode ser usada durante o combate.");
 	}
-	if (skillDef.id === "spend_deep_veil_echo" && (!["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) || scopedCountOf(state, "game", "eco", hero.id) <= 0)) {
+	if (skillDef.id === HERO_ABILITY_IDS.spend_deep_veil_echo && (!["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) || scopedCountOf(state, "game", "eco", hero.id) <= 0)) {
 		return log(state, "[AVISO] Não há Eco disponível para gastar neste combate.");
 	}
 

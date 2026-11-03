@@ -18,9 +18,9 @@ describe("renderização localizada de habilidades", () => {
 
 		await i18n.changeLanguage("en-US");
 		expect(renderSkillLabel(testEngine, ref)).toBe(
-			"Last Light Healing (3): heal 3 Health on one hero or allied creature.",
+			"Last Light Healing (3): Once per round, spend the cleric\'s action to heal 3 Health on an allied hero or creature.",
 		);
-		expect(renderSkillText(testEngine, ref)).toBe("heal 3 Health on one hero or allied creature.");
+		expect(renderSkillText(testEngine, ref)).toBe("once per round, spend the cleric\'s action to heal 3 Health on an allied hero or creature.");
 
 		await i18n.changeLanguage("pt-BR");
 		expect(renderSkillLabel(testEngine, ref)).toContain("Cura da Última Luz (3)");
