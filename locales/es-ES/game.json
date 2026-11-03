@@ -80,7 +80,8 @@
       "text003": "Artefactos",
       "text004": "falta",
       "text005": "Condición del jefe",
-      "text006": "Artefactos necesarios: {{required}} ({{current}}/{{required}})"
+      "text006": "Artefactos necesarios: {{required}} ({{current}}/{{required}})",
+      "devDungeonDeck": "Cartas restantes en la mazmorra: {{count}}"
     },
     "buffBar": {
       "text001": "sin efectos activos"
