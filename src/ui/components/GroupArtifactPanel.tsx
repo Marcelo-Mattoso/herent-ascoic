@@ -1,4 +1,5 @@
 import { useState } from "react";
+import { translate } from "@/i18n";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { skillsOf } from "@/core/gameEngine";
 import type { PlayerView } from "@/core/projection/playerView";
@@ -43,8 +44,8 @@ export function GroupArtifactPanel({
 					fontFamily: "Georgia, serif", fontSize: 14,
 				}}
 			>
-				<span>◆ Artefatos do grupo</span>
-				<span aria-label={String(view.groupArtifacts.length) + " artefatos"}>
+				<span>◆ {translate("game:components.groupArtifactPanel.title")}</span>
+				<span aria-label={translate("game:components.groupArtifactPanel.count", { count: view.groupArtifacts.length })}>
 					{view.groupArtifacts.length} <span aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
 				</span>
 			</button>
@@ -57,7 +58,7 @@ export function GroupArtifactPanel({
 					}}
 				>
 					{view.groupArtifacts.length === 0 && (
-						<p>Nenhum artefato encontrado. Os artefatos coletados aparecerão aqui com suas habilidades.</p>
+						<p>{translate("game:components.groupArtifactPanel.empty")}</p>
 					)}
 					{view.groupArtifacts.map((artifact) => {
 						const bearer = artifact.carriedBy
@@ -81,7 +82,7 @@ export function GroupArtifactPanel({
 									{getCardName(artifact.cardId)}
 								</button>
 								<p style={{ opacity: 0.8, margin: "3px 0" }}>
-									{bearer ? "Portador: " + getCardName(bearer.cardId) : "Compartilhado pelo grupo"}
+									{bearer ? translate("game:components.groupArtifactPanel.bearer", { name: getCardName(bearer.cardId) }) : translate("game:components.groupArtifactPanel.shared")}
 								</p>
 								{abilities.map(({ ref }) => (
 									<p key={ref.skillId} style={{ margin: "3px 0" }}>
@@ -93,7 +94,7 @@ export function GroupArtifactPanel({
 					})}
 					{view.groupArtifacts.length > 0 && (
 						<small style={{ display: "block", opacity: 0.75, paddingTop: 4 }}>
-							Os efeitos respeitam suas condições e momentos de ativação; não ocupam os equipamentos normais.
+							{translate("game:components.groupArtifactPanel.hint")}
 						</small>
 					)}
 				</div>
