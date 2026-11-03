@@ -1590,7 +1590,7 @@ export function handleUseSkill(engine: GameEngine,
 		const key = preparedAbilityKey("hero", hero.id, hero.cardId, skillDef.id);
 		if (!isAbilityPrepared(state, key) && (
 			(gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, hero.id) &&
-				![HERO_ABILITY_IDS.power_supreme_rift_rune, HERO_ABILITY_IDS.skill_preserved_path].includes(skillDef.id)) ||
+				![HERO_ABILITY_IDS.power_supreme_rift_rune, HERO_ABILITY_IDS.skill_preserved_path].some((allowedId) => allowedId === skillDef.id)) ||
 			!guardPassed(state, skillDef, hero.id) ||
 			hero.currentLife <= (skillDef.cost?.hp ?? 0)
 		)) return log(state, "[AVISO] Esta reação está indisponível.");
@@ -1619,7 +1619,7 @@ export function handleUseSkill(engine: GameEngine,
 	}
 
 	if (gameOf(state).combat && ActivationTracker.isHeroDisabledThisRound(state, payload.sourceId) &&
-		!([HERO_ABILITY_IDS.skill_return_rite, HERO_ABILITY_IDS.skill_prey_mark, HERO_ABILITY_IDS.spend_deep_veil_echo].includes(skillDef.id))) {
+		!([HERO_ABILITY_IDS.skill_return_rite, HERO_ABILITY_IDS.skill_prey_mark, HERO_ABILITY_IDS.spend_deep_veil_echo].some((allowedId) => allowedId === skillDef.id))) {
 		return log(
 			state,
 			`[AVISO] Herói ${payload.sourceId} já agiu nesta rodada.`,
