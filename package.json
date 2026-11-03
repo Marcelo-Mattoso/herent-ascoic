@@ -27,6 +27,7 @@
 		"bot": "npx vite-node tools/bot/run.ts --",
 		"bot:watch": "npx vite-node tools/bot/watch.ts --",
 		"bot:balance": "npx vite-node tools/bot/balance.ts --",
+		"bot:dungeon-report": "npx vite-node tools/bot/dungeonReport.ts --",
 		"bot:screen": "npx vite-node tools/bot/screen.ts --",
 		"typecheck:engine": "tsc -p tsconfig.engine.json",
 		"typecheck:tools": "tsc -p tsconfig.tools.json",

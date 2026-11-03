@@ -59,6 +59,35 @@ Use `--mode solo` ou `--mode team` para rodar só uma das modalidades. Com `--mo
 
 Aliases: `barbarian`, `paladin`, `cleric`, `rogue`, `warrior`, `necromancer`, `mage`, `hunter`. `explorer` prioriza experimentar habilidades; `casual` varia escolhas; `speedrunner` acelera ataques e progressão. `power-player` compara sequências curtas de Runa, Fúria, Marca, Eco e ataque usando a distribuição dos dados, o dano médio e a chance de abate. Ele desconta o custo da ação do mago e o dano sofrido pelo bárbaro. O plano escolhido aparece no `bot:watch` e no `bot:screen`. Ainda não há busca completa de todos os turnos ou otimização de equipamento.
 
+## Ensaio de masmorras: todos os heróis, perfis e dificuldades (somente desenvolvimento)
+
+O experimento usa **10 seeds distintas de masmorra**. Para **cada** seed, repete a mesma configuração inicial de salas/baralhos para os **8 heróis individualmente**, os **5 perfis** e as **5 dificuldades** — são **2.000 partidas** no total. Isso evita jogar dez vezes a *mesma seed*, que produziria dez resultados idênticos. A ordem inicial das cartas é verificada antes da execução; o percurso pode divergir conforme decisões e regras.
+
+```bash
+# Ver quantas partidas serão executadas, sem começar:
+npm run bot:dungeon-report -- --dry-run
+
+# Gerar o ensaio completo:
+npm run bot:dungeon-report -- --runs 10 --seed 1 --max-steps 1000
+```
+
+O resultado é gravado numa pasta datada em `tools/bot/runs/dungeon-<data>/`, **ignoradas pelo Git, fora de `public/` e do build Vite**. Abra `index.html` no navegador para ver um painel escuro, com matriz de taxas de vitória, filtros por perfil/dificuldade, progresso, comparação de perfis e detalhamento das partidas. Também gera `report.json`, `report.csv` (Excel), `report.md`, `config.json` e `trials.jsonl` (checkpoint de cada partida).
+
+Para um ensaio curto de validação (uma única combinação), ou selecionar heróis, perfis e dificuldades:
+
+```bash
+npm run bot:dungeon-report -- --runs 1 --heroes mage --profiles power-player --difficulties normal --max-steps 100
+npm run bot:dungeon-report -- --runs 10 --heroes cleric,rogue,mage --profiles casual,power-player --difficulties easy,normal
+```
+
+Se interromper um ensaio grande, retome **com os mesmos parâmetros** e a pasta original; as partidas concluídas não são repetidas:
+
+```bash
+npm run bot:dungeon-report -- --runs 10 --seed 1 --max-steps 1000 --output tools/bot/runs/dungeon-PASTA-EXISTENTE --resume
+```
+
+As opções disponíveis são `--runs N`, `--seed N`, `--max-steps N`, `--heroes a,b`, `--profiles a,b`, `--difficulties a,b`, `--output pasta`, `--resume` e `--dry-run`. Por padrão, **nenhum relatório aparece no site de produção**: é uma ferramenta de desenvolvimento, executada via npm, e os resultados locais não são versionados nem publicados automaticamente. Uma seed controla as cartas **iniciais**, não força todas as decisões futuras a seguirem o mesmo caminho. As taxas medem a política do bot nas seeds observadas — não garantem a força real dos heróis.
+
 ## O que ele gera
 
 Tudo fica em `tools/bot/runs/`, fora do git:
