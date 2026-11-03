@@ -63,7 +63,8 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		state = reducer(testEngine, state, { type: "CHOOSE_TARGET", payload: { heroId, enemyId: "e1" } });
 		state = reducer(testEngine, state, { type: "ROLL_DICE" });
 		expect(pendingTriggerInterruptOf(state)).toBeUndefined();
-		expect(gameOf(state).combat?.pendingDiceSelection?.skillId).toBe("power_hunter_execution");
+		expect(gameOf(state).combat?.pendingDiceSelection).toBeFalsy();
+		expect(gameOf(state).combat?.lastRoll?.heroBreakdown.some((entry) => entry.value === 6)).toBe(true);
 		expect(gameOf(state).oncePer.game[`power_hunter_execution::${heroId}`]).toBe(true);
 	});
 
@@ -158,7 +159,6 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		["hero_crimson_rune_mage", "skill_rift_rune", "power_supreme_rift_rune"],
 		["hero_crimson_barbarian", "skill_crimson_fury", "power_mighty_crimson_fury"],
 		["hero_last_light_paladin", "skill_final_dawn_light", "power_last_light_oath"],
-		["hero_deep_veil_necromancer", "skill_return_rite", "power_deep_veil_echo"],
 		["hero_broken_veil_hunter", "skill_prey_mark", "power_hunter_execution"],
 	])("%s expõe e permite ativar seu poder sem consumir ataque", (cardId, skillId, powerId) => {
 		let state = combat(cardId);
@@ -175,5 +175,13 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		}
 		expect(gameOf(state).combat?.heroesActed).toEqual([]);
 		expect(canStartHeroAttack(state, heroId, "e1") || !!pendingSkillChoiceOf(state)).toBe(true);
+	});
+
+	it("Eco Profundo do Véu é automático no abate, sem ativação manual", () => {
+		const state = combat("hero_deep_veil_necromancer");
+		const heroId = heroesOf(state)[0]!.id;
+		const actions = playerView(testEngine, state).abilityActionsByHero[heroId]!;
+		expect(actions.find((action) => action.abilityId === "power_deep_veil_echo")?.activation).toBe("passive");
+		expect(actions.find((action) => action.abilityId === "spend_deep_veil_echo")?.activation).toBe("manual");
 	});
 });
