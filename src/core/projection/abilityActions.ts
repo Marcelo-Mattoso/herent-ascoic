@@ -1,3 +1,4 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { buildScriptCtx } from "../scripts/context";
 import { resolveCondition } from "../skills/dsl/resolveCondition";
 import { resolveManualGrantTarget } from "../abilities/executor";
@@ -72,11 +73,11 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 				enemiesOf(state).some((enemy) => enemy.id === gameOf(state).combat?.preyByHero[heroId] && enemy.status === "active");
 			const reason = exhausted ? "Limite de uso atingido."
 				: !conditionsMet ? "Condições da habilidade não atendidas."
-				: def.id === "skill_return_rite" && deckOf(state, "dungeonDeck").discarded.length === 0 ? "Não há cartas descartadas para recuperar."
-				: def.id === "spend_deep_veil_echo" && (!["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) || scopedCountOf(state, "game", "eco", heroId) <= 0) ? "Não há Eco disponível neste combate."
-				: def.id === "skill_rift_rune" && !["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) ? "Disponível apenas durante o combate."
+				: def.id === HERO_ABILITY_IDS.skill_return_rite && deckOf(state, "dungeonDeck").discarded.length === 0 ? "Não há cartas descartadas para recuperar."
+				: def.id === HERO_ABILITY_IDS.spend_deep_veil_echo && (!["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) || scopedCountOf(state, "game", "eco", heroId) <= 0) ? "Não há Eco disponível neste combate."
+				: def.id === HERO_ABILITY_IDS.skill_rift_rune && !["HERO_ACTION", "BOSS_COMBAT"].includes(gameOf(state).status) ? "Disponível apenas durante o combate."
 				: (activation === "passive" ? null :
-					["skill_return_rite", "skill_prey_mark", "skill_preserved_path", "spend_deep_veil_echo", "power_supreme_rift_rune"].includes(def.id)
+					[HERO_ABILITY_IDS.skill_return_rite, HERO_ABILITY_IDS.skill_prey_mark, HERO_ABILITY_IDS.skill_preserved_path, HERO_ABILITY_IDS.spend_deep_veil_echo, HERO_ABILITY_IDS.power_supreme_rift_rune].includes(def.id)
 						? commonUnavailable(state, heroId, true) : commonReason) ??
 					(preyAlreadyMarked ? "Derrote a Presa atual antes de marcar outra."
 					: hero.currentLife <= (def.cost?.hp ?? 0) ? "Vida insuficiente para pagar o custo."
