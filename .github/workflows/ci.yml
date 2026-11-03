@@ -17,7 +17,7 @@ jobs:
   quality:
     runs-on: ubuntu-24.04
     permissions:
-      contents: write
+      contents: read
       pages: write
     env:
       PAGES_BASE_PATH: /${{ github.event.repository.name }}/
@@ -28,24 +28,6 @@ jobs:
           node-version: 24
           cache: npm
       - run: npm ci
-      # TEMP: regravar golden replays após +1 de dano em todos os heróis.
-      # Remover este bloco e restaurar contents: read antes do merge.
-      - name: Regenerate golden replays after hero damage change (temporary)
-        if: github.event_name == 'pull_request' && github.head_ref == 'release/dev-to-hml-20261103'
-        run: |
-          set -euo pipefail
-          git fetch origin refs/heads/release/dev-to-hml-20261103
-          git switch -C release/dev-to-hml-20261103 FETCH_HEAD
-          npm run golden:record
-          git add tools/golden/replays
-          if git diff --cached --quiet; then
-            echo "Replay snapshots already match current combat balance"
-          else
-            git config user.name "github-actions[bot]"
-            git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-            git commit -m "test(golden): regravar partidas após +1 dano dos heróis"
-            git push origin HEAD:refs/heads/release/dev-to-hml-20261103
-          fi
       - name: Test promotion safety guards
         run: node --test scripts/verify-webp-assets.test.mjs scripts/prepare-hml-promotion.test.mjs
       - run: npm run i18n:validate
