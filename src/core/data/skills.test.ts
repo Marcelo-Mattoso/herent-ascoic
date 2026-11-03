@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { cardSkills, skillUsedBy } from "../skills/lookup";
+import { skillOwners, skillsOf } from "../gameEngine";
+import { testEngine } from "../__tests__/testEngine";
 import { getAllCards } from "./cards";
 import { SKILLS } from "./skills";
 
@@ -57,7 +58,7 @@ describe("catálogo de skills (skills.json)", () => {
 		const errors: string[] = [];
 
 		for (const card of allCards) {
-			const refs = cardSkills(card.id);
+			const refs = skillsOf(testEngine, card.id);
 			for (const { ref } of refs) {
 				if (!skillIds.has(ref.skillId)) {
 					errors.push(
@@ -76,12 +77,12 @@ describe("catálogo de skills (skills.json)", () => {
 		const allCards = getAllCards();
 		const referencedIds = new Set<string>();
 		for (const card of allCards) {
-			for (const { def } of cardSkills(card.id)) {
+			for (const { def } of skillsOf(testEngine, card.id)) {
 				referencedIds.add(def.id);
 			}
 		}
 		for (const id of referencedIds) {
-			expect(skillUsedBy(id).length).toBeGreaterThan(0);
+			expect(skillOwners(testEngine, id).length).toBeGreaterThan(0);
 		}
 	});
 });

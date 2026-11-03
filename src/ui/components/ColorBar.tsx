@@ -1,4 +1,4 @@
-import type { ColorIndex } from "@/core/state/color";
+import type { ColorIndex } from "@/core/projection/viewTypes";
 import { COLORS_MAP, UI } from "@/ui/theme";
 
 interface ColorBarProps {

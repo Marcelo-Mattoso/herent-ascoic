@@ -1,0 +1,857 @@
+{
+	"stateVersion": 2,
+	"gameVersion": "0.9.132",
+	"state": {
+		"gameId": "golden-1000",
+		"mode": "cooperative",
+		"difficulty": "very_easy",
+		"rng": {
+			"seed": 1000,
+			"counter": 107
+		},
+		"status": "RESOLVE_ATTACK",
+		"world": {
+			"entities": {
+				"h-1utkz56-1yfilh1": {
+					"id": "h-1utkz56-1yfilh1",
+					"type": "hero",
+					"components": [
+						{
+							"type": "health",
+							"current": 16,
+							"max": 16,
+							"healBlocked": false
+						},
+						{
+							"type": "damage_stat",
+							"damage": 4,
+							"hitBonus": 10
+						},
+						{
+							"type": "dice",
+							"count": 2
+						},
+						{
+							"type": "impeto",
+							"level": 2
+						}
+					]
+				},
+				"room_jailer_room": {
+					"id": "room_jailer_room",
+					"type": "room",
+					"components": []
+				},
+				"e-hva3gr-1f5lt2a": {
+					"id": "e-hva3gr-1f5lt2a",
+					"type": "enemy",
+					"components": [
+						{
+							"type": "health",
+							"current": 1,
+							"max": 5,
+							"healBlocked": false
+						},
+						{
+							"type": "damage_stat",
+							"damage": 5,
+							"hitBonus": 5
+						},
+						{
+							"type": "dice",
+							"count": 1
+						},
+						{
+							"type": "token",
+							"tokenType": "xp",
+							"count": 3
+						},
+						{
+							"type": "token",
+							"tokenType": "reward_item",
+							"count": 2
+						}
+					]
+				},
+				"e-1w53v33-1k8sam0": {
+					"id": "e-1w53v33-1k8sam0",
+					"type": "subboss",
+					"components": [
+						{
+							"type": "health",
+							"current": 6,
+							"max": 6,
+							"healBlocked": false
+						},
+						{
+							"type": "damage_stat",
+							"damage": 5,
+							"hitBonus": 5
+						},
+						{
+							"type": "dice",
+							"count": 1
+						},
+						{
+							"type": "token",
+							"tokenType": "xp",
+							"count": 4
+						},
+						{
+							"type": "token",
+							"tokenType": "reward_artifact",
+							"count": 1
+						}
+					]
+				}
+			}
+		},
+		"effectStack": {
+			"pending": [],
+			"resolving": null
+		},
+		"paused": null,
+		"groupXp": 0,
+		"despertar": 0,
+		"heroes": [
+			{
+				"id": "h-1utkz56-1yfilh1",
+				"cardId": "hero_crimson_barbarian",
+				"maxLife": 16,
+				"currentLife": 16,
+				"damage": 4,
+				"hitBonus": 10,
+				"dice": 2,
+				"impeto": 2,
+				"activeItems": {},
+				"backpack": [],
+				"usedPowers": {},
+				"conditions": [],
+				"status": "active",
+				"playerIndex": 0,
+				"xp": 0
+			}
+		],
+		"defeatedHeroes": [],
+		"fledHeroes": [],
+		"currentRoom": {
+			"cardId": "room_jailer_room",
+			"exits": 2,
+			"currentEnemies": 1,
+			"reward": 1,
+			"rewardType": "artifact",
+			"effect": "Invocar Guardião (?): revele o ? junto com os inimigos da sala. Enquanto ele estiver em jogo, o grupo não pode impedir descarte de dungeon por efeitos de herói ou item. Caso o ? seja derrotado, remova esta carta do jogo.",
+			"xp": 3,
+			"specialCreatureId": "subboss_crimson_dungeon_jailer",
+			"status": "active"
+		},
+		"activeEnemies": [
+			{
+				"id": "e-hva3gr-1f5lt2a",
+				"cardId": "creature_catacomb_skeleton",
+				"maxLife": 5,
+				"currentLife": 1,
+				"damage": 5,
+				"hitBonus": 5,
+				"dice": 1,
+				"tokens": {
+					"xp": 3,
+					"reward_item": 2,
+					"reward_artifact": 0
+				},
+				"conditions": [],
+				"firstDamageTakenThisTurn": false,
+				"status": "active",
+				"isSubboss": false
+			},
+			{
+				"id": "e-1w53v33-1k8sam0",
+				"cardId": "subboss_crimson_dungeon_jailer",
+				"maxLife": 6,
+				"currentLife": 6,
+				"damage": 5,
+				"hitBonus": 5,
+				"dice": 1,
+				"tokens": {
+					"xp": 4,
+					"reward_item": 0,
+					"reward_artifact": 1
+				},
+				"conditions": [],
+				"firstDamageTakenThisTurn": false,
+				"status": "active",
+				"isSubboss": true
+			}
+		],
+		"enemyGraveyard": [],
+		"bossCardId": "boss_azhakar",
+		"bossDefeated": false,
+		"subbosses": {
+			"available": [],
+			"defeated": []
+		},
+		"groupArtifacts": [],
+		"paths": [],
+		"roomsCleared": 0,
+		"creaturesDefeated": 0,
+		"combat": {
+			"round": 1,
+			"phase": "resolving",
+			"selectedHeroId": "h-1utkz56-1yfilh1",
+			"heroesActed": [],
+			"pairs": [
+				{
+					"heroId": "h-1utkz56-1yfilh1",
+					"enemyId": "e-1w53v33-1k8sam0"
+				}
+			],
+			"lastRoll": {
+				"heroId": "h-1utkz56-1yfilh1",
+				"enemyId": "e-1w53v33-1k8sam0",
+				"heroResults": [
+					1,
+					4
+				],
+				"heroTotal": 15,
+				"heroBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 10
+					}
+				],
+				"enemyResults": [
+					2
+				],
+				"enemyTotal": 7,
+				"enemyBreakdown": [
+					{
+						"source": "hitBonus",
+						"value": 5
+					}
+				]
+			},
+			"shieldsUsedThisCombat": {},
+			"powersUsedThisRoom": {},
+			"extraDice": {},
+			"bossFirstDamageReduced": false,
+			"temporaryEffects": [],
+			"oncePer": {
+				"room": {},
+				"combat": {},
+				"round": {}
+			},
+			"disabled": {},
+			"prey": null,
+			"preyByHero": {},
+			"ecoTokens": {},
+			"fleeAttemptByHero": {},
+			"itemControlByEnemy": {},
+			"targetProtectionByHero": {}
+		},
+		"pendingRewards": [],
+		"oncePer": {
+			"game": {},
+			"room": {}
+		},
+		"disabled": {},
+		"flags": {
+			"discardDungeonLocked": true,
+			"targetChosen::e-hva3gr-1f5lt2a": true,
+			"targetChosen::e-1w53v33-1k8sam0": true
+		},
+		"blocks": {
+			"discardDungeonLocked": [
+				{
+					"source": "skill_path_corruption",
+					"duration": {
+						"kind": "while_in_play"
+					},
+					"sourceEntityId": "e-1w53v33-1k8sam0"
+				}
+			]
+		},
+		"tokens": {},
+		"eventLog": [
+			"Partida iniciada. Heróis: Bárbaro Rubro. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Sala sorteada: Sala do Carcereiro.",
+			"Prevenção de descarte de dungeon bloqueada.",
+			"2 inimigo(s) aparecem: Esqueleto das Catacumbas, Carcereiro da Masmorra Rubra.",
+			"Combate iniciado.",
+			"Tributo: nenhum item disponível para descartar.",
+			"Herói rolou 18 | Inimigo rolou 9.",
+			"Esqueleto das Catacumbas sofreu 4 de dano. Herói: dado(s) [4+4]=8, acerto +10 → 18 vs inimigo: 9.",
+			"Ataque extra: Carcereiro da Masmorra Rubra rolou 9 contra Bárbaro Rubro (19) e não causou dano.",
+			"Rodada 2 de combate.",
+			"Herói rolou 15 | Inimigo rolou 7."
+		],
+		"events": [
+			{
+				"type": "RollResolved",
+				"payload": {
+					"heroId": "h-1utkz56-1yfilh1",
+					"enemyId": "e-1w53v33-1k8sam0",
+					"heroTotal": 15,
+					"enemyTotal": 7,
+					"heroResults": [
+						1,
+						4
+					],
+					"enemyResults": [
+						2
+					]
+				},
+				"seq": 0
+			},
+			{
+				"type": "StatusChanged",
+				"payload": {
+					"from": "ROLL_DICE",
+					"to": "RESOLVE_ATTACK",
+					"action": "ROLL_DICE"
+				},
+				"seq": 1
+			}
+		],
+		"engine": {
+			"players": [],
+			"cards": {
+				"room_broken_columns_hall#0": {
+					"id": "room_broken_columns_hall#0",
+					"defId": "room_broken_columns_hall"
+				},
+				"room_depths_stairway#0": {
+					"id": "room_depths_stairway#0",
+					"defId": "room_depths_stairway"
+				},
+				"room_dead_torches_passage#0": {
+					"id": "room_dead_torches_passage#0",
+					"defId": "room_dead_torches_passage"
+				},
+				"room_dungeon_room#0": {
+					"id": "room_dungeon_room#0",
+					"defId": "room_dungeon_room"
+				},
+				"room_cracked_abyss#0": {
+					"id": "room_cracked_abyss#0",
+					"defId": "room_cracked_abyss"
+				},
+				"room_broken_columns_hall#1": {
+					"id": "room_broken_columns_hall#1",
+					"defId": "room_broken_columns_hall"
+				},
+				"room_abandoned_cell#0": {
+					"id": "room_abandoned_cell#0",
+					"defId": "room_abandoned_cell"
+				},
+				"room_crimson_chains_chamber#0": {
+					"id": "room_crimson_chains_chamber#0",
+					"defId": "room_crimson_chains_chamber"
+				},
+				"room_abandoned_cell#1": {
+					"id": "room_abandoned_cell#1",
+					"defId": "room_abandoned_cell"
+				},
+				"room_dead_torches_passage#1": {
+					"id": "room_dead_torches_passage#1",
+					"defId": "room_dead_torches_passage"
+				},
+				"room_ruined_forge#0": {
+					"id": "room_ruined_forge#0",
+					"defId": "room_ruined_forge"
+				},
+				"room_crimson_chains_chamber#1": {
+					"id": "room_crimson_chains_chamber#1",
+					"defId": "room_crimson_chains_chamber"
+				},
+				"room_narrow_corridor#0": {
+					"id": "room_narrow_corridor#0",
+					"defId": "room_narrow_corridor"
+				},
+				"room_jailer_room#0": {
+					"id": "room_jailer_room#0",
+					"defId": "room_jailer_room"
+				},
+				"room_depths_stairway#1": {
+					"id": "room_depths_stairway#1",
+					"defId": "room_depths_stairway"
+				},
+				"room_cracked_abyss#1": {
+					"id": "room_cracked_abyss#1",
+					"defId": "room_cracked_abyss"
+				},
+				"room_narrow_corridor#1": {
+					"id": "room_narrow_corridor#1",
+					"defId": "room_narrow_corridor"
+				},
+				"room_ruined_forge#1": {
+					"id": "room_ruined_forge#1",
+					"defId": "room_ruined_forge"
+				},
+				"room_dungeon_room#1": {
+					"id": "room_dungeon_room#1",
+					"defId": "room_dungeon_room"
+				},
+				"creature_old_chains_knight#0": {
+					"id": "creature_old_chains_knight#0",
+					"defId": "creature_old_chains_knight"
+				},
+				"creature_low_ember_kobold#0": {
+					"id": "creature_low_ember_kobold#0",
+					"defId": "creature_low_ember_kobold"
+				},
+				"creature_wet_stone_slime#0": {
+					"id": "creature_wet_stone_slime#0",
+					"defId": "creature_wet_stone_slime"
+				},
+				"creature_black_ceiling_bat#0": {
+					"id": "creature_black_ceiling_bat#0",
+					"defId": "creature_black_ceiling_bat"
+				},
+				"creature_ancient_pillar_spider#0": {
+					"id": "creature_ancient_pillar_spider#0",
+					"defId": "creature_ancient_pillar_spider"
+				},
+				"creature_deep_rift_rat#0": {
+					"id": "creature_deep_rift_rat#0",
+					"defId": "creature_deep_rift_rat"
+				},
+				"creature_low_fire_salamander#0": {
+					"id": "creature_low_fire_salamander#0",
+					"defId": "creature_low_fire_salamander"
+				},
+				"creature_hidden_flame_cultist#0": {
+					"id": "creature_hidden_flame_cultist#0",
+					"defId": "creature_hidden_flame_cultist"
+				},
+				"creature_broken_chains_brute#0": {
+					"id": "creature_broken_chains_brute#0",
+					"defId": "creature_broken_chains_brute"
+				},
+				"creature_hot_ash_worm#0": {
+					"id": "creature_hot_ash_worm#0",
+					"defId": "creature_hot_ash_worm"
+				},
+				"creature_broken_gates_watcher#0": {
+					"id": "creature_broken_gates_watcher#0",
+					"defId": "creature_broken_gates_watcher"
+				},
+				"creature_dead_passage_thief#0": {
+					"id": "creature_dead_passage_thief#0",
+					"defId": "creature_dead_passage_thief"
+				},
+				"creature_forge_acolyte#0": {
+					"id": "creature_forge_acolyte#0",
+					"defId": "creature_forge_acolyte"
+				},
+				"creature_dark_cave_goblin#0": {
+					"id": "creature_dark_cave_goblin#0",
+					"defId": "creature_dark_cave_goblin"
+				},
+				"creature_dead_torch_sentinel#0": {
+					"id": "creature_dead_torch_sentinel#0",
+					"defId": "creature_dead_torch_sentinel"
+				},
+				"creature_ruined_hall_ogre#0": {
+					"id": "creature_ruined_hall_ogre#0",
+					"defId": "creature_ruined_hall_ogre"
+				},
+				"creature_blazing_skull#0": {
+					"id": "creature_blazing_skull#0",
+					"defId": "creature_blazing_skull"
+				},
+				"item_safe_path_charm#0": {
+					"id": "item_safe_path_charm#0",
+					"defId": "item_safe_path_charm"
+				},
+				"item_tunnel_hood#0": {
+					"id": "item_tunnel_hood#0",
+					"defId": "item_tunnel_hood"
+				},
+				"item_lesser_vigor_potion#0": {
+					"id": "item_lesser_vigor_potion#0",
+					"defId": "item_lesser_vigor_potion"
+				},
+				"item_rusty_dagger#0": {
+					"id": "item_rusty_dagger#0",
+					"defId": "item_rusty_dagger"
+				},
+				"item_broken_veil_cloak#0": {
+					"id": "item_broken_veil_cloak#0",
+					"defId": "item_broken_veil_cloak"
+				},
+				"item_return_potion#0": {
+					"id": "item_return_potion#0",
+					"defId": "item_return_potion"
+				},
+				"item_torn_depths_map#0": {
+					"id": "item_torn_depths_map#0",
+					"defId": "item_torn_depths_map"
+				},
+				"item_warm_blood_charm#0": {
+					"id": "item_warm_blood_charm#0",
+					"defId": "item_warm_blood_charm"
+				},
+				"item_light_stone_boots#0": {
+					"id": "item_light_stone_boots#0",
+					"defId": "item_light_stone_boots"
+				},
+				"item_crimson_rune_staff#0": {
+					"id": "item_crimson_rune_staff#0",
+					"defId": "item_crimson_rune_staff"
+				},
+				"item_greater_vigor_potion#0": {
+					"id": "item_greater_vigor_potion#0",
+					"defId": "item_greater_vigor_potion"
+				},
+				"item_silent_dungeon_charm#0": {
+					"id": "item_silent_dungeon_charm#0",
+					"defId": "item_silent_dungeon_charm"
+				},
+				"item_deep_veil_scythe#0": {
+					"id": "item_deep_veil_scythe#0",
+					"defId": "item_deep_veil_scythe"
+				},
+				"item_last_light_sword#0": {
+					"id": "item_last_light_sword#0",
+					"defId": "item_last_light_sword"
+				},
+				"item_worn_explorer_rope#0": {
+					"id": "item_worn_explorer_rope#0",
+					"defId": "item_worn_explorer_rope"
+				},
+				"item_ancient_metal_armor#0": {
+					"id": "item_ancient_metal_armor#0",
+					"defId": "item_ancient_metal_armor"
+				},
+				"item_ruined_hall_axe#0": {
+					"id": "item_ruined_hall_axe#0",
+					"defId": "item_ruined_hall_axe"
+				},
+				"item_last_defense_charm#0": {
+					"id": "item_last_defense_charm#0",
+					"defId": "item_last_defense_charm"
+				},
+				"item_stoneskin_potion#0": {
+					"id": "item_stoneskin_potion#0",
+					"defId": "item_stoneskin_potion"
+				},
+				"item_low_flame_charm#0": {
+					"id": "item_low_flame_charm#0",
+					"defId": "item_low_flame_charm"
+				},
+				"item_precision_potion#0": {
+					"id": "item_precision_potion#0",
+					"defId": "item_precision_potion"
+				},
+				"item_hidden_forge_chest#0": {
+					"id": "item_hidden_forge_chest#0",
+					"defId": "item_hidden_forge_chest"
+				},
+				"item_narrow_exit_cloak#0": {
+					"id": "item_narrow_exit_cloak#0",
+					"defId": "item_narrow_exit_cloak"
+				},
+				"item_pitch_torch#0": {
+					"id": "item_pitch_torch#0",
+					"defId": "item_pitch_torch"
+				},
+				"item_last_chord_lute#0": {
+					"id": "item_last_chord_lute#0",
+					"defId": "item_last_chord_lute"
+				},
+				"item_incendiary_oil_flask#0": {
+					"id": "item_incendiary_oil_flask#0",
+					"defId": "item_incendiary_oil_flask"
+				},
+				"item_ancient_iron_key#0": {
+					"id": "item_ancient_iron_key#0",
+					"defId": "item_ancient_iron_key"
+				},
+				"item_fury_potion#0": {
+					"id": "item_fury_potion#0",
+					"defId": "item_fury_potion"
+				},
+				"item_rift_bow#0": {
+					"id": "item_rift_bow#0",
+					"defId": "item_rift_bow"
+				},
+				"item_living_ember_potion#0": {
+					"id": "item_living_ember_potion#0",
+					"defId": "item_living_ember_potion"
+				},
+				"item_broken_stone_hammer#0": {
+					"id": "item_broken_stone_hammer#0",
+					"defId": "item_broken_stone_hammer"
+				},
+				"item_forge_magic_armor#0": {
+					"id": "item_forge_magic_armor#0",
+					"defId": "item_forge_magic_armor"
+				},
+				"item_cracked_shield#0": {
+					"id": "item_cracked_shield#0",
+					"defId": "item_cracked_shield"
+				},
+				"item_reinforced_leather_armor#0": {
+					"id": "item_reinforced_leather_armor#0",
+					"defId": "item_reinforced_leather_armor"
+				},
+				"artifact_lost_forge_hammer#0": {
+					"id": "artifact_lost_forge_hammer#0",
+					"defId": "artifact_lost_forge_hammer"
+				},
+				"artifact_last_vigil_brazier#0": {
+					"id": "artifact_last_vigil_brazier#0",
+					"defId": "artifact_last_vigil_brazier"
+				},
+				"artifact_first_fire_blade#0": {
+					"id": "artifact_first_fire_blade#0",
+					"defId": "artifact_first_fire_blade"
+				},
+				"artifact_ancient_ember_heart#0": {
+					"id": "artifact_ancient_ember_heart#0",
+					"defId": "artifact_ancient_ember_heart"
+				},
+				"artifact_crimson_jailer_chain#0": {
+					"id": "artifact_crimson_jailer_chain#0",
+					"defId": "artifact_crimson_jailer_chain"
+				}
+			},
+			"zones": {
+				"dungeon.available": {
+					"id": "dungeon.available",
+					"visibility": "hidden",
+					"ordered": true,
+					"cards": [
+						"room_broken_columns_hall#0",
+						"room_depths_stairway#0",
+						"room_dead_torches_passage#0",
+						"room_dungeon_room#0",
+						"room_cracked_abyss#0",
+						"room_broken_columns_hall#1",
+						"room_abandoned_cell#0",
+						"room_crimson_chains_chamber#0",
+						"room_abandoned_cell#1",
+						"room_dead_torches_passage#1",
+						"room_ruined_forge#0",
+						"room_crimson_chains_chamber#1",
+						"room_narrow_corridor#0",
+						"room_jailer_room#0",
+						"room_depths_stairway#1",
+						"room_cracked_abyss#1",
+						"room_narrow_corridor#1",
+						"room_ruined_forge#1",
+						"room_dungeon_room#1"
+					]
+				},
+				"dungeon.discarded": {
+					"id": "dungeon.discarded",
+					"visibility": "public",
+					"ordered": true,
+					"cards": []
+				},
+				"dungeon.removed": {
+					"id": "dungeon.removed",
+					"visibility": "count",
+					"ordered": true,
+					"cards": []
+				},
+				"enemy.available": {
+					"id": "enemy.available",
+					"visibility": "hidden",
+					"ordered": true,
+					"cards": [
+						"creature_old_chains_knight#0",
+						"creature_low_ember_kobold#0",
+						"creature_wet_stone_slime#0",
+						"creature_black_ceiling_bat#0",
+						"creature_ancient_pillar_spider#0",
+						"creature_deep_rift_rat#0",
+						"creature_low_fire_salamander#0",
+						"creature_hidden_flame_cultist#0",
+						"creature_broken_chains_brute#0",
+						"creature_hot_ash_worm#0",
+						"creature_broken_gates_watcher#0",
+						"creature_dead_passage_thief#0",
+						"creature_forge_acolyte#0",
+						"creature_dark_cave_goblin#0",
+						"creature_dead_torch_sentinel#0",
+						"creature_ruined_hall_ogre#0",
+						"creature_blazing_skull#0"
+					]
+				},
+				"enemy.discarded": {
+					"id": "enemy.discarded",
+					"visibility": "public",
+					"ordered": true,
+					"cards": []
+				},
+				"enemy.removed": {
+					"id": "enemy.removed",
+					"visibility": "count",
+					"ordered": true,
+					"cards": []
+				},
+				"item.available": {
+					"id": "item.available",
+					"visibility": "hidden",
+					"ordered": true,
+					"cards": [
+						"item_safe_path_charm#0",
+						"item_tunnel_hood#0",
+						"item_lesser_vigor_potion#0",
+						"item_rusty_dagger#0",
+						"item_broken_veil_cloak#0",
+						"item_return_potion#0",
+						"item_torn_depths_map#0",
+						"item_warm_blood_charm#0",
+						"item_light_stone_boots#0",
+						"item_crimson_rune_staff#0",
+						"item_greater_vigor_potion#0",
+						"item_silent_dungeon_charm#0",
+						"item_deep_veil_scythe#0",
+						"item_last_light_sword#0",
+						"item_worn_explorer_rope#0",
+						"item_ancient_metal_armor#0",
+						"item_ruined_hall_axe#0",
+						"item_last_defense_charm#0",
+						"item_stoneskin_potion#0",
+						"item_low_flame_charm#0",
+						"item_precision_potion#0",
+						"item_hidden_forge_chest#0",
+						"item_narrow_exit_cloak#0",
+						"item_pitch_torch#0",
+						"item_last_chord_lute#0",
+						"item_incendiary_oil_flask#0",
+						"item_ancient_iron_key#0",
+						"item_fury_potion#0",
+						"item_rift_bow#0",
+						"item_living_ember_potion#0",
+						"item_broken_stone_hammer#0",
+						"item_forge_magic_armor#0",
+						"item_cracked_shield#0",
+						"item_reinforced_leather_armor#0"
+					]
+				},
+				"item.discarded": {
+					"id": "item.discarded",
+					"visibility": "public",
+					"ordered": true,
+					"cards": []
+				},
+				"item.removed": {
+					"id": "item.removed",
+					"visibility": "count",
+					"ordered": true,
+					"cards": []
+				},
+				"artifact.available": {
+					"id": "artifact.available",
+					"visibility": "hidden",
+					"ordered": true,
+					"cards": [
+						"artifact_lost_forge_hammer#0",
+						"artifact_last_vigil_brazier#0",
+						"artifact_first_fire_blade#0",
+						"artifact_ancient_ember_heart#0",
+						"artifact_crimson_jailer_chain#0"
+					]
+				},
+				"artifact.discarded": {
+					"id": "artifact.discarded",
+					"visibility": "public",
+					"ordered": true,
+					"cards": []
+				},
+				"artifact.removed": {
+					"id": "artifact.removed",
+					"visibility": "count",
+					"ordered": true,
+					"cards": []
+				}
+			},
+			"counters": {
+				"instancia:room_broken_columns_hall:seq": 2,
+				"instancia:room_depths_stairway:seq": 2,
+				"instancia:room_dead_torches_passage:seq": 2,
+				"instancia:room_dungeon_room:seq": 2,
+				"instancia:room_cracked_abyss:seq": 2,
+				"instancia:room_abandoned_cell:seq": 2,
+				"instancia:room_crimson_chains_chamber:seq": 2,
+				"instancia:room_ruined_forge:seq": 2,
+				"instancia:room_narrow_corridor:seq": 2,
+				"instancia:room_jailer_room:seq": 1,
+				"instancia:creature_old_chains_knight:seq": 1,
+				"instancia:creature_low_ember_kobold:seq": 1,
+				"instancia:creature_wet_stone_slime:seq": 1,
+				"instancia:creature_black_ceiling_bat:seq": 1,
+				"instancia:creature_ancient_pillar_spider:seq": 1,
+				"instancia:creature_deep_rift_rat:seq": 1,
+				"instancia:creature_low_fire_salamander:seq": 1,
+				"instancia:creature_hidden_flame_cultist:seq": 1,
+				"instancia:creature_broken_chains_brute:seq": 1,
+				"instancia:creature_hot_ash_worm:seq": 1,
+				"instancia:creature_broken_gates_watcher:seq": 1,
+				"instancia:creature_dead_passage_thief:seq": 1,
+				"instancia:creature_forge_acolyte:seq": 1,
+				"instancia:creature_dark_cave_goblin:seq": 1,
+				"instancia:creature_dead_torch_sentinel:seq": 1,
+				"instancia:creature_ruined_hall_ogre:seq": 1,
+				"instancia:creature_blazing_skull:seq": 1,
+				"instancia:item_safe_path_charm:seq": 1,
+				"instancia:item_tunnel_hood:seq": 1,
+				"instancia:item_lesser_vigor_potion:seq": 1,
+				"instancia:item_rusty_dagger:seq": 1,
+				"instancia:item_broken_veil_cloak:seq": 1,
+				"instancia:item_return_potion:seq": 1,
+				"instancia:item_torn_depths_map:seq": 1,
+				"instancia:item_warm_blood_charm:seq": 1,
+				"instancia:item_light_stone_boots:seq": 1,
+				"instancia:item_crimson_rune_staff:seq": 1,
+				"instancia:item_greater_vigor_potion:seq": 1,
+				"instancia:item_silent_dungeon_charm:seq": 1,
+				"instancia:item_deep_veil_scythe:seq": 1,
+				"instancia:item_last_light_sword:seq": 1,
+				"instancia:item_worn_explorer_rope:seq": 1,
+				"instancia:item_ancient_metal_armor:seq": 1,
+				"instancia:item_ruined_hall_axe:seq": 1,
+				"instancia:item_last_defense_charm:seq": 1,
+				"instancia:item_stoneskin_potion:seq": 1,
+				"instancia:item_low_flame_charm:seq": 1,
+				"instancia:item_precision_potion:seq": 1,
+				"instancia:item_hidden_forge_chest:seq": 1,
+				"instancia:item_narrow_exit_cloak:seq": 1,
+				"instancia:item_pitch_torch:seq": 1,
+				"instancia:item_last_chord_lute:seq": 1,
+				"instancia:item_incendiary_oil_flask:seq": 1,
+				"instancia:item_ancient_iron_key:seq": 1,
+				"instancia:item_fury_potion:seq": 1,
+				"instancia:item_rift_bow:seq": 1,
+				"instancia:item_living_ember_potion:seq": 1,
+				"instancia:item_broken_stone_hammer:seq": 1,
+				"instancia:item_forge_magic_armor:seq": 1,
+				"instancia:item_cracked_shield:seq": 1,
+				"instancia:item_reinforced_leather_armor:seq": 1,
+				"instancia:artifact_lost_forge_hammer:seq": 1,
+				"instancia:artifact_last_vigil_brazier:seq": 1,
+				"instancia:artifact_first_fire_blade:seq": 1,
+				"instancia:artifact_ancient_ember_heart:seq": 1,
+				"instancia:artifact_crimson_jailer_chain:seq": 1
+			},
+			"dice": {
+				"kind": "seeded",
+				"seed": 0,
+				"counter": 0
+			},
+			"turn": {
+				"order": [],
+				"phases": [],
+				"priority": "active-first",
+				"active": 0,
+				"phase": 0,
+				"turn": 0,
+				"round": 0
+			},
+			"events": []
+		}
+	}
+}

@@ -1,7 +1,7 @@
 // Rolagem de dados. Sem side effects — rng é injetável para testes determinísticos.
 
 import type { RngState } from "../ports/random";
-import { nextFloat } from "../ports/random";
+import { nextRoll } from "../ports/random";
 
 export interface DiceResult {
 	readonly results: readonly number[];
@@ -17,8 +17,8 @@ export function rollDiceRng(
 	const results: number[] = [];
 	let currentRng = rng;
 	for (let i = 0; i < count; i++) {
-		const { value: f, next } = nextFloat(currentRng);
-		results.push(Math.floor(f * faces) + 1);
+		const { value, next } = nextRoll(currentRng, faces);
+		results.push(value);
 		currentRng = next;
 	}
 	const result: DiceResult = {

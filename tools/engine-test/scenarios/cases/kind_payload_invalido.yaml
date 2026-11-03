@@ -1,0 +1,6 @@
+name: validar kind registrado com payload inválido é recusado
+kind: payload_invalido
+when:
+  - validate: [{ kind: draw_cards, from: pilha, to: mao, count: 0 }]
+then:
+  error: inválido

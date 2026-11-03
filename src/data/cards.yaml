@@ -24,6 +24,7 @@
         value: 1
 - id: hero_rift_rogue
   type: hero
+  preservesDungeonDiscard: true
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 8, 10, 12, 14, 16 ]
   hitBonus: [ 4, 5, 7, 10, 14 ]
@@ -77,6 +78,7 @@
       params:
         value: 1
     - skillId: power_deep_veil_echo
+    - skillId: spend_deep_veil_echo
 - id: hero_broken_veil_hunter
   type: hero
   diceByColor: [ 1, 1, 2, 2, 3 ]
@@ -92,7 +94,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 1, 2, 3, 4, 6 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  hitBonus: [ 1, 3, 5, 6, 8 ]
   damage: 1
   xp: 1
   reward: 1
@@ -109,7 +111,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 1, 2, 3, 5, 7 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  hitBonus: [ 1, 3, 5, 6, 8 ]
   damage: 2
   xp: 1
   reward: 1
@@ -124,7 +126,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  hitBonus: [ 1, 3, 5, 6, 8 ]
   damage: 2
   xp: 1
   reward: 1
@@ -141,7 +143,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  hitBonus: [ 2, 4, 6, 7, 9 ]
   damage: 3
   xp: 2
   reward: 1
@@ -154,7 +156,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 3, 4, 5, 7, 9 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  hitBonus: [ 2, 4, 6, 7, 9 ]
   damage: 4
   xp: 2
   reward: 1
@@ -171,7 +173,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 4, 5, 6, 8, 10 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  hitBonus: [ 2, 4, 6, 7, 9 ]
   damage: 4
   xp: 2
   reward: 2
@@ -188,7 +190,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  hitBonus: [ 2, 4, 6, 7, 9 ]
   damage: 3
   xp: 2
   reward: 1
@@ -205,7 +207,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 5, 6, 7, 9, 11 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  hitBonus: [ 4, 6, 8, 9, 11 ]
   damage: 5
   xp: 3
   reward: 2
@@ -222,7 +224,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 6, 7, 8, 10, 12 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  hitBonus: [ 4, 6, 8, 9, 11 ]
   damage: 5
   xp: 3
   reward: 2
@@ -239,7 +241,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 7, 8, 9, 11, 13 ]
-  hitBonus: [ 6, 9, 12, 16, 20 ]
+  hitBonus: [ 5, 7, 9, 10, 12 ]
   damage: 6
   xp: 3
   reward: 2
@@ -254,7 +256,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 4, 5, 6, 8, 10 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  hitBonus: [ 4, 6, 8, 9, 11 ]
   damage: 5
   xp: 3
   reward: 2
@@ -271,7 +273,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 5, 6, 7, 9, 11 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  hitBonus: [ 4, 6, 8, 9, 11 ]
   damage: 5
   xp: 3
   reward: 2
@@ -288,7 +290,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 1, 2, 3, 5, 7 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  hitBonus: [ 1, 3, 5, 6, 8 ]
   damage: 2
   xp: 1
   reward: 1
@@ -305,7 +307,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 2, 3, 5, 7, 10 ]
+  hitBonus: [ 1, 3, 5, 6, 8 ]
   damage: 2
   xp: 1
   reward: 1
@@ -322,7 +324,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  hitBonus: [ 2, 4, 6, 7, 9 ]
   damage: 3
   xp: 2
   reward: 1
@@ -337,7 +339,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 4, 5, 6, 8, 10 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  hitBonus: [ 2, 4, 6, 7, 9 ]
   damage: 4
   xp: 2
   reward: 2
@@ -354,7 +356,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 2, 3, 4, 6, 8 ]
-  hitBonus: [ 3, 5, 7, 10, 14 ]
+  hitBonus: [ 2, 4, 6, 7, 9 ]
   damage: 3
   xp: 2
   reward: 1
@@ -371,7 +373,7 @@
   type: creature
   diceByColor: [ 1, 1, 2, 2, 3 ]
   life: [ 5, 6, 7, 9, 11 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  hitBonus: [ 4, 6, 8, 9, 11 ]
   damage: 5
   xp: 3
   reward: 2
@@ -386,7 +388,7 @@
   type: subboss
   diceByColor: [ 1, 2, 2, 3, 3 ]
   life: [ 6, 7, 8, 10, 12 ]
-  hitBonus: [ 5, 7, 10, 14, 18 ]
+  hitBonus: [ 4, 6, 8, 9, 11 ]
   damage: 5
   xp: 4
   reward: 1
@@ -399,7 +401,7 @@
   type: subboss
   diceByColor: [ 1, 2, 2, 3, 3 ]
   life: [ 8, 9, 10, 12, 14 ]
-  hitBonus: [ 6, 9, 12, 16, 20 ]
+  hitBonus: [ 5, 7, 9, 10, 12 ]
   damage: 6
   xp: 4
   reward: 1
@@ -510,6 +512,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -799,9 +802,13 @@
   equipmentSlot: amulet
   skills:
     - skillId: skill_illuminate_path
+      params:
+        value: 1
   grants:
     - id: safe_path_reveal
       abilityId: skill_illuminate_path
+      params:
+        value: 1
       activation:
         kind: event
         event: evt_room_reveal
@@ -847,6 +854,8 @@
   equipmentSlot: clothing
   skills:
     - skillId: skill_illuminate_path
+      params:
+        value: 1
 - id: item_torn_depths_map
   type: item
   itemClass: special
@@ -861,6 +870,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -881,6 +891,7 @@
       params: { value: 1 }
       activation:
         kind: manual
+        usableFromReward: true
         actionCost: none
         consumeSource: remove
         targeting:
@@ -1036,7 +1047,7 @@
   damage: 6
   accessCondition:
     type: group_artifacts_gte
-    value: 2
+    value: 3
   skills:
     - skillId: boss_skill_living_ash_throne
       params:

@@ -1,0 +1,16 @@
+name: move_card move a instância ao fim da zona de destino e registra a causa
+kind: move_card
+given:
+  cards: [{ id: a }, { id: b }, { id: c }]
+  zones:
+    - { id: origem, cards: [a, b] }
+    - { id: destino, cards: [c] }
+when:
+  - run: [{ kind: move_card, card: a, from: origem, to: destino }]
+    cause: 7
+then:
+  events:
+    - type: carta.movida
+      cause: 7
+      payload: { card: a, from: origem, to: destino }
+  zones: { origem: [b], destino: [c, a] }

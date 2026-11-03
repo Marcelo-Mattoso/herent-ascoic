@@ -1,0 +1,511 @@
+{
+	"engineVersion": 1,
+	"name": "golden-05",
+	"seed": 5036,
+	"setup": {
+		"heroCardIds": [
+			"hero_broken_bastion_warrior"
+		],
+		"difficulty": "nightmare",
+		"bossCardId": "boss_azhakar",
+		"seed": 5036
+	},
+	"outcome": "DEFEAT",
+	"actions": [
+		{
+			"type": "START_GAME",
+			"payload": {
+				"heroCardIds": [
+					"hero_broken_bastion_warrior"
+				],
+				"difficulty": "nightmare",
+				"bossCardId": "boss_azhakar",
+				"seed": 5036,
+				"gameId": "golden-5036"
+			}
+		},
+		{
+			"type": "RESOLVE_ROOM_EFFECT"
+		},
+		{
+			"type": "SPAWN_ENEMIES"
+		},
+		{
+			"type": "START_COMBAT"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1rvef5y-8j5xsd",
+				"enemyId": "e-1ue3gqx-ab4gn0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1rvef5y-8j5xsd",
+				"enemyId": "e-1ue3gqx-ab4gn0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		},
+		{
+			"type": "CHOOSE_TARGET",
+			"payload": {
+				"heroId": "h-1rvef5y-8j5xsd",
+				"enemyId": "e-1ue3gqx-ab4gn0"
+			}
+		},
+		{
+			"type": "ROLL_DICE"
+		},
+		{
+			"type": "RESOLVE_ATTACK"
+		},
+		{
+			"type": "DIRECT_DAMAGE"
+		},
+		{
+			"type": "CHECK_COMBAT_END"
+		}
+	],
+	"steps": [
+		"0144408f3b72c603",
+		"cf42f853012e11a9",
+		"dd20efca1e3fa862",
+		"8edf1e2c8b72b7eb",
+		"3002bed6976f5e04",
+		"57e3338ee6df19f9",
+		"75e19be4f849e132",
+		"9a8601616bab7247",
+		"17b7085bd7bb388f",
+		"ba3ab5d679f92e36",
+		"794eaa85a3748ed0",
+		"700f483b93c501b0",
+		"766541ada02fe0fd",
+		"b39cf5087ac08adc",
+		"9e1232ddff3b7255",
+		"4ae5dfc5282d6882",
+		"cd4cf214e8959abe",
+		"8de3a888fa881407",
+		"81460477d7e94a0f"
+	],
+	"finalSnapshot": {
+		"abilityActionsByHero": {
+			"h-1rvef5y-8j5xsd": [
+				{
+					"abilityId": "skill_bastion_guard",
+					"activation": "prepare",
+					"kind": "skill",
+					"label": "Guarda do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				},
+				{
+					"abilityId": "power_unbreakable_bastion_guard",
+					"activation": "manual",
+					"kind": "power",
+					"label": "Guarda Inquebrável do Bastião",
+					"reason": "Herói incapacitado.",
+					"sourceCardId": "hero_broken_bastion_warrior",
+					"status": "unavailable",
+					"targetRequired": false,
+					"validTargetIds": []
+				}
+			]
+		},
+		"activeInfluences": [
+			{
+				"duration": "até fim do combate",
+				"from": {
+					"id": "room_dead_torches_passage",
+					"kind": "room",
+					"name": "Passagem das Tochas Mortas"
+				},
+				"icon": "🌫️",
+				"id": "dungeon_skill_dead_torches:hit_bonus:-1:add:h-1rvef5y-8j5xsd:0",
+				"kind": "debuff",
+				"label": "-1 acerto",
+				"scope": "room_to_hero",
+				"source": "Tochas Mortas",
+				"to": {
+					"id": "h-1rvef5y-8j5xsd",
+					"kind": "hero",
+					"name": "Guerreiro do Bastião Partido"
+				}
+			}
+		],
+		"alphaLog": [
+			"#1 Ação START_GAME. Dados: {\"type\":\"START_GAME\",\"payload\":{\"heroCardIds\":[\"hero_broken_bastion_warrior\"],\"difficulty\":\"nightmare\",\"bossCardId\":\"boss_azhakar\",\"seed\":5036,\"gameId\":\"golden-5036\"}}",
+			"Fase: MAIN_MENU → ROOM_EFFECT.",
+			"Sala: nenhuma → Passagem das Tochas Mortas.",
+			"Despertar: 0 → 1.",
+			"Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) entrou em jogo.",
+			"dungeonDeck.available: 0 → 19; adicionadas [\"room_crimson_chains_chamber\",\"room_depths_stairway\",\"room_crimson_chains_chamber\",\"room_ruined_forge\",\"room_ruined_forge\",\"room_narrow_corridor\",\"room_depths_stairway\",\"room_abandoned_cell\",\"room_broken_columns_hall\",\"room_cracked_abyss\",\"room_dungeon_room\",\"room_jailer_room\",\"room_dungeon_room\",\"room_broken_columns_hall\",\"room_jailer_room\",\"room_cracked_abyss\",\"room_dead_torches_passage\",\"room_narrow_corridor\",\"room_abandoned_cell\"], retiradas [].",
+			"enemyDeck.available: 0 → 18; adicionadas [\"creature_dead_torch_sentinel\",\"creature_broken_chains_brute\",\"creature_dead_passage_thief\",\"creature_low_fire_salamander\",\"creature_hidden_flame_cultist\",\"creature_forge_acolyte\",\"creature_hot_ash_worm\",\"creature_ruined_hall_ogre\",\"creature_blazing_skull\",\"creature_broken_gates_watcher\",\"creature_wet_stone_slime\",\"creature_low_ember_kobold\",\"creature_dark_cave_goblin\",\"creature_catacomb_skeleton\",\"creature_black_ceiling_bat\",\"creature_old_chains_knight\",\"creature_ancient_pillar_spider\",\"creature_deep_rift_rat\"], retiradas [].",
+			"itemDeck.available: 0 → 34; adicionadas [\"item_broken_veil_cloak\",\"item_light_stone_boots\",\"item_cracked_shield\",\"item_last_light_sword\",\"item_safe_path_charm\",\"item_living_ember_potion\",\"item_last_chord_lute\",\"item_fury_potion\",\"item_deep_veil_scythe\",\"item_rusty_dagger\",\"item_incendiary_oil_flask\",\"item_last_defense_charm\",\"item_stoneskin_potion\",\"item_greater_vigor_potion\",\"item_warm_blood_charm\",\"item_pitch_torch\",\"item_broken_stone_hammer\",\"item_precision_potion\",\"item_tunnel_hood\",\"item_worn_explorer_rope\",\"item_ancient_metal_armor\",\"item_lesser_vigor_potion\",\"item_silent_dungeon_charm\",\"item_torn_depths_map\",\"item_ruined_hall_axe\",\"item_return_potion\",\"item_low_flame_charm\",\"item_ancient_iron_key\",\"item_hidden_forge_chest\",\"item_forge_magic_armor\",\"item_narrow_exit_cloak\",\"item_reinforced_leather_armor\",\"item_crimson_rune_staff\",\"item_rift_bow\"], retiradas [].",
+			"artifactDeck.available: 0 → 5; adicionadas [\"artifact_crimson_jailer_chain\",\"artifact_ancient_ember_heart\",\"artifact_lost_forge_hammer\",\"artifact_first_fire_blade\",\"artifact_last_vigil_brazier\"], retiradas [].",
+			"Detalhe técnico gameId: \"__PREGAME__\" → \"golden-5036\".",
+			"Detalhe técnico rng: {\"seed\":0,\"counter\":0} → {\"seed\":5036,\"counter\":94}.",
+			"Detalhe técnico bossCardId: \"\" → \"boss_azhakar\".",
+			"Detalhe técnico events: [] → [{\"type\":\"RoomEntered\",\"payload\":{\"roomId\":\"room_dead_torches_passage\"},\"seq\":0}].",
+			"Log atual: Partida iniciada. Heróis: Guerreiro do Bastião Partido. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Log atual: Sala sorteada: Passagem das Tochas Mortas.",
+			"#2 Ação RESOLVE_ROOM_EFFECT. Dados: {\"type\":\"RESOLVE_ROOM_EFFECT\"}",
+			"Fase: ROOM_EFFECT → SPAWN_ENEMIES.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROOM_EFFECT\",\"to\":\"SPAWN_ENEMIES\",\"action\":\"RESOLVE_ROOM_EFFECT\"},\"seq\":0}].",
+			"#3 Ação SPAWN_ENEMIES. Dados: {\"type\":\"SPAWN_ENEMIES\"}",
+			"Fase: SPAWN_ENEMIES → COMBAT_START.",
+			"Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0) entrou em jogo.",
+			"enemyDeck.available: 18 → 17; adicionadas [], retiradas [\"creature_dead_torch_sentinel\"].",
+			"Efeitos em Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0): [] → [{\"type\":\"token\",\"tokenType\":\"xp\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_item\",\"count\":2},{\"type\":\"token\",\"tokenType\":\"reward_artifact\",\"count\":0}].",
+			"Detalhe técnico rng: {\"seed\":5036,\"counter\":94} → {\"seed\":5036,\"counter\":96}.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"SPAWN_ENEMIES\",\"to\":\"COMBAT_START\",\"action\":\"SPAWN_ENEMIES\"},\"seq\":0}].",
+			"Log atual: 1 inimigo(s) aparecem: Sentinela das Tochas Mortas.",
+			"#4 Ação START_COMBAT. Dados: {\"type\":\"START_COMBAT\"}",
+			"Habilidade Tochas Mortas ativada por Passagem das Tochas Mortas (grupo); evento evt_combat_start; alvos [h-1rvef5y-8j5xsd]; parâmetros {}.",
+			"Fase: COMBAT_START → HERO_ACTION.",
+			"Efeitos em Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd): [] → [{\"type\":\"modifier\",\"target\":\"hit_bonus\",\"operation\":\"add\",\"value\":-1,\"source\":\"dungeon_skill_dead_torches\",\"duration\":{\"kind\":\"this_combat\"}}].",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"COMBAT_START\",\"to\":\"HERO_ACTION\",\"action\":\"START_COMBAT\"},\"seq\":0}].",
+			"Log atual: Combate iniciado.",
+			"#5 Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) iniciou ataque contra Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd).",
+			"Detalhe técnico flags: {} → {\"targetChosen::e-1ue3gqx-ab4gn0\":true}.",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1rvef5y-8j5xsd\",\"targetId\":\"e-1ue3gqx-ab4gn0\",\"sourceType\":\"hero\",\"roomFirstTime\":true},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}].",
+			"#6 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd): dados [1], hitBonus +5, dungeon_skill_dead_torches -1 = 5.",
+			"Rolagem de Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0): dados [4], hitBonus +4, Despertar da Masmorra +1 = 9. Margem -4.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":5036,\"counter\":96} → {\"seed\":5036,\"counter\":98}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\",\"heroTotal\":5,\"enemyTotal\":9,\"heroResults\":[1],\"enemyResults\":[4]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 5 | Inimigo rolou 9.",
+			"#7 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (5) × Sentinela das Tochas Mortas (9); margem -4; dano do herói 3 sem bônus = 3; dano do inimigo 4 sem bônus = 4; dano previsto: herói 4, inimigo 0.",
+			"Dano attack: Sentinela das Tochas Mortas → Guerreiro do Bastião Partido; solicitado 4, após efeitos 4, aplicado 4; vida 11 → 7.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) → desconhecido.",
+			"Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) recebeu 4 de dano (11 → 7).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1ue3gqx-ab4gn0\",\"targetId\":\"h-1rvef5y-8j5xsd\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: undefined → [{\"id\":1,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1rvef5y-8j5xsd\"].",
+			"Log atual: Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [4]=4, acerto +4, Despertar da Masmorra +1 → 9 vs herói: 5.",
+			"#8 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#9 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 0 → 1.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1rvef5y-8j5xsd\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}] → [].",
+			"Log atual: Rodada 2 de combate.",
+			"#10 Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) iniciou ataque contra Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1rvef5y-8j5xsd\",\"targetId\":\"e-1ue3gqx-ab4gn0\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}].",
+			"#11 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd): dados [2], hitBonus +5, dungeon_skill_dead_torches -1 = 6.",
+			"Rolagem de Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0): dados [6], hitBonus +4, Despertar da Masmorra +1 = 11. Margem -5.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":5036,\"counter\":98} → {\"seed\":5036,\"counter\":100}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\",\"heroTotal\":6,\"enemyTotal\":11,\"heroResults\":[2],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 6 | Inimigo rolou 11.",
+			"#12 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (6) × Sentinela das Tochas Mortas (11); margem -5; dano do herói 3 sem bônus = 3; dano do inimigo 4 sem bônus = 4; dano previsto: herói 4, inimigo 0.",
+			"Dano attack: Sentinela das Tochas Mortas → Guerreiro do Bastião Partido; solicitado 4, após efeitos 4, aplicado 4; vida 7 → 3.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) → desconhecido.",
+			"Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) recebeu 4 de dano (7 → 3).",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1ue3gqx-ab4gn0\",\"targetId\":\"h-1rvef5y-8j5xsd\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":1}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4},{\"id\":2,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1rvef5y-8j5xsd\"].",
+			"Log atual: Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [6]=6, acerto +4, Despertar da Masmorra +1 → 11 vs herói: 6.",
+			"#13 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#14 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → HERO_ACTION.",
+			"Etapa de combate: direct_damage → selecting_hero.",
+			"Rodada: 1 → 2.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"HERO_ACTION\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Detalhe técnico combate.heroesActed: [\"h-1rvef5y-8j5xsd\"] → [].",
+			"Detalhe técnico combate.pairs: [{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}] → [].",
+			"Log atual: Rodada 3 de combate.",
+			"#15 Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) iniciou ataque contra Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0) usando a seleção de alvo. Dados: {\"type\":\"CHOOSE_TARGET\",\"payload\":{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}}",
+			"Fase: HERO_ACTION → ROLL_DICE.",
+			"Etapa de combate: selecting_hero → resolving.",
+			"Herói em foco no combate: desconhecido → Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd).",
+			"Detalhe técnico events: [] → [{\"type\":\"TargetChosen\",\"payload\":{\"sourceId\":\"h-1rvef5y-8j5xsd\",\"targetId\":\"e-1ue3gqx-ab4gn0\",\"sourceType\":\"hero\",\"roomFirstTime\":false},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"HERO_ACTION\",\"to\":\"ROLL_DICE\",\"action\":\"CHOOSE_TARGET\"},\"seq\":1}].",
+			"Detalhe técnico combate.pairs: [] → [{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\"}].",
+			"#16 Ação ROLL_DICE. Dados: {\"type\":\"ROLL_DICE\"}",
+			"Rolagem de Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd): dados [3], hitBonus +5, dungeon_skill_dead_torches -1 = 7.",
+			"Rolagem de Sentinela das Tochas Mortas (e-1ue3gqx-ab4gn0): dados [6], hitBonus +4, Despertar da Masmorra +1 = 11. Margem -4.",
+			"Fase: ROLL_DICE → RESOLVE_ATTACK.",
+			"Detalhe técnico rng: {\"seed\":5036,\"counter\":100} → {\"seed\":5036,\"counter\":102}.",
+			"Detalhe técnico events: [] → [{\"type\":\"RollResolved\",\"payload\":{\"heroId\":\"h-1rvef5y-8j5xsd\",\"enemyId\":\"e-1ue3gqx-ab4gn0\",\"heroTotal\":7,\"enemyTotal\":11,\"heroResults\":[3],\"enemyResults\":[6]},\"seq\":0},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"ROLL_DICE\",\"to\":\"RESOLVE_ATTACK\",\"action\":\"ROLL_DICE\"},\"seq\":1}].",
+			"Log atual: Herói rolou 7 | Inimigo rolou 11.",
+			"#17 Ataque resolvido. Dados: {\"type\":\"RESOLVE_ATTACK\"}",
+			"Cálculo do ataque: Guerreiro do Bastião Partido (7) × Sentinela das Tochas Mortas (11); margem -4; dano do herói 3 sem bônus = 3; dano do inimigo 4 sem bônus = 4; dano previsto: herói 4, inimigo 0.",
+			"Dano attack: Sentinela das Tochas Mortas → Guerreiro do Bastião Partido; solicitado 4, após efeitos 4, aplicado 3; vida 3 → 0.",
+			"Fase: RESOLVE_ATTACK → DIRECT_DAMAGE.",
+			"Etapa de combate: resolving → direct_damage.",
+			"Herói em foco no combate: Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) → desconhecido.",
+			"Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd) recebeu 3 de dano (3 → 0).",
+			"Guerreiro do Bastião Partido (h-1rvef5y-8j5xsd): estado active → defeated.",
+			"Detalhe técnico events: [] → [{\"type\":\"DamageDealt\",\"payload\":{\"sourceId\":\"e-1ue3gqx-ab4gn0\",\"targetId\":\"h-1rvef5y-8j5xsd\",\"damageType\":\"attack\",\"amount\":4},\"seq\":0},{\"type\":\"HeroDefeated\",\"payload\":{\"heroId\":\"h-1rvef5y-8j5xsd\",\"sourceId\":\"e-1ue3gqx-ab4gn0\"},\"seq\":1},{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"RESOLVE_ATTACK\",\"to\":\"DIRECT_DAMAGE\",\"action\":\"RESOLVE_ATTACK\"},\"seq\":2}].",
+			"Detalhe técnico damageFeedback: [{\"id\":1,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4},{\"id\":2,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4}] → [{\"id\":1,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4},{\"id\":2,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":4},{\"id\":3,\"targetId\":\"h-1rvef5y-8j5xsd\",\"side\":\"hero\",\"amount\":3}].",
+			"Detalhe técnico combate.heroesActed: [] → [\"h-1rvef5y-8j5xsd\"].",
+			"Log atual: Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [6]=6, acerto +4, Despertar da Masmorra +1 → 11 vs herói: 7.",
+			"#18 Ação DIRECT_DAMAGE. Dados: {\"type\":\"DIRECT_DAMAGE\"}",
+			"Fase: DIRECT_DAMAGE → CHECK_COMBAT_END.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"DIRECT_DAMAGE\",\"to\":\"CHECK_COMBAT_END\",\"action\":\"DIRECT_DAMAGE\"},\"seq\":0}].",
+			"#19 Ação CHECK_COMBAT_END. Dados: {\"type\":\"CHECK_COMBAT_END\"}",
+			"Fase: CHECK_COMBAT_END → DEFEAT.",
+			"Detalhe técnico events: [] → [{\"type\":\"StatusChanged\",\"payload\":{\"from\":\"CHECK_COMBAT_END\",\"to\":\"DEFEAT\",\"action\":\"CHECK_COMBAT_END\"},\"seq\":0}].",
+			"Log atual: Derrota: herói eliminado."
+		],
+		"bossCardId": "boss_azhakar",
+		"bossCardName": "Azhakar, Dragão da Fornalha Sombria",
+		"combat": {
+			"buffsByHero": {
+				"h-1rvef5y-8j5xsd": [
+					{
+						"duration": "até fim do combate",
+						"from": {
+							"id": "room_dead_torches_passage",
+							"kind": "room",
+							"name": "Passagem das Tochas Mortas"
+						},
+						"icon": "🌫️",
+						"id": "dungeon_skill_dead_torches:hit_bonus:-1:add:h-1rvef5y-8j5xsd:0",
+						"kind": "debuff",
+						"label": "-1 acerto",
+						"scope": "room_to_hero",
+						"source": "Tochas Mortas",
+						"to": {
+							"id": "h-1rvef5y-8j5xsd",
+							"kind": "hero",
+							"name": "Guerreiro do Bastião Partido"
+						}
+					}
+				]
+			},
+			"heroesActed": [
+				"h-1rvef5y-8j5xsd"
+			],
+			"lastRoll": null,
+			"phase": "direct_damage",
+			"powersUsedThisRoom": {},
+			"round": 2,
+			"selectedHeroId": null
+		},
+		"creaturesDefeated": 0,
+		"currentRoom": {
+			"cardId": "room_dead_torches_passage",
+			"currentEnemies": 1,
+			"effect": "Tochas Mortas: antes do primeiro combate nesta sala, os heróis devem escolher: descartar 1 item ou sofrer -1 no total da rolagem de acerto de cada herói nesta sala. Se o grupo usar Tocha de Breu, ignore este efeito.",
+			"exits": 2,
+			"reward": 1,
+			"rewardType": "item",
+			"status": "active",
+			"xp": 2
+		},
+		"damageFeedback": [
+			{
+				"amount": 4,
+				"id": 1,
+				"side": "hero",
+				"targetId": "h-1rvef5y-8j5xsd"
+			},
+			{
+				"amount": 4,
+				"id": 2,
+				"side": "hero",
+				"targetId": "h-1rvef5y-8j5xsd"
+			},
+			{
+				"amount": 3,
+				"id": 3,
+				"side": "hero",
+				"targetId": "h-1rvef5y-8j5xsd"
+			}
+		],
+		"decks": {
+			"artifactDeck": {
+				"available": [
+					"artifact_crimson_jailer_chain",
+					"artifact_ancient_ember_heart",
+					"artifact_lost_forge_hammer",
+					"artifact_first_fire_blade",
+					"artifact_last_vigil_brazier"
+				],
+				"discarded": 0
+			},
+			"dungeonDeck": {
+				"available": 19,
+				"discarded": []
+			},
+			"enemyDeck": {
+				"available": 17,
+				"discarded": 0
+			},
+			"itemDeck": {
+				"available": [
+					"item_broken_veil_cloak",
+					"item_light_stone_boots",
+					"item_cracked_shield",
+					"item_last_light_sword",
+					"item_safe_path_charm",
+					"item_living_ember_potion",
+					"item_last_chord_lute",
+					"item_fury_potion",
+					"item_deep_veil_scythe",
+					"item_rusty_dagger",
+					"item_incendiary_oil_flask",
+					"item_last_defense_charm",
+					"item_stoneskin_potion",
+					"item_greater_vigor_potion",
+					"item_warm_blood_charm",
+					"item_pitch_torch",
+					"item_broken_stone_hammer",
+					"item_precision_potion",
+					"item_tunnel_hood",
+					"item_worn_explorer_rope",
+					"item_ancient_metal_armor",
+					"item_lesser_vigor_potion",
+					"item_silent_dungeon_charm",
+					"item_torn_depths_map",
+					"item_ruined_hall_axe",
+					"item_return_potion",
+					"item_low_flame_charm",
+					"item_ancient_iron_key",
+					"item_hidden_forge_chest",
+					"item_forge_magic_armor",
+					"item_narrow_exit_cloak",
+					"item_reinforced_leather_armor",
+					"item_crimson_rune_staff",
+					"item_rift_bow"
+				],
+				"discarded": 0
+			}
+		},
+		"despertar": 1,
+		"difficulty": "nightmare",
+		"enemies": [
+			{
+				"cardId": "creature_dead_torch_sentinel",
+				"conditions": [],
+				"currentLife": 5,
+				"damage": 4,
+				"dice": 1,
+				"firstDamageTakenThisTurn": false,
+				"hitBonus": 4,
+				"id": "e-1ue3gqx-ab4gn0",
+				"isSubboss": false,
+				"maxLife": 5,
+				"status": "active",
+				"tokens": {
+					"reward_artifact": 0,
+					"reward_item": 2,
+					"xp": 2
+				}
+			}
+		],
+		"eventLog": [
+			"Partida iniciada. Heróis: Guerreiro do Bastião Partido. Boss: Azhakar, Dragão da Fornalha Sombria.",
+			"Sala sorteada: Passagem das Tochas Mortas.",
+			"1 inimigo(s) aparecem: Sentinela das Tochas Mortas.",
+			"Combate iniciado.",
+			"Herói rolou 5 | Inimigo rolou 9.",
+			"Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [4]=4, acerto +4, Despertar da Masmorra +1 → 9 vs herói: 5.",
+			"Rodada 2 de combate.",
+			"Herói rolou 6 | Inimigo rolou 11.",
+			"Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [6]=6, acerto +4, Despertar da Masmorra +1 → 11 vs herói: 6.",
+			"Rodada 3 de combate.",
+			"Herói rolou 7 | Inimigo rolou 11.",
+			"Guerreiro do Bastião Partido sofreu 4 de dano. Inimigo: dado(s) [6]=6, acerto +4, Despertar da Masmorra +1 → 11 vs herói: 7.",
+			"Derrota: herói eliminado."
+		],
+		"extraAttackFeedback": [],
+		"groupArtifacts": [],
+		"groupBuffs": [],
+		"groupXp": 0,
+		"healFeedback": [],
+		"heroes": [
+			{
+				"activeItems": {},
+				"backpack": [],
+				"cardId": "hero_broken_bastion_warrior",
+				"conditions": [],
+				"currentLife": 0,
+				"damage": 3,
+				"dice": 1,
+				"eco": 0,
+				"hitBonus": 5,
+				"id": "h-1rvef5y-8j5xsd",
+				"impeto": 0,
+				"maxLife": 11,
+				"playerIndex": 0,
+				"status": "defeated",
+				"usedPowers": {},
+				"xp": 0
+			}
+		],
+		"inventoryByHero": {
+			"h-1rvef5y-8j5xsd": {
+				"exhaustedItemIds": [],
+				"stats": {
+					"damage": 3,
+					"damageBonus": 0,
+					"hit": 5,
+					"hitBonus": 0,
+					"protection": 0,
+					"protectionText": ""
+				},
+				"usableItemIds": []
+			}
+		},
+		"mode": "cooperative",
+		"paths": [],
+		"paused": null,
+		"pendingRewards": [],
+		"pendingSkillChoice": null,
+		"pendingSkillTarget": null,
+		"pendingTriggerInterrupt": null,
+		"roomsCleared": 0,
+		"status": "DEFEAT"
+	}
+}

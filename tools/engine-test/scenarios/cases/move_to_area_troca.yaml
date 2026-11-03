@@ -1,0 +1,16 @@
+name: move_to_area sai da área anterior e entra na nova (a aura da nova vale)
+kind: move_to_area
+given:
+  units:
+    - { id: lago, def: lago_turvo }
+    - { id: outro, def: lago_turvo }
+    - { id: espreitador, def: espreitador_do_junco, controller: e, presentIn: [lago] }
+when:
+  - run: [{ kind: move_to_area, target: espreitador, area: outro }]
+then:
+  events:
+    - { type: area.saiu, payload: { unit: espreitador, area: lago } }
+    - { type: area.entrou, payload: { unit: espreitador, area: outro } }
+    - { type: status.imune, payload: { unit: espreitador, status: colera } }
+  units:
+    espreitador: { presentIn: [outro], attributes: { armadura: 1 } }

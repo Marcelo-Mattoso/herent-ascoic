@@ -14,21 +14,28 @@ export type {
 	CombatPair,
 	CombatRollResult,
 	CombatState,
-	TemporaryEffect,
 } from "./combatState";
 export { createEmptyCombatState } from "./combatState";
-export type { DeckState } from "./deckState";
-export { createEmptyDeck } from "./deckState";
-export type { EnemyState, EnemyStatus } from "./enemyState";
+export type {
+	EnemyRecord,
+	EnemyState,
+	EnemyStats,
+	EnemyStatus,
+} from "./enemyState";
 export type {
 	Difficulty,
 	GameConfig,
-	GameDecks,
 	GameMode,
 	GameState,
 	GroupArtifact,
 } from "./gameState";
 export { createInitialGameState } from "./gameState";
-export type { HeroState, HeroStatus, ItemSlotType } from "./heroState";
+export type {
+	HeroRecord,
+	HeroState,
+	HeroStats,
+	HeroStatus,
+	ItemSlotType,
+} from "./heroState";
 export type { RewardType, RoomState, RoomStatus } from "./roomState";
 export type { GameStatus } from "./status";

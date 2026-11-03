@@ -9,6 +9,7 @@ import { translate } from "@/i18n";
 //   - Exportar JSON do estado atual (inclui actionLog completo)
 
 import { useCallback, useEffect, useRef, useState } from "react";
+import { playerView } from "@/core/projection/playerView";
 import type { ReplayPackage } from "@/core/replay/replayEngine";
 import {
 	buildReplayPackage,
@@ -16,8 +17,11 @@ import {
 	exportPackageToJson,
 	importPackageFromJson,
 } from "@/core/replay/replayEngine";
-import type { GameState } from "@/core/state/gameState";
+import type { RawGameState as GameState } from "@/ui/store/gameStore";
 import { useRawGameState } from "@/ui/store/gameStore";
+import { uiEngine } from "@/ui/engine";
+import { effectStackOf } from "../../core/state/access";
+import { gameOf } from "../../engine/state";
 
 interface ReplayProps {
 	onClose: () => void;
@@ -33,7 +37,7 @@ export function Replay({ onClose }: ReplayProps) {
 	const playIntervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
 
 	const loadPackage = useCallback((pkg: ReplayPackage) => {
-		const allStates = buildReplayStates(pkg);
+		const allStates = buildReplayStates(uiEngine, pkg);
 		setStates(allStates);
 		setCursor(allStates.length - 1);
 		setError(null);
@@ -118,6 +122,9 @@ export function Replay({ onClose }: ReplayProps) {
 	}, [playing, states.length]);
 
 	const currentDisplayState = states[cursor];
+	const displayView = currentDisplayState
+		? playerView(uiEngine, currentDisplayState)
+		: null;
 	const hasStates = states.length > 0;
 
 	return (
@@ -210,7 +217,7 @@ export function Replay({ onClose }: ReplayProps) {
 						{cursor > 0 && (
 							<span className="ml-2 text-gray-500">
 								{/* Ação que levou a este estado */}←{" "}
-								{states[cursor]?.actionLog[cursor - 1]?.action.type ?? "?"}
+								{(states[cursor] && gameOf(states[cursor]).actionLog[cursor - 1]?.action.type) ?? "?"}
 							</span>
 						)}
 					</span>
@@ -219,34 +226,34 @@ export function Replay({ onClose }: ReplayProps) {
 
 			{/* JSON do estado atual */}
 			<div className="flex-1 overflow-auto">
-				{currentDisplayState ? (
+				{currentDisplayState && displayView ? (
 					<pre className="text-xs text-green-300 font-mono whitespace-pre-wrap break-all">
 						{JSON.stringify(
 							{
-								status: currentDisplayState.status,
+								status: gameOf(currentDisplayState).status,
 								step: cursor,
 								action:
 									cursor > 0
-										? currentDisplayState.actionLog[cursor - 1]?.action
+										? gameOf(currentDisplayState).actionLog[cursor - 1]?.action
 										: translate("game:screens.replay.dynamic003"),
-								heroes: currentDisplayState.heroes.map((h) => ({
+								heroes: displayView.heroes.map((h) => ({
 									id: h.id,
 									cardId: h.cardId,
 									currentLife: h.currentLife,
 									maxLife: h.maxLife,
 									status: h.status,
 								})),
-								activeEnemies: currentDisplayState.activeEnemies.map((e) => ({
+								activeEnemies: displayView.enemies.map((e) => ({
 									id: e.id,
 									cardId: e.cardId,
 									currentLife: e.currentLife,
 									status: e.status,
 								})),
-								groupXp: currentDisplayState.groupXp,
+								groupXp: gameOf(currentDisplayState).groupXp,
 								effectStack: {
-									pending: currentDisplayState.effectStack.pending.length,
+									pending: effectStackOf(currentDisplayState).pending.length,
 									resolving:
-										currentDisplayState.effectStack.resolving?.id ?? null,
+										effectStackOf(currentDisplayState).resolving?.id ?? null,
 								},
 							},
 							null,

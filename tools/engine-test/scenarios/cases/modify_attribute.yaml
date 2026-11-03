@@ -1,0 +1,18 @@
+name: modify_attribute altera a base (máximo sobe sem curar, cai e corta) e o valor atual
+kind: modify_attribute
+given:
+  units:
+    - { id: aria, def: aria, controller: a }
+when:
+  - run:
+      - { kind: modify_attribute, target: aria, attr: constituicao, delta: 1, mode: base }
+      - { kind: modify_attribute, target: aria, attr: constituicao, delta: -3, mode: base }
+      - { kind: modify_attribute, target: aria, attr: vida, delta: -10, mode: atual }
+then:
+  events:
+    - { type: atributo.alterado, payload: { attr: constituicao, from: 5, to: 6, reason: base } }
+    - { type: atributo.alterado, payload: { attr: constituicao, from: 6, to: 3, reason: base } }
+    - { type: atributo.alterado, payload: { attr: vida, from: 50, to: 30, reason: corte } }
+    - { type: atributo.alterado, payload: { attr: vida, from: 30, to: 20, reason: atual } }
+  units:
+    aria: { attributes: { constituicao: 3, vida_max: 30, vida: 20 } }

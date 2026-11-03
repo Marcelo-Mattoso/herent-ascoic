@@ -1,0 +1,12 @@
+name: noop não altera zonas, contadores nem emite eventos
+kind: noop
+given:
+  cards: [{ id: a }]
+  zones: [{ id: pilha, cards: [a] }]
+  counters: [{ scope: jogo, id: "-", name: pontos, value: 3 }]
+when:
+  - run: [{ kind: noop }]
+then:
+  events: []
+  zones: { pilha: [a] }
+  counters: { "jogo:-:pontos": 3 }

@@ -1,0 +1,17 @@
+name: move_to_area entra na área, aplica a aura e dispara onEnter
+kind: move_to_area
+given:
+  units:
+    - { id: lago, def: lago_turvo }
+    - { id: aria, def: aria, controller: a }
+when:
+  - run: [{ kind: move_to_area, target: aria, area: lago }]
+then:
+  events:
+    - { type: area.entrou, payload: { unit: aria, area: lago } }
+    - { type: status.aplicado, payload: { unit: aria, status: colera } }
+  units:
+    aria:
+      presentIn: [lago]
+      attributes: { armadura: 0 }
+      statuses: [{ status: colera, stacks: 1, remaining: null }]

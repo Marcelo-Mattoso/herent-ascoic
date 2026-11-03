@@ -1,12 +1,15 @@
 import { describe, expect, it } from "vitest";
 import { getCardById } from "../../data/cards";
-import { cardSkills, lookupSkillById, skillUsedBy } from "../lookup";
+import { skillById, skillOwners, skillsOf } from "@/core/gameEngine";
+import { testEngine } from "@/core/__tests__/testEngine";
+
+
 
 describe("cardSkills", () => {
 	it("resolve habilidade do Bárbaro Rubro", () => {
 		const card = getCardById("hero_crimson_barbarian");
 		expect(card).not.toBeUndefined();
-		const skills = cardSkills(card!.id);
+		const skills = skillsOf(testEngine, card!.id);
 		const habilidade = skills.find(({ def }) => def.category === "hero_skill");
 		expect(habilidade).not.toBeUndefined();
 		expect(habilidade!.def.id).toBe("skill_crimson_fury");
@@ -17,20 +20,20 @@ describe("cardSkills", () => {
 	it("resolve poder do Mago das Runas Rubras", () => {
 		const card = getCardById("hero_crimson_rune_mage");
 		expect(card).not.toBeUndefined();
-		const skills = cardSkills(card!.id);
+		const skills = skillsOf(testEngine, card!.id);
 		const poder = skills.find(({ def }) => def.category === "hero_power");
 		expect(poder).not.toBeUndefined();
 		expect(poder!.def.id).toBe("power_supreme_rift_rune");
 	});
 
 	it("retorna [] para cardId inexistente", () => {
-		expect(cardSkills("id_que_nao_existe")).toEqual([]);
+		expect(skillsOf(testEngine, "id_que_nao_existe")).toEqual([]);
 	});
 
 	it("não retorna skill do slot errado — efeito de criatura em herói", () => {
 		const card = getCardById("hero_crimson_barbarian");
 		expect(card).not.toBeUndefined();
-		const skills = cardSkills(card!.id);
+		const skills = skillsOf(testEngine, card!.id);
 		const efeito = skills.find(({ def }) => def.category === "dungeon_skill");
 		expect(efeito).toBeUndefined();
 	});
@@ -38,24 +41,24 @@ describe("cardSkills", () => {
 
 describe("lookupSkillById", () => {
 	it("retorna a definição pelo id", () => {
-		const def = lookupSkillById("skill_crimson_fury");
+		const def = skillById(testEngine, "skill_crimson_fury");
 		expect(def).not.toBeNull();
 		expect(def?.id).toBe("skill_crimson_fury");
 	});
 
 	it("retorna null para id inexistente", () => {
-		expect(lookupSkillById("skill_inexistente")).toBeNull();
+		expect(skillById(testEngine, "skill_inexistente")).toBeNull();
 	});
 });
 
 describe("skillUsedBy", () => {
 	it("retorna cards que usam a skill", () => {
-		const cards = skillUsedBy("skill_crimson_fury");
+		const cards = skillOwners(testEngine, "skill_crimson_fury");
 		expect(cards.length).toBeGreaterThan(0);
 		expect(cards.some((id) => id.includes("crimson_barbarian"))).toBe(true);
 	});
 
 	it("retorna [] para skill sem cards", () => {
-		expect(skillUsedBy("skill_inexistente")).toEqual([]);
+		expect(skillOwners(testEngine, "skill_inexistente")).toEqual([]);
 	});
 });

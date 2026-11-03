@@ -1,10 +1,7 @@
-// Testes do effect stack (Passo 8).
-// Verificam: ordenação LIFO/FIFO, cadeias profundas, limite MAX_STACK_DEPTH,
-// pausa para input do jogador, e replay determinístico com cadeias.
-
 import { describe, expect, it } from "vitest";
+import { pausedFromLegacy } from "../../choices";
 import type { TriggerComponent } from "../../ecs/types";
-import { addComponent, createEntity, upsertEntity } from "../../ecs/world";
+import { addComponent } from "../../ecs/world";
 import { reducer } from "../../reducer/index";
 import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
@@ -15,6 +12,10 @@ import { applyDamage } from "../../systems/damageSystem";
 import { drainStack } from "../resolver";
 import type { PausedState } from "../stack";
 import { addPending, createEmptyEffectStack, MAX_STACK_DEPTH } from "../stack";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { enemiesOf, heroesOf, withPendingTriggerInterrupt, withPaused, withEffectStack, effectStackOf } from "../../state/access";
+import { settled, ensureEntity } from "../../__tests__/fixtures";
+import { withGame, gameOf } from "../../../engine/state";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -27,7 +28,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 4,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -63,12 +63,7 @@ function makeState(...enemies: EnemyState[]): GameState {
 	const base = createInitialGameState({
 		heroCardIds: ["hero_crimson_barbarian"],
 	});
-	return {
-		...base,
-		heroes: [makeHero()],
-		activeEnemies: enemies,
-		combat: createEmptyCombatState(),
-	};
+	return settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [makeHero()], activeEnemies: enemies, combat: createEmptyCombatState() })));
 }
 
 // Adiciona TriggerComponent "push_to_stack" para encadear dano.
@@ -79,9 +74,9 @@ function withChainTrigger(
 	targetId: string,
 	amount: number,
 ): GameState {
-	let world = state.world;
+	let world = gameOf(state).world;
 	if (!world.entities[entityId]) {
-		world = upsertEntity(world, createEntity(entityId, "enemy"));
+		world = ensureEntity(world, entityId, "enemy");
 	}
 	const trigger: TriggerComponent = {
 		type: "trigger",
@@ -97,7 +92,7 @@ function withChainTrigger(
 		priority: 1,
 	};
 	world = addComponent(world, entityId, trigger);
-	return { ...state, world };
+	return withGame(state, (prevGame) => ({ ...prevGame, world }));
 }
 
 // ── addPending / orderPending ─────────────────────────────────────────────────
@@ -138,21 +133,17 @@ describe("pausa de interrupção", () => {
 			sourceKind: "hero" as const, sourceCardId: "hero_crimson_barbarian",
 			reason: "Escolha", description: "power_mighty_crimson_fury",
 		};
-		const interrupted: GameState = {
-			...base,
-			pendingTriggerInterrupt: pending,
-			effectStack: addPending(base.effectStack, {
+		const interrupted: GameState = withPendingTriggerInterrupt(withEffectStack(base, addPending(effectStackOf(base), {
 				cause: "DamageDealt", effect: { type: "apply_damage", targetId: "h1", amount: 2 }, source: "system",
-			}),
-		};
-		const paused = drainStack(interrupted);
-		expect(paused.heroes[0]?.currentLife).toBe(10);
-		expect(paused.effectStack.pending).toHaveLength(1);
-		const continued = reducer(paused, {
+			})), pending);
+		const paused = drainStack(testEngine, interrupted);
+		expect(heroesOf(paused)[0]?.currentLife).toBe(10);
+		expect(effectStackOf(paused).pending).toHaveLength(1);
+		const continued = reducer(testEngine, paused, {
 			type: "SKIP_TRIGGER_INTERRUPT", payload: { interruptId: pending.id },
 		});
-		expect(continued.heroes[0]?.currentLife).toBe(8);
-		expect(continued.effectStack.pending).toHaveLength(0);
+		expect(heroesOf(continued)[0]?.currentLife).toBe(8);
+		expect(effectStackOf(continued).pending).toHaveLength(0);
 	});
 });
 
@@ -161,37 +152,31 @@ describe("pausa de interrupção", () => {
 describe("drainStack — básico", () => {
 	it("retorna estado inalterado quando stack vazia", () => {
 		const state = makeState();
-		expect(drainStack(state)).toBe(state);
+		expect(drainStack(testEngine, state)).toBe(state);
 	});
 
 	it("aplica efeito noop sem alterar estado (exceto limpar stack)", () => {
 		let state = makeState();
-		state = {
-			...state,
-			effectStack: addPending(createEmptyEffectStack(), {
+		state = withEffectStack(state, addPending(createEmptyEffectStack(), {
 				cause: "DamageDealt",
 				effect: { type: "noop" },
 				source: "h1",
-			}),
-		};
-		const result = drainStack(state);
-		expect(result.effectStack.pending).toHaveLength(0);
-		expect(result.effectStack.resolving).toBeNull();
+			}));
+		const result = drainStack(testEngine, state);
+		expect(effectStackOf(result).pending).toHaveLength(0);
+		expect(effectStackOf(result).resolving).toBeNull();
 	});
 
 	it("aplica apply_damage da stack", () => {
 		const state = makeState(makeEnemy("e1", { currentLife: 5 }));
-		const withPending: GameState = {
-			...state,
-			effectStack: addPending(createEmptyEffectStack(), {
+		const withPending: GameState = withEffectStack(state, addPending(createEmptyEffectStack(), {
 				cause: "DamageDealt",
 				effect: { type: "apply_damage", targetId: "e1", amount: 2 },
 				source: "system",
-			}),
-		};
-		const result = drainStack(withPending);
-		expect(result.activeEnemies[0]!.currentLife).toBe(3);
-		expect(result.effectStack.pending).toHaveLength(0);
+			}));
+		const result = drainStack(testEngine, withPending);
+		expect(enemiesOf(result)[0]!.currentLife).toBe(3);
+		expect(effectStackOf(result).pending).toHaveLength(0);
 	});
 });
 
@@ -211,20 +196,20 @@ describe("drainStack — cadeia de profundidade 3+", () => {
 		state = withChainTrigger(state, "e2", "DamageDealt", "e3", 1);
 
 		// Aplicar dano inicial a e1 (bus aciona o listener de e1 → push à stack)
-		const afterDamage = applyDamage(state, "e1", 2);
+		const afterDamage = applyDamage(testEngine, state, "e1", 2);
 		// Drenar stack (pendentes de e1 → DamageDealt de e2 → pendentes de e2 → ...)
-		const result = drainStack(afterDamage);
+		const result = drainStack(testEngine, afterDamage);
 
-		expect(result.activeEnemies.find((e) => e.id === "e1")!.currentLife).toBe(
+		expect(enemiesOf(result).find((e) => e.id === "e1")!.currentLife).toBe(
 			3,
 		); // 5-2
-		expect(result.activeEnemies.find((e) => e.id === "e2")!.currentLife).toBe(
+		expect(enemiesOf(result).find((e) => e.id === "e2")!.currentLife).toBe(
 			4,
 		); // 5-1
-		expect(result.activeEnemies.find((e) => e.id === "e3")!.currentLife).toBe(
+		expect(enemiesOf(result).find((e) => e.id === "e3")!.currentLife).toBe(
 			4,
 		); // 5-1
-		expect(result.effectStack.pending).toHaveLength(0);
+		expect(effectStackOf(result).pending).toHaveLength(0);
 	});
 
 	it("cadeia resolve em ordem LIFO (último empurrado resolve primeiro)", () => {
@@ -246,12 +231,12 @@ describe("drainStack — cadeia de profundidade 3+", () => {
 			effect: { type: "apply_damage", targetId: "e2", amount: 3 },
 			source: "system",
 		});
-		const result = drainStack({ ...state, effectStack: stack });
+		const result = drainStack(testEngine, withEffectStack(state, stack));
 		// Ambos aplicados independente da ordem (valores distintos, sem dependência)
-		expect(result.activeEnemies.find((e) => e.id === "e1")!.currentLife).toBe(
+		expect(enemiesOf(result).find((e) => e.id === "e1")!.currentLife).toBe(
 			4,
 		);
-		expect(result.activeEnemies.find((e) => e.id === "e2")!.currentLife).toBe(
+		expect(enemiesOf(result).find((e) => e.id === "e2")!.currentLife).toBe(
 			2,
 		);
 	});
@@ -271,7 +256,7 @@ describe("drainStack — limite de profundidade", () => {
 			});
 		}
 		const state = makeState();
-		expect(() => drainStack({ ...state, effectStack: stack })).toThrow(
+		expect(() => drainStack(testEngine, withEffectStack(state, stack))).toThrow(
 			/profundidade máxima atingida/,
 		);
 	});
@@ -282,31 +267,27 @@ describe("drainStack — limite de profundidade", () => {
 describe("drainStack — pausa", () => {
 	it("para de drenar quando state.paused !== null", () => {
 		const state = makeState(makeEnemy("e1", { currentLife: 5 }));
-		const paused: PausedState = {
-			reason: "skill_choice",
-			options: [{ id: "a", label: "Opção A" }],
-			resumeFrom: {
+		const paused: PausedState = pausedFromLegacy(
+			"skill_choice",
+			[{ id: "a", label: "Opção A" }],
+			{
 				id: "effect-0-DamageDealt",
 				seq: 0,
 				cause: "DamageDealt",
 				effect: { type: "apply_damage", targetId: "e1", amount: 2 },
 				source: "system",
 			},
-		};
-		const withPending: GameState = {
-			...state,
-			paused,
-			effectStack: addPending(createEmptyEffectStack(), {
+		);
+		const withPending: GameState = withPaused(withEffectStack(state, addPending(createEmptyEffectStack(), {
 				cause: "DamageDealt",
 				effect: { type: "apply_damage", targetId: "e1", amount: 2 },
 				source: "system",
-			}),
-		};
+			})), paused);
 		// Deve parar imediatamente pois paused !== null
-		const result = drainStack(withPending);
+		const result = drainStack(testEngine, withPending);
 		// Stack NÃO foi drenada (efeito não aplicado)
-		expect(result.activeEnemies[0]!.currentLife).toBe(5);
-		expect(result.effectStack.pending).toHaveLength(1);
+		expect(enemiesOf(result)[0]!.currentLife).toBe(5);
+		expect(effectStackOf(result).pending).toHaveLength(1);
 	});
 });
 
@@ -318,7 +299,7 @@ describe("replay determinístico com effect stack", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const s1 = reducer(base, {
+		const s1 = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
@@ -326,24 +307,24 @@ describe("replay determinístico com effect stack", () => {
 		// A partida progride alguns passos sem TriggerComponents
 		// (testes com TriggerComponents e cadeias são cobertos nos testes de drainStack acima)
 		// Este teste verifica que o replay do actionLog dá o mesmo resultado.
-		const s2 = reducer(s1, { type: "REVEAL_ROOM" });
+		const s2 = reducer(testEngine, s1, { type: "REVEAL_ROOM" });
 
 		// Replay: aplicar log ao estado inicial
 		const replayBase = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
 		let replayed: GameState = replayBase;
-		for (const entry of s2.actionLog) {
-			replayed = reducer(replayed, entry.action);
+		for (const entry of gameOf(s2).actionLog) {
+			replayed = reducer(testEngine, replayed, entry.action);
 		}
 
 		// Estado final deve ser idêntico (deep equal)
-		expect(replayed.status).toBe(s2.status);
-		expect(replayed.groupXp).toBe(s2.groupXp);
-		expect(replayed.heroes.map((h) => h.currentLife)).toEqual(
-			s2.heroes.map((h) => h.currentLife),
+		expect(gameOf(replayed).status).toBe(gameOf(s2).status);
+		expect(gameOf(replayed).groupXp).toBe(gameOf(s2).groupXp);
+		expect(heroesOf(replayed).map((h) => h.currentLife)).toEqual(
+			heroesOf(s2).map((h) => h.currentLife),
 		);
-		expect(replayed.effectStack.pending).toHaveLength(0);
+		expect(effectStackOf(replayed).pending).toHaveLength(0);
 	});
 
 	it("stack vazia após cada action no replay", () => {
@@ -352,15 +333,15 @@ describe("replay determinístico com effect stack", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const s1 = reducer(base, {
+		const s1 = reducer(testEngine, base, {
 			type: "START_GAME",
 			payload: { heroCardIds: ["hero_crimson_barbarian"] },
 		});
-		expect(s1.effectStack.pending).toHaveLength(0);
-		expect(s1.effectStack.resolving).toBeNull();
+		expect(effectStackOf(s1).pending).toHaveLength(0);
+		expect(effectStackOf(s1).resolving).toBeNull();
 
-		const s2 = reducer(s1, { type: "REVEAL_ROOM" });
-		expect(s2.effectStack.pending).toHaveLength(0);
-		expect(s2.effectStack.resolving).toBeNull();
+		const s2 = reducer(testEngine, s1, { type: "REVEAL_ROOM" });
+		expect(effectStackOf(s2).pending).toHaveLength(0);
+		expect(effectStackOf(s2).resolving).toBeNull();
 	});
 });

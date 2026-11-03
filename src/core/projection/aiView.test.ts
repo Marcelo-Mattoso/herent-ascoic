@@ -1,20 +1,19 @@
-﻿// Testes do Passo 9 — Projeção Completa.
-// Verifica: aiView não expõe campos privados (rng, world, etc.);
-// replayView cobre o que o replay viewer precisa;
-// playerView expõe campos pós-ECS (paused, pendingSkillChoice).
-
 import { describe, expect, it } from "vitest";
+import { pausedFromLegacy } from "../choices";
 import { reducer } from "../reducer/index";
 import { createInitialGameState } from "../state/gameState";
 import { aiView } from "./aiView";
 import { playerView } from "./playerView";
 import { replayView } from "./replayView";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { enemiesOf, heroesOf, withPaused } from "../state/access";
+import { gameOf } from "../../engine/state";
 
 const HERO = "hero_crimson_barbarian";
 
 function buildStartedState() {
 	const base = createInitialGameState({ heroCardIds: [HERO] });
-	return reducer(base, {
+	return reducer(testEngine, base, {
 		type: "START_GAME",
 		payload: { heroCardIds: [HERO] },
 	});
@@ -55,7 +54,7 @@ describe("aiView — privacidade", () => {
 
 	it("não expõe state.rng mesmo após ações aleatórias", () => {
 		let state = buildStartedState();
-		state = reducer(state, { type: "REVEAL_ROOM" });
+		state = reducer(testEngine, state, { type: "REVEAL_ROOM" });
 		const view = aiView(state, { playerIndex: 0 });
 		expect(view).not.toHaveProperty("rng");
 	});
@@ -67,14 +66,14 @@ describe("aiView — contrato de campos", () => {
 	it("expõe status", () => {
 		const state = buildStartedState();
 		const view = aiView(state, { playerIndex: 0 });
-		expect(view.status).toBe(state.status);
+		expect(view.status).toBe(gameOf(state).status);
 	});
 
 	it("visibleEntities contém heróis ativos", () => {
 		const state = buildStartedState();
 		const view = aiView(state, { playerIndex: 0 });
 		const heroEntities = view.visibleEntities.filter((e) => e.type === "hero");
-		const activeHeroes = state.heroes.filter((h) => h.status === "active");
+		const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
 		expect(heroEntities.length).toBe(activeHeroes.length);
 	});
 
@@ -91,7 +90,7 @@ describe("aiView — contrato de campos", () => {
 		const state = buildStartedState();
 		const view = aiView(state, { playerIndex: 0 });
 		const heroEntity = view.visibleEntities.find((e) => e.type === "hero");
-		const heroState = state.heroes.find((h) => h.id === heroEntity!.id);
+		const heroState = heroesOf(state).find((h) => h.id === heroEntity!.id);
 		expect(heroEntity!.currentHealth).toBe(heroState!.currentLife);
 		expect(heroEntity!.maxHealth).toBe(heroState!.maxLife);
 	});
@@ -100,7 +99,7 @@ describe("aiView — contrato de campos", () => {
 		const state = buildStartedState();
 		const view = aiView(state, { playerIndex: 0 });
 		const heroEntity = view.visibleEntities.find((e) => e.type === "hero");
-		const heroState = state.heroes.find((h) => h.id === heroEntity!.id);
+		const heroState = heroesOf(state).find((h) => h.id === heroEntity!.id);
 		expect(heroEntity!.conditions).toEqual(heroState!.conditions);
 	});
 
@@ -112,12 +111,12 @@ describe("aiView — contrato de campos", () => {
 
 	it("inimigos ativos aparecem em visibleEntities quando em combate", () => {
 		let state = buildStartedState();
-		state = reducer(state, { type: "REVEAL_ROOM" });
+		state = reducer(testEngine, state, { type: "REVEAL_ROOM" });
 		const view = aiView(state, { playerIndex: 0 });
 		const enemyEntities = view.visibleEntities.filter(
 			(e) => e.type === "enemy",
 		);
-		const activeEnemies = state.activeEnemies.filter(
+		const activeEnemies = enemiesOf(state).filter(
 			(e) => e.status === "active",
 		);
 		expect(enemyEntities.length).toBe(activeEnemies.length);
@@ -129,39 +128,39 @@ describe("aiView — contrato de campos", () => {
 describe("replayView — contrato", () => {
 	it("retorna os mesmos campos que playerView (deep equal)", () => {
 		const state = buildStartedState();
-		expect(replayView(state)).toEqual(playerView(state));
+		expect(replayView(testEngine, state)).toEqual(playerView(testEngine, state));
 	});
 
 	it("não expõe rng", () => {
 		const state = buildStartedState();
-		const view = replayView(state);
+		const view = replayView(testEngine, state);
 		expect(view).not.toHaveProperty("rng");
 	});
 
 	it("não expõe world", () => {
 		const state = buildStartedState();
-		const view = replayView(state);
+		const view = replayView(testEngine, state);
 		expect(view).not.toHaveProperty("world");
 	});
 
 	it("expõe status", () => {
 		const state = buildStartedState();
-		expect(replayView(state).status).toBe(state.status);
+		expect(replayView(testEngine, state).status).toBe(gameOf(state).status);
 	});
 
-	it("expõe heroes com referência idêntica a state.heroes", () => {
+	it("expõe heroes com referência estável e impeto projetado", () => {
 		const state = buildStartedState();
-		expect(replayView(state).heroes).toBe(state.heroes);
+		expect(replayView(testEngine, state).heroes).toBe(replayView(testEngine, state).heroes);
 	});
 
 	it("expõe enemies com referência idêntica a state.activeEnemies", () => {
 		const state = buildStartedState();
-		expect(replayView(state).enemies).toBe(state.activeEnemies);
+		expect(replayView(testEngine, state).enemies).toBe(enemiesOf(state));
 	});
 
 	it("expõe decks para reconstrução de estado durante replay", () => {
 		const state = buildStartedState();
-		const view = replayView(state);
+		const view = replayView(testEngine, state);
 		expect(view).toHaveProperty("decks");
 		expect(view.decks.dungeonDeck).toBeDefined();
 	});
@@ -172,14 +171,14 @@ describe("replayView — contrato", () => {
 describe("playerView — campos pós-ECS (passo 9)", () => {
 	it("expõe paused (null por padrão)", () => {
 		const state = buildStartedState();
-		const view = playerView(state);
+		const view = playerView(testEngine, state);
 		expect(view).toHaveProperty("paused");
 		expect(view.paused).toBeNull();
 	});
 
 	it("expõe pendingSkillChoice (null por padrão)", () => {
 		const state = buildStartedState();
-		const view = playerView(state);
+		const view = playerView(testEngine, state);
 		expect(view).toHaveProperty("pendingSkillChoice");
 		expect(view.pendingSkillChoice).toBeNull();
 	});
@@ -187,21 +186,18 @@ describe("playerView — campos pós-ECS (passo 9)", () => {
 	it("paused reflete state.paused quando preenchido", () => {
 		const state = buildStartedState();
 		// Injetar estado pausado diretamente
-		const pausedState = {
-			...state,
-			paused: {
-				reason: "skill_choice" as const,
-				options: [{ id: "x", label: "X" }],
-				resumeFrom: {
+		const pausedState = withPaused(state, pausedFromLegacy(
+				"skill_choice",
+				[{ id: "x", label: "X" }],
+				{
 					id: "effect-0-DamageDealt",
 					seq: 0,
 					cause: "DamageDealt",
 					effect: { type: "i_noop" },
 					source: "h1",
 				},
-			},
-		};
-		const view = playerView(pausedState);
+			));
+		const view = playerView(testEngine, pausedState);
 		expect(view.paused).not.toBeNull();
 		expect(view.paused!.reason).toBe("skill_choice");
 	});

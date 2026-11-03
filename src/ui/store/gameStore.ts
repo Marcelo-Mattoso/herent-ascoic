@@ -1,21 +1,11 @@
-// Store público do jogo — Passo 11: usa Elf + Redux DevTools.
-//
-// API pública inalterada: useGameStore(), dispatch(), setFocusedHero(),
-// resolveSkillChoice(), reset(). Componentes React não precisam ser alterados.
-//
-// Internamente:
-//   - Elf (gameElfStore) mantém GameState + UiState como BehaviorSubject.
-//   - createInProcessAdapter coordena o reducer.
-//   - Redux DevTools recebe ações nomeadas via __REDUX_DEVTOOLS_EXTENSION__.
-//   - useSyncExternalStore integra o Elf store com React.
-
 import { useSyncExternalStore } from "react";
-import type { Action } from "@/core/actions/types";
+import type { Action, InvFromZone, InvToZone } from "@/core/actions/types";
 import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
 import {
 	createGameJournal,
 	type GameJournal,
 } from "@/core/journal/gameJournal";
+import { moveInventoryItem } from "@/core/rules/inventoryMoves";
 import { type PlayerView, playerView } from "@/core/projection/playerView";
 import type { GameState } from "@/core/state/gameState";
 import { createInitialGameState } from "@/core/state/gameState";
@@ -28,17 +18,26 @@ import {
 	type UiState,
 } from "./elfStore";
 import { type HeroCombatActions, selectHeroCombatActions } from "./selectors";
+import { uiEngine } from "@/ui/engine";
+import { pendingSkillChoiceOf } from "../../core/state/access";
+import { gameOf } from "../../engine/state";
+
+export type RawGameState = GameState;
 
 // ── Tipos públicos ──────────────────────────────────────────────────────────
 
 interface GameStore {
 	readonly view: PlayerView;
-	readonly state: GameState;
 	readonly ui: UiState;
 	readonly journal: GameJournal;
 	readonly dispatch: (action: Action) => void;
 	readonly setFocusedHero: (heroId: string | null) => void;
 	readonly heroActionsFor: (heroId: string) => HeroCombatActions;
+	readonly canMoveInventoryItem: (
+		itemId: string,
+		from: InvFromZone,
+		to: InvToZone,
+	) => boolean;
 	readonly resolveSkillChoice: (choice: string) => void;
 	readonly reset: () => void;
 	readonly loadTrainingState: (state: GameState) => void;
@@ -95,11 +94,11 @@ function connectDevTools(initialState: GameState) {
 const EMPTY_CONFIG = { heroCardIds: [] as string[] };
 
 function makeAdapter() {
-	return createInProcessAdapter(createInitialGameState(EMPTY_CONFIG));
+	return createInProcessAdapter(uiEngine, createInitialGameState(EMPTY_CONFIG));
 }
 
 let adapter = makeAdapter();
-let journalRecorder = createGameJournal(adapter.getState());
+let journalRecorder = createGameJournal(uiEngine, adapter.getState());
 let devTools = connectDevTools(getElfGameState());
 
 // Debug: expõe dispatch no window pra inspeção via DevTools/preview.
@@ -110,7 +109,7 @@ if (typeof window !== "undefined" && import.meta.env.DEV) {
 	(
 		window as unknown as { __loadGameState: (state: GameState) => void }
 	).__loadGameState = (state: GameState) => {
-		adapter = createInProcessAdapter(state);
+		adapter = createInProcessAdapter(uiEngine, state);
 		journalRecorder.sync(state);
 		setElfStoreProps({ gameState: state });
 	};
@@ -125,7 +124,7 @@ function dispatch(action: Action): void {
 	journalRecorder.record(action, beforeState, nextState);
 
 	const currentFocus = getElfUiState().focusedHeroId;
-	const activeHeroes = nextState.heroes.filter((h) => h.status === "active");
+	const activeHeroes = gameOf(nextState).heroes.filter((h) => h.status === "active");
 	const focusStillValid = currentFocus
 		? activeHeroes.some((h) => h.id === currentFocus)
 		: false;
@@ -147,11 +146,19 @@ function setFocusedHero(heroId: string | null): void {
 }
 
 function heroActionsFor(heroId: string): HeroCombatActions {
-	return selectHeroCombatActions(getElfGameState(), heroId);
+	return selectHeroCombatActions(uiEngine, getElfGameState(), heroId);
+}
+
+function canMoveInventoryItem(
+	itemId: string,
+	from: InvFromZone,
+	to: InvToZone,
+): boolean {
+	return moveInventoryItem(uiEngine, getElfGameState(), itemId, from, to) !== null;
 }
 
 function resolveSkillChoice(choice: string): void {
-	const pending = getElfGameState().pendingSkillChoice;
+	const pending = pendingSkillChoiceOf(getElfGameState());
 	if (!pending) return;
 	dispatch({
 		type: "SKILL_CHOICE",
@@ -162,17 +169,17 @@ function resolveSkillChoice(choice: string): void {
 function reset(): void {
 	// Nova instância do adapter = nova partida, novo log.
 	adapter = makeAdapter();
-	journalRecorder = createGameJournal(adapter.getState());
+	journalRecorder = createGameJournal(uiEngine, adapter.getState());
 	resetElfStore();
 	devTools = connectDevTools(getElfGameState());
 }
 
 function loadTrainingState(state: GameState): void {
-	adapter = createInProcessAdapter(state);
-	journalRecorder = createGameJournal(state);
+	adapter = createInProcessAdapter(uiEngine, state);
+	journalRecorder = createGameJournal(uiEngine, state);
 	setElfStoreProps({
 		gameState: state,
-		ui: { focusedHeroId: state.heroes[0]?.id ?? null },
+		ui: { focusedHeroId: playerView(uiEngine, state).heroes[0]?.id ?? null },
 	});
 	devTools?.send({ type: "TUTORIAL_CHECKPOINT" }, state);
 }
@@ -182,13 +189,13 @@ function loadTrainingState(state: GameState): void {
 // Snapshot estável — só recria quando gameState ou ui mudam.
 let cachedElfProps = gameElfStore.getValue();
 let cachedSnapshot: GameStore = {
-	view: playerView(cachedElfProps.gameState),
-	state: cachedElfProps.gameState,
+	view: playerView(uiEngine, cachedElfProps.gameState),
 	ui: cachedElfProps.ui,
 	journal: journalRecorder.get(),
 	dispatch,
 	setFocusedHero,
 	heroActionsFor,
+	canMoveInventoryItem,
 	resolveSkillChoice,
 	reset,
 	loadTrainingState,
@@ -199,13 +206,13 @@ function getSnapshot(): GameStore {
 	if (props === cachedElfProps) return cachedSnapshot;
 	cachedElfProps = props;
 	cachedSnapshot = {
-		view: playerView(props.gameState),
-		state: props.gameState,
+		view: playerView(uiEngine, props.gameState),
 		ui: props.ui,
 		journal: journalRecorder.get(),
 		dispatch,
 		setFocusedHero,
 		heroActionsFor,
+		canMoveInventoryItem,
 		resolveSkillChoice,
 		reset,
 		loadTrainingState,

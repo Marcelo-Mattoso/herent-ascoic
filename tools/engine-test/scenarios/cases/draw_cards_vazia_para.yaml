@@ -1,0 +1,9 @@
+name: draw_cards com onEmpty stop compra o que houver
+kind: draw_cards
+given:
+  cards: [{ id: a }]
+  zones: [{ id: pilha, cards: [a] }, { id: mao }]
+when:
+  - run: [{ kind: draw_cards, from: pilha, to: mao, count: 3, onEmpty: stop }]
+then:
+  zones: { pilha: [], mao: [a] }

@@ -1,11 +1,11 @@
 import type { SkillRef } from "../data/cardTypes";
-import { getCardName } from "../data/cardLocale";
-import { getCardById } from "../data/cards";
-import { lookupAbilityById } from "../data/abilities";
+
+
+
 import { resolveManualGrantTarget } from "../abilities/executor";
 import type { SkillDefinition } from "../data/skillTypes";
 import type { DamageType } from "../events/types";
-import { cardSkills } from "../skills/lookup";
+
 import { resolveManualSkillTarget } from "../skills/targeting";
 import { guardPassed } from "../triggers/engine";
 import { isVoluntaryTrigger } from "../skills/activationMode";
@@ -14,8 +14,15 @@ import { ActivationTracker } from "../state/activation";
 import type { BonusEntry } from "../state/combatState";
 import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
-import type { HeroState, ItemSlotType } from "../state/heroState";
+import type { HeroRecord, HeroState, ItemSlotType } from "../state/heroState";
+import { abilityById, cardById, cardName, skillsOf } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+import { modifierStatSpec } from "../skills/dsl/kinds/shared";
+import { resolveCondition } from "../skills/dsl/resolveCondition";
+import { buildScriptCtx } from "../scripts/context";
 
+import { awakeningOf, enemiesOf, heroesOf, pausedOf, pendingSkillChoiceOf, pendingSkillTargetOf, pendingTriggerInterruptOf } from "../state/access";
+import { gameOf, withGame } from "../../engine/state";
 export type ItemLocation =
 	| { kind: "active"; slot: ItemSlotType }
 	| { kind: "backpack"; index: number };
@@ -45,41 +52,41 @@ export function itemIsExhausted(
 	itemId: string,
 ): boolean {
 	const prefix = `item:${itemActivationId(heroId, itemId)}`;
-	return Object.keys({ ...state.disabled, ...state.combat?.disabled }).some(
+	return Object.keys({ ...gameOf(state).disabled, ...gameOf(state).combat!?.disabled }).some(
 		(key) => key === prefix || key.startsWith(`${prefix}:`),
 	);
 }
 
-export function manualItemUnavailableReason(
+export function manualItemUnavailableReason(engine: GameEngine, 
 	state: GameState,
 	heroId: string,
 	itemId: string,
 ): string | null {
-	const hero = state.heroes.find(
+	const hero = heroesOf(state).find(
 		(h) => h.id === heroId && h.status === "active",
 	);
 	if (!hero) return "Herói inválido ou inativo.";
 	const location = findHeroItemLocation(hero, itemId);
-	const card = getCardById(itemId);
-	const mysticDrawReward = state.status === "REWARD_PHASE" &&
+	const card = cardById(engine, itemId);
+	const mysticDrawReward = gameOf(state).status === "REWARD_PHASE" &&
 		card?.grants?.some((grant) => grant.activation.kind === "manual" &&
-			grant.abilityId === "item_skill_mystic_draw") &&
-		state.pendingRewards.some((reward) => reward.type === "item" && reward.cardId === itemId);
+			grant.activation.usableFromReward) &&
+		gameOf(state).pendingRewards.some((reward) => reward.type === "item" && reward.cardId === itemId);
 	if (!location && !mysticDrawReward) return "Este item não pertence ao herói.";
 	if (location?.kind === "backpack") {
 		return "Equipe este item para ativá-lo.";
 	}
 	if (
-		state.paused ||
-		state.pendingSkillChoice ||
-		state.pendingSkillTarget ||
-		state.pendingTriggerInterrupt
+		pausedOf(state) ||
+		pendingSkillChoiceOf(state) ||
+		pendingSkillTargetOf(state) ||
+		pendingTriggerInterruptOf(state)
 	)
 		return "Conclua a escolha pendente primeiro.";
-	if (state.status === "HERO_ACTION" || state.status === "BOSS_COMBAT") {
+	if (gameOf(state).status === "HERO_ACTION" || gameOf(state).status === "BOSS_COMBAT") {
 		if (
-			!(["selecting_hero", "selecting_target"].includes(state.combat?.phase ?? "")) ||
-			(state.combat?.phase === "selecting_target" && state.combat.selectedHeroId !== heroId) ||
+			!(["selecting_hero", "selecting_target"].includes(gameOf(state).combat?.phase ?? "")) ||
+			(gameOf(state).combat?.phase === "selecting_target" && gameOf(state).combat!.selectedHeroId !== heroId) ||
 			ActivationTracker.isHeroDisabledThisRound(state, heroId)
 		)
 			return "Selecione um herói que ainda pode agir nesta rodada.";
@@ -92,7 +99,7 @@ export function manualItemUnavailableReason(
 			"XP_SPEND_PHASE",
 			"OPEN_PATHS",
 			"DUNGEON_EXHAUSTED",
-		].includes(state.status)
+		].includes(gameOf(state).status)
 	) {
 		return "Aguarde uma janela de ação para usar o item.";
 	}
@@ -115,13 +122,13 @@ export function manualItemUnavailableReason(
 		if (hero.currentLife <= (grant.activation.cost?.hp ?? 0))
 			return "Vida insuficiente para pagar o custo.";
 		if (manualGrant) {
-			const target = resolveManualGrantTarget(state,
+			const target = resolveManualGrantTarget(engine, state,
 				{ kind: "item", cardId: itemId, sourceHeroId: heroId }, grant);
 			if (target.kind === "unavailable") return target.reason;
 		}
 		return null;
 	}
-	const def = cardSkills(itemId)[0]?.def;
+	const def = skillsOf(engine, itemId)[0]?.def;
 	const preparableLegacy = def?.operate_type === "op_triggered" &&
 		isVoluntaryTrigger(def, "item", def.trigger!.event);
 	if (def?.operate_type === "op_triggered" && !preparableLegacy)
@@ -140,38 +147,38 @@ export function manualItemUnavailableReason(
 		return "O limite de uso deste efeito já foi atingido.";
 	if (hero.currentLife <= (def.cost?.hp ?? 0))
 		return "Vida insuficiente para pagar o custo.";
-	const target = preparableLegacy ? null : resolveManualSkillTarget(state, def, heroId);
+	const target = preparableLegacy ? null : resolveManualSkillTarget(engine, state, def, heroId);
 	return target?.kind === "unavailable" ? target.reason : null;
 }
 
-export function manualItemOptions(state: GameState, heroId: string) {
-	const hero = state.heroes.find((h) => h.id === heroId);
+export function manualItemOptions(engine: GameEngine, state: GameState, heroId: string) {
+	const hero = heroesOf(state).find((h) => h.id === heroId);
 	// A lista de ações só inclui itens do herói que passaram pela validação de equipamento.
 	const itemIds = [
 		...Object.values(hero?.activeItems ?? {}),
 		...(hero?.backpack ?? []),
 	];
 	return itemIds.flatMap((itemId) => {
-		if (!itemId || manualItemUnavailableReason(state, heroId, itemId))
+		if (!itemId || manualItemUnavailableReason(engine, state, heroId, itemId))
 			return [];
-		const card = getCardById(itemId);
+		const card = cardById(engine, itemId);
 		const grant = card?.grants?.find((entry) => entry.activation.kind === "manual" ||
 			(entry.activation.kind === "event" && entry.activation.decision === "optional"));
-		const def = cardSkills(itemId)[0]?.def;
+		const def = skillsOf(engine, itemId)[0]?.def;
 		const target = grant
 			? grant.activation.kind === "event"
 				? { kind: "ready" as const, targetIds: [] as readonly string[] }
-				: resolveManualGrantTarget(state,
+				: resolveManualGrantTarget(engine, state,
 					{ kind: "item", cardId: itemId, sourceHeroId: heroId }, grant)
 			: def?.operate_type === "op_triggered"
 				? { kind: "ready" as const, targetIds: [] as readonly string[] }
-				: resolveManualSkillTarget(state, def!, heroId);
+				: resolveManualSkillTarget(engine, state, def!, heroId);
 		return [
 			{
 				itemId,
-				name: getCardName(itemId),
+				name: cardName(engine, itemId),
 				target,
-				prepared: Boolean(state.preparedAbilities?.[`item:${heroId}:${itemId}:${grant?.id ?? def?.id}`]),
+				prepared: Boolean(gameOf(state).preparedAbilities?.[`item:${heroId}:${itemId}:${grant?.id ?? def?.id}`]),
 				activation: grant?.activation.kind === "event" || def?.operate_type === "op_triggered" ? "prepare" as const : "manual" as const,
 			},
 		];
@@ -179,7 +186,7 @@ export function manualItemOptions(state: GameState, heroId: string) {
 }
 
 export function findHeroItemLocation(
-	hero: HeroState,
+	hero: HeroRecord,
 	itemId: string,
 ): ItemLocation | null {
 	for (const [slot, activeItemId] of Object.entries(hero.activeItems)) {
@@ -197,9 +204,7 @@ export function removeHeroItem(
 	heroId: string,
 	itemId: string,
 ): GameState {
-	return {
-		...state,
-		heroes: state.heroes.map((hero) => {
+	return withGame(state, (prevGame) => ({ ...prevGame, heroes: gameOf(state).heroes.map((hero) => {
 			if (hero.id !== heroId) return hero;
 			const location = findHeroItemLocation(hero, itemId);
 			if (!location) return hero;
@@ -217,12 +222,11 @@ export function removeHeroItem(
 						? hero.backpack.filter((_, index) => index !== location.index)
 						: hero.backpack,
 			};
-		}),
-	};
+		}) }));
 }
 
-export function isConsumableItem(itemId: string): boolean {
-	const card = getCardById(itemId);
+export function isConsumableItem(engine: GameEngine, itemId: string): boolean {
+	const card = cardById(engine, itemId);
 	return card?.type === "item" && card.itemClass === "consumable";
 }
 
@@ -236,8 +240,8 @@ export function itemCanBeUsedManually(def: SkillDefinition): boolean {
 	return Boolean(def.effect?.some(isManualItemEffect));
 }
 
-export function itemShouldBeConsumed(itemId: string): boolean {
-	return isConsumableItem(itemId);
+export function itemShouldBeConsumed(engine: GameEngine, itemId: string): boolean {
+	return isConsumableItem(engine, itemId);
 }
 
 export function itemUseTargetIds(
@@ -248,10 +252,10 @@ export function itemUseTargetIds(
 	targetEnemyId?: string,
 ): string[] {
 	if (def.target_type === "tgt_enemy") {
-		const pairedEnemyId = state.combat?.pairs.find(
+		const pairedEnemyId = gameOf(state).combat?.pairs.find(
 			(p) => p.heroId === heroId,
 		)?.enemyId;
-		const fallbackEnemyId = state.activeEnemies.find(
+		const fallbackEnemyId = enemiesOf(state).find(
 			(e) => e.status === "active",
 		)?.id;
 		const enemyId = targetEnemyId ?? pairedEnemyId ?? fallbackEnemyId;
@@ -263,64 +267,66 @@ export function itemUseTargetIds(
 	return [targetHeroId ?? heroId];
 }
 
-export function collectHeroHitBonusesFromItems(
+export function collectHeroHitBonusesFromItems(engine: GameEngine, 
 	hero: HeroState,
 	state: GameState,
 	enemy?: EnemyState,
 ): BonusEntry[] {
 	const continuousGrants = Object.values(hero.activeItems).flatMap((itemId) => {
 		if (!itemId) return [];
-		const item = getCardById(itemId);
+		const item = cardById(engine, itemId);
 		if (item?.type !== "item") return [];
 		return (item.grants ?? []).flatMap((grant) => {
 			if (grant.activation.kind !== "continuous") return [];
-			if (!conditionsApply(grant.activation.conditions, state, hero, enemy))
+			if (!conditionsApply(engine, grant.activation.conditions, state, hero, enemy))
 				return [];
-			const ability = lookupAbilityById(grant.abilityId);
+			const ability = abilityById(engine, grant.abilityId);
 			const params = { ...ability?.defaultParams, ...grant.params };
 			return (ability?.effect ?? []).flatMap((effect) => {
 				if (effect.kind !== "p_modifier" || effect.stat !== "s_hit_bonus")
 					return [];
-				const value = resolveNumber(effect.value, params, state.despertar);
-				return value ? [{ source: getCardName(itemId), value }] : [];
+				const value = resolveNumber(effect.value, params, awakeningOf(state));
+				return value ? [{ source: cardName(engine, itemId), value }] : [];
 			});
 		});
 	});
 	return [
 		...continuousGrants,
-		...itemSkillSourcesForHero(hero, state).flatMap((source) => {
+		...itemSkillSourcesForHero(engine, hero, state).flatMap((source) => {
 			if (!skillAffectsAttackRoll(source.def)) return [];
-			if (!conditionsApply(source.def.conditions, state, hero, enemy))
+			if (!conditionsApply(engine, source.def.conditions, state, hero, enemy))
 				return [];
-			if (source.def.id === "skill_hunter_focus") {
-				return bonusEntry(source, numericParam(source.params, "value"));
+			const hitParam = source.def.rules?.hitBonusParam;
+			if (hitParam) {
+				return bonusEntry(engine, source, numericParam(source.params, hitParam));
 			}
-			return modifierEntries(source, state, "hit");
+			return modifierEntries(engine, source, state, "hit");
 		}),
 	];
 }
 
-export function collectHeroDamageBonusesFromItems(
+export function collectHeroDamageBonusesFromItems(engine: GameEngine, 
 	hero: HeroState,
 	state: GameState,
 	enemy: EnemyState | undefined,
 	rollMargin: number,
 ): ItemModifierBreakdown[] {
-	return itemSkillSourcesForHero(hero, state).flatMap((source) => {
+	return itemSkillSourcesForHero(engine, hero, state).flatMap((source) => {
 		if (!skillAffectsDamageDealt(source.def)) return [];
-		if (!conditionsApply(source.def.conditions, state, hero, enemy)) return [];
-		if (isMarginDamageSkill(source.def.id) && rollMargin < 4) return [];
-		return modifierEntries(source, state, "damage");
+		if (!conditionsApply(engine, source.def.conditions, state, hero, enemy)) return [];
+		const minMargin = source.def.rules?.minRollMargin;
+		if (minMargin !== undefined && rollMargin < minMargin) return [];
+		return modifierEntries(engine, source, state, "damage");
 	});
 }
 
-export function collectHeroDamageReductionsFromItems(
+export function collectHeroDamageReductionsFromItems(engine: GameEngine, 
 	hero: HeroState,
 	state: GameState,
 	damageType: DamageType = "physical",
 ): ItemModifierBreakdown[] {
-	return itemSkillSourcesForHero(hero, state).flatMap((source) =>
-		modifierEntries(source, state, "reduction", damageType),
+	return itemSkillSourcesForHero(engine, hero, state).flatMap((source) =>
+		modifierEntries(engine, source, state, "reduction", damageType),
 	);
 }
 
@@ -330,15 +336,15 @@ export function totalItemValue(
 	return breakdown.reduce((sum, entry) => sum + entry.value, 0);
 }
 
-export function collectHeroLifeDrainFromItems(
+export function collectHeroLifeDrainFromItems(engine: GameEngine, 
 	hero: HeroState,
 	state: GameState,
 ): ItemModifierBreakdown[] {
-	return itemSkillSourcesForHero(hero, state)
-		.filter(
-			(source) => source.def.id === "item_skill_drain_life_and_deadly_edge",
-		)
-		.map((source) => ({ source: sourceLabel(source), value: 1 }));
+	return itemSkillSourcesForHero(engine, hero, state)
+		.flatMap((source) => {
+			const value = source.def.rules?.lifeDrain;
+			return value ? [{ source: sourceLabel(engine, source), value }] : [];
+		});
 }
 
 export function formatItemBreakdown(
@@ -368,7 +374,7 @@ function isManualItemEffect(effect: EffectNode): boolean {
 	return false;
 }
 
-function itemSkillSourcesForHero(
+function itemSkillSourcesForHero(engine: GameEngine, 
 	hero: HeroState,
 	state: GameState,
 ): ItemSkillSource[] {
@@ -376,20 +382,20 @@ function itemSkillSourcesForHero(
 
 	for (const itemId of Object.values(hero.activeItems)) {
 		if (!itemId) continue;
-		const item = getCardById(itemId);
+		const item = cardById(engine, itemId);
 		if (item?.type === "item" && item.useTiming) continue;
 		// Grants explícitos já descrevem todo o comportamento da carta. Os
 		// SkillRefs ficam apenas para compatibilidade e não devem duplicá-lo.
 		if (item?.type === "item" && item.grants?.length) continue;
-		sources.push(...skillSourcesForCard(itemId, "item", itemId, hero.id));
+		sources.push(...skillSourcesForCard(engine, itemId, "item", itemId, hero.id));
 	}
 
-	for (const artifact of state.groupArtifacts) {
+	for (const artifact of gameOf(state).groupArtifacts) {
 		if (artifact.carriedBy && artifact.carriedBy !== hero.id) continue;
 		if (ActivationTracker.isDisabled(state, "artifact", artifact.cardId))
 			continue;
 		sources.push(
-			...skillSourcesForCard(
+			...skillSourcesForCard(engine, 
 				artifact.cardId,
 				"artifact",
 				artifact.cardId,
@@ -401,13 +407,13 @@ function itemSkillSourcesForHero(
 	return sources;
 }
 
-function skillSourcesForCard(
+function skillSourcesForCard(engine: GameEngine, 
 	cardId: string,
 	sourceKind: "item" | "artifact",
 	sourceId: string,
 	ownerHeroId: string | null,
 ): ItemSkillSource[] {
-	return cardSkills(cardId).map(({ def, ref }) => ({
+	return skillsOf(engine, cardId).map(({ def, ref }) => ({
 		cardId,
 		ownerHeroId,
 		sourceKind,
@@ -419,7 +425,7 @@ function skillSourcesForCard(
 }
 
 function skillAffectsAttackRoll(def: SkillDefinition): boolean {
-	if (def.id === "skill_hunter_focus") return true;
+	if (def.rules?.hitBonusParam) return true;
 	return Boolean(
 		def.effect?.some(
 			(effect) =>
@@ -440,14 +446,7 @@ function skillAffectsDamageDealt(def: SkillDefinition): boolean {
 	);
 }
 
-function isMarginDamageSkill(skillId: string): boolean {
-	return (
-		skillId === "item_skill_deadly_edge" ||
-		skillId === "item_skill_drain_life_and_deadly_edge"
-	);
-}
-
-function modifierEntries(
+function modifierEntries(engine: GameEngine, 
 	source: ItemSkillSource,
 	state: GameState,
 	kind: "hit" | "damage" | "reduction",
@@ -457,41 +456,40 @@ function modifierEntries(
 	const entries: ItemModifierBreakdown[] = [];
 	for (const effect of source.def.effect) {
 		if (effect.kind !== "p_modifier") continue;
-		const value = resolveNumber(effect.value, source.params, state.despertar);
+		const value = resolveNumber(effect.value, source.params, awakeningOf(state));
 		if (!value) continue;
 
 		if (kind === "hit" && effect.stat === "s_hit_bonus") {
-			entries.push({ source: sourceLabel(source), value });
+			entries.push({ source: sourceLabel(engine, source), value });
 		}
 		if (kind === "hit" && effect.stat === "s_hit_penalty") {
-			entries.push({ source: sourceLabel(source), value: -value });
+			entries.push({ source: sourceLabel(engine, source), value: -value });
 		}
 		if (kind === "damage" && effect.stat === "s_damage_dealt") {
-			entries.push({ source: sourceLabel(source), value });
+			entries.push({ source: sourceLabel(engine, source), value });
 		}
 		if (kind === "damage" && effect.stat === "s_damage_penalty") {
-			entries.push({ source: sourceLabel(source), value: -value });
+			entries.push({ source: sourceLabel(engine, source), value: -value });
 		}
 		if (kind === "reduction" && effect.stat === "s_damage_reduction") {
-			entries.push({ source: sourceLabel(source), value });
+			entries.push({ source: sourceLabel(engine, source), value });
 		}
 		if (
 			kind === "reduction" &&
-			damageType === "purple" &&
-			effect.stat === "s_purple_damage_reduction"
+			modifierStatSpec(engine, effect.stat)?.damageType === damageType
 		) {
-			entries.push({ source: sourceLabel(source), value });
+			entries.push({ source: sourceLabel(engine, source), value });
 		}
 	}
 	return entries;
 }
 
-function bonusEntry(source: ItemSkillSource, value: number): BonusEntry[] {
-	return value ? [{ source: sourceLabel(source), value }] : [];
+function bonusEntry(engine: GameEngine, source: ItemSkillSource, value: number): BonusEntry[] {
+	return value ? [{ source: sourceLabel(engine, source), value }] : [];
 }
 
-function sourceLabel(source: ItemSkillSource): string {
-	return getCardName(source.cardId);
+function sourceLabel(engine: GameEngine, source: ItemSkillSource): string {
+	return cardName(engine, source.cardId);
 }
 
 function numericParam(
@@ -539,90 +537,17 @@ function resolveNumber(
 	return 0;
 }
 
-function conditionsApply(
+export function conditionsApply(engine: GameEngine, 
 	conditions: readonly ConditionNode[] | undefined,
 	state: GameState,
 	hero: HeroState,
 	enemy?: EnemyState,
 ): boolean {
 	if (!conditions || conditions.length === 0) return true;
-	return conditions.every((condition) =>
-		conditionApplies(condition, state, hero, enemy),
-	);
-}
-
-function conditionApplies(
-	condition: ConditionNode,
-	state: GameState,
-	hero: HeroState,
-	enemy?: EnemyState,
-): boolean {
-	if ("any_of" in condition) {
-		return condition.any_of.some((child) =>
-			conditionApplies(child, state, hero, enemy),
-		);
-	}
-	switch (condition.kind) {
-		case "and":
-			return condition.children.every((child) =>
-				conditionApplies(child, state, hero, enemy),
-			);
-		case "or":
-			return condition.children.some((child) =>
-				conditionApplies(child, state, hero, enemy),
-			);
-		case "not":
-			return !conditionApplies(condition.child, state, hero, enemy);
-		case "has_condition": {
-			if (condition.of === "$enemy") {
-				if (!enemy) return false;
-				if (condition.conditionType === "boss_or_subboss") {
-					return enemy.id === "boss" || Boolean(enemy.isSubboss);
-				}
-				return enemy.conditions.includes(condition.conditionType);
-			}
-			if (condition.of === "$source" || condition.of === "$self") {
-				return hero.conditions.includes(condition.conditionType);
-			}
-			return false;
-		}
-		case "has_skill": {
-			const targetId =
-				condition.of === "$source" || condition.of === "$self"
-					? hero.cardId
-					: condition.of === "$enemy"
-						? enemy?.cardId
-						: null;
-			return targetId
-				? cardSkills(targetId).some(({ def }) => def.id === condition.skillId)
-				: false;
-		}
-		case "compare":
-			return compareValues(
-				resolveNumber(condition.left, {}, state.despertar),
-				resolveNumber(condition.right, {}, state.despertar),
-				condition.op,
-			);
-	}
-}
-
-function compareValues(
-	left: number,
-	right: number,
-	op: "lt" | "lte" | "eq" | "gte" | "gt" | "in",
-): boolean {
-	switch (op) {
-		case "lt":
-			return left < right;
-		case "lte":
-			return left <= right;
-		case "eq":
-			return left === right;
-		case "gte":
-			return left >= right;
-		case "gt":
-			return left > right;
-		case "in":
-			return left === right;
-	}
+	const ctx = buildScriptCtx(engine, state, {
+		triggeredBy: "on_use",
+		sourceHeroId: hero.id,
+		...(enemy ? { targetEnemyIds: [enemy.id] } : {}),
+	});
+	return conditions.every((condition) => resolveCondition(condition, ctx));
 }

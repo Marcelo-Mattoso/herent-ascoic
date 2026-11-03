@@ -1,18 +1,38 @@
 {
-	"xpCosts": {
-		"recover_dungeon": 5,
-		"level_up": 10,
-		"buy_item": 15,
-		"lower_despertar": 30,
-		"buy_artifact": 35
-	},
-	"dungeonExhaustionCost": 5,
-	"difficultyPresets": {
-		"very_easy": { "heroOffset": 2, "despertarOffset": 0 },
-		"easy": { "heroOffset": 1, "despertarOffset": 0 },
-		"normal": { "heroOffset": 0, "despertarOffset": 0 },
-		"hard": { "heroOffset": 0, "despertarOffset": 1 },
-		"nightmare": { "heroOffset": 0, "despertarOffset": 2 }
-	},
-	"backpackLimit": 3
+  "xpCosts": {
+    "recover_dungeon": 5,
+    "level_up": 10,
+    "buy_item": 15,
+    "lower_despertar": 30,
+    "buy_artifact": 35
+  },
+  "dungeonExhaustionCost": 5,
+  "difficultyPresets": {
+    "very_easy": {
+      "heroOffset": 2,
+      "despertarOffset": 0,
+      "recoverCost": 3
+    },
+    "easy": {
+      "heroOffset": 1,
+      "despertarOffset": 0,
+      "recoverCost": 4
+    },
+    "normal": {
+      "heroOffset": 0,
+      "despertarOffset": 0,
+      "recoverCost": 5
+    },
+    "hard": {
+      "heroOffset": 0,
+      "despertarOffset": 1,
+      "recoverCost": 6
+    },
+    "nightmare": {
+      "heroOffset": 0,
+      "despertarOffset": 1,
+      "recoverCost": 7
+    }
+  },
+  "backpackLimit": 3
 }

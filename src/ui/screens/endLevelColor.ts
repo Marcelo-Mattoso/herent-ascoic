@@ -1,4 +1,4 @@
-import { COLORS, type ColorIndex } from "@/core/state/color";
+import { COLORS, type ColorIndex } from "@/core/projection/viewTypes";
 import { translate } from "@/i18n";
 
 export function endLevelColorName(level: ColorIndex): string {

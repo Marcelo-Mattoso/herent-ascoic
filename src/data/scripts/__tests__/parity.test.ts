@@ -9,7 +9,8 @@ import * as fs from "node:fs";
 import * as path from "node:path";
 import { describe, expect, it } from "vitest";
 import { parse } from "yaml";
-import { getScript } from "@/core/scripts/registry";
+import { scriptOf } from "@/core/gameEngine";
+import { testEngine } from "@/core/__tests__/testEngine";
 
 const SKILLS_YAML = path.join(import.meta.dirname, "../../../data/skills.yaml");
 const SCRIPTS_DIR = path.join(import.meta.dirname, "..");
@@ -53,7 +54,7 @@ describe("paridade skills.json → arquivos de script", () => {
 				true,
 			);
 			// Verifica que o registry carregou o run
-			const fn = getScript(`${id}.run`);
+			const fn = scriptOf(testEngine, `${id}.run`);
 			expect(
 				fn,
 				`${id}.ts não exporta 'run' ou não foi carregado pelo registry`,

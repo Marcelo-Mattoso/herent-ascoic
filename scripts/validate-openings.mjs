@@ -27,9 +27,16 @@ for (const entry of config.expansions) {
 	const packageDir = path.join(root, entry.id);
 	const pack = JSON.parse(fs.readFileSync(path.join(packageDir, "expansion.json"), "utf8"));
 	assert.equal(pack.id, entry.id);
+	const bosses = pack.cards.filter((card) => card.type === "boss");
+	if (pack.boss) {
+		assert.equal(pack.boss, "boss.json", "Nome de ficha de boss não permitido");
+		const bossFile = JSON.parse(fs.readFileSync(path.join(packageDir, pack.boss), "utf8"));
+		assert.equal(bossFile.card?.type, "boss", "Ficha de boss inválida");
+		bosses.push(bossFile.card);
+	}
 	for (const [bossId, introPath] of Object.entries(pack.openings ?? {})) {
 		assert.match(introPath, /^abertura\/[a-z0-9-]+\.json$/);
-		assert.ok(pack.cards.some((card) => card.id === bossId && card.type === "boss"), `Chefe ausente: ${bossId}`);
+		assert.ok(bosses.some((card) => card.id === bossId), `Chefe ausente: ${bossId}`);
 		const intro = JSON.parse(fs.readFileSync(path.join(packageDir, ...introPath.split("/")), "utf8"));
 		assert.equal(intro.version, 1);
 		assert.equal(intro.expansionId, entry.id);

@@ -1,5 +1,3 @@
-﻿// Testes de aceite Lote 3 (Patch-12 Fase 5) — DSL choose_one.
-
 import { describe, expect, it } from "vitest";
 import { getModifierTotal } from "../../../ecs/world";
 import { reducer } from "../../../reducer";
@@ -10,6 +8,10 @@ import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { heroesOf, pendingSkillChoiceOf } from "../../../state/access";
+import { settled, settledWith, type LooseGame } from "../../../__tests__/fixtures";
+import { gameOf, withGame } from "../../../../engine/state";
 
 const CFG = { heroCardIds: [] };
 
@@ -22,7 +24,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -34,13 +35,12 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 	};
 }
 
-function stateWithCombat(extra: Partial<GameState> = {}): GameState {
-	return {
-		...createInitialGameState(CFG),
+function stateWithCombat(extra: Partial<LooseGame> = {}): GameState {
+	return settledWith(createInitialGameState(CFG), {
 		heroes: [makeHero()],
 		combat: createEmptyCombatState(),
 		...extra,
-	};
+	});
 }
 
 function dispatchChoice(
@@ -48,7 +48,7 @@ function dispatchChoice(
 	skillId: string,
 	choice: string,
 ): GameState {
-	return reducer(state, { type: "SKILL_CHOICE", payload: { skillId, choice } });
+	return reducer(testEngine, state, { type: "SKILL_CHOICE", payload: { skillId, choice } });
 }
 
 // ── choose_one: abre pendingSkillChoice + SKILL_CHOICE avalia ramo correto ────
@@ -56,7 +56,7 @@ function dispatchChoice(
 describe("choose_one — fluxo completo", () => {
 	it("grava ramos de effect no pendingSkillChoice", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_use", skillId: "test_skill" },
 			{},
@@ -88,15 +88,15 @@ describe("choose_one — fluxo completo", () => {
 			],
 			ctx,
 		);
-		expect(result.pendingSkillChoice).toBeDefined();
-		expect(result.pendingSkillChoice?.options).toHaveLength(2);
-		expect(result.pendingSkillChoice?.options[0]?.effect).toBeDefined();
+		expect(pendingSkillChoiceOf(result)).toBeDefined();
+		expect(pendingSkillChoiceOf(result)?.options).toHaveLength(2);
+		expect(pendingSkillChoiceOf(result)?.options[0]?.effect).toBeDefined();
 	});
 
 	it("SKILL_CHOICE avalia o ramo 'curar'", () => {
 		const hero = makeHero({ currentLife: 5 });
 		const state = stateWithCombat({ heroes: [hero] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_use", skillId: "test_skill", sourceHeroId: "h1" },
 			{},
@@ -129,13 +129,13 @@ describe("choose_one — fluxo completo", () => {
 			ctx,
 		);
 		const result = dispatchChoice(withChoice, "test_skill", "heal");
-		expect(result.heroes[0].currentLife).toBe(8);
-		expect(result.pendingSkillChoice).toBeUndefined();
+		expect(heroesOf(result)[0].currentLife).toBe(8);
+		expect(pendingSkillChoiceOf(result)).toBeUndefined();
 	});
 
 	it("SKILL_CHOICE avalia o ramo 'dano'", () => {
 		const state = stateWithCombat();
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_use", skillId: "test_skill", sourceHeroId: "h1" },
 			{},
@@ -169,8 +169,8 @@ describe("choose_one — fluxo completo", () => {
 		);
 		const result = dispatchChoice(withChoice, "test_skill", "damage_bonus");
 		// Patch-18 Lote G: damage_bonus → damage_dealt no ECS world
-		expect(getModifierTotal(result.world, "h1", "damage_dealt")).toBe(2);
-		expect(result.pendingSkillChoice).toBeUndefined();
+		expect(getModifierTotal(gameOf(result).world, "h1", "damage_dealt")).toBe(2);
+		expect(pendingSkillChoiceOf(result)).toBeUndefined();
 	});
 });
 
@@ -180,7 +180,7 @@ describe("power_greater_last_light_miracle — choose_one", () => {
 	it("escolher 'curar totalmente' restaura vida ao máximo", () => {
 		const hero = makeHero({ currentLife: 2 });
 		const state = stateWithCombat({ heroes: [hero] });
-		const ctx = buildScriptCtx(
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "on_use",
@@ -213,7 +213,7 @@ describe("power_greater_last_light_miracle — choose_one", () => {
 			"power_greater_last_light_miracle",
 			"full_heal",
 		);
-		expect(result.heroes[0].currentLife).toBe(10);
+		expect(heroesOf(result)[0].currentLife).toBe(10);
 	});
 });
 
@@ -224,12 +224,8 @@ describe("power_last_light_oath — for_each heal", () => {
 		const h1 = makeHero({ id: "h1", currentLife: 3 });
 		const h2 = makeHero({ id: "h2", currentLife: 5 });
 		const base = createInitialGameState(CFG);
-		const state: GameState = {
-			...base,
-			heroes: [h1, h2],
-			combat: createEmptyCombatState(),
-		};
-		const ctx = buildScriptCtx(
+		const state: GameState = settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [h1, h2], combat: createEmptyCombatState() })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{
 				triggeredBy: "on_use",
@@ -277,7 +273,7 @@ describe("power_last_light_oath — for_each heal", () => {
 			"power_last_light_oath",
 			"heal_all",
 		);
-		expect(result.heroes.find((h) => h.id === "h1")?.currentLife).toBe(8);
-		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(10);
+		expect(heroesOf(result).find((h) => h.id === "h1")?.currentLife).toBe(8);
+		expect(heroesOf(result).find((h) => h.id === "h2")?.currentLife).toBe(10);
 	});
 });

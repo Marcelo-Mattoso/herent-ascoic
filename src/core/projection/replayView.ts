@@ -7,11 +7,12 @@
 import type { GameState } from "../state/gameState";
 import type { PlayerView } from "./playerView";
 import { playerView } from "./playerView";
+import type { GameEngine } from "../gameEngine";
 
 // ReplayView é idêntico ao PlayerView agora.
 // Tipo distinto para permitir divergência futura sem quebrar o contrato da UI.
 export type ReplayView = PlayerView;
 
-export function replayView(state: GameState): ReplayView {
-	return playerView(state);
+export function replayView(engine: GameEngine, state: GameState): ReplayView {
+	return playerView(engine, state);
 }

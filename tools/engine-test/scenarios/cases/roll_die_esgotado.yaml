@@ -1,0 +1,8 @@
+name: roll_die falha quando o roteiro de dados acaba
+kind: roll_die
+given:
+  dice: []
+when:
+  - run: [{ kind: roll_die, faces: 6 }]
+then:
+  error: esgotados

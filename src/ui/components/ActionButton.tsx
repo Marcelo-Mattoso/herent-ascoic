@@ -12,6 +12,7 @@ interface ActionButtonProps {
 	attention?: boolean;
 	title?: string;
 	tutorialAnchor?: string;
+	abilityId?: string;
 }
 
 const VARIANT_STYLES: Record<
@@ -37,6 +38,7 @@ export function ActionButton({
 	attention,
 	title,
 	tutorialAnchor,
+	abilityId,
 }: ActionButtonProps) {
 	const style = VARIANT_STYLES[variant];
 	const showAttention = !!attention && !disabled;
@@ -47,6 +49,7 @@ export function ActionButton({
 			disabled={disabled}
 			className={`action-button flex items-center justify-center gap-2 px-4 py-2 rounded-lg text-sm font-medium transition-opacity ${fullWidth ? "w-full" : ""} ${disabled ? "opacity-40 cursor-not-allowed" : "hover:opacity-80 cursor-pointer"}${showAttention ? " click-attention" : ""}`}
 			data-tutorial-anchor={tutorialAnchor}
+			data-ability-id={abilityId}
 			title={title}
 			style={{
 				background: style.bg,

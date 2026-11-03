@@ -1,10 +1,14 @@
-﻿import { describe, expect, it } from "vitest";
+import { describe, expect, it } from "vitest";
 import type { GameState } from "../../../state/gameState";
 import { createInitialGameState } from "../../../state/gameState";
 import type { HeroState } from "../../../state/heroState";
 import { buildScriptCtx } from "../../../scripts/context";
 import { evaluate } from "../evaluate";
 import type { EffectNode, EvalCtx } from "../types";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { settled } from "../../../__tests__/fixtures";
+import { effectStackOf } from "../../../state/access";
+import { withGame, gameOf } from "../../../../engine/state";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -17,7 +21,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -47,6 +50,7 @@ function makeMockCtx(
 	const pushed: Pushed[] = opts.pushed ?? [];
 
 	const ctx: EvalCtx & { pushed: Pushed[] } = {
+		engine: testEngine,
 		state,
 		skillId: opts.skillId ?? "test_skill",
 		params,
@@ -86,7 +90,7 @@ const BASE_CONFIG = { heroCardIds: [] };
 
 function makeState(heroOverrides: Partial<HeroState> = {}): GameState {
 	const base = createInitialGameState(BASE_CONFIG);
-	return { ...base, heroes: [makeHero(heroOverrides)] };
+	return settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [makeHero(heroOverrides)] })));
 }
 
 // ── Testes ────────────────────────────────────────────────────────────────────
@@ -111,7 +115,7 @@ describe("evaluate — noop", () => {
 describe("evaluate — referências de entidade não resolvidas", () => {
 	it("interrompe $source não resolvido e o registra no log da partida", () => {
 		const state = makeState();
-		const ctx = buildScriptCtx(state, {
+		const ctx = buildScriptCtx(testEngine, state, {
 			skillId: "skill_contexto_invalido",
 			triggeredBy: "test",
 		});
@@ -130,15 +134,15 @@ describe("evaluate — referências de entidade não resolvidas", () => {
 			ctx,
 		);
 
-		expect(result.effectStack.pending).toHaveLength(0);
-		expect(result.eventLog.at(-1)).toContain(
+		expect(effectStackOf(result).pending).toHaveLength(0);
+		expect(gameOf(result).eventLog.at(-1)).toContain(
 			'[ERRO] p_modifier: referência de entidade "$source" não resolveu',
 		);
 	});
 
 	it("interrompe $target não resolvido e o registra no log da partida", () => {
 		const state = makeState();
-		const ctx = buildScriptCtx(state, {
+		const ctx = buildScriptCtx(testEngine, state, {
 			skillId: "skill_contexto_invalido",
 			triggeredBy: "test",
 		});
@@ -148,8 +152,8 @@ describe("evaluate — referências de entidade não resolvidas", () => {
 			ctx,
 		);
 
-		expect(result.effectStack.pending).toHaveLength(0);
-		expect(result.eventLog.at(-1)).toContain(
+		expect(effectStackOf(result).pending).toHaveLength(0);
+		expect(gameOf(result).eventLog.at(-1)).toContain(
 			'[ERRO] i_damage: referência de entidade "$target" não resolveu',
 		);
 	});
@@ -274,10 +278,7 @@ describe("evaluate — if/then/else", () => {
 describe("evaluate — for_each all_heroes", () => {
 	it("aplica dano a cada herói ativo", () => {
 		const base = createInitialGameState(BASE_CONFIG);
-		const state: GameState = {
-			...base,
-			heroes: [makeHero({ id: "h1" }), makeHero({ id: "h2" })],
-		};
+		const state: GameState = settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [makeHero({ id: "h1" }), makeHero({ id: "h2" })] })));
 		const pushed: Pushed[] = [];
 		const ctx = makeMockCtx(state, {}, { pushed });
 		evaluate(

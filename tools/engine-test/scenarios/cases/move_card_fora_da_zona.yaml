@@ -1,0 +1,9 @@
+name: move_card recusa carta que não está na zona de origem
+kind: move_card
+given:
+  cards: [{ id: a }]
+  zones: [{ id: origem, cards: [a] }, { id: destino }]
+when:
+  - run: [{ kind: move_card, card: a, from: destino, to: origem }]
+then:
+  error: não está na zona

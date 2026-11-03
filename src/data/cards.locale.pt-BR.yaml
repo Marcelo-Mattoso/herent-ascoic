@@ -304,6 +304,6 @@ boss_azhakar:
   name: Azhakar, Dragão da Fornalha Sombria
   dice: 3 dados vermelhos
   condition: o grupo precisa possuir ao menos 3 Artefatos.
-  artifactBonus: se o grupo possuir Corrente do Carcereiro Rubro, Coração de Brasa Antiga e Martelo da Forja Perdida, Azhakar começa a luta com 16 de Vida em vez de 20.
+  artifactBonus: se o grupo possuir o Coração de Brasa Antiga entre seus artefatos, Azhakar começa a luta com 16 de Vida-base em vez de 20.
   dungeonScaling: Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.
   victory: ao derrotar Azhakar, os jogadores vencem a partida.
