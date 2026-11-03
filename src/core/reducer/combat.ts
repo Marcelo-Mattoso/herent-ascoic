@@ -687,9 +687,10 @@ export function handlePrepareExtraAttack(engine: GameEngine, state: GameState): 
 	const remaining = combat.extraEnemiesRemaining ?? (() => {
 		const attacked = new Set(combat.pairs.map((pair) => pair.enemyId));
 		const activeEnemies = enemiesOf(state).filter((enemy) => enemy.status === "active");
-		const activeHeroes = heroesOf(state).filter((hero) => hero.status === "active");
+		// A morte de criaturas engajadas não cancela a reação das que ainda não lutaram.
+		// Contar somente "vivos - heróis" fazia a última criatura perder sua ação.
 		return activeEnemies.filter((enemy) => !attacked.has(enemy.id))
-			.slice(0, Math.max(0, activeEnemies.length - activeHeroes.length)).map((enemy) => enemy.id);
+			.map((enemy) => enemy.id);
 	})();
 	if (remaining.length === 0) {
 		return withGame(state, (g) => ({ ...g, status: "CHECK_COMBAT_END", combat: { ...g.combat!, extraEnemiesRemaining: undefined } }));
@@ -1206,14 +1207,10 @@ export function handleDirectDamage(engine: GameEngine, state: GameState): GameSt
 	const activeEnemies = enemiesOf(state).filter(
 		(e) => e.status === "active",
 	);
-	const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
-	const extraEnemyCount = Math.max(
-		0,
-		activeEnemies.length - activeHeroes.length,
-	);
-	const unengaged = activeEnemies.filter((e) => !attacked.has(e.id));
+	// Mantém a mesma regra para o caminho legado sem rolagem física.
+	// Inimigos que não tiveram par na rodada ainda têm direito ao ataque.
+	const extraEnemies = activeEnemies.filter((e) => !attacked.has(e.id));
 	let next = state;
-	const extraEnemies = unengaged.slice(0, extraEnemyCount);
 	if (extraEnemies.length === 0)
 		return withGame(state, (prevGame) => ({ ...prevGame, status: "CHECK_COMBAT_END" }));
 

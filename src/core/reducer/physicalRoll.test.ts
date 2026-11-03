@@ -143,4 +143,44 @@ describe("rolagem física confirmada pela engine", () => {
 		expect(heroesOf(resolved)[0]!.currentLife).toBeLessThan(hero.currentLife);
 		expect(gameOf(reducer(resolved, { type: "PREPARE_EXTRA_ATTACK" })).status).toBe("CHECK_COMBAT_END");
 	});
+	it("criatura sem confronto ataca mesmo após outra criatura ser eliminada", () => {
+		const cardIds = ["hero_broken_bastion_warrior", "hero_crimson_barbarian"];
+		const base = createInitialGameState({ heroCardIds: cardIds });
+		const started = reducer(base, { type: "START_GAME", payload: { heroCardIds: cardIds } });
+		const [first, second] = heroesOf(started);
+		expect(first).toBeDefined();
+		expect(second).toBeDefined();
+		const state = settled(withGame(started, (game) => ({
+			...game,
+			status: "DIRECT_DAMAGE",
+			activeEnemies: [
+				enemy("engaged-1"),
+				{ ...enemy("defeated-2"), currentLife: 0, status: "defeated" as const },
+				enemy("extra-3", 1000),
+			],
+			combat: {
+				...createEmptyCombatState(),
+				phase: "direct_damage",
+				pairs: [
+					{ heroId: first!.id, enemyId: "engaged-1" },
+					{ heroId: second!.id, enemyId: "defeated-2" },
+				],
+				heroesActed: [first!.id, second!.id],
+			},
+		})));
+		const prepared = reducer(state, { type: "PREPARE_EXTRA_ATTACK" });
+		const pending = gameOf(prepared).combat?.pendingPhysicalRoll;
+		expect(pending?.enemyId).toBe("extra-3");
+		expect(pending?.extraAttack).toBe(true);
+		const confirmed = reducer(prepared, { type: "CONFIRM_DICE_ROLL", payload: {
+			rollId: pending!.id, heroId: pending!.heroId, enemyId: pending!.enemyId,
+			heroResults: Array(pending!.heroDiceCount).fill(1),
+			enemyResults: Array(pending!.enemyDiceCount).fill(6), source: "physics",
+		} });
+		const resolved = reducer(confirmed, { type: "RESOLVE_ATTACK" });
+		expect(gameOf(resolved).extraAttackFeedback?.at(-1)?.enemyId).toBe("extra-3");
+		expect(heroesOf(resolved).some((hero) => hero.currentLife < heroesOf(state).find((before) => before.id === hero.id)!.currentLife)).toBe(true);
+		expect(gameOf(reducer(resolved, { type: "PREPARE_EXTRA_ATTACK" })).status).toBe("CHECK_COMBAT_END");
+	});
+
 });
