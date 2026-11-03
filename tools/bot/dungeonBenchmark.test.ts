@@ -1,5 +1,6 @@
 import fs from "node:fs";
 import path from "node:path";
+import { runInNewContext } from "node:vm";
 import { describe, expect, it } from "vitest";
 import { runDungeonReport } from "./dungeonReport";
 import {
@@ -91,5 +92,74 @@ describe("ensaio pareado de masmorra", () => {
 			fs.rmSync(output, { recursive: true, force: true });
 		}
 	}, 60_000);
+
+	it("filtra um herói e agrega vitórias de todos os perfis por dificuldade no HTML", () => {
+		const defaults = defaultBenchmarkOptions();
+		const options = {
+			...defaults,
+			runs: 1,
+			heroes: defaults.heroes.slice(0, 2),
+			profiles: ["casual", "power-player"] as const,
+			difficulties: ["very_easy", "normal"] as const,
+		};
+		const trials: BenchmarkTrial[] = benchmarkPlan(options).map((test) => ({
+			...test,
+			outcome: test.heroId === options.heroes[0] &&
+				(test.difficulty === "normal" || test.profile === "power-player") ? "DEFEAT" : "VICTORY",
+			violation: null,
+			violationMessage: null,
+			steps: 15,
+			roomsCleared: 2,
+			creaturesDefeated: 1,
+			bossDefeated: false,
+			artifacts: 0,
+			skillUses: 0,
+			powerUses: 0,
+		}));
+		const summaries = summarizeBenchmark(options, trials);
+		const html = renderDungeonReportHtml({
+			generatedAt: "2026-11-03T00:00:00.000Z", options,
+			completed: trials.length, expected: trials.length, trials, summaries,
+		});
+		expect(html).toContain('<select id="hero">');
+		expect(html).toContain("Todos os perfis (agregado)");
+		const script = /<script>\s*([\s\S]*?)<\/script>/.exec(html)?.[1];
+		expect(script).toBeDefined();
+		const listeners = new Map<string, () => void>();
+		const elements = new Map(
+			["dataset", "hero", "profile", "difficulty", "matrix", "matrix-head",
+				"metrics", "profile-compare", "trials", "metadata"].map((id) => [
+					id,
+					{
+						value: "all",
+						innerHTML: "",
+						textContent: id === "dataset" ? JSON.stringify({
+							generatedAt: "2026-11-03T00:00:00.000Z", options,
+							completed: trials.length, expected: trials.length, trials, summaries,
+						}) : "",
+						addEventListener: (event: string, callback: () => void) =>
+							listeners.set(id + ":" + event, callback),
+					},
+				] as const),
+		);
+		const get = (id: string) => {
+			const element = elements.get(id);
+			if (!element) throw new Error("Elemento não encontrado: " + id);
+			return element;
+		};
+		runInNewContext(script!, { document: { getElementById: get } });
+		expect(get("matrix").innerHTML).toContain("50.0%");
+		expect(get("matrix").innerHTML).toContain(summaries[0]!.heroName);
+		get("hero").value = options.heroes[0]!;
+		listeners.get("hero:change")?.();
+		expect(get("matrix").innerHTML).toContain(summaries[0]!.heroName);
+		expect(get("matrix").innerHTML).not.toContain(summaries.find((s) =>
+			s.heroId === options.heroes[1])!.heroName);
+		expect(get("matrix").innerHTML).toContain("50.0%");
+		get("profile").value = "casual";
+		listeners.get("profile:change")?.();
+		expect(get("matrix").innerHTML).toContain("100.0%");
+		expect(get("metrics").innerHTML).toContain("50.0%");
+	});
 
 });
