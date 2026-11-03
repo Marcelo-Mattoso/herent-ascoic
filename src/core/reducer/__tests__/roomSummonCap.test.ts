@@ -27,7 +27,7 @@ function spawnRoom(roomId: string, players: number) {
 	if (!roomCard || roomCard.type !== "room") throw new Error("Sala inválida: " + roomId);
 	const ready = withGame(started, (game) => ({
 		...game,
-		status: "SPAWN_ENEMIES",
+		status: "SPAWN_ENEMIES" as const,
 		currentRoom: {
 			cardId: roomId,
 			exits: roomCard.exits,
@@ -37,7 +37,7 @@ function spawnRoom(roomId: string, players: number) {
 			effect: "",
 			xp: roomCard.xp ?? 0,
 			...(roomCard.specialCreatureId ? { specialCreatureId: roomCard.specialCreatureId } : {}),
-			status: "active",
+			status: "active" as const,
 		},
 	}));
 	const before = deckOf(ready, "enemyDeck").available.length;
