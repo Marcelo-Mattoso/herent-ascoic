@@ -30,7 +30,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_last_light_healing",
@@ -69,7 +69,7 @@
         14,
         18
       ],
-      "damage": 3,
+      "damage": 4,
       "skills": [
         {
           "skillId": "skill_bastion_guard",
@@ -111,7 +111,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_preserved_path"
@@ -151,7 +151,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_rift_rune",
@@ -190,7 +190,7 @@
         14,
         18
       ],
-      "damage": 4,
+      "damage": 5,
       "skills": [
         {
           "skillId": "skill_crimson_fury",
@@ -229,7 +229,7 @@
         14,
         18
       ],
-      "damage": 3,
+      "damage": 4,
       "skills": [
         {
           "skillId": "skill_final_dawn_light",
@@ -268,7 +268,7 @@
         10,
         14
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "skill_return_rite",
@@ -310,7 +310,7 @@
         14,
         18
       ],
-      "damage": 3,
+      "damage": 4,
       "skills": [
         {
           "skillId": "skill_prey_mark",
