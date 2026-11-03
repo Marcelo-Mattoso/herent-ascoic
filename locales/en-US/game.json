@@ -78,7 +78,8 @@
       "text003": "Artifacts",
       "text004": "missing",
       "text005": "Boss condition",
-      "text006": "Artifacts needed: {{required}} ({{current}}/{{required}})"
+      "text006": "Artifacts needed: {{required}} ({{current}}/{{required}})",
+      "devDungeonDeck": "Dungeon cards remaining: {{count}}"
     },
     "buffBar": {
       "text001": "no active effects"
