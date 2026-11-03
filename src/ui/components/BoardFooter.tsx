@@ -77,6 +77,15 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 						</p>
 					</>
 				)}
+				{/* Informativo de desenvolvimento: não aparece nos builds publicados. */}
+				{import.meta.env.DEV && (
+					<p
+						data-testid="dev-dungeon-deck-count"
+						style={{ color: UI.textTertiary, fontSize: 10, marginTop: 4 }}
+					>
+						Masmorra: {view.decks.dungeonDeck.available} carta(s) no baralho
+					</p>
+				)}
 			</div>
 
 			{/* Artefatos */}
