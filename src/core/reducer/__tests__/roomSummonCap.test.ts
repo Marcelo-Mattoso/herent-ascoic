@@ -70,12 +70,12 @@ describe("limite de inimigos com invocação da sala", () => {
 		expect(deckOf(spawned, "enemyDeck").available).toHaveLength(before - 3);
 	});
 
-	it("a sala Abismo mantém seu limite próprio de cinco para quatro heróis, incluindo o Guardião", () => {
+	it("a sala Abismo não ultrapassa quatro cartas visíveis, mesmo cadastrada com cinco", () => {
 		const { roomCard, before, spawned, enemies } = spawnRoom("room_cracked_abyss", 4);
 		expect(roomCard.type === "room" && roomCard.enemiesByPlayers[3]).toBe(5);
-		expect(enemies).toHaveLength(5);
+		expect(enemies).toHaveLength(4);
 		expect(enemies.filter((enemy) => enemy.cardId === "subboss_cracked_abyss_guardian")).toHaveLength(1);
-		expect(deckOf(spawned, "enemyDeck").available).toHaveLength(before - 4);
+		expect(deckOf(spawned, "enemyDeck").available).toHaveLength(before - 3);
 	});
 
 	it("salas sem invocação mantêm a quantidade e a compra original", () => {
