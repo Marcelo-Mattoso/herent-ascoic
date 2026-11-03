@@ -112,8 +112,9 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 <div class="sections">
 <section class="panel">
 <h2>Matriz de vitórias por herói</h2>
-<p class="help">Cada célula informa a taxa de vitórias e o número de partidas. Selecione o perfil e a dificuldade para comparar desempenhos. Impasses não são tratados como derrotas.</p>
+<p class="help">Selecione um herói para ver suas chances de vitória em cada dificuldade. Por padrão, os resultados dos cinco perfis de jogador ficam agregados, ponderados pelo número de partidas. Você também pode filtrar um perfil específico. Impasses não são tratados como derrotas.</p>
 <div class="controls">
+<label class="control">Herói <select id="hero"></select></label>
 <label class="control">Perfil do bot <select id="profile"></select></label>
 <label class="control">Dificuldade <select id="difficulty"></select></label>
 </div>
@@ -122,7 +123,7 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 </section>
 <section class="panel">
 <h2>Comparação entre os perfis</h2>
-<p class="help">Vitórias acumuladas do mesmo conjunto de sementes, heróis e dificuldades. O comportamento do bot influencia esses números.</p>
+<p class="help">Vitórias por perfil nas mesmas sementes, respeitando o herói e a dificuldade selecionados. Use esta comparação para identificar diferenças de estratégia entre perfis.</p>
 <div class="profile-grid" id="profile-compare"></div>
 </section>
 <section class="panel">
@@ -153,8 +154,8 @@ const pct=(a,b)=>b?(100*a/b).toFixed(1)+"%":"—";
 const nameById=new Map(data.summaries.map((s)=>[s.heroId,s.heroName]));
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}
 function render(){
-const profile=el("profile").value, difficulty=el("difficulty").value;
-const trials=data.trials.filter((t)=>t.profile===profile && (difficulty==="all"||t.difficulty===difficulty));
+const hero=el("hero").value, profile=el("profile").value, difficulty=el("difficulty").value;
+const trials=data.trials.filter((t)=>(hero==="all"||t.heroId===hero)&&(profile==="all"||t.profile===profile)&&(difficulty==="all"||t.difficulty===difficulty));
 const wins=trials.filter((t)=>status(t)==="win").length,losses=trials.filter((t)=>status(t)==="loss").length,stalls=trials.length-wins-losses;
 const rooms=trials.reduce((n,t)=>n+t.roomsCleared,0),steps=trials.reduce((n,t)=>n+t.steps,0);
 const cards=[
@@ -166,22 +167,26 @@ const cards=[
 el("metrics").innerHTML=cards.map((a)=>'<div class="metric"><span class="label">'+esc(a[0])+'</span><strong>'+esc(a[1])+'</strong><small>'+esc(a[2])+'</small></div>').join("");
 const diffs=difficulty==="all"?data.options.difficulties:[difficulty];
 el("matrix-head").innerHTML='<tr><th>Herói</th>'+diffs.map((d)=>'<th>'+esc(diffLabels[d]||d)+'</th>').join("")+'</tr>';
-el("matrix").innerHTML=data.options.heroes.map((hero)=>{
+const heroes=hero==="all"?data.options.heroes:[hero];
+el("matrix").innerHTML=heroes.map((heroId)=>{
 const cells=diffs.map((diff)=>{
-const s=data.summaries.find((s)=>s.profile===profile&&s.difficulty===diff&&s.heroId===hero);
-if(!s||!s.games)return '<td class="heat">—</td>';
-const rate=s.victories/s.games;
+const group=data.trials.filter((t)=>t.heroId===heroId&&t.difficulty===diff&&(profile==="all"||t.profile===profile));
+if(!group.length)return '<td class="heat">—</td>';
+const victories=group.filter((t)=>status(t)==="win").length;
+const defeats=group.filter((t)=>status(t)==="loss").length;
+const stalls=group.length-victories-defeats;
+const rate=victories/group.length;
 const bg=rate>.6?'rgba(57,198,147,.31)':rate>.2?'rgba(38,143,160,.28)':'rgba(201,140,65,.19)';
-return '<td class="heat" style="background:'+bg+'"><strong>'+pct(s.victories,s.games)+'</strong><small>'+s.victories+' V · '+s.defeats+' D · '+s.stalls+' I / '+s.games+'</small></td>';
+return '<td class="heat" style="background:'+bg+'"><strong>'+pct(victories,group.length)+'</strong><small>'+victories+' V · '+defeats+' D · '+stalls+' I / '+group.length+'</small></td>';
 }).join("");
-return '<tr><td class="hero">'+esc(nameById.get(hero)||hero)+'</td>'+cells+'</tr>';
+return '<tr><td class="hero">'+esc(nameById.get(heroId)||heroId)+'</td>'+cells+'</tr>';
 }).join("");
 el("trials").innerHTML=trials.length?trials.map((t)=>{
 const s=status(t),label=s==="win"?"Vitória":s==="loss"?"Derrota":"Impasso",cls=s==="win"?"success":s==="stall"?"failure":"muted";
 return '<tr><td>'+t.seed+'</td><td>'+esc(nameById.get(t.heroId)||t.heroId)+'</td><td>'+esc(profileLabels[t.profile]||t.profile)+'</td><td>'+esc(diffLabels[t.difficulty]||t.difficulty)+'</td><td class="'+cls+'">'+label+'</td><td>'+t.roomsCleared+'</td><td>'+t.creaturesDefeated+'</td><td>'+t.steps+'</td><td>'+t.artifacts+'</td><td>'+t.skillUses+'</td><td title="'+esc(t.violationMessage||"")+'">'+esc(t.violation||"—")+'</td></tr>';
 }).join(""):'<tr><td colspan="11" class="empty">Sem resultados para este filtro.</td></tr>';
 el("profile-compare").innerHTML=data.options.profiles.map((p)=>{
-const group=data.trials.filter((t)=>t.profile===p&&(difficulty==="all"||t.difficulty===difficulty));
+const group=data.trials.filter((t)=>t.profile===p&&(hero==="all"||t.heroId===hero)&&(difficulty==="all"||t.difficulty===difficulty));
 const n=group.filter((t)=>status(t)==="win").length,st=group.filter((t)=>status(t)==="stall").length,rate=group.length?n/group.length:0;
 return '<div class="profile"><b>'+esc(profileLabels[p]||p)+'</b><div class="pct">'+pct(n,group.length)+'</div><div class="bar-wrap"><div class="bar" style="width:'+(rate*100)+'%"></div></div><p>'+n+' vitórias · '+st+' impasses / '+group.length+' jogos</p></div>';
 }).join("");
@@ -192,9 +197,10 @@ data.options.runs+' seeds compartilhadas',
 data.completed+' / '+data.expected+' partidas',
 'Boss fixo: Azhakar'
 ].map((x)=>'<span class="pill">'+esc(x)+'</span>').join("");
-el("profile").innerHTML=data.options.profiles.map((p)=>'<option value="'+esc(p)+'">'+esc(profileLabels[p]||p)+'</option>').join("");
+el("hero").innerHTML='<option value="all">Todos os heróis</option>'+data.options.heroes.map((h)=>'<option value="'+esc(h)+'">'+esc(nameById.get(h)||h)+'</option>').join("");
+el("profile").innerHTML='<option value="all">Todos os perfis (agregado)</option>'+data.options.profiles.map((p)=>'<option value="'+esc(p)+'">'+esc(profileLabels[p]||p)+'</option>').join("");
 el("difficulty").innerHTML='<option value="all">Todas as dificuldades</option>'+data.options.difficulties.map((d)=>'<option value="'+esc(d)+'">'+esc(diffLabels[d]||d)+'</option>').join("");
-if(data.options.profiles.includes("power-player"))el("profile").value="power-player";
+el("hero").addEventListener("change",render);
 el("profile").addEventListener("change",render);
 el("difficulty").addEventListener("change",render);
 render();
