@@ -11,7 +11,7 @@ import { isManuallyActivatable } from "../skills/useSkill";
 import { ActivationTracker } from "../state/activation";
 import type { GameState } from "../state/gameState";
 import { guardPassed } from "../triggers/engine";
-import { cardById, cardName, skillName, skillsOf } from "../gameEngine";
+import { cardById, cardName, refRequirementMet, skillName, skillsOf } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
 import { deckOf, scopedCountOf, enemiesOf, heroesOf, pausedOf, pendingSkillTargetOf, pendingSkillChoiceOf, pendingTriggerInterruptOf } from "../state/access";
 import { gameOf } from "../../engine/state";
@@ -50,7 +50,7 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 	const commonReason = commonUnavailable(state, heroId);
 	const heroActions = skillsOf(engine, hero.cardId)
 		.filter(({ def }) => def.category === "hero_skill" || def.category === "hero_power")
-		.map(({ def }): AbilityActionView => {
+		.map(({ def, ref }): AbilityActionView => {
 			const voluntary = def.operate_type === "op_triggered" &&
 				isVoluntaryTrigger(def, "hero", def.trigger!.event);
 			const activation = isManuallyActivatable(def) ? "manual" as const
@@ -64,11 +64,11 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 				? target.candidates.map((candidate) => candidate.id)
 				: target?.kind === "ready" ? target.targetIds : [];
 			const exhausted = !guardPassed(state, def, heroId);
-			const conditionsMet = activation !== "passive" || !def.conditions?.length || def.conditions.every((condition) =>
+			const conditionsMet = refRequirementMet(engine, state, ref.requiresAwakening) && (activation !== "passive" || !def.conditions?.length || def.conditions.every((condition) =>
 				resolveCondition(condition, buildScriptCtx(engine, state, {
 					triggeredBy: def.trigger?.event ?? "manual",
 					sourceHeroId: heroId, targetHeroIds: [heroId], skillId: def.id,
-				}, def.params ?? {})));
+				}, def.params ?? {}))));
 			const preyAlreadyMarked = def.effect?.some((effect) => effect.kind === "i_mark_target") &&
 				enemiesOf(state).some((enemy) => enemy.id === gameOf(state).combat?.preyByHero[heroId] && enemy.status === "active");
 			const reason = exhausted ? "Limite de uso atingido."
