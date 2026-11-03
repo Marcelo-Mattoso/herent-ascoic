@@ -444,11 +444,11 @@ describe("power_deep_veil_echo (#30)", () => {
 			{},
 		);
 		const result = runScript("power_deep_veil_echo", ctx);
-		expect(scopedCountOf(result, "combat", "eco", "h1")).toBe(1);
+		expect(scopedCountOf(result, "game", "eco", "h1")).toBe(1);
 	});
 
 	it("acumula eco existente", () => {
-		const state = withScopedCount(baseState(), "combat", "eco", "h1", 1);
+		const state = withScopedCount(baseState(), "game", "eco", "h1", 1);
 		const ctx = buildScriptCtx(testEngine,
 			state,
 			{
@@ -459,6 +459,6 @@ describe("power_deep_veil_echo (#30)", () => {
 			{},
 		);
 		const result = runScript("power_deep_veil_echo", ctx);
-		expect(scopedCountOf(result, "combat", "eco", "h1")).toBe(2);
+		expect(scopedCountOf(result, "game", "eco", "h1")).toBe(2);
 	});
 });

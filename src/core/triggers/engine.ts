@@ -195,7 +195,8 @@ export function triggerMode(
 ): TriggerMode {
 	if (def.operate_type === "op_passive") return "passive";
 	if (sourceKind === "hero" && def.operate_type === "op_triggered") {
-		return "prompt";
+		// Reações de herói são opt-in por padrão; uma declaração explícita auto prevalece.
+		return def.interrupt?.mode ?? "prompt";
 	}
 	return def.interrupt?.mode ?? "auto";
 }

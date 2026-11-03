@@ -310,6 +310,11 @@ abilities:
       tohit: 2
       damage: 2
     operate_type: op_passive
+    conditions:
+      - kind: compare
+        op: gte
+        left: $dungeon.level
+        right: 3
     nature:
       - nat_physical
       - nat_fire

@@ -30,7 +30,7 @@ describe("playerView — contrato da projeção", () => {
 		const view = playerView(testEngine, state);
 
 		expect(view.status).toBe(gameOf(state).status);
-		expect(view.heroes.map(({ impeto: _, ...hero }) => hero)).toEqual(heroesOf(state));
+		expect(view.heroes.map(({ impeto: _, eco: _eco, ...hero }) => hero)).toEqual(heroesOf(state));
 		expect(view.heroes.map((hero) => hero.impeto)).toEqual(
 			heroesOf(state).map((hero) => impetoOf(state, hero.id)),
 		);

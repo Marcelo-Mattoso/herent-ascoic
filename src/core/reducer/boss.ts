@@ -1,3 +1,4 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { checkBossCondition } from "../rules/conditions";
 import { inlineBossHitBonus, inlineBossDamageReduction, markInlineBossSkillsUsed } from "../rules/bossSkills";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
@@ -61,7 +62,7 @@ function effectiveHeroDamage(engine: GameEngine,
 		...collectWorldModifierEntries(state, hero.id, "damage_dealt"),
 		...collectHeroDamageBonusesFromItems(engine, hero, state, boss, rollMargin),
 	];
-	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")) {
+	if (awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === HERO_ABILITY_IDS.skill_final_dawn_light)) {
 		breakdown.push({ source: "Luz da Aurora Final", value: 2 });
 	}
 	return {
@@ -227,19 +228,19 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 	}
 
 	for (const mage of heroesOf(next).filter((entry) =>
-		skillsOf(engine, entry.cardId).some(({ def }) => def.id === "skill_rift_rune"))) {
+		skillsOf(engine, entry.cardId).some(({ def }) => def.id === HERO_ABILITY_IDS.skill_rift_rune))) {
 		const key = `${mage.id}:${hero.id}`;
 		if (!scopedFlagOf(next, "combat", "riftRuneTarget", key)) continue;
 		next = withScopedFlag(next, "combat", "riftRuneTarget", key, false);
 		next = withWorld(next, removeComponent(worldOf(next), hero.id,
-			(component) => component.type === "modifier" && component.source === `skill_rift_rune:${mage.id}`));
+			(component) => component.type === "modifier" && component.source === `${HERO_ABILITY_IDS.skill_rift_rune}:${mage.id}`));
 		if (enemiesOf(next).some((enemy) => enemy.id === "boss" && enemy.status === "defeated")) {
-			next = withScopedFlag(next, "round", "oncePer", `skill_rift_rune::${mage.id}`, false);
+			next = withScopedFlag(next, "round", "oncePer", `${HERO_ABILITY_IDS.skill_rift_rune}::${mage.id}`, false);
 			next = applyDamage(engine, next, mage.id, 2, { sourceId: mage.id, damageType: "direct" });
 		}
 	}
 	next = withWorld(next, removeComponent(worldOf(next), hero.id,
-		(component) => component.type === "modifier" && component.source === "power_deep_veil_echo"));
+		(component) => component.type === "modifier" && component.source === HERO_ABILITY_IDS.power_deep_veil_echo));
 	next = withWorld(next, tickModifierDurations(worldOf(next), "once_consumed"));
 	return checkBossEnd(engine, next);
 }
@@ -350,7 +351,7 @@ export function buildBossRollFromResults(
 	if (!hero || !boss) return null;
 	const heroBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: hero.hitBonus },
-		...(awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === "skill_final_dawn_light")
+		...(awakeningOf(state) >= 3 && skillsOf(engine, hero.cardId).some(({ def }) => def.id === HERO_ABILITY_IDS.skill_final_dawn_light)
 			? [{ source: "Luz da Aurora Final", value: 2 }] : []),
 		...collectWorldModifierEntries(state, hero.id, "hit_bonus"),
 		...collectHeroHitBonusesFromItems(engine, hero, state, boss),

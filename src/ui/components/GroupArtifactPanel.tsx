@@ -45,7 +45,7 @@ export function GroupArtifactPanel({
 				}}
 			>
 				<span>◆ {translate("game:components.groupArtifactPanel.title")}</span>
-				<span aria-label={translate("game:components.groupArtifactPanel.count", { count: view.groupArtifacts.length })}>
+				<span>
 					{view.groupArtifacts.length} <span aria-hidden="true">{expanded ? "⌃" : "⌄"}</span>
 				</span>
 			</button>

@@ -1,3 +1,4 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
 import { emit } from "../events/bus";
 import type { AbilityGrant } from "../data/abilityTypes";
@@ -441,7 +442,7 @@ export function eventGrantMatchesContext(
 		event === "evt_destroy" ||
 		event === "evt_kill"
 	) {
-		if (event === "evt_roll" && candidate.grant.abilityId === "power_supreme_rift_rune") {
+		if (event === "evt_roll" && candidate.grant.abilityId === HERO_ABILITY_IDS.power_supreme_rift_rune) {
 			return Boolean(ctx.targetHeroIds?.length);
 		}
 		return heroId === ctx.sourceHeroId;
