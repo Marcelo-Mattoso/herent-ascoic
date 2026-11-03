@@ -2,6 +2,7 @@ import { translate } from "@/i18n";
 // Footer do tabuleiro: XP do grupo · Artefatos · Condição do chefe.
 
 import { displayCardName as getCardName } from "@/i18n/catalogs";
+import { getCardById } from "@/core/data/cards";
 import type { PlayerView } from "@/core/projection/playerView";
 import type { CardType } from "@/ui/components/Card";
 import { UI } from "@/ui/theme";
@@ -12,7 +13,11 @@ interface BoardFooterProps {
 }
 
 export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
-	const missing = Math.max(0, 2 - view.groupArtifacts.length);
+	const boss = getCardById(view.bossCardId);
+	const requiredArtifacts = boss?.type === "boss" && boss.accessCondition?.type === "group_artifacts_gte"
+		? boss.accessCondition.value
+		: 0;
+	const missing = Math.max(0, requiredArtifacts - view.groupArtifacts.length);
 
 	return (
 		<div
@@ -77,7 +82,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 			{/* Artefatos */}
 			<div style={{ textAlign: "center" }}>
 				<p style={{ color: UI.textSecondary, fontSize: 10, marginBottom: 3 }}>
-					{translate("game:components.boardFooter.text003")}{" "}{view.groupArtifacts.length}/2
+					{translate("game:components.boardFooter.text003")}{" "}{view.groupArtifacts.length}/{requiredArtifacts}
 				</p>
 				<div
 					style={{
@@ -126,7 +131,7 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 				<p style={{ color: UI.textSecondary, fontSize: 10 }}>
 					{translate("game:components.boardFooter.text005")}{" "}</p>
 				<p style={{ color: UI.textPrimary, fontSize: 11 }}>
-					{translate("game:components.boardFooter.text006")}{view.groupArtifacts.length}/2)
+					{translate("game:components.boardFooter.text006")}{view.groupArtifacts.length}/{requiredArtifacts})
 				</p>
 			</div>
 		</div>
