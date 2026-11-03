@@ -11,6 +11,9 @@ import {
 	type Violation,
 } from "./invariants";
 import { createHeadlessPort } from "./port";
+import type { BotProfile } from "./profiles";
+import type { Action } from "@/core/actions/types";
+import type { GameState } from "@/core/state/gameState";
 
 export { rankMoves, scoreAction, scoreMoves, type ScoredMove };
 
@@ -30,17 +33,21 @@ export interface AiGameResult {
 	readonly roomsCleared: number;
 	readonly violation: Violation | null;
 	readonly rejected: readonly string[];
+	readonly actions: readonly Action[];
+	readonly final: GameState;
 }
 
 export function playAiGame(
 	setup: GoldenSetup,
 	maxSteps: number,
 	onStep?: (step: AiStep) => void,
+	profile: BotProfile = "power-player",
 ): AiGameResult {
 	const port = createHeadlessPort(setup);
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();
+	let bossProgress: { life: number; round: number } | null = null;
 	let violation: Violation | null = checkState(port.inspect(), baseline);
 	while (!violation && !isTerminal(port.inspect())) {
 		if (port.history.length >= maxSteps) {
@@ -49,14 +56,16 @@ export function playAiGame(
 		}
 		let advanced = false;
 		const obs = port.observe();
-		const options = scoreMoves(obs);
+		const options = scoreMoves(obs, profile, setup.seed, port.history.length);
 		const stepRejected: string[] = [];
 		const combat = obs.view.combat;
 		const turnKey = `${combat?.round}:${combat?.heroesActed.length}:${obs.view.roomsCleared}`;
 		for (const move of options) {
 			// Preparar e cancelar alterna o estado sem progresso: cada habilidade só uma vez por vez de agir.
 			if (move.action.type.startsWith("USE_")) {
-				const abilityKey = `${turnKey}|${JSON.stringify(move.action)}`;
+				const resourceKey = move.action.type === "USE_SKILL" && move.action.payload.skillId === "skill_return_rite"
+					? `:${obs.view.decks.dungeonDeck.discarded.length}` : "";
+				const abilityKey = `${turnKey}${resourceKey}|${JSON.stringify(move.action)}`;
 				if (abilitiesThisTurn.has(abilityKey)) continue;
 				abilitiesThisTurn.add(abilityKey);
 			}
@@ -88,6 +97,16 @@ export function playAiGame(
 		}
 		violation =
 			checkState(port.inspect(), baseline) ?? checkNoProgress(port.history, port.inspect());
+		const currentView = port.observe().view;
+		const boss = currentView.enemies.find((enemy) => enemy.id === "boss" && enemy.status === "active");
+		if (boss && profile !== "random") {
+			const round = currentView.combat?.round ?? 0;
+			if (!bossProgress || bossProgress.life - boss.currentLife >= 2) bossProgress = { life: boss.currentLife, round };
+			else if (!violation && round - bossProgress.round >= 50) {
+				violation = { invariant: "boss_stalemate",
+					message: `chefe perdeu menos de 2 PV em 50 rodadas (${bossProgress.life}→${boss.currentLife}); revisar estratégia/equipamento/acerto` };
+			}
+		} else bossProgress = null;
 	}
 	const game = gameOf(port.inspect());
 	return {
@@ -97,5 +116,7 @@ export function playAiGame(
 		roomsCleared: game.roomsCleared,
 		violation,
 		rejected: [...rejected],
+		actions: [...port.history],
+		final: port.inspect(),
 	};
 }

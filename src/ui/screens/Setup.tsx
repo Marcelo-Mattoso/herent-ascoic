@@ -188,6 +188,7 @@ export function Setup({
 									<button
 										type="button"
 										className="setup-hero-select-button"
+										data-card-id={hero.id}
 										onClick={() => toggleHero(hero.id)}
 									>
 										<CardThumb
@@ -254,6 +255,7 @@ export function Setup({
 										className={
 											difficulty === item ? "is-selected" : undefined
 										}
+										data-difficulty={item}
 										onClick={() => setDifficulty(item)}
 									>
 										<span>{translate(`game:screens.setup.difficulty.${item}.label`)}</span>

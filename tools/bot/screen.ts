@@ -3,6 +3,7 @@ import path from "node:path";
 import { chromium, type Page } from "@playwright/test";
 import type { Action } from "@/core/actions/types";
 import { type ActionOutput, screenOutput, storeOutput } from "./outputs";
+import { parseBotDifficulty, parseBotParty, parseBotProfile } from "./profiles";
 
 interface Snapshot {
 	status: string;
@@ -15,7 +16,7 @@ interface Snapshot {
 	choices: string[];
 	targets: string[];
 	fingerprint: string;
-	moves: { action: Action; score: number }[];
+	moves: { action: Action; score: number; plan?: string }[];
 	log: string[];
 }
 
@@ -29,6 +30,9 @@ const PAUSE = Number(flag("pause", "500"));
 const STUCK_MS = Number(flag("stuck", "25000"));
 const OUTPUT = flag("output", "screen");
 const HEADLESS = process.argv.includes("--headless");
+const PROFILE = parseBotProfile(flag("profile", "power-player"));
+const HEROES = process.argv.includes("--heroes") ? parseBotParty(flag("heroes", "")) : undefined;
+const DIFFICULTY = parseBotDifficulty(flag("difficulty", "normal"));
 const runDir = path.resolve("tools/bot/runs", `screen-${Date.now()}`);
 
 const say = (text: string) => console.log(`${new Date().toLocaleTimeString()} ${text}`);
@@ -44,7 +48,7 @@ function read(page: Page): Promise<Snapshot> {
 		const state = getElfGameState();
 		const obs = observe(uiEngine, state);
 		const active = (list) => list.filter((unit) => unit.status === "active").map((unit) => unit.id);
-		const decision = obs.actions.some((a) => ["APPLY_TRIGGER_INTERRUPT", "SKILL_CHOICE", "SELECT_SKILL_TARGET"].includes(a.type));
+		const decision = obs.actions.some((a) => ["APPLY_TRIGGER_INTERRUPT", "SKILL_CHOICE", "SELECT_SKILL_TARGET", "SELECT_DIE"].includes(a.type));
 		const automatic = ["REVEAL_ROOM", "ROOM_EFFECT", "SPAWN_ENEMIES", "COMBAT_START", "ROLL_DICE", "CHECK_COMBAT_END", "DIRECT_DAMAGE"].includes(state.game.status);
 		return {
 			status: state.game.status,
@@ -58,7 +62,8 @@ function read(page: Page): Promise<Snapshot> {
 			fingerprint: JSON.stringify({ ...state.game, actionLog: 0, eventLog: 0, alphaLog: 0, rng: 0 }) + JSON.stringify(state.engine.pending),
 			// Dados físicos e fases automáticas pertencem à interface.
 			waiting: !decision && (automatic || Boolean(state.game.combat?.pendingPhysicalRoll)),
-			moves: scoreMoves(obs).filter((move) => move.score >= 0),
+			moves: scoreMoves(obs, ${JSON.stringify(PROFILE)}, state.game.rng.seed, state.game.actionLog.length)
+				.filter((move) => ${JSON.stringify(PROFILE)} === "random" || move.score >= 0),
 			log: state.game.eventLog,
 		};
 	})()`);
@@ -75,9 +80,14 @@ async function capture(page: Page, name: string, reason: string, errors: string[
 async function startGame(page: Page) {
 	await page.goto(URL_BASE);
 	await page.getByRole("button", { name: "JOGAR" }).click();
-	const heroes = page.locator(".setup-hero-select-button");
-	const count = Math.min(3, await heroes.count());
-	for (let i = 0; i < count; i++) await heroes.nth(i).click();
+	if (HEROES) {
+		for (const heroId of HEROES) await page.locator(`.setup-hero-select-button[data-card-id="${heroId}"]`).click();
+	} else {
+		const heroes = page.locator(".setup-hero-select-button");
+		const count = Math.min(3, await heroes.count());
+		for (let i = 0; i < count; i++) await heroes.nth(i).click();
+	}
+	await page.locator(`.setup-difficulty-list button[data-difficulty="${DIFFICULTY}"]`).click();
 	await page.getByRole("button", { name: "Iniciar partida" }).click();
 	await page.getByRole("button", { name: "Pular abertura" }).click({ timeout: 10_000 }).catch(() => undefined);
 	await page.waitForSelector(".game-board-root", { timeout: 15_000 });
@@ -91,7 +101,7 @@ async function playStep(
 	abilitiesThisTurn: Set<string>,
 ): Promise<boolean> {
 	if (snap.waiting) return true;
-	for (const { action, score } of snap.moves) {
+	for (const { action, score, plan } of snap.moves) {
 		const key = JSON.stringify(action);
 		if (tried.has(key)) continue;
 		// Preparar e cancelar alterna o estado sem progresso: cada habilidade só uma vez por vez de agir.
@@ -106,7 +116,7 @@ async function playStep(
 			return "unsupported" as const;
 		});
 		if (result === "done") {
-			say(`[${output.name}] ${snap.status}: ${action.type} (nota ${score.toFixed(0)})`);
+			say(`[${output.name}] ${snap.status}: ${action.type} (nota ${score.toFixed(0)})${plan ? ` | plano: ${plan}` : ""}`);
 			return true;
 		}
 	}
@@ -168,9 +178,10 @@ async function playGame(page: Page, index: number) {
 
 const browser = await chromium.launch({ headless: HEADLESS, args: ["--use-gl=swiftshader"] });
 fs.mkdirSync(runDir, { recursive: true });
-say(`Saída: ${runDir}`);
+say(`Perfil: ${PROFILE} | dificuldade: ${DIFFICULTY} | heróis: ${HEROES?.join(",") ?? "3 primeiros"} | saída: ${runDir}`);
 for (let index = 1; index <= GAMES; index++) {
-	const page = await browser.newPage({ viewport: { width: 1366, height: 768 }, locale: "pt-BR" });
+	const page = await browser.newPage({ viewport: { width: 1366, height: 768 }, locale: "pt-BR",
+		reducedMotion: HEADLESS ? "reduce" : "no-preference" });
 	await playGame(page, index);
 	await page.close();
 }
