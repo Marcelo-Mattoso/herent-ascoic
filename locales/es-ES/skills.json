@@ -1,23 +1,23 @@
 {
   "skill_crimson_fury": {
     "name": "Furia Rubra",
-    "label": "Furia Rubra ({value}): este personaje sufre {value} de daño para infligir daño adicional equivalente al triple del daño sufrido en el próximo ataque.",
-    "text": "este personaje sufre {value} de daño para infligir daño adicional equivalente al triple del daño sufrido en el próximo ataque."
+    "label": "Furia Rubra ({value}): Una vez por ronda, este personaje recibe {value} de daño para infligir daño adicional igual al triple del daño recibido en este ataque.",
+    "text": "una vez por ronda, este personaje recibe {value} de daño para infligir daño adicional igual al triple del daño recibido en este ataque."
   },
   "skill_last_light_healing": {
     "name": "Curación de la Última Luz",
-    "label": "Curación de la Última Luz ({value}): cura {value} puntos de vida a un héroe o criatura aliada.",
-    "text": "cura {value} puntos de vida a un héroe o criatura aliada."
+    "label": "Curación de la Última Luz ({value}): Una vez por ronda, usa la acción del clérigo para curar {value} puntos de vida a un héroe o criatura aliada.",
+    "text": "una vez por ronda, usa la acción del clérigo para curar {value} puntos de vida a un héroe o criatura aliada."
   },
   "skill_bastion_guard": {
     "name": "Guardia del Bastión",
-    "label": "Guardia del Bastión ({value}): reduce en {value} el daño que recibiría un héroe o aliado.",
-    "text": "reduce en {value} el daño que recibiría un héroe o aliado."
+    "label": "Guardia del Bastión ({value}): Una vez por ronda, reduce en {value} el daño que recibiría un aliado. Si la protección se activa, Brennar pierde su acción.",
+    "text": "una vez por ronda, reduce en {value} el daño que recibiría un aliado. Si la protección se activa, Brennar pierde su acción."
   },
   "skill_rift_rune": {
     "name": "Runa de las Fisuras",
-    "label": "Runa de las Fisuras ({value}): después de tirar, modifica el resultado de 1 dado aliado hasta en {value}, sin superar 6 ni bajar de 1.",
-    "text": "después de tirar, modifica el resultado de 1 dado aliado hasta en {value}, sin superar 6 ni bajar de 1."
+    "label": "Runa de las Fisuras: Una vez por ronda, elige un héroe aliado. Obtiene +3 al impacto en su próximo ataque. Si derrota a la criatura, el mago recibe 2 de daño y puede volver a usar la runa.",
+    "text": "una vez por ronda, elige un héroe aliado. Obtiene +3 al impacto en su próximo ataque. Si derrota a la criatura, el mago recibe 2 de daño y puede volver a usar la runa."
   },
   "skill_hunter_focus": {
     "name": "Concentración del Cazador",
@@ -41,8 +41,8 @@
   },
   "skill_preserved_path": {
     "name": "Camino Conservado",
-    "label": "Camino Conservado: una vez por sala, cuando un efecto vaya a descartar una carta de mazmorra, devuélvela a la parte superior del mazo de mazmorra.",
-    "text": "una vez por sala, cuando un efecto vaya a descartar una carta de mazmorra, devuélvela a la parte superior del mazo de mazmorra."
+    "label": "Camino Conservado: Hasta 3 veces por partida, impide que se descarte una carta de mazmorra por un efecto o por el descarte normal de la ronda.",
+    "text": "hasta 3 veces por partida, impide que se descarte una carta de mazmorra por un efecto o por el descarte normal de la ronda."
   },
   "skill_rekindled_forge": {
     "name": "Forja Reavivada",
@@ -80,13 +80,13 @@
   },
   "skill_prey_mark": {
     "name": "Marca de la Presa",
-    "label": "Marca de la Presa ({value}): elige 1 criatura como Presa. Contra ella, obtienes +{value} al impacto hasta derrotarla.",
-    "text": "elige 1 criatura como Presa. Contra ella, obtienes +{value} al impacto hasta derrotarla."
+    "label": "Marca de la Presa ({value}): Sin gastar acción, elige una criatura como Presa. Obtén +{value} al impacto contra ella hasta derrotarla.",
+    "text": "sin gastar acción, elige una criatura como Presa. Obtén +{value} al impacto contra ella hasta derrotarla."
   },
   "skill_return_rite": {
     "name": "Rito de Retorno",
-    "label": "Rito de Retorno ({value}): una vez por sala, puedes pagar 3 puntos de vida para recuperar {value} carta de mazmorra descartada y barajarla en el mazo.",
-    "text": "una vez por sala, puedes pagar 3 puntos de vida para recuperar {value} carta de mazmorra descartada y barajarla en el mazo."
+    "label": "Rito de Retorno ({value}): Paga 3 puntos de vida para recuperar {value} carta de mazmorra descartada y barajarla en el mazo. Puedes repetirlo mientras queden cartas descartadas; no consume acción.",
+    "text": "paga 3 puntos de vida para recuperar {value} carta de mazmorra descartada y barajarla en el mazo. Puedes repetirlo mientras queden cartas descartadas; no consume acción."
   },
   "skill_final_dawn_light": {
     "name": "Luz del Alba Final",
@@ -254,8 +254,12 @@
   },
   "power_supreme_rift_rune": {
     "name": "Runa Suprema de las Fisuras",
-    "label": "Runa Suprema de las Fisuras: después de cualquier tirada, cambia el resultado de 1 dado aliado a 6 o el de 1 dado enemigo a 1.",
-    "text": "después de cualquier tirada, cambia el resultado de 1 dado aliado a 6 o el de 1 dado enemigo a 1."
+    "label": "Runa Suprema de las Fisuras: Una vez por partida, después de una tirada en esta ronda, elige cambiar un dado aliado a 6 o un dado enemigo a 1.",
+    "text": "una vez por partida, después de una tirada en esta ronda, elige cambiar un dado aliado a 6 o un dado enemigo a 1.",
+    "options": {
+      "ally_six": "Dado aliado a 6",
+      "enemy_min": "Dado enemigo a 1"
+    }
   },
   "power_mighty_crimson_fury": {
     "name": "Furia Rubra Poderosa",
@@ -273,13 +277,13 @@
   },
   "power_deep_veil_echo": {
     "name": "Eco Profundo del Véu",
-    "label": "Eco Profundo del Véu: una vez por partida, al derrotar una criatura, guarda 1 Eco mayor. Gasta ese Eco para obtener +3 al total de impacto, reducir en 2 el daño recibido o mirar las 2 cartas superiores del mazo de enemigos.",
-    "text": "una vez por partida, al derrotar una criatura, guarda 1 Eco mayor. Gasta ese Eco para obtener +3 al total de impacto, reducir en 2 el daño recibido o mirar las 2 cartas superiores del mazo de enemigos."
+    "label": "Eco Profundo del Véu: Una vez por partida, gana automáticamente 1 Eco permanente al derrotar a una criatura. Gástalo manualmente para obtener +2 al impacto o +2 de daño en tu próximo ataque.",
+    "text": "una vez por partida, gana automáticamente 1 Eco permanente al derrotar a una criatura. Gástalo manualmente para obtener +2 al impacto o +2 de daño en tu próximo ataque."
   },
   "power_hunter_execution": {
     "name": "Ejecución del Cazador",
-    "label": "Ejecución del Cazador: una vez por partida, después de tirar contra tu Presa, cambia el resultado de 1 dado azul a 6 e inflige +1 de daño si impactas.",
-    "text": "una vez por partida, después de tirar contra tu Presa, cambia el resultado de 1 dado azul a 6 e inflige +1 de daño si impactas."
+    "label": "Ejecución del Cazador: Una vez por partida, al atacar a tu Presa, obtén +6 al impacto y +6 de daño en ese ataque.",
+    "text": "una vez por partida, al atacar a tu Presa, obtén +6 al impacto y +6 de daño en ese ataque."
   },
   "purple_raging_flames": {
     "name": "Llamas Voraces",
@@ -473,5 +477,10 @@
     "name": "Sala Vacía",
     "label": "Sala Vacía: sin efectos adicionales.",
     "text": "sin efectos adicionales."
+  },
+  "spend_deep_veil_echo": {
+    "name": "Consumir Eco",
+    "label": "Consumir Eco: elige +2 al impacto o +2 de daño en tu próximo ataque.",
+    "text": "elige +2 al impacto o +2 de daño en tu próximo ataque."
   }
 }

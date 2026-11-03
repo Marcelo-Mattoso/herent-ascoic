@@ -3,7 +3,9 @@
 
 import type { SkillRef } from "../data/cardTypes";
 import { displaySkillLocale } from "@/i18n/catalogs";
-import { lookupSkillById } from "./lookup";
+import { skillById } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+
 
 function interpolate(
 	template: string,
@@ -15,22 +17,22 @@ function interpolate(
 	});
 }
 
-function mergedParams(ref: SkillRef): Record<string, number | string> {
-	const def = lookupSkillById(ref.skillId);
+function mergedParams(engine: GameEngine, ref: SkillRef): Record<string, number | string> {
+	const def = skillById(engine, ref.skillId);
 	return {
 		...((def?.params as Record<string, number | string> | undefined) ?? {}),
 		...(ref.params ?? {}),
 	};
 }
 
-export function renderSkillLabel(ref: SkillRef): string {
+export function renderSkillLabel(engine: GameEngine, ref: SkillRef): string {
 	const locale = displaySkillLocale(ref.skillId);
 	if (!locale.label) return ref.skillId;
-	return interpolate(locale.label, mergedParams(ref));
+	return interpolate(locale.label, mergedParams(engine, ref));
 }
 
-export function renderSkillText(ref: SkillRef): string {
+export function renderSkillText(engine: GameEngine, ref: SkillRef): string {
 	const locale = displaySkillLocale(ref.skillId);
 	if (!locale.text) return ref.skillId;
-	return interpolate(locale.text, mergedParams(ref));
+	return interpolate(locale.text, mergedParams(engine, ref));
 }

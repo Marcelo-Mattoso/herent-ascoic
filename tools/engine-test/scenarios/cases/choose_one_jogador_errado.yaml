@@ -1,0 +1,14 @@
+name: choose_one recusa resposta de quem não decide
+kind: choose_one
+given:
+  players: [p, q]
+  turn: { order: [p, q], phases: [principal] }
+when:
+  - run:
+      - kind: choose_one
+        options:
+          - { id: x, do: [{ kind: noop }] }
+          - { id: y, do: [{ kind: noop }] }
+  - answer: { choice: choose_one, player: q, picks: [x] }
+then:
+  error: não decide

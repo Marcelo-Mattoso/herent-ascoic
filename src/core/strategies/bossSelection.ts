@@ -1,6 +1,11 @@
-// Strategy: qual boss usar na partida.
-// Default MVP 1: Azhakar fixo.
+import type { GameEngine } from "../gameEngine";
+import { expansionOf } from "../gameEngine";
 
-export function selectBoss(): string {
-	return "boss_azhakar";
+// O pacote escolhido determina o mestre da masmorra.
+export function selectBoss(engine: GameEngine, expansionId?: string): string {
+	const boss = engine.content.cardsOfType("boss").find((card) =>
+		!expansionId || expansionOf(engine, card.id) === expansionId,
+	);
+	if (!boss) throw new Error("Nenhum chefe no catálogo.");
+	return boss.id;
 }

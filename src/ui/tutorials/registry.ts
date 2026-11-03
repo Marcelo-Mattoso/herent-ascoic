@@ -209,6 +209,42 @@ const archiveOneSteps: readonly TutorialStep[] = [
 		],
 	},
 	{
+		id: "dungeon-levels",
+		title: "Os cinco níveis do Despertar",
+		kind: "observation",
+		advance: "manual",
+		anchor: "board.awakening",
+		narration: [
+			"O Despertar da Masmorra tem cinco níveis: Branco, Amarelo, Laranja, Vermelho e Roxo. Eles representam a ameaça crescente da masmorra, não andares físicos.",
+			"A vida, os dados e a curva de acerto das criaturas acompanham a cor. Além disso, os efeitos universais substituem os anteriores, sem acumular: Branco sem bônus; Amarelo +1 acerto; Laranja +1 acerto e +1 dano; Vermelho acrescenta Penetração 1; Roxo mantém esses bônus e libera habilidades especiais.",
+			"Subir o Ímpeto de um herói custa 10 XP, mas só aumenta o Despertar quando TODOS os heróis alcançam juntos um novo patamar de Ímpeto. Outros efeitos também podem alterar o Despertar. O grupo pode gastar 30 XP para reduzi-lo, quando a regra permitir.",
+		],
+		instruction: "Observe a faixa de cores na carta da sala. Ela mostra o nível atual do Despertar.",
+	},
+	{
+		id: "dungeon-discards",
+		title: "Os descartes da masmorra",
+		kind: "observation",
+		advance: "manual",
+		anchor: "board.current-room",
+		narration: [
+			"Quando o grupo deixa uma sala, sua carta vai para o descarte da masmorra. E o número de saídas da sala determina quantas cartas adicionais de caminho podem ser perdidas.",
+			"Com uma saída, não há descarte extra. Com duas a quatro saídas, uma carta é descartada; com cinco ou mais, até duas. O motor sorteia a próxima sala em segredo e devolve ao baralho as outras opções não descartadas. Efeitos de cartas podem impedir descartes.",
+		],
+		instruction: "Veja o número de saídas na carta da sala atual. Cada descarte reduz as possibilidades restantes no baralho.",
+	},
+	{
+		id: "dungeon-exhaustion",
+		title: "Quando o baralho acaba",
+		kind: "narration",
+		advance: "manual",
+		narration: [
+			"Descartar cartas não aumenta diretamente o Despertar; reduz as salas disponíveis para explorar. Algumas habilidades e efeitos também podem descartar cartas da masmorra.",
+			"Quando o baralho de salas acaba, o grupo pode reembaralhar os descartes pagando XP conforme a dificuldade: Muito Fácil 3, Fácil 4, Normal 5, Difícil 6 e Pesadelo 7. Sem XP suficiente ou sem descartes para recuperar, a expedição termina em derrota. O grupo também pode aceitar a derrota em vez de pagar.",
+		],
+		instruction: "Administre o XP: ele também pode ser necessário para manter a expedição em andamento.",
+	},
+	{
 		id: "goal",
 		title: "O objetivo da expedição",
 		kind: "narration",
@@ -217,6 +253,7 @@ const archiveOneSteps: readonly TutorialStep[] = [
 		narration: [
 			"Não é a primeira porta que define uma travessia. Nem a última batalha revela tudo o que existiu antes dela.",
 			"Na Fornalha Sombria, cada decisão altera aquilo que poderá ser enfrentado adiante.",
+			"Na Fornalha Sombria, reunir três artefatos permite enfrentar Azhakar. O Coração entre esses artefatos reduz a vida inicial do chefe.",
 		],
 		instruction:
 			"Explore a masmorra, enfrente seus desafios e avance em direção a Azhakar. A vitória depende das condições reais da expedição.",
@@ -551,7 +588,7 @@ export const TUTORIAL_MODULES: readonly TutorialModule[] = [
 		id: "archive-one",
 		title: "Arquivo I — O Início da Jornada",
 		subtitle: "Narrativa e mecânicas da masmorra",
-		summary: "Heróis, salas, criaturas e progressão.",
+		summary: "Heróis, salas, Despertar, descartes e progressão.",
 		available: true,
 		entry: { kind: "setup", seed: 2, deferInitialRoomReveal: true },
 		steps: archiveOneSteps,

@@ -1,0 +1,6 @@
+name: executar kind não registrado é recusado com a lista de kinds
+kind: nao_registrado
+when:
+  - run: [{ kind: kind_que_nao_existe }]
+then:
+  error: Kind desconhecido

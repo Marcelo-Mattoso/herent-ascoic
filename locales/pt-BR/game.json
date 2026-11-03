@@ -33,6 +33,14 @@
     }
   },
   "components": {
+    "groupArtifactPanel": {
+      "title": "Artefatos do grupo",
+      "count": "Artefatos: {{count}}",
+      "empty": "Nenhum artefato encontrado. Os artefatos coletados aparecerão aqui com suas habilidades.",
+      "bearer": "Portador: {{name}}",
+      "shared": "Compartilhado pelo grupo",
+      "hint": "Os efeitos respeitam suas condições e momentos de ativação; não ocupam os espaços normais de equipamento."
+    },
     "actionButton": {},
     "alphaLogPanel": {
       "dialogLabel": "Log detalhado alpha",
@@ -72,7 +80,8 @@
       "text003": "Artefatos",
       "text004": "falta",
       "text005": "Condição do chefe",
-      "text006": "2 Artefatos ("
+      "text006": "Artefatos necessários: {{required}} ({{current}}/{{required}})",
+      "devDungeonDeck": "Cartas restantes na masmorra: {{count}}"
     },
     "buffBar": {
       "text001": "sem efeitos ativos"
@@ -156,7 +165,8 @@
       "dynamic001": "disponível",
       "dynamic002": "indisponível",
       "dynamic003": "disponível",
-      "dynamic004": "indisponível"
+      "dynamic004": "indisponível",
+      "escapeHint": "Pressione Esc para fechar"
     },
     "hpBar": {},
     "influencePanel": {
@@ -253,7 +263,9 @@
       }
     },
     "itemTile": {},
-    "modal": {},
+    "modal": {
+      "escapeHint": "Pressione Esc para fechar"
+    },
     "modals": {
       "cardDetailModal": {
         "text001": "Habilidade",
@@ -265,10 +277,11 @@
       "dungeonExhaustedModal": {
         "title001": "Deck de dungeon vazio",
         "text002": "Você pode gastar",
-        "text003": "5 XP",
-        "text004": "para recuperar 1 carta aleatória do descarte e continuar. Caso contrário, a partida termina em derrota.",
+        "text003": "{{cost}} XP",
+        "text004": "para reembaralhar todas as cartas descartadas e continuar. Caso contrário, a partida termina em derrota.",
         "text005": "XP disponível:",
-        "text006": "· Cartas no descarte:"
+        "text006": "· Cartas no descarte:",
+        "pay": "Gastar {{cost}} XP"
       },
       "fleeReconfigureModal": {
         "title001": "🏃 Fuga bem-sucedida!",
@@ -432,7 +445,34 @@
       "text015": "Despertar da Masmorra",
       "text016": "Nível",
       "text017": "Efeitos dos níveis",
-      "ariaLabel018": "Níveis do despertar"
+      "ariaLabel018": "Níveis do despertar",
+      "awakening": {
+        "expand": "Mostrar efeitos do Despertar",
+        "collapse": "Ocultar efeitos do Despertar",
+        "colors": {
+          "white": "Branco",
+          "yellow": "Amarelo",
+          "orange": "Laranja",
+          "red": "Vermelho",
+          "purple": "Roxo"
+        },
+        "notes": {
+          "0": "A masmorra permanece adormecida. As criaturas usam apenas seus atributos e habilidades normais.",
+          "1": "As criaturas recebem um pequeno impulso de precisão.",
+          "2": "As criaturas tornam-se mais precisas e seus ataques causam mais dano.",
+          "3": "A masmorra permite que ataques inimigos ignorem até 1 ponto de redução de dano concedida por equipamentos.",
+          "4": "O Despertar máximo mantém os bônus de combate e libera as habilidades especiais roxas das criaturas."
+        },
+        "hit": "Acerto",
+        "damage": "Dano",
+        "penetration": "Penetração",
+        "purple": "Habilidades roxas",
+        "noBonus": "Sem bônus adicionais",
+        "nonCumulative": "Os efeitos de cada nível substituem os anteriores; não são cumulativos."
+      },
+      "rotateTitle": "Gire seu celular",
+      "rotateDescription": "Para jogar Ascensão Heróica, coloque o aparelho na horizontal. Sua partida continuará de onde parou.",
+      "orientationGameName": "Ascensão Heróica"
     },
     "replay": {
       "invalidJson": "JSON inválido ou formato não reconhecido.",
@@ -493,25 +533,26 @@
       "difficulty": {
         "very_easy": {
           "label": "Muito fácil",
-          "hint": "Herói +2, Masmorra +0"
+          "hint": "Herói Laranja · Masmorra Branca · Recuperação 3 XP"
         },
         "easy": {
           "label": "Fácil",
-          "hint": "Herói +1, Masmorra +0"
+          "hint": "Herói Amarelo · Masmorra Branca · Recuperação 4 XP"
         },
         "normal": {
           "label": "Padrão",
-          "hint": "Herói +0, Masmorra +0"
+          "hint": "Herói Branco · Masmorra Branca · Recuperação 5 XP"
         },
         "hard": {
           "label": "Difícil",
-          "hint": "Herói +0, Masmorra +1"
+          "hint": "Herói Branco · Masmorra Amarela · Recuperação 6 XP"
         },
         "nightmare": {
           "label": "Pesadelo",
-          "hint": "Herói +0, Masmorra +2"
+          "hint": "Herói Branco · Masmorra Amarela · Recuperação 7 XP"
         }
-      }
+      },
+      "expansionLabel": "Expansão"
     },
     "victory": {
       "kicker": "A lenda foi escrita",

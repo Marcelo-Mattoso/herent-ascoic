@@ -1,0 +1,9 @@
+name: draw_cards falha por padrão quando a zona esvazia
+kind: draw_cards
+given:
+  cards: [{ id: a }]
+  zones: [{ id: pilha, cards: [a] }, { id: mao }]
+when:
+  - run: [{ kind: draw_cards, from: pilha, to: mao, count: 2 }]
+then:
+  error: vazia ao comprar

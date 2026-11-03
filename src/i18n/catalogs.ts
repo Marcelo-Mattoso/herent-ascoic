@@ -31,7 +31,8 @@ export function displayCardLocale(id: string): CardLocale | undefined {
 }
 
 export function displaySkillName(id: string): string {
-	return translate(`skills:${id}.name`);
+	const key = `skills:${id}.name`;
+	return i18n.exists(key, { lng: "pt-BR" }) ? translate(key) : getSkillLocale(id).name ?? id;
 }
 
 export function displaySkillLocale(id: string): SkillLocaleEntry {

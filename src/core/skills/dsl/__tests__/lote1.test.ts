@@ -1,6 +1,3 @@
-﻿// Testes de aceite Lote 1 (Patch-12 Fase 3).
-// Verifica habilidades reais via fireTrigger + drainStack.
-
 import { describe, expect, it } from "vitest";
 import { drainStack } from "../../../effects/resolver";
 import { buildScriptCtx } from "../../../scripts/context";
@@ -11,6 +8,11 @@ import type { HeroState } from "../../../state/heroState";
 import { fireTrigger } from "../../dispatch";
 import { evaluate } from "../evaluate";
 import "../../handlers/index";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { awakeningOf, deckOf, decksOf, enemiesOf, heroesOf, withAwakening, withDecks } from "@/core/state/access";
+import { settled } from "../../../__tests__/fixtures";
+import { effectStackOf } from "../../../state/access";
+import { gameOf, withGame } from "../../../../engine/state";
 
 const CFG = { heroCardIds: ["hero_crimson_barbarian"] };
 
@@ -23,7 +25,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -53,8 +54,8 @@ function makeEnemy(overrides: Partial<EnemyState> = {}): EnemyState {
 }
 
 function run(state: GameState, trigger: string, ctx: object = {}): GameState {
-	return drainStack(
-		fireTrigger(state, trigger as any, { triggeredBy: trigger as any, ...ctx }),
+	return drainStack(testEngine, 
+		fireTrigger(testEngine, state, trigger as any, { triggeredBy: trigger as any, ...ctx }),
 	);
 }
 
@@ -62,21 +63,21 @@ function run(state: GameState, trigger: string, ctx: object = {}): GameState {
 
 describe("i_advance_dungeon", () => {
 	it("sobe o despertar em value", () => {
-		const state = { ...createInitialGameState(CFG), despertar: 1 as const };
-		const ctx = buildScriptCtx(state, { triggeredBy: "on_use" }, { value: 1 });
-		const result = drainStack(
+		const state = withAwakening(createInitialGameState(CFG), 1);
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "on_use" }, { value: 1 });
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "i_advance_dungeon", amount: "$value" }], ctx),
 		);
-		expect(result.despertar).toBe(2);
+		expect(awakeningOf(result)).toBe(2);
 	});
 
 	it("não ultrapassa nível 4", () => {
-		const state = { ...createInitialGameState(CFG), despertar: 3 as const };
-		const ctx = buildScriptCtx(state, { triggeredBy: "on_use" }, {});
-		const result = drainStack(
+		const state = withAwakening(createInitialGameState(CFG), 3);
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "on_use" }, {});
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "i_advance_dungeon", amount: 2 }], ctx),
 		);
-		expect(result.despertar).toBe(4);
+		expect(awakeningOf(result)).toBe(4);
 	});
 });
 
@@ -85,18 +86,17 @@ describe("i_advance_dungeon", () => {
 describe("discard_from dungeon", () => {
 	it("descarta 1 carta do deck de dungeon", () => {
 		const base = createInitialGameState(CFG);
-		const state: GameState = {
+		const state: GameState = withDecks({
 			...base,
-			decks: {
-				...base.decks,
+		}, {
+				...decksOf(base),
 				dungeonDeck: { available: ["A", "B"], discarded: [], removed: [] },
-			},
-		};
-		const ctx = buildScriptCtx(state, { triggeredBy: "on_destroyed" }, {});
-		const result = drainStack(
+			});
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "on_destroyed" }, {});
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "i_discard", pile: "dungeon", count: 1 }], ctx),
 		);
-		expect(result.decks.dungeonDeck.available).toHaveLength(1);
+		expect(deckOf(result, "dungeonDeck").available).toHaveLength(1);
 	});
 });
 
@@ -105,11 +105,11 @@ describe("discard_from dungeon", () => {
 describe("block_action flee", () => {
 	it("seta fleeBlocked", () => {
 		const state = createInitialGameState(CFG);
-		const ctx = buildScriptCtx(state, { triggeredBy: "while_active" }, {});
-		const result = drainStack(
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "while_active" }, {});
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "p_block", what: "flee" }], ctx),
 		);
-		expect(result.flags.fleeBlocked).toBe(true);
+		expect(gameOf(result).flags.fleeBlocked).toBe(true);
 	});
 });
 
@@ -117,16 +117,16 @@ describe("block_action flee", () => {
 
 describe("block_action heal", () => {
 	it("bloqueia cura de todos os heróis ativos", () => {
-		const state = { ...createInitialGameState(CFG), heroes: [makeHero()] };
-		const ctx = buildScriptCtx(
+		const state = settled(withGame(createInitialGameState(CFG), (prevGame) => ({ ...prevGame, heroes: [makeHero()] })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "first_round_in_room" },
 			{},
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "p_block", what: "heal" }], ctx),
 		);
-		expect(result.heroes[0].healBlocked).toBe(true);
+		expect(heroesOf(result)[0].healBlocked).toBe(true);
 	});
 });
 
@@ -135,11 +135,11 @@ describe("block_action heal", () => {
 describe("block_action dungeon_discard", () => {
 	it("seta discardDungeonLocked", () => {
 		const state = createInitialGameState(CFG);
-		const ctx = buildScriptCtx(state, { triggeredBy: "while_active" }, {});
-		const result = drainStack(
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "while_active" }, {});
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "p_block", what: "dungeon_discard" }], ctx),
 		);
-		expect(result.flags.discardDungeonLocked).toBe(true);
+		expect(gameOf(result).flags.discardDungeonLocked).toBe(true);
 	});
 });
 
@@ -151,12 +151,12 @@ describe("set_no_reward — skill_cowardly_flee via fireTrigger", () => {
 			id: "e_goblin",
 			cardId: "creature_dark_cave_goblin",
 		});
-		const state = { ...createInitialGameState(CFG), activeEnemies: [enemy] };
+		const state = settled(withGame(createInitialGameState(CFG), (prevGame) => ({ ...prevGame, activeEnemies: [enemy] })));
 		const result = run(state, "evt_leave_play", {
 			sourceEnemyId: "e_goblin",
 		});
 		expect(
-			result.activeEnemies.find((e) => e.id === "e_goblin")?.noReward,
+			enemiesOf(result).find((e) => e.id === "e_goblin")?.noReward,
 		).toBe(true);
 	});
 });
@@ -167,16 +167,16 @@ describe("apply_damage to $lowest_life_hero", () => {
 	it("causa dano ao herói com menor vida", () => {
 		const h1 = makeHero({ id: "h1", currentLife: 8 });
 		const h2 = makeHero({ id: "h2", currentLife: 3 });
-		const state = { ...createInitialGameState(CFG), heroes: [h1, h2] };
-		const ctx = buildScriptCtx(state, { triggeredBy: "on_use" }, { value: 2 });
-		const result = drainStack(
+		const state = settled(withGame(createInitialGameState(CFG), (prevGame) => ({ ...prevGame, heroes: [h1, h2] })));
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "on_use" }, { value: 2 });
+		const result = drainStack(testEngine, 
 			evaluate(
 				[{ kind: "i_damage", to: "$lowest_life_hero", amount: "$value" }],
 				ctx,
 			),
 		);
-		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(1);
-		expect(result.heroes.find((h) => h.id === "h1")?.currentLife).toBe(8);
+		expect(heroesOf(result).find((h) => h.id === "h2")?.currentLife).toBe(1);
+		expect(heroesOf(result).find((h) => h.id === "h1")?.currentLife).toBe(8);
 	});
 });
 
@@ -185,16 +185,16 @@ describe("apply_damage to $lowest_life_hero", () => {
 describe("apply_heal to $target — skill_last_light_healing", () => {
 	it("cura herói-alvo pelo valor da skill", () => {
 		const hero = makeHero({ currentLife: 5 });
-		const state = { ...createInitialGameState(CFG), heroes: [hero] };
-		const ctx = buildScriptCtx(
+		const state = settled(withGame(createInitialGameState(CFG), (prevGame) => ({ ...prevGame, heroes: [hero] })));
+		const ctx = buildScriptCtx(testEngine, 
 			state,
 			{ triggeredBy: "on_use", targetHeroIds: ["h1"] },
 			{ value: 3 },
 		);
-		const result = drainStack(
+		const result = drainStack(testEngine, 
 			evaluate([{ kind: "i_heal", to: "$target", amount: "$value" }], ctx),
 		);
-		expect(result.heroes[0].currentLife).toBe(8);
+		expect(heroesOf(result)[0].currentLife).toBe(8);
 	});
 });
 
@@ -204,9 +204,9 @@ describe("for_each all_heroes — purple_raging_flames", () => {
 	it("causa 1 de dano a cada herói ativo", () => {
 		const h1 = makeHero({ id: "h1", currentLife: 5 });
 		const h2 = makeHero({ id: "h2", currentLife: 7 });
-		const state = { ...createInitialGameState(CFG), heroes: [h1, h2] };
-		const ctx = buildScriptCtx(state, { triggeredBy: "on_enter_play" }, {});
-		const result = drainStack(
+		const state = settled(withGame(createInitialGameState(CFG), (prevGame) => ({ ...prevGame, heroes: [h1, h2] })));
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "on_enter_play" }, {});
+		const result = drainStack(testEngine, 
 			evaluate(
 				[
 					{
@@ -219,8 +219,8 @@ describe("for_each all_heroes — purple_raging_flames", () => {
 				ctx,
 			),
 		);
-		expect(result.heroes.find((h) => h.id === "h1")?.currentLife).toBe(4);
-		expect(result.heroes.find((h) => h.id === "h2")?.currentLife).toBe(6);
+		expect(heroesOf(result).find((h) => h.id === "h1")?.currentLife).toBe(4);
+		expect(heroesOf(result).find((h) => h.id === "h2")?.currentLife).toBe(6);
 	});
 });
 
@@ -229,8 +229,8 @@ describe("for_each all_heroes — purple_raging_flames", () => {
 describe("i_noop", () => {
 	it("state inalterado", () => {
 		const state = createInitialGameState(CFG);
-		const ctx = buildScriptCtx(state, { triggeredBy: "room_passive" }, {});
-		const result = drainStack(evaluate([{ kind: "i_noop" }], ctx));
-		expect(result.effectStack.pending).toHaveLength(0);
+		const ctx = buildScriptCtx(testEngine, state, { triggeredBy: "room_passive" }, {});
+		const result = drainStack(testEngine, evaluate([{ kind: "i_noop" }], ctx));
+		expect(effectStackOf(result).pending).toHaveLength(0);
 	});
 });

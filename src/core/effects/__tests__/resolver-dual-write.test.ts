@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { syncEntityFromHero } from "../../ecs/sync";
+import { spawnHero, withEffectStack } from "../../state/access";
 import { getModifierTotal } from "../../ecs/world";
 import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
@@ -8,6 +8,9 @@ import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { drainStack } from "../resolver";
 import { addPending, createEmptyEffectStack } from "../stack";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { settled } from "../../__tests__/fixtures";
+import { gameOf, withGame } from "../../../engine/state";
 
 function makeHero(id = "hero_warrior"): HeroState {
 	return {
@@ -18,7 +21,6 @@ function makeHero(id = "hero_warrior"): HeroState {
 		damage: 4,
 		hitBonus: 1,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -48,15 +50,9 @@ function makeEnemy(): EnemyState {
 function makeState(): GameState {
 	const hero = makeHero();
 	const base = createInitialGameState({ heroCardIds: [] });
-	let world = base.world;
-	world = syncEntityFromHero(world, hero);
-	return {
-		...base,
-		heroes: [hero],
-		activeEnemies: [makeEnemy()],
-		combat: createEmptyCombatState(),
-		world,
-	};
+	let world = gameOf(base).world;
+	world = spawnHero(world, hero);
+	return settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [hero], activeEnemies: [makeEnemy()], combat: createEmptyCombatState(), world })));
 }
 
 function pushModifier(
@@ -80,7 +76,7 @@ function pushModifier(
 		},
 		source,
 	});
-	return drainStack({ ...state, effectStack: filledStack });
+	return drainStack(testEngine, withEffectStack(state, filledStack));
 }
 
 describe("add_modifier dual-write", () => {
@@ -98,7 +94,7 @@ describe("add_modifier dual-write", () => {
 		);
 
 		// ECS: damage_reduction DSL → damage_taken ECS, valor negativo (debuff de dano sofrido)
-		expect(getModifierTotal(after.world, heroId, "damage_taken")).toBe(-1);
+		expect(getModifierTotal(gameOf(after).world, heroId, "damage_taken")).toBe(-1);
 	});
 
 	it("damage_bonus: escreve no ECS world — patch-18 Lote G", () => {
@@ -115,7 +111,7 @@ describe("add_modifier dual-write", () => {
 		);
 
 		// ECS: damage_bonus → damage_dealt
-		expect(getModifierTotal(after.world, heroId, "damage_dealt")).toBe(3);
+		expect(getModifierTotal(gameOf(after).world, heroId, "damage_dealt")).toBe(3);
 	});
 
 	it("tohit_penalty: escreve no ECS world (hit_bonus negativo) — patch-18 Lote G", () => {
@@ -132,6 +128,6 @@ describe("add_modifier dual-write", () => {
 		);
 
 		// ECS: tohit_penalty → hit_bonus com valor negativo
-		expect(getModifierTotal(after.world, heroId, "hit_bonus")).toBe(-2);
+		expect(getModifierTotal(gameOf(after).world, heroId, "hit_bonus")).toBe(-2);
 	});
 });

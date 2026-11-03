@@ -1,0 +1,14 @@
+name: if_counter sem else e condição falsa não faz nada
+kind: if_counter
+given:
+  counters: [{ scope: jogo, id: "-", name: pontos, value: 0 }]
+when:
+  - run:
+      - kind: if_counter
+        counter: { scope: jogo, id: "-", name: pontos }
+        op: lt
+        value: 0
+        then:
+          - { kind: noop }
+then:
+  events: []

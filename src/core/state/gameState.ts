@@ -1,25 +1,21 @@
+import type { ColorIndex } from "./color";
 // Estado raiz da partida. Contém tudo que o reducer precisa para processar qualquer action.
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
 import type { LoggedAction } from "../actions/types";
-import type { TargetCandidate } from "../data/skillTypes";
+import type { GameEvent } from "../events/types";
 import type { World } from "../ecs/world";
 import { createEmptyWorld } from "../ecs/world";
-import type { EffectStack, PausedState } from "../effects/stack";
-import { createEmptyEffectStack } from "../effects/stack";
 import type { RngState } from "../ports/random";
 import { createRng } from "../ports/random";
-import type { PendingTriggerInterrupt } from "../triggers/engine";
-import type { PendingSkillWindow } from "../skills/resolveSkillWindow";
 import type { PreparedAbility } from "../abilities/prepared";
+import type { GameState as EngineGameState } from "../../engine/state";
 import type { ActivationLocks } from "./activation";
-import type { ColorIndex } from "./color";
 import type { CombatState } from "./combatState";
 import { createEmptyCombatState } from "./combatState";
-import type { DeckState } from "./deckState";
-import { createEmptyDeck } from "./deckState";
-import type { EnemyState } from "./enemyState";
-import type { HeroState } from "./heroState";
+import { createDeckEngine } from "./zones";
+import type { EnemyRecord } from "./enemyState";
+import type { HeroRecord } from "./heroState";
 import type { RoomState } from "./roomState";
 import type { GameStatus } from "./status";
 
@@ -41,14 +37,7 @@ export interface GroupArtifact {
 	readonly carriedBy: string | null;
 }
 
-export interface GameDecks {
-	readonly dungeonDeck: DeckState;
-	readonly enemyDeck: DeckState;
-	readonly itemDeck: DeckState;
-	readonly artifactDeck: DeckState;
-}
-
-export interface GameState {
+export interface AscensaoGame {
 	readonly gameId: string;
 	readonly mode: GameMode;
 	readonly difficulty: Difficulty;
@@ -59,26 +48,20 @@ export interface GameState {
 	// Fonte primária a partir do Passo 6; heroes/enemies tornam-se campos derivados.
 	readonly world: World;
 
-	// Effect stack — fila de efeitos pendentes (Passo 8).
-	// Drenada pelo reducer ao fim de cada action.
-	readonly effectStack: EffectStack;
-
-	// Pausa para input do jogador durante resolução de efeitos (Passo 8).
-	readonly paused: PausedState | null;
-
 	// Progressão
 	groupXp: number;
-	despertar: ColorIndex;
+	/** Patamar coletivo de Ímpeto mais alto já atingido por todos os heróis. */
+	groupImpetoMilestone: ColorIndex;
 
 	// Heróis
-	readonly heroes: readonly HeroState[];
-	readonly defeatedHeroes: readonly HeroState[];
-	readonly fledHeroes: readonly HeroState[];
+	readonly heroes: readonly HeroRecord[];
+	readonly defeatedHeroes: readonly HeroRecord[];
+	readonly fledHeroes: readonly HeroRecord[];
 
 	// Sala atual e inimigos
 	currentRoom: RoomState | null;
-	readonly activeEnemies: readonly EnemyState[];
-	readonly enemyGraveyard: readonly EnemyState[];
+	readonly activeEnemies: readonly EnemyRecord[];
+	readonly enemyGraveyard: readonly EnemyRecord[];
 
 	// Boss
 	readonly bossCardId: string;
@@ -96,9 +79,6 @@ export interface GameState {
 	// Artefatos do grupo
 	readonly groupArtifacts: readonly GroupArtifact[];
 
-	// Decks
-	readonly decks: GameDecks;
-
 	// Cartas de caminho reveladas aguardando escolha
 	readonly paths: readonly string[];
 
@@ -115,7 +95,6 @@ export interface GameState {
 	// Flags de uso por escopo "once_per_game" (key = skillId ou "skillId::heroId")
 	readonly oncePer: {
 		readonly game: Readonly<Record<string, boolean>>;
-		readonly room?: Readonly<Record<string, boolean>>;
 	};
 
 	// Estado genérico de ativação/desativação fora do combate.
@@ -144,45 +123,6 @@ export interface GameState {
 		>
 	>;
 
-	// Escolha pendente de skill aguardando input do jogador
-	pendingSkillTarget?: {
-		readonly skillId: string;
-		readonly sourceId: string;
-		readonly prompt: string;
-		readonly candidates: readonly TargetCandidate[];
-	};
-
-	// Escolha pendente de opção de skill aguardando input do jogador
-	pendingSkillChoice?: {
-		readonly skillId: string;
-		readonly prompt: string;
-		/** Só escolhas explicitamente opcionais podem usar __skip__. */
-		readonly allowSkip?: boolean;
-		/** Escolha de cartas reveladas: permite guardar uma ou descartar individualmente. */
-		readonly kind?: "draw_and_choose";
-		readonly discardDeck?: "itemDeck" | "artifactDeck";
-		readonly options: readonly {
-			readonly id: string;
-			readonly label: string;
-			readonly params?: Readonly<Record<string, number | string>>;
-			/** DSL: efeito a avaliar quando esta opção for escolhida (Patch-12 Lote 3+). */
-			readonly effect?: readonly import("../skills/dsl/types").EffectNode[];
-		}[];
-		readonly sourceHeroId?: string;
-		readonly sourceEnemyId?: string;
-		readonly sourceCardId?: string;
-		readonly sourceEntityId?: string;
-		readonly targetHeroIds?: readonly string[];
-		readonly targetEnemyIds?: readonly string[];
-		/** Snapshot completo do contexto que abriu a escolha. */
-		readonly context?: import("../data/skillTypes").SkillContext;
-	};
-
-	// Interrupção de trigger aguardando decisão do jogador.
-	// Gerada por habilidades/itens/inimigos que reagem a uma fase do jogo.
-	pendingTriggerInterrupt?: PendingTriggerInterrupt;
-	pendingSkillWindow?: PendingSkillWindow;
-
 	// Log de eventos para debug e UI
 	readonly eventLog: readonly string[];
 	/** Histórico técnico exclusivo da fase alpha, separado do log do jogador. */
@@ -208,9 +148,14 @@ export interface GameState {
 		readonly heroId: string;
 	}[];
 
+	// Eventos estruturados tipados: saída verificável das regras (eventLog é texto derivado/paralelo)
+	readonly events: readonly GameEvent[];
+
 	// Log autoritativo de todas as actions despachadas (passo 1)
 	readonly actionLog: readonly LoggedAction[];
 }
+
+export type GameState = EngineGameState<AscensaoGame>;
 
 // Recompensa pendente aguardando resolução pelo jogador.
 export interface PendingReward {
@@ -231,18 +176,16 @@ export interface GameConfig {
 }
 
 export function createInitialGameState(config: GameConfig): GameState {
-	return {
+	const game: AscensaoGame = {
 		gameId: "__PREGAME__",
 		mode: "cooperative",
 		difficulty: config.difficulty ?? "normal",
 		rng: createRng(0),
 		status: "MAIN_MENU",
 		world: createEmptyWorld(),
-		effectStack: createEmptyEffectStack(),
-		paused: null,
 
 		groupXp: 0,
-		despertar: 0,
+		groupImpetoMilestone: 0,
 
 		heroes: [],
 		defeatedHeroes: [],
@@ -258,13 +201,6 @@ export function createInitialGameState(config: GameConfig): GameState {
 		subbosses: { available: [], defeated: [] },
 
 		groupArtifacts: [],
-
-		decks: {
-			dungeonDeck: createEmptyDeck(),
-			enemyDeck: createEmptyDeck(),
-			itemDeck: createEmptyDeck(),
-			artifactDeck: createEmptyDeck(),
-		},
 
 		paths: [],
 
@@ -287,6 +223,9 @@ export function createInitialGameState(config: GameConfig): GameState {
 
 		eventLog: [],
 
+		events: [],
+
 		actionLog: [],
 	};
+	return { engine: createDeckEngine(), game };
 }

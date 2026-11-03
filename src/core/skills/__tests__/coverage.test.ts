@@ -1,19 +1,20 @@
-// Harness de cobertura — roda TODA skill do catálogo pelo core (Patch-17).
-// Mede resolução + ausência de erro/[NÃO IMPLEMENTADA], NÃO correção semântica.
-// ctx genérico: 1 herói h1 (ferido, 1 item na mochila), 1 inimigo e1, despertar:1.
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import { SKILLS } from "../../data/skills";
 import type { SkillContext, SkillDefinition } from "../../data/skillTypes";
 import { drainStack } from "../../effects/resolver";
 import { buildScriptCtx } from "../../scripts/context";
-import { getScript } from "../../scripts/registry";
+import { scriptOf } from "@/core/gameEngine";
 import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
 import { createInitialGameState } from "../../state/gameState";
 import type { HeroState } from "../../state/heroState";
 import { evaluate } from "../dsl/evaluate";
-import "../handlers/index"; // garante que continuações de script sejam registradas
+import "../handlers/index";
+import { withAwakening, withDecks } from "@/core/state/access";
+import { settled } from "../../__tests__/fixtures";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { withGame, gameOf } from "../../../engine/state"; // garante que continuações de script sejam registradas
 
 const CFG = { heroCardIds: ["hero_crimson_barbarian"] };
 
@@ -26,7 +27,6 @@ function makeHero(): HeroState {
 		damage: 3,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: ["Adaga"],
 		usedPowers: {},
@@ -61,12 +61,7 @@ function baseState(): GameState {
 		discarded,
 		removed: [] as string[],
 	});
-	return {
-		...s,
-		despertar: 1 as const,
-		heroes: [makeHero()],
-		activeEnemies: [makeEnemy()],
-		currentRoom: {
+	return withDecks(settled(withGame(withAwakening(s, 1), (prevGame) => ({ ...prevGame, heroes: [makeHero()], activeEnemies: [makeEnemy()], currentRoom: {
 			cardId: "dungeon_room_test",
 			exits: 2,
 			currentEnemies: 1,
@@ -75,14 +70,7 @@ function baseState(): GameState {
 			effect: "",
 			xp: 1,
 			status: "active",
-		},
-		decks: {
-			dungeonDeck: deck(["Sala A", "Sala B", "Sala C"], ["Sala Descartada"]),
-			enemyDeck: deck(["Goblin", "Orc"]),
-			itemDeck: deck(["Espada", "Escudo", "Poção"], ["Adaga Velha"]),
-			artifactDeck: deck(["Amuleto", "Anel"]),
-		},
-		combat: {
+		}, combat: {
 			...createEmptyCombatState(),
 			round: 1,
 			phase: "resolving",
@@ -98,8 +86,12 @@ function baseState(): GameState {
 				enemyTotal: 2,
 				enemyBreakdown: [],
 			},
-		},
-	};
+		} }))), {
+			dungeonDeck: deck(["Sala A", "Sala B", "Sala C"], ["Sala Descartada"]),
+			enemyDeck: deck(["Goblin", "Orc"]),
+			itemDeck: deck(["Espada", "Escudo", "Poção"], ["Adaga Velha"]),
+			artifactDeck: deck(["Amuleto", "Anel"]),
+		});
 }
 
 type Status = "ok" | "no-effect" | "unimplemented" | "error";
@@ -111,7 +103,7 @@ interface Row {
 }
 
 function logHasUnimpl(s: GameState, id: string): boolean {
-	return (s.eventLog ?? []).some(
+	return (gameOf(s).eventLog ?? []).some(
 		(l) =>
 			typeof l === "string" &&
 			(l.includes(`[SCRIPT NÃO ENCONTRADO`) ||
@@ -161,16 +153,16 @@ function runSkill(def: SkillDefinition): { status: Status; detail?: string } {
 	const params = { ...(def.params ?? {}), value: rawValue };
 	try {
 		if (def.effect) {
-			const out = drainStack(
-				evaluate(def.effect, buildScriptCtx(state, ctx, params)),
+			const out = drainStack(testEngine,
+				evaluate(def.effect, buildScriptCtx(testEngine, state, ctx, params)),
 			);
 			return classify(state, out, def.id);
 		}
 		if (def.script) {
-			const fn = getScript(`${def.script}.run`);
+			const fn = scriptOf(testEngine, `${def.script}.run`);
 			if (!fn)
 				return { status: "unimplemented", detail: "script não registrado" };
-			const out = drainStack(fn(buildScriptCtx(state, ctx, params)));
+			const out = drainStack(testEngine, fn(buildScriptCtx(testEngine, state, ctx, params)));
 			return classify(state, out, def.id);
 		}
 		return { status: "unimplemented", detail: "sem effect nem script" };

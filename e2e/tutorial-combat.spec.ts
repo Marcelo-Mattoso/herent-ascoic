@@ -115,7 +115,7 @@ test("Arquivo II: toque no celular e cinco tamanhos de tela", async ({
 	browser,
 }) => {
 	const context = await browser.newContext({
-		viewport: { width: 390, height: 844 },
+		viewport: { width: 844, height: 390 },
 		hasTouch: true,
 		isMobile: true,
 	});
@@ -155,7 +155,7 @@ test("Arquivo II: toque no celular e cinco tamanhos de tela", async ({
 			path: `test-results/tutorial-combat-${viewport.width}x${viewport.height}.png`,
 		});
 	}
-	await page.setViewportSize({ width: 390, height: 844 });
+	await page.setViewportSize({ width: 844, height: 390 });
 	await page.locator(".game-dice-roll-action").tap({ timeout: 10_000 });
 	await expect(
 		page.locator('[data-tutorial-step="combat-result"]'),
@@ -187,7 +187,10 @@ test("Arquivo I continua no Arquivo II sem recarregar a página", async ({
 	await page.getByRole("button", { name: "Revelar sala" }).click();
 	await expect(page.locator('[data-tutorial-step="encounter"]')).toBeVisible();
 	await page.getByRole("button", { name: "Pular observação" }).click();
-	await page.getByRole("button", { name: "Continuar" }).click();
+	for (const step of ["dungeon-levels", "dungeon-discards", "dungeon-exhaustion", "goal"]) {
+		await expect(page.locator(`[data-tutorial-step="${step}"]`)).toBeVisible();
+		await page.getByRole("button", { name: "Continuar" }).click();
+	}
 	await expect(page.locator('[data-tutorial-step="completion"]')).toBeVisible();
 	await page.evaluate(
 		() =>
@@ -211,4 +214,16 @@ test("Arquivo I continua no Arquivo II sem recarregar a página", async ({
 			),
 		)
 		.toBe(true);
+});
+
+test("Arquivo II impede painel fora de hora durante o arrasto e mantém o ataque disponível", async ({ page }) => {
+	await reachFirstAttack(page);
+	const hero = page.locator('[data-tutorial-anchor="combat.hero"] .game-card');
+	await hero.click();
+	await hero.click();
+	await expect(page.locator(".game-hero-focus-popover")).toHaveCount(0);
+	await expect(page.locator('[data-tutorial-step="combat-drag"]')).toBeVisible();
+	await hero.dragTo(page.locator('[data-tutorial-anchor="combat.enemy"]'));
+	await expect(page.locator('[data-tutorial-step="combat-dice"]')).toBeVisible();
+	await expect(page.locator(".game-dice-roll-action")).toBeVisible();
 });

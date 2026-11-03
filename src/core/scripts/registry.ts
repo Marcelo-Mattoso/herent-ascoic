@@ -1,41 +1,49 @@
-import type { ScriptHandler } from "./types";
+import type { ScriptHandler, SkillContinuation } from "./types";
 
-// Glob aponta para a pasta de entrada do designer.
-// eager: true => tudo embutido no bundle, HMR gratuito no dev.
-const modules = import.meta.glob<Record<string, ScriptHandler>>(
-	"/src/data/scripts/*.ts",
-	{ eager: true },
-) as Record<string, Record<string, ScriptHandler>>;
+export const CONTINUATION_EXPORT = "continuation";
 
-const cache = new Map<string, ScriptHandler>();
-const warnedMissing = new Set<string>();
-
-for (const [path, mod] of Object.entries(modules)) {
-	const match = path.match(/scripts\/(.+)\.ts$/);
-	if (!match?.[1]) continue;
-	const cardKey = match[1];
-	for (const [exportName, fn] of Object.entries(mod)) {
-		cache.set(`${cardKey}.${exportName}`, fn);
-	}
+export interface ScriptRegistry {
+	get(ref: string): ScriptHandler | null;
+	continuationOf(skillId: string): SkillContinuation | null;
+	register(ref: string, fn: ScriptHandler): void;
 }
 
-export function getScript(ref: string): ScriptHandler | null {
-	const fn = cache.get(ref);
-	if (!fn) {
-		if (!warnedMissing.has(ref)) {
-			console.warn(`[SCRIPT NÃO ENCONTRADO: ${ref}]`);
-			warnedMissing.add(ref);
+export function createScriptRegistry(
+	modules: Readonly<Record<string, Readonly<Record<string, unknown>>>>,
+): ScriptRegistry {
+	const cache = new Map<string, ScriptHandler>();
+	const continuations = new Map<string, SkillContinuation>();
+	const warnedMissing = new Set<string>();
+
+	for (const [path, mod] of Object.entries(modules)) {
+		const match = path.match(/scripts\/(.+)\.ts$/);
+		if (!match?.[1]) continue;
+		const cardKey = match[1];
+		for (const [exportName, fn] of Object.entries(mod)) {
+			if (typeof fn !== "function") continue;
+			if (exportName === CONTINUATION_EXPORT) {
+				continuations.set(cardKey, fn as SkillContinuation);
+				continue;
+			}
+			cache.set(`${cardKey}.${exportName}`, fn as ScriptHandler);
 		}
-		return null;
 	}
-	return fn;
-}
 
-export function _resetForTests(): void {
-	cache.clear();
-	warnedMissing.clear();
-}
-
-export function _registerForTests(ref: string, fn: ScriptHandler): void {
-	cache.set(ref, fn);
+	return {
+		get(ref) {
+			const fn = cache.get(ref);
+			if (!fn) {
+				if (!warnedMissing.has(ref)) {
+					console.warn(`[SCRIPT NÃO ENCONTRADO: ${ref}]`);
+					warnedMissing.add(ref);
+				}
+				return null;
+			}
+			return fn;
+		},
+		continuationOf: (skillId) => continuations.get(skillId) ?? null,
+		register: (ref, fn) => {
+			cache.set(ref, fn);
+		},
+	};
 }

@@ -1,7 +1,3 @@
-// Testes do Passo 11 — Elf store + gameStore.
-// Smoke tests: dispatch START_GAME, ler estado, focusedHeroId recomputado.
-// Não testa DevTools (requer extensão do browser) nem useSyncExternalStore (React).
-
 import { beforeEach, describe, expect, it } from "vitest";
 import { createInProcessAdapter } from "@/core/adapter/inProcessAdapter";
 import { reducer } from "@/core/reducer/index";
@@ -13,12 +9,14 @@ import {
 	resetElfStore,
 	setElfStoreProps,
 } from "./elfStore";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { gameOf } from "../../engine/state";
 
 const HERO = "hero_crimson_barbarian";
 const EMPTY_CONFIG = { heroCardIds: [] as string[] };
 
 function makeAdapter() {
-	return createInProcessAdapter(createInitialGameState(EMPTY_CONFIG));
+	return createInProcessAdapter(testEngine, createInitialGameState(EMPTY_CONFIG));
 }
 
 // Reset do store Elf antes de cada teste para isolamento.
@@ -31,8 +29,8 @@ beforeEach(() => {
 describe("elfStore — operações básicas", () => {
 	it("getElfGameState retorna estado pré-partida após reset", () => {
 		const state = getElfGameState();
-		expect(state.status).toBe("MAIN_MENU");
-		expect(state.heroes).toHaveLength(0);
+		expect(gameOf(state).status).toBe("MAIN_MENU");
+		expect(gameOf(state).heroes).toHaveLength(0);
 	});
 
 	it("setElfStoreProps atualiza gameState imediatamente", () => {
@@ -44,8 +42,8 @@ describe("elfStore — operações básicas", () => {
 		const newState = adapter.getState();
 
 		setElfStoreProps({ gameState: newState });
-		expect(getElfGameState().status).toBe("ROOM_EFFECT");
-		expect(getElfGameState().heroes).toHaveLength(1);
+		expect(gameOf(getElfGameState()).status).toBe("ROOM_EFFECT");
+		expect(gameOf(getElfGameState()).heroes).toHaveLength(1);
 	});
 
 	it("gameElfStore.getValue() retorna a mesma referência se não houve update", () => {
@@ -66,7 +64,7 @@ describe("elfStore — operações básicas", () => {
 		setElfStoreProps({ ui: { focusedHeroId: "h1" } });
 		resetElfStore();
 		expect(getElfUiState().focusedHeroId).toBeNull();
-		expect(getElfGameState().status).toBe("MAIN_MENU");
+		expect(gameOf(getElfGameState()).status).toBe("MAIN_MENU");
 	});
 });
 
@@ -82,7 +80,7 @@ describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 		});
 
 		const adapterState = adapter.getState();
-		const reducerState = reducer(initial, {
+		const reducerState = reducer(testEngine, initial, {
 			type: "START_GAME",
 			payload: { heroCardIds: [HERO] },
 		});
@@ -91,9 +89,9 @@ describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 		setElfStoreProps({ gameState: adapterState });
 
 		const elfState = getElfGameState();
-		expect(elfState.status).toBe(reducerState.status);
-		expect(elfState.heroes.length).toBe(reducerState.heroes.length);
-		expect(elfState.heroes[0]!.cardId).toBe(HERO);
+		expect(gameOf(elfState).status).toBe(gameOf(reducerState).status);
+		expect(gameOf(elfState).heroes.length).toBe(gameOf(reducerState).heroes.length);
+		expect(gameOf(elfState).heroes[0]!.cardId).toBe(HERO);
 	});
 
 	it("após START_GAME, herói ativo está presente no estado Elf", () => {
@@ -105,7 +103,7 @@ describe("smoke test — dispatch START_GAME e leitura de estado", () => {
 		setElfStoreProps({ gameState: adapter.getState() });
 
 		const state = getElfGameState();
-		const activeHero = state.heroes.find((h) => h.status === "active");
+		const activeHero = gameOf(state).heroes.find((h) => h.status === "active");
 		expect(activeHero).toBeDefined();
 		expect(activeHero!.cardId).toBe(HERO);
 	});
@@ -122,7 +120,7 @@ describe("focusedHeroId — recomputação", () => {
 		});
 		const nextState = adapter.getState();
 
-		const activeHeroes = nextState.heroes.filter((h) => h.status === "active");
+		const activeHeroes = gameOf(nextState).heroes.filter((h) => h.status === "active");
 		const focusedHeroId = activeHeroes[0]?.id ?? null;
 
 		setElfStoreProps({
@@ -131,7 +129,7 @@ describe("focusedHeroId — recomputação", () => {
 		});
 
 		expect(getElfUiState().focusedHeroId).toBe(focusedHeroId);
-		expect(getElfUiState().focusedHeroId).toBe(nextState.heroes[0]!.id);
+		expect(getElfUiState().focusedHeroId).toBe(gameOf(nextState).heroes[0]!.id);
 	});
 
 	it("focusedHeroId permanece inalterado se herói ainda está ativo", () => {
@@ -141,7 +139,7 @@ describe("focusedHeroId — recomputação", () => {
 			payload: { heroCardIds: [HERO] },
 		});
 		const state1 = adapter.getState();
-		const heroId = state1.heroes[0]!.id;
+		const heroId = gameOf(state1).heroes[0]!.id;
 
 		setElfStoreProps({ gameState: state1, ui: { focusedHeroId: heroId } });
 
@@ -151,7 +149,7 @@ describe("focusedHeroId — recomputação", () => {
 
 		// Herói ainda ativo → focusedHeroId mantido
 		const currentFocus = getElfUiState().focusedHeroId;
-		const activeHeroes = state2.heroes.filter((h) => h.status === "active");
+		const activeHeroes = gameOf(state2).heroes.filter((h) => h.status === "active");
 		const focusStillValid = currentFocus
 			? activeHeroes.some((h) => h.id === currentFocus)
 			: false;

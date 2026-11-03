@@ -1,15 +1,18 @@
 import { describe, expect, it } from "vitest";
 import { getAllCards } from "../../data/cards";
-import { cardAbilityGrants } from "../../data/abilities";
+
 import type { EventName } from "../dsl/types";
 import { TRIGGER_EVENT_EMITTERS } from "../resolveSkillWindow";
-import { cardSkills } from "../lookup";
+import { cardAbilityGrants } from "../../data/abilities";
+import { skillsOf } from "@/core/gameEngine";
+import { testEngine } from "@/core/__tests__/testEngine";
+
 
 describe("contrato catálogo → emissor de trigger", () => {
 	function declaredEvents(): Set<EventName> {
 		return new Set<EventName>([
 			...getAllCards().flatMap((card) =>
-				cardSkills(card.id).flatMap(({ def }) =>
+				skillsOf(testEngine, card.id).flatMap(({ def }) =>
 					def.operate_type === "op_triggered" && def.trigger?.event
 						? [def.trigger.event]
 						: [],

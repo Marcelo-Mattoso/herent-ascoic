@@ -1,0 +1,16 @@
+name: apply_status aplica com duração e reaplicar renova (refresh)
+kind: apply_status
+given:
+  units:
+    - { id: aria, def: aria, controller: a }
+    - { id: alvo, def: espreitador_do_junco, controller: e }
+when:
+  - run:
+      - { kind: apply_status, target: aria, status: raiz, source: alvo }
+      - { kind: apply_status, target: aria, status: raiz, source: alvo }
+then:
+  events:
+    - { type: status.aplicado, payload: { unit: aria, status: raiz, stacks: 1, source: alvo } }
+    - { type: status.aplicado, payload: { unit: aria, status: raiz, stacks: 1 } }
+  units:
+    aria: { statuses: [{ status: raiz, stacks: 1, remaining: 2 }] }

@@ -66,7 +66,7 @@ function legacyActivation(
 				card.type === "subboss_room" ? "room" : card.type,
 				definition.trigger!.event) ? "optional" : "automatic",
 			priority: definition.interrupt?.priority,
-			actionCost: "none",
+			actionCost: definition.action_cost ?? "none",
 			consumeSource:
 				card.type === "item" && card.itemClass === "consumable"
 					? "discard"
@@ -78,7 +78,7 @@ function legacyActivation(
 	return {
 		kind: "manual",
 		decision: "required",
-		actionCost: "none",
+		actionCost: definition.action_cost ?? "none",
 		consumeSource:
 			card.type === "item" && card.itemClass === "consumable"
 				? "discard"

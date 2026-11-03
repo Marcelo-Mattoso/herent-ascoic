@@ -11,6 +11,7 @@ import {
 	type JournalSkill,
 	type JournalStateSnapshot,
 } from "@/core/journal/gameJournal";
+import { uiEngine } from "@/ui/engine";
 
 function download(name: string, content: string, type: string) {
 	const url = URL.createObjectURL(new Blob([content], { type }));
@@ -287,17 +288,6 @@ function StateContents({ snapshot }: { snapshot: JournalStateSnapshot }) {
 							.join(", ")}
 					</p>
 				)}
-				{snapshot.temporaryEffects.length > 0 && (
-					<p>
-						{translate("journal:components.journalPanel.text046")}{" "}
-						{snapshot.temporaryEffects
-							.map(
-								(effect) =>
-									`${effect.description} (${effect.roundsLeft} rodadas)`,
-							)
-							.join("; ")}
-					</p>
-				)}
 				{snapshot.pendingChoices.length > 0 && (
 					<p>{translate("journal:components.journalPanel.text047")}{" "}{snapshot.pendingChoices.join("; ")}</p>
 				)}
@@ -491,7 +481,7 @@ export function JournalPanel({
 					onClick={() =>
 						download(
 							`diario-${safeId}.txt`,
-							exportJournalText(journal),
+							exportJournalText(uiEngine, journal),
 							"text/plain;charset=utf-8",
 						)
 					}
@@ -502,7 +492,7 @@ export function JournalPanel({
 					onClick={() =>
 						download(
 							`diario-${safeId}.json`,
-							exportJournalJson(journal),
+							exportJournalJson(uiEngine, journal),
 							"application/json;charset=utf-8",
 						)
 					}

@@ -1,9 +1,12 @@
+import { testEngine } from "@/core/__tests__/testEngine";
 import { describe, expect, it } from "vitest";
 import { createEmptyCombatState } from "../../../state/combatState";
 import type { GameState } from "../../../state/gameState";
 import { createInitialGameState } from "../../../state/gameState";
 import { markLimitUsed, resolveTrigger } from "../resolveTrigger";
 import type { EvalCtx, TriggerObject } from "../types";
+import { withGame, gameOf } from "../../../../engine/state";
+import { scopedFlagOf, withScopedFlag } from "../../../state/access";
 
 // ── Helpers ───────────────────────────────────────────────────────────────────
 
@@ -16,6 +19,7 @@ function makeCtx(
 	} = {},
 ): EvalCtx {
 	return {
+		engine: testEngine,
 		state,
 		skillId: "test_skill",
 		params: {},
@@ -39,7 +43,7 @@ function makeCtx(
 }
 
 function stateWithCombat(base: GameState): GameState {
-	return { ...base, combat: createEmptyCombatState() };
+	return withGame(base, (prevGame) => ({ ...prevGame, combat: createEmptyCombatState() }));
 }
 
 // ── Testes: when ──────────────────────────────────────────────────────────────
@@ -145,10 +149,7 @@ describe("resolveTrigger — limit", () => {
 
 	it("once_per_game: não dispara quando já usado", () => {
 		const base = createInitialGameState({ heroCardIds: [] });
-		const state: GameState = {
-			...base,
-			oncePer: { game: { "test_skill::h1": true } },
-		};
+		const state: GameState = withGame(base, (prevGame) => ({ ...prevGame, oncePer: { game: { "test_skill::h1": true } } }));
 		const trigger: TriggerObject = { on: "on_use", limit: "once_per_game" };
 		expect(resolveTrigger(trigger, makeCtx(state))).toBe(false);
 	});
@@ -161,32 +162,14 @@ describe("resolveTrigger — limit", () => {
 
 	it("once_per_combat: não dispara quando já usado", () => {
 		const base = stateWithCombat(createInitialGameState({ heroCardIds: [] }));
-		const state: GameState = {
-			...base,
-			combat: {
-				...base.combat!,
-				oncePer: {
-					...base.combat!.oncePer,
-					combat: { "test_skill::h1": true },
-				},
-			},
-		};
+		const state: GameState = withScopedFlag(base, "combat", "oncePer", "test_skill::h1");
 		const trigger: TriggerObject = { on: "on_use", limit: "once_per_combat" };
 		expect(resolveTrigger(trigger, makeCtx(state))).toBe(false);
 	});
 
 	it("once_per_room: não dispara quando já usado", () => {
 		const base = stateWithCombat(createInitialGameState({ heroCardIds: [] }));
-		const state: GameState = {
-			...base,
-			combat: {
-				...base.combat!,
-				oncePer: {
-					...base.combat!.oncePer,
-					room: { "test_skill::h1": true },
-				},
-			},
-		};
+		const state: GameState = withScopedFlag(base, "room", "oncePer", "test_skill::h1");
 		const trigger: TriggerObject = { on: "on_use", limit: "once_per_room" };
 		expect(resolveTrigger(trigger, makeCtx(state))).toBe(false);
 	});
@@ -194,10 +177,7 @@ describe("resolveTrigger — limit", () => {
 	it("limit checado antes de when", () => {
 		// Se limit já expirou, when nem é avaliado
 		const base = createInitialGameState({ heroCardIds: [] });
-		const state: GameState = {
-			...base,
-			oncePer: { game: { "test_skill::h1": true } },
-		};
+		const state: GameState = withGame(base, (prevGame) => ({ ...prevGame, oncePer: { game: { "test_skill::h1": true } } }));
 		const trigger: TriggerObject = {
 			on: "on_use",
 			limit: "once_per_game",
@@ -218,7 +198,7 @@ describe("markLimitUsed", () => {
 			"h1",
 			state,
 		);
-		expect(next.oncePer.game["test_skill::h1"]).toBe(true);
+		expect(gameOf(next).oncePer.game["test_skill::h1"]).toBe(true);
 	});
 
 	it("marca once_per_combat", () => {
@@ -229,7 +209,7 @@ describe("markLimitUsed", () => {
 			"h1",
 			state,
 		);
-		expect(next.combat?.oncePer.combat["test_skill::h1"]).toBe(true);
+		expect(scopedFlagOf(next, "combat", "oncePer", "test_skill::h1")).toBe(true);
 	});
 
 	it("sem limit: retorna estado inalterado", () => {

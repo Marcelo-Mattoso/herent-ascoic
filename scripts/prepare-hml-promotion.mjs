@@ -42,10 +42,13 @@ function main() {
 	const unmerged = git("ls-files", "-u", "-z")
 		.split("\0").filter(Boolean)
 		.map((line) => line.slice(line.indexOf("\t") + 1));
-	const unexpected = [...new Set(unmerged.filter((file) => !file.startsWith("imagedata/")))];
+	const unexpected = [...new Set(unmerged.filter((file) => file !== ".gitignore" && !file.startsWith("imagedata/")))];
 	if (unexpected.length) {
 		throw new Error("Manual merge required outside image masters: " + unexpected.join(", "));
 	}
+	// dev tracks PNG masters, but hml/main must keep ignoring them.
+	// Preserve the target ignore policy, including any .gitignore merge conflict.
+	git("restore", "--source", target, "--staged", "--worktree", "--", ".gitignore");
 	// Resolves modify/delete conflicts and removes newly added PNGs too.
 	const drop = attempt("rm", "-r", "-f", "--ignore-unmatch", "--", "imagedata");
 	if (drop.status !== 0) throw new Error("Cannot strip PNG masters: " + drop.stderr);

@@ -1,0 +1,19 @@
+name: heal é bloqueada por status com healGate, exceto com a tag permitida
+kind: heal
+given:
+  units:
+    - id: aria
+      def: aria
+      controller: a
+      pools: { vida: 20 }
+      statuses: [{ status: colera }]
+when:
+  - run:
+      - { kind: heal, target: aria, amount: 15, tags: [pocao] }
+      - { kind: heal, target: aria, amount: 10, tags: [antidoto] }
+then:
+  events:
+    - { type: cura.bloqueada, payload: { target: aria, tags: [pocao], amount: 15, by: colera } }
+    - { type: cura.aplicada, payload: { tags: [antidoto], requested: 10, amount: 10 } }
+  units:
+    aria: { attributes: { vida: 30 } }

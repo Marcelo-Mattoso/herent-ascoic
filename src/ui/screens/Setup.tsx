@@ -4,10 +4,11 @@ import type { Action } from "@/core/actions/types";
 import { createPortal } from "react-dom";
 import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getBoss, getHeroes } from "@/core/data/cards";
+import { getEnabledExpansions, getExpansionCardMetadata } from "@/core/data/expansions";
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
 import { displaySkillLocale as getSkillLocale, displaySkillName as getSkillName } from "@/i18n/catalogs";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
-import { MAX_HEROES } from "@/core/state/gameState";
+import { MAX_HEROES } from "@/core/projection/viewTypes";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { useCardImages } from "@/ui/hooks/useCardImages";
 import { useUiAssets } from "@/ui/hooks/useUiAssets";
@@ -36,6 +37,8 @@ export function Setup({
 	const dispatch = useGameStore((s) => s.dispatch);
 	const [difficulty, setDifficulty] = useState<Difficulty>("normal");
 	const [mode, setMode] = useState<GameMode>("cooperative");
+	const expansions = getEnabledExpansions();
+	const [selectedExpansionId, setSelectedExpansionId] = useState<string>(expansions[0]?.id ?? "");
 	const [selectedHeroes, setSelectedHeroes] = useState<string[]>([]);
 	const [heroInfoId, setHeroInfoId] = useState<string | null>(null);
 	const [bossInfoOpen, setBossInfoOpen] = useState(false);
@@ -43,12 +46,14 @@ export function Setup({
 	const cardImageUrls = useCardImages();
 	const uiAssets = useUiAssets();
 
-	const heroes = getHeroes();
-	const boss = getBoss();
+	const heroes = getHeroes().filter((hero) =>
+		getExpansionCardMetadata(hero.id)?.expansionId === selectedExpansionId,
+	);
+	const boss = getBoss(selectedExpansionId);
 	const heroInfo = heroes.find((hero) => hero.id === heroInfoId) ?? null;
 	const selectedCountLabel = translate("game:screens.setup.selectedHeroes", { count: selectedHeroes.length });
 	const canStart =
-		selectedHeroes.length > 0 &&
+		Boolean(boss) && selectedHeroes.length > 0 &&
 		(mode === "cooperative" || selectedHeroes.length >= 2);
 
 	const backgroundUrl = getUiAssetUrl(uiAssets, "background-card");
@@ -60,10 +65,7 @@ export function Setup({
 	const heroIconUrl = getUiAssetUrl(uiAssets, "hero-icon");
 	const monsterIconUrl = getUiAssetUrl(uiAssets, "monster-icon");
 	const diceIconUrl = getUiAssetUrl(uiAssets, "dice-token");
-	const bossImageUrl =
-		cardImageUrls.azhakardragaofornalhasombria ??
-		cardImageUrls.Azhakardragaofornalhasombria ??
-		(boss ? getCardImageUrl(cardImageUrls, boss.id) : undefined);
+	const bossImageUrl = boss ? getCardImageUrl(cardImageUrls, boss.id) : undefined;
 
 	const style = {
 		"--setup-bg": backgroundUrl ? `url("${backgroundUrl}")` : undefined,
@@ -145,6 +147,26 @@ export function Setup({
 					className="setup-selection-panel"
 					aria-labelledby="setup-heroes-title"
 				>
+					{expansions.length > 1 ? (
+						<label className="setup-control-group" htmlFor="setup-expansion">
+							<span>{translate("game:screens.setup.expansionLabel")}</span>
+							<select
+								id="setup-expansion"
+								value={selectedExpansionId}
+								onChange={(event) => {
+									setSelectedExpansionId(event.target.value);
+									setSelectedHeroes([]);
+									setHeroInfoId(null);
+									setBossInfoOpen(false);
+									onSelectionChange?.([]);
+								}}
+							>
+								{expansions.map((pack) => (
+									<option key={pack.id} value={pack.id}>{pack.name}</option>
+								))}
+							</select>
+						</label>
+					) : null}
 					<div className="setup-section-heading">
 						{heroIconUrl ? <img src={heroIconUrl} alt="" /> : null}
 						<div>
@@ -166,6 +188,7 @@ export function Setup({
 									<button
 										type="button"
 										className="setup-hero-select-button"
+										data-card-id={hero.id}
 										onClick={() => toggleHero(hero.id)}
 									>
 										<CardThumb
@@ -232,6 +255,7 @@ export function Setup({
 										className={
 											difficulty === item ? "is-selected" : undefined
 										}
+										data-difficulty={item}
 										onClick={() => setDifficulty(item)}
 									>
 										<span>{translate(`game:screens.setup.difficulty.${item}.label`)}</span>
@@ -525,6 +549,8 @@ function SetupInfoModal({
 							<p>{subtitle}</p>
 						</div>
 					</div>
+					<div className="setup-info-close-controls">
+						<small className="modal-escape-hint">{translate("game:components.modal.escapeHint")}</small>
 					<button
 						type="button"
 						className="setup-info-close-button"
@@ -533,6 +559,7 @@ function SetupInfoModal({
 					>
 						X
 					</button>
+					</div>
 				</header>
 				<div className="setup-info-modal__body">{children}</div>
 			</section>

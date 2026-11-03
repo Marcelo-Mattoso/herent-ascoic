@@ -1,33 +1,35 @@
-// Estado de um herói durante a partida.
-// Derivado da carta JSON no início do jogo e mutado pelo reducer ao longo das salas.
-
-import type { ColorIndex } from "./color";
+// Registro de um herói na partida. Vida, atributos de combate e condições
+// vivem no ECS (state.world); HeroState é a projeção calculada por access.ts.
 
 export type ItemSlotType = "clothing1" | "clothing2" | "hand1" | "hand2" | "amulet";
 
 export type HeroStatus = "active" | "defeated" | "fled";
 
-export interface HeroState {
+export interface HeroRecord {
 	readonly id: string;
 	readonly cardId: string;
-	readonly maxLife: number;
-	currentLife: number;
-	readonly damage: number;
-	readonly hitBonus: number;
-	readonly dice: number;
-	impeto: ColorIndex;
 	// Slots de equipamentos ativos, indexados por tipo de slot
 	readonly activeItems: Readonly<Partial<Record<ItemSlotType, string>>>;
 	// Nomes de itens na mochila (sem slot equipado)
 	readonly backpack: readonly string[];
 	// Flags de poderes e habilidades já usados, com escopo ("room" | "combat" | "game")
 	readonly usedPowers: Readonly<Record<string, boolean>>;
-	readonly conditions: readonly string[];
 	status: HeroStatus;
-	// Bloqueia cura deste herói enquanto ativo (ex: Fumaça da Fornalha)
-	healBlocked?: boolean;
 	// Índice do jogador que controla este herói (0-based; em cooperativo todos são 0)
 	readonly playerIndex: number;
 	// XP individual acumulado por este herói (relevante no modo competitivo)
 	xp: number;
 }
+
+export interface HeroStats {
+	readonly maxLife: number;
+	readonly currentLife: number;
+	readonly damage: number;
+	readonly hitBonus: number;
+	readonly dice: number;
+	readonly conditions: readonly string[];
+	// Bloqueia cura deste herói enquanto ativo (ex: Fumaça da Fornalha)
+	readonly healBlocked?: boolean;
+}
+
+export type HeroState = HeroRecord & HeroStats;

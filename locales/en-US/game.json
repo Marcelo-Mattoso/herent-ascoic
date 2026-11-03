@@ -33,6 +33,14 @@
     }
   },
   "components": {
+    "groupArtifactPanel": {
+      "title": "Group artifacts",
+      "count": "Artifacts: {{count}}",
+      "empty": "No artifacts found yet. Collected artifacts will appear here with their abilities.",
+      "bearer": "Bearer: {{name}}",
+      "shared": "Shared by the group",
+      "hint": "Effects follow their conditions and activation windows; they do not occupy regular equipment slots."
+    },
     "actionButton": {},
     "alphaLogPanel": {
       "dialogLabel": "Detailed alpha log",
@@ -70,7 +78,8 @@
       "text003": "Artifacts",
       "text004": "missing",
       "text005": "Boss condition",
-      "text006": "2 Artifacts ("
+      "text006": "Artifacts needed: {{required}} ({{current}}/{{required}})",
+      "devDungeonDeck": "Dungeon cards remaining: {{count}}"
     },
     "buffBar": {
       "text001": "no active effects"
@@ -154,7 +163,8 @@
       "dynamic001": "available",
       "dynamic002": "unavailable",
       "dynamic003": "available",
-      "dynamic004": "unavailable"
+      "dynamic004": "unavailable",
+      "escapeHint": "Press Esc to close"
     },
     "hpBar": {},
     "influencePanel": {
@@ -251,7 +261,9 @@
       }
     },
     "itemTile": {},
-    "modal": {},
+    "modal": {
+      "escapeHint": "Press Esc to close"
+    },
     "modals": {
       "cardDetailModal": {
         "text001": "Ability",
@@ -263,10 +275,11 @@
       "dungeonExhaustedModal": {
         "title001": "Dungeon deck empty",
         "text002": "You can spend",
-        "text003": "5 XP",
-        "text004": "to recover 1 random discarded card and continue. Otherwise, the game ends in defeat.",
+        "text003": "{{cost}} XP",
+        "text004": "to reshuffle all discarded dungeon cards and continue. Otherwise, the expedition ends in defeat.",
         "text005": "Available XP:",
-        "text006": "· Cards in discard pile:"
+        "text006": "· Cards in discard pile:",
+        "pay": "Spend {{cost}} XP"
       },
       "fleeReconfigureModal": {
         "title001": "🏃 Escape successful!",
@@ -430,7 +443,34 @@
       "text015": "Dungeon Awakening",
       "text016": "Level",
       "text017": "Level effects",
-      "ariaLabel018": "Awakening levels"
+      "ariaLabel018": "Awakening levels",
+      "awakening": {
+        "expand": "Show Awakening effects",
+        "collapse": "Hide Awakening effects",
+        "colors": {
+          "white": "White",
+          "yellow": "Yellow",
+          "orange": "Orange",
+          "red": "Red",
+          "purple": "Purple"
+        },
+        "notes": {
+          "0": "The dungeon remains dormant. Creatures use only their normal stats and abilities.",
+          "1": "Creatures gain a small accuracy boost.",
+          "2": "Creatures become more accurate and deal additional attack damage.",
+          "3": "Enemy attacks ignore up to 1 point of damage reduction granted by equipment.",
+          "4": "Maximum Awakening keeps the combat bonuses and unlocks creatures' Purple abilities."
+        },
+        "hit": "Hit",
+        "damage": "Damage",
+        "penetration": "Penetration",
+        "purple": "Purple abilities",
+        "noBonus": "No additional bonuses",
+        "nonCumulative": "Each level replaces the previous effects; bonuses do not stack."
+      },
+      "rotateTitle": "Rotate your phone",
+      "rotateDescription": "To play Ascensão Heróica, turn your phone sideways. Your game will resume where you left off.",
+      "orientationGameName": "Heroic Ascension"
     },
     "replay": {
       "invalidJson": "Invalid JSON or unrecognized format.",
@@ -491,25 +531,26 @@
       "difficulty": {
         "very_easy": {
           "label": "Very easy",
-          "hint": "Hero +2, Dungeon +0"
+          "hint": "Orange hero · White dungeon · Recovery 3 XP"
         },
         "easy": {
           "label": "Easy",
-          "hint": "Hero +1, Dungeon +0"
+          "hint": "Yellow hero · White dungeon · Recovery 4 XP"
         },
         "normal": {
           "label": "Standard",
-          "hint": "Hero +0, Dungeon +0"
+          "hint": "White hero · White dungeon · Recovery 5 XP"
         },
         "hard": {
           "label": "Hard",
-          "hint": "Hero +0, Dungeon +1"
+          "hint": "White hero · Yellow dungeon · Recovery 6 XP"
         },
         "nightmare": {
           "label": "Nightmare",
-          "hint": "Hero +0, Dungeon +2"
+          "hint": "White hero · Yellow dungeon · Recovery 7 XP"
         }
-      }
+      },
+      "expansionLabel": "Expansion"
     },
     "victory": {
       "kicker": "A legend is born",

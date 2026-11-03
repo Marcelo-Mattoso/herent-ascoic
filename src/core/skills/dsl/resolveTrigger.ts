@@ -1,9 +1,8 @@
-// Resolução de TriggerObject → boolean (a habilidade pode disparar?).
-// Pura — não muta estado. Cabe ao dispatcher chamar markLimitUsed após decidir disparar.
-
 import type { GameState } from "../../state/gameState";
 import { resolveCondition } from "./resolveCondition";
 import type { EvalCtx, LimitKind, TriggerObject } from "./types";
+import { gameOf, withGame } from "../../../engine/state";
+import { scopedFlagOf, withScopedFlag } from "../../state/access";
 
 /**
  * Decide se uma habilidade dispara dado seu TriggerObject e o contexto atual.
@@ -41,13 +40,13 @@ function limitPassed(
 
 	switch (limit) {
 		case "once_per_game":
-			return !state.oncePer.game[key];
+			return !gameOf(state).oncePer.game[key];
 		case "once_per_room":
-			return !(state.oncePer.room ?? state.combat?.oncePer.room)?.[key];
+			return !scopedFlagOf(state, "room", "oncePer", key);
 		case "once_per_combat":
-			return !state.combat?.oncePer.combat[key];
+			return !scopedFlagOf(state, "combat", "oncePer", key);
 		case "once_per_round":
-			return !state.combat?.oncePer.round[key];
+			return !scopedFlagOf(state, "round", "oncePer", key);
 	}
 }
 
@@ -67,47 +66,17 @@ export function markLimitUsed(
 
 	switch (trigger.limit) {
 		case "once_per_game":
-			return {
-				...state,
-				oncePer: {
-					...state.oncePer,
-					game: { ...state.oncePer.game, [key]: true },
-				},
-			};
+			return withGame(state, (prevGame) => ({ ...prevGame, oncePer: {
+					...gameOf(state).oncePer,
+					game: { ...gameOf(state).oncePer.game, [key]: true },
+				} }));
 		case "once_per_room":
-			return {
-				...state,
-				oncePer: {
-					...state.oncePer,
-					room: {
-						...(state.oncePer.room ?? state.combat?.oncePer.room),
-						[key]: true,
-					},
-				},
-			};
+			return withScopedFlag(state, "room", "oncePer", key);
 		case "once_per_combat":
-			if (!state.combat) return state;
-			return {
-				...state,
-				combat: {
-					...state.combat,
-					oncePer: {
-						...state.combat.oncePer,
-						combat: { ...state.combat.oncePer.combat, [key]: true },
-					},
-				},
-			};
+			if (!gameOf(state).combat) return state;
+			return withScopedFlag(state, "combat", "oncePer", key);
 		case "once_per_round":
-			if (!state.combat) return state;
-			return {
-				...state,
-				combat: {
-					...state.combat,
-					oncePer: {
-						...state.combat.oncePer,
-						round: { ...state.combat.oncePer.round, [key]: true },
-					},
-				},
-			};
+			if (!gameOf(state).combat) return state;
+			return withScopedFlag(state, "round", "oncePer", key);
 	}
 }

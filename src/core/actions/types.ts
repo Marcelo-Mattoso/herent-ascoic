@@ -1,7 +1,7 @@
 // União discriminada de todas as actions do jogo.
 // A UI e os testes disparam estas actions. O reducer as processa.
 
-import type { XpSpendOption } from "../config/defaults";
+import type { XpSpendOption } from "../gameEngine";
 import type { GameConfig } from "../state/gameState";
 import type { ItemSlotType } from "../state/heroState";
 

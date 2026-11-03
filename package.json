@@ -21,7 +21,18 @@
 		"i18n:validate": "node scripts/i18n-check.mjs",
 		"i18n:report": "node scripts/i18n-check.mjs --report",
 		"i18n:audit": "node scripts/i18n-audit.mjs",
-		"script": "npx vite-node"
+		"script": "npx vite-node",
+		"golden:record": "npx vite-node tools/golden/record.ts",
+		"coupling": "npx vite-node tools/golden/coupling.ts",
+		"bot": "npx vite-node tools/bot/run.ts --",
+		"bot:watch": "npx vite-node tools/bot/watch.ts --",
+		"bot:balance": "npx vite-node tools/bot/balance.ts --",
+		"bot:dungeon-report": "npx vite-node tools/bot/dungeonReport.ts --",
+		"bot:screen": "npx vite-node tools/bot/screen.ts --",
+		"typecheck:engine": "tsc -p tsconfig.engine.json",
+		"typecheck:tools": "tsc -p tsconfig.tools.json",
+		"engine-test": "vitest run --config tools/engine-test/vitest.config.ts",
+		"engine-test:coverage": "vitest run --config tools/engine-test/vitest.config.ts --coverage"
 	},
 	"dependencies": {
 		"@dimforge/rapier3d-compat": "^0.21.0",

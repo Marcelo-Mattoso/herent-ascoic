@@ -1,0 +1,6 @@
+name: remove_status exige exatamente um entre status e tag
+kind: payload_invalido
+when:
+  - validate: [{ kind: remove_status, target: aria, status: raiz, tag: veneno }]
+then:
+  error: inválido

@@ -1,6 +1,10 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import type { GameState } from "../state/gameState";
-import { getCardById } from "../data/cards";
-import { cardSkills } from "../skills/lookup";
+import { cardById, skillsOf } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+import { gameOf, withGame } from "../../engine/state";
+
+
 
 export interface PreparedAbility {
 	readonly key: string;
@@ -11,6 +15,7 @@ export interface PreparedAbility {
 	readonly grantId?: string;
 	readonly event: import("../skills/dsl/types").EventName;
 	readonly targetIds?: readonly string[];
+	readonly roundPrepared?: number;
 }
 
 export function preparedAbilityKey(
@@ -24,16 +29,13 @@ export function preparedAbilityKey(
 }
 
 export function isAbilityPrepared(state: GameState, key: string): boolean {
-	return Boolean(state.preparedAbilities?.[key]);
+	return Boolean(gameOf(state).preparedAbilities?.[key]);
 }
 
 export function removePreparedAbility(state: GameState, key: string): GameState {
-	if (!state.preparedAbilities?.[key]) return state;
-	const { [key]: _removed, ...remaining } = state.preparedAbilities;
-	return {
-		...state,
-		preparedAbilities: remaining,
-	};
+	if (!gameOf(state).preparedAbilities?.[key]) return state;
+	const { [key]: _removed, ...remaining } = gameOf(state).preparedAbilities!;
+	return withGame(state, (prevGame) => ({ ...prevGame, preparedAbilities: remaining }));
 }
 
 export function togglePreparedAbility(
@@ -43,13 +45,10 @@ export function togglePreparedAbility(
 	if (isAbilityPrepared(state, prepared.key)) {
 		return removePreparedAbility(state, prepared.key);
 	}
-	return {
-		...state,
-		preparedAbilities: {
-			...state.preparedAbilities,
+	return withGame(state, (prevGame) => ({ ...prevGame, preparedAbilities: {
+			...gameOf(state).preparedAbilities,
 			[prepared.key]: prepared,
-		},
-	};
+		} }));
 }
 
 /** Remove arms whose source, target, or combat opportunity disappeared. */
@@ -60,18 +59,21 @@ const COMBAT_EVENTS = new Set([
 	"evt_targeted", "evt_leave_play",
 ]);
 
-export function prunePreparedAbilities(state: GameState, previous?: GameState): GameState {
-	const prepared = state.preparedAbilities;
+export function prunePreparedAbilities(engine: GameEngine, state: GameState, previous?: GameState): GameState {
+	const prepared = gameOf(state).preparedAbilities;
 	if (!prepared || Object.keys(prepared).length === 0) return state;
-	if (previous && previous.currentRoom?.cardId !== state.currentRoom?.cardId)
-		return { ...state, preparedAbilities: {} };
+	if (previous && gameOf(previous).currentRoom?.cardId !== gameOf(state).currentRoom?.cardId)
+		return withGame(state, (prevGame) => ({ ...prevGame, preparedAbilities: {} }));
 	const valid = Object.fromEntries(
 		Object.entries(prepared).filter(([, entry]) => {
-			if (previous?.combat && !state.combat && COMBAT_EVENTS.has(entry.event)) return false;
-			const hero = state.heroes.find(
+			if (previous && gameOf(previous).combat && !gameOf(state).combat && COMBAT_EVENTS.has(entry.event)) return false;
+			const hero = gameOf(state).heroes.find(
 				(candidate) => candidate.id === entry.sourceHeroId && candidate.status === "active",
 			);
-			if (!hero || state.combat?.heroesActed.includes(hero.id)) return false;
+			if (!hero) return false;
+			if (entry.abilityId === HERO_ABILITY_IDS.power_supreme_rift_rune && entry.roundPrepared !== gameOf(state).combat?.round) return false;
+			if (gameOf(state).combat?.heroesActed.includes(hero.id) &&
+				![HERO_ABILITY_IDS.power_supreme_rift_rune, HERO_ABILITY_IDS.skill_preserved_path].some((allowedId) => allowedId === entry.abilityId)) return false;
 			if (entry.sourceKind === "hero" && hero.cardId !== entry.sourceCardId) return false;
 			if (
 				entry.sourceKind === "item" &&
@@ -79,23 +81,23 @@ export function prunePreparedAbilities(state: GameState, previous?: GameState): 
 			) return false;
 			if (
 				entry.sourceKind === "artifact" &&
-				!state.groupArtifacts.some(
+				!gameOf(state).groupArtifacts.some(
 					(artifact) => artifact.cardId === entry.sourceCardId &&
 						(!artifact.carriedBy || artifact.carriedBy === hero.id),
 				)
 			) return false;
 			if (
 				entry.targetIds?.some(
-					(id) => !state.heroes.some((candidate) => candidate.id === id && candidate.status === "active") &&
-						!state.activeEnemies.some((candidate) => candidate.id === id && candidate.status === "active"),
+					(id) => !gameOf(state).heroes.some((candidate) => candidate.id === id && candidate.status === "active") &&
+						!gameOf(state).activeEnemies.some((candidate) => candidate.id === id && candidate.status === "active"),
 				)
 			) return false;
-			const card = getCardById(entry.sourceCardId);
+			const card = cardById(engine, entry.sourceCardId);
 			return entry.grantId
 				? Boolean(card?.grants?.some((grant) => grant.id === entry.grantId && grant.abilityId === entry.abilityId))
-				: cardSkills(entry.sourceCardId).some(({ def }) => def.id === entry.abilityId);
+				: skillsOf(engine, entry.sourceCardId).some(({ def }) => def.id === entry.abilityId);
 		}),
 	);
 	if (Object.keys(valid).length === Object.keys(prepared).length) return state;
-	return { ...state, preparedAbilities: valid };
+	return withGame(state, (prevGame) => ({ ...prevGame, preparedAbilities: valid }));
 }

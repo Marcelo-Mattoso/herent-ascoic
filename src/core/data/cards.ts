@@ -1,7 +1,7 @@
 // Catálogo combinado das expansões habilitadas. Mantém a API atual do motor.
 
 import { getCardLocale } from "./cardLocale";
-import { getEnabledExpansionCards } from "./expansions";
+import { getEnabledExpansionCards, getExpansionCardMetadata } from "./expansions";
 import type {
 	AnyCard,
 	ArtifactCard,
@@ -61,8 +61,15 @@ export function getArtifacts(): ArtifactCard[] {
 	return getCardsByType("artifact");
 }
 
-export function getBoss(): BossCard | undefined {
-	return getCardsByType("boss")[0];
+export function getBoss(expansionId?: string): BossCard | undefined {
+	return getCardsByType("boss").find((boss) =>
+		!expansionId || getExpansionCardMetadata(boss.id)?.expansionId === expansionId,
+	);
+}
+
+export function getBossById(id: string): BossCard | undefined {
+	const card = getCardById(id);
+	return card?.type === "boss" ? card : undefined;
 }
 
 export function getDiceCount(
@@ -70,6 +77,7 @@ export function getDiceCount(
 	colorIndex: 0 | 1 | 2 | 3 | 4,
 ): number {
 	if (card.type === "boss") {
+		if (card.dice !== undefined) return card.dice;
 		const dice = getCardLocale(card.id)?.dice ?? "";
 		const match = dice.match(/\d+/);
 		return match ? Number.parseInt(match[0], 10) : 1;

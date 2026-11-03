@@ -2,6 +2,7 @@ import { afterEach, describe, expect, it } from "vitest";
 import enSkills from "../../../locales/en-US/skills.json";
 import { i18n } from "@/i18n";
 import { renderSkillLabel, renderSkillText } from "./renderLabel";
+import { testEngine } from "@/core/__tests__/testEngine";
 
 afterEach(async () => {
 	await i18n.changeLanguage("pt-BR");
@@ -13,15 +14,15 @@ describe("renderização localizada de habilidades", () => {
 		i18n.addResourceBundle("en-US", "skills", enSkills, true, true);
 
 		await i18n.changeLanguage("pt-BR");
-		expect(renderSkillLabel(ref)).toContain("Cura da Última Luz (3)");
+		expect(renderSkillLabel(testEngine, ref)).toContain("Cura da Última Luz (3)");
 
 		await i18n.changeLanguage("en-US");
-		expect(renderSkillLabel(ref)).toBe(
-			"Last Light Healing (3): heal 3 Health on one hero or allied creature.",
+		expect(renderSkillLabel(testEngine, ref)).toBe(
+			"Last Light Healing (3): Once per round, spend the cleric\'s action to heal 3 Health on an allied hero or creature.",
 		);
-		expect(renderSkillText(ref)).toBe("heal 3 Health on one hero or allied creature.");
+		expect(renderSkillText(testEngine, ref)).toBe("once per round, spend the cleric\'s action to heal 3 Health on an allied hero or creature.");
 
 		await i18n.changeLanguage("pt-BR");
-		expect(renderSkillLabel(ref)).toContain("Cura da Última Luz (3)");
+		expect(renderSkillLabel(testEngine, ref)).toContain("Cura da Última Luz (3)");
 	});
 });

@@ -1,7 +1,7 @@
 import { translate } from "@/i18n";
 import { useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
-import type { CombatRollResult, PendingPhysicalRoll } from "@/core/state/combatState";
+import type { CombatRollResult, PendingPhysicalRoll } from "@/core/projection/viewTypes";
 import { DiceRollOverlay as LegacyDiceRollOverlay } from "./LegacyDiceRollOverlay";
 
 type Confirm = (payload: {

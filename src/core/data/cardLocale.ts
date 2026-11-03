@@ -1,5 +1,5 @@
 import { parse } from "yaml";
-import { getExpansionCardMetadata } from "./expansions";
+import { getExpansionBossCardLocale, getExpansionCardMetadata } from "./expansions";
 import localeText from "../../data/cards.locale.pt-BR.yaml?raw";
 
 export interface CardLocale {
@@ -20,9 +20,10 @@ export const CARD_LOCALE: Readonly<Record<string, CardLocale>> = parse(
 
 export function getCardLocale(cardId: string): CardLocale | undefined {
 	const packCard = getExpansionCardMetadata(cardId);
-	return CARD_LOCALE[cardId] ?? (packCard ? { name: packCard.name } : undefined);
+	return (getExpansionBossCardLocale(cardId) as unknown as CardLocale | undefined) ??
+		CARD_LOCALE[cardId] ?? (packCard ? { name: packCard.name } : undefined);
 }
 
 export function getCardName(cardId: string): string {
-	return CARD_LOCALE[cardId]?.name ?? getExpansionCardMetadata(cardId)?.name ?? cardId;
+	return getCardLocale(cardId)?.name ?? getExpansionCardMetadata(cardId)?.name ?? cardId;
 }

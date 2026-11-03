@@ -1,7 +1,7 @@
 // Resolve o target de uma habilidade para ids concretos no estado atual.
 // Targets que exigem escolha do jogador retornam { kind: "needs_selection" }.
 
-import { getCardName } from "../data/cardLocale";
+
 import type {
 	SkillContext,
 	SkillDefinition,
@@ -10,6 +10,9 @@ import type {
 	TargetSpec,
 } from "../data/skillTypes";
 import type { GameState } from "../state/gameState";
+import { cardName } from "../gameEngine";
+import type { GameEngine } from "../gameEngine";
+import { defeatedHeroesOf, enemiesOf, heroesOf } from "../state/access";
 
 /** Contrato mínimo compartilhado por SkillDefinition legado e AbilityGrant. */
 export interface TargetingDefinition {
@@ -53,32 +56,32 @@ function manualSkillNeedsTarget(def: TargetingDefinition): boolean {
 	return effectUsesExplicitTarget(def.effect ?? []);
 }
 
-function activeHeroCandidates(
+function activeHeroCandidates(engine: GameEngine, 
 	state: GameState,
 	sourceId: string,
 	includeSource: boolean,
 ): TargetCandidate[] {
-	return state.heroes
+	return heroesOf(state)
 		.filter((hero) => hero.status === "active")
 		.filter((hero) => includeSource || hero.id !== sourceId)
 		.map((hero) => ({
 			kind: "hero" as const,
 			id: hero.id,
-			label: getCardName(hero.cardId),
+			label: cardName(engine, hero.cardId),
 		}));
 }
 
-function activeEnemyCandidates(state: GameState): TargetCandidate[] {
-	return state.activeEnemies
+function activeEnemyCandidates(engine: GameEngine, state: GameState): TargetCandidate[] {
+	return enemiesOf(state)
 		.filter((enemy) => enemy.status === "active")
 		.map((enemy) => ({
 			kind: "enemy" as const,
 			id: enemy.id,
-			label: getCardName(enemy.cardId),
+			label: cardName(engine, enemy.cardId),
 		}));
 }
 
-function manualTargetCandidates(
+function manualTargetCandidates(engine: GameEngine, 
 	state: GameState,
 	def: TargetingDefinition,
 	sourceId: string,
@@ -87,16 +90,16 @@ function manualTargetCandidates(
 		def.target_type === "tgt_enemy" ||
 		def.affect_object === "obj_not_friend"
 	) {
-		return activeEnemyCandidates(state);
+		return activeEnemyCandidates(engine, state);
 	}
-	return activeHeroCandidates(
+	return activeHeroCandidates(engine, 
 		state,
 		sourceId,
 		def.target_type !== "tgt_others",
 	);
 }
 
-function filterAllowedTargetIds(
+function filterAllowedTargetIds(engine: GameEngine, 
 	state: GameState,
 	def: TargetingDefinition,
 	sourceId: string,
@@ -107,7 +110,7 @@ function filterAllowedTargetIds(
 	}
 	if (def.affect_scope === "scp_party_full") {
 		const activeHeroIds = new Set(
-			state.heroes
+			heroesOf(state)
 				.filter((hero) => hero.status === "active")
 				.map((hero) => hero.id),
 		);
@@ -115,7 +118,7 @@ function filterAllowedTargetIds(
 	}
 	if (def.affect_scope === "scp_dead_party") {
 		const defeatedHeroIds = new Set(
-			state.defeatedHeroes.map((hero) => hero.id),
+			defeatedHeroesOf(state).map((hero) => hero.id),
 		);
 		return targetIds.filter((id) => defeatedHeroIds.has(id));
 	}
@@ -123,21 +126,21 @@ function filterAllowedTargetIds(
 		return [];
 	}
 	const validIds = new Set(
-		manualTargetCandidates(state, def, sourceId).map(
+		manualTargetCandidates(engine, state, def, sourceId).map(
 			(candidate) => candidate.id,
 		),
 	);
 	return targetIds.filter((id) => validIds.has(id));
 }
 
-export function resolveManualSkillTarget(
+export function resolveManualSkillTarget(engine: GameEngine, 
 	state: GameState,
 	def: TargetingDefinition,
 	sourceId: string,
 	targetIds?: readonly string[],
 ): ManualSkillTargetResolution {
 	if (targetIds && targetIds.length > 0) {
-		const valid = filterAllowedTargetIds(state, def, sourceId, targetIds);
+		const valid = filterAllowedTargetIds(engine, state, def, sourceId, targetIds);
 		return valid.length > 0
 			? { kind: "ready", targetIds: valid }
 			: { kind: "unavailable", reason: "Alvo inválido." };
@@ -150,7 +153,7 @@ export function resolveManualSkillTarget(
 	if (def.affect_scope === "scp_party_full") {
 		return {
 			kind: "ready",
-			targetIds: state.heroes
+			targetIds: heroesOf(state)
 				.filter((hero) => hero.status === "active")
 				.map((hero) => hero.id),
 		};
@@ -159,7 +162,7 @@ export function resolveManualSkillTarget(
 	if (def.affect_scope === "scp_dead_party") {
 		return {
 			kind: "ready",
-			targetIds: state.defeatedHeroes.map((hero) => hero.id),
+			targetIds: defeatedHeroesOf(state).map((hero) => hero.id),
 		};
 	}
 
@@ -167,7 +170,7 @@ export function resolveManualSkillTarget(
 		return { kind: "ready", targetIds: [] };
 	}
 
-	const candidates = manualTargetCandidates(state, def, sourceId);
+	const candidates = manualTargetCandidates(engine, state, def, sourceId);
 
 	if (candidates.length === 0) {
 		return { kind: "unavailable", reason: "Nenhum alvo válido disponível." };
@@ -187,7 +190,7 @@ export function resolveManualSkillTarget(
 	};
 }
 
-export function resolveTarget(
+export function resolveTarget(engine: GameEngine, 
 	state: GameState,
 	target: TargetSpec,
 	ctx: SkillContext,
@@ -204,7 +207,7 @@ export function resolveTarget(
 			// Se o contexto já especifica um alvo, usa-o; senão pede seleção.
 			if (ctx.sourceHeroId)
 				return { kind: "resolved", heroIds: [ctx.sourceHeroId] };
-			const activeHeroes = state.heroes.filter((h) => h.status === "active");
+			const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
 			if (activeHeroes.length === 1)
 				return { kind: "resolved", heroIds: [activeHeroes[0]!.id] };
 			return {
@@ -212,13 +215,13 @@ export function resolveTarget(
 				candidates: activeHeroes.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: getCardName(h.cardId),
+					label: cardName(engine, h.cardId),
 				})),
 			};
 		}
 
 		case "heroes": {
-			const ids = state.heroes
+			const ids = heroesOf(state)
 				.filter((h) => h.status === "active")
 				.map((h) => h.id);
 			return { kind: "resolved", heroIds: ids };
@@ -226,12 +229,12 @@ export function resolveTarget(
 
 		case "hero_or_ally":
 		case "hero_or_ally_creature": {
-			const candidates: TargetCandidate[] = state.heroes
+			const candidates: TargetCandidate[] = heroesOf(state)
 				.filter((h) => h.status === "active")
 				.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: getCardName(h.cardId),
+					label: cardName(engine, h.cardId),
 				}));
 			if (candidates.length === 1)
 				return { kind: "resolved", heroIds: [candidates[0]!.id] };
@@ -240,13 +243,13 @@ export function resolveTarget(
 
 		case "heroes_or_self_next_attack": {
 			// Escolha do jogador: cure heroes OU buff próximo ataque
-			const activeHeroes = state.heroes.filter((h) => h.status === "active");
+			const activeHeroes = heroesOf(state).filter((h) => h.status === "active");
 			return {
 				kind: "needs_selection",
 				candidates: activeHeroes.map<TargetCandidate>((h) => ({
 					kind: "hero",
 					id: h.id,
-					label: getCardName(h.cardId),
+					label: cardName(engine, h.cardId),
 				})),
 			};
 		}
@@ -254,7 +257,7 @@ export function resolveTarget(
 		case "creature_in_room":
 		case "creature_in_play":
 		case "chosen_enemy": {
-			const activeEnemies = state.activeEnemies.filter(
+			const activeEnemies = enemiesOf(state).filter(
 				(e) => e.status === "active",
 			);
 			if (activeEnemies.length === 1)
@@ -264,7 +267,7 @@ export function resolveTarget(
 				candidates: activeEnemies.map<TargetCandidate>((e) => ({
 					kind: "enemy",
 					id: e.id,
-					label: getCardName(e.cardId),
+					label: cardName(engine, e.cardId),
 				})),
 			};
 		}
@@ -287,12 +290,12 @@ export function resolveTarget(
 		}
 
 		case "all_heroes": {
-			const ids = state.heroes.map((h) => h.id);
+			const ids = heroesOf(state).map((h) => h.id);
 			return { kind: "resolved", heroIds: ids };
 		}
 
 		case "lowest_life_hero": {
-			const active = state.heroes.filter((h) => h.status === "active");
+			const active = heroesOf(state).filter((h) => h.status === "active");
 			if (active.length === 0) return { kind: "none" };
 			const lowest = active.reduce((a, b) =>
 				a.currentLife <= b.currentLife ? a : b,

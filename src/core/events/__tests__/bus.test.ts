@@ -1,6 +1,7 @@
+import { enemiesOf, heroesOf, withAwakening } from "@/core/state/access";
 import { describe, expect, it } from "vitest";
 import type { TriggerComponent } from "../../ecs/types";
-import { addComponent, createEntity, upsertEntity } from "../../ecs/world";
+import { addComponent } from "../../ecs/world";
 import { createEmptyCombatState } from "../../state/combatState";
 import type { EnemyState } from "../../state/enemyState";
 import type { GameState } from "../../state/gameState";
@@ -9,7 +10,11 @@ import type { HeroState } from "../../state/heroState";
 import { applyDamage } from "../../systems/damageSystem";
 import { applyHeal } from "../../systems/healSystem";
 import { emit } from "../bus";
-import type { GameEvent } from "../types";
+import type { GameEventDraft } from "../types";
+import { testEngine } from "@/core/__tests__/testEngine";
+import { settled, ensureEntity } from "../../__tests__/fixtures";
+import { pendingSkillChoiceOf, pendingTriggerInterruptOf } from "../../state/access";
+import { withGame, gameOf } from "../../../engine/state";
 
 // ── helpers ───────────────────────────────────────────────────────────────────
 
@@ -22,7 +27,6 @@ function makeHero(overrides: Partial<HeroState> = {}): HeroState {
 		damage: 4,
 		hitBonus: 0,
 		dice: 2,
-		impeto: 0,
 		activeItems: {},
 		backpack: [],
 		usedPowers: {},
@@ -58,13 +62,7 @@ function makeState(
 	const base = createInitialGameState({
 		heroCardIds: ["hero_crimson_barbarian"],
 	});
-	return {
-		...base,
-		heroes: [makeHero(heroOverrides)],
-		activeEnemies:
-			enemyOverrides !== undefined ? [makeEnemy(enemyOverrides)] : [],
-		combat: createEmptyCombatState(),
-	};
+	return settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [makeHero(heroOverrides)], activeEnemies: enemyOverrides !== undefined ? [makeEnemy(enemyOverrides)] : [], combat: createEmptyCombatState() })));
 }
 
 // Adiciona um TriggerComponent de armadura a uma entidade de herói no world.
@@ -74,9 +72,9 @@ function withArmorTrigger(
 	reduction: number,
 ): GameState {
 	// Garantir que a entidade existe no world
-	let world = state.world;
+	let world = gameOf(state).world;
 	if (!world.entities[heroId]) {
-		world = upsertEntity(world, createEntity(heroId, "hero"));
+		world = ensureEntity(world, heroId, "hero");
 	}
 	const trigger: TriggerComponent = {
 		type: "trigger",
@@ -87,7 +85,7 @@ function withArmorTrigger(
 		priority: 10,
 	};
 	world = addComponent(world, heroId, trigger);
-	return { ...state, world };
+	return withGame(state, (prevGame) => ({ ...prevGame, world }));
 }
 
 // ── emit — comportamento básico ───────────────────────────────────────────────
@@ -95,7 +93,7 @@ function withArmorTrigger(
 describe("emit — world vazio", () => {
 	it("retorna state e event inalterados quando não há TriggerComponents", () => {
 		const state = makeState();
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -104,14 +102,14 @@ describe("emit — world vazio", () => {
 				amount: 5,
 			},
 		};
-		const result = emit(state, event);
+		const result = emit(testEngine, state, event);
 		expect(result.state).toBe(state);
 		expect(result.event).toBe(event);
 	});
 
 	it("não dispara trigger de outro tipo de evento", () => {
 		const state = makeState();
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
 		const trigger: TriggerComponent = {
 			type: "trigger",
 			on: "HealAboutToBeApplied", // diferente do evento emitido
@@ -121,9 +119,9 @@ describe("emit — world vazio", () => {
 			priority: 1,
 		};
 		world = addComponent(world, "h1", trigger);
-		const stateWithTrigger = { ...state, world };
+		const stateWithTrigger = withGame(state, (prevGame) => ({ ...prevGame, world }));
 
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -132,7 +130,7 @@ describe("emit — world vazio", () => {
 				amount: 5,
 			},
 		};
-		const result = emit(stateWithTrigger, event);
+		const result = emit(testEngine, stateWithTrigger, event);
 		expect((result.event.payload as { amount: number }).amount).toBe(5);
 	});
 });
@@ -140,7 +138,7 @@ describe("emit — world vazio", () => {
 describe("emit — guarda de Despertar Roxo", () => {
 	it("não executa Tributo Sombrio de um componente Roxo antigo fora do Roxo", () => {
 		let state = makeState({}, {});
-		let world = upsertEntity(state.world, createEntity("e1", "enemy"));
+		let world = ensureEntity(gameOf(state).world, "e1", "enemy");
 		world = addComponent(world, "e1", {
 			type: "trigger",
 			on: "CombatStarted",
@@ -153,21 +151,21 @@ describe("emit — guarda de Despertar Roxo", () => {
 			duration: { kind: "this_combat" },
 			priority: 0,
 		});
-		state = { ...state, despertar: 3, world };
+		state = withAwakening(withGame(state, (prevGame) => ({ ...prevGame, world })), 3);
 
-		const result = emit(state, {
+		const result = emit(testEngine, state, {
 			type: "CombatStarted",
 			payload: { roomId: "room_dungeon_room" },
 		});
 
-		expect(result.state.pendingSkillChoice).toBeUndefined();
+		expect(pendingSkillChoiceOf(result.state)).toBeUndefined();
 	});
 });
 
 describe("emit — fronteira da pipeline de gatilhos", () => {
 	it("ignora cópia ECS antiga de skill de catálogo para não duplicar o TriggerEngine", () => {
 		const state = makeState({}, {});
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
 		world = addComponent(world, "h1", {
 			type: "trigger",
 			on: "DamageDealt",
@@ -181,17 +179,20 @@ describe("emit — fronteira da pipeline de gatilhos", () => {
 			priority: 0,
 		});
 
-		const result = emit({ ...state, world }, {
-			type: "DamageDealt",
-			payload: {
-				sourceId: "h1",
-				targetId: "e1",
-				damageType: "attack",
-				amount: 2,
+		const result = emit(testEngine,
+			withGame(state, (prevGame) => ({ ...prevGame, world })),
+			{
+				type: "DamageDealt",
+				payload: {
+					sourceId: "h1",
+					targetId: "e1",
+					damageType: "attack",
+					amount: 2,
+				},
 			},
-		});
+		);
 
-		expect(result.state.pendingTriggerInterrupt).toBeUndefined();
+		expect(pendingTriggerInterruptOf(result.state)).toBeUndefined();
 	});
 });
 
@@ -200,7 +201,7 @@ describe("emit — fronteira da pipeline de gatilhos", () => {
 describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {
 	it("listener com modify_damage_amount reduz o amount no evento", () => {
 		const state = withArmorTrigger(makeState(), "h1", 2);
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -209,13 +210,13 @@ describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {
 				amount: 5,
 			},
 		};
-		const { event: modified } = emit(state, event);
+		const { event: modified } = emit(testEngine, state, event);
 		expect((modified.payload as { amount: number }).amount).toBe(3);
 	});
 
 	it("amount não fica abaixo de min (padrão 0)", () => {
 		const state = withArmorTrigger(makeState(), "h1", 100);
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -224,14 +225,14 @@ describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {
 				amount: 5,
 			},
 		};
-		const { event: modified } = emit(state, event);
+		const { event: modified } = emit(testEngine, state, event);
 		expect((modified.payload as { amount: number }).amount).toBe(0);
 	});
 
 	it("trigger não altera evento se targetId não corresponde à entidade", () => {
 		// h1 tem armadura mas dano é direcionado a h2
 		const state = withArmorTrigger(makeState(), "h1", 3);
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -240,7 +241,7 @@ describe("emit — accumulator pattern (DamageAboutToBeDealt)", () => {
 				amount: 5,
 			},
 		};
-		const { event: modified } = emit(state, event);
+		const { event: modified } = emit(testEngine, state, event);
 		expect((modified.payload as { amount: number }).amount).toBe(5);
 	});
 });
@@ -253,8 +254,8 @@ describe("emit — ordenação por prioridade", () => {
 		const log: number[] = [];
 
 		// Usamos modify_damage_amount com deltas distintos para rastrear a ordem
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
-		world = upsertEntity(world, createEntity("h2", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
+		world = ensureEntity(world, "h2", "hero");
 
 		// priority 20: -1
 		const t1: TriggerComponent = {
@@ -278,8 +279,8 @@ describe("emit — ordenação por prioridade", () => {
 		world = addComponent(world, "h2", t2);
 		void log;
 
-		const stateWithTriggers = { ...state, world };
-		const event: GameEvent = {
+		const stateWithTriggers = withGame(state, (prevGame) => ({ ...prevGame, world }));
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -288,7 +289,7 @@ describe("emit — ordenação por prioridade", () => {
 				amount: 10,
 			},
 		};
-		const { event: modified } = emit(stateWithTriggers, event);
+		const { event: modified } = emit(testEngine, stateWithTriggers, event);
 		// h2 (priority 5, delta=-3) → 10-3=7, mas targetId=h1 então é ignorado por h2
 		// h1 (priority 20, delta=-1) → 10-1=9
 		// (h2's trigger ignora pois targetId=h1 ≠ h2)
@@ -298,7 +299,7 @@ describe("emit — ordenação por prioridade", () => {
 	it("dois listeners no mesmo alvo aplicam em sequência (menor priority primeiro)", () => {
 		// h1 tem dois TriggerComponents para o mesmo evento
 		const state = makeState();
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
 
 		const t1: TriggerComponent = {
 			type: "trigger",
@@ -319,8 +320,8 @@ describe("emit — ordenação por prioridade", () => {
 		world = addComponent(world, "h1", t1);
 		world = addComponent(world, "h1", t2);
 
-		const stateWithTriggers = { ...state, world };
-		const event: GameEvent = {
+		const stateWithTriggers = withGame(state, (prevGame) => ({ ...prevGame, world }));
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -329,7 +330,7 @@ describe("emit — ordenação por prioridade", () => {
 				amount: 8,
 			},
 		};
-		const { event: modified } = emit(stateWithTriggers, event);
+		const { event: modified } = emit(testEngine, stateWithTriggers, event);
 		// priority 5: 8-2=6; priority 10: 6-1=5
 		expect((modified.payload as { amount: number }).amount).toBe(5);
 	});
@@ -340,7 +341,7 @@ describe("emit — ordenação por prioridade", () => {
 describe("emit — condition predicate", () => {
 	it("trigger com condition falsa não é executado", () => {
 		const state = makeState();
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
 		const trigger: TriggerComponent = {
 			type: "trigger",
 			on: "DamageAboutToBeDealt",
@@ -352,7 +353,7 @@ describe("emit — condition predicate", () => {
 		};
 		world = addComponent(world, "h1", trigger);
 
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -361,13 +362,13 @@ describe("emit — condition predicate", () => {
 				amount: 7,
 			},
 		};
-		const { event: modified } = emit({ ...state, world }, event);
+		const { event: modified } = emit(testEngine, withGame(state, (prevGame) => ({ ...prevGame, world })), event);
 		expect((modified.payload as { amount: number }).amount).toBe(7);
 	});
 
 	it("trigger com condition verdadeira é executado", () => {
 		const state = makeState();
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
 		const trigger: TriggerComponent = {
 			type: "trigger",
 			on: "DamageAboutToBeDealt",
@@ -379,7 +380,7 @@ describe("emit — condition predicate", () => {
 		};
 		world = addComponent(world, "h1", trigger);
 
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -388,7 +389,7 @@ describe("emit — condition predicate", () => {
 				amount: 7,
 			},
 		};
-		const { event: modified } = emit({ ...state, world }, event);
+		const { event: modified } = emit(testEngine, withGame(state, (prevGame) => ({ ...prevGame, world })), event);
 		expect((modified.payload as { amount: number }).amount).toBe(4);
 	});
 });
@@ -398,7 +399,7 @@ describe("emit — condition predicate", () => {
 describe("emit — guard de recursão", () => {
 	it("lança erro se emit for chamado dentro de um listener", () => {
 		const state = makeState();
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
 
 		// Listener que tenta emitir outro evento (não suportado no Passo 7)
 		const trigger: TriggerComponent = {
@@ -412,7 +413,7 @@ describe("emit — guard de recursão", () => {
 			condition: (entity) => {
 				// tenta emitir dentro do listener
 				try {
-					emit(state, {
+					emit(testEngine, state, {
 						type: "DamageDealt",
 						payload: {
 							sourceId: "e1",
@@ -430,7 +431,7 @@ describe("emit — guard de recursão", () => {
 		world = addComponent(world, "h1", trigger);
 
 		// O emit externo não deve lançar (o interno lança e é capturado dentro de condition)
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageAboutToBeDealt",
 			payload: {
 				sourceId: "e1",
@@ -439,7 +440,7 @@ describe("emit — guard de recursão", () => {
 				amount: 5,
 			},
 		};
-		expect(() => emit({ ...state, world }, event)).not.toThrow();
+		expect(() => emit(testEngine, withGame(state, (prevGame) => ({ ...prevGame, world })), event)).not.toThrow();
 	});
 
 	it("emit direto recursivo (de fora, simulado) lança erro", () => {
@@ -447,7 +448,7 @@ describe("emit — guard de recursão", () => {
 		// Não é possível simular reentrada real sem listeners, então verificamos
 		// que o guard existe ao inspecionar o comportamento após uma sequência normal
 		const state = makeState();
-		const event: GameEvent = {
+		const event: GameEventDraft = {
 			type: "DamageDealt",
 			payload: {
 				sourceId: "e1",
@@ -457,7 +458,7 @@ describe("emit — guard de recursão", () => {
 			},
 		};
 		// Emissão normal não deve lançar
-		expect(() => emit(state, event)).not.toThrow();
+		expect(() => emit(testEngine, state, event)).not.toThrow();
 	});
 });
 
@@ -466,15 +467,15 @@ describe("emit — guard de recursão", () => {
 describe("applyDamage ponta a ponta com TriggerComponent de armadura", () => {
 	it("armadura reduz dano sofrido pelo herói via bus", () => {
 		const state = withArmorTrigger(makeState({ currentLife: 8 }), "h1", 2);
-		const result = applyDamage(state, "h1", 5);
+		const result = applyDamage(testEngine, state, "h1", 5);
 		// 5 - 2 (armadura) = 3 de dano real; 8 - 3 = 5 de vida
-		expect(result.heroes[0]!.currentLife).toBe(5);
+		expect(heroesOf(result)[0]!.currentLife).toBe(5);
 	});
 
 	it("sem TriggerComponent o dano é aplicado integralmente", () => {
 		const state = makeState({ currentLife: 8 });
-		const result = applyDamage(state, "h1", 5);
-		expect(result.heroes[0]!.currentLife).toBe(3);
+		const result = applyDamage(testEngine, state, "h1", 5);
+		expect(heroesOf(result)[0]!.currentLife).toBe(3);
 	});
 
 	it("armadura não interfere com dano de outro herói", () => {
@@ -482,15 +483,10 @@ describe("applyDamage ponta a ponta com TriggerComponent de armadura", () => {
 		const base = createInitialGameState({
 			heroCardIds: ["hero_crimson_barbarian"],
 		});
-		const state: GameState = {
-			...base,
-			heroes: [makeHero({ currentLife: 8 })],
-			activeEnemies: [makeEnemy({ currentLife: 5 })],
-			combat: createEmptyCombatState(),
-		};
+		const state: GameState = settled(withGame(base, (prevGame) => ({ ...prevGame, heroes: [makeHero({ currentLife: 8 })], activeEnemies: [makeEnemy({ currentLife: 5 })], combat: createEmptyCombatState() })));
 		const stateWithArmor = withArmorTrigger(state, "h1", 3);
-		const result = applyDamage(stateWithArmor, "e1", 4);
-		expect(result.activeEnemies[0]!.currentLife).toBe(1); // 5 - 4 = 1, sem redução
+		const result = applyDamage(testEngine, stateWithArmor, "e1", 4);
+		expect(enemiesOf(result)[0]!.currentLife).toBe(1); // 5 - 4 = 1, sem redução
 	});
 });
 
@@ -499,7 +495,7 @@ describe("applyDamage ponta a ponta com TriggerComponent de armadura", () => {
 describe("applyHeal ponta a ponta com TriggerComponent de modificador de cura", () => {
 	it("modificador aumenta a cura via bus", () => {
 		const state = makeState({ currentLife: 4 });
-		let world = upsertEntity(state.world, createEntity("h1", "hero"));
+		let world = ensureEntity(gameOf(state).world, "h1", "hero");
 		const trigger: TriggerComponent = {
 			type: "trigger",
 			on: "HealAboutToBeApplied",
@@ -509,9 +505,9 @@ describe("applyHeal ponta a ponta com TriggerComponent de modificador de cura", 
 			priority: 1,
 		};
 		world = addComponent(world, "h1", trigger);
-		const stateWithTrigger = { ...state, world };
-		const result = applyHeal(stateWithTrigger, "h1", 3);
+		const stateWithTrigger = withGame(state, (prevGame) => ({ ...prevGame, world }));
+		const result = applyHeal(testEngine, stateWithTrigger, "h1", 3);
 		// 3 + 2 = 5, mas max(10): 4 + 5 = 9
-		expect(result.heroes[0]!.currentLife).toBe(9);
+		expect(heroesOf(result)[0]!.currentLife).toBe(9);
 	});
 });

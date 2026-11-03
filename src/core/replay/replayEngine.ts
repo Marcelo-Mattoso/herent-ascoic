@@ -1,18 +1,14 @@
-// Engine de replay determinístico.
-// Passo 13: prova de vida — mesma seed + mesmo log → mesmo estado final.
-//
-// Usado por:
-//   - src/ui/screens/Replay.tsx (viewer passo a passo)
-//   - testes de integração (30 actions, verificação de state final)
-//   - export/import JSON round-trip
-
 import type { Action, LoggedAction } from "../actions/types";
 import { createInProcessAdapter } from "../adapter/inProcessAdapter";
 import type { GameState } from "../state/gameState";
 import { createInitialGameState } from "../state/gameState";
+import type { GameEngine } from "../gameEngine";
+import { migrateState, REPLAY_MIGRATIONS, STATE_VERSION } from "../persistence/migrations";
+import { gameOf } from "../../engine/state";
 
 // Pacote de replay serializável — contém tudo necessário para reproduzir a partida.
 export interface ReplayPackage {
+	readonly stateVersion: number;
 	readonly gameId: string;
 	readonly seed: number;
 	readonly actionLog: readonly LoggedAction[];
@@ -21,7 +17,7 @@ export interface ReplayPackage {
 // Constrói um pacote de export a partir do GameState corrente.
 // Extrai seed de actionLog[0] (START_GAME).
 export function buildReplayPackage(state: GameState): ReplayPackage {
-	const firstEntry = state.actionLog[0];
+	const firstEntry = gameOf(state).actionLog[0];
 	const seed =
 		firstEntry?.action.type === "START_GAME"
 			? ((firstEntry.action as { payload?: { seed?: number } }).payload?.seed ??
@@ -29,17 +25,18 @@ export function buildReplayPackage(state: GameState): ReplayPackage {
 			: 0;
 
 	return {
-		gameId: state.gameId,
+		stateVersion: STATE_VERSION,
+		gameId: gameOf(state).gameId,
 		seed,
-		actionLog: state.actionLog,
+		actionLog: gameOf(state).actionLog,
 	};
 }
 
 // Reproduz todas as actions de um pacote, retornando o estado final.
 // Usa um adapter separado — não contamina a partida em curso.
-export function replayFromPackage(pkg: ReplayPackage): GameState {
+export function replayFromPackage(engine: GameEngine, pkg: ReplayPackage): GameState {
 	const initial = createInitialGameState({ heroCardIds: [] });
-	const adapter = createInProcessAdapter(initial);
+	const adapter = createInProcessAdapter(engine, initial);
 
 	for (const entry of pkg.actionLog) {
 		adapter.dispatch(entry.action as Action);
@@ -50,10 +47,10 @@ export function replayFromPackage(pkg: ReplayPackage): GameState {
 
 // Retorna todos os estados intermediários (cursor-friendly para o viewer).
 // Estados[0] = estado inicial, estados[N] = após N actions.
-export function buildReplayStates(pkg: ReplayPackage): readonly GameState[] {
+export function buildReplayStates(engine: GameEngine, pkg: ReplayPackage): readonly GameState[] {
 	const initial = createInitialGameState({ heroCardIds: [] });
 	const states: GameState[] = [initial];
-	const adapter = createInProcessAdapter(initial);
+	const adapter = createInProcessAdapter(engine, initial);
 
 	for (const entry of pkg.actionLog) {
 		adapter.dispatch(entry.action as Action);
@@ -74,13 +71,18 @@ export function importPackageFromJson(json: string): ReplayPackage | null {
 	try {
 		const parsed = JSON.parse(json) as unknown;
 		if (!isReplayPackage(parsed)) return null;
-		return parsed;
+		const version = (parsed as { stateVersion?: unknown }).stateVersion ?? 0;
+		if (typeof version !== "number") return null;
+		const migrated = migrateState(parsed, version, REPLAY_MIGRATIONS);
+		return migrated === null
+			? null
+			: ({ ...(migrated as ReplayPackage), stateVersion: STATE_VERSION });
 	} catch {
 		return null;
 	}
 }
 
-function isReplayPackage(value: unknown): value is ReplayPackage {
+function isReplayPackage(value: unknown): value is Omit<ReplayPackage, "stateVersion"> {
 	if (typeof value !== "object" || value === null) return false;
 	const obj = value as Record<string, unknown>;
 	return (
