@@ -552,7 +552,9 @@
           "hint": "Héroe blanco · Mazmorra amarilla · Recuperación 7 XP"
         }
       },
-      "expansionLabel": "Expansión"
+      "expansionLabel": "Expansión",
+      "chooseBoss": "Elige tu jefe",
+      "bossHint": "Las criaturas, salas, objetos y artefactos dependen del jefe elegido."
     },
     "victory": {
       "kicker": "La leyenda quedó escrita",

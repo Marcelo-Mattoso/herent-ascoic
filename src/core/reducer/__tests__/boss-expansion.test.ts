@@ -36,7 +36,7 @@ describe("boss separado por expansão", () => {
 		expect(boss?.artifactBonus).toEqual({ artifactId: heart, lifeBase: 16 });
 		expect(getBoss("inexistente")).toBeUndefined();
 		expect(getBossById(bossId)).toEqual(boss);
-		expect(getAllCards().filter((card) => card.type === "boss")).toHaveLength(1);
+		expect(getAllCards().filter((card) => card.type === "boss")).toHaveLength(2);
 		for (const skill of boss?.skills ?? []) {
 			expect(SKILLS.abilities.some((def) => def.id === skill.skillId)).toBe(true);
 		}
@@ -95,4 +95,25 @@ describe("boss separado por expansão", () => {
 		expect(ids.length).toBeGreaterThan(0);
 		expect(ids.every((id) => getExpansionCardMetadata(id)?.expansionId === "fornalha-sombria")).toBe(true);
 	});
+	it("permite heróis de ambas as expansões e isola os decks pelo boss", () => {
+		const chosen = ["hero_crimson_barbarian", "hero_white_ashes_sister"];
+		for (const [bossId, expansionId] of [
+			["boss_azhakar", "fornalha-sombria"],
+			["boss_great_cauldron_witch", "torre-grande-bruxa-caldeirao"],
+		] as const) {
+			const state = handleStartGame(testEngine,
+				createInitialGameState({ heroCardIds: chosen, bossCardId: bossId }), {
+					heroCardIds: chosen, bossCardId, difficulty: "normal",
+					seed: 123, deferInitialRoomReveal: true,
+				});
+			expect(gameOf(state).bossCardId).toBe(bossId);
+			expect(gameOf(state).heroes.map((hero) => hero.cardId)).toEqual(chosen);
+			const decks = decksOf(state);
+			for (const deck of [decks.dungeonDeck, decks.enemyDeck, decks.itemDeck, decks.artifactDeck]) {
+				expect(deck.available.length).toBeGreaterThan(0);
+				expect(deck.available.every((id) => getExpansionCardMetadata(id)?.expansionId === expansionId)).toBe(true);
+			}
+		}
+	});
+
 });

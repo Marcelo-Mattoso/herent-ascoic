@@ -550,7 +550,9 @@
           "hint": "White hero · Yellow dungeon · Recovery 7 XP"
         }
       },
-      "expansionLabel": "Expansion"
+      "expansionLabel": "Expansion",
+      "chooseBoss": "Choose your boss",
+      "bossHint": "Creatures, rooms, items and artifacts depend on your selected boss."
     },
     "victory": {
       "kicker": "A legend is born",

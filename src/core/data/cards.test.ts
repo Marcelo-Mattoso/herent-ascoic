@@ -10,11 +10,11 @@ import {
 
 describe("catálogo de cartas", () => {
 	it("carrega o total correto de cartas", () => {
-		expect(getAllCards().length).toBe(80);
+		expect(getAllCards().length).toBe(122);
 	});
 
-	it("retorna 8 heróis", () => {
-		expect(getHeroes().length).toBe(8);
+	it("retorna 12 heróis", () => {
+		expect(getHeroes().length).toBe(12);
 	});
 
 	it("getBoss retorna Azhakar", () => {

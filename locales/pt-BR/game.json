@@ -552,7 +552,9 @@
           "hint": "Herói Branco · Masmorra Amarela · Recuperação 7 XP"
         }
       },
-      "expansionLabel": "Expansão"
+      "expansionLabel": "Expansão",
+      "chooseBoss": "Escolha seu chefe",
+      "bossHint": "As criaturas, salas, itens e artefatos dependem do chefe escolhido."
     },
     "victory": {
       "kicker": "A lenda foi escrita",
