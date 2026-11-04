@@ -585,6 +585,7 @@ const removeStatus = effectKind({
 		ctx.action.pushEffect({
 			kind: "i_remove_status",
 			status: node.status,
+		...(node.status === "poison" && (ctx.targetId ?? ctx.sourceId) ? { to: ctx.targetId ?? ctx.sourceId } : {}),
 		}),
 	resolve: (state, effect) => {
 		const status = effect["status"] as string;
@@ -596,7 +597,7 @@ const removeStatus = effectKind({
 				enemiesOf(next).find((e) => e.id === targetId);
 			if (unit) {
 				next = withUnitStats(next, unit.id, {
-					conditions: unit.conditions.filter((c) => c !== status),
+					conditions: unit.conditions.filter((c) => status === "poison" ? !c.startsWith("poison:") : c !== status),
 				});
 			}
 		}

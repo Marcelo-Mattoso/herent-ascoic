@@ -2,6 +2,7 @@ import { z } from "zod";
 import { defineCondition, type RefResolver } from "../../../../engine/kinds";
 import type { GameKindPackage } from "../../../gameEngine";
 import { recordEvent } from "../../../events/record";
+import { applyPoisonStatus } from "../../../rules/poison";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
 import type { ColorIndex } from "../../../state/color";
@@ -642,9 +643,26 @@ const ascensaoRefs: RefResolver<EvalCtx>[] = [
 	},
 ];
 
+const applyPoisonKind = effectKind({
+	kind: "i_apply_poison",
+	schema: z.object({ kind: z.literal("i_apply_poison"), to: z.string(), damage: ExprNodeSchema, rounds: ExprNodeSchema }),
+	evaluate: (node, ctx) => {
+		const to = resolveEntityRef(node.to, ctx);
+		if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
+		return ctx.action.pushEffect({
+			kind: "i_apply_poison", to,
+			damage: resolveExpr(node.damage, ctx), rounds: resolveExpr(node.rounds, ctx),
+		});
+	},
+	resolve: (state, effect) => applyPoisonStatus(
+		state, targetOf(effect) ?? "", Number(effect["damage"]), Number(effect["rounds"]),
+	),
+});
+
 export const ascensaoPackage: GameKindPackage = {
 	id: "ascensao-heroica",
 	kinds: [
+		applyPoisonKind,
 		advanceDungeon,
 		recoverDungeon,
 		revealDungeon,
