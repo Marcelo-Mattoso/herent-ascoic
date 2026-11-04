@@ -5743,3 +5743,9 @@ body:has(.tutorial-layer) .support-action { display: none; }
 @media (max-width: 900px) { .setup-boss-picker--mobile { display: block; } .setup-hero-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
 @media (orientation: landscape) and (max-height: 500px) { .setup-hero-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(58px, 1fr)); overflow-y: auto; } }
 @media (max-width: 440px) { .setup-hero-grid { grid-template-columns: 1fr; } }
+
+/* Em telas compactas o chefe fica selecionável acima dos heróis; a ficha grande fica oculta. */
+@media (max-width: 900px), (orientation: landscape) and (max-height: 500px) {
+	.setup-focus-card { display: none; }
+	.setup-boss-picker--mobile { display: block; }
+}
