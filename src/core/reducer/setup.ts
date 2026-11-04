@@ -41,9 +41,12 @@ export function handleStartGame(engine: GameEngine,
 	if (cardById(engine, bossId)?.type !== "boss") return log(state, "[ERRO] Boss inválido na configuração da partida.");
 	const expansionId = expansionOf(engine, bossId);
 	if (!expansionId) return log(state, "[ERRO] Expansão do boss não encontrada.");
+	if (new Set(heroIds).size !== heroIds.length) {
+		return log(state, "[ERRO] Não é possível selecionar o mesmo herói duas vezes.");
+	}
 	for (const id of heroIds) {
-		if (expansionOf(engine, id) !== expansionId) {
-			return log(state, "[ERRO] Herói de outra expansão não pode entrar nesta masmorra.");
+		if (cardById(engine, id)?.type !== "hero") {
+			return log(state, "[ERRO] Herói inválido na configuração da partida.");
 		}
 	}
 

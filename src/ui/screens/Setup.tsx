@@ -3,8 +3,8 @@ import { type CSSProperties, type ReactNode, useRef, useState } from "react";
 import type { Action } from "@/core/actions/types";
 import { createPortal } from "react-dom";
 import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
-import { getBoss, getHeroes } from "@/core/data/cards";
-import { getEnabledExpansions, getExpansionCardMetadata } from "@/core/data/expansions";
+import { getCardsByType, getHeroes } from "@/core/data/cards";
+
 import type { BossCard, HeroCard } from "@/core/data/cardTypes";
 import { displaySkillLocale as getSkillLocale, displaySkillName as getSkillName } from "@/i18n/catalogs";
 import type { Difficulty, GameMode } from "@/core/projection/playerView";
@@ -37,8 +37,8 @@ export function Setup({
 	const dispatch = useGameStore((s) => s.dispatch);
 	const [difficulty, setDifficulty] = useState<Difficulty>("normal");
 	const [mode, setMode] = useState<GameMode>("cooperative");
-	const expansions = getEnabledExpansions();
-	const [selectedExpansionId, setSelectedExpansionId] = useState<string>(expansions[0]?.id ?? "");
+	const bosses = getCardsByType("boss");
+	const [selectedBossId, setSelectedBossId] = useState<string>(bosses[0]?.id ?? "");
 	const [selectedHeroes, setSelectedHeroes] = useState<string[]>([]);
 	const [heroInfoId, setHeroInfoId] = useState<string | null>(null);
 	const [bossInfoOpen, setBossInfoOpen] = useState(false);
@@ -46,10 +46,8 @@ export function Setup({
 	const cardImageUrls = useCardImages();
 	const uiAssets = useUiAssets();
 
-	const heroes = getHeroes().filter((hero) =>
-		getExpansionCardMetadata(hero.id)?.expansionId === selectedExpansionId,
-	);
-	const boss = getBoss(selectedExpansionId);
+	const heroes = getHeroes();
+	const boss = bosses.find((card) => card.id === selectedBossId);
 	const heroInfo = heroes.find((hero) => hero.id === heroInfoId) ?? null;
 	const selectedCountLabel = translate("game:screens.setup.selectedHeroes", { count: selectedHeroes.length });
 	const canStart =
@@ -133,6 +131,23 @@ export function Setup({
 					className="setup-focus-card"
 					aria-labelledby="setup-focus-title"
 				>
+				{bosses.length > 1 ? (
+					<div className="setup-boss-picker" role="group" aria-label="Escolher chefe final">
+						{bosses.map((candidate) => (
+							<button
+								key={candidate.id}
+								type="button"
+								data-boss-id={candidate.id}
+								className={selectedBossId === candidate.id ? "setup-boss-picker__option is-selected" : "setup-boss-picker__option"}
+								aria-pressed={selectedBossId === candidate.id}
+								onClick={() => { setSelectedBossId(candidate.id); setBossInfoOpen(false); }}
+							>
+								{getCardName(candidate.id)}
+							</button>
+						))}
+					</div>
+				) : null}
+					{bosses.length > 1 ? <p className="setup-boss-picker__hint">{translate("game:screens.setup.bossHint")}</p> : null}
 					{boss ? (
 						<DungeonMasterCard
 							boss={boss}
@@ -147,26 +162,24 @@ export function Setup({
 					className="setup-selection-panel"
 					aria-labelledby="setup-heroes-title"
 				>
-					{expansions.length > 1 ? (
-						<label className="setup-control-group" htmlFor="setup-expansion">
-							<span>{translate("game:screens.setup.expansionLabel")}</span>
-							<select
-								id="setup-expansion"
-								value={selectedExpansionId}
-								onChange={(event) => {
-									setSelectedExpansionId(event.target.value);
-									setSelectedHeroes([]);
-									setHeroInfoId(null);
-									setBossInfoOpen(false);
-									onSelectionChange?.([]);
-								}}
+					<div className="setup-boss-picker--mobile">
+				{bosses.length > 1 ? (
+					<div className="setup-boss-picker" role="group" aria-label="Escolher chefe final">
+						{bosses.map((candidate) => (
+							<button
+								key={candidate.id}
+								type="button"
+								data-boss-id={candidate.id}
+								className={selectedBossId === candidate.id ? "setup-boss-picker__option is-selected" : "setup-boss-picker__option"}
+								aria-pressed={selectedBossId === candidate.id}
+								onClick={() => { setSelectedBossId(candidate.id); setBossInfoOpen(false); }}
 							>
-								{expansions.map((pack) => (
-									<option key={pack.id} value={pack.id}>{pack.name}</option>
-								))}
-							</select>
-						</label>
-					) : null}
+								{getCardName(candidate.id)}
+							</button>
+						))}
+					</div>
+				) : null}
+					</div>
 					<div className="setup-section-heading">
 						{heroIconUrl ? <img src={heroIconUrl} alt="" /> : null}
 						<div>
@@ -197,7 +210,9 @@ export function Setup({
 										/>
 										<span className="setup-hero-identity">
 											<strong className="setup-hero-identity__name">{getCardName(hero.id)}</strong>
-											<small className="setup-hero-identity__class">{getCardClass(hero.id)}</small>
+											{getCardClass(hero.id) !== getCardName(hero.id) ? (
+												<small className="setup-hero-identity__class">{getCardClass(hero.id)}</small>
+											) : null}
 										</span>
 									</button>
 									<button
