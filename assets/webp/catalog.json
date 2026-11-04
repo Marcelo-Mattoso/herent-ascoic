@@ -960,13 +960,13 @@
       },
       "sha256": "7795e3045c30a9f22faffa4ed80034df8d1b6dabf0ce9527bbb2217be9f4c3a3"
     },
-    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/oficina_do_lenhador_enfeiticado.webp": {
-      "bytes": 590698,
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/ninho_da_aranha_mae.webp": {
+      "bytes": 549644,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "d1168cf59b5ca5ad5a8a5fcf1fd4988a94cc941865605cd339e41ad345422b50"
+      "sha256": "5365d1126e7b056bb1876e1325283fceaac79571b3827e53cbee646d4247a4b9"
     },
     "cards/expansions/torre-grande-bruxa-caldeirao/rooms/quarto_das_criancas_perdidas.webp": {
       "bytes": 506932,
@@ -992,13 +992,13 @@
       },
       "sha256": "29d8997ac2bf79b48d65e09a41457f5546a6eb483cbcc226d2a92d9ef4ce3b4a"
     },
-    "cards/expansions/torre-grande-bruxa-caldeirao/subbosses/lenhador_enfeiticado.webp": {
-      "bytes": 561672,
+    "cards/expansions/torre-grande-bruxa-caldeirao/subbosses/aranha_mae.webp": {
+      "bytes": 491274,
       "options": {
         "method": 4,
         "quality": 86
       },
-      "sha256": "2f0785f1e4b174c8593dd9cdca6ccb70fc2a034af4978baad26010585a26b52a"
+      "sha256": "3db783ef906a071e8ee0d3942ae78497f11b2da06c55eca33aa91f924972923c"
     },
     "cards/expansions/torre-grande-bruxa-caldeirao/subbosses/serva_do_caldeirao_negro.webp": {
       "bytes": 458770,
