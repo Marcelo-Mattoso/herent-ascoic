@@ -132,7 +132,7 @@ export function Setup({
 					aria-labelledby="setup-focus-title"
 				>
 				{bosses.length > 1 ? (
-					<div className="setup-boss-picker" role="group" aria-label="Escolher chefe final">
+					<div className="setup-boss-picker" role="group" aria-label={translate("game:screens.setup.chooseBoss")}>
 						{bosses.map((candidate) => (
 							<button
 								key={candidate.id}
@@ -164,7 +164,7 @@ export function Setup({
 				>
 					<div className="setup-boss-picker--mobile">
 				{bosses.length > 1 ? (
-					<div className="setup-boss-picker" role="group" aria-label="Escolher chefe final">
+					<div className="setup-boss-picker" role="group" aria-label={translate("game:screens.setup.chooseBoss")}>
 						{bosses.map((candidate) => (
 							<button
 								key={candidate.id}
