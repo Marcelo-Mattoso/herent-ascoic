@@ -1,0 +1,2106 @@
+{
+  "id": "torre-grande-bruxa-caldeirao",
+  "name": "A Torre da Grande Bruxa do Caldeirão",
+  "version": "1.2.0",
+  "boss": "boss.json",
+  "cards": [
+    {
+      "id": "hero_oak_guardian",
+      "type": "hero",
+      "name": "Guardião do Carvalho",
+      "image": "images/hero_oak_guardian.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        11,
+        13,
+        15,
+        17,
+        19
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 3,
+      "skills": [
+        {
+          "skillId": "witch_skill_oak_bark",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "witch_power_ancient_oak"
+        }
+      ]
+    },
+    {
+      "id": "hero_green_moon_sorceress",
+      "type": "hero",
+      "name": "Feiticeira da Lua Verde",
+      "image": "images/hero_green_moon_sorceress.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        8,
+        9,
+        11,
+        13,
+        15
+      ],
+      "hitBonus": [
+        4,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 2,
+      "skills": [
+        {
+          "skillId": "witch_skill_lunar_spark"
+        },
+        {
+          "skillId": "witch_power_green_eclipse"
+        }
+      ]
+    },
+    {
+      "id": "hero_swamp_stalker",
+      "type": "hero",
+      "name": "Rastejador do Pântano",
+      "image": "images/hero_swamp_stalker.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        9,
+        10,
+        12,
+        14,
+        16
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        14,
+        18
+      ],
+      "damage": 3,
+      "skills": [
+        {
+          "skillId": "witch_skill_swamp_route"
+        },
+        {
+          "skillId": "witch_power_swamp_return"
+        }
+      ]
+    },
+    {
+      "id": "hero_white_ashes_sister",
+      "type": "hero",
+      "name": "Irmã das Cinzas Brancas",
+      "image": "images/hero_white_ashes_sister.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        9,
+        11,
+        13,
+        15,
+        17
+      ],
+      "hitBonus": [
+        4,
+        5,
+        7,
+        10,
+        14
+      ],
+      "damage": 2,
+      "skills": [
+        {
+          "skillId": "witch_skill_white_ash_balm",
+          "params": {
+            "value": 3
+          }
+        },
+        {
+          "skillId": "witch_power_white_ash_mercy"
+        }
+      ]
+    },
+    {
+      "id": "creature_twisted_wood_wolf",
+      "type": "creature",
+      "name": "Lobo da Mata Tortuosa",
+      "image": "images/creature_twisted_wood_wolf.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_purple_thorn_retaliation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_green_mist_raven",
+      "type": "creature",
+      "name": "Corvo da Névoa Verde",
+      "image": "images/creature_green_mist_raven.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        1,
+        2,
+        3,
+        5,
+        7
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_rift_evasion"
+        },
+        {
+          "skillId": "witch_purple_hexed_step",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_dry_branch_spider",
+      "type": "creature",
+      "name": "Aranha do Galho Seco",
+      "image": "images/creature_dry_branch_spider.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 3,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_venomous_web"
+        },
+        {
+          "skillId": "witch_purple_thorn_retaliation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_poison_thicket_goblin",
+      "type": "creature",
+      "name": "Goblin da Moita Venenosa",
+      "image": "images/creature_poison_thicket_goblin.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_pack_courage",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_purple_spore_awakening",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_poisoner_gnoll",
+      "type": "creature",
+      "name": "Gnoll Envenenador",
+      "image": "images/creature_poisoner_gnoll.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        4,
+        5,
+        6,
+        8,
+        10
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 4,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_spore_cloud"
+        },
+        {
+          "skillId": "witch_purple_thorn_retaliation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_dark_marsh_hunter",
+      "type": "creature",
+      "name": "Caçador do Brejo Escuro",
+      "image": "images/creature_dark_marsh_hunter.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        3,
+        4,
+        5,
+        7,
+        9
+      ],
+      "hitBonus": [
+        5,
+        7,
+        9,
+        11,
+        13
+      ],
+      "damage": 4,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "witch_purple_hexed_step",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_hollow_tree_spirit",
+      "type": "creature",
+      "name": "Espírito da Árvore Oca",
+      "image": "images/creature_hollow_tree_spirit.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        3,
+        4,
+        5,
+        7,
+        9
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 3,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_hollow_whisper",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_purple_heal_block",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_old_forest_living_root",
+      "type": "creature",
+      "name": "Raiz Vivente da Floresta Velha",
+      "image": "images/creature_old_forest_living_root.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        5,
+        6,
+        7,
+        9,
+        11
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 4,
+      "xp": 2,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_root_plate",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_purple_hexed_step",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_slime_walking_mushroom",
+      "type": "creature",
+      "name": "Cogumelo Andante do Lodo",
+      "image": "images/creature_slime_walking_mushroom.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        3,
+        4,
+        5,
+        7,
+        9
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 3,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_spore_cloud"
+        },
+        {
+          "skillId": "witch_purple_heal_block",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_witch_shadow_deer",
+      "type": "creature",
+      "name": "Corça Sombria da Bruxa",
+      "image": "images/creature_witch_shadow_deer.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        5,
+        6,
+        7,
+        9,
+        11
+      ],
+      "hitBonus": [
+        5,
+        7,
+        9,
+        11,
+        13
+      ],
+      "damage": 4,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "witch_purple_thorn_retaliation",
+          "params": {
+            "value": 2
+          },
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_bone_straw_scarecrow",
+      "type": "creature",
+      "name": "Espantalho de Ossos e Palha",
+      "image": "images/creature_bone_straw_scarecrow.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        6,
+        7,
+        8,
+        10,
+        12
+      ],
+      "hitBonus": [
+        5,
+        7,
+        9,
+        11,
+        13
+      ],
+      "damage": 5,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_root_plate",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_purple_spore_awakening",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_lost_child_illusion",
+      "type": "creature",
+      "name": "Criança Perdida da Mata",
+      "image": "images/creature_lost_child_illusion.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 2,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_hollow_whisper",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_purple_hexed_step",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "subboss_spider_mother",
+      "type": "subboss",
+      "name": "Aranha Mãe",
+      "image": "images/subboss_spider_mother.webp",
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "life": [
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 4,
+      "xp": 4,
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": [
+        {
+          "skillId": "witch_skill_mother_bite"
+        },
+        {
+          "skillId": "witch_purple_mother_venom",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "subboss_black_cauldron_servant",
+      "type": "subboss",
+      "name": "Serva do Caldeirão Negro",
+      "image": "images/subboss_black_cauldron_servant.webp",
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "life": [
+        7,
+        8,
+        10,
+        12,
+        14
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        12,
+        14
+      ],
+      "damage": 4,
+      "xp": 4,
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": [
+        {
+          "skillId": "witch_skill_spore_cloud"
+        },
+        {
+          "skillId": "witch_purple_heal_block",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "room_dry_roots_corridor",
+      "type": "room",
+      "name": "Corredor das Raízes Secas",
+      "image": "images/room_dry_roots_corridor.webp",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_room_thorn_prison"
+        }
+      ]
+    },
+    {
+      "id": "room_poisoned_kitchen",
+      "type": "room",
+      "name": "Cozinha Envenenada",
+      "image": "images/room_poisoned_kitchen.webp",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_room_poisoned_kitchen"
+        }
+      ]
+    },
+    {
+      "id": "room_old_vials_chamber",
+      "type": "room",
+      "name": "Sala dos Frascos Velhos",
+      "image": "images/room_old_vials_chamber.webp",
+      "exits": 3,
+      "enemiesByPlayers": [
+        0,
+        1,
+        1,
+        2
+      ],
+      "xp": 1,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_room_old_vials"
+        }
+      ]
+    },
+    {
+      "id": "room_crooked_tower_staircase",
+      "type": "room",
+      "name": "Escada da Torre Torta",
+      "image": "images/room_crooked_tower_staircase.webp",
+      "exits": 1,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_room_tilted_stairs"
+        }
+      ]
+    },
+    {
+      "id": "room_skin_dust_library",
+      "type": "room",
+      "name": "Biblioteca de Pele e Poeira",
+      "image": "images/room_skin_dust_library.webp",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_room_spore_dust"
+        }
+      ]
+    },
+    {
+      "id": "room_lost_children_bedroom",
+      "type": "room",
+      "name": "Quarto das Crianças Perdidas",
+      "image": "images/room_lost_children_bedroom.webp",
+      "exits": 2,
+      "enemiesByPlayers": [
+        0,
+        1,
+        1,
+        2
+      ],
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_empty_room"
+        }
+      ]
+    },
+    {
+      "id": "room_rotting_inner_garden",
+      "type": "room",
+      "name": "Jardim Interno Apodrecido",
+      "image": "images/room_rotting_inner_garden.webp",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "xp": 2,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_room_spore_dust"
+        }
+      ]
+    },
+    {
+      "id": "room_green_candles_chamber",
+      "type": "room",
+      "name": "Câmara das Velas Verdes",
+      "image": "images/room_green_candles_chamber.webp",
+      "exits": 4,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_room_green_candles"
+        }
+      ]
+    },
+    {
+      "id": "subboss_room_spider_mother_nest",
+      "type": "subboss_room",
+      "name": "Ninho da Aranha Mãe",
+      "image": "images/subboss_room_spider_mother_nest.webp",
+      "exits": 1,
+      "reward": 1,
+      "rewardType": "artifact",
+      "xp": 3,
+      "linkedSubbossId": "subboss_spider_mother",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_subboss_room"
+        },
+        {
+          "skillId": "witch_room_mother_nest_web"
+        }
+      ]
+    },
+    {
+      "id": "subboss_room_black_cauldron_chamber",
+      "type": "subboss_room",
+      "name": "Sala do Caldeirão Negro",
+      "image": "images/subboss_room_black_cauldron_chamber.webp",
+      "exits": 2,
+      "reward": 1,
+      "rewardType": "artifact",
+      "xp": 2,
+      "linkedSubbossId": "subboss_black_cauldron_servant",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_subboss_room"
+        }
+      ]
+    },
+    {
+      "id": "item_polished_bone_dagger",
+      "type": "item",
+      "name": "Punhal de Osso Polido",
+      "image": "images/item_polished_bone_dagger.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_weak_antivenom_potion",
+      "type": "item",
+      "name": "Poção Antiveneno Fraca",
+      "image": "images/item_weak_antivenom_potion.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_antivenom_use",
+          "abilityId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_old_moon_herbs",
+      "type": "item",
+      "name": "Ervas da Lua Velha",
+      "image": "images/item_old_moon_herbs.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_moon_herbs_use",
+          "abilityId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 2
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_green_glass_lantern",
+      "type": "item",
+      "name": "Lanterna de Vidro Verde",
+      "image": "images/item_green_glass_lantern.webp",
+      "itemClass": "utility",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_dried_moss_cloak",
+      "type": "item",
+      "name": "Manto de Musgo Seco",
+      "image": "images/item_dried_moss_cloak.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_braided_branch_amulet",
+      "type": "item",
+      "name": "Amuleto de Galho Trançado",
+      "image": "images/item_braided_branch_amulet.webp",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "witch_item_braided_branch_ward",
+          "params": {
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_bottled_mist",
+      "type": "item",
+      "name": "Frasco de Névoa Engarrafada",
+      "image": "images/item_bottled_mist.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_bottled_poison"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_bottled_poison_use",
+          "abilityId": "witch_item_bottled_poison",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_enemy",
+              "affectScope": "scp_single",
+              "affectObject": "obj_not_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_scratched_symbols_book",
+      "type": "item",
+      "name": "Livro de Símbolos Riscados",
+      "image": "images/item_scratched_symbols_book.webp",
+      "itemClass": "special",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_minor_rune"
+        }
+      ]
+    },
+    {
+      "id": "item_small_silver_bell",
+      "type": "item",
+      "name": "Sino de Prata Pequeno",
+      "image": "images/item_small_silver_bell.webp",
+      "itemClass": "utility",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_path_safeguard"
+        }
+      ]
+    },
+    {
+      "id": "item_witch_black_bread",
+      "type": "item",
+      "name": "Pão Negro da Bruxa",
+      "image": "images/item_witch_black_bread.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_black_bread"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_black_bread_use",
+          "abilityId": "witch_item_black_bread",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "artifact_ancient_cauldron_spoon",
+      "type": "artifact",
+      "name": "Colher do Caldeirão Antigo",
+      "image": "images/artifact_ancient_cauldron_spoon.webp",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "artifact_green_forest_eye",
+      "type": "artifact",
+      "name": "Olho Verde da Floresta",
+      "image": "images/artifact_green_forest_eye.webp",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "skill_preserved_path"
+        }
+      ]
+    },
+    {
+      "id": "artifact_crooked_tower_grimoire",
+      "type": "artifact",
+      "name": "Grimório da Torre Torta",
+      "image": "images/artifact_crooked_tower_grimoire.webp",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "power_supreme_rift_rune"
+        }
+      ]
+    }
+  ],
+  "skills": [
+    {
+      "id": "witch_skill_oak_bark",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "round",
+        "charges": 1
+      },
+      "nature": [
+        "nat_earth",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "action_cost": "consume_hero_action",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$target",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_power_ancient_oak",
+      "category": "hero_power",
+      "operate_type": "op_active_buff",
+      "cooldown": {
+        "scope": "game",
+        "charges": 1
+      },
+      "nature": [
+        "nat_earth",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "all_heroes",
+          "as": "$hero",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_damage_reduction",
+              "operation": "add",
+              "value": 1,
+              "duration": {
+                "kind": "until_end_of_round"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_lunar_spark",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_roll"
+      },
+      "cooldown": {
+        "scope": "room",
+        "charges": 1
+      },
+      "nature": [
+        "nat_magical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_reroll",
+          "die_side": "hero",
+          "only_if_value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_power_green_eclipse",
+      "category": "hero_power",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_roll"
+      },
+      "cooldown": {
+        "scope": "game",
+        "charges": 1
+      },
+      "nature": [
+        "nat_magical",
+        "nat_dark"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_choose_one",
+          "options": [
+            {
+              "id": "witch_eclipse_hero_six",
+              "effect": [
+                {
+                  "kind": "i_set_die",
+                  "value": 6,
+                  "die_side": "hero"
+                }
+              ]
+            },
+            {
+              "id": "witch_eclipse_enemy_one",
+              "effect": [
+                {
+                  "kind": "i_set_die",
+                  "value": 1,
+                  "die_side": "enemy"
+                }
+              ]
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_swamp_route",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_dungeon_discard"
+      },
+      "cooldown": {
+        "scope": "game",
+        "charges": 2
+      },
+      "nature": [
+        "nat_earth"
+      ],
+      "target_type": "tgt_item",
+      "affect_scope": "scp_none",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_prevent_dungeon_discard"
+        }
+      ]
+    },
+    {
+      "id": "witch_power_swamp_return",
+      "category": "hero_power",
+      "operate_type": "op_active",
+      "cooldown": {
+        "scope": "game",
+        "charges": 1
+      },
+      "nature": [
+        "nat_earth",
+        "nat_magical"
+      ],
+      "target_type": "tgt_item",
+      "affect_scope": "scp_none",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_recover_dungeon",
+          "count": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_white_ash_balm",
+      "category": "hero_skill",
+      "operate_type": "op_active",
+      "cooldown": {
+        "scope": "round",
+        "charges": 1
+      },
+      "nature": [
+        "nat_holy",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "action_cost": "consume_hero_action",
+      "effect": [
+        {
+          "kind": "i_remove_status",
+          "to": "$target",
+          "status": "poison"
+        },
+        {
+          "kind": "i_heal",
+          "to": "$target",
+          "amount": "$value"
+        }
+      ]
+    },
+    {
+      "id": "witch_power_white_ash_mercy",
+      "category": "hero_power",
+      "operate_type": "op_active",
+      "cooldown": {
+        "scope": "game",
+        "charges": 1
+      },
+      "nature": [
+        "nat_holy",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_full_heal",
+          "to": "$target"
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_spore_cloud",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_hollow_whisper",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_damage",
+          "to": "$lowest_life_hero",
+          "amount": "$value"
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_root_plate",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "nature": [
+        "nat_earth"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_purple_thorn_retaliation",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_hit"
+      },
+      "nature": [
+        "nat_earth",
+        "nat_poison"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "rules": {
+        "damageType": "purple"
+      },
+      "effect": [
+        {
+          "kind": "i_damage",
+          "to": "$target",
+          "amount": "$value"
+        }
+      ]
+    },
+    {
+      "id": "witch_purple_hexed_step",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_targeted"
+      },
+      "cooldown": {
+        "scope": "room",
+        "charges": 1
+      },
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "rules": {
+        "damageType": "purple"
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$target",
+          "stat": "s_hit_penalty",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_purple_heal_block",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_enter"
+      },
+      "nature": [
+        "nat_poison",
+        "nat_dark"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "rules": {
+        "damageType": "purple"
+      },
+      "effect": [
+        {
+          "kind": "p_block",
+          "what": "heal",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_purple_spore_awakening",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_dark",
+        "nat_poison"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "rules": {
+        "damageType": "purple"
+      },
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 3
+        }
+      ]
+    },
+    {
+      "id": "witch_room_thorn_prison",
+      "category": "dungeon_skill",
+      "operate_type": "op_passive",
+      "nature": [
+        "nat_earth",
+        "nat_dark"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_room",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "p_block",
+          "what": "flee",
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_room_poisoned_kitchen",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_reveal"
+      },
+      "nature": [
+        "nat_poison"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_room_old_vials",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_reveal"
+      },
+      "nature": [
+        "nat_magical"
+      ],
+      "target_type": "tgt_item",
+      "affect_scope": "scp_none",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_draw_and_choose",
+          "pile": "item_deck",
+          "reveal": 2,
+          "keep": 1,
+          "replace_room_loot": true
+        }
+      ]
+    },
+    {
+      "id": "witch_room_tilted_stairs",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_end"
+      },
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_item",
+      "affect_scope": "scp_none",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_discard",
+          "pile": "dungeon",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_room_spore_dust",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_reveal"
+      },
+      "nature": [
+        "nat_poison"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_room_green_candles",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_reveal"
+      },
+      "nature": [
+        "nat_magical",
+        "nat_dark"
+      ],
+      "target_type": "tgt_item",
+      "affect_scope": "scp_none",
+      "affect_object": "obj_all",
+      "effect": [
+        {
+          "kind": "i_reveal_dungeon",
+          "count": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_item_herbal_remedy",
+      "category": "item_skill",
+      "operate_type": "op_active",
+      "nature": [
+        "nat_earth",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_remove_status",
+          "to": "$target",
+          "status": "poison"
+        },
+        {
+          "kind": "i_heal",
+          "to": "$target",
+          "amount": "$value"
+        }
+      ]
+    },
+    {
+      "id": "witch_item_black_bread",
+      "category": "item_skill",
+      "operate_type": "op_active",
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_heal",
+          "to": "$target",
+          "amount": 3
+        },
+        {
+          "kind": "i_damage",
+          "to": "$source",
+          "amount": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_venomous_web",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_poison",
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_item_braided_branch_ward",
+      "category": "item_skill",
+      "operate_type": "op_passive",
+      "nature": [
+        "nat_earth"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_poison_damage_reduction",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_item_bottled_poison",
+      "category": "item_skill",
+      "operate_type": "op_active",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "target_type": "tgt_enemy",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$target",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_skill_mother_bite",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_poison",
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_purple_mother_venom",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_poison",
+        "nat_dark"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "rules": {
+        "damageType": "purple"
+      },
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 3
+        }
+      ]
+    },
+    {
+      "id": "witch_room_mother_nest_web",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_reveal"
+      },
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "all_heroes",
+          "as": "$hero",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_hit_penalty",
+              "operation": "add",
+              "value": 1,
+              "duration": {
+                "kind": "until_end_of_combat"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skillLocales": {
+    "witch_skill_oak_bark": {
+      "name": "Casca Protetora",
+      "label": "Casca Protetora: Uma vez por rodada, reduza em 2 o próximo dano sofrido por um aliado.",
+      "text": "Uma vez por rodada, reduza em 2 o próximo dano sofrido por um aliado."
+    },
+    "witch_power_ancient_oak": {
+      "name": "Círculo do Carvalho Ancestral",
+      "label": "Círculo do Carvalho Ancestral: Uma vez por partida, todos os heróis recebem redução de 1 dano até o fim da rodada.",
+      "text": "Uma vez por partida, todos os heróis recebem redução de 1 dano até o fim da rodada."
+    },
+    "witch_skill_lunar_spark": {
+      "name": "Centelha da Lua Verde",
+      "label": "Centelha da Lua Verde: Uma vez por sala, role novamente um dado de herói que mostrou 1.",
+      "text": "Uma vez por sala, role novamente um dado de herói que mostrou 1."
+    },
+    "witch_power_green_eclipse": {
+      "name": "Eclipse Verde",
+      "label": "Eclipse Verde: Uma vez por partida, escolha transformar um dado de herói em 6 ou um dado inimigo em 1.",
+      "text": "Uma vez por partida, escolha transformar um dado de herói em 6 ou um dado inimigo em 1."
+    },
+    "witch_skill_swamp_route": {
+      "name": "Trilha Submersa",
+      "label": "Trilha Submersa: Impeça até dois descartes de cartas da masmorra por partida.",
+      "text": "Impeça até dois descartes de cartas da masmorra por partida."
+    },
+    "witch_power_swamp_return": {
+      "name": "Atalho pelo Brejo",
+      "label": "Atalho pelo Brejo: Uma vez por partida, recupere duas cartas do descarte da masmorra.",
+      "text": "Uma vez por partida, recupere duas cartas do descarte da masmorra."
+    },
+    "witch_skill_white_ash_balm": {
+      "name": "Bênção das Cinzas Brancas",
+      "label": "Bênção das Cinzas Brancas: uma vez por rodada, remove Veneno de um herói e restaura 3 de Vida.",
+      "text": "Uma vez por rodada, remove Veneno do herói escolhido e restaura 3 de Vida. Sem Veneno, apenas cura."
+    },
+    "witch_power_white_ash_mercy": {
+      "name": "Misericórdia das Cinzas",
+      "label": "Misericórdia das Cinzas: Uma vez por partida, restaure completamente a Vida de um herói escolhido.",
+      "text": "Uma vez por partida, restaure completamente a Vida de um herói escolhido."
+    },
+    "witch_skill_spore_cloud": {
+      "name": "Nuvem de Esporos Venenosos",
+      "label": "Nuvem de Esporos Venenosos: no início do combate, envenena o herói com menos Vida por 2 rodadas (1 de dano por rodada).",
+      "text": "No início do combate, envenena o herói com menos Vida por 2 rodadas. Veneno causa 1 de dano ao fim de cada rodada seguinte."
+    },
+    "witch_skill_hollow_whisper": {
+      "name": "Sussurro da Mata Oca",
+      "label": "Sussurro da Mata Oca: Ao começar o combate, cause 1 dano ao herói com menos Vida.",
+      "text": "Ao começar o combate, cause 1 dano ao herói com menos Vida."
+    },
+    "witch_skill_root_plate": {
+      "name": "Casca de Raízes",
+      "label": "Casca de Raízes: A criatura reduz em 1 o dano recebido enquanto estiver em jogo.",
+      "text": "A criatura reduz em 1 o dano recebido enquanto estiver em jogo."
+    },
+    "witch_purple_thorn_retaliation": {
+      "name": "Retaliação dos Espinhos",
+      "label": "Retaliação dos Espinhos: No Despertar Roxo, ao acertar um ataque, cause 1 dano adicional ao alvo.",
+      "text": "No Despertar Roxo, ao acertar um ataque, cause 1 dano adicional ao alvo."
+    },
+    "witch_purple_hexed_step": {
+      "name": "Passo Amaldiçoado",
+      "label": "Passo Amaldiçoado: No Despertar Roxo, uma vez por sala, imponha penalidade de 2 no próximo acerto do herói que a confrontar.",
+      "text": "No Despertar Roxo, uma vez por sala, imponha penalidade de 2 no próximo acerto do herói que a confrontar."
+    },
+    "witch_purple_heal_block": {
+      "name": "Névoa que Extingue a Cura",
+      "label": "Névoa que Extingue a Cura: No Despertar Roxo, bloqueie a próxima cura na sala.",
+      "text": "No Despertar Roxo, bloqueie a próxima cura na sala."
+    },
+    "witch_purple_spore_awakening": {
+      "name": "Esporos da Lua Roxa",
+      "label": "Esporos da Lua Roxa: no Despertar Roxo, ao começar o combate, envenena o herói com menos Vida por 3 rodadas.",
+      "text": "No Despertar Roxo, envenena o herói com menos Vida por 3 rodadas. Dano de Veneno: 1 por rodada."
+    },
+    "witch_room_thorn_prison": {
+      "name": "Prisão de Raízes",
+      "label": "Prisão de Raízes: Fugir da sala é impossível enquanto o efeito estiver ativo.",
+      "text": "Fugir da sala é impossível enquanto o efeito estiver ativo."
+    },
+    "witch_room_poisoned_kitchen": {
+      "name": "Vapores da Cozinha Envenenada",
+      "label": "Vapores da Cozinha Envenenada: ao revelar a sala, o herói com menos Vida fica envenenado por 2 rodadas.",
+      "text": "Ao revelar a sala, envenena o herói com menos Vida por 2 rodadas (1 de dano por rodada)."
+    },
+    "witch_room_old_vials": {
+      "name": "Frascos Esquecidos",
+      "label": "Frascos Esquecidos: Ao revelar a sala, revele dois itens, escolha um e substitua a recompensa da sala.",
+      "text": "Ao revelar a sala, revele dois itens, escolha um e substitua a recompensa da sala."
+    },
+    "witch_room_tilted_stairs": {
+      "name": "Degraus Instáveis",
+      "label": "Degraus Instáveis: Após vencer o combate, descarte uma carta da masmorra.",
+      "text": "Após vencer o combate, descarte uma carta da masmorra."
+    },
+    "witch_room_spore_dust": {
+      "name": "Esporos Suspensos",
+      "label": "Esporos Suspensos: ao revelar a sala, o herói com menos Vida fica envenenado por 2 rodadas.",
+      "text": "Ao revelar a sala, envenena o herói com menos Vida por 2 rodadas (1 de dano por rodada)."
+    },
+    "witch_room_green_candles": {
+      "name": "Presságio das Velas Verdes",
+      "label": "Presságio das Velas Verdes: Ao revelar a sala, revele uma carta do topo da masmorra.",
+      "text": "Ao revelar a sala, revele uma carta do topo da masmorra."
+    },
+    "witch_item_herbal_remedy": {
+      "name": "Remédio Antiveneno",
+      "label": "Remédio Antiveneno: remove Veneno de um herói escolhido e recupera a Vida indicada.",
+      "text": "Consuma para remover Veneno de um herói escolhido e curar a quantidade de Vida indicada. Sem Veneno, apenas cura."
+    },
+    "witch_item_black_bread": {
+      "name": "Pão de Sombra",
+      "label": "Pão de Sombra: Ao consumir, restaure 3 de Vida de um herói, mas o usuário perde 1 de Vida.",
+      "text": "Ao consumir, restaure 3 de Vida de um herói, mas o usuário perde 1 de Vida."
+    },
+    "witch_skill_venomous_web": {
+      "name": "Teia Envenenada",
+      "label": "Teia Envenenada: no início do combate, envenena o herói com menos Vida por 2 rodadas.",
+      "text": "No início do combate, envenena o herói com menos Vida. Veneno causa 1 de dano por rodada durante 2 rodadas."
+    },
+    "witch_item_braided_branch_ward": {
+      "name": "Proteção dos Galhos",
+      "label": "Proteção dos Galhos: enquanto equipado, reduz em 1 o dano recebido por Veneno a cada rodada.",
+      "text": "Enquanto equipado, reduz em 1 o dano sofrido por Veneno a cada rodada. Não remove a condição de Veneno."
+    },
+    "witch_item_bottled_poison": {
+      "name": "Névoa Envenenada",
+      "label": "Névoa Envenenada: descarte o frasco para envenenar uma criatura escolhida por 2 rodadas.",
+      "text": "Descarte o frasco e escolha uma criatura ou o boss. O alvo sofre 1 de dano de Veneno ao fim de cada uma das 2 rodadas seguintes."
+    },
+    "witch_skill_mother_bite": {
+      "name": "Mordida da Matriarca",
+      "label": "Mordida da Matriarca: no início do combate, envenena por 2 rodadas o herói com menos Vida.",
+      "text": "No início do combate, o herói com menos Vida fica envenenado por 2 rodadas (1 de dano por rodada, a partir da rodada seguinte)."
+    },
+    "witch_purple_mother_venom": {
+      "name": "Veneno da Prole Roxa",
+      "label": "Veneno da Prole Roxa: no Despertar Roxo, renova o Veneno do herói com menos Vida para 3 rodadas.",
+      "text": "No Despertar Roxo, envenena por 3 rodadas o herói com menos Vida. Não acumula dano; renova a duração."
+    },
+    "witch_room_mother_nest_web": {
+      "name": "Teias Pegajosas do Ninho",
+      "label": "Teias Pegajosas do Ninho: ao revelar a sala, todos os heróis sofrem -1 no Acerto até o fim do combate.",
+      "text": "Ao revelar o Ninho, todos os heróis recebem -1 no Acerto até o fim do combate contra a Aranha Mãe."
+    }
+  }
+}
