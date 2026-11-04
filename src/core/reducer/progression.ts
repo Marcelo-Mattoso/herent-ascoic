@@ -13,7 +13,7 @@ import { log, shuffleRng } from "./utils";
 import type { GameHandler, XpSpendOption } from "../gameEngine";
 import type { Action } from "../actions/types";
 import { partyHeroIds } from "./legal";
-import { balanceOf, cardById, cardName, cardsOfType, refRequirementMet, skillsOf } from "../gameEngine";
+import { balanceOf, cardById, cardName, cardsOfType, expansionOf, refRequirementMet, skillsOf } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
 
 import { awakeningOf, deckOf, decksOf, heroesOf, impetoOf, shuffleDeck, withDecks, withAwakening, withDeck, withImpeto, withUnitStats, withWorld, worldOf } from "../state/access";
@@ -73,11 +73,13 @@ export function levelUpHero(engine: GameEngine, state: GameState, heroId: string
 
 // Embaralha as 2 salas de subchefe no deck de dungeon remanescente.
 function injectSubbossRooms(engine: GameEngine, state: GameState): GameState {
-	const subbossRoomIds = cardsOfType(engine, "subboss_room").map((r) => r.id);
+	const expansionId = expansionOf(engine, gameOf(state).bossCardId);
+	const subbossRooms = cardsOfType(engine, "subboss_room").filter((room) => expansionOf(engine, room.id) === expansionId);
+	const subbossRoomIds = subbossRooms.map((room) => room.id);
 	if (subbossRoomIds.length === 0) return state;
 
 	const { available, discarded, removed } = deckOf(state, "dungeonDeck");
-	const subbossRoomNames = cardsOfType(engine, "subboss_room").map((r) => cardName(engine, r.id));
+	const subbossRoomNames = subbossRooms.map((room) => cardName(engine, room.id));
 	return log(
 		shuffleDeck(
 			withDeck(

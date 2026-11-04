@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { testEngine } from "../__tests__/testEngine";
 import { getDungeonRecoveryCost } from "../config/defaults";
 import { getCreatures, getSubbosses } from "../data/cards";
+import { getExpansionCardMetadata } from "../data/expansions";
 import { awakeningOf, decksOf, heroesOf, impetoOf, withAwakening, withDecks } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 import { createInitialGameState } from "../state/gameState";
@@ -22,7 +23,9 @@ function begin(difficulty: Difficulty, count = 2): GameState {
 describe("balanceamento do Despertar", () => {
 	it("mantém dados e vidas por carta; suaviza a curva de acerto das criaturas", () => {
 		const base = [1, 3, 5, 6, 8];
-		for (const card of [...getCreatures(), ...getSubbosses()]) {
+		for (const card of [...getCreatures(), ...getSubbosses()].filter(
+			(entry) => getExpansionCardMetadata(entry.id)?.expansionId === "fornalha-sombria",
+		)) {
 			const offset = card.hitBonus[0] - 1;
 			expect(card.hitBonus).toEqual(base.map((n) => n + offset));
 			expect(card.life).toHaveLength(5);

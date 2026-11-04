@@ -103,7 +103,7 @@ describe("boss separado por expansão", () => {
 		] as const) {
 			const state = handleStartGame(testEngine,
 				createInitialGameState({ heroCardIds: chosen, bossCardId: bossId }), {
-					heroCardIds: chosen, bossCardId, difficulty: "normal",
+					heroCardIds: chosen, bossCardId: bossId, difficulty: "normal",
 					seed: 123, deferInitialRoomReveal: true,
 				});
 			expect(gameOf(state).bossCardId).toBe(bossId);
