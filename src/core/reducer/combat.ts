@@ -55,6 +55,7 @@ import type { GameState } from "../state/gameState";
 import type { HeroRecord, HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
 import { applyDamage } from "../systems/damageSystem";
+import { resolvePoisonRound } from "../rules/poison";
 import { applyHeal } from "../systems/healSystem";
 import { recordEvent } from "../events/record";
 import { log } from "./utils";
@@ -1324,6 +1325,12 @@ export function handleCheckCombatEnd(engine: GameEngine, state: GameState): Game
 		},
 	});
 	if (pendingTriggerInterruptOf(nextState)) return nextState;
+	nextState = drainStack(engine, nextState);
+	nextState = resolvePoisonRound(engine, nextState);
+	if (heroesOf(nextState).every((hero) => hero.status !== "active") ||
+		enemiesOf(nextState).every((enemy) => enemy.status !== "active")) {
+		return handleCheckCombatEnd(engine, nextState);
+	}
 
 	// Expirar modificadores ECS de duração "end_of_round" (this_turn) e decrementar rounds.
 	const worldAfterTick = decrementRoundsModifiers(

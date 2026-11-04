@@ -22,6 +22,7 @@ import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { applyDamage } from "../systems/damageSystem";
+import { resolvePoisonRound } from "../rules/poison";
 import { recordEvent } from "../events/record";
 import { log } from "./utils";
 import { cardById, cardName, skillsOf } from "../gameEngine";
@@ -278,6 +279,11 @@ function checkBossEnd(engine: GameEngine, state: GameState): GameState {
 	if (pendingTriggerInterruptOf(afterRoundEnd) || pendingSkillChoiceOf(afterRoundEnd) ||
 		pendingSkillTargetOf(afterRoundEnd)) return afterRoundEnd;
 	afterRoundEnd = drainStack(engine, afterRoundEnd);
+	afterRoundEnd = resolvePoisonRound(engine, afterRoundEnd);
+	if (heroesOf(afterRoundEnd).every((hero) => hero.status !== "active") ||
+		enemiesOf(afterRoundEnd).every((enemy) => enemy.status !== "active")) {
+		return checkBossEnd(engine, afterRoundEnd);
+	}
 
 	// Próxima rodada de boss
 	const nextCombat = gameOf(afterRoundEnd).combat
