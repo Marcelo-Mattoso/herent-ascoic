@@ -225,6 +225,7 @@ export type EffectNode =
 	| {
 			readonly kind: "i_remove_status";
 			readonly status: string;
+			readonly to?: string;
 	  };
 
 // ── Trigger v2 (patch-21 Lote B) ────────────────────────────────────────────

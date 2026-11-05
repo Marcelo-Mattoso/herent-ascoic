@@ -3,7 +3,7 @@
 // rounds === 0 significa duração ilimitada DENTRO do combate.
 import type { GameEngine } from "../gameEngine";
 import type { GameState } from "../state/gameState";
-import { enemiesOf, heroesOf, withUnitStats, worldOf } from "../state/access";
+import { allHeroesOf, enemiesOf, heroesOf, withUnitStats, worldOf } from "../state/access";
 import { gameOf } from "../../engine/state";
 import { getModifierTotal } from "../ecs/world";
 import { applyDamage } from "../systems/damageSystem";
@@ -167,7 +167,7 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
 /** Faz a limpeza em vitória, derrota, fuga e fim da sala. */
 export function clearDamageOverTime(state: GameState): GameState {
     let next = state;
-    for (const unit of [...heroesOf(state), ...enemiesOf(state)]) {
+    for (const unit of [...allHeroesOf(state), ...enemiesOf(state)]) {
         if (unit.conditions.some((condition) => condition.startsWith(PREFIX))) {
             next = withUnitStats(next, unit.id, {
                 conditions: unit.conditions.filter((condition) => !condition.startsWith(PREFIX)),
