@@ -198,4 +198,23 @@ describe("MusicPlayer", () => {
 		player.dispose();
 	});
 
+	it("suspende a playlist para uma abertura sem trilha e a retoma ao terminar", async () => {
+		const audio = new FakeAudio();
+		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
+		player.setTracks(tracks);
+		await player.play();
+		const before = audio.play.mock.calls.length;
+		player.enterSilentOpening();
+		expect(audio.pause).toHaveBeenCalled();
+		expect(player.getSnapshot()).toMatchObject({ openingAvailable: false, status: "stopped" });
+		await player.playFromControls();
+		await player.autoplay();
+		expect(audio.play).toHaveBeenCalledTimes(before);
+		player.leaveSilentOpening();
+		await Promise.resolve();
+		expect(audio.play).toHaveBeenCalledTimes(before + 1);
+		expect(player.getSnapshot()).toMatchObject({ opening: null, status: "playing" });
+		player.dispose();
+	});
+
 });

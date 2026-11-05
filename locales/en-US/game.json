@@ -30,6 +30,21 @@
       "scene10": "From distant lands, eight paths converge. None of them were chosen by the gods. Each carries their own losses, promises, and reasons to fight.",
       "scene11": "In the depths await monsters, forgotten paths, and lost artifacts. Beyond them lies a dragon whose power threatens to consume everything living above.",
       "scene12": "What happened, I recorded. What happens next... belongs to those who choose to enter."
+    },
+    "bruxa": {
+      "title": "The Tower of the Great Cauldron Witch",
+      "scene01": "I recorded the forest before the silence. Beneath the moon, its roots guarded the water, the memories, and the lives of all who walked among them.",
+      "scene02": "Then the waters darkened. Thorns grew where flowers had bloomed, and a green mist taught the creatures of the forest the meaning of fear.",
+      "scene03": "Deep in the woods, a twisted tower rose above the canopy. Its windows glowed, but no light there promised shelter.",
+      "scene04": "At the tower's summit, a cauldron boiled without end. Every bubble carried a spell; every spilled drop claimed another piece of the forest.",
+      "scene05": "Beneath the stone, the Spider Mother guarded her eggs. Her brood turned old pathways into traps of silk and venom.",
+      "scene06": "Corruption swept through the swamp and reached the last sanctuaries. If the tower kept spreading its mist, the entire forest would be lost.",
+      "scene07": "The Oak Guardian heard the trees in pain. No one commanded him to fight; he chose to stand where the roots still held firm.",
+      "scene08": "Beneath the Green Moon, a Sorceress gathered her magic to challenge the darkness. Even a cursed night could be defied.",
+      "scene09": "The Swamp Stalker knew the paths hidden beneath the water. Through mud and mist, he found the way to the tower.",
+      "scene10": "The Sister of White Ashes carried something the curse could never create: compassion. Where poison left wounds, she sought life.",
+      "scene11": "Four paths met before the same tower. With no prophecy and no promise of victory, they went together because someone had to act.",
+      "scene12": "And beside the cauldron, the Great Witch awaited them. What happened, I recorded. What comes next... belongs to the choices you make."
     }
   },
   "components": {

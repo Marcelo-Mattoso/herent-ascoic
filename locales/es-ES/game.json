@@ -30,6 +30,21 @@
       "scene10": "Desde tierras lejanas, ocho caminos convergen. Ninguno de ellos fue elegido por los dioses. Cada uno carga con sus propias pérdidas, promesas y razones para luchar.",
       "scene11": "En las profundidades aguardan monstruos, caminos olvidados y artefactos perdidos. Más allá, un dragón cuyo poder amenaza con consumir todo cuanto vive en la superficie.",
       "scene12": "Lo que ocurrió, yo lo registré. Lo que suceda ahora... pertenece a quienes decidan entrar."
+    },
+    "bruxa": {
+      "title": "La Torre de la Gran Bruja del Caldero",
+      "scene01": "Yo registré el bosque antes del silencio. Bajo la luna, sus raíces custodiaban el agua, los recuerdos y la vida de quienes caminaban entre ellas.",
+      "scene02": "Entonces las aguas se oscurecieron. Crecieron espinas donde antes había flores, y una niebla verde enseñó a las criaturas del bosque el significado del miedo.",
+      "scene03": "En el corazón del bosque, una torre retorcida se alzó por encima de las copas. Sus ventanas brillaban, pero ninguna luz prometía refugio.",
+      "scene04": "En lo alto de la torre, un caldero hervía sin descanso. Cada burbuja llevaba un hechizo; cada gota derramada reclamaba otro fragmento del bosque.",
+      "scene05": "Bajo la piedra, la Madre Araña protegía sus huevos. Su prole convirtió los antiguos caminos en trampas de seda y veneno.",
+      "scene06": "La corrupción avanzó por el pantano y alcanzó los últimos refugios. Si la torre seguía extendiendo su niebla, todo el bosque se perdería.",
+      "scene07": "El Guardián del Roble escuchó el dolor de los árboles. Nadie le ordenó luchar: decidió permanecer donde las raíces aún resistían.",
+      "scene08": "Bajo la Luna Verde, una Hechicera reunió su magia para desafiar la oscuridad. Incluso una noche maldita podía encontrar resistencia.",
+      "scene09": "El Acechador del Pantano conocía los senderos que el agua ocultaba. Entre barro y niebla, encontró el camino hacia la torre.",
+      "scene10": "La Hermana de las Cenizas Blancas llevó consigo aquello que la maldición no podía crear: compasión. Donde el veneno dejaba heridas, ella buscaba vida.",
+      "scene11": "Cuatro caminos se encontraron ante la misma torre. Sin profecías ni promesas de victoria, avanzaron juntos porque alguien debía actuar.",
+      "scene12": "Y junto al caldero, la Gran Bruja los esperaba. Lo que ocurrió, yo lo registré. Lo que suceda ahora... depende de las decisiones de ustedes."
     }
   },
   "components": {

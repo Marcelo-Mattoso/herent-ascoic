@@ -1,0 +1,106 @@
+{
+  "id": "intro-torre-grande-bruxa-caldeirao",
+  "version": 1,
+  "expansionId": "torre-grande-bruxa-caldeirao",
+  "bossId": "boss_great_cauldron_witch",
+  "type": "prologue",
+  "titleKey": "game:opening.bruxa.title",
+  "scenes": [
+    {
+      "id": "scene-01",
+      "image": "images/scene-01.webp",
+      "textKey": "game:opening.bruxa.scene01",
+      "effect": "slow-zoom-in",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-02",
+      "image": "images/scene-02.webp",
+      "textKey": "game:opening.bruxa.scene02",
+      "effect": "slow-pan-right",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-03",
+      "image": "images/scene-03.webp",
+      "textKey": "game:opening.bruxa.scene03",
+      "effect": "slow-zoom-in",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-04",
+      "image": "images/scene-04.webp",
+      "textKey": "game:opening.bruxa.scene04",
+      "effect": "slow-pan-left",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-05",
+      "image": "images/scene-05.webp",
+      "textKey": "game:opening.bruxa.scene05",
+      "effect": "slow-zoom-in",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-06",
+      "image": "images/scene-06.webp",
+      "textKey": "game:opening.bruxa.scene06",
+      "effect": "slow-zoom-out",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-07",
+      "image": "images/scene-07.webp",
+      "textKey": "game:opening.bruxa.scene07",
+      "effect": "slow-pan-right",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-08",
+      "image": "images/scene-08.webp",
+      "textKey": "game:opening.bruxa.scene08",
+      "effect": "slow-zoom-in",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-09",
+      "image": "images/scene-09.webp",
+      "textKey": "game:opening.bruxa.scene09",
+      "effect": "slow-pan-left",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-10",
+      "image": "images/scene-10.webp",
+      "textKey": "game:opening.bruxa.scene10",
+      "effect": "slow-zoom-in",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-11",
+      "image": "images/scene-11.webp",
+      "textKey": "game:opening.bruxa.scene11",
+      "effect": "slow-zoom-out",
+      "transition": "fade",
+      "transitionMs": 450
+    },
+    {
+      "id": "scene-12",
+      "image": "images/scene-12.webp",
+      "textKey": "game:opening.bruxa.scene12",
+      "effect": "slow-zoom-in",
+      "transition": "fade",
+      "transitionMs": 450
+    }
+  ]
+}

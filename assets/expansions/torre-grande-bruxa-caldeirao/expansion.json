@@ -2926,5 +2926,8 @@
       "label": "Secreção da Matriarca: no início do combate, envenena uma criatura inimiga por duas rodadas.",
       "text": "Enquanto o grupo possuir este artefato, uma criatura inimiga recebe Veneno no início do combate (1 dano por rodada, durante duas rodadas)."
     }
+  },
+  "openings": {
+    "boss_great_cauldron_witch": "abertura/intro.json"
   }
 }

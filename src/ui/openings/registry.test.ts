@@ -15,4 +15,16 @@ describe("aberturas registradas por chefe", () => {
 		expect(getOpeningForBoss("boss_sem_abertura")).toBeNull();
 		expect(parseOpening({ version: 1, type: "prologue", scenes: [] }, "fornalha-sombria", "boss_azhakar")).toBeNull();
 	});
+	it("carrega as doze cenas da Bruxa com seu próprio roteiro", () => {
+		const opening = getOpeningForBoss("boss_great_cauldron_witch");
+		expect(opening?.titleKey).toBe("game:opening.bruxa.title");
+		expect(opening?.musicFileName).toBeNull();
+		expect(opening?.scenes).toHaveLength(12);
+		expect(opening?.scenes.map((scene) => scene.textKey)).toEqual(
+			Array.from({ length: 12 }, (_, index) => `game:opening.bruxa.scene${String(index + 1).padStart(2, "0")}`),
+		);
+		expect(opening?.scenes[0]?.imageUrl).toContain("/generated/openings/assets/torre-grande-bruxa-caldeirao/abertura/images/scene-01.webp");
+		expect(opening?.scenes[11]?.imageUrl).toContain("/generated/openings/assets/torre-grande-bruxa-caldeirao/abertura/images/scene-12.webp");
+	});
+
 });
