@@ -1,18 +1,23 @@
-# Torre da Grande Bruxa — substituição do subchefe (v1.2)
+# A Torre da Grande Bruxa do Caldeirão — catálogo v1.3
 
-## Aranha Mãe
-- Substitui completamente o Lenhador Enfeitiçado. ID: `subboss_spider_mother`.
-- Dados (branco a roxo): [1,2,2,3,3]; Vida [8,10,12,14,16]; Acerto [4,6,8,10,12]; dano 4; XP 4; recompensa 1 artefato.
-- Mordida da Matriarca: ao iniciar combate, aplica 1 Veneno/rodada por 2 rodadas ao herói com menos Vida.
-- Despertar Roxo — Veneno da Prole Roxa: amplia a duração para 3 rodadas; não acumula dano.
+## Inventário
+- 4 heróis, 18 criaturas, 2 subchefes, 10 salas comuns, 2 salas de subchefe, 24 itens, 4 artefatos.
+- 64 cartas em `expansion.json` + 1 chefe em `boss.json` = **65 cartas**.
+- Os 12 heróis do jogo continuam compartilhados.
 
-## Ninho da Aranha Mãe
-- Substitui a Oficina do Lenhador. ID: `subboss_room_spider_mother_nest`.
-- 1 saída; XP 3; recompensa 1 artefato; encontra a Aranha Mãe.
-- Teias Pegajosas do Ninho: ao revelar a sala, -1 Acerto a todos os heróis até o fim do combate.
+## Novas cartas da versão 1.3
+- **6 criaturas:** Javali de Espinhos Retorcidos, Sapo do Caldeirão, Enxame de Sanguessugas do Brejo, Mulher-Liana Lamentosa, Treante de Casca Podre, Coruja Enfeitiçada.
+- **2 salas:** Galeria dos Ovos de Aranha (2 saídas, 2 XP, 1 artefato; Teias da Galeria) e Herbário da Bruxa (3 saídas, 2 XP, 1 artefato; Ervas Contaminadas).
+- **14 itens:** 10 equipamentos/consumíveis e **4 Saques Mágicos**: Baú Tomado de Musgo, Dados de Osso do Oráculo, Mapa de Galho Retorcido, Reserva do Caldeirão. Os quatro podem ser usados na fase de recompensa, são removidos ao usar e empregam `item_skill_mystic_draw`.
+- **1 artefato:** Glândula da Rainha Aranha: Veneno automático contra uma criatura no início do combate, usando as regras existentes.
+- **Amuleto do Espinho Negro:** reduz em até 2 o dano de Veneno enquanto equipado.
 
-## Estado e próximos passos
-- `expansion.json`, `boss.json` e as 42 imagens estão preparados em `assets/expansions/torre-grande-bruxa-caldeirao/`.
-- `config.json` mantém a expansão **desativada** até o motor implementar `i_apply_poison`, `s_poison_damage_reduction` e a remoção individual do status com testes.
-- As cópias WebP e PNG originais (e o catálogo de otimização) continuam preservadas. Nenhuma imagem foi recriada.
-- Escolha Campanha/Sessão e boss livre ficam para uma próxima etapa.
+## Progressão
+- O chefe continua exigindo 3 artefatos.
+- As duas novas salas comuns concedem artefatos. Não dependem da injeção das salas de subchefes.
+- O Herbário não usa `witch_room_old_vials`: esta skill substituiria o saque padrão, anulando o artefato.
+- Todos os recursos da masmorra seguem isolados por expansão. Heróis podem ser misturados.
+
+## Assets e integração
+- 23 artes WebP já publicadas em `images/` (não modificadas neste commit).
+- Esta atualização contém somente catálogo, habilidades, descrições e testes; o modo Campanha segue pendente.
