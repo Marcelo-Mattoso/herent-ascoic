@@ -5,10 +5,10 @@ import { getEnabledExpansions, getExpansionCardMetadata } from "./expansions";
 describe("pacotes de expansão", () => {
 	it("carrega a Fornalha Sombria sem alterar os 80 IDs originais", () => {
 		expect(getEnabledExpansions().map((pack) => pack.id)).toEqual(["fornalha-sombria", "torre-grande-bruxa-caldeirao"]);
-		expect(getAllCards()).toHaveLength(122);
+		expect(getAllCards()).toHaveLength(145);
 		expect(getEnabledExpansions()[0]?.boss).toBe("boss.json");
 		expect(getEnabledExpansions()[0]?.cards.some((card) => card.type === "boss")).toBe(false);
-		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(122);
+		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(145);
 	});
 
 	it("mantém atributos de combate e referências de habilidades", () => {
@@ -27,9 +27,35 @@ describe("pacotes de expansão", () => {
 	it("usa apenas a pasta images, sem subpastas por categoria", () => {
 		const paths = getAllCards().map((card) => getExpansionCardMetadata(card.id)?.image)
 			.filter((image) => image !== undefined);
-		expect(paths.length).toBe(120);
+		expect(paths.length).toBe(143);
 		for (const image of paths) {
 			expect(image).toMatch(/^images\/[^/]+\.webp$/);
 		}
 	});
+	it("Torre da Bruxa v1.3: 18 criaturas, 10 salas, 24 itens e 4 artefatos", () => {
+		const witch = getEnabledExpansions().find((entry) => entry.id === "torre-grande-bruxa-caldeirao");
+		expect(witch?.cards).toHaveLength(64);
+		expect(witch?.version).toBe("1.3.0");
+		for (const [type, amount] of Object.entries({ hero: 4, creature: 18, subboss: 2, room: 10, subboss_room: 2, item: 24, artifact: 4 })) {
+			expect(witch?.cards.filter((card) => card.type === type), type).toHaveLength(amount);
+		}
+		for (const id of ["room_spider_egg_gallery", "room_witch_herbarium"]) {
+			const room = getCardById(id);
+			expect(room?.type).toBe("room");
+			if (room?.type !== "room") continue;
+			expect(room.rewardType).toBe("artifact");
+			expect(room.reward).toBe(1);
+		}
+		for (const id of ["item_mossy_chest", "item_bone_oracle_dice", "item_crooked_branch_map", "item_cauldron_cache"]) {
+			const item = getCardById(id);
+			expect(item?.type).toBe("item");
+			if (item?.type !== "item") continue;
+			expect(item.grants).toHaveLength(1);
+			expect(item.grants?.[0]).toMatchObject({
+				abilityId: "item_skill_mystic_draw",
+				activation: { kind: "manual", consumeSource: "remove", usableFromReward: true },
+			});
+		}
+	});
+
 });

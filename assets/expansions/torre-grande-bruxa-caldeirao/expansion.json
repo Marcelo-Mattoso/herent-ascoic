@@ -1,7 +1,7 @@
 {
   "id": "torre-grande-bruxa-caldeirao",
   "name": "A Torre da Grande Bruxa do Caldeirão",
-  "version": "1.2.0",
+  "version": "1.3.0",
   "boss": "boss.json",
   "cards": [
     {
@@ -1209,6 +1209,709 @@
           "skillId": "power_supreme_rift_rune"
         }
       ]
+    },
+    {
+      "id": "creature_thorn_back_boar",
+      "type": "creature",
+      "name": "Javali de Espinhos Retorcidos",
+      "image": "images/creature_thorn_back_boar.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        3,
+        4,
+        5,
+        6,
+        8
+      ],
+      "hitBonus": [
+        1,
+        3,
+        5,
+        6,
+        8
+      ],
+      "damage": 2,
+      "xp": 2,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "witch_purple_thorn_retaliation",
+          "params": {
+            "value": 2
+          },
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_cauldron_frog",
+      "type": "creature",
+      "name": "Sapo do Caldeirão",
+      "image": "images/creature_cauldron_frog.webp",
+      "diceByColor": [
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hitBonus": [
+        1,
+        2,
+        4,
+        5,
+        7
+      ],
+      "damage": 1,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_spore_cloud"
+        },
+        {
+          "skillId": "witch_purple_mother_venom",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_mire_leech_swarm",
+      "type": "creature",
+      "name": "Enxame de Sanguessugas do Brejo",
+      "image": "images/creature_mire_leech_swarm.webp",
+      "diceByColor": [
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "life": [
+        2,
+        3,
+        3,
+        4,
+        5
+      ],
+      "hitBonus": [
+        1,
+        2,
+        4,
+        5,
+        7
+      ],
+      "damage": 1,
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_venomous_web"
+        },
+        {
+          "skillId": "witch_purple_heal_block",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_wailing_briar_woman",
+      "type": "creature",
+      "name": "Mulher-Liana Lamentosa",
+      "image": "images/creature_wailing_briar_woman.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "life": [
+        3,
+        4,
+        5,
+        6,
+        7
+      ],
+      "hitBonus": [
+        1,
+        3,
+        5,
+        6,
+        8
+      ],
+      "damage": 2,
+      "xp": 2,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_hollow_whisper",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_purple_hexed_step",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_rotten_bark_treant",
+      "type": "creature",
+      "name": "Treante de Casca Podre",
+      "image": "images/creature_rotten_bark_treant.webp",
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "life": [
+        4,
+        5,
+        6,
+        8,
+        10
+      ],
+      "hitBonus": [
+        1,
+        3,
+        5,
+        6,
+        8
+      ],
+      "damage": 3,
+      "xp": 3,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "witch_skill_root_plate",
+          "params": {
+            "value": 2
+          }
+        },
+        {
+          "skillId": "witch_purple_spore_awakening",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "creature_hexed_owl",
+      "type": "creature",
+      "name": "Coruja Enfeitiçada",
+      "image": "images/creature_hexed_owl.webp",
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        2
+      ],
+      "life": [
+        2,
+        3,
+        4,
+        5,
+        6
+      ],
+      "hitBonus": [
+        2,
+        4,
+        6,
+        7,
+        9
+      ],
+      "damage": 1,
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "skill_rift_evasion"
+        },
+        {
+          "skillId": "witch_purple_hexed_step",
+          "requiresAwakening": true
+        }
+      ]
+    },
+    {
+      "id": "room_spider_egg_gallery",
+      "type": "room",
+      "name": "Galeria dos Ovos de Aranha",
+      "image": "images/room_spider_egg_gallery.webp",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": [
+        {
+          "skillId": "witch_room_egg_web"
+        }
+      ]
+    },
+    {
+      "id": "room_witch_herbarium",
+      "type": "room",
+      "name": "Herbário da Bruxa",
+      "image": "images/room_witch_herbarium.webp",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        1,
+        2,
+        2
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": [
+        {
+          "skillId": "witch_room_herbarium_spores"
+        }
+      ]
+    },
+    {
+      "id": "item_poison_fang_knife",
+      "type": "item",
+      "name": "Faca da Presa Tóxica",
+      "image": "images/item_poison_fang_knife.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_web_silk_wrap",
+      "type": "item",
+      "name": "Faixa de Seda de Teia",
+      "image": "images/item_web_silk_wrap.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_web_silk_wrap_use",
+          "abilityId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_marsh_reed_spear",
+      "type": "item",
+      "name": "Lança de Junco do Pântano",
+      "image": "images/item_marsh_reed_spear.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_deadly_edge",
+          "params": {
+            "value": 3
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_green_resin_shield",
+      "type": "item",
+      "name": "Escudo de Resina Verde",
+      "image": "images/item_green_resin_shield.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 2
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_swamp_antidote",
+      "type": "item",
+      "name": "Antídoto do Brejo",
+      "image": "images/item_swamp_antidote.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_swamp_antidote_use",
+          "abilityId": "witch_item_herbal_remedy",
+          "params": {
+            "value": 2
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_bitter_root_tonic",
+      "type": "item",
+      "name": "Tônico de Raiz Amarga",
+      "image": "images/item_bitter_root_tonic.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_last_light_healing",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_bitter_root_tonic_use",
+          "abilityId": "skill_last_light_healing",
+          "params": {
+            "value": 2
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_witch_lantern",
+      "type": "item",
+      "name": "Lanterna da Bruxa",
+      "image": "images/item_witch_lantern.webp",
+      "itemClass": "utility",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_forest_charm",
+      "type": "item",
+      "name": "Talismã da Mata Antiga",
+      "image": "images/item_forest_charm.webp",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "skill_path_safeguard"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_forest_charm_preserve",
+          "abilityId": "skill_path_safeguard",
+          "activation": {
+            "kind": "event",
+            "event": "evt_dungeon_discard",
+            "window": "dungeon_discard",
+            "decision": "optional",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "room",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_moonwell_vial",
+      "type": "item",
+      "name": "Ampola do Poço Lunar",
+      "image": "images/item_moonwell_vial.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_last_light_healing",
+          "params": {
+            "value": 3
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_moonwell_vial_use",
+          "abilityId": "skill_last_light_healing",
+          "params": {
+            "value": 3
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_black_thorn_amulet",
+      "type": "item",
+      "name": "Amuleto do Espinho Negro",
+      "image": "images/item_black_thorn_amulet.webp",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "witch_item_black_thorn_ward"
+        }
+      ]
+    },
+    {
+      "id": "item_mossy_chest",
+      "type": "item",
+      "name": "Baú Tomado de Musgo",
+      "image": "images/item_mossy_chest.webp",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_mossy_chest_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_bone_oracle_dice",
+      "type": "item",
+      "name": "Dados de Osso do Oráculo",
+      "image": "images/item_bone_oracle_dice.webp",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_bone_oracle_dice_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_crooked_branch_map",
+      "type": "item",
+      "name": "Mapa de Galho Retorcido",
+      "image": "images/item_crooked_branch_map.webp",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_crooked_branch_map_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_cauldron_cache",
+      "type": "item",
+      "name": "Reserva do Caldeirão",
+      "image": "images/item_cauldron_cache.webp",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_cauldron_cache_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "artifact_queen_spider_gland",
+      "type": "artifact",
+      "name": "Glândula da Rainha Aranha",
+      "image": "images/artifact_queen_spider_gland.webp",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "witch_artifact_queen_spider_venom"
+        }
+      ]
     }
   ],
   "skills": [
@@ -1954,6 +2657,107 @@
           ]
         }
       ]
+    },
+    {
+      "id": "witch_room_egg_web",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_reveal"
+      },
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "all_heroes",
+          "as": "$hero",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_hit_penalty",
+              "operation": "add",
+              "value": 1,
+              "duration": {
+                "kind": "until_end_of_combat"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "witch_room_herbarium_spores",
+      "category": "dungeon_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_room_reveal"
+      },
+      "nature": [
+        "nat_poison"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_item_black_thorn_ward",
+      "category": "item_skill",
+      "operate_type": "op_passive",
+      "nature": [
+        "nat_earth"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_poison_damage_reduction",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_artifact_queen_spider_venom",
+      "category": "item_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "target_type": "tgt_enemy",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$enemy",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
     }
   ],
   "skillLocales": {
@@ -2101,6 +2905,26 @@
       "name": "Teias Pegajosas do Ninho",
       "label": "Teias Pegajosas do Ninho: ao revelar a sala, todos os heróis sofrem -1 no Acerto até o fim do combate.",
       "text": "Ao revelar o Ninho, todos os heróis recebem -1 no Acerto até o fim do combate contra a Aranha Mãe."
+    },
+    "witch_room_egg_web": {
+      "name": "Teias da Galeria",
+      "label": "Teias da Galeria: ao revelar a sala, todos os heróis recebem -1 no Acerto até o fim do combate.",
+      "text": "As teias dos ovos envolvem a sala: todos os heróis sofrem -1 no Acerto até o fim do combate."
+    },
+    "witch_room_herbarium_spores": {
+      "name": "Ervas Contaminadas",
+      "label": "Ervas Contaminadas: ao revelar a sala, o herói com menos Vida fica envenenado por duas rodadas.",
+      "text": "O herbário libera esporos venenosos: o herói com menos Vida recebe Veneno (1 dano por rodada durante duas rodadas). A recompensa de artefato não é substituída."
+    },
+    "witch_item_black_thorn_ward": {
+      "name": "Guarda do Espinho Negro",
+      "label": "Guarda do Espinho Negro: enquanto equipado, reduz em 2 o dano recebido por Veneno.",
+      "text": "Enquanto equipado, reduz em até 2 o dano de Veneno recebido por rodada. Não remove o Veneno."
+    },
+    "witch_artifact_queen_spider_venom": {
+      "name": "Secreção da Matriarca",
+      "label": "Secreção da Matriarca: no início do combate, envenena uma criatura inimiga por duas rodadas.",
+      "text": "Enquanto o grupo possuir este artefato, uma criatura inimiga recebe Veneno no início do combate (1 dano por rodada, durante duas rodadas)."
     }
   }
 }
