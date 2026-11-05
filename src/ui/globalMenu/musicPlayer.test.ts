@@ -155,7 +155,7 @@ describe("MusicPlayer", () => {
 		player.activate();
 		const intro = { ...tracks[0], id: "opening", title: "Antes das Cinzas", fileName: "Antes das Cinzas.mp3", url: "/generated/music/assets/Antes%20das%20Cinzas.mp3" };
 		player.setTracks([...tracks, intro]);
-		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "two", "opening"]);
+		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "opening", "two"]);
 		// A faixa continua disponível no player comum, sem interferir na abertura.
 		player.select("opening");
 		expect(player.getSnapshot().selectedId).toBe("opening");
@@ -209,7 +209,7 @@ describe("MusicPlayer", () => {
 		const original = { ...tracks[0], id: "fornalha-opening", title: "Antes das Cinzas", fileName: "Antes das Cinzas.mp3", url: "/generated/music/assets/Antes%20das%20Cinzas.mp3" };
 		const witch = { ...tracks[0], id: "witch-opening", title: "O Sussurro da Lua Verde", fileName: "O Sussurro da Lua Verde.mp3", url: "/generated/music/assets/O%20Sussurro%20da%20Lua%20Verde.mp3" };
 		player.setTracks([...tracks, original, witch]);
-		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "two", "fornalha-opening", "witch-opening"]);
+		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "fornalha-opening", "witch-opening", "two"]);
 		player.select("witch-opening");
 		await player.play();
 		expect(audio.src).toContain("O%20Sussurro%20da%20Lua%20Verde.mp3");
