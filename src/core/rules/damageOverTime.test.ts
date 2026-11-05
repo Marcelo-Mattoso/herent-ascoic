@@ -4,7 +4,7 @@ import { settled } from "../__tests__/fixtures";
 import { createEmptyCombatState } from "../state/combatState";
 import { createInitialGameState, type GameState } from "../state/gameState";
 import { enemiesOf, heroesOf } from "../state/access";
-import { gameOf, withGame } from "../../engine/state";
+import { withGame } from "../../engine/state";
 import {
     applyDamageOverTimeStatus, clearDamageOverTime, matchesDamageOverTimeStatus,
     parseDamageOverTimeCondition, resolveDamageOverTimeRound,
