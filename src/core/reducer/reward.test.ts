@@ -206,12 +206,12 @@ describe("recompensas e inventário", () => {
 			},
 		});
 		const funded = withGame(started, (game) => ({ ...game, status: "XP_SPEND_PHASE", groupXp: 35 }));
-		expect(deckOf(funded, "artifactDeck").available).toHaveLength(3);
+		expect(deckOf(funded, "artifactDeck").available).toHaveLength(4);
 		const bought = handleSpendXp(testEngine, funded, "buy_artifact");
 		expect(gameOf(bought).groupXp).toBe(0);
 		expect(gameOf(bought).groupArtifacts).toHaveLength(1);
 		expect(gameOf(bought).groupArtifacts[0]?.cardId).toMatch(/^artifact_/);
-		expect(deckOf(bought, "artifactDeck").available).toHaveLength(2);
+		expect(deckOf(bought, "artifactDeck").available).toHaveLength(3);
 		const empty = withDecks(withGame(bought, (game) => ({ ...game, groupXp: 35 })), {
 			...decksOf(bought),
 			artifactDeck: { ...deckOf(bought, "artifactDeck"), available: [] },

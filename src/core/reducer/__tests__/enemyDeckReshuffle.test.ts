@@ -84,7 +84,7 @@ describe("reembaralhamento automático do baralho de criaturas", () => {
 		const result = handleSpawnEnemies(testEngine, state);
 		const pool = creaturePoolForBoss(bossId);
 		expect(enemiesOf(result)).toHaveLength(4);
-		expect(pool).toHaveLength(12);
+		expect(pool).toHaveLength(18);
 		expect(enemiesOf(result).every((enemy) => pool.includes(enemy.cardId))).toBe(true);
 		expect(deckOf(result, "enemyDeck").available.every((id) => pool.includes(id))).toBe(true);
 		expect(deckOf(result, "enemyDeck").available).toHaveLength(pool.length - 4);
