@@ -1,7 +1,7 @@
 {
   "id": "torre-grande-bruxa-caldeirao",
   "name": "A Torre da Grande Bruxa do Caldeirão",
-  "version": "1.3.0",
+  "version": "1.4.0",
   "boss": "boss.json",
   "cards": [
     {
@@ -954,224 +954,6 @@
       ]
     },
     {
-      "id": "item_polished_bone_dagger",
-      "type": "item",
-      "name": "Punhal de Osso Polido",
-      "image": "images/item_polished_bone_dagger.webp",
-      "itemClass": "equipment",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "item_skill_deadly_edge",
-          "params": {
-            "value": 2
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_weak_antivenom_potion",
-      "type": "item",
-      "name": "Poção Antiveneno Fraca",
-      "image": "images/item_weak_antivenom_potion.webp",
-      "itemClass": "consumable",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "witch_item_herbal_remedy",
-          "params": {
-            "value": 1
-          }
-        }
-      ],
-      "grants": [
-        {
-          "id": "witch_antivenom_use",
-          "abilityId": "witch_item_herbal_remedy",
-          "params": {
-            "value": 1
-          },
-          "activation": {
-            "kind": "manual",
-            "actionCost": "none",
-            "consumeSource": "discard",
-            "targeting": {
-              "targetType": "tgt_target",
-              "affectScope": "scp_single",
-              "affectObject": "obj_friend"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_old_moon_herbs",
-      "type": "item",
-      "name": "Ervas da Lua Velha",
-      "image": "images/item_old_moon_herbs.webp",
-      "itemClass": "consumable",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "witch_item_herbal_remedy",
-          "params": {
-            "value": 2
-          }
-        }
-      ],
-      "grants": [
-        {
-          "id": "witch_moon_herbs_use",
-          "abilityId": "witch_item_herbal_remedy",
-          "params": {
-            "value": 2
-          },
-          "activation": {
-            "kind": "manual",
-            "actionCost": "none",
-            "consumeSource": "discard",
-            "targeting": {
-              "targetType": "tgt_target",
-              "affectScope": "scp_single",
-              "affectObject": "obj_friend"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_green_glass_lantern",
-      "type": "item",
-      "name": "Lanterna de Vidro Verde",
-      "image": "images/item_green_glass_lantern.webp",
-      "itemClass": "utility",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "skill_illuminate_path",
-          "params": {
-            "value": 1
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_dried_moss_cloak",
-      "type": "item",
-      "name": "Manto de Musgo Seco",
-      "image": "images/item_dried_moss_cloak.webp",
-      "itemClass": "equipment",
-      "equipmentSlot": "clothing",
-      "skills": [
-        {
-          "skillId": "item_skill_block",
-          "params": {
-            "value": 1
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_braided_branch_amulet",
-      "type": "item",
-      "name": "Amuleto de Galho Trançado",
-      "image": "images/item_braided_branch_amulet.webp",
-      "itemClass": "charm",
-      "equipmentSlot": "amulet",
-      "skills": [
-        {
-          "skillId": "witch_item_braided_branch_ward",
-          "params": {
-            "value": 1
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_bottled_mist",
-      "type": "item",
-      "name": "Frasco de Névoa Engarrafada",
-      "image": "images/item_bottled_mist.webp",
-      "itemClass": "consumable",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "witch_item_bottled_poison"
-        }
-      ],
-      "grants": [
-        {
-          "id": "witch_bottled_poison_use",
-          "abilityId": "witch_item_bottled_poison",
-          "activation": {
-            "kind": "manual",
-            "actionCost": "none",
-            "consumeSource": "discard",
-            "targeting": {
-              "targetType": "tgt_enemy",
-              "affectScope": "scp_single",
-              "affectObject": "obj_not_friend"
-            }
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_scratched_symbols_book",
-      "type": "item",
-      "name": "Livro de Símbolos Riscados",
-      "image": "images/item_scratched_symbols_book.webp",
-      "itemClass": "special",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "skill_minor_rune"
-        }
-      ]
-    },
-    {
-      "id": "item_small_silver_bell",
-      "type": "item",
-      "name": "Sino de Prata Pequeno",
-      "image": "images/item_small_silver_bell.webp",
-      "itemClass": "utility",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "skill_path_safeguard"
-        }
-      ]
-    },
-    {
-      "id": "item_witch_black_bread",
-      "type": "item",
-      "name": "Pão Negro da Bruxa",
-      "image": "images/item_witch_black_bread.webp",
-      "itemClass": "consumable",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "witch_item_black_bread"
-        }
-      ],
-      "grants": [
-        {
-          "id": "witch_black_bread_use",
-          "abilityId": "witch_item_black_bread",
-          "activation": {
-            "kind": "manual",
-            "actionCost": "none",
-            "consumeSource": "discard",
-            "targeting": {
-              "targetType": "tgt_target",
-              "affectScope": "scp_single",
-              "affectObject": "obj_friend"
-            }
-          }
-        }
-      ]
-    },
-    {
       "id": "artifact_ancient_cauldron_spoon",
       "type": "artifact",
       "name": "Colher do Caldeirão Antigo",
@@ -1505,6 +1287,34 @@
       ]
     },
     {
+      "id": "artifact_queen_spider_gland",
+      "type": "artifact",
+      "name": "Glândula da Rainha Aranha",
+      "image": "images/artifact_queen_spider_gland.webp",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "witch_artifact_queen_spider_venom"
+        }
+      ]
+    },
+    {
+      "id": "item_polished_bone_dagger",
+      "type": "item",
+      "name": "Punhal de Osso Polido",
+      "image": "images/item_polished_bone_dagger.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_polished_hit"
+        },
+        {
+          "skillId": "witch_polished_poison"
+        }
+      ]
+    },
+    {
       "id": "item_poison_fang_knife",
       "type": "item",
       "name": "Faca da Presa Tóxica",
@@ -1513,45 +1323,10 @@
       "equipmentSlot": "one_hand",
       "skills": [
         {
-          "skillId": "item_skill_deadly_edge",
-          "params": {
-            "value": 2
-          }
-        }
-      ]
-    },
-    {
-      "id": "item_web_silk_wrap",
-      "type": "item",
-      "name": "Faixa de Seda de Teia",
-      "image": "images/item_web_silk_wrap.webp",
-      "itemClass": "consumable",
-      "equipmentSlot": "one_hand",
-      "skills": [
+          "skillId": "witch_fang_hit"
+        },
         {
-          "skillId": "witch_item_herbal_remedy",
-          "params": {
-            "value": 1
-          }
-        }
-      ],
-      "grants": [
-        {
-          "id": "witch_web_silk_wrap_use",
-          "abilityId": "witch_item_herbal_remedy",
-          "params": {
-            "value": 1
-          },
-          "activation": {
-            "kind": "manual",
-            "actionCost": "none",
-            "consumeSource": "discard",
-            "targeting": {
-              "targetType": "tgt_target",
-              "affectScope": "scp_single",
-              "affectObject": "obj_friend"
-            }
-          }
+          "skillId": "witch_fang_poison"
         }
       ]
     },
@@ -1564,10 +1339,29 @@
       "equipmentSlot": "two_hands",
       "skills": [
         {
-          "skillId": "item_skill_deadly_edge",
-          "params": {
-            "value": 3
-          }
+          "skillId": "witch_reed_damage"
+        },
+        {
+          "skillId": "witch_reed_poison_damage"
+        }
+      ]
+    },
+    {
+      "id": "item_green_eclipse_staff",
+      "type": "item",
+      "name": "Cajado do Eclipse Verde",
+      "image": "images/item_green_eclipse_staff.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "witch_eclipse_hit"
+        },
+        {
+          "skillId": "witch_eclipse_damage"
+        },
+        {
+          "skillId": "witch_eclipse_poison"
         }
       ]
     },
@@ -1584,31 +1378,157 @@
           "params": {
             "value": 2
           }
+        },
+        {
+          "skillId": "witch_resin_ward"
         }
       ]
     },
     {
-      "id": "item_swamp_antidote",
+      "id": "item_ancestral_thorn_shield",
       "type": "item",
-      "name": "Antídoto do Brejo",
-      "image": "images/item_swamp_antidote.webp",
-      "itemClass": "consumable",
+      "name": "Escudo de Espinhos Ancestrais",
+      "image": "images/item_ancestral_thorn_shield.webp",
+      "itemClass": "equipment",
       "equipmentSlot": "one_hand",
       "skills": [
         {
-          "skillId": "witch_item_herbal_remedy",
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_thorn_venom"
+        }
+      ]
+    },
+    {
+      "id": "item_dried_moss_cloak",
+      "type": "item",
+      "name": "Manto de Musgo Seco",
+      "image": "images/item_dried_moss_cloak.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "witch_moss_ward"
+        }
+      ]
+    },
+    {
+      "id": "item_ancestral_bark_armor",
+      "type": "item",
+      "name": "Armadura de Casca Ancestral",
+      "image": "images/item_ancestral_bark_armor.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_block",
           "params": {
             "value": 2
           }
+        },
+        {
+          "skillId": "witch_bark_ward"
+        }
+      ]
+    },
+    {
+      "id": "item_green_moon_robes",
+      "type": "item",
+      "name": "Vestes da Lua Verde",
+      "image": "images/item_green_moon_robes.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "witch_robes_hit"
+        }
+      ]
+    },
+    {
+      "id": "item_silent_marsh_boots",
+      "type": "item",
+      "name": "Botas do Brejo Silencioso",
+      "image": "images/item_silent_marsh_boots.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "witch_boots_block"
+        }
+      ]
+    },
+    {
+      "id": "item_web_silk_cloak",
+      "type": "item",
+      "name": "Manto de Seda de Teia",
+      "image": "images/item_web_silk_cloak.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "witch_cloak_cure"
         }
       ],
       "grants": [
         {
-          "id": "witch_swamp_antidote_use",
-          "abilityId": "witch_item_herbal_remedy",
-          "params": {
-            "value": 2
-          },
+          "id": "witch_cloak_cure_activation",
+          "abilityId": "witch_cloak_cure",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "combat",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_oracle_hood",
+      "type": "item",
+      "name": "Capuz do Oráculo",
+      "image": "images/item_oracle_hood.webp",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "witch_oracle_hit"
+        }
+      ]
+    },
+    {
+      "id": "item_weak_antivenom_potion",
+      "type": "item",
+      "name": "Poção Antiveneno Fraca",
+      "image": "images/item_weak_antivenom_potion.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_weak_antivenom_potion_action"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_item_weak_antivenom_potion_action_activation",
+          "abilityId": "witch_item_weak_antivenom_potion_action",
           "activation": {
             "kind": "manual",
             "actionCost": "none",
@@ -1623,6 +1543,64 @@
       ]
     },
     {
+      "id": "item_swamp_antidote",
+      "type": "item",
+      "name": "Antídoto do Brejo",
+      "image": "images/item_swamp_antidote.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_swamp_antidote_action"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_item_swamp_antidote_action_activation",
+          "abilityId": "witch_item_swamp_antidote_action",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_bottled_mist",
+      "type": "item",
+      "name": "Frasco de Névoa Engarrafada",
+      "image": "images/item_bottled_mist.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_bottled_mist_action"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_item_bottled_mist_action_activation",
+          "abilityId": "witch_item_bottled_mist_action",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_enemy",
+              "affectScope": "scp_single",
+              "affectObject": "obj_not_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
       "id": "item_bitter_root_tonic",
       "type": "item",
       "name": "Tônico de Raiz Amarga",
@@ -1631,19 +1609,42 @@
       "equipmentSlot": "one_hand",
       "skills": [
         {
-          "skillId": "skill_last_light_healing",
-          "params": {
-            "value": 2
-          }
+          "skillId": "witch_item_bitter_root_tonic_action"
         }
       ],
       "grants": [
         {
-          "id": "witch_bitter_root_tonic_use",
-          "abilityId": "skill_last_light_healing",
-          "params": {
-            "value": 2
-          },
+          "id": "witch_item_bitter_root_tonic_action_activation",
+          "abilityId": "witch_item_bitter_root_tonic_action",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_moonwell_vial",
+      "type": "item",
+      "name": "Ampola do Poço Lunar",
+      "image": "images/item_moonwell_vial.webp",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "witch_item_moonwell_vial_action"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_item_moonwell_vial_action_activation",
+          "abilityId": "witch_item_moonwell_vial_action",
           "activation": {
             "kind": "manual",
             "actionCost": "none",
@@ -1670,6 +1671,58 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "witch_lantern_ward"
+        }
+      ]
+    },
+    {
+      "id": "item_small_silver_bell",
+      "type": "item",
+      "name": "Sino de Prata Pequeno",
+      "image": "images/item_small_silver_bell.webp",
+      "itemClass": "utility",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "skill_path_safeguard"
+        },
+        {
+          "skillId": "witch_bell_cure"
+        }
+      ],
+      "grants": [
+        {
+          "id": "witch_bell_cure_activation",
+          "abilityId": "witch_bell_cure",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "combat",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ]
+    },
+    {
+      "id": "item_braided_branch_amulet",
+      "type": "item",
+      "name": "Amuleto de Galho Trançado",
+      "image": "images/item_braided_branch_amulet.webp",
+      "itemClass": "charm",
+      "equipmentSlot": "amulet",
+      "skills": [
+        {
+          "skillId": "witch_braided_duration"
         }
       ]
     },
@@ -1683,6 +1736,9 @@
       "skills": [
         {
           "skillId": "skill_path_safeguard"
+        },
+        {
+          "skillId": "witch_forest_ward"
         }
       ],
       "grants": [
@@ -1710,41 +1766,6 @@
       ]
     },
     {
-      "id": "item_moonwell_vial",
-      "type": "item",
-      "name": "Ampola do Poço Lunar",
-      "image": "images/item_moonwell_vial.webp",
-      "itemClass": "consumable",
-      "equipmentSlot": "one_hand",
-      "skills": [
-        {
-          "skillId": "skill_last_light_healing",
-          "params": {
-            "value": 3
-          }
-        }
-      ],
-      "grants": [
-        {
-          "id": "witch_moonwell_vial_use",
-          "abilityId": "skill_last_light_healing",
-          "params": {
-            "value": 3
-          },
-          "activation": {
-            "kind": "manual",
-            "actionCost": "none",
-            "consumeSource": "discard",
-            "targeting": {
-              "targetType": "tgt_target",
-              "affectScope": "scp_single",
-              "affectObject": "obj_friend"
-            }
-          }
-        }
-      ]
-    },
-    {
       "id": "item_black_thorn_amulet",
       "type": "item",
       "name": "Amuleto do Espinho Negro",
@@ -1753,7 +1774,7 @@
       "equipmentSlot": "amulet",
       "skills": [
         {
-          "skillId": "witch_item_black_thorn_ward"
+          "skillId": "witch_thorn_duration"
         }
       ]
     },
@@ -1898,18 +1919,6 @@
               "affectObject": "obj_all"
             }
           }
-        }
-      ]
-    },
-    {
-      "id": "artifact_queen_spider_gland",
-      "type": "artifact",
-      "name": "Glândula da Rainha Aranha",
-      "image": "images/artifact_queen_spider_gland.webp",
-      "countsAs": "artifact",
-      "skills": [
-        {
-          "skillId": "witch_artifact_queen_spider_venom"
         }
       ]
     }
@@ -2758,6 +2767,693 @@
           "rounds": 2
         }
       ]
+    },
+    {
+      "id": "witch_polished_hit",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_polished_poison",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$target",
+          "conditionType": "poison"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_dealt",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_fang_hit",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_fang_poison",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_hit"
+      },
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_damage_over_time",
+          "to": "$target",
+          "status": "poison",
+          "effectId": "witch_fang_poison",
+          "damage": 1,
+          "rounds": 2,
+          "increaseOverTime": false,
+          "decreaseOverTime": false
+        }
+      ]
+    },
+    {
+      "id": "witch_reed_damage",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_dealt",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_reed_poison_damage",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$target",
+          "conditionType": "poison"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_dealt",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_eclipse_hit",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_eclipse_damage",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_dealt",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_eclipse_poison",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_hit"
+      },
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_if",
+          "when": {
+            "kind": "has_condition",
+            "of": "$target",
+            "conditionType": "poison"
+          },
+          "then": [
+            {
+              "kind": "i_apply_damage_over_time",
+              "to": "$target",
+              "status": "poison",
+              "effectId": "witch_eclipse_poison",
+              "damage": 1,
+              "rounds": 1,
+              "increaseOverTime": false,
+              "decreaseOverTime": false
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "witch_resin_ward",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$source",
+          "mode": "reduce_next",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_thorn_venom",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "combat",
+        "charges": 1
+      },
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_damage_over_time",
+          "to": "$target",
+          "status": "poison",
+          "effectId": "witch_thorn_venom",
+          "damage": 1,
+          "rounds": 1,
+          "increaseOverTime": false,
+          "decreaseOverTime": false
+        }
+      ]
+    },
+    {
+      "id": "witch_moss_ward",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$source",
+          "mode": "reduce_next",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_bark_ward",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$source",
+          "mode": "block_next",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_robes_hit",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$target",
+          "conditionType": "poison"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_boots_block",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$source",
+          "conditionType": "poison"
+        }
+      ],
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_cloak_cure",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_active",
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$target",
+          "mode": "remove_one",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_oracle_hit",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "conditions": [
+        {
+          "kind": "has_dot_stacks",
+          "of": "$target",
+          "status": "poison",
+          "minimum": 2
+        }
+      ],
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_item_weak_antivenom_potion_action",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_active",
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$target",
+          "mode": "remove_one",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_item_swamp_antidote_action",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_active",
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_remove_status",
+          "to": "$target",
+          "status": "poison"
+        }
+      ]
+    },
+    {
+      "id": "witch_item_bottled_mist_action",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_active",
+      "target_type": "tgt_enemy",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_damage_over_time",
+          "to": "$target",
+          "status": "poison",
+          "effectId": "witch_bottled_mist",
+          "damage": 2,
+          "rounds": 1,
+          "increaseOverTime": false,
+          "decreaseOverTime": false
+        }
+      ]
+    },
+    {
+      "id": "witch_item_bitter_root_tonic_action",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_active",
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_heal",
+          "to": "$target",
+          "amount": 2
+        },
+        {
+          "kind": "i_poison_ward",
+          "to": "$target",
+          "mode": "reduce_next",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_item_moonwell_vial_action",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_active",
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_heal",
+          "to": "$target",
+          "amount": 3
+        },
+        {
+          "kind": "i_poison_ward",
+          "to": "$target",
+          "mode": "remove_one",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_lantern_ward",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$source",
+          "mode": "block_next",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_bell_cure",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_active",
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$target",
+          "mode": "remove_one",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_braided_duration",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_poison_duration_decrease",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_forest_ward",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_poison_ward",
+          "to": "$source",
+          "mode": "reduce_next",
+          "value": 1
+        }
+      ]
+    },
+    {
+      "id": "witch_thorn_duration",
+      "category": "item_skill",
+      "nature": [
+        "nat_poison",
+        "nat_magical"
+      ],
+      "operate_type": "op_passive",
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_poison_duration_increase",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "while_in_play"
+          }
+        }
+      ]
     }
   ],
   "skillLocales": {
@@ -2925,6 +3621,141 @@
       "name": "Secreção da Matriarca",
       "label": "Secreção da Matriarca: no início do combate, envenena uma criatura inimiga por duas rodadas.",
       "text": "Enquanto o grupo possuir este artefato, uma criatura inimiga recebe Veneno no início do combate (1 dano por rodada, durante duas rodadas)."
+    },
+    "witch_polished_hit": {
+      "name": "Precisão Óssea",
+      "label": "Precisão Óssea: +2 Acerto",
+      "text": "+2 Acerto"
+    },
+    "witch_polished_poison": {
+      "name": "Corte Oportunista",
+      "label": "Corte Oportunista: +1 Dano contra envenenados",
+      "text": "+1 Dano contra envenenados"
+    },
+    "witch_fang_hit": {
+      "name": "Presa Afiada",
+      "label": "Presa Afiada: +1 Acerto",
+      "text": "+1 Acerto"
+    },
+    "witch_fang_poison": {
+      "name": "Veneno da Presa",
+      "label": "Veneno da Presa: Ao acertar aplica Veneno 1 por 2 rodadas",
+      "text": "Ao acertar aplica Veneno 1 por 2 rodadas"
+    },
+    "witch_reed_damage": {
+      "name": "Lança do Brejo",
+      "label": "Lança do Brejo: +2 Dano",
+      "text": "+2 Dano"
+    },
+    "witch_reed_poison_damage": {
+      "name": "Perfuração Tóxica",
+      "label": "Perfuração Tóxica: +1 Dano contra envenenados",
+      "text": "+1 Dano contra envenenados"
+    },
+    "witch_eclipse_hit": {
+      "name": "Precisão do Eclipse",
+      "label": "Precisão do Eclipse: +1 Acerto",
+      "text": "+1 Acerto"
+    },
+    "witch_eclipse_damage": {
+      "name": "Impacto do Eclipse",
+      "label": "Impacto do Eclipse: +1 Dano",
+      "text": "+1 Dano"
+    },
+    "witch_eclipse_poison": {
+      "name": "Duplo Veneno",
+      "label": "Duplo Veneno: Ao acertar alvo envenenado aplica outro Veneno 1 por 1 rodada",
+      "text": "Ao acertar alvo envenenado aplica outro Veneno 1 por 1 rodada"
+    },
+    "witch_resin_ward": {
+      "name": "Resina Verde",
+      "label": "Resina Verde: Reduz 1 do próximo dano de Veneno por combate",
+      "text": "Reduz 1 do próximo dano de Veneno por combate"
+    },
+    "witch_thorn_venom": {
+      "name": "Espinhos Venenosos",
+      "label": "Espinhos Venenosos: Ao receber ataque, envenena o atacante: 1 por 1 rodada, uma vez por combate",
+      "text": "Ao receber ataque, envenena o atacante: 1 por 1 rodada, uma vez por combate"
+    },
+    "witch_moss_ward": {
+      "name": "Musgo Seco",
+      "label": "Musgo Seco: Reduz 1 do primeiro tick de Veneno por combate",
+      "text": "Reduz 1 do primeiro tick de Veneno por combate"
+    },
+    "witch_bark_ward": {
+      "name": "Casca Ancestral",
+      "label": "Casca Ancestral: Bloqueia primeira aplicação de Veneno por combate",
+      "text": "Bloqueia primeira aplicação de Veneno por combate"
+    },
+    "witch_robes_hit": {
+      "name": "Visão Verde",
+      "label": "Visão Verde: +1 Acerto contra envenenados",
+      "text": "+1 Acerto contra envenenados"
+    },
+    "witch_boots_block": {
+      "name": "Brejo Silencioso",
+      "label": "Brejo Silencioso: +1 Bloqueio enquanto envenenado",
+      "text": "+1 Bloqueio enquanto envenenado"
+    },
+    "witch_cloak_cure": {
+      "name": "Seda Purificadora",
+      "label": "Seda Purificadora: Remove 1 stack de Veneno de um aliado, uma vez por combate",
+      "text": "Remove 1 stack de Veneno de um aliado, uma vez por combate"
+    },
+    "witch_oracle_hit": {
+      "name": "Visão do Oráculo",
+      "label": "Visão do Oráculo: +1 Acerto contra alvo com 2 ou mais stacks de Veneno",
+      "text": "+1 Acerto contra alvo com 2 ou mais stacks de Veneno"
+    },
+    "witch_item_weak_antivenom_potion_action": {
+      "name": "Poção Antiveneno Fraca",
+      "label": "Poção Antiveneno Fraca: Remove um stack de Veneno",
+      "text": "Remove um stack de Veneno"
+    },
+    "witch_item_swamp_antidote_action": {
+      "name": "Antídoto do Brejo",
+      "label": "Antídoto do Brejo: Remove todos os stacks de Veneno",
+      "text": "Remove todos os stacks de Veneno"
+    },
+    "witch_item_bottled_mist_action": {
+      "name": "Névoa Engarrafada",
+      "label": "Névoa Engarrafada: Aplica Veneno 2 por 1 rodada",
+      "text": "Aplica Veneno 2 por 1 rodada"
+    },
+    "witch_item_bitter_root_tonic_action": {
+      "name": "Tônico de Raiz Amarga",
+      "label": "Tônico de Raiz Amarga: Cura 2 e reduz 1 do próximo dano de Veneno",
+      "text": "Cura 2 e reduz 1 do próximo dano de Veneno"
+    },
+    "witch_item_moonwell_vial_action": {
+      "name": "Ampola do Poço Lunar",
+      "label": "Ampola do Poço Lunar: Cura 3 e remove um stack de Veneno",
+      "text": "Cura 3 e remove um stack de Veneno"
+    },
+    "witch_lantern_ward": {
+      "name": "Luz da Bruxa",
+      "label": "Luz da Bruxa: Bloqueia primeiro Veneno no próximo combate",
+      "text": "Bloqueia primeiro Veneno no próximo combate"
+    },
+    "witch_bell_cure": {
+      "name": "Sino de Prata",
+      "label": "Sino de Prata: Remove um stack de Veneno de aliado, alternativamente à proteção do descarte",
+      "text": "Remove um stack de Veneno de aliado, alternativamente à proteção do descarte"
+    },
+    "witch_braided_duration": {
+      "name": "Galho Trançado",
+      "label": "Galho Trançado: Reduz uma rodada de Venenos finitos, duração mínima 1",
+      "text": "Reduz uma rodada de Venenos finitos, duração mínima 1"
+    },
+    "witch_forest_ward": {
+      "name": "Proteção da Mata",
+      "label": "Proteção da Mata: Reduz 1 do próximo dano de Veneno sofrido por aliado, uma vez por combate",
+      "text": "Reduz 1 do próximo dano de Veneno sofrido por aliado, uma vez por combate"
+    },
+    "witch_thorn_duration": {
+      "name": "Espinho Negro",
+      "label": "Espinho Negro: Venenos finitos aplicados duram mais 1 rodada",
+      "text": "Venenos finitos aplicados duram mais 1 rodada"
     }
   },
   "openings": {

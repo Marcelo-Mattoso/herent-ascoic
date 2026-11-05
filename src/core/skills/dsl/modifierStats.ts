@@ -16,6 +16,8 @@ export const BUILTIN_MODIFIER_STATS: Readonly<Record<string, ModifierStatSpec>> 
 export const ASCENSAO_MODIFIER_STATS: Readonly<Record<string, ModifierStatSpec>> =
 	{
 		s_poison_damage_reduction: { target: "poison_damage_taken", negate: true },
+        s_poison_duration_increase: { target: "poison_duration_increase" },
+        s_poison_duration_decrease: { target: "poison_duration_decrease" },
 		s_purple_damage_reduction: {
 			target: "purple_damage_taken",
 			negate: true,

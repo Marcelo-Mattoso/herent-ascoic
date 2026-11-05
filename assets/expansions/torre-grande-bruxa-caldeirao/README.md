@@ -1,23 +1,29 @@
-# A Torre da Grande Bruxa do Caldeirão — catálogo v1.3
+# A Torre da Grande Bruxa do Caldeirão — catálogo v1.4
 
-## Inventário
-- 4 heróis, 18 criaturas, 2 subchefes, 10 salas comuns, 2 salas de subchefe, 24 itens, 4 artefatos.
-- 64 cartas em `expansion.json` + 1 chefe em `boss.json` = **65 cartas**.
+## Inventário definitivo
+- 4 heróis, 18 criaturas, 2 subchefes, 10 salas comuns, 2 salas de subchefe, **26 itens**, 4 artefatos.
+- **66 cartas** em `expansion.json` + 1 chefe em `boss.json` = **67 cartas**.
 - Os 12 heróis do jogo continuam compartilhados.
 
-## Novas cartas da versão 1.3
-- **6 criaturas:** Javali de Espinhos Retorcidos, Sapo do Caldeirão, Enxame de Sanguessugas do Brejo, Mulher-Liana Lamentosa, Treante de Casca Podre, Coruja Enfeitiçada.
-- **2 salas:** Galeria dos Ovos de Aranha (2 saídas, 2 XP, 1 artefato; Teias da Galeria) e Herbário da Bruxa (3 saídas, 2 XP, 1 artefato; Ervas Contaminadas).
-- **14 itens:** 10 equipamentos/consumíveis e **4 Saques Mágicos**: Baú Tomado de Musgo, Dados de Osso do Oráculo, Mapa de Galho Retorcido, Reserva do Caldeirão. Os quatro podem ser usados na fase de recompensa, são removidos ao usar e empregam `item_skill_mystic_draw`.
-- **1 artefato:** Glândula da Rainha Aranha: Veneno automático contra uma criatura no início do combate, usando as regras existentes.
-- **Amuleto do Espinho Negro:** reduz em até 2 o dano de Veneno enquanto equipado.
+## Itens da expansão (26)
+- **Armas e escudos (6):** Punhal de Osso Polido; Faca da Presa Tóxica; Lança de Junco do Pântano; Cajado do Eclipse Verde; Escudo de Resina Verde; Escudo de Espinhos Ancestrais.
+- **Vestimentas (6):** Manto de Musgo Seco; Armadura de Casca Ancestral; Vestes da Lua Verde; Botas do Brejo Silencioso; Manto de Seda de Teia; Capuz do Oráculo.
+- **Consumíveis (5):** Poção Antiveneno Fraca; Antídoto do Brejo; Frasco de Névoa Engarrafada; Tônico de Raiz Amarga; Ampola do Poço Lunar.
+- **Utilitários (2):** Lanterna da Bruxa; Sino de Prata Pequeno.
+- **Amuletos (3):** Amuleto de Galho Trançado; Talismã da Mata Antiga; Amuleto do Espinho Negro.
+- **Especiais (4):** Baú Tomado de Musgo; Dados de Osso do Oráculo; Mapa de Galho Retorcido; Reserva do Caldeirão.
 
-## Progressão
-- O chefe continua exigindo 3 artefatos.
-- As duas novas salas comuns concedem artefatos. Não dependem da injeção das salas de subchefes.
-- O Herbário não usa `witch_room_old_vials`: esta skill substituiria o saque padrão, anulando o artefato.
-- Todos os recursos da masmorra seguem isolados por expansão. Heróis podem ser misturados.
+**22/26 cartas (84,6%) interagem com Veneno; 4 preservam Saque Mágico.**
+As cinco cartas antigas fora da seleção definitiva (Ervas da Lua Velha, Lanterna de Vidro Verde, Livro de Símbolos Riscados, Pão Negro da Bruxa e Faixa de Seda de Teia) e seus arquivos de imagem foram removidos.
 
-## Assets e integração
-- 23 artes WebP já publicadas em `images/` (não modificadas neste commit).
-- Esta atualização contém somente catálogo, habilidades, descrições e testes; o modo Campanha segue pendente.
+## Veneno
+- As habilidades ofensivas da Faca, do Cajado e do Frasco usam `i_apply_damage_over_time`: origens distintas acumulam; mesma origem renova.
+- `i_poison_ward` controla remoção de um stack, bloqueio da próxima aplicação e mitigação do próximo tick.
+- `has_dot_stacks` permite bônus condicionais por quantidade de venenos.
+- Modificadores `s_poison_duration_increase/decrease` modificam apenas venenos com duração finita.
+- Os efeitos permanecem limitados ao combate; os quatro Saques Mágicos mantêm o comportamento anterior.
+
+## Conteúdo preservado
+- 6 novas criaturas, 2 novas salas e Glândula da Rainha Aranha da versão 1.3.
+- Chefe exige 3 artefatos. Outros heróis e demais expansões não são alterados.
+- Imagens novas são reutilizadas em `images/`, sem subpastas.

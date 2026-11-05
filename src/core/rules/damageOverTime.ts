@@ -84,6 +84,18 @@ export function applyDamageOverTimeStatus(
         (options.increaseOverTime === true && options.decreaseOverTime === true)
     ) return state;
 
+    // Single-use wards are consumed when a new poison is applied.
+    if (options.status === "poison") {
+        const ward = unit.conditions.find(c => c.startsWith("poison_ward:block_next:"));
+        if (ward) {
+            const amount = Number(ward.slice("poison_ward:block_next:".length));
+            if (amount > 0) {
+                const next = unit.conditions.filter(c => c !== ward);
+                if (amount > 1) next.push("poison_ward:block_next:" + (amount - 1));
+                return log(withUnitStats(state, targetId, { conditions: next }), "Veneno bloqueado por proteção.");
+            }
+        }
+    }
     const currentRound = gameOf(state).combat?.round ?? 0;
     const existing = unit.conditions.map(parseDamageOverTimeCondition)
         .find((condition) => condition !== null && sameSource(condition, options));
@@ -93,7 +105,14 @@ export function applyDamageOverTimeStatus(
         sourceId: options.sourceId,
         effectId: options.effectId,
         damage: Math.max(options.damage, existing?.damage ?? 0),
-        rounds: indefinite ? 0 : Math.max(options.rounds, existing?.rounds ?? 0),
+        rounds: indefinite ? 0 : Math.max(
+            1,
+            Math.max(options.rounds, existing?.rounds ?? 0)
+              + (options.status === "poison"
+                  ? Math.max(0, getModifierTotal(worldOf(state), options.sourceId, "poison_duration_increase"))
+                    - Math.max(0, getModifierTotal(worldOf(state), targetId, "poison_duration_decrease"))
+                  : 0),
+        ),
         increaseOverTime: options.increaseOverTime === true,
         decreaseOverTime: options.decreaseOverTime === true,
         // Reaplicar renova duração, mas não adia o próximo tick.
@@ -133,7 +152,11 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
             const reduction = Math.max(0, -getModifierTotal(
                 worldOf(next), current.id, status.status + "_damage_taken",
             ));
-            const amount = Math.max(0, status.damage - reduction);
+            const ward = status.status === "poison"
+                ? current.conditions.find(c => c.startsWith("poison_ward:reduce_next:"))
+                : undefined;
+            const wardAmount = ward ? Math.max(0, Number(ward.slice("poison_ward:reduce_next:".length))) : 0;
+            const amount = Math.max(0, status.damage - reduction - wardAmount);
             if (amount > 0) {
                 // A origem virtual evita disparar evt_hit / bônus de armas em ticks.
                 next = applyDamage(engine, next, current.id, amount, {
@@ -149,7 +172,7 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
             const remaining = status.rounds === 0 ? 0 : status.rounds - 1;
             const nextDamage = status.damage +
                 (status.increaseOverTime ? 1 : status.decreaseOverTime ? -1 : 0);
-            const conditions = after.conditions.filter((entry) => entry !== raw);
+            const conditions = after.conditions.filter((entry) => entry !== raw && entry !== ward);
             if (after.status === "active" && (status.rounds === 0 || remaining > 0) && nextDamage > 0) {
                 conditions.push(serialize({
                     ...status,

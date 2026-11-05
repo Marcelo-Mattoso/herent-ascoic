@@ -326,8 +326,10 @@ export function collectHeroDamageReductionsFromItems(engine: GameEngine,
 	damageType: DamageType = "physical",
 ): ItemModifierBreakdown[] {
 	return itemSkillSourcesForHero(engine, hero, state).flatMap((source) =>
-		modifierEntries(engine, source, state, "reduction", damageType),
-	);
+        conditionsApply(engine, source.def.conditions, state, hero)
+            ? modifierEntries(engine, source, state, "reduction", damageType)
+            : [],
+    );
 }
 
 export function totalItemValue(
@@ -386,7 +388,12 @@ function itemSkillSourcesForHero(engine: GameEngine,
 		if (item?.type === "item" && item.useTiming) continue;
 		// Grants explícitos já descrevem todo o comportamento da carta. Os
 		// SkillRefs ficam apenas para compatibilidade e não devem duplicá-lo.
-		if (item?.type === "item" && item.grants?.length) continue;
+		if (item?.type === "item" && item.grants?.length) {
+            const granted = new Set(item.grants.map(grant => grant.abilityId));
+            sources.push(...skillSourcesForCard(engine, itemId, "item", itemId, hero.id)
+                .filter(source => !granted.has(source.def.id)));
+            continue;
+        }
 		sources.push(...skillSourcesForCard(engine, itemId, "item", itemId, hero.id));
 	}
 
