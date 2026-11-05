@@ -212,6 +212,11 @@ export function handleSpendXp(engine: GameEngine,
 		}
 	}
 
+	// Verificar estoque antes do débito de XP: nunca cobrar por um baralho vazio.
+	if (option === "buy_artifact" && deckOf(state, "artifactDeck").available.length === 0) {
+		return log(state, "Nenhum artefato disponível.");
+	}
+
 	let next: GameState = withGame(state, (prevGame) => ({ ...prevGame, groupXp: gameOf(state).groupXp - cost }));
 
 	switch (option) {
@@ -286,8 +291,8 @@ export const progressionHandler: GameHandler = {
 		const costs = balanceOf(engine).xpCosts;
 		const xp = gameOf(state).groupXp;
 		const out: Action[] = [];
-		if (xp >= costs.buy_artifact) {
-			return [{ type: "SPEND_XP", payload: { option: "buy_artifact" } }];
+		if (xp >= costs.buy_artifact && deckOf(state, "artifactDeck").available.length > 0) {
+			out.push({ type: "SPEND_XP", payload: { option: "buy_artifact" } });
 		}
 		if (xp >= costs.level_up) {
 			for (const heroId of heroIds) {
