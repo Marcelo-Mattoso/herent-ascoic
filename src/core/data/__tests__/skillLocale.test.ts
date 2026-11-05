@@ -1,12 +1,12 @@
 import { describe, expect, it } from "vitest";
-import { SKILL_LOCALE } from "../skillLocale";
+import { SKILL_LOCALE, getSkillLocale } from "../skillLocale";
 import { SKILLS } from "../skills";
 
 describe("skills.locale.pt-BR — cobertura", () => {
 	it("toda skill.id em skills.yaml tem entrada no locale pt-BR", () => {
 		const missing: string[] = [];
 		for (const ability of SKILLS.abilities) {
-			if (!SKILL_LOCALE[ability.id]) {
+			if (!getSkillLocale(ability.id).name && !getSkillLocale(ability.id).label) {
 				missing.push(ability.id);
 			}
 		}

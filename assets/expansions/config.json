@@ -4,6 +4,10 @@
     {
       "id": "fornalha-sombria",
       "enabled": true
+    },
+    {
+      "id": "torre-grande-bruxa-caldeirao",
+      "enabled": true
     }
   ]
 }

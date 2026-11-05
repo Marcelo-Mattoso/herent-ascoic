@@ -23,6 +23,7 @@ export const MUSIC_VOLUME_KEY = "ascensao.heroica.music.volume";
 export const MUSIC_TRACK_KEY = "ascensao.heroica.music.track";
 export const MUSIC_AUTOPLAY_KEY = "ascensao.heroica.music.autoplay";
 export type EndingTrack = "victory" | "defeat";
+const SILENT_OPENING_FILE = "__silent_witch_opening__";
 const ENDING_FILES: Record<EndingTrack, string> = {
 	victory: "victory.mp3",
 	defeat: "game-over.mp3",
@@ -99,10 +100,12 @@ export class MusicPlayer {
 		for (const listener of this.listeners) listener();
 	}
 
-	setTracks(tracks: readonly MusicTrack[], openingFiles: readonly string[] = []) {
+	setTracks(tracks: readonly MusicTrack[]) {
 		const sorted = [...tracks].sort((a, b) => a.order - b.order);
 		this.allTracks = sorted;
-		const excluded = new Set([...Object.values(ENDING_FILES), ...openingFiles].map((name) => name.toLocaleLowerCase("pt-BR")));
+		// As trilhas de abertura também são selecionáveis na playlist comum.
+		// Somente músicas de encerramento permanecem exclusivas de suas telas.
+		const excluded = new Set(Object.values(ENDING_FILES).map((name) => name.toLocaleLowerCase("pt-BR")));
 		const playlist = sorted.filter((track) => !excluded.has(track.fileName.toLocaleLowerCase("pt-BR")));
 		const previous = this.snapshot.selectedId;
 		const saved = storedValue(MUSIC_TRACK_KEY);
@@ -136,6 +139,10 @@ export class MusicPlayer {
 		// The start-expedition click is a user gesture: request playback immediately.
 		if (this.openingTrack) void this.playOpening();
 	}
+
+	/** Pausa a playlist em apresentações que ainda não possuem trilha exclusiva. */
+	enterSilentOpening() { this.enterOpening(SILENT_OPENING_FILE); }
+	leaveSilentOpening() { this.leaveOpening(SILENT_OPENING_FILE); }
 
 	leaveOpening(fileName: string) {
 		if (this.openingFile !== fileName) return;

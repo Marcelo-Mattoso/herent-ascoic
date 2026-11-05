@@ -154,8 +154,12 @@ describe("MusicPlayer", () => {
 		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
 		player.activate();
 		const intro = { ...tracks[0], id: "opening", title: "Antes das Cinzas", fileName: "Antes das Cinzas.mp3", url: "/generated/music/assets/Antes%20das%20Cinzas.mp3" };
-		player.setTracks([...tracks, intro], ["Antes das Cinzas.mp3"]);
-		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "two"]);
+		player.setTracks([...tracks, intro]);
+		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "opening", "two"]);
+		// A faixa continua disponível no player comum, sem interferir na abertura.
+		player.select("opening");
+		expect(player.getSnapshot().selectedId).toBe("opening");
+		player.select("one");
 		await player.play();
 		const oldPlayCount = audio.play.mock.calls.length;
 		player.enterOpening("Antes das Cinzas.mp3");
@@ -189,12 +193,55 @@ describe("MusicPlayer", () => {
 		player.enterOpening("Antes das Cinzas.mp3");
 		expect(player.getSnapshot().openingAvailable).toBe(false);
 		const intro = { ...tracks[0], id: "opening", title: "Antes das Cinzas", fileName: "Antes das Cinzas.mp3", url: "/generated/music/assets/Antes%20das%20Cinzas.mp3" };
-		player.setTracks([...tracks, intro], [intro.fileName]);
+		player.setTracks([...tracks, intro]);
 		await Promise.resolve();
 		expect(player.getSnapshot().status).toBe("playing");
 		player.leaveOpening(intro.fileName);
 		expect(player.getSnapshot().status).toBe("stopped");
 		expect(audio.play).toHaveBeenCalledTimes(1);
+		player.dispose();
+	});
+
+	it("permite selecionar ambas as trilhas de abertura sem tocar duas músicas ao mesmo tempo", async () => {
+		const audio = new FakeAudio();
+		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
+		player.activate();
+		const original = { ...tracks[0], id: "fornalha-opening", title: "Antes das Cinzas", fileName: "Antes das Cinzas.mp3", url: "/generated/music/assets/Antes%20das%20Cinzas.mp3" };
+		const witch = { ...tracks[0], id: "witch-opening", title: "O Sussurro da Lua Verde", fileName: "O Sussurro da Lua Verde.mp3", url: "/generated/music/assets/O%20Sussurro%20da%20Lua%20Verde.mp3" };
+		player.setTracks([...tracks, original, witch]);
+		expect(player.getSnapshot().tracks.map((track) => track.id)).toEqual(["one", "fornalha-opening", "witch-opening", "two"]);
+		player.select("witch-opening");
+		await player.play();
+		expect(audio.src).toContain("O%20Sussurro%20da%20Lua%20Verde.mp3");
+		const plays = audio.play.mock.calls.length;
+		player.enterOpening("Antes das Cinzas.mp3");
+		await Promise.resolve();
+		expect(audio.pause).toHaveBeenCalled();
+		expect(audio.src).toContain("Antes%20das%20Cinzas.mp3");
+		expect(audio.play).toHaveBeenCalledTimes(plays + 1);
+		player.leaveOpening("Antes das Cinzas.mp3");
+		await Promise.resolve();
+		expect(player.getSnapshot()).toMatchObject({ opening: null, selectedId: "witch-opening", status: "playing" });
+		expect(audio.src).toContain("O%20Sussurro%20da%20Lua%20Verde.mp3");
+		player.dispose();
+	});
+
+	it("suspende a playlist para uma abertura sem trilha e a retoma ao terminar", async () => {
+		const audio = new FakeAudio();
+		const player = new MusicPlayer(audio as unknown as HTMLAudioElement);
+		player.setTracks(tracks);
+		await player.play();
+		const before = audio.play.mock.calls.length;
+		player.enterSilentOpening();
+		expect(audio.pause).toHaveBeenCalled();
+		expect(player.getSnapshot()).toMatchObject({ openingAvailable: false, status: "stopped" });
+		await player.playFromControls();
+		await player.autoplay();
+		expect(audio.play).toHaveBeenCalledTimes(before);
+		player.leaveSilentOpening();
+		await Promise.resolve();
+		expect(audio.play).toHaveBeenCalledTimes(before + 1);
+		expect(player.getSnapshot()).toMatchObject({ opening: null, status: "playing" });
 		player.dispose();
 	});
 

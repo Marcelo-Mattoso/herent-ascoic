@@ -1,7 +1,7 @@
 {
   "opening": {
     "audio": {
-      "title": "Antes das Cinzas",
+      "title": "Trilha da abertura",
       "play": "Reproduzir",
       "pause": "Pausar",
       "volume": "Volume",
@@ -30,6 +30,21 @@
       "scene10": "De terras distantes, oito caminhos se aproximam. Nenhum deles foi escolhido pelos deuses. Cada um carrega suas próprias perdas, promessas e razões para lutar.",
       "scene11": "Nas profundezas aguardam monstros, caminhos esquecidos e artefatos perdidos. Além deles, um dragão cujo poder ameaça consumir tudo que vive acima.",
       "scene12": "O que aconteceu, eu registrei. O que acontecerá agora... pertence àqueles que escolherem entrar."
+    },
+    "bruxa": {
+      "title": "A Torre da Grande Bruxa do Caldeirão",
+      "scene01": "Eu registrei a floresta antes do silêncio. Sob a lua, suas raízes guardavam a água, a memória e a vida de tudo o que caminhava entre elas.",
+      "scene02": "Então a água escureceu. Espinhos cresceram onde havia flores, e uma névoa verde ensinou aos animais o gosto do medo.",
+      "scene03": "No coração da mata, uma torre retorcida se ergueu acima das copas. Suas janelas brilhavam, mas nenhuma luz ali prometia abrigo.",
+      "scene04": "No alto da torre, um caldeirão não cessava de ferver. Cada bolha espalhava um feitiço; cada gota derramada reclamava mais um pedaço da floresta.",
+      "scene05": "Sob a pedra, a Aranha Mãe guardava seus ovos. Sua prole transformou antigos caminhos em armadilhas de seda e veneno.",
+      "scene06": "A corrupção avançou pelo pântano e alcançou os últimos refúgios. Se a torre continuasse a espalhar sua névoa, a mata inteira se perderia.",
+      "scene07": "O Guardião do Carvalho ouviu a dor das árvores. Ninguém lhe ordenou lutar: ele escolheu permanecer onde as raízes ainda resistiam.",
+      "scene08": "Sob a Lua Verde, uma Feiticeira reuniu sua magia para desafiar a escuridão. Até mesmo uma noite amaldiçoada podia encontrar resistência.",
+      "scene09": "O Rastejador do Pântano conhecia as trilhas que a água escondia. Entre lama e névoa, encontrou o caminho que levava à torre.",
+      "scene10": "A Irmã das Cinzas Brancas levou consigo aquilo que a maldição não sabia criar: cuidado. Onde o veneno deixava feridas, ela procurava vida.",
+      "scene11": "Quatro caminhos se encontraram diante da mesma torre. Sem profecia nem promessa de vitória, seguiram juntos porque alguém precisava agir.",
+      "scene12": "E, diante do caldeirão, a Grande Bruxa os aguardava. O que aconteceu, eu registrei. O que acontecerá a seguir... pertence às escolhas de vocês."
     }
   },
   "components": {
@@ -552,7 +567,9 @@
           "hint": "Herói Branco · Masmorra Amarela · Recuperação 7 XP"
         }
       },
-      "expansionLabel": "Expansão"
+      "expansionLabel": "Expansão",
+      "chooseBoss": "Escolha seu chefe",
+      "bossHint": "As criaturas, salas, itens e artefatos dependem do chefe escolhido."
     },
     "victory": {
       "kicker": "A lenda foi escrita",

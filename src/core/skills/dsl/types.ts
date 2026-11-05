@@ -93,6 +93,25 @@ export type EffectNode =
 			readonly to: string;
 			readonly amount: ExprNode;
 	  }
+	| { readonly kind: "i_apply_poison"; readonly to: string; readonly damage: ExprNode; readonly rounds: ExprNode }
+	| {
+			readonly kind: "i_poison_ward";
+			readonly to: string;
+			readonly mode: "remove_one" | "block_next" | "reduce_next";
+			readonly value?: number;
+	  }
+	| {
+			readonly kind: "i_apply_damage_over_time";
+			readonly to: string;
+			readonly status: string;
+			readonly effectId?: string;
+			/** Entidade de origem resolvida pelo evaluator, não exigida na carta. */
+			readonly sourceId?: string;
+			readonly damage: ExprNode;
+			readonly rounds: ExprNode;
+			readonly increaseOverTime?: boolean;
+			readonly decreaseOverTime?: boolean;
+	  }
 	| { readonly kind: "i_full_heal"; readonly to: string }
 	| { readonly kind: "i_prevent_destroy"; readonly to: string }
 	// Modificadores / componentes ECS (p_*)
@@ -214,6 +233,7 @@ export type EffectNode =
 	| {
 			readonly kind: "i_remove_status";
 			readonly status: string;
+			readonly to?: string;
 	  };
 
 // ── Trigger v2 (patch-21 Lote B) ────────────────────────────────────────────

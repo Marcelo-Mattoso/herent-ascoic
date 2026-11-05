@@ -46,7 +46,7 @@ test("menu inicial oferece jogar e o PDF de regras em tela pequena", async ({ pa
 	expect((await manual.body()).subarray(0, 4).toString()).toBe("%PDF");
 });
 
-test("a abertura controla trilha exclusiva sem exibir a faixa na playlist comum", async ({ page }) => {
+test("a abertura controla trilha exclusiva e depois permite selecioná-la no menu", async ({ page }) => {
 	await page.goto("/");
 	await page.getByRole("button", { name: "JOGAR" }).click();
 	await page.locator(".setup-hero-select-button").first().click();
@@ -68,6 +68,8 @@ test("a abertura controla trilha exclusiva sem exibir a faixa na playlist comum"
 	await page.getByRole("button", { name: "Pular abertura" }).click();
 	await expect(page.locator(".game-board-root")).toBeVisible();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
-	await expect(page.locator(".global-menu__track")).not.toHaveText("Antes das Cinzas");
-	await expect(page.locator(".global-menu__track")).not.toContainText("Antes das Cinzas");
+	// The opening audio replaces the global player while the story is shown,
+	// but opening tracks have been selectable in the regular playlist since Nov 5.
+	await expect(page.locator(".global-menu__track + label select")).toBeEnabled();
+	await expect(page.locator(".global-menu__track + label select option").filter({ hasText: "Antes das Cinzas" })).toHaveCount(1);
 });

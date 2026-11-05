@@ -13,7 +13,7 @@ import { log, shuffleRng } from "./utils";
 import type { GameHandler, XpSpendOption } from "../gameEngine";
 import type { Action } from "../actions/types";
 import { partyHeroIds } from "./legal";
-import { balanceOf, cardById, cardName, cardsOfType, refRequirementMet, skillsOf } from "../gameEngine";
+import { balanceOf, cardById, cardName, cardsOfType, expansionOf, refRequirementMet, skillsOf } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
 
 import { awakeningOf, deckOf, decksOf, heroesOf, impetoOf, shuffleDeck, withDecks, withAwakening, withDeck, withImpeto, withUnitStats, withWorld, worldOf } from "../state/access";
@@ -73,11 +73,13 @@ export function levelUpHero(engine: GameEngine, state: GameState, heroId: string
 
 // Embaralha as 2 salas de subchefe no deck de dungeon remanescente.
 function injectSubbossRooms(engine: GameEngine, state: GameState): GameState {
-	const subbossRoomIds = cardsOfType(engine, "subboss_room").map((r) => r.id);
+	const expansionId = expansionOf(engine, gameOf(state).bossCardId);
+	const subbossRooms = cardsOfType(engine, "subboss_room").filter((room) => expansionOf(engine, room.id) === expansionId);
+	const subbossRoomIds = subbossRooms.map((room) => room.id);
 	if (subbossRoomIds.length === 0) return state;
 
 	const { available, discarded, removed } = deckOf(state, "dungeonDeck");
-	const subbossRoomNames = cardsOfType(engine, "subboss_room").map((r) => cardName(engine, r.id));
+	const subbossRoomNames = subbossRooms.map((room) => cardName(engine, room.id));
 	return log(
 		shuffleDeck(
 			withDeck(
@@ -210,6 +212,11 @@ export function handleSpendXp(engine: GameEngine,
 		}
 	}
 
+	// Verificar estoque antes do débito de XP: nunca cobrar por um baralho vazio.
+	if (option === "buy_artifact" && deckOf(state, "artifactDeck").available.length === 0) {
+		return log(state, "Nenhum artefato disponível.");
+	}
+
 	let next: GameState = withGame(state, (prevGame) => ({ ...prevGame, groupXp: gameOf(state).groupXp - cost }));
 
 	switch (option) {
@@ -284,8 +291,8 @@ export const progressionHandler: GameHandler = {
 		const costs = balanceOf(engine).xpCosts;
 		const xp = gameOf(state).groupXp;
 		const out: Action[] = [];
-		if (xp >= costs.buy_artifact) {
-			return [{ type: "SPEND_XP", payload: { option: "buy_artifact" } }];
+		if (xp >= costs.buy_artifact && deckOf(state, "artifactDeck").available.length > 0) {
+			out.push({ type: "SPEND_XP", payload: { option: "buy_artifact" } });
 		}
 		if (xp >= costs.level_up) {
 			for (const heroId of heroIds) {

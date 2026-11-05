@@ -267,15 +267,32 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 		);
 	}
 
-	const { available, discarded } = deckOf(state, "enemyDeck");
+	const { available, discarded, removed } = deckOf(state, "enemyDeck");
 	const drawn: string[] = [];
-	const remaining = [...available];
-
-	for (let i = 0; i < regularCount && remaining.length > 0; i++) {
-		drawn.push(remaining.shift() as string);
-	}
-
+	let remaining = [...available];
 	let rng = gameOf(state).rng;
+	let reshuffleCount = 0;
+
+	// O baralho de criaturas não recebe descartes ao final dos combates: as
+	// instâncias compradas saem do deck. Quando acabar, reconstruímos o monte
+	// com todas as criaturas elegíveis da expansão do chefe da partida.
+	// Respeitamos o monte ainda disponível antes de iniciar um novo ciclo.
+	for (let i = 0; i < regularCount; i++) {
+		if (remaining.length === 0) {
+			const expansionId = expansionOf(engine, gameOf(state).bossCardId);
+			const removedIds = new Set(removed);
+			const creatureIds = cardsOfType(engine, "creature")
+				.filter((card) => expansionOf(engine, card.id) === expansionId && !removedIds.has(card.id))
+				.map((card) => card.id);
+			if (creatureIds.length === 0) break;
+			const shuffled = shuffleRng(creatureIds, rng);
+			remaining = shuffled.value;
+			rng = shuffled.next;
+			reshuffleCount++;
+		}
+		const id = remaining.shift();
+		if (id) drawn.push(id);
+	}
 	const enemies: ReturnType<typeof createEnemyFromCard>["enemy"][] = [];
 	for (const id of drawn) {
 		const card = cardById(engine, id);
@@ -297,8 +314,11 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 		rng = next;
 	}
 	state = withGame(state, (prevGame) => ({ ...prevGame, rng }));
+	if (reshuffleCount > 0) {
+		state = log(state, "Baralho de criaturas esgotado. Monstros da expansão reembaralhados.");
+	}
 
-	// Baralho de criaturas esgotado: sem isso o combate abriria sem alvo e travaria.
+	// Se a expansão não tiver criaturas elegíveis, não abrir combate sem alvos.
 	if (enemies.length === 0) {
 		return log(
 			withGame(state, (prevGame) => ({ ...prevGame, status: "REWARD_PHASE" })),
@@ -332,8 +352,8 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 			...decksOf(state),
 			enemyDeck: {
 				available: remaining,
-				discarded,
-				removed: deckOf(state, "enemyDeck").removed,
+				discarded: reshuffleCount > 0 ? [] : discarded,
+				removed,
 			},
 		})), worldWithEnemies);
 	for (const enemy of enemies) {

@@ -151,6 +151,27 @@ describe("kinds genéricos (builtin) — evaluate e resolve", () => {
 		}
 	});
 
+	it("i_apply_damage_over_time registra dados e impede flags contraditórias", () => {
+		const [pushed] = pushedBy({
+			kind: "i_apply_damage_over_time", to: "$target",
+			status: "bleed", damage: 2, rounds: 0,
+			increaseOverTime: true, decreaseOverTime: false,
+		});
+		expect(pushed).toMatchObject({
+			kind: "i_apply_damage_over_time", to: "e1",
+			status: "bleed", damage: 2, rounds: 0,
+			increaseOverTime: true, decreaseOverTime: false,
+			sourceId: "h1", effectId: "skill_teste",
+		});
+		const applied = resolveWith(baseState(), pushed as Record<string, unknown>);
+		expect(enemiesOf(applied)[0]?.conditions).toHaveLength(1);
+		expect(enemiesOf(applied)[0]?.conditions[0]).toContain("dot:v1:");
+		expect(() => testEngine.kinds.validateAll([{
+			kind: "i_apply_damage_over_time", to: "$target", status: "burn",
+			damage: 1, rounds: 2, increaseOverTime: true, decreaseOverTime: true,
+		}], "invalid DoT")).toThrow();
+	});
+
 	it("i_heal e i_full_heal", () => {
 		expect(pushedBy({ kind: "i_heal", to: "$source", amount: 3 })).toEqual([
 			{ kind: "i_heal", to: "h1", amount: 3 },
@@ -338,7 +359,7 @@ describe("kinds genéricos (builtin) — evaluate e resolve", () => {
 		expect(enemiesOf(dispelled)[0]?.conditions).toEqual([]);
 
 		expect(pushedBy({ kind: "i_remove_status", status: "stun" })).toEqual([
-			{ kind: "i_remove_status", status: "stun" },
+			{ kind: "i_remove_status", status: "stun", to: "e1" },
 		]);
 		const removed = resolveWith(state, {
 			kind: "i_remove_status",

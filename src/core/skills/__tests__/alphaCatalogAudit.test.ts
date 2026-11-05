@@ -34,9 +34,9 @@ describe("auditoria estrutural do catálogo Alpha", () => {
 		console.info(`CATÁLOGO ALPHA: ${cards.length} cartas; ${skillIds.length} skills; ${abilityIds.length} abilities; ${getCardsByType("item").length} itens; ${getCardsByType("hero").length} heróis`);
 	});
 
-	it("os oito heróis expõem habilidade e poder na projeção do motor", () => {
+	it("os doze heróis expõem habilidade e poder na projeção do motor", () => {
 		const heroes = getCardsByType("hero");
-		expect(heroes).toHaveLength(8);
+		expect(heroes).toHaveLength(12);
 		for (const card of heroes) {
 			const base = createInitialGameState({ heroCardIds: [card.id] });
 			const state = reducer(testEngine, base, { type: "START_GAME", payload: { heroCardIds: [card.id] } });

@@ -6,7 +6,6 @@ import { publishedLocales } from "@/i18n/registry";
 import { AUDIO_CONFIG } from "@/config/audio";
 import { publicAssetUrl } from "@/ui/publicAssetUrl";
 import { getMusicPlayer, isMusicManifest, MUSIC_MANIFEST_URL } from "./musicPlayer";
-import { getOpeningMusicFileNames } from "@/ui/openings/registry";
 import { sfxPlayer } from "@/ui/audio/sfxPlayer";
 
 const MANUAL_URL = publicAssetUrl("rules/ascensao-heroica-manual.pdf");
@@ -39,7 +38,7 @@ export function GlobalMenu() {
 			})
 			.then((data: unknown) => {
 				if (!isMusicManifest(data)) throw new Error("Manifesto inválido");
-				player.setTracks(data.tracks, getOpeningMusicFileNames());
+				player.setTracks(data.tracks);
 				void player.autoplay();
 			})
 			.catch(() => {

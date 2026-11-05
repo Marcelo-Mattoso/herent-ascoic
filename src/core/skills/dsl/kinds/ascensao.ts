@@ -2,6 +2,8 @@ import { z } from "zod";
 import { defineCondition, type RefResolver } from "../../../../engine/kinds";
 import type { GameKindPackage } from "../../../gameEngine";
 import { recordEvent } from "../../../events/record";
+import { applyPoisonStatus } from "../../../rules/poison";
+import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
 import type { ColorIndex } from "../../../state/color";
@@ -520,13 +522,13 @@ const hasCondition = defineCondition<never, never, EvalCtx>({
 		const entityId = resolveEntityRef(of, ctx);
 		if (!entityId) return false;
 		const hero = heroesOf(ctx.state).find((h) => h.id === entityId);
-		if (hero) return hero.conditions.includes(conditionType);
+		if (hero) return hero.conditions.some((value) => value === conditionType || matchesDamageOverTimeStatus(value, conditionType));
 		const enemy = enemiesOf(ctx.state).find((e) => e.id === entityId);
 		if (!enemy) return false;
 		if (conditionType === "boss_or_subboss") {
 			return enemy.id === "boss" || Boolean(enemy.isSubboss);
 		}
-		return enemy.conditions.includes(conditionType);
+		return enemy.conditions.some((value) => value === conditionType || matchesDamageOverTimeStatus(value, conditionType));
 	},
 });
 
@@ -642,9 +644,123 @@ const ascensaoRefs: RefResolver<EvalCtx>[] = [
 	},
 ];
 
+const applyDamageOverTimeKind = effectKind({
+	kind: "i_apply_damage_over_time",
+	schema: z.object({
+		kind: z.literal("i_apply_damage_over_time"),
+		to: z.string(),
+		status: z.string().min(1),
+		effectId: z.string().min(1).optional(),
+		damage: ExprNodeSchema,
+		rounds: ExprNodeSchema,
+		increaseOverTime: z.boolean().optional(),
+		decreaseOverTime: z.boolean().optional(),
+	}).refine((value) => !(value.increaseOverTime && value.decreaseOverTime), {
+		message: "increaseOverTime e decreaseOverTime não podem ser true simultaneamente",
+	}),
+	evaluate: (node, ctx) => {
+		const to = resolveEntityRef(node.to, ctx);
+		if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
+		return ctx.action.pushEffect({
+			kind: "i_apply_damage_over_time", to,
+			status: node.status, effectId: node.effectId ?? ctx.skillId,
+			sourceId: ctx.sourceId ?? "system",
+			damage: resolveExpr(node.damage, ctx),
+			rounds: resolveExpr(node.rounds, ctx),
+			increaseOverTime: node.increaseOverTime ?? false,
+			decreaseOverTime: node.decreaseOverTime ?? false,
+		});
+	},
+	resolve: (state, effect) => applyDamageOverTimeStatus(
+		state, targetOf(effect) ?? "", {
+			status: String(effect["status"] ?? ""),
+			sourceId: String(effect["sourceId"] ?? ""),
+			effectId: String(effect["effectId"] ?? ""),
+			damage: Number(effect["damage"]),
+			rounds: Number(effect["rounds"]),
+			increaseOverTime: effect["increaseOverTime"] === true,
+			decreaseOverTime: effect["decreaseOverTime"] === true,
+		},
+	),
+});
+
+
+/** Generic poison ward and selective stack removal for expansion items. */
+const poisonWardKind = effectKind({
+  kind: "i_poison_ward",
+  schema: z.object({
+    kind: z.literal("i_poison_ward"),
+    to: z.string(),
+    mode: z.enum(["remove_one", "block_next", "reduce_next"]),
+    value: z.number().int().positive().default(1),
+  }),
+  evaluate: (node, ctx) => {
+    const to = resolveEntityRef(node.to, ctx);
+    if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
+    return ctx.action.pushEffect({ kind: "i_poison_ward", to, mode: node.mode, value: node.value });
+  },
+  resolve: (state, effect) => {
+    const entity = targetOf(effect);
+    const mode = String(effect["mode"]);
+    const amount = Number(effect["value"] ?? 1);
+    const unit = [...heroesOf(state), ...enemiesOf(state)].find(u => u.id === entity);
+    if (!unit || !Number.isSafeInteger(amount) || amount < 1) return state;
+    if (mode === "remove_one") {
+      const index = unit.conditions.findIndex(c => matchesDamageOverTimeStatus(c, "poison") || c.startsWith("poison:"));
+      if (index < 0) return state;
+      return withUnitStats(state, unit.id, { conditions: unit.conditions.filter((_, i) => i !== index) });
+    }
+    const prefix = "poison_ward:" + mode + ":";
+    const existing = unit.conditions.find(c => c.startsWith(prefix));
+    const previous = existing ? Number(existing.slice(prefix.length)) : 0;
+    return withUnitStats(state, unit.id, {
+      conditions: [...unit.conditions.filter(c => !c.startsWith(prefix)), prefix + (Math.max(0, previous) + amount)],
+    });
+  },
+});
+
+const hasDotStacks = defineCondition<never, never, EvalCtx>({
+  kind: "has_dot_stacks",
+  schema: z.object({
+    kind: z.literal("has_dot_stacks"),
+    of: z.string(),
+    status: z.string().min(1),
+    minimum: z.number().int().positive(),
+  }),
+  test: (node, ctx) => {
+    const id = resolveEntityRef(node["of"] as string, ctx);
+    const unit = [...heroesOf(ctx.state), ...enemiesOf(ctx.state)].find(u => u.id === id);
+    if (!unit) return false;
+    const status = String(node["status"]);
+    const count = unit.conditions.filter(raw => parseDamageOverTimeCondition(raw)?.status === status ||
+      (status === "poison" && raw.startsWith("poison:"))).length;
+    return count >= Number(node["minimum"]);
+  },
+});
+
+const applyPoisonKind = effectKind({
+	kind: "i_apply_poison",
+	schema: z.object({ kind: z.literal("i_apply_poison"), to: z.string(), damage: ExprNodeSchema, rounds: ExprNodeSchema }),
+	evaluate: (node, ctx) => {
+		const to = resolveEntityRef(node.to, ctx);
+		if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
+		return ctx.action.pushEffect({
+			kind: "i_apply_poison", to,
+			damage: resolveExpr(node.damage, ctx), rounds: resolveExpr(node.rounds, ctx),
+		});
+	},
+	resolve: (state, effect) => applyPoisonStatus(
+		state, targetOf(effect) ?? "", Number(effect["damage"]), Number(effect["rounds"]),
+	),
+});
+
 export const ascensaoPackage: GameKindPackage = {
 	id: "ascensao-heroica",
 	kinds: [
+		poisonWardKind,
+		hasDotStacks as unknown as GameKind,
+		applyDamageOverTimeKind,
+		applyPoisonKind,
 		advanceDungeon,
 		recoverDungeon,
 		revealDungeon,
