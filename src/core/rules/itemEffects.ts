@@ -389,11 +389,19 @@ function itemSkillSourcesForHero(engine: GameEngine,
 		// Grants explícitos já descrevem todo o comportamento da carta. Os
 		// SkillRefs ficam apenas para compatibilidade e não devem duplicá-lo.
 		if (item?.type === "item" && item.grants?.length) {
-            const granted = new Set(item.grants.map(grant => grant.abilityId));
-            sources.push(...skillSourcesForCard(engine, itemId, "item", itemId, hero.id)
-                .filter(source => !granted.has(source.def.id)));
-            continue;
-        }
+			// Grants are the single source of truth for legacy items; counting
+			// both grants and skill refs duplicates their bonuses. Expansion
+			// witch_ skills may accompany a separate manual grant, so include
+			// only those extra refs which are not themselves granted.
+			const granted = new Set(item.grants.map((grant) => grant.abilityId));
+			sources.push(
+				...skillSourcesForCard(engine, itemId, "item", itemId, hero.id)
+					.filter((source) =>
+						source.def.id.startsWith("witch_") && !granted.has(source.def.id),
+					),
+			);
+			continue;
+		}
 		sources.push(...skillSourcesForCard(engine, itemId, "item", itemId, hero.id));
 	}
 

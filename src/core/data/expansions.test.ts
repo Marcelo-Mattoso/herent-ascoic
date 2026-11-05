@@ -5,10 +5,10 @@ import { getEnabledExpansions, getExpansionCardMetadata } from "./expansions";
 describe("pacotes de expansão", () => {
 	it("carrega a Fornalha Sombria sem alterar os 80 IDs originais", () => {
 		expect(getEnabledExpansions().map((pack) => pack.id)).toEqual(["fornalha-sombria", "torre-grande-bruxa-caldeirao"]);
-		expect(getAllCards()).toHaveLength(145);
+		expect(getAllCards()).toHaveLength(147);
 		expect(getEnabledExpansions()[0]?.boss).toBe("boss.json");
 		expect(getEnabledExpansions()[0]?.cards.some((card) => card.type === "boss")).toBe(false);
-		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(145);
+		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(147);
 	});
 
 	it("mantém atributos de combate e referências de habilidades", () => {
@@ -27,16 +27,16 @@ describe("pacotes de expansão", () => {
 	it("usa apenas a pasta images, sem subpastas por categoria", () => {
 		const paths = getAllCards().map((card) => getExpansionCardMetadata(card.id)?.image)
 			.filter((image) => image !== undefined);
-		expect(paths.length).toBe(143);
+		expect(paths.length).toBe(145);
 		for (const image of paths) {
 			expect(image).toMatch(/^images\/[^/]+\.webp$/);
 		}
 	});
-	it("Torre da Bruxa v1.3: 18 criaturas, 10 salas, 24 itens e 4 artefatos", () => {
+	it("Torre da Bruxa v1.4: 18 criaturas, 10 salas, 26 itens e 4 artefatos", () => {
 		const witch = getEnabledExpansions().find((entry) => entry.id === "torre-grande-bruxa-caldeirao");
-		expect(witch?.cards).toHaveLength(64);
-		expect(witch?.version).toBe("1.3.0");
-		for (const [type, amount] of Object.entries({ hero: 4, creature: 18, subboss: 2, room: 10, subboss_room: 2, item: 24, artifact: 4 })) {
+		expect(witch?.cards).toHaveLength(66);
+		expect(witch?.version).toBe("1.4.0");
+		for (const [type, amount] of Object.entries({ hero: 4, creature: 18, subboss: 2, room: 10, subboss_room: 2, item: 26, artifact: 4 })) {
 			expect(witch?.cards.filter((card) => card.type === type), type).toHaveLength(amount);
 		}
 		for (const id of ["room_spider_egg_gallery", "room_witch_herbarium"]) {
