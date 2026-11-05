@@ -56,6 +56,7 @@ import type { HeroRecord, HeroState } from "../state/heroState";
 import { selectTargetHero } from "../strategies/targetSelection";
 import { applyDamage } from "../systems/damageSystem";
 import { resolvePoisonRound } from "../rules/poison";
+import { resolveDamageOverTimeRound, clearDamageOverTime } from "../rules/damageOverTime";
 import { applyHeal } from "../systems/healSystem";
 import { recordEvent } from "../events/record";
 import { log } from "./utils";
@@ -1262,7 +1263,7 @@ export function handleCheckCombatEnd(engine: GameEngine, state: GameState): Game
 		!allEnemiesDone
 	) {
 		return log(
-			withGame(state, (prevGame) => ({ ...prevGame, status: "DUNGEON_RESTART_PROMPT" })),
+			withGame(clearDamageOverTime(state), (prevGame) => ({ ...prevGame, status: "DUNGEON_RESTART_PROMPT" })),
 			"Todos os heróis fugiram. Reiniciar masmorra?",
 		);
 	}
@@ -1270,14 +1271,14 @@ export function handleCheckCombatEnd(engine: GameEngine, state: GameState): Game
 	const heroDefeated = heroesOf(state).every((h) => h.status !== "active");
 
 	if (heroDefeated && fledHeroesOf(state).length === 0) {
-		return log(withGame(state, (prevGame) => ({ ...prevGame, status: "DEFEAT" })), "Derrota: herói eliminado.");
+		return log(withGame(clearDamageOverTime(state), (prevGame) => ({ ...prevGame, status: "DEFEAT" })), "Derrota: herói eliminado.");
 	}
 
 	if (allEnemiesDone) {
 		const defeated = gameOf(state).activeEnemies.filter((e) => e.status === "defeated");
 		// Inimigos que fugiram voltam ao deck
 		const fled = enemiesOf(state).filter((e) => e.status === "fled");
-		let next = state;
+		let next = clearDamageOverTime(state);
 		if (fled.length > 0) {
 			const fleeIds = fled.map((e) => e.cardId);
 			next = shuffleDeck(
@@ -1327,6 +1328,7 @@ export function handleCheckCombatEnd(engine: GameEngine, state: GameState): Game
 	if (pendingTriggerInterruptOf(nextState)) return nextState;
 	nextState = drainStack(engine, nextState);
 	nextState = resolvePoisonRound(engine, nextState);
+	nextState = resolveDamageOverTimeRound(engine, nextState);
 	if (heroesOf(nextState).every((hero) => hero.status !== "active") ||
 		enemiesOf(nextState).every((enemy) => enemy.status !== "active")) {
 		return handleCheckCombatEnd(engine, nextState);

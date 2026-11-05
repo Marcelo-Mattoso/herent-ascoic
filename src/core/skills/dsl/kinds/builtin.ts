@@ -8,6 +8,7 @@ import {
 	upsertEntity,
 } from "../../../ecs/world";
 import { log } from "../../../reducer/utils";
+import { matchesDamageOverTimeStatus } from "../../../rules/damageOverTime";
 import { skillById, skillOptionLabel } from "../../../gameEngine";
 import type { GameKindPackage } from "../../../gameEngine";
 import { applyDamage } from "../../../systems/damageSystem";
@@ -568,7 +569,7 @@ const dispel = effectKind({
 		let next = state;
 		for (const unit of [...heroesOf(state), ...enemiesOf(state)]) {
 			next = withUnitStats(next, unit.id, {
-				conditions: unit.conditions.filter((c) => !c.startsWith(category)),
+				conditions: unit.conditions.filter((c) => !c.startsWith(category) && !matchesDamageOverTimeStatus(c, category)),
 			});
 		}
 		return log(next, `Dispel: categoria "${category}" removida.`);
@@ -580,13 +581,17 @@ const removeStatus = effectKind({
 	schema: z.object({
 		kind: z.literal("i_remove_status"),
 		status: z.string(),
+		to: z.string().optional(),
 	}),
-	evaluate: (node, ctx) =>
-		ctx.action.pushEffect({
+	evaluate: (node, ctx) => {
+		const to = node.to ? resolveEntityRef(node.to, ctx) : (ctx.targetId ?? ctx.sourceId);
+		if (node.to && !to) return unresolvedEntityRef(ctx, node.kind, node.to);
+		return ctx.action.pushEffect({
 			kind: "i_remove_status",
 			status: node.status,
-		...(node.status === "poison" && (ctx.targetId ?? ctx.sourceId) ? { to: ctx.targetId ?? ctx.sourceId } : {}),
-		}),
+			...(to ? { to } : {}),
+		});
+	},
 	resolve: (state, effect) => {
 		const status = effect["status"] as string;
 		const targetId = (effect["to"] ?? effect["targetId"]) as string | undefined;
@@ -597,7 +602,7 @@ const removeStatus = effectKind({
 				enemiesOf(next).find((e) => e.id === targetId);
 			if (unit) {
 				next = withUnitStats(next, unit.id, {
-					conditions: unit.conditions.filter((c) => status === "poison" ? !c.startsWith("poison:") : c !== status),
+					conditions: unit.conditions.filter((c) => !(status === "poison" && c.startsWith("poison:")) && c !== status && !matchesDamageOverTimeStatus(c, status)),
 				});
 			}
 		}
