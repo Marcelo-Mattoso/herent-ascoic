@@ -105,8 +105,10 @@ test("apresenta a historia exclusiva da Bruxa antes de iniciar o jogo", async ({
 	await expect(page.locator(".story-opening__audio")).toBeVisible();
 	await expect(page.locator(".story-opening__audio input[type='range']")).toHaveValue("50");
 	await expect(page.locator(".story-opening__audio button")).toBeVisible();
-	await page.locator(".story-opening__audio input[type='range']").fill("35");
-	await expect(page.locator(".story-opening__audio input[type='range']")).toHaveValue("35");
+	const volumeControl = page.locator(".story-opening__audio input[type='range']");
+	await volumeControl.focus();
+	await volumeControl.press("ArrowLeft");
+	await expect(volumeControl).toHaveValue("49");
 	const audioLabel = page.locator(".story-opening__audio");
 	await expect(audioLabel).toContainText("Antes das Cinzas");
 	await expect(page.locator(".story-opening__image")).toBeVisible();
