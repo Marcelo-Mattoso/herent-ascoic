@@ -95,6 +95,12 @@ export type EffectNode =
 	  }
 	| { readonly kind: "i_apply_poison"; readonly to: string; readonly damage: ExprNode; readonly rounds: ExprNode }
 	| {
+			readonly kind: "i_poison_ward";
+			readonly to: string;
+			readonly mode: "remove_one" | "block_next" | "reduce_next";
+			readonly value?: number;
+	  }
+	| {
 			readonly kind: "i_apply_damage_over_time";
 			readonly to: string;
 			readonly status: string;
