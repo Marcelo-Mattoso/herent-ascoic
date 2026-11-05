@@ -205,7 +205,7 @@ describe("recompensas e inventário", () => {
 				deferInitialRoomReveal: true,
 			},
 		});
-		const funded = withGame(started, (game) => ({ ...game, status: "XP_SPEND_PHASE", groupXp: 35 }));
+		const funded = withGame(started, (game) => ({ ...game, status: "XP_SPEND_PHASE" as const, groupXp: 35 }));
 		expect(deckOf(funded, "artifactDeck").available).toHaveLength(4);
 		const bought = handleSpendXp(testEngine, funded, "buy_artifact");
 		expect(gameOf(bought).groupXp).toBe(0);
