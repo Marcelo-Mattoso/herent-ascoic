@@ -99,6 +99,8 @@ export type EffectNode =
 			readonly to: string;
 			readonly status: string;
 			readonly effectId?: string;
+			/** Entidade de origem resolvida pelo evaluator, não exigida na carta. */
+			readonly sourceId?: string;
 			readonly damage: ExprNode;
 			readonly rounds: ExprNode;
 			readonly increaseOverTime?: boolean;
