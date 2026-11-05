@@ -57,7 +57,7 @@ export function StoryOpening({ opening, onComplete }: StoryOpeningProps) {
 					</span>
 				</header>
 				{opening.musicFileName && <div className="story-opening__audio" role="group" aria-label={translate("game:opening.audio.title")}>
-					<span className="story-opening__audio-title">{opening.musicFileName.replace(/\\.mp3$/i, "")}</span>
+					<span className="story-opening__audio-title">{opening.musicFileName.replace(/\.mp3$/i, "")}</span>
 					<button type="button" disabled={!music.openingAvailable} onClick={() => musicPlaying ? player.pauseOpening() : void player.playOpening()}>
 						{translate(musicPlaying ? "game:opening.audio.pause" : "game:opening.audio.play")}
 					</button>
