@@ -3,6 +3,7 @@ import { defineCondition, type RefResolver } from "../../../../engine/kinds";
 import type { GameKindPackage } from "../../../gameEngine";
 import { recordEvent } from "../../../events/record";
 import { applyPoisonStatus } from "../../../rules/poison";
+import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
 import type { ColorIndex } from "../../../state/color";
@@ -521,13 +522,13 @@ const hasCondition = defineCondition<never, never, EvalCtx>({
 		const entityId = resolveEntityRef(of, ctx);
 		if (!entityId) return false;
 		const hero = heroesOf(ctx.state).find((h) => h.id === entityId);
-		if (hero) return hero.conditions.includes(conditionType);
+		if (hero) return hero.conditions.some((value) => value === conditionType || matchesDamageOverTimeStatus(value, conditionType));
 		const enemy = enemiesOf(ctx.state).find((e) => e.id === entityId);
 		if (!enemy) return false;
 		if (conditionType === "boss_or_subboss") {
 			return enemy.id === "boss" || Boolean(enemy.isSubboss);
 		}
-		return enemy.conditions.includes(conditionType);
+		return enemy.conditions.some((value) => value === conditionType || matchesDamageOverTimeStatus(value, conditionType));
 	},
 });
 
@@ -643,6 +644,46 @@ const ascensaoRefs: RefResolver<EvalCtx>[] = [
 	},
 ];
 
+const applyDamageOverTimeKind = effectKind({
+	kind: "i_apply_damage_over_time",
+	schema: z.object({
+		kind: z.literal("i_apply_damage_over_time"),
+		to: z.string(),
+		status: z.string().min(1),
+		effectId: z.string().min(1).optional(),
+		damage: ExprNodeSchema,
+		rounds: ExprNodeSchema,
+		increaseOverTime: z.boolean().optional(),
+		decreaseOverTime: z.boolean().optional(),
+	}).refine((value) => !(value.increaseOverTime && value.decreaseOverTime), {
+		message: "increaseOverTime e decreaseOverTime não podem ser true simultaneamente",
+	}),
+	evaluate: (node, ctx) => {
+		const to = resolveEntityRef(node.to, ctx);
+		if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
+		return ctx.action.pushEffect({
+			kind: "i_apply_damage_over_time", to,
+			status: node.status, effectId: node.effectId ?? ctx.skillId,
+			sourceId: ctx.sourceId ?? "system",
+			damage: resolveExpr(node.damage, ctx),
+			rounds: resolveExpr(node.rounds, ctx),
+			increaseOverTime: node.increaseOverTime ?? false,
+			decreaseOverTime: node.decreaseOverTime ?? false,
+		});
+	},
+	resolve: (state, effect) => applyDamageOverTimeStatus(
+		state, targetOf(effect) ?? "", {
+			status: String(effect["status"] ?? ""),
+			sourceId: String(effect["sourceId"] ?? ""),
+			effectId: String(effect["effectId"] ?? ""),
+			damage: Number(effect["damage"]),
+			rounds: Number(effect["rounds"]),
+			increaseOverTime: effect["increaseOverTime"] === true,
+			decreaseOverTime: effect["decreaseOverTime"] === true,
+		},
+	),
+});
+
 const applyPoisonKind = effectKind({
 	kind: "i_apply_poison",
 	schema: z.object({ kind: z.literal("i_apply_poison"), to: z.string(), damage: ExprNodeSchema, rounds: ExprNodeSchema }),
@@ -662,6 +703,7 @@ const applyPoisonKind = effectKind({
 export const ascensaoPackage: GameKindPackage = {
 	id: "ascensao-heroica",
 	kinds: [
+		applyDamageOverTimeKind,
 		applyPoisonKind,
 		advanceDungeon,
 		recoverDungeon,

@@ -94,6 +94,16 @@ export type EffectNode =
 			readonly amount: ExprNode;
 	  }
 	| { readonly kind: "i_apply_poison"; readonly to: string; readonly damage: ExprNode; readonly rounds: ExprNode }
+	| {
+			readonly kind: "i_apply_damage_over_time";
+			readonly to: string;
+			readonly status: string;
+			readonly effectId?: string;
+			readonly damage: ExprNode;
+			readonly rounds: ExprNode;
+			readonly increaseOverTime?: boolean;
+			readonly decreaseOverTime?: boolean;
+	  }
 	| { readonly kind: "i_full_heal"; readonly to: string }
 	| { readonly kind: "i_prevent_destroy"; readonly to: string }
 	// Modificadores / componentes ECS (p_*)
