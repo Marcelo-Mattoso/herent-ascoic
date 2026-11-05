@@ -102,5 +102,8 @@
       "transition": "fade",
       "transitionMs": 450
     }
-  ]
+  ],
+  "audio": {
+    "fileName": "Antes das Cinzas.mp3"
+  }
 }

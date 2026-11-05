@@ -102,7 +102,13 @@ test("apresenta a historia exclusiva da Bruxa antes de iniciar o jogo", async ({
 	await expect(page.locator(".story-opening")).toHaveAttribute("data-scene-id", "scene-01");
 	await expect(page.getByRole("heading", { name: "A Torre da Grande Bruxa do Caldeirão" })).toBeVisible();
 	await expect(page.getByText("Eu registrei a floresta antes do silêncio.", { exact: false })).toBeVisible();
-	await expect(page.locator(".story-opening__audio")).toHaveCount(0);
+	await expect(page.locator(".story-opening__audio")).toBeVisible();
+	await expect(page.locator(".story-opening__audio input[type='range']")).toHaveValue("50");
+	await expect(page.locator(".story-opening__audio button")).toBeVisible();
+	await page.locator(".story-opening__audio input[type='range']").fill("35");
+	await expect(page.locator(".story-opening__audio input[type='range']")).toHaveValue("35");
+	const audioLabel = page.locator(".story-opening__audio");
+	await expect(audioLabel).toContainText("Antes das Cinzas");
 	await expect(page.locator(".story-opening__image")).toBeVisible();
 	const source = await page.locator(".story-opening__image").getAttribute("src");
 	expect(source).toContain("/generated/openings/assets/torre-grande-bruxa-caldeirao/abertura/images/scene-01.webp");
