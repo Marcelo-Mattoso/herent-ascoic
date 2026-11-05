@@ -18,7 +18,7 @@ describe("aberturas registradas por chefe", () => {
 	it("carrega as doze cenas da Bruxa com seu próprio roteiro", () => {
 		const opening = getOpeningForBoss("boss_great_cauldron_witch");
 		expect(opening?.titleKey).toBe("game:opening.bruxa.title");
-		expect(opening?.musicFileName).toBe("Antes das Cinzas.mp3");
+		expect(opening?.musicFileName).toBe("O Sussurro da Lua Verde.mp3");
 		expect(opening?.scenes).toHaveLength(12);
 		expect(opening?.scenes.map((scene) => scene.textKey)).toEqual(
 			Array.from({ length: 12 }, (_, index) => `game:opening.bruxa.scene${String(index + 1).padStart(2, "0")}`),

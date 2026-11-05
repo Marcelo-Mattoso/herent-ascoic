@@ -110,7 +110,7 @@ test("apresenta a historia exclusiva da Bruxa antes de iniciar o jogo", async ({
 	await volumeControl.press("ArrowLeft");
 	await expect(volumeControl).toHaveValue("49");
 	const audioLabel = page.locator(".story-opening__audio");
-	await expect(audioLabel).toContainText("Antes das Cinzas");
+	await expect(audioLabel).toContainText("O Sussurro da Lua Verde");
 	await expect(page.locator(".story-opening__image")).toBeVisible();
 	const source = await page.locator(".story-opening__image").getAttribute("src");
 	expect(source).toContain("/generated/openings/assets/torre-grande-bruxa-caldeirao/abertura/images/scene-01.webp");
