@@ -23,4 +23,19 @@ describe("detalhes de equipamento com ação manual", () => {
 		render(<CardDetailModal cardId="item_rift_bow" cardType="item" onClose={vi.fn()} />);
 		expect(screen.queryByRole("button", { name: /usar/i })).toBeNull();
 	});
+	it("oferece Usar no artefato com habilidade manual", () => {
+		const onUseArtifact = vi.fn();
+		render(<CardDetailModal cardId="artifact_corrupted_forest_heart" cardType="artifact"
+			onClose={vi.fn()} onUseArtifact={onUseArtifact} />);
+		fireEvent.click(screen.getByRole("button", { name: "Usar" }));
+		expect(onUseArtifact).toHaveBeenCalledOnce();
+	});
+
+	it("mostra motivo e desabilita o artefato sem alvo válido", () => {
+		render(<CardDetailModal cardId="artifact_corrupted_forest_heart" cardType="artifact"
+			onClose={vi.fn()} artifactUseReason="É necessário um inimigo vivo envenenado." />);
+		expect(screen.getByRole("button", { name: "Usar" }).hasAttribute("disabled")).toBe(true);
+		expect(screen.getByText(/inimigo vivo envenenado/)).toBeTruthy();
+	});
+
 });
