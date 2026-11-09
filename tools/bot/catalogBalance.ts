@@ -3,6 +3,7 @@ import { getAllCards } from "@/core/data/cards";
 import { getEnabledExpansions, getExpansionCardMetadata } from "@/core/data/expansions";
 import type { AnyCard, CreatureCard, HeroCard, ItemCard, RoomCard, SubbossCard, SubbossRoomCard } from "@/core/data/cardTypes";
 import { SKILLS } from "@/core/data/skills";
+import { getSkillLocale } from "@/core/data/skillLocale";
 
 export type ThreatBand = "easy" | "medium" | "hard";
 
@@ -133,7 +134,7 @@ function describeSkills(card: AnyCard): SkillAudit[] {
 				(ability?.script || legacy?.script ? 1.5 : 0);
 			return {
 				id: grant.abilityId,
-				name: legacy?.id ?? grant.abilityId,
+				name: getSkillLocale(grant.abilityId).name ?? getSkillLocale(grant.abilityId).label ?? legacy?.id ?? grant.abilityId,
 				activation: grant.activation.kind,
 				trigger: grant.activation.event ?? legacy?.trigger?.event ?? null,
 				effectKinds: kinds,
@@ -280,7 +281,8 @@ function pctDelta(value: number, base: number): string {
 }
 
 function skillNames(skills: readonly SkillAudit[]): string {
-	return skills.map((s) => s.id + (s.trigger ? " [" + s.trigger + "]" : "")).join(", ") || "—";
+	return skills.map((s) => (s.name === s.id ? s.id : s.name + " (" + s.id + ")") +
+		(s.trigger ? " [" + s.trigger + "]" : "")).join(", ") || "—";
 }
 
 function markdownTable(header: readonly string[], rows: readonly (readonly unknown[])[]): string[] {
