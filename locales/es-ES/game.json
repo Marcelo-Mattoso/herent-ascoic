@@ -56,9 +56,9 @@
       "shared": "Compartido por el grupo",
       "hint": "Los efectos respetan sus condiciones y momentos de activación; no ocupan las ranuras de equipo normales.",
       "ariaLabel": "Artefactos del grupo",
-      "inspect": "Ver {{name}}",
+      "inspect": "Consultar {{name}}",
       "activateTitle": "Activar habilidad del artefacto",
-      "use": "Usar",
+      "use": "Utilizar",
       "passiveReactive": "Pasivo / reactivo",
       "useTitle": "Usar artefacto"
     },
@@ -406,11 +406,11 @@
     },
     "statusBadge": {},
     "useArtifactModal": {
-      "title": "Usar {{name}}",
+      "title": "Utilizar {{name}}",
       "unavailable": "Activación no disponible.",
       "chooseTarget": "Elige el objetivo de la habilidad:",
-      "confirm": "Confirmar uso",
-      "cancel": "Cancelar"
+      "confirm": "Confirmar activación",
+      "cancel": "Volver"
     }
   },
   "screens": {
