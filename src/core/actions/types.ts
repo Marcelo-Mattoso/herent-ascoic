@@ -73,7 +73,7 @@ export type Action =
 			};
 	  }
 	| { type: "USE_POWER"; payload: { heroId: string } }
-	| { type: "USE_ARTIFACT"; payload: { artifactId: string; targetEnemyId: string } }
+	| { type: "USE_ARTIFACT"; payload: { artifactId: string; abilityId: string; targetEnemyId?: string; targetHeroId?: string } }
 	| { type: "GRANT_REWARDS" }
 	| {
 			type: "CHOOSE_ITEM_DESTINATION";
