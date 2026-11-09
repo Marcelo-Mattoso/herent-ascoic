@@ -106,6 +106,20 @@ npm run bot:catalog-report
 
 O comando lê **todas as expansões habilitadas**, sem jogar partidas, e salva `tools/bot/runs/catalog-<data>/report.json`. Esse JSON também aparece no histórico do viewer; por não ter simulações, exibe traços nas células de vitórias. Para popular as porcentagens, rode **`npm run bot:leveling-report`**.
 
+### Leveling 2.0 — índice adicional por fase
+
+A auditoria do catálogo e o relatório completo agora incorporam `catalog.levelingVersion`, `catalog.combatWeights` e `leveling` em heróis, criaturas, subchefes e salas. Os campos de score e faixas da auditoria original permanecem para compatibilidade com JSONs anteriores. Relatórios antigos ainda abrem, mas não apresentam o painel Leveling 2.0.
+
+- **Pesos padrão configuráveis no código:** vida 20, dano efetivo 30, chance de acerto 20, quantidade de dados 15, defesa efetiva 15; consultar `tools/bot/levelingScore.ts`. Os cinco componentes são normalizados. Alterações nesses pesos exigem novo relatório JSON.
+- **Combate:** probabilidades calculadas pela distribuição exata de dados d6 e bônus das cartas nas cinco cores. Empate causa 1 ponto de dano para cada lado. Dano e defesa são expectativas contra uma carta de referência da Fornalha, **não previsões universais** nem probabilidades de vitória.
+- **Fases:** heróis apresentam notas de combate, descarte, sobrevivência, utilidade e progressão; habilidades são detalhadas por impacto, frequência, condições, limites, custos e consumo. Scripts e tipos de efeito desconhecidos geram alertas de estimativa incompleta. Habilidades de Despertar só são agregadas à cor roxa.
+- **Salas:** notas de ameaça 0–100 por 1–4 jogadores e cinco cores; o modelo usa o conjunto médio de criaturas da expansão, não simula encontros reais. Criaturas especiais, invocações e sinergias devem ser revisadas por playtest.
+- **Chefes finais:** não são pontuados. Subchefes são auditados em sua categoria própria.
+- **Interpretação:** notas são heurísticas para diagnóstico comparativo. Não equivalem a porcentagens de vitória; resultados reais continuam no quadro de simulação. Um herói especializado pode ter pontuação zero em uma dimensão e ser viável na equipe.
+- **Reprodutibilidade:** os índices dependem da versão declarada e das cartas de referência, preservando o histórico por JSON. A primeira criatura e o primeiro herói da base são a referência adversária fixa nesta versão; escolha de referência mais robusta é uma etapa de calibração futura.
+
+Nada nesta funcionalidade altera valores das cartas, resolve combates no jogo, muda JSONs de produção ou executa testes automaticamente. Para validar localmente, execute sua suíte e gere `npm run bot:catalog-report` ou `npm run bot:leveling-report`, como preferir.
+
 ## Como funciona o leveling preliminar
 
 - **Criaturas**: índice usa apenas vida, dano, acerto e dados **brancos (índice 0)**, somados ao impacto indicativo das habilidades normais. As habilidades `requiresAwakening: true` (roxas) não entram na nota. O critério é exploratório: habilidades e efeitos complexos não equivalem a dano direto.
