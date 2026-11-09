@@ -1,4 +1,5 @@
 import type { Action } from "@/core/actions/types";
+import { getBoss, getHeroes } from "@/core/data/cards";
 import { legalActions } from "@/core/legalActions";
 import { createRng, nextFloat } from "@/core/ports/random";
 import type { GameState } from "@/core/state/gameState";
@@ -21,17 +22,9 @@ import {
 } from "./invariants";
 import { gameOf } from "@/engine/state";
 
-export const BOT_HEROES = [
-	"hero_crimson_barbarian",
-	"hero_last_light_paladin",
-	"hero_eternal_rest_cleric",
-	"hero_rift_rogue",
-	"hero_broken_bastion_warrior",
-	"hero_deep_veil_necromancer",
-	"hero_crimson_rune_mage",
-	"hero_broken_veil_hunter",
-];
-const BOSS = "boss_azhakar";
+// Discover heroes from all enabled expansion packages, including future additions.
+export const BOT_HEROES: readonly string[] = getHeroes().map((hero) => hero.id);
+const BOSS = getBoss("fornalha-sombria")?.id ?? getBoss()?.id ?? "";
 const DIFFICULTIES: GoldenSetup["difficulty"][] = [
 	"very_easy",
 	"easy",
