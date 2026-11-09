@@ -20,27 +20,34 @@ import {
 } from "./dungeonReportHtml";
 
 describe("ensaio pareado de masmorra", () => {
-	it("monta 2.000 partidas por padrão: 10 seeds × 8 heróis × 5 perfis × 5 dificuldades", () => {
+	it("descobre heróis e expansões e cruza todos com as seeds, perfis e dificuldades", () => {
 		const options = defaultBenchmarkOptions();
 		const plan = benchmarkPlan(options);
-		expect(plan).toHaveLength(2000);
-		expect(new Set(plan.map(benchmarkCaseKey)).size).toBe(2000);
+		expect(options.heroes).toHaveLength(12);
+		expect(options.expansions).toEqual(["fornalha-sombria", "torre-grande-bruxa-caldeirao"]);
+		expect(plan).toHaveLength(3000);
+		expect(new Set(plan.map(benchmarkCaseKey)).size).toBe(3000);
 		for (let seed = options.seed; seed < options.seed + options.runs; seed++) {
-			expect(plan.filter((item) => item.seed === seed)).toHaveLength(200);
+			expect(plan.filter((item) => item.seed === seed)).toHaveLength(300);
 		}
-		expect(plan.every((item) => options.heroes.includes(item.heroId))).toBe(true);
+		expect(plan.every((item) => options.heroes.includes(item.heroId) && options.expansions.includes(item.expansionId))).toBe(true);
 	});
 
 	it("mantém sala inicial, boss e ordem dos quatro decks iguais entre heróis e dificuldades", () => {
 		const options = { ...defaultBenchmarkOptions(), runs: 1 };
 		expect(() => ensureComparableDungeons(options)).not.toThrow();
 		const first = initialDungeonSignature({
-			seed: options.seed, heroId: options.heroes[0]!, difficulty: "normal",
+			seed: options.seed, expansionId: options.expansions[0]!, heroId: options.heroes[0]!, difficulty: "normal",
 		});
 		const again = initialDungeonSignature({
-			seed: options.seed, heroId: options.heroes[7]!, difficulty: "nightmare",
+			seed: options.seed, expansionId: options.expansions[0]!, heroId: options.heroes[7]!, difficulty: "nightmare",
 		});
 		expect(again).toBe(first);
+		const witch = initialDungeonSignature({
+			seed: options.seed, expansionId: options.expansions[1]!, heroId: options.heroes[7]!, difficulty: "normal",
+		});
+		expect(JSON.parse(witch).boss).not.toBe(JSON.parse(first).boss);
+		expect(JSON.parse(witch).dungeon).not.toEqual(JSON.parse(first).dungeon);
 	}, 30_000);
 
 	it("não confunde impasse com derrota e calcula médias por célula", () => {
@@ -77,7 +84,7 @@ describe("ensaio pareado de masmorra", () => {
 		const output = path.resolve("tools/bot/runs", "dungeon-smoke-" + process.pid);
 		try {
 			if (fs.existsSync(output)) fs.rmSync(output, { recursive: true, force: true });
-			const target = runDungeonReport(["--runs", "1", "--seed", "13",
+			const target = runDungeonReport(["--runs", "1", "--seed", "13", "--expansions", "fornalha-sombria",
 				"--heroes", "barbarian", "--profiles", "random",
 				"--difficulties", "normal", "--max-steps", "40", "--output", output]);
 			expect(target).toBe(output);
@@ -88,6 +95,9 @@ describe("ensaio pareado de masmorra", () => {
 			expect(fs.readFileSync(path.join(output, "index.html"), "utf8")).toContain("O teste de cada herói");
 			expect(fs.existsSync(path.join(output, "report.csv"))).toBe(true);
 			expect(fs.existsSync(path.join(output, "trials.jsonl"))).toBe(true);
+			expect(fs.existsSync(path.join(output, "catalog.html"))).toBe(true);
+			expect(fs.existsSync(path.join(output, "catalog.csv"))).toBe(true);
+			expect(fs.readFileSync(path.join(output, "catalog.md"), "utf8")).toContain("Fornalha Sombria");
 		} finally {
 			fs.rmSync(output, { recursive: true, force: true });
 		}
@@ -127,7 +137,7 @@ describe("ensaio pareado de masmorra", () => {
 		expect(script).toBeDefined();
 		const listeners = new Map<string, () => void>();
 		const elements = new Map(
-			["dataset", "hero", "profile", "difficulty", "matrix", "matrix-head",
+			["dataset", "hero", "profile", "difficulty", "expansion", "expansion-compare", "matrix", "matrix-head",
 				"metrics", "profile-compare", "trials", "metadata"].map((id) => [
 					id,
 					{
@@ -149,6 +159,7 @@ describe("ensaio pareado de masmorra", () => {
 		};
 		runInNewContext(script!, { document: { getElementById: get } });
 		expect(get("matrix").innerHTML).toContain("50.0%");
+		expect(get("expansion-compare").innerHTML).toContain(options.expansions[0]!);
 		expect(get("matrix").innerHTML).toContain(summaries[0]!.heroName);
 		get("hero").value = options.heroes[0]!;
 		listeners.get("hero:change")?.();
