@@ -42,6 +42,7 @@ interface BoardProps {
 	onEnemyClick: (enemy: EnemyView) => void;
 	onRoomClick: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
+	onArtifactUse: (artifactId: string, abilityId: string) => void;
 	// Ações de grupo
 	onRevealBoss: () => void;
 	onContinueExploration: () => void;
@@ -633,6 +634,7 @@ export function Board({
 	onEnemyClick,
 	onRoomClick,
 	onCardDetail,
+	onArtifactUse,
 	onRevealBoss,
 	onContinueExploration,
 	onResolve,
@@ -1153,7 +1155,7 @@ export function Board({
 			</div>
 
 			{/* Footer do grupo */}
-			<BoardFooter view={view} onArtifactClick={onCardDetail} />
+			<BoardFooter view={view} onArtifactClick={onCardDetail} onArtifactUse={onArtifactUse} />
 			{attackAnimation && (
 				<CardAttackAnimation
 					key={attackAnimation.key}
