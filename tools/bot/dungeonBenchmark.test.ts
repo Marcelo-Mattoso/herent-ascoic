@@ -53,7 +53,9 @@ describe("ensaio pareado de masmorra", () => {
 	}, 30_000);
 
 	it("não confunde impasse com derrota e calcula médias por célula", () => {
-		const options = { ...defaultBenchmarkOptions(), heroes: [defaultBenchmarkOptions().heroes[0]!],
+		const defaults = defaultBenchmarkOptions();
+		const options = { ...defaults, heroes: [defaults.heroes[0]!],
+			expansions: [defaults.expansions[0]!],
 			profiles: ["casual" as const], difficulties: ["normal" as const], runs: 3 };
 		const plan = benchmarkPlan(options);
 		const outcomes = ["VICTORY", "DEFEAT", "HERO_ACTION"];
