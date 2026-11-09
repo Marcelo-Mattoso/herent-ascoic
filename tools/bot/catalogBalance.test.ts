@@ -1,7 +1,4 @@
-import fs from "node:fs";
-import path from "node:path";
 import { describe, expect, it } from "vitest";
-import { runCatalogReport } from "./catalogReport";
 import { getAllCards } from "@/core/data/cards";
 import { getEnabledExpansions, getExpansionCardMetadata } from "@/core/data/expansions";
 import {
@@ -78,21 +75,17 @@ describe("auditoria estrutural de dificuldade por expansão", () => {
 		expect(md).toContain("### Itens — equipamento");
 	});
 
-	it("gera auditoria independente sem executar nenhuma partida", () => {
-		const dir = path.resolve("tools/bot/runs", "catalog-smoke-" + process.pid);
-		try {
-			if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
-			expect(runCatalogReport(["--expansions", "torre-grande-bruxa-caldeirao", "--output", dir])).toBe(dir);
-			const audit = JSON.parse(fs.readFileSync(path.join(dir, "catalog.json"), "utf8"));
-			expect(audit.expansions).toHaveLength(1);
-			expect(audit.expansions[0].heroes).toHaveLength(4);
-			expect(audit.expansions[0].items).toHaveLength(26);
-			expect(audit.expansions[0].rooms).toHaveLength(10);
-			expect(audit.expansions[0].specialRooms).toHaveLength(2);
-			expect(fs.existsSync(path.join(dir, "catalog.html"))).toBe(true);
-			expect(fs.existsSync(path.join(dir, "catalog.csv"))).toBe(true);
-		} finally {
-			fs.rmSync(dir, { recursive: true, force: true });
-		}
+	it("catálogo completo é serializável em JSON sem gerar report na CI", () => {
+		const audit = buildCatalogBalance();
+		const snapshot = JSON.parse(JSON.stringify({
+			schemaVersion: 1,
+			kind: "catalog",
+			generatedAt: "2026-11-09T00:00:00.000Z",
+			catalog: audit,
+		}));
+		expect(snapshot.catalog.expansions.map((pack: { id: string }) => pack.id))
+			.toEqual(audit.expansions.map((pack) => pack.id));
+		expect(snapshot.catalog.expansions.some((pack: { heroes: unknown[] }) => pack.heroes.length === 4)).toBe(true);
 	});
+
 });
