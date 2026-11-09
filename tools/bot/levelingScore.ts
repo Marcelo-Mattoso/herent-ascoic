@@ -96,11 +96,11 @@ export function evaluateAbilities(cardId:string):AbilityScore[]{
   }
   if(uncertain && nodes.length===0) domains.utility+=1;
   const activation=grant.activation;
-  const frequency=activation.kind==="continuous"?1:activation.kind==="event"?.75:activation.kind==="on_enter_play"?.6:.65;
-  const condition=activation.conditions?.length?.6:1;
-  const usage=activation.limit?Math.min(1,Math.max(.15,activation.limit.maxUses/3)):1;
-  const utilization=activation.consumeSource!=="none"&&activation.consumeSource!=null?.65:1;
-  const cost= (activation.cost?.hp??0)*.15+(activation.cost?.mp??0)*.1+(activation.actionCost==="consume_hero_action"?.15:0);
+  const frequency=activation.kind==="continuous"?1:activation.kind==="event" ? .75 : activation.kind==="on_enter_play" ? .6 : .65;
+  const condition=activation.conditions?.length ? .6 : 1;
+  const usage=activation.limit?Math.min(1,Math.max(.15,activation.limit.maxUses/3)) : 1;
+  const utilization=activation.consumeSource!=="none"&&activation.consumeSource!=null ? .65 : 1;
+  const cost= (activation.cost?.hp??0)*.15+(activation.cost?.mp??0)*.1+(activation.actionCost==="consume_hero_action" ? .15 : 0);
   const total=Object.values(domains).reduce((a,b)=>a+b,0);
   const scale=frequency*condition*usage*utilization*Math.max(.2,1-cost);
   for(const d of Object.keys(domains) as Array<keyof typeof domains>)domains[d]=round(domains[d]*scale);
