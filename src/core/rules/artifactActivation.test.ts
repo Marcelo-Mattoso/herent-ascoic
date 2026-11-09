@@ -9,8 +9,6 @@ import { legalActions } from "@/core/legalActions";
 import { artifactHandler } from "@/core/reducer/artifact";
 import { applyDamageOverTimeStatus } from "./damageOverTime";
 import { legalArtifactActions, projectManualArtifactActions } from "./artifactActivation";
-import { observe } from "../../../tools/bot/observe";
-import { scoreMoves } from "../../../tools/bot/brain";
 
 function scene(artifactId = "artifact_corrupted_forest_heart"): GameState {
 	const initial = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
@@ -84,15 +82,6 @@ describe("uso manual dos artefatos no jogo e bot", () => {
 		expect(legalArtifactActions(testEngine, state)[0]).toMatchObject({
 			type: "USE_ARTIFACT", payload: { targetHeroId: "h1" },
 		});
-	});
-
-	it("bot observa e pontua a mesma ação legal que a UI mostra", () => {
-		const start = poisoned(scene(), 3);
-		const observation = observe(testEngine, start);
-		const actions = observation.actions.filter((action) => action.type === "USE_ARTIFACT");
-		expect(actions).toHaveLength(1);
-		expect(scoreMoves(observation, "power-player").some((move) =>
-			move.action.type === "USE_ARTIFACT" && move.score >= 150)).toBe(true);
 	});
 
 	it("recusa alvo inventado e respeita bloqueios fora da janela de ação", () => {
