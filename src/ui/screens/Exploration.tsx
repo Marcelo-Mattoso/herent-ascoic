@@ -433,6 +433,7 @@ export function Exploration({
 									openCardDetail(view.currentRoom.cardId, "room")
 								}
 								onCardDetail={openCardDetail}
+								onArtifactUse={openArtifactUse}
 								onRevealBoss={() => dispatch({ type: "REVEAL_BOSS" })}
 								onContinueExploration={() =>
 									dispatch({ type: "CONTINUE_EXPLORATION" })
@@ -780,7 +781,7 @@ function PortableGameDrawer({
 							<DungeonAwakeningMarker current={despertar} />
 							<GroupArtifactPanel view={view} onArtifactClick={onArtifactClick}
 								onArtifactUse={onArtifactUse} cardImageUrls={cardImageUrls} />
-							<BoardFooter view={view} onArtifactClick={onArtifactClick} />
+							<BoardFooter view={view} onArtifactClick={onArtifactClick} onArtifactUse={onArtifactUse} />
 						</>
 					) : null}
 					{type === "influences" ? (
