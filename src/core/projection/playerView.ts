@@ -1,4 +1,5 @@
 import { projectAbilityActionsForHero, type AbilityActionView } from "./abilityActions";
+import { projectManualArtifactActions, type ManualArtifactAction } from "../rules/artifactActivation";
 
 
 import { type HeroInventoryView, projectHeroInventory } from "./inventoryView";
@@ -142,6 +143,7 @@ export interface PlayerView {
 	readonly groupXp: number;
 	readonly despertar: ColorIndex;
 	readonly groupArtifacts: readonly GroupArtifact[];
+	readonly artifactActions: readonly ManualArtifactAction[];
 	readonly roomsCleared: number;
 	readonly creaturesDefeated: number;
 	readonly bossCardId: string;
@@ -247,6 +249,7 @@ export function playerView(engine: GameEngine, state: GameState): PlayerView {
 		groupXp: gameOf(state).groupXp,
 		despertar: awakeningOf(state),
 		groupArtifacts: gameOf(state).groupArtifacts,
+		artifactActions: projectManualArtifactActions(engine, state),
 		roomsCleared: gameOf(state).roomsCleared,
 		creaturesDefeated: gameOf(state).creaturesDefeated,
 		bossCardId: gameOf(state).bossCardId,
