@@ -1,4 +1,7 @@
+import fs from "node:fs";
+import path from "node:path";
 import { describe, expect, it } from "vitest";
+import { runCatalogReport } from "./catalogReport";
 import { getAllCards } from "@/core/data/cards";
 import { getEnabledExpansions, getExpansionCardMetadata } from "@/core/data/expansions";
 import {
@@ -73,5 +76,23 @@ describe("auditoria estrutural de dificuldade por expansão", () => {
 		expect(html).toContain("A Fornalha Sombria");
 		expect(md).toContain("Salas para 4 heróis");
 		expect(md).toContain("### Itens — equipamento");
+	});
+
+	it("gera auditoria independente sem executar nenhuma partida", () => {
+		const dir = path.resolve("tools/bot/runs", "catalog-smoke-" + process.pid);
+		try {
+			if (fs.existsSync(dir)) fs.rmSync(dir, { recursive: true, force: true });
+			expect(runCatalogReport(["--expansions", "torre-grande-bruxa-caldeirao", "--output", dir])).toBe(dir);
+			const audit = JSON.parse(fs.readFileSync(path.join(dir, "catalog.json"), "utf8"));
+			expect(audit.expansions).toHaveLength(1);
+			expect(audit.expansions[0].heroes).toHaveLength(4);
+			expect(audit.expansions[0].items).toHaveLength(26);
+			expect(audit.expansions[0].rooms).toHaveLength(10);
+			expect(audit.expansions[0].specialRooms).toHaveLength(2);
+			expect(fs.existsSync(path.join(dir, "catalog.html"))).toBe(true);
+			expect(fs.existsSync(path.join(dir, "catalog.csv"))).toBe(true);
+		} finally {
+			fs.rmSync(dir, { recursive: true, force: true });
+		}
 	});
 });
