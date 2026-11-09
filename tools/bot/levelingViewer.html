@@ -1,0 +1,251 @@
+<!doctype html>
+<html lang="pt-BR">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<meta name="robots" content="noindex,nofollow,noarchive">
+<title>Leveling Report · Ascensão Heróica (local)</title>
+<style>
+:root {color-scheme:dark;font:15px system-ui,-apple-system,"Segoe UI",sans-serif;color:#e8eef7;background:#0b101b}
+* {box-sizing:border-box}
+body {margin:0;background:radial-gradient(circle at 85% 0%,#213951 0%,transparent 40%),#0b101b;min-height:100vh}
+main,header {max-width:1580px;margin:0 auto;padding:0 28px}
+header {padding-top:38px;padding-bottom:24px}
+.kicker {font-weight:800;letter-spacing:.15em;text-transform:uppercase;font-size:.72rem;color:#86dec6}
+h1 {margin:7px 0 8px;font-size:clamp(2rem,4vw,3.4rem);letter-spacing:-.045em}
+.lead {color:#a1b2c8;line-height:1.55;max-width:880px;margin:0}
+.toolbar {display:flex;flex-wrap:wrap;align-items:flex-end;gap:14px;padding:20px;margin:24px 0 0;border:1px solid #2d4259;border-radius:15px;background:#101e2d}
+.control {display:flex;flex-direction:column;gap:7px;font-size:.79rem;color:#b5c6d9;font-weight:700}
+select,input[type=file] {background:#192a3e;border:1px solid #466078;border-radius:9px;color:#e8f3ff;padding:11px 12px;max-width:100%;font:inherit}
+#report-select {min-width:320px;max-width:min(100%,600px)}
+select:focus-visible,input:focus-visible {outline:2px solid #70e3bd;outline-offset:2px}
+button {border:1px solid #476277;border-radius:9px;background:#1b354b;color:#e8f3ff;font-weight:700;padding:11px 14px;cursor:pointer}
+button:hover {background:#25455b}
+.actions {display:flex;gap:10px;align-items:center;flex-wrap:wrap}
+main {padding-bottom:60px}
+#message {min-height:28px;margin:12px 0 18px;color:#a8c7db}
+#message.error {color:#ffafab}
+.panel {background:#111c2b;border:1px solid #293b51;border-radius:16px;padding:23px;margin:19px 0}
+.panel h2 {margin:0 0 7px;font-size:1.3rem;letter-spacing:-.02em}
+.hint {color:#98aec3;font-size:.88rem;line-height:1.55;margin:0 0 17px}
+.stats {display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px}
+.stat {border:1px solid #2b4158;background:#132337;padding:18px;border-radius:13px}
+.stat small {display:block;color:#98b1c8;font-size:.77rem}
+.stat strong {display:block;margin:9px 0 3px;font-size:1.65rem;color:#f6fbff;font-variant-numeric:tabular-nums}
+.scroll {max-width:100%;overflow:auto;border:1px solid #33465b;border-radius:12px}
+table {width:100%;border-collapse:separate;border-spacing:0;font-size:.86rem}
+th,td {text-align:center;padding:12px 11px;border-right:1px solid #24384a;border-bottom:1px solid #24384a;white-space:nowrap}
+thead th {background:#1b3044;color:#c8deee;font-weight:800;position:sticky;top:0;z-index:2}
+thead tr:first-child th {background:#203b52;font-size:.87rem}
+td {font-variant-numeric:tabular-nums}
+th:first-child,td:first-child {position:sticky;left:0;text-align:left;z-index:1;min-width:220px;max-width:285px;background:#19283a}
+thead th:first-child {z-index:4;background:#203b52}
+tbody tr:nth-child(even) td:first-child {background:#152338}
+.hero {font-weight:750}
+.origin {font-size:.71rem;color:#8cacc3;margin-top:4px;font-weight:500}
+.percent {font-size:1.04rem;font-weight:800}
+.sample {font-size:.7rem;color:#b4c6d5;margin-top:4px}
+.good {background:#174535}.middle {background:#3c3924}.low {background:#422c31}
+.empty {color:#91a6bb}
+.legend {margin-top:12px;font-size:.77rem;color:#92a9c0}
+.badge {font-size:.7rem;font-weight:800;color:#85dac2;padding:4px 8px;background:#153f3a;border-radius:99px;margin-left:8px}
+#catalog-summary td:first-child {min-width:240px}
+footer {color:#8a9db0;text-align:center;padding:20px 0 50px;font-size:.8rem}
+[hidden] {display:none !important}
+@media(max-width:950px) {.stats {grid-template-columns:repeat(2,minmax(0,1fr))}}
+@media(max-width:560px) {main,header {padding-left:14px;padding-right:14px}.toolbar,.panel {padding:14px}.stats {gap:8px}.stat {padding:12px}#report-select {min-width:0;width:100%}.control {width:100%}}
+</style>
+</head>
+<body>
+<header>
+<div class="kicker">A FORJA · LABORATÓRIO LOCAL · DEV ONLY</div>
+<h1>Leveling Report</h1>
+<p class="lead">Histórico de balanceamento das expansões. Cada herói é testado solo contra cada módulo, usando as dificuldades do jogo. Selecione um único JSON por data para inspecionar seus resultados.</p>
+<div class="toolbar">
+<label class="control">Relatório salvo (por data)
+<select id="report-select" aria-label="Selecione a data de um relatório"><option>Procurando relatórios…</option></select></label>
+<label class="control">Perfil de bot
+<select id="profile-select" aria-label="Filtrar perfil do bot"><option value="all">Todos os perfis</option></select></label>
+<div class="actions">
+<button type="button" id="refresh">Atualizar histórico</button>
+<label class="control">Importar JSON do disco
+<input id="file-input" type="file" accept=".json,application/json"></label>
+</div>
+</div>
+<div id="message" role="status" aria-live="polite"></div>
+</header>
+<main>
+<div class="stats" id="stats" hidden></div>
+<section class="panel" id="matrix-panel" hidden>
+<h2>Taxa de vitória solo · todos os heróis</h2>
+<p class="hint">As linhas são os heróis de todos os módulos. As colunas são agrupadas por expansão e dificuldade, sem misturar baralhos. Os percentuais consideram as seeds e os perfis selecionados; impasses permanecem separados de derrotas. A porcentagem mede o bot, não a chance de vitória humana.</p>
+<div class="scroll"><table><thead id="matrix-head"></thead><tbody id="matrix-body"></tbody></table></div>
+<div class="legend">Cada célula mostra a porcentagem de vitórias e, abaixo, o número de vitórias / partidas. Traço indica que não há partidas nessa combinação.</div>
+</section>
+<section class="panel" id="catalog-panel" hidden>
+<h2>Referência de dificuldade · cartas por expansão</h2>
+<p class="hint">Comparativo estrutural no nível branco, excluindo habilidades exclusivas do roxo. A Fornalha Sombria é a régua; este índice é exploratório e não substitui os resultados do bot.</p>
+<div class="scroll"><table><thead><tr><th>Expansão</th><th>Heróis</th><th>Criaturas</th><th>Fácil / Média / Difícil</th><th>Salas</th><th>Salas 4 heróis<br>(F / M / D)</th><th>Salas 4p com menos de 4 criaturas</th><th>Itens</th><th>Artefatos</th></tr></thead><tbody id="catalog-summary"></tbody></table></div>
+<h3>Distribuição de inimigos nas salas</h3>
+<p class="hint">Quantas criaturas cada sala gera para 1, 2, 3 ou 4 heróis. Essa distribuição ajuda a identificar módulos subdimensionados.</p>
+<div class="scroll"><table><thead><tr><th>Expansão</th><th>1 herói</th><th>2 heróis</th><th>3 heróis</th><th>4 heróis</th></tr></thead><tbody id="room-summary"></tbody></table></div>
+</section>
+</main>
+<footer>Relatórios privados em tools/bot/runs · Disponível somente pelo servidor de desenvolvimento local</footer>
+<script>
+(function () {
+"use strict";
+var saved = [];
+var imported = null;
+var current = null;
+var select = document.getElementById("report-select");
+var profile = document.getElementById("profile-select");
+var message = document.getElementById("message");
+var elt = function (id) {return document.getElementById(id);};
+var esc = function (value) {return String(value == null ? "" : value).replace(/[&<>"']/g,function(x){return {"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[x];});};
+var fmtDate = function(s){var d=new Date(s);return Number.isFinite(d.getTime())?d.toLocaleString("pt-BR") : s;};
+var diffNames={very_easy:"Muito fácil",easy:"Fácil",normal:"Normal",hard:"Difícil",nightmare:"Pesadelo"};
+var profileNames={"casual":"Casual","power-player":"Power Player","speedrunner":"Speedrunner","explorer":"Explorador","random":"Aleatório"};
+function tell(s,error){message.textContent=s;message.className=error?"error":"";}
+function isReport(doc){return !!doc && doc.schemaVersion===1 && (doc.kind==="simulation"||doc.kind==="catalog") && !!doc.catalog && Array.isArray(doc.catalog.expansions);}
+function optionHtml(id,label){return '<option value="'+esc(id)+'">'+esc(label)+'</option>';}
+function showSelectors(){
+ var value=select.value;
+ select.innerHTML=(imported?optionHtml("__imported__","JSON importado · "+fmtDate(imported.generatedAt)):"")+
+ saved.map(function(x){return optionHtml(x.id,fmtDate(x.generatedAt)+" · "+(x.kind==="simulation"?"Leveling":"Catálogo")+" · "+x.id);}).join("");
+ if(imported&&value==="__imported__")select.value="__imported__";
+ else if(saved.some(function(x){return x.id===value;}))select.value=value;
+ else if(imported)select.value="__imported__";
+ else if(saved.length)select.value=saved[0].id;
+}
+async function listReports(){
+ var requested=select.value;
+ try{
+  var response=await fetch("/__leveling-reports",{cache:"no-store"});
+  if(!response.ok)throw new Error("Falha ao listar relatórios: HTTP "+response.status);
+  saved=await response.json();
+  showSelectors();
+  if(requested&&saved.some(function(x){return x.id===requested;}))select.value=requested;
+  if(saved.length||imported)await openSelected();
+  else{current=null;render();tell("Nenhum relatório salvo. Rode npm run bot:leveling-report para gerar o JSON com as taxas de vitória, ou npm run bot:catalog-report para a análise das cartas.");}
+ }catch(error){tell(error.message||String(error),true);}
+}
+async function openSelected(){
+ var id=select.value;
+ if(!id){current=null;render();return;}
+ tell("Carregando um relatório…");
+ try{
+  if(id==="__imported__"){current=imported;}
+  else{
+   var response=await fetch("/__leveling-reports/"+encodeURIComponent(id),{cache:"no-store"});
+   if(!response.ok)throw new Error("Falha ao abrir relatório: HTTP "+response.status);
+   var doc=await response.json();
+   if(!isReport(doc))throw new Error("JSON inválido ou versão não suportada.");
+   current=doc;
+  }
+  profile.innerHTML=optionHtml("all","Todos os perfis");
+  if(current.kind==="simulation"){
+   (current.options.profiles||[]).forEach(function(p){profile.innerHTML+=optionHtml(p,profileNames[p]||p);});
+  }
+  render();
+  tell("Exibindo "+(current.kind==="simulation"?"relatório de partidas":"auditoria de cartas")+" de "+fmtDate(current.generatedAt)+".");
+ }catch(error){current=null;render();tell(error.message||String(error),true);}
+}
+function heroesOf(doc){
+ var map=new Map();
+ (doc.catalog.expansions||[]).forEach(function(pack){(pack.heroes||[]).forEach(function(hero){map.set(hero.id,{name:hero.name,origin:pack.name});});});
+ if(doc.options&&Array.isArray(doc.options.heroes)){
+  return doc.options.heroes.map(function(id){return Object.assign({id:id,name:id,origin:""},map.get(id)||{});});
+ }
+ return Array.from(map,function(entry){return Object.assign({id:entry[0]},entry[1]);});
+}
+function matrix(doc){
+ var choices=doc.options||{};
+ var expansions=(choices.expansions||doc.catalog.expansions.map(function(p){return p.id;}));
+ var difficulties=choices.difficulties||["very_easy","easy","normal","hard","nightmare"];
+ var names=new Map(doc.catalog.expansions.map(function(p){return [p.id,p.name];}));
+ var heroRows=heroesOf(doc);
+ var groupHeader='<tr><th rowspan="2">Herói</th>'+expansions.map(function(id){return '<th colspan="'+difficulties.length+'">'+esc(names.get(id)||id)+'</th>';}).join("")+'</tr>';
+ var diffHeader='<tr>'+expansions.map(function(){return difficulties.map(function(d){return '<th>'+esc(diffNames[d]||d)+'</th>';}).join("");}).join("")+'</tr>';
+ elt("matrix-head").innerHTML=groupHeader+diffHeader;
+ var aggregations=new Map();
+ if(doc.kind==="simulation"){
+  (doc.trials||[]).forEach(function(t){
+   if(profile.value!=="all"&&t.profile!==profile.value)return;
+   var key=[t.heroId,t.expansionId,t.difficulty].join("|");
+   var item=aggregations.get(key)||{games:0,wins:0,defeats:0,stalls:0};
+   item.games++;
+   if(!t.violation&&t.outcome==="VICTORY")item.wins++;
+   else if(!t.violation&&t.outcome==="DEFEAT")item.defeats++;
+   else item.stalls++;
+   aggregations.set(key,item);
+  });
+ }
+ elt("matrix-body").innerHTML=heroRows.map(function(hero){
+  return '<tr><td class="hero">'+esc(hero.name)+'<div class="origin">'+esc(hero.origin)+'</div></td>'+
+   expansions.map(function(expId){return difficulties.map(function(diff){
+    var key=[hero.id,expId,diff].join("|");
+    var stat=aggregations.get(key);
+    if(!stat||!stat.games)return '<td class="empty">—</td>';
+    var rate=100*stat.wins/stat.games;
+    var style=rate>=60?"good":rate>=25?"middle":"low";
+    var title=stat.wins+" vitórias, "+stat.defeats+" derrotas, "+stat.stalls+" impasses";
+    return '<td class="'+style+'" title="'+esc(title)+'"><div class="percent">'+rate.toFixed(1)+'%</div><div class="sample">'+stat.wins+' / '+stat.games+'</div></td>';
+   }).join("");}).join("")+'</tr>';
+ }).join("");
+ return heroRows.length;
+}
+function catalog(doc){
+ var packs=doc.catalog.expansions||[];
+ var bands=function(b){return ["easy","medium","hard"].map(function(k){return (b&&b[k])||0;}).join(" / ");};
+ elt("catalog-summary").innerHTML=packs.map(function(p){
+  return '<tr><td>'+esc(p.name)+'</td><td>'+p.heroes.length+'</td><td>'+p.creatures.length+
+   '</td><td>'+bands(p.creatureBands)+'</td><td>'+p.rooms.length+'</td><td>'+bands(p.roomBandsByPlayers[3])+
+   '</td><td>'+p.roomsBelowFourEnemies+' / '+p.rooms.length+'</td><td>'+p.items.length+'</td><td>'+p.artifactCount+'</td></tr>';
+ }).join("");
+ elt("room-summary").innerHTML=packs.map(function(p){
+  var cells=[0,1,2,3].map(function(size){
+   var distribution={};
+   (p.rooms||[]).forEach(function(room){var n=room.enemiesByPlayers[size]||0;distribution[n]=(distribution[n]||0)+1;});
+   return '<td>'+esc(Object.keys(distribution).sort(function(a,b){return Number(a)-Number(b);}).map(function(n){return n+' criaturas: '+distribution[n]+' salas';}).join(" · "))+'</td>';
+  });
+  return '<tr><td>'+esc(p.name)+'</td>'+cells.join("")+'</tr>';
+ }).join("");
+}
+function render(){
+ var present=!!current;
+ ["stats","matrix-panel","catalog-panel"].forEach(function(id){elt(id).hidden=!present;});
+ if(!present)return;
+ var numHeroes=matrix(current);
+ catalog(current);
+ var packs=current.catalog.expansions.length;
+ var trials=current.trials||[];
+ var wins=trials.filter(function(t){return !t.violation&&t.outcome==="VICTORY";}).length;
+ var sample=current.kind==="simulation"?trials.length.toLocaleString("pt-BR"):"Sem partidas";
+ var metrics=[["Heróis descobertos",numHeroes,"Todas as origens"],["Expansões",packs,"Módulos independentes"],
+  ["Partidas registradas",sample,"Todas as dificuldades"],["Vitórias",current.kind==="simulation"?wins.toLocaleString("pt-BR"):"—","Do bot; sem inferir vitória humana"]];
+ elt("stats").innerHTML=metrics.map(function(m){return '<div class="stat"><small>'+esc(m[0])+'</small><strong>'+esc(m[1])+'</strong><small>'+esc(m[2])+'</small></div>';}).join("");
+ if(current.kind==="catalog")elt("matrix-panel").querySelector(".hint").textContent="Este JSON contém só a auditoria estrutural de cartas. Para preencher porcentagens de vitória de todos os heróis, gere um relatório completo com npm run bot:leveling-report.";
+ else elt("matrix-panel").querySelector(".hint").textContent="Uma linha por herói; grupos de colunas por expansão e dificuldade. Selecione um perfil acima ou deixe todos agregados. Cada célula mostra vitórias / partidas. Impasses não são contabilizados como derrotas.";
+}
+select.addEventListener("change",openSelected);
+profile.addEventListener("change",function(){if(current)render();});
+elt("refresh").addEventListener("click",listReports);
+elt("file-input").addEventListener("change",async function(event){
+ var file=event.target.files&&event.target.files[0];
+ if(!file)return;
+ try{
+  var doc=JSON.parse(await file.text());
+  if(!isReport(doc))throw new Error("JSON precisa ter schemaVersion=1, kind e catálogo de expansões.");
+  imported=doc;
+  showSelectors();
+  select.value="__imported__";
+  await openSelected();
+ }catch(error){tell("Não foi possível importar: "+(error.message||String(error)),true);}
+ event.target.value="";
+});
+listReports();
+})();
+</script>
+</body>
+</html>
