@@ -22,15 +22,15 @@ const dir = path.resolve(__dirname, "replays");
  * produced by the corrected reshuffle. Once golden:record regenerates the
  * full replays against the current rules, remove these transition pins.
  */
-const reshuffleTransitionPins: Readonly<Record<string, { step: number; hash: string }>> = {
-	"golden-02.json": { step: 46, hash: "9d9ed5f3ab39747d" },
-	"golden-06.json": { step: 29, hash: "27ecab8c2779998e" },
-	"golden-07.json": { step: 51, hash: "7d2ff62798eff5ba" },
-	"golden-08.json": { step: 132, hash: "df659b0ea9132b09" },
-	"golden-11.json": { step: 79, hash: "b0b14ff9b8ac8d0e" },
-	"golden-14.json": { step: 104, hash: "15f1ae166335847b" },
-	"golden-15.json": { step: 132, hash: "b7d43b95e1df9366" },
-	"golden-16.json": { step: 104, hash: "7419faee683a4caf" },
+const reshuffleTransitionPins: Readonly<Record<string, { step: number; legacyHash: string; hash: string }>> = {
+	"golden-02.json": { step: 46, legacyHash: "ed7f72d6ae60c5b7", hash: "9d9ed5f3ab39747d" },
+	"golden-06.json": { step: 29, legacyHash: "6de32823fadbd123", hash: "27ecab8c2779998e" },
+	"golden-07.json": { step: 51, legacyHash: "05b801d05f094b41", hash: "7d2ff62798eff5ba" },
+	"golden-08.json": { step: 132, legacyHash: "db5345cfa39dc5cd", hash: "df659b0ea9132b09" },
+	"golden-11.json": { step: 79, legacyHash: "d4db4f7a62efc43c", hash: "b0b14ff9b8ac8d0e" },
+	"golden-14.json": { step: 104, legacyHash: "eaaee1f6cb4776d2", hash: "15f1ae166335847b" },
+	"golden-15.json": { step: 132, legacyHash: "6c5c7591cd5654ef", hash: "b7d43b95e1df9366" },
+	"golden-16.json": { step: 104, legacyHash: "6f1c216c36c18d9f", hash: "7419faee683a4caf" },
 };
 
 const files = fs
@@ -61,7 +61,8 @@ describe("golden replays", () => {
 				state = applyAction(state, action);
 				const actual = hashView(state);
 				const transition = reshuffleTransitionPins[file];
-				if (transition && i === transition.step) {
+				// Automatically retire legacy checkpoints when the fixture is rerecorded.
+				if (transition && i === transition.step && replay.steps[i] === transition.legacyHash) {
 					expect(action.type, `${file}: ação que reembaralha`).toBe("SPAWN_ENEMIES");
 					const announcement = "Monstros da expansão reembaralhados.";
 					const count = (entries: readonly string[]) => entries.filter((entry) =>
