@@ -216,7 +216,7 @@ export function CardDetailModal({
 												background: onUseArtifact ? "#3B6D11" : "#565656",
 												color: "#E8F5DE", border: "none", borderRadius: 6, fontSize: 12,
 												fontWeight: 600, cursor: onUseArtifact ? "pointer" : "not-allowed" }}>
-											Usar
+											{translate("game:components.groupArtifactPanel.use")}
 										</button>
 									)}
 									{artifactUseReason && <small role="status" style={{ display: "block", marginTop: 5 }}>
