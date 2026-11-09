@@ -75,6 +75,18 @@ describe("uso manual dos artefatos no jogo e bot", () => {
 		expect(legalArtifactActions(testEngine, poisoned(after, 1))).toHaveLength(0);
 	});
 
+	it("oferece o Braseiro da Fornalha com alvo herói, mesmo sem portador definido", () => {
+		const state = scene("artifact_last_vigil_brazier");
+		const manual = projectManualArtifactActions(testEngine, state);
+		expect(manual).toHaveLength(1);
+		expect(manual[0]).toMatchObject({ available: true, requiresTarget: true,
+			abilityId: "power_greater_last_light_miracle",
+			targets: [{ id: "h1", kind: "hero" }] });
+		expect(legalArtifactActions(testEngine, state)[0]).toMatchObject({
+			type: "USE_ARTIFACT", payload: { targetHeroId: "h1" },
+		});
+	});
+
 	it("bot observa e pontua a mesma ação legal que a UI mostra", () => {
 		const start = poisoned(scene(), 3);
 		const observation = observe(testEngine, start);
