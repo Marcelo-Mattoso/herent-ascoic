@@ -14,8 +14,8 @@ export interface SavedReportInfo {
 }
 
 export function assertLocalReportExecution(): void {
-	if (process.env.CI || process.env.GITHUB_ACTIONS === "true") {
-		throw new Error("Relatórios de leveling só podem ser gerados localmente, fora de CI/GitHub Actions.");
+	if (process.env.CI || process.env.GITHUB_ACTIONS === "true" || process.env.NODE_ENV === "production") {
+		throw new Error("Relatórios de leveling só podem ser gerados em desenvolvimento local, fora de CI/GitHub Actions e produção.");
 	}
 }
 
