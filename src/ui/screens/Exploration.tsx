@@ -3,6 +3,7 @@ import { translate } from "@/i18n";
 // Layout: TopBar · Board (tabuleiro coletivo) · HeroFocusPanel (herói em foco).
 
 import { UseItemModal } from "@/ui/components/modals/UseItemModal";
+import { UseArtifactModal } from "@/ui/components/modals/UseArtifactModal";
 import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import type { Action } from "@/core/actions/types";
@@ -134,6 +135,7 @@ export function Exploration({
 		heroId: string;
 		itemId?: string;
 	} | null>(null);
+	const [artifactUse, setArtifactUse] = useState<{ artifactId: string; abilityId: string } | null>(null);
 	const { view, ui, journal, dispatch, setFocusedHero, heroActionsFor } =
 		useGameStore();
 	const [detailCard, setDetailCard] = useState<CardDetailState | null>(null);
@@ -229,6 +231,15 @@ export function Exploration({
 		const t = setTimeout(() => setCombatAttackHintVisible(true), 3000);
 		return () => clearTimeout(t);
 	}, [attackPromptTrigger, hasShownFirstAttackHint]);
+
+	function openArtifactUse(artifactId: string, abilityId: string) {
+		const action = view.artifactActions.find((entry) =>
+			entry.artifactId === artifactId && entry.abilityId === abilityId && entry.available);
+		if (action) {
+			setDetailCard(null);
+			setArtifactUse({ artifactId, abilityId });
+		}
+	}
 
 	function openCardDetail(id: string, cardType: CardType) {
 		setDetailCard({ id, cardType });
@@ -453,7 +464,8 @@ export function Exploration({
 										{translate("game:screens.exploration.text001")}{" "}</button>
 								)}
 							<DungeonAwakeningMarker current={view.despertar} />
-							<GroupArtifactPanel view={view} onArtifactClick={openCardDetail} />
+							<GroupArtifactPanel view={view} onArtifactClick={openCardDetail}
+								onArtifactUse={openArtifactUse} cardImageUrls={cardImageUrls} />
 							<div className="game-influence-panel">
 								<InfluencePanel influences={view.activeInfluences} />
 							</div>
@@ -607,6 +619,8 @@ export function Exploration({
 							entries={view.eventLog}
 							view={view}
 							onArtifactClick={openCardDetail}
+							onArtifactUse={openArtifactUse}
+							cardImageUrls={cardImageUrls}
 							onClose={() => setPortableDrawer(null)}
 						/>
 					)}
@@ -629,6 +643,12 @@ export function Exploration({
 						)}
 
 					{/* Modais */}
+					{artifactUse && (() => {
+						const action = view.artifactActions.find((entry) =>
+							entry.artifactId === artifactUse.artifactId &&
+							entry.abilityId === artifactUse.abilityId);
+						return action ? <UseArtifactModal action={action} onClose={() => setArtifactUse(null)} /> : null;
+					})()}
 					{itemUse && (
 						<UseItemModal
 							heroId={itemUse.heroId}
@@ -648,6 +668,12 @@ export function Exploration({
 							cardType={detailCard.cardType}
 							imageUrl={getCardImageUrl(cardImageUrls, detailCard.id)}
 							onClose={() => setDetailCard(null)}
+							onUseArtifact={(() => {
+								const action = view.artifactActions.find((entry) => entry.artifactId === detailCard.id);
+								return action?.available ? () => openArtifactUse(detailCard.id, action.abilityId) : undefined;
+							})()}
+							artifactUseReason={view.artifactActions.find((entry) =>
+								entry.artifactId === detailCard.id)?.reason}
 							onUseItem={
 								detailCard.heroId &&
 								heroActionsFor(detailCard.heroId).usableItems?.some(
@@ -703,6 +729,8 @@ function PortableGameDrawer({
 	entries,
 	view,
 	onArtifactClick,
+	onArtifactUse,
+	cardImageUrls,
 	onClose,
 }: {
 	type: Exclude<PortableDrawer, null>;
@@ -711,6 +739,8 @@ function PortableGameDrawer({
 	entries: PlayerView["eventLog"];
 	view: PlayerView;
 	onArtifactClick: (id: string, type: CardType) => void;
+	onArtifactUse: (artifactId: string, abilityId: string) => void;
+	cardImageUrls?: ReturnType<typeof useCardImages>;
 	onClose: () => void;
 }) {
 	const title =
@@ -748,7 +778,8 @@ function PortableGameDrawer({
 					{type === "awakening" ? (
 						<>
 							<DungeonAwakeningMarker current={despertar} />
-							<GroupArtifactPanel view={view} onArtifactClick={onArtifactClick} />
+							<GroupArtifactPanel view={view} onArtifactClick={onArtifactClick}
+								onArtifactUse={onArtifactUse} cardImageUrls={cardImageUrls} />
 							<BoardFooter view={view} onArtifactClick={onArtifactClick} />
 						</>
 					) : null}
