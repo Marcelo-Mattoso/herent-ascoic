@@ -59,49 +59,52 @@ Use `--mode solo` ou `--mode team` para rodar só uma das modalidades e `--expan
 
 Aliases: `barbarian`, `paladin`, `cleric`, `rogue`, `warrior`, `necromancer`, `mage`, `hunter`. `explorer` prioriza experimentar habilidades; `casual` varia escolhas; `speedrunner` acelera ataques e progressão. `power-player` compara sequências curtas de Runa, Fúria, Marca, Eco e ataque usando a distribuição dos dados, o dano médio e a chance de abate. Ele desconta o custo da ação do mago e o dano sofrido pelo bárbaro. O plano escolhido aparece no `bot:watch` e no `bot:screen`. Ainda não há busca completa de todos os turnos ou otimização de equipamento.
 
-## Ensaio de masmorras: todos os heróis, perfis e dificuldades (somente desenvolvimento)
+## Leveling Report (somente no seu computador)
 
-O experimento descobre **todos os heróis e expansões habilitados** diretamente nos pacotes em `assets/expansions`. A cada seed joga **cada herói em cada expansão isoladamente**, selecionando o boss da própria expansão, com baralhos exclusivamente daquele módulo. São 10 seeds × 12 heróis × 2 expansões × 5 perfis × 5 dificuldades = **3.000 partidas** no catálogo atual. Novos heróis e módulos entram automaticamente, sem editar listas no bot. A mesma seed produz decks iniciais equivalentes **dentro de cada expansão**, não entre expansões distintas.
+O relatório de leveling **não é executado pelo GitHub Actions**, não integra o build de produção e **só aparece em localhost com npm run dev**. A geração recusa ambientes com CI/GITHUB_ACTIONS. O servidor Vite registra a rota somente em modo desenvolvimento, aceitando conexões de loopback.
 
-```bash
-# Ver quantas partidas serão executadas, sem começar:
-npm run bot:dungeon-report -- --dry-run
+**No primeiro terminal:**
 
-# Gerar o ensaio completo:
-npm run bot:dungeon-report -- --runs 10 --seed 1 --max-steps 1000
-```
+~~~bash
+npm run dev
+~~~
 
-O resultado é gravado numa pasta datada em `tools/bot/runs/dungeon-<data>/`, **ignoradas pelo Git, fora de `public/` e do build Vite**. Abra `index.html` no navegador para ver um painel escuro, com matriz de taxas de vitória, filtros por expansão/herói/perfil/dificuldade, comparativo das taxas de vitória entre expansões e detalhamento das partidas. Também gera `report.json`, `report.csv` (Excel), `report.md`, `config.json` e `trials.jsonl` (checkpoint). Uma segunda página, **`catalog.html`**, apresenta os atributos brancos de todos os heróis e criaturas, o número de inimigos por sala para grupos de 1 a 4 heróis, a dificuldade estimada de cada sala e a lista de itens/equipamentos/habilidades. Os mesmos dados saem em `catalog.json`, `catalog.csv` e `catalog.md`.
+Acesse **http://localhost:5173/leveling-report**.
 
-Para um ensaio curto de validação, ou selecionar heróis, expansões, perfis e dificuldades:
+**No segundo terminal — relatório completo, sem filtros parciais:**
 
-```bash
-npm run bot:dungeon-report -- --runs 1 --heroes mage --profiles power-player --difficulties normal --max-steps 100
-# Apenas a Bruxa (chefe, salas, monstros e loot da própria expansão):
-npm run bot:dungeon-report -- --runs 3 --expansions torre-grande-bruxa-caldeirao --heroes hero_oak_guardian --profiles casual --difficulties normal
-npm run bot:dungeon-report -- --runs 10 --heroes cleric,rogue,mage --profiles casual,power-player --difficulties easy,normal
-```
+~~~bash
+npm run bot:leveling-report
+# Equivalente: npm run bot:dungeon-report
+~~~
 
-Se interromper um ensaio grande, retome **com os mesmos parâmetros** e a pasta original; as partidas concluídas não são repetidas:
+O ensaio descobre automaticamente todos os heróis e todas as expansões habilitadas. Para cada herói solo, executa as cinco dificuldades, os cinco perfis do bot e todas as expansões, com 10 seeds por padrão: **12 × 2 × 5 × 5 × 10 = 3.000 partidas** no catálogo atual. Novas expansões e heróis aumentam a matriz automaticamente, sem alterar o bot. Não há `--heroes`, `--expansions`, `--profiles` ou `--difficulties` nesse comando: o relatório é sempre completo.
 
-```bash
-npm run bot:dungeon-report -- --runs 10 --seed 1 --max-steps 1000 --output tools/bot/runs/dungeon-PASTA-EXISTENTE --resume
-```
+O resultado de cada execução fica em **`tools/bot/runs/dungeon-<data>/report.json`** (ignorado pelo Git). Ele inclui percentuais por herói, dificuldade e expansão, todas as partidas, impasses e a auditoria das cartas. Os arquivos `config.json` e `trials.jsonl` são apenas checkpoints privados para retomar um relatório interrompido; não são enviados ao site.
 
-As opções disponíveis são `--runs N`, `--seed N`, `--max-steps N`, `--heroes a,b`, `--expansions id1,id2`, `--profiles a,b`, `--difficulties a,b`, `--output pasta`, `--resume` e `--dry-run`. Por padrão, **nenhum relatório aparece no site de produção**: é uma ferramenta de desenvolvimento, executada via npm, e os resultados locais não são versionados nem publicados automaticamente. Uma seed controla as cartas **iniciais**, não força todas as decisões futuras a seguirem o mesmo caminho. As taxas medem a política do bot nas seeds observadas — não garantem a força real dos heróis.
+A página exibe **um relatório por vez**, selecionado no histórico ordenado por data, com opção de importar um JSON do disco. A primeira tabela tem todos os heróis nas linhas e, nas colunas, cada expansão agrupando todas as dificuldades. Não há seletor de expansão; um seletor opcional de perfil permite inspecionar o efeito da estratégia. O histórico atualiza pelo botão **Atualizar histórico**, sem reiniciar o Vite.
 
-## Auditoria rápida de cartas (sem jogar partidas)
+**Ver quantas partidas serão jogadas, sem executar:**
 
-Para gerar imediatamente as tabelas dos módulos habilitados, sem executar o simulador:
+~~~bash
+npm run bot:leveling-report -- --dry-run
+~~~
 
-```bash
+**Retomar uma execução interrompida (sempre com os mesmos parâmetros):**
+
+~~~bash
+npm run bot:leveling-report -- --output tools/bot/runs/dungeon-PASTA-EXISTENTE --resume
+~~~
+
+Os parâmetros aceitos são `--runs N`, `--seed N`, `--max-steps N`, `--output pasta`, `--resume` e `--dry-run`. `--runs` altera somente a quantidade de seeds; **nunca reduz a quantidade de heróis, expansões, perfis ou dificuldades**.
+
+### Auditoria estática rápida, também em JSON
+
+~~~bash
 npm run bot:catalog-report
+~~~
 
-# Inspecionar somente a expansão da Bruxa:
-npm run bot:catalog-report -- --expansions torre-grande-bruxa-caldeirao
-```
-
-Abra `tools/bot/runs/catalog-<data>/catalog.html`. O comando também gera CSV, JSON e Markdown com todos os heróis, criaturas, salas e itens descobertos. É a forma mais rápida de localizar salas subdimensionadas e comparar o nível branco antes de gastar tempo com milhares de simulações.
+O comando lê **todas as expansões habilitadas**, sem jogar partidas, e salva `tools/bot/runs/catalog-<data>/report.json`. Esse JSON também aparece no histórico do viewer; por não ter simulações, exibe traços nas células de vitórias. Para popular as porcentagens, rode **`npm run bot:leveling-report`**.
 
 ## Como funciona o leveling preliminar
 
@@ -137,6 +140,9 @@ Tudo fica em `tools/bot/runs/`, fora do git:
 | `balance.ts` | Amostra pareada de jogos solo e todas as equipes de três, separadas por expansão |
 | `dungeonBenchmark.ts`, `dungeonReport.ts` | Ensaio independente por boss/expansão, com todos os heróis |
 | `catalogBalance.ts` | Inventário e classificação comparativa de criaturas, salas, heróis e equipamentos |
+| `localLevelingReports.ts` | Histórico JSON local, leitura segura e bloqueio de CI |
+| `levelingViewer.html` | Visualizador dev-only com matriz de heróis, expansões e dificuldades |
+| `catalogReport.ts` | Exportação rápida do catálogo em JSON sem partidas |
 
 ## Limites
 
