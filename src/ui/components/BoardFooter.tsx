@@ -10,9 +10,10 @@ import { UI } from "@/ui/theme";
 interface BoardFooterProps {
 	view: PlayerView;
 	onArtifactClick: (name: string, type: CardType) => void;
+	onArtifactUse?: (artifactId: string, abilityId: string) => void;
 }
 
-export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
+export function BoardFooter({ view, onArtifactClick, onArtifactUse }: BoardFooterProps) {
 	const boss = getCardById(view.bossCardId);
 	const requiredArtifacts = boss?.type === "boss" && boss.accessCondition?.type === "group_artifacts_gte"
 		? boss.accessCondition.value
@@ -107,22 +108,25 @@ export function BoardFooter({ view, onArtifactClick }: BoardFooterProps) {
 					}}
 				>
 					{view.groupArtifacts.map((a) => (
-						<button
-							key={a.cardId}
-							type="button"
-							style={{
-								fontSize: 10,
-								color: UI.textPrimary,
-								background: UI.artifactBg,
-								border: `1px solid ${UI.artifactBorder}`,
-								borderRadius: 4,
-								padding: "1px 5px",
-								cursor: "pointer",
-							}}
-							onClick={() => onArtifactClick(a.cardId, "artifact")}
-						>
-							{getCardName(a.cardId)}
-						</button>
+						<div key={a.cardId} style={{ display: "inline-flex", alignItems: "center", gap: 3 }}>
+							<button type="button"
+								style={{ fontSize: 10, color: UI.textPrimary, background: UI.artifactBg,
+									border: "1px solid " + UI.artifactBorder, borderRadius: 4, padding: "1px 5px", cursor: "pointer" }}
+								onClick={() => onArtifactClick(a.cardId, "artifact")}>
+								{getCardName(a.cardId)}
+							</button>
+							{view.artifactActions.filter((entry) => entry.artifactId === a.cardId).map((action) => (
+								<button key={action.abilityId} type="button"
+									title={action.reason ?? "Usar artefato"}
+									disabled={!action.available || !onArtifactUse}
+									onClick={() => onArtifactUse?.(a.cardId, action.abilityId)}
+									style={{ background: action.available ? "#3B6D11" : "#555", color: "white",
+										border: "none", borderRadius: 4, fontSize: 10, padding: "2px 5px",
+										cursor: action.available ? "pointer" : "not-allowed" }}>
+									Usar
+								</button>
+							))}
+						</div>
 					))}
 					{Array.from({ length: missing }).map((_, i) => (
 						<span
