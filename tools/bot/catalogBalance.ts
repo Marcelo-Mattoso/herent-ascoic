@@ -1,3 +1,4 @@
+import { evaluateCard, evaluateRoom, LEVELING_VERSION, COMBAT_WEIGHTS, type CardLeveling, type RoomLeveling } from "./levelingScore";
 import { cardAbilityGrants, lookupAbilityById } from "@/core/data/abilities";
 import { getAllCards } from "@/core/data/cards";
 import { getEnabledExpansions, getExpansionCardMetadata } from "@/core/data/expansions";
@@ -27,6 +28,7 @@ export interface HeroAudit extends CatalogEntry {
 	readonly damage: number;
 	readonly hitBonus: number;
 	readonly dice: number;
+	readonly leveling?: CardLeveling;
 }
 
 export interface CreatureAudit extends CatalogEntry {
@@ -37,6 +39,7 @@ export interface CreatureAudit extends CatalogEntry {
 	readonly xp: number;
 	readonly score: number;
 	readonly band: ThreatBand;
+	readonly leveling?: CardLeveling;
 }
 
 export interface RoomAudit extends CatalogEntry {
@@ -45,6 +48,7 @@ export interface RoomAudit extends CatalogEntry {
 	readonly specialCreatureId: string | null;
 	readonly scoreByPlayers: readonly number[];
 	readonly bandByPlayers: readonly ThreatBand[];
+	readonly leveling?: RoomLeveling;
 }
 
 export interface SpecialRoomAudit extends CatalogEntry {
@@ -80,6 +84,8 @@ export interface ExpansionAudit {
 
 export interface CatalogBalance {
 	readonly method: string;
+	readonly levelingVersion?: string;
+	readonly combatWeights?: typeof COMBAT_WEIGHTS;
 	readonly referenceExpansionId: string;
 	readonly creatureThresholds: readonly [number, number];
 	readonly roomThresholdsByPlayers: readonly (readonly [number, number])[];
@@ -196,6 +202,9 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 	const referenceCards = allByExpansion(reference.id);
 	const baselineCreatures = referenceCards.filter((c): c is CreatureCard => c.type === "creature");
 	const baselineScores = baselineCreatures.map((c) => threatScore(c, describeSkills(c)));
+	const referenceHero = all.find((c): c is HeroCard => c.type === "hero");
+	const referenceCreature = baselineCreatures[0];
+	if (!referenceHero || !referenceCreature) throw new Error("Leveling requer herói e criatura de referência.");
 	const creatureCuts = thresholds(baselineScores);
 	const baselineMean = mean(baselineScores);
 	const baselineRooms = referenceCards.filter((c): c is RoomCard => c.type === "room");
@@ -210,6 +219,7 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 		const heroes = cards.filter((c): c is HeroCard => c.type === "hero").map((card) => ({
 			...entryOf(card), life: card.life[0], damage: card.damage,
 			hitBonus: card.hitBonus[0], dice: card.diceByColor[0],
+			leveling: evaluateCard(card, referenceCreature),
 		}));
 		const rawCreatures = cards.filter((c): c is CreatureCard => c.type === "creature");
 		const creatures: CreatureAudit[] = rawCreatures.map((card) => {
@@ -217,7 +227,8 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 			const score = threatScore(card, common.skills);
 			return { ...common, life: card.life[0], damage: card.damage,
 				hitBonus: card.hitBonus[0], dice: card.diceByColor[0], xp: card.xp,
-				score, band: classifyThreat(score, creatureCuts) };
+				score, band: classifyThreat(score, creatureCuts),
+				leveling: evaluateCard(card, referenceHero) };
 		});
 		const subbosses: CreatureAudit[] = cards
 			.filter((c): c is SubbossCard => c.type === "subboss")
@@ -226,7 +237,8 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 				const score = threatScore(card, common.skills);
 				return { ...common, life: card.life[0], damage: card.damage,
 					hitBonus: card.hitBonus[0], dice: card.diceByColor[0], xp: card.xp,
-					score, band: classifyThreat(score, creatureCuts) };
+					score, band: classifyThreat(score, creatureCuts),
+					leveling: evaluateCard(card, referenceHero) };
 			});
 		const creatureMean = mean(creatures.map((c) => c.score));
 		const rooms: RoomAudit[] = cards
@@ -236,7 +248,8 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 				const scores = [0, 1, 2, 3].map((p) => rawRoomScore(card, p, creatureMean, common.skills));
 				return { ...common, enemiesByPlayers: [...card.enemiesByPlayers],
 					exits: card.exits, specialCreatureId: card.specialCreatureId ?? null,
-					scoreByPlayers: scores, bandByPlayers: scores.map((score, p) => classifyThreat(score, roomCuts[p]!)) };
+					scoreByPlayers: scores, bandByPlayers: scores.map((score, p) => classifyThreat(score, roomCuts[p]!)),
+					leveling: evaluateRoom(card, rawCreatures, referenceHero) };
 			});
 		const specialRooms: SpecialRoomAudit[] = cards
 			.filter((c): c is SubbossRoomCard => c.type === "subboss_room")
@@ -263,6 +276,8 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 		};
 	});
 	return {
+		levelingVersion: LEVELING_VERSION,
+		combatWeights: COMBAT_WEIGHTS,
 		method: "Índice exploratório: vida, dano, acerto e dados brancos; impacto declarado de skills não roxas; salas por 1–4 heróis. Faixas ancoradas nos tercis da Fornalha Sombria. Não substitui playtest.",
 		referenceExpansionId: reference.id,
 		creatureThresholds: creatureCuts,
