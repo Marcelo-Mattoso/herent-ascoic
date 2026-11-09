@@ -54,7 +54,13 @@
       "empty": "No artifacts found yet. Collected artifacts will appear here with their abilities.",
       "bearer": "Bearer: {{name}}",
       "shared": "Shared by the group",
-      "hint": "Effects follow their conditions and activation windows; they do not occupy regular equipment slots."
+      "hint": "Effects follow their conditions and activation windows; they do not occupy regular equipment slots.",
+      "ariaLabel": "Group artifacts",
+      "inspect": "View {{name}}",
+      "activateTitle": "Activate artifact ability",
+      "use": "Use",
+      "passiveReactive": "Passive / reactive",
+      "useTitle": "Use artifact"
     },
     "actionButton": {},
     "alphaLogPanel": {
@@ -396,7 +402,14 @@
     "stackPreview": {
       "text001": "cards"
     },
-    "statusBadge": {}
+    "statusBadge": {},
+    "useArtifactModal": {
+      "title": "Use {{name}}",
+      "unavailable": "Activation unavailable.",
+      "chooseTarget": "Choose the ability target:",
+      "confirm": "Confirm use",
+      "cancel": "Cancel"
+    }
   },
   "screens": {
     "devPreview": {
