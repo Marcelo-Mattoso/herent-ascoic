@@ -1,11 +1,9 @@
 import fs from "node:fs";
 import path from "node:path";
-import { BOT_HEROES } from "./play";
 import { getEnabledExpansions } from "@/core/data/expansions";
-import { buildCatalogBalance, renderCatalogCsv, renderCatalogHtml, renderCatalogMarkdown } from "./catalogBalance";
-import { BOT_PROFILES, parseBotDifficulty, parseBotParty, parseBotProfile } from "./profiles";
+import { buildCatalogBalance } from "./catalogBalance";
+import { assertLocalReportExecution } from "./localLevelingReports";
 import {
-	BENCHMARK_DIFFICULTIES,
 	type BenchmarkTrial,
 	type DungeonBenchmarkOptions,
 	benchmarkCaseKey,
@@ -15,12 +13,7 @@ import {
 	runBenchmarkCase,
 	summarizeBenchmark,
 } from "./dungeonBenchmark";
-import {
-	type DungeonReportData,
-	renderDungeonReportCsv,
-	renderDungeonReportHtml,
-	renderDungeonReportMarkdown,
-} from "./dungeonReportHtml";
+import type { DungeonReportData } from "./dungeonReportHtml";
 
 interface CliOptions {
 	readonly benchmark: DungeonBenchmarkOptions;
@@ -36,17 +29,6 @@ function nonNegativeInt(flag: string, value: string | undefined, min: number): n
 	if (!value || !Number.isSafeInteger(n) || n < min)
 		throw new Error(`${flag} exige inteiro >= ${min}`);
 	return n;
-}
-
-function unique<T>(values: readonly T[]): T[] {
-	return [...new Set(values)];
-}
-
-function commaList(flag: string, value: string | undefined): string[] {
-	if (!value) throw new Error(`${flag} exige nomes separados por vírgula`);
-	const names = value.split(",").map((text) => text.trim());
-	if (names.some((name) => !name)) throw new Error(`${flag} não aceita nomes vazios`);
-	return names;
 }
 
 export function parseDungeonReportArgs(args: readonly string[]): CliOptions {
@@ -65,26 +47,6 @@ export function parseDungeonReportArgs(args: readonly string[]): CliOptions {
 			case "--runs": benchmark = { ...benchmark, runs: nonNegativeInt(flag, value, 1) }; break;
 			case "--seed": benchmark = { ...benchmark, seed: nonNegativeInt(flag, value, 0) }; break;
 			case "--max-steps": benchmark = { ...benchmark, maxSteps: nonNegativeInt(flag, value, 1) }; break;
-			case "--heroes": {
-				const names = commaList(flag, value);
-				const heroes = unique(names.map((name) => parseBotParty(name)[0]!));
-				if (heroes.some((hero) => !BOT_HEROES.includes(hero))) throw new Error("Herói desconhecido");
-				benchmark = { ...benchmark, heroes }; break;
-			}
-			case "--expansions": {
-				const expansions = unique(commaList(flag, value));
-				if (expansions.some((id) => !defaults.expansions.includes(id)))
-					throw new Error("Expansão desconhecida ou sem chefe. Opções: " + defaults.expansions.join(", "));
-				benchmark = { ...benchmark, expansions }; break;
-			}
-			case "--profiles": {
-				const profiles = unique(commaList(flag, value).map(parseBotProfile));
-				benchmark = { ...benchmark, profiles }; break;
-			}
-			case "--difficulties": {
-				const difficulties = unique(commaList(flag, value).map(parseBotDifficulty));
-				benchmark = { ...benchmark, difficulties }; break;
-			}
 			case "--output": {
 				if (!value) throw new Error("--output exige uma pasta em tools/bot/runs");
 				output = value; break;
@@ -93,7 +55,7 @@ export function parseDungeonReportArgs(args: readonly string[]): CliOptions {
 		}
 	}
 	if (!benchmark.heroes.length || !benchmark.expansions.length || !benchmark.profiles.length || !benchmark.difficulties.length)
-		throw new Error("Escolha pelo menos um herói, perfil e dificuldade");
+		throw new Error("Catálogo sem heróis, expansões, perfis ou dificuldades habilitados.");
 	if (benchmark.seed + benchmark.runs > 2_147_483_647)
 		throw new Error("Intervalo de seeds ultrapassa limite seguro");
 	if (resume && !output) throw new Error("--resume exige --output <pasta já criada>");
@@ -111,18 +73,13 @@ function outputDir(options: CliOptions): string {
 }
 
 function saveReport(dir: string, report: DungeonReportData): void {
+	// Only the versioned JSON is the report. config.json and trials.jsonl are
+	// private resumable checkpoints, not published report assets.
 	fs.writeFileSync(path.join(dir, "report.json"), JSON.stringify(report, null, 2) + "\n");
-	fs.writeFileSync(path.join(dir, "report.md"), renderDungeonReportMarkdown(report));
-	fs.writeFileSync(path.join(dir, "report.csv"), renderDungeonReportCsv(report.trials));
-	fs.writeFileSync(path.join(dir, "index.html"), renderDungeonReportHtml(report));
-	const catalog = buildCatalogBalance(report.options.expansions);
-	fs.writeFileSync(path.join(dir, "catalog.json"), JSON.stringify(catalog, null, 2) + "\n");
-	fs.writeFileSync(path.join(dir, "catalog.md"), renderCatalogMarkdown(catalog));
-	fs.writeFileSync(path.join(dir, "catalog.csv"), renderCatalogCsv(catalog));
-	fs.writeFileSync(path.join(dir, "catalog.html"), renderCatalogHtml(catalog));
 }
 
 export function runDungeonReport(args: readonly string[]): string | null {
+	assertLocalReportExecution();
 	const options = parseDungeonReportArgs(args);
 	const { benchmark } = options;
 	const plan = benchmarkPlan(benchmark);
@@ -185,7 +142,13 @@ export function runDungeonReport(args: readonly string[]): string | null {
 	}
 
 	const trials = plan.map((test) => byKey.get(benchmarkCaseKey(test))!);
-	const report: DungeonReportData = {
+	const report: DungeonReportData & {
+		readonly schemaVersion: 1;
+		readonly kind: "simulation";
+		readonly catalog: ReturnType<typeof buildCatalogBalance>;
+	} = {
+		schemaVersion: 1,
+		kind: "simulation",
 		generatedAt: new Date().toISOString(),
 		options: benchmark,
 		completed: trials.length,
@@ -193,12 +156,12 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		trials,
 		summaries: summarizeBenchmark(benchmark, trials),
 		expansionNames: Object.fromEntries(getEnabledExpansions().map((pack) => [pack.id, pack.name])),
+		catalog: catalogPreview,
 	};
 	saveReport(dir, report);
-	console.log("\nRelatório visual: " + path.join(dir, "index.html"));
-	console.log("Dados: " + path.join(dir, "report.json") + " | report.csv | report.md");
-	console.log("Catálogos: " + path.join(dir, "catalog.html") + " | catalog.csv | catalog.json | catalog.md");
-	console.log("Resultados gravados apenas localmente; nada foi publicado no site.");
+	console.log("\nRelatório JSON: " + path.join(dir, "report.json"));
+	console.log("Abra http://localhost:5173/leveling-report com npm run dev.");
+	console.log("Resultados gravados apenas localmente; nada é publicado no site.");
 	return dir;
 }
 
