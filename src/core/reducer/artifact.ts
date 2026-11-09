@@ -1,45 +1,42 @@
 import type { GameHandler } from "../gameEngine";
 import { abilityGrants } from "../gameEngine";
-import { canExecuteAbilityGrant, executeAbilityGrant } from "../abilities/executor";
-import { enemiesOf, pausedOf, pendingSkillChoiceOf, pendingSkillTargetOf, pendingTriggerInterruptOf } from "../state/access";
+import { executeAbilityGrant } from "../abilities/executor";
 import { gameOf } from "../../engine/state";
-import { matchesDamageOverTimeStatus } from "../rules/damageOverTime";
+import { legalArtifactActions } from "../rules/artifactActivation";
 import { log } from "./utils";
 
-/** Manual activation of a group artifact in a combat decision window. */
+/** The same allowed actions feed the on-screen controls and the bot. */
 export const artifactHandler: GameHandler = {
-  id: "artifact-activation",
-  phases: ["HERO_ACTION", "BOSS_COMBAT"],
-  actions: ["USE_ARTIFACT"],
-  legalActions: () => [],
-  apply(state, action, engine) {
-    if (action.type !== "USE_ARTIFACT") return state;
-    if (pausedOf(state) || pendingSkillChoiceOf(state) || pendingSkillTargetOf(state) || pendingTriggerInterruptOf(state))
-      return log(state, "[AVISO] Conclua a escolha pendente primeiro.");
-    if (!gameOf(state).combat ||
-      !["selecting_hero", "selecting_target"].includes(gameOf(state).combat?.phase ?? ""))
-      return log(state, "[AVISO] Ative o artefato durante uma janela de ação do combate.");
-    const artifact = gameOf(state).groupArtifacts.find((entry) => entry.cardId === action.payload.artifactId);
-    if (!artifact) return log(state, "[AVISO] Artefato não pertence ao grupo.");
-    const enemy = enemiesOf(state).find((unit) =>
-      unit.id === action.payload.targetEnemyId && unit.status === "active");
-    if (!enemy || !enemy.conditions.some((condition) =>
-      matchesDamageOverTimeStatus(condition, "poison") || condition.startsWith("poison:")))
-      return log(state, "[AVISO] Escolha um inimigo vivo com pelo menos um stack de Veneno.");
-    const grant = abilityGrants(engine, artifact.cardId).find((entry) =>
-      entry.activation.kind === "manual" &&
-      entry.abilityId === "witch_artifact_corrupted_heart_burst");
-    if (!grant) return log(state, "[AVISO] Habilidade do artefato indisponível.");
-    const source = {
-      kind: "artifact" as const,
-      cardId: artifact.cardId,
-      ...(artifact.carriedBy ? { sourceHeroId: artifact.carriedBy } : {}),
-    };
-    const targetIds = [enemy.id];
-    const unavailable = canExecuteAbilityGrant(engine, state, source, grant, "manual", undefined, targetIds);
-    if (unavailable) return log(state, "[AVISO] " + unavailable);
-    return executeAbilityGrant(engine, state, {
-      source, grant, triggeredBy: "manual", targetIds,
-    });
-  },
+	id: "artifact-activation",
+	phases: ["HERO_ACTION", "BOSS_COMBAT"],
+	actions: ["USE_ARTIFACT"],
+	legalActions(state, _player, engine) {
+		return legalArtifactActions(engine, state);
+	},
+	apply(state, action, engine) {
+		if (action.type !== "USE_ARTIFACT") return state;
+		const wanted = action.payload;
+		const allowed = legalArtifactActions(engine, state).some((candidate) =>
+			candidate.type === "USE_ARTIFACT" &&
+			candidate.payload.artifactId === wanted.artifactId &&
+			candidate.payload.abilityId === wanted.abilityId &&
+			candidate.payload.targetEnemyId === wanted.targetEnemyId &&
+			candidate.payload.targetHeroId === wanted.targetHeroId);
+		if (!allowed) return log(state, "[AVISO] Ação ou alvo do artefato indisponível nesta janela.");
+		const artifact = gameOf(state).groupArtifacts.find((entry) => entry.cardId === wanted.artifactId);
+		const grant = abilityGrants(engine, wanted.artifactId).find((entry) =>
+			entry.abilityId === wanted.abilityId && entry.activation.kind === "manual");
+		if (!artifact || !grant) return log(state, "[AVISO] Artefato não pertence ao grupo.");
+		return executeAbilityGrant(engine, state, {
+			source: {
+				kind: "artifact",
+				cardId: artifact.cardId,
+				...(artifact.carriedBy ? { sourceHeroId: artifact.carriedBy } : {}),
+			},
+			grant,
+			triggeredBy: "manual",
+			targetIds: wanted.targetEnemyId ? [wanted.targetEnemyId] :
+				wanted.targetHeroId ? [wanted.targetHeroId] : [],
+		});
+	},
 };
