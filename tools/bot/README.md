@@ -90,6 +90,19 @@ npm run bot:dungeon-report -- --runs 10 --seed 1 --max-steps 1000 --output tools
 
 As opções disponíveis são `--runs N`, `--seed N`, `--max-steps N`, `--heroes a,b`, `--expansions id1,id2`, `--profiles a,b`, `--difficulties a,b`, `--output pasta`, `--resume` e `--dry-run`. Por padrão, **nenhum relatório aparece no site de produção**: é uma ferramenta de desenvolvimento, executada via npm, e os resultados locais não são versionados nem publicados automaticamente. Uma seed controla as cartas **iniciais**, não força todas as decisões futuras a seguirem o mesmo caminho. As taxas medem a política do bot nas seeds observadas — não garantem a força real dos heróis.
 
+## Auditoria rápida de cartas (sem jogar partidas)
+
+Para gerar imediatamente as tabelas dos módulos habilitados, sem executar o simulador:
+
+```bash
+npm run bot:catalog-report
+
+# Inspecionar somente a expansão da Bruxa:
+npm run bot:catalog-report -- --expansions torre-grande-bruxa-caldeirao
+```
+
+Abra `tools/bot/runs/catalog-<data>/catalog.html`. O comando também gera CSV, JSON e Markdown com todos os heróis, criaturas, salas e itens descobertos. É a forma mais rápida de localizar salas subdimensionadas e comparar o nível branco antes de gastar tempo com milhares de simulações.
+
 ## Como funciona o leveling preliminar
 
 - **Criaturas**: índice usa apenas vida, dano, acerto e dados **brancos (índice 0)**, somados ao impacto indicativo das habilidades normais. As habilidades `requiresAwakening: true` (roxas) não entram na nota. O critério é exploratório: habilidades e efeitos complexos não equivalem a dano direto.
