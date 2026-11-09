@@ -53,9 +53,9 @@ npm run bot -- --games 100 --seed 1 --profile random --heroes barbarian,cleric,m
 npm run bot:balance -- --solo-seeds 20 --team-seeds 5 --seed 1 --difficulty normal --profile power-player
 ```
 
-O comando joga cada herói sozinho e todas as combinações possíveis de três heróis (com 12 heróis, 220 trios). Ele usa o chefe padrão da Fornalha; para comparar módulos isolados, prefira `bot:dungeon-report`. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
+O comando joga cada herói sozinho e todas as combinações possíveis de três heróis (com 12 heróis, 220 trios). Agora percorre todas as expansões habilitadas, escolhendo o chefe e os baralhos do respectivo módulo. Para comparar também os cinco perfis e dificuldades, use `bot:dungeon-report`. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
 
-Use `--mode solo` ou `--mode team` para rodar só uma das modalidades. Com `--mode solo --hero mage`, rode um herói específico. A auditoria atual e suas limitações estão em `docs/BALANCE_AUDIT_2026-11-03.md`.
+Use `--mode solo` ou `--mode team` para rodar só uma das modalidades e `--expansions fornalha-sombria` para limitar o módulo. Com `--mode solo --hero mage`, rode um herói específico. A auditoria atual e suas limitações estão em `docs/BALANCE_AUDIT_2026-11-03.md`.
 
 Aliases: `barbarian`, `paladin`, `cleric`, `rogue`, `warrior`, `necromancer`, `mage`, `hunter`. `explorer` prioriza experimentar habilidades; `casual` varia escolhas; `speedrunner` acelera ataques e progressão. `power-player` compara sequências curtas de Runa, Fúria, Marca, Eco e ataque usando a distribuição dos dados, o dano médio e a chance de abate. Ele desconta o custo da ação do mago e o dano sofrido pelo bárbaro. O plano escolhido aparece no `bot:watch` e no `bot:screen`. Ainda não há busca completa de todos os turnos ou otimização de equipamento.
 
@@ -134,7 +134,7 @@ Tudo fica em `tools/bot/runs/`, fora do git:
 | `port.ts`, `ai.ts`, `watch.ts` | IA sem navegador e log ao vivo |
 | `profiles.ts` | Perfis, aliases de heróis e configuração fixa |
 | `play.ts`, `run.ts`, `invariants.ts` | Lote de partidas e checagem de invariantes |
-| `balance.ts` | Amostra pareada de jogos solo e todas as equipes de três com heróis descobertos no catálogo |
+| `balance.ts` | Amostra pareada de jogos solo e todas as equipes de três, separadas por expansão |
 | `dungeonBenchmark.ts`, `dungeonReport.ts` | Ensaio independente por boss/expansão, com todos os heróis |
 | `catalogBalance.ts` | Inventário e classificação comparativa de criaturas, salas, heróis e equipamentos |
 
