@@ -1,4 +1,5 @@
 import type { ManualArtifactAction } from "@/core/rules/artifactActivation";
+import { translate } from "@/i18n";
 import { displayCardName as getCardName } from "@/i18n/catalogs";
 import { Modal } from "@/ui/components/Modal";
 import { ActionButton } from "@/ui/components/ActionButton";
@@ -24,12 +25,12 @@ export function UseArtifactModal({
 		onClose();
 	}
 	return (
-		<Modal title={"Usar " + getCardName(action.artifactId)} onClose={onClose}>
+		<Modal title={translate("game:components.useArtifactModal.title", { name: getCardName(action.artifactId) })} onClose={onClose}>
 			<div className="flex flex-col gap-2">
-				{!action.available && <p role="status">{action.reason ?? "Ativação indisponível."}</p>}
+				{!action.available && <p role="status">{action.reason ?? translate("game:components.useArtifactModal.unavailable")}</p>}
 				{action.available && action.requiresTarget && (
 					<>
-						<p>Escolha o alvo da habilidade:</p>
+						<p>{translate("game:components.useArtifactModal.chooseTarget")}</p>
 						{action.targets.map((target) => (
 							<ActionButton key={target.kind + ":" + target.id}
 								label={target.label} variant="secondary"
@@ -38,9 +39,9 @@ export function UseArtifactModal({
 					</>
 				)}
 				{action.available && !action.requiresTarget && (
-					<ActionButton label="Confirmar uso" variant="primary" onClick={() => use()} />
+					<ActionButton label={translate("game:components.useArtifactModal.confirm")} variant="primary" onClick={() => use()} />
 				)}
-				<ActionButton label="Cancelar" variant="secondary" onClick={onClose} />
+				<ActionButton label={translate("game:components.useArtifactModal.cancel")} variant="secondary" onClick={onClose} />
 			</div>
 		</Modal>
 	);
