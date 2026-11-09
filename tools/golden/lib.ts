@@ -45,13 +45,19 @@ export function stableStringify(value: unknown): string {
 	});
 }
 
+/**
+ * Golden files deliberately cover the original public game state.
+ * The artifactActions UI command projection is tested independently and must
+ * not invalidate deterministic gameplay snapshots from before the new controls.
+ */
 export function stableView(state: GameState): unknown {
-	return JSON.parse(stableStringify(playerView(engine, state)));
+	const { artifactActions: _uiActions, ...gameplayView } = playerView(engine, state);
+	return JSON.parse(stableStringify(gameplayView));
 }
 
 export function hashView(state: GameState): string {
 	return createHash("sha256")
-		.update(stableStringify(playerView(engine, state)))
+		.update(stableStringify(stableView(state)))
 		.digest("hex")
 		.slice(0, 16);
 }
