@@ -1,8 +1,6 @@
-import fs from "node:fs";
-import path from "node:path";
 import { runInNewContext } from "node:vm";
 import { describe, expect, it } from "vitest";
-import { runDungeonReport } from "./dungeonReport";
+import { parseDungeonReportArgs } from "./dungeonReport";
 import {
 	type BenchmarkTrial,
 	benchmarkCaseKey,
@@ -84,28 +82,19 @@ describe("ensaio pareado de masmorra", () => {
 		expect(renderDungeonReportCsv(trials).split("\n")).toHaveLength(5);
 		expect(renderDungeonReportMarkdown(report)).toContain("Impasses");
 	});
-	it("executa a CLI em uma amostra pequena e gera HTML, CSV e JSON fora do build", () => {
-		const output = path.resolve("tools/bot/runs", "dungeon-smoke-" + process.pid);
-		try {
-			if (fs.existsSync(output)) fs.rmSync(output, { recursive: true, force: true });
-			const target = runDungeonReport(["--runs", "1", "--seed", "13", "--expansions", "fornalha-sombria",
-				"--heroes", "barbarian", "--profiles", "random",
-				"--difficulties", "normal", "--max-steps", "40", "--output", output]);
-			expect(target).toBe(output);
-			const data = JSON.parse(fs.readFileSync(path.join(output, "report.json"), "utf8"));
-			expect(data.completed).toBe(1);
-			expect(data.expected).toBe(1);
-			expect(data.trials).toHaveLength(1);
-			expect(fs.readFileSync(path.join(output, "index.html"), "utf8")).toContain("O teste de cada herói");
-			expect(fs.existsSync(path.join(output, "report.csv"))).toBe(true);
-			expect(fs.existsSync(path.join(output, "trials.jsonl"))).toBe(true);
-			expect(fs.existsSync(path.join(output, "catalog.html"))).toBe(true);
-			expect(fs.existsSync(path.join(output, "catalog.csv"))).toBe(true);
-			expect(fs.readFileSync(path.join(output, "catalog.md"), "utf8")).toContain("Fornalha Sombria");
-		} finally {
-			fs.rmSync(output, { recursive: true, force: true });
+	it("não permite gerar relatórios de leveling parciais", () => {
+		const defaults = defaultBenchmarkOptions();
+		const options = parseDungeonReportArgs(["--runs", "2", "--seed", "17"]);
+		expect(options.benchmark.heroes).toEqual(defaults.heroes);
+		expect(options.benchmark.expansions).toEqual(defaults.expansions);
+		expect(options.benchmark.profiles).toEqual(defaults.profiles);
+		expect(options.benchmark.difficulties).toEqual(defaults.difficulties);
+		expect(options.benchmark.runs).toBe(2);
+		expect(options.benchmark.seed).toBe(17);
+		for (const filter of ["--heroes", "--expansions", "--profiles", "--difficulties"]) {
+			expect(() => parseDungeonReportArgs([filter, "foo"])).toThrow(/desconhecido/);
 		}
-	}, 60_000);
+	});
 
 	it("filtra um herói e agrega vitórias de todos os perfis por dificuldade no HTML", () => {
 		const defaults = defaultBenchmarkOptions();
