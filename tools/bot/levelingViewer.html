@@ -90,6 +90,14 @@ footer {color:#8a9db0;text-align:center;padding:20px 0 50px;font-size:.8rem}
 <p class="hint">Quantas criaturas cada sala gera para 1, 2, 3 ou 4 heróis. Essa distribuição ajuda a identificar módulos subdimensionados.</p>
 <div class="scroll"><table><thead><tr><th>Expansão</th><th>1 herói</th><th>2 heróis</th><th>3 heróis</th><th>4 heróis</th></tr></thead><tbody id="room-summary"></tbody></table></div>
 </section>
+<section class="panel" id="leveling-panel" hidden>
+<h2>Pontuação de poder · Leveling 2.0</h2>
+<p class="hint">Notas relativas de 0 a 100 para os heróis; ameaça estimada para criaturas e salas. Calculadas por cor com d6 e empate causando 1 de dano. Os valores são heurísticos, NÃO porcentagens de vitória. Roxo considera habilidades exclusivas do Despertar. Clique em uma linha para inspecionar habilidades.</p>
+<label class="control" style="margin-bottom:12px">Categoria
+<select id="leveling-type"><option value="heroes">Heróis</option><option value="creatures">Criaturas</option><option value="rooms">Salas</option></select></label>
+<div class="scroll"><table><thead id="leveling-head"></thead><tbody id="leveling-body"></tbody></table></div>
+<p class="hint" id="leveling-detail" style="margin-top:16px">Selecione uma carta para ver os detalhes.</p>
+</section>
 </main>
 <footer>Relatórios privados em tools/bot/runs · Disponível somente pelo servidor de desenvolvimento local</footer>
 <script>
@@ -212,12 +220,54 @@ function catalog(doc){
   return '<tr><td>'+esc(p.name)+'</td>'+cells.join("")+'</tr>';
  }).join("");
 }
+function leveling(doc){
+ var panel=elt("leveling-panel");
+ var catalog=doc.catalog||{};
+ panel.hidden=!catalog.levelingVersion;
+ if(panel.hidden)return;
+ var mode=elt("leveling-type").value;
+ var columns=mode==="heroes"?["Carta / Expansão","Combate","Descarte","Sobrevivência","Utilidade","Progressão","Branco","Amarelo","Laranja","Vermelho","Roxo"]:
+  mode==="creatures"?["Criatura / Expansão","Ameaça","Branco","Amarelo","Laranja","Vermelho","Roxo"]:
+  ["Sala / Expansão","1 herói","2 heróis","3 heróis","4 heróis","Notas"];
+ elt("leveling-head").innerHTML="<tr>"+columns.map(function(x){return "<th>"+esc(x)+"</th>";}).join("")+"</tr>";
+ var items=[];
+ catalog.expansions.forEach(function(p){(p[mode]||[]).forEach(function(x){if(x.leveling)items.push({card:x,pack:p.name});});});
+ elt("leveling-body").innerHTML=items.map(function(entry,i){
+  var x=entry.card,l=x.leveling,values;
+  if(mode==="heroes")values=[l.combat,l.dungeon,l.survival,l.utility,l.progression].concat(l.colors.map(function(color){return color.score;}));
+  else if(mode==="creatures")values=[l.combat].concat(l.colors.map(function(color){return color.score;}));
+  else values=l.threatByPlayers.concat([(x.enemiesByPlayers||[]).join("/")+" inimigos"]);
+  return '<tr data-card-index="'+i+'" tabindex="0" style="cursor:pointer"><td class="hero">'+esc(x.name)+'<div class="origin">'+esc(entry.pack)+'</div></td>'+
+    values.map(function(v){return "<td>"+esc(v)+"</td>";}).join("")+"</tr>";
+ }).join("");
+ elt("leveling-detail").textContent="Selecione uma carta para ver os detalhes. Pesos: "+JSON.stringify(catalog.combatWeights||{})+".";
+ var show=function(i){
+  var item=items[i];if(!item)return;
+  var l=item.card.leveling;
+  var abilities=l.abilities||l.skills||[];
+  var details=abilities.map(function(a){
+   return a.id+" = "+a.score+" (impacto "+a.impact+", frequência "+a.frequency+", condição "+a.condition+", uso "+a.utilization+")"+
+    (a.awakeningOnly?" [roxo]":"")+(a.uncertain?" [estimativa incompleta]":"");
+  });
+  var colors=l.colors||[];
+  var body="Carta: "+item.card.name+" | "+item.pack+"\n"+
+   colors.map(function(c){return c.color+": combate "+c.score+", dano esperado "+c.expectedDamage+", dano sofrido "+c.expectedDamageTaken+", acerto "+c.winProbability+"%, empate "+c.tieProbability+"%";}).join("\n")+
+   "\nHabilidades:\n"+(details.join("\n")||"Nenhuma")+
+   "\nAlertas:\n"+((l.warnings||[]).join("\n")||"Nenhum");
+  var detail=elt("leveling-detail");detail.textContent=body;detail.style.whiteSpace="pre-wrap";
+ };
+ elt("leveling-body").querySelectorAll("tr[data-card-index]").forEach(function(tr){
+  tr.addEventListener("click",function(){show(Number(tr.dataset.cardIndex));});
+  tr.addEventListener("keydown",function(event){if(event.key==="Enter"||event.key===" "){event.preventDefault();show(Number(tr.dataset.cardIndex));}});
+ });
+}
 function render(){
  var present=!!current;
- ["stats","matrix-panel","catalog-panel"].forEach(function(id){elt(id).hidden=!present;});
+ ["stats","matrix-panel","catalog-panel","leveling-panel"].forEach(function(id){elt(id).hidden=!present;});
  if(!present)return;
  var numHeroes=matrix(current);
  catalog(current);
+ leveling(current);
  var packs=current.catalog.expansions.length;
  var trials=current.trials||[];
  var wins=trials.filter(function(t){return !t.violation&&t.outcome==="VICTORY";}).length;
@@ -230,6 +280,7 @@ function render(){
 }
 select.addEventListener("change",openSelected);
 profile.addEventListener("change",function(){if(current)render();});
+elt("leveling-type").addEventListener("change",function(){if(current)leveling(current);});
 elt("refresh").addEventListener("click",listReports);
 elt("file-input").addEventListener("change",async function(event){
  var file=event.target.files&&event.target.files[0];
