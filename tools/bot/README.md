@@ -47,13 +47,13 @@ npm run bot -- --games 100 --seed 1 --profile speedrunner --heroes barbarian,cle
 npm run bot -- --games 100 --seed 1 --profile random --heroes barbarian,cleric,mage --difficulty normal
 ```
 
-**Medir o equilíbrio dos oito heróis** na dificuldade normal:
+**Medir o equilíbrio de todos os heróis habilitados** na dificuldade normal:
 
 ```bash
 npm run bot:balance -- --solo-seeds 20 --team-seeds 5 --seed 1 --difficulty normal --profile power-player
 ```
 
-O comando joga cada herói sozinho e todas as 56 equipes possíveis de três heróis. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
+O comando joga cada herói sozinho e todas as combinações possíveis de três heróis (com 12 heróis, 220 trios). Ele usa o chefe padrão da Fornalha; para comparar módulos isolados, prefira `bot:dungeon-report`. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
 
 Use `--mode solo` ou `--mode team` para rodar só uma das modalidades. Com `--mode solo --hero mage`, rode um herói específico. A auditoria atual e suas limitações estão em `docs/BALANCE_AUDIT_2026-11-03.md`.
 
@@ -61,7 +61,7 @@ Aliases: `barbarian`, `paladin`, `cleric`, `rogue`, `warrior`, `necromancer`, `m
 
 ## Ensaio de masmorras: todos os heróis, perfis e dificuldades (somente desenvolvimento)
 
-O experimento usa **10 seeds distintas de masmorra**. Para **cada** seed, repete a mesma configuração inicial de salas/baralhos para os **8 heróis individualmente**, os **5 perfis** e as **5 dificuldades** — são **2.000 partidas** no total. Isso evita jogar dez vezes a *mesma seed*, que produziria dez resultados idênticos. A ordem inicial das cartas é verificada antes da execução; o percurso pode divergir conforme decisões e regras.
+O experimento descobre **todos os heróis e expansões habilitados** diretamente nos pacotes em `assets/expansions`. A cada seed joga **cada herói em cada expansão isoladamente**, selecionando o boss da própria expansão, com baralhos exclusivamente daquele módulo. São 10 seeds × 12 heróis × 2 expansões × 5 perfis × 5 dificuldades = **3.000 partidas** no catálogo atual. Novos heróis e módulos entram automaticamente, sem editar listas no bot. A mesma seed produz decks iniciais equivalentes **dentro de cada expansão**, não entre expansões distintas.
 
 ```bash
 # Ver quantas partidas serão executadas, sem começar:
@@ -71,12 +71,14 @@ npm run bot:dungeon-report -- --dry-run
 npm run bot:dungeon-report -- --runs 10 --seed 1 --max-steps 1000
 ```
 
-O resultado é gravado numa pasta datada em `tools/bot/runs/dungeon-<data>/`, **ignoradas pelo Git, fora de `public/` e do build Vite**. Abra `index.html` no navegador para ver um painel escuro, com matriz de taxas de vitória, filtros por perfil/dificuldade, progresso, comparação de perfis e detalhamento das partidas. Também gera `report.json`, `report.csv` (Excel), `report.md`, `config.json` e `trials.jsonl` (checkpoint de cada partida).
+O resultado é gravado numa pasta datada em `tools/bot/runs/dungeon-<data>/`, **ignoradas pelo Git, fora de `public/` e do build Vite**. Abra `index.html` no navegador para ver um painel escuro, com matriz de taxas de vitória, filtros por expansão/herói/perfil/dificuldade, comparativo das taxas de vitória entre expansões e detalhamento das partidas. Também gera `report.json`, `report.csv` (Excel), `report.md`, `config.json` e `trials.jsonl` (checkpoint). Uma segunda página, **`catalog.html`**, apresenta os atributos brancos de todos os heróis e criaturas, o número de inimigos por sala para grupos de 1 a 4 heróis, a dificuldade estimada de cada sala e a lista de itens/equipamentos/habilidades. Os mesmos dados saem em `catalog.json`, `catalog.csv` e `catalog.md`.
 
-Para um ensaio curto de validação (uma única combinação), ou selecionar heróis, perfis e dificuldades:
+Para um ensaio curto de validação, ou selecionar heróis, expansões, perfis e dificuldades:
 
 ```bash
 npm run bot:dungeon-report -- --runs 1 --heroes mage --profiles power-player --difficulties normal --max-steps 100
+# Apenas a Bruxa (chefe, salas, monstros e loot da própria expansão):
+npm run bot:dungeon-report -- --runs 3 --expansions torre-grande-bruxa-caldeirao --heroes hero_oak_guardian --profiles casual --difficulties normal
 npm run bot:dungeon-report -- --runs 10 --heroes cleric,rogue,mage --profiles casual,power-player --difficulties easy,normal
 ```
 
@@ -86,7 +88,15 @@ Se interromper um ensaio grande, retome **com os mesmos parâmetros** e a pasta 
 npm run bot:dungeon-report -- --runs 10 --seed 1 --max-steps 1000 --output tools/bot/runs/dungeon-PASTA-EXISTENTE --resume
 ```
 
-As opções disponíveis são `--runs N`, `--seed N`, `--max-steps N`, `--heroes a,b`, `--profiles a,b`, `--difficulties a,b`, `--output pasta`, `--resume` e `--dry-run`. Por padrão, **nenhum relatório aparece no site de produção**: é uma ferramenta de desenvolvimento, executada via npm, e os resultados locais não são versionados nem publicados automaticamente. Uma seed controla as cartas **iniciais**, não força todas as decisões futuras a seguirem o mesmo caminho. As taxas medem a política do bot nas seeds observadas — não garantem a força real dos heróis.
+As opções disponíveis são `--runs N`, `--seed N`, `--max-steps N`, `--heroes a,b`, `--expansions id1,id2`, `--profiles a,b`, `--difficulties a,b`, `--output pasta`, `--resume` e `--dry-run`. Por padrão, **nenhum relatório aparece no site de produção**: é uma ferramenta de desenvolvimento, executada via npm, e os resultados locais não são versionados nem publicados automaticamente. Uma seed controla as cartas **iniciais**, não força todas as decisões futuras a seguirem o mesmo caminho. As taxas medem a política do bot nas seeds observadas — não garantem a força real dos heróis.
+
+## Como funciona o leveling preliminar
+
+- **Criaturas**: índice usa apenas vida, dano, acerto e dados **brancos (índice 0)**, somados ao impacto indicativo das habilidades normais. As habilidades `requiresAwakening: true` (roxas) não entram na nota. O critério é exploratório: habilidades e efeitos complexos não equivalem a dano direto.
+- **Faixas fácil / média / difícil**: calculadas com os tercis de ameaça das criaturas da **Fornalha Sombria**, congelando a régua entre expansões.
+- **Salas**: nota separada para 1, 2, 3 e 4 heróis, usando quantidade declarada de inimigos × ameaça média das criaturas da expansão e impacto das habilidades da sala. O relatório destaca quantas salas têm menos de quatro criaturas quando jogadas por quatro heróis e lista criatura especial, se declarada.
+- **Itens**: todas as cartas de item do pacote, com classe, slot e habilidades; os scores de efeitos são descritivos, não preços nem uma ordem automática de balanceamento.
+- **Resultados empíricos**: vitórias, derrotas, impasses e salas vencidas pelo bot são apresentados por expansão, com os **mesmos heróis, perfil, dificuldade e seeds**. Campanha, escala de cores, imunidades especiais propostas e rebalanceamento automático de JSON ficam fora desta primeira fase.
 
 ## O que ele gera
 
@@ -111,7 +121,9 @@ Tudo fica em `tools/bot/runs/`, fora do git:
 | `port.ts`, `ai.ts`, `watch.ts` | IA sem navegador e log ao vivo |
 | `profiles.ts` | Perfis, aliases de heróis e configuração fixa |
 | `play.ts`, `run.ts`, `invariants.ts` | Lote de partidas e checagem de invariantes |
-| `balance.ts` | Amostra pareada de jogos solo e todas as equipes de três |
+| `balance.ts` | Amostra pareada de jogos solo e todas as equipes de três com heróis descobertos no catálogo |
+| `dungeonBenchmark.ts`, `dungeonReport.ts` | Ensaio independente por boss/expansão, com todos os heróis |
+| `catalogBalance.ts` | Inventário e classificação comparativa de criaturas, salas, heróis e equipamentos |
 
 ## Limites
 
