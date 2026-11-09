@@ -167,8 +167,11 @@ export function evaluateCard(card:CombatCard,opponent:CombatCard):CardLeveling{
 export function evaluateRoom(room:RoomCard,creatures:readonly CreatureCard[],referenceHero:HeroCard):RoomLeveling{
  const skills=evaluateAbilities(room.id);
  const mean=COLORS.map((_,i)=>average(creatures.map(c=>evaluateCombat(c,referenceHero)[i].score)));
- const byColor=room.enemiesByPlayers.map(n=>mean.map(v=>round(n*v+
-  skills.filter(s=>!s.awakeningOnly).reduce((a,s)=>a+s.score,0)*1.5)));
+ const byColor=room.enemiesByPlayers.map((n,partyIndex)=>mean.map((v,colorIndex)=>{
+  const roomSkills=skills.filter(s=>!s.awakeningOnly||colorIndex===4).reduce((a,s)=>a+s.score,0);
+  const raw=n*v+roomSkills*1.5;
+  return round(clamp(raw/((partyIndex+1)*70)*100));
+ }));
  return {version:LEVELING_VERSION,threatByPlayers:byColor.map(a=>a[0]),
   threatByPlayersAndColor:byColor,skills,
   warnings:["Ameaça estimada pela composição média; sinergia, invocações e criatura especial exigem análise de cenário."]};
