@@ -21,7 +21,7 @@ export function GroupArtifactPanel({
 	cardImageUrls?: CardImageUrls;
 }) {
 	return (
-		<section className="game-group-artifacts" aria-label="Artefatos do grupo" style={{
+		<section className="game-group-artifacts" aria-label={translate("game:components.groupArtifactPanel.ariaLabel")} style={{
 			flex: "0 0 auto",
 			border: "1px solid rgba(208, 164, 91, 0.75)",
 			borderRadius: 8,
@@ -52,7 +52,7 @@ export function GroupArtifactPanel({
 									background: "rgba(18,13,12,.5)",
 								}}>
 									<button type="button" onClick={() => onArtifactClick(artifact.cardId, "artifact")}
-										aria-label={"Ver " + getCardName(artifact.cardId)}
+										aria-label={translate("game:components.groupArtifactPanel.inspect", { name: getCardName(artifact.cardId) })}
 										style={{ width: "100%", border: 0, background: "none", color: "inherit", padding: 0,
 											cursor: "pointer", textAlign: "left", fontSize: 11 }}>
 										{image ? <img src={image} alt="" style={{
@@ -73,16 +73,16 @@ export function GroupArtifactPanel({
 									{actions.length > 0 ? actions.map((action) => (
 										<button key={action.abilityId} type="button"
 											disabled={!action.available}
-											title={action.reason ?? "Ativar habilidade do artefato"}
+											title={action.reason ?? translate("game:components.groupArtifactPanel.activateTitle")}
 											onClick={() => onArtifactUse(artifact.cardId, action.abilityId)}
 											style={{ display: "block", marginTop: 6, width: "100%", padding: "5px 4px",
 												borderRadius: 5, border: "1px solid #ac8749", fontSize: 11,
 												background: action.available ? "#5d4017" : "#35302a",
 												color: action.available ? "#ffe4a0" : "#aaa39a",
 												cursor: action.available ? "pointer" : "not-allowed" }}>
-											Usar
+											{translate("game:components.groupArtifactPanel.use")}
 										</button>
-									)) : <small style={{ display: "block", opacity: .65, marginTop: 5, fontSize: 10 }}>Passivo / reativo</small>}
+									)) : <small style={{ display: "block", opacity: .65, marginTop: 5, fontSize: 10 }}>{translate("game:components.groupArtifactPanel.passiveReactive")}</small>}
 								</article>
 							);
 						})}
