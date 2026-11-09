@@ -113,7 +113,7 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 <div class="sections">
 <section class="panel">
 <h2>Matriz de vitórias por herói</h2>
-<p class="help">Selecione um herói para ver suas chances de vitória em cada dificuldade. Por padrão, os resultados dos cinco perfis de jogador ficam agregados, ponderados pelo número de partidas. Você também pode filtrar um perfil específico. Impasses não são tratados como derrotas.</p>
+<p class="help">Selecione um módulo e um herói para ver a taxa de vitória em cada dificuldade. A seleção começa na expansão de referência; o comparativo abaixo mostra todos os módulos com os mesmos filtros de herói/perfil/dificuldade. A opção "Todas as expansões" agrega taxas e não deve ser confundida com uma masmorra única. Impasses não são tratados como derrotas.</p>
 <div class="controls">
 <label class="control">Expansão <select id="expansion"></select></label>
 <label class="control">Herói <select id="hero"></select></label>
@@ -213,6 +213,7 @@ data.completed+' / '+data.expected+' partidas',
 data.options.expansions.length+' expansões independentes'
 ].map((x)=>'<span class="pill">'+esc(x)+'</span>').join("");
 el("expansion").innerHTML='<option value="all">Todas as expansões</option>'+data.options.expansions.map((id)=>'<option value="'+esc(id)+'">'+esc(expansionName(id))+'</option>').join("");
+el("expansion").value=data.options.expansions[0]||"all";
 el("hero").innerHTML='<option value="all">Todos os heróis</option>'+data.options.heroes.map((h)=>'<option value="'+esc(h)+'">'+esc(nameById.get(h)||h)+'</option>').join("");
 el("profile").innerHTML='<option value="all">Todos os perfis (agregado)</option>'+data.options.profiles.map((p)=>'<option value="'+esc(p)+'">'+esc(profileLabels[p]||p)+'</option>').join("");
 el("difficulty").innerHTML='<option value="all">Todas as dificuldades</option>'+data.options.difficulties.map((d)=>'<option value="'+esc(d)+'">'+esc(diffLabels[d]||d)+'</option>').join("");
