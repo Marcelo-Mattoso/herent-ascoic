@@ -338,7 +338,12 @@ export function resolveManualGrantTarget(engine: GameEngine,
 	grant: AbilityGrant,
 	targetIds?: readonly string[],
 ) {
-	const sourceId = source.sourceHeroId ?? source.sourceEnemyId;
+	// Group artifacts may have no bearer. Use an active hero only to resolve
+	// targeting: do not turn the artifact into a hero-owned cooldown or cost.
+	const sourceId = source.sourceHeroId ?? source.sourceEnemyId ??
+		(source.kind === "artifact"
+			? gameOf(state).heroes.find((hero) => hero.status === "active")?.id
+			: undefined);
 	if (!sourceId)
 		return { kind: "unavailable" as const, reason: "Fonte sem entidade." };
 	return resolveManualSkillTarget(engine, state, targeting(engine, grant), sourceId, targetIds);
