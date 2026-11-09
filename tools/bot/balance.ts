@@ -6,6 +6,7 @@ import { playAiGame } from "./ai";
 import { BOT_HEROES } from "./play";
 import { getEnabledExpansions } from "@/core/data/expansions";
 import { getBoss } from "@/core/data/cards";
+import { assertLocalReportExecution } from "./localLevelingReports";
 import { parseBotDifficulty, parseBotParty, parseBotProfile, setupForRun, type BotProfile } from "./profiles";
 import type { GoldenSetup } from "../golden/lib";
 
@@ -115,6 +116,7 @@ function summarize(trials: readonly Trial[], mode: Trial["mode"], heroIds: reado
 	});
 }
 
+assertLocalReportExecution();
 const opts = parseArgs(process.argv.slice(2));
 const heroIds = opts.hero ? [opts.hero] : BOT_HEROES;
 const parties = combinations(BOT_HEROES, 3);
