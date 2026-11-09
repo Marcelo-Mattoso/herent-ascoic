@@ -4,6 +4,7 @@ import tailwindcss from "@tailwindcss/vite";
 import react from "@vitejs/plugin-react";
 import type { Plugin, ViteDevServer } from "vite";
 import { configDefaults, defineConfig } from "vitest/config";
+import { listSavedReports, readSavedReport, LEVELING_RUNS_ROOT } from "./tools/bot/localLevelingReports";
 
 const boardSourceDir = path.resolve(__dirname, "assets/webp/boards");
 const boardPublicDir = path.resolve(__dirname, "public/generated/boards");
@@ -508,9 +509,68 @@ function assetManifestsPlugin(): Plugin {
 	};
 }
 
+/**
+ * Local developer-only viewer for historical JSON reports.
+ * No assets are emitted to dist, and the route is unavailable in CI/preview.
+ */
+function localLevelingReportsPlugin(): Plugin {
+	return {
+		name: "ascensao-local-leveling-report",
+		apply: "serve",
+		configureServer(server) {
+			if (process.env.CI || process.env.GITHUB_ACTIONS === "true") return;
+			server.middlewares.use((req, res, next) => {
+				const url = (req.url ?? "").split("?")[0] ?? "";
+				if (!url.startsWith("/leveling-report") && !url.startsWith("/__leveling-reports")) {
+					next();
+					return;
+				}
+				res.setHeader("Cache-Control", "no-store");
+				// Reports contain local playtest data; never expose them on a LAN interface.
+				const remote = req.socket.remoteAddress ?? "";
+				if (!/^(::1|127\.[0-9.]+|::ffff:127\.[0-9.]+)$/.test(remote)) {
+					res.statusCode = 403;
+					res.end("Leveling report disponível apenas em localhost.");
+					return;
+				}
+				if (req.method !== "GET") {
+					res.statusCode = 405;
+					res.end("Método não permitido");
+					return;
+				}
+				try {
+					if (url === "/leveling-report" || url === "/leveling-report/") {
+						res.setHeader("Content-Type", "text/html; charset=utf-8");
+						res.setHeader("Content-Security-Policy", "default-src 'none'; script-src 'unsafe-inline'; style-src 'unsafe-inline'; connect-src 'self';");
+						res.end(fs.readFileSync(path.resolve(__dirname, "tools/bot/levelingViewer.html"), "utf8"));
+						return;
+					}
+					res.setHeader("Content-Type", "application/json; charset=utf-8");
+					if (url === "/__leveling-reports") {
+						res.end(JSON.stringify(listSavedReports()));
+						return;
+					}
+					const match = /^\/__leveling-reports\/([a-zA-Z0-9_-]+)$/.exec(url);
+					const report = match ? readSavedReport(LEVELING_RUNS_ROOT, match[1]!) : null;
+					if (!report) {
+						res.statusCode = 404;
+						res.end(JSON.stringify({ error: "Relatório não encontrado" }));
+						return;
+					}
+					res.end(JSON.stringify(report));
+				} catch (error) {
+					res.statusCode = 500;
+					res.setHeader("Content-Type", "application/json; charset=utf-8");
+					res.end(JSON.stringify({ error: error instanceof Error ? error.message : "Erro ao carregar relatório" }));
+				}
+			});
+		},
+	};
+}
+
 export default defineConfig({
 	base: process.env.PAGES_BASE_PATH || "/",
-	plugins: [assetManifestsPlugin(), react(), tailwindcss()],
+	plugins: [assetManifestsPlugin(), localLevelingReportsPlugin(), react(), tailwindcss()],
 	resolve: {
 		alias: {
 			"@": path.resolve(__dirname, "./src"),
