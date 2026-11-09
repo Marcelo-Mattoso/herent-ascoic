@@ -54,7 +54,13 @@
       "empty": "Aún no se encontraron artefactos. Los artefactos recogidos aparecerán aquí con sus habilidades.",
       "bearer": "Lo lleva: {{name}}",
       "shared": "Compartido por el grupo",
-      "hint": "Los efectos respetan sus condiciones y momentos de activación; no ocupan las ranuras de equipo normales."
+      "hint": "Los efectos respetan sus condiciones y momentos de activación; no ocupan las ranuras de equipo normales.",
+      "ariaLabel": "Artefactos del grupo",
+      "inspect": "Ver {{name}}",
+      "activateTitle": "Activar habilidad del artefacto",
+      "use": "Usar",
+      "passiveReactive": "Pasivo / reactivo",
+      "useTitle": "Usar artefacto"
     },
     "actionButton": {},
     "alphaLogPanel": {
@@ -398,7 +404,14 @@
     "stackPreview": {
       "text001": "cartas"
     },
-    "statusBadge": {}
+    "statusBadge": {},
+    "useArtifactModal": {
+      "title": "Usar {{name}}",
+      "unavailable": "Activación no disponible.",
+      "chooseTarget": "Elige el objetivo de la habilidad:",
+      "confirm": "Confirmar uso",
+      "cancel": "Cancelar"
+    }
   },
   "screens": {
     "devPreview": {
