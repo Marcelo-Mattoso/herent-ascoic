@@ -54,7 +54,7 @@ function registerCard(card: ExpansionCard, expansionId: string): void {
 		throw new Error("Carta inválida na expansão " + expansionId);
 	}
 	if (metadata.has(card.id)) throw new Error("ID de carta duplicado entre expansões: " + card.id);
-	if (card.image && !/^images\/[^/]+\.webp$/.test(card.image)) {
+	if (card.image && !/^images\/[^/]+\.(?:webp|png)$/.test(card.image)) {
 		throw new Error("Imagem com caminho inválido: " + card.image);
 	}
 	metadata.set(card.id, { name: card.name, image: card.image, expansionId });

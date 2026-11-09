@@ -32,4 +32,11 @@ As cinco cartas antigas fora da seleção definitiva (Ervas da Lua Velha, Lanter
 - **Último Suspiro da Mata:** uma vez por combate, escolha um inimigo vivo que tenha Veneno; remova todos os stacks independentes e cause **2 pontos de dano direto por stack**.
 - O dano não recebe bônus de armas; artefato não é consumido; conta para os 3 artefatos exigidos pela Bruxa.
 - A ativação do motor usa `USE_ARTIFACT` com `artifactId` e `targetEnemyId` (a interface gráfica ainda precisa expor essa ação).
-- A arte já foi gerada, mas **a imagem WebP ainda precisa ser adicionada ao repositório**; o campo `image` ficará ausente até existir um arquivo real.
+- A arte original do Coração foi vinculada como `images/artifact_corrupted_forest_heart.png` para preservar o PNG enviado; o manifesto aceita PNG nesta exceção, enquanto as demais artes continuam em WebP.
+
+## Auditoria das cinco artes de artefato
+- Colher do Caldeirão Antigo: `images/artifact_ancient_cauldron_spoon.webp`.
+- Olho Verde da Floresta: `images/artifact_green_forest_eye.webp`.
+- Grimório da Torre Torta: `images/artifact_crooked_tower_grimoire.webp`.
+- Glândula da Rainha Aranha: `images/artifact_queen_spider_gland.webp` (imagem do jogo existente, PNG mestre ausente em `imagedata`).
+- Coração Corrompido da Floresta: `images/artifact_corrupted_forest_heart.png` (PNG original preservado).

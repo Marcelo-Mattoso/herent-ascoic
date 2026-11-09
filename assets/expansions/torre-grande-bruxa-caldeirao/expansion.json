@@ -1931,7 +1931,8 @@
         {
           "skillId": "witch_artifact_corrupted_heart_burst"
         }
-      ]
+      ],
+      "image": "images/artifact_corrupted_forest_heart.png"
     }
   ],
   "skills": [

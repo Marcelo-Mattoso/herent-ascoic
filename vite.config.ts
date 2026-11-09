@@ -284,7 +284,7 @@ function writeCardImageManifest() {
 			ids.add(card.id);
 			if (!card.image) continue;
 			const relative = card.image.split("/");
-			if (!/^images\/[^/]+\.webp$/.test(card.image)) {
+			if (!/^images\/[^/]+\.(?:webp|png)$/.test(card.image)) {
 				throw new Error("Imagem inválida para " + card.id);
 			}
 			const source = path.join(packageDir, ...relative);
