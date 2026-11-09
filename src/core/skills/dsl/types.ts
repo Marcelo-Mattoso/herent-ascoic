@@ -94,6 +94,7 @@ export type EffectNode =
 			readonly amount: ExprNode;
 	  }
 	| { readonly kind: "i_apply_poison"; readonly to: string; readonly damage: ExprNode; readonly rounds: ExprNode }
+	| { readonly kind: "i_consume_poison_stacks"; readonly to: string; readonly damagePerStack: number }
 	| {
 			readonly kind: "i_poison_ward";
 			readonly to: string;
