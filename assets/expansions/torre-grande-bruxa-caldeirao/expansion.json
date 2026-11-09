@@ -267,7 +267,7 @@
         11
       ],
       "damage": 3,
-      "xp": 1,
+      "xp": 2,
       "reward": 1,
       "rewardType": "item",
       "skills": [
@@ -353,7 +353,7 @@
         12
       ],
       "damage": 4,
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
       "rewardType": "item",
       "skills": [
@@ -396,7 +396,7 @@
         13
       ],
       "damage": 4,
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
       "rewardType": "item",
       "skills": [
@@ -654,7 +654,7 @@
         12
       ],
       "damage": 2,
-      "xp": 1,
+      "xp": 2,
       "reward": 1,
       "rewardType": "item",
       "skills": [
