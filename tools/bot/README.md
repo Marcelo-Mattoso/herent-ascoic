@@ -82,6 +82,8 @@ O ensaio descobre automaticamente todos os heróis e todas as expansões habilit
 
 O resultado de cada execução fica em **`tools/bot/runs/dungeon-<data>/report.json`** (ignorado pelo Git). Ele inclui percentuais por herói, dificuldade e expansão, todas as partidas, impasses e a auditoria das cartas. Os arquivos `config.json` e `trials.jsonl` são apenas checkpoints privados para retomar um relatório interrompido; não são enviados ao site.
 
+A partir dos relatórios novos, cada partida também registra `progression`: XP recebido, XP gasto, compras por opção (`level_up`, `recover_dungeon`, `buy_item`, `buy_artifact`), saldo e pico de XP, índices de Ímpeto inicial/final/máximo, número de subidas de nível e decisões em que subir nível estava disponível. O painel **Economia de XP e evolução dos heróis** compara médias por herói, expansão, dificuldade e perfil. Os números de oportunidades contam decisões da IA, não turnos distintos; XP é acompanhado pelas mudanças do saldo coletivo e eventuais consumos automáticos fora de `SPEND_XP` aparecem em `xpOtherLoss`. Relatórios antigos continuam legíveis, sem o painel novo. O bot não muda a estratégia de compras neste passo.
+
 A página exibe **um relatório por vez**, selecionado no histórico ordenado por data, com opção de importar um JSON do disco. A primeira tabela tem todos os heróis nas linhas e, nas colunas, cada expansão agrupando todas as dificuldades. Não há seletor de expansão; um seletor opcional de perfil permite inspecionar o efeito da estratégia. O histórico atualiza pelo botão **Atualizar histórico**, sem reiniciar o Vite.
 
 **Ver quantas partidas serão jogadas, sem executar:**
