@@ -72,6 +72,6 @@ describe("auditoria estrutural de dificuldade por expansão", () => {
 		expect(html).toContain("Índice 4p");
 		expect(html).toContain("A Fornalha Sombria");
 		expect(md).toContain("Salas para 4 heróis");
-		expect(md).toContain("equipamentos");
+		expect(md).toContain("### Itens — equipamento");
 	});
 });
