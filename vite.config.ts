@@ -518,7 +518,7 @@ function localLevelingReportsPlugin(): Plugin {
 		name: "ascensao-local-leveling-report",
 		apply: "serve",
 		configureServer(server) {
-			if (process.env.CI || process.env.GITHUB_ACTIONS === "true") return;
+			if (process.env.CI || process.env.GITHUB_ACTIONS === "true" || process.env.NODE_ENV === "production") return;
 			server.middlewares.use((req, res, next) => {
 				const url = (req.url ?? "").split("?")[0] ?? "";
 				if (!url.startsWith("/leveling-report") && !url.startsWith("/__leveling-reports")) {
