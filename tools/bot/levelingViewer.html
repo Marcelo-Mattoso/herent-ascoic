@@ -82,6 +82,11 @@ footer {color:#8a9db0;text-align:center;padding:20px 0 50px;font-size:.8rem}
 <div class="scroll"><table><thead id="matrix-head"></thead><tbody id="matrix-body"></tbody></table></div>
 <div class="legend">Cada célula mostra a porcentagem de vitórias e, abaixo, o número de vitórias / partidas. Traço indica que não há partidas nessa combinação.</div>
 </section>
+<section class="panel" id="progression-panel" hidden>
+<h2>Economia de XP e evolução dos heróis</h2>
+<p class="hint">Médias por partida de cada herói, expansão e dificuldade, respeitando o filtro de perfil. Nível usa o índice de Ímpeto (0=branco, 4=roxo). Compras registram ações SPEND_XP efetivamente aplicadas; oportunidades contam decisões em que subir nível era uma ação disponível. Relatórios antigos não têm esses dados.</p>
+<div class="scroll"><table><thead><tr><th>Herói / expansão / dificuldade</th><th>Partidas</th><th>XP recebido</th><th>XP gasto</th><th>XP final</th><th>Pico XP</th><th>Nível inicial → final / pico</th><th>Subidas nível</th><th>Oportunidades</th><th>Recuperar masmorra</th><th>Comprar item</th><th>Comprar artefato</th><th>Outros gastos</th></tr></thead><tbody id="progression-body"></tbody></table></div>
+</section>
 <section class="panel" id="catalog-panel" hidden>
 <h2>Referência de dificuldade · cartas por expansão</h2>
 <p class="hint">Comparativo estrutural no nível branco, excluindo habilidades exclusivas do roxo. A Fornalha Sombria é a régua; este índice é exploratório e não substitui os resultados do bot.</p>
@@ -203,6 +208,40 @@ function matrix(doc){
  }).join("");
  return heroRows.length;
 }
+function progression(doc){
+ var panel=elt("progression-panel"), trials=(doc.trials||[]).filter(function(t){return t.progression&&(profile.value==="all"||t.profile===profile.value);});
+ panel.hidden=doc.kind!=="simulation"||!trials.length;
+ if(panel.hidden)return;
+ var groups=new Map();
+ trials.forEach(function(t){
+  var key=[t.heroId,t.expansionId,t.difficulty].join("|");
+  if(!groups.has(key))groups.set(key,[]);
+  groups.get(key).push(t.progression);
+ });
+ var names=new Map();
+ (doc.catalog.expansions||[]).forEach(function(p){
+  names.set(p.id,p.name);
+  (p.heroes||[]).forEach(function(h){names.set(h.id,h.name);});
+ });
+ var avg=function(a,f){return a.reduce(function(sum,v){return sum+f(v);},0)/a.length;};
+ var f=function(x){return x.toFixed(1).replace(".",",");};
+ var choice=function(p,k){return (p.xpPurchasesByOption||{})[k]||0;};
+ var other=function(p){return Object.entries(p.xpPurchasesByOption||{}).reduce(function(total,entry){
+  return total+(["level_up","recover_dungeon","buy_item","buy_artifact"].includes(entry[0])?0:entry[1]);},0);};
+ elt("progression-body").innerHTML=Array.from(groups,function(entry){
+  var keys=entry[0].split("|"),a=entry[1];
+  var label=(names.get(keys[0])||keys[0])+" / "+(names.get(keys[1])||keys[1])+" / "+(diffNames[keys[2]]||keys[2]);
+  return "<tr><td class='hero'>"+esc(label)+"</td><td>"+a.length+"</td>"+
+   [f(avg(a,function(p){return p.xpGained;})),f(avg(a,function(p){return p.xpSpent;})),
+    f(avg(a,function(p){return p.xpFinal;})),f(avg(a,function(p){return p.xpPeak;})),
+    f(avg(a,function(p){return p.levelInitial;}))+" → "+f(avg(a,function(p){return p.levelFinal;}))+" / "+f(avg(a,function(p){return p.levelPeak;})),
+    f(avg(a,function(p){return p.levelUpPurchases;})),f(avg(a,function(p){return p.levelUpOpportunities;})),
+    f(avg(a,function(p){return choice(p,"recover_dungeon");})),
+    f(avg(a,function(p){return choice(p,"buy_item");})),
+    f(avg(a,function(p){return choice(p,"buy_artifact");})),
+    f(avg(a,other))].map(function(v){return "<td>"+esc(v)+"</td>";}).join("")+"</tr>";
+ }).join("");
+}
 function catalog(doc){
  var packs=doc.catalog.expansions||[];
  var bands=function(b){return ["easy","medium","hard"].map(function(k){return (b&&b[k])||0;}).join(" / ");};
@@ -263,9 +302,10 @@ function leveling(doc){
 }
 function render(){
  var present=!!current;
- ["stats","matrix-panel","catalog-panel","leveling-panel"].forEach(function(id){elt(id).hidden=!present;});
+ ["stats","matrix-panel","progression-panel","catalog-panel","leveling-panel"].forEach(function(id){elt(id).hidden=!present;});
  if(!present)return;
  var numHeroes=matrix(current);
+ progression(current);
  catalog(current);
  leveling(current);
  var packs=current.catalog.expansions.length;
