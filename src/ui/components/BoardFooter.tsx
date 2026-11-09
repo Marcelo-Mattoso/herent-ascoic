@@ -117,13 +117,13 @@ export function BoardFooter({ view, onArtifactClick, onArtifactUse }: BoardFoote
 							</button>
 							{view.artifactActions.filter((entry) => entry.artifactId === a.cardId).map((action) => (
 								<button key={action.abilityId} type="button"
-									title={action.reason ?? "Usar artefato"}
+									title={action.reason ?? translate("game:components.groupArtifactPanel.useTitle")}
 									disabled={!action.available || !onArtifactUse}
 									onClick={() => onArtifactUse?.(a.cardId, action.abilityId)}
 									style={{ background: action.available ? "#3B6D11" : "#555", color: "white",
 										border: "none", borderRadius: 4, fontSize: 10, padding: "2px 5px",
 										cursor: action.available ? "pointer" : "not-allowed" }}>
-									Usar
+									{translate("game:components.groupArtifactPanel.use")}
 								</button>
 							))}
 						</div>
