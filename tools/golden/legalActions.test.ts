@@ -24,7 +24,10 @@ describe("legalActions do core × candidatos heurísticos dos goldens", () => {
 			let state = initialState(replay.setup);
 			for (const action of replay.actions) {
 				state = applyAction(state, action);
-				expect(legalActions(engine, state), `${file}`).toEqual(candidates(state));
+				// Manual artifact activations are new actions with their own coverage
+				// in artifactActivation.test.ts; keep the legacy golden contract intact.
+				expect(legalActions(engine, state).filter((action) => action.type !== "USE_ARTIFACT"), `${file}`)
+					.toEqual(candidates(state));
 			}
 		}
 	});
@@ -33,9 +36,8 @@ describe("legalActions do core × candidatos heurísticos dos goldens", () => {
 		let steps = 0;
 		for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
 			playGame(setupFromSeed(seed), 3000, (state) => {
-				expect(legalActions(engine, state), `seed ${seed}`).toEqual(
-					candidates(state),
-				);
+				expect(legalActions(engine, state).filter((action) => action.type !== "USE_ARTIFACT"), `seed ${seed}`)
+					.toEqual(candidates(state));
 				steps++;
 			});
 		}
