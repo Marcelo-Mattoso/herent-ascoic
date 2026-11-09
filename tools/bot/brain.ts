@@ -3,6 +3,7 @@ import type { HeroView, PlayerView } from "@/core/projection/playerView";
 import type { BotObservation } from "./observe";
 import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
+import { artifactHasPoisonedTarget } from "@/core/rules/artifactActivation";
 
 export interface ScoredMove {
 	readonly action: Action;
@@ -70,6 +71,22 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 	switch (action.type) {
 		case "CHOOSE_TARGET":
 			return attackScore(view, action.payload.heroId, action.payload.enemyId, profile);
+		case "USE_ARTIFACT": {
+			const { abilityId, targetEnemyId, targetHeroId } = action.payload;
+			if (abilityId === "witch_artifact_corrupted_heart_burst") {
+				const enemy = activeEnemies(view).find((entry) => entry.id === targetEnemyId);
+				if (!enemy || !artifactHasPoisonedTarget(enemy.conditions)) return -1;
+				const stacks = enemy.conditions.filter((condition) =>
+					artifactHasPoisonedTarget([condition])).length;
+				const damage = 2 * stacks;
+				return 105 + 20 * stacks + (damage >= enemy.currentLife ? 65 : 0) +
+					(enemy.id === "boss" ? 25 : 0);
+			}
+			const beneficiary = heroes.find((entry) => entry.id === targetHeroId);
+			return beneficiary
+				? 95 + Math.max(0, beneficiary.maxLife - beneficiary.currentLife) * 12
+				: pressure(view) ? 130 : 75;
+		}
 		case "SELECT_DIE": {
 			const { side, index, value } = action.payload;
 			const current = (side === "hero" ? view.combat?.lastRoll?.heroResults : view.combat?.lastRoll?.enemyResults)?.[index];
