@@ -1,7 +1,7 @@
 import { cardAbilityGrants, lookupAbilityById } from "@/core/data/abilities";
 import { getAllCards } from "@/core/data/cards";
 import { getEnabledExpansions, getExpansionCardMetadata } from "@/core/data/expansions";
-import type { AnyCard, CreatureCard, HeroCard, ItemCard, RoomCard } from "@/core/data/cardTypes";
+import type { AnyCard, CreatureCard, HeroCard, ItemCard, RoomCard, SubbossCard, SubbossRoomCard } from "@/core/data/cardTypes";
 import { SKILLS } from "@/core/data/skills";
 
 export type ThreatBand = "easy" | "medium" | "hard";
@@ -46,6 +46,11 @@ export interface RoomAudit extends CatalogEntry {
 	readonly bandByPlayers: readonly ThreatBand[];
 }
 
+export interface SpecialRoomAudit extends CatalogEntry {
+	readonly linkedSubbossId: string;
+	readonly exits: number;
+}
+
 export interface ItemAudit extends CatalogEntry {
 	readonly itemClass: ItemCard["itemClass"];
 	readonly equipmentSlot: ItemCard["equipmentSlot"] | null;
@@ -58,8 +63,11 @@ export interface ExpansionAudit {
 	readonly bossId: string | null;
 	readonly heroes: readonly HeroAudit[];
 	readonly creatures: readonly CreatureAudit[];
+	readonly subbosses: readonly CreatureAudit[];
 	readonly rooms: readonly RoomAudit[];
+	readonly specialRooms: readonly SpecialRoomAudit[];
 	readonly items: readonly ItemAudit[];
+	readonly artifactCards: readonly CatalogEntry[];
 	readonly artifactCount: number;
 	readonly subbossCount: number;
 	readonly creatureBands: Readonly<Record<ThreatBand, number>>;
@@ -146,7 +154,7 @@ function mean(values: readonly number[]): number {
 	return values.length ? values.reduce((sum, value) => sum + value, 0) / values.length : 0;
 }
 
-function threatScore(card: CreatureCard, skills: readonly SkillAudit[]): number {
+function threatScore(card: CreatureCard | SubbossCard, skills: readonly SkillAudit[]): number {
 	// All combat stats are WHITE (index 0); purple-only skills are excluded.
 	return Math.round(10 * (card.life[0] * 1.2 + card.damage * 2 +
 		card.hitBonus[0] * 0.7 + card.diceByColor[0] * 1.5 +
@@ -210,6 +218,15 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 				hitBonus: card.hitBonus[0], dice: card.diceByColor[0], xp: card.xp,
 				score, band: classifyThreat(score, creatureCuts) };
 		});
+		const subbosses: CreatureAudit[] = cards
+			.filter((c): c is SubbossCard => c.type === "subboss")
+			.map((card) => {
+				const common = entryOf(card);
+				const score = threatScore(card, common.skills);
+				return { ...common, life: card.life[0], damage: card.damage,
+					hitBonus: card.hitBonus[0], dice: card.diceByColor[0], xp: card.xp,
+					score, band: classifyThreat(score, creatureCuts) };
+			});
 		const creatureMean = mean(creatures.map((c) => c.score));
 		const rooms: RoomAudit[] = cards
 			.filter((c): c is RoomCard => c.type === "room")
@@ -220,6 +237,11 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 					exits: card.exits, specialCreatureId: card.specialCreatureId ?? null,
 					scoreByPlayers: scores, bandByPlayers: scores.map((score, p) => classifyThreat(score, roomCuts[p]!)) };
 			});
+		const specialRooms: SpecialRoomAudit[] = cards
+			.filter((c): c is SubbossRoomCard => c.type === "subboss_room")
+			.map((card) => ({ ...entryOf(card),
+				linkedSubbossId: card.linkedSubbossId, exits: card.exits }));
+		const artifactCards = cards.filter((c) => c.type === "artifact").map(entryOf);
 		const items: ItemAudit[] = cards.filter((c): c is ItemCard => c.type === "item").map((card) => {
 			const common = entryOf(card);
 			return { ...common, itemClass: card.itemClass, equipmentSlot: card.equipmentSlot ?? null,
@@ -228,7 +250,7 @@ export function buildCatalogBalance(selectedExpansions?: readonly string[]): Cat
 		return {
 			id: pack.id, name: pack.name,
 			bossId: cards.find((card) => card.type === "boss")?.id ?? null,
-			heroes, creatures, rooms, items,
+			heroes, creatures, subbosses, rooms, specialRooms, items, artifactCards,
 			artifactCount: cards.filter((card) => card.type === "artifact").length,
 			subbossCount: cards.filter((card) => card.type === "subboss").length,
 			creatureBands: countBands(creatures.map((creature) => creature.band)),
@@ -290,6 +312,15 @@ export function renderCatalogMarkdown(data: CatalogBalance): string {
 		lines.push(...markdownTable(["Sala", "Inimigos 1/2/3/4", "Índice 4p", "Faixa 4p", "Saídas", "Criatura especial", "Habilidades"],
 			p.rooms.map((r) => [r.name, r.enemiesByPlayers.join("/"), r.scoreByPlayers[3],
 				r.bandByPlayers[3], r.exits, r.specialCreatureId ?? "—", skillNames(r.skills)])));
+		lines.push("", "### Subchefes (separados das criaturas comuns)", "");
+		lines.push(...markdownTable(["Subchefe", "Vida", "Dano", "Acerto", "Dados", "Índice", "Habilidades"],
+			p.subbosses.map((c) => [c.name, c.life, c.damage, c.hitBonus, c.dice, c.score, skillNames(c.skills)])));
+		lines.push("", "### Salas de subchefe (fora do baralho de salas comuns)", "");
+		lines.push(...markdownTable(["Sala especial", "Subchefe", "Saídas", "Habilidades"],
+			p.specialRooms.map((room) => [room.name, room.linkedSubbossId, room.exits, skillNames(room.skills)])));
+		lines.push("", "### Artefatos", "");
+		lines.push(...markdownTable(["Artefato", "Habilidades"],
+			p.artifactCards.map((a) => [a.name, skillNames(a.skills)])));
 		lines.push("", "### Itens — equipamento, consumíveis e habilidades", "");
 		lines.push(...markdownTable(["Item", "Classe", "Slot", "Índice de efeitos", "Habilidades"],
 			p.items.map((item) => [item.name, item.itemClass, item.equipmentSlot ?? "—", item.impact, skillNames(item.skills)])));
@@ -318,6 +349,13 @@ export function renderCatalogCsv(data: CatalogBalance): string {
 		for (const r of expansion.rooms) lines.push([expansion.id, "room", r.id, r.name,
 			r.bandByPlayers[3]!, String(r.scoreByPlayers[3]), "", "", "", "",
 			r.enemiesByPlayers.join("/"), r.bandByPlayers.join("/"), "", "", skills(r)]);
+		for (const c of expansion.subbosses) lines.push([expansion.id, "subboss", c.id, c.name,
+			c.band, String(c.score), String(c.life), String(c.damage), String(c.hitBonus), String(c.dice),
+			"", "", "", "", skills(c)]);
+		for (const r of expansion.specialRooms) lines.push([expansion.id, "subboss_room", r.id, r.name,
+			"", "", "", "", "", "", "", "", "", "", skills(r)]);
+		for (const a of expansion.artifactCards) lines.push([expansion.id, "artifact", a.id, a.name,
+			"", "", "", "", "", "", "", "", "", "", skills(a)]);
 		for (const item of expansion.items) lines.push([expansion.id, "item", item.id, item.name,
 			"", String(item.impact), "", "", "", "", "", "", item.itemClass,
 			item.equipmentSlot ?? "", skills(item)]);
@@ -352,9 +390,22 @@ export function renderCatalogHtml(data: CatalogBalance): string {
 		const items = table(["Item", "Classe", "Slot", "Índice", "Habilidades"],
 			p.items.map((it) => [it.name, it.itemClass, it.equipmentSlot ?? "—",
 				it.impact, skillNames(it.skills)]));
+		const distribution = table(["Grupo", "Salas fáceis", "Salas médias", "Salas difíceis", "Média de inimigos"],
+			[0, 1, 2, 3].map((size) => [size + 1,
+				p.roomBandsByPlayers[size]!.easy, p.roomBandsByPlayers[size]!.medium,
+				p.roomBandsByPlayers[size]!.hard,
+				mean(p.rooms.map((r) => r.enemiesByPlayers[size] ?? 0)).toFixed(1)]));
+		const subbosses = table(["Subchefe", "Vida", "Dano", "Acerto", "Dados", "Índice"],
+			p.subbosses.map((c) => [c.name, c.life, c.damage, c.hitBonus, c.dice, c.score]));
+		const specialRooms = table(["Sala especial", "Subchefe", "Saídas", "Habilidades"],
+			p.specialRooms.map((r) => [r.name, r.linkedSubbossId, r.exits, skillNames(r.skills)]));
+		const artifacts = table(["Artefato", "Habilidades"], p.artifactCards.map((a) => [a.name, skillNames(a.skills)]));
 		return "<section><h2>" + esc(p.name) + "</h2><p>Salas com menos de quatro inimigos para quatro heróis: <strong>" +
-			p.roomsBelowFourEnemies + "/" + p.rooms.length + "</strong>.</p><h3>Heróis</h3>" + heroes +
-			"<h3>Criaturas</h3>" + creatures + "<h3>Salas</h3>" + rooms + "<h3>Itens e equipamentos</h3>" + items + "</section>";
+			p.roomsBelowFourEnemies + "/" + p.rooms.length + "</strong>.</p><h3>Salas por tamanho de grupo</h3>" +
+			distribution + "<h3>Heróis</h3>" + heroes + "<h3>Criaturas</h3>" + creatures +
+			"<h3>Salas</h3>" + rooms + "<h3>Subchefes</h3>" + subbosses +
+			"<h3>Salas especiais</h3>" + specialRooms + "<h3>Itens e equipamentos</h3>" +
+			items + "<h3>Artefatos</h3>" + artifacts + "</section>";
 	}).join("");
 	return '<!doctype html><html lang="pt-BR"><head><meta charset="utf-8"/><meta name="viewport" content="width=device-width,initial-scale=1"/>' +
 		'<meta name="robots" content="noindex,nofollow"/><title>Auditoria de cartas | Ascensão Heróica</title>' +
