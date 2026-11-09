@@ -1,8 +1,8 @@
 # A Torre da Grande Bruxa do Caldeirão — catálogo v1.4
 
 ## Inventário definitivo
-- 4 heróis, 18 criaturas, 2 subchefes, 10 salas comuns, 2 salas de subchefe, **26 itens**, 4 artefatos.
-- **66 cartas** em `expansion.json` + 1 chefe em `boss.json` = **67 cartas**.
+- 4 heróis, 18 criaturas, 2 subchefes, 10 salas comuns, 2 salas de subchefe, **26 itens**, 5 artefatos.
+- **67 cartas** em `expansion.json` + 1 chefe em `boss.json` = **68 cartas**.
 - Os 12 heróis do jogo continuam compartilhados.
 
 ## Itens da expansão (26)
@@ -27,3 +27,9 @@ As cinco cartas antigas fora da seleção definitiva (Ervas da Lua Velha, Lanter
 - 6 novas criaturas, 2 novas salas e Glândula da Rainha Aranha da versão 1.3.
 - Chefe exige 3 artefatos. Outros heróis e demais expansões não são alterados.
 - Imagens novas são reutilizadas em `images/`, sem subpastas.
+
+## Novo artefato v1.5 — Coração Corrompido da Floresta
+- **Último Suspiro da Mata:** uma vez por combate, escolha um inimigo vivo que tenha Veneno; remova todos os stacks independentes e cause **2 pontos de dano direto por stack**.
+- O dano não recebe bônus de armas; artefato não é consumido; conta para os 3 artefatos exigidos pela Bruxa.
+- A ativação do motor usa `USE_ARTIFACT` com `artifactId` e `targetEnemyId` (a interface gráfica ainda precisa expor essa ação).
+- A arte já foi gerada, mas **a imagem WebP ainda precisa ser adicionada ao repositório**; o campo `image` ficará ausente até existir um arquivo real.

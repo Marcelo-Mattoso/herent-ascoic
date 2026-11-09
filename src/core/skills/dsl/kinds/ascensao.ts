@@ -3,6 +3,7 @@ import { defineCondition, type RefResolver } from "../../../../engine/kinds";
 import type { GameKindPackage } from "../../../gameEngine";
 import { recordEvent } from "../../../events/record";
 import { applyPoisonStatus } from "../../../rules/poison";
+import { applyDamage } from "../../../systems/damageSystem";
 import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
@@ -738,6 +739,44 @@ const hasDotStacks = defineCondition<never, never, EvalCtx>({
   },
 });
 
+// Explode every independent poison stack into direct damage, without weapon bonuses.
+const consumePoisonStacksKind = effectKind({
+  kind: "i_consume_poison_stacks",
+  schema: z.object({
+    kind: z.literal("i_consume_poison_stacks"),
+    to: z.string(),
+    damagePerStack: z.number().int().positive(),
+  }),
+  evaluate: (node, ctx) => {
+    const to = resolveEntityRef(node.to, ctx);
+    if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
+    return ctx.action.pushEffect({
+      kind: "i_consume_poison_stacks",
+      to,
+      damagePerStack: node.damagePerStack,
+    });
+  },
+  resolve: (state, effect, { engine }) => {
+    const targetId = targetOf(effect);
+    const target = enemiesOf(state).find((enemy) => enemy.id === targetId && enemy.status === "active");
+    if (!target || !gameOf(state).combat) return state;
+    const stacks = target.conditions.filter((raw) =>
+      matchesDamageOverTimeStatus(raw, "poison") || raw.startsWith("poison:"),
+    );
+    if (stacks.length === 0) return state;
+    const clean = withUnitStats(state, target.id, {
+      conditions: target.conditions.filter((raw) => !stacks.includes(raw)),
+    });
+    const amount = stacks.length * Number(effect["damagePerStack"]);
+    const damaged = applyDamage(engine, clean, target.id, amount, {
+      sourceId: "corrupted_forest_heart",
+      damageType: "condition",
+    });
+    return log(damaged, "Último Suspiro da Mata: " + stacks.length +
+      " stacks consumidos, " + amount + " de dano em " + target.id + ".");
+  },
+});
+
 const applyPoisonKind = effectKind({
 	kind: "i_apply_poison",
 	schema: z.object({ kind: z.literal("i_apply_poison"), to: z.string(), damage: ExprNodeSchema, rounds: ExprNodeSchema }),
@@ -758,6 +797,7 @@ export const ascensaoPackage: GameKindPackage = {
 	id: "ascensao-heroica",
 	kinds: [
 		poisonWardKind,
+		consumePoisonStacksKind,
 		hasDotStacks as unknown as GameKind,
 		applyDamageOverTimeKind,
 		applyPoisonKind,

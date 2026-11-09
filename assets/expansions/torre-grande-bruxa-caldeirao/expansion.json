@@ -1,7 +1,7 @@
 {
   "id": "torre-grande-bruxa-caldeirao",
   "name": "A Torre da Grande Bruxa do Caldeirão",
-  "version": "1.4.0",
+  "version": "1.5.0",
   "boss": "boss.json",
   "cards": [
     {
@@ -1921,6 +1921,17 @@
           }
         }
       ]
+    },
+    {
+      "id": "artifact_corrupted_forest_heart",
+      "type": "artifact",
+      "name": "Coração Corrompido da Floresta",
+      "countsAs": "artifact",
+      "skills": [
+        {
+          "skillId": "witch_artifact_corrupted_heart_burst"
+        }
+      ]
     }
   ],
   "skills": [
@@ -3454,6 +3465,30 @@
           }
         }
       ]
+    },
+    {
+      "id": "witch_artifact_corrupted_heart_burst",
+      "category": "item_skill",
+      "operate_type": "op_active",
+      "cooldown": {
+        "scope": "combat",
+        "charges": 1
+      },
+      "nature": [
+        "nat_poison",
+        "nat_dark",
+        "nat_earth"
+      ],
+      "target_type": "tgt_enemy",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_consume_poison_stacks",
+          "to": "$target",
+          "damagePerStack": 2
+        }
+      ]
     }
   ],
   "skillLocales": {
@@ -3756,6 +3791,11 @@
       "name": "Espinho Negro",
       "label": "Espinho Negro: Venenos finitos aplicados duram mais 1 rodada",
       "text": "Venenos finitos aplicados duram mais 1 rodada"
+    },
+    "witch_artifact_corrupted_heart_burst": {
+      "name": "Último Suspiro da Mata",
+      "label": "Último Suspiro da Mata: uma vez por combate, escolha um inimigo envenenado; consuma todos os stacks de Veneno e cause 2 de dano por stack.",
+      "text": "Uma vez por combate, escolha um inimigo envenenado. Remova todos os seus stacks independentes de Veneno e cause 2 de dano direto por stack, sem bônus de armas. O artefato permanece com o grupo."
     }
   },
   "openings": {
