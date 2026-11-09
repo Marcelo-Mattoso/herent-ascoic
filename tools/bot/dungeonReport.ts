@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { BOT_HEROES } from "./play";
+import { getEnabledExpansions } from "@/core/data/expansions";
 import { buildCatalogBalance, renderCatalogCsv, renderCatalogHtml, renderCatalogMarkdown } from "./catalogBalance";
 import { BOT_PROFILES, parseBotDifficulty, parseBotParty, parseBotProfile } from "./profiles";
 import {
@@ -191,6 +192,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		expected: plan.length,
 		trials,
 		summaries: summarizeBenchmark(benchmark, trials),
+		expansionNames: Object.fromEntries(getEnabledExpansions().map((pack) => [pack.id, pack.name])),
 	};
 	saveReport(dir, report);
 	console.log("\nRelatório visual: " + path.join(dir, "index.html"));
