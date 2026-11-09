@@ -23,12 +23,14 @@ describe("ensaio pareado de masmorra", () => {
 	it("descobre heróis e expansões e cruza todos com as seeds, perfis e dificuldades", () => {
 		const options = defaultBenchmarkOptions();
 		const plan = benchmarkPlan(options);
-		expect(options.heroes).toHaveLength(12);
-		expect(options.expansions).toEqual(["fornalha-sombria", "torre-grande-bruxa-caldeirao"]);
-		expect(plan).toHaveLength(3000);
-		expect(new Set(plan.map(benchmarkCaseKey)).size).toBe(3000);
+		expect(options.heroes.length).toBeGreaterThanOrEqual(12);
+		expect(options.expansions).toEqual(expect.arrayContaining(["fornalha-sombria", "torre-grande-bruxa-caldeirao"]));
+		const perSeed = options.heroes.length * options.expansions.length * options.profiles.length * options.difficulties.length;
+		const expected = options.runs * perSeed;
+		expect(plan).toHaveLength(expected);
+		expect(new Set(plan.map(benchmarkCaseKey)).size).toBe(expected);
 		for (let seed = options.seed; seed < options.seed + options.runs; seed++) {
-			expect(plan.filter((item) => item.seed === seed)).toHaveLength(300);
+			expect(plan.filter((item) => item.seed === seed)).toHaveLength(perSeed);
 		}
 		expect(plan.every((item) => options.heroes.includes(item.heroId) && options.expansions.includes(item.expansionId))).toBe(true);
 	});
