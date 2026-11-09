@@ -33,6 +33,23 @@ export interface BenchmarkCase {
 	readonly difficulty: Difficulty;
 }
 
+export interface ProgressionTelemetry {
+	/** XP efetivamente recebido, medido por mudanças positivas do saldo coletivo. */
+	readonly xpGained: number;
+	readonly xpSpent: number;
+	readonly xpSpentByOption: Readonly<Record<string, number>>;
+	readonly xpPurchasesByOption: Readonly<Record<string, number>>;
+	readonly xpOtherLoss: number;
+	readonly xpFinal: number;
+	readonly xpPeak: number;
+	/** Maior índice de Ímpeto alcançado pelo herói (0=branco, 4=roxo). */
+	readonly levelInitial: number;
+	readonly levelFinal: number;
+	readonly levelPeak: number;
+	readonly levelUpOpportunities: number;
+	readonly levelUpPurchases: number;
+}
+
 export interface BenchmarkTrial extends BenchmarkCase {
 	readonly outcome: string;
 	readonly violation: string | null;
@@ -44,6 +61,7 @@ export interface BenchmarkTrial extends BenchmarkCase {
 	readonly artifacts: number;
 	readonly skillUses: number;
 	readonly powerUses: number;
+	readonly progression?: ProgressionTelemetry;
 }
 
 export interface BenchmarkSummary {
@@ -142,7 +160,36 @@ export function ensureComparableDungeons(
 
 export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): BenchmarkTrial {
 	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
-	const result = playAiGame(setup, maxSteps, undefined, test.profile);
+	const starting = createHeadlessPort(setup).observe().view;
+	const purchases: Record<string, number> = {};
+	const spent: Record<string, number> = {};
+	let gained = 0, spentTotal = 0, otherLoss = 0, peakXp = starting.groupXp;
+	let levelPeak = Math.max(0, ...starting.heroes.map((hero) => hero.impeto));
+	let finalLevel = levelPeak;
+	let levelUpOpportunities = 0, levelUpPurchases = 0;
+	const result = playAiGame(setup, maxSteps, (step) => {
+		const delta = step.after.groupXp - step.before.groupXp;
+		if (delta > 0) gained += delta;
+		if (delta < 0) {
+			if (step.chosen.action.type === "SPEND_XP") {
+				const option = step.chosen.action.payload.option;
+				purchases[option] = (purchases[option] ?? 0) + 1;
+				spent[option] = (spent[option] ?? 0) - delta;
+				spentTotal -= delta;
+				if (option === "level_up") levelUpPurchases++;
+			} else otherLoss -= delta;
+		} else if (step.chosen.action.type === "SPEND_XP") {
+			// Registra inclusive opções gratuitas, para separar compra de gasto efetivo.
+			const option = step.chosen.action.payload.option;
+			purchases[option] = (purchases[option] ?? 0) + 1;
+			if (option === "level_up") levelUpPurchases++;
+		}
+		if (step.options.some((move) => move.action.type === "SPEND_XP" && move.action.payload.option === "level_up"))
+			levelUpOpportunities++;
+		peakXp = Math.max(peakXp, step.after.groupXp);
+		finalLevel = Math.max(0, ...step.after.heroes.map((hero) => hero.impeto));
+		levelPeak = Math.max(levelPeak, finalLevel);
+	}, test.profile);
 	const state = gameOf(result.final);
 	return {
 		...test,
@@ -156,6 +203,14 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		artifacts: state.groupArtifacts.length,
 		skillUses: result.actions.filter((action) => action.type === "USE_SKILL").length,
 		powerUses: result.actions.filter((action) => action.type === "USE_POWER").length,
+		progression: {
+			xpGained: gained, xpSpent: spentTotal, xpSpentByOption: spent,
+			xpPurchasesByOption: purchases, xpOtherLoss: otherLoss,
+			xpFinal: state.groupXp, xpPeak: peakXp,
+			levelInitial: Math.max(0, ...starting.heroes.map((hero) => hero.impeto)),
+			levelFinal: finalLevel,
+			levelPeak, levelUpOpportunities, levelUpPurchases,
+		},
 	};
 }
 
