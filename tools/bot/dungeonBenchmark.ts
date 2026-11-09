@@ -2,6 +2,8 @@ import type { Difficulty } from "@/core/state/gameState";
 import { deckOf } from "@/core/state/access";
 import { gameOf } from "@/engine/state";
 import { cardName } from "@/core/gameEngine";
+import { getBoss } from "@/core/data/cards";
+import { getEnabledExpansions } from "@/core/data/expansions";
 import { engine } from "../golden/lib";
 import { playAiGame } from "./ai";
 import { BOT_HEROES } from "./play";
@@ -17,6 +19,7 @@ export interface DungeonBenchmarkOptions {
 	readonly runs: number;
 	readonly maxSteps: number;
 	readonly heroes: readonly string[];
+	readonly expansions: readonly string[];
 	readonly profiles: readonly BotProfile[];
 	readonly difficulties: readonly Difficulty[];
 }
@@ -25,6 +28,7 @@ export interface BenchmarkCase {
 	readonly seed: number;
 	readonly repetition: number;
 	readonly heroId: string;
+	readonly expansionId: string;
 	readonly profile: BotProfile;
 	readonly difficulty: Difficulty;
 }
@@ -47,6 +51,7 @@ export interface BenchmarkSummary {
 	readonly difficulty: Difficulty;
 	readonly heroId: string;
 	readonly heroName: string;
+	readonly expansionId: string;
 	readonly games: number;
 	readonly victories: number;
 	readonly defeats: number;
@@ -59,12 +64,23 @@ export interface BenchmarkSummary {
 	readonly avgSkillUses: number;
 }
 
+export function benchmarkExpansionIds(): string[] {
+	return getEnabledExpansions().filter((pack) => getBoss(pack.id)).map((pack) => pack.id);
+}
+
+export function benchmarkBoss(expansionId: string): string {
+	const boss = getBoss(expansionId);
+	if (!boss) throw new Error("Expansão sem chefe disponível: " + expansionId);
+	return boss.id;
+}
+
 export function defaultBenchmarkOptions(): DungeonBenchmarkOptions {
 	return {
 		seed: 1,
 		runs: 10,
 		maxSteps: 1000,
 		heroes: [...BOT_HEROES],
+		expansions: benchmarkExpansionIds(),
 		profiles: [...BOT_PROFILES],
 		difficulties: [...BENCHMARK_DIFFICULTIES],
 	};
@@ -75,23 +91,25 @@ export function benchmarkPlan(options: DungeonBenchmarkOptions): BenchmarkCase[]
 	const cases: BenchmarkCase[] = [];
 	for (let repetition = 0; repetition < options.runs; repetition++) {
 		const seed = options.seed + repetition;
-		for (const profile of options.profiles)
-			for (const difficulty of options.difficulties)
-				for (const heroId of options.heroes)
-					cases.push({ seed, repetition: repetition + 1, profile, difficulty, heroId });
+		for (const expansionId of options.expansions)
+			for (const profile of options.profiles)
+				for (const difficulty of options.difficulties)
+					for (const heroId of options.heroes)
+						cases.push({ seed, repetition: repetition + 1, expansionId, profile, difficulty, heroId });
 	}
 	return cases;
 }
 
 export function benchmarkCaseKey(test: BenchmarkCase): string {
-	return [test.seed, test.profile, test.difficulty, test.heroId].join("|");
+	return [test.seed, test.expansionId, test.profile, test.difficulty, test.heroId].join("|");
 }
 
 /** Mesmo seed = mesma sala inicial e mesma ordem dos decks, antes das escolhas do bot.
  * A progressão posterior pode divergir por herói, dificuldade ou perfil.
  */
-export function initialDungeonSignature(test: Pick<BenchmarkCase, "seed" | "heroId" | "difficulty">): string {
-	const state = createHeadlessPort(setupForRun(test.seed, [test.heroId], test.difficulty)).inspect();
+export function initialDungeonSignature(test: Pick<BenchmarkCase, "seed" | "heroId" | "difficulty" | "expansionId">): string {
+	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
+	const state = createHeadlessPort(setup).inspect();
 	return JSON.stringify({
 		boss: gameOf(state).bossCardId,
 		firstRoom: gameOf(state).currentRoom?.cardId ?? null,
@@ -104,24 +122,26 @@ export function initialDungeonSignature(test: Pick<BenchmarkCase, "seed" | "hero
 
 export function ensureComparableDungeons(
 	options: DungeonBenchmarkOptions,
-	signature: (test: Pick<BenchmarkCase, "seed" | "heroId" | "difficulty">) => string = initialDungeonSignature,
+	signature: (test: Pick<BenchmarkCase, "seed" | "heroId" | "difficulty" | "expansionId">) => string = initialDungeonSignature,
 ): void {
 	for (let index = 0; index < options.runs; index++) {
 		const seed = options.seed + index;
-		let reference: string | undefined;
-		for (const difficulty of options.difficulties) {
-			for (const heroId of options.heroes) {
-				const current = signature({ seed, difficulty, heroId });
-				if (reference === undefined) reference = current;
-				else if (current !== reference)
-					throw new Error(`Masmorra inicial diferente na seed ${seed} para ${heroId}/${difficulty}; comparação abortada.`);
+		for (const expansionId of options.expansions) {
+			let reference: string | undefined;
+			for (const difficulty of options.difficulties) {
+				for (const heroId of options.heroes) {
+					const current = signature({ seed, expansionId, difficulty, heroId });
+					if (reference === undefined) reference = current;
+					else if (current !== reference)
+						throw new Error(`Masmorra inicial diferente na seed ${seed} para ${expansionId}/${heroId}/${difficulty}; comparação abortada.`);
+				}
 			}
 		}
 	}
 }
 
 export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): BenchmarkTrial {
-	const setup = setupForRun(test.seed, [test.heroId], test.difficulty);
+	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
 	const result = playAiGame(setup, maxSteps, undefined, test.profile);
 	const state = gameOf(result.final);
 	return {
@@ -152,7 +172,7 @@ export function summarizeBenchmark(
 ): BenchmarkSummary[] {
 	const byKey = new Map<string, BenchmarkTrial[]>();
 	for (const trial of trials) {
-		const key = [trial.profile, trial.difficulty, trial.heroId].join("|");
+		const key = [trial.expansionId, trial.profile, trial.difficulty, trial.heroId].join("|");
 		const group = byKey.get(key);
 		if (group) group.push(trial);
 		else byKey.set(key, [trial]);
@@ -160,14 +180,15 @@ export function summarizeBenchmark(
 	const avg = (data: readonly BenchmarkTrial[], f: (trial: BenchmarkTrial) => number) =>
 		data.length ? data.reduce((total, trial) => total + f(trial), 0) / data.length : 0;
 	const summaries: BenchmarkSummary[] = [];
-	for (const profile of options.profiles) {
-		for (const difficulty of options.difficulties) {
-			for (const heroId of options.heroes) {
-				const group = byKey.get([profile, difficulty, heroId].join("|")) ?? [];
+	for (const expansionId of options.expansions) {
+		for (const profile of options.profiles) {
+			for (const difficulty of options.difficulties) {
+				for (const heroId of options.heroes) {
+					const group = byKey.get([expansionId, profile, difficulty, heroId].join("|")) ?? [];
 				const victories = group.filter((trial) => classifyTrial(trial) === "victory").length;
 				const defeats = group.filter((trial) => classifyTrial(trial) === "defeat").length;
 				summaries.push({
-					profile, difficulty, heroId, heroName: cardName(engine, heroId),
+					profile, difficulty, heroId, expansionId, heroName: cardName(engine, heroId),
 					games: group.length, victories, defeats,
 					stalls: group.length - victories - defeats,
 					victoryRate: group.length ? victories / group.length : 0,
@@ -177,6 +198,7 @@ export function summarizeBenchmark(
 					avgArtifacts: avg(group, (trial) => trial.artifacts),
 					avgSkillUses: avg(group, (trial) => trial.skillUses),
 				});
+				}
 			}
 		}
 	}
