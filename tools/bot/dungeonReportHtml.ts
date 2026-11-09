@@ -7,6 +7,7 @@ export interface DungeonReportData {
 	readonly expected: number;
 	readonly trials: readonly BenchmarkTrial[];
 	readonly summaries: readonly BenchmarkSummary[];
+	readonly expansionNames?: Readonly<Record<string, string>>;
 }
 
 const percent = (value: number) => (100 * value).toFixed(1) + "%";
@@ -15,7 +16,7 @@ const average = (value: number) => value.toFixed(1);
 export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 	const { options, summaries, trials } = report;
 	const rows = summaries.map((s) =>
-		"| " + [s.profile, s.difficulty, s.heroName, String(s.games), String(s.victories),
+		"| " + [s.expansionId, s.profile, s.difficulty, s.heroName, String(s.games), String(s.victories),
 			String(s.defeats), String(s.stalls), percent(s.victoryRate), average(s.avgRooms),
 			average(s.avgSteps)].join(" | ") + " |");
 	const anomalies = trials.filter((trial) => trial.violation);
@@ -26,20 +27,20 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 		"Seeds " + options.seed + " a " + (options.seed + options.runs - 1) +
 			"; " + options.runs + " repetições; até " + options.maxSteps + " ações por partida.",
 		"",
-		"Cada seed usa a mesma ordem inicial de salas, criaturas, itens e artefatos para todos os heróis, perfis e dificuldades. As decisões e a trajetória posterior podem divergir.",
+		"Cada seed usa a mesma ordem inicial de salas, criaturas, itens e artefatos dentro de cada expansão, para todos os heróis, perfis e dificuldades. Expansões distintas usam baralhos distintos; a trajetória posterior pode divergir.",
 		"Vitória, derrota e impasse são contados separadamente. A taxa reflete o desempenho do bot, não a chance de vitória de um jogador humano. Dez seeds dão apenas um diagnóstico exploratório.",
 		"",
-		"## Resultados por perfil, dificuldade e herói",
+		"## Resultados por expansão, perfil, dificuldade e herói",
 		"",
-		"| Perfil | Dificuldade | Herói | Jogos | Vitórias | Derrotas | Impasses | Vitórias % | Salas médias | Ações médias |",
-		"|---|---|---|---:|---:|---:|---:|---:|---:|---:|",
+		"| Expansão | Perfil | Dificuldade | Herói | Jogos | Vitórias | Derrotas | Impasses | Vitórias % | Salas médias | Ações médias |",
+		"|---|---|---|---|---:|---:|---:|---:|---:|---:|---:|",
 		...rows,
 		"",
 		"## Impasses e erros encontrados",
 		"",
 		...(anomalies.length
 			? anomalies.map((trial) =>
-				"- Seed " + trial.seed + " · " + trial.heroId + " · " + trial.profile +
+				"- Seed " + trial.seed + " · " + trial.expansionId + " · " + trial.heroId + " · " + trial.profile +
 				" · " + trial.difficulty + ": " + trial.violation + " — " + trial.violationMessage)
 			: ["Nenhum erro/invariante nas partidas concluídas."]),
 		"",
@@ -49,7 +50,7 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 }
 
 export function renderDungeonReportCsv(trials: readonly BenchmarkTrial[]): string {
-	const columns = ["seed", "repetition", "profile", "difficulty", "heroId", "outcome",
+	const columns = ["seed", "repetition", "expansionId", "profile", "difficulty", "heroId", "outcome",
 		"violation", "violationMessage", "steps", "roomsCleared", "creaturesDefeated",
 		"bossDefeated", "artifacts", "skillUses", "powerUses"] as const;
 	const quote = (value: unknown) => {
@@ -103,8 +104,8 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 <body>
 <header>
 <div class="eyebrow">A FORJA · LABORATÓRIO DE BALANCEAMENTO · DESENVOLVIMENTO</div>
-<h1>O teste de cada herói<br/>na mesma masmorra.</h1>
-<p class="lead">Comparação pareada de 8 heróis solo, 5 dificuldades e 5 perfis de bot. Cada repetição reutiliza a mesma seed inicial em todas as combinações; somente as escolhas e as regras de cada herói/dificuldade mudam.</p>
+<h1>O teste de cada herói<br/>em cada expansão.</h1>
+<p class="lead">Comparação pareada dos heróis de todas as expansões habilitadas, nos módulos isolados de cada chefe. Cada repetição reutiliza a mesma seed dentro de cada expansão, cruzando heróis, dificuldades e perfis.</p>
 <div class="meta" id="metadata"></div>
 </header>
 <main>
@@ -114,12 +115,18 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 <h2>Matriz de vitórias por herói</h2>
 <p class="help">Selecione um herói para ver suas chances de vitória em cada dificuldade. Por padrão, os resultados dos cinco perfis de jogador ficam agregados, ponderados pelo número de partidas. Você também pode filtrar um perfil específico. Impasses não são tratados como derrotas.</p>
 <div class="controls">
+<label class="control">Expansão <select id="expansion"></select></label>
 <label class="control">Herói <select id="hero"></select></label>
 <label class="control">Perfil do bot <select id="profile"></select></label>
 <label class="control">Dificuldade <select id="difficulty"></select></label>
 </div>
 <div class="scroller" style="margin-top:19px"><table><thead id="matrix-head"></thead><tbody id="matrix"></tbody></table></div>
 <div class="legend">Cor verde = taxa maior; cor âmbar = poucos sucessos; traço = sem partidas.</div>
+</section>
+<section class="panel">
+<h2>Comparativo entre expansões</h2>
+<p class="help">Mesmo herói, perfil, dificuldade e seeds; cada módulo usa seus próprios baralhos e chefe. Compare o desempenho e investigue diferenças de dificuldade. <a href="catalog.html">Ver a auditoria de criaturas, salas e equipamentos</a>.</p>
+<div class="scroller"><table><thead><tr><th>Expansão</th><th>Partidas</th><th>Vitórias</th><th>Derrotas</th><th>Impasses</th><th>Vitória %</th><th>Salas médias</th></tr></thead><tbody id="expansion-compare"></tbody></table></div>
 </section>
 <section class="panel">
 <h2>Comparação entre os perfis</h2>
@@ -130,12 +137,12 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 <h2>Detalhamento das partidas</h2>
 <p class="help">Resultados individuais para auditar seeds, progresso, derrotas e travamentos. O filtro acima também se aplica à tabela.</p>
 <div class="scroller" style="max-height:510px;overflow:auto"><table>
-<thead><tr><th>Seed</th><th>Herói</th><th>Perfil</th><th>Dificuldade</th><th>Resultado</th><th>Salas</th><th>Criaturas</th><th>Ações</th><th>Artefatos</th><th>Habilidades</th><th>Diagnóstico</th></tr></thead>
+<thead><tr><th>Seed</th><th>Expansão</th><th>Herói</th><th>Perfil</th><th>Dificuldade</th><th>Resultado</th><th>Salas</th><th>Criaturas</th><th>Ações</th><th>Artefatos</th><th>Habilidades</th><th>Diagnóstico</th></tr></thead>
 <tbody id="trials"></tbody></table></div>
 </section>
 <section class="panel">
 <h2>Como interpretar</h2>
-<p class="help">Masmorra igual significa mesma seed, boss, primeira sala e mesma ordem inicial dos baralhos. Conforme a partida avança, as ações de cada perfil podem alterar a ordem dos descartes, recompensas, inimigos e rolagens. Por isso os caminhos posteriores não são obrigatoriamente idênticos.</p>
+<p class="help">Masmorra igual significa mesma seed, boss, primeira sala e baralhos iniciais DENTRO de uma expansão. Não significa que a Fornalha e a Bruxa tenham as mesmas cartas. Conforme a partida avança, decisões e efeitos podem alterar o percurso.</p>
 <div class="note">Este relatório é um instrumento de desenvolvimento, não aparece na interface pública do jogo. Taxa de vitória do bot não é probabilidade de vitória humana. Com dez repetições por combinação, trate diferenças pequenas como indícios para investigar, não como conclusões definitivas.</div>
 </section>
 </div>
@@ -152,10 +159,12 @@ const el=(id)=>document.getElementById(id);
 const esc=(value)=>String(value??"").replace(/[&<>"']/g,(s)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
 const pct=(a,b)=>b?(100*a/b).toFixed(1)+"%":"—";
 const nameById=new Map(data.summaries.map((s)=>[s.heroId,s.heroName]));
+const expansionNames=data.expansionNames||{};
+const expansionName=(id)=>expansionNames[id]||id;
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}
 function render(){
-const hero=el("hero").value, profile=el("profile").value, difficulty=el("difficulty").value;
-const trials=data.trials.filter((t)=>(hero==="all"||t.heroId===hero)&&(profile==="all"||t.profile===profile)&&(difficulty==="all"||t.difficulty===difficulty));
+const hero=el("hero").value, profile=el("profile").value, difficulty=el("difficulty").value, expansion=el("expansion").value;
+const trials=data.trials.filter((t)=>(expansion==="all"||t.expansionId===expansion)&&(hero==="all"||t.heroId===hero)&&(profile==="all"||t.profile===profile)&&(difficulty==="all"||t.difficulty===difficulty));
 const wins=trials.filter((t)=>status(t)==="win").length,losses=trials.filter((t)=>status(t)==="loss").length,stalls=trials.length-wins-losses;
 const rooms=trials.reduce((n,t)=>n+t.roomsCleared,0),steps=trials.reduce((n,t)=>n+t.steps,0);
 const cards=[
@@ -170,7 +179,7 @@ el("matrix-head").innerHTML='<tr><th>Herói</th>'+diffs.map((d)=>'<th>'+esc(diff
 const heroes=hero==="all"?data.options.heroes:[hero];
 el("matrix").innerHTML=heroes.map((heroId)=>{
 const cells=diffs.map((diff)=>{
-const group=data.trials.filter((t)=>t.heroId===heroId&&t.difficulty===diff&&(profile==="all"||t.profile===profile));
+const group=data.trials.filter((t)=>t.heroId===heroId&&t.difficulty===diff&&(expansion==="all"||t.expansionId===expansion)&&(profile==="all"||t.profile===profile));
 if(!group.length)return '<td class="heat">—</td>';
 const victories=group.filter((t)=>status(t)==="win").length;
 const defeats=group.filter((t)=>status(t)==="loss").length;
@@ -183,10 +192,16 @@ return '<tr><td class="hero">'+esc(nameById.get(heroId)||heroId)+'</td>'+cells+'
 }).join("");
 el("trials").innerHTML=trials.length?trials.map((t)=>{
 const s=status(t),label=s==="win"?"Vitória":s==="loss"?"Derrota":"Impasso",cls=s==="win"?"success":s==="stall"?"failure":"muted";
-return '<tr><td>'+t.seed+'</td><td>'+esc(nameById.get(t.heroId)||t.heroId)+'</td><td>'+esc(profileLabels[t.profile]||t.profile)+'</td><td>'+esc(diffLabels[t.difficulty]||t.difficulty)+'</td><td class="'+cls+'">'+label+'</td><td>'+t.roomsCleared+'</td><td>'+t.creaturesDefeated+'</td><td>'+t.steps+'</td><td>'+t.artifacts+'</td><td>'+t.skillUses+'</td><td title="'+esc(t.violationMessage||"")+'">'+esc(t.violation||"—")+'</td></tr>';
-}).join(""):'<tr><td colspan="11" class="empty">Sem resultados para este filtro.</td></tr>';
+return '<tr><td>'+t.seed+'</td><td>'+esc(expansionName(t.expansionId))+'</td><td>'+esc(nameById.get(t.heroId)||t.heroId)+'</td><td>'+esc(profileLabels[t.profile]||t.profile)+'</td><td>'+esc(diffLabels[t.difficulty]||t.difficulty)+'</td><td class="'+cls+'">'+label+'</td><td>'+t.roomsCleared+'</td><td>'+t.creaturesDefeated+'</td><td>'+t.steps+'</td><td>'+t.artifacts+'</td><td>'+t.skillUses+'</td><td title="'+esc(t.violationMessage||"")+'">'+esc(t.violation||"—")+'</td></tr>';
+}).join(""):'<tr><td colspan="12" class="empty">Sem resultados para este filtro.</td></tr>';
+el("expansion-compare").innerHTML=data.options.expansions.map((id)=>{
+const group=data.trials.filter((t)=>t.expansionId===id&&(hero==="all"||t.heroId===hero)&&(profile==="all"||t.profile===profile)&&(difficulty==="all"||t.difficulty===difficulty));
+const w=group.filter((t)=>status(t)==="win").length,d=group.filter((t)=>status(t)==="loss").length,s=group.length-w-d;
+const avg=group.length?(group.reduce((sum,t)=>sum+t.roomsCleared,0)/group.length).toFixed(1):"—";
+return '<tr><td>'+esc(expansionName(id))+'</td><td>'+group.length+'</td><td>'+w+'</td><td>'+d+'</td><td>'+s+'</td><td>'+pct(w,group.length)+'</td><td>'+avg+'</td></tr>';
+}).join("");
 el("profile-compare").innerHTML=data.options.profiles.map((p)=>{
-const group=data.trials.filter((t)=>t.profile===p&&(hero==="all"||t.heroId===hero)&&(difficulty==="all"||t.difficulty===difficulty));
+const group=data.trials.filter((t)=>t.profile===p&&(expansion==="all"||t.expansionId===expansion)&&(hero==="all"||t.heroId===hero)&&(difficulty==="all"||t.difficulty===difficulty));
 const n=group.filter((t)=>status(t)==="win").length,st=group.filter((t)=>status(t)==="stall").length,rate=group.length?n/group.length:0;
 return '<div class="profile"><b>'+esc(profileLabels[p]||p)+'</b><div class="pct">'+pct(n,group.length)+'</div><div class="bar-wrap"><div class="bar" style="width:'+(rate*100)+'%"></div></div><p>'+n+' vitórias · '+st+' impasses / '+group.length+' jogos</p></div>';
 }).join("");
@@ -195,11 +210,13 @@ el("metadata").innerHTML=[
 'Gerado em '+new Date(data.generatedAt).toLocaleString("pt-BR"),
 data.options.runs+' seeds compartilhadas',
 data.completed+' / '+data.expected+' partidas',
-'Boss fixo: Azhakar'
+data.options.expansions.length+' expansões independentes'
 ].map((x)=>'<span class="pill">'+esc(x)+'</span>').join("");
+el("expansion").innerHTML='<option value="all">Todas as expansões</option>'+data.options.expansions.map((id)=>'<option value="'+esc(id)+'">'+esc(expansionName(id))+'</option>').join("");
 el("hero").innerHTML='<option value="all">Todos os heróis</option>'+data.options.heroes.map((h)=>'<option value="'+esc(h)+'">'+esc(nameById.get(h)||h)+'</option>').join("");
 el("profile").innerHTML='<option value="all">Todos os perfis (agregado)</option>'+data.options.profiles.map((p)=>'<option value="'+esc(p)+'">'+esc(profileLabels[p]||p)+'</option>').join("");
 el("difficulty").innerHTML='<option value="all">Todas as dificuldades</option>'+data.options.difficulties.map((d)=>'<option value="'+esc(d)+'">'+esc(diffLabels[d]||d)+'</option>').join("");
+el("expansion").addEventListener("change",render);
 el("hero").addEventListener("change",render);
 el("profile").addEventListener("change",render);
 el("difficulty").addEventListener("change",render);
