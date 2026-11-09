@@ -16,16 +16,17 @@ export const artifactHandler: GameHandler = {
 	apply(state, action, engine) {
 		if (action.type !== "USE_ARTIFACT") return state;
 		const wanted = action.payload;
-		const allowed = legalArtifactActions(engine, state).some((candidate) =>
+		const allowed = legalArtifactActions(engine, state).find((candidate) =>
 			candidate.type === "USE_ARTIFACT" &&
 			candidate.payload.artifactId === wanted.artifactId &&
-			candidate.payload.abilityId === wanted.abilityId &&
+			(!wanted.abilityId || candidate.payload.abilityId === wanted.abilityId) &&
 			candidate.payload.targetEnemyId === wanted.targetEnemyId &&
 			candidate.payload.targetHeroId === wanted.targetHeroId);
-		if (!allowed) return log(state, "[AVISO] Ação ou alvo do artefato indisponível nesta janela.");
+		if (!allowed || allowed.type !== "USE_ARTIFACT")
+			return log(state, "[AVISO] Ação ou alvo do artefato indisponível nesta janela.");
 		const artifact = gameOf(state).groupArtifacts.find((entry) => entry.cardId === wanted.artifactId);
 		const grant = abilityGrants(engine, wanted.artifactId).find((entry) =>
-			entry.abilityId === wanted.abilityId && entry.activation.kind === "manual");
+			entry.abilityId === allowed.payload.abilityId && entry.activation.kind === "manual");
 		if (!artifact || !grant) return log(state, "[AVISO] Artefato não pertence ao grupo.");
 		return executeAbilityGrant(engine, state, {
 			source: {
