@@ -1,6 +1,7 @@
 import fs from "node:fs";
 import path from "node:path";
 import { BOT_HEROES } from "./play";
+import { buildCatalogBalance, renderCatalogCsv, renderCatalogHtml, renderCatalogMarkdown } from "./catalogBalance";
 import { BOT_PROFILES, parseBotDifficulty, parseBotParty, parseBotProfile } from "./profiles";
 import {
 	BENCHMARK_DIFFICULTIES,
@@ -69,6 +70,12 @@ export function parseDungeonReportArgs(args: readonly string[]): CliOptions {
 				if (heroes.some((hero) => !BOT_HEROES.includes(hero))) throw new Error("Herói desconhecido");
 				benchmark = { ...benchmark, heroes }; break;
 			}
+			case "--expansions": {
+				const expansions = unique(commaList(flag, value));
+				if (expansions.some((id) => !defaults.expansions.includes(id)))
+					throw new Error("Expansão desconhecida ou sem chefe. Opções: " + defaults.expansions.join(", "));
+				benchmark = { ...benchmark, expansions }; break;
+			}
 			case "--profiles": {
 				const profiles = unique(commaList(flag, value).map(parseBotProfile));
 				benchmark = { ...benchmark, profiles }; break;
@@ -84,7 +91,7 @@ export function parseDungeonReportArgs(args: readonly string[]): CliOptions {
 			default: throw new Error(`Parâmetro desconhecido: ${flag}. Veja tools/bot/README.md`);
 		}
 	}
-	if (!benchmark.heroes.length || !benchmark.profiles.length || !benchmark.difficulties.length)
+	if (!benchmark.heroes.length || !benchmark.expansions.length || !benchmark.profiles.length || !benchmark.difficulties.length)
 		throw new Error("Escolha pelo menos um herói, perfil e dificuldade");
 	if (benchmark.seed + benchmark.runs > 2_147_483_647)
 		throw new Error("Intervalo de seeds ultrapassa limite seguro");
@@ -107,6 +114,11 @@ function saveReport(dir: string, report: DungeonReportData): void {
 	fs.writeFileSync(path.join(dir, "report.md"), renderDungeonReportMarkdown(report));
 	fs.writeFileSync(path.join(dir, "report.csv"), renderDungeonReportCsv(report.trials));
 	fs.writeFileSync(path.join(dir, "index.html"), renderDungeonReportHtml(report));
+	const catalog = buildCatalogBalance(report.options.expansions);
+	fs.writeFileSync(path.join(dir, "catalog.json"), JSON.stringify(catalog, null, 2) + "\n");
+	fs.writeFileSync(path.join(dir, "catalog.md"), renderCatalogMarkdown(catalog));
+	fs.writeFileSync(path.join(dir, "catalog.csv"), renderCatalogCsv(catalog));
+	fs.writeFileSync(path.join(dir, "catalog.html"), renderCatalogHtml(catalog));
 }
 
 export function runDungeonReport(args: readonly string[]): string | null {
@@ -114,7 +126,13 @@ export function runDungeonReport(args: readonly string[]): string | null {
 	const { benchmark } = options;
 	const plan = benchmarkPlan(benchmark);
 	console.log("Ensaio: " + benchmark.runs + " seeds, " + benchmark.heroes.length + " heróis, " +
-		benchmark.profiles.length + " perfis, " + benchmark.difficulties.length + " dificuldades = " + plan.length + " partidas.");
+		benchmark.expansions.length + " expansões, " + benchmark.profiles.length + " perfis, " +
+		benchmark.difficulties.length + " dificuldades = " + plan.length + " partidas.");
+	const catalogPreview = buildCatalogBalance(benchmark.expansions);
+	for (const expansion of catalogPreview.expansions) console.log("  " + expansion.name + ": " +
+		expansion.heroes.length + " heróis · " + expansion.creatures.length + " criaturas · " +
+		expansion.rooms.length + " salas · " + expansion.items.length + " itens · " +
+		expansion.roomsBelowFourEnemies + " salas com menos de 4 inimigos (4 heróis)");
 	if (options.dryRun) return null;
 	const dir = outputDir(options);
 	const configFile = path.join(dir, "config.json");
@@ -141,7 +159,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 
 	console.log("Verificando a igualdade inicial das masmorras para cada seed...");
 	ensureComparableDungeons(benchmark);
-	console.log("Masmorras compatíveis: decks e primeira sala são iguais em cada seed.");
+	console.log("Masmorras comparáveis dentro de cada expansão: mesmos decks e primeira sala por seed.");
 
 	let completed = byKey.size;
 	for (const test of plan) {
@@ -161,7 +179,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		completed++;
 		if (completed % 25 === 0 || completed === plan.length) {
 			console.log(completed + "/" + plan.length + " partidas; última: " +
-				test.heroId + " · " + test.profile + " · " + test.difficulty + " · seed " + test.seed);
+				test.expansionId + " · " + test.heroId + " · " + test.profile + " · " + test.difficulty + " · seed " + test.seed);
 		}
 	}
 
@@ -177,6 +195,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 	saveReport(dir, report);
 	console.log("\nRelatório visual: " + path.join(dir, "index.html"));
 	console.log("Dados: " + path.join(dir, "report.json") + " | report.csv | report.md");
+	console.log("Catálogos: " + path.join(dir, "catalog.html") + " | catalog.csv | catalog.json | catalog.md");
 	console.log("Resultados gravados apenas localmente; nada foi publicado no site.");
 	return dir;
 }
