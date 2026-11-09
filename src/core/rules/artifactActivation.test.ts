@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { testEngine } from "@/core/__tests__/testEngine";
-import { settled } from "@/core/__tests__/fixtures";
+import { settledWith } from "@/core/__tests__/fixtures";
 import { createEmptyCombatState } from "@/core/state/combatState";
 import { createInitialGameState, type GameState } from "@/core/state/gameState";
 import { enemiesOf } from "@/core/state/access";
@@ -14,8 +14,7 @@ import { scoreMoves } from "../../../tools/bot/brain";
 
 function scene(artifactId = "artifact_corrupted_forest_heart"): GameState {
 	const initial = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
-	return settled(withGame(initial, (game) => ({
-		...game,
+	return settledWith(initial, {
 		status: "HERO_ACTION",
 		groupArtifacts: [{ cardId: artifactId, carriedBy: null }],
 		heroes: [{
@@ -30,7 +29,7 @@ function scene(artifactId = "artifact_corrupted_forest_heart"): GameState {
 			tokens: {}, conditions: [], firstDamageTakenThisTurn: false, status: "active",
 		}],
 		combat: createEmptyCombatState(),
-	})));
+	});
 }
 
 function poisoned(state: GameState, stacks = 2): GameState {
