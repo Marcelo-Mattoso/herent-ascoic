@@ -1,5 +1,6 @@
 import type { Difficulty } from "@/core/state/gameState";
 import { deckOf } from "@/core/state/access";
+import { playerView } from "@/core/projection/playerView";
 import { gameOf } from "@/engine/state";
 import { cardName, skillById } from "@/core/gameEngine";
 import { getBoss } from "@/core/data/cards";
@@ -209,11 +210,11 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const action = step.chosen.action;
-		if (action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM" ||
+		const usedItem = action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM" ||
 			(action.type === "USE_SKILL" &&
-				step.before.heroes.some((hero) => Object.values(hero.activeItems).includes(action.payload.skillId)))) {
-			itemsUsed++;
-		}
+				(step.before.abilityActionsByHero[action.payload.sourceId] ?? []).some(
+					(ability) => ability.kind === "item" && ability.abilityId === action.payload.skillId));
+		if (usedItem) itemsUsed++;
 		if (action.type === "CHOOSE_ITEM_DESTINATION") {
 			if (action.payload.destination === "discard") itemsDiscarded++;
 			else itemsAcquired++;
@@ -229,10 +230,8 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			inventoryAfterRoom7 = afterTotal;
 		if (step.before.roomsCleared < 8 && step.after.roomsCleared >= 8)
 			inventoryAfterRoom8 = afterTotal;
-		if (step.before.roomsCleared >= 7 && itemsUsed > 0 &&
-			(action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM")) usesAfterRoom7++;
-		if (step.before.roomsCleared >= 8 && (action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM"))
-			usesAfterRoom8++;
+		if (step.before.roomsCleared >= 7 && usedItem) usesAfterRoom7++;
+		if (step.before.roomsCleared >= 8 && usedItem) usesAfterRoom8++;
 		if (step.before.roomsCleared >= 8 && beforeTotal === 0) emptyInventoryActionsAfterRoom8++;
 		const delta = step.after.groupXp - step.before.groupXp;
 		if (delta > 0) gained += delta;
@@ -278,6 +277,8 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	const state = gameOf(result.final);
 	const allFinalHeroes = [...state.heroes, ...state.defeatedHeroes, ...state.fledHeroes];
 	const remainingInventory = inventoryCounts(allFinalHeroes);
+	const finalView = playerView(engine, result.final);
+	const usableFinal = Object.values(finalView.inventoryByHero).reduce((n, inv) => n + inv.usableItemIds.length, 0);
 	return {
 		...test,
 		outcome: result.outcome,
@@ -297,7 +298,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			inventoryFinal: remainingInventory.equipped + remainingInventory.backpack,
 			equippedFinal: remainingInventory.equipped,
 			backpackFinal: remainingInventory.backpack,
-			usableFinal: 0,
+			usableFinal,
 			itemDeckAvailableFinal: deckOf(result.final, "itemDeck").available.length,
 			inventoryAfterRoom7, inventoryAfterRoom8,
 			usesAfterRoom7, usesAfterRoom8, emptyInventoryActionsAfterRoom8,
