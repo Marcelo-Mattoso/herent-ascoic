@@ -61,6 +61,8 @@ export interface ItemTelemetry {
 	readonly acquired: number;
 	/** Usos manuais de item, inclusive consumíveis da mesa. */
 	readonly uses: number;
+	readonly usesByItem: Readonly<Record<string, number>>;
+	readonly finalInventoryByItem: Readonly<Record<string, number>>;
 	/** Itens descartados diretamente da mesa. */
 	readonly discarded: number;
 	/** Estoque restante de todos os heróis, inclusive derrotados. */
@@ -187,7 +189,7 @@ export function ensureComparableDungeons(
 	}
 }
 
-function inventoryCounts(heroes: readonly { activeItems: Readonly<Record<string, string | undefined>>; backpack: readonly string[] }[]) {
+function inventoryCounts(heroes: readonly { activeItems: object; backpack: readonly string[] }[]) {
 	return heroes.reduce((total, hero) => ({
 		equipped: total.equipped + Object.values(hero.activeItems).filter(Boolean).length,
 		backpack: total.backpack + hero.backpack.length,
@@ -206,6 +208,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
 	let triggeredSkillUses = 0, triggeredPowerUses = 0;
 	let itemsAcquired = 0, itemsUsed = 0, itemsDiscarded = 0;
+	const usesByItem: Record<string, number> = {};
 	let inventoryAfterRoom7: number | null = null, inventoryAfterRoom8: number | null = null;
 	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
@@ -214,7 +217,16 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			(action.type === "USE_SKILL" &&
 				(step.before.abilityActionsByHero[action.payload.sourceId] ?? []).some(
 					(ability) => ability.kind === "item" && ability.abilityId === action.payload.skillId));
-		if (usedItem) itemsUsed++;
+		if (usedItem) {
+			itemsUsed++;
+			const itemId = action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM"
+				? action.payload.itemId
+				: action.type === "USE_SKILL"
+					? step.before.abilityActionsByHero[action.payload.sourceId]?.find(
+						(entry) => entry.kind === "item" && entry.abilityId === action.payload.skillId)?.sourceCardId
+					: undefined;
+			if (itemId) usesByItem[itemId] = (usesByItem[itemId] ?? 0) + 1;
+		}
 		if (action.type === "CHOOSE_ITEM_DESTINATION") {
 			if (action.payload.destination === "discard") itemsDiscarded++;
 			else itemsAcquired++;
@@ -277,6 +289,11 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	const state = gameOf(result.final);
 	const allFinalHeroes = [...state.heroes, ...state.defeatedHeroes, ...state.fledHeroes];
 	const remainingInventory = inventoryCounts(allFinalHeroes);
+	const finalInventoryByItem: Record<string, number> = {};
+	for (const hero of allFinalHeroes) {
+		for (const id of [...Object.values(hero.activeItems).filter((value): value is string => Boolean(value)), ...hero.backpack])
+			finalInventoryByItem[id] = (finalInventoryByItem[id] ?? 0) + 1;
+	}
 	const finalView = playerView(engine, result.final);
 	const usableFinal = Object.values(finalView.inventoryByHero).reduce((n, inv) => n + inv.usableItemIds.length, 0);
 	return {
@@ -294,7 +311,8 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		powerUses: result.actions.filter((action) => action.type === "USE_POWER" ||
 			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power")).length + triggeredPowerUses,
 		items: {
-			acquired: itemsAcquired, uses: itemsUsed, discarded: itemsDiscarded,
+			acquired: itemsAcquired, uses: itemsUsed, usesByItem, finalInventoryByItem,
+			discarded: itemsDiscarded,
 			inventoryFinal: remainingInventory.equipped + remainingInventory.backpack,
 			equippedFinal: remainingInventory.equipped,
 			backpackFinal: remainingInventory.backpack,
