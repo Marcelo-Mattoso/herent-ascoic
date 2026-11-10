@@ -24,8 +24,8 @@ function furyScore(view: PlayerView, sourceId?: string, amount = 2): number {
 	if (!hero || activeEnemies(view).length === 0) return 10;
 	const cost = Math.max(1, amount);
 	if (hero.currentLife <= cost) return 0;
-	const enemy = activeEnemies(view).find((entry) => entry.id === view.combat?.selectedHeroId) ??
-		activeEnemies(view)[0]!;
+	const enemy = activeEnemies(view).find((entry) => entry.currentLife > hero.damage &&
+		entry.currentLife <= hero.damage + cost * 3) ?? activeEnemies(view)[0]!;
 	const gain = Math.min(cost * 3, Math.max(0, enemy.currentLife - hero.damage));
 	const alreadyKills = hero.damage >= enemy.currentLife;
 	if (alreadyKills || gain === 0) return 15;
@@ -91,6 +91,18 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 	switch (action.type) {
 		case "CHOOSE_TARGET":
 			return attackScore(view, action.payload.heroId, action.payload.enemyId, profile);
+		case "USE_ITEM":
+		case "USE_REWARD_ITEM": {
+			const hero = heroes.find((entry) => entry.id === action.payload.heroId);
+			if (!hero) return -1;
+			const ability = view.abilityActionsByHero[hero.id]?.find((entry) =>
+				entry.kind === "item" && entry.sourceCardId === action.payload.itemId);
+			const isHealing = ability && /heal|cura|potion|poção|antídoto|antiveneno/i.test(ability.label);
+			const missing = hero.maxLife - hero.currentLife;
+			if (isHealing && missing <= 0 && !hero.conditions.length) return -1;
+			if (isHealing) return missing >= 3 ? 175 + missing * 4 : 65;
+			return pressure(view) ? 160 : 70;
+		}
 		case "USE_ARTIFACT": {
 			const { abilityId, targetEnemyId, targetHeroId } = action.payload;
 			if (abilityId === "witch_artifact_corrupted_heart_burst") {
@@ -260,16 +272,25 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 		for (const ability of obs.abilities[hero.id] ?? []) {
 			// Gatilhos voluntários são resolvidos por APPLY_TRIGGER_INTERRUPT na janela
 			// correta do motor; USE_SKILL só vale para habilidades manuais.
-			if (ability.status !== "available" || ability.kind === "item" || ability.activation !== "manual") continue;
+			if (ability.status !== "available" || ability.activation !== "manual") continue;
 			const targets = abilityTargets(view, ability, hero, profile);
 			if (ability.targetRequired && targets.length === 0) continue;
 			for (const target of ability.targetRequired ? targets : [undefined]) {
 				const score = abilityScore(view, ability, target, profile);
 				if (score < 0) continue;
-				moves.push({ action: { type: "USE_SKILL", payload: {
-					skillId: ability.abilityId, sourceId: hero.id,
-					...(target ? { targetIds: [target] } : {}),
-				} }, score });
+				if (ability.kind === "item") {
+					const targetHero = target && activeHeroes(view).some((entry) => entry.id === target);
+					const itemAction: Action = { type: "USE_ITEM", payload: {
+						itemId: ability.sourceCardId, heroId: hero.id,
+						...(target ? targetHero ? { targetHeroId: target } : { targetEnemyId: target } : {}),
+					} };
+					moves.push({ action: itemAction, score: Math.min(score, pressure(view) ? 155 : 95) });
+				} else {
+					moves.push({ action: { type: "USE_SKILL", payload: {
+						skillId: ability.abilityId, sourceId: hero.id,
+						...(target ? { targetIds: [target] } : {}),
+					} }, score });
+				}
 			}
 		}
 	}
