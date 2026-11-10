@@ -9,17 +9,17 @@
   "dungeonExhaustionCost": 5,
   "difficultyPresets": {
     "very_easy": {
-      "heroOffset": 3,
+      "heroOffset": 2,
       "despertarOffset": 0,
       "recoverCost": 3
     },
     "easy": {
-      "heroOffset": 2,
+      "heroOffset": 1,
       "despertarOffset": 0,
       "recoverCost": 4
     },
     "normal": {
-      "heroOffset": 1,
+      "heroOffset": 0,
       "despertarOffset": 0,
       "recoverCost": 5
     },
