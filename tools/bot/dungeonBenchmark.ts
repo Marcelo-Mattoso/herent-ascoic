@@ -55,6 +55,28 @@ export interface ProgressionTelemetry {
 	readonly powerOpportunities: number;
 }
 
+export interface ItemTelemetry {
+	/** Itens levados, equipados ou guardados (sem contar artefatos). */
+	readonly acquired: number;
+	/** Usos manuais de item, inclusive consumíveis da mesa. */
+	readonly uses: number;
+	/** Itens descartados diretamente da mesa. */
+	readonly discarded: number;
+	/** Estoque restante de todos os heróis, inclusive derrotados. */
+	readonly inventoryFinal: number;
+	readonly equippedFinal: number;
+	readonly backpackFinal: number;
+	readonly usableFinal: number;
+	readonly itemDeckAvailableFinal: number;
+	/** Estoque de inventário ao vencer a sala 7/8; null se não alcançada. */
+	readonly inventoryAfterRoom7: number | null;
+	readonly inventoryAfterRoom8: number | null;
+	readonly usesAfterRoom7: number;
+	readonly usesAfterRoom8: number;
+	/** Menor estoque nas etapas posteriores, útil para flagrar falta de recursos. */
+	readonly emptyInventoryActionsAfterRoom8: number;
+}
+
 export interface BenchmarkTrial extends BenchmarkCase {
 	readonly outcome: string;
 	readonly violation: string | null;
@@ -66,6 +88,7 @@ export interface BenchmarkTrial extends BenchmarkCase {
 	readonly artifacts: number;
 	readonly skillUses: number;
 	readonly powerUses: number;
+	readonly items?: ItemTelemetry;
 	readonly progression?: ProgressionTelemetry;
 }
 
@@ -163,6 +186,13 @@ export function ensureComparableDungeons(
 	}
 }
 
+function inventoryCounts(heroes: readonly { activeItems: Readonly<Record<string, string | undefined>>; backpack: readonly string[] }[]) {
+	return heroes.reduce((total, hero) => ({
+		equipped: total.equipped + Object.values(hero.activeItems).filter(Boolean).length,
+		backpack: total.backpack + hero.backpack.length,
+	}), { equipped: 0, backpack: 0 });
+}
+
 export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): BenchmarkTrial {
 	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
 	const starting = createHeadlessPort(setup).observe().view;
@@ -174,7 +204,36 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let levelUpOpportunities = 0, levelUpPurchases = 0, levelUpAttempts = 0, levelUpNoEffect = 0;
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
 	let triggeredSkillUses = 0, triggeredPowerUses = 0;
+	let itemsAcquired = 0, itemsUsed = 0, itemsDiscarded = 0;
+	let inventoryAfterRoom7: number | null = null, inventoryAfterRoom8: number | null = null;
+	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
+		const action = step.chosen.action;
+		if (action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM" ||
+			(action.type === "USE_SKILL" &&
+				step.before.heroes.some((hero) => Object.values(hero.activeItems).includes(action.payload.skillId)))) {
+			itemsUsed++;
+		}
+		if (action.type === "CHOOSE_ITEM_DESTINATION") {
+			if (action.payload.destination === "discard") itemsDiscarded++;
+			else itemsAcquired++;
+		}
+		const beforeInventory = inventoryCounts(step.before.heroes);
+		const afterInventory = inventoryCounts(step.after.heroes);
+		const beforeTotal = beforeInventory.equipped + beforeInventory.backpack;
+		const afterTotal = afterInventory.equipped + afterInventory.backpack;
+		// Itens comprados/recebidos fora da fase de recompensa também contam.
+		if (afterTotal > beforeTotal && action.type !== "CHOOSE_ITEM_DESTINATION")
+			itemsAcquired += afterTotal - beforeTotal;
+		if (step.before.roomsCleared < 7 && step.after.roomsCleared >= 7)
+			inventoryAfterRoom7 = afterTotal;
+		if (step.before.roomsCleared < 8 && step.after.roomsCleared >= 8)
+			inventoryAfterRoom8 = afterTotal;
+		if (step.before.roomsCleared >= 7 && itemsUsed > 0 &&
+			(action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM")) usesAfterRoom7++;
+		if (step.before.roomsCleared >= 8 && (action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM"))
+			usesAfterRoom8++;
+		if (step.before.roomsCleared >= 8 && beforeTotal === 0) emptyInventoryActionsAfterRoom8++;
 		const delta = step.after.groupXp - step.before.groupXp;
 		if (delta > 0) gained += delta;
 		if (delta < 0) {
@@ -217,6 +276,8 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		levelPeak = Math.max(levelPeak, finalLevel);
 	}, test.profile);
 	const state = gameOf(result.final);
+	const allFinalHeroes = [...state.heroes, ...state.defeatedHeroes, ...state.fledHeroes];
+	const remainingInventory = inventoryCounts(allFinalHeroes);
 	return {
 		...test,
 		outcome: result.outcome,
@@ -231,6 +292,16 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			skillById(engine, action.payload.skillId)?.category === "hero_skill").length + triggeredSkillUses,
 		powerUses: result.actions.filter((action) => action.type === "USE_POWER" ||
 			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power")).length + triggeredPowerUses,
+		items: {
+			acquired: itemsAcquired, uses: itemsUsed, discarded: itemsDiscarded,
+			inventoryFinal: remainingInventory.equipped + remainingInventory.backpack,
+			equippedFinal: remainingInventory.equipped,
+			backpackFinal: remainingInventory.backpack,
+			usableFinal: 0,
+			itemDeckAvailableFinal: deckOf(result.final, "itemDeck").available.length,
+			inventoryAfterRoom7, inventoryAfterRoom8,
+			usesAfterRoom7, usesAfterRoom8, emptyInventoryActionsAfterRoom8,
+		},
 		progression: {
 			xpGained: gained, xpSpent: spentTotal, xpSpentByOption: spent,
 			xpPurchasesByOption: purchases, xpOtherLoss: otherLoss,
