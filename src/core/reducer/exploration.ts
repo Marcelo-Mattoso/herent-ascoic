@@ -32,6 +32,28 @@ import { awakeningOf, dealDecksInto, deckOf, decksOf, discardDeckTop, isStatComp
 import { gameOf, withGame } from "../../engine/state";
 const DUNGEON_ROOM_COPIES = 2;
 
+/** As duas primeiras salas servem para evolução; encontros de elite só após duas salas vencidas. */
+const ELITE_UNLOCK_ROOM = 3;
+function isRoomAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
+	const card = cardById(engine, id);
+	if (!card || (card.type !== "room" && card.type !== "subboss_room")) return false;
+	// Salas de miniboss são do tipo room (XP 3) ou subboss_room.
+	if (roomNumber < ELITE_UNLOCK_ROOM && (card.type === "subboss_room" || (card.xp ?? 0) >= 3))
+		return false;
+	// Primeira sala sempre simples: até um inimigo no solo, XP até 1 e sem invocação especial.
+	if (roomNumber === 1)
+		return card.type === "room" && card.enemiesByPlayers[0] <= 1 &&
+			(card.xp ?? 0) <= 1 && !card.specialCreatureId;
+	return true;
+}
+
+function isCreatureAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
+	const card = cardById(engine, id);
+	if (!card || card.type !== "creature") return false;
+	// Na Fornalha são cinco criaturas de 3 XP; a regra também protege futuras expansões.
+	return roomNumber >= ELITE_UNLOCK_ROOM || (card.xp ?? 0) < 3;
+}
+
 export function buildDungeonRoomDeck(engine: GameEngine, expansionId?: string): string[] {
 	return cardsOfType(engine, "room")
 		.filter((card) => !expansionId || expansionOf(engine, card.id) === expansionId)
@@ -62,8 +84,13 @@ function drawRandomDungeonRoom(engine: GameEngine,
 	}
 
 	const shuffledState = shuffleDeck(state, "dungeonDeck");
-	const [roomId, ...remaining] = deckOf(shuffledState, "dungeonDeck").available;
-	const card = cardById(engine, roomId as string);
+	const shuffled = deckOf(shuffledState, "dungeonDeck").available;
+	const roomNumber = gameOf(state).roomsCleared + 1;
+	const chosenIndex = shuffled.findIndex((id) => isRoomAvailableAtDepth(engine, id, roomNumber));
+	if (chosenIndex < 0) return handleDungeonDeckEmpty(engine, shuffledState);
+	const roomId = shuffled[chosenIndex]!;
+	const remaining = [...shuffled.slice(0, chosenIndex), ...shuffled.slice(chosenIndex + 1)];
+	const card = cardById(engine, roomId);
 	if (!card || (card.type !== "room" && card.type !== "subboss_room"))
 		return state;
 
@@ -290,7 +317,11 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 			rng = shuffled.next;
 			reshuffleCount++;
 		}
-		const id = remaining.shift();
+		const roomNumber = gameOf(state).roomsCleared + 1;
+		const eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
+		// Mantém elites no deck para a terceira sala, sem consumi-las indevidamente.
+		if (eligibleIndex < 0) break;
+		const [id] = remaining.splice(eligibleIndex, 1);
 		if (id) drawn.push(id);
 	}
 	const enemies: ReturnType<typeof createEnemyFromCard>["enemy"][] = [];
@@ -479,8 +510,11 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 	let rng = gameOf(state).rng;
 	const shuffledAvailable = deckOf(state, "dungeonDeck").available;
 
-	const drawn = shuffledAvailable.slice(0, exits);
-	const afterDraw = shuffledAvailable.slice(exits);
+	const roomNumber = gameOf(state).roomsCleared + 1;
+	const eligible = shuffledAvailable.filter((id) => isRoomAvailableAtDepth(engine, id, roomNumber));
+	const locked = shuffledAvailable.filter((id) => !isRoomAvailableAtDepth(engine, id, roomNumber));
+	const drawn = eligible.slice(0, exits);
+	const afterDraw = [...eligible.slice(exits), ...locked];
 	if (drawn.length === 0) return handleDungeonDeckEmpty(engine, state);
 
 	const { value: shuffledDrawn, next: afterChoice } = shuffleRng(drawn, rng);
