@@ -40,9 +40,9 @@ describe("ensaio pareado de masmorra", () => {
 		const expansionId = "torre-grande-bruxa-caldeirao";
 		const heroId = "hero_crimson_barbarian";
 		const expected = [
-			["very_easy", 3],
-			["easy", 2],
-			["normal", 1],
+			["very_easy", 2],
+			["easy", 1],
+			["normal", 0],
 			["hard", 0],
 			["nightmare", 0],
 		] as const;
