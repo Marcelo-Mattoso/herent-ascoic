@@ -1,7 +1,7 @@
 import type { Difficulty } from "@/core/state/gameState";
 import { deckOf } from "@/core/state/access";
 import { gameOf } from "@/engine/state";
-import { cardName } from "@/core/gameEngine";
+import { cardName, skillById } from "@/core/gameEngine";
 import { getBoss } from "@/core/data/cards";
 import { getEnabledExpansions } from "@/core/data/expansions";
 import { engine } from "../golden/lib";
@@ -48,6 +48,11 @@ export interface ProgressionTelemetry {
 	readonly levelPeak: number;
 	readonly levelUpOpportunities: number;
 	readonly levelUpPurchases: number;
+	readonly levelUpAttempts: number;
+	readonly levelUpNoEffect: number;
+	readonly abilityOpportunities: number;
+	readonly skillOpportunities: number;
+	readonly powerOpportunities: number;
 }
 
 export interface BenchmarkTrial extends BenchmarkCase {
@@ -166,26 +171,37 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let gained = 0, spentTotal = 0, otherLoss = 0, peakXp = starting.groupXp;
 	let levelPeak = Math.max(0, ...starting.heroes.map((hero) => hero.impeto));
 	let finalLevel = levelPeak;
-	let levelUpOpportunities = 0, levelUpPurchases = 0;
+	let levelUpOpportunities = 0, levelUpPurchases = 0, levelUpAttempts = 0, levelUpNoEffect = 0;
+	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const delta = step.after.groupXp - step.before.groupXp;
 		if (delta > 0) gained += delta;
 		if (delta < 0) {
 			if (step.chosen.action.type === "SPEND_XP") {
 				const option = step.chosen.action.payload.option;
-				purchases[option] = (purchases[option] ?? 0) + 1;
 				spent[option] = (spent[option] ?? 0) - delta;
 				spentTotal -= delta;
-				if (option === "level_up") levelUpPurchases++;
 			} else otherLoss -= delta;
-		} else if (step.chosen.action.type === "SPEND_XP") {
-			// Registra inclusive opções gratuitas, para separar compra de gasto efetivo.
+		}
+		if (step.chosen.action.type === "SPEND_XP") {
 			const option = step.chosen.action.payload.option;
 			purchases[option] = (purchases[option] ?? 0) + 1;
-			if (option === "level_up") levelUpPurchases++;
+			if (option === "level_up") {
+				levelUpAttempts++;
+				const before = step.before.heroes.find((hero) => hero.id === step.chosen.action.payload.heroId);
+				const after = step.after.heroes.find((hero) => hero.id === step.chosen.action.payload.heroId);
+				if (before && after && after.impeto > before.impeto) levelUpPurchases++;
+				else levelUpNoEffect++;
+			}
 		}
 		if (step.options.some((move) => move.action.type === "SPEND_XP" && move.action.payload.option === "level_up"))
 			levelUpOpportunities++;
+		const abilityOptions = step.options.filter((move) => move.action.type === "USE_SKILL");
+		if (abilityOptions.length) {
+			abilityOpportunities++;
+			if (abilityOptions.some((move) => move.action.type === "USE_SKILL" && skillById(engine, move.action.payload.skillId)?.category === "hero_skill")) skillOpportunities++;
+			if (abilityOptions.some((move) => move.action.type === "USE_SKILL" && skillById(engine, move.action.payload.skillId)?.category === "hero_power")) powerOpportunities++;
+		}
 		peakXp = Math.max(peakXp, step.after.groupXp);
 		finalLevel = Math.max(0, ...step.after.heroes.map((hero) => hero.impeto));
 		levelPeak = Math.max(levelPeak, finalLevel);
@@ -201,8 +217,10 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		creaturesDefeated: state.creaturesDefeated,
 		bossDefeated: state.bossDefeated,
 		artifacts: state.groupArtifacts.length,
-		skillUses: result.actions.filter((action) => action.type === "USE_SKILL").length,
-		powerUses: result.actions.filter((action) => action.type === "USE_POWER").length,
+		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
+			skillById(engine, action.payload.skillId)?.category === "hero_skill").length,
+		powerUses: result.actions.filter((action) => action.type === "USE_POWER" ||
+			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power")).length,
 		progression: {
 			xpGained: gained, xpSpent: spentTotal, xpSpentByOption: spent,
 			xpPurchasesByOption: purchases, xpOtherLoss: otherLoss,
@@ -210,6 +228,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			levelInitial: Math.max(0, ...starting.heroes.map((hero) => hero.impeto)),
 			levelFinal: finalLevel,
 			levelPeak, levelUpOpportunities, levelUpPurchases,
+			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
 		},
 	};
 }
