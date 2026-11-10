@@ -14,7 +14,7 @@ import {
 } from "./invariants";
 import { settled } from "@/core/__tests__/fixtures";
 import { initialState } from "../golden/lib";
-import { withPaused, withEffectStack } from "@/core/state/access";
+import { withPaused, withEffectStack, withPendingSkillChoice } from "@/core/state/access";
 import { withGame } from "@/engine/state";
 
 const setup = {
@@ -122,6 +122,23 @@ describe("duplicação de cartas", () => {
 		expect(checkCardDuplication(s, { item_x: 1 })?.invariant).toBe(
 			"card_duplication",
 		);
+	});
+
+	it("contabiliza itens revelados aguardando escolha, mesmo que já tenham saído do deck", () => {
+		const baseline = withPendingSkillChoice(base(), {
+			skillId: "witch_room_old_vials",
+			prompt: "Escolha um item",
+			kind: "draw_and_choose",
+			discardDeck: "itemDeck",
+			options: [
+				{ id: "item_forest_charm", label: "Talismã da Mata Antiga" },
+				{ id: "item_other", label: "Outro item" },
+			],
+		});
+		const counts = countCards(baseline);
+		expect(counts.item_forest_charm).toBeGreaterThanOrEqual(1);
+		const selected = withHero({ backpack: ["item_forest_charm"] });
+		expect(checkCardDuplication(selected, counts)).toBeNull();
 	});
 
 	it("aceita salas de subchefe injetadas", () => {
