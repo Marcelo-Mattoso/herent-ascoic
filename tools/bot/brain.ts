@@ -97,7 +97,9 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			if (option === "recover_dungeon") return 120;
 			if (option === "level_up") {
 				const hero = heroes.find((entry) => entry.id === heroId);
-				return (profile === "speedrunner" ? 235 : 155) + (hero ? (1 - lifeRatio(hero)) * 10 : 0);
+				// A compra sem mudança de Ímpeto desperdiça uma decisão e distorce a telemetria.
+				if (!hero || hero.impeto >= 4) return -1;
+				return (profile === "speedrunner" ? 235 : 155) + (1 - lifeRatio(hero)) * 10;
 			}
 			if (option === "buy_artifact") return profile === "speedrunner" ? 75 : 100;
 			if (option === "buy_item") return profile === "speedrunner" ? 60 : 85;
@@ -149,6 +151,10 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 				!view.combat?.lastRoll?.heroResults.includes(1)) return 20;
 			if (interrupt.skillId === "witch_power_green_eclipse")
 				return view.status === "BOSS_COMBAT" || pressure(view) ? 210 : profile === "explorer" ? 155 : 90;
+			if (interrupt.skillId === "witch_skill_white_ash_balm") {
+				const wounds = activeHeroes(view).map((hero) => hero.maxLife - hero.currentLife);
+				return Math.max(0, ...wounds) >= 3 ? 185 : 30;
+			}
 			return 165;
 		}
 		case "SKIP_TRIGGER_INTERRUPT": return 40;
@@ -263,7 +269,12 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),
 		...abilityMoves(obs, profile),
-		...obs.actions.map((action) => ({ action, score: scoreAction(obs.view, action, profile) })),
+		...obs.actions
+			.filter((action) => action.type !== "SPEND_XP" ||
+				action.payload.option !== "level_up" ||
+				obs.view.heroes.some((hero) => hero.id === action.payload.heroId &&
+					hero.status === "active" && hero.impeto < 4))
+			.map((action) => ({ action, score: scoreAction(obs.view, action, profile) })),
 	];
 	const unique = [...new Map(candidates.reverse().map((move) => [JSON.stringify(move.action), move])).values()].reverse();
 	const random = seededRandom(seed, decision);
