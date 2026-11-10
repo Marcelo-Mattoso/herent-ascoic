@@ -57,19 +57,19 @@
       ],
       "life": [
         8,
-        9,
-        11,
-        13,
-        15
+        10,
+        12,
+        14,
+        16
       ],
       "hitBonus": [
         4,
-        5,
-        7,
-        10,
-        14
+        6,
+        8,
+        11,
+        15
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "witch_skill_lunar_spark"
@@ -128,20 +128,20 @@
         3
       ],
       "life": [
-        9,
-        11,
-        13,
-        15,
-        17
+        10,
+        12,
+        14,
+        16,
+        18
       ],
       "hitBonus": [
         4,
-        5,
-        7,
-        10,
-        14
+        6,
+        8,
+        11,
+        15
       ],
-      "damage": 2,
+      "damage": 3,
       "skills": [
         {
           "skillId": "witch_skill_white_ash_balm",
