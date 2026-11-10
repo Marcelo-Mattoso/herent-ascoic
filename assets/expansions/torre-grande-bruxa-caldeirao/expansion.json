@@ -11,24 +11,24 @@
       "image": "images/hero_oak_guardian.webp",
       "diceByColor": [
         1,
-        1,
         2,
         2,
+        3,
         3
       ],
       "life": [
-        11,
         13,
         15,
         17,
-        19
+        19,
+        21
       ],
       "hitBonus": [
-        5,
         7,
         10,
         14,
-        18
+        18,
+        23
       ],
       "damage": 3,
       "skills": [
@@ -50,24 +50,24 @@
       "image": "images/hero_green_moon_sorceress.webp",
       "diceByColor": [
         1,
-        1,
         2,
         2,
+        3,
         3
       ],
       "life": [
-        8,
         10,
         12,
         14,
-        16
+        16,
+        18
       ],
       "hitBonus": [
-        4,
         6,
         8,
         11,
-        15
+        15,
+        20
       ],
       "damage": 3,
       "skills": [
@@ -86,24 +86,24 @@
       "image": "images/hero_swamp_stalker.webp",
       "diceByColor": [
         1,
-        1,
         2,
         2,
+        3,
         3
       ],
       "life": [
-        9,
         10,
         12,
         14,
-        16
+        16,
+        18
       ],
       "hitBonus": [
-        5,
         7,
         10,
         14,
-        18
+        18,
+        23
       ],
       "damage": 3,
       "skills": [
@@ -122,24 +122,24 @@
       "image": "images/hero_white_ashes_sister.webp",
       "diceByColor": [
         1,
-        1,
         2,
         2,
+        3,
         3
       ],
       "life": [
-        10,
         12,
         14,
         16,
-        18
+        18,
+        20
       ],
       "hitBonus": [
-        4,
         6,
         8,
         11,
-        15
+        15,
+        20
       ],
       "damage": 3,
       "skills": [
