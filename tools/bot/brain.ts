@@ -97,7 +97,7 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			if (option === "recover_dungeon") return 120;
 			if (option === "level_up") {
 				const hero = heroes.find((entry) => entry.id === heroId);
-				return (profile === "speedrunner" ? 115 : 95) + (hero ? (1 - lifeRatio(hero)) * 10 : 0);
+				return (profile === "speedrunner" ? 235 : 155) + (hero ? (1 - lifeRatio(hero)) * 10 : 0);
 			}
 			if (option === "buy_artifact") return profile === "speedrunner" ? 75 : 100;
 			if (option === "buy_item") return profile === "speedrunner" ? 60 : 85;
@@ -161,7 +161,12 @@ function abilityTargets(view: PlayerView, ability: BotObservation["abilities"][s
 	return [...candidates];
 }
 
-function abilityScore(view: PlayerView, abilityId: string, targetId: string | undefined, profile: BotProfile): number {
+function abilityScore(view: PlayerView, ability: BotObservation["abilities"][string][number], targetId: string | undefined, profile: BotProfile): number {
+	const abilityId = ability.abilityId;
+	const isPower = ability.kind === "power";
+	const isPrepare = ability.activation === "prepare";
+	// Não sacrificar uma ativação limitada para curar um herói saudável.
+	if (ability.heals && !activeHeroes(view).some((hero) => hero.currentLife < hero.maxLife)) return -1;
 	if (profile === "random") return 0;
 	const target = activeHeroes(view).find((hero) => hero.id === targetId);
 	const missing = target ? target.maxLife - target.currentLife : 0;
@@ -193,10 +198,12 @@ function abilityScore(view: PlayerView, abilityId: string, targetId: string | un
 	if (abilityId === "skill_return_rite") return profile === "power-player" ? 145 : 85;
 	if (abilityId === "skill_bastion_guard") return pressure(view) ? 155 : 50;
 	if (abilityId === "power_supreme_rift_rune") return pressure(view) ? 160 : 95;
-	if (profile === "explorer") return 185;
-	if (profile === "speedrunner") return pressure(view) ? 115 : 35;
-	if (profile === "casual") return pressure(view) ? 110 : 55;
-	return pressure(view) ? 155 : 55;
+	if (profile === "explorer") return isPower ? 210 : 185;
+	// Habilidades com disparo voluntário devem ser preparadas antes do evento;
+	// poderes têm valor real, inclusive para o perfil veloz.
+	if (profile === "speedrunner") return isPower ? 185 : isPrepare ? 160 : pressure(view) ? 155 : 105;
+	if (profile === "casual") return isPower ? 175 : isPrepare ? 155 : pressure(view) ? 150 : 100;
+	return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 110;
 }
 
 function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
@@ -205,11 +212,11 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 	const moves: ScoredMove[] = [];
 	for (const hero of activeHeroes(view)) {
 		for (const ability of obs.abilities[hero.id] ?? []) {
-			if (ability.status !== "available" || ability.kind === "item") continue;
+			if (ability.status !== "available" || ability.kind === "item" || ability.activation === "passive") continue;
 			const targets = abilityTargets(view, ability, hero, profile);
 			if (ability.targetRequired && targets.length === 0) continue;
 			for (const target of ability.targetRequired ? targets : [undefined]) {
-				const score = abilityScore(view, ability.abilityId, target, profile);
+				const score = abilityScore(view, ability, target, profile);
 				if (score < 0) continue;
 				moves.push({ action: { type: "USE_SKILL", payload: {
 					skillId: ability.abilityId, sourceId: hero.id,
