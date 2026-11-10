@@ -32,27 +32,28 @@ import { awakeningOf, dealDecksInto, deckOf, decksOf, discardDeckTop, isStatComp
 import { gameOf, withGame } from "../../engine/state";
 const DUNGEON_ROOM_COPIES = 2;
 
-/** As duas primeiras salas servem para evolução; encontros de elite só após duas salas vencidas. */
-const ELITE_UNLOCK_ROOM = 3;
+/** Duas salas de introdução fáceis e quatro salas sem elites nem minibosses. */
+const EASY_ROOM_COUNT = 2;
+const ELITE_UNLOCK_ROOM = 5;
 function isRoomAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
 	const card = cardById(engine, id);
 	if (!card || (card.type !== "room" && card.type !== "subboss_room")) return false;
-	// Salas de miniboss são do tipo room (XP 3) ou subboss_room.
-	if (roomNumber < ELITE_UNLOCK_ROOM && (card.type === "subboss_room" || (card.xp ?? 0) >= 3))
-		return false;
-	// Primeira sala sempre simples: até um inimigo no solo, XP até 1 e sem invocação especial.
-	if (roomNumber === 1)
+	// Salas que invocam miniboss e salas especiais ficam reservadas para a quinta sala.
+	if (roomNumber < ELITE_UNLOCK_ROOM &&
+		(card.type === "subboss_room" || card.specialCreatureId || (card.xp ?? 0) >= 3)) return false;
+	// As duas primeiras salas são leves inclusive no modo solo.
+	if (roomNumber <= EASY_ROOM_COUNT)
 		return card.type === "room" && card.enemiesByPlayers[0] <= 1 &&
-			(card.xp ?? 0) <= 1 && !card.specialCreatureId;
+			(card.xp ?? 0) <= 1;
 	return true;
 }
 
 function isCreatureAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
 	const card = cardById(engine, id);
 	if (!card || card.type !== "creature") return false;
-	// A primeira sala só pode receber criaturas básicas (1 XP).
-	if (roomNumber === 1) return (card.xp ?? 0) <= 1;
-	// Na Fornalha são cinco criaturas de 3 XP; a regra também protege futuras expansões.
+	// Apenas criaturas de entrada nas salas 1 e 2.
+	if (roomNumber <= EASY_ROOM_COUNT) return (card.xp ?? 0) <= 1;
+	// Criaturas difíceis só começam a aparecer a partir da quinta sala.
 	return roomNumber >= ELITE_UNLOCK_ROOM || (card.xp ?? 0) < 3;
 }
 
@@ -306,22 +307,26 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 	// instâncias compradas saem do deck. Quando acabar, reconstruímos o monte
 	// com todas as criaturas elegíveis da expansão do chefe da partida.
 	// Respeitamos o monte ainda disponível antes de iniciar um novo ciclo.
+	const roomNumber = gameOf(state).roomsCleared + 1;
 	for (let i = 0; i < regularCount; i++) {
-		if (remaining.length === 0) {
+		let eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
+		if (eligibleIndex < 0) {
+			// Se apenas elites restarem, recria um ciclo das criaturas permitidas
+			// nesta profundidade, sem antecipar nem descartar as cartas bloqueadas.
 			const expansionId = expansionOf(engine, gameOf(state).bossCardId);
 			const removedIds = new Set(removed);
 			const creatureIds = cardsOfType(engine, "creature")
-				.filter((card) => expansionOf(engine, card.id) === expansionId && !removedIds.has(card.id))
+				.filter((card) => expansionOf(engine, card.id) === expansionId &&
+					!removedIds.has(card.id) &&
+					isCreatureAvailableAtDepth(engine, card.id, roomNumber))
 				.map((card) => card.id);
 			if (creatureIds.length === 0) break;
 			const shuffled = shuffleRng(creatureIds, rng);
-			remaining = shuffled.value;
+			remaining = [...remaining, ...shuffled.value];
 			rng = shuffled.next;
 			reshuffleCount++;
+			eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
 		}
-		const roomNumber = gameOf(state).roomsCleared + 1;
-		const eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
-		// Mantém elites no deck para a terceira sala, sem consumi-las indevidamente.
 		if (eligibleIndex < 0) break;
 		const [id] = remaining.splice(eligibleIndex, 1);
 		if (id) drawn.push(id);
@@ -348,7 +353,7 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 	}
 	state = withGame(state, (prevGame) => ({ ...prevGame, rng }));
 	if (reshuffleCount > 0) {
-		state = log(state, "Baralho de criaturas esgotado. Monstros da expansão reembaralhados.");
+		state = log(state, "Criaturas disponíveis nesta etapa reembaralhadas.");
 	}
 
 	// Se a expansão não tiver criaturas elegíveis, não abrir combate sem alvos.
