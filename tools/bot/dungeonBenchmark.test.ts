@@ -1,6 +1,9 @@
 import { runInNewContext } from "node:vm";
 import { describe, expect, it } from "vitest";
 import { parseDungeonReportArgs } from "./dungeonReport";
+import { createHeadlessPort } from "./port";
+import { setupForRun } from "./profiles";
+import { benchmarkBoss } from "./dungeonBenchmark";
 import {
 	type BenchmarkTrial,
 	benchmarkCaseKey,
@@ -31,6 +34,24 @@ describe("ensaio pareado de masmorra", () => {
 			expect(plan.filter((item) => item.seed === seed)).toHaveLength(perSeed);
 		}
 		expect(plan.every((item) => options.heroes.includes(item.heroId) && options.expansions.includes(item.expansionId))).toBe(true);
+	});
+
+	it("usa Ímpeto inicial por dificuldade sem antecipar o Despertar da masmorra", () => {
+		const expansionId = "torre-grande-bruxa-caldeirao";
+		const heroId = "hero_crimson_barbarian";
+		const expected = [
+			["very_easy", 3],
+			["easy", 2],
+			["normal", 1],
+			["hard", 0],
+			["nightmare", 0],
+		] as const;
+		for (const [difficulty, impeto] of expected) {
+			const setup = { ...setupForRun(1, [heroId], difficulty), bossCardId: benchmarkBoss(expansionId) };
+			const view = createHeadlessPort(setup).observe().view;
+			expect(view.heroes[0]?.impeto).toBe(impeto);
+			expect(view.despertar).toBe(difficulty === "hard" || difficulty === "nightmare" ? 1 : 0);
+		}
 	});
 
 	it("mantém sala inicial, boss e ordem dos quatro decks iguais entre heróis e dificuldades", () => {
