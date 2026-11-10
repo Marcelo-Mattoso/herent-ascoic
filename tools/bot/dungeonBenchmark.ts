@@ -173,6 +173,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let finalLevel = levelPeak;
 	let levelUpOpportunities = 0, levelUpPurchases = 0, levelUpAttempts = 0, levelUpNoEffect = 0;
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
+	let triggeredSkillUses = 0, triggeredPowerUses = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const delta = step.after.groupXp - step.before.groupXp;
 		if (delta > 0) gained += delta;
@@ -196,8 +197,17 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		}
 		if (step.options.some((move) => move.action.type === "SPEND_XP" && move.action.payload.option === "level_up"))
 			levelUpOpportunities++;
+		const trigger = step.before.pendingTriggerInterrupt;
+		if (trigger && step.chosen.action.type === "APPLY_TRIGGER_INTERRUPT") {
+			const category = skillById(engine, trigger.skillId)?.category;
+			if (category === "hero_skill") triggeredSkillUses++;
+			if (category === "hero_power") triggeredPowerUses++;
+		}
+		const triggerCategory = trigger && skillById(engine, trigger.skillId)?.category;
+		if (triggerCategory === "hero_skill") skillOpportunities++;
+		if (triggerCategory === "hero_power") powerOpportunities++;
 		const abilityOptions = step.options.filter((move) => move.action.type === "USE_SKILL");
-		if (abilityOptions.length) {
+		if (abilityOptions.length || triggerCategory === "hero_skill" || triggerCategory === "hero_power") {
 			abilityOpportunities++;
 			if (abilityOptions.some((move) => move.action.type === "USE_SKILL" && skillById(engine, move.action.payload.skillId)?.category === "hero_skill")) skillOpportunities++;
 			if (abilityOptions.some((move) => move.action.type === "USE_SKILL" && skillById(engine, move.action.payload.skillId)?.category === "hero_power")) powerOpportunities++;
@@ -218,9 +228,9 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		bossDefeated: state.bossDefeated,
 		artifacts: state.groupArtifacts.length,
 		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
-			skillById(engine, action.payload.skillId)?.category === "hero_skill").length,
+			skillById(engine, action.payload.skillId)?.category === "hero_skill").length + triggeredSkillUses,
 		powerUses: result.actions.filter((action) => action.type === "USE_POWER" ||
-			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power")).length,
+			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power")).length + triggeredPowerUses,
 		progression: {
 			xpGained: gained, xpSpent: spentTotal, xpSpentByOption: spent,
 			xpPurchasesByOption: purchases, xpOtherLoss: otherLoss,
