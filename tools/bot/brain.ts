@@ -17,6 +17,26 @@ const activeHeroes = (view: PlayerView) => view.heroes.filter((hero) => hero.sta
 const activeEnemies = (view: PlayerView) => view.enemies.filter((enemy) => enemy.status === "active");
 const hasAction = (view: PlayerView, heroId: string) => !view.combat?.heroesActed.includes(heroId);
 
+/** Evita sacrificar vida quando o ganho ofensivo não compensa o risco. */
+function furyScore(view: PlayerView, sourceId?: string, amount = 2): number {
+	const hero = activeHeroes(view).find((candidate) => candidate.id === sourceId) ??
+		activeHeroes(view).find((candidate) => candidate.cardId === "hero_crimson_barbarian");
+	if (!hero || activeEnemies(view).length === 0) return 10;
+	const cost = Math.max(1, amount);
+	if (hero.currentLife <= cost) return 0;
+	const enemy = activeEnemies(view).find((entry) => entry.id === view.combat?.selectedHeroId) ??
+		activeEnemies(view)[0]!;
+	const gain = Math.min(cost * 3, Math.max(0, enemy.currentLife - hero.damage));
+	const alreadyKills = hero.damage >= enemy.currentLife;
+	if (alreadyKills || gain === 0) return 15;
+	const enemyHit = Math.max(0, enemy.damage);
+	const risk = hero.currentLife - cost <= Math.max(2, enemyHit);
+	if (risk || lifeRatio(hero) < 0.5) return 12;
+	// Só usa quando o bônus economiza pelo menos um golpe e deixa vida segura.
+	const savesAttack = hero.damage + cost * 3 >= enemy.currentLife;
+	return savesAttack ? 200 + Math.min(30, gain * 3) : 20;
+}
+
 function pressure(view: PlayerView): boolean {
 	return view.status === "BOSS_COMBAT" ||
 		activeEnemies(view).length > activeHeroes(view).length ||
@@ -147,6 +167,10 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			const interrupt = view.pendingTriggerInterrupt;
 			if (!interrupt) return 50;
 			// Opcional de rerrolagem: conserve a carga quando não há 1 para rerrolar.
+			if (interrupt.skillId === "skill_crimson_fury") {
+				const amount = typeof interrupt.value === "number" ? interrupt.value : 2;
+				return furyScore(view, interrupt.sourceHeroId, amount);
+			}
 			if (interrupt.skillId === "witch_skill_lunar_spark" &&
 				!view.combat?.lastRoll?.heroResults.includes(1)) return 20;
 			if (interrupt.skillId === "witch_power_green_eclipse")
@@ -208,9 +232,16 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 		return 140 + target.damage * 4 + target.hitBonus;
 	}
 	if (abilityId === "skill_prey_mark") return profile === "power-player" ? 180 : 125;
-	if (abilityId === "skill_crimson_fury") return profile === "power-player" ? 175 : 125;
+	if (abilityId === "skill_crimson_fury") return furyScore(view);
 	if (abilityId === "spend_deep_veil_echo") return profile === "power-player" ? 165 : 125;
-	if (abilityId === "skill_return_rite") return profile === "power-player" ? 145 : 85;
+	if (abilityId === "skill_return_rite") {
+		const owner = activeHeroes(view).find((hero) => hero.cardId === "hero_deep_veil_necromancer");
+		// Recuperar cartas por 3 PV é troca ruim com o deck cheio ou perto da morte.
+		if (!owner || owner.currentLife <= 5) return -1;
+		const remaining = view.decks.dungeonDeck.available.length;
+		const discarded = view.decks.dungeonDeck.discarded.length;
+		return remaining <= 2 && discarded > 0 && lifeRatio(owner) >= 0.6 ? 180 : -1;
+	}
 	if (abilityId === "skill_bastion_guard") return pressure(view) ? 155 : 50;
 	if (abilityId === "power_supreme_rift_rune") return pressure(view) ? 160 : 95;
 	if (profile === "explorer") return isPower ? 210 : 185;
