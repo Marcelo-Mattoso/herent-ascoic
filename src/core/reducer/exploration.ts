@@ -50,6 +50,8 @@ function isRoomAvailableAtDepth(engine: GameEngine, id: string, roomNumber: numb
 function isCreatureAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
 	const card = cardById(engine, id);
 	if (!card || card.type !== "creature") return false;
+	// A primeira sala só pode receber criaturas básicas (1 XP).
+	if (roomNumber === 1) return (card.xp ?? 0) <= 1;
 	// Na Fornalha são cinco criaturas de 3 XP; a regra também protege futuras expansões.
 	return roomNumber >= ELITE_UNLOCK_ROOM || (card.xp ?? 0) < 3;
 }
