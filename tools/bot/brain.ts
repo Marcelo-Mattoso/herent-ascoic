@@ -141,7 +141,16 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 					(target.currentLife <= Math.max(0, ...activeEnemies(view).map((enemy) => enemy.damage)) ? 30 : 0);
 			return 25 - lifeRatio(target) * 10;
 		}
-		case "APPLY_TRIGGER_INTERRUPT": return profile === "explorer" || pressure(view) ? 90 : 50;
+		case "APPLY_TRIGGER_INTERRUPT": {
+			const interrupt = view.pendingTriggerInterrupt;
+			if (!interrupt) return 50;
+			// Opcional de rerrolagem: conserve a carga quando não há 1 para rerrolar.
+			if (interrupt.skillId === "witch_skill_lunar_spark" &&
+				!view.combat?.lastRoll?.heroResults.includes(1)) return 20;
+			if (interrupt.skillId === "witch_power_green_eclipse")
+				return view.status === "BOSS_COMBAT" || pressure(view) ? 210 : profile === "explorer" ? 155 : 90;
+			return 165;
+		}
 		case "SKIP_TRIGGER_INTERRUPT": return 40;
 		case "RESTART_DUNGEON": return action.payload.keepEquipment ? 50 : 40;
 		case "CHECK_COMBAT_END": return 5;
@@ -212,7 +221,9 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 	const moves: ScoredMove[] = [];
 	for (const hero of activeHeroes(view)) {
 		for (const ability of obs.abilities[hero.id] ?? []) {
-			if (ability.status !== "available" || ability.kind === "item" || ability.activation === "passive") continue;
+			// Gatilhos voluntários são resolvidos por APPLY_TRIGGER_INTERRUPT na janela
+			// correta do motor; USE_SKILL só vale para habilidades manuais.
+			if (ability.status !== "available" || ability.kind === "item" || ability.activation !== "manual") continue;
 			const targets = abilityTargets(view, ability, hero, profile);
 			if (ability.targetRequired && targets.length === 0) continue;
 			for (const target of ability.targetRequired ? targets : [undefined]) {
