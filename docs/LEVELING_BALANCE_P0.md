@@ -25,3 +25,11 @@ Para retomar uma execução interrompida, use `--resume --output tools/bot/runs/
 Recomendação de validação: primeiro conferir no JSON a diferença entre `preparationsById` e `triggersAcceptedById` do Bárbaro Rubro; em seguida revisar as habilidades cujas preparações nunca se convertem em efeitos. Um uso contabilizado no relatório ainda requer cenário determinístico para comprovar o efeito real.
 
 **Não executar CI/CD ou monitorar deploy automaticamente.** A auditoria e os relatórios são locais.
+
+## Primeiros cenários executáveis
+
+O `bot:skills-audit` agora registra resultados determinísticos para
+`skill_crimson_fury`, `skill_prey_mark` e `witch_skill_lunar_spark`.
+Um cenário bem-sucedido produz status `PARTIAL`, não `PASS` integral.
+Nenhuma habilidade sem cenário é considerada coberta. Os resultados são
+apresentados em `reports/skill-audit/report.json` e `.html`.

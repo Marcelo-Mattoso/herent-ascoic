@@ -2,6 +2,7 @@ import { ABILITIES, cardAbilityGrants } from "../../../src/core/data/abilities";
 import { getAllCards } from "../../../src/core/data/cards";
 import { getExpansionCardMetadata } from "../../../src/core/data/expansions";
 import { TRIGGER_EVENT_EMITTERS } from "../../../src/core/skills/resolveSkillWindow";
+import { runRuntimeScenarios, type RuntimeScenarioResult } from "./runtime";
 
 export type AuditStatus = "PASS" | "FAIL" | "NOT_COVERED";
 export type AuditFinding = {
@@ -24,7 +25,7 @@ export type AuditEntry = {
 	cost: { hp?: number; mp?: number } | null;
 	limit: { scope: string; maxUses: number } | null;
 	effect: string;
-	runtimeStatus: "NOT_COVERED";
+	runtimeStatus: "NOT_COVERED" | "PARTIAL" | "FAIL";
 	reason: string;
 };
 export type GroupInteraction = {
@@ -45,10 +46,12 @@ export type AuditReport = {
 		runtimePass: number;
 		runtimeFail: number;
 		runtimeNotCovered: number;
+		runtimePartial: number;
 	};
 	inventory: AuditEntry[];
 	findings: AuditFinding[];
 	groupInteractions: GroupInteraction[];
+	runtimeScenarios: RuntimeScenarioResult[];
 };
 
 export function discoverAbilityInventory(): AuditEntry[] {
@@ -127,8 +130,21 @@ export function discoverGroupCandidates(inventory: readonly AuditEntry[]): Group
 }
 
 export function createSkillAuditReport(now = new Date().toISOString()): AuditReport {
-	const inventory = discoverAbilityInventory();
-	const findings = auditDefinitions(inventory);
+	const discovered = discoverAbilityInventory();
+	const findings = auditDefinitions(discovered);
+	const runtimeScenarios = runRuntimeScenarios();
+	const byGrant = new Map(runtimeScenarios.map((result) =>
+		[result.sourceCardId + "::" + result.abilityId, result]));
+	const inventory: AuditEntry[] = discovered.map((entry) => {
+		const scenario = byGrant.get(entry.sourceCardId + "::" + entry.abilityId);
+		return scenario ? {
+			...entry,
+			runtimeStatus: scenario.status === "PASS" ? "PARTIAL" as const : "FAIL" as const,
+			reason: scenario.status === "PASS"
+				? "Um cenário executado e verificado; demais casos, limites e grupos não cobertos"
+				: "Falha no cenário " + scenario.id + ": " + scenario.detail,
+		} : entry;
+	});
 	return {
 		version: 1,
 		generatedAt: now,
@@ -137,12 +153,14 @@ export function createSkillAuditReport(now = new Date().toISOString()): AuditRep
 			uniqueAbilities: new Set(inventory.map((entry) => entry.abilityId)).size,
 			structuralPass: findings.filter((entry) => entry.status === "PASS").length,
 			structuralFail: findings.filter((entry) => entry.status === "FAIL").length,
-			runtimePass: 0,
-			runtimeFail: 0,
-			runtimeNotCovered: inventory.length,
+			runtimePass: 0, // PASS integral só com cobertura de todos os contextos
+			runtimeFail: inventory.filter((entry) => entry.runtimeStatus === "FAIL").length,
+			runtimeNotCovered: inventory.filter((entry) => entry.runtimeStatus === "NOT_COVERED").length,
+			runtimePartial: inventory.filter((entry) => entry.runtimeStatus === "PARTIAL").length,
 		},
 		inventory,
 		findings,
 		groupInteractions: discoverGroupCandidates(inventory),
+		runtimeScenarios,
 	};
 }

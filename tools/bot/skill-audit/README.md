@@ -35,3 +35,16 @@ apenas porque uma ação foi aceita.
 
 Não foram alterados arquivos de balanceamento, catálogos nem o motor nesta fase.
 Não executar nem monitorar CI/CD automaticamente.
+
+## Cenários determinísticos (P0 de leveling)
+
+A auditoria também executa três cenários controlados sobre o reducer de produção:
+`skill_crimson_fury` (preparo e custo de vida), `skill_prey_mark` (alvo e bônus)
+e `witch_skill_lunar_spark` (interrupção pós-rolagem). Cada resultado é
+`PASS` ou `FAIL` **do cenário específico**. Grants com cenário passando
+recebem `runtimeStatus: PARTIAL`, nunca `PASS` integral. As demais
+habilidades continuam `NOT_COVERED`. Falhas são reportadas sem esconder o
+inventário e sem modificar o jogo. Novos cenários devem ser adicionados
+gradualmente, com asserções de estado antes/depois.
+
+O JSON e o HTML mostram a proveniência do commit, quando disponível.
