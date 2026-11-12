@@ -3,8 +3,9 @@ import {
 	canExecuteAbilityGrant,
 	executeAbilityGrant,
 	resolveManualGrantTarget,
+	markGrantUsed,
 } from "../abilities/executor";
-import { preparedAbilityKey, togglePreparedAbility, isAbilityPrepared } from "../abilities/prepared";
+import { preparedAbilityKey, togglePreparedAbility, isAbilityPrepared, removePreparedAbility } from "../abilities/prepared";
 import {
 	decrementRoundsModifiers,
 	removeComponent,
@@ -851,7 +852,7 @@ function fmtRoll(
 // ─── RESOLVE_ATTACK ───────────────────────────────────────────────────────────
 
 export function handleResolveAttack(engine: GameEngine, state: GameState): GameState {
-	if (!gameOf(state).combat?.lastRoll) return state;
+	if (!gameOf(state).combat?.lastRoll || gameOf(state).combat?.pendingDiceSelection) return state;
 	const roll = gameOf(state).combat!.lastRoll;
 	if (roll!.extraAttack) return resolveExtraPhysicalAttack(engine, state, roll!);
 
@@ -1722,6 +1723,7 @@ export function handleCancelSkillTarget(state: GameState): GameState {
 // ─── SELECT_DIE ──────────────────────────────────────────────────────────────
 
 export function handleSelectDie(
+	engine: GameEngine,
 	state: GameState,
 	side: "hero" | "enemy",
 	index: number,
@@ -1750,6 +1752,7 @@ export function handleSelectDie(
 			return log(state, "[AVISO] Escolha um valor permitido pela habilidade.");
 		}
 		newValue = chosen;
+		if (newValue === dieValue) return log(state, "[AVISO] Escolha um valor diferente do atual.");
 	} else {
 		if (value !== undefined) {
 			if (!Number.isInteger(value) || value < 1 || value > 6) return state;
@@ -1773,14 +1776,30 @@ export function handleSelectDie(
 			? { ...roll, heroResults: results, heroTotal: newCalc.total }
 			: { ...roll, enemyResults: results, enemyTotal: newCalc.total };
 
-	return log(
-		withGame(stateAfterRng, (prevGame) => ({ ...prevGame, combat: {
-				...gameOf(stateAfterRng).combat!,
-				lastRoll: newRoll,
-				pendingDiceSelection: undefined,
-			} })),
-		`Dado ${side === "hero" ? "aliado" : "inimigo"} [${index}] alterado de ${dieValue} para ${newValue}.`,
-	);
+	const charge = gameOf(stateAfterRng).combat?.pendingDiceCommit;
+	let committed = withGame(stateAfterRng, (prevGame) => ({ ...prevGame, combat: {
+		...gameOf(stateAfterRng).combat!,
+		lastRoll: newRoll,
+		pendingDiceSelection: undefined,
+		pendingDiceCommit: undefined,
+	} }));
+	if (charge) {
+		const source = {
+			kind: charge.sourceKind,
+			cardId: charge.sourceCardId,
+			...(charge.sourceHeroId ? { sourceHeroId: charge.sourceHeroId } : {}),
+			...(charge.sourceEnemyId ? { sourceEnemyId: charge.sourceEnemyId } : {}),
+		};
+		const grant = abilityGrants(engine, charge.sourceCardId).find((entry) => entry.id === charge.grantId);
+		if (grant) committed = markGrantUsed(engine, committed, source, grant);
+		if (charge.preparedKey) committed = removePreparedAbility(committed, charge.preparedKey);
+	}
+	committed = log(committed,
+		`Dado ${side === "hero" ? "aliado" : "inimigo"} [${index}] alterado de ${dieValue} para ${newValue}.`);
+	const window = pendingSkillWindowOf(committed);
+	if (!window) return committed;
+	// Continue any other post-roll reactions using the updated roll.
+	return resolveSkillWindow(engine, withPendingSkillWindow(committed, undefined), window);
 }
 
 // ─── CANCEL_HERO_SELECTION ───────────────────────────────────────────────────
@@ -1916,7 +1935,7 @@ export const combatHandler: GameHandler = {
 				return handleUseSkill(engine, state, action.payload);
 			case "SELECT_DIE":
 				return handleSelectDie(
-					state,
+					engine, state,
 					action.payload.side,
 					action.payload.index,
 					action.payload.value,
