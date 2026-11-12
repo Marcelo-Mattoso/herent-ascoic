@@ -278,6 +278,9 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 			for (const target of ability.targetRequired ? targets : [undefined]) {
 				const score = abilityScore(view, ability, target, profile);
 				if (score < 0) continue;
+				// Fúria Rubra custa vida ao disparar. Uma prioridade fixa de preparo
+				// ignorava furyScore e forçava auto-sacrifícios mesmo sem benefício.
+				if (ability.abilityId === "skill_crimson_fury" && score < 180) continue;
 				if (ability.kind === "item") {
 					const targetHero = target && activeHeroes(view).some((entry) => entry.id === target);
 					const itemAction: Action = { type: "USE_ITEM", payload: {
@@ -292,7 +295,8 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 					moves.push({ action: { type: "USE_SKILL", payload: {
 						skillId: ability.abilityId, sourceId: hero.id,
 						...(target ? { targetIds: [target] } : {}),
-					} }, score: ability.activation === "prepare" ? (ability.kind === "power" ? 235 : 225) : score });
+					} }, score: ability.abilityId === "skill_crimson_fury" ? score :
+						ability.activation === "prepare" ? (ability.kind === "power" ? 235 : 225) : score });
 				}
 			}
 		}

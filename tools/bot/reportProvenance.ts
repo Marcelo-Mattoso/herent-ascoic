@@ -23,7 +23,7 @@ function git(args: readonly string[]): string | null {
 export function reportProvenance(catalog: unknown): ReportProvenance {
 	const commit = git(["rev-parse", "HEAD"]);
 	const branch = git(["rev-parse", "--abbrev-ref", "HEAD"]);
-	const status = git(["status", "--porcelain", "--untracked-files=no"]);
+	const status = git(["status", "--porcelain", "--untracked-files=normal"]);
 	const workingTreeClean = status === null ? null : status.length === 0;
 	const catalogSha256 = createHash("sha256").update(JSON.stringify(catalog)).digest("hex");
 	return {

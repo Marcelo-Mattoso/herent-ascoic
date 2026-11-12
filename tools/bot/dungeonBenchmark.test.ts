@@ -142,6 +142,30 @@ describe("ensaio pareado de masmorra", () => {
 		}
 	});
 
+	it("Fúria Rubra não é preparada em risco alto nem recebe prioridade fixa", () => {
+		const port = createHeadlessPort({ ...setupForRun(1, ["hero_crimson_barbarian"], "normal"),
+			bossCardId: benchmarkBoss("fornalha-sombria") });
+		const obs = port.observe();
+		const hero = obs.view.heroes[0]!;
+		const fury = (obs.abilities[hero.id] ?? []).find((ability) => ability.abilityId === "skill_crimson_fury");
+		expect(fury).toBeDefined();
+		const ready = { ...obs,
+			view: { ...obs.view, status: "HERO_ACTION" as const,
+				heroes: [{ ...hero, currentLife: 3 }], enemies: [{
+				id: "audit-enemy", cardId: "creature_deep_rift_rat",
+				currentLife: 20, maxLife: 20, damage: 4, hitBonus: 0,
+				dice: 1, status: "active" as const,
+				conditions: [] as string[], tokens: {},
+			}], },
+			abilities: { ...obs.abilities, [hero.id]: [{ ...fury!, status: "available" as const }] },
+		};
+		for (const profile of ["power-player", "speedrunner", "casual", "explorer"] as const) {
+			const actions = scoreMoves(ready, profile);
+			expect(actions.some((move) => move.action.type === "USE_SKILL" &&
+				move.action.payload.skillId === "skill_crimson_fury")).toBe(false);
+		}
+	});
+
 	it("não permite gerar relatórios de leveling parciais", () => {
 		const defaults = defaultBenchmarkOptions();
 		const options = parseDungeonReportArgs(["--runs", "2", "--seed", "17"]);
