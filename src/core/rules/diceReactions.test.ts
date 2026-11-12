@@ -3,7 +3,7 @@ import { testEngine } from "../__tests__/testEngine";
 import { settled } from "../__tests__/fixtures";
 import { createInitialGameState, type GameState } from "../state/gameState";
 import { createEmptyCombatState, type CombatRollResult } from "../state/combatState";
-import { heroesOf, pendingTriggerInterruptOf, pendingSkillChoiceOf } from "../state/access";
+import { heroesOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, withPendingTriggerInterrupt } from "../state/access";
 import { skillById } from "../gameEngine";
 import { guardPassed } from "../triggers/engine";
 import { reducer } from "../reducer";
@@ -136,7 +136,9 @@ describe("Centelha da Lua Verde: modal, dados e cargas", () => {
 	it("oferece saída segura para uma seleção sem dados modificáveis", () => {
 		const { state } = ready(MOON);
 		const rolled = rollWithFaces(state, 6, 6);
-		const impossible = withGame(rolled, (game) => ({ ...game, combat: {
+		// A seleção sintética representa o estado após a decisão de interrupção.
+		// Não mantenha uma interrupção anterior competindo com o modal de dados.
+		const impossible = withGame(withPendingTriggerInterrupt(rolled, undefined), (game) => ({ ...game, combat: {
 			...game.combat!, pendingDiceSelection: {
 				skillId: "test_set_six", heroId: game.combat!.lastRoll!.heroId,
 				side: "hero" as const, action: "set_to" as const, setToValue: 6,
