@@ -57,3 +57,11 @@ combinados de Marca da Presa + Fúria em grupos de 2, 3 e 4. Cenário aprovado
 do grupo recebe `PARTIAL` (ainda não cobre todas as combinações).
 Também registra ativação de sete poderes existentes, sem atribuir PASS aos
 efeitos posteriores sem asserção. O resultado entra no JSON e no HTML.
+
+## Gate do audit: evita perder tempo em 6.000 simulações
+
+O `npm run audit` mantém os dois comandos originais, na mesma ordem.
+`bot:skills-audit` sempre grava JSON/HTML; se detectar falha estrutural,
+cenário funcional ou grupo, termina com código 1 e **não** dispara a etapa
+`bot:leveling-report`. `PARTIAL`/`NOT_COVERED` permanecem visíveis, mas
+não são tratados como bugs confirmados. O comando continua apenas local.

@@ -33,3 +33,13 @@ O `bot:skills-audit` agora registra resultados determinísticos para
 Um cenário bem-sucedido produz status `PARTIAL`, não `PASS` integral.
 Nenhuma habilidade sem cenário é considerada coberta. Os resultados são
 apresentados em `reports/skill-audit/report.json` e `.html`.
+
+## P0 adicional: gate rápido, coop e IA
+
+- O audit executa 48 composições de 1 a 4 heróis e três cenários de interação
+  caçador/bárbaro; combinações não executadas continuam fora da cobertura.
+- Mais sete poderes têm cenários de ativação (não de efeito completo).
+- O bot passou a respeitar a pontuação de risco da Fúria Rubra ao preparar.
+- O comando `npm run audit` interrompe antes das simulações se houver
+  `STRUCTURAL`, `RUNTIME`, `GROUP_PROJECTION` ou `GROUP_COMBAT` falhos;
+  detalhes ficam no `reports/skill-audit/report.json`.

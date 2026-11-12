@@ -155,7 +155,7 @@ describe("ensaio pareado de masmorra", () => {
 				id: "audit-enemy", cardId: "creature_deep_rift_rat",
 				currentLife: 20, maxLife: 20, damage: 4, hitBonus: 0,
 				dice: 1, status: "active" as const,
-				conditions: [] as string[], tokens: {},
+				conditions: [] as string[], tokens: {}, firstDamageTakenThisTurn: false,
 			}], },
 			abilities: { ...obs.abilities, [hero.id]: [{ ...fury!, status: "available" as const }] },
 		};
