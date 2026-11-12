@@ -124,7 +124,7 @@ describe("ensaio pareado de masmorra", () => {
 		expect(healingMoveScore(scratch, hero.id, 4)).toBeLessThan(100);
 	});
 
-	it("oferece preparo da Centelha Lunar e do Eclipse Verde antes da rolagem", () => {
+	it("reconhece que Centelha e Eclipse são decisões pós-rolagem, não preparações prévias", () => {
 		const port = createHeadlessPort({ ...setupForRun(1, ["hero_green_moon_sorceress"], "normal"),
 			bossCardId: benchmarkBoss("torre-grande-bruxa-caldeirao") });
 		const obs = port.observe();
@@ -138,8 +138,7 @@ describe("ensaio pareado de masmorra", () => {
 		for (const skillId of ["witch_skill_lunar_spark", "witch_power_green_eclipse"]) {
 			const move = moves.find((entry) => entry.action.type === "USE_SKILL" &&
 				entry.action.payload.skillId === skillId);
-			expect(move).toBeDefined();
-			expect(move!.score).toBeGreaterThanOrEqual(225);
+			expect(move).toBeUndefined();
 		}
 	});
 
