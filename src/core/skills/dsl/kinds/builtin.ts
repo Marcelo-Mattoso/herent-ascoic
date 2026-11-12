@@ -497,10 +497,11 @@ const reroll = effectKind({
 		const filter =
 			only_if_value !== undefined ? { value: only_if_value } : undefined;
 		if (only_if_value !== undefined) {
-			const heroHasMatch = gameOf(state).combat!.lastRoll!.heroResults.some(
-				(v) => v === only_if_value,
-			);
-			if (!heroHasMatch)
+			const roll = gameOf(state).combat!.lastRoll!;
+			const eligibleResults = die_side === "hero" ? roll.heroResults
+				: die_side === "enemy" ? roll.enemyResults
+				: [...roll.heroResults, ...roll.enemyResults];
+			if (!eligibleResults.some((value) => value === only_if_value))
 				return log(
 					state,
 					`Nenhum dado com valor ${only_if_value} para rerolar.`,
