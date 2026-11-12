@@ -806,12 +806,12 @@ export function handleConfirmPhysicalRoll(
 		...g,
 		combat: { ...g.combat!, pendingPhysicalRoll: undefined, lastRoll: roll },
 	}));
-	if (!pending.boss) {
+	{
 		next = resolveSkillWindow(engine, next, {
 			event: "evt_roll",
 			ctx: {
 				triggeredBy: "evt_roll",
-				...(pending.extraAttack ? { sourceEnemyId: pending.enemyId } : { sourceHeroId: pending.heroId, sourceEnemyId: pending.enemyId }),
+				sourceHeroId: pending.heroId, sourceEnemyId: pending.enemyId,
 				targetHeroIds: [pending.heroId],
 				targetEnemyIds: [pending.enemyId],
 				value: roll.heroTotal - roll.enemyTotal,
@@ -1178,6 +1178,7 @@ function resolveExtraEnemyCombatRoll(engine: GameEngine,
 		event: "evt_roll",
 		ctx: {
 			triggeredBy: "evt_roll",
+			sourceHeroId: currentTarget.id,
 			sourceEnemyId: currentEnemy.id,
 			targetHeroIds: [currentTarget.id],
 			targetEnemyIds: [currentEnemy.id],
