@@ -76,7 +76,7 @@ describe("reembaralhamento automático do baralho de criaturas", () => {
 		expect(enemiesOf(result)).toHaveLength(count);
 		expect(gameOf(result).status).toBe("COMBAT_START");
 		expect(deckOf(result, "enemyDeck").available).toHaveLength(creaturePoolForBoss(bossId).length - count);
-		expect(gameOf(result).eventLog.some((entry) => entry.includes("Monstros da expansão reembaralhados"))).toBe(true);
+		expect(gameOf(result).eventLog.some((entry) => entry.includes("Criaturas disponíveis nesta etapa reembaralhadas"))).toBe(true);
 		expect(zoneViolation(result.engine)).toBeNull();
 	});
 
