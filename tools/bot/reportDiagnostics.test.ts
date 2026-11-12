@@ -20,6 +20,7 @@ describe("diagnósticos P0", () => {
 			trial("hard", 1, "DEFEAT", {
 				xpGained: 10, xpSpent: 8, xpOtherLoss: 0, xpFinal: 2,
 				levelUpNoEffect: 0, abilityActivity: { preparationsById: { fury: 3 },
+					armedById: { fury: 3 }, clearedDuringAttackById: { fury: 2 }, clearedElsewhereById: { fury: 1 },
 					manualActionsById: {}, powerActivationsById: {},
 					triggersAcceptedById: {}, triggersSkippedById: {} },
 			}),
@@ -32,7 +33,8 @@ describe("diagnósticos P0", () => {
 			pairedGames: 1, sameOutcome: 1, sameOutcomeRate: 1,
 		});
 		expect(summary.abilityActivity).toContainEqual(expect.objectContaining({
-			abilityId: "fury", preparations: 3, triggersAccepted: 0,
+			abilityId: "fury", preparations: 3, armed: 3, clearedDuringAttack: 2,
+			clearedElsewhere: 1, triggersAccepted: 0,
 		}));
 	});
 
