@@ -21,6 +21,9 @@ export interface AiStep {
 	readonly step: number;
 	readonly before: PlayerView;
 	readonly after: PlayerView;
+	/** Snapshots para telemetria: nunca entram nas decisões da IA. */
+	readonly beforeState: GameState;
+	readonly afterState: GameState;
 	readonly chosen: ScoredMove;
 	readonly options: readonly ScoredMove[];
 	readonly rejected: readonly string[];
@@ -69,6 +72,7 @@ export function playAiGame(
 				if (abilitiesThisTurn.has(abilityKey)) continue;
 				abilitiesThisTurn.add(abilityKey);
 			}
+			const beforeState = port.inspect();
 			const result = port.act(move.action);
 			if (result.kind === "rejected") {
 				const message = `${move.action.type}: ${result.error}`;
@@ -81,6 +85,8 @@ export function playAiGame(
 					step: port.history.length,
 					before: obs.view,
 					after: port.observe().view,
+					beforeState,
+					afterState: port.inspect(),
 					chosen: move,
 					options,
 					rejected: stepRejected,

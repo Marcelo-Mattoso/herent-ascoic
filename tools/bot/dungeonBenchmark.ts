@@ -1,4 +1,5 @@
 import type { Difficulty } from "@/core/state/gameState";
+import { preparedTransitions } from "./preparedTelemetry";
 import { deckOf } from "@/core/state/access";
 import { playerView } from "@/core/projection/playerView";
 import { gameOf } from "@/engine/state";
@@ -61,6 +62,9 @@ export interface ProgressionTelemetry {
 	/** Ações efetivamente aceitas pelo motor; NÃO comprova que o efeito foi aplicado. */
 	readonly abilityActivity?: {
 		readonly preparationsById: Readonly<Record<string, number>>;
+		readonly armedById: Readonly<Record<string, number>>;
+		readonly clearedDuringAttackById: Readonly<Record<string, number>>;
+		readonly clearedElsewhereById: Readonly<Record<string, number>>;
 		readonly manualActionsById: Readonly<Record<string, number>>;
 		readonly powerActivationsById: Readonly<Record<string, number>>;
 		readonly triggersAcceptedById: Readonly<Record<string, number>>;
@@ -231,6 +235,9 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let triggeredSkillUses = 0, triggeredPowerUses = 0;
 	let skillPreparations = 0, powerPreparations = 0;
 	const preparationsById: Record<string, number> = {};
+	const armedById: Record<string, number> = {};
+	const clearedDuringAttackById: Record<string, number> = {};
+	const clearedElsewhereById: Record<string, number> = {};
 	const manualActionsById: Record<string, number> = {};
 	const powerActivationsById: Record<string, number> = {};
 	const triggersAcceptedById: Record<string, number> = {};
@@ -246,6 +253,11 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const action = step.chosen.action;
+		const transition = preparedTransitions(gameOf(step.beforeState).preparedAbilities,
+			gameOf(step.afterState).preparedAbilities, action.type);
+		for (const id of transition.armedHeroAbilities) increment(armedById, id);
+		for (const id of transition.clearedDuringAttack) increment(clearedDuringAttackById, id);
+		for (const id of transition.clearedElsewhere) increment(clearedElsewhereById, id);
 		const healOptions = healingItemOptions(step.before).filter((heal) =>
 			step.options.some((move) => move.action.type === "USE_ITEM" &&
 				move.action.payload.heroId === heal.ownerId && move.action.payload.itemId === heal.itemId &&
@@ -415,7 +427,9 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			levelPeak, levelUpOpportunities, levelUpPurchases,
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
 			skillPreparations, powerPreparations,
-			abilityActivity: { preparationsById, manualActionsById, powerActivationsById, triggersAcceptedById, triggersSkippedById },
+			abilityActivity: { preparationsById, armedById, clearedDuringAttackById,
+				clearedElsewhereById, manualActionsById, powerActivationsById,
+				triggersAcceptedById, triggersSkippedById },
 		},
 	};
 }

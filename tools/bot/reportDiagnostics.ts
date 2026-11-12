@@ -3,6 +3,9 @@ import { classifyTrial, type BenchmarkTrial } from "./dungeonBenchmark";
 export interface AbilityActivitySummary {
 	readonly abilityId: string;
 	readonly preparations: number;
+	readonly armed: number;
+	readonly clearedDuringAttack: number;
+	readonly clearedElsewhere: number;
 	readonly manualActions: number;
 	/** USE_POWER e poderes despachados via USE_SKILL; pode sobrepor preparaçōes. */
 	readonly powerActivations: number;
@@ -38,7 +41,8 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		field: keyof Omit<AbilityActivitySummary, "abilityId">) => {
 		for (const [abilityId, amount] of Object.entries(values ?? {})) {
 			const entry = stats.get(abilityId) ?? {
-				preparations: 0, manualActions: 0, powerActivations: 0,
+				preparations: 0, armed: 0, clearedDuringAttack: 0, clearedElsewhere: 0,
+				manualActions: 0, powerActivations: 0,
 				triggersAccepted: 0, triggersSkipped: 0,
 			};
 			stats.set(abilityId, { ...entry, [field]: entry[field] + amount });
@@ -50,6 +54,9 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 	for (const trial of trials) {
 		const activity = trial.progression?.abilityActivity;
 		add(activity?.preparationsById, "preparations");
+		add(activity?.armedById, "armed");
+		add(activity?.clearedDuringAttackById, "clearedDuringAttack");
+		add(activity?.clearedElsewhereById, "clearedElsewhere");
 		add(activity?.manualActionsById, "manualActions");
 		add(activity?.powerActivationsById, "powerActivations");
 		add(activity?.triggersAcceptedById, "triggersAccepted");

@@ -53,3 +53,13 @@ preparações, usos manuais, ativações de poderes e interrupções aceitas/neg
 Esses contadores **não** provam a execução de efeitos automáticos; o campo
 `warnings` aponta hipóteses para revisão, não diagnóstico causal confirmado.
 O painel HTML mostra os alertas agregados.
+
+## Observação das preparações automáticas
+
+O campo `progression.abilityActivity` passa a conter:
+`armedById`, `clearedDuringAttackById` e `clearedElsewhereById`.
+São transições entre estados aceitos pelo reducer, **não** comprovação de
+que o efeito do poder ou habilidade causou dano/cura/bônus.
+Se Fúria foi preparada e saiu do estado durante `ROLL_DICE`, isso aparece
+mesmo sem modal `APPLY_TRIGGER_INTERRUPT`. Itens/artefatos são excluídos
+para não misturar fontes de habilidade.
