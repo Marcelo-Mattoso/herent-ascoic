@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Action } from "@/core/actions/types";
 import { playerView } from "@/core/projection/playerView";
+import { legalActions } from "@/core/legalActions";
 import { reducer } from "@/core/reducer/index";
 import { createAscensaoEngine } from "@/core/composition";
 import { balanceOf } from "@/core/gameEngine";
@@ -87,6 +88,10 @@ export function applyAction(state: GameState, action: Action): GameState {
 }
 
 export function candidates(state: GameState): Action[] {
+	// Dice-reaction actions are produced by the authoritative combat handler;
+	// the legacy heuristic predates SELECT_DIE/CANCEL_DICE_SELECTION.
+	if (gameOf(state).combat?.pendingDiceSelection)
+		return legalActions(engine, state).filter((action) => action.type !== "USE_ARTIFACT");
 	const heroes = gameOf(state).heroes.filter((h) => h.status === "active");
 	const heroIds = (heroes.length > 0 ? heroes : gameOf(state).heroes).map((h) => h.id);
 	const enemies = gameOf(state).activeEnemies.filter((e) => e.status === "active");
