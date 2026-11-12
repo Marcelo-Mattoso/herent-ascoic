@@ -1,7 +1,8 @@
 import { reducer } from "@/core/reducer";
 import type { Action } from "@/core/actions/types";
 import { moveInventoryItem } from "@/core/rules/inventoryMoves";
-import { itemIsExhausted } from "@/core/rules/itemEffects";
+import { itemActivationId, itemIsExhausted } from "@/core/rules/itemEffects";
+import { ActivationTracker } from "@/core/state/activation";
 import { createInitialGameState, type GameState } from "@/core/state/gameState";
 import { COMBAT_DEFAULT_HERO, COMBAT_FINISHING_SEED } from "./seeds";
 import type { GameEngine } from "@/core/gameEngine";
@@ -142,32 +143,24 @@ export function prepareExhaustedInventoryTraining(engine: GameEngine,
 	);
 	if (!armored) throw new Error("Não foi possível equipar a vestimenta");
 	state = armored;
+	// Enter the next combat with the equipment gained through inventory moves.
 	for (const action of [
 		{ type: "INV_DISCARD_MESA" },
 		{ type: "OPEN_PATHS" },
 		{ type: "RESOLVE_ROOM_EFFECT" },
 		{ type: "SPAWN_ENEMIES" },
 		{ type: "START_COMBAT" },
-		{ type: "USE_ITEM", payload: { heroId: hero.id, itemId: charmId } },
-		{ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: hero.id } },
-		{ type: "CHOOSE_TARGET", payload: { heroId: hero.id, enemyId: "" } },
-		{ type: "ROLL_DICE" },
-		{ type: "RESOLVE_ATTACK" },
-		{ type: "DIRECT_DAMAGE" },
-		{ type: "CHECK_COMBAT_END" },
-	] satisfies Action[]) {
-		const resolved =
-			action.type === "CHOOSE_TARGET"
-				? {
-						...action,
-						payload: {
-							heroId: hero.id,
-							enemyId: gameOf(state).activeEnemies[0]?.id ?? "",
-						},
-					}
-				: action;
-		state = reducer(engine, state, resolved);
-	}
+	] satisfies Action[]) state = reducer(engine, state, action);
+	if (gameOf(state).status !== "HERO_ACTION" || !gameOf(state).combat)
+		throw new Error("Nova sala de treinamento indisponível");
+	// This checkpoint demonstrates a charm already spent in the current
+	// combat. Mark only the item's combat lock; do not fabricate a damage
+	// exchange or consume the hero's action just to set up the tutorial.
+	state = ActivationTracker.disable(engine, state, {
+		kind: "item", id: itemActivationId(hero.id, charmId),
+		scope: "combat", sourceId: hero.id,
+		reason: "checkpoint: reação defensiva já utilizada",
+	});
 	if (
 		gameOf(state).status !== "HERO_ACTION" ||
 		!itemIsExhausted(state, hero.id, charmId) ||
