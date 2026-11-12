@@ -372,7 +372,8 @@
           "round_end": "Fim da rodada",
           "round_start": "Início da rodada",
           "targeted": "Alvo escolhido"
-        }
+        },
+        "diceQuestion": "Os dados já foram lançados. Deseja ativar esta habilidade antes de resolver o ataque?"
       },
       "useItemModal": {
         "text001": "Nenhum item ativo disponível nesta janela.",
