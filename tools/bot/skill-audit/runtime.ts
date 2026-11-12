@@ -14,6 +14,7 @@ import type { EnemyState } from "@/core/state/enemyState";
 import { legalActions } from "@/core/legalActions";
 import { canStartHeroAttack } from "@/core/rules/attackAvailability";
 import { playerView } from "@/core/projection/playerView";
+import { runHeroCoverageScenarios } from "./heroRuntime";
 
 export interface RuntimeScenarioResult {
 	readonly id: string;
@@ -198,6 +199,11 @@ const scenarios = [
 export function runRuntimeScenarios(): RuntimeScenarioResult[] {
 	const allScenarios: { id: string; sourceCardId: string; abilityId: string; check: () => void; detail: string }[] = [
 		...scenarios,
+		...runHeroCoverageScenarios(engine, combat).map((entry) => ({
+			...entry, check: () => {
+				if (entry.status === "FAIL") throw new Error(entry.detail);
+			},
+		})),
 		...powerCases.map(([sourceCardId, abilityId]) => ({
 			id: "power-activation-" + abilityId, sourceCardId, abilityId,
 			check: () => checkPowerActivation(sourceCardId, abilityId),
