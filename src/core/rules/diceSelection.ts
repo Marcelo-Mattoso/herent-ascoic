@@ -12,7 +12,7 @@ export function isEligibleDie(
 	return (
 		Number.isInteger(index) &&
 		value !== undefined &&
-		(selection.action !== "set_to" || value !== (selection.setToValue ?? 6)) &&
+		(selection.deltaMax !== undefined || selection.action !== "set_to" || value !== (selection.setToValue ?? 6)) &&
 		(selection.side === "any" || selection.side === side) &&
 		(selection.filter?.value === undefined ||
 			selection.filter.value === value) &&
