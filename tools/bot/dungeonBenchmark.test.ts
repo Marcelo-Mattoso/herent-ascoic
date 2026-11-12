@@ -4,6 +4,8 @@ import { parseDungeonReportArgs } from "./dungeonReport";
 import { createHeadlessPort } from "./port";
 import { setupForRun } from "./profiles";
 import { benchmarkBoss } from "./dungeonBenchmark";
+import { itemHealingAmount, healingMoveScore } from "./healing";
+import { scoreMoves } from "./brain";
 import {
 	type BenchmarkTrial,
 	benchmarkCaseKey,
@@ -103,6 +105,44 @@ describe("ensaio pareado de masmorra", () => {
 		expect(renderDungeonReportCsv(trials).split("\n")).toHaveLength(5);
 		expect(renderDungeonReportMarkdown(report)).toContain("Impasses");
 	});
+	it("reconhece curas pelo efeito do catálogo, não pela palavra poção", () => {
+		expect(itemHealingAmount("item_lesser_vigor_potion")).toBe(2);
+		expect(itemHealingAmount("item_greater_vigor_potion")).toBe(4);
+		expect(itemHealingAmount("item_bitter_root_tonic")).toBe(2);
+		expect(itemHealingAmount("item_moonwell_vial")).toBe(3);
+		expect(itemHealingAmount("item_precision_potion")).toBeNull();
+	});
+
+	it("prioriza cura que impede morte e guarda poção quando o dano é pequeno", () => {
+		const port = createHeadlessPort({ ...setupForRun(1, ["hero_eternal_rest_cleric"], "normal"),
+			bossCardId: benchmarkBoss("fornalha-sombria") });
+		const view = port.observe().view;
+		const hero = view.heroes[0]!;
+		const wounded = { ...view, heroes: [{ ...hero, currentLife: 1 }] };
+		expect(healingMoveScore(wounded, hero.id, 4)).toBeGreaterThan(250);
+		const scratch = { ...view, heroes: [{ ...hero, currentLife: hero.maxLife - 1 }] };
+		expect(healingMoveScore(scratch, hero.id, 4)).toBeLessThan(100);
+	});
+
+	it("oferece preparo da Centelha Lunar e do Eclipse Verde antes da rolagem", () => {
+		const port = createHeadlessPort({ ...setupForRun(1, ["hero_green_moon_sorceress"], "normal"),
+			bossCardId: benchmarkBoss("torre-grande-bruxa-caldeirao") });
+		const obs = port.observe();
+		const hero = obs.view.heroes[0]!;
+		const abilities = (obs.abilities[hero.id] ?? []).map((ability) => ({
+			...ability, status: "available" as const,
+		}));
+		const ready = { ...obs, view: { ...obs.view, status: "HERO_ACTION" as const },
+			abilities: { ...obs.abilities, [hero.id]: abilities } };
+		const moves = scoreMoves(ready, "power-player");
+		for (const skillId of ["witch_skill_lunar_spark", "witch_power_green_eclipse"]) {
+			const move = moves.find((entry) => entry.action.type === "USE_SKILL" &&
+				entry.action.payload.skillId === skillId);
+			expect(move).toBeDefined();
+			expect(move!.score).toBeGreaterThanOrEqual(225);
+		}
+	});
+
 	it("não permite gerar relatórios de leveling parciais", () => {
 		const defaults = defaultBenchmarkOptions();
 		const options = parseDungeonReportArgs(["--runs", "2", "--seed", "17"]);
