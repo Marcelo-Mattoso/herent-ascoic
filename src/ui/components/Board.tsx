@@ -49,6 +49,7 @@ interface BoardProps {
 	onResolve: () => void;
 	onConfirmDiceRoll?: (payload: { rollId: string; heroId: string; enemyId: string; heroResults: number[]; enemyResults: number[]; source: "physics" | "fallback" }) => void;
 	onSelectDie?: (side: "hero" | "enemy", index: number, value?: number) => void;
+	onCancelDiceSelection?: () => void;
 	roll: CombatRollResult | null;
 	combatAttackHintVisible?: boolean;
 	cardImageUrls?: CardImageUrls;
@@ -640,6 +641,7 @@ export function Board({
 	onResolve,
 	onConfirmDiceRoll,
 	onSelectDie,
+	onCancelDiceSelection,
 	roll,
 	combatAttackHintVisible = false,
 	cardImageUrls,
@@ -1005,6 +1007,7 @@ export function Board({
 									view.enemies.find((enemy) => enemy.id === roll.enemyId)
 										?.cardId ?? "",
 								)}
+								onCancel={onCancelDiceSelection}
 								onConfirm={(side, index, value) => {
 									if (pendingDiceSelection.action === "reroll" && pendingDiceSelection.deltaMax === undefined) {
 										setRerollingDie({ side, index });
