@@ -71,3 +71,12 @@ para não misturar fontes de habilidade.
 O comando grava `reports/skill-audit/report.json` e `report.html` no
 working directory de scripts do npm (raiz do projeto), exibe o caminho
 absoluto e devolve código 1 se detectar problemas funcionais/estruturais.
+
+## Correção de falsos positivos da Marca da Presa
+
+Os quatro bloqueios da primeira execução de `bot:skills-audit` eram
+originados pela fixture com apenas um inimigo: o reducer seleciona esse
+alvo automaticamente. O P0 agora testa ambos os caminhos (único alvo
+sem modal e múltiplos alvos com modal). Grupos de 2–4 heróis usam dois
+inimigos no teste de Marca da Presa + Fúria. Nenhuma regra de combate
+ou valor de balanceamento foi modificada por essa correção.

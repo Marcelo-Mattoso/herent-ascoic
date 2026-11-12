@@ -76,3 +76,13 @@ sem executar nada, inclusive permitindo que `npm run audit` seguisse direto
 para as 6.000 partidas. Na execução manual, o terminal deve mostrar
 `Iniciando auditoria de habilidades (P0)...` e depois os **caminhos
 absolutos** de `report.json` e `report.html`.
+
+## Seleção de alvo — correção dos falsos positivos do P0
+
+O cenário `hunter-prey-mark` verifica **duas regras diferentes** do motor:
+com apenas um inimigo a Marca da Presa deve marcar automaticamente, sem
+modal; com dois inimigos deve abrir seleção explícita, preservar o ataque
+e aplicar o bônus +1 apenas ao alvo marcado. Os três cenários cooperativos
+usam dois inimigos para verificar a seleção real nos grupos de 2, 3 e 4.
+O teste anterior exigia modal com um único inimigo e gerava quatro falsos
+bloqueadores no `npm run audit`.

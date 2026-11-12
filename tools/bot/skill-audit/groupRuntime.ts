@@ -86,20 +86,23 @@ export function runGroupCombatScenarios(): GroupCombatResult[] {
 		const heroCardIds = GROUP_HERO_ORDER.slice(0, partySize);
 		const abilityIds = ["skill_prey_mark", "skill_crimson_fury"];
 		try {
-			let state = combat(heroCardIds);
+			let state = combat(heroCardIds, 2);
 			const hunter = heroesOf(state).find((hero) => hero.cardId === GROUP_HERO_ORDER[0]);
 			const barbarian = heroesOf(state).find((hero) => hero.cardId === GROUP_HERO_ORDER[1]);
 			ensure(hunter && barbarian, "Caçador e Bárbaro não iniciaram juntos");
 			state = reducer(auditEngine, state, { type: "USE_SKILL", payload: {
 				skillId: "skill_prey_mark", sourceId: hunter.id,
 			} });
-			ensure(pendingSkillTargetOf(state)?.candidates.some((enemy) => enemy.id === "audit-enemy"),
-				"Marca da Presa não abriu seleção de inimigo no grupo");
+			const targets = pendingSkillTargetOf(state)?.candidates.map((enemy) => enemy.id);
+			ensure(targets?.length === 2 && targets.includes("audit-enemy") &&
+				targets.includes("audit-enemy-2"),
+				"Marca da Presa não abriu seleção dos dois inimigos no grupo");
 			state = reducer(auditEngine, state, { type: "SELECT_SKILL_TARGET", payload: {
 				targetId: "audit-enemy",
 			} });
-			ensure(gameOf(state).combat?.preyByHero[hunter.id] === "audit-enemy",
-				"Marca da Presa foi perdida antes da ação do segundo herói");
+			ensure(!pendingSkillTargetOf(state) &&
+				gameOf(state).combat?.preyByHero[hunter.id] === "audit-enemy",
+				"Marca da Presa não registrou a escolha ou não fechou a seleção");
 			const life = heroesOf(state).find((hero) => hero.id === barbarian.id)!.currentLife;
 			state = reducer(auditEngine, state, { type: "USE_SKILL", payload: {
 				skillId: "skill_crimson_fury", sourceId: barbarian.id,

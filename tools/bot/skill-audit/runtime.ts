@@ -30,24 +30,27 @@ function ensure(condition: unknown, description: string): asserts condition {
 	if (!condition) throw new Error(description);
 }
 
-export function combat(cardId: string | readonly string[]): GameState {
+/** Um inimigo é escolhido automaticamente; dois exigem seleção explícita. */
+export function combat(cardId: string | readonly string[], enemyCount: 1 | 2 = 1): GameState {
 	const heroCardIds = typeof cardId === "string" ? [cardId] : [...cardId];
 	const started = reducer(engine, createInitialGameState({ heroCardIds }), {
 		type: "START_GAME", payload: { heroCardIds, seed: 42 },
 	});
-	const enemy: EnemyState = {
-		id: "audit-enemy", cardId: "creature_deep_rift_rat",
+	const enemies: EnemyState[] = Array.from({ length: enemyCount }, (_, index) => ({
+		id: index === 0 ? "audit-enemy" : "audit-enemy-2",
+		cardId: "creature_deep_rift_rat",
 		maxLife: 20, currentLife: 20, damage: 1, hitBonus: 0, dice: 1,
 		tokens: {}, conditions: [], firstDamageTakenThisTurn: false,
-		status: "active",
-	};
-	const withEnemy = withWorld(started, spawnEnemy(worldOf(started), enemy));
-	const prepared = withGame(withEnemy, (game) => ({
+		status: "active" as const,
+	}));
+	const withEnemies = withWorld(started, enemies.reduce(
+		(world, enemy) => spawnEnemy(world, enemy), worldOf(started)));
+	const prepared = withGame(withEnemies, (game) => ({
 		...game, status: "COMBAT_START", currentRoom: {
-			cardId: "room_dungeon_room", exits: 2, currentEnemies: 1,
+			cardId: "room_dungeon_room", exits: 2, currentEnemies: enemyCount,
 			reward: 0, rewardType: "item", effect: "", xp: 1, status: "active",
 		},
-		activeEnemies: [recordOfEnemy(enemy)],
+		activeEnemies: enemies.map(recordOfEnemy),
 	}));
 	return reducer(engine, prepared, { type: "START_COMBAT" });
 }
@@ -74,16 +77,34 @@ function checkFury(): void {
 }
 
 function checkPreyMark(): void {
-	let state = combat("hero_broken_veil_hunter");
+	// Com apenas uma presa, o motor escolhe automaticamente e não abre modal.
+	let single = combat("hero_broken_veil_hunter");
+	const singleHeroId = heroesOf(single)[0]!.id;
+	single = reducer(engine, single, { type: "USE_SKILL", payload: {
+		skillId: "skill_prey_mark", sourceId: singleHeroId,
+	} });
+	ensure(!pendingSkillTargetOf(single),
+		"Marca da Presa abriu seleção desnecessária com apenas um inimigo");
+	ensure(gameOf(single).combat?.preyByHero[singleHeroId] === "audit-enemy",
+		"Marca da Presa não marcou automaticamente o único inimigo");
+	ensure(canStartHeroAttack(single, singleHeroId, "audit-enemy"),
+		"Marcação automática bloqueou o ataque do Caçador");
+
+	// Com duas presas, o mesmo reducer deve solicitar escolha e respeitá-la.
+	let state = combat("hero_broken_veil_hunter", 2);
 	const heroId = heroesOf(state)[0]!.id;
 	state = reducer(engine, state, { type: "USE_SKILL", payload: {
 		skillId: "skill_prey_mark", sourceId: heroId,
 	} });
-	ensure(pendingSkillTargetOf(state)?.candidates.some((target) =>
-		target.id === "audit-enemy"), "Marca da Presa não ofereceu o inimigo como alvo");
+	const options = pendingSkillTargetOf(state)?.candidates.map((target) => target.id);
+	ensure(options?.length === 2 &&
+		options.includes("audit-enemy") && options.includes("audit-enemy-2"),
+		"Marca da Presa não ofereceu os dois inimigos para escolha");
 	state = reducer(engine, state, { type: "SELECT_SKILL_TARGET", payload: {
 		targetId: "audit-enemy",
 	} });
+	ensure(!pendingSkillTargetOf(state),
+		"Marca da Presa não fechou a seleção após escolher o alvo");
 	ensure(gameOf(state).combat?.preyByHero[heroId] === "audit-enemy",
 		"Marca da Presa não foi aplicada ao alvo escolhido");
 	ensure(!gameOf(state).combat?.heroesActed.includes(heroId),
@@ -168,7 +189,7 @@ const scenarios = [
 		detail: "Preparação, custo de PV, consumo e encerramento no ataque" },
 	{ id: "hunter-prey-mark", sourceCardId: "hero_broken_veil_hunter",
 		abilityId: "skill_prey_mark", check: checkPreyMark,
-		detail: "Seleção de alvo, bônus +1 e preservação do ataque" },
+		detail: "Alvo único automático; dois inimigos exigem seleção; bônus +1 e ataque preservado" },
 	{ id: "lunar-spark-dice", sourceCardId: "hero_green_moon_sorceress",
 		abilityId: "witch_skill_lunar_spark", check: checkLunarSpark,
 		detail: "Interrupção com dado 1, seleção e commit da rolagem" },
