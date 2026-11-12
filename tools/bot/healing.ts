@@ -1,5 +1,5 @@
 import type { PlayerView } from "@/core/projection/playerView";
-import { cardById, skillById } from "@/core/gameEngine";
+import { abilityById, cardById, skillById } from "@/core/gameEngine";
 import { engine } from "../golden/lib";
 
 /** Resolve healing by effect definition, not translated card names. */
@@ -8,7 +8,8 @@ export function itemHealingAmount(itemId: string): number | null {
 	if (!card || card.type !== "item") return null;
 	const grant = card.grants?.find((entry) => entry.activation.kind === "manual");
 	const ref = card.skills?.find((entry) => entry.skillId === grant?.abilityId) ?? card.skills?.[0];
-	const ability = skillById(engine, grant?.abilityId ?? ref?.skillId ?? "");
+	const abilityId = grant?.abilityId ?? ref?.skillId ?? "";
+	const ability = abilityById(engine, abilityId) ?? skillById(engine, abilityId);
 	if (!ability) return null;
 	const params: Record<string, unknown> = { ...(ref?.params ?? {}), ...(grant?.params ?? {}) };
 	function findHeal(node: unknown): number | null {
