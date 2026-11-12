@@ -43,3 +43,13 @@ apresentados em `reports/skill-audit/report.json` e `.html`.
 - O comando `npm run audit` interrompe antes das simulações se houver
   `STRUCTURAL`, `RUNTIME`, `GROUP_PROJECTION` ou `GROUP_COMBAT` falhos;
   detalhes ficam no `reports/skill-audit/report.json`.
+
+## P0: Diagnósticos consolidados no report.json
+
+O relatório de simulações inclui `diagnostics` com identidade contábil de XP,
+compras de nível ineficazes, erros/impasses, paridade de resultado entre
+Difícil/Pesadelo (mesma seed/herói/expansão/perfil) e contagem por ID de
+preparações, usos manuais, ativações de poderes e interrupções aceitas/negadas.
+Esses contadores **não** provam a execução de efeitos automáticos; o campo
+`warnings` aponta hipóteses para revisão, não diagnóstico causal confirmado.
+O painel HTML mostra os alertas agregados.

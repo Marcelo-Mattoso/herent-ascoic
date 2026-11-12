@@ -62,6 +62,7 @@ export interface ProgressionTelemetry {
 	readonly abilityActivity?: {
 		readonly preparationsById: Readonly<Record<string, number>>;
 		readonly manualActionsById: Readonly<Record<string, number>>;
+		readonly powerActivationsById: Readonly<Record<string, number>>;
 		readonly triggersAcceptedById: Readonly<Record<string, number>>;
 		readonly triggersSkippedById: Readonly<Record<string, number>>;
 	};
@@ -231,6 +232,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let skillPreparations = 0, powerPreparations = 0;
 	const preparationsById: Record<string, number> = {};
 	const manualActionsById: Record<string, number> = {};
+	const powerActivationsById: Record<string, number> = {};
 	const triggersAcceptedById: Record<string, number> = {};
 	const triggersSkippedById: Record<string, number> = {};
 	const increment = (counts: Record<string, number>, id: string) => {
@@ -266,6 +268,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		if (action.type === "USE_SKILL") {
 			const projected = step.before.abilityActionsByHero[action.payload.sourceId]?.find((entry) =>
 				entry.abilityId === action.payload.skillId);
+			if (projected?.kind === "power") increment(powerActivationsById, action.payload.skillId);
 			if (projected?.activation === "prepare") {
 				increment(preparationsById, action.payload.skillId);
 				if (projected.kind === "skill") skillPreparations++;
@@ -273,6 +276,11 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			} else {
 				increment(manualActionsById, action.payload.skillId);
 			}
+		}
+		if (action.type === "USE_POWER") {
+			const power = step.before.abilityActionsByHero[action.payload.heroId]?.find(
+				(ability) => ability.kind === "power" && ability.status === "available");
+			increment(powerActivationsById, power?.abilityId ?? "unknown-power");
 		}
 		if ((action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT") &&
 			step.before.pendingTriggerInterrupt) {
@@ -407,7 +415,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			levelPeak, levelUpOpportunities, levelUpPurchases,
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
 			skillPreparations, powerPreparations,
-			abilityActivity: { preparationsById, manualActionsById, triggersAcceptedById, triggersSkippedById },
+			abilityActivity: { preparationsById, manualActionsById, powerActivationsById, triggersAcceptedById, triggersSkippedById },
 		},
 	};
 }

@@ -1,10 +1,12 @@
 import type { BenchmarkSummary, BenchmarkTrial, DungeonBenchmarkOptions } from "./dungeonBenchmark";
 import type { ReportProvenance } from "./reportProvenance";
+import type { BenchmarkDiagnostics } from "./reportDiagnostics";
 
 export interface DungeonReportData {
 	readonly generatedAt: string;
 	readonly provenance?: ReportProvenance;
 	readonly scope?: "solo";
+	readonly diagnostics?: BenchmarkDiagnostics;
 	readonly options: DungeonBenchmarkOptions;
 	readonly completed: number;
 	readonly expected: number;
@@ -31,6 +33,15 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"; árvore Git " + (report.provenance.workingTreeClean ? "limpa" : "não validada") +
 			"; comparabilidade " + (report.provenance.comparable ? "verificada" : "não verificada") + "." : "",
 		"Escopo: exclusivamente partidas solo; grupos de 2–4 heróis não estão incluídos.",
+		...(report.diagnostics ? [
+			"## Diagnósticos de consistência",
+			"Hard/Pesadelo: " + report.diagnostics.difficultyParity.sameOutcome + "/" +
+				report.diagnostics.difficultyParity.pairedGames + " pares com mesmo resultado.",
+			"XP sem conciliação: " + report.diagnostics.xpAccountingMismatches +
+				"; tentativas inefetivas de level up: " + report.diagnostics.ineffectiveLevelUpAttempts + ".",
+			...report.diagnostics.warnings.map((warning) => "- " + warning),
+			"",
+		] : []),
 		"Seeds " + options.seed + " a " + (options.seed + options.runs - 1) +
 			"; " + options.runs + " repetições; até " + options.maxSteps + " ações por partida.",
 		"",
@@ -119,6 +130,11 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 <section class="metrics" id="metrics"></section>
 <div class="sections">
 <section class="panel">
+<h2>Diagnósticos de consistência</h2>
+<p class="help">Métricas globais calculadas a partir das partidas solo. Preparação não prova execução do efeito e paridade de desfecho não prova identidade de dificuldade.</p>
+<div id="diagnostics" class="help">Relatório legado: sem telemetria de consistência agregada.</div>
+</section>
+<section class="panel">
 <h2>Matriz de vitórias por herói</h2>
 <p class="help">Selecione um módulo e um herói para ver a taxa de vitória em cada dificuldade. A seleção começa na expansão de referência; o comparativo abaixo mostra todos os módulos com os mesmos filtros de herói/perfil/dificuldade. A opção "Todas as expansões" agrega taxas e não deve ser confundida com uma masmorra única. Impasses não são tratados como derrotas.</p>
 <div class="controls">
@@ -167,6 +183,12 @@ const esc=(value)=>String(value??"").replace(/[&<>"']/g,(s)=>({"&":"&amp;","<":"
 const pct=(a,b)=>b?(100*a/b).toFixed(1)+"%":"—";
 const nameById=new Map(data.summaries.map((s)=>[s.heroId,s.heroName]));
 const expansionNames=data.expansionNames||{};
+if(data.diagnostics){
+ const d=data.diagnostics,p=d.difficultyParity;
+ const parity=p.pairedGames?(100*p.sameOutcomeRate).toFixed(1)+'% ('+p.sameOutcome+'/'+p.pairedGames+')':'Sem pares';
+ const notices=d.warnings.length?d.warnings.map(w=>'<li>'+esc(w)+'</li>').join(''):'<li>Nenhum alerta automático registrado.</li>';
+ el('diagnostics').innerHTML='<p><strong>Difícil × Pesadelo:</strong> '+esc(parity)+' resultados iguais nos pares. <strong>XP não conciliado:</strong> '+d.xpAccountingMismatches+'. <strong>Level up sem efeito:</strong> '+d.ineffectiveLevelUpAttempts+'.</p><ul>'+notices+'</ul><p>Consulte <code>diagnostics.abilityActivity</code> no JSON para contagem por ID; triggers automáticos sem modal não são observados por esses contadores.</p>';
+}
 const expansionName=(id)=>expansionNames[id]||id;
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}
 function render(){

@@ -4,6 +4,7 @@ import { getEnabledExpansions } from "@/core/data/expansions";
 import { buildCatalogBalance } from "./catalogBalance";
 import { assertLocalReportExecution } from "./localLevelingReports";
 import { assertSameReportProvenance, reportProvenance } from "./reportProvenance";
+import { summarizeReportDiagnostics } from "./reportDiagnostics";
 import {
 	type BenchmarkTrial,
 	type DungeonBenchmarkOptions,
@@ -165,6 +166,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		expected: plan.length,
 		trials,
 		summaries: summarizeBenchmark(benchmark, trials),
+		diagnostics: summarizeReportDiagnostics(trials),
 		expansionNames: Object.fromEntries(getEnabledExpansions().map((pack) => [pack.id, pack.name])),
 		catalog: catalogPreview,
 	};
