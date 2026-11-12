@@ -404,7 +404,7 @@ function handleBossRoll(engine: GameEngine, state: GameState): GameState {
 	const { roll, nextState } = bossResult;
 	const rolled = withGame(nextState, (prevGame) => ({
 		...prevGame,
-		status: "RESOLVE_ATTACK",
+		status: "RESOLVE_ATTACK" as const,
 		combat: gameOf(nextState).combat
 			? { ...gameOf(nextState).combat!, lastRoll: roll }
 			: null,
