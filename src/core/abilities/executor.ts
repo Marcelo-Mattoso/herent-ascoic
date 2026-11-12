@@ -1,4 +1,3 @@
-import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
 import { emit } from "../events/bus";
 import type { AbilityGrant } from "../data/abilityTypes";
@@ -449,7 +448,11 @@ export function eventGrantMatchesContext(
 		event === "evt_destroy" ||
 		event === "evt_kill"
 	) {
-		if (event === "evt_roll" && candidate.grant.abilityId === HERO_ABILITY_IDS.power_supreme_rift_rune) {
+		// Roll powers targeting any participant may react to an allied roll.
+		// Self-only dice skills (e.g. Lunar Spark) remain restricted to the roller.
+		if (event === "evt_roll" &&
+			candidate.grant.activation.targeting?.targetType === "tgt_target" &&
+			candidate.grant.activation.targeting?.affectObject === "obj_all") {
 			return Boolean(ctx.targetHeroIds?.length);
 		}
 		return heroId === ctx.sourceHeroId;
