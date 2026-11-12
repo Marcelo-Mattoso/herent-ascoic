@@ -9,6 +9,9 @@ import { guardPassed } from "../triggers/engine";
 import { reducer } from "../reducer";
 import { gameOf, withGame } from "../../engine/state";
 import { canChangeRolledDice, hasDiceChangeEffect } from "./diceReactions";
+import { buildScriptCtx } from "../scripts/context";
+import { evaluate } from "../skills/dsl/evaluate";
+import { drainStack } from "../effects/resolver";
 
 const MOON = "hero_green_moon_sorceress";
 const SPARK = "witch_skill_lunar_spark";
@@ -59,6 +62,27 @@ describe("reações a dados: elegibilidade central", () => {
 		heroResults: [1, 5], enemyResults: [3],
 		heroTotal: 6, enemyTotal: 3, heroBreakdown: [], enemyBreakdown: [],
 	};
+	it("i_modify_die oferece somente faces diferentes dentro do limite e recalcula o resultado", () => {
+		const { state, heroId } = ready("hero_eternal_rest_cleric");
+		const rolled = rollWithFaces(state, 4);
+		const ctx = buildScriptCtx(testEngine, rolled, {
+			triggeredBy: "manual", skillId: "dice_modifier_test",
+			sourceHeroId: heroId, targetHeroIds: [heroId],
+		}, {});
+		const modified = drainStack(testEngine,
+			evaluate([{ kind: "i_modify_die", die_side: "hero", delta: 2 }], ctx));
+		expect(gameOf(modified).combat?.pendingDiceSelection?.deltaMax).toBe(2);
+		const noOp = reducer(testEngine, modified, {
+			type: "SELECT_DIE", payload: { side: "hero", index: 0, value: 4 },
+		});
+		expect(gameOf(noOp).combat?.pendingDiceSelection).toBeDefined();
+		const changed = reducer(testEngine, modified, {
+			type: "SELECT_DIE", payload: { side: "hero", index: 0, value: 6 },
+		});
+		expect(gameOf(changed).combat?.lastRoll?.heroResults[0]).toBe(6);
+		expect(gameOf(changed).combat?.pendingDiceSelection).toBeUndefined();
+	});
+
 	it("detecta dados elegíveis no lado correto e em efeitos aninhados", () => {
 		const lunar = [{ kind: "i_reroll" as const, die_side: "hero" as const, only_if_value: 1 }];
 		expect(hasDiceChangeEffect(lunar)).toBe(true);
