@@ -39,13 +39,24 @@ npm run preview
 Remove-Item Env:PAGES_BASE_PATH
 ```
 
+## Auditoria e balanceamento (somente local)
+
+| Comando | Resultado |
+|---|---|
+| `npm run bot:skills-audit` | Auditoria rápida das habilidades; gera JSON/HTML em `reports/skill-audit/`. |
+| `npm run bot:catalog-report` | Inventário e pontuação das cartas, sem simular partidas. |
+| `npm run bot:leveling-report` | Simulação completa do catálogo habilitado (atualmente 6.000 partidas por padrão). |
+| `npm run audit` | Executa auditoria de habilidades e, somente se passar, o relatório de leveling. |
+
+Para o fluxo de testes e opções avançadas, veja [o bot](tools/bot/README.md) e [o auditor de habilidades](tools/bot/skill-audit/README.md). Esses comandos não são executados pelo CI.
+
 ## Publicação da Alpha
 
-O remote `origin` atual é [`println/herent-ascoic`](https://github.com/println/herent-ascoic), com branch principal `main`. A URL esperada do GitHub Pages é [println.github.io/herent-ascoic/](https://println.github.io/herent-ascoic/). O [link esperado do manual](https://println.github.io/herent-ascoic/rules/ascensao-heroica-manual.pdf) também fica acessível pelo menu discreto **Regras**. A versão do PDF ainda precisa de confirmação do autor; veja [regras digitais](docs/GAME_RULES.md).
+O repositório de referência é [`Marcelo-Mattoso/herent-ascoic`](https://github.com/Marcelo-Mattoso/herent-ascoic), com branch principal `main`. A URL pública de GitHub Pages depende da configuração ativa em **Settings → Pages**; não presuma o endereço de um proprietário anterior. O manual PDF é publicado junto aos demais assets de `dist/` e pode ser acessado pelo menu **Regras**. Veja também as [regras digitais](docs/GAME_RULES.md).
 
-O único workflow de CI/CD é [`.github/workflows/ci.yml`](.github/workflows/ci.yml). Pull requests executam lint, testes, cobertura, build, conferência dos assets e testes de navegador sem publicar. Um push em `main` publica **somente `dist/`** no ambiente `github-pages` após todos os checks. O build usa `PAGES_BASE_PATH=/herent-ascoic/`; a UI resolve imagens, manifestos e PDF por `import.meta.env.BASE_URL`.
+Os workflows de CI/CD incluem [CI e publicação](.github/workflows/ci.yml), [otimização de imagens](.github/workflows/optimize-webp.yml) e [promoção entre branches](.github/workflows/promote-dev-to-hml.yml). Pull requests executam lint, testes, cobertura, build, conferência dos assets e testes de navegador sem publicar. Um push em `main` publica **somente `dist/`** no ambiente `github-pages` após todos os checks. O build usa `PAGES_BASE_PATH=/herent-ascoic/`; a UI resolve imagens, manifestos e PDF por `import.meta.env.BASE_URL`.
 
-Antes de publicar, o proprietário deve selecionar **Settings → Pages → Build and deployment → Source → GitHub Actions**. A opção “Deploy from a branch” executa o build Jekyll do repositório e causa o erro de Liquid nos estudos antigos. Verifique que o endereço mostrado em Settings → Pages coincide com a URL acima, especialmente se houver domínio personalizado. Não foi feito push nem alteração remota nesta tarefa.
+Antes de publicar, o proprietário deve selecionar **Settings → Pages → Build and deployment → Source → GitHub Actions**. A opção “Deploy from a branch” executa o build Jekyll do repositório e causa o erro de Liquid nos estudos antigos. Verifique o endereço mostrado em Settings → Pages, especialmente se houver domínio personalizado.
 
 ## Documentação
 

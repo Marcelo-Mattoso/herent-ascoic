@@ -1,108 +1,30 @@
-# Auditoria de habilidades — fase inicial
+# Auditoria de habilidades — P0
 
-Esta ferramenta é **independente** do bot de balanceamento em `tools/bot`.
+Verifica a estrutura de habilidades de todas as cartas habilitadas e executa cenários determinísticos pelo reducer real. **Não altera as regras de jogo.**
 
-## Execução local
+## Comandos
 
 ```bash
-npx vite-node tools/bot/skill-audit/run.ts
-npx vitest run tools/bot/skill-audit/
+npm run bot:skills-audit      # Auditoria rápida, sem simulação longa
+npm run audit                 # Auditoria de habilidades; se passar, executa leveling
+npm run bot:leveling-report  # Apenas leveling, sem auditoria prévia
 ```
 
-A execução do primeiro comando gera `reports/skill-audit/report.json` e
-`reports/skill-audit/report.html` (fora de `public/` e `dist/`).
+`bot:skills-audit` grava `reports/skill-audit/report.json` e `report.html`, ignorados pelo Git. O comando retorna erro quando houver bloqueadores estruturais ou de cenários, mas sempre grava os relatórios antes de encerrar. `npm run audit` usa esse código de saída para impedir as simulações longas quando houver bloqueadores.
 
-## Cobertura e limites atuais
+## Cobertura atual
 
-- Descoberta dinâmica dos `AbilityGrant` de todas as cartas de expansões habilitadas, incluindo skills legadas adaptadas.
-- Inventário de fonte, expansão, tipo, gatilho, custo de ação, limite e implementação do efeito.
-- Verificações de referência de efeito, existência de emissores e consistência básica de limites.
-- Testes de descoberta e cenários de inicialização/projeção para grupos de 1–4 heróis pelo reducer real.
-- Matriz de grupos **candidatos**, ainda sem verificação de efeitos em combate.
+- Descoberta dinâmica dos grants de todas as cartas e suas fontes, expansões, gatilhos, custos, limites e implementação declarada.
+- Verificações estruturais de referências, emissores e limites.
+- **32 cenários funcionais de heróis:** dez do pacote inicial e 22 novos em `heroRuntime.ts`, inclusive cura, runas, veneno, Eco, ações, modificadores, escolhas e dados.
+- **48 projeções de grupo** de um a quatro heróis e **três combates cooperativos** com Marca da Presa + Fúria (grupos de dois, três e quatro).
 
-**Importante:** testes estruturais não comprovam execução. Todos os grants começam com
-`runtimeStatus: NOT_COVERED`. Os campos `runtimePass` e `runtimeFail` são zero até que
-cenários de efeito determinísticos sejam instrumentados. Nenhum caso é marcado `PASS`
-apenas porque uma ação foi aceita.
+## Interpretação correta
 
-## Ainda não implementado
+Os resultados `PASS` em `runtimeScenarios` indicam apenas que o **cenário específico** passou. O inventário continua marcado `PARTIAL` quando há alguma cobertura e `NOT_COVERED` quando não há cenário. `runtimePass` integral fica em zero enquanto não existir cobertura exaustiva de efeito, custo, cooldown, recuperação e contextos alternativos.
 
-- Driver de combate com dados controlados e asserções de efeitos antes/depois.
-- Verificação do consumo de ação, cooldown e recuperação após rodada/sala/partida.
-- Interações entre habilidades simultâneas em grupos.
-- Associação de resultados da suíte aos respectivos grants e reprodução por seed.
-- Correção dos eventuais bugs encontrados.
+Alguns dos novos cenários comprovam somente **preparação**, não o disparo da reação (Bastião, Carvalho e preservação de descarte). Interações com equipamentos, criaturas, salas e bosses ainda não possuem cobertura funcional geral. Nenhuma ausência de cenário é tratada como aprovação integral.
 
-Não foram alterados arquivos de balanceamento, catálogos nem o motor nesta fase.
-Não executar nem monitorar CI/CD automaticamente.
+Arquivos: `catalog.ts` (descoberta e relatório), `runtime.ts` e `heroRuntime.ts` (heróis), `groupRuntime.ts` (grupos), `health.ts` e `run.ts` (bloqueadores e CLI). Para validar os cenários isoladamente: `npx vitest run tools/bot/skill-audit/`.
 
-## Cenários determinísticos (P0 de leveling)
-
-A auditoria também executa três cenários controlados sobre o reducer de produção:
-`skill_crimson_fury` (preparo e custo de vida), `skill_prey_mark` (alvo e bônus)
-e `witch_skill_lunar_spark` (interrupção pós-rolagem). Cada resultado é
-`PASS` ou `FAIL` **do cenário específico**. Grants com cenário passando
-recebem `runtimeStatus: PARTIAL`, nunca `PASS` integral. As demais
-habilidades continuam `NOT_COVERED`. Falhas são reportadas sem esconder o
-inventário e sem modificar o jogo. Novos cenários devem ser adicionados
-gradualmente, com asserções de estado antes/depois.
-
-O JSON e o HTML mostram a proveniência do commit, quando disponível.
-
-## Cobertura de grupos no próprio audit (P0)
-
-O `bot:skills-audit` agora roda cenários de projeção para os 12 heróis em
-composições rotativas de 1–4 jogadores (12 × 4 = 48 grupos) e exercícios
-combinados de Marca da Presa + Fúria em grupos de 2, 3 e 4. Cenário aprovado
-do grupo recebe `PARTIAL` (ainda não cobre todas as combinações).
-Também registra ativação de sete poderes existentes, sem atribuir PASS aos
-efeitos posteriores sem asserção. O resultado entra no JSON e no HTML.
-
-## Gate do audit: evita perder tempo em 6.000 simulações
-
-O `npm run audit` mantém os dois comandos originais, na mesma ordem.
-`bot:skills-audit` sempre grava JSON/HTML; se detectar falha estrutural,
-cenário funcional ou grupo, termina com código 1 e **não** dispara a etapa
-`bot:leveling-report`. `PARTIAL`/`NOT_COVERED` permanecem visíveis, mas
-não são tratados como bugs confirmados. O comando continua apenas local.
-
-## Correção de inicialização do CLI (P0)
-
-`npm run bot:skills-audit` executa `npx vite-node tools/bot/skill-audit/run.ts`.
-A auditoria agora usa o mesmo critério CLI dos demais bots
-(`process.env.VITEST === undefined`), pois `vite-node` não garante
-que `process.argv[1]` termine com `run.ts`. Antes o comando podia sair
-sem executar nada, inclusive permitindo que `npm run audit` seguisse direto
-para as 6.000 partidas. Na execução manual, o terminal deve mostrar
-`Iniciando auditoria de habilidades (P0)...` e depois os **caminhos
-absolutos** de `report.json` e `report.html`.
-
-## Seleção de alvo — correção dos falsos positivos do P0
-
-O cenário `hunter-prey-mark` verifica **duas regras diferentes** do motor:
-com apenas um inimigo a Marca da Presa deve marcar automaticamente, sem
-modal; com dois inimigos deve abrir seleção explícita, preservar o ataque
-e aplicar o bônus +1 apenas ao alvo marcado. Os três cenários cooperativos
-usam dois inimigos para verificar a seleção real nos grupos de 2, 3 e 4.
-O teste anterior exigia modal com um único inimigo e gerava quatro falsos
-bloqueadores no `npm run audit`.
-
-## Pacote P0 — ampliação funcional dos 12 heróis
-
-Arquivo: `tools/bot/skill-audit/heroRuntime.ts`. O audit executa **22 novos cenários**
-com reducer real, somados aos 10 anteriores. Cada cenário é registrado na mesma
-lista `runtimeScenarios` do JSON, sem criar outro formato de relatório. Eles
-alcançam as 15 concessões de heróis ainda `NOT_COVERED` e aprofundam a verificação
-dos sete poderes anteriormente testados apenas quanto à ativação.
-
-Validação direta: vida e cura, remoção de veneno, modificadores ECS,
-custo de ação, recuperação de cartas, aquisição/gasto de Eco, efeito de passiva
-condicional, escolha de poder e alteração de resultados de dado. Cenários
-marcados **preparation** verificam somente o preparo da reação e a preservação
-da ação, não o efeito posterior ao evento (Bastião, Carvalho e preservação do
-descarte). Por isso todos seguem com status `PARTIAL`, mesmo quando passam.
-Cada falha tem mensagem própria e bloqueia `npm run audit`.
-
-Não altera atributos, balanceamento ou conteúdo das cartas. Execute
-`npm run bot:skills-audit` para revisar os 32 cenários antes de iniciar
-as simulações longas; o relatório inclui os bloqueadores e a proveniência.
+Auditoria e relatórios de leveling são **locais**, sem execução automática no CI/CD. Não rodar nem monitorar CI/CD após commits.
