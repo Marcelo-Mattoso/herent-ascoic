@@ -96,8 +96,6 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 		case "USE_REWARD_ITEM": {
 			const hero = heroes.find((entry) => entry.id === action.payload.heroId);
 			if (!hero) return -1;
-			const ability = view.abilityActionsByHero[hero.id]?.find((entry) =>
-				entry.kind === "item" && entry.sourceCardId === action.payload.itemId);
 			const heal = itemHealingAmount(action.payload.itemId);
 			if (heal !== null) return healingMoveScore(view, action.payload.targetHeroId ?? hero.id, heal);
 			return pressure(view) ? 160 : 70;
