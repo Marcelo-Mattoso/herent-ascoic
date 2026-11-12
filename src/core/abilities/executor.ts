@@ -46,6 +46,8 @@ export interface AbilityGrantExecution {
 	readonly grant: AbilityGrant;
 	readonly triggeredBy: string;
 	readonly consumeFromPendingReward?: boolean;
+	/** Dice reactions consume their charge only after SELECT_DIE applies a valid result. */
+	readonly deferUsage?: boolean;
 	readonly targetIds?: readonly string[];
 	readonly value?: number | string | null;
 	readonly context?: SkillContext;
@@ -211,7 +213,7 @@ function consumeSource(
 		});
 }
 
-function markGrantUsed(engine: GameEngine,
+export function markGrantUsed(engine: GameEngine,
 	state: GameState,
 	source: AbilityGrantSource,
 	grant: AbilityGrant,
@@ -324,7 +326,7 @@ export function executeAbilityGrant(engine: GameEngine,
 				} }));
 		}
 	}
-	next = markGrantUsed(engine, next, source, grant);
+	if (!request.deferUsage) next = markGrantUsed(engine, next, source, grant);
 	if (grant.activation.actionCost === "consume_hero_action" && source.sourceHeroId) {
 		next = ActivationTracker.endHeroTurn(next, source.sourceHeroId);
 	}
