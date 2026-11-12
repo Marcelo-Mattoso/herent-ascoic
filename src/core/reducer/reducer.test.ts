@@ -26,8 +26,10 @@ function rollDiceWithApprovals(state: GameState): GameState {
 	while (interrupt && guard < 10) {
 		const interruptedStatus = gameOf(next).status;
 		const interruptId = interrupt.id;
+		// Boss outcome tests exercise the attack, not optional post-roll
+		// rune decisions (which have their own dedicated dice-reaction tests).
 		next = reducer(testEngine, next, {
-			type: "APPLY_TRIGGER_INTERRUPT",
+			type: interrupt.event === "evt_roll" ? "SKIP_TRIGGER_INTERRUPT" : "APPLY_TRIGGER_INTERRUPT",
 			payload: { interruptId },
 		});
 		if (interruptedStatus === "ROLL_DICE" && gameOf(next).status === "ROLL_DICE") {
