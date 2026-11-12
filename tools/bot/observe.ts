@@ -9,7 +9,6 @@ import {
 import { type PlayerView, playerView } from "@/core/projection/playerView";
 import type { GameState } from "@/core/state/gameState";
 import { gameOf } from "@/engine/state";
-import { dieReplacementValues, isEligibleDie } from "@/core/rules/diceSelection";
 import { hasDiceChangeEffect } from "@/core/rules/diceReactions";
 
 /** O que um jogador pode saber: a tela e as jogadas disponíveis, nunca o estado cru. */
@@ -28,25 +27,10 @@ export type AbilityMove = AbilityActionView & {
 /** Troca as jogadas de dados pelas que a interface despacha, com a recuperação determinística da seed. */
 function asPlayedByUi(state: GameState, actions: readonly Action[]): Action[] {
 	const { status, combat } = gameOf(state);
-	const selection = combat?.pendingDiceSelection;
-	const roll = combat?.lastRoll;
-	if (selection && roll) {
-		const choices: Action[] = [];
-		for (const side of ["hero", "enemy"] as const) {
-			const results = side === "hero" ? roll.heroResults : roll.enemyResults;
-			for (let index = 0; index < results.length; index++) {
-				if (!isEligibleDie(selection, side, index, results)) continue;
-				const values = selection.deltaMax !== undefined
-					? dieReplacementValues(selection, results[index]!).filter((value) => value !== results[index])
-					: selection.action === "set_to"
-						? results[index] === selection.setToValue ? [] : [selection.setToValue ?? 6]
-						: [undefined];
-				for (const value of values) choices.push({ type: "SELECT_DIE", payload: {
-					side, index, ...(value === undefined ? {} : { value }),
-				} });
-			}
-		}
-		return choices;
+	if (combat?.pendingDiceSelection) {
+		const choices = actions.filter((action) =>
+			action.type === "SELECT_DIE" || action.type === "CANCEL_DICE_SELECTION");
+		return choices.length ? choices : [{ type: "CANCEL_DICE_SELECTION" }];
 	}
 	const pending = combat?.pendingPhysicalRoll;
 	const undecided = actions.some(
