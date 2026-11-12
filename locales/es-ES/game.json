@@ -372,7 +372,8 @@
           "round_end": "Fin de la ronda",
           "round_start": "Inicio de la ronda",
           "targeted": "Objetivo elegido"
-        }
+        },
+        "diceQuestion": "Los dados ya se han lanzado. ¿Quieres activar esta habilidad antes de resolver el ataque?"
       },
       "useItemModal": {
         "text001": "No hay objetos activos disponibles en esta ventana.",
