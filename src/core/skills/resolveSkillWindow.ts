@@ -1,4 +1,6 @@
 import { drainStack } from "../effects/resolver";
+import { canChangeRolledDice, hasDiceChangeEffect } from "../rules/diceReactions";
+import { abilityById } from "../gameEngine";
 import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
 import { isInlineBossSkill } from "../rules/bossSkills";
 import type { GameState } from "../state/gameState";
@@ -30,6 +32,7 @@ export type SkillWindowResume =
 	| { readonly type: "roll_dice" }
 	| { readonly type: "prepare_physical_roll" }
 	| { readonly type: "resolve_attack" }
+	| { readonly type: "after_roll" }
 	| { readonly type: "continue_rewards_after_room_win" }
 	| { readonly type: "finish_rewards" }
 	| {
@@ -184,13 +187,14 @@ export function resolveSkillWindow(engine: GameEngine,
 	if (
 		pendingTriggerInterruptOf(state) ||
 		pendingSkillChoiceOf(state) ||
-		pendingSkillTargetOf(state)
+		pendingSkillTargetOf(state) ||
+		gameOf(state).combat?.pendingDiceSelection
 	) {
 		return state;
 	}
 
 	const ctx = requestCtx(request);
-	const resume = request.resume ?? { type: "none" as const };
+	const resume = request.resume ?? (request.event === "evt_roll" ? { type: "after_roll" as const } : { type: "none" as const });
 	const resolvedCandidateIds = new Set(request.resolvedCandidateIds ?? []);
 	let current = state;
 	const grantCandidates = collectEventAbilityGrantCandidates(engine, 
@@ -224,6 +228,33 @@ export function resolveSkillWindow(engine: GameEngine,
 		].join(":");
 		if (resolvedCandidateIds.has(pendingId)) continue;
 		if (gameOf(current).flags[triggerDecisionFlag(pendingId)]) continue;
+		const effect = abilityById(engine, candidate.grant.abilityId)?.effect;
+		const diceReaction = request.event === "evt_roll" &&
+			hasDiceChangeEffect(effect);
+		if (diceReaction) {
+			if (!canChangeRolledDice(effect, gameOf(current).combat?.lastRoll)) continue;
+			const interrupt: PendingTriggerInterrupt = {
+				id: pendingId,
+				grantId: candidate.grant.id,
+				skillId: candidate.grant.abilityId,
+				event: request.event,
+				window: "after_roll_before_result",
+				sourceKind: candidate.source.kind,
+				sourceCardId: candidate.source.cardId,
+				sourceHeroId: candidate.source.sourceHeroId,
+				sourceEnemyId: candidate.source.sourceEnemyId,
+				targetHeroIds: ctx.targetHeroIds,
+				targetEnemyIds: ctx.targetEnemyIds,
+				value: ctx.value,
+				reason: "Os dados foram lançados. Deseja utilizar esta habilidade?",
+				description: candidate.grant.abilityId,
+			};
+			resolvedCandidateIds.add(pendingId);
+			return withPendingSkillWindow(withPendingTriggerInterrupt(current, interrupt), {
+				event: request.event, ctx, resume, parent: request.parent,
+				resolvedCandidateIds: [...resolvedCandidateIds],
+			});
+		}
 		const grantPreparedKey = candidate.source.sourceHeroId &&
 			(candidate.source.kind === "hero" || candidate.source.kind === "item" || candidate.source.kind === "artifact")
 			? preparedAbilityKey(candidate.source.kind, candidate.source.sourceHeroId,
@@ -292,7 +323,29 @@ export function applySkillWindowDecision(engine: GameEngine,
 				entry.source.sourceEnemyId === pending.sourceEnemyId,
 		);
 		if (!candidate) return cleared;
-		let applied = executeAbilityGrant(engine, cleared, {
+		const effect = abilityById(engine, candidate.grant.abilityId)?.effect;
+		const deferred = pending.event === "evt_roll" && hasDiceChangeEffect(effect);
+		const preparedKey = candidate.source.sourceHeroId &&
+			(candidate.source.kind === "hero" || candidate.source.kind === "item" || candidate.source.kind === "artifact")
+			? preparedAbilityKey(candidate.source.kind, candidate.source.sourceHeroId,
+				candidate.source.cardId, candidate.grant.abilityId,
+				candidate.grant.id.startsWith("legacy:") ? undefined : candidate.grant.id)
+			: undefined;
+		const preparedState = deferred && gameOf(cleared).combat
+			? withGame(cleared, (game) => ({ ...game, combat: {
+				...game.combat!,
+				pendingDiceCommit: {
+					sourceKind: candidate.source.kind,
+					sourceCardId: candidate.source.cardId,
+					sourceHeroId: candidate.source.sourceHeroId,
+					sourceEnemyId: candidate.source.sourceEnemyId,
+					grantId: candidate.grant.id,
+					...(preparedKey ? { preparedKey } : {}),
+				},
+			} }))
+			: cleared;
+		let applied = executeAbilityGrant(engine, preparedState, {
+			deferUsage: deferred,
 			source: candidate.source,
 			grant: candidate.grant,
 			triggeredBy: pending.event,
@@ -305,7 +358,7 @@ export function applySkillWindowDecision(engine: GameEngine,
 		if (!window) return applied;
 		if (pendingTriggerInterruptOf(applied))
 			return withNestedSkillWindow(applied, window);
-		if (pendingSkillChoiceOf(applied) || pendingSkillTargetOf(applied))
+		if (pendingSkillChoiceOf(applied) || pendingSkillTargetOf(applied) || gameOf(applied).combat?.pendingDiceSelection)
 			return withPendingSkillWindow(applied, window);
 		return resolveSkillWindow(engine, applied, window);
 	}
