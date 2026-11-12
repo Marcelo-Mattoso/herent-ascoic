@@ -80,3 +80,13 @@ alvo automaticamente. O P0 agora testa ambos os caminhos (único alvo
 sem modal e múltiplos alvos com modal). Grupos de 2–4 heróis usam dois
 inimigos no teste de Marca da Presa + Fúria. Nenhuma regra de combate
 ou valor de balanceamento foi modificada por essa correção.
+
+## Ampliação de cenários funcionais dos heróis (P0)
+
+O `heroRuntime.ts` acrescenta 22 cenários ao auditor P0, totalizando 32.
+Cobertura parcial da ativação e de efeitos passa a alcançar os 25 grants de
+heróis, com testes específicos das 15 concessões anteriormente descobertas
+mas sem cenários, e rechecagem mais profunda de sete poderes existentes.
+Reações preparadas (Bastião, Carvalho e preservação do descarte) ainda não
+têm efeito/cooldown provados no gatilho; status `PARTIAL` é intencional.
+Manter auditoria local, sem CI/CD ou simulação longa automática.

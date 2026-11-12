@@ -86,3 +86,23 @@ e aplicar o bônus +1 apenas ao alvo marcado. Os três cenários cooperativos
 usam dois inimigos para verificar a seleção real nos grupos de 2, 3 e 4.
 O teste anterior exigia modal com um único inimigo e gerava quatro falsos
 bloqueadores no `npm run audit`.
+
+## Pacote P0 — ampliação funcional dos 12 heróis
+
+Arquivo: `tools/bot/skill-audit/heroRuntime.ts`. O audit executa **22 novos cenários**
+com reducer real, somados aos 10 anteriores. Cada cenário é registrado na mesma
+lista `runtimeScenarios` do JSON, sem criar outro formato de relatório. Eles
+alcançam as 15 concessões de heróis ainda `NOT_COVERED` e aprofundam a verificação
+dos sete poderes anteriormente testados apenas quanto à ativação.
+
+Validação direta: vida e cura, remoção de veneno, modificadores ECS,
+custo de ação, recuperação de cartas, aquisição/gasto de Eco, efeito de passiva
+condicional, escolha de poder e alteração de resultados de dado. Cenários
+marcados **preparation** verificam somente o preparo da reação e a preservação
+da ação, não o efeito posterior ao evento (Bastião, Carvalho e preservação do
+descarte). Por isso todos seguem com status `PARTIAL`, mesmo quando passam.
+Cada falha tem mensagem própria e bloqueia `npm run audit`.
+
+Não altera atributos, balanceamento ou conteúdo das cartas. Execute
+`npm run bot:skills-audit` para revisar os 32 cenários antes de iniciar
+as simulações longas; o relatório inclui os bloqueadores e a proveniência.

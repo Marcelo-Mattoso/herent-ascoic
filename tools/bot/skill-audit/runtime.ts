@@ -199,18 +199,13 @@ const scenarios = [
 export function runRuntimeScenarios(): RuntimeScenarioResult[] {
 	const allScenarios: { id: string; sourceCardId: string; abilityId: string; check: () => void; detail: string }[] = [
 		...scenarios,
-		...runHeroCoverageScenarios(engine, combat).map((entry) => ({
-			...entry, check: () => {
-				if (entry.status === "FAIL") throw new Error(entry.detail);
-			},
-		})),
 		...powerCases.map(([sourceCardId, abilityId]) => ({
 			id: "power-activation-" + abilityId, sourceCardId, abilityId,
 			check: () => checkPowerActivation(sourceCardId, abilityId),
 			detail: "Ativação, registro de preparação/uso e preservação do ataque (não verifica efeito posterior)",
 		})),
 	];
-	return allScenarios.map(({ id, sourceCardId, abilityId, check, detail }) => {
+	const originalResults = allScenarios.map(({ id, sourceCardId, abilityId, check, detail }) => {
 		try {
 			check();
 			return { id, sourceCardId, abilityId, status: "PASS" as const, detail };
@@ -221,4 +216,5 @@ export function runRuntimeScenarios(): RuntimeScenarioResult[] {
 			};
 		}
 	});
+	return [...originalResults, ...runHeroCoverageScenarios(engine, combat)];
 }
