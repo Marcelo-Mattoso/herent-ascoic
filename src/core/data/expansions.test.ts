@@ -15,7 +15,7 @@ describe("pacotes de expansão", () => {
 		const card = getCardById("hero_crimson_barbarian");
 		expect(card?.type).toBe("hero");
 		if (card?.type !== "hero") return;
-		expect(card.life).toEqual([12, 14, 16, 18, 20]);
+		expect(card.life).toEqual([14, 16, 18, 20, 22]);
 		expect(card.skills[0]?.skillId).toBe("skill_crimson_fury");
 	});
 
