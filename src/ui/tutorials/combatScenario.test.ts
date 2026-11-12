@@ -18,7 +18,7 @@ import {
 	startTutorial,
 } from "./session";
 import { testEngine } from "@/core/__tests__/testEngine";
-import { enemiesOf, heroesOf, withUnitStats } from "../../core/state/access";
+import { enemiesOf, heroesOf, withUnitStats, pendingTriggerInterruptOf } from "../../core/state/access";
 import { gameOf } from "../../engine/state";
 
 const HERO = COMBAT_DEFAULT_HERO;
@@ -36,10 +36,21 @@ const HEROES = [
 function encounter(actions: readonly Action[], heroCardId = HERO, finishingBlow = false) {
 	let state = createInitialGameState({ heroCardIds: [heroCardId] });
 	const journal = createGameJournal(testEngine, state);
-	const dispatch = (action: Action) => {
+	const record = (action: Action) => {
 		const before = state;
 		state = reducer(testEngine, state, action);
 		journal.record(action, before, state);
+	};
+	const dispatch = (action: Action) => {
+		// Scripted checkpoints do not teach optional dice reactions. Resolve
+		// those prompts before attempting to conclude the scripted attack.
+		if (action.type === "RESOLVE_ATTACK") {
+			for (let i = 0; i < 12 && pendingTriggerInterruptOf(state); i++) {
+				const interrupt = pendingTriggerInterruptOf(state)!;
+				record({ type: "SKIP_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id } });
+			}
+		}
+		record(action);
 	};
 	for (const action of actions) dispatch(action);
 	if (finishingBlow) {
