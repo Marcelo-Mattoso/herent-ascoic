@@ -7,7 +7,7 @@ import { createInitialGameState, type GameState } from "@/core/state/gameState";
 import { COMBAT_DEFAULT_HERO, COMBAT_FINISHING_SEED } from "./seeds";
 import type { GameEngine } from "@/core/gameEngine";
 
-import { deckOf, decksOf, withDecks } from "@/core/state/access";
+import { deckOf, decksOf, withDecks, withUnitStats, pendingTriggerInterruptOf } from "@/core/state/access";
 import { gameOf, withGame } from "../../engine/state";
 export const INVENTORY_ITEMS = {
 	dagger: "item_rusty_dagger",
@@ -43,10 +43,29 @@ export function prepareInventoryTraining(engine: GameEngine,
 	const enemy = gameOf(state).activeEnemies[0];
 	if (!hero || !enemy || gameOf(state).status !== "HERO_ACTION")
 		throw new Error("Encontro de treinamento indisponível");
+	// This checkpoint teaches inventory, not combat balance. Guarantee the
+	// seeded finishing blow without relying on individual hero damage tables.
+	state = withUnitStats(
+		withUnitStats(state, enemy.id, { currentLife: 1, maxLife: 1 }),
+		hero.id, { hitBonus: 100 },
+	);
 	for (const action of [
 		{ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: hero.id } },
 		{ type: "CHOOSE_TARGET", payload: { heroId: hero.id, enemyId: enemy.id } },
 		{ type: "ROLL_DICE" },
+	] satisfies Action[])
+		state = reducer(engine, state, action);
+	// New reactive powers may interrupt rolls. The inventory checkpoint skips
+	// optional combat reactions; ordinary gameplay still asks the player.
+	for (let i = 0; i < 12 && pendingTriggerInterruptOf(state); i++) {
+		const interrupt = pendingTriggerInterruptOf(state)!;
+		state = reducer(engine, state, {
+			type: "SKIP_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id },
+		});
+	}
+	if (pendingTriggerInterruptOf(state))
+		throw new Error("Interrupção de treinamento não resolvida");
+	for (const action of [
 		{ type: "RESOLVE_ATTACK" },
 		{ type: "CHECK_COMBAT_END" },
 	] satisfies Action[])
