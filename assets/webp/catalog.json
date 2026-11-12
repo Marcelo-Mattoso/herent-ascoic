@@ -680,6 +680,14 @@
       },
       "sha256": "c699253a16ae1da899ef0e0adb59135eb318b650b0d860b0c3422556c55fe62f"
     },
+    "cards/expansions/torre-grande-bruxa-caldeirao/artifacts/corrupted_heart_of_the_forest.webp": {
+      "bytes": 326072,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "f89db483d0f77d4d702f0af78e03b55121a331f5114d9921362828f9e14279dc"
+    },
     "cards/expansions/torre-grande-bruxa-caldeirao/artifacts/grimorio_da_torre_torta.webp": {
       "bytes": 397012,
       "options": {
