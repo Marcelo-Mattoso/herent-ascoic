@@ -1806,6 +1806,19 @@ export function handleSelectDie(
 	return resolveSkillWindow(engine, withPendingSkillWindow(committed, undefined), updatedWindow);
 }
 
+/** Ends an unusable die selection without spending the reserved charge. */
+export function handleCancelDiceSelection(engine: GameEngine, state: GameState): GameState {
+	const combat = gameOf(state).combat;
+	if (!combat?.pendingDiceSelection) return state;
+	const window = pendingSkillWindowOf(state);
+	const cleared = withGame(state, (g) => ({ ...g, combat: {
+		...g.combat!, pendingDiceSelection: undefined, pendingDiceCommit: undefined,
+	} }));
+	return window
+		? resolveSkillWindow(engine, withPendingSkillWindow(cleared, undefined), window)
+		: cleared;
+}
+
 // ─── CANCEL_HERO_SELECTION ───────────────────────────────────────────────────
 
 export function handleCancelHeroSelection(state: GameState): GameState {
@@ -1870,6 +1883,7 @@ export const combatHandler: GameHandler = {
 		"USE_POWER",
 		"USE_SKILL",
 		"SELECT_DIE",
+		"CANCEL_DICE_SELECTION",
 		"DECLARE_FLEE",
 	],
 	accepts(state, action) {
@@ -1878,6 +1892,27 @@ export const combatHandler: GameHandler = {
 		return true;
 	},
 	legalActions(state) {
+		// Direct headless bots and golden tooling also consume legalActions;
+		// dice selections cannot exist only in the React/UI adapter.
+		const selection = gameOf(state).combat?.pendingDiceSelection;
+		const roll = gameOf(state).combat?.lastRoll;
+		if (selection && roll) {
+			const moves: Action[] = [];
+			for (const side of ["hero", "enemy"] as const) {
+				const results = side === "hero" ? roll.heroResults : roll.enemyResults;
+				for (let index = 0; index < results.length; index++) {
+					if (!isEligibleDie(selection, side, index, results)) continue;
+					const choices = selection.deltaMax !== undefined
+						? dieReplacementValues(selection, results[index]!)
+						: selection.action === "set_to"
+							? dieReplacementValues(selection, results[index]!)
+							: [undefined];
+					for (const value of choices) moves.push({ type: "SELECT_DIE",
+						payload: { side, index, ...(value === undefined ? {} : { value }) } });
+				}
+			}
+			return moves.length ? moves : [{ type: "CANCEL_DICE_SELECTION" }];
+		}
 		switch (gameOf(state).status) {
 			case "COMBAT_START":
 				return [{ type: "START_COMBAT" }];
@@ -1944,6 +1979,8 @@ export const combatHandler: GameHandler = {
 					action.payload.index,
 					action.payload.value,
 				);
+			case "CANCEL_DICE_SELECTION":
+				return handleCancelDiceSelection(engine, state);
 			case "DECLARE_FLEE":
 				return handleDeclareFlee(engine, state, action.payload.heroId);
 			default:
