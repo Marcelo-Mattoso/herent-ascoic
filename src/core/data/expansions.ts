@@ -17,6 +17,7 @@ export interface ExpansionPackage {
 	readonly openings?: Readonly<Record<string, string>>;
 	readonly cards: readonly ExpansionCard[];
 	readonly skills?: readonly SkillDefinition[];
+	readonly skillLocales?: Readonly<Record<string, { readonly name?: string; readonly label?: string; readonly text?: string }>>;
 	readonly abilities?: readonly AbilityDefinition[];
 }
 export interface BossPackage {
@@ -53,7 +54,7 @@ function registerCard(card: ExpansionCard, expansionId: string): void {
 		throw new Error("Carta inválida na expansão " + expansionId);
 	}
 	if (metadata.has(card.id)) throw new Error("ID de carta duplicado entre expansões: " + card.id);
-	if (card.image && !/^images\/[^/]+\.webp$/.test(card.image)) {
+	if (card.image && !/^images\/[^/]+\.(?:webp|png)$/.test(card.image)) {
 		throw new Error("Imagem com caminho inválido: " + card.image);
 	}
 	metadata.set(card.id, { name: card.name, image: card.image, expansionId });
@@ -76,6 +77,10 @@ for (const entry of config.expansions) {
 	}
 	enabled.push(pack);
 	for (const card of pack.cards) registerCard(card, pack.id);
+	for (const [id, locale] of Object.entries(pack.skillLocales ?? {})) {
+		if (bossSkillLocales.has(id)) throw new Error("ID de texto de habilidade duplicado: " + id);
+		bossSkillLocales.set(id, locale);
+	}
 	if (pack.boss) {
 		if (pack.boss !== "boss.json") throw new Error("Referência inválida de boss: " + pack.boss);
 		const boss = bossDocuments["../../../assets/expansions/" + pack.id + "/boss.json"];

@@ -194,4 +194,33 @@ describe("recompensas e inventário", () => {
 		expect(gameOf(levelled).groupXp).toBe(10);
 		expect(heroesOf(levelled).map((hero) => impetoOf(levelled, hero.id))).toEqual([0, 2]);
 	});
+	it("Bruxa: compra artefato com 35 XP sem misturar expansões e preserva XP quando esgotado", () => {
+		const heroIds = ["hero_oak_guardian"];
+		const started = reducer(testEngine, createInitialGameState({ heroCardIds: heroIds }), {
+			type: "START_GAME",
+			payload: {
+				heroCardIds: heroIds,
+				bossCardId: "boss_great_cauldron_witch",
+				seed: 42,
+				deferInitialRoomReveal: true,
+			},
+		});
+		const funded = withGame(started, (game) => ({ ...game, status: "XP_SPEND_PHASE" as const, groupXp: 35 }));
+		const availableArtifacts = deckOf(funded, "artifactDeck").available;
+		expect(availableArtifacts).toHaveLength(5);
+		expect(availableArtifacts).toContain("artifact_corrupted_forest_heart");
+		const bought = handleSpendXp(testEngine, funded, "buy_artifact");
+		expect(gameOf(bought).groupXp).toBe(0);
+		expect(gameOf(bought).groupArtifacts).toHaveLength(1);
+		expect(gameOf(bought).groupArtifacts[0]?.cardId).toMatch(/^artifact_/);
+		expect(deckOf(bought, "artifactDeck").available).toHaveLength(availableArtifacts.length - 1);
+		const empty = withDecks(withGame(bought, (game) => ({ ...game, groupXp: 35 })), {
+			...decksOf(bought),
+			artifactDeck: { ...deckOf(bought, "artifactDeck"), available: [] },
+		});
+		const refused = handleSpendXp(testEngine, empty, "buy_artifact");
+		expect(gameOf(refused).groupXp).toBe(35);
+		expect(gameOf(refused).groupArtifacts).toHaveLength(1);
+	});
+
 });

@@ -42,12 +42,14 @@ interface BoardProps {
 	onEnemyClick: (enemy: EnemyView) => void;
 	onRoomClick: () => void;
 	onCardDetail: (name: string, type: CardType) => void;
+	onArtifactUse: (artifactId: string, abilityId: string) => void;
 	// Ações de grupo
 	onRevealBoss: () => void;
 	onContinueExploration: () => void;
 	onResolve: () => void;
 	onConfirmDiceRoll?: (payload: { rollId: string; heroId: string; enemyId: string; heroResults: number[]; enemyResults: number[]; source: "physics" | "fallback" }) => void;
 	onSelectDie?: (side: "hero" | "enemy", index: number, value?: number) => void;
+	onCancelDiceSelection?: () => void;
 	roll: CombatRollResult | null;
 	combatAttackHintVisible?: boolean;
 	cardImageUrls?: CardImageUrls;
@@ -633,11 +635,13 @@ export function Board({
 	onEnemyClick,
 	onRoomClick,
 	onCardDetail,
+	onArtifactUse,
 	onRevealBoss,
 	onContinueExploration,
 	onResolve,
 	onConfirmDiceRoll,
 	onSelectDie,
+	onCancelDiceSelection,
 	roll,
 	combatAttackHintVisible = false,
 	cardImageUrls,
@@ -1003,6 +1007,7 @@ export function Board({
 									view.enemies.find((enemy) => enemy.id === roll.enemyId)
 										?.cardId ?? "",
 								)}
+								onCancel={onCancelDiceSelection}
 								onConfirm={(side, index, value) => {
 									if (pendingDiceSelection.action === "reroll" && pendingDiceSelection.deltaMax === undefined) {
 										setRerollingDie({ side, index });
@@ -1153,7 +1158,7 @@ export function Board({
 			</div>
 
 			{/* Footer do grupo */}
-			<BoardFooter view={view} onArtifactClick={onCardDetail} />
+			<BoardFooter view={view} onArtifactClick={onCardDetail} onArtifactUse={onArtifactUse} />
 			{attackAnimation && (
 				<CardAttackAnimation
 					key={attackAnimation.key}

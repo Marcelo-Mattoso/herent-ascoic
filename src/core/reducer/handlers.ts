@@ -6,8 +6,10 @@ import { progressionHandler } from "./progression";
 import { responseHandler } from "./responses";
 import { rewardHandler } from "./reward";
 import { setupHandler } from "./setup";
+import { artifactHandler } from "./artifact";
 
 export const ascensaoHandlers: readonly GameHandler[] = [
+	artifactHandler,
 	responseHandler,
 	setupHandler,
 	physicalRollHandler,

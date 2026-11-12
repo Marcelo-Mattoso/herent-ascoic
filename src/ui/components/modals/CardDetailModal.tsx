@@ -16,6 +16,8 @@ interface CardDetailModalProps {
 	onClose: () => void;
 	imageUrl?: string;
 	onUseItem?: () => void;
+	onUseArtifact?: () => void;
+	artifactUseReason?: string;
 }
 
 export function CardDetailModal({
@@ -24,6 +26,8 @@ export function CardDetailModal({
 	onClose,
 	imageUrl,
 	onUseItem,
+	onUseArtifact,
+	artifactUseReason,
 }: CardDetailModalProps) {
 	const card = getCardById(cardId);
 	const cardName = getCardName(cardId);
@@ -200,11 +204,26 @@ export function CardDetailModal({
 						(() => {
 							const artSkills = skillsOf(uiEngine, card.id);
 							const main = artSkills[0];
-							return main ? (
-								<p className="text-xs" style={{ color: UI.textPrimary }}>
-									{renderSkillLabel(uiEngine, main.ref)}
-								</p>
-							) : null;
+							return (
+								<>
+									{main && <p className="text-xs" style={{ color: UI.textPrimary }}>
+										{renderSkillLabel(uiEngine, main.ref)}
+									</p>}
+									{(onUseArtifact || artifactUseReason) && (
+										<button type="button" onClick={onUseArtifact}
+											disabled={!onUseArtifact} title={artifactUseReason}
+											style={{ marginTop: 8, width: "100%", padding: "8px 0",
+												background: onUseArtifact ? "#3B6D11" : "#565656",
+												color: "#E8F5DE", border: "none", borderRadius: 6, fontSize: 12,
+												fontWeight: 600, cursor: onUseArtifact ? "pointer" : "not-allowed" }}>
+											{translate("game:components.groupArtifactPanel.use")}
+										</button>
+									)}
+									{artifactUseReason && <small role="status" style={{ display: "block", marginTop: 5 }}>
+										{artifactUseReason}
+									</small>}
+								</>
+							);
 						})()}
 
 					{card?.type === "boss" && (

@@ -85,6 +85,15 @@ export interface CombatState {
 		readonly setToValue?: number;
 		readonly deltaMax?: number;
 	};
+	/** Charge is committed only after a valid SELECT_DIE changes a roll. */
+	pendingDiceCommit?: {
+		readonly sourceKind: "hero" | "item" | "artifact" | "enemy" | "room" | "boss";
+		readonly sourceCardId: string;
+		readonly sourceHeroId?: string;
+		readonly sourceEnemyId?: string;
+		readonly grantId: string;
+		readonly preparedKey?: string;
+	};
 	// tohitPenaltyByHero migrado para ECS (patch-18 Lote G)
 	// → ModifierComponent target="hit_bonus" com valor negativo
 	readonly disabled: ActivationLocks;

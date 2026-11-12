@@ -1,12 +1,13 @@
 import { reducer } from "@/core/reducer";
 import type { Action } from "@/core/actions/types";
 import { moveInventoryItem } from "@/core/rules/inventoryMoves";
-import { itemIsExhausted } from "@/core/rules/itemEffects";
+import { itemActivationId, itemIsExhausted } from "@/core/rules/itemEffects";
+import { ActivationTracker } from "@/core/state/activation";
 import { createInitialGameState, type GameState } from "@/core/state/gameState";
 import { COMBAT_DEFAULT_HERO, COMBAT_FINISHING_SEED } from "./seeds";
 import type { GameEngine } from "@/core/gameEngine";
 
-import { deckOf, decksOf, withDecks } from "@/core/state/access";
+import { deckOf, decksOf, withDecks, withUnitStats, pendingTriggerInterruptOf } from "@/core/state/access";
 import { gameOf, withGame } from "../../engine/state";
 export const INVENTORY_ITEMS = {
 	dagger: "item_rusty_dagger",
@@ -42,10 +43,29 @@ export function prepareInventoryTraining(engine: GameEngine,
 	const enemy = gameOf(state).activeEnemies[0];
 	if (!hero || !enemy || gameOf(state).status !== "HERO_ACTION")
 		throw new Error("Encontro de treinamento indisponível");
+	// This checkpoint teaches inventory, not combat balance. Guarantee the
+	// seeded finishing blow without relying on individual hero damage tables.
+	state = withUnitStats(
+		withUnitStats(state, enemy.id, { currentLife: 1, maxLife: 1 }),
+		hero.id, { hitBonus: 100 },
+	);
 	for (const action of [
 		{ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: hero.id } },
 		{ type: "CHOOSE_TARGET", payload: { heroId: hero.id, enemyId: enemy.id } },
 		{ type: "ROLL_DICE" },
+	] satisfies Action[])
+		state = reducer(engine, state, action);
+	// New reactive powers may interrupt rolls. The inventory checkpoint skips
+	// optional combat reactions; ordinary gameplay still asks the player.
+	for (let i = 0; i < 12 && pendingTriggerInterruptOf(state); i++) {
+		const interrupt = pendingTriggerInterruptOf(state)!;
+		state = reducer(engine, state, {
+			type: "SKIP_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id },
+		});
+	}
+	if (pendingTriggerInterruptOf(state))
+		throw new Error("Interrupção de treinamento não resolvida");
+	for (const action of [
 		{ type: "RESOLVE_ATTACK" },
 		{ type: "CHECK_COMBAT_END" },
 	] satisfies Action[])
@@ -142,32 +162,24 @@ export function prepareExhaustedInventoryTraining(engine: GameEngine,
 	);
 	if (!armored) throw new Error("Não foi possível equipar a vestimenta");
 	state = armored;
+	// Enter the next combat with the equipment gained through inventory moves.
 	for (const action of [
 		{ type: "INV_DISCARD_MESA" },
 		{ type: "OPEN_PATHS" },
 		{ type: "RESOLVE_ROOM_EFFECT" },
 		{ type: "SPAWN_ENEMIES" },
 		{ type: "START_COMBAT" },
-		{ type: "USE_ITEM", payload: { heroId: hero.id, itemId: charmId } },
-		{ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: hero.id } },
-		{ type: "CHOOSE_TARGET", payload: { heroId: hero.id, enemyId: "" } },
-		{ type: "ROLL_DICE" },
-		{ type: "RESOLVE_ATTACK" },
-		{ type: "DIRECT_DAMAGE" },
-		{ type: "CHECK_COMBAT_END" },
-	] satisfies Action[]) {
-		const resolved =
-			action.type === "CHOOSE_TARGET"
-				? {
-						...action,
-						payload: {
-							heroId: hero.id,
-							enemyId: gameOf(state).activeEnemies[0]?.id ?? "",
-						},
-					}
-				: action;
-		state = reducer(engine, state, resolved);
-	}
+	] satisfies Action[]) state = reducer(engine, state, action);
+	if (gameOf(state).status !== "HERO_ACTION" || !gameOf(state).combat)
+		throw new Error("Nova sala de treinamento indisponível");
+	// This checkpoint demonstrates a charm already spent in the current
+	// combat. Mark only the item's combat lock; do not fabricate a damage
+	// exchange or consume the hero's action just to set up the tutorial.
+	state = ActivationTracker.disable(engine, state, {
+		kind: "item", id: itemActivationId(hero.id, charmId),
+		scope: "combat", sourceId: hero.id,
+		reason: "checkpoint: reação defensiva já utilizada",
+	});
 	if (
 		gameOf(state).status !== "HERO_ACTION" ||
 		!itemIsExhausted(state, hero.id, charmId) ||

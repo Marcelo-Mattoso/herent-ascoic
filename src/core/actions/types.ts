@@ -73,6 +73,7 @@ export type Action =
 			};
 	  }
 	| { type: "USE_POWER"; payload: { heroId: string } }
+	| { type: "USE_ARTIFACT"; payload: { artifactId: string; abilityId?: string; targetEnemyId?: string; targetHeroId?: string } }
 	| { type: "GRANT_REWARDS" }
 	| {
 			type: "CHOOSE_ITEM_DESTINATION";
@@ -146,6 +147,7 @@ export type Action =
 	| { type: "DECLARE_FLEE"; payload: { heroId: string } }
 	| { type: "RESTART_DUNGEON"; payload: { keepEquipment: boolean } }
 	// ── Seleção de dado (Patch 8 F8) ─────────────────────────────────────────────
+	| { type: "CANCEL_DICE_SELECTION" }
 	| {
 			type: "SELECT_DIE";
 			payload: { side: "hero" | "enemy"; index: number; value?: number };

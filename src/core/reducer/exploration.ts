@@ -32,6 +32,31 @@ import { awakeningOf, dealDecksInto, deckOf, decksOf, discardDeckTop, isStatComp
 import { gameOf, withGame } from "../../engine/state";
 const DUNGEON_ROOM_COPIES = 2;
 
+/** Duas salas de introdução fáceis e quatro salas sem elites nem minibosses. */
+const EASY_ROOM_COUNT = 2;
+const ELITE_UNLOCK_ROOM = 5;
+function isRoomAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
+	const card = cardById(engine, id);
+	if (!card || (card.type !== "room" && card.type !== "subboss_room")) return false;
+	// Salas que invocam miniboss e salas especiais ficam reservadas para a quinta sala.
+	if (roomNumber < ELITE_UNLOCK_ROOM &&
+		(card.type === "subboss_room" || card.specialCreatureId || (card.xp ?? 0) >= 3)) return false;
+	// As duas primeiras salas são leves inclusive no modo solo.
+	if (roomNumber <= EASY_ROOM_COUNT)
+		return card.type === "room" && card.enemiesByPlayers[0] <= 1 &&
+			(card.xp ?? 0) <= 1;
+	return true;
+}
+
+function isCreatureAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
+	const card = cardById(engine, id);
+	if (!card || card.type !== "creature") return false;
+	// Apenas criaturas de entrada nas salas 1 e 2.
+	if (roomNumber <= EASY_ROOM_COUNT) return (card.xp ?? 0) <= 1;
+	// Criaturas difíceis só começam a aparecer a partir da quinta sala.
+	return roomNumber >= ELITE_UNLOCK_ROOM || (card.xp ?? 0) < 3;
+}
+
 export function buildDungeonRoomDeck(engine: GameEngine, expansionId?: string): string[] {
 	return cardsOfType(engine, "room")
 		.filter((card) => !expansionId || expansionOf(engine, card.id) === expansionId)
@@ -62,8 +87,13 @@ function drawRandomDungeonRoom(engine: GameEngine,
 	}
 
 	const shuffledState = shuffleDeck(state, "dungeonDeck");
-	const [roomId, ...remaining] = deckOf(shuffledState, "dungeonDeck").available;
-	const card = cardById(engine, roomId as string);
+	const shuffled = deckOf(shuffledState, "dungeonDeck").available;
+	const roomNumber = gameOf(state).roomsCleared + 1;
+	const chosenIndex = shuffled.findIndex((id) => isRoomAvailableAtDepth(engine, id, roomNumber));
+	if (chosenIndex < 0) return handleDungeonDeckEmpty(engine, shuffledState);
+	const roomId = shuffled[chosenIndex]!;
+	const remaining = [...shuffled.slice(0, chosenIndex), ...shuffled.slice(chosenIndex + 1)];
+	const card = cardById(engine, roomId);
 	if (!card || (card.type !== "room" && card.type !== "subboss_room"))
 		return state;
 
@@ -267,15 +297,40 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 		);
 	}
 
-	const { available, discarded } = deckOf(state, "enemyDeck");
+	const { available, discarded, removed } = deckOf(state, "enemyDeck");
 	const drawn: string[] = [];
-	const remaining = [...available];
-
-	for (let i = 0; i < regularCount && remaining.length > 0; i++) {
-		drawn.push(remaining.shift() as string);
-	}
-
+	let remaining = [...available];
 	let rng = gameOf(state).rng;
+	let reshuffleCount = 0;
+
+	// O baralho de criaturas não recebe descartes ao final dos combates: as
+	// instâncias compradas saem do deck. Quando acabar, reconstruímos o monte
+	// com todas as criaturas elegíveis da expansão do chefe da partida.
+	// Respeitamos o monte ainda disponível antes de iniciar um novo ciclo.
+	const roomNumber = gameOf(state).roomsCleared + 1;
+	for (let i = 0; i < regularCount; i++) {
+		let eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
+		if (eligibleIndex < 0) {
+			// Se apenas elites restarem, recria um ciclo das criaturas permitidas
+			// nesta profundidade, sem antecipar nem descartar as cartas bloqueadas.
+			const expansionId = expansionOf(engine, gameOf(state).bossCardId);
+			const removedIds = new Set(removed);
+			const creatureIds = cardsOfType(engine, "creature")
+				.filter((card) => expansionOf(engine, card.id) === expansionId &&
+					!removedIds.has(card.id) &&
+					isCreatureAvailableAtDepth(engine, card.id, roomNumber))
+				.map((card) => card.id);
+			if (creatureIds.length === 0) break;
+			const shuffled = shuffleRng(creatureIds, rng);
+			remaining = [...remaining, ...shuffled.value];
+			rng = shuffled.next;
+			reshuffleCount++;
+			eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
+		}
+		if (eligibleIndex < 0) break;
+		const [id] = remaining.splice(eligibleIndex, 1);
+		if (id) drawn.push(id);
+	}
 	const enemies: ReturnType<typeof createEnemyFromCard>["enemy"][] = [];
 	for (const id of drawn) {
 		const card = cardById(engine, id);
@@ -297,8 +352,11 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 		rng = next;
 	}
 	state = withGame(state, (prevGame) => ({ ...prevGame, rng }));
+	if (reshuffleCount > 0) {
+		state = log(state, "Criaturas disponíveis nesta etapa reembaralhadas.");
+	}
 
-	// Baralho de criaturas esgotado: sem isso o combate abriria sem alvo e travaria.
+	// Se a expansão não tiver criaturas elegíveis, não abrir combate sem alvos.
 	if (enemies.length === 0) {
 		return log(
 			withGame(state, (prevGame) => ({ ...prevGame, status: "REWARD_PHASE" })),
@@ -332,8 +390,8 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 			...decksOf(state),
 			enemyDeck: {
 				available: remaining,
-				discarded,
-				removed: deckOf(state, "enemyDeck").removed,
+				discarded: reshuffleCount > 0 ? [] : discarded,
+				removed,
 			},
 		})), worldWithEnemies);
 	for (const enemy of enemies) {
@@ -459,8 +517,11 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 	let rng = gameOf(state).rng;
 	const shuffledAvailable = deckOf(state, "dungeonDeck").available;
 
-	const drawn = shuffledAvailable.slice(0, exits);
-	const afterDraw = shuffledAvailable.slice(exits);
+	const roomNumber = gameOf(state).roomsCleared + 1;
+	const eligible = shuffledAvailable.filter((id) => isRoomAvailableAtDepth(engine, id, roomNumber));
+	const locked = shuffledAvailable.filter((id) => !isRoomAvailableAtDepth(engine, id, roomNumber));
+	const drawn = eligible.slice(0, exits);
+	const afterDraw = [...eligible.slice(exits), ...locked];
 	if (drawn.length === 0) return handleDungeonDeckEmpty(engine, state);
 
 	const { value: shuffledDrawn, next: afterChoice } = shuffleRng(drawn, rng);

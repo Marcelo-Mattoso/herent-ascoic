@@ -22,6 +22,8 @@ import type { EnemyState } from "../state/enemyState";
 import type { GameState } from "../state/gameState";
 import type { HeroState } from "../state/heroState";
 import { applyDamage } from "../systems/damageSystem";
+import { resolvePoisonRound } from "../rules/poison";
+import { resolveDamageOverTimeRound, clearDamageOverTime } from "../rules/damageOverTime";
 import { recordEvent } from "../events/record";
 import { log } from "./utils";
 import { cardById, cardName, skillsOf } from "../gameEngine";
@@ -162,7 +164,7 @@ export function handleRevealBoss(engine: GameEngine, state: GameState): GameStat
 // mas RESOLVE_ATTACK chama handleBossResolveAttack que aplica habilidades especiais.
 
 export function handleBossResolveAttack(engine: GameEngine, state: GameState): GameState {
-	if (!gameOf(state).combat?.lastRoll) return state;
+	if (!gameOf(state).combat?.lastRoll || gameOf(state).combat?.pendingDiceSelection) return state;
 	const roll = gameOf(state).combat!.lastRoll;
 
 	const hero = heroesOf(state).find((h) => h.id === roll!.heroId);
@@ -258,14 +260,14 @@ function checkBossEnd(engine: GameEngine, state: GameState): GameState {
 						.sort((a, b) => b.xp - a.xp)[0]?.cardId
 				: undefined;
 		return log(
-			withGame(state, (prevGame) => ({ ...prevGame, status: "VICTORY", bossDefeated: true, winner })),
+			withGame(clearDamageOverTime(state), (prevGame) => ({ ...prevGame, status: "VICTORY", bossDefeated: true, winner })),
 			"Boss derrotado! Vitória!",
 		);
 	}
 
 	if (heroDefeated) {
 		return log(
-			withGame(state, (prevGame) => ({ ...prevGame, status: "DEFEAT" })),
+			withGame(clearDamageOverTime(state), (prevGame) => ({ ...prevGame, status: "DEFEAT" })),
 			"Derrota: herói eliminado pelo boss.",
 		);
 	}
@@ -278,6 +280,12 @@ function checkBossEnd(engine: GameEngine, state: GameState): GameState {
 	if (pendingTriggerInterruptOf(afterRoundEnd) || pendingSkillChoiceOf(afterRoundEnd) ||
 		pendingSkillTargetOf(afterRoundEnd)) return afterRoundEnd;
 	afterRoundEnd = drainStack(engine, afterRoundEnd);
+	afterRoundEnd = resolvePoisonRound(engine, afterRoundEnd);
+	afterRoundEnd = resolveDamageOverTimeRound(engine, afterRoundEnd);
+	if (heroesOf(afterRoundEnd).every((hero) => hero.status !== "active") ||
+		enemiesOf(afterRoundEnd).every((enemy) => enemy.status !== "active")) {
+		return checkBossEnd(engine, afterRoundEnd);
+	}
 
 	// Próxima rodada de boss
 	const nextCombat = gameOf(afterRoundEnd).combat
@@ -394,13 +402,23 @@ function handleBossRoll(engine: GameEngine, state: GameState): GameState {
 	const bossResult = buildBossRoll(engine, state);
 	if (!bossResult) return state;
 	const { roll, nextState } = bossResult;
-	return withGame(nextState, (prevGame) => ({
+	const rolled = withGame(nextState, (prevGame) => ({
 		...prevGame,
-		status: "RESOLVE_ATTACK",
+		status: "RESOLVE_ATTACK" as const,
 		combat: gameOf(nextState).combat
 			? { ...gameOf(nextState).combat!, lastRoll: roll }
 			: null,
 	}));
+	return resolveSkillWindow(engine, rolled, {
+		event: "evt_roll",
+		ctx: {
+			triggeredBy: "evt_roll", sourceHeroId: roll.heroId,
+			sourceEnemyId: roll.enemyId,
+			targetHeroIds: [roll.heroId], targetEnemyIds: [roll.enemyId],
+			value: roll.heroTotal - roll.enemyTotal,
+			round: gameOf(rolled).combat?.round ?? 0,
+		},
+	});
 }
 
 export const bossHandler: GameHandler = {

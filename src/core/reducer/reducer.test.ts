@@ -26,8 +26,10 @@ function rollDiceWithApprovals(state: GameState): GameState {
 	while (interrupt && guard < 10) {
 		const interruptedStatus = gameOf(next).status;
 		const interruptId = interrupt.id;
+		// Boss outcome tests exercise the attack, not optional post-roll
+		// rune decisions (which have their own dedicated dice-reaction tests).
 		next = reducer(testEngine, next, {
-			type: "APPLY_TRIGGER_INTERRUPT",
+			type: interrupt.event === "evt_roll" ? "SKIP_TRIGGER_INTERRUPT" : "APPLY_TRIGGER_INTERRUPT",
 			payload: { interruptId },
 		});
 		if (interruptedStatus === "ROLL_DICE" && gameOf(next).status === "ROLL_DICE") {
@@ -201,7 +203,7 @@ describe("START_GAME", () => {
 		expect(gameOf(s).eventLog.at(-1)).toBe("[ERRO] Selecione no máximo 4 heróis.");
 	});
 
-	it("inicia Guerreiro do Bastião Partido com bônus de acerto base 5 no normal", () => {
+	it("inicia Guerreiro do Bastião Partido com bônus de acerto base 7 no normal", () => {
 		const warrior = "hero_broken_bastion_warrior";
 		const base = createInitialGameState({ heroCardIds: [warrior] });
 		const s = reducer(testEngine, base, {
@@ -209,7 +211,7 @@ describe("START_GAME", () => {
 			payload: { heroCardIds: [warrior], difficulty: "normal" },
 		});
 		expect(heroesOf(s)[0]?.cardId).toBe(warrior);
-		expect(heroesOf(s)[0]?.hitBonus).toBe(5);
+		expect(heroesOf(s)[0]?.hitBonus).toBe(7);
 	});
 
 	it("define o boss corretamente", () => {

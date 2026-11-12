@@ -91,3 +91,41 @@ test("imagem e controles cabem no celular e a rota do asset responde", async ({ 
 		await expect(page.getByRole("button", { name: "Pular abertura" })).toBeInViewport();
 	}
 });
+
+
+test("apresenta a historia exclusiva da Bruxa antes de iniciar o jogo", async ({ page }) => {
+	await page.goto("/");
+	await page.getByRole("button", { name: "JOGAR" }).click();
+	await page.locator("[data-boss-id='boss_great_cauldron_witch']").first().click();
+	await page.locator(".setup-hero-select-button[data-card-id='hero_white_ashes_sister']").click();
+	await page.getByRole("button", { name: "Iniciar partida" }).click();
+	await expect(page.locator(".story-opening")).toHaveAttribute("data-scene-id", "scene-01");
+	await expect(page.getByRole("heading", { name: "A Torre da Grande Bruxa do Caldeirão" })).toBeVisible();
+	await expect(page.getByText("Eu registrei a floresta antes do silêncio.", { exact: false })).toBeVisible();
+	await expect(page.locator(".story-opening__audio")).toBeVisible();
+	await expect(page.locator(".story-opening__audio input[type='range']")).toHaveValue("50");
+	await expect(page.locator(".story-opening__audio button")).toBeVisible();
+	const volumeControl = page.locator(".story-opening__audio input[type='range']");
+	await volumeControl.focus();
+	await volumeControl.press("ArrowLeft");
+	await expect(volumeControl).toHaveValue("49");
+	const audioLabel = page.locator(".story-opening__audio");
+	await expect(audioLabel).toContainText("O Sussurro da Lua Verde");
+	await expect(page.locator(".story-opening__image")).toBeVisible();
+	const source = await page.locator(".story-opening__image").getAttribute("src");
+	expect(source).toContain("/generated/openings/assets/torre-grande-bruxa-caldeirao/abertura/images/scene-01.webp");
+	const response = await page.request.get(source!);
+	expect(response.ok()).toBe(true);
+	expect((await response.body()).toString("ascii", 8, 12)).toBe("WEBP");
+	for (let index = 2; index <= 12; index++) {
+		await page.getByRole("button", { name: "Próximo" }).click();
+		await expect(page.locator(".story-opening")).toHaveAttribute("data-scene-id", `scene-${String(index).padStart(2, "0")}`);
+	}
+	await expect(page.getByText("a Grande Bruxa os aguardava", { exact: false })).toBeVisible();
+	await page.getByRole("button", { name: "Iniciar aventura" }).click();
+	await expect(page.locator(".game-board-root")).toBeVisible();
+	const state = await gameState(page);
+	expect(state.bossCardId).toBe("boss_great_cauldron_witch");
+	expect(state.heroes).toEqual(["hero_white_ashes_sister"]);
+	expect(state.starts).toHaveLength(1);
+});

@@ -1,4 +1,3 @@
-import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
 import { emit } from "../events/bus";
 import type { AbilityGrant } from "../data/abilityTypes";
@@ -46,6 +45,8 @@ export interface AbilityGrantExecution {
 	readonly grant: AbilityGrant;
 	readonly triggeredBy: string;
 	readonly consumeFromPendingReward?: boolean;
+	/** Dice reactions consume their charge only after SELECT_DIE applies a valid result. */
+	readonly deferUsage?: boolean;
 	readonly targetIds?: readonly string[];
 	readonly value?: number | string | null;
 	readonly context?: SkillContext;
@@ -211,7 +212,7 @@ function consumeSource(
 		});
 }
 
-function markGrantUsed(engine: GameEngine,
+export function markGrantUsed(engine: GameEngine,
 	state: GameState,
 	source: AbilityGrantSource,
 	grant: AbilityGrant,
@@ -324,7 +325,7 @@ export function executeAbilityGrant(engine: GameEngine,
 				} }));
 		}
 	}
-	next = markGrantUsed(engine, next, source, grant);
+	if (!request.deferUsage) next = markGrantUsed(engine, next, source, grant);
 	if (grant.activation.actionCost === "consume_hero_action" && source.sourceHeroId) {
 		next = ActivationTracker.endHeroTurn(next, source.sourceHeroId);
 	}
@@ -338,7 +339,12 @@ export function resolveManualGrantTarget(engine: GameEngine,
 	grant: AbilityGrant,
 	targetIds?: readonly string[],
 ) {
-	const sourceId = source.sourceHeroId ?? source.sourceEnemyId;
+	// Group artifacts may have no bearer. Use an active hero only to resolve
+	// targeting: do not turn the artifact into a hero-owned cooldown or cost.
+	const sourceId = source.sourceHeroId ?? source.sourceEnemyId ??
+		(source.kind === "artifact"
+			? gameOf(state).heroes.find((hero) => hero.status === "active")?.id
+			: undefined);
 	if (!sourceId)
 		return { kind: "unavailable" as const, reason: "Fonte sem entidade." };
 	return resolveManualSkillTarget(engine, state, targeting(engine, grant), sourceId, targetIds);
@@ -442,7 +448,11 @@ export function eventGrantMatchesContext(
 		event === "evt_destroy" ||
 		event === "evt_kill"
 	) {
-		if (event === "evt_roll" && candidate.grant.abilityId === HERO_ABILITY_IDS.power_supreme_rift_rune) {
+		// Roll powers targeting any participant may react to an allied roll.
+		// Self-only dice skills (e.g. Lunar Spark) remain restricted to the roller.
+		if (event === "evt_roll" &&
+			candidate.grant.activation.targeting?.targetType === "tgt_target" &&
+			candidate.grant.activation.targeting?.affectObject === "obj_all") {
 			return Boolean(ctx.targetHeroIds?.length);
 		}
 		return heroId === ctx.sourceHeroId;

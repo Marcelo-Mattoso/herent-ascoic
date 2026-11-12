@@ -12,6 +12,7 @@ export function isEligibleDie(
 	return (
 		Number.isInteger(index) &&
 		value !== undefined &&
+		(selection.deltaMax !== undefined || selection.action !== "set_to" || value !== (selection.setToValue ?? 6)) &&
 		(selection.side === "any" || selection.side === side) &&
 		(selection.filter?.value === undefined ||
 			selection.filter.value === value) &&
@@ -25,8 +26,8 @@ export function dieReplacementValues(
 	current: number,
 ): number[] {
 	return [1, 2, 3, 4, 5, 6].filter((value) =>
-		selection.deltaMax !== undefined
+		value !== current && (selection.deltaMax !== undefined
 			? Math.abs(value - current) <= Math.abs(selection.deltaMax)
-			: selection.action === "set_to" && value === (selection.setToValue ?? 6),
+			: selection.action === "set_to" && value === (selection.setToValue ?? 6)),
 	);
 }

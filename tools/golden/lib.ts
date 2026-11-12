@@ -1,6 +1,7 @@
 import { createHash } from "node:crypto";
 import type { Action } from "@/core/actions/types";
 import { playerView } from "@/core/projection/playerView";
+import { legalActions } from "@/core/legalActions";
 import { reducer } from "@/core/reducer/index";
 import { createAscensaoEngine } from "@/core/composition";
 import { balanceOf } from "@/core/gameEngine";
@@ -45,13 +46,19 @@ export function stableStringify(value: unknown): string {
 	});
 }
 
+/**
+ * Golden files deliberately cover the original public game state.
+ * The artifactActions UI command projection is tested independently and must
+ * not invalidate deterministic gameplay snapshots from before the new controls.
+ */
 export function stableView(state: GameState): unknown {
-	return JSON.parse(stableStringify(playerView(engine, state)));
+	const { artifactActions: _uiActions, ...gameplayView } = playerView(engine, state);
+	return JSON.parse(stableStringify(gameplayView));
 }
 
 export function hashView(state: GameState): string {
 	return createHash("sha256")
-		.update(stableStringify(playerView(engine, state)))
+		.update(stableStringify(stableView(state)))
 		.digest("hex")
 		.slice(0, 16);
 }
@@ -81,6 +88,10 @@ export function applyAction(state: GameState, action: Action): GameState {
 }
 
 export function candidates(state: GameState): Action[] {
+	// Dice-reaction actions are produced by the authoritative combat handler;
+	// the legacy heuristic predates SELECT_DIE/CANCEL_DICE_SELECTION.
+	if (gameOf(state).combat?.pendingDiceSelection)
+		return legalActions(engine, state).filter((action) => action.type !== "USE_ARTIFACT");
 	const heroes = gameOf(state).heroes.filter((h) => h.status === "active");
 	const heroIds = (heroes.length > 0 ? heroes : gameOf(state).heroes).map((h) => h.id);
 	const enemies = gameOf(state).activeEnemies.filter((e) => e.status === "active");

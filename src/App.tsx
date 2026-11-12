@@ -291,6 +291,7 @@ function App() {
 		}
 		pendingStart.current = action;
 		if (selectedOpening.musicFileName) getMusicPlayer().enterOpening(selectedOpening.musicFileName);
+		else getMusicPlayer().enterSilentOpening();
 		setOpening(selectedOpening);
 		setUiScreen("opening");
 	}
@@ -300,6 +301,7 @@ function App() {
 		if (!action) return;
 		pendingStart.current = null;
 		if (opening?.musicFileName) getMusicPlayer().leaveOpening(opening.musicFileName);
+		else getMusicPlayer().leaveSilentOpening();
 		setOpening(null);
 		setUiScreen("menu");
 		dispatch(action);

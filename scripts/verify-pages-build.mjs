@@ -30,9 +30,18 @@ for (const kind of ["boards", "backcards", "cards", "ui"]) {
 	assert.ok(Array.isArray(entries) && entries.length > 0, `Manifesto vazio: ${kind}`);
 	for (const entry of entries) {
 		assert.ok(entry.url.startsWith(`/generated/${kind}/assets/`), `URL inválida: ${entry.url}`);
-		assert.ok(entry.fileName.endsWith(".webp"), `Not WebP: ${entry.fileName}`);
 		const bytes = fs.readFileSync(file(decodeURIComponent(entry.url.slice(1))));
-		assert.ok(bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP", `Invalid WebP: ${entry.fileName}`);
+		if (kind === "cards" && entry.fileName.endsWith(".png")) {
+			// Expansion cards explicitly support PNG sources. Validate the actual
+			// file signature rather than weakening the WebP-only contract elsewhere.
+			assert.ok(
+				bytes.subarray(0, 8).equals(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10])),
+				`Invalid PNG: ${entry.fileName}`,
+			);
+		} else {
+			assert.ok(entry.fileName.endsWith(".webp"), `Not WebP: ${entry.fileName}`);
+			assert.ok(bytes.toString("ascii", 0, 4) === "RIFF" && bytes.toString("ascii", 8, 12) === "WEBP", `Invalid WebP: ${entry.fileName}`);
+		}
 	}
 }
 

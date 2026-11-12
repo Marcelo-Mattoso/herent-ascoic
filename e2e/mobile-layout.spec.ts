@@ -42,7 +42,7 @@ test("menu, preparação e tabuleiro permanecem acessíveis em retrato e paisage
 					heroCardIds: ["hero_crimson_barbarian"],
 					mode: "cooperative",
 					difficulty: "normal",
-					seed: 42,
+					seed: 2,
 				},
 			});
 		});
@@ -151,7 +151,7 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 					heroCardIds: ["hero_crimson_barbarian"],
 					mode: "cooperative",
 					difficulty: "normal",
-					seed: 42,
+					seed: 2,
 				},
 			});
 		});
@@ -369,7 +369,7 @@ test("inventário e telas finais mantêm ações alcançáveis em telas pequenas
 						heroCardIds: ["hero_crimson_barbarian"],
 						mode: "cooperative",
 						difficulty: "normal",
-						seed: 42,
+						seed: 2,
 					},
 				});
 			});

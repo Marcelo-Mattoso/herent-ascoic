@@ -5729,3 +5729,23 @@ body:has(.tutorial-layer) .support-action { display: none; }
 		pointer-events: none;
 	}
 }
+
+/* Seleção de chefe na partida avulsa, com elenco compartilhado de heróis. */
+.setup-focus-card { display: flex; flex-direction: column; align-items: stretch; gap: 8px; }
+.setup-dungeon-master { flex: 1 1 auto; width: 100%; }
+.setup-boss-picker { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 6px; width: 100%; }
+.setup-boss-picker__option { min-width: 0; padding: 9px 6px; border: 1px solid rgba(227, 172, 55, 0.35); border-radius: 7px; background: rgba(7, 21, 38, 0.92); color: #efd18a; font-size: 0.7rem; font-weight: 700; line-height: 1.2; cursor: pointer; }
+.setup-boss-picker__option.is-selected, .setup-boss-picker__option[aria-pressed="true"] { border-color: #ffda79; background: rgba(111, 78, 22, 0.7); color: #fff; }
+.setup-boss-picker__option:focus-visible { outline: 2px solid #ffda79; outline-offset: 2px; }
+.setup-boss-picker__hint { margin: 0; color: #e3c788; font-size: 0.65rem; line-height: 1.25; }
+.setup-boss-picker--mobile { display: none; margin-bottom: 10px; }
+.setup-hero-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); overflow-y: auto; }
+@media (max-width: 900px) { .setup-boss-picker--mobile { display: block; } .setup-hero-grid { grid-template-columns: repeat(3, minmax(0, 1fr)); } }
+@media (orientation: landscape) and (max-height: 500px) { .setup-hero-grid { grid-template-columns: repeat(4, minmax(0, 1fr)); grid-template-rows: repeat(3, minmax(58px, 1fr)); overflow-y: auto; } }
+@media (max-width: 440px) { .setup-hero-grid { grid-template-columns: 1fr; } }
+
+/* Em telas compactas o chefe fica selecionável acima dos heróis; a ficha grande fica oculta. */
+@media (max-width: 900px), (orientation: landscape) and (max-height: 500px) {
+	.setup-focus-card { display: none; }
+	.setup-boss-picker--mobile { display: block; }
+}

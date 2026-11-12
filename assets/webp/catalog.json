@@ -672,6 +672,342 @@
       },
       "sha256": "067c1b0cdaf2710692e87ad01e92fda54f58f20def2426be3ab06cbdc5ea8f6a"
     },
+    "cards/expansions/torre-grande-bruxa-caldeirao/artifacts/colher_do_caldeirao_antigo.webp": {
+      "bytes": 348316,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "c699253a16ae1da899ef0e0adb59135eb318b650b0d860b0c3422556c55fe62f"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/artifacts/grimorio_da_torre_torta.webp": {
+      "bytes": 397012,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "1b3be62cbb07673349d5a86ddead7540a91072c2783457f6ed6243fe3171eb37"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/artifacts/olho_verde_da_floresta.webp": {
+      "bytes": 422834,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "4ea161e2efd949e2a593358d2f215a7af09f08cdbd4d7693b87e469e8b3513d6"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/boss/grande_bruxa_do_caldeirao.webp": {
+      "bytes": 627810,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "78184b2a80e54e2f68460ea29d5b299fc3744053ae550741e887d25c3063c198"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/aranha_do_galho_seco.webp": {
+      "bytes": 575224,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "d7a5db031e71ffe12f954119f22a664ec15c1d9620041dab2032eddd60e26fdc"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/cacador_do_brejo_escuro.webp": {
+      "bytes": 541580,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "5aca1fa62fb8f5517cff33472daf91b33c8755e7ce913f45050e5fc4178f7ee1"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/cogumelo_andante_do_lodo.webp": {
+      "bytes": 477528,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "8abce6dbe54b6cdbdaa98d4a79a33ece464ba3bf68e2b13fc8c5a3594c7e8868"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/corca_sombria_da_bruxa.webp": {
+      "bytes": 512484,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "b9225a0edde6744dc8443e9898537cb5393055d30523f6edb77a3f045d878193"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/corvo_da_nevoa_verde.webp": {
+      "bytes": 414098,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "f2c9e2fdc3ca3392e36aa14272f4f1000edefaf562a161f6577f060b4aa0883b"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/crianca_perdida_da_mata.webp": {
+      "bytes": 471198,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "5ed6cab0855f7368e5c09333b3ed0542d9f4da19801182cb43e546acbb178997"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/espantalho_de_ossos_e_palha.webp": {
+      "bytes": 570780,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "8d540cb2fb330e4bb7a36812121f9ad8c268f6d3ec8dfddb30b79f65c9b22ba7"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/espirito_da_arvore_oca.webp": {
+      "bytes": 615760,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "2c81f6815cabe73a2c1b28596ef27e02a0b1ee291e486b2c9e477a3c80029513"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/gnoll_envenenador.webp": {
+      "bytes": 536092,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "63bcda632bf5fc178fae11bd40e72296d5fe958d57c56c61157a7a243d997ca9"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/goblin_da_moita_venenosa.webp": {
+      "bytes": 511088,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "173452446869b2600c233cca046ebb70dedd2e332527771e7c9f90944c3ff54f"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/lobo_da_mata_tortuosa.webp": {
+      "bytes": 556336,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "96f081595ecabc6145528e1a33837d31c4b392fecfb99ae406e71c1f43b29fdf"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/creatures/raiz_vivente_da_floresta_velha.webp": {
+      "bytes": 592084,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "76430184760d849b8accd111ebb92f22daeaaaedaef7ab429c6d95c903f49b2f"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/heroes/feiticeira_da_lua_verde.webp": {
+      "bytes": 545416,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "189e10ba6b5afbfd908c4dd2178a571f224ce1543c7bcb2a6ef9093d2c2ee1bf"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/heroes/guardiao_do_carvalho.webp": {
+      "bytes": 542536,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "6557336b4fe3d13c24c18d725dff12958ae154193fc9b335ac266249a97c3d8c"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/heroes/irma_das_cinzas_brancas.webp": {
+      "bytes": 532654,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "6c44d31af6d489ddf4130a59cd4334e7b4f4d8d49b944f10b7191e02cb634287"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/heroes/rastejador_do_pantano.webp": {
+      "bytes": 555124,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "e58606b8ac5974985a12ca82681cd2c91d0539e1d7dfe4ba57d2249719918025"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/amuleto_de_galho_trancado.webp": {
+      "bytes": 264110,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "fb2788b8b8d84f0608af651296d5692ab9fb67be321c2c6d53d3cd8180a21a9e"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/ervas_da_lua_velha.webp": {
+      "bytes": 391558,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "e3fb99035e3a86716b01bab0925a453c4ec0c951f1bf9409493f3dd1da2ee17b"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/frasco_de_nevoa_engarrafada.webp": {
+      "bytes": 295906,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "5b397b37cf17ecba090e79e5851d62ca35b84cc5eb1e6dfd1d4711c8e4340556"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/lanterna_de_vidro_verde.webp": {
+      "bytes": 343446,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "37163794027d9000ca310ce1708c7dc7fcb57753eea721c1318d1ef0e490c57e"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/livro_de_simbolos_riscados.webp": {
+      "bytes": 467738,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "3da6a20c2260422f80490c3142fd47e7b669b13d7e13517c1146ef58a11c083b"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/manto_de_musgo_seco.webp": {
+      "bytes": 429694,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "549981f7cf339c4b6254c5f316d5ea97d05c1627d1b4c6738b4dc7e79ca7e0b6"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/pao_negro_da_bruxa.webp": {
+      "bytes": 389006,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "ce98a553ceacff915bd862418b2367f9a34ad8583e6a6644048e3921d2c01c94"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/pocao_antiveneno_fraca.webp": {
+      "bytes": 269936,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "5bc49a5a6d210fc5062d22d49233e1f6890f0c3a71a8b6f6f2271df20b3bcce5"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/punhal_de_osso_polido.webp": {
+      "bytes": 182828,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "54f1a031a151f6aa05babc2de7cede8f2f062e9e095dbab17378d9d119c76e82"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/items/sino_de_prata_pequeno.webp": {
+      "bytes": 292962,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "adef6d6881b64a2611d57d6dd3a41ef29124d07ef67b1228bec3e2aa0b399fb6"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/biblioteca_de_pele_e_poeira.webp": {
+      "bytes": 502318,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "d2f15095766f27a8266d24a5e4d95685590d5cdc0ee507f0c69887e0f7281ac5"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/camara_das_velas_verdes.webp": {
+      "bytes": 493632,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "8374312ff16de2540be1f1363311e5f2b11a3489a6a22290685147532c620151"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/corredor_das_raizes_secas.webp": {
+      "bytes": 554806,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "859d0e317b908ff44d8ed65581c8145a166037f2b6d4c2d5af949038f2227858"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/cozinha_envenenada.webp": {
+      "bytes": 502908,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "093b0407496b7e583f1205e3d910d7c756ac97fc58bcc4f72f51f7159f28be18"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/escada_da_torre_torta.webp": {
+      "bytes": 478506,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "440ca56368937dc73ff52b3082ae11c20db3c326bad2b7d42184031f6677b484"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/jardim_interno_apodrecido.webp": {
+      "bytes": 597086,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "7795e3045c30a9f22faffa4ed80034df8d1b6dabf0ce9527bbb2217be9f4c3a3"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/ninho_da_aranha_mae.webp": {
+      "bytes": 549644,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "5365d1126e7b056bb1876e1325283fceaac79571b3827e53cbee646d4247a4b9"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/quarto_das_criancas_perdidas.webp": {
+      "bytes": 506932,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "c8b3584501305e243bc6a51cf26707be88a9c4177fbe5a9895bc58318b94cbad"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/sala_do_caldeirao_negro.webp": {
+      "bytes": 480512,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "86e57bf88fa689c2adbe8756379f035a3f7f43705ad3b4a8461f045c6d6db1c9"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/rooms/sala_dos_frascos_velhos.webp": {
+      "bytes": 545598,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "29d8997ac2bf79b48d65e09a41457f5546a6eb483cbcc226d2a92d9ef4ce3b4a"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/subbosses/aranha_mae.webp": {
+      "bytes": 491274,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "3db783ef906a071e8ee0d3942ae78497f11b2da06c55eca33aa91f924972923c"
+    },
+    "cards/expansions/torre-grande-bruxa-caldeirao/subbosses/serva_do_caldeirao_negro.webp": {
+      "bytes": 458770,
+      "options": {
+        "method": 4,
+        "quality": 86
+      },
+      "sha256": "b1a16723824eedd92fcf178fc6f76174746bd2adee7b4c195624f4c543ed90b5"
+    },
     "ui/background-card.webp": {
       "bytes": 1985176,
       "options": {

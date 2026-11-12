@@ -18,7 +18,7 @@ import {
 	startTutorial,
 } from "./session";
 import { testEngine } from "@/core/__tests__/testEngine";
-import { enemiesOf, heroesOf } from "../../core/state/access";
+import { enemiesOf, heroesOf, withUnitStats, pendingTriggerInterruptOf } from "../../core/state/access";
 import { gameOf } from "../../engine/state";
 
 const HERO = COMBAT_DEFAULT_HERO;
@@ -33,15 +33,36 @@ const HEROES = [
 	"hero_broken_veil_hunter",
 ] as const;
 
-function encounter(actions: readonly Action[], heroCardId = HERO) {
+function encounter(actions: readonly Action[], heroCardId = HERO, finishingBlow = false) {
 	let state = createInitialGameState({ heroCardIds: [heroCardId] });
 	const journal = createGameJournal(testEngine, state);
-	const dispatch = (action: Action) => {
+	const record = (action: Action) => {
 		const before = state;
 		state = reducer(testEngine, state, action);
 		journal.record(action, before, state);
 	};
+	const dispatch = (action: Action) => {
+		// Scripted checkpoints do not teach optional dice reactions. Resolve
+		// those prompts before attempting to conclude the scripted attack.
+		if (action.type === "RESOLVE_ATTACK") {
+			for (let i = 0; i < 12 && pendingTriggerInterruptOf(state); i++) {
+				const interrupt = pendingTriggerInterruptOf(state)!;
+				record({ type: "SKIP_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id } });
+			}
+		}
+		record(action);
+	};
 	for (const action of actions) dispatch(action);
+	if (finishingBlow) {
+		const hero = heroesOf(state)[0];
+		const enemy = enemiesOf(state)[0];
+		if (!hero || !enemy) throw new Error("Confronto final sem participantes");
+		// Tutorial checks the final blow, not damage-balance of a random creature.
+		state = withUnitStats(
+			withUnitStats(state, enemy.id, { currentLife: 1, maxLife: 1 }),
+			hero.id, { hitBonus: 100 },
+		);
+	}
 	return {
 		get state() {
 			return state;
@@ -70,7 +91,7 @@ describe("Arquivo II — encontro e progressão pelo motor", () => {
 				playerView(testEngine, opening.state).pendingSkillChoice,
 				heroCardId,
 			).toBeNull();
-			const finish = encounter(prepareCombatCheckpoint(heroCardId), heroCardId);
+			const finish = encounter(prepareCombatCheckpoint(heroCardId), heroCardId, true);
 			const heroId = heroesOf(finish.state)[0].id;
 			const enemyId = enemiesOf(finish.state)[0].id;
 			finish.dispatch({ type: "CHOOSE_TARGET", payload: { heroId, enemyId } });

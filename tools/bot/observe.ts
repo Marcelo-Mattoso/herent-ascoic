@@ -9,7 +9,7 @@ import {
 import { type PlayerView, playerView } from "@/core/projection/playerView";
 import type { GameState } from "@/core/state/gameState";
 import { gameOf } from "@/engine/state";
-import { dieReplacementValues, isEligibleDie } from "@/core/rules/diceSelection";
+import { hasDiceChangeEffect } from "@/core/rules/diceReactions";
 
 /** O que um jogador pode saber: a tela e as jogadas disponíveis, nunca o estado cru. */
 export interface BotObservation {
@@ -21,28 +21,16 @@ export interface BotObservation {
 export type AbilityMove = AbilityActionView & {
 	/** O que a carta diz que faz, como um jogador lendo o texto. */
 	readonly heals: boolean;
+	readonly modifiesDice: boolean;
 };
 
 /** Troca as jogadas de dados pelas que a interface despacha, com a recuperação determinística da seed. */
 function asPlayedByUi(state: GameState, actions: readonly Action[]): Action[] {
 	const { status, combat } = gameOf(state);
-	const selection = combat?.pendingDiceSelection;
-	const roll = combat?.lastRoll;
-	if (selection && roll) {
-		const choices: Action[] = [];
-		for (const side of ["hero", "enemy"] as const) {
-			const results = side === "hero" ? roll.heroResults : roll.enemyResults;
-			for (let index = 0; index < results.length; index++) {
-				if (!isEligibleDie(selection, side, index, results)) continue;
-				const values = selection.deltaMax === undefined
-					? [undefined]
-					: dieReplacementValues(selection, results[index]!);
-				for (const value of values) choices.push({ type: "SELECT_DIE", payload: {
-					side, index, ...(value === undefined ? {} : { value }),
-				} });
-			}
-		}
-		return choices;
+	if (combat?.pendingDiceSelection) {
+		const choices = actions.filter((action) =>
+			action.type === "SELECT_DIE" || action.type === "CANCEL_DICE_SELECTION");
+		return choices.length ? choices : [{ type: "CANCEL_DICE_SELECTION" }];
 	}
 	const pending = combat?.pendingPhysicalRoll;
 	const undecided = actions.some(
@@ -91,6 +79,7 @@ export function observe(engine: GameEngine, state: GameState): BotObservation {
 				projectAbilityActionsForHero(engine, state, hero.id).map((ability) => ({
 					...ability,
 					heals: healsByText(engine, ability.abilityId),
+					modifiesDice: hasDiceChangeEffect(skillById(engine, ability.abilityId)?.effect),
 				})),
 			]),
 		),

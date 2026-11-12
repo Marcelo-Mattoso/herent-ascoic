@@ -18,7 +18,7 @@ test("celular em retrato solicita paisagem e retoma o mesmo jogo após girar", a
 					heroCardIds: ["hero_crimson_barbarian"],
 					mode: "cooperative",
 					difficulty: "normal",
-					seed: 42,
+					seed: 2,
 				},
 			});
 		});
@@ -71,7 +71,7 @@ test("tabuleiro horizontal cabe em celulares compactos sem rolar a página", asy
 					heroCardIds: ["hero_crimson_barbarian"],
 					mode: "cooperative",
 					difficulty: "normal",
-					seed: 42,
+					seed: 2,
 				},
 			});
 		});

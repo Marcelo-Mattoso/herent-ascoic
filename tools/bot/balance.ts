@@ -4,11 +4,15 @@ import { cardName } from "@/core/gameEngine";
 import { engine } from "../golden/lib";
 import { playAiGame } from "./ai";
 import { BOT_HEROES } from "./play";
+import { getEnabledExpansions } from "@/core/data/expansions";
+import { getBoss } from "@/core/data/cards";
+import { assertLocalReportExecution } from "./localLevelingReports";
 import { parseBotDifficulty, parseBotParty, parseBotProfile, setupForRun, type BotProfile } from "./profiles";
 import type { GoldenSetup } from "../golden/lib";
 
 interface Options {
 	mode: "solo" | "team" | "both";
+	expansions: string[];
 	hero?: string;
 	seed: number;
 	soloSeeds: number;
@@ -20,6 +24,7 @@ interface Options {
 
 interface Trial {
 	mode: "solo" | "team";
+	expansionId: string;
 	seed: number;
 	heroes: readonly string[];
 	outcome: string;
@@ -30,6 +35,7 @@ interface Trial {
 
 interface Summary {
 	heroId: string;
+	expansionId: string;
 	games: number;
 	wins: number;
 	losses: number;
@@ -41,7 +47,8 @@ interface Summary {
 }
 
 function parseArgs(argv: string[]): Options {
-	const opts: Options = { mode: "both", seed: 1, soloSeeds: 20, teamSeeds: 3, maxSteps: 1000,
+	const availableExpansions = getEnabledExpansions().filter((pack) => getBoss(pack.id)).map((pack) => pack.id);
+	const opts: Options = { mode: "both", expansions: availableExpansions, seed: 1, soloSeeds: 20, teamSeeds: 3, maxSteps: 1000,
 		profile: "power-player", difficulty: "normal" };
 	for (let i = 0; i < argv.length; i += 2) {
 		const flag = argv[i];
@@ -51,6 +58,11 @@ function parseArgs(argv: string[]): Options {
 			if (value !== "solo" && value !== "team" && value !== "both")
 				throw new Error("--mode exige solo, team ou both");
 			opts.mode = value;
+		} else if (flag === "--expansions") {
+			const ids = [...new Set(value.split(",").map((id) => id.trim()))];
+			if (!ids.length || ids.some((id) => !availableExpansions.includes(id)))
+				throw new Error("--expansions aceita: " + availableExpansions.join(", "));
+			opts.expansions = ids;
 		} else if (flag === "--hero") {
 			const heroes = parseBotParty(value);
 			if (heroes.length !== 1) throw new Error("--hero exige exatamente um herói");
@@ -92,52 +104,56 @@ function wilson(wins: number, total: number): [number, number] {
 	return [Math.max(0, center - radius), Math.min(1, center + radius)];
 }
 
-function summarize(trials: readonly Trial[], mode: Trial["mode"], heroIds: readonly string[]): Summary[] {
+function summarize(trials: readonly Trial[], mode: Trial["mode"], heroIds: readonly string[], expansionId: string): Summary[] {
 	return heroIds.map((heroId) => {
-		const games = trials.filter((trial) => trial.mode === mode && trial.heroes.includes(heroId));
+		const games = trials.filter((trial) => trial.mode === mode && trial.expansionId === expansionId && trial.heroes.includes(heroId));
 		const wins = games.filter((trial) => trial.outcome === "VICTORY" && !trial.violation).length;
 		const losses = games.filter((trial) => trial.outcome === "DEFEAT" && !trial.violation).length;
 		const [low95, high95] = wilson(wins, games.length);
-		return { heroId, games: games.length, wins, losses, stalls: games.length - wins - losses,
+		return { heroId, expansionId, games: games.length, wins, losses, stalls: games.length - wins - losses,
 			winRate: games.length ? wins / games.length : 0, low95, high95,
 			meanRooms: games.length ? games.reduce((sum, trial) => sum + trial.roomsCleared, 0) / games.length : 0 };
 	});
 }
 
+assertLocalReportExecution();
 const opts = parseArgs(process.argv.slice(2));
 const heroIds = opts.hero ? [opts.hero] : BOT_HEROES;
 const parties = combinations(BOT_HEROES, 3);
 const trials: Trial[] = [];
-const total = (opts.mode === "team" ? 0 : heroIds.length * opts.soloSeeds) +
-	(opts.mode === "solo" ? 0 : parties.length * opts.teamSeeds);
+const total = opts.expansions.length * ((opts.mode === "team" ? 0 : heroIds.length * opts.soloSeeds) +
+	(opts.mode === "solo" ? 0 : parties.length * opts.teamSeeds));
 let completed = 0;
-console.log(`Balanceamento: ${opts.difficulty}, perfil ${opts.profile}; ${total} partidas ` +
+console.log(`Balanceamento: ${opts.difficulty}, perfil ${opts.profile}; ${opts.expansions.length} expansões; ${total} partidas ` +
 	`(${opts.mode === "team" ? "" : `${heroIds.length} ${heroIds.length === 1 ? "herói" : "heróis"} solo`}` +
 	`${opts.mode === "both" ? ", " : ""}` +
 	`${opts.mode === "solo" ? "" : `${parties.length} trios`}).`);
 
-function run(mode: Trial["mode"], heroes: readonly string[], seed: number) {
-	const setup = setupForRun(seed, heroes, opts.difficulty);
+function run(mode: Trial["mode"], heroes: readonly string[], seed: number, expansionId: string) {
+	const bossId = getBoss(expansionId)?.id;
+	if (!bossId) throw new Error("Expansão sem chefe: " + expansionId);
+	const setup = { ...setupForRun(seed, heroes, opts.difficulty), bossCardId: bossId };
 	const result = playAiGame(setup, opts.maxSteps, undefined, opts.profile);
-	trials.push({ mode, seed, heroes: [...heroes], outcome: result.outcome,
+	trials.push({ mode, seed, expansionId, heroes: [...heroes], outcome: result.outcome,
 		violation: result.violation?.invariant ?? null, roomsCleared: result.roomsCleared, steps: result.steps });
 	completed++;
 	if (completed % 25 === 0 || completed === total) console.log(`${completed}/${total} partidas concluídas`);
 }
 
-if (opts.mode !== "team") {
-	for (const heroId of heroIds) {
-		for (let index = 0; index < opts.soloSeeds; index++) run("solo", [heroId], opts.seed + index);
+for (const expansionId of opts.expansions) {
+	if (opts.mode !== "team") {
+		for (const heroId of heroIds) {
+			for (let index = 0; index < opts.soloSeeds; index++) run("solo", [heroId], opts.seed + index, expansionId);
+		}
+	}
+	if (opts.mode !== "solo") {
+		for (const party of parties) {
+			for (let index = 0; index < opts.teamSeeds; index++) run("team", party, opts.seed + index, expansionId);
+		}
 	}
 }
-if (opts.mode !== "solo") {
-	for (const party of parties) {
-		for (let index = 0; index < opts.teamSeeds; index++) run("team", party, opts.seed + index);
-	}
-}
-
-const solo = summarize(trials, "solo", heroIds);
-const team = summarize(trials, "team", BOT_HEROES);
+const solo = opts.expansions.flatMap((id) => summarize(trials, "solo", heroIds, id));
+const team = opts.expansions.flatMap((id) => summarize(trials, "team", BOT_HEROES, id));
 const output = path.resolve("tools/bot/runs", `balance-${new Date().toISOString().replace(/[:.]/g, "-")}`);
 fs.mkdirSync(output, { recursive: true });
 fs.writeFileSync(path.join(output, "report.json"), `${JSON.stringify({ options: opts,
@@ -146,9 +162,9 @@ fs.writeFileSync(path.join(output, "report.json"), `${JSON.stringify({ options: 
 
 const percent = (value: number) => `${(value * 100).toFixed(1)}%`;
 const table = (rows: Summary[]) => [
-	"| Herói | Partidas | Vitórias | Derrotas | Impasses | Vitória | IC 95% | Salas médias |",
-	"|---|---:|---:|---:|---:|---:|---:|---:|",
-	...rows.map((row) => `| ${cardName(engine, row.heroId)} | ${row.games} | ${row.wins} | ${row.losses} | ${row.stalls} | ${percent(row.winRate)} | ${percent(row.low95)}–${percent(row.high95)} | ${row.meanRooms.toFixed(1)} |`),
+	"| Expansão | Herói | Partidas | Vitórias | Derrotas | Impasses | Vitória | IC 95% | Salas médias |",
+	"|---|---|---:|---:|---:|---:|---:|---:|---:|",
+	...rows.map((row) => `| ${row.expansionId} | ${cardName(engine, row.heroId)} | ${row.games} | ${row.wins} | ${row.losses} | ${row.stalls} | ${percent(row.winRate)} | ${percent(row.low95)}–${percent(row.high95)} | ${row.meanRooms.toFixed(1)} |`),
 ].join("\n");
 const markdown = [
 	"# Balanceamento dos heróis",
@@ -159,7 +175,7 @@ const markdown = [
 	"",
 	...(opts.mode === "team" ? [] : ["## Solo", "", table(solo), ""]),
 	...(opts.mode === "solo" ? [] : ["## Equipes de três", "",
-		`Cada herói aparece em ${combinations(BOT_HEROES.slice(1), 2).length} composições distintas. Todas as ${parties.length} composições usam as mesmas ${opts.teamSeeds} seeds.`,
+		`Cada herói aparece em ${combinations(BOT_HEROES.slice(1), 2).length} composições distintas por expansão. Todas as ${parties.length} composições usam as mesmas ${opts.teamSeeds} seeds dentro de cada módulo.`,
 		"", table(team), ""]),
 	"Os resultados completos por seed e equipe estão em `report.json`.",
 	"",

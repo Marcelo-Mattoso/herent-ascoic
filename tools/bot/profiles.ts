@@ -30,7 +30,7 @@ export function parseBotParty(value: string): string[] {
 	const heroes = value.split(",").map((entry) => HERO_ALIASES[entry.trim()] ?? entry.trim());
 	if (heroes.length < 1 || heroes.length > 4 || new Set(heroes).size !== heroes.length ||
 		heroes.some((id) => !BOT_HEROES.includes(id))) {
-		throw new Error("--heroes exige 1 a 4 heróis distintos: barbarian,paladin,cleric,rogue,warrior,necromancer,mage,hunter.");
+		throw new Error("--heroes exige 1 a 4 heróis distintos (alias ou ID do catálogo habilitado).");
 	}
 	return heroes;
 }

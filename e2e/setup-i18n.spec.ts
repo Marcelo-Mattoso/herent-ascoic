@@ -31,3 +31,18 @@ test("seleção e ficha exibem nome próprio maior e classe separada", async ({ 
 	await expect(sheet.getByRole("heading", { name: "Letícia Morane" })).toBeVisible();
 	await expect(sheet).toContainText("Clérigo do Descanso Eterno");
 });
+
+
+test("todas as classes podem enfrentar qualquer chefe", async ({ page }) => {
+	await page.goto("/");
+	await page.getByRole("button", { name: "JOGAR", exact: true }).click();
+	await expect(page.locator(".setup-hero-select-button")).toHaveCount(12);
+	await expect(page.locator("[data-boss-id='boss_azhakar']").first()).toHaveAttribute("aria-pressed", "true");
+	await page.locator("[data-boss-id='boss_great_cauldron_witch']").first().click();
+	await expect(page.locator("[data-boss-id='boss_great_cauldron_witch']").first()).toHaveAttribute("aria-pressed", "true");
+	await expect(page.locator(".setup-hero-select-button")).toHaveCount(12);
+	await page.locator(".setup-hero-select-button[data-card-id='hero_white_ashes_sister']").click();
+	await expect(page.locator(".setup-start-button")).toBeEnabled();
+	await page.locator("[data-boss-id='boss_azhakar']").first().click();
+	await expect(page.locator(".setup-hero-select-button[data-card-id='hero_white_ashes_sister']")).toHaveCount(1);
+});

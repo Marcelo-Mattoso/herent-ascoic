@@ -129,7 +129,9 @@ export function TriggerInterruptModal() {
 	const sourceKind = translate(SOURCE_KIND_LABEL[activeInterrupt.sourceKind]);
 	const windowName = translate(WINDOW_LABEL[activeInterrupt.window]);
 	const description = effectText(activeInterrupt);
-	const reason = activeInterrupt.reason || `Janela ativa: ${windowName}.`;
+	const reason = activeInterrupt.event === "evt_roll" && activeInterrupt.grantId
+		? translate("game:components.modals.triggerInterruptModal.diceQuestion")
+		: activeInterrupt.reason || `Janela ativa: ${windowName}.`;
 
 	function apply() {
 		if (submittedFor.current === activeInterrupt) return;

@@ -69,7 +69,7 @@ describe("helpers puros sem fluxo de UI", () => {
 		expect(isEligibleDie(setTo, "hero", 2, [3])).toBe(false);
 		expect(isEligibleDie(setTo, "hero", 0, [2])).toBe(false);
 		expect(dieReplacementValues(setTo, 3)).toEqual([6]);
-		expect(dieReplacementValues({ ...setTo, action: "reroll", deltaMax: 1 }, 3)).toEqual([2, 3, 4]);
+		expect(dieReplacementValues({ ...setTo, action: "reroll", deltaMax: 1 }, 3)).toEqual([2, 4]);
 	});
 
 	it("interpreta valores de catálogo válidos e inválidos", () => {

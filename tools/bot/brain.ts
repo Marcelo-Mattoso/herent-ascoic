@@ -3,6 +3,8 @@ import type { HeroView, PlayerView } from "@/core/projection/playerView";
 import type { BotObservation } from "./observe";
 import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
+import { artifactHasPoisonedTarget } from "@/core/rules/artifactActivation";
+import { healingMoveScore, itemHealingAmount } from "./healing";
 
 export interface ScoredMove {
 	readonly action: Action;
@@ -15,6 +17,26 @@ const lifeRatio = (unit: { currentLife: number; maxLife: number }) =>
 const activeHeroes = (view: PlayerView) => view.heroes.filter((hero) => hero.status === "active");
 const activeEnemies = (view: PlayerView) => view.enemies.filter((enemy) => enemy.status === "active");
 const hasAction = (view: PlayerView, heroId: string) => !view.combat?.heroesActed.includes(heroId);
+
+/** Evita sacrificar vida quando o ganho ofensivo não compensa o risco. */
+function furyScore(view: PlayerView, sourceId?: string, amount = 2): number {
+	const hero = activeHeroes(view).find((candidate) => candidate.id === sourceId) ??
+		activeHeroes(view).find((candidate) => candidate.cardId === "hero_crimson_barbarian");
+	if (!hero || activeEnemies(view).length === 0) return 10;
+	const cost = Math.max(1, amount);
+	if (hero.currentLife <= cost) return 0;
+	const enemy = activeEnemies(view).find((entry) => entry.currentLife > hero.damage &&
+		entry.currentLife <= hero.damage + cost * 3) ?? activeEnemies(view)[0]!;
+	const gain = Math.min(cost * 3, Math.max(0, enemy.currentLife - hero.damage));
+	const alreadyKills = hero.damage >= enemy.currentLife;
+	if (alreadyKills || gain === 0) return 15;
+	const enemyHit = Math.max(0, enemy.damage);
+	const risk = hero.currentLife - cost <= Math.max(2, enemyHit);
+	if (risk || lifeRatio(hero) < 0.5) return 12;
+	// Só usa quando o bônus economiza pelo menos um golpe e deixa vida segura.
+	const savesAttack = hero.damage + cost * 3 >= enemy.currentLife;
+	return savesAttack ? 200 + Math.min(30, gain * 3) : 20;
+}
 
 function pressure(view: PlayerView): boolean {
 	return view.status === "BOSS_COMBAT" ||
@@ -55,9 +77,9 @@ function choiceScore(view: PlayerView, choice: string, profile: BotProfile): num
 		return hero && hero.hitBonus < 5 ? 70 : 55;
 	}
 	if (choice === "damage" || /damage|dano/i.test(choice)) return profile === "speedrunner" ? 85 : 65;
-	if (choice === "ally_six" || choice === "enemy_min") {
+	if (choice === "ally_six" || choice === "enemy_min" || choice === "witch_eclipse_hero_six" || choice === "witch_eclipse_enemy_one") {
 		const roll = view.combat?.lastRoll;
-		return roll ? 60 + (choice === "ally_six"
+		return roll ? 60 + (choice === "ally_six" || choice === "witch_eclipse_hero_six"
 			? 6 - Math.min(...roll.heroResults)
 			: Math.max(...roll.enemyResults) - 1) : 50;
 	}
@@ -70,17 +92,44 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 	switch (action.type) {
 		case "CHOOSE_TARGET":
 			return attackScore(view, action.payload.heroId, action.payload.enemyId, profile);
+		case "USE_ITEM":
+		case "USE_REWARD_ITEM": {
+			const hero = heroes.find((entry) => entry.id === action.payload.heroId);
+			if (!hero) return -1;
+			const heal = itemHealingAmount(action.payload.itemId);
+			if (heal !== null) return healingMoveScore(view, action.payload.targetHeroId ?? hero.id, heal);
+			return pressure(view) ? 160 : 70;
+		}
+		case "USE_ARTIFACT": {
+			const { abilityId, targetEnemyId, targetHeroId } = action.payload;
+			if (abilityId === "witch_artifact_corrupted_heart_burst") {
+				const enemy = activeEnemies(view).find((entry) => entry.id === targetEnemyId);
+				if (!enemy || !artifactHasPoisonedTarget(enemy.conditions)) return -1;
+				const stacks = enemy.conditions.filter((condition) =>
+					artifactHasPoisonedTarget([condition])).length;
+				const damage = 2 * stacks;
+				return 105 + 20 * stacks + (damage >= enemy.currentLife ? 65 : 0) +
+					(enemy.id === "boss" ? 25 : 0);
+			}
+			const beneficiary = heroes.find((entry) => entry.id === targetHeroId);
+			return beneficiary
+				? 95 + Math.max(0, beneficiary.maxLife - beneficiary.currentLife) * 12
+				: pressure(view) ? 130 : 75;
+		}
 		case "SELECT_DIE": {
 			const { side, index, value } = action.payload;
 			const current = (side === "hero" ? view.combat?.lastRoll?.heroResults : view.combat?.lastRoll?.enemyResults)?.[index];
-			return current === undefined ? -1 : 100 + (value === undefined ? 0 : side === "hero" ? value - current : current - value);
+			const target = value ?? view.combat?.pendingDiceSelection?.setToValue;
+			return current === undefined ? -1 : 100 + (target === undefined ? 0 : side === "hero" ? target - current : current - target);
 		}
 		case "SPEND_XP": {
 			const { option, heroId } = action.payload;
 			if (option === "recover_dungeon") return 120;
 			if (option === "level_up") {
 				const hero = heroes.find((entry) => entry.id === heroId);
-				return (profile === "speedrunner" ? 115 : 95) + (hero ? (1 - lifeRatio(hero)) * 10 : 0);
+				// A compra sem mudança de Ímpeto desperdiça uma decisão e distorce a telemetria.
+				if (!hero || hero.impeto >= 4) return -1;
+				return (profile === "speedrunner" ? 235 : 155) + (1 - lifeRatio(hero)) * 10;
 			}
 			if (option === "buy_artifact") return profile === "speedrunner" ? 75 : 100;
 			if (option === "buy_item") return profile === "speedrunner" ? 60 : 85;
@@ -124,7 +173,24 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 					(target.currentLife <= Math.max(0, ...activeEnemies(view).map((enemy) => enemy.damage)) ? 30 : 0);
 			return 25 - lifeRatio(target) * 10;
 		}
-		case "APPLY_TRIGGER_INTERRUPT": return profile === "explorer" || pressure(view) ? 90 : 50;
+		case "APPLY_TRIGGER_INTERRUPT": {
+			const interrupt = view.pendingTriggerInterrupt;
+			if (!interrupt) return 50;
+			// Opcional de rerrolagem: conserve a carga quando não há 1 para rerrolar.
+			if (interrupt.skillId === "skill_crimson_fury") {
+				const amount = typeof interrupt.value === "number" ? interrupt.value : 2;
+				return furyScore(view, interrupt.sourceHeroId, amount);
+			}
+			if (interrupt.skillId === "witch_skill_lunar_spark" &&
+				!view.combat?.lastRoll?.heroResults.includes(1)) return 20;
+			if (interrupt.skillId === "witch_power_green_eclipse")
+				return view.status === "BOSS_COMBAT" || pressure(view) ? 210 : profile === "explorer" ? 155 : 90;
+			if (interrupt.skillId === "witch_skill_white_ash_balm") {
+				const wounds = activeHeroes(view).map((hero) => hero.maxLife - hero.currentLife);
+				return Math.max(0, ...wounds) >= 3 ? 185 : 30;
+			}
+			return 165;
+		}
 		case "SKIP_TRIGGER_INTERRUPT": return 40;
 		case "RESTART_DUNGEON": return action.payload.keepEquipment ? 50 : 40;
 		case "CHECK_COMBAT_END": return 5;
@@ -144,7 +210,12 @@ function abilityTargets(view: PlayerView, ability: BotObservation["abilities"][s
 	return [...candidates];
 }
 
-function abilityScore(view: PlayerView, abilityId: string, targetId: string | undefined, profile: BotProfile): number {
+function abilityScore(view: PlayerView, ability: BotObservation["abilities"][string][number], targetId: string | undefined, profile: BotProfile): number {
+	const abilityId = ability.abilityId;
+	const isPower = ability.kind === "power";
+	const isPrepare = ability.activation === "prepare";
+	// Não sacrificar uma ativação limitada para curar um herói saudável.
+	if (ability.heals && !activeHeroes(view).some((hero) => hero.currentLife < hero.maxLife)) return -1;
 	if (profile === "random") return 0;
 	const target = activeHeroes(view).find((hero) => hero.id === targetId);
 	const missing = target ? target.maxLife - target.currentLife : 0;
@@ -171,15 +242,24 @@ function abilityScore(view: PlayerView, abilityId: string, targetId: string | un
 		return 140 + target.damage * 4 + target.hitBonus;
 	}
 	if (abilityId === "skill_prey_mark") return profile === "power-player" ? 180 : 125;
-	if (abilityId === "skill_crimson_fury") return profile === "power-player" ? 175 : 125;
+	if (abilityId === "skill_crimson_fury") return furyScore(view);
 	if (abilityId === "spend_deep_veil_echo") return profile === "power-player" ? 165 : 125;
-	if (abilityId === "skill_return_rite") return profile === "power-player" ? 145 : 85;
+	if (abilityId === "skill_return_rite") {
+		const owner = activeHeroes(view).find((hero) => hero.cardId === "hero_deep_veil_necromancer");
+		// Recuperar cartas por 3 PV é troca ruim com o deck cheio ou perto da morte.
+		if (!owner || owner.currentLife <= 5) return -1;
+		const remaining = view.decks.dungeonDeck.available.length;
+		const discarded = view.decks.dungeonDeck.discarded.length;
+		return remaining <= 2 && discarded > 0 && lifeRatio(owner) >= 0.6 ? 180 : -1;
+	}
 	if (abilityId === "skill_bastion_guard") return pressure(view) ? 155 : 50;
 	if (abilityId === "power_supreme_rift_rune") return pressure(view) ? 160 : 95;
-	if (profile === "explorer") return 185;
-	if (profile === "speedrunner") return pressure(view) ? 115 : 35;
-	if (profile === "casual") return pressure(view) ? 110 : 55;
-	return pressure(view) ? 155 : 55;
+	if (profile === "explorer") return isPower ? 210 : 185;
+	// Habilidades com disparo voluntário devem ser preparadas antes do evento;
+	// poderes têm valor real, inclusive para o perfil veloz.
+	if (profile === "speedrunner") return isPower ? 185 : isPrepare ? 160 : pressure(view) ? 155 : 105;
+	if (profile === "casual") return isPower ? 175 : isPrepare ? 155 : pressure(view) ? 150 : 100;
+	return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 110;
 }
 
 function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
@@ -188,16 +268,32 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 	const moves: ScoredMove[] = [];
 	for (const hero of activeHeroes(view)) {
 		for (const ability of obs.abilities[hero.id] ?? []) {
-			if (ability.status !== "available" || ability.kind === "item") continue;
+			// Post-roll dice reactions are prompted by the engine when a die is eligible.
+			// Do not waste bot decisions toggling their old preparation control.
+			if (ability.modifiesDice && ability.activation === "prepare") continue;
+			if (ability.status !== "available" ||
+				(ability.activation !== "manual" && ability.activation !== "prepare")) continue;
 			const targets = abilityTargets(view, ability, hero, profile);
 			if (ability.targetRequired && targets.length === 0) continue;
 			for (const target of ability.targetRequired ? targets : [undefined]) {
-				const score = abilityScore(view, ability.abilityId, target, profile);
+				const score = abilityScore(view, ability, target, profile);
 				if (score < 0) continue;
-				moves.push({ action: { type: "USE_SKILL", payload: {
-					skillId: ability.abilityId, sourceId: hero.id,
-					...(target ? { targetIds: [target] } : {}),
-				} }, score });
+				if (ability.kind === "item") {
+					const targetHero = target && activeHeroes(view).some((entry) => entry.id === target);
+					const itemAction: Action = { type: "USE_ITEM", payload: {
+						itemId: ability.sourceCardId, heroId: hero.id,
+						...(target ? targetHero ? { targetHeroId: target } : { targetEnemyId: target } : {}),
+					} };
+					const heal = itemHealingAmount(ability.sourceCardId);
+					moves.push({ action: itemAction, score: heal !== null
+						? healingMoveScore(view, target ?? hero.id, heal)
+						: Math.min(score, pressure(view) ? 155 : 95) });
+				} else {
+					moves.push({ action: { type: "USE_SKILL", payload: {
+						skillId: ability.abilityId, sourceId: hero.id,
+						...(target ? { targetIds: [target] } : {}),
+					} }, score: ability.activation === "prepare" ? (ability.kind === "power" ? 235 : 225) : score });
+				}
 			}
 		}
 	}
@@ -228,7 +324,12 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),
 		...abilityMoves(obs, profile),
-		...obs.actions.map((action) => ({ action, score: scoreAction(obs.view, action, profile) })),
+		...obs.actions
+			.filter((action) => action.type !== "SPEND_XP" ||
+				action.payload.option !== "level_up" ||
+				obs.view.heroes.some((hero) => hero.id === action.payload.heroId &&
+					hero.status === "active" && hero.impeto < 4))
+			.map((action) => ({ action, score: scoreAction(obs.view, action, profile) })),
 	];
 	const unique = [...new Map(candidates.reverse().map((move) => [JSON.stringify(move.action), move])).values()].reverse();
 	const random = seededRandom(seed, decision);

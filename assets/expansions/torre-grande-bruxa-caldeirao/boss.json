@@ -1,0 +1,156 @@
+{
+  "card": {
+    "id": "boss_great_cauldron_witch",
+    "type": "boss",
+    "name": "Grande Bruxa do Caldeirão",
+    "image": "images/boss_great_cauldron_witch.webp",
+    "lifeBase": 18,
+    "hitBonusBase": 11,
+    "damage": 5,
+    "dice": 3,
+    "accessCondition": {
+      "type": "group_artifacts_gte",
+      "value": 3
+    },
+    "scaling": {
+      "lifePerAwakening": 2,
+      "hitBonusPerAwakening": 1
+    },
+    "skills": [
+      {
+        "skillId": "witch_boss_skill_thorn_veil",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "witch_boss_skill_poison_fumes",
+        "params": {
+          "damage": 1,
+          "rounds": 2
+        }
+      },
+      {
+        "skillId": "witch_boss_skill_black_moon_pact",
+        "params": {
+          "value": 2
+        }
+      }
+    ]
+  },
+  "skills": [
+    {
+      "id": "witch_boss_skill_thorn_veil",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "round",
+        "charges": 1
+      },
+      "nature": [
+        "nat_earth",
+        "nat_dark"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "witch_boss_skill_poison_fumes",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_round_end"
+      },
+      "nature": [
+        "nat_poison",
+        "nat_dark"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "i_apply_poison",
+          "to": "$lowest_life_hero",
+          "damage": 1,
+          "rounds": 2
+        }
+      ]
+    },
+    {
+      "id": "witch_boss_skill_black_moon_pact",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$self",
+          "conditionType": "half_life_or_less"
+        }
+      ],
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "permanent"
+          }
+        }
+      ]
+    }
+  ],
+  "skillLocales": {
+    "witch_boss_skill_thorn_veil": {
+      "name": "Véu de Espinhos",
+      "label": "Véu de Espinhos (1): reduza em 1 o primeiro dano recebido pela Bruxa em cada rodada.",
+      "text": "reduza em 1 o primeiro dano recebido pela Bruxa em cada rodada."
+    },
+    "witch_boss_skill_black_moon_pact": {
+      "name": "Pacto da Lua Negra",
+      "label": "Pacto da Lua Negra (2): com metade da Vida ou menos, a Bruxa ganha +2 no Bônus de Acerto.",
+      "text": "com metade da Vida ou menos, a Bruxa ganha +2 no Bônus de Acerto."
+    },
+    "witch_boss_skill_poison_fumes": {
+      "name": "Fumaça do Caldeirão",
+      "label": "Fumaça do Caldeirão: ao fim de cada rodada, a Bruxa envenena o herói com menos Vida por 2 rodadas.",
+      "text": "Ao fim de cada rodada, envenena o herói com menos Vida. Veneno causa 1 de dano por rodada durante 2 rodadas; a reaplicação apenas renova a duração."
+    }
+  },
+  "locale": {
+    "name": "Grande Bruxa do Caldeirão",
+    "dice": "3 dados vermelhos",
+    "condition": "o grupo precisa possuir ao menos 3 Artefatos.",
+    "dungeonScaling": "a Bruxa recebe +1 no Bônus de Acerto e +2 de Vida por nível de Despertar.",
+    "victory": "ao derrotar a Grande Bruxa do Caldeirão, os jogadores vencem a partida.",
+    "poisonRule": "Veneno: 1 de dano direto por rodada, por 2 rodadas (sem acumular); a condição pode ser removida com antídotos."
+  }
+}

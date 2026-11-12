@@ -1,5 +1,5 @@
 import type { GameState } from "@/core/state/gameState";
-import { allHeroesOf, decksOf, enemiesOf, pausedOf, effectStackOf } from "@/core/state/access";
+import { allHeroesOf, decksOf, enemiesOf, pausedOf, effectStackOf, pendingSkillChoiceOf } from "@/core/state/access";
 import { zoneViolation } from "@/core/state/zones";
 import { TERMINAL } from "../golden/lib";
 import { gameOf } from "@/engine/state";
@@ -200,6 +200,12 @@ export function countCards(state: GameState): CardCounts {
 	]) {
 		for (const id of Object.values(hero.activeItems)) bump(counts, id);
 		for (const id of hero.backpack) bump(counts, id);
+	}
+	// i_draw_and_choose retira as cartas do baralho antes de o jogador decidir.
+	// Enquanto a escolha está aberta elas continuam existindo, mesmo fora das pilhas.
+	const pendingChoice = pendingSkillChoiceOf(state);
+	if (pendingChoice?.kind === "draw_and_choose") {
+		for (const option of pendingChoice.options) bump(counts, option.id);
 	}
 	for (const r of gameOf(state).pendingRewards) bump(counts, r.cardId);
 	for (const a of gameOf(state).groupArtifacts) bump(counts, a.cardId);

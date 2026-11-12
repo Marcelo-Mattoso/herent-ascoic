@@ -8,6 +8,8 @@ import {
 	upsertEntity,
 } from "../../../ecs/world";
 import { log } from "../../../reducer/utils";
+import { matchesDamageOverTimeStatus } from "../../../rules/damageOverTime";
+import { hasDiceChangeEffect, canChangeRolledDice } from "../../../rules/diceReactions";
 import { skillById, skillOptionLabel } from "../../../gameEngine";
 import type { GameKindPackage } from "../../../gameEngine";
 import { applyDamage } from "../../../systems/damageSystem";
@@ -380,7 +382,16 @@ const chooseOne = effectKind({
 			if (!canDiscardItem) return evaluate(alternative.effect as readonly EffectNode[], ctx);
 			if (!canUseAlternative) return evaluate(itemOption.effect as readonly EffectNode[], ctx);
 		}
-		const options = node.options.map((opt) => {
+		// Do not let the player choose a dice option that cannot change a face.
+		// This prevents selecting "ally to 6" when all ally dice are already 6.
+		const currentRoll = gameOf(ctx.state).combat?.lastRoll;
+		const diceOnly = Boolean(currentRoll) && node.options.every((option) =>
+			hasDiceChangeEffect(option.effect));
+		const candidates = diceOnly
+			? node.options.filter((option) => canChangeRolledDice(option.effect, currentRoll))
+			: node.options;
+		if (candidates.length === 0) return ctx.state;
+		const options = candidates.map((opt) => {
 			const template = skillOptionLabel(ctx.engine, ctx.skillId, opt.id);
 			const label = template.replace(/\{(\w+)\}/g, (_m, k: string) =>
 				String((opt.params ?? {})[k] ?? "?"),
@@ -496,10 +507,11 @@ const reroll = effectKind({
 		const filter =
 			only_if_value !== undefined ? { value: only_if_value } : undefined;
 		if (only_if_value !== undefined) {
-			const heroHasMatch = gameOf(state).combat!.lastRoll!.heroResults.some(
-				(v) => v === only_if_value,
-			);
-			if (!heroHasMatch)
+			const roll = gameOf(state).combat!.lastRoll!;
+			const eligibleResults = die_side === "hero" ? roll.heroResults
+				: die_side === "enemy" ? roll.enemyResults
+				: [...roll.heroResults, ...roll.enemyResults];
+			if (!eligibleResults.some((value) => value === only_if_value))
 				return log(
 					state,
 					`Nenhum dado com valor ${only_if_value} para rerolar.`,
@@ -568,7 +580,7 @@ const dispel = effectKind({
 		let next = state;
 		for (const unit of [...heroesOf(state), ...enemiesOf(state)]) {
 			next = withUnitStats(next, unit.id, {
-				conditions: unit.conditions.filter((c) => !c.startsWith(category)),
+				conditions: unit.conditions.filter((c) => !c.startsWith(category) && !matchesDamageOverTimeStatus(c, category)),
 			});
 		}
 		return log(next, `Dispel: categoria "${category}" removida.`);
@@ -580,12 +592,17 @@ const removeStatus = effectKind({
 	schema: z.object({
 		kind: z.literal("i_remove_status"),
 		status: z.string(),
+		to: z.string().optional(),
 	}),
-	evaluate: (node, ctx) =>
-		ctx.action.pushEffect({
+	evaluate: (node, ctx) => {
+		const to = node.to ? resolveEntityRef(node.to, ctx) : (ctx.targetId ?? ctx.sourceId);
+		if (node.to && !to) return unresolvedEntityRef(ctx, node.kind, node.to);
+		return ctx.action.pushEffect({
 			kind: "i_remove_status",
 			status: node.status,
-		}),
+			...(to ? { to } : {}),
+		});
+	},
 	resolve: (state, effect) => {
 		const status = effect["status"] as string;
 		const targetId = (effect["to"] ?? effect["targetId"]) as string | undefined;
@@ -596,7 +613,7 @@ const removeStatus = effectKind({
 				enemiesOf(next).find((e) => e.id === targetId);
 			if (unit) {
 				next = withUnitStats(next, unit.id, {
-					conditions: unit.conditions.filter((c) => c !== status),
+					conditions: unit.conditions.filter((c) => !(status === "poison" && c.startsWith("poison:")) && c !== status && !matchesDamageOverTimeStatus(c, status)),
 				});
 			}
 		}

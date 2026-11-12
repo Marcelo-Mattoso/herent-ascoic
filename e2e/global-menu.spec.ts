@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("menu publica somente as faixas comuns e oferece a trilha exclusiva da abertura", async ({ page }) => {
+test("menu inclui as trilhas de ambas as aberturas na playlist", async ({ page }) => {
 	page.on("response", (response) => {
 		if (response.url().includes("/generated/music/manifest.json"))
 			console.log("[e2e music] browser manifest status", response.status(), response.url());
@@ -17,7 +17,7 @@ test("menu publica somente as faixas comuns e oferece a trilha exclusiva da aber
 	await expect(page.getByRole("heading", { name: "Música" })).toBeVisible();
 	await expect(page.getByRole("heading", { name: "Regras" })).toBeVisible();
 	try {
-		await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
+		await expect(page.locator(".global-menu__track + label select option")).toHaveCount(7);
 	} catch (error) {
 		const response = await page.request.get("/generated/music/manifest.json");
 		console.log("[e2e music] manifest HTTP status", response.status());
@@ -35,9 +35,12 @@ test("menu publica somente as faixas comuns e oferece a trilha exclusiva da aber
 	const manifest = await page.request.get("/generated/music/manifest.json");
 	expect(manifest.ok()).toBe(true);
 	const tracks = (await manifest.json()).tracks as { url: string; fileName: string }[];
-	const normalTracks = tracks.filter((track) => track.fileName !== "Antes das Cinzas.mp3");
-	expect(normalTracks).toHaveLength(5);
+	expect(tracks).toHaveLength(7);
 	expect(tracks.some((track) => track.fileName === "Antes das Cinzas.mp3")).toBe(true);
+	expect(tracks.some((track) => track.fileName === "O Sussurro da Lua Verde.mp3")).toBe(true);
+	const songOptions = page.locator(".global-menu__track + label select option");
+	await expect(songOptions.filter({ hasText: "Antes das Cinzas" })).toHaveCount(1);
+	await expect(songOptions.filter({ hasText: "O Sussurro da Lua Verde" })).toHaveCount(1);
 	for (const track of tracks) {
 		const response = await page.request.get(track.url);
 		expect(response.ok()).toBe(true);
@@ -51,8 +54,8 @@ test("menu publica somente as faixas comuns e oferece a trilha exclusiva da aber
 test("player mantém seleção e volume ao navegar, respeitando Stop ao recarregar", async ({ page }) => {
 	await page.goto("/");
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
-	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
-	await page.locator(".global-menu__track + label select").selectOption({ index: 1 });
+	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(7);
+	await page.locator(".global-menu__track + label select").selectOption("o_chamado_da_fornalha");
 	await page.locator("#global-music-volume").fill("68");
 	await page.getByRole("button", { name: "Play" }).click();
 	await expect(page.locator(".global-menu__status")).toContainText(/Reproduzindo|Não foi possível/);
@@ -83,7 +86,7 @@ test("uma reprodução segue ativa ao passar por menu, preparação e tabuleiro"
 	});
 	await page.goto("/");
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
-	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
+	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(7);
 	await page.getByRole("button", { name: "Play" }).click();
 	await expect(page.locator(".global-menu__status")).toHaveText("Reproduzindo");
 	await page.getByRole("button", { name: "Fechar menu", exact: true }).click();
@@ -114,7 +117,7 @@ test("música começa sozinha quando o navegador permite e não volta após Stop
 	await page.getByRole("button", { name: "Stop" }).click();
 	await page.reload();
 	await page.getByRole("button", { name: "Abrir menu global" }).click();
-	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(5);
+	await expect(page.locator(".global-menu__track + label select option")).toHaveCount(7);
 	await expect(page.locator(".global-menu__status")).toHaveText("Parado");
 	expect(await page.evaluate(() => (window as Window & { __musicPlayCount?: number }).__musicPlayCount ?? 0)).toBe(0);
 });

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { testEngine } from "../__tests__/testEngine";
+import { cardsOfType } from "../gameEngine";
 import { deckOf, enemiesOf, withDeck } from "../state/access";
 import { createInitialGameState, type GameState } from "../state/gameState";
 import { gameOf, withGame } from "../../engine/state";
@@ -15,7 +16,7 @@ function started(): GameState {
 }
 
 describe("fases que não podem travar", () => {
-	it("sala sem criatura disponível vai para a recompensa em vez de abrir combate vazio", () => {
+	it("sala sem nenhuma criatura elegível vai para a recompensa em vez de abrir combate vazio", () => {
 		const state = started();
 		const room = {
 			...gameOf(state).currentRoom!,
@@ -25,7 +26,7 @@ describe("fases que não podem travar", () => {
 		const empty = withDeck(
 			withGame(state, (game) => ({ ...game, currentRoom: room })),
 			"enemyDeck",
-			{ ...deckOf(state, "enemyDeck"), available: [] },
+			{ ...deckOf(state, "enemyDeck"), available: [], removed: cardsOfType(testEngine, "creature").map((card) => card.id) },
 		);
 		const next = handleSpawnEnemies(testEngine, empty);
 		expect(gameOf(next).status).toBe("REWARD_PHASE");
