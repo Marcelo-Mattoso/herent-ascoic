@@ -63,3 +63,11 @@ que o efeito do poder ou habilidade causou dano/cura/bônus.
 Se Fúria foi preparada e saiu do estado durante `ROLL_DICE`, isso aparece
 mesmo sem modal `APPLY_TRIGGER_INTERRUPT`. Itens/artefatos são excluídos
 para não misturar fontes de habilidade.
+
+## CLI silencioso corrigido
+
+`bot:skills-audit` não depende mais de `process.argv[1]` ao rodar pelo
+`vite-node`. Antes, esse guard podia evitar toda a execução sem erro.
+O comando grava `reports/skill-audit/report.json` e `report.html` no
+working directory de scripts do npm (raiz do projeto), exibe o caminho
+absoluto e devolve código 1 se detectar problemas funcionais/estruturais.

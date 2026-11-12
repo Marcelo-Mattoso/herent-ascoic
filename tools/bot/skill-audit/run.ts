@@ -31,8 +31,13 @@ export async function writeAudit(outputDirectory = "reports/skill-audit"): Promi
 	return { json, html, blockers };
 }
 
-if (process.argv[1] && /(?:^|[/\\])run\.(?:ts|js)$/.test(process.argv[1])) {
-	writeAudit(process.argv[2]).then(({ json, html, blockers }) => {
+// vite-node não garante que process.argv[1] seja o script de entrada.
+// A checagem anterior por /run.ts/ fazia o comando terminar sem executar.
+// Executar em toda invocação CLI; importar este módulo pelo Vitest é seguro.
+if (process.env.VITEST === undefined) {
+	console.info("Iniciando auditoria de habilidades (P0)...");
+	// Caminho fixo em relação à raiz do projeto. Não depender de argv do vite-node.
+	writeAudit().then(({ json, html, blockers }) => {
 		console.info("Relatório JSON:", json);
 		console.info("Relatório HTML:", html);
 		if (blockers.length) {

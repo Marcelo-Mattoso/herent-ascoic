@@ -65,3 +65,14 @@ O `npm run audit` mantém os dois comandos originais, na mesma ordem.
 cenário funcional ou grupo, termina com código 1 e **não** dispara a etapa
 `bot:leveling-report`. `PARTIAL`/`NOT_COVERED` permanecem visíveis, mas
 não são tratados como bugs confirmados. O comando continua apenas local.
+
+## Correção de inicialização do CLI (P0)
+
+`npm run bot:skills-audit` executa `npx vite-node tools/bot/skill-audit/run.ts`.
+A auditoria agora usa o mesmo critério CLI dos demais bots
+(`process.env.VITEST === undefined`), pois `vite-node` não garante
+que `process.argv[1]` termine com `run.ts`. Antes o comando podia sair
+sem executar nada, inclusive permitindo que `npm run audit` seguisse direto
+para as 6.000 partidas. Na execução manual, o terminal deve mostrar
+`Iniciando auditoria de habilidades (P0)...` e depois os **caminhos
+absolutos** de `report.json` e `report.html`.
