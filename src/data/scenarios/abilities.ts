@@ -6,7 +6,7 @@ import { COMBAT_OPENING_SEED } from "./seeds";
 import { INVENTORY_ITEMS, prepareInventoryTraining } from "./inventory";
 import type { GameEngine } from "@/core/gameEngine";
 
-import { deckOf, decksOf, enemiesOf, recordOfEnemy, spawnEnemy, withDecks } from "@/core/state/access";
+import { deckOf, decksOf, enemiesOf, recordOfEnemy, spawnEnemy, withDecks, withWorld, worldOf } from "@/core/state/access";
 import { gameOf, withGame } from "../../engine/state";
 export const ABILITY_HUNTER = "hero_broken_veil_hunter";
 export const ABILITY_BARBARIAN = "hero_crimson_barbarian";
@@ -33,11 +33,13 @@ export function prepareAbilityEncounter(engine: GameEngine, heroCardId: string, 
 	if (heroCardId === ABILITY_HUNTER && enemiesOf(state).length === 1) {
 		const original = enemiesOf(state)[0]!;
 		const second = { ...original, id: original.id + "-training-alternative" };
-		state = withGame(state, (game) => ({
-			...game,
-			activeEnemies: [...game.activeEnemies, recordOfEnemy(second)],
-			world: spawnEnemy(game.world, second),
-		}));
+		state = withWorld(
+			withGame(state, (game) => ({
+				...game,
+				activeEnemies: [...game.activeEnemies, recordOfEnemy(second)],
+			})),
+			spawnEnemy(worldOf(state), second),
+		);
 	}
 	return state;
 }
