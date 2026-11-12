@@ -133,6 +133,24 @@ describe("Centelha da Lua Verde: modal, dados e cargas", () => {
 		expect(gameOf(result).combat?.pendingDiceSelection).toBeUndefined();
 	});
 
+	it("oferece saída segura para uma seleção sem dados modificáveis", () => {
+		const { state } = ready(MOON);
+		const rolled = rollWithFaces(state, 6, 6);
+		const impossible = withGame(rolled, (game) => ({ ...game, combat: {
+			...game.combat!, pendingDiceSelection: {
+				skillId: "test_set_six", heroId: game.combat!.lastRoll!.heroId,
+				side: "hero" as const, action: "set_to" as const, setToValue: 6,
+			},
+		} }));
+		expect(legalActions(testEngine, impossible).map((action) => action.type))
+			.toContain("CANCEL_DICE_SELECTION");
+		const cancelled = reducer(testEngine, impossible, { type: "CANCEL_DICE_SELECTION" });
+		expect(gameOf(cancelled).combat?.pendingDiceSelection).toBeUndefined();
+		expect(gameOf(cancelled).combat?.lastRoll?.heroResults).toEqual(
+			gameOf(rolled).combat?.lastRoll?.heroResults,
+		);
+	});
+
 	it("só marca uso após escolher um dado válido, recalcula total e não duplica gatilho", () => {
 		const { state, heroId } = ready(MOON);
 		const rolled = rollWithFaces(state, 1);
