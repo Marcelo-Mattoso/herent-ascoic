@@ -48,3 +48,12 @@ inventário e sem modificar o jogo. Novos cenários devem ser adicionados
 gradualmente, com asserções de estado antes/depois.
 
 O JSON e o HTML mostram a proveniência do commit, quando disponível.
+
+## Cobertura de grupos no próprio audit (P0)
+
+O `bot:skills-audit` agora roda cenários de projeção para os 12 heróis em
+composições rotativas de 1–4 jogadores (12 × 4 = 48 grupos) e exercícios
+combinados de Marca da Presa + Fúria em grupos de 2, 3 e 4. Cenário aprovado
+do grupo recebe `PARTIAL` (ainda não cobre todas as combinações).
+Também registra ativação de sete poderes existentes, sem atribuir PASS aos
+efeitos posteriores sem asserção. O resultado entra no JSON e no HTML.

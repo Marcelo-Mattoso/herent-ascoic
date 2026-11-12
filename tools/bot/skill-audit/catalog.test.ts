@@ -18,7 +18,9 @@ describe("skill audit: discovery and structural checks", () => {
 		expect(report.summary.runtimePass).toBe(0);
 		expect(report.summary.runtimeNotCovered + report.summary.runtimePartial + report.summary.runtimeFail)
 			.toBe(report.summary.discoveredGrants);
-		expect(report.runtimeScenarios).toHaveLength(3);
+		expect(report.runtimeScenarios).toHaveLength(10);
+		expect(report.groupProjectionScenarios.length).toBeGreaterThanOrEqual(48);
+		expect(report.groupCombatScenarios.map((entry) => entry.partySize)).toEqual([2, 3, 4]);
 		expect(report.inventory.map((entry) => entry.runtimeStatus)).not.toContain("PASS");
 		expect(report.generatedAt).toBe("2026-11-12T00:00:00.000Z");
 	});

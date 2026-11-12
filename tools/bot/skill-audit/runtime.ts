@@ -9,10 +9,11 @@ import { createInitialGameState, type GameState } from "@/core/state/gameState";
 import { createEmptyCombatState } from "@/core/state/combatState";
 import { gameOf, withGame } from "@/engine/state";
 import { heroesOf, pendingSkillTargetOf, pendingTriggerInterruptOf,
-	recordOfEnemy, spawnEnemy, withWorld, worldOf } from "@/core/state/access";
+	recordOfEnemy, spawnEnemy, withWorld, worldOf, pendingSkillChoiceOf } from "@/core/state/access";
 import type { EnemyState } from "@/core/state/enemyState";
 import { legalActions } from "@/core/legalActions";
 import { canStartHeroAttack } from "@/core/rules/attackAvailability";
+import { playerView } from "@/core/projection/playerView";
 
 export interface RuntimeScenarioResult {
 	readonly id: string;
@@ -22,15 +23,17 @@ export interface RuntimeScenarioResult {
 	readonly detail: string;
 }
 
-const engine = createAscensaoEngine();
+export const auditEngine = createAscensaoEngine();
+const engine = auditEngine;
 
 function ensure(condition: unknown, description: string): asserts condition {
 	if (!condition) throw new Error(description);
 }
 
-function combat(cardId: string): GameState {
-	const started = reducer(engine, createInitialGameState({ heroCardIds: [cardId] }), {
-		type: "START_GAME", payload: { heroCardIds: [cardId], seed: 42 },
+export function combat(cardId: string | readonly string[]): GameState {
+	const heroCardIds = typeof cardId === "string" ? [cardId] : [...cardId];
+	const started = reducer(engine, createInitialGameState({ heroCardIds }), {
+		type: "START_GAME", payload: { heroCardIds, seed: 42 },
 	});
 	const enemy: EnemyState = {
 		id: "audit-enemy", cardId: "creature_deep_rift_rat",
@@ -125,6 +128,40 @@ function checkLunarSpark(): void {
 		"Centelha não deixou resultado de rolagem verificável");
 }
 
+
+/** Contrato mínimo de ativação: não prova que o efeito posterior foi aplicado. */
+function checkPowerActivation(cardId: string, powerId: string): void {
+	let state = combat(cardId);
+	const heroId = heroesOf(state)[0]!.id;
+	const before = playerView(engine, state).abilityActionsByHero[heroId]?.find(
+		(action) => action.abilityId === powerId);
+	ensure(before?.kind === "power" && before.status === "available",
+		powerId + ": poder indisponível no início do combate");
+	state = reducer(engine, state, { type: "USE_POWER", payload: { heroId } });
+	if (before.activation === "prepare") {
+		ensure(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
+			entry.abilityId === powerId && entry.sourceHeroId === heroId),
+			powerId + ": não ficou preparado no herói correto");
+	} else {
+		ensure(gameOf(state).oncePer.game[`${powerId}::${heroId}`] === true,
+			powerId + ": uso não foi registrado");
+	}
+	ensure(!gameOf(state).combat?.heroesActed.includes(heroId),
+		powerId + ": ativação consumiu o ataque do herói");
+	ensure(canStartHeroAttack(state, heroId, "audit-enemy") || Boolean(pendingSkillChoiceOf(state)),
+		powerId + ": ação de ataque indisponível após ativar o poder");
+}
+
+const powerCases = [
+	["hero_eternal_rest_cleric", "power_greater_last_light_miracle"],
+	["hero_broken_bastion_warrior", "power_unbreakable_bastion_guard"],
+	["hero_rift_rogue", "power_restored_path"],
+	["hero_crimson_rune_mage", "power_supreme_rift_rune"],
+	["hero_crimson_barbarian", "power_mighty_crimson_fury"],
+	["hero_last_light_paladin", "power_last_light_oath"],
+	["hero_broken_veil_hunter", "power_hunter_execution"],
+] as const;
+
 const scenarios = [
 	{ id: "crimson-fury-attack", sourceCardId: "hero_crimson_barbarian",
 		abilityId: "skill_crimson_fury", check: checkFury,
@@ -138,7 +175,15 @@ const scenarios = [
 ] as const;
 
 export function runRuntimeScenarios(): RuntimeScenarioResult[] {
-	return scenarios.map(({ id, sourceCardId, abilityId, check, detail }) => {
+	const allScenarios: { id: string; sourceCardId: string; abilityId: string; check: () => void; detail: string }[] = [
+		...scenarios,
+		...powerCases.map(([sourceCardId, abilityId]) => ({
+			id: "power-activation-" + abilityId, sourceCardId, abilityId,
+			check: () => checkPowerActivation(sourceCardId, abilityId),
+			detail: "Ativação, registro de preparação/uso e preservação do ataque (não verifica efeito posterior)",
+		})),
+	];
+	return allScenarios.map(({ id, sourceCardId, abilityId, check, detail }) => {
 		try {
 			check();
 			return { id, sourceCardId, abilityId, status: "PASS" as const, detail };
