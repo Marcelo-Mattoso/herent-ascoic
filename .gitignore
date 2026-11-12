@@ -34,3 +34,6 @@ test-results/
 *.sw?
 
 tools/bot/runs
+
+# Local QA skill audit artifacts
+reports/skill-audit/
