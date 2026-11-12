@@ -3,7 +3,7 @@ import { testEngine } from "../__tests__/testEngine";
 import { settled } from "../__tests__/fixtures";
 import { createInitialGameState, type GameState } from "../state/gameState";
 import { createEmptyCombatState, type CombatRollResult } from "../state/combatState";
-import { heroesOf } from "../state/access";
+import { heroesOf, pendingTriggerInterruptOf, pendingSkillChoiceOf } from "../state/access";
 import { skillById } from "../gameEngine";
 import { guardPassed } from "../triggers/engine";
 import { reducer } from "../reducer";
@@ -83,8 +83,8 @@ describe("Centelha da Lua Verde: modal, dados e cargas", () => {
 		const { state, heroId } = ready(MOON);
 		const rolled = rollWithFaces(state, 1);
 		expect(gameOf(rolled).combat?.lastRoll?.heroResults).toContain(1);
-		expect(rolled.engine.pending?.choice.data?.triggerInterrupt?.skillId).toBe(SPARK);
-		const pending = rolled.engine.pending!.choice.data!.triggerInterrupt!;
+		expect(pendingTriggerInterruptOf(rolled)?.skillId).toBe(SPARK);
+		const pending = pendingTriggerInterruptOf(rolled)!;
 		const skipped = reducer(testEngine, rolled, {
 			type: "SKIP_TRIGGER_INTERRUPT", payload: { interruptId: pending.id },
 		});
@@ -95,7 +95,7 @@ describe("Centelha da Lua Verde: modal, dados e cargas", () => {
 	it("só marca uso após escolher um dado válido, recalcula total e não duplica gatilho", () => {
 		const { state, heroId } = ready(MOON);
 		const rolled = rollWithFaces(state, 1);
-		const interrupt = rolled.engine.pending!.choice.data!.triggerInterrupt!;
+		const interrupt = pendingTriggerInterruptOf(rolled)!;
 		const applied = reducer(testEngine, rolled, {
 			type: "APPLY_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id },
 		});
@@ -120,38 +120,38 @@ describe("Centelha da Lua Verde: modal, dados e cargas", () => {
 	it("não oferece Centelha quando nenhum dado aliado mostra 1", () => {
 		const { state } = ready(MOON);
 		const rolled = rollWithFaces(state, 4);
-		expect(rolled.engine.pending?.choice.data?.triggerInterrupt?.skillId).not.toBe(SPARK);
+		expect(pendingTriggerInterruptOf(rolled)?.skillId).not.toBe(SPARK);
 		expect(gameOf(rolled).combat?.pendingDiceSelection).toBeUndefined();
 	});
 
 	it("abre Centelha também no combate físico contra o chefe", () => {
 		const { state } = ready(MOON, { boss: true });
 		const rolled = rollWithFaces(state, 1);
-		expect(rolled.engine.pending?.choice.data?.triggerInterrupt?.skillId).toBe(SPARK);
+		expect(pendingTriggerInterruptOf(rolled)?.skillId).toBe(SPARK);
 	});
 
 	it("oferece reação ao herói defensor de um ataque excedente", () => {
 		const { state } = ready(MOON, { extra: true });
 		const rolled = rollWithFaces(state, 1);
 		expect(gameOf(rolled).combat?.lastRoll?.extraAttack).toBe(true);
-		expect(rolled.engine.pending?.choice.data?.triggerInterrupt?.skillId).toBe(SPARK);
+		expect(pendingTriggerInterruptOf(rolled)?.skillId).toBe(SPARK);
 	});
 
 	it("usa a mesma decisão para Runa Menor equipada", () => {
 		const { state } = ready("hero_eternal_rest_cleric", { item: true });
 		const rolled = rollWithFaces(state, 1);
-		expect(rolled.engine.pending?.choice.data?.triggerInterrupt?.skillId).toBe("skill_minor_rune");
+		expect(pendingTriggerInterruptOf(rolled)?.skillId).toBe("skill_minor_rune");
 	});
 
 	it("artefato sem portador pode fixar um dado e consome a carga só após escolher a face", () => {
 		const { state } = ready("hero_eternal_rest_cleric", { artifact: true });
 		const rolled = rollWithFaces(state, 2, 5);
-		const interrupt = rolled.engine.pending!.choice.data!.triggerInterrupt!;
+		const interrupt = pendingTriggerInterruptOf(rolled)!;
 		expect(interrupt.skillId).toBe("power_supreme_rift_rune");
 		const prompted = reducer(testEngine, rolled, {
 			type: "APPLY_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id },
 		});
-		expect(prompted.engine.pending?.choice.data?.skillChoice?.skillId).toBe("power_supreme_rift_rune");
+		expect(pendingSkillChoiceOf(prompted)?.skillId).toBe("power_supreme_rift_rune");
 		const selected = reducer(testEngine, prompted, { type: "SKILL_CHOICE", payload: {
 			skillId: "power_supreme_rift_rune", choice: "ally_six",
 		} });
