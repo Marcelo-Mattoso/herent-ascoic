@@ -143,7 +143,8 @@
       "text006": "2. Elige el nuevo valor",
       "text007": "Selecciona un dado para ver los valores permitidos.",
       "text008": "Después de la habilidad, podrás resolver el ataque.",
-      "dynamic001": "El ataque espera tu elección."
+      "dynamic001": "El ataque espera tu elección.",
+      "noEligible": "No hay dados válidos — continuar sin gastar la habilidad"
     },
     "enemyCard": {
       "text001": "Subjefe",
