@@ -32,7 +32,7 @@ async function startCombat(page: Page, heroCount = 1) {
 					heroCardIds,
 					mode: "cooperative",
 					difficulty: "normal",
-					seed: 42,
+					seed: 2,
 				},
 			},
 		);
