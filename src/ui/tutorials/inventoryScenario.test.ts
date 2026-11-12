@@ -75,9 +75,10 @@ describe("Arquivo III", () => {
 		expect(gameOf(state).combat?.heroesActed).toEqual([]);
 		expect(gameOf(state).status).toBe("HERO_ACTION");
 		expect(selectHeroCombatActions(testEngine, state, hero.id).canStartAttack).toBe(true);
+		// This is a passive/reactive charm, not a manually activated item.
 		expect(
 			manualItemUnavailableReason(testEngine, state, hero.id, INVENTORY_ITEMS.charm),
-		).toBeTruthy();
+		).toBeNull();
 		expect(
 			createGameJournal(testEngine, state)
 				.get()
