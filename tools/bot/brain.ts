@@ -77,9 +77,9 @@ function choiceScore(view: PlayerView, choice: string, profile: BotProfile): num
 		return hero && hero.hitBonus < 5 ? 70 : 55;
 	}
 	if (choice === "damage" || /damage|dano/i.test(choice)) return profile === "speedrunner" ? 85 : 65;
-	if (choice === "ally_six" || choice === "enemy_min") {
+	if (choice === "ally_six" || choice === "enemy_min" || choice === "witch_eclipse_hero_six" || choice === "witch_eclipse_enemy_one") {
 		const roll = view.combat?.lastRoll;
-		return roll ? 60 + (choice === "ally_six"
+		return roll ? 60 + (choice === "ally_six" || choice === "witch_eclipse_hero_six"
 			? 6 - Math.min(...roll.heroResults)
 			: Math.max(...roll.enemyResults) - 1) : 50;
 	}
@@ -119,7 +119,8 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 		case "SELECT_DIE": {
 			const { side, index, value } = action.payload;
 			const current = (side === "hero" ? view.combat?.lastRoll?.heroResults : view.combat?.lastRoll?.enemyResults)?.[index];
-			return current === undefined ? -1 : 100 + (value === undefined ? 0 : side === "hero" ? value - current : current - value);
+			const target = value ?? view.combat?.pendingDiceSelection?.setToValue;
+			return current === undefined ? -1 : 100 + (target === undefined ? 0 : side === "hero" ? target - current : current - target);
 		}
 		case "SPEND_XP": {
 			const { option, heroId } = action.payload;
@@ -267,7 +268,9 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 	const moves: ScoredMove[] = [];
 	for (const hero of activeHeroes(view)) {
 		for (const ability of obs.abilities[hero.id] ?? []) {
-			// Preparar reações voluntárias antes da rolagem; não alternar as já preparadas.
+			// Post-roll dice reactions are prompted by the engine when a die is eligible.
+			// Do not waste bot decisions toggling their old preparation control.
+			if (ability.modifiesDice && ability.activation === "prepare") continue;
 			if (ability.status !== "available" ||
 				(ability.activation !== "manual" && ability.activation !== "prepare")) continue;
 			const targets = abilityTargets(view, ability, hero, profile);
