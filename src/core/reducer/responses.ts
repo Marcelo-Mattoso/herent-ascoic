@@ -476,6 +476,8 @@ export const responseHandler: GameHandler = {
 		) {
 			return true;
 		}
+		if (gameOf(state).combat?.pendingDiceSelection)
+			return action.type !== "SELECT_DIE";
 		return (
 			!!pendingSkillTargetOf(state) &&
 			action.type !== "SELECT_SKILL_TARGET" &&
