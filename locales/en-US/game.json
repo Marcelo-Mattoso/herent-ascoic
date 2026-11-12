@@ -370,7 +370,8 @@
           "round_end": "End of round",
           "round_start": "Start of round",
           "targeted": "Target selected"
-        }
+        },
+        "diceQuestion": "The dice have been rolled. Do you want to activate this ability before resolving the attack?"
       },
       "useItemModal": {
         "text001": "No active items available during this window.",
