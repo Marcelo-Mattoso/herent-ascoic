@@ -30,7 +30,7 @@
 		"bot:dungeon-report": "npx vite-node tools/bot/dungeonReport.ts --",
 		"bot:leveling-report": "npx vite-node tools/bot/dungeonReport.ts --",
 		"bot:skills-audit": "npx vite-node tools/bot/skill-audit/run.ts",
-		"bot:expansion-audit": "npx vite-node tools/bot/expansionAudit.ts --",
+		"audit": "npm run bot:skills-audit && npm run bot:leveling-report",
 		"bot:catalog-report": "npx vite-node tools/bot/catalogReport.ts --",
 		"bot:screen": "npx vite-node tools/bot/screen.ts --",
 		"typecheck:engine": "tsc -p tsconfig.engine.json",
