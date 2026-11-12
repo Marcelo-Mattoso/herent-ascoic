@@ -10,6 +10,7 @@ import { playAiGame } from "./ai";
 import { BOT_HEROES } from "./play";
 import { createHeadlessPort } from "./port";
 import { BOT_PROFILES, type BotProfile, setupForRun } from "./profiles";
+import { healingItemOptions } from "./healing";
 
 export const BENCHMARK_DIFFICULTIES: readonly Difficulty[] = [
 	"very_easy", "easy", "normal", "hard", "nightmare",
@@ -54,6 +55,9 @@ export interface ProgressionTelemetry {
 	readonly abilityOpportunities: number;
 	readonly skillOpportunities: number;
 	readonly powerOpportunities: number;
+	/** Preparações de reações (não contam como uso do efeito). */
+	readonly skillPreparations: number;
+	readonly powerPreparations: number;
 }
 
 export interface ItemTelemetry {
@@ -78,6 +82,13 @@ export interface ItemTelemetry {
 	readonly usesAfterRoom8: number;
 	/** Menor estoque nas etapas posteriores, útil para flagrar falta de recursos. */
 	readonly emptyInventoryActionsAfterRoom8: number;
+	/** Decisões com cura legal disponível para um herói ferido. */
+	readonly healingDecisionPoints: number;
+	readonly healingIgnoredDecisionPoints: number;
+	readonly healingItemsUsed: number;
+	/** Mortes nas quais havia uma ação legal de cura antes do golpe fatal. */
+	readonly deathsWithAvailableHeal: number;
+	readonly recoverableHpAtDeaths: number;
 }
 
 export interface BenchmarkTrial extends BenchmarkCase {
@@ -207,12 +218,42 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let levelUpOpportunities = 0, levelUpPurchases = 0, levelUpAttempts = 0, levelUpNoEffect = 0;
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
 	let triggeredSkillUses = 0, triggeredPowerUses = 0;
+	let skillPreparations = 0, powerPreparations = 0;
+	let healingDecisionPoints = 0, healingIgnoredDecisionPoints = 0, healingItemsUsed = 0;
+	let deathsWithAvailableHeal = 0, recoverableHpAtDeaths = 0;
 	let itemsAcquired = 0, itemsUsed = 0, itemsDiscarded = 0;
 	const usesByItem: Record<string, number> = {};
 	let inventoryAfterRoom7: number | null = null, inventoryAfterRoom8: number | null = null;
 	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const action = step.chosen.action;
+		const healOptions = healingItemOptions(step.before).filter((heal) =>
+			step.options.some((move) => move.action.type === "USE_ITEM" &&
+				move.action.payload.heroId === heal.ownerId && move.action.payload.itemId === heal.itemId &&
+				(move.action.payload.targetHeroId ?? heal.ownerId) === heal.targetId));
+		if (healOptions.length) {
+			healingDecisionPoints++;
+			const consumed = action.type === "USE_ITEM" && healOptions.some((heal) =>
+				heal.ownerId === action.payload.heroId && heal.itemId === action.payload.itemId &&
+				(action.payload.targetHeroId ?? heal.ownerId) === heal.targetId);
+			if (consumed) healingItemsUsed++;
+			else healingIgnoredDecisionPoints++;
+			for (const hero of step.before.heroes.filter((entry) => entry.status === "active")) {
+				if (step.after.heroes.some((entry) => entry.id === hero.id && entry.status === "active")) continue;
+				const available = healOptions.filter((heal) => heal.targetId === hero.id);
+				if (!available.length) continue;
+				deathsWithAvailableHeal++;
+				recoverableHpAtDeaths += Math.max(...available.map((heal) => Math.min(heal.missing, heal.amount)));
+			}
+		}
+		if (action.type === "USE_SKILL") {
+			const projected = step.before.abilityActionsByHero[action.payload.sourceId]?.find((entry) =>
+				entry.abilityId === action.payload.skillId);
+			if (projected?.activation === "prepare") {
+				if (projected.kind === "skill") skillPreparations++;
+				if (projected.kind === "power") powerPreparations++;
+			}
+		}
 		const usedItem = action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM" ||
 			(action.type === "USE_SKILL" &&
 				(step.before.abilityActionsByHero[action.payload.sourceId] ?? []).some(
@@ -307,9 +348,11 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		bossDefeated: state.bossDefeated,
 		artifacts: state.groupArtifacts.length,
 		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
-			skillById(engine, action.payload.skillId)?.category === "hero_skill").length + triggeredSkillUses,
+			skillById(engine, action.payload.skillId)?.category === "hero_skill" &&
+			skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered").length + triggeredSkillUses,
 		powerUses: result.actions.filter((action) => action.type === "USE_POWER" ||
-			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power")).length + triggeredPowerUses,
+			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power" &&
+				skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered")).length + triggeredPowerUses,
 		items: {
 			acquired: itemsAcquired, uses: itemsUsed, usesByItem, finalInventoryByItem,
 			discarded: itemsDiscarded,
@@ -320,6 +363,8 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			itemDeckAvailableFinal: deckOf(result.final, "itemDeck").available.length,
 			inventoryAfterRoom7, inventoryAfterRoom8,
 			usesAfterRoom7, usesAfterRoom8, emptyInventoryActionsAfterRoom8,
+			healingDecisionPoints, healingIgnoredDecisionPoints, healingItemsUsed,
+			deathsWithAvailableHeal, recoverableHpAtDeaths,
 		},
 		progression: {
 			xpGained: gained, xpSpent: spentTotal, xpSpentByOption: spent,
@@ -329,6 +374,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			levelFinal: finalLevel,
 			levelPeak, levelUpOpportunities, levelUpPurchases,
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
+			skillPreparations, powerPreparations,
 		},
 	};
 }
