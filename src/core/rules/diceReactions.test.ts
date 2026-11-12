@@ -9,6 +9,7 @@ import { guardPassed } from "../triggers/engine";
 import { reducer } from "../reducer";
 import { gameOf, withGame } from "../../engine/state";
 import { canChangeRolledDice, hasDiceChangeEffect } from "./diceReactions";
+import { legalActions } from "../legalActions";
 import { buildScriptCtx } from "../scripts/context";
 import { evaluate } from "../skills/dsl/evaluate";
 import { drainStack } from "../effects/resolver";
@@ -113,6 +114,23 @@ describe("Centelha da Lua Verde: modal, dados e cargas", () => {
 		});
 		expect(guardPassed(skipped, skillById(testEngine, SPARK)!, heroId)).toBe(true);
 		expect(gameOf(skipped).combat?.pendingDiceSelection).toBeUndefined();
+	});
+
+	it("exibe SELECT_DIE como ação legal do core; impede resolver o ataque antes da decisão", () => {
+		const { state } = ready(MOON);
+		const rolled = rollWithFaces(state, 1);
+		const interrupt = pendingTriggerInterruptOf(rolled)!;
+		const accepted = reducer(testEngine, rolled, {
+			type: "APPLY_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id },
+		});
+		const legal = legalActions(testEngine, accepted);
+		expect(legal.some((action) => action.type === "SELECT_DIE")).toBe(true);
+		expect(legal.some((action) => action.type === "RESOLVE_ATTACK")).toBe(false);
+		const ignored = reducer(testEngine, accepted, { type: "RESOLVE_ATTACK" });
+		expect(gameOf(ignored).combat?.pendingDiceSelection).toBeDefined();
+		const result = reducer(testEngine, accepted,
+			legal.find((action) => action.type === "SELECT_DIE")!);
+		expect(gameOf(result).combat?.pendingDiceSelection).toBeUndefined();
 	});
 
 	it("só marca uso após escolher um dado válido, recalcula total e não duplica gatilho", () => {
