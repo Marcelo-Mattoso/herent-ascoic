@@ -1799,8 +1799,11 @@ export function handleSelectDie(
 		`Dado ${side === "hero" ? "aliado" : "inimigo"} [${index}] alterado de ${dieValue} para ${newValue}.`);
 	const window = pendingSkillWindowOf(committed);
 	if (!window) return committed;
-	// Continue any other post-roll reactions using the updated roll.
-	return resolveSkillWindow(engine, withPendingSkillWindow(committed, undefined), window);
+	// Continue remaining reactions with the NEW margin, not the original one.
+	const updatedWindow = window.event === "evt_roll"
+		? { ...window, ctx: { ...window.ctx, value: newRoll.heroTotal - newRoll.enemyTotal } }
+		: window;
+	return resolveSkillWindow(engine, withPendingSkillWindow(committed, undefined), updatedWindow);
 }
 
 // ─── CANCEL_HERO_SELECTION ───────────────────────────────────────────────────
