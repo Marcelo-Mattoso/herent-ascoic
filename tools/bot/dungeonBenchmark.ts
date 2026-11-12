@@ -58,6 +58,13 @@ export interface ProgressionTelemetry {
 	/** Preparações de reações (não contam como uso do efeito). */
 	readonly skillPreparations: number;
 	readonly powerPreparations: number;
+	/** Ações efetivamente aceitas pelo motor; NÃO comprova que o efeito foi aplicado. */
+	readonly abilityActivity?: {
+		readonly preparationsById: Readonly<Record<string, number>>;
+		readonly manualActionsById: Readonly<Record<string, number>>;
+		readonly triggersAcceptedById: Readonly<Record<string, number>>;
+		readonly triggersSkippedById: Readonly<Record<string, number>>;
+	};
 }
 
 export interface ItemTelemetry {
@@ -222,6 +229,13 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
 	let triggeredSkillUses = 0, triggeredPowerUses = 0;
 	let skillPreparations = 0, powerPreparations = 0;
+	const preparationsById: Record<string, number> = {};
+	const manualActionsById: Record<string, number> = {};
+	const triggersAcceptedById: Record<string, number> = {};
+	const triggersSkippedById: Record<string, number> = {};
+	const increment = (counts: Record<string, number>, id: string) => {
+		counts[id] = (counts[id] ?? 0) + 1;
+	};
 	let healingDecisionPoints = 0, healingIgnoredDecisionPoints = 0, healingItemsUsed = 0;
 	let deathsWithAvailableHeal = 0, recoverableHpAtDeaths = 0;
 	let itemsAcquired = 0, itemsUsed = 0, itemsDiscarded = 0;
@@ -253,9 +267,17 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			const projected = step.before.abilityActionsByHero[action.payload.sourceId]?.find((entry) =>
 				entry.abilityId === action.payload.skillId);
 			if (projected?.activation === "prepare") {
+				increment(preparationsById, action.payload.skillId);
 				if (projected.kind === "skill") skillPreparations++;
 				if (projected.kind === "power") powerPreparations++;
+			} else {
+				increment(manualActionsById, action.payload.skillId);
 			}
+		}
+		if ((action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT") &&
+			step.before.pendingTriggerInterrupt) {
+			increment(action.type === "APPLY_TRIGGER_INTERRUPT" ? triggersAcceptedById : triggersSkippedById,
+				step.before.pendingTriggerInterrupt.skillId);
 		}
 		const usedItem = action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM" ||
 			(action.type === "USE_SKILL" &&
@@ -385,6 +407,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			levelPeak, levelUpOpportunities, levelUpPurchases,
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
 			skillPreparations, powerPreparations,
+			abilityActivity: { preparationsById, manualActionsById, triggersAcceptedById, triggersSkippedById },
 		},
 	};
 }

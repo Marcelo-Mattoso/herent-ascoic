@@ -1,7 +1,10 @@
 import type { BenchmarkSummary, BenchmarkTrial, DungeonBenchmarkOptions } from "./dungeonBenchmark";
+import type { ReportProvenance } from "./reportProvenance";
 
 export interface DungeonReportData {
 	readonly generatedAt: string;
+	readonly provenance?: ReportProvenance;
+	readonly scope?: "solo";
 	readonly options: DungeonBenchmarkOptions;
 	readonly completed: number;
 	readonly expected: number;
@@ -24,6 +27,10 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 		"# Ensaio de masmorras — Ascensão Heróica",
 		"",
 		"Execução em " + report.generatedAt + ". " + report.completed + "/" + report.expected + " partidas.",
+		report.provenance ? "Commit: " + (report.provenance.gitCommit ?? "não identificado") +
+			"; árvore Git " + (report.provenance.workingTreeClean ? "limpa" : "não validada") +
+			"; comparabilidade " + (report.provenance.comparable ? "verificada" : "não verificada") + "." : "",
+		"Escopo: exclusivamente partidas solo; grupos de 2–4 heróis não estão incluídos.",
 		"Seeds " + options.seed + " a " + (options.seed + options.runs - 1) +
 			"; " + options.runs + " repetições; até " + options.maxSteps + " ações por partida.",
 		"",
@@ -210,7 +217,9 @@ el("metadata").innerHTML=[
 'Gerado em '+new Date(data.generatedAt).toLocaleString("pt-BR"),
 data.options.runs+' seeds compartilhadas',
 data.completed+' / '+data.expected+' partidas',
-data.options.expansions.length+' expansões independentes'
+data.options.expansions.length+' expansões independentes',
+data.provenance?.gitCommit ? 'Commit '+data.provenance.gitCommit.slice(0,8)+(data.provenance.comparable?' · limpo':' · não comparável') : 'Commit não informado',
+'Escopo: solo'
 ].map((x)=>'<span class="pill">'+esc(x)+'</span>').join("");
 el("expansion").innerHTML='<option value="all">Todas as expansões</option>'+data.options.expansions.map((id)=>'<option value="'+esc(id)+'">'+esc(expansionName(id))+'</option>').join("");
 el("expansion").value=data.options.expansions[0]||"all";

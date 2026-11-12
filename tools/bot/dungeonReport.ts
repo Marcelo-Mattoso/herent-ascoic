@@ -3,6 +3,7 @@ import path from "node:path";
 import { getEnabledExpansions } from "@/core/data/expansions";
 import { buildCatalogBalance } from "./catalogBalance";
 import { assertLocalReportExecution } from "./localLevelingReports";
+import { assertSameReportProvenance, reportProvenance } from "./reportProvenance";
 import {
 	type BenchmarkTrial,
 	type DungeonBenchmarkOptions,
@@ -92,18 +93,25 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		expansion.rooms.length + " salas · " + expansion.items.length + " itens · " +
 		expansion.roomsBelowFourEnemies + " salas com menos de 4 inimigos (4 heróis)");
 	if (options.dryRun) return null;
+	const provenance = reportProvenance(catalogPreview);
+	if (!provenance.comparable) console.warn("ATENÇÃO: árvore Git suja ou commit desconhecido; este relatório não é elegível para comparação controlada ou retomada.");
 	const dir = outputDir(options);
 	const configFile = path.join(dir, "config.json");
+	const manifestFile = path.join(dir, "manifest.json");
 	const trialFile = path.join(dir, "trials.jsonl");
 	if (options.resume) {
 		if (!fs.existsSync(configFile)) throw new Error("Configuração não encontrada para retomar: " + configFile);
 		const existing = JSON.parse(fs.readFileSync(configFile, "utf8")) as DungeonBenchmarkOptions;
 		if (JSON.stringify(existing) !== JSON.stringify(benchmark))
 			throw new Error("A configuração de --resume difere da execução original.");
+		if (!fs.existsSync(manifestFile)) throw new Error("Checkpoint legado sem proveniência; não é seguro retomar esta execução.");
+		const saved = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+		assertSameReportProvenance(saved, provenance);
 	} else {
 		if (fs.existsSync(dir)) throw new Error("Pasta de relatório já existe: " + dir + ". Use --resume.");
 		fs.mkdirSync(dir, { recursive: true });
 		fs.writeFileSync(configFile, JSON.stringify(benchmark, null, 2) + "\n");
+		fs.writeFileSync(manifestFile, JSON.stringify(provenance, null, 2) + "\n");
 	}
 
 	// Em caso de interrupção, trials.jsonl permite continuar sem repetir partidas.
@@ -150,6 +158,8 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		schemaVersion: 1,
 		kind: "simulation",
 		generatedAt: new Date().toISOString(),
+		provenance,
+		scope: "solo" as const,
 		options: benchmark,
 		completed: trials.length,
 		expected: plan.length,
