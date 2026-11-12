@@ -12,6 +12,7 @@ import { heroesOf, pendingSkillTargetOf, pendingTriggerInterruptOf,
 	recordOfEnemy, spawnEnemy, withWorld, worldOf } from "@/core/state/access";
 import type { EnemyState } from "@/core/state/enemyState";
 import { legalActions } from "@/core/legalActions";
+import { canStartHeroAttack } from "@/core/rules/attackAvailability";
 
 export interface RuntimeScenarioResult {
 	readonly id: string;
@@ -65,8 +66,8 @@ function checkFury(): void {
 		"Fúria não aplicou o custo de 2 PV no ataque");
 	ensure(!Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
 		entry.abilityId === "skill_crimson_fury"), "Fúria continuou preparada após disparar");
-	ensure(gameOf(state).combat?.heroesActed.includes(heroId),
-		"Fúria não consumiu a oportunidade de ataque após o disparo");
+	ensure(!canStartHeroAttack(state, heroId),
+		"Fúria permitiu outro ataque após o disparo");
 }
 
 function checkPreyMark(): void {
