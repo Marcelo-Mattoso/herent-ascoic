@@ -9,6 +9,7 @@ import {
 } from "../../../ecs/world";
 import { log } from "../../../reducer/utils";
 import { matchesDamageOverTimeStatus } from "../../../rules/damageOverTime";
+import { hasDiceChangeEffect, canChangeRolledDice } from "../../../rules/diceReactions";
 import { skillById, skillOptionLabel } from "../../../gameEngine";
 import type { GameKindPackage } from "../../../gameEngine";
 import { applyDamage } from "../../../systems/damageSystem";
@@ -381,7 +382,16 @@ const chooseOne = effectKind({
 			if (!canDiscardItem) return evaluate(alternative.effect as readonly EffectNode[], ctx);
 			if (!canUseAlternative) return evaluate(itemOption.effect as readonly EffectNode[], ctx);
 		}
-		const options = node.options.map((opt) => {
+		// Do not let the player choose a dice option that cannot change a face.
+		// This prevents selecting "ally to 6" when all ally dice are already 6.
+		const currentRoll = gameOf(ctx.state).combat?.lastRoll;
+		const diceOnly = Boolean(currentRoll) && node.options.every((option) =>
+			hasDiceChangeEffect(option.effect));
+		const candidates = diceOnly
+			? node.options.filter((option) => canChangeRolledDice(option.effect, currentRoll))
+			: node.options;
+		if (candidates.length === 0) return ctx.state;
+		const options = candidates.map((opt) => {
 			const template = skillOptionLabel(ctx.engine, ctx.skillId, opt.id);
 			const label = template.replace(/\{(\w+)\}/g, (_m, k: string) =>
 				String((opt.params ?? {})[k] ?? "?"),
