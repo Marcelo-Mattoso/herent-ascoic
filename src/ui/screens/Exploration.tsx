@@ -207,7 +207,7 @@ export function Exploration({
 			(status === "DIRECT_DAMAGE" || status === "CHECK_COMBAT_END")
 		)
 			return;
-		if (view.pendingTriggerInterrupt || view.pendingSkillChoice || view.pendingSkillTarget) return;
+		if (view.pendingTriggerInterrupt || view.pendingSkillChoice || view.pendingSkillTarget || view.combat?.pendingDiceSelection) return;
 		if (status === "DIRECT_DAMAGE" && !view.combat) return;
 		const action = AUTO_ADVANCE[status];
 		if (!action) return;
@@ -440,7 +440,8 @@ export function Exploration({
 								}
 								onResolve={handleResolveAttack}
 								onConfirmDiceRoll={(payload) => dispatch({ type: "CONFIRM_DICE_ROLL", payload })}
-								onSelectDie={(side, index, value) =>
+								onCancelDiceSelection={() => dispatch({ type: "CANCEL_DICE_SELECTION" })}
+									onSelectDie={(side, index, value) =>
 									dispatch({
 										type: "SELECT_DIE",
 										payload: { side, index, value },
