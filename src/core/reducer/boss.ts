@@ -164,7 +164,7 @@ export function handleRevealBoss(engine: GameEngine, state: GameState): GameStat
 // mas RESOLVE_ATTACK chama handleBossResolveAttack que aplica habilidades especiais.
 
 export function handleBossResolveAttack(engine: GameEngine, state: GameState): GameState {
-	if (!gameOf(state).combat?.lastRoll) return state;
+	if (!gameOf(state).combat?.lastRoll || gameOf(state).combat?.pendingDiceSelection) return state;
 	const roll = gameOf(state).combat!.lastRoll;
 
 	const hero = heroesOf(state).find((h) => h.id === roll!.heroId);
