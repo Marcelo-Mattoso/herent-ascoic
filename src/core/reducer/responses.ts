@@ -76,7 +76,8 @@ export function resumeAfterSkillWindow(
 		!window ||
 		pendingTriggerInterruptOf(state) ||
 		pendingSkillChoiceOf(state) ||
-		pendingSkillTargetOf(state)
+		pendingSkillTargetOf(state) ||
+		gameOf(state).combat?.pendingDiceSelection
 	) {
 		return state;
 	}
@@ -96,7 +97,8 @@ export function resumeAfterSkillWindow(
 	if (
 		pendingTriggerInterruptOf(afterStack) ||
 		pendingSkillChoiceOf(afterStack) ||
-		pendingSkillTargetOf(afterStack)
+		pendingSkillTargetOf(afterStack) ||
+		gameOf(afterStack).combat?.pendingDiceSelection
 	) {
 		return attachParent(afterStack);
 	}
@@ -108,6 +110,8 @@ export function resumeAfterSkillWindow(
 				return handlePreparePhysicalRoll(engine, afterStack, true);
 			case "resolve_attack":
 				return handleResolveAttack(engine, afterStack);
+			case "after_roll":
+				return afterStack;
 			case "continue_rewards_after_room_win":
 				return continueRewardsAfterRoomWin(engine, afterStack);
 			case "finish_rewards":
@@ -160,7 +164,8 @@ export function resumeAfterSkillWindow(
 	if (
 		pendingTriggerInterruptOf(result) ||
 		pendingSkillChoiceOf(result) ||
-		pendingSkillTargetOf(result)
+		pendingSkillTargetOf(result) ||
+		gameOf(result).combat?.pendingDiceSelection
 	)
 		return attachParent(result);
 	return window.parent
