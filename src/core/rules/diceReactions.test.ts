@@ -12,7 +12,6 @@ import { canChangeRolledDice, hasDiceChangeEffect } from "./diceReactions";
 
 const MOON = "hero_green_moon_sorceress";
 const SPARK = "witch_skill_lunar_spark";
-const ECLIPSE = "witch_power_green_eclipse";
 const STAFF = "item_crimson_rune_staff";
 const HAMMER = "artifact_lost_forge_hammer";
 
