@@ -40,13 +40,13 @@ describe("expansion audit: CLI and report comparison", () => {
 			configuration: { runs: 10, seed: 1, maxSteps: 1000 },
 			reports: { skills: "", catalog: "", leveling: "" },
 			skillSummary: { structuralFail: 2, runtimeNotCovered: 10 },
-			levelingSummary: { completed: 2, expected: 2, outcomes: { WIN: 1, LOSS: 1 } },
+			levelingSummary: { completed: 2, expected: 2, outcomes: { WIN: 1, LOSS: 1 }, byCase: [] },
 			limitations: [],
 		};
 		const final = { ...initial, phase: "closing" as const,
 			configuration: { ...initial.configuration, seed: 20 },
 			skillSummary: { structuralFail: 1, runtimeNotCovered: 10 },
-			levelingSummary: { completed: 2, expected: 2, outcomes: { WIN: 2 } },
+			levelingSummary: { completed: 2, expected: 2, outcomes: { WIN: 2 }, byCase: [] },
 		};
 		const compared = compareSnapshots(initial, final);
 		expect(compared.comparable).toBe(false);
