@@ -6,7 +6,7 @@ import { COMBAT_OPENING_SEED } from "./seeds";
 import { INVENTORY_ITEMS, prepareInventoryTraining } from "./inventory";
 import type { GameEngine } from "@/core/gameEngine";
 
-import { deckOf, decksOf, withDecks } from "@/core/state/access";
+import { deckOf, decksOf, enemiesOf, recordOfEnemy, spawnEnemy, withDecks } from "@/core/state/access";
 import { gameOf, withGame } from "../../engine/state";
 export const ABILITY_HUNTER = "hero_broken_veil_hunter";
 export const ABILITY_BARBARIAN = "hero_crimson_barbarian";
@@ -28,6 +28,17 @@ export function prepareAbilityEncounter(engine: GameEngine, heroCardId: string, 
 		state = reducer(engine, state, action);
 	if (gameOf(state).status !== "HERO_ACTION" || !gameOf(state).heroes[0] || !gameOf(state).activeEnemies.some((enemy) => enemy.status === "active"))
 		throw new Error(`Encontro de habilidades indisponível para ${heroCardId}`);
+	// The first two rooms now intentionally have one monster. The Hunter's
+	// training must still present a genuine target-selection decision.
+	if (heroCardId === ABILITY_HUNTER && enemiesOf(state).length === 1) {
+		const original = enemiesOf(state)[0]!;
+		const second = { ...original, id: original.id + "-training-alternative" };
+		state = withGame(state, (game) => ({
+			...game,
+			activeEnemies: [...game.activeEnemies, recordOfEnemy(second)],
+			world: spawnEnemy(game.world, second),
+		}));
+	}
 	return state;
 }
 
