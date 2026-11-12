@@ -38,6 +38,8 @@ function prepareEncounter(
 	const ready = withGame(started, (game) => ({
 		...game,
 		status: "SPAWN_ENEMIES" as const,
+		// At the fifth room all creature tiers are unlocked; early rooms are intentionally restricted.
+		roomsCleared: 4,
 		currentRoom: {
 			cardId: roomCard.id,
 			exits: roomCard.exits,
