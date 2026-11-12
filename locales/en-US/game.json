@@ -141,7 +141,8 @@
       "text006": "2. Choose the new value",
       "text007": "Select a die to see the allowed values.",
       "text008": "After using the ability, you can resolve the attack.",
-      "dynamic001": "The attack is waiting for your choice."
+      "dynamic001": "The attack is waiting for your choice.",
+      "noEligible": "No eligible dice — continue without spending the ability"
     },
     "enemyCard": {
       "text001": "Sub-boss",
