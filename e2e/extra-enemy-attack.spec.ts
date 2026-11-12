@@ -42,7 +42,7 @@ test("inimigos excedentes atacam com animações sequenciais", async ({ page }) 
 	await page.evaluate(() => {
 		(window as unknown as { __dispatch: (action: unknown) => void }).__dispatch({
 			type: "START_GAME",
-			payload: { heroCardIds: ["hero_crimson_barbarian"], mode: "cooperative", difficulty: "normal", seed: 42 },
+			payload: { heroCardIds: ["hero_crimson_barbarian"], mode: "cooperative", difficulty: "normal", seed: 2 },
 		});
 	});
 	await expect(page.locator(".game-board-root")).toBeVisible();
@@ -82,7 +82,7 @@ test("ataque excedente usa as faces físicas antes da animação", async ({ page
 	await page.evaluate(() => {
 		(window as unknown as { __dispatch: (action: unknown) => void }).__dispatch({
 			type: "START_GAME",
-			payload: { heroCardIds: ["hero_crimson_barbarian"], mode: "cooperative", difficulty: "normal", seed: 42 },
+			payload: { heroCardIds: ["hero_crimson_barbarian"], mode: "cooperative", difficulty: "normal", seed: 2 },
 		});
 	});
 	await expect(page.locator(".game-board-root")).toBeVisible();
