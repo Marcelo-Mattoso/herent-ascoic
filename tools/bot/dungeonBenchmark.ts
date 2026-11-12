@@ -10,7 +10,7 @@ import { playAiGame } from "./ai";
 import { BOT_HEROES } from "./play";
 import { createHeadlessPort } from "./port";
 import { BOT_PROFILES, type BotProfile, setupForRun } from "./profiles";
-import { healingItemOptions } from "./healing";
+import { healingItemOptions, itemHealingAmount } from "./healing";
 
 export const BENCHMARK_DIFFICULTIES: readonly Difficulty[] = [
 	"very_easy", "easy", "normal", "hard", "nightmare",
@@ -89,6 +89,9 @@ export interface ItemTelemetry {
 	/** Mortes nas quais havia uma ação legal de cura antes do golpe fatal. */
 	readonly deathsWithAvailableHeal: number;
 	readonly recoverableHpAtDeaths: number;
+	/** Derrotados com uma cura ainda equipada (pode não estar legal na ação final). */
+	readonly defeatedHeroesWithEquippedHeal: number;
+	readonly unusedHealingCapacityOnDefeat: number;
 }
 
 export interface BenchmarkTrial extends BenchmarkCase {
@@ -330,6 +333,12 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	const state = gameOf(result.final);
 	const allFinalHeroes = [...state.heroes, ...state.defeatedHeroes, ...state.fledHeroes];
 	const remainingInventory = inventoryCounts(allFinalHeroes);
+	const equippedHealingAtDefeat = state.defeatedHeroes.map((hero) =>
+		Object.values(hero.activeItems).filter((id): id is string => Boolean(id))
+			.map(itemHealingAmount).filter((amount): amount is number => amount !== null));
+	const defeatedHeroesWithEquippedHeal = equippedHealingAtDefeat.filter((amounts) => amounts.length > 0).length;
+	const unusedHealingCapacityOnDefeat = equippedHealingAtDefeat.reduce((sum, amounts) =>
+		sum + amounts.reduce((total, amount) => total + (Number.isFinite(amount) ? amount : 0), 0), 0);
 	const finalInventoryByItem: Record<string, number> = {};
 	for (const hero of allFinalHeroes) {
 		for (const id of [...Object.values(hero.activeItems).filter((value): value is string => Boolean(value)), ...hero.backpack])
@@ -365,6 +374,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			usesAfterRoom7, usesAfterRoom8, emptyInventoryActionsAfterRoom8,
 			healingDecisionPoints, healingIgnoredDecisionPoints, healingItemsUsed,
 			deathsWithAvailableHeal, recoverableHpAtDeaths,
+			defeatedHeroesWithEquippedHeal, unusedHealingCapacityOnDefeat,
 		},
 		progression: {
 			xpGained: gained, xpSpent: spentTotal, xpSpentByOption: spent,
