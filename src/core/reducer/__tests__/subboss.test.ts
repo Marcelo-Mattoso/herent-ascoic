@@ -122,7 +122,7 @@ describe("F13 — Subchefes", () => {
 		let state = makeState();
 
 		// Injetar salas de subchefe manualmente no topo do deck
-		state = withDecks(withGame(withAwakening(state, 3), (prevGame) => ({ ...prevGame, currentRoom: null, status: "REVEAL_ROOM", subbosses: {
+		state = withDecks(withGame(withAwakening(state, 3), (prevGame) => ({ ...prevGame, currentRoom: null, status: "REVEAL_ROOM", roomsCleared: 4, subbosses: {
 				available: [
 					"subboss_room_jailer_chamber",
 					"subboss_room_cracked_abyss_chamber",
