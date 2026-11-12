@@ -4,6 +4,7 @@ import type { BotObservation } from "./observe";
 import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { artifactHasPoisonedTarget } from "@/core/rules/artifactActivation";
+import { healingMoveScore, itemHealingAmount } from "./healing";
 
 export interface ScoredMove {
 	readonly action: Action;
@@ -97,10 +98,8 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			if (!hero) return -1;
 			const ability = view.abilityActionsByHero[hero.id]?.find((entry) =>
 				entry.kind === "item" && entry.sourceCardId === action.payload.itemId);
-			const isHealing = ability && /heal|cura|potion|poção|antídoto|antiveneno/i.test(ability.label);
-			const missing = hero.maxLife - hero.currentLife;
-			if (isHealing && missing <= 0 && !hero.conditions.length) return -1;
-			if (isHealing) return missing >= 3 ? 175 + missing * 4 : 65;
+			const heal = itemHealingAmount(action.payload.itemId);
+			if (heal !== null) return healingMoveScore(view, action.payload.targetHeroId ?? hero.id, heal);
 			return pressure(view) ? 160 : 70;
 		}
 		case "USE_ARTIFACT": {
@@ -270,9 +269,9 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 	const moves: ScoredMove[] = [];
 	for (const hero of activeHeroes(view)) {
 		for (const ability of obs.abilities[hero.id] ?? []) {
-			// Gatilhos voluntários são resolvidos por APPLY_TRIGGER_INTERRUPT na janela
-			// correta do motor; USE_SKILL só vale para habilidades manuais.
-			if (ability.status !== "available" || ability.activation !== "manual") continue;
+			// Preparar reações voluntárias antes da rolagem; não alternar as já preparadas.
+			if (ability.status !== "available" ||
+				(ability.activation !== "manual" && ability.activation !== "prepare")) continue;
 			const targets = abilityTargets(view, ability, hero, profile);
 			if (ability.targetRequired && targets.length === 0) continue;
 			for (const target of ability.targetRequired ? targets : [undefined]) {
@@ -284,12 +283,15 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 						itemId: ability.sourceCardId, heroId: hero.id,
 						...(target ? targetHero ? { targetHeroId: target } : { targetEnemyId: target } : {}),
 					} };
-					moves.push({ action: itemAction, score: Math.min(score, pressure(view) ? 155 : 95) });
+					const heal = itemHealingAmount(ability.sourceCardId);
+					moves.push({ action: itemAction, score: heal !== null
+						? healingMoveScore(view, target ?? hero.id, heal)
+						: Math.min(score, pressure(view) ? 155 : 95) });
 				} else {
 					moves.push({ action: { type: "USE_SKILL", payload: {
 						skillId: ability.abilityId, sourceId: hero.id,
 						...(target ? { targetIds: [target] } : {}),
-					} }, score });
+					} }, score: ability.activation === "prepare" ? (ability.kind === "power" ? 235 : 225) : score });
 				}
 			}
 		}
