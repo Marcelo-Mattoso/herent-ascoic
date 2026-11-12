@@ -402,13 +402,23 @@ function handleBossRoll(engine: GameEngine, state: GameState): GameState {
 	const bossResult = buildBossRoll(engine, state);
 	if (!bossResult) return state;
 	const { roll, nextState } = bossResult;
-	return withGame(nextState, (prevGame) => ({
+	const rolled = withGame(nextState, (prevGame) => ({
 		...prevGame,
 		status: "RESOLVE_ATTACK",
 		combat: gameOf(nextState).combat
 			? { ...gameOf(nextState).combat!, lastRoll: roll }
 			: null,
 	}));
+	return resolveSkillWindow(engine, rolled, {
+		event: "evt_roll",
+		ctx: {
+			triggeredBy: "evt_roll", sourceHeroId: roll.heroId,
+			sourceEnemyId: roll.enemyId,
+			targetHeroIds: [roll.heroId], targetEnemyIds: [roll.enemyId],
+			value: roll.heroTotal - roll.enemyTotal,
+			round: gameOf(rolled).combat?.round ?? 0,
+		},
+	});
 }
 
 export const bossHandler: GameHandler = {
