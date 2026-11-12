@@ -1,6 +1,6 @@
 import { expect, test } from "@playwright/test";
 
-test("cartas, versos, tabuleiros e interface são entregues em WebP", async ({ request }) => {
+test("cartas de expansão em PNG/WebP e demais recursos em WebP têm formatos válidos", async ({ request }) => {
 	const bossManifestResponse = await request.get("/generated/cards/manifest.json");
 	expect(bossManifestResponse.ok()).toBe(true);
 	const bossManifest = await bossManifestResponse.json();
@@ -12,15 +12,27 @@ test("cartas, versos, tabuleiros e interface são entregues em WebP", async ({ r
 		const items = manifest.cards ?? manifest.backCards ?? manifest.boards ?? manifest.assets;
 		expect(items.length).toBeGreaterThan(0);
 		for (const item of items) {
-			expect(item.fileName.endsWith(".webp")).toBe(true);
-			expect(item.url.endsWith(".webp")).toBe(true);
+			const ext = item.fileName.endsWith(".png") ? ".png" : ".webp";
+			expect(group === "cards" || ext === ".webp", item.fileName).toBe(true);
+			expect(item.fileName.endsWith(ext), item.fileName).toBe(true);
+			expect(item.url.endsWith(ext), item.url).toBe(true);
 		}
-		for (const item of [items[0], items.at(-1)]) {
+		// Validate every expansion PNG, plus first and last entries of each group.
+		const inspected = new Map(
+			[items[0], items.at(-1), ...items.filter((item: { fileName: string }) => item.fileName.endsWith(".png"))]
+				.filter(Boolean)
+				.map((item: { url: string; fileName: string }) => [item.url, item]),
+		);
+		for (const item of inspected.values()) {
 			const result = await request.get(item.url);
-			expect(result.ok()).toBe(true);
+			expect(result.ok(), item.url).toBe(true);
 			const bytes = await result.body();
-			expect(bytes.subarray(0, 4).toString("ascii")).toBe("RIFF");
-			expect(bytes.subarray(8, 12).toString("ascii")).toBe("WEBP");
+			if (item.fileName.endsWith(".png")) {
+				expect(bytes.subarray(0, 8)).toEqual(Buffer.from([137, 80, 78, 71, 13, 10, 26, 10]));
+			} else {
+				expect(bytes.subarray(0, 4).toString("ascii")).toBe("RIFF");
+				expect(bytes.subarray(8, 12).toString("ascii")).toBe("WEBP");
+			}
 		}
 	}
 });
