@@ -16,12 +16,14 @@ export function DiceSelectionPanel({
 	heroName,
 	enemyName,
 	onConfirm,
+	onCancel,
 }: {
 	selection: DiceSelection;
 	roll: CombatRollResult;
 	heroName: string;
 	enemyName: string;
 	onConfirm: (side: "hero" | "enemy", index: number, value?: number) => void;
+	onCancel?: () => void;
 }) {
 	const [selected, setSelected] = useState<{
 		side: "hero" | "enemy";
@@ -45,6 +47,14 @@ export function DiceSelectionPanel({
 	const ready =
 		selected !== null &&
 		(rerolling || (nextValue !== undefined && values.includes(nextValue)));
+
+	const hasEligible = (["hero", "enemy"] as const).some((side) => {
+		const results = side === "hero" ? roll.heroResults : roll.enemyResults;
+		return results.some((n, index) =>
+			isEligibleDie(selection, side, index, results) &&
+			(selection.action === "reroll" && selection.deltaMax === undefined ||
+				dieReplacementValues(selection, n).length > 0));
+	});
 	const total = selected?.side === "hero" ? roll.heroTotal : roll.enemyTotal;
 	const description = modifying
 		? translate("game:components.diceSelectionPanel.adjustDie", { count: Math.abs(selection.deltaMax!) })
@@ -150,6 +160,14 @@ export function DiceSelectionPanel({
 							onConfirm(selected.side, selected.index, nextValue);
 					}}
 				/>
+
+				{!hasEligible && onCancel && (
+					<ActionButton
+						label={translate("game:components.diceSelectionPanel.noEligible")}
+						onClick={onCancel}
+						fullWidth
+					/>
+				)}
 				<p className="dice-choice__muted">
 					{translate("game:components.diceSelectionPanel.text008")}{" "}</p>
 			</div>
