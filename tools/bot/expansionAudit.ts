@@ -69,14 +69,14 @@ function runNpm(script: string, args: string[]): void {
 	if (result.status !== 0) throw new Error(`${script} terminou com código ${result.status ?? "desconhecido"}`);
 }
 
-interface Snapshot {
+interface LevelingCase {\n\treadonly expansionId: string;\n\treadonly heroId: string;\n\treadonly profile: string;\n\treadonly difficulty: string;\n\treadonly games: number;\n\treadonly victoryRate: number;\n\treadonly avgRooms: number;\n\treadonly avgSkillUses: number;\n}\n\ninterface Snapshot {
 	readonly phase: ExpansionAuditPhase;
 	readonly expansion: string;
 	readonly generatedAt: string;
 	readonly configuration: { readonly runs: number; readonly seed: number; readonly maxSteps: number };
 	readonly reports: { readonly skills: string; readonly catalog: string; readonly leveling: string };
 	readonly skillSummary: Record<string, unknown>;
-	readonly levelingSummary: { readonly completed: number; readonly expected: number; readonly outcomes: Record<string, number> };
+	readonly levelingSummary: { readonly completed: number; readonly expected: number; readonly outcomes: Record<string, number>; readonly byCase: readonly LevelingCase[] };
 	readonly limitations: readonly string[];
 }
 
@@ -98,7 +98,7 @@ export function compareSnapshots(initial: Snapshot, final: Snapshot) {
 		initial.configuration.seed === final.configuration.seed &&
 		initial.configuration.maxSteps === final.configuration.maxSteps;
 	const before = initial.levelingSummary.outcomes, after = final.levelingSummary.outcomes;
-	const outcomes = Object.fromEntries([...new Set([...Object.keys(before), ...Object.keys(after)])]
+	const caseKey = (entry: LevelingCase) => [entry.expansionId, entry.heroId, entry.profile, entry.difficulty].join("|");\n\tconst initialCases = new Map(initial.levelingSummary.byCase.map((entry) => [caseKey(entry), entry]));\n\tconst caseChanges = final.levelingSummary.byCase.flatMap((entry) => {\n\t\tconst old = initialCases.get(caseKey(entry));\n\t\treturn old ? [{ key: caseKey(entry), gamesOpening: old.games, gamesClosing: entry.games,\n\t\t\tvictoryRateOpening: old.victoryRate, victoryRateClosing: entry.victoryRate,\n\t\t\tvictoryRateDelta: entry.victoryRate - old.victoryRate,\n\t\t\tavgRoomsDelta: entry.avgRooms - old.avgRooms,\n\t\t\tavgSkillUsesDelta: entry.avgSkillUses - old.avgSkillUses }] : [];\n\t});\n\tconst outcomes = Object.fromEntries([...new Set([...Object.keys(before), ...Object.keys(after)])]
 		.sort().map((key) => [key, { opening: before[key] ?? 0, closing: after[key] ?? 0,
 			change: (after[key] ?? 0) - (before[key] ?? 0) }]));
 	return {
@@ -151,7 +151,7 @@ export async function runExpansionAudit(args: readonly string[]): Promise<string
 		levelingSummary: {
 			completed: Number(level.completed ?? 0),
 			expected: Number(level.expected ?? 0),
-			outcomes: results(level.trials),
+			outcomes: results(level.trials),\n\t\t\tbyCase: (Array.isArray(level.summaries) ? level.summaries : []) as LevelingCase[],
 		},
 		limitations: [
 			"Auditoria de habilidades atual é estrutural; testes funcionais completos permanecem NOT_COVERED.",
