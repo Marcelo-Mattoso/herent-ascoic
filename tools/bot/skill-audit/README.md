@@ -10,7 +10,9 @@ npm run audit                 # Auditoria de habilidades; se passar, executa lev
 npm run bot:leveling-report  # Apenas leveling, sem auditoria prévia
 ```
 
-`bot:skills-audit` grava `reports/skill-audit/report.json` e `report.html`, ignorados pelo Git. O comando retorna erro quando houver bloqueadores estruturais ou de cenários, mas sempre grava os relatórios antes de encerrar. `npm run audit` usa esse código de saída para impedir as simulações longas quando houver bloqueadores.
+Ambos os comandos agora usam `tools/bot/runs/` (ignorado pelo Git). `npm run audit` cria **uma pasta por execução com data/hora**, contendo `skill-audit.json` e `skill-audit.html`. Se a auditoria passar, grava na **mesma pasta** `report.json`, `config.json`, `manifest.json` e `trials.jsonl`. Se reprovar, preserva os dois arquivos de auditoria e **não inicia** a simulação longa.
+
+`npm run bot:skills-audit` isolado cria `tools/bot/runs/skill-audit-<data-hora>/`, com apenas os dois arquivos de auditoria. Também aceita `-- --output tools/bot/runs/minha-pasta` para uma pasta específica. Os relatórios possuem nomes diferentes para evitar a sobrescrita de `report.json`.
 
 ## Cobertura atual
 

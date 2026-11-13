@@ -1,5 +1,6 @@
 import { mkdir, writeFile } from "node:fs/promises";
-import { resolve } from "node:path";
+import { resolve, sep, join } from "node:path";
+import { LEVELING_RUNS_ROOT } from "../localLevelingReports";
 import { createSkillAuditReport } from "./catalog";
 import { reportProvenance } from "../reportProvenance";
 import { auditBlockers } from "./health";
@@ -9,7 +10,22 @@ function escapeHtml(value: string): string {
 		.replaceAll(">", "&gt;").replaceAll('"', "&quot;").replaceAll("'", "&#39;");
 }
 
-export async function writeAudit(outputDirectory = "reports/skill-audit"): Promise<{
+export function auditRunDirectory(args: readonly string[] = [], now = new Date()): string {
+	const flags = args.filter((arg) => arg !== "--");
+	if (flags.length === 0) {
+		return join(LEVELING_RUNS_ROOT, "skill-audit-" + now.toISOString().replace(/[:.]/g, "-"));
+	}
+	if (flags.length !== 2 || flags[0] !== "--output" || !flags[1]) {
+		throw new Error("Uso: npm run bot:skills-audit -- --output tools/bot/runs/<pasta>");
+	}
+	const directory = resolve(flags[1]);
+	if (!directory.startsWith(LEVELING_RUNS_ROOT + sep)) {
+		throw new Error("Auditoria deve ser salva em tools/bot/runs.");
+	}
+	return directory;
+}
+
+export async function writeAudit(outputDirectory = auditRunDirectory()): Promise<{
 	json: string;
 	html: string;
 	blockers: readonly string[];
@@ -20,8 +36,8 @@ export async function writeAudit(outputDirectory = "reports/skill-audit"): Promi
 	const blockers = auditBlockers(base);
 	const directory = resolve(outputDirectory);
 	await mkdir(directory, { recursive: true });
-	const json = resolve(directory, "report.json");
-	const html = resolve(directory, "report.html");
+	const json = resolve(directory, "skill-audit.json");
+	const html = resolve(directory, "skill-audit.html");
 	await writeFile(json, JSON.stringify(report, null, 2), "utf8");
 	const rows = report.inventory.map((entry) => `<tr><td>${escapeHtml(entry.expansion)}</td><td>${escapeHtml(entry.sourceCardId)}</td><td>${escapeHtml(entry.abilityId)}</td><td>${escapeHtml(entry.activation)}</td><td>${escapeHtml(entry.actionCost)}</td><td>${escapeHtml(entry.runtimeStatus)}</td></tr>`).join("\n");
 	const failures = blockers.map((message) => `<li>${escapeHtml(message)}</li>`).join("\n");
@@ -36,8 +52,7 @@ export async function writeAudit(outputDirectory = "reports/skill-audit"): Promi
 // Executar em toda invocação CLI; importar este módulo pelo Vitest é seguro.
 if (process.env.VITEST === undefined) {
 	console.info("Iniciando auditoria de habilidades (P0)...");
-	// Caminho fixo em relação à raiz do projeto. Não depender de argv do vite-node.
-	writeAudit().then(({ json, html, blockers }) => {
+	writeAudit(auditRunDirectory(process.argv.slice(2))).then(({ json, html, blockers }) => {
 		console.info("Relatório JSON:", json);
 		console.info("Relatório HTML:", html);
 		if (blockers.length) {

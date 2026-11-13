@@ -74,6 +74,28 @@ function outputDir(options: CliOptions): string {
 	return target;
 }
 
+/**
+ * A auditoria rápida ocupa a pasta primeiro; somente esses dois arquivos
+ * podem anteceder os checkpoints de uma execução completa.
+ */
+export function prepareSimulationDirectory(dir: string): void {
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
+		return;
+	}
+	if (!fs.statSync(dir).isDirectory() || fs.lstatSync(dir).isSymbolicLink()) {
+		throw new Error("Pasta de relatório inválida: " + dir);
+	}
+	const contents = fs.readdirSync(dir).sort();
+	if (contents.length !== 2 ||
+		contents[0] !== "skill-audit.html" ||
+		contents[1] !== "skill-audit.json" ||
+		contents.some((name) => !fs.statSync(path.join(dir, name)).isFile() ||
+			fs.lstatSync(path.join(dir, name)).isSymbolicLink())) {
+		throw new Error("Pasta de relatório já existe: " + dir + ". Use --resume.");
+	}
+}
+
 function saveReport(dir: string, report: DungeonReportData): void {
 	// Only the versioned JSON is the report. config.json and trials.jsonl are
 	// private resumable checkpoints, not published report assets.
@@ -109,8 +131,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		const saved = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
 		assertSameReportProvenance(saved, provenance);
 	} else {
-		if (fs.existsSync(dir)) throw new Error("Pasta de relatório já existe: " + dir + ". Use --resume.");
-		fs.mkdirSync(dir, { recursive: true });
+		prepareSimulationDirectory(dir);
 		fs.writeFileSync(configFile, JSON.stringify(benchmark, null, 2) + "\n");
 		fs.writeFileSync(manifestFile, JSON.stringify(provenance, null, 2) + "\n");
 	}

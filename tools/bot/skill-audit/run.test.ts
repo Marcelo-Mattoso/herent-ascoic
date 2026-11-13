@@ -2,16 +2,25 @@ import { mkdtemp, readFile, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
-import { writeAudit } from "./run";
+import { auditRunDirectory, writeAudit } from "./run";
 
 describe("saída do CLI de auditoria P0", () => {
+	it("cria uma pasta com data e restringe --output às execuções locais", () => {
+		const now = new Date("2026-11-13T21:04:05.123Z");
+		expect(auditRunDirectory([], now)).toContain("tools/bot/runs/skill-audit-2026-11-13T21-04-05-123Z");
+		expect(auditRunDirectory(["--", "--output", "tools/bot/runs/audit-2026-11-13"], now))
+			.toContain("tools/bot/runs/audit-2026-11-13");
+		expect(() => auditRunDirectory(["--output", "../out"], now)).toThrow(/tools\/bot\/runs/);
+		expect(() => auditRunDirectory(["--unknown"], now)).toThrow(/Uso:/);
+	});
+
 	it("grava JSON e HTML em diretório inexistente e retorna bloqueadores", async () => {
 		const tempRoot = await mkdtemp(join(tmpdir(), "ascensao-heroica-skill-audit-"));
-		const dir = join(tempRoot, "reports", "skill-audit");
+		const dir = join(tempRoot, "runs", "audit-2026-11-13");
 		try {
 			const result = await writeAudit(dir);
-			expect(result.json).toBe(join(dir, "report.json"));
-			expect(result.html).toBe(join(dir, "report.html"));
+			expect(result.json).toBe(join(dir, "skill-audit.json"));
+			expect(result.html).toBe(join(dir, "skill-audit.html"));
 			const [json, html] = await Promise.all([
 				readFile(result.json, "utf8"),
 				readFile(result.html, "utf8"),

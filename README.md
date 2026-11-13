@@ -43,10 +43,10 @@ Remove-Item Env:PAGES_BASE_PATH
 
 | Comando | Resultado |
 |---|---|
-| `npm run bot:skills-audit` | Auditoria rápida das habilidades; gera JSON/HTML em `reports/skill-audit/`. |
+| `npm run bot:skills-audit` | Auditoria rápida das habilidades; gera JSON/HTML em `tools/bot/runs/skill-audit-<data-hora>/`. |
 | `npm run bot:catalog-report` | Inventário e pontuação das cartas, sem simular partidas. |
 | `npm run bot:leveling-report` | Simulação completa do catálogo habilitado (atualmente 6.000 partidas por padrão). |
-| `npm run audit` | Executa auditoria de habilidades e, somente se passar, o relatório de leveling. |
+| `npm run audit` | Cria uma pasta datada em `tools/bot/runs/` com `skill-audit.json/html` e, se passar, `report.json` e checkpoints. |
 
 Para o fluxo de testes e opções avançadas, veja [o bot](tools/bot/README.md) e [o auditor de habilidades](tools/bot/skill-audit/README.md). Esses comandos não são executados pelo CI.
 

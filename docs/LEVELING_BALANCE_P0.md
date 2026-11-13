@@ -32,7 +32,7 @@ O `bot:skills-audit` agora registra resultados determinísticos para
 `skill_crimson_fury`, `skill_prey_mark` e `witch_skill_lunar_spark`.
 Um cenário bem-sucedido produz status `PARTIAL`, não `PASS` integral.
 Nenhuma habilidade sem cenário é considerada coberta. Os resultados são
-apresentados em `reports/skill-audit/report.json` e `.html`.
+apresentados em `tools/bot/runs/<execucao>/skill-audit.json` e `.html`.
 
 ## P0 adicional: gate rápido, coop e IA
 
@@ -42,7 +42,7 @@ apresentados em `reports/skill-audit/report.json` e `.html`.
 - O bot passou a respeitar a pontuação de risco da Fúria Rubra ao preparar.
 - O comando `npm run audit` interrompe antes das simulações se houver
   `STRUCTURAL`, `RUNTIME`, `GROUP_PROJECTION` ou `GROUP_COMBAT` falhos;
-  detalhes ficam no `reports/skill-audit/report.json`.
+  detalhes ficam no `tools/bot/runs/<execucao>/skill-audit.json`.
 
 ## P0: Diagnósticos consolidados no report.json
 
@@ -68,7 +68,7 @@ para não misturar fontes de habilidade.
 
 `bot:skills-audit` não depende mais de `process.argv[1]` ao rodar pelo
 `vite-node`. Antes, esse guard podia evitar toda a execução sem erro.
-O comando grava `reports/skill-audit/report.json` e `report.html` no
+O comando grava `tools/bot/runs/<execucao>/skill-audit.json` e `report.html` no
 working directory de scripts do npm (raiz do projeto), exibe o caminho
 absoluto e devolve código 1 se detectar problemas funcionais/estruturais.
 
@@ -90,3 +90,7 @@ mas sem cenários, e rechecagem mais profunda de sete poderes existentes.
 Reações preparadas (Bastião, Carvalho e preservação do descarte) ainda não
 têm efeito/cooldown provados no gatilho; status `PARTIAL` é intencional.
 Manter auditoria local, sem CI/CD ou simulação longa automática.
+
+## Saída consolidada por execução
+
+O comando `npm run audit` cria `tools/bot/runs/audit-<data-hora>/`. Sempre grava `skill-audit.json` e `skill-audit.html`; se o gate aprovar, inicia o leveling com `--output` na mesma pasta e grava `report.json`, `config.json`, `manifest.json` e `trials.jsonl`. Falhas preservam o diagnóstico de habilidades sem rodar 6.000 partidas. `bot:skills-audit` isolado também salva em `tools/bot/runs` com pasta própria. Relatórios antigos não são movidos.
