@@ -3,7 +3,6 @@ import type { HeroView, PlayerView } from "@/core/projection/playerView";
 import type { BotObservation } from "./observe";
 import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
-import { artifactHasPoisonedTarget } from "@/core/rules/artifactActivation";
 import { healingMoveScore, itemHealingAmount } from "./healing";
 
 export interface ScoredMove {
@@ -101,16 +100,8 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			return pressure(view) ? 160 : 70;
 		}
 		case "USE_ARTIFACT": {
-			const { abilityId, targetEnemyId, targetHeroId } = action.payload;
-			if (abilityId === "witch_artifact_corrupted_heart_burst") {
-				const enemy = activeEnemies(view).find((entry) => entry.id === targetEnemyId);
-				if (!enemy || !artifactHasPoisonedTarget(enemy.conditions)) return -1;
-				const stacks = enemy.conditions.filter((condition) =>
-					artifactHasPoisonedTarget([condition])).length;
-				const damage = 2 * stacks;
-				return 105 + 20 * stacks + (damage >= enemy.currentLife ? 65 : 0) +
-					(enemy.id === "boss" ? 25 : 0);
-			}
+			const { targetHeroId } = action.payload;
+
 			const beneficiary = heroes.find((entry) => entry.id === targetHeroId);
 			return beneficiary
 				? 95 + Math.max(0, beneficiary.maxLife - beneficiary.currentLife) * 12

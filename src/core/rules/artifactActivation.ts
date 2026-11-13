@@ -5,7 +5,6 @@ import {
 	type AbilityGrantSource,
 } from "../abilities/executor";
 import { abilityGrants, cardName, type GameEngine } from "../gameEngine";
-import { matchesDamageOverTimeStatus } from "./damageOverTime";
 import { enemiesOf, heroesOf, pausedOf, pendingSkillChoiceOf, pendingSkillTargetOf, pendingTriggerInterruptOf } from "../state/access";
 import type { GameState } from "../state/gameState";
 import { gameOf } from "../../engine/state";
@@ -23,11 +22,6 @@ export interface ManualArtifactAction {
 	readonly reason?: string;
 	readonly requiresTarget: boolean;
 	readonly targets: readonly ArtifactTarget[];
-}
-
-export function artifactHasPoisonedTarget(conditions: readonly string[]): boolean {
-	return conditions.some((condition) =>
-		matchesDamageOverTimeStatus(condition, "poison") || condition.startsWith("poison:"));
 }
 
 function sourceFor(artifact: { readonly cardId: string; readonly carriedBy: string | null }): AbilityGrantSource {
@@ -57,7 +51,6 @@ export function projectManualArtifactActions(engine: GameEngine, state: GameStat
 			.map((grant): ManualArtifactAction => {
 				const source = sourceFor(artifact);
 				const resolution = resolveManualGrantTarget(engine, state, source, grant);
-				const units = [...heroesOf(state), ...enemiesOf(state)];
 				const potential: ArtifactTarget[] = resolution.kind === "needs_selection"
 					? resolution.candidates.filter((candidate) => candidate.kind === "hero" || candidate.kind === "enemy")
 						.map((candidate) => ({ id: candidate.id, kind: candidate.kind as "hero" | "enemy", label: candidate.label }))
@@ -71,19 +64,14 @@ export function projectManualArtifactActions(engine: GameEngine, state: GameStat
 						: [];
 				const requiresTarget = resolution.kind !== "unavailable" &&
 					(resolution.kind === "needs_selection" || resolution.targetIds.length > 0);
-				const candidates = grant.abilityId === "witch_artifact_corrupted_heart_burst"
-					? potential.filter((target) => target.kind === "enemy" &&
-						artifactHasPoisonedTarget(units.find((unit) => unit.id === target.id)?.conditions ?? []))
-					: potential;
+				const candidates = potential;
 				const targets = candidates.filter((target) =>
 					canExecuteAbilityGrant(engine, state, source, grant, "manual", undefined, [target.id]) === null);
 				const availableWithoutTarget = !requiresTarget && resolution.kind === "ready" &&
 					canExecuteAbilityGrant(engine, state, source, grant, "manual", undefined, []) === null;
 				const reason = windowReason ??
 					(resolution.kind === "unavailable" ? resolution.reason :
-						grant.abilityId === "witch_artifact_corrupted_heart_burst" && candidates.length === 0
-							? "É necessário um inimigo vivo envenenado."
-							: (requiresTarget && targets.length === 0 || !requiresTarget && !availableWithoutTarget)
+						(requiresTarget && targets.length === 0 || !requiresTarget && !availableWithoutTarget)
 								? canExecuteAbilityGrant(engine, state, source, grant, "manual", undefined,
 									candidates[0] ? [candidates[0].id] : []) ??
 									"Nenhum alvo válido disponível."
