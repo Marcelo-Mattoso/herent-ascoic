@@ -128,6 +128,12 @@ export interface AscensaoGame {
 	/** Histórico técnico exclusivo da fase alpha, separado do log do jogador. */
 	readonly alphaLog?: readonly string[];
 	/** Observações visuais do dano realmente subtraído da vida; sem efeito nas regras. */
+	/** Dano periódico efetivo de veneno e pontos protegidos pelo Coração, cumulativos na partida. */
+	readonly poisonTelemetry?: {
+		readonly toHeroes: number;
+		readonly toEnemies: number;
+		readonly preventedByHeart: number;
+	};
 	readonly damageFeedback?: readonly {
 		readonly id: number;
 		readonly targetId: string;

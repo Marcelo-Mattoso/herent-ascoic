@@ -261,6 +261,10 @@ export function applyDamage(engine: GameEngine,
 	) {
 		return state;
 	}
+	const poisonTickToHero = opts?.sourceId === "poison" && opts?.damageType === "condition" &&
+		gameOf(state).heroes.some((hero) => hero.id === targetId);
+	const poisonTickToEnemy = opts?.sourceId === "poison" && opts?.damageType === "condition" &&
+		gameOf(state).activeEnemies.some((enemy) => enemy.id === targetId);
 	const sourceId = opts?.sourceId ?? "system";
 	const damageType = opts?.damageType ?? "physical";
 
@@ -341,6 +345,16 @@ export function applyDamage(engine: GameEngine,
 		0,
 		(lifeImmediatelyBeforeApply ?? 0) - (currentLife(s2, targetId) ?? 0),
 	);
+	if (appliedAmount > 0 && (poisonTickToHero || poisonTickToEnemy)) {
+		s2 = withGame(s2, (game) => ({
+			...game,
+			poisonTelemetry: {
+				toHeroes: (game.poisonTelemetry?.toHeroes ?? 0) + (poisonTickToHero ? appliedAmount : 0),
+				toEnemies: (game.poisonTelemetry?.toEnemies ?? 0) + (poisonTickToEnemy ? appliedAmount : 0),
+				preventedByHeart: game.poisonTelemetry?.preventedByHeart ?? 0,
+			},
+		}));
+	}
 	if (appliedAmount > 0) {
 		const previous = gameOf(s2).damageFeedback ?? [];
 		const side = heroOf(s2, targetId) ? ("hero" as const) : ("enemy" as const);

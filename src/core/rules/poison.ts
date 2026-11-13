@@ -7,6 +7,7 @@ import { gameOf } from "../../engine/state";
 import { getModifierTotal } from "../ecs/world";
 import { applyDamage } from "../systems/damageSystem";
 import { log } from "../reducer/utils";
+import { corruptedHeartPoisonReduction, recordCorruptedHeartPrevention } from "./poisonProtection";
 
 const PREFIX = "poison:";
 function parsePoison(status: string): { damage: number; rounds: number; applied: number } | null {
@@ -24,7 +25,7 @@ export function applyPoisonStatus(state: GameState, targetId: string, damage: nu
 	if (!unit || !Number.isFinite(damage) || !Number.isFinite(rounds) || damage <= 0 || rounds <= 0) return state;
 	const old = unit.conditions.map(parsePoison).find((value) => value !== null);
 	const currentRound = gameOf(state).combat?.round ?? 0;
-	const condition = `${PREFIX}${Math.max(old?.damage ?? 0, Math.floor(damage))}:${Math.floor(rounds)}:${currentRound}`;
+	const condition = `${PREFIX}${Math.max(old?.damage ?? 0, Math.floor(damage))}:${Math.floor(rounds)}:${old?.applied ?? currentRound}`;
 	return log(withUnitStats(state, targetId, {
 		conditions: [...unit.conditions.filter((value) => !value.startsWith(PREFIX)), condition],
 	}), `${targetId} envenenado por ${Math.floor(rounds)} rodadas.`);
@@ -42,7 +43,9 @@ export function resolvePoisonRound(engine: GameEngine, state: GameState): GameSt
 		const poison = status ? parsePoison(status) : null;
 		if (!poison || round <= poison.applied) continue;
 		const reduction = Math.max(0, -getModifierTotal(worldOf(next), current.id, "poison_damage_taken"));
-		const amount = Math.max(0, poison.damage - reduction);
+		const beforeHeart = Math.max(0, poison.damage - reduction);
+		const amount = Math.max(0, beforeHeart - corruptedHeartPoisonReduction(next, current.id));
+		next = recordCorruptedHeartPrevention(next, beforeHeart - amount);
 		if (amount > 0) {
 			next = applyDamage(engine, next, current.id, amount, { sourceId: "poison", damageType: "condition" });
 			next = log(next, `Veneno: ${current.id} sofre ${amount} de dano na rodada ${round}.`);

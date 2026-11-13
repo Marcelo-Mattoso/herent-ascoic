@@ -8,6 +8,7 @@ import { gameOf } from "../../engine/state";
 import { getModifierTotal } from "../ecs/world";
 import { applyDamage } from "../systems/damageSystem";
 import { log } from "../reducer/utils";
+import { corruptedHeartPoisonReduction, recordCorruptedHeartPrevention } from "./poisonProtection";
 
 const PREFIX = "dot:v1:";
 
@@ -156,7 +157,10 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
                 ? current.conditions.find(c => c.startsWith("poison_ward:reduce_next:"))
                 : undefined;
             const wardAmount = ward ? Math.max(0, Number(ward.slice("poison_ward:reduce_next:".length))) : 0;
-            const amount = Math.max(0, status.damage - reduction - wardAmount);
+            const beforeHeart = Math.max(0, status.damage - reduction - wardAmount);
+            const amount = Math.max(0, beforeHeart -
+                (status.status === "poison" ? corruptedHeartPoisonReduction(next, current.id) : 0));
+            next = recordCorruptedHeartPrevention(next, beforeHeart - amount);
             if (amount > 0) {
                 // A origem virtual evita disparar evt_hit / bônus de armas em ticks.
                 next = applyDamage(engine, next, current.id, amount, {
@@ -191,9 +195,10 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
 export function clearDamageOverTime(state: GameState): GameState {
     let next = state;
     for (const unit of [...allHeroesOf(state), ...enemiesOf(state)]) {
-        if (unit.conditions.some((condition) => condition.startsWith(PREFIX))) {
+        if (unit.conditions.some((condition) => condition.startsWith(PREFIX) || condition.startsWith("poison:"))) {
             next = withUnitStats(next, unit.id, {
-                conditions: unit.conditions.filter((condition) => !condition.startsWith(PREFIX)),
+                conditions: unit.conditions.filter((condition) =>
+                    !condition.startsWith(PREFIX) && !condition.startsWith("poison:")),
             });
         }
     }
