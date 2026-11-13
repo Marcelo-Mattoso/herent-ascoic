@@ -1,4 +1,6 @@
 import type { Difficulty } from "@/core/state/gameState";
+import type { GameBalance } from "@/core/gameEngine";
+import { BOT_LEVELING_XP_EXPERIMENT } from "./xpExperiment";
 import { preparedTransitions } from "./preparedTelemetry";
 import { deckOf } from "@/core/state/access";
 import { playerView } from "@/core/projection/playerView";
@@ -25,6 +27,8 @@ export interface DungeonBenchmarkOptions {
 	readonly expansions: readonly string[];
 	readonly profiles: readonly BotProfile[];
 	readonly difficulties: readonly Difficulty[];
+	/** Custos experimentais usados APENAS neste benchmark e gravados na configuração. */
+	readonly xpExperiment?: Partial<GameBalance["xpCosts"]>;
 }
 
 export interface BenchmarkCase {
@@ -119,6 +123,12 @@ export interface BenchmarkTrial extends BenchmarkCase {
 	readonly powerUses: number;
 	readonly items?: ItemTelemetry;
 	readonly progression?: ProgressionTelemetry;
+	/** Ticks de veneno contabilizados por PV realmente removidos. */
+	readonly poison?: {
+		readonly toHeroes: number;
+		readonly toEnemies: number;
+		readonly preventedByHeart: number;
+	};
 }
 
 export interface BenchmarkSummary {
@@ -158,6 +168,7 @@ export function defaultBenchmarkOptions(): DungeonBenchmarkOptions {
 		expansions: benchmarkExpansionIds(),
 		profiles: [...BOT_PROFILES],
 		difficulties: [...BENCHMARK_DIFFICULTIES],
+		xpExperiment: { ...BOT_LEVELING_XP_EXPERIMENT },
 	};
 }
 
@@ -222,7 +233,11 @@ function inventoryCounts(heroes: readonly { activeItems: object; backpack: reado
 	}), { equipped: 0, backpack: 0 });
 }
 
-export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): BenchmarkTrial {
+export function runBenchmarkCase(
+	test: BenchmarkCase,
+	maxSteps: number,
+	xpCostsOverride: Partial<GameBalance["xpCosts"]> = BOT_LEVELING_XP_EXPERIMENT,
+): BenchmarkTrial {
 	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
 	const starting = createHeadlessPort(setup).observe().view;
 	const purchases: Record<string, number> = {};
@@ -371,7 +386,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		peakXp = Math.max(peakXp, step.after.groupXp);
 		finalLevel = Math.max(0, ...step.after.heroes.map((hero) => hero.impeto));
 		levelPeak = Math.max(levelPeak, finalLevel);
-	}, test.profile);
+	}, test.profile, xpCostsOverride);
 	const state = gameOf(result.final);
 	const allFinalHeroes = [...state.heroes, ...state.defeatedHeroes, ...state.fledHeroes];
 	const remainingInventory = inventoryCounts(allFinalHeroes);
@@ -398,6 +413,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		creaturesDefeated: state.creaturesDefeated,
 		bossDefeated: state.bossDefeated,
 		artifacts: state.groupArtifacts.length,
+		poison: state.poisonTelemetry ?? { toHeroes: 0, toEnemies: 0, preventedByHeart: 0 },
 		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
 			skillById(engine, action.payload.skillId)?.category === "hero_skill" &&
 			skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered").length + triggeredSkillUses,

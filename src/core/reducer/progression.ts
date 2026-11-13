@@ -213,6 +213,9 @@ export function handleSpendXp(engine: GameEngine,
 	}
 
 	// Verificar estoque antes do débito de XP: nunca cobrar por um baralho vazio.
+	if (option === "buy_item" && deckOf(state, "itemDeck").available.length === 0) {
+		return log(state, "Nenhum item disponível.");
+	}
 	if (option === "buy_artifact" && deckOf(state, "artifactDeck").available.length === 0) {
 		return log(state, "Nenhum artefato disponível.");
 	}
@@ -299,7 +302,7 @@ export const progressionHandler: GameHandler = {
 				out.push({ type: "SPEND_XP", payload: { option: "level_up", heroId } });
 			}
 		}
-		if (xp >= costs.buy_item) {
+		if (xp >= costs.buy_item && deckOf(state, "itemDeck").available.length > 0) {
 			out.push({ type: "SPEND_XP", payload: { option: "buy_item" } });
 		}
 		out.push({ type: "CHECK_BOSS_CONDITION" });

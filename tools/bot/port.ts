@@ -1,7 +1,8 @@
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
+import type { GameBalance, GameEngine } from "@/core/gameEngine";
+import { reducer } from "@/core/reducer/index";
 import {
-	applyAction,
 	engine,
 	type GoldenSetup,
 	initialState,
@@ -34,18 +35,32 @@ export interface HeadlessBotPort extends BotPort {
 	readonly history: readonly Action[];
 }
 
-export function createHeadlessPort(setup: GoldenSetup): HeadlessBotPort {
+export function createHeadlessPort(
+	setup: GoldenSetup,
+	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
+): HeadlessBotPort {
+	// O ruleset é clonado só para esta instância do bot: UI/jogo usam o engine original.
+	const ruleEngine: GameEngine = xpCostsOverride ? {
+		...engine,
+		ruleset: {
+			...engine.ruleset,
+			balance: {
+				...engine.ruleset.balance,
+				xpCosts: { ...engine.ruleset.balance.xpCosts, ...xpCostsOverride },
+			},
+		},
+	} : engine;
 	const start = startAction(setup);
-	let state = applyAction(initialState(setup), start);
+	let state = reducer(ruleEngine, initialState(setup), start);
 	const history: Action[] = [start];
 	return {
 		history,
 		inspect: () => state,
-		observe: () => observe(engine, state),
+		observe: () => observe(ruleEngine, state),
 		act(action) {
 			let next: GameState;
 			try {
-				next = applyAction(state, action);
+				next = reducer(ruleEngine, state, action);
 			} catch (e) {
 				return {
 					kind: "rejected",

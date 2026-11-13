@@ -14,6 +14,7 @@ import { createHeadlessPort } from "./port";
 import type { BotProfile } from "./profiles";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
+import type { GameBalance } from "@/core/gameEngine";
 
 export { rankMoves, scoreAction, scoreMoves, type ScoredMove };
 
@@ -45,8 +46,9 @@ export function playAiGame(
 	maxSteps: number,
 	onStep?: (step: AiStep) => void,
 	profile: BotProfile = "power-player",
+	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
 ): AiGameResult {
-	const port = createHeadlessPort(setup);
+	const port = createHeadlessPort(setup, xpCostsOverride);
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();

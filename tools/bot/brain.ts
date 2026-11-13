@@ -122,8 +122,15 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 				if (!hero || hero.impeto >= 4) return -1;
 				return (profile === "speedrunner" ? 235 : 155) + (1 - lifeRatio(hero)) * 10;
 			}
-			if (option === "buy_artifact") return profile === "speedrunner" ? 75 : 100;
-			if (option === "buy_item") return profile === "speedrunner" ? 60 : 85;
+			if (option === "buy_artifact") {
+				// Com preço experimental, priorizar acesso ao chefe antes do estoque supérfluo.
+				return view.groupArtifacts.length < 3 ? 250 : 90;
+			}
+			if (option === "buy_item") {
+				const inventory = heroes.reduce((total, hero) =>
+					total + Object.values(hero.activeItems).filter(Boolean).length + hero.backpack.length, 0);
+				return inventory < 3 ? 150 : profile === "speedrunner" ? 65 : 95;
+			}
 			return 10;
 		}
 		case "CHECK_BOSS_CONDITION": return profile === "speedrunner" ? 125 : 20;

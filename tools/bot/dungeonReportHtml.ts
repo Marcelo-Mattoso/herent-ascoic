@@ -37,6 +37,9 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"## Diagnósticos de consistência",
 			"Hard/Pesadelo: " + report.diagnostics.difficultyParity.sameOutcome + "/" +
 				report.diagnostics.difficultyParity.pairedGames + " pares com mesmo resultado.",
+			"Veneno: " + report.diagnostics.poison.toHeroes + " PV em heróis, " +
+				report.diagnostics.poison.toEnemies + " PV em inimigos, " +
+				report.diagnostics.poison.preventedByHeart + " PV evitados pelo Coração.",
 			"XP sem conciliação: " + report.diagnostics.xpAccountingMismatches +
 				"; tentativas inefetivas de level up: " + report.diagnostics.ineffectiveLevelUpAttempts + ".",
 			...report.diagnostics.warnings.map((warning) => "- " + warning),
@@ -187,7 +190,7 @@ if(data.diagnostics){
  const d=data.diagnostics,p=d.difficultyParity;
  const parity=p.pairedGames?(100*p.sameOutcomeRate).toFixed(1)+'% ('+p.sameOutcome+'/'+p.pairedGames+')':'Sem pares';
  const notices=d.warnings.length?d.warnings.map(w=>'<li>'+esc(w)+'</li>').join(''):'<li>Nenhum alerta automático registrado.</li>';
- el('diagnostics').innerHTML='<p><strong>Difícil × Pesadelo:</strong> '+esc(parity)+' resultados iguais nos pares. <strong>XP não conciliado:</strong> '+d.xpAccountingMismatches+'. <strong>Level up sem efeito:</strong> '+d.ineffectiveLevelUpAttempts+'.</p><ul>'+notices+'</ul><p>Consulte <code>diagnostics.abilityActivity</code> no JSON para contagem por ID; triggers automáticos sem modal não são observados por esses contadores.</p>';
+ el('diagnostics').innerHTML='<p><strong>Difícil × Pesadelo:</strong> '+esc(parity)+' resultados iguais nos pares. <strong>XP não conciliado:</strong> '+d.xpAccountingMismatches+'. <strong>Level up sem efeito:</strong> '+d.ineffectiveLevelUpAttempts+'.</p><p><strong>Veneno:</strong> '+(d.poison?.toHeroes??0)+' PV nos heróis, '+(d.poison?.toEnemies??0)+' PV nos inimigos, '+(d.poison?.preventedByHeart??0)+' PV evitados pelo Coração.</p><ul>'+notices+'</ul><p>Consulte <code>diagnostics.abilityActivity</code> no JSON para contagem por ID; triggers automáticos sem modal não são observados por esses contadores.</p>';
 }
 const expansionName=(id)=>expansionNames[id]||id;
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}

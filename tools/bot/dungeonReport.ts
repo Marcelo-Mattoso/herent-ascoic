@@ -155,7 +155,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		if (byKey.has(key)) continue;
 		let trial: BenchmarkTrial;
 		try {
-			trial = runBenchmarkCase(test, benchmark.maxSteps);
+			trial = runBenchmarkCase(test, benchmark.maxSteps, benchmark.xpExperiment);
 		} catch (error) {
 			trial = { ...test, outcome: "ERROR", violation: "runner_exception",
 				violationMessage: error instanceof Error ? error.message : String(error),
