@@ -29,6 +29,12 @@ export interface BenchmarkDiagnostics {
 	readonly abilityActivity: readonly AbilityActivitySummary[];
 	/** Pontos de Vida efetivos perdidos por ticks de veneno e prevenção do Coração. */
 	readonly poison: { readonly toHeroes: number; readonly toEnemies: number; readonly preventedByHeart: number };
+	readonly poisonByExpansion: Readonly<Record<string, {
+		readonly games: number;
+		readonly toHeroes: number;
+		readonly toEnemies: number;
+		readonly preventedByHeart: number;
+	}>>;
 	/** Alertas heurísticos: não equivalem a bugs comprovados. */
 	readonly warnings: readonly string[];
 }
@@ -51,10 +57,19 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		}
 	};
 	const poison = { toHeroes: 0, toEnemies: 0, preventedByHeart: 0 };
+	const poisonByExpansion: Record<string, { games: number; toHeroes: number; toEnemies: number; preventedByHeart: number }> = {};
 	let xpAccountingMismatches = 0;
 	let ineffectiveLevelUpAttempts = 0;
 	const byCase = new Map<string, Map<string, BenchmarkTrial>>();
 	for (const trial of trials) {
+		const expansion = poisonByExpansion[trial.expansionId] ?? {
+			games: 0, toHeroes: 0, toEnemies: 0, preventedByHeart: 0,
+		};
+		expansion.games += 1;
+		expansion.toHeroes += trial.poison?.toHeroes ?? 0;
+		expansion.toEnemies += trial.poison?.toEnemies ?? 0;
+		expansion.preventedByHeart += trial.poison?.preventedByHeart ?? 0;
+		poisonByExpansion[trial.expansionId] = expansion;
 		poison.toHeroes += trial.poison?.toHeroes ?? 0;
 		poison.toEnemies += trial.poison?.toEnemies ?? 0;
 		poison.preventedByHeart += trial.poison?.preventedByHeart ?? 0;
@@ -103,7 +118,7 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		xpAccountingMismatches, ineffectiveLevelUpAttempts,
 		difficultyParity: { compared: "hard/nightmare", pairedGames, sameOutcome,
 			sameOutcomeRate },
-		poison,
+		poison, poisonByExpansion,
 		abilityActivity: [...stats.entries()].map(([abilityId, summary]) =>
 			({ abilityId, ...summary })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
 		warnings,

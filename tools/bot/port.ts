@@ -35,12 +35,9 @@ export interface HeadlessBotPort extends BotPort {
 	readonly history: readonly Action[];
 }
 
-export function createHeadlessPort(
-	setup: GoldenSetup,
-	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
-): HeadlessBotPort {
-	// O ruleset é clonado só para esta instância do bot: UI/jogo usam o engine original.
-	const ruleEngine: GameEngine = xpCostsOverride ? {
+/** Cria um engine isolado para ensaios de preço sem mutar o ruleset público. */
+export function createBotTrialEngine(xpCostsOverride?: Partial<GameBalance["xpCosts"]>): GameEngine {
+	return xpCostsOverride ? {
 		...engine,
 		ruleset: {
 			...engine.ruleset,
@@ -50,6 +47,13 @@ export function createHeadlessPort(
 			},
 		},
 	} : engine;
+}
+
+export function createHeadlessPort(
+	setup: GoldenSetup,
+	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
+): HeadlessBotPort {
+	const ruleEngine = createBotTrialEngine(xpCostsOverride);
 	const start = startAction(setup);
 	let state = reducer(ruleEngine, initialState(setup), start);
 	const history: Action[] = [start];

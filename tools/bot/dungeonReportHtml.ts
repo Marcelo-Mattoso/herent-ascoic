@@ -37,9 +37,9 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"## Diagnósticos de consistência",
 			"Hard/Pesadelo: " + report.diagnostics.difficultyParity.sameOutcome + "/" +
 				report.diagnostics.difficultyParity.pairedGames + " pares com mesmo resultado.",
-			"Veneno: " + report.diagnostics.poison.toHeroes + " PV em heróis, " +
-				report.diagnostics.poison.toEnemies + " PV em inimigos, " +
-				report.diagnostics.poison.preventedByHeart + " PV evitados pelo Coração.",
+			"Veneno: " + (report.diagnostics.poison?.toHeroes ?? 0) + " PV em heróis, " +
+				(report.diagnostics.poison?.toEnemies ?? 0) + " PV em inimigos, " +
+				(report.diagnostics.poison?.preventedByHeart ?? 0) + " PV evitados pelo Coração.",
 			"XP sem conciliação: " + report.diagnostics.xpAccountingMismatches +
 				"; tentativas inefetivas de level up: " + report.diagnostics.ineffectiveLevelUpAttempts + ".",
 			...report.diagnostics.warnings.map((warning) => "- " + warning),

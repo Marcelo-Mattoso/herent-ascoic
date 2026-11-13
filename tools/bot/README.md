@@ -164,3 +164,11 @@ Tudo fica em `tools/bot/runs/`, fora do git:
 - O planejamento de combos cobre a rodada e o ataque seguinte; ainda não prevê várias rodadas, mudanças de equipamento ou todas as habilidades.
 - Pela tela, recuperar a masmorra esgotada e comprar com XP ainda podem falhar no clique.
 - Seeds com bugs conhecidos do jogo estão em `KNOWN_BUGS`, em `bot.test.ts`.
+
+## Experimento de preços — P1 (bots apenas)
+
+O comando `npm run bot:leveling-report` roda com custos de **8 XP por item** e **20 XP por artefato**, gravados em `config.json` e em `report.json > options.xpExperiment`. Os custos oficiais em `src/data/balance.json` permanecem **15/35 XP**; nenhum preço da UI foi alterado. O engine experimental é clonado por execução, sem modificar o ruleset do jogo. A IA prioriza adquirir o terceiro artefato, mantendo level up e compras de equipamentos como escolhas competitivas.
+
+## Estatísticas de veneno (por PV real)
+
+O relatório passa a registrar `trials[].poison.toHeroes` (dano sofrido por heróis), `toEnemies` (dano infligido aos inimigos) e `preventedByHeart` (PV evitados pelo Coração Corrompido na luta contra a Bruxa). Os agregados ficam em `diagnostics.poison` e `diagnostics.poisonByExpansion` para facilitar a comparação Fornalha × Bruxa. Aplicações de veneno sem tick ou reduzidas a zero **não contam como dano causado**. Os custos experimentais não devem ser confundidos com preços já aprovados para o jogo.

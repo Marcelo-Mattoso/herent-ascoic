@@ -28,6 +28,7 @@ describe("diagnósticos P0", () => {
 			trial("normal", 2, "VICTORY"),
 		]);
 		expect(summary.games).toBe(3);
+		expect(summary.poison).toEqual({ toHeroes: 0, toEnemies: 0, preventedByHeart: 0 });
 		expect(summary.xpAccountingMismatches).toBe(0);
 		expect(summary.difficultyParity).toMatchObject({
 			pairedGames: 1, sameOutcome: 1, sameOutcomeRate: 1,
@@ -36,6 +37,22 @@ describe("diagnósticos P0", () => {
 			abilityId: "fury", preparations: 3, armed: 3, clearedDuringAttack: 2,
 			clearedElsewhere: 1, triggersAccepted: 0,
 		}));
+	});
+
+	it("agrega dano real de veneno por expansão, sem confundir ticks com aplicação", () => {
+		const trials = [
+			{ ...trial("normal"), poison: { toHeroes: 3, toEnemies: 7, preventedByHeart: 1 } },
+			{ ...trial("easy"), expansionId: "torre-grande-bruxa-caldeirao",
+				poison: { toHeroes: 8, toEnemies: 0, preventedByHeart: 2 } },
+		];
+		const result = summarizeReportDiagnostics(trials);
+		expect(result.poison).toEqual({ toHeroes: 11, toEnemies: 7, preventedByHeart: 3 });
+		expect(result.poisonByExpansion["fornalha-sombria"]).toEqual({
+			games: 1, toHeroes: 3, toEnemies: 7, preventedByHeart: 1,
+		});
+		expect(result.poisonByExpansion["torre-grande-bruxa-caldeirao"]).toEqual({
+			games: 1, toHeroes: 8, toEnemies: 0, preventedByHeart: 2,
+		});
 	});
 
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
