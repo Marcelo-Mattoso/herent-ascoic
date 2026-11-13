@@ -27,4 +27,13 @@ Alguns dos novos cenários comprovam somente **preparação**, não o disparo da
 
 Arquivos: `catalog.ts` (descoberta e relatório), `runtime.ts` e `heroRuntime.ts` (heróis), `groupRuntime.ts` (grupos), `health.ts` e `run.ts` (bloqueadores e CLI). Para validar os cenários isoladamente: `npx vitest run tools/bot/skill-audit/`.
 
+## Interrupções simultâneas na rolagem
+
+O cenário `hero-green-eclipse-roll` usa duas rolagens determinísticas:
+dados com **2** para verificar o Eclipse Verde diretamente, sem elegibilidade
+da Centelha da Lua Verde, e dados com **1** para verificar a convivência dos
+dois gatilhos. Se a Centelha aparecer primeiro, a auditoria a recusa e
+confirma que o Eclipse ainda pode ser oferecido e alterar o dado para 6.
+Uma falha no encadeamento continua bloqueando `npm run audit`.
+
 Auditoria e relatórios de leveling são **locais**, sem execução automática no CI/CD. Não rodar nem monitorar CI/CD após commits.

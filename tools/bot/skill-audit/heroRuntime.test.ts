@@ -17,6 +17,7 @@ describe("skill audit P0: cobertura funcional dos heróis", () => {
 		"hero-necromancer-return-rite",
 		"hero-necromancer-kill-echo",
 		"hero-necromancer-spend-echo",
+		"hero-green-eclipse-roll",
 		"hero-white-ash-balm",
 		"hero-white-ash-mercy",
 	])("valida fluxo real %s", (id) => {

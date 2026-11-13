@@ -253,40 +253,57 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 	};
 
 	const checkRollPower = (cardId: string, abilityId: string, optionId: string) => {
-		let s = combat(cardId);
-		const id = hero(s);
-		s = power(s, id);
-		ensure(prepared(s, id, abilityId),
-			abilityId + ": poder não foi preparado");
-		s = withGame(s, (game) => ({
-			...game, status: "ROLL_DICE",
-			combat: { ...createEmptyCombatState(), phase: "resolving",
-				pairs: [{ heroId: id, enemyId: "audit-enemy" }] },
-		}));
-		s = reducer(engine, s, { type: "PREPARE_PHYSICAL_ROLL" });
-		const dice = gameOf(s).combat?.pendingPhysicalRoll;
-		ensure(dice, abilityId + ": rolagem física não foi preparada");
-		s = reducer(engine, s, { type: "CONFIRM_DICE_ROLL", payload: {
-			rollId: dice.id, heroId: dice.heroId, enemyId: dice.enemyId,
-			heroResults: Array(dice.heroDiceCount).fill(1),
-			enemyResults: Array(dice.enemyDiceCount).fill(5),
-			source: "physics",
-		} });
-		const interrupt = pendingTriggerInterruptOf(s);
-		ensure(interrupt?.skillId === abilityId,
-			abilityId + ": interrupção não apareceu após rolagem");
-		s = reducer(engine, s, { type: "APPLY_TRIGGER_INTERRUPT", payload: {
-			interruptId: interrupt.id,
-		} });
-		s = choose(s, optionId);
-		const options = legalActions(engine, s).filter((action) => action.type === "SELECT_DIE");
-		ensure(options.length > 0, abilityId + ": não ofereceu escolha do dado");
-		const selected = options.find((action) => action.type === "SELECT_DIE" &&
-			action.payload.side === "hero" && action.payload.value === 6);
-		ensure(selected, abilityId + ": opção de colocar dado do herói em 6 não foi oferecida");
-		s = reducer(engine, s, selected);
-		ensure(gameOf(s).combat?.lastRoll?.heroResults.includes(6),
-			abilityId + ": dado escolhido não foi alterado para 6");
+		const verifyRoll = (heroFace: number, allowLunarSparkFirst: boolean) => {
+			let s = combat(cardId);
+			const id = hero(s);
+			s = power(s, id);
+			ensure(prepared(s, id, abilityId),
+				abilityId + ": poder não foi preparado");
+			s = withGame(s, (game) => ({
+				...game, status: "ROLL_DICE",
+				combat: { ...createEmptyCombatState(), phase: "resolving",
+					pairs: [{ heroId: id, enemyId: "audit-enemy" }] },
+			}));
+			s = reducer(engine, s, { type: "PREPARE_PHYSICAL_ROLL" });
+			const dice = gameOf(s).combat?.pendingPhysicalRoll;
+			ensure(dice, abilityId + ": rolagem física não foi preparada");
+			s = reducer(engine, s, { type: "CONFIRM_DICE_ROLL", payload: {
+				rollId: dice.id, heroId: dice.heroId, enemyId: dice.enemyId,
+				heroResults: Array(dice.heroDiceCount).fill(heroFace),
+				enemyResults: Array(dice.enemyDiceCount).fill(5),
+				source: "physics",
+			} });
+			const first = pendingTriggerInterruptOf(s);
+			if (allowLunarSparkFirst && first?.skillId === "witch_skill_lunar_spark") {
+				// A Feiticeira pode receber a Centelha antes do Eclipse na mesma rolagem.
+				s = reducer(engine, s, { type: "SKIP_TRIGGER_INTERRUPT", payload: {
+					interruptId: first.id,
+				} });
+			}
+			const interrupt = pendingTriggerInterruptOf(s);
+			ensure(interrupt?.skillId === abilityId,
+				abilityId + ": esperava a interrupção após rolar " + heroFace +
+				"; primeira=" + (first?.skillId ?? "nenhuma") +
+				"; atual=" + (interrupt?.skillId ?? "nenhuma"));
+			s = reducer(engine, s, { type: "APPLY_TRIGGER_INTERRUPT", payload: {
+				interruptId: interrupt.id,
+			} });
+			s = choose(s, optionId);
+			const options = legalActions(engine, s).filter((action) => action.type === "SELECT_DIE");
+			ensure(options.length > 0, abilityId + ": não ofereceu escolha do dado");
+			const selected = options.find((action) => action.type === "SELECT_DIE" &&
+				action.payload.side === "hero" && action.payload.value === 6);
+			ensure(selected, abilityId + ": opção de colocar dado do herói em 6 não foi oferecida");
+			s = reducer(engine, s, selected);
+			ensure(gameOf(s).combat?.lastRoll?.heroResults.includes(6),
+				abilityId + ": dado escolhido não foi alterado para 6");
+		};
+		// Com 2, o Eclipse é a única reação de rolagem elegível da Feiticeira.
+		verifyRoll(abilityId === "witch_power_green_eclipse" ? 2 : 1, false);
+		if (abilityId === "witch_power_green_eclipse") {
+			// Com 1, também exercita a convivência com a Centelha, sem mascarar falhas.
+			verifyRoll(1, true);
+		}
 	};
 
 	const cases: Scenario[] = [
