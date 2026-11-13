@@ -3476,7 +3476,7 @@
         "nat_earth"
       ],
       "target_type": "tgt_self",
-      "affect_scope": "scp_group",
+      "affect_scope": "scp_party_full",
       "affect_object": "obj_friend",
       "effect": []
     }
