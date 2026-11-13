@@ -3,13 +3,14 @@ import { tmpdir } from "node:os";
 import { join } from "node:path";
 import { describe, expect, it } from "vitest";
 import { auditRunDirectory, writeAudit } from "./run";
+import { LEVELING_RUNS_ROOT } from "../localLevelingReports";
 
 describe("saída do CLI de auditoria P0", () => {
 	it("cria uma pasta com data e restringe --output às execuções locais", () => {
 		const now = new Date("2026-11-13T21:04:05.123Z");
-		expect(auditRunDirectory([], now)).toContain("tools/bot/runs/skill-audit-2026-11-13T21-04-05-123Z");
+		expect(auditRunDirectory([], now)).toBe(join(LEVELING_RUNS_ROOT, "skill-audit-2026-11-13T21-04-05-123Z"));
 		expect(auditRunDirectory(["--", "--output", "tools/bot/runs/audit-2026-11-13"], now))
-			.toContain("tools/bot/runs/audit-2026-11-13");
+			.toBe(join(LEVELING_RUNS_ROOT, "audit-2026-11-13"));
 		expect(() => auditRunDirectory(["--output", "../out"], now)).toThrow(/tools\/bot\/runs/);
 		expect(() => auditRunDirectory(["--unknown"], now)).toThrow(/Uso:/);
 	});
