@@ -94,3 +94,11 @@ Manter auditoria local, sem CI/CD ou simulação longa automática.
 ## Saída consolidada por execução
 
 O comando `npm run audit` cria `tools/bot/runs/audit-<data-hora>/`. Sempre grava `skill-audit.json` e `skill-audit.html`; se o gate aprovar, inicia o leveling com `--output` na mesma pasta e grava `report.json`, `config.json`, `manifest.json` e `trials.jsonl`. Falhas preservam o diagnóstico de habilidades sem rodar 6.000 partidas. `bot:skills-audit` isolado também salva em `tools/bot/runs` com pasta própria. Relatórios antigos não são movidos.
+
+## Experimento P1: venenos e XP (13/11/2026)
+
+O veneno legado `poison:` mantém a data do último tick ao ser renovado: a reaplicação no evento de fim de rodada não cancela indefinidamente o dano. Tanto `poison:` quanto `dot:v1:` agora são removidos no fim do combate; o DoT genérico mantém múltiplas fontes independentes. O `Coração Corrompido da Floresta` substituiu a explosão manual por proteção passiva: reduz em **1 PV por tick de veneno por herói** durante o combate contra a **Grande Bruxa**. Não afeta ataques comuns, outras condições nem a Fornalha.
+
+A nova `poisonTelemetry` na partida mede **dano realmente descontado da vida**, discriminando heróis e inimigos, mais `preventedByHeart`. O simulador grava os dados em cada `trial.poison` e agrega em `diagnostics.poison` e `diagnostics.poisonByExpansion`.
+
+Para testar preços sem alterar as regras públicas, `bot:leveling-report` usa um engine independente com item **8 XP** e artefato **20 XP**, e registra os preços em `options.xpExperiment`. Os preços do jogo em `src/data/balance.json` continuam **15 XP** e **35 XP**; a escolha de adotar 8/20 no jogo depende do novo relatório. O bot prioriza o terceiro artefato quando possível. Todas as dificuldades permanecem intactas.
