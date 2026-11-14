@@ -2207,7 +2207,8 @@
         }
       ],
       "name": "Corredor Estreito",
-      "image": "images/CorredorEstreito.webp"
+      "image": "images/CorredorEstreito.webp",
+      "xp": 0
     },
     {
       "id": "room_dungeon_room",
