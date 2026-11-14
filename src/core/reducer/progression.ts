@@ -16,7 +16,7 @@ import { partyHeroIds } from "./legal";
 import { balanceOf, cardById, cardName, cardsOfType, expansionOf, refRequirementMet, skillsOf } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
 
-import { awakeningOf, deckOf, decksOf, heroesOf, impetoOf, shuffleDeck, withDecks, withAwakening, withDeck, withImpeto, withUnitStats, withWorld, worldOf } from "../state/access";
+import { awakeningOf, deckOf, decksOf, heroesOf, impetoOf, withDecks, withAwakening, withImpeto, withUnitStats, withWorld, worldOf } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 // Sobe o Ímpeto de um herói e atualiza seus stats. Também avança o Despertar.
 export function levelUpHero(engine: GameEngine, state: GameState, heroId: string): GameState {
@@ -61,7 +61,7 @@ export function levelUpHero(engine: GameEngine, state: GameState, heroId: string
 				next = refreshRequirementComponents(engine, next, true);
 			}
 			if (before < 3 && awakeningOf(next) >= 3 && gameOf(next).subbosses.available.length === 0) {
-				next = injectSubbossRooms(engine, next);
+				next = unlockSubbossRooms(engine, next);
 			}
 		}
 	}
@@ -71,28 +71,21 @@ export function levelUpHero(engine: GameEngine, state: GameState, heroId: string
 	);
 }
 
-// Embaralha as 2 salas de subchefe no deck de dungeon remanescente.
-function injectSubbossRooms(engine: GameEngine, state: GameState): GameState {
+// As salas de subchefe JÁ pertencem ao deck inicial (uma cópia cada) e
+// a profundidade mínima de 5 salas é aplicada em exploration.ts. O Despertar
+// apenas marca o desbloqueio para a UI; nunca adiciona cópias ao baralho.
+function unlockSubbossRooms(engine: GameEngine, state: GameState): GameState {
 	const expansionId = expansionOf(engine, gameOf(state).bossCardId);
-	const subbossRooms = cardsOfType(engine, "subboss_room").filter((room) => expansionOf(engine, room.id) === expansionId);
+	const subbossRooms = cardsOfType(engine, "subboss_room")
+		.filter((room) => expansionOf(engine, room.id) === expansionId);
+	if (subbossRooms.length === 0) return state;
 	const subbossRoomIds = subbossRooms.map((room) => room.id);
-	if (subbossRoomIds.length === 0) return state;
-
-	const { available, discarded, removed } = deckOf(state, "dungeonDeck");
-	const subbossRoomNames = subbossRooms.map((room) => cardName(engine, room.id));
 	return log(
-		shuffleDeck(
-			withDeck(
-				withGame(state, (prevGame) => ({ ...prevGame, subbosses: {
-						available: subbossRoomIds,
-						defeated: gameOf(state).subbosses.defeated,
-					} })),
-				"dungeonDeck",
-				{ available: [...available, ...subbossRoomIds], discarded, removed },
-			),
-			"dungeonDeck",
-		),
-		`Despertar Vermelho! Salas de subchefe injetadas no deck (${subbossRoomNames.join(", ")}).`,
+		withGame(state, (game) => ({
+			...game,
+			subbosses: { ...game.subbosses, available: subbossRoomIds },
+		})),
+		`Despertar Vermelho! Salas especiais disponíveis a partir da quinta sala (${subbossRooms.map((room) => cardName(engine, room.id)).join(", ")}).`,
 	);
 }
 

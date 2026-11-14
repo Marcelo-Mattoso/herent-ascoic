@@ -275,7 +275,14 @@ function checkBossEnd(engine: GameEngine, state: GameState): GameState {
 	// Efeitos de rodada são emitidos conforme as skills declaradas na ficha.
 	let afterRoundEnd = resolveSkillWindow(engine, state, {
 		event: "evt_round_end",
-		ctx: { triggeredBy: "evt_round_end", round: gameOf(state).combat?.round },
+		ctx: {
+			triggeredBy: "evt_round_end",
+			round: gameOf(state).combat?.round,
+			// O alvo das skills da chefe deve existir nesta janela; sem isso
+			// canExecuteAbilityGrant rejeita Fumaça do Caldeirão como "sem alvo".
+			targetHeroIds: heroesOf(state).filter((hero) => hero.status === "active").map((hero) => hero.id),
+			targetEnemyIds: enemiesOf(state).filter((enemy) => enemy.status === "active").map((enemy) => enemy.id),
+		},
 	});
 	if (pendingTriggerInterruptOf(afterRoundEnd) || pendingSkillChoiceOf(afterRoundEnd) ||
 		pendingSkillTargetOf(afterRoundEnd)) return afterRoundEnd;

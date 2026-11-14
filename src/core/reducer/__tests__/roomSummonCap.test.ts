@@ -113,6 +113,30 @@ describe("padrão de salas de masmorra das expansões", () => {
 		}
 	});
 
+	it("Carcereiro e Abismo Rachado (3 XP) não invocam subchefes e têm efeitos próprios", () => {
+		for (const [id, skillId] of [
+			["room_jailer_room", "dungeon_skill_confinement"],
+			["room_cracked_abyss", "dungeon_skill_uneven_floor"],
+		] as const) {
+			const room = cardById(testEngine, id);
+			expect(room?.type).toBe("room");
+			if (!room || room.type !== "room") continue;
+			expect(room.xp).toBe(3);
+			expect(room.specialCreatureId).toBeUndefined();
+			expect(room.skills.map((entry) => entry.skillId)).toEqual([skillId]);
+			for (const partySize of [1, 2, 3, 4]) {
+				const { enemies } = spawnRoom(id, "boss_azhakar", partySize);
+				expect(enemies.every((enemy) => cardById(testEngine, enemy.cardId)?.type === "creature"))
+					.toBe(true);
+				expect(enemies.some((enemy) => enemy.isSubboss)).toBe(false);
+				expect(enemies.filter((enemy) => {
+					const card = cardById(testEngine, enemy.cardId);
+					return card?.type === "creature" && card.xp === 3;
+				}).length).toBeGreaterThanOrEqual(partySize === 1 ? 1 : 2);
+			}
+		}
+	});
+
 	it("as salas de 3 XP usam apenas criaturas comuns, com elites de 3 XP garantidas", () => {
 		for (const { id, bossId } of EXPANSIONS) {
 			const eliteRooms = cardsOfType(testEngine, "room").filter((card) =>

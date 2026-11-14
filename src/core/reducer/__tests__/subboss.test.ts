@@ -30,7 +30,7 @@ describe("F13 — Subchefes", () => {
 		expect(gameOf(state).subbosses.defeated).toHaveLength(0);
 	});
 
-	it("ao subir Despertar para 3, injeta 2 salas de subchefe no deck", () => {
+	it("ao chegar a Despertar 3, desbloqueia as salas sem duplicar cartas", () => {
 		let state = makeState();
 		// very_easy: heroOffset=2, então herói já começa em impeto=2 e despertar=0
 		// Forçar despertar para 2 para que level-up avance para 3
@@ -45,37 +45,37 @@ describe("F13 — Subchefes", () => {
 
 		// Despertar agora é 3
 		expect(awakeningOf(state)).toBe(3);
-		// 2 salas de subchefe foram injetadas
+		// Salas de subchefe já estavam no baralho inicial: não injetar novamente.
 		expect(gameOf(state).subbosses.available).toHaveLength(2);
-		expect(deckOf(state, "dungeonDeck").available.length).toBe(deckBefore + 2);
+		expect(deckOf(state, "dungeonDeck").available.length).toBe(deckBefore);
 		// Os IDs das salas estão no deck
 		for (const id of gameOf(state).subbosses.available) {
 			expect(deckOf(state, "dungeonDeck").available).toContain(id);
 		}
 	});
 
-	it("não injeta salas novamente se já foram injetadas (idempotência)", () => {
+	it("não duplica salas ao evoluir novamente após o desbloqueio", () => {
 		let state = makeState();
 		const heroId = heroesOf(state)[0]!.id;
 		state = withAwakening(withGame(state, (prevGame) => ({ ...prevGame, groupXp: 99 })), 2);
-		// Primeira injeção (despertar 2 → 3)
+		// Primeiro desbloqueio (Despertar 2 → 3)
 		state = reducer(testEngine, state, {
 			type: "SPEND_XP",
 			payload: { option: "level_up", heroId },
 		});
 		expect(awakeningOf(state)).toBe(3);
 		const availableAfterFirst = [...gameOf(state).subbosses.available];
+		const deckAfterFirst = [...deckOf(state, "dungeonDeck").available];
 
-		// Segundo level-up: despertar 3 → 4, subbosses.available.length > 0 → não reinjecta
+		// Segundo level-up: Despertar 3 → 4, sem modificar o deck
 		state = reducer(testEngine, state, {
 			type: "SPEND_XP",
 			payload: { option: "level_up", heroId },
 		});
 		expect(awakeningOf(state)).toBe(4);
 		// subbosses.available não cresceu (pode ter diminuído se algum foi derrotado, mas aqui 0 derrotados)
-		expect(gameOf(state).subbosses.available.length).toBeLessThanOrEqual(
-			availableAfterFirst.length,
-		);
+		expect(gameOf(state).subbosses.available).toEqual(availableAfterFirst);
+		expect(deckOf(state, "dungeonDeck").available).toEqual(deckAfterFirst);
 	});
 
 	it("não instala cópias ECS dos gatilhos Roxos de catálogo", () => {
