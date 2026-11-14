@@ -3,7 +3,7 @@ import { testEngine } from "@/core/__tests__/testEngine";
 import { settledWith } from "@/core/__tests__/fixtures";
 import { createEmptyCombatState } from "@/core/state/combatState";
 import { createInitialGameState, type GameState } from "@/core/state/gameState";
-import { enemiesOf, heroesOf } from "@/core/state/access";
+import { enemiesOf, heroesOf, withUnitStats } from "@/core/state/access";
 import { withGame, gameOf } from "@/engine/state";
 import { applyPoisonStatus, resolvePoisonRound } from "./poison";
 import { applyDamageOverTimeStatus, resolveDamageOverTimeRound, clearDamageOverTime } from "./damageOverTime";
@@ -81,7 +81,64 @@ describe("veneno legado, DoT e Coração Corrompido", () => {
 		expect(enemiesOf(s)[0]?.conditions.some((entry) => entry.startsWith("dot:v1:"))).toBe(false);
 	});
 
-	it("conta a perda real de vida por veneno nos inimigos", () => {
+	it("identifica a habilidade da Bruxa que aplicou e causou dano", () => {
+		let s = applyPoisonStatus(scene(), "h1", 2, 2, {
+			sourceId: "boss", effectId: "witch_boss_skill_poison_fumes",
+		});
+		s = resolvePoisonRound(testEngine, round(s, 1));
+		const key = "boss_great_cauldron_witch/witch_boss_skill_poison_fumes";
+		expect(gameOf(s).poisonTelemetry?.damageBySource?.[key]).toEqual({
+			toHeroes: 2, toEnemies: 0, ticks: 1,
+		});
+		expect(gameOf(s).poisonTelemetry?.applicationsBySource?.[key]).toBe(1);
+		expect(gameOf(s).poisonTelemetry?.witchBossPoisonTicks).toBe(1);
+		expect(gameOf(s).poisonTelemetry?.heartHeldAtWitchBossTicks).toBe(0);
+	});
+
+	it("atribui a remoção ao antídoto, sem contar renovação como remoção", () => {
+		let s = applyPoisonStatus(scene(), "h1", 1, 2, {
+			sourceId: "boss", effectId: "witch_boss_skill_poison_fumes",
+		});
+		s = applyPoisonStatus(round(s, 1), "h1", 1, 2, {
+			sourceId: "boss", effectId: "witch_boss_skill_poison_fumes",
+		});
+		expect(gameOf(s).poisonTelemetry?.removalsBySource ?? {}).toEqual({});
+		s = withUnitStats(s, "h1", { conditions: [] }, {
+			reason: "antidote", by: "item_swamp_antidote/witch_item_swamp_antidote_action",
+		});
+		const key = "antidote | item_swamp_antidote/witch_item_swamp_antidote_action | " +
+			"boss_great_cauldron_witch/witch_boss_skill_poison_fumes";
+		expect(gameOf(s).poisonTelemetry?.removalsBySource?.[key]).toBe(1);
+	});
+
+	it("distingue limpeza de fim de combate de expiração natural", () => {
+		let s = applyPoisonStatus(scene(), "h1", 1, 2, {
+			sourceId: "boss", effectId: "witch_boss_skill_poison_fumes",
+		});
+		s = clearDamageOverTime(s);
+		const removals = gameOf(s).poisonTelemetry?.removalsBySource ?? {};
+		expect(Object.keys(removals)).toContain(
+			"combat_end | system | boss_great_cauldron_witch/witch_boss_skill_poison_fumes");
+		let expired = applyPoisonStatus(scene(), "h1", 1, 1, {
+			sourceId: "boss", effectId: "witch_boss_skill_poison_fumes",
+		});
+		expired = resolvePoisonRound(testEngine, round(expired, 1));
+		expect(Object.keys(gameOf(expired).poisonTelemetry?.removalsBySource ?? {}).some(
+			(key) => key.startsWith("expired |"))).toBe(true);
+	});
+
+	it("contabiliza oportunidade real de proteção quando o Coração está presente", () => {
+		let s = applyDamageOverTimeStatus(scene(true), "h1", {
+			status: "poison", sourceId: "boss",
+			effectId: "venom_boss", damage: 1, rounds: 2,
+		});
+		s = resolveDamageOverTimeRound(testEngine, round(s, 1));
+		expect(gameOf(s).poisonTelemetry?.witchBossPoisonTicks).toBe(1);
+		expect(gameOf(s).poisonTelemetry?.heartHeldAtWitchBossTicks).toBe(1);
+		expect(gameOf(s).poisonTelemetry?.preventedByHeart).toBe(1);
+	});
+
+		it("conta a perda real de vida por veneno nos inimigos", () => {
 		let s = applyPoisonStatus(scene(true), "boss", 2, 2);
 		s = resolvePoisonRound(testEngine, round(s, 1));
 		expect(enemiesOf(s)[0]?.currentLife).toBe(28);

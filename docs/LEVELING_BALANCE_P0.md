@@ -106,3 +106,7 @@ Para testar preços sem alterar as regras públicas, `bot:leveling-report` usa u
 ### Pacote de observabilidade de XP (14/11/2026)
 
 O audit padrão voltou aos preços oficiais (item 15 XP; artefato 35 XP). O bot passou a priorizar level_up (360), recover_dungeon (325), e adiar itens/artefatos para depois do nível máximo; o controle `random` continua aleatório. `options.xpExperiment` permanece opt-in apenas. Esse experimento altera a IA, não custos, stats ou dificuldade.
+
+### Fontes do veneno e condição real ao chegar no chefe
+
+A instrumentação de `poison:` agora carrega a origem real (sourceId/skillId), com compatibilidade para condições antigas. `dot:v1:` já preservava origem/efeito. Remoções por antídoto, limpeza, expiração e fim de combate passam a carregar causa e responsável quando disponíveis, e a telemetria diferencia aplicação, bloqueio e tick de dano realmente aplicado. A entrada no chefe registra vida, nível, XP e posse do Coração. Nos resultados do audit: verificar `diagnostics.poisonDamageBySource`, `poisonRemovalBySource`, `bossByExpansion` e `xpPolicy` antes de qualquer ajuste de atributos ou dificuldade.
