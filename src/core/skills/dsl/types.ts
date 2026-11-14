@@ -93,13 +93,24 @@ export type EffectNode =
 			readonly to: string;
 			readonly amount: ExprNode;
 	  }
-	| { readonly kind: "i_apply_poison"; readonly to: string; readonly damage: ExprNode; readonly rounds: ExprNode }
+	| {
+			readonly kind: "i_apply_poison";
+			readonly to: string;
+			readonly damage: ExprNode;
+			readonly rounds: ExprNode;
+			/** Metadados de proveniência acrescentados pelo avaliador. */
+			readonly sourceId?: string;
+			readonly effectId?: string;
+	  }
 	| { readonly kind: "i_consume_poison_stacks"; readonly to: string; readonly damagePerStack: number }
 	| {
 			readonly kind: "i_poison_ward";
 			readonly to: string;
 			readonly mode: "remove_one" | "block_next" | "reduce_next";
 			readonly value?: number;
+			/** Identifica qual habilidade/item removeu o veneno. */
+			readonly removerSourceId?: string;
+			readonly removerSkillId?: string;
 	  }
 	| {
 			readonly kind: "i_apply_damage_over_time";
@@ -230,11 +241,15 @@ export type EffectNode =
 	| {
 			readonly kind: "i_dispel";
 			readonly category: string;
+			readonly removerSourceId?: string;
+			readonly removerSkillId?: string;
 	  }
 	| {
 			readonly kind: "i_remove_status";
 			readonly status: string;
 			readonly to?: string;
+			readonly removerSourceId?: string;
+			readonly removerSkillId?: string;
 	  };
 
 // ── Trigger v2 (patch-21 Lote B) ────────────────────────────────────────────

@@ -694,6 +694,8 @@ const poisonWardKind = effectKind({
     to: z.string(),
     mode: z.enum(["remove_one", "block_next", "reduce_next"]),
     value: z.number().int().positive().default(1),
+    removerSourceId: z.string().optional(),
+    removerSkillId: z.string().optional(),
   }),
   evaluate: (node, ctx) => {
     const to = resolveEntityRef(node.to, ctx);
@@ -744,7 +746,14 @@ const hasDotStacks = defineCondition<never, never, EvalCtx>({
 
 const applyPoisonKind = effectKind({
 	kind: "i_apply_poison",
-	schema: z.object({ kind: z.literal("i_apply_poison"), to: z.string(), damage: ExprNodeSchema, rounds: ExprNodeSchema }),
+	schema: z.object({
+		kind: z.literal("i_apply_poison"),
+		to: z.string(),
+		damage: ExprNodeSchema,
+		rounds: ExprNodeSchema,
+		sourceId: z.string().optional(),
+		effectId: z.string().optional(),
+	}),
 	evaluate: (node, ctx) => {
 		const to = resolveEntityRef(node.to, ctx);
 		if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
