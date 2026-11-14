@@ -2375,10 +2375,9 @@
       "reward": 1,
       "rewardType": "artifact",
       "xp": 3,
-      "specialCreatureId": "subboss_crimson_dungeon_jailer",
       "skills": [
         {
-          "skillId": "dungeon_skill_summon_guardian"
+          "skillId": "dungeon_skill_confinement"
         }
       ],
       "name": "Sala do Carcereiro",
@@ -2397,10 +2396,9 @@
       "reward": 1,
       "rewardType": "artifact",
       "xp": 3,
-      "specialCreatureId": "subboss_cracked_abyss_guardian",
       "skills": [
         {
-          "skillId": "dungeon_skill_summon_guardian"
+          "skillId": "dungeon_skill_uneven_floor"
         }
       ],
       "name": "Abismo Rachado",

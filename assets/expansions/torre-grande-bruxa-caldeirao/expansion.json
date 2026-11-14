@@ -758,9 +758,9 @@
       "exits": 2,
       "enemiesByPlayers": [
         1,
-        1,
         2,
-        2
+        2,
+        3
       ],
       "xp": 1,
       "reward": 1,
@@ -801,7 +801,7 @@
       "enemiesByPlayers": [
         0,
         1,
-        1,
+        2,
         2
       ],
       "xp": 1,
@@ -823,7 +823,7 @@
         1,
         2,
         3,
-        3
+        4
       ],
       "xp": 1,
       "reward": 1,
@@ -842,7 +842,7 @@
       "exits": 3,
       "enemiesByPlayers": [
         1,
-        2,
+        1,
         2,
         3
       ],
@@ -862,12 +862,12 @@
       "image": "images/room_lost_children_bedroom.webp",
       "exits": 2,
       "enemiesByPlayers": [
-        0,
         1,
         1,
+        2,
         2
       ],
-      "xp": 1,
+      "xp": 0,
       "reward": 1,
       "rewardType": "item",
       "skills": [
@@ -904,10 +904,10 @@
       "image": "images/room_green_candles_chamber.webp",
       "exits": 4,
       "enemiesByPlayers": [
-        1,
         2,
         2,
-        3
+        3,
+        4
       ],
       "xp": 2,
       "reward": 1,
@@ -926,7 +926,7 @@
       "exits": 1,
       "reward": 1,
       "rewardType": "artifact",
-      "xp": 3,
+      "xp": 4,
       "linkedSubbossId": "subboss_spider_mother",
       "skills": [
         {
@@ -945,7 +945,7 @@
       "exits": 2,
       "reward": 1,
       "rewardType": "artifact",
-      "xp": 2,
+      "xp": 4,
       "linkedSubbossId": "subboss_black_cauldron_servant",
       "skills": [
         {
@@ -1253,10 +1253,10 @@
       "enemiesByPlayers": [
         1,
         2,
-        2,
-        3
+        3,
+        4
       ],
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
       "rewardType": "artifact",
       "skills": [
@@ -1272,12 +1272,12 @@
       "image": "images/room_witch_herbarium.webp",
       "exits": 3,
       "enemiesByPlayers": [
-        1,
-        1,
         2,
-        2
+        3,
+        4,
+        5
       ],
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
       "rewardType": "artifact",
       "skills": [
