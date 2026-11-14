@@ -7,6 +7,7 @@ import { enemiesOf, heroesOf, withUnitStats } from "@/core/state/access";
 import { withGame, gameOf } from "@/engine/state";
 import { applyPoisonStatus, resolvePoisonRound } from "./poison";
 import { applyDamageOverTimeStatus, resolveDamageOverTimeRound, clearDamageOverTime } from "./damageOverTime";
+import { handleBossResolveAttack } from "../reducer/boss";
 
 function scene(heart = false, boss = true): GameState {
 	return settledWith(createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] }), {
@@ -27,7 +28,56 @@ function round(s: GameState, n: number): GameState {
 	return withGame(s, (game) => ({ ...game, combat: { ...game.combat!, round: n } }));
 }
 
+/** Percorre o fluxo real de ataque e encerramento de rodada do chefe. */
+function bossTurn(state: GameState): GameState {
+	const withRoll = withGame(state, (game) => ({
+		...game,
+		combat: {
+			...game.combat!,
+			phase: "resolving" as const,
+			lastRoll: {
+				heroId: "h1",
+				enemyId: "boss",
+				heroResults: [1],
+				heroTotal: 1,
+				heroBreakdown: [],
+				enemyResults: [2],
+				enemyTotal: 2,
+				enemyBreakdown: [],
+			},
+		},
+	}));
+	return handleBossResolveAttack(testEngine, withRoll);
+}
+
 describe("veneno legado, DoT e Coração Corrompido", () => {
+	it("a própria Bruxa aplica Fumaça no fim da rodada e causa dano na seguinte", () => {
+		const source = "boss_great_cauldron_witch/witch_boss_skill_poison_fumes";
+		let s = bossTurn(scene());
+		expect(gameOf(s).status).toBe("BOSS_COMBAT");
+		expect(gameOf(s).poisonTelemetry?.applicationsBySource?.[source]).toBe(1);
+		expect(heroesOf(s)[0]?.conditions.some((condition) => condition.startsWith("poison:"))).toBe(true);
+		expect(gameOf(s).poisonTelemetry?.witchBossPoisonTicks ?? 0).toBe(0);
+		s = bossTurn(s);
+		expect(gameOf(s).poisonTelemetry?.applicationsBySource?.[source]).toBe(2);
+		expect(gameOf(s).poisonTelemetry?.damageBySource?.[source]?.toHeroes).toBe(1);
+		expect(gameOf(s).poisonTelemetry?.witchBossPoisonTicks).toBe(1);
+		expect(gameOf(s).poisonTelemetry?.preventedByHeart).toBe(0);
+	});
+
+	it("no combate real, o Coração bloqueia a Fumaça da Bruxa sem bloquear o ataque", () => {
+		const source = "boss_great_cauldron_witch/witch_boss_skill_poison_fumes";
+		let without = bossTurn(bossTurn(scene()));
+		let withHeart = bossTurn(bossTurn(scene(true)));
+		expect(gameOf(withHeart).poisonTelemetry?.applicationsBySource?.[source]).toBe(2);
+		expect(gameOf(withHeart).poisonTelemetry?.toHeroes ?? 0).toBe(0);
+		expect(gameOf(withHeart).poisonTelemetry?.preventedByHeart).toBe(1);
+		expect(gameOf(withHeart).poisonTelemetry?.heartHeldAtWitchBossTicks).toBe(1);
+		// Ambas as partidas sofreram os mesmos ataques. A diferença é só o tick de veneno.
+		expect(heroesOf(withHeart)[0]!.currentLife - heroesOf(without)[0]!.currentLife).toBe(1);
+	});
+
+	describe("regressões unitárias do efeito", () => {
 	it("reaplicar veneno renova duração sem adiar ticks das rodadas futuras", () => {
 		let s = applyPoisonStatus(scene(), "h1", 1, 2);
 		s = applyPoisonStatus(round(s, 1), "h1", 1, 2);
@@ -145,5 +195,6 @@ describe("veneno legado, DoT e Coração Corrompido", () => {
 		expect(gameOf(s).poisonTelemetry).toMatchObject({
 			toHeroes: 0, toEnemies: 2, preventedByHeart: 0,
 		});
+	});
 	});
 });

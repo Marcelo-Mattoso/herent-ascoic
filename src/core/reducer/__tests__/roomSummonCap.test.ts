@@ -1,11 +1,12 @@
 import { describe, expect, it } from "vitest";
 import { testEngine } from "@/core/__tests__/testEngine";
 import { cardById, cardsOfType, expansionOf } from "@/core/gameEngine";
-import { deckOf, enemiesOf, withDeck } from "@/core/state/access";
+import { deckOf, enemiesOf, heroesOf, withDeck, withAwakening } from "@/core/state/access";
 import { createInitialGameState } from "@/core/state/gameState";
 import { gameOf, withGame } from "@/engine/state";
 import { buildDungeonRoomDeck, handleRevealRoom, handleSpawnEnemies } from "../exploration";
 import { handleStartGame } from "../setup";
+import { levelUpHero } from "../progression";
 
 const HEROES = [
 	"hero_crimson_barbarian",
@@ -96,6 +97,29 @@ describe("padrão de salas de masmorra das expansões", () => {
 				.filter((card) => expansionOf(testEngine, card.id) === id).map((card) => card.id);
 			for (const roomId of roomIds) expect(counts[roomId]).toBe(2);
 			for (const roomId of subIds) expect(counts[roomId]).toBe(1);
+		}
+	});
+
+	it("subir Despertar não altera a quantidade de cartas de subchefe em nenhuma expansão", () => {
+		for (const { id, bossId } of EXPANSIONS) {
+			let state = start(bossId);
+			const roomIds = cardsOfType(testEngine, "subboss_room")
+				.filter((room) => expansionOf(testEngine, room.id) === id)
+				.map((room) => room.id);
+			const count = (roomId: string) => {
+				const deck = deckOf(state, "dungeonDeck");
+				return [...deck.available, ...deck.discarded, ...deck.removed]
+					.filter((cardId) => cardId === roomId).length;
+			};
+			expect(roomIds).toHaveLength(2);
+			for (const roomId of roomIds) expect(count(roomId)).toBe(1);
+			const heroId = heroesOf(state)[0]!.id;
+			state = withAwakening(state, 2);
+			state = levelUpHero(testEngine, state, heroId);
+			expect(gameOf(state).subbosses.available).toEqual(roomIds);
+			for (const roomId of roomIds) expect(count(roomId)).toBe(1);
+			state = levelUpHero(testEngine, state, heroId);
+			for (const roomId of roomIds) expect(count(roomId)).toBe(1);
 		}
 	});
 

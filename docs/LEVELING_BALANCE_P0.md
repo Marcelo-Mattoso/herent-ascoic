@@ -118,3 +118,12 @@ O catálogo da Fornalha é referência para a Torre da Grande Bruxa: **10 salas 
 A sala 0 XP é **obrigatória na abertura** de qualquer masmorra, inclusive após reinício. O deck contém 2 cópias de cada uma das 10 salas comuns e 1 de cada sala de subchefe, disponibilizada somente da quinta sala em diante. Salas comuns de 3 XP **não invocam subchefe**: possuem no mínimo 1 criatura de 3 XP no solo ou 2 em grupo (respeitando o limite de criaturas). As duas salas especiais de 4 XP são os encontros com subchefes de fato. Na Fornalha, a Sala do Carcereiro comum passou a ter Confinamento; o Abismo Rachado comum passou a ter Piso Irregular, substituindo a antiga invocação.
 
 Esta alteração muda o encontro nas salas, não o custo de XP, as criaturas individuais ou a dificuldade escolhida. Reavaliar as taxas de vitória e os subchefes efetivamente encontrados após rodar `npm run audit`.
+
+### P0 — Consertos da auditoria 14/11/2026
+
+- **Duplicação:** `subboss_room` já possui uma cópia no deck inicial por expansão. A evolução até Despertar Vermelho apenas registra desbloqueio para a UI; nunca coloca novas cópias. A seleção das salas de 4 XP permanece bloqueada até a quinta sala. Testes cobrem evolução e conservação de quantidade nas duas expansões.
+- **Fumaça do Caldeirão:** `evt_round_end` no combate com o chefe recebe os IDs dos heróis e inimigos ativos, permitindo que a concessão da Bruxa valide o alvo e aplique `i_apply_poison`. Testes de integração reproduzem duas rodadas reais, aplicação e primeiro tick.
+- **Coração Corrompido:** testes de integração com e sem o artefato confirmam redução de um PV do tick e nenhum efeito sobre dano de ataque. Telemetria de ticks e prevenção é validada.
+- **Fornalha 3 XP:** Sala do Carcereiro usa Confinamento e Abismo Rachado usa Piso Irregular; nenhuma possui `specialCreatureId`, e ambas recebem criaturas de 3 XP pela regra geral de sala de elite. A invocação de subchefes fica exclusiva das duas salas de 4 XP.
+
+Não alterar preços, atributos ou dificuldade com base no relatório que continha duplicações; repetir o audit depois da validação local.
