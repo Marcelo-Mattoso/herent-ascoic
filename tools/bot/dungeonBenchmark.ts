@@ -1,6 +1,5 @@
 import type { Difficulty } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
-import { BOT_LEVELING_XP_EXPERIMENT } from "./xpExperiment";
 import { preparedTransitions } from "./preparedTelemetry";
 import { deckOf } from "@/core/state/access";
 import { playerView } from "@/core/projection/playerView";
@@ -27,7 +26,7 @@ export interface DungeonBenchmarkOptions {
 	readonly expansions: readonly string[];
 	readonly profiles: readonly BotProfile[];
 	readonly difficulties: readonly Difficulty[];
-	/** Custos experimentais usados APENAS neste benchmark e gravados na configuração. */
+	/** Override opt-in exclusivo do laboratório (padrão: preços oficiais). */
 	readonly xpExperiment?: Partial<GameBalance["xpCosts"]>;
 }
 
@@ -168,7 +167,6 @@ export function defaultBenchmarkOptions(): DungeonBenchmarkOptions {
 		expansions: benchmarkExpansionIds(),
 		profiles: [...BOT_PROFILES],
 		difficulties: [...BENCHMARK_DIFFICULTIES],
-		xpExperiment: { ...BOT_LEVELING_XP_EXPERIMENT },
 	};
 }
 
@@ -236,7 +234,7 @@ function inventoryCounts(heroes: readonly { activeItems: object; backpack: reado
 export function runBenchmarkCase(
 	test: BenchmarkCase,
 	maxSteps: number,
-	xpCostsOverride: Partial<GameBalance["xpCosts"]> = BOT_LEVELING_XP_EXPERIMENT,
+	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
 ): BenchmarkTrial {
 	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
 	const starting = createHeadlessPort(setup).observe().view;

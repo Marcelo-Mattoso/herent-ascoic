@@ -102,3 +102,7 @@ O veneno legado `poison:` mantém a data do último tick ao ser renovado: a reap
 A nova `poisonTelemetry` na partida mede **dano realmente descontado da vida**, discriminando heróis e inimigos, mais `preventedByHeart`. O simulador grava os dados em cada `trial.poison` e agrega em `diagnostics.poison` e `diagnostics.poisonByExpansion`.
 
 Para testar preços sem alterar as regras públicas, `bot:leveling-report` usa um engine independente com item **8 XP** e artefato **20 XP**, e registra os preços em `options.xpExperiment`. Os preços do jogo em `src/data/balance.json` continuam **15 XP** e **35 XP**; a escolha de adotar 8/20 no jogo depende do novo relatório. O bot prioriza o terceiro artefato quando possível. Todas as dificuldades permanecem intactas.
+
+### Pacote de observabilidade de XP (14/11/2026)
+
+O audit padrão voltou aos preços oficiais (item 15 XP; artefato 35 XP). O bot passou a priorizar level_up (360), recover_dungeon (325), e adiar itens/artefatos para depois do nível máximo; o controle `random` continua aleatório. `options.xpExperiment` permanece opt-in apenas. Esse experimento altera a IA, não custos, stats ou dificuldade.

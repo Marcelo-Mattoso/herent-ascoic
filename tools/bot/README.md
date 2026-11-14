@@ -167,7 +167,7 @@ Tudo fica em `tools/bot/runs/`, fora do git:
 
 ## Experimento de preços — P1 (bots apenas)
 
-O comando `npm run bot:leveling-report` roda com custos de **8 XP por item** e **20 XP por artefato**, gravados em `config.json` e em `report.json > options.xpExperiment`. Os custos oficiais em `src/data/balance.json` permanecem **15/35 XP**; nenhum preço da UI foi alterado. O engine experimental é clonado por execução, sem modificar o ruleset do jogo. A IA prioriza adquirir o terceiro artefato, mantendo level up e compras de equipamentos como escolhas competitivas.
+O comando `npm run bot:leveling-report` voltou a usar os **preços oficiais**: item **15 XP** e artefato **35 XP**. O campo `options.xpExperiment` só aparece em execuções com override explícito, nunca no audit padrão. A política dos bots prioriza subir de nível e recuperar o baralho da masmorra; itens e artefatos são compras excepcionais após o nivelamento, com reserva de XP. O perfil `random` continua sendo um controle aleatório.
 
 ## Estatísticas de veneno (por PV real)
 

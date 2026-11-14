@@ -16,22 +16,30 @@ describe("XP experimental exclusivo do bot de leveling", () => {
 		});
 		expect(balanceOf(engine).xpCosts).toEqual(officialBefore);
 		expect(officialBefore).toMatchObject({ buy_item: 15, buy_artifact: 35 });
-		expect(defaultBenchmarkOptions().xpExperiment).toMatchObject(BOT_LEVELING_XP_EXPERIMENT);
+		expect(defaultBenchmarkOptions().xpExperiment).toBeUndefined();
 	});
 
-	it("abre a partida com override isolado e prioriza artefato antes do terceiro", () => {
+	it("prioriza nível e recuperação; itens e artefatos ficam secundários", () => {
 		const setup = { ...setupForRun(1, ["hero_crimson_barbarian"], "normal"),
 			bossCardId: benchmarkBoss("fornalha-sombria") };
-		const view = createHeadlessPort(setup, BOT_LEVELING_XP_EXPERIMENT).observe().view;
+		const view = createHeadlessPort(setup).observe().view;
 		const hero = view.heroes[0]!;
-		const updated = { ...view, status: "XP_SPEND_PHASE" as const, groupXp: 20,
+		const leveling = { ...view, status: "XP_SPEND_PHASE" as const, groupXp: 35,
 			groupArtifacts: [] };
-		const purchase = scoreAction(updated, { type: "SPEND_XP", payload: {
-			option: "buy_artifact",
-		} }, "speedrunner");
-		const level = scoreAction(updated, { type: "SPEND_XP", payload: {
-			option: "level_up", heroId: hero.id,
-		} }, "speedrunner");
-		expect(purchase).toBeGreaterThan(level);
+		const score = (v: typeof leveling, option: "buy_item" | "buy_artifact" | "recover_dungeon" | "level_up") =>
+			scoreAction(v, { type: "SPEND_XP", payload: {
+				option, ...(option === "level_up" ? { heroId: hero.id } : {}),
+			} }, "power-player");
+		expect(score(leveling, "level_up")).toBeGreaterThan(score(leveling, "buy_artifact"));
+		expect(score(leveling, "level_up")).toBeGreaterThan(score(leveling, "buy_item"));
+		expect(score(leveling, "recover_dungeon")).toBeGreaterThan(score(leveling, "buy_artifact"));
+		expect(score(leveling, "buy_item")).toBeLessThan(score(leveling, "level_up"));
+		const fullyLeveled = { ...leveling, heroes: [{ ...hero, impeto: 4 as const }] };
+		expect(score(fullyLeveled, "buy_item")).toBeLessThan(0);
+		expect(score(fullyLeveled, "buy_artifact")).toBeLessThan(0);
+	});
+
+	it("o relatório volta aos custos oficiais sem aplicar o override experimental", () => {
+		expect(defaultBenchmarkOptions().xpExperiment).toBeUndefined();
 	});
 });

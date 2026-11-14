@@ -115,21 +115,27 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 		}
 		case "SPEND_XP": {
 			const { option, heroId } = action.payload;
-			if (option === "recover_dungeon") return 120;
+			// Recuperar cartas da masmorra mantém a campanha possível; nunca gastar
+			// o último XP em itens/artefatos quando um herói ainda pode evoluir.
+			if (option === "recover_dungeon") return 325;
+			const needsLevel = heroes.some((hero) => hero.impeto < 4);
 			if (option === "level_up") {
 				const hero = heroes.find((entry) => entry.id === heroId);
-				// A compra sem mudança de Ímpeto desperdiça uma decisão e distorce a telemetria.
 				if (!hero || hero.impeto >= 4) return -1;
-				return (profile === "speedrunner" ? 235 : 155) + (1 - lifeRatio(hero)) * 10;
+				return 360 + (1 - lifeRatio(hero)) * 10;
 			}
+			// Reservar XP para nível: não comprar itens nem artefatos enquanto
+			// existir herói elegível, mesmo que o gasto esteja legal no momento.
+			if (needsLevel) return -10;
 			if (option === "buy_artifact") {
-				// Com preço experimental, priorizar acesso ao chefe antes do estoque supérfluo.
-				return view.groupArtifacts.length < 3 ? 250 : 90;
+				// O acesso ao chefe normalmente vem dos artefatos encontrados.
+				// Só complementar o terceiro em fase avançada e com saldo folgado.
+				return view.groupArtifacts.length < 3 && view.roomsCleared >= 6 && view.groupXp >= 45 ? 65 : -10;
 			}
 			if (option === "buy_item") {
 				const inventory = heroes.reduce((total, hero) =>
 					total + Object.values(hero.activeItems).filter(Boolean).length + hero.backpack.length, 0);
-				return inventory < 3 ? 150 : profile === "speedrunner" ? 65 : 95;
+				return inventory < 2 && view.groupXp >= 25 ? 45 : -10;
 			}
 			return 10;
 		}
