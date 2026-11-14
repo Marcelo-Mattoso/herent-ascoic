@@ -3,6 +3,7 @@ import { defineCondition, type RefResolver } from "../../../../engine/kinds";
 import type { GameKindPackage } from "../../../gameEngine";
 import { recordEvent } from "../../../events/record";
 import { applyPoisonStatus } from "../../../rules/poison";
+import { poisonOriginLabel } from "../../../rules/poisonTelemetry";
 import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
@@ -697,7 +698,8 @@ const poisonWardKind = effectKind({
   evaluate: (node, ctx) => {
     const to = resolveEntityRef(node.to, ctx);
     if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
-    return ctx.action.pushEffect({ kind: "i_poison_ward", to, mode: node.mode, value: node.value });
+    return ctx.action.pushEffect({ kind: "i_poison_ward", to, mode: node.mode, value: node.value,
+      removerSkillId: ctx.skillId, removerSourceId: ctx.sourceId ?? "system" });
   },
   resolve: (state, effect) => {
     const entity = targetOf(effect);
@@ -708,7 +710,9 @@ const poisonWardKind = effectKind({
     if (mode === "remove_one") {
       const index = unit.conditions.findIndex(c => matchesDamageOverTimeStatus(c, "poison") || c.startsWith("poison:"));
       if (index < 0) return state;
-      return withUnitStats(state, unit.id, { conditions: unit.conditions.filter((_, i) => i !== index) });
+      return withUnitStats(state, unit.id, { conditions: unit.conditions.filter((_, i) => i !== index) },
+        { reason: "antidote", by: poisonOriginLabel(state, String(effect["removerSourceId"] ?? "system"),
+          String(effect["removerSkillId"] ?? "i_poison_ward")) });
     }
     const prefix = "poison_ward:" + mode + ":";
     const existing = unit.conditions.find(c => c.startsWith(prefix));
@@ -746,11 +750,15 @@ const applyPoisonKind = effectKind({
 		if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 		return ctx.action.pushEffect({
 			kind: "i_apply_poison", to,
+			sourceId: ctx.sourceId ?? "system", effectId: ctx.skillId,
 			damage: resolveExpr(node.damage, ctx), rounds: resolveExpr(node.rounds, ctx),
 		});
 	},
 	resolve: (state, effect) => applyPoisonStatus(
-		state, targetOf(effect) ?? "", Number(effect["damage"]), Number(effect["rounds"]),
+		state, targetOf(effect) ?? "", Number(effect["damage"]), Number(effect["rounds"]), {
+			sourceId: String(effect["sourceId"] ?? "legacy_unknown"),
+			effectId: String(effect["effectId"] ?? "legacy_poison"),
+		},
 	),
 });
 

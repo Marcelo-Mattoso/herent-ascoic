@@ -9,6 +9,7 @@ import {
 } from "../../../ecs/world";
 import { log } from "../../../reducer/utils";
 import { matchesDamageOverTimeStatus } from "../../../rules/damageOverTime";
+import { poisonOriginLabel } from "../../../rules/poisonTelemetry";
 import { hasDiceChangeEffect, canChangeRolledDice } from "../../../rules/diceReactions";
 import { skillById, skillOptionLabel } from "../../../gameEngine";
 import type { GameKindPackage } from "../../../gameEngine";
@@ -573,7 +574,7 @@ const dispel = effectKind({
 	evaluate: (node, ctx) =>
 		ctx.action.pushEffect({
 			kind: "i_dispel",
-			category: node.category,
+			category: node.category, removerSourceId: ctx.sourceId ?? "system", removerSkillId: ctx.skillId,
 		}),
 	resolve: (state, effect) => {
 		const category = effect["category"] as string;
@@ -581,7 +582,8 @@ const dispel = effectKind({
 		for (const unit of [...heroesOf(state), ...enemiesOf(state)]) {
 			next = withUnitStats(next, unit.id, {
 				conditions: unit.conditions.filter((c) => !c.startsWith(category) && !matchesDamageOverTimeStatus(c, category)),
-			});
+			}, { reason: "dispel", by: poisonOriginLabel(state, String(effect["removerSourceId"] ?? "system"),
+				String(effect["removerSkillId"] ?? "i_dispel")) });
 		}
 		return log(next, `Dispel: categoria "${category}" removida.`);
 	},
@@ -600,6 +602,7 @@ const removeStatus = effectKind({
 		return ctx.action.pushEffect({
 			kind: "i_remove_status",
 			status: node.status,
+			removerSourceId: ctx.sourceId ?? "system", removerSkillId: ctx.skillId,
 			...(to ? { to } : {}),
 		});
 	},
@@ -614,7 +617,8 @@ const removeStatus = effectKind({
 			if (unit) {
 				next = withUnitStats(next, unit.id, {
 					conditions: unit.conditions.filter((c) => !(status === "poison" && c.startsWith("poison:")) && c !== status && !matchesDamageOverTimeStatus(c, status)),
-				});
+				}, { reason: "cleanse", by: poisonOriginLabel(state, String(effect["removerSourceId"] ?? "system"),
+					String(effect["removerSkillId"] ?? "i_remove_status")) });
 			}
 		}
 		return log(next, `Status "${status}" removido de ${targetId ?? "todos"}.`);

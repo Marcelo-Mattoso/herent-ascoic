@@ -17,7 +17,8 @@ export function corruptedHeartPoisonReduction(state: GameState, targetId: string
 /** Registra oportunidade (com ou sem Coração) e prevenção após outras reduções. */
 export function recordCorruptedHeartPrevention(state: GameState, prevented: number, targetId: string): GameState {
 	const game = gameOf(state);
-	const witchBossActive = enemiesOf(state).some((enemy) =>
+	const witchBossActive = heroesOf(state).some((hero) => hero.id === targetId && hero.status === "active") &&
+		enemiesOf(state).some((enemy) =>
 		enemy.id === "boss" && enemy.cardId === "boss_great_cauldron_witch" && enemy.status === "active");
 	const heartHeld = witchBossActive && game.groupArtifacts.some((a) =>
 		a.cardId === "artifact_corrupted_forest_heart") &&

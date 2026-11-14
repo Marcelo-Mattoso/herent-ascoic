@@ -8,6 +8,7 @@ import { gameOf } from "../../engine/state";
 import { getModifierTotal } from "../ecs/world";
 import { applyDamage } from "../systems/damageSystem";
 import { log } from "../reducer/utils";
+import { poisonOriginLabel, recordPoisonApplication } from "./poisonTelemetry";
 import { corruptedHeartPoisonReduction, recordCorruptedHeartPrevention } from "./poisonProtection";
 
 const PREFIX = "dot:v1:";
@@ -93,7 +94,9 @@ export function applyDamageOverTimeStatus(
             if (amount > 0) {
                 const next = unit.conditions.filter(c => c !== ward);
                 if (amount > 1) next.push("poison_ward:block_next:" + (amount - 1));
-                return log(withUnitStats(state, targetId, { conditions: next }), "Veneno bloqueado por proteção.");
+                return log(recordPoisonApplication(withUnitStats(state, targetId, { conditions: next }),
+					poisonOriginLabel(state, options.sourceId, options.effectId), true),
+					"Veneno bloqueado por proteção.");
             }
         }
     }
@@ -123,8 +126,10 @@ export function applyDamageOverTimeStatus(
         const parsed = parseDamageOverTimeCondition(raw);
         return !parsed || !sameSource(parsed, options);
     });
-    return log(
-        withUnitStats(state, targetId, { conditions: [...conditions, serialize(replacement)] }),
+    const updated = withUnitStats(state, targetId, { conditions: [...conditions, serialize(replacement)] });
+    return log(options.status === "poison"
+        ? recordPoisonApplication(updated, poisonOriginLabel(updated, options.sourceId, options.effectId))
+        : updated,
         options.status + ": aplicado a " + targetId + " (" + options.damage + " por rodada, duração " + options.rounds + ").",
     );
 }
@@ -160,12 +165,15 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
             const beforeHeart = Math.max(0, status.damage - reduction - wardAmount);
             const amount = Math.max(0, beforeHeart -
                 (status.status === "poison" ? corruptedHeartPoisonReduction(next, current.id) : 0));
-            next = recordCorruptedHeartPrevention(next, beforeHeart - amount);
+            next = status.status === "poison"
+                ? recordCorruptedHeartPrevention(next, beforeHeart - amount, current.id) : next;
             if (amount > 0) {
                 // A origem virtual evita disparar evt_hit / bônus de armas em ticks.
                 next = applyDamage(engine, next, current.id, amount, {
                     sourceId: status.status,
                     damageType: "condition",
+                    ...(status.status === "poison"
+                        ? { poisonOrigin: poisonOriginLabel(next, status.sourceId, status.effectId) } : {}),
                 });
                 next = log(next, status.status + ": " + current.id +
                     " sofre " + amount + " de dano na rodada " + round + ".");
@@ -185,7 +193,8 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
                     lastTickRound: round,
                 }));
             }
-            next = withUnitStats(next, current.id, { conditions });
+            next = withUnitStats(next, current.id, { conditions },
+                { reason: after.status === "active" ? "expired" : "target_defeated" });
         }
     }
     return next;
@@ -199,7 +208,7 @@ export function clearDamageOverTime(state: GameState): GameState {
             next = withUnitStats(next, unit.id, {
                 conditions: unit.conditions.filter((condition) =>
                     !condition.startsWith(PREFIX) && !condition.startsWith("poison:")),
-            });
+            }, { reason: "combat_end" });
         }
     }
     return next;

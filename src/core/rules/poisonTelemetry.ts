@@ -63,8 +63,6 @@ export function recordPoisonDamage(state: GameState, origin: string, targetHero:
 		return {
 			...game,
 			poisonTelemetry: {
-				toHeroes: (prior?.toHeroes ?? 0) + (targetHero ? applied : 0),
-				toEnemies: (prior?.toEnemies ?? 0) + (targetHero ? 0 : applied),
 				preventedByHeart: prior?.preventedByHeart ?? 0,
 				...prior,
 				// A ordem do spread preserva demais contadores sem sobrescrever os totais.
@@ -92,7 +90,6 @@ export function recordPoisonPrevention(
 		poisonTelemetry: {
 			toHeroes: game.poisonTelemetry?.toHeroes ?? 0,
 			toEnemies: game.poisonTelemetry?.toEnemies ?? 0,
-			preventedByHeart: (game.poisonTelemetry?.preventedByHeart ?? 0) + prevented,
 			...game.poisonTelemetry,
 			preventedByHeart: (game.poisonTelemetry?.preventedByHeart ?? 0) + prevented,
 			witchBossPoisonTicks: (game.poisonTelemetry?.witchBossPoisonTicks ?? 0) + (witchBossActive ? 1 : 0),
