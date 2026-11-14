@@ -34,6 +34,7 @@ import {
 import { type ColorIndex, MAX_COLOR_INDEX } from "./color";
 import type { CombatState } from "./combatState";
 import type { GameState } from "./gameState";
+import { recordPoisonRemovals, type PoisonRemovalCause } from "../rules/poisonTelemetry";
 import type { EnemyRecord, EnemyState } from "./enemyState";
 import type { HeroRecord, HeroState } from "./heroState";
 import {
@@ -605,6 +606,7 @@ export function withUnitStats(
 	state: GameState,
 	id: UnitId,
 	patch: UnitPatch,
+	poisonRemoval?: PoisonRemovalCause,
 ): GameState {
 	const entity = gameOf(state).world.entities[id];
 	if (!entity) return missing(id);
@@ -651,7 +653,11 @@ export function withUnitStats(
 			})),
 		);
 	}
-	return withWorld(state, upsertEntity(gameOf(state).world, { ...entity, components }));
+	const patched = withWorld(state, upsertEntity(gameOf(state).world, { ...entity, components }));
+	if (!patch.conditions) return patched;
+	const previous = entity.components.filter((component) => component.type === "condition")
+		.map((component) => component.conditionType);
+	return recordPoisonRemovals(patched, previous, patch.conditions, poisonRemoval);
 }
 
 export function withEntityRetired(state: GameState, id: UnitId): GameState {

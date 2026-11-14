@@ -1,4 +1,5 @@
 import type { ColorIndex } from "./color";
+import type { PoisonTelemetry } from "../rules/poisonTelemetry";
 // Estado raiz da partida. Contém tudo que o reducer precisa para processar qualquer action.
 // Criado por createInitialGameState e nunca mutado diretamente — sempre substituído pelo reducer.
 
@@ -129,11 +130,7 @@ export interface AscensaoGame {
 	readonly alphaLog?: readonly string[];
 	/** Observações visuais do dano realmente subtraído da vida; sem efeito nas regras. */
 	/** Dano periódico efetivo de veneno e pontos protegidos pelo Coração, cumulativos na partida. */
-	readonly poisonTelemetry?: {
-		readonly toHeroes: number;
-		readonly toEnemies: number;
-		readonly preventedByHeart: number;
-	};
+	readonly poisonTelemetry?: PoisonTelemetry;
 	readonly damageFeedback?: readonly {
 		readonly id: number;
 		readonly targetId: string;
