@@ -47,6 +47,7 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 				" itens, " + (report.diagnostics.xpPolicy?.artifactsBoughtWhileLevelAvailable ?? 0) + " artefatos.",
 			"Fontes de dano: " + JSON.stringify(report.diagnostics.poisonDamageBySource ?? {}),
 			"Remoções de veneno: " + JSON.stringify(report.diagnostics.poisonRemovalBySource ?? {}),
+			"Impasses por motivo: " + JSON.stringify(report.diagnostics.stallsByReason ?? {}),
 			"XP sem conciliação: " + report.diagnostics.xpAccountingMismatches +
 				"; tentativas inefetivas de level up: " + report.diagnostics.ineffectiveLevelUpAttempts + ".",
 			...report.diagnostics.warnings.map((warning) => "- " + warning),

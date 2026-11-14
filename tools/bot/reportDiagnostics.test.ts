@@ -95,5 +95,6 @@ describe("diagnósticos P0", () => {
 		expect(summary.xpAccountingMismatches).toBe(1);
 		expect(summary.ineffectiveLevelUpAttempts).toBe(1);
 		expect(summary.warnings.length).toBeGreaterThanOrEqual(3);
+		expect(summary.stallsByReason["fornalha-sombria | ERROR"]).toBe(1);
 	});
 });

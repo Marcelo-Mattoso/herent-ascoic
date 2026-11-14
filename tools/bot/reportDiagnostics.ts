@@ -40,6 +40,8 @@ export interface BenchmarkDiagnostics {
 		games: number; reached: number; victoriesAfterArrival: number;
 		heartHeldAtEntry: number; sumHeroLevel: number; sumLifeRatio: number;
 	}>>;
+	/** Impasses por motivo e expansão para localizar o cenário reprodutível. */
+	readonly stallsByReason: Readonly<Record<string, number>>;
 	readonly xpPolicy: {
 		readonly itemsBoughtWhileLevelAvailable: number;
 		readonly artifactsBoughtWhileLevelAvailable: number;
@@ -82,6 +84,7 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 	let witchBossPoisonTicks = 0, heartHeldAtWitchBossTicks = 0;
 	const bossByExpansion: Record<string, { games: number; reached: number; victoriesAfterArrival: number; heartHeldAtEntry: number; sumHeroLevel: number; sumLifeRatio: number }> = {};
 	const xpPolicy = { itemsBoughtWhileLevelAvailable: 0, artifactsBoughtWhileLevelAvailable: 0, dungeonRecoveries: 0 };
+	const stallsByReason: Record<string, number> = {};
 	const addCounts = (into: Record<string, number>, from?: Readonly<Record<string, number>>) => {
 		for (const [key, value] of Object.entries(from ?? {})) into[key] = (into[key] ?? 0) + value;
 	};
@@ -90,6 +93,10 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 	let ineffectiveLevelUpAttempts = 0;
 	const byCase = new Map<string, Map<string, BenchmarkTrial>>();
 	for (const trial of trials) {
+		if (classifyTrial(trial) === "stall") {
+			const reason = trial.expansionId + " | " + (trial.violation ?? trial.outcome);
+			stallsByReason[reason] = (stallsByReason[reason] ?? 0) + 1;
+		}
 		const expansion = poisonByExpansion[trial.expansionId] ?? {
 			games: 0, toHeroes: 0, toEnemies: 0, preventedByHeart: 0,
 		};
@@ -177,7 +184,7 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 			sameOutcomeRate },
 		poison, poisonByExpansion,
 		poisonDamageBySource, poisonRemovalBySource, poisonApplicationsBySource, poisonBlockedBySource,
-		witchBossPoisonTicks, heartHeldAtWitchBossTicks, bossByExpansion, xpPolicy,
+		witchBossPoisonTicks, heartHeldAtWitchBossTicks, bossByExpansion, xpPolicy, stallsByReason,
 		abilityActivity: [...stats.entries()].map(([abilityId, summary]) =>
 			({ abilityId, ...summary })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
 		warnings,
