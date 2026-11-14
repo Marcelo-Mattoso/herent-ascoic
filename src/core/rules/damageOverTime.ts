@@ -175,7 +175,7 @@ export function resolveDamageOverTimeRound(engine: GameEngine, state: GameState)
                     ...(status.status === "poison"
                         ? { poisonOrigin: poisonOriginLabel(next, status.sourceId, status.effectId) } : {}),
                 });
-                next = log(next, status.status + ": " + current.id +
+                next = log(next, status.status + " (" + poisonOriginLabel(next, status.sourceId, status.effectId) + "): " + current.id +
                     " sofre " + amount + " de dano na rodada " + round + ".");
             }
             const after = [...heroesOf(next), ...enemiesOf(next)]

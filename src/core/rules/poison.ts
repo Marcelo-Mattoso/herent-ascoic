@@ -68,7 +68,7 @@ export function resolvePoisonRound(engine: GameEngine, state: GameState): GameSt
 				sourceId: "poison", damageType: "condition",
 				poisonOrigin: poisonOriginLabel(next, poison.sourceId, poison.effectId),
 			});
-			next = log(next, `Veneno: ${current.id} sofre ${amount} de dano na rodada ${round}.`);
+			next = log(next, `Veneno (${poisonOriginLabel(next, poison.sourceId, poison.effectId)}): ${current.id} sofre ${amount} de dano na rodada ${round}.`);
 		}
 		const after = [...heroesOf(next), ...enemiesOf(next)].find((u) => u.id === current.id);
 		if (!after) continue;

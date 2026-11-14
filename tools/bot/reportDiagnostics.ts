@@ -165,12 +165,19 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		pairedGames++;
 		if (classifyTrial(hard) === classifyTrial(nightmare)) sameOutcome++;
 	}
+	const damageAttributed = Object.values(poisonDamageBySource).reduce((sum, row) =>
+		sum + row.toHeroes + row.toEnemies, 0);
+	const poisonAttributionGap = poison.toHeroes + poison.toEnemies - damageAttributed;
 	const errors = trials.filter((entry) => entry.outcome === "ERROR" ||
 		entry.violation === "runner_exception").length;
 	const stalls = trials.filter((entry) => classifyTrial(entry) === "stall").length;
 	const sameOutcomeRate = pairedGames ? sameOutcome / pairedGames : null;
 	const warnings: string[] = [];
 	if (errors) warnings.push(`${errors} partida(s) encerraram por exceção; verificar violationMessage`);
+	if (poisonAttributionGap) warnings.push(
+		`Dano de veneno sem origem identificada: ${poisonAttributionGap} PV (verificar importação/continuações)`);
+	if (poisonDamageBySource["unknown/poison"])
+		warnings.push("Ticks de veneno com origem virtual desconhecida; revisar retomada de dano");
 	if (stalls) warnings.push(`${stalls} partida(s) em impasse/erro; não contabilizar como derrota comum`);
 	if (xpAccountingMismatches) warnings.push(`${xpAccountingMismatches} partida(s) não fecharam a identidade do XP`);
 	if (ineffectiveLevelUpAttempts) warnings.push(`${ineffectiveLevelUpAttempts} tentativa(s) de level up sem mudança de nível`);
