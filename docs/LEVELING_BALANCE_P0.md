@@ -110,3 +110,11 @@ O audit padrão voltou aos preços oficiais (item 15 XP; artefato 35 XP). O bot 
 ### Fontes do veneno e condição real ao chegar no chefe
 
 A instrumentação de `poison:` agora carrega a origem real (sourceId/skillId), com compatibilidade para condições antigas. `dot:v1:` já preservava origem/efeito. Remoções por antídoto, limpeza, expiração e fim de combate passam a carregar causa e responsável quando disponíveis, e a telemetria diferencia aplicação, bloqueio e tick de dano realmente aplicado. A entrada no chefe registra vida, nível, XP e posse do Coração. Nos resultados do audit: verificar `diagnostics.poisonDamageBySource`, `poisonRemovalBySource`, `bossByExpansion` e `xpPolicy` antes de qualquer ajuste de atributos ou dificuldade.
+
+## Padrão de salas por expansão — revisão de 13/11/2026
+
+O catálogo da Fornalha é referência para a Torre da Grande Bruxa: **10 salas comuns** com distribuição **1×0 XP / 3×1 XP / 4×2 XP / 2×3 XP**, e **2 salas de subchefe de 4 XP**. As duas expansões usam as mesmas quantidades de criaturas por faixa de XP, para 1 a 4 jogadores. As habilidades temáticas da Bruxa foram preservadas.
+
+A sala 0 XP é **obrigatória na abertura** de qualquer masmorra, inclusive após reinício. O deck contém 2 cópias de cada uma das 10 salas comuns e 1 de cada sala de subchefe, disponibilizada somente da quinta sala em diante. Salas comuns de 3 XP **não invocam subchefe**: possuem no mínimo 1 criatura de 3 XP no solo ou 2 em grupo (respeitando o limite de criaturas). As duas salas especiais de 4 XP são os encontros com subchefes de fato. Na Fornalha, a Sala do Carcereiro comum passou a ter Confinamento; o Abismo Rachado comum passou a ter Piso Irregular, substituindo a antiga invocação.
+
+Esta alteração muda o encontro nas salas, não o custo de XP, as criaturas individuais ou a dificuldade escolhida. Reavaliar as taxas de vitória e os subchefes efetivamente encontrados após rodar `npm run audit`.
