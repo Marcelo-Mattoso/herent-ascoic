@@ -8,7 +8,7 @@ describe("compras de XP sem baralho disponível", () => {
 	it("não cobra item quando o baralho está vazio", () => {
 		const initial = createInitialGameState({ heroCardIds: ["hero_crimson_barbarian"] });
 		const state = withGame(initial, (game) => ({ ...game,
-			status: "XP_SPEND_PHASE", groupXp: 100,
+			status: "XP_SPEND_PHASE" as const, groupXp: 100,
 		}));
 		const next = handleSpendXp(testEngine, state, "buy_item");
 		expect(gameOf(next).groupXp).toBe(100);
