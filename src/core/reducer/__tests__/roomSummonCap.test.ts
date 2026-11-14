@@ -113,6 +113,16 @@ describe("padrão de salas de masmorra das expansões", () => {
 			};
 			expect(roomIds).toHaveLength(2);
 			for (const roomId of roomIds) expect(count(roomId)).toBe(1);
+			// Um subchefe pode estar no descarte quando o Despertar sobe.
+			// A regra antiga reinseria a carta, mesmo com essa cópia existente.
+			const firstRoomId = roomIds[0]!;
+			const before = deckOf(state, "dungeonDeck");
+			state = withDeck(state, "dungeonDeck", {
+				...before,
+				available: before.available.filter((cardId) => cardId !== firstRoomId),
+				discarded: [...before.discarded, firstRoomId],
+			});
+			expect(count(firstRoomId)).toBe(1);
 			const heroId = heroesOf(state)[0]!.id;
 			state = withAwakening(state, 2);
 			state = levelUpHero(testEngine, state, heroId);

@@ -67,8 +67,8 @@ describe("veneno legado, DoT e Coração Corrompido", () => {
 
 	it("no combate real, o Coração bloqueia a Fumaça da Bruxa sem bloquear o ataque", () => {
 		const source = "boss_great_cauldron_witch/witch_boss_skill_poison_fumes";
-		let without = bossTurn(bossTurn(scene()));
-		let withHeart = bossTurn(bossTurn(scene(true)));
+		const without = bossTurn(bossTurn(scene()));
+		const withHeart = bossTurn(bossTurn(scene(true)));
 		expect(gameOf(withHeart).poisonTelemetry?.applicationsBySource?.[source]).toBe(2);
 		expect(gameOf(withHeart).poisonTelemetry?.toHeroes ?? 0).toBe(0);
 		expect(gameOf(withHeart).poisonTelemetry?.preventedByHeart).toBe(1);
@@ -77,7 +77,6 @@ describe("veneno legado, DoT e Coração Corrompido", () => {
 		expect(heroesOf(withHeart)[0]!.currentLife - heroesOf(without)[0]!.currentLife).toBe(1);
 	});
 
-	describe("regressões unitárias do efeito", () => {
 	it("reaplicar veneno renova duração sem adiar ticks das rodadas futuras", () => {
 		let s = applyPoisonStatus(scene(), "h1", 1, 2);
 		s = applyPoisonStatus(round(s, 1), "h1", 1, 2);
@@ -188,13 +187,12 @@ describe("veneno legado, DoT e Coração Corrompido", () => {
 		expect(gameOf(s).poisonTelemetry?.preventedByHeart).toBe(1);
 	});
 
-		it("conta a perda real de vida por veneno nos inimigos", () => {
+	it("conta a perda real de vida por veneno nos inimigos", () => {
 		let s = applyPoisonStatus(scene(true), "boss", 2, 2);
 		s = resolvePoisonRound(testEngine, round(s, 1));
 		expect(enemiesOf(s)[0]?.currentLife).toBe(28);
 		expect(gameOf(s).poisonTelemetry).toMatchObject({
 			toHeroes: 0, toEnemies: 2, preventedByHeart: 0,
 		});
-	});
 	});
 });
