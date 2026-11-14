@@ -1,5 +1,6 @@
 import type { Difficulty } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
+import type { PoisonTelemetry } from "@/core/rules/poisonTelemetry";
 import { preparedTransitions } from "./preparedTelemetry";
 import { deckOf } from "@/core/state/access";
 import { playerView } from "@/core/projection/playerView";
@@ -56,6 +57,11 @@ export interface ProgressionTelemetry {
 	readonly levelUpPurchases: number;
 	readonly levelUpAttempts: number;
 	readonly levelUpNoEffect: number;
+	/** Compras opcionais realizadas apesar de haver level up legal naquela escolha. */
+	readonly itemsBoughtWhileLevelAvailable?: number;
+	readonly artifactsBoughtWhileLevelAvailable?: number;
+	/** Ações de recuperação do deck de dungeon, distintas da compra de itens. */
+	readonly dungeonRecoveries?: number;
 	readonly abilityOpportunities: number;
 	readonly skillOpportunities: number;
 	readonly powerOpportunities: number;
@@ -122,11 +128,17 @@ export interface BenchmarkTrial extends BenchmarkCase {
 	readonly powerUses: number;
 	readonly items?: ItemTelemetry;
 	readonly progression?: ProgressionTelemetry;
-	/** Ticks de veneno contabilizados por PV realmente removidos. */
-	readonly poison?: {
-		readonly toHeroes: number;
-		readonly toEnemies: number;
-		readonly preventedByHeart: number;
+	/** Ticks, origens e remoções de veneno, por partida. */
+	readonly poison?: PoisonTelemetry;
+	/** Checkpoint da primeira entrada real no confronto com o chefe. */
+	readonly bossEncounter?: {
+		readonly roomsCleared: number;
+		readonly heroLevel: number;
+		readonly heroLife: number;
+		readonly heroMaxLife: number;
+		readonly xpAvailable: number;
+		readonly artifacts: number;
+		readonly hasCorruptedHeart: boolean;
 	};
 }
 
@@ -244,6 +256,8 @@ export function runBenchmarkCase(
 	let levelPeak = Math.max(0, ...starting.heroes.map((hero) => hero.impeto));
 	let finalLevel = levelPeak;
 	let levelUpOpportunities = 0, levelUpPurchases = 0, levelUpAttempts = 0, levelUpNoEffect = 0;
+	let itemsBoughtWhileLevelAvailable = 0, artifactsBoughtWhileLevelAvailable = 0, dungeonRecoveries = 0;
+	let bossEncounter: BenchmarkTrial["bossEncounter"];
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
 	let triggeredSkillUses = 0, triggeredPowerUses = 0;
 	let skillPreparations = 0, powerPreparations = 0;
@@ -266,6 +280,19 @@ export function runBenchmarkCase(
 	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const action = step.chosen.action;
+		if (!bossEncounter && step.before.status !== "BOSS_COMBAT" && step.after.status === "BOSS_COMBAT") {
+			const hero = step.after.heroes.find((entry) => entry.status === "active");
+			bossEncounter = {
+				roomsCleared: step.after.roomsCleared,
+				heroLevel: hero?.impeto ?? -1,
+				heroLife: hero?.currentLife ?? 0,
+				heroMaxLife: hero?.maxLife ?? 0,
+				xpAvailable: step.after.groupXp,
+				artifacts: step.after.groupArtifacts.length,
+				hasCorruptedHeart: step.after.groupArtifacts.some((artifact) =>
+					artifact.cardId === "artifact_corrupted_forest_heart"),
+			};
+		}
 		const transition = preparedTransitions(gameOf(step.beforeState).preparedAbilities,
 			gameOf(step.afterState).preparedAbilities, action.type);
 		for (const id of transition.armedHeroAbilities) increment(armedById, id);
@@ -355,6 +382,11 @@ export function runBenchmarkCase(
 		}
 		if (step.chosen.action.type === "SPEND_XP") {
 			const option = step.chosen.action.payload.option;
+			const levelWasAvailable = step.options.some((move) =>
+				move.action.type === "SPEND_XP" && move.action.payload.option === "level_up");
+			if (option === "buy_item" && levelWasAvailable) itemsBoughtWhileLevelAvailable++;
+			if (option === "buy_artifact" && levelWasAvailable) artifactsBoughtWhileLevelAvailable++;
+			if (option === "recover_dungeon") dungeonRecoveries++;
 			purchases[option] = (purchases[option] ?? 0) + 1;
 			if (option === "level_up") {
 				levelUpAttempts++;
@@ -412,6 +444,7 @@ export function runBenchmarkCase(
 		bossDefeated: state.bossDefeated,
 		artifacts: state.groupArtifacts.length,
 		poison: state.poisonTelemetry ?? { toHeroes: 0, toEnemies: 0, preventedByHeart: 0 },
+		...(bossEncounter ? { bossEncounter } : {}),
 		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
 			skillById(engine, action.payload.skillId)?.category === "hero_skill" &&
 			skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered").length + triggeredSkillUses,
@@ -440,6 +473,7 @@ export function runBenchmarkCase(
 			levelFinal: finalLevel,
 			levelPeak, levelUpOpportunities, levelUpPurchases,
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
+			itemsBoughtWhileLevelAvailable, artifactsBoughtWhileLevelAvailable, dungeonRecoveries,
 			skillPreparations, powerPreparations,
 			abilityActivity: { preparationsById, armedById, clearedDuringAttackById,
 				clearedElsewhereById, manualActionsById, powerActivationsById,

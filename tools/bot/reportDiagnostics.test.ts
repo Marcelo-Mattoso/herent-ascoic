@@ -55,6 +55,36 @@ describe("diagnósticos P0", () => {
 		});
 	});
 
+	it("separa fonte de dano e fonte de remoção, além de entrada no chefe", () => {
+		const t: BenchmarkTrial = {
+			...trial("normal"),
+			poison: {
+				toHeroes: 2, toEnemies: 1, preventedByHeart: 1,
+				damageBySource: { "boss_great_cauldron_witch/poison_fumes": {
+					toHeroes: 2, toEnemies: 1, ticks: 3,
+				} },
+				removalsBySource: { "cleanse | hero_white_ashes_sister/balm | boss_great_cauldron_witch/poison_fumes": 2 },
+				applicationsBySource: { "boss_great_cauldron_witch/poison_fumes": 4 },
+				witchBossPoisonTicks: 3, heartHeldAtWitchBossTicks: 1,
+			},
+			bossEncounter: { roomsCleared: 8, heroLevel: 3, heroLife: 5,
+				heroMaxLife: 10, xpAvailable: 2, artifacts: 3, hasCorruptedHeart: true },
+			progression: { itemsBoughtWhileLevelAvailable: 1, artifactsBoughtWhileLevelAvailable: 0,
+				dungeonRecoveries: 2 } as ProgressionTelemetry,
+		};
+		const summary = summarizeReportDiagnostics([t]);
+		expect(summary.poisonDamageBySource["boss_great_cauldron_witch/poison_fumes"]?.ticks).toBe(3);
+		expect(Object.values(summary.poisonRemovalBySource)).toEqual([2]);
+		expect(summary.witchBossPoisonTicks).toBe(3);
+		expect(summary.heartHeldAtWitchBossTicks).toBe(1);
+		expect(summary.bossByExpansion[t.expansionId]).toMatchObject({
+			games: 1, reached: 1, heartHeldAtEntry: 1, sumHeroLevel: 3, sumLifeRatio: 0.5,
+		});
+		expect(summary.xpPolicy).toMatchObject({
+			itemsBoughtWhileLevelAvailable: 1, dungeonRecoveries: 2,
+		});
+	});
+
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
 		const summary = summarizeReportDiagnostics([
 			trial("normal", 3, "ERROR", { xpGained: 5, xpSpent: 2,

@@ -40,6 +40,13 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"Veneno: " + (report.diagnostics.poison?.toHeroes ?? 0) + " PV em heróis, " +
 				(report.diagnostics.poison?.toEnemies ?? 0) + " PV em inimigos, " +
 				(report.diagnostics.poison?.preventedByHeart ?? 0) + " PV evitados pelo Coração.",
+			"Ticks de veneno contra heróis no chefe Bruxa: " +
+				(report.diagnostics.witchBossPoisonTicks ?? 0) + " (com Coração: " +
+				(report.diagnostics.heartHeldAtWitchBossTicks ?? 0) + ").",
+			"Compras com level up legal: " + (report.diagnostics.xpPolicy?.itemsBoughtWhileLevelAvailable ?? 0) +
+				" itens, " + (report.diagnostics.xpPolicy?.artifactsBoughtWhileLevelAvailable ?? 0) + " artefatos.",
+			"Fontes de dano: " + JSON.stringify(report.diagnostics.poisonDamageBySource ?? {}),
+			"Remoções de veneno: " + JSON.stringify(report.diagnostics.poisonRemovalBySource ?? {}),
 			"XP sem conciliação: " + report.diagnostics.xpAccountingMismatches +
 				"; tentativas inefetivas de level up: " + report.diagnostics.ineffectiveLevelUpAttempts + ".",
 			...report.diagnostics.warnings.map((warning) => "- " + warning),
@@ -190,7 +197,7 @@ if(data.diagnostics){
  const d=data.diagnostics,p=d.difficultyParity;
  const parity=p.pairedGames?(100*p.sameOutcomeRate).toFixed(1)+'% ('+p.sameOutcome+'/'+p.pairedGames+')':'Sem pares';
  const notices=d.warnings.length?d.warnings.map(w=>'<li>'+esc(w)+'</li>').join(''):'<li>Nenhum alerta automático registrado.</li>';
- el('diagnostics').innerHTML='<p><strong>Difícil × Pesadelo:</strong> '+esc(parity)+' resultados iguais nos pares. <strong>XP não conciliado:</strong> '+d.xpAccountingMismatches+'. <strong>Level up sem efeito:</strong> '+d.ineffectiveLevelUpAttempts+'.</p><p><strong>Veneno:</strong> '+(d.poison?.toHeroes??0)+' PV nos heróis, '+(d.poison?.toEnemies??0)+' PV nos inimigos, '+(d.poison?.preventedByHeart??0)+' PV evitados pelo Coração.</p><ul>'+notices+'</ul><p>Consulte <code>diagnostics.abilityActivity</code> no JSON para contagem por ID; triggers automáticos sem modal não são observados por esses contadores.</p>';
+ el('diagnostics').innerHTML='<p><strong>Difícil × Pesadelo:</strong> '+esc(parity)+' resultados iguais nos pares. <strong>XP não conciliado:</strong> '+d.xpAccountingMismatches+'. <strong>Level up sem efeito:</strong> '+d.ineffectiveLevelUpAttempts+'.</p><p><strong>Veneno:</strong> '+(d.poison?.toHeroes??0)+' PV nos heróis, '+(d.poison?.toEnemies??0)+' PV nos inimigos, '+(d.poison?.preventedByHeart??0)+' PV evitados pelo Coração.</p><p><strong>Veneno na Bruxa:</strong> '+(d.witchBossPoisonTicks??0)+' ticks (Coração presente: '+(d.heartHeldAtWitchBossTicks??0)+'). <strong>Gastos com nível disponível:</strong> '+(d.xpPolicy?.itemsBoughtWhileLevelAvailable??0)+' itens / '+(d.xpPolicy?.artifactsBoughtWhileLevelAvailable??0)+' artefatos.</p><p><strong>Fontes de dano:</strong> '+esc(JSON.stringify(d.poisonDamageBySource??{}))+'</p><p><strong>Remoção por causa/agente:</strong> '+esc(JSON.stringify(d.poisonRemovalBySource??{}))+'</p><ul>'+notices+'</ul><p>Consulte <code>diagnostics.abilityActivity</code> no JSON para contagem por ID; triggers automáticos sem modal não são observados por esses contadores.</p>';
 }
 const expansionName=(id)=>expansionNames[id]||id;
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}

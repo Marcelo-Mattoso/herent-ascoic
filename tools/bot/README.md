@@ -174,3 +174,9 @@ O comando `npm run bot:leveling-report` voltou a usar os **preços oficiais**: i
 O relatório passa a registrar `trials[].poison.toHeroes` (dano sofrido por heróis), `toEnemies` (dano infligido aos inimigos) e `preventedByHeart` (PV evitados pelo Coração Corrompido na luta contra a Bruxa). Os agregados ficam em `diagnostics.poison` e `diagnostics.poisonByExpansion` para facilitar a comparação Fornalha × Bruxa. Aplicações de veneno sem tick ou reduzidas a zero **não contam como dano causado**. Os custos experimentais não devem ser confundidos com preços já aprovados para o jogo.
 
 Nota: o Coração Corrompido é passivo e não aparece entre os artefatos com comando `USE_ARTIFACT`; seu efeito é aplicado pelos dois resolvedores de veneno e não aumenta o número de ações do bot.
+
+## Auditoria de veneno e boss — pacote de observabilidade
+
+Cada partida registra `poison.damageBySource` (carta/habilidade, PV em heróis e inimigos, ticks), `poison.applicationsBySource`, `poison.blockedBySource` e `poison.removalsBySource` (motivo | agente removedor | origem do veneno). Remoções por expiração, fim do combate, antídoto, limpeza de habilidade, dispel, morte e substituições não reconhecidas são distinguíveis. Os agregados ficam em `diagnostics.poisonDamageBySource`, `poisonRemovalBySource`, `poisonApplicationsBySource` e `poisonBlockedBySource`. Campos `witchBossPoisonTicks` e `heartHeldAtWitchBossTicks` distinguem falta de oportunidade de possível falha do Coração.
+
+`trials[].bossEncounter` registra a primeira entrada real no chefe: sala, nível, PV/max PV, XP, número de artefatos e posse do Coração. `diagnostics.bossByExpansion` resume entrada e condição do grupo; `diagnostics.xpPolicy` contabiliza gastos em itens/artefatos quando havia level up disponível e recuperações da masmorra. Os campos são agregados de eventos reais, não previsões de vitória.

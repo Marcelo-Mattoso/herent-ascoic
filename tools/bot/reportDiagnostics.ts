@@ -27,6 +27,24 @@ export interface BenchmarkDiagnostics {
 		readonly sameOutcomeRate: number | null;
 	};
 	readonly abilityActivity: readonly AbilityActivitySummary[];
+	/** Origem (carta/habilidade) de cada ponto de dano periódico efetivo de veneno. */
+	readonly poisonDamageBySource: Readonly<Record<string, { toHeroes: number; toEnemies: number; ticks: number }>>;
+	/** Motivo | removedor | origem do status: quantidade de stacks encerrados. */
+	readonly poisonRemovalBySource: Readonly<Record<string, number>>;
+	readonly poisonApplicationsBySource: Readonly<Record<string, number>>;
+	readonly poisonBlockedBySource: Readonly<Record<string, number>>;
+	readonly witchBossPoisonTicks: number;
+	readonly heartHeldAtWitchBossTicks: number;
+	/** Distribuição de gastos e condições reais ao entrar no chefe, separadas por expansão. */
+	readonly bossByExpansion: Readonly<Record<string, {
+		games: number; reached: number; victoriesAfterArrival: number;
+		heartHeldAtEntry: number; sumHeroLevel: number; sumLifeRatio: number;
+	}>>;
+	readonly xpPolicy: {
+		readonly itemsBoughtWhileLevelAvailable: number;
+		readonly artifactsBoughtWhileLevelAvailable: number;
+		readonly dungeonRecoveries: number;
+	};
 	/** Pontos de Vida efetivos perdidos por ticks de veneno e prevenção do Coração. */
 	readonly poison: { readonly toHeroes: number; readonly toEnemies: number; readonly preventedByHeart: number };
 	readonly poisonByExpansion: Readonly<Record<string, {
@@ -57,6 +75,16 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		}
 	};
 	const poison = { toHeroes: 0, toEnemies: 0, preventedByHeart: 0 };
+	const poisonDamageBySource: Record<string, { toHeroes: number; toEnemies: number; ticks: number }> = {};
+	const poisonRemovalBySource: Record<string, number> = {};
+	const poisonApplicationsBySource: Record<string, number> = {};
+	const poisonBlockedBySource: Record<string, number> = {};
+	let witchBossPoisonTicks = 0, heartHeldAtWitchBossTicks = 0;
+	const bossByExpansion: Record<string, { games: number; reached: number; victoriesAfterArrival: number; heartHeldAtEntry: number; sumHeroLevel: number; sumLifeRatio: number }> = {};
+	const xpPolicy = { itemsBoughtWhileLevelAvailable: 0, artifactsBoughtWhileLevelAvailable: 0, dungeonRecoveries: 0 };
+	const addCounts = (into: Record<string, number>, from?: Readonly<Record<string, number>>) => {
+		for (const [key, value] of Object.entries(from ?? {})) into[key] = (into[key] ?? 0) + value;
+	};
 	const poisonByExpansion: Record<string, { games: number; toHeroes: number; toEnemies: number; preventedByHeart: number }> = {};
 	let xpAccountingMismatches = 0;
 	let ineffectiveLevelUpAttempts = 0;
@@ -73,6 +101,35 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		poison.toHeroes += trial.poison?.toHeroes ?? 0;
 		poison.toEnemies += trial.poison?.toEnemies ?? 0;
 		poison.preventedByHeart += trial.poison?.preventedByHeart ?? 0;
+		for (const [source, value] of Object.entries(trial.poison?.damageBySource ?? {})) {
+			const current = poisonDamageBySource[source] ?? { toHeroes: 0, toEnemies: 0, ticks: 0 };
+			current.toHeroes += value.toHeroes;
+			current.toEnemies += value.toEnemies;
+			current.ticks += value.ticks;
+			poisonDamageBySource[source] = current;
+		}
+		addCounts(poisonRemovalBySource, trial.poison?.removalsBySource);
+		addCounts(poisonApplicationsBySource, trial.poison?.applicationsBySource);
+		addCounts(poisonBlockedBySource, trial.poison?.blockedBySource);
+		witchBossPoisonTicks += trial.poison?.witchBossPoisonTicks ?? 0;
+		heartHeldAtWitchBossTicks += trial.poison?.heartHeldAtWitchBossTicks ?? 0;
+		const boss = bossByExpansion[trial.expansionId] ?? {
+			games: 0, reached: 0, victoriesAfterArrival: 0, heartHeldAtEntry: 0,
+			sumHeroLevel: 0, sumLifeRatio: 0,
+		};
+		boss.games++;
+		if (trial.bossEncounter) {
+			boss.reached++;
+			if (trial.outcome === "VICTORY") boss.victoriesAfterArrival++;
+			if (trial.bossEncounter.hasCorruptedHeart) boss.heartHeldAtEntry++;
+			boss.sumHeroLevel += trial.bossEncounter.heroLevel;
+			boss.sumLifeRatio += trial.bossEncounter.heroMaxLife
+				? trial.bossEncounter.heroLife / trial.bossEncounter.heroMaxLife : 0;
+		}
+		bossByExpansion[trial.expansionId] = boss;
+		xpPolicy.itemsBoughtWhileLevelAvailable += trial.progression?.itemsBoughtWhileLevelAvailable ?? 0;
+		xpPolicy.artifactsBoughtWhileLevelAvailable += trial.progression?.artifactsBoughtWhileLevelAvailable ?? 0;
+		xpPolicy.dungeonRecoveries += trial.progression?.dungeonRecoveries ?? 0;
 		const activity = trial.progression?.abilityActivity;
 		add(activity?.preparationsById, "preparations");
 		add(activity?.armedById, "armed");
@@ -119,6 +176,8 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		difficultyParity: { compared: "hard/nightmare", pairedGames, sameOutcome,
 			sameOutcomeRate },
 		poison, poisonByExpansion,
+		poisonDamageBySource, poisonRemovalBySource, poisonApplicationsBySource, poisonBlockedBySource,
+		witchBossPoisonTicks, heartHeldAtWitchBossTicks, bossByExpansion, xpPolicy,
 		abilityActivity: [...stats.entries()].map(([abilityId, summary]) =>
 			({ abilityId, ...summary })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
 		warnings,
