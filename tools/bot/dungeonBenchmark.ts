@@ -14,6 +14,7 @@ import { BOT_HEROES } from "./play";
 import { createHeadlessPort } from "./port";
 import { BOT_PROFILES, type BotProfile, setupForRun } from "./profiles";
 import { healingItemOptions, itemHealingAmount } from "./healing";
+import { recordRoomEncounterStep, type RoomEncounterTelemetry } from "./encounterTelemetry";
 
 export const BENCHMARK_DIFFICULTIES: readonly Difficulty[] = [
 	"very_easy", "easy", "normal", "hard", "nightmare",
@@ -124,6 +125,10 @@ export interface BenchmarkTrial extends BenchmarkCase {
 	readonly creaturesDefeated: number;
 	readonly bossDefeated: boolean;
 	readonly artifacts: number;
+	/** Observações por ID de sala, coletadas nas transições reais. */
+	readonly rooms?: Readonly<Record<string, RoomEncounterTelemetry>>;
+	readonly initialDespertar?: number;
+	readonly initialHeroLevel?: number;
 	readonly skillUses: number;
 	readonly powerUses: number;
 	readonly items?: ItemTelemetry;
@@ -249,7 +254,15 @@ export function runBenchmarkCase(
 	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
 ): BenchmarkTrial {
 	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
-	const starting = createHeadlessPort(setup).observe().view;
+	const startingPort = createHeadlessPort(setup, xpCostsOverride);
+	const starting = startingPort.observe().view;
+	const rooms: Record<string, RoomEncounterTelemetry> = {};
+	const initialRoomId = gameOf(startingPort.inspect()).currentRoom?.cardId;
+	// START_GAME é executado antes da primeira decisão do bot.
+	if (initialRoomId) rooms[initialRoomId] = {
+		entered: 1, cleared: 0, creaturesThreeXpSeen: 0, subbossesSeen: 0, subbossesDefeated: 0,
+		xpAwardedOnClear: 0, roomCardXpOnClear: 0,
+	};
 	const purchases: Record<string, number> = {};
 	const spent: Record<string, number> = {};
 	let gained = 0, spentTotal = 0, otherLoss = 0, peakXp = starting.groupXp;
@@ -280,6 +293,7 @@ export function runBenchmarkCase(
 	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const action = step.chosen.action;
+		recordRoomEncounterStep(engine, step.beforeState, step.afterState, rooms);
 		if (!bossEncounter && step.before.status !== "BOSS_COMBAT" && step.after.status === "BOSS_COMBAT") {
 			const hero = step.after.heroes.find((entry) => entry.status === "active");
 			bossEncounter = {
@@ -443,6 +457,9 @@ export function runBenchmarkCase(
 		creaturesDefeated: state.creaturesDefeated,
 		bossDefeated: state.bossDefeated,
 		artifacts: state.groupArtifacts.length,
+		rooms,
+		initialDespertar: starting.despertar,
+		initialHeroLevel: Math.max(0, ...starting.heroes.map((hero) => hero.impeto)),
 		poison: state.poisonTelemetry ?? { toHeroes: 0, toEnemies: 0, preventedByHeart: 0 },
 		...(bossEncounter ? { bossEncounter } : {}),
 		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
