@@ -182,3 +182,9 @@ Cada partida registra `poison.damageBySource` (carta/habilidade, PV em heróis e
 `trials[].bossEncounter` registra a primeira entrada real no chefe: sala, nível, PV/max PV, XP, número de artefatos e posse do Coração. `diagnostics.bossByExpansion` resume entrada e condição do grupo; `diagnostics.xpPolicy` contabiliza gastos em itens/artefatos quando havia level up disponível e recuperações da masmorra. Os campos são agregados de eventos reais, não previsões de vitória.
 
 A telemetria também inclui a origem na linha de log de cada tick, bem como um alerta de integridade caso o total de dano de veneno não corresponda à soma das fontes identificadas. Valores em `unknown/poison` são destacados para investigação.
+
+### Auditoria de salas, heróis e Pesadelo (14/11)
+
+O `audit` agora diferencia **Difícil = Despertar 1** de **Pesadelo = Despertar 2**, conservando Ímpeto 0 nos dois. `report.json` inclui `trials[].initialDespertar`, `initialHeroLevel` e `rooms` com visitas, salas vencidas, criaturas difíceis de 3 XP, subchefes vistos/derrotados e XP observado ao vencer. Os campos agregados `diagnostics.roomsByExpansion`, `diagnostics.heroBalance` e `diagnostics.difficultyParity` também aparecem em tabelas no relatório Markdown e em detalhes expansíveis no painel HTML.
+
+`heroBalance` separa vitórias, chegadas ao chefe e vitórias após chegar; assim fica visível se um herói sofre na exploração ou no combate final. Todos os indicadores descrevem o comportamento do bot (não uma taxa garantida para humanos). Relatórios antigos continuam legíveis; métricas novas são preenchidas apenas após nova execução. Para o impasse conhecido do Necromante, há teste determinístico em `tools/bot/ai.test.ts` (`random`, Fácil, seed 1, Fornalha).

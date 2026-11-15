@@ -97,9 +97,14 @@ export function playAiGame(
 			}
 		}
 		if (!advanced) {
+			const stuck = port.observe().view;
 			violation = {
 				invariant: "no_legal_action",
-				message: `status ${gameOf(port.inspect()).status} sem jogada que altere o estado`,
+				message: `status ${gameOf(port.inspect()).status} sem jogada que altere o estado; ` +
+					`fase ${stuck.combat?.phase ?? "sem-combate"}, rodada ${stuck.combat?.round ?? "-"}, ` +
+					`agiram ${(stuck.combat?.heroesActed ?? []).join(",")}, ` +
+					`ações ${options.slice(0, 10).map((entry) => entry.action.type).join(",")}, ` +
+					`rejeições ${stepRejected.slice(0, 5).join(" | ") || "nenhuma"}`,
 			};
 			break;
 		}

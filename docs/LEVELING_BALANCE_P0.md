@@ -127,3 +127,34 @@ Esta alteração muda o encontro nas salas, não o custo de XP, as criaturas ind
 - **Fornalha 3 XP:** Sala do Carcereiro usa Confinamento e Abismo Rachado usa Piso Irregular; nenhuma possui `specialCreatureId`, e ambas recebem criaturas de 3 XP pela regra geral de sala de elite. A invocação de subchefes fica exclusiva das duas salas de 4 XP.
 
 Não alterar preços, atributos ou dificuldade com base no relatório que continha duplicações; repetir o audit depois da validação local.
+
+## P0 + P1 — diagnóstico de 14/11/2026 (audit 6.000 partidas)
+
+**Regra de dificuldade restaurada:** a configuração de Pesadelo havia ficado idêntica ao Difícil em `despertarOffset: 1`. Agora o Despertar inicial é 1 no Difícil e **2 no Pesadelo**; ambos começam com herói de Ímpeto 0. Os custos de recuperação continuam 6 e 7 XP respectivamente. Há testes para os offsets e comparação pareada por seed/herói/expansão/perfil; não alteramos atributos dos heróis, criaturas ou preços gerais.
+
+**Impasse P0:** caso reproduzível do relatório no Necromante, Fornalha Sombria, `random`, Fácil, seed 1, após 198 ações em `BOSS_COMBAT`. Quando todos os heróis já estão incapacitados para agir naquela rodada, o chefe precisa resolver os efeitos de fim de rodada e iniciar a seguinte; `START_BOSS_COMBAT` agora atende a essa situação em vez de ser uma ação inerte. Teste reexecutável com seed exata incluído. Se voltar a ocorrer, colher `violationMessage` e inspecionar fase/ações pendentes antes de outro ajuste.
+
+**Observabilidade P1 das salas:** cada `BenchmarkTrial.rooms[roomId]` tem `entered`, `cleared`, `creaturesThreeXpSeen`, `subbossesSeen`, `subbossesDefeated`, `xpAwardedOnClear` (sala + criaturas) e `roomCardXpOnClear` (XP próprio). Todos são medidos a partir das transições reais do bot, não estimados por lista de cartas. `diagnostics.roomsByExpansion` agrega por expansão/ID e aparece em Markdown/HTML. A primeira sala gerada no START_GAME também é registrada. Um subchefe derrotado que seja imediatamente transferido ao cemitério conta como derrota.
+
+**Experimento P1 de Pesadelo:** cada trial registra `initialDespertar` e `initialHeroLevel`; `diagnostics.difficultyParity` agora separa vitórias em Difícil/Pesadelo e pares em que apenas um deles venceu. Usar as mesmas seeds e perfis em `npm run audit` para quantificar o impacto da diferença efetiva de Despertar (1 × 2). As sementes e a ordem inicial de baralhos são mantidas entre dificuldades dentro da expansão; trajetórias posteriores podem divergir.
+
+### Investigação P1 — heróis no Normal (relatório anterior à correção, commit 7b70908)
+
+Amostra: 100 partidas por herói (2 expansões × 5 perfis × 10 seeds). Resultados são desempenho destes bots, não probabilidade de vitória de humanos.
+
+| Herói | Vitórias | Chegou ao chefe | Venceu ao chegar | Vida média ao chegar |
+|---|---:|---:|---:|---:|
+| Bárbaro | 69/100 | 89/100 | 69/89 (77,5%) | 59% |
+| Guardião do Carvalho | 61/100 | 97/100 | 61/97 (62,9%) | 75% |
+| Paladino | 60/100 | 86/100 | 60/86 (69,8%) | 80% |
+| Guerreiro | 52/100 | 92/100 | 52/92 (56,5%) | 80% |
+| Irmã das Cinzas Brancas | 37/100 | 72/100 | 37/72 (51,4%) | 87% |
+| Feiticeira da Lua Verde | 29/100 | 70/100 | 29/70 (41,4%) | 65% |
+| Necromante | 19/100 | 32/100 | 19/32 (59,4%) | 59% |
+| Clériga | 15/100 | 47/100 | 15/47 (31,9%) | 73% |
+| Mago | 12/100 | 39/100 | 12/39 (30,8%) | 59% |
+| Ladina | 10/100 | 33/100 | 10/33 (30,3%) | 66% |
+
+**Leitura:** o Necromante está bloqueado principalmente na exploração, não no chefe; o Mago e a Ladina sofrem tanto antes quanto durante o chefe. A Clériga tem sobrevivência relativamente alta ao chegar, mas conversão baixa, sugerindo pouca ofensiva solo. Isso exige examinar a legalidade, o uso e o efeito das habilidades antes de alterar números. O novo `diagnostics.heroBalance` agrupa por herói/expansão/dificuldade com vitórias, impasses, visitas ao chefe, vida e nível na entrada e XP acumulado. Próxima rodada de avaliação: comparar por perfil e expansão e verificar se há falsos negativos de IA, especialmente para habilidades utilitárias.
+
+**Não foram alteradas** estatísticas dos heróis, distribuição de XP das criaturas/salas ou custos de XP para se chegar a estas conclusões. Executar build/testes e `npm run audit` somente localmente; não acompanhar CI/CD automaticamente.
