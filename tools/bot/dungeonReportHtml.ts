@@ -36,7 +36,10 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 		...(report.diagnostics ? [
 			"## Diagnósticos de consistência",
 			"Hard/Pesadelo: " + report.diagnostics.difficultyParity.sameOutcome + "/" +
-				report.diagnostics.difficultyParity.pairedGames + " pares com mesmo resultado.",
+				report.diagnostics.difficultyParity.pairedGames + " pares com mesmo resultado; vitórias " +
+				report.diagnostics.difficultyParity.hardWins + " / " +
+				report.diagnostics.difficultyParity.nightmareWins + "; Despertar inicial " +
+				JSON.stringify(report.diagnostics.difficultyParity.initialAwakening ?? {}) + ".",
 			"Veneno: " + (report.diagnostics.poison?.toHeroes ?? 0) + " PV em heróis, " +
 				(report.diagnostics.poison?.toEnemies ?? 0) + " PV em inimigos, " +
 				(report.diagnostics.poison?.preventedByHeart ?? 0) + " PV evitados pelo Coração.",
@@ -51,6 +54,26 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"XP sem conciliação: " + report.diagnostics.xpAccountingMismatches +
 				"; tentativas inefetivas de level up: " + report.diagnostics.ineffectiveLevelUpAttempts + ".",
 			...report.diagnostics.warnings.map((warning) => "- " + warning),
+			"",
+			"## Salas, criaturas de 3 XP e subchefes — visitas reais",
+			"",
+			"| Expansão | Sala | Visitada | Vencida | Criaturas 3 XP | Subchefes vistos | Subchefes derrotados | XP ao vencer | XP nominal da carta |",
+			"|---|---|---:|---:|---:|---:|---:|---:|---:|",
+			...Object.entries(report.diagnostics.roomsByExpansion ?? {}).flatMap(([expansion, rooms]) =>
+				Object.entries(rooms).map(([id, stats]) =>
+					"| " + [expansion, id, stats.entered, stats.cleared, stats.creaturesThreeXpSeen,
+						stats.subbossesSeen, stats.subbossesDefeated, stats.xpAwardedOnClear,
+						stats.roomCardXpOnClear].join(" | ") + " |")),
+			"",
+			"## Diagnóstico de heróis — acesso ao chefe e vitória após acesso",
+			"",
+			"| Expansão | Dificuldade | Herói | Partidas | Vitórias | Impasses | Chegou ao chefe | Venceu após chegar | Vida média na chegada | Nível médio na chegada |",
+			"|---|---|---|---:|---:|---:|---:|---:|---:|---:|",
+			...(report.diagnostics.heroBalance ?? []).map((row) =>
+				"| " + [row.expansionId, row.difficulty, row.heroId, row.games, row.victories,
+					row.stalls, row.bossReached, row.bossVictories,
+					row.bossReached ? percent(row.sumBossLifeRatio / row.bossReached) : "—",
+					row.bossReached ? average(row.sumBossLevel / row.bossReached) : "—"].join(" | ") + " |"),
 			"",
 		] : []),
 		"Seeds " + options.seed + " a " + (options.seed + options.runs - 1) +
@@ -199,6 +222,15 @@ if(data.diagnostics){
  const parity=p.pairedGames?(100*p.sameOutcomeRate).toFixed(1)+'% ('+p.sameOutcome+'/'+p.pairedGames+')':'Sem pares';
  const notices=d.warnings.length?d.warnings.map(w=>'<li>'+esc(w)+'</li>').join(''):'<li>Nenhum alerta automático registrado.</li>';
  el('diagnostics').innerHTML='<p><strong>Difícil × Pesadelo:</strong> '+esc(parity)+' resultados iguais nos pares. <strong>XP não conciliado:</strong> '+d.xpAccountingMismatches+'. <strong>Level up sem efeito:</strong> '+d.ineffectiveLevelUpAttempts+'.</p><p><strong>Veneno:</strong> '+(d.poison?.toHeroes??0)+' PV nos heróis, '+(d.poison?.toEnemies??0)+' PV nos inimigos, '+(d.poison?.preventedByHeart??0)+' PV evitados pelo Coração.</p><p><strong>Veneno na Bruxa:</strong> '+(d.witchBossPoisonTicks??0)+' ticks (Coração presente: '+(d.heartHeldAtWitchBossTicks??0)+'). <strong>Gastos com nível disponível:</strong> '+(d.xpPolicy?.itemsBoughtWhileLevelAvailable??0)+' itens / '+(d.xpPolicy?.artifactsBoughtWhileLevelAvailable??0)+' artefatos.</p><p><strong>Fontes de dano:</strong> '+esc(JSON.stringify(d.poisonDamageBySource??{}))+'</p><p><strong>Remoção por causa/agente:</strong> '+esc(JSON.stringify(d.poisonRemovalBySource??{}))+'</p><ul>'+notices+'</ul><p>Consulte <code>diagnostics.abilityActivity</code> no JSON para contagem por ID; triggers automáticos sem modal não são observados por esses contadores.</p>';
+ const difficultyInfo=p.initialAwakening||{};
+ const roomsRows=Object.entries(d.roomsByExpansion||{}).flatMap(([exp,rooms])=>
+   Object.entries(rooms).map(([roomId,x])=>'<tr><td>'+esc(expansionNames[exp]||exp)+'</td><td>'+esc(roomId)+'</td><td>'+x.entered+'</td><td>'+x.cleared+'</td><td>'+x.creaturesThreeXpSeen+'</td><td>'+x.subbossesSeen+'</td><td>'+x.subbossesDefeated+'</td><td>'+x.xpAwardedOnClear+'</td></tr>')).join('');
+ const heroRows=(d.heroBalance||[]).filter(x=>x.difficulty==="normal")
+   .sort((a,b)=>a.victories/a.games-b.victories/b.games)
+   .map(x=>'<tr><td>'+esc(expansionNames[x.expansionId]||x.expansionId)+'</td><td>'+esc(nameById.get(x.heroId)||x.heroId)+'</td><td>'+pct(x.victories,x.games)+'</td><td>'+pct(x.bossReached,x.games)+'</td><td>'+pct(x.bossVictories,x.bossReached)+'</td><td>'+pct(x.sumBossLifeRatio,x.bossReached)+'</td></tr>').join('');
+ el('diagnostics').innerHTML+='<p><strong>Experimento Difícil/Pesadelo:</strong> Despertar inicial '+esc(difficultyInfo.hard??"—")+' / '+esc(difficultyInfo.nightmare??"—")+', vitórias '+(p.hardWins??0)+' / '+(p.nightmareWins??0)+'. Difícil venceu e Pesadelo perdeu em '+(p.hardWinNightmareLoss??0)+' pares; inverso em '+(p.nightmareWinHardLoss??0)+'.</p>'
+  +'<details><summary>Salas reais, elites e subchefes ('+Object.values(d.roomsByExpansion||{}).reduce((n,rooms)=>n+Object.keys(rooms).length,0)+' cartas)</summary><div style="overflow:auto"><table><thead><tr><th>Expansão</th><th>Sala</th><th>Visitas</th><th>Vitórias</th><th>Elites 3 XP</th><th>Subchefes vistos</th><th>Subchefes derrotados</th><th>XP recebido</th></tr></thead><tbody>'+roomsRows+'</tbody></table></div></details>'
+  +'<details><summary>Diagnóstico de heróis — Normal (chegada ao chefe × vitória)</summary><div style="overflow:auto"><table><thead><tr><th>Expansão</th><th>Herói</th><th>Vitórias</th><th>Chegou ao chefe</th><th>Venceu após chegar</th><th>Vida na chegada</th></tr></thead><tbody>'+heroRows+'</tbody></table></div></details>';
 }
 const expansionName=(id)=>expansionNames[id]||id;
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}
