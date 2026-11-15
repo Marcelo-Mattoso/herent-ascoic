@@ -57,9 +57,14 @@ export function recordRoomEncounterStep(
 			if (card.type === "creature" && card.xp === 3) creaturesThreeXpSeen++;
 			if (card.type === "subboss") subbossesSeen++;
 		}
-		if (card.type === "subboss" &&
-			beforeEnemies.get(enemy.id)?.status === "active" && enemy.status === "defeated")
-			subbossesDefeated++;
+	}
+	// A resolução do último golpe pode retirar o subchefe de activeEnemies
+	// e colocá-lo diretamente no cemitério no mesmo passo do bot.
+	for (const enemy of previous.activeEnemies) {
+		if (enemy.status !== "active" || cardById(engine, enemy.cardId)?.type !== "subboss") continue;
+		const activeNow = current.activeEnemies.find((unit) => unit.id === enemy.id);
+		const inGraveyard = current.enemyGraveyard.some((unit) => unit.id === enemy.id && unit.status === "defeated");
+		if (activeNow?.status === "defeated" || inGraveyard) subbossesDefeated++;
 	}
 	rooms[roomId] = {
 		entered, cleared, creaturesThreeXpSeen, subbossesSeen, subbossesDefeated,

@@ -53,5 +53,14 @@ describe("telemetria de salas e elites", () => {
 		expect(sample.subboss_room_jailer_chamber?.subbossesDefeated).toBe(1);
 		recordRoomEncounterStep(testEngine, defeated, defeated, sample);
 		expect(sample.subboss_room_jailer_chamber?.subbossesDefeated).toBe(1);
+		// Morte que pula direto para o cemitério também precisa ser registrada.
+		const direct = withGame(entered, (game) => ({
+			...game, activeEnemies: [], enemyGraveyard: [
+				makeEnemy("sb", "subboss_crimson_dungeon_jailer", "defeated"),
+			],
+		}));
+		const fromDirect: Record<string, RoomEncounterTelemetry> = {};
+		recordRoomEncounterStep(testEngine, entered, direct, fromDirect);
+		expect(fromDirect.subboss_room_jailer_chamber?.subbossesDefeated).toBe(1);
 	});
 });
