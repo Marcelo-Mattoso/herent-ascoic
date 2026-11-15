@@ -52,7 +52,7 @@ describe("ensaio pareado de masmorra", () => {
 			const setup = { ...setupForRun(1, [heroId], difficulty), bossCardId: benchmarkBoss(expansionId) };
 			const view = createHeadlessPort(setup).observe().view;
 			expect(view.heroes[0]?.impeto).toBe(impeto);
-			expect(view.despertar).toBe(difficulty === "hard" || difficulty === "nightmare" ? 1 : 0);
+			expect(view.despertar).toBe(difficulty === "nightmare" ? 2 : difficulty === "hard" ? 1 : 0);
 		}
 	});
 

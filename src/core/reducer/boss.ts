@@ -448,17 +448,22 @@ export const bossHandler: GameHandler = {
 		switch (gameOf(state).status) {
 			case "BOSS_REVEAL":
 				return [{ type: "REVEAL_BOSS" }];
-			case "BOSS_COMBAT":
-				return [
-					...partyHeroIds(state).flatMap((heroId): Action[] => [
-						...activeEnemies(state).map((enemy) => ({
-							type: "CHOOSE_TARGET" as const,
-							payload: { heroId, enemyId: enemy.id },
-						})),
-						{ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } },
-					]),
-					{ type: "START_BOSS_COMBAT" },
-				];
+			case "BOSS_COMBAT": {
+				const pendingHeroes = heroesOf(state)
+					.filter((hero) => hero.status === "active" &&
+						!ActivationTracker.isHeroDisabledThisRound(state, hero.id));
+				// Se todos passaram/agiram/foram incapacitados, nenhuma escolha de
+				// herói muda o estado. O chefe precisa fechar a rodada normalmente.
+				if (pendingHeroes.length === 0 || activeEnemies(state).length === 0)
+					return [{ type: "START_BOSS_COMBAT" }];
+				return pendingHeroes.flatMap((hero): Action[] => [
+					...activeEnemies(state).map((enemy) => ({
+						type: "CHOOSE_TARGET" as const,
+						payload: { heroId: hero.id, enemyId: enemy.id },
+					})),
+					{ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: hero.id } },
+				]);
+			}
 			default:
 				return [];
 		}
@@ -467,11 +472,17 @@ export const bossHandler: GameHandler = {
 		switch (action.type) {
 			case "REVEAL_BOSS":
 				return handleRevealBoss(engine, state);
-			case "START_BOSS_COMBAT":
-				return withGame(state, (prevGame) => ({
-					...prevGame,
-					status: "BOSS_COMBAT",
-				}));
+			case "START_BOSS_COMBAT": {
+				const pendingHeroes = heroesOf(state).some((hero) =>
+					hero.status === "active" && !ActivationTracker.isHeroDisabledThisRound(state, hero.id));
+				if (gameOf(state).status === "BOSS_COMBAT" &&
+					(!pendingHeroes || activeEnemies(state).length === 0) &&
+					!gameOf(state).combat?.pendingPhysicalRoll &&
+					!gameOf(state).combat?.pendingDiceSelection &&
+					!gameOf(state).combat?.lastRoll)
+					return checkBossEnd(engine, state);
+				return state;
+			}
 			case "ROLL_DICE":
 				return handleBossRoll(engine, state);
 			case "RESOLVE_ATTACK":
