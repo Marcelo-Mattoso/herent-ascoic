@@ -85,6 +85,49 @@ describe("diagnósticos P0", () => {
 		});
 	});
 
+	it("agrega salas reais, elites e subchefes e separa chegada ao boss de vitória", () => {
+		const base = trial("normal", 7, "VICTORY");
+		const t: BenchmarkTrial = {
+			...base,
+			roomsCleared: 2,
+			bossEncounter: { roomsCleared: 2, heroLevel: 3, heroLife: 8,
+				heroMaxLife: 10, xpAvailable: 15, artifacts: 3, hasCorruptedHeart: false },
+			rooms: {
+				room_jailer_room: { entered: 2, cleared: 1, creaturesThreeXpSeen: 3,
+					subbossesSeen: 0, subbossesDefeated: 0,
+					xpAwardedOnClear: 6, roomCardXpOnClear: 3 },
+				subboss_room_jailer_chamber: { entered: 1, cleared: 1, creaturesThreeXpSeen: 0,
+					subbossesSeen: 1, subbossesDefeated: 1,
+					xpAwardedOnClear: 8, roomCardXpOnClear: 4 },
+			},
+			progression: { xpGained: 30, xpSpent: 0, xpOtherLoss: 0,
+				xpFinal: 30, levelUpNoEffect: 0 } as ProgressionTelemetry,
+		};
+		const result = summarizeReportDiagnostics([t, t]);
+		expect(result.roomsByExpansion[t.expansionId]?.room_jailer_room)
+			.toMatchObject({ entered: 4, cleared: 2, creaturesThreeXpSeen: 6, xpAwardedOnClear: 12 });
+		expect(result.roomsByExpansion[t.expansionId]?.subboss_room_jailer_chamber)
+			.toMatchObject({ entered: 2, subbossesSeen: 2, subbossesDefeated: 2, roomCardXpOnClear: 8 });
+		expect(result.heroBalance).toContainEqual(expect.objectContaining({
+			heroId: t.heroId, games: 2, victories: 2, bossReached: 2,
+			bossVictories: 2, sumBossLifeRatio: 1.6,
+		}));
+	});
+
+	it("experimento Difícil/Pesadelo registra a mudança real de Despertar e as vitórias pareadas", () => {
+		const result = summarizeReportDiagnostics([
+			{ ...trial("hard", 1, "VICTORY"), initialDespertar: 1 },
+			{ ...trial("nightmare", 1, "DEFEAT"), initialDespertar: 2 },
+			{ ...trial("hard", 2, "DEFEAT"), initialDespertar: 1 },
+			{ ...trial("nightmare", 2, "VICTORY"), initialDespertar: 2 },
+		]);
+		expect(result.difficultyParity).toMatchObject({
+			pairedGames: 2, sameOutcome: 0, hardWins: 1, nightmareWins: 1,
+			hardWinNightmareLoss: 1, nightmareWinHardLoss: 1,
+			initialAwakening: { hard: 1, nightmare: 2 },
+		});
+	});
+
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
 		const summary = summarizeReportDiagnostics([
 			trial("normal", 3, "ERROR", { xpGained: 5, xpSpent: 2,
