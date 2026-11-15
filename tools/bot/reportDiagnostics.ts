@@ -1,4 +1,5 @@
 import { classifyTrial, type BenchmarkTrial } from "./dungeonBenchmark";
+import type { RoomEncounterTelemetry } from "./encounterTelemetry";
 
 export interface AbilityActivitySummary {
 	readonly abilityId: string;
@@ -13,6 +14,21 @@ export interface AbilityActivitySummary {
 	readonly triggersSkipped: number;
 }
 
+export interface HeroBalanceDiagnostic {
+	readonly expansionId: string;
+	readonly heroId: string;
+	readonly difficulty: BenchmarkTrial["difficulty"];
+	readonly games: number;
+	readonly victories: number;
+	readonly stalls: number;
+	readonly bossReached: number;
+	readonly bossVictories: number;
+	readonly sumBossLifeRatio: number;
+	readonly sumBossLevel: number;
+	readonly sumRoomsCleared: number;
+	readonly sumXpGained: number;
+}
+
 export interface BenchmarkDiagnostics {
 	readonly scope: "solo";
 	readonly games: number;
@@ -25,7 +41,16 @@ export interface BenchmarkDiagnostics {
 		readonly pairedGames: number;
 		readonly sameOutcome: number;
 		readonly sameOutcomeRate: number | null;
+		readonly hardWins: number;
+		readonly nightmareWins: number;
+		readonly hardWinNightmareLoss: number;
+		readonly nightmareWinHardLoss: number;
+		readonly initialAwakening: { readonly hard: number | null; readonly nightmare: number | null };
 	};
+	/** Por expansão e carta: entradas, vitórias, elites de 3 XP e subchefes reais. */
+	readonly roomsByExpansion: Readonly<Record<string, Readonly<Record<string, RoomEncounterTelemetry>>>>;
+	/** Diagnóstico desagregado de heróis: chegada ao chefe x vitória no chefe. */
+	readonly heroBalance: readonly HeroBalanceDiagnostic[];
 	readonly abilityActivity: readonly AbilityActivitySummary[];
 	/** Origem (carta/habilidade) de cada ponto de dano periódico efetivo de veneno. */
 	readonly poisonDamageBySource: Readonly<Record<string, { toHeroes: number; toEnemies: number; ticks: number }>>;
@@ -85,6 +110,8 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 	const bossByExpansion: Record<string, { games: number; reached: number; victoriesAfterArrival: number; heartHeldAtEntry: number; sumHeroLevel: number; sumLifeRatio: number }> = {};
 	const xpPolicy = { itemsBoughtWhileLevelAvailable: 0, artifactsBoughtWhileLevelAvailable: 0, dungeonRecoveries: 0 };
 	const stallsByReason: Record<string, number> = {};
+	const roomsByExpansion: Record<string, Record<string, RoomEncounterTelemetry>> = {};
+	const heroBalance = new Map<string, HeroBalanceDiagnostic>();
 	const addCounts = (into: Record<string, number>, from?: Readonly<Record<string, number>>) => {
 		for (const [key, value] of Object.entries(from ?? {})) into[key] = (into[key] ?? 0) + value;
 	};
@@ -93,7 +120,47 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 	let ineffectiveLevelUpAttempts = 0;
 	const byCase = new Map<string, Map<string, BenchmarkTrial>>();
 	for (const trial of trials) {
-		if (classifyTrial(trial) === "stall") {
+		const heroKey = [trial.expansionId, trial.heroId, trial.difficulty].join("|");
+		const prior = heroBalance.get(heroKey) ?? {
+			expansionId: trial.expansionId, heroId: trial.heroId,
+			difficulty: trial.difficulty, games: 0, victories: 0, stalls: 0,
+			bossReached: 0, bossVictories: 0, sumBossLifeRatio: 0,
+			sumBossLevel: 0, sumRoomsCleared: 0, sumXpGained: 0,
+		};
+		const classification = classifyTrial(trial);
+		const atBoss = trial.bossEncounter;
+		heroBalance.set(heroKey, {
+			...prior,
+			games: prior.games + 1,
+			victories: prior.victories + (classification === "victory" ? 1 : 0),
+			stalls: prior.stalls + (classification === "stall" ? 1 : 0),
+			bossReached: prior.bossReached + (atBoss ? 1 : 0),
+			bossVictories: prior.bossVictories + (atBoss && classification === "victory" ? 1 : 0),
+			sumBossLifeRatio: prior.sumBossLifeRatio + (atBoss?.heroMaxLife
+				? atBoss.heroLife / atBoss.heroMaxLife : 0),
+			sumBossLevel: prior.sumBossLevel + (atBoss?.heroLevel ?? 0),
+			sumRoomsCleared: prior.sumRoomsCleared + trial.roomsCleared,
+			sumXpGained: prior.sumXpGained + (trial.progression?.xpGained ?? 0),
+		});
+		const roomMap = roomsByExpansion[trial.expansionId] ?? {};
+		for (const [roomId, stats] of Object.entries(trial.rooms ?? {})) {
+			const prev = roomMap[roomId] ?? {
+				entered: 0, cleared: 0, creaturesThreeXpSeen: 0,
+				subbossesSeen: 0, subbossesDefeated: 0,
+				xpAwardedOnClear: 0, roomCardXpOnClear: 0,
+			};
+			roomMap[roomId] = {
+				entered: prev.entered + stats.entered,
+				cleared: prev.cleared + stats.cleared,
+				creaturesThreeXpSeen: prev.creaturesThreeXpSeen + stats.creaturesThreeXpSeen,
+				subbossesSeen: prev.subbossesSeen + stats.subbossesSeen,
+				subbossesDefeated: prev.subbossesDefeated + stats.subbossesDefeated,
+				xpAwardedOnClear: prev.xpAwardedOnClear + stats.xpAwardedOnClear,
+				roomCardXpOnClear: prev.roomCardXpOnClear + stats.roomCardXpOnClear,
+			};
+		}
+		roomsByExpansion[trial.expansionId] = roomMap;
+		if (classification === "stall") {
 			const reason = trial.expansionId + " | " + (trial.violation ?? trial.outcome);
 			stallsByReason[reason] = (stallsByReason[reason] ?? 0) + 1;
 		}
@@ -159,11 +226,19 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		byCase.set(key, pair);
 	}
 	let pairedGames = 0, sameOutcome = 0;
+	let hardWins = 0, nightmareWins = 0, hardWinNightmareLoss = 0, nightmareWinHardLoss = 0;
+	let hardInitialAwakening: number | null = null, nightmareInitialAwakening: number | null = null;
 	for (const pair of byCase.values()) {
 		const hard = pair.get("hard"), nightmare = pair.get("nightmare");
 		if (!hard || !nightmare) continue;
 		pairedGames++;
 		if (classifyTrial(hard) === classifyTrial(nightmare)) sameOutcome++;
+		if (classifyTrial(hard) === "victory") hardWins++;
+		if (classifyTrial(nightmare) === "victory") nightmareWins++;
+		if (classifyTrial(hard) === "victory" && classifyTrial(nightmare) !== "victory") hardWinNightmareLoss++;
+		if (classifyTrial(nightmare) === "victory" && classifyTrial(hard) !== "victory") nightmareWinHardLoss++;
+		hardInitialAwakening = hard.initialDespertar ?? hardInitialAwakening;
+		nightmareInitialAwakening = nightmare.initialDespertar ?? nightmareInitialAwakening;
 	}
 	const damageAttributed = Object.values(poisonDamageBySource).reduce((sum, row) =>
 		sum + row.toHeroes + row.toEnemies, 0);
@@ -188,7 +263,13 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		scope: "solo", games: trials.length, errors, stalls,
 		xpAccountingMismatches, ineffectiveLevelUpAttempts,
 		difficultyParity: { compared: "hard/nightmare", pairedGames, sameOutcome,
-			sameOutcomeRate },
+			sameOutcomeRate, hardWins, nightmareWins, hardWinNightmareLoss, nightmareWinHardLoss,
+			initialAwakening: { hard: hardInitialAwakening, nightmare: nightmareInitialAwakening } },
+		roomsByExpansion,
+		heroBalance: [...heroBalance.values()].sort((a, b) =>
+			a.expansionId.localeCompare(b.expansionId) ||
+			a.difficulty.localeCompare(b.difficulty) ||
+			a.heroId.localeCompare(b.heroId)),
 		poison, poisonByExpansion,
 		poisonDamageBySource, poisonRemovalBySource, poisonApplicationsBySource, poisonBlockedBySource,
 		witchBossPoisonTicks, heartHeldAtWitchBossTicks, bossByExpansion, xpPolicy, stallsByReason,
