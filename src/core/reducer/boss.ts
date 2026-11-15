@@ -29,7 +29,7 @@ import { log } from "./utils";
 import { cardById, cardName, skillsOf } from "../gameEngine";
 import type { GameEngine, GameHandler } from "../gameEngine";
 import type { Action } from "../actions/types";
-import { activeEnemies, partyHeroIds } from "./legal";
+import { activeEnemies } from "./legal";
 
 import { awakeningOf, enemiesOf, heroesOf, recordOfEnemy, spawnEnemy, scopedFlagOf, withScopedFlag, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
 import { beginCombat, beginRound } from "../state/lifecycle";
