@@ -67,13 +67,18 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"",
 			"## Diagnóstico de heróis — acesso ao chefe e vitória após acesso",
 			"",
-			"| Expansão | Dificuldade | Herói | Partidas | Vitórias | Impasses | Chegou ao chefe | Venceu após chegar | Vida média na chegada | Nível médio na chegada |",
-			"|---|---|---|---:|---:|---:|---:|---:|---:|---:|",
+			"| Expansão | Dificuldade | Herói | Partidas | Vitórias | Impasses | Chegou ao chefe | Venceu após chegar | Vida média na chegada | Nível médio na chegada | Habilidades escolhidas/ofertadas (chefe) |",
+			"|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|",
 			...(report.diagnostics.heroBalance ?? []).map((row) =>
 				"| " + [row.expansionId, row.difficulty, row.heroId, row.games, row.victories,
 					row.stalls, row.bossReached, row.bossVictories,
 					row.bossReached ? percent(row.sumBossLifeRatio / row.bossReached) : "—",
-					row.bossReached ? average(row.sumBossLevel / row.bossReached) : "—"].join(" | ") + " |"),
+					row.bossReached ? average(row.sumBossLevel / row.bossReached) : "—",
+					Object.entries(row.abilityOfferedById ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 5)
+						.map(([id, offered]) => id + ": " + (row.abilityChosenById?.[id] ?? 0) +
+							"/" + offered + " (chefe " + (row.abilityChosenAtBossById?.[id] ?? 0) +
+							"/" + (row.abilityOfferedAtBossById?.[id] ?? 0) + ")").join("; ")
+				].join(" | ") + " |"),
 			"",
 		] : []),
 		"Seeds " + options.seed + " a " + (options.seed + options.runs - 1) +
@@ -227,10 +232,10 @@ if(data.diagnostics){
    Object.entries(rooms).map(([roomId,x])=>'<tr><td>'+esc(expansionNames[exp]||exp)+'</td><td>'+esc(roomId)+'</td><td>'+x.entered+'</td><td>'+x.cleared+'</td><td>'+x.creaturesThreeXpSeen+'</td><td>'+x.subbossesSeen+'</td><td>'+x.subbossesDefeated+'</td><td>'+x.xpAwardedOnClear+'</td></tr>')).join('');
  const heroRows=(d.heroBalance||[]).filter(x=>x.difficulty==="normal")
    .sort((a,b)=>a.victories/a.games-b.victories/b.games)
-   .map(x=>'<tr><td>'+esc(expansionNames[x.expansionId]||x.expansionId)+'</td><td>'+esc(nameById.get(x.heroId)||x.heroId)+'</td><td>'+pct(x.victories,x.games)+'</td><td>'+pct(x.bossReached,x.games)+'</td><td>'+pct(x.bossVictories,x.bossReached)+'</td><td>'+pct(x.sumBossLifeRatio,x.bossReached)+'</td></tr>').join('');
+   .map(x=>'<tr><td>'+esc(expansionNames[x.expansionId]||x.expansionId)+'</td><td>'+esc(nameById.get(x.heroId)||x.heroId)+'</td><td>'+pct(x.victories,x.games)+'</td><td>'+pct(x.bossReached,x.games)+'</td><td>'+pct(x.bossVictories,x.bossReached)+'</td><td>'+pct(x.sumBossLifeRatio,x.bossReached)+'</td><td>'+Object.entries(x.abilityOfferedById||{}).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,n])=>esc(id)+': '+(x.abilityChosenById?.[id]||0)+'/'+n+' (chefe '+(x.abilityChosenAtBossById?.[id]||0)+'/'+(x.abilityOfferedAtBossById?.[id]||0)+')').join('; ')+'</td></tr>').join('');
  el('diagnostics').innerHTML+='<p><strong>Experimento Difícil/Pesadelo:</strong> Despertar inicial '+esc(difficultyInfo.hard??"—")+' / '+esc(difficultyInfo.nightmare??"—")+', vitórias '+(p.hardWins??0)+' / '+(p.nightmareWins??0)+'. Difícil venceu e Pesadelo perdeu em '+(p.hardWinNightmareLoss??0)+' pares; inverso em '+(p.nightmareWinHardLoss??0)+'.</p>'
   +'<details><summary>Salas reais, elites e subchefes ('+Object.values(d.roomsByExpansion||{}).reduce((n,rooms)=>n+Object.keys(rooms).length,0)+' cartas)</summary><div style="overflow:auto"><table><thead><tr><th>Expansão</th><th>Sala</th><th>Visitas</th><th>Vitórias</th><th>Elites 3 XP</th><th>Subchefes vistos</th><th>Subchefes derrotados</th><th>XP recebido</th></tr></thead><tbody>'+roomsRows+'</tbody></table></div></details>'
-  +'<details><summary>Diagnóstico de heróis — Normal (chegada ao chefe × vitória)</summary><div style="overflow:auto"><table><thead><tr><th>Expansão</th><th>Herói</th><th>Vitórias</th><th>Chegou ao chefe</th><th>Venceu após chegar</th><th>Vida na chegada</th></tr></thead><tbody>'+heroRows+'</tbody></table></div></details>';
+  +'<details><summary>Diagnóstico de heróis — Normal (chegada ao chefe × vitória e habilidades)</summary><div style="overflow:auto"><table><thead><tr><th>Expansão</th><th>Herói</th><th>Vitórias</th><th>Chegou ao chefe</th><th>Venceu após chegar</th><th>Vida na chegada</th><th>Habilidades escolhidas/ofertadas (chefe)</th></tr></thead><tbody>'+heroRows+'</tbody></table></div></details>';
 }
 const expansionName=(id)=>expansionNames[id]||id;
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}
