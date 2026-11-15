@@ -26,11 +26,13 @@ import { gameOf, withGame } from "../../engine/state";
 
 export function handleGrantRewards(engine: GameEngine, state: GameState): GameState {
 	if (!gameOf(state).currentRoom) return state;
-	// Evitar processar duas vezes (fila já preenchida)
-	if (gameOf(state).pendingRewards.length > 0) return state;
-	// Sala já paga: conceder de novo duplicaria XP e travaria a fase.
+	// Uma habilidade de revelação pode enfileirar um item ANTES da vitória
+	// (ex.: Frascos Velhos). A fila cheia não significa que a sala foi paga.
+	// Só o status "cleared" garante que XP, room count e saque já foram processados.
 	if (gameOf(state).currentRoom!.status === "cleared") {
-		return withGame(state, (prevGame) => ({ ...prevGame, status: "XP_SPEND_PHASE" }));
+		return gameOf(state).pendingRewards.length > 0
+			? state
+			: withGame(state, (prevGame) => ({ ...prevGame, status: "XP_SPEND_PHASE" }));
 	}
 
 	const afterRoomWin = resolveSkillWindow(engine, state, {
@@ -300,9 +302,11 @@ export function handleChooseArtifactBearer(engine: GameEngine,
 	);
 }
 
-// Quando a fila fica vazia, avança para XP_SPEND_PHASE.
+// A fila de saques pode ser anterior à vitória da sala (Frascos Velhos).
+// Nunca permitir gastar XP antes de finishGrantRewards() registrar a vitória.
 function advanceRewardPhase(state: GameState): GameState {
-	if (gameOf(state).pendingRewards.length === 0) {
+	if (gameOf(state).pendingRewards.length === 0 &&
+		(!gameOf(state).currentRoom || gameOf(state).currentRoom?.status === "cleared")) {
 		return withGame(state, (prevGame) => ({ ...prevGame, status: "XP_SPEND_PHASE" }));
 	}
 	return state;
