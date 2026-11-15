@@ -128,6 +128,21 @@ describe("diagnósticos P0", () => {
 		});
 	});
 
+	it("agrega habilidades oferecidas e escolhidas, inclusive no boss", () => {
+		const record = { ...trial("normal", 4), progression: {
+			xpGained: 0, xpSpent: 0, xpOtherLoss: 0, xpFinal: 0, levelUpNoEffect: 0,
+			abilityDecisions: {
+				offeredById: { skill_rift_rune: 10 }, chosenById: { skill_rift_rune: 2 },
+				offeredAtBossById: { skill_rift_rune: 4 }, chosenAtBossById: { skill_rift_rune: 1 },
+			},
+		} as ProgressionTelemetry };
+		const row = summarizeReportDiagnostics([record, record]).heroBalance[0];
+		expect(row?.abilityOfferedById).toEqual({ skill_rift_rune: 20 });
+		expect(row?.abilityChosenById).toEqual({ skill_rift_rune: 4 });
+		expect(row?.abilityOfferedAtBossById).toEqual({ skill_rift_rune: 8 });
+		expect(row?.abilityChosenAtBossById).toEqual({ skill_rift_rune: 2 });
+	});
+
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
 		const summary = summarizeReportDiagnostics([
 			trial("normal", 3, "ERROR", { xpGained: 5, xpSpent: 2,

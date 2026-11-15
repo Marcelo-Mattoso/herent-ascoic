@@ -70,6 +70,12 @@ export interface ProgressionTelemetry {
 	readonly skillPreparations: number;
 	readonly powerPreparations: number;
 	/** Ações efetivamente aceitas pelo motor; NÃO comprova que o efeito foi aplicado. */
+	readonly abilityDecisions?: {
+		readonly offeredById: Readonly<Record<string, number>>;
+		readonly chosenById: Readonly<Record<string, number>>;
+		readonly offeredAtBossById: Readonly<Record<string, number>>;
+		readonly chosenAtBossById: Readonly<Record<string, number>>;
+	};
 	readonly abilityActivity?: {
 		readonly preparationsById: Readonly<Record<string, number>>;
 		readonly armedById: Readonly<Record<string, number>>;
@@ -282,6 +288,10 @@ export function runBenchmarkCase(
 	const powerActivationsById: Record<string, number> = {};
 	const triggersAcceptedById: Record<string, number> = {};
 	const triggersSkippedById: Record<string, number> = {};
+	const offeredById: Record<string, number> = {};
+	const chosenById: Record<string, number> = {};
+	const offeredAtBossById: Record<string, number> = {};
+	const chosenAtBossById: Record<string, number> = {};
 	const increment = (counts: Record<string, number>, id: string) => {
 		counts[id] = (counts[id] ?? 0) + 1;
 	};
@@ -294,6 +304,36 @@ export function runBenchmarkCase(
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const action = step.chosen.action;
 		recordRoomEncounterStep(engine, step.beforeState, step.afterState, rooms);
+		// Logs de decisões voluntárias. Não inferir execução de efeitos passivos.
+		const inBoss = step.before.status === "BOSS_COMBAT" ||
+			step.before.enemies.some((enemy) => enemy.id === "boss" && enemy.status === "active");
+		const heroAbilityId = (move: typeof step.chosen): string | undefined => {
+			if (move.action.type === "USE_SKILL") {
+				return step.before.abilityActionsByHero[move.action.payload.sourceId]?.find(
+					(entry) => entry.abilityId === move.action.payload.skillId &&
+						(entry.kind === "skill" || entry.kind === "power"))?.abilityId;
+			}
+			if (move.action.type === "USE_POWER")
+				return step.before.abilityActionsByHero[move.action.payload.heroId]?.find(
+					(entry) => entry.kind === "power" && entry.status === "available")?.abilityId;
+			if ((move.action.type === "APPLY_TRIGGER_INTERRUPT" ||
+				move.action.type === "SKIP_TRIGGER_INTERRUPT") && step.before.pendingTriggerInterrupt) {
+				const id = step.before.pendingTriggerInterrupt.skillId;
+				const category = skillById(engine, id)?.category;
+				return category === "hero_skill" || category === "hero_power" ? id : undefined;
+			}
+			return undefined;
+		};
+		const offered = new Set(step.options.map(heroAbilityId).filter((id): id is string => Boolean(id)));
+		for (const id of offered) {
+			increment(offeredById, id);
+			if (inBoss) increment(offeredAtBossById, id);
+		}
+		const chosenHeroAbility = heroAbilityId(step.chosen);
+		if (chosenHeroAbility && step.chosen.action.type !== "SKIP_TRIGGER_INTERRUPT") {
+			increment(chosenById, chosenHeroAbility);
+			if (inBoss) increment(chosenAtBossById, chosenHeroAbility);
+		}
 		if (!bossEncounter && step.before.status !== "BOSS_COMBAT" && step.after.status === "BOSS_COMBAT") {
 			const hero = step.after.heroes.find((entry) => entry.status === "active");
 			bossEncounter = {
@@ -492,6 +532,7 @@ export function runBenchmarkCase(
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
 			itemsBoughtWhileLevelAvailable, artifactsBoughtWhileLevelAvailable, dungeonRecoveries,
 			skillPreparations, powerPreparations,
+			abilityDecisions: { offeredById, chosenById, offeredAtBossById, chosenAtBossById },
 			abilityActivity: { preparationsById, armedById, clearedDuringAttackById,
 				clearedElsewhereById, manualActionsById, powerActivationsById,
 				triggersAcceptedById, triggersSkippedById },

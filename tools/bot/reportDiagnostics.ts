@@ -27,6 +27,10 @@ export interface HeroBalanceDiagnostic {
 	readonly sumBossLevel: number;
 	readonly sumRoomsCleared: number;
 	readonly sumXpGained: number;
+	readonly abilityOfferedById: Readonly<Record<string, number>>;
+	readonly abilityChosenById: Readonly<Record<string, number>>;
+	readonly abilityOfferedAtBossById: Readonly<Record<string, number>>;
+	readonly abilityChosenAtBossById: Readonly<Record<string, number>>;
 }
 
 export interface BenchmarkDiagnostics {
@@ -126,9 +130,18 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 			difficulty: trial.difficulty, games: 0, victories: 0, stalls: 0,
 			bossReached: 0, bossVictories: 0, sumBossLifeRatio: 0,
 			sumBossLevel: 0, sumRoomsCleared: 0, sumXpGained: 0,
+			abilityOfferedById: {}, abilityChosenById: {},
+			abilityOfferedAtBossById: {}, abilityChosenAtBossById: {},
 		};
 		const classification = classifyTrial(trial);
 		const atBoss = trial.bossEncounter;
+		const mergeAbilities = (old: Readonly<Record<string, number>>,
+			next?: Readonly<Record<string, number>>): Record<string, number> => {
+			const values: Record<string, number> = { ...old };
+			for (const [id, count] of Object.entries(next ?? {}))
+				values[id] = (values[id] ?? 0) + count;
+			return values;
+		};
 		heroBalance.set(heroKey, {
 			...prior,
 			games: prior.games + 1,
@@ -141,6 +154,10 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 			sumBossLevel: prior.sumBossLevel + (atBoss?.heroLevel ?? 0),
 			sumRoomsCleared: prior.sumRoomsCleared + trial.roomsCleared,
 			sumXpGained: prior.sumXpGained + (trial.progression?.xpGained ?? 0),
+			abilityOfferedById: mergeAbilities(prior.abilityOfferedById, trial.progression?.abilityDecisions?.offeredById),
+			abilityChosenById: mergeAbilities(prior.abilityChosenById, trial.progression?.abilityDecisions?.chosenById),
+			abilityOfferedAtBossById: mergeAbilities(prior.abilityOfferedAtBossById, trial.progression?.abilityDecisions?.offeredAtBossById),
+			abilityChosenAtBossById: mergeAbilities(prior.abilityChosenAtBossById, trial.progression?.abilityDecisions?.chosenAtBossById),
 		});
 		const roomMap = roomsByExpansion[trial.expansionId] ?? {};
 		for (const [roomId, stats] of Object.entries(trial.rooms ?? {})) {
