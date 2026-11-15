@@ -16,7 +16,7 @@ import { handleGainXp, handleSpendXp } from "./progression";
 import { reducer } from "./index";
 import { handleRevealRoom, handleResolveRoomEffect, handleSpawnEnemies } from "./exploration";
 import { testEngine } from "@/core/__tests__/testEngine";
-import { deckOf, decksOf, heroesOf, impetoOf, withDecks, withImpeto, withDeck } from "@/core/state/access";
+import { deckOf, decksOf, heroesOf, impetoOf, withDecks, withImpeto } from "@/core/state/access";
 import { settled } from "../__tests__/fixtures";
 import { pendingSkillChoiceOf } from "../state/access";
 import { withGame, gameOf } from "../../engine/state";
@@ -24,6 +24,9 @@ import { withGame, gameOf } from "../../engine/state";
 const DAGGER = "item_rusty_dagger";
 const PITCH_TORCH = "item_pitch_torch";
 const VIGOR_POTION = "item_lesser_vigor_potion";
+const WITCH_DAGGER = "item_polished_bone_dagger";
+const WITCH_KNIFE = "item_poison_fang_knife";
+const WITCH_LANTERN = "item_witch_lantern";
 
 function state(): GameState {
 	const base = createInitialGameState({ heroCardIds: [] });
@@ -111,9 +114,9 @@ describe("recompensas e inventário", () => {
 				deferInitialRoomReveal: true,
 			},
 		});
-		const ready = withDecks(withDeck(withGame(started, (game) => ({
+		const ready = withDecks(withGame(started, (game) => ({
 			...game, roomsCleared: 1, status: "REVEAL_ROOM" as const,
-		})), "dungeonDeck", { available: ["room_old_vials_chamber"], discarded: [], removed: [] }), {
+		})), {
 			...decksOf(started),
 			itemDeck: { available: [...itemCards], discarded: [], removed: [] },
 			dungeonDeck: { available: ["room_old_vials_chamber"], discarded: [], removed: [] },
@@ -122,14 +125,14 @@ describe("recompensas e inventário", () => {
 	}
 
 	it("Frascos Velhos: escolha do item ANTES de GRANT_REWARDS não perde XP nem duplica saque", () => {
-		const revealed = revealOldVials([DAGGER, PITCH_TORCH, VIGOR_POTION]);
+		const revealed = revealOldVials([WITCH_DAGGER, WITCH_KNIFE, WITCH_LANTERN]);
 		expect(pendingSkillChoiceOf(revealed)?.skillId).toBe("witch_room_old_vials");
 		const picked = reducer(testEngine, revealed, {
 			type: "SKILL_CHOICE",
-			payload: { skillId: "witch_room_old_vials", choice: DAGGER },
+			payload: { skillId: "witch_room_old_vials", choice: WITCH_DAGGER },
 		});
 		expect(pendingSkillChoiceOf(picked)).toBeUndefined();
-		expect(gameOf(picked).pendingRewards.map((reward) => reward.cardId)).toEqual([DAGGER]);
+		expect(gameOf(picked).pendingRewards.map((reward) => reward.cardId)).toEqual([WITCH_DAGGER]);
 		const emptyRoom = handleSpawnEnemies(testEngine, handleResolveRoomEffect(testEngine, picked));
 		expect(gameOf(emptyRoom).status).toBe("REWARD_PHASE");
 		const beforeXp = gameOf(emptyRoom).groupXp;
@@ -144,17 +147,17 @@ describe("recompensas e inventário", () => {
 		expect(gameOf(finished).roomsCleared).toBe(beforeRooms + 1);
 		expect(gameOf(finished).currentRoom?.status).toBe("cleared");
 		expect(gameOf(finished).pendingRewards).toEqual([]);
-		expect(heroesOf(finished)[0]?.backpack).toContain(DAGGER);
+		expect(heroesOf(finished)[0]?.backpack).toContain(WITCH_DAGGER);
 		const again = handleGrantRewards(testEngine, finished);
 		expect(gameOf(again).groupXp).toBe(gameOf(finished).groupXp);
 		expect(gameOf(again).roomsCleared).toBe(gameOf(finished).roomsCleared);
 	});
 
 	it("Frascos Velhos: GRANT_REWARDS primeiro concede XP, preserva escolha e evita saque normal", () => {
-		const revealed = revealOldVials([DAGGER, PITCH_TORCH, VIGOR_POTION]);
+		const revealed = revealOldVials([WITCH_DAGGER, WITCH_KNIFE, WITCH_LANTERN]);
 		const picked = reducer(testEngine, revealed, {
 			type: "SKILL_CHOICE",
-			payload: { skillId: "witch_room_old_vials", choice: DAGGER },
+			payload: { skillId: "witch_room_old_vials", choice: WITCH_DAGGER },
 		});
 		const emptyRoom = handleSpawnEnemies(testEngine, handleResolveRoomEffect(testEngine, picked));
 		const xp = gameOf(emptyRoom).groupXp;
@@ -163,7 +166,7 @@ describe("recompensas e inventário", () => {
 		expect(gameOf(granted).groupXp).toBe(xp + 1);
 		expect(gameOf(granted).roomsCleared).toBe(rooms + 1);
 		expect(gameOf(granted).currentRoom?.status).toBe("cleared");
-		expect(gameOf(granted).pendingRewards.map((entry) => entry.cardId)).toEqual([DAGGER]);
+		expect(gameOf(granted).pendingRewards.map((entry) => entry.cardId)).toEqual([WITCH_DAGGER]);
 		const gotItem = handleChooseItemDestination(testEngine, granted, heroesOf(granted)[0]!.id, "backpack");
 		expect(gameOf(gotItem).status).toBe("XP_SPEND_PHASE");
 		expect(gameOf(gotItem).groupXp).toBe(xp + 1);
