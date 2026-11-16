@@ -2073,7 +2073,8 @@
             }
           ]
         }
-      ]
+      ],
+      "action_cost": "consume_hero_action"
     },
     {
       "id": "witch_skill_swamp_route",
