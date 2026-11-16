@@ -546,7 +546,8 @@ export function executeTriggerCandidate(engine: GameEngine,
 		}
 	}
 
-	current = markSkillGuardUsed(current, candidate.definition, candidate.source.sourceHeroId);
+	if (!pendingSkillChoiceOf(current) && !gameOf(current).combat?.pendingDiceSelection)
+		current = markSkillGuardUsed(current, candidate.definition, candidate.source.sourceHeroId);
 	if (!pendingSkillChoiceOf(current) && !gameOf(current).combat?.pendingDiceSelection) {
 		current = ActivationTracker.chargeAbilityAction(
 			current,
