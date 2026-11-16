@@ -115,7 +115,8 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 	const beforePrepared = beforeGame.preparedAbilities ?? {};
 	const afterPrepared = afterGame.preparedAbilities ?? {};
 	const newlyPrepared = Object.values(afterPrepared).filter((entry) => !beforePrepared[entry.key]);
-	const removedPrepared = Object.values(beforePrepared).filter((entry) => !afterPrepared[entry.key]);
+	// Remover uma preparação NÃO comprova execução: pode ser limpeza de fase,
+	// expiração, cancelamento ou descarte de equipamento.
 	const pendingChoice = step.before.pendingSkillChoice;
 	const pendingTarget = step.before.pendingSkillTarget;
 	const pendingTrigger = step.before.pendingTriggerInterrupt;
@@ -136,9 +137,12 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 
 	if (action.type === "USE_SKILL") {
 		const { skillId, sourceId, targetIds } = action.payload;
-		const item = step.before.abilityActionsByHero[sourceId]?.find((entry) => entry.abilityId === skillId);
+		const preparedSource = [...Object.values(beforePrepared), ...newlyPrepared].find((entry) =>
+			entry.abilityId === skillId && entry.sourceHeroId === sourceId);
+		const projected = step.before.abilityActionsByHero[sourceId]?.find((entry) =>
+			entry.abilityId === skillId && (entry.sourceCardId === preparedSource?.sourceCardId || !preparedSource));
 		const cancelling = action.payload.params?.cancelPreparation === true;
-		add({ ...base(skillId, sourceId, item?.sourceCardId), targetIds: [...(targetIds ?? [])],
+		add({ ...base(skillId, sourceId, preparedSource?.sourceCardId ?? projected?.sourceCardId), targetIds: [...(targetIds ?? [])],
 			attempted: !cancelling, prepared: !cancelling && newlyPrepared.some((entry) => entry.abilityId === skillId),
 			confirmed: !cancelling && !newlyPrepared.some((entry) => entry.abilityId === skillId) &&
 				!step.after.pendingSkillChoice && !step.after.pendingSkillTarget });
@@ -177,43 +181,76 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 		add({ ...base(entry.abilityId, entry.sourceHeroId, entry.sourceCardId),
 			targetIds: [...(entry.targetIds ?? [])], attempted: false, prepared: true, confirmed: false });
 	}
-	// Reações armadas e consumidas durante a rolagem também precisam de
-	// origem mesmo quando o clique escolhido foi ROLL_DICE/RESOLVE_ATTACK.
-	for (const entry of removedPrepared) {
-		if (action.type === "USE_SKILL" || action.type === "USE_POWER") continue;
-		add({ ...base(entry.abilityId, entry.sourceHeroId, entry.sourceCardId),
-			targetIds: [...(entry.targetIds ?? [])], attempted: false, prepared: false, confirmed: true });
+	// Cooldowns de jogo comprovam um commit mesmo quando o motor ativou o
+	// poder automaticamente sem abrir modal. Não adivinhar a origem quando
+	// herói e artefato compartilham o mesmo abilityId.
+	for (const [flag, used] of Object.entries(afterGame.oncePer.game)) {
+		if (!used || beforeGame.oncePer.game[flag]) continue;
+		const [abilityId, sourceHeroId] = flag.split("::");
+		if (!abilityId || candidates.some((candidate) => candidate.abilityId === abilityId &&
+			candidate.sourceHeroId === sourceHeroId)) continue;
+		const owners = skillOwners(engine, abilityId);
+		add({ abilityId, sourceCardId: owners.length === 1 ? owners[0]! : "unresolved-source",
+			sourceHeroId, targetIds: [], attempted: false, prepared: false, confirmed: true });
 	}
+
 	const changes = differences(step.before, step.after);
+	const consumedKeys = new Set<string>();
 	return candidates.map((entry) => {
 		const key = entry.sourceHeroId ? `${entry.abilityId}::${entry.sourceHeroId}` : entry.abilityId;
 		const consumedInGame = !beforeGame.oncePer.game[key] && Boolean(afterGame.oncePer.game[key]);
 		const beforeAction = entry.sourceHeroId
-			? step.before.abilityActionsByHero[entry.sourceHeroId]?.find((item) => item.abilityId === entry.abilityId)
+			? step.before.abilityActionsByHero[entry.sourceHeroId]?.find((item) =>
+				item.abilityId === entry.abilityId && item.sourceCardId === entry.sourceCardId)
 			: undefined;
 		const afterAction = entry.sourceHeroId
-			? step.after.abilityActionsByHero[entry.sourceHeroId]?.find((item) => item.abilityId === entry.abilityId)
+			? step.after.abilityActionsByHero[entry.sourceHeroId]?.find((item) =>
+				item.abilityId === entry.abilityId && item.sourceCardId === entry.sourceCardId)
 			: undefined;
-		const chargeConsumed = consumedInGame || (beforeAction?.status !== "exhausted" && afterAction?.status === "exhausted");
-		const confirmed = entry.confirmed || consumedInGame;
-		// Custos próprios de ativação (ex. Fúria paga PV) NÃO são efeito.
-		const activationOnly = entry.prepared || !confirmed;
-		const newDamageFeedback = step.after.damageFeedback.slice(step.before.damageFeedback.length);
-		const enemyLifeLost = step.before.enemies.some((old) => {
-			const current = step.after.enemies.find((enemy) => enemy.id === old.id);
-			return current && current.currentLife < old.currentLife;
-		});
-		const chargeOnlyHeroDamage = (action.type === "USE_SKILL" || action.type === "USE_POWER") &&
-			!enemyLifeLost && newDamageFeedback.length === 0;
-		const effectKinds = activationOnly ? [] : changes.kinds.filter((kind) =>
-			kind !== "damage" || !chargeOnlyHeroDamage);
-		const affectedIds = activationOnly || effectKinds.length === 0 ? [] : changes.targets.filter((id) => {
-			if (!chargeOnlyHeroDamage || id !== entry.sourceHeroId) return true;
-			return effectKinds.some((kind) => kind !== "damage");
-		});
+		const exhausted = beforeAction && beforeAction.status !== "exhausted" && afterAction?.status === "exhausted";
+		const chargeConsumed = !consumedKeys.has(key) && Boolean(consumedInGame || exhausted);
+		if (chargeConsumed) consumedKeys.add(key);
+		const confirmed = entry.confirmed || chargeConsumed;
+		const expected = declaredEffectKinds(engine, entry.abilityId);
+		const direct = action.type === "USE_SKILL" || action.type === "USE_POWER" ||
+			action.type === "SKILL_CHOICE" || action.type === "SELECT_SKILL_TARGET" ||
+			action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SELECT_DIE";
+		const effectKinds: EffectKind[] = [];
+		const affected = new Set<string>();
+		if (confirmed && !entry.prepared && direct) for (const kind of expected) {
+			const changesForKind = changes.byKind[kind];
+			if (!changesForKind) continue;
+			if (kind === "dice" &&
+				(action.type !== "SELECT_DIE" || dicePending?.skillId !== entry.abilityId)) continue;
+			if (kind === "modifier") {
+				const ownModifiers = changes.modifiers.filter((modifier) =>
+					modifier.source.includes(entry.abilityId));
+				if (!ownModifiers.length) continue;
+				for (const modifier of ownModifiers) if (modifier.targetId) affected.add(modifier.targetId);
+			} else if (kind === "damage") {
+				// Dano recebido por custo (Fúria) ou por ataque/veneno paralelo não
+				// é evidência de dano causado pela habilidade. Apenas um dano direto
+				// a inimigo alvo durante ativação manual pode ser atribuído.
+				if (action.type !== "USE_SKILL" && action.type !== "USE_POWER" &&
+					action.type !== "SKILL_CHOICE") continue;
+				const directTargets = changesForKind.filter((id) =>
+					id !== entry.sourceHeroId && step.before.enemies.some((enemy) => enemy.id === id) &&
+					(entry.targetIds.length === 0 || entry.targetIds.includes(id)));
+				if (!directTargets.length) continue;
+				for (const id of directTargets) affected.add(id);
+			} else {
+				if (kind === "healing" || kind === "condition" || kind === "resource") {
+					const matching = changesForKind.filter((id) => entry.targetIds.length === 0 ||
+						entry.targetIds.includes(id));
+					if (!matching.length) continue;
+					for (const id of matching) affected.add(id);
+				} else for (const id of changesForKind) affected.add(id);
+			}
+			effectKinds.push(kind);
+		}
 		return {
-			...entry, confirmed, chargeConsumed, effectKinds, affectedIds,
-			targetIds: [...new Set([...entry.targetIds, ...affectedIds])],
+			...entry, confirmed, chargeConsumed, effectKinds,
+			affectedIds: [...affected], targetIds: [...new Set([...entry.targetIds, ...affected])],
 		};
 	});
 }
