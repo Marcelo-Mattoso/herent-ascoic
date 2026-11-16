@@ -23,7 +23,7 @@ import { checkCosts, payCosts } from "../../engine/cost";
 import { awakeningCost, lifeCostOf } from "./costs";
 import type { GameEngine } from "../gameEngine";
 
-import { deckOf, decksOf, heroOf, withDecks } from "../state/access";
+import { deckOf, decksOf, heroOf, pendingSkillChoiceOf, withDecks } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 export type AbilityGrantSourceKind =
 	| "hero"
@@ -326,8 +326,17 @@ export function executeAbilityGrant(engine: GameEngine,
 		}
 	}
 	if (!request.deferUsage) next = markGrantUsed(engine, next, source, grant);
-	if (grant.activation.actionCost === "consume_hero_action" && source.sourceHeroId) {
-		next = ActivationTracker.endHeroTurn(next, source.sourceHeroId);
+	const definition = skillById(engine, grant.abilityId);
+	const actionCost = definition?.action_cost ?? grant.activation.actionCost;
+	// A escolha e a seleção do dado são decisões posteriores: só a confirmação
+	// efetiva do efeito pode consumir a ação de quem o preparou.
+	if (!request.deferUsage && !pendingSkillChoiceOf(next) &&
+		!gameOf(next).combat?.pendingDiceSelection) {
+		next = ActivationTracker.chargeAbilityAction(
+			next, source.sourceHeroId, grant.abilityId, actionCost, {
+				attackerHeroId: gameOf(next).combat?.lastRoll?.heroId,
+			},
+		);
 	}
 	return appendAlphaLog(next,
 		`Habilidade ${skillName(engine, ability.id)} ativada por ${cardName(engine, source.cardId)} (${source.sourceHeroId ?? source.sourceEnemyId ?? "grupo"}); evento ${triggeredBy}; alvos [${targetIds.join(", ") || "nenhum"}]; parâmetros ${JSON.stringify(params)}.`);
