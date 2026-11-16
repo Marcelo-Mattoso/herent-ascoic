@@ -1,4 +1,4 @@
-import { classifyTrial, type BenchmarkTrial } from "./dungeonBenchmark";
+import { BENCHMARK_DIFFICULTIES, classifyTrial, type BenchmarkTrial } from "./dungeonBenchmark";
 import type { RoomEncounterTelemetry } from "./encounterTelemetry";
 
 export interface AbilityActivitySummary {
@@ -12,6 +12,33 @@ export interface AbilityActivitySummary {
 	readonly powerActivations: number;
 	readonly triggersAccepted: number;
 	readonly triggersSkipped: number;
+}
+
+export interface AbilityLifecycleDiagnostic {
+	readonly abilityId: string;
+	readonly attempted: number;
+	readonly prepared: number;
+	readonly confirmed: number;
+	readonly effectsObserved: number;
+	readonly chargesConsumed: number;
+}
+
+export interface ExpansionParityDiagnostic {
+	readonly reference: string;
+	readonly comparison: string;
+	/** Tolerância indicativa em pontos percentuais absolutos, não desvio relativo. */
+	readonly targetGapPercentagePoints: number;
+	readonly byDifficulty: readonly {
+		readonly difficulty: BenchmarkTrial["difficulty"];
+		readonly referenceGames: number;
+		readonly comparisonGames: number;
+		readonly referenceWinRate: number;
+		readonly comparisonWinRate: number;
+		readonly referenceStalls: number;
+		readonly comparisonStalls: number;
+		readonly absoluteGapPercentagePoints: number;
+		readonly outsideTarget: boolean | null;
+	}[];
 }
 
 export interface HeroBalanceDiagnostic {
@@ -56,6 +83,13 @@ export interface BenchmarkDiagnostics {
 	/** Diagnóstico desagregado de heróis: chegada ao chefe x vitória no chefe. */
 	readonly heroBalance: readonly HeroBalanceDiagnostic[];
 	readonly abilityActivity: readonly AbilityActivitySummary[];
+	/** Ciclo de habilidade: escolha não é confirmação nem efeito. */
+	readonly abilityLifecycle: readonly AbilityLifecycleDiagnostic[];
+	readonly abilityLifecycleBySource: Readonly<Record<string, Omit<AbilityLifecycleDiagnostic, "abilityId">>>;
+	readonly abilityEffectsByTarget: Readonly<Record<string, number>>;
+	readonly abilityEffectKinds: Readonly<Record<string, number>>;
+	/** Diferença entre base e bruxa por dificuldade, escopo solo. */
+	readonly expansionParity: ExpansionParityDiagnostic;
 	/** Origem (carta/habilidade) de cada ponto de dano periódico efetivo de veneno. */
 	readonly poisonDamageBySource: Readonly<Record<string, { toHeroes: number; toEnemies: number; ticks: number }>>;
 	/** Motivo | removedor | origem do status: quantidade de stacks encerrados. */
@@ -94,6 +128,17 @@ export interface BenchmarkDiagnostics {
  */
 export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): BenchmarkDiagnostics {
 	const stats = new Map<string, Omit<AbilityActivitySummary, "abilityId">>();
+	const lifecycle = new Map<string, Omit<AbilityLifecycleDiagnostic, "abilityId">>();
+	const lifecycleBySource: Record<string, Omit<AbilityLifecycleDiagnostic, "abilityId">> = {};
+	const effectsByTarget: Record<string, number> = {};
+	const effectKinds: Record<string, number> = {};
+	const freshLifecycle = () => ({ attempted: 0, prepared: 0, confirmed: 0,
+		effectsObserved: 0, chargesConsumed: 0 });
+	const tallyLifecycle = (id: string, field: keyof ReturnType<typeof freshLifecycle>, n: number) => {
+		const current = lifecycle.get(id) ?? freshLifecycle();
+		current[field] += n;
+		lifecycle.set(id, current);
+	};
 	const add = (values: Readonly<Record<string, number>> | undefined,
 		field: keyof Omit<AbilityActivitySummary, "abilityId">) => {
 		for (const [abilityId, amount] of Object.entries(values ?? {})) {
@@ -221,6 +266,21 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		xpPolicy.itemsBoughtWhileLevelAvailable += trial.progression?.itemsBoughtWhileLevelAvailable ?? 0;
 		xpPolicy.artifactsBoughtWhileLevelAvailable += trial.progression?.artifactsBoughtWhileLevelAvailable ?? 0;
 		xpPolicy.dungeonRecoveries += trial.progression?.dungeonRecoveries ?? 0;
+		const observed = trial.progression?.abilityLifecycle;
+		for (const [field, entries] of [
+			["attempted", observed?.attemptedById], ["prepared", observed?.preparedById],
+			["confirmed", observed?.confirmedById], ["effectsObserved", observed?.effectsObservedById],
+			["chargesConsumed", observed?.chargesConsumedById],
+		] as const) for (const [id, count] of Object.entries(entries ?? {}))
+			tallyLifecycle(id, field, count);
+		for (const [source, value] of Object.entries(observed?.bySource ?? {})) {
+			const current = lifecycleBySource[source] ?? freshLifecycle();
+			for (const field of ["attempted", "prepared", "confirmed", "effectsObserved", "chargesConsumed"] as const)
+				current[field] += value[field];
+			lifecycleBySource[source] = current;
+		}
+		addCounts(effectsByTarget, observed?.effectsByTarget);
+		addCounts(effectKinds, observed?.effectKindsById);
 		const activity = trial.progression?.abilityActivity;
 		add(activity?.preparationsById, "preparations");
 		add(activity?.armedById, "armed");
@@ -264,7 +324,31 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		entry.violation === "runner_exception").length;
 	const stalls = trials.filter((entry) => classifyTrial(entry) === "stall").length;
 	const sameOutcomeRate = pairedGames ? sameOutcome / pairedGames : null;
+	const parityReference = "fornalha-sombria";
+	const parityComparison = "torre-grande-bruxa-caldeirao";
+	const targetGapPercentagePoints = 7;
+	const parityByDifficulty = BENCHMARK_DIFFICULTIES.map((difficulty) => {
+		const reference = trials.filter((trial) => trial.expansionId === parityReference && trial.difficulty === difficulty);
+		const comparison = trials.filter((trial) => trial.expansionId === parityComparison && trial.difficulty === difficulty);
+		const referenceWinRate = reference.length ? reference.filter((trial) => classifyTrial(trial) === "victory").length / reference.length : 0;
+		const comparisonWinRate = comparison.length ? comparison.filter((trial) => classifyTrial(trial) === "victory").length / comparison.length : 0;
+		const absoluteGapPercentagePoints = Math.abs(referenceWinRate - comparisonWinRate) * 100;
+		// Amostras pequenas não devem produzir um alerta de balanceamento falso.
+		return { difficulty, referenceGames: reference.length, comparisonGames: comparison.length,
+			referenceWinRate, comparisonWinRate,
+			referenceStalls: reference.filter((trial) => classifyTrial(trial) === "stall").length,
+			comparisonStalls: comparison.filter((trial) => classifyTrial(trial) === "stall").length,
+			absoluteGapPercentagePoints,
+			outsideTarget: reference.length >= 100 && comparison.length >= 100
+				? absoluteGapPercentagePoints > targetGapPercentagePoints : null };
+	});
+	const expansionParity: ExpansionParityDiagnostic = {
+		reference: parityReference, comparison: parityComparison,
+		targetGapPercentagePoints, byDifficulty: parityByDifficulty,
+	};
 	const warnings: string[] = [];
+	for (const row of expansionParity.byDifficulty) if (row.outsideTarget)
+		warnings.push(`Base × Bruxa (${row.difficulty}): diferença de ${row.absoluteGapPercentagePoints.toFixed(1)} p.p. supera meta indicativa de ±${targetGapPercentagePoints} p.p. (solo; verificar IA, impasses e amostra antes de balancear cartas)`);
 	if (errors) warnings.push(`${errors} partida(s) encerraram por exceção; verificar violationMessage`);
 	if (poisonAttributionGap) warnings.push(
 		`Dano de veneno sem origem identificada: ${poisonAttributionGap} PV (verificar importação/continuações)`);
@@ -290,6 +374,10 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		poison, poisonByExpansion,
 		poisonDamageBySource, poisonRemovalBySource, poisonApplicationsBySource, poisonBlockedBySource,
 		witchBossPoisonTicks, heartHeldAtWitchBossTicks, bossByExpansion, xpPolicy, stallsByReason,
+		abilityLifecycle: [...lifecycle.entries()].map(([abilityId, values]) =>
+			({ abilityId, ...values })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
+		abilityLifecycleBySource: lifecycleBySource, abilityEffectsByTarget: effectsByTarget,
+		abilityEffectKinds: effectKinds, expansionParity,
 		abilityActivity: [...stats.entries()].map(([abilityId, summary]) =>
 			({ abilityId, ...summary })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
 		warnings,
