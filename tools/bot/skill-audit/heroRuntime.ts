@@ -180,8 +180,8 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 		s = power(s, id);
 		ensure(ids.every((h, i) => hasModifier(s, h, "damage_taken") === before[i]! - 1),
 			powerId + ": proteção de 1 ponto não chegou a todos os aliados");
-		ensure(canStartHeroAttack(s, id, "audit-enemy"),
-			powerId + ": proteção coletiva consumiu o ataque");
+		ensure(!canStartHeroAttack(s, id, "audit-enemy"),
+			powerId + ": proteção coletiva não consumiu a ação de suporte");
 	};
 
 	const checkRecoveryPower = (cardId: string, abilityId: string, count: number) => {
@@ -204,8 +204,8 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 			"Misericórdia das Cinzas Brancas não restaurou a vida totalmente");
 		ensure(gameOf(s).oncePer.game["witch_power_white_ash_mercy::" + id],
 			"Misericórdia não registrou limite uma vez por jogo");
-		ensure(canStartHeroAttack(s, id, "audit-enemy"),
-			"Misericórdia consumiu o ataque");
+		ensure(!canStartHeroAttack(s, id, "audit-enemy"),
+			"Misericórdia não consumiu a ação de cura");
 	};
 
 	const checkMiracle = () => {
@@ -216,8 +216,8 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 		s = choose(s, "full_heal");
 		ensure(heroesOf(s)[0]!.currentLife === heroesOf(s)[0]!.maxLife,
 			"Milagre da Última Luz não aplicou cura completa");
-		ensure(canStartHeroAttack(s, id, "audit-enemy"),
-			"Milagre consumiu o ataque");
+		ensure(!canStartHeroAttack(s, id, "audit-enemy"),
+			"Milagre não consumiu a ação de cura");
 	};
 
 	const checkLastLightOath = () => {
@@ -228,8 +228,8 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 		s = choose(s, "heal_all");
 		ensure(heroesOf(s).every((h) => h.currentLife === h.maxLife),
 			"Juramento da Última Luz não curou os dois heróis");
-		ensure(canStartHeroAttack(s, ids[0]!, "audit-enemy"),
-			"Juramento consumiu o ataque");
+		ensure(!canStartHeroAttack(s, ids[0]!, "audit-enemy"),
+			"Juramento de cura não consumiu a ação de suporte");
 	};
 
 	const checkMightyCrimson = () => {
