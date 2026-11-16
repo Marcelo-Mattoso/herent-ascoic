@@ -385,7 +385,7 @@ export function runBenchmarkCase(
 			if (evidence.chargeConsumed) increment(chargesConsumedById, abilityId);
 			if (evidence.effectKinds.length) increment(effectsObservedById, abilityId);
 			for (const kind of evidence.effectKinds) increment(effectKindsById, `${abilityId}::${kind}`);
-			if (evidence.effectKinds.length) for (const targetId of evidence.targetIds) {
+			if (evidence.effectKinds.length) for (const targetId of evidence.affectedIds) {
 				const target = [...step.before.heroes, ...step.before.enemies].find((unit) => unit.id === targetId);
 				if (target) increment(effectsByTarget, `${abilityId}::${target.cardId}`);
 			}
