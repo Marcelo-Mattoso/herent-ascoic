@@ -73,7 +73,7 @@ export function playAiGame(
 			const sameEncounter = previous !== null && previous.room === obs.view.roomsCleared &&
 				Object.keys(enemyLife).length === Object.keys(previous.enemyLife).length &&
 				Object.keys(enemyLife).every((id) => id in previous.enemyLife);
-			if (!sameEncounter) stagnantRounds = 0;
+			if (!previous || !sameEncounter) stagnantRounds = 0;
 			else if (Object.entries(enemyLife).some(([id, hp]) => hp < (previous.enemyLife[id] ?? hp)))
 				stagnantRounds = 0;
 			else if (round > previous.round) stagnantRounds += round - previous.round;
