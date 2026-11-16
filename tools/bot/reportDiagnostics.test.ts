@@ -143,6 +143,49 @@ describe("diagnósticos P0", () => {
 		expect(row?.abilityChosenAtBossById).toEqual({ skill_rift_rune: 2 });
 	});
 
+	it("agrega preparação, efeito observável e carga separadamente, por fonte e alvo", () => {
+		const record = { ...trial("normal", 1), progression: {
+			xpGained: 0, xpSpent: 0, xpOtherLoss: 0, xpFinal: 0, levelUpNoEffect: 0,
+			abilityLifecycle: {
+				attemptedById: { "skill_last_light_healing": 2 },
+				preparedById: { "skill_last_light_healing": 1 },
+				confirmedById: { "skill_last_light_healing": 1 },
+				effectsObservedById: { "skill_last_light_healing": 1 },
+				chargesConsumedById: {},
+				bySource: { "hero_eternal_rest_cleric::skill_last_light_healing": {
+					attempted: 2, prepared: 1, confirmed: 1, effectsObserved: 1, chargesConsumed: 0,
+				} },
+				effectsByTarget: { "skill_last_light_healing::hero_eternal_rest_cleric": 1 },
+				effectKindsById: { "skill_last_light_healing::healing": 1 },
+			},
+		} as ProgressionTelemetry };
+		const diagnostic = summarizeReportDiagnostics([record, record]);
+		expect(diagnostic.abilityLifecycle).toContainEqual(expect.objectContaining({
+			abilityId: "skill_last_light_healing", attempted: 4, prepared: 2,
+			confirmed: 2, effectsObserved: 2, chargesConsumed: 0,
+		}));
+		expect(diagnostic.abilityLifecycleBySource["hero_eternal_rest_cleric::skill_last_light_healing"])
+			.toMatchObject({ attempted: 4, effectsObserved: 2 });
+		expect(diagnostic.abilityEffectsByTarget["skill_last_light_healing::hero_eternal_rest_cleric"]).toBe(2);
+	});
+
+	it("compara Fornalha e Bruxa por dificuldade com tolerância indicativa de sete p.p.", () => {
+		const cases = Array.from({ length: 100 }, (_, seed) => [
+			{ ...trial("normal", seed, seed < 60 ? "VICTORY" : "DEFEAT"),
+				expansionId: "fornalha-sombria" },
+			{ ...trial("normal", seed, seed < 45 ? "VICTORY" : "DEFEAT"),
+				expansionId: "torre-grande-bruxa-caldeirao" },
+		]).flat();
+		const diagnostic = summarizeReportDiagnostics(cases);
+		const normal = diagnostic.expansionParity.byDifficulty.find((row) => row.difficulty === "normal");
+		expect(normal).toMatchObject({ referenceGames: 100, comparisonGames: 100,
+			referenceWinRate: 0.6, comparisonWinRate: 0.45, outsideTarget: true });
+		expect(normal?.absoluteGapPercentagePoints).toBeCloseTo(15);
+		expect(diagnostic.warnings.some((warning) => warning.includes("Base × Bruxa (normal)"))).toBe(true);
+		const small = summarizeReportDiagnostics(cases.slice(0, 8));
+		expect(small.expansionParity.byDifficulty.find((row) => row.difficulty === "normal")?.outsideTarget).toBeNull();
+	});
+
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
 		const summary = summarizeReportDiagnostics([
 			trial("normal", 3, "ERROR", { xpGained: 5, xpSpent: 2,
