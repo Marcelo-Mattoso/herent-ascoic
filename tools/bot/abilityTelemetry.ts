@@ -9,6 +9,7 @@
 import type { AiStep } from "./ai";
 import { gameOf } from "@/engine/state";
 import type { PlayerView } from "@/core/projection/playerView";
+import { skillById, skillOwners, type GameEngine } from "@/core/gameEngine";
 
 export interface AbilityStepEvidence {
 	readonly abilityId: string;
@@ -24,55 +25,90 @@ export interface AbilityStepEvidence {
 	readonly effectKinds: readonly string[];
 }
 
-function differences(before: PlayerView, after: PlayerView): {
-	kinds: string[]; targets: string[];
-} {
-	const kinds = new Set<string>();
-	const targets = new Set<string>();
+type EffectKind = "healing" | "damage" | "condition" | "modifier" | "dice" | "dungeonDeck" | "resourceDeck" | "resource";
+type ObservedChanges = {
+	readonly byKind: Readonly<Partial<Record<EffectKind, readonly string[]>>>;
+	readonly modifiers: readonly { source: string; targetId?: string }[];
+};
+
+/** Mudanças de estado são sinais, não evidência de que TODA habilidade armada as causou. */
+function differences(before: PlayerView, after: PlayerView): ObservedChanges {
+	const byKind = {} as Partial<Record<EffectKind, string[]>>;
+	const add = (kind: EffectKind, id?: string) => {
+		const targetIds = byKind[kind] ?? [];
+		if (id && !targetIds.includes(id)) targetIds.push(id);
+		byKind[kind] = targetIds;
+	};
 	const checkLife = (old: readonly { id: string; currentLife: number; conditions?: readonly string[] }[],
 		next: readonly { id: string; currentLife: number; conditions?: readonly string[] }[]) => {
 		for (const previous of old) {
 			const current = next.find((entry) => entry.id === previous.id);
 			if (!current) continue;
-			if (current.currentLife > previous.currentLife) { kinds.add("healing"); targets.add(previous.id); }
-			if (current.currentLife < previous.currentLife) { kinds.add("damage"); targets.add(previous.id); }
-			if (JSON.stringify(current.conditions) !== JSON.stringify(previous.conditions)) {
-				kinds.add("condition"); targets.add(previous.id);
-			}
+			if (current.currentLife > previous.currentLife) add("healing", previous.id);
+			if (current.currentLife < previous.currentLife) add("damage", previous.id);
+			if (JSON.stringify(current.conditions) !== JSON.stringify(previous.conditions))
+				add("condition", previous.id);
 		}
 	};
 	checkLife(before.heroes, after.heroes);
 	checkLife(before.enemies, after.enemies);
-	const oldInfluences = new Set(before.activeInfluences.map((entry) => entry.id));
+	const previousInfluences = new Set(before.activeInfluences.map((entry) => entry.id));
+	const modifiers: { source: string; targetId?: string }[] = [];
 	for (const influence of after.activeInfluences) {
-		if (!oldInfluences.has(influence.id)) {
-			kinds.add("modifier");
-			if ("id" in influence.to) targets.add(influence.to.id);
-		}
+		if (previousInfluences.has(influence.id)) continue;
+		const targetId = "id" in influence.to ? influence.to.id : undefined;
+		modifiers.push({ source: influence.source, targetId });
+		add("modifier", targetId);
 	}
 	const oldRoll = before.combat?.lastRoll;
 	const newRoll = after.combat?.lastRoll;
 	if (oldRoll && newRoll &&
 		(JSON.stringify(oldRoll.heroResults) !== JSON.stringify(newRoll.heroResults) ||
-		 JSON.stringify(oldRoll.enemyResults) !== JSON.stringify(newRoll.enemyResults)))
-		kinds.add("dice");
-	const oldDeck = before.decks;
-	const newDeck = after.decks;
-	if (oldDeck.dungeonDeck.available !== newDeck.dungeonDeck.available ||
-		oldDeck.dungeonDeck.discarded.length !== newDeck.dungeonDeck.discarded.length)
-		kinds.add("dungeonDeck");
-	if (oldDeck.itemDeck.available.length !== newDeck.itemDeck.available.length ||
-		oldDeck.itemDeck.discarded !== newDeck.itemDeck.discarded ||
-		oldDeck.artifactDeck.available.length !== newDeck.artifactDeck.available.length)
-		kinds.add("resourceDeck");
+		JSON.stringify(oldRoll.enemyResults) !== JSON.stringify(newRoll.enemyResults))) add("dice");
+	if (before.decks.dungeonDeck.available !== after.decks.dungeonDeck.available ||
+		before.decks.dungeonDeck.discarded.length !== after.decks.dungeonDeck.discarded.length)
+		add("dungeonDeck");
+	if (before.decks.itemDeck.available.length !== after.decks.itemDeck.available.length ||
+		before.decks.itemDeck.discarded !== after.decks.itemDeck.discarded ||
+		before.decks.artifactDeck.available.length !== after.decks.artifactDeck.available.length)
+		add("resourceDeck");
 	for (const hero of before.heroes) {
 		const updated = after.heroes.find((entry) => entry.id === hero.id);
-		if (updated && updated.eco !== hero.eco) { kinds.add("resource"); targets.add(hero.id); }
+		if (updated && updated.eco !== hero.eco) add("resource", hero.id);
 	}
-	return { kinds: [...kinds], targets: [...targets] };
+	return { byKind, modifiers };
 }
 
-export function observeAbilityStep(step: AiStep): readonly AbilityStepEvidence[] {
+/** Tipos explicitamente previstos pela DSL (inclusive ramos de escolhas). */
+function declaredEffectKinds(engine: GameEngine, abilityId: string): ReadonlySet<EffectKind> {
+	const kinds = new Set<EffectKind>();
+	const definition = skillById(engine, abilityId);
+	const visit = (node: unknown): void => {
+		if (Array.isArray(node)) { for (const child of node) visit(child); return; }
+		if (!node || typeof node !== "object") return;
+		const value = node as Record<string, unknown>;
+		switch (value.kind) {
+			case "i_heal": case "i_full_heal": kinds.add("healing"); break;
+			case "i_damage": kinds.add("damage"); break;
+			case "p_modifier": kinds.add("modifier"); break;
+			case "i_apply_poison": case "i_remove_poison": kinds.add("condition"); break;
+			case "i_recover_dungeon": case "i_discard": kinds.add("dungeonDeck"); break;
+			case "i_draw": case "i_draw_item": case "i_draw_artifact": kinds.add("resourceDeck"); break;
+			case "i_set_die": case "i_reroll": kinds.add("dice"); break;
+		}
+		for (const [key, child] of Object.entries(value)) {
+			if (key !== "kind") visit(child);
+		}
+	};
+	visit(definition?.effect);
+	// Implementações em script sem efeito declarativo equivalente.
+	if (abilityId === "skill_rift_rune") kinds.add("modifier");
+	if (abilityId === "power_supreme_rift_rune" || abilityId === "witch_power_green_eclipse" ||
+		abilityId === "witch_skill_lunar_spark") kinds.add("dice");
+	return kinds;
+}
+
+export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly AbilityStepEvidence[] {
 	const action = step.chosen.action;
 	const beforeGame = gameOf(step.beforeState);
 	const afterGame = gameOf(step.afterState);
