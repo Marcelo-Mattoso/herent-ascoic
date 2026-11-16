@@ -128,8 +128,10 @@ export interface BenchmarkDiagnostics {
  */
 export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): BenchmarkDiagnostics {
 	const stats = new Map<string, Omit<AbilityActivitySummary, "abilityId">>();
-	const lifecycle = new Map<string, Omit<AbilityLifecycleDiagnostic, "abilityId">>();
-	const lifecycleBySource: Record<string, Omit<AbilityLifecycleDiagnostic, "abilityId">> = {};
+	type MutableLifecycleCounts = { attempted: number; prepared: number; confirmed: number;
+		effectsObserved: number; chargesConsumed: number };
+	const lifecycle = new Map<string, MutableLifecycleCounts>();
+	const lifecycleBySource: Record<string, MutableLifecycleCounts> = {};
 	const effectsByTarget: Record<string, number> = {};
 	const effectKinds: Record<string, number> = {};
 	const freshLifecycle = () => ({ attempted: 0, prepared: 0, confirmed: 0,
