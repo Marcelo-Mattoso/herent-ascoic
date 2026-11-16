@@ -378,7 +378,6 @@ function ActionSection({
 	onUseItem?: () => void;
 }) {
 	const {
-		canAttack,
 		canPass,
 		canCancel,
 		canUsePower,
