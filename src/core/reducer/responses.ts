@@ -14,7 +14,9 @@ import { fireTriggerDecision, triggerDecisionFlag } from "../triggers/engine";
 import { applyDamage, continueDamage } from "../systems/damageSystem";
 import type { GameState } from "../state/gameState";
 import type { GameEngine, GameHandler } from "../gameEngine";
-import { skillById, skillName } from "../gameEngine";
+import { abilityGrants, skillById, skillName } from "../gameEngine";
+import { markGrantUsed } from "../abilities/executor";
+import { markSkillGuardUsed } from "../triggers/engine";
 import { gameOf, withGame } from "../../engine/state";
 import { ActivationTracker } from "../state/activation";
 import {
@@ -221,17 +223,32 @@ function resolveSkillChoice(
 		});
 	};
 	const finishChoice = (next: GameState, appliedChoice?: string) => {
-		// A ação não é consumida ao preparar ou abrir um modal. Só a escolha
-		// efetivamente aplicada pode cobrar a ação do herói de suporte.
-		const cost = skillById(engine, pending.skillId)?.action_cost;
+		const definition = skillById(engine, pending.skillId);
+		// Usos únicos ficam pendentes até uma escolha real: dispensar o modal
+		// não gasta o poder. Para poderes de dado, SELECT_DIE faz o commit.
+		let applied = next;
+		if (appliedChoice && pending.sourceHeroId && pending.sourceCardId &&
+			pending.skillId !== "witch_power_green_eclipse") {
+			const owner = gameOf(applied).heroes.find((hero) =>
+				hero.id === pending.sourceHeroId && hero.cardId === pending.sourceCardId);
+			if (owner) {
+				const grant = abilityGrants(engine, pending.sourceCardId).find((entry) =>
+					entry.abilityId === pending.skillId);
+				applied = grant
+					? markGrantUsed(engine, applied, {
+						kind: "hero", cardId: owner.cardId, sourceHeroId: owner.id,
+					}, grant)
+					: definition ? markSkillGuardUsed(applied, definition, owner.id) : applied;
+			}
+		}
 		const charged = appliedChoice && pending.skillId !== "witch_power_green_eclipse"
 			? ActivationTracker.chargeAbilityAction(
-				next, pending.sourceHeroId, pending.skillId, cost, {
+				applied, pending.sourceHeroId, pending.skillId, definition?.action_cost, {
 					choiceId: appliedChoice,
-					attackerHeroId: gameOf(next).combat?.lastRoll?.heroId,
+					attackerHeroId: gameOf(applied).combat?.lastRoll?.heroId,
 				},
 			)
-			: next;
+			: applied;
 		const newlyUsed = !!pending.sourceHeroId &&
 			!gameOf(state).combat?.heroesActed.includes(pending.sourceHeroId) &&
 			!!gameOf(charged).combat?.heroesActed.includes(pending.sourceHeroId);
