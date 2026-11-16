@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type AiGameResult, playAiGame, rankMoves } from "./ai";
+import { type AiGameResult, playAiGame, rankMoves, scoreMoves } from "./ai";
 import { setupFromSeed } from "./play";
 import { setupForRun } from "./profiles";
 import { createHeadlessPort } from "./port";
@@ -80,6 +80,57 @@ describe("IA do bot", () => {
 				skillId: ability.abilityId, sourceId: heroId, targetIds: [heroId],
 			},
 		});
+	});
+
+	it("cura manual compete com ataque e só toma a vez diante de risco real", () => {
+		const port = createHeadlessPort({ ...setupForRun(1, ["hero_eternal_rest_cleric"], "normal"),
+			bossCardId: "boss_azhakar" });
+		const obs = port.observe();
+		const hero = obs.view.heroes[0]!;
+		const enemy = { ...hero, id: "enemy-1", cardId: "creature_deep_rift_rat",
+			status: "active" as const, currentLife: 10, maxLife: 10,
+			damage: 3, dice: 1, hitBonus: 0 };
+		const action = { type: "CHOOSE_TARGET", payload: { heroId: hero.id, enemyId: enemy.id } } as const;
+		const ability = (obs.abilities[hero.id] ?? []).find((entry) =>
+			entry.abilityId === "skill_last_light_healing");
+		expect(ability).toBeDefined();
+		const scenario = (hp: number) => ({
+			view: { ...obs.view, status: "HERO_ACTION" as const,
+				heroes: [{ ...hero, currentLife: hp }],
+				enemies: [enemy], combat: { round: 1, heroesActed: [], buffsByHero: {} } },
+			actions: [action],
+			abilities: { [hero.id]: [{ ...ability!, activation: "manual_prepare" as const,
+				status: "available" as const, validTargetIds: [hero.id] }] },
+		}) as unknown as BotObservation;
+		const safe = scenario(hero.maxLife - 2);
+		expect(rankMoves(safe, "power-player")[0]).toMatchObject(action);
+		const desperate = scenario(2);
+		expect(rankMoves(desperate, "power-player")[0]).toMatchObject({
+			type: "USE_SKILL", payload: { skillId: "skill_last_light_healing" },
+		});
+		// Após três rodadas sem atingir o inimigo, até a cura de emergência
+		// deixa de bloquear a progressão ofensiva indefinidamente.
+		expect(scoreMoves(desperate, "power-player", 1, 0, { stagnantRounds: 3 })[0]?.action)
+			.toMatchObject(action);
+	});
+
+	it("o Mago solo não abre mão de matar o inimigo para renovar um buff", () => {
+		const port = createHeadlessPort({ ...setupForRun(1, ["hero_crimson_rune_mage"], "normal"),
+			bossCardId: "boss_azhakar" });
+		const obs = port.observe();
+		const hero = obs.view.heroes[0]!;
+		const enemy = { ...hero, id: "enemy-2", cardId: "creature_deep_rift_rat",
+			status: "active" as const, currentLife: 1, maxLife: 8,
+			damage: 2, dice: 1, hitBonus: 0 };
+		const attack = { type: "CHOOSE_TARGET", payload: { heroId: hero.id, enemyId: enemy.id } } as const;
+		const rune = (obs.abilities[hero.id] ?? []).find((entry) => entry.abilityId === "skill_rift_rune");
+		expect(rune).toBeDefined();
+		const ready = { view: { ...obs.view, status: "HERO_ACTION" as const,
+			combat: { round: 1, heroesActed: [], buffsByHero: {} }, enemies: [enemy] },
+			actions: [attack], abilities: { [hero.id]: [{ ...rune!, status: "available" as const,
+				activation: "manual_prepare" as const, validTargetIds: [hero.id] }] },
+		} as unknown as BotObservation;
+		expect(rankMoves(ready, "power-player")[0]).toMatchObject(attack);
 	});
 
 	it("joga sem violar invariantes", () => {
