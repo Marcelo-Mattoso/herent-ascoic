@@ -23,7 +23,7 @@ describe("Arquivo IV: checkpoints do motor", () => {
 		expect(gameOf(state).combat?.heroesActed).toContain(heroId);
 	});
 
-	it("prepara Fúria, executa uma vez no ataque e preserva o poder manual do Guerreiro", () => {
+	it("prepara Fúria, executa uma vez no ataque e consome a ação do poder do Guerreiro", () => {
 		let state = prepareAbilityEncounter(testEngine, ABILITY_BARBARIAN);
 		const heroId = heroesOf(state)[0].id;
 		state = reducer(testEngine, state, { type: "USE_SKILL", payload: { skillId: CRIMSON_FURY, sourceId: heroId } });
@@ -45,7 +45,7 @@ describe("Arquivo IV: checkpoints do motor", () => {
 		expect(playerView(testEngine, power).abilityActionsByHero[powerHeroId].find((entry) => entry.abilityId === BASTION_POWER)?.status).toBe("available");
 		power = reducer(testEngine, power, { type: "USE_POWER", payload: { heroId: powerHeroId } });
 		expect(gameOf(power).oncePer.game[`${BASTION_POWER}::${powerHeroId}`]).toBe(true);
-		expect(gameOf(power).combat?.heroesActed).toEqual([]);
+		expect(gameOf(power).combat?.heroesActed).toContain(powerHeroId);
 		expect(playerView(testEngine, power).abilityActionsByHero[powerHeroId].find((entry) => entry.abilityId === BASTION_POWER)?.status).toBe("exhausted");
 	});
 });

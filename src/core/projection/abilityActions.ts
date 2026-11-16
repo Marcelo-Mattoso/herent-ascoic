@@ -21,7 +21,7 @@ export interface AbilityActionView {
 	readonly sourceCardId: string;
 	readonly label: string;
 	readonly kind: "skill" | "power" | "item";
-	readonly activation: "manual" | "prepare" | "passive";
+	readonly activation: "manual" | "manual_prepare" | "prepare" | "passive";
 	readonly status: "available" | "prepared" | "active" | "exhausted" | "unavailable";
 	readonly reason?: string;
 	readonly targetRequired: boolean;
@@ -53,11 +53,14 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 		.map(({ def, ref }): AbilityActionView => {
 			const voluntary = def.operate_type === "op_triggered" &&
 				isVoluntaryTrigger(def, "hero", def.trigger!.event);
-			const activation = isManuallyActivatable(def) ? "manual" as const
+			const manualPrepare = isManuallyActivatable(def) &&
+				def.category === "hero_skill" && def.action_cost === "consume_hero_action";
+			const activation = manualPrepare ? "manual_prepare" as const
+				: isManuallyActivatable(def) ? "manual" as const
 				: voluntary ? "prepare" as const : "passive" as const;
 			const key = preparedAbilityKey("hero", heroId, hero.cardId, def.id);
 			const prepared = isAbilityPrepared(state, key);
-			const target = activation === "manual"
+			const target = isManuallyActivatable(def)
 				? resolveManualSkillTarget(engine, state, def, heroId)
 				: null;
 			const targets = target?.kind === "needs_selection"
@@ -81,9 +84,10 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 						? commonUnavailable(state, heroId, true) : commonReason) ??
 					(preyAlreadyMarked ? "Derrote a Presa atual antes de marcar outra."
 					: hero.currentLife <= (def.cost?.hp ?? 0) ? "Vida insuficiente para pagar o custo."
-						: target?.kind === "unavailable" ? target.reason : null);
-			const status = prepared ? "prepared" as const
-				: exhausted ? "exhausted" as const
+						: (!manualPrepare || prepared) && target?.kind === "unavailable" ? target.reason : null);
+			// Uma preparação obsoleta nunca pode reabrir um poder já consumido.
+			const status = exhausted ? "exhausted" as const
+				: prepared ? "prepared" as const
 				: reason ? "unavailable" as const
 				: activation === "passive" ? "active" as const : "available" as const;
 			return {

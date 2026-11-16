@@ -1,0 +1,160 @@
+# Leveling — P0: proveniência e telemetria de habilidades
+
+Escopo: somente ferramentas de auditoria e simulação; nenhum atributo de personagem, regra, XP ou dificuldade foi alterado.
+
+## O que é medido
+
+- `progression.abilityActivity.preparationsById`: ações de preparação aceitas pelo motor.
+- `manualActionsById`: ações manuais aceitas pelo motor; não prova aplicação do efeito.
+- `triggersAcceptedById`: interrupções aceitas pelo bot.
+- `triggersSkippedById`: interrupções recusadas pelo bot.
+- `skillUses` e `powerUses`: indicadores legados, preservados por compatibilidade. Não interpretar uma preparação como disparo.
+- `provenance`: commit, branch, estado de limpeza da árvore Git e hash SHA-256 do catálogo. O relatório deixa claro que o ensaio padrão é **solo**, não cooperativo.
+
+O relatório nunca deve afirmar que um efeito funcionou só porque a ação foi aceita. A auditoria estrutural de skills continua distinguindo cobertura real de cobertura ausente.
+
+## Como executar localmente
+
+```bash
+npm run audit
+npm run bot:leveling-report -- --runs 2 --seed 1
+```
+
+Para retomar uma execução interrompida, use `--resume --output tools/bot/runs/<diretorio>` no **mesmo commit**, com árvore Git limpa e mesmo catálogo. Checkpoints antigos sem `manifest.json` não são retomados, para evitar misturar versões.
+
+Recomendação de validação: primeiro conferir no JSON a diferença entre `preparationsById` e `triggersAcceptedById` do Bárbaro Rubro; em seguida revisar as habilidades cujas preparações nunca se convertem em efeitos. Um uso contabilizado no relatório ainda requer cenário determinístico para comprovar o efeito real.
+
+**Não executar CI/CD ou monitorar deploy automaticamente.** A auditoria e os relatórios são locais.
+
+## Primeiros cenários executáveis
+
+O `bot:skills-audit` agora registra resultados determinísticos para
+`skill_crimson_fury`, `skill_prey_mark` e `witch_skill_lunar_spark`.
+Um cenário bem-sucedido produz status `PARTIAL`, não `PASS` integral.
+Nenhuma habilidade sem cenário é considerada coberta. Os resultados são
+apresentados em `tools/bot/runs/<execucao>/skill-audit.json` e `.html`.
+
+## P0 adicional: gate rápido, coop e IA
+
+- O audit executa 48 composições de 1 a 4 heróis e três cenários de interação
+  caçador/bárbaro; combinações não executadas continuam fora da cobertura.
+- Mais sete poderes têm cenários de ativação (não de efeito completo).
+- O bot passou a respeitar a pontuação de risco da Fúria Rubra ao preparar.
+- O comando `npm run audit` interrompe antes das simulações se houver
+  `STRUCTURAL`, `RUNTIME`, `GROUP_PROJECTION` ou `GROUP_COMBAT` falhos;
+  detalhes ficam no `tools/bot/runs/<execucao>/skill-audit.json`.
+
+## P0: Diagnósticos consolidados no report.json
+
+O relatório de simulações inclui `diagnostics` com identidade contábil de XP,
+compras de nível ineficazes, erros/impasses, paridade de resultado entre
+Difícil/Pesadelo (mesma seed/herói/expansão/perfil) e contagem por ID de
+preparações, usos manuais, ativações de poderes e interrupções aceitas/negadas.
+Esses contadores **não** provam a execução de efeitos automáticos; o campo
+`warnings` aponta hipóteses para revisão, não diagnóstico causal confirmado.
+O painel HTML mostra os alertas agregados.
+
+## Observação das preparações automáticas
+
+O campo `progression.abilityActivity` passa a conter:
+`armedById`, `clearedDuringAttackById` e `clearedElsewhereById`.
+São transições entre estados aceitos pelo reducer, **não** comprovação de
+que o efeito do poder ou habilidade causou dano/cura/bônus.
+Se Fúria foi preparada e saiu do estado durante `ROLL_DICE`, isso aparece
+mesmo sem modal `APPLY_TRIGGER_INTERRUPT`. Itens/artefatos são excluídos
+para não misturar fontes de habilidade.
+
+## CLI silencioso corrigido
+
+`bot:skills-audit` não depende mais de `process.argv[1]` ao rodar pelo
+`vite-node`. Antes, esse guard podia evitar toda a execução sem erro.
+O comando grava `tools/bot/runs/<execucao>/skill-audit.json` e `report.html` no
+working directory de scripts do npm (raiz do projeto), exibe o caminho
+absoluto e devolve código 1 se detectar problemas funcionais/estruturais.
+
+## Correção de falsos positivos da Marca da Presa
+
+Os quatro bloqueios da primeira execução de `bot:skills-audit` eram
+originados pela fixture com apenas um inimigo: o reducer seleciona esse
+alvo automaticamente. O P0 agora testa ambos os caminhos (único alvo
+sem modal e múltiplos alvos com modal). Grupos de 2–4 heróis usam dois
+inimigos no teste de Marca da Presa + Fúria. Nenhuma regra de combate
+ou valor de balanceamento foi modificada por essa correção.
+
+## Ampliação de cenários funcionais dos heróis (P0)
+
+O `heroRuntime.ts` acrescenta 22 cenários ao auditor P0, totalizando 32.
+Cobertura parcial da ativação e de efeitos passa a alcançar os 25 grants de
+heróis, com testes específicos das 15 concessões anteriormente descobertas
+mas sem cenários, e rechecagem mais profunda de sete poderes existentes.
+Reações preparadas (Bastião, Carvalho e preservação do descarte) ainda não
+têm efeito/cooldown provados no gatilho; status `PARTIAL` é intencional.
+Manter auditoria local, sem CI/CD ou simulação longa automática.
+
+## Saída consolidada por execução
+
+O comando `npm run audit` cria `tools/bot/runs/audit-<data-hora>/`. Sempre grava `skill-audit.json` e `skill-audit.html`; se o gate aprovar, inicia o leveling com `--output` na mesma pasta e grava `report.json`, `config.json`, `manifest.json` e `trials.jsonl`. Falhas preservam o diagnóstico de habilidades sem rodar 6.000 partidas. `bot:skills-audit` isolado também salva em `tools/bot/runs` com pasta própria. Relatórios antigos não são movidos.
+
+## Experimento P1: venenos e XP (13/11/2026)
+
+O veneno legado `poison:` mantém a data do último tick ao ser renovado: a reaplicação no evento de fim de rodada não cancela indefinidamente o dano. Tanto `poison:` quanto `dot:v1:` agora são removidos no fim do combate; o DoT genérico mantém múltiplas fontes independentes. O `Coração Corrompido da Floresta` substituiu a explosão manual por proteção passiva: reduz em **1 PV por tick de veneno por herói** durante o combate contra a **Grande Bruxa**. Não afeta ataques comuns, outras condições nem a Fornalha.
+
+A nova `poisonTelemetry` na partida mede **dano realmente descontado da vida**, discriminando heróis e inimigos, mais `preventedByHeart`. O simulador grava os dados em cada `trial.poison` e agrega em `diagnostics.poison` e `diagnostics.poisonByExpansion`.
+
+Para testar preços sem alterar as regras públicas, `bot:leveling-report` usa um engine independente com item **8 XP** e artefato **20 XP**, e registra os preços em `options.xpExperiment`. Os preços do jogo em `src/data/balance.json` continuam **15 XP** e **35 XP**; a escolha de adotar 8/20 no jogo depende do novo relatório. O bot prioriza o terceiro artefato quando possível. Todas as dificuldades permanecem intactas.
+
+### Pacote de observabilidade de XP (14/11/2026)
+
+O audit padrão voltou aos preços oficiais (item 15 XP; artefato 35 XP). O bot passou a priorizar level_up (360), recover_dungeon (325), e adiar itens/artefatos para depois do nível máximo; o controle `random` continua aleatório. `options.xpExperiment` permanece opt-in apenas. Esse experimento altera a IA, não custos, stats ou dificuldade.
+
+### Fontes do veneno e condição real ao chegar no chefe
+
+A instrumentação de `poison:` agora carrega a origem real (sourceId/skillId), com compatibilidade para condições antigas. `dot:v1:` já preservava origem/efeito. Remoções por antídoto, limpeza, expiração e fim de combate passam a carregar causa e responsável quando disponíveis, e a telemetria diferencia aplicação, bloqueio e tick de dano realmente aplicado. A entrada no chefe registra vida, nível, XP e posse do Coração. Nos resultados do audit: verificar `diagnostics.poisonDamageBySource`, `poisonRemovalBySource`, `bossByExpansion` e `xpPolicy` antes de qualquer ajuste de atributos ou dificuldade.
+
+## Padrão de salas por expansão — revisão de 13/11/2026
+
+O catálogo da Fornalha é referência para a Torre da Grande Bruxa: **10 salas comuns** com distribuição **1×0 XP / 3×1 XP / 4×2 XP / 2×3 XP**, e **2 salas de subchefe de 4 XP**. As duas expansões usam as mesmas quantidades de criaturas por faixa de XP, para 1 a 4 jogadores. As habilidades temáticas da Bruxa foram preservadas.
+
+A sala 0 XP é **obrigatória na abertura** de qualquer masmorra, inclusive após reinício. O deck contém 2 cópias de cada uma das 10 salas comuns e 1 de cada sala de subchefe, disponibilizada somente da quinta sala em diante. Salas comuns de 3 XP **não invocam subchefe**: possuem no mínimo 1 criatura de 3 XP no solo ou 2 em grupo (respeitando o limite de criaturas). As duas salas especiais de 4 XP são os encontros com subchefes de fato. Na Fornalha, a Sala do Carcereiro comum passou a ter Confinamento; o Abismo Rachado comum passou a ter Piso Irregular, substituindo a antiga invocação.
+
+Esta alteração muda o encontro nas salas, não o custo de XP, as criaturas individuais ou a dificuldade escolhida. Reavaliar as taxas de vitória e os subchefes efetivamente encontrados após rodar `npm run audit`.
+
+### P0 — Consertos da auditoria 14/11/2026
+
+- **Duplicação:** `subboss_room` já possui uma cópia no deck inicial por expansão. A evolução até Despertar Vermelho apenas registra desbloqueio para a UI; nunca coloca novas cópias. A seleção das salas de 4 XP permanece bloqueada até a quinta sala. Testes cobrem evolução e conservação de quantidade nas duas expansões.
+- **Fumaça do Caldeirão:** `evt_round_end` no combate com o chefe recebe os IDs dos heróis e inimigos ativos, permitindo que a concessão da Bruxa valide o alvo e aplique `i_apply_poison`. Testes de integração reproduzem duas rodadas reais, aplicação e primeiro tick.
+- **Coração Corrompido:** testes de integração com e sem o artefato confirmam redução de um PV do tick e nenhum efeito sobre dano de ataque. Telemetria de ticks e prevenção é validada.
+- **Fornalha 3 XP:** Sala do Carcereiro usa Confinamento e Abismo Rachado usa Piso Irregular; nenhuma possui `specialCreatureId`, e ambas recebem criaturas de 3 XP pela regra geral de sala de elite. A invocação de subchefes fica exclusiva das duas salas de 4 XP.
+
+Não alterar preços, atributos ou dificuldade com base no relatório que continha duplicações; repetir o audit depois da validação local.
+
+## P0 + P1 — diagnóstico de 14/11/2026 (audit 6.000 partidas)
+
+**Regra de dificuldade restaurada:** a configuração de Pesadelo havia ficado idêntica ao Difícil em `despertarOffset: 1`. Agora o Despertar inicial é 1 no Difícil e **2 no Pesadelo**; ambos começam com herói de Ímpeto 0. Os custos de recuperação continuam 6 e 7 XP respectivamente. Há testes para os offsets e comparação pareada por seed/herói/expansão/perfil; não alteramos atributos dos heróis, criaturas ou preços gerais.
+
+**Impasse P0:** caso reproduzível do relatório no Necromante, Fornalha Sombria, `random`, Fácil, seed 1, após 198 ações em `BOSS_COMBAT`. Quando todos os heróis já estão incapacitados para agir naquela rodada, o chefe precisa resolver os efeitos de fim de rodada e iniciar a seguinte; `START_BOSS_COMBAT` agora atende a essa situação em vez de ser uma ação inerte. Teste reexecutável com seed exata incluído. Se voltar a ocorrer, colher `violationMessage` e inspecionar fase/ações pendentes antes de outro ajuste.
+
+**Observabilidade P1 das salas:** cada `BenchmarkTrial.rooms[roomId]` tem `entered`, `cleared`, `creaturesThreeXpSeen`, `subbossesSeen`, `subbossesDefeated`, `xpAwardedOnClear` (sala + criaturas) e `roomCardXpOnClear` (XP próprio). Todos são medidos a partir das transições reais do bot, não estimados por lista de cartas. `diagnostics.roomsByExpansion` agrega por expansão/ID e aparece em Markdown/HTML. A primeira sala gerada no START_GAME também é registrada. Um subchefe derrotado que seja imediatamente transferido ao cemitério conta como derrota.
+
+**Experimento P1 de Pesadelo:** cada trial registra `initialDespertar` e `initialHeroLevel`; `diagnostics.difficultyParity` agora separa vitórias em Difícil/Pesadelo e pares em que apenas um deles venceu. Usar as mesmas seeds e perfis em `npm run audit` para quantificar o impacto da diferença efetiva de Despertar (1 × 2). As sementes e a ordem inicial de baralhos são mantidas entre dificuldades dentro da expansão; trajetórias posteriores podem divergir.
+
+### Investigação P1 — heróis no Normal (relatório anterior à correção, commit 7b70908)
+
+Amostra: 100 partidas por herói (2 expansões × 5 perfis × 10 seeds). Resultados são desempenho destes bots, não probabilidade de vitória de humanos.
+
+| Herói | Vitórias | Chegou ao chefe | Venceu ao chegar | Vida média ao chegar |
+|---|---:|---:|---:|---:|
+| Bárbaro | 69/100 | 89/100 | 69/89 (77,5%) | 59% |
+| Guardião do Carvalho | 61/100 | 97/100 | 61/97 (62,9%) | 75% |
+| Paladino | 60/100 | 86/100 | 60/86 (69,8%) | 80% |
+| Guerreiro | 52/100 | 92/100 | 52/92 (56,5%) | 80% |
+| Irmã das Cinzas Brancas | 37/100 | 72/100 | 37/72 (51,4%) | 87% |
+| Feiticeira da Lua Verde | 29/100 | 70/100 | 29/70 (41,4%) | 65% |
+| Necromante | 19/100 | 32/100 | 19/32 (59,4%) | 59% |
+| Clériga | 15/100 | 47/100 | 15/47 (31,9%) | 73% |
+| Mago | 12/100 | 39/100 | 12/39 (30,8%) | 59% |
+| Ladina | 10/100 | 33/100 | 10/33 (30,3%) | 66% |
+
+**Leitura:** o Necromante está bloqueado principalmente na exploração, não no chefe; o Mago e a Ladina sofrem tanto antes quanto durante o chefe. A Clériga tem sobrevivência relativamente alta ao chegar, mas conversão baixa, sugerindo pouca ofensiva solo. Isso exige examinar a legalidade, o uso e o efeito das habilidades antes de alterar números. O novo `diagnostics.heroBalance` agrupa por herói/expansão/dificuldade com vitórias, impasses, visitas ao chefe, vida e nível na entrada e XP acumulado. Próxima rodada de avaliação: comparar por perfil e expansão e verificar se há falsos negativos de IA, especialmente para habilidades utilitárias.
+
+**Não foram alteradas** estatísticas dos heróis, distribuição de XP das criaturas/salas ou custos de XP para se chegar a estas conclusões. Executar build/testes e `npm run audit` somente localmente; não acompanhar CI/CD automaticamente.

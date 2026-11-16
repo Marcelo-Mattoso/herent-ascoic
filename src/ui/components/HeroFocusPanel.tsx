@@ -29,7 +29,7 @@ interface HeroFocusPanelProps {
 	onCancelSelection: () => void;
 	onPower: () => void;
 	onFlee: () => void;
-	onUseSkill?: (skillId: string, sourceId: string) => void;
+	onUseSkill?: (skillId: string, sourceId: string, cancelPreparation?: boolean) => void;
 	onUseItem?: () => void;
 	onItemDetail: (itemName: string, heroId: string) => void;
 	onArtInspect?: () => void;
@@ -275,6 +275,14 @@ export function HeroFocusPanel({
 						onUseSkill={onUseSkill}
 						onUseItem={onUseItem}
 					/>
+					{heroActions.skill?.requiresActivation && heroActions.skill.prepared && (
+						<ActionButton
+							label="Cancelar preparação"
+							icon="✕"
+							variant="secondary"
+							onClick={() => onUseSkill?.(heroActions.skill!.skillId, hero.id, true)}
+						/>
+					)}
 					{spendEcho && hero.eco > 0 && (
 						<ActionButton
 							label={`${translate("skills:spend_deep_veil_echo.name")} (${hero.eco})`}
@@ -366,11 +374,10 @@ function ActionSection({
 	onCancelSelection: () => void;
 	onPower: () => void;
 	onFlee: () => void;
-	onUseSkill?: (skillId: string, sourceId: string) => void;
+	onUseSkill?: (skillId: string, sourceId: string, cancelPreparation?: boolean) => void;
 	onUseItem?: () => void;
 }) {
 	const {
-		canAttack,
 		canPass,
 		canCancel,
 		canUsePower,
@@ -401,7 +408,7 @@ function ActionSection({
 					<ActionButton
 						tutorialAnchor="hero.skill-action"
 						abilityId={skill.skillId}
-						label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+						label={skill.prepared ? (skill.requiresActivation ? "Ativar habilidade" : "Cancelar preparação") : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 						title={skill.reason}
 						icon="✨"
 						variant={skill.prepared ? "primary" : "secondary"}
@@ -439,7 +446,7 @@ function ActionSection({
 					label="Atacar (arraste ou clique)"
 						icon="⚔"
 						variant="primary"
-						disabled
+						disabled={!heroActions.canStartAttack}
 						onClick={onAttack}
 					/>
 					<ActionButton
@@ -453,7 +460,7 @@ function ActionSection({
 						<ActionButton
 							tutorialAnchor="hero.skill-action"
 							abilityId={skill.skillId}
-							label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+							label={skill.prepared ? (skill.requiresActivation ? "Ativar habilidade" : "Cancelar preparação") : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 							title={skill.reason}
 							icon="✨"
 							variant={skill.prepared ? "primary" : "secondary"}
@@ -498,7 +505,7 @@ function ActionSection({
 				label="Atacar (arraste ou clique)"
 				icon="⚔"
 				variant="primary"
-				disabled={!canAttack}
+				disabled={!heroActions.canStartAttack}
 				onClick={onAttack}
 			/>
 			<ActionButton
@@ -512,7 +519,7 @@ function ActionSection({
 				<ActionButton
 				tutorialAnchor="hero.skill-action"
 				abilityId={skill.skillId}
-				label={skill.prepared ? "Cancelar preparação" : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+				label={skill.prepared ? (skill.requiresActivation ? "Ativar habilidade" : "Cancelar preparação") : skill.preparable ? "Preparar habilidade" : "Habilidade"}
 				title={skill.reason}
 					icon="✨"
 					variant={skill.prepared ? "primary" : "secondary"}

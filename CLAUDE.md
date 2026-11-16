@@ -14,7 +14,6 @@ npm run test:coverage # Vitest + limiares de cobertura
 npm run verify:build # Confere assets, manifestos e PDF em dist/
 npm run test:e2e     # Playwright (Chromium)
 npm run format       # Biome format --write
-npm run script <f>   # vite-node em tools/dev-scripts/<f> (acesso ao core via @/)
 ```
 
 Para rodar um único arquivo de teste: `npx vitest run src/core/reducer/reducer.test.ts`

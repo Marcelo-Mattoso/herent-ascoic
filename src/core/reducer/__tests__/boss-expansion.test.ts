@@ -9,6 +9,9 @@ import { createInitialGameState } from "../../state/gameState";
 import { gameOf, withGame } from "../../../engine/state";
 import { handleRevealBoss } from "../boss";
 import { handleStartGame } from "../setup";
+import { ActivationTracker } from "../../state/activation";
+import { reducer } from "../index";
+import { heroesOf, deckOf } from "../../state/access";
 
 const bossId = "boss_azhakar";
 const heart = "artifact_ancient_ember_heart";
@@ -40,6 +43,27 @@ describe("boss separado por expansão", () => {
 		for (const skill of boss?.skills ?? []) {
 			expect(SKILLS.abilities.some((def) => def.id === skill.skillId)).toBe(true);
 		}
+	});
+
+	it("encerra a rodada do chefe quando todos os heróis já agiram, sem impasse", () => {
+		const started = handleStartGame(testEngine,
+			createInitialGameState({ heroCardIds: ["hero_deep_veil_necromancer"], bossCardId: bossId }), {
+			heroCardIds: ["hero_deep_veil_necromancer"], bossCardId: bossId,
+			difficulty: "easy", seed: 1, deferInitialRoomReveal: true,
+		});
+		const withThree = withGame(started, (game) => ({
+			...game,
+			groupArtifacts: artifactIds.map((cardId) => ({ cardId, carriedBy: null })),
+		}));
+		const fighting = handleRevealBoss(testEngine, withThree);
+		const heroId = heroesOf(fighting)[0]!.id;
+		const disabled = ActivationTracker.disableHeroForRound(testEngine, fighting, heroId, "teste sem ação");
+		const beforeRound = gameOf(disabled).combat!.round;
+		const next = reducer(testEngine, disabled, { type: "START_BOSS_COMBAT" });
+		expect(gameOf(next).status).toBe("BOSS_COMBAT");
+		expect(gameOf(next).combat?.round).toBe(beforeRound + 1);
+		expect(ActivationTracker.isHeroDisabledThisRound(next, heroId)).toBe(false);
+		expect(deckOf(next, "dungeonDeck").available).toEqual(deckOf(fighting, "dungeonDeck").available);
 	});
 
 	it("não revela o boss com menos de três artefatos", () => {

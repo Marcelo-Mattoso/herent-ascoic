@@ -1,0 +1,252 @@
+/**
+ * Cenários determinísticos usando o reducer real. PASS aqui significa que o
+ * cenário específico executou e alterou o estado esperado; NÃO significa
+ * cobertura integral da habilidade, de todos os alvos ou do cooperativo.
+ */
+import { createAscensaoEngine } from "@/core/composition";
+import { skillById } from "@/core/gameEngine";
+import { reducer } from "@/core/reducer";
+import { createInitialGameState, type GameState } from "@/core/state/gameState";
+import { createEmptyCombatState } from "@/core/state/combatState";
+import { gameOf, withGame } from "@/engine/state";
+import { heroesOf, pendingSkillTargetOf, pendingTriggerInterruptOf,
+	recordOfEnemy, spawnEnemy, withWorld, worldOf, pendingSkillChoiceOf } from "@/core/state/access";
+import type { EnemyState } from "@/core/state/enemyState";
+import { legalActions } from "@/core/legalActions";
+import { canStartHeroAttack } from "@/core/rules/attackAvailability";
+import { playerView } from "@/core/projection/playerView";
+import { runHeroCoverageScenarios } from "./heroRuntime";
+
+export interface RuntimeScenarioResult {
+	readonly id: string;
+	readonly sourceCardId: string;
+	readonly abilityId: string;
+	readonly status: "PASS" | "FAIL";
+	readonly detail: string;
+}
+
+export const auditEngine = createAscensaoEngine();
+const engine = auditEngine;
+
+function ensure(condition: unknown, description: string): asserts condition {
+	if (!condition) throw new Error(description);
+}
+
+/** Um inimigo é escolhido automaticamente; dois exigem seleção explícita. */
+export function combat(cardId: string | readonly string[], enemyCount: 1 | 2 = 1): GameState {
+	const heroCardIds = typeof cardId === "string" ? [cardId] : [...cardId];
+	const started = reducer(engine, createInitialGameState({ heroCardIds }), {
+		type: "START_GAME", payload: { heroCardIds, seed: 42 },
+	});
+	const enemies: EnemyState[] = Array.from({ length: enemyCount }, (_, index) => ({
+		id: index === 0 ? "audit-enemy" : "audit-enemy-2",
+		cardId: "creature_deep_rift_rat",
+		maxLife: 20, currentLife: 20, damage: 1, hitBonus: 0, dice: 1,
+		tokens: {}, conditions: [], firstDamageTakenThisTurn: false,
+		status: "active" as const,
+	}));
+	const withEnemies = withWorld(started, enemies.reduce(
+		(world, enemy) => spawnEnemy(world, enemy), worldOf(started)));
+	const prepared = withGame(withEnemies, (game) => ({
+		...game, status: "COMBAT_START", currentRoom: {
+			cardId: "room_dungeon_room", exits: 2, currentEnemies: enemyCount,
+			reward: 0, rewardType: "item", effect: "", xp: 1, status: "active",
+		},
+		activeEnemies: enemies.map(recordOfEnemy),
+	}));
+	return reducer(engine, prepared, { type: "START_COMBAT" });
+}
+
+function checkFury(): void {
+	let state = combat("hero_crimson_barbarian");
+	const heroId = heroesOf(state)[0]!.id;
+	const initialHp = heroesOf(state)[0]!.currentLife;
+	state = reducer(engine, state, { type: "USE_SKILL", payload: {
+		skillId: "skill_crimson_fury", sourceId: heroId,
+	} });
+	ensure(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
+		entry.abilityId === "skill_crimson_fury"), "Fúria não foi preparada");
+	state = reducer(engine, state, { type: "CHOOSE_TARGET", payload: {
+		heroId, enemyId: "audit-enemy",
+	} });
+	state = reducer(engine, state, { type: "ROLL_DICE" });
+	ensure(heroesOf(state)[0]!.currentLife === initialHp - 2,
+		"Fúria não aplicou o custo de 2 PV no ataque");
+	ensure(!Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
+		entry.abilityId === "skill_crimson_fury"), "Fúria continuou preparada após disparar");
+	ensure(!canStartHeroAttack(state, heroId),
+		"Fúria permitiu outro ataque após o disparo");
+}
+
+function checkPreyMark(): void {
+	// Com apenas uma presa, o motor escolhe automaticamente e não abre modal.
+	let single = combat("hero_broken_veil_hunter");
+	const singleHeroId = heroesOf(single)[0]!.id;
+	single = reducer(engine, single, { type: "USE_SKILL", payload: {
+		skillId: "skill_prey_mark", sourceId: singleHeroId,
+	} });
+	ensure(!pendingSkillTargetOf(single),
+		"Marca da Presa abriu seleção desnecessária com apenas um inimigo");
+	ensure(gameOf(single).combat?.preyByHero[singleHeroId] === "audit-enemy",
+		"Marca da Presa não marcou automaticamente o único inimigo");
+	ensure(canStartHeroAttack(single, singleHeroId, "audit-enemy"),
+		"Marcação automática bloqueou o ataque do Caçador");
+
+	// Com duas presas, o mesmo reducer deve solicitar escolha e respeitá-la.
+	let state = combat("hero_broken_veil_hunter", 2);
+	const heroId = heroesOf(state)[0]!.id;
+	state = reducer(engine, state, { type: "USE_SKILL", payload: {
+		skillId: "skill_prey_mark", sourceId: heroId,
+	} });
+	const options = pendingSkillTargetOf(state)?.candidates.map((target) => target.id);
+	ensure(options?.length === 2 &&
+		options.includes("audit-enemy") && options.includes("audit-enemy-2"),
+		"Marca da Presa não ofereceu os dois inimigos para escolha");
+	state = reducer(engine, state, { type: "SELECT_SKILL_TARGET", payload: {
+		targetId: "audit-enemy",
+	} });
+	ensure(!pendingSkillTargetOf(state),
+		"Marca da Presa não fechou a seleção após escolher o alvo");
+	ensure(gameOf(state).combat?.preyByHero[heroId] === "audit-enemy",
+		"Marca da Presa não foi aplicada ao alvo escolhido");
+	ensure(!gameOf(state).combat?.heroesActed.includes(heroId),
+		"Marca da Presa consumiu indevidamente o ataque");
+	state = reducer(engine, state, { type: "CHOOSE_TARGET", payload: {
+		heroId, enemyId: "audit-enemy",
+	} });
+	state = reducer(engine, state, { type: "ROLL_DICE" });
+	ensure(gameOf(state).combat?.lastRoll?.heroBreakdown.some((entry) =>
+		entry.source === "Marca da Presa" && entry.value === 1),
+		"Marca da Presa não adicionou o bônus ao dado de ataque");
+}
+
+function checkLunarSpark(): void {
+	const base = combat("hero_green_moon_sorceress");
+	const heroId = heroesOf(base)[0]!.id;
+	const ready = withGame(base, (game) => ({
+		...game, status: "ROLL_DICE",
+		combat: { ...createEmptyCombatState(), phase: "resolving",
+			pairs: [{ heroId, enemyId: "audit-enemy" }] },
+	}));
+	const prepared = reducer(engine, ready, { type: "PREPARE_PHYSICAL_ROLL" });
+	const dice = gameOf(prepared).combat?.pendingPhysicalRoll;
+	ensure(dice, "Rolagem física não foi preparada");
+	const rolled = reducer(engine, prepared, { type: "CONFIRM_DICE_ROLL", payload: {
+		rollId: dice.id, heroId: dice.heroId, enemyId: dice.enemyId,
+		heroResults: Array(dice.heroDiceCount).fill(1),
+		enemyResults: Array(dice.enemyDiceCount).fill(5), source: "physics",
+	} });
+	const interrupt = pendingTriggerInterruptOf(rolled);
+	ensure(interrupt?.skillId === "witch_skill_lunar_spark",
+		"Centelha não ofereceu a interrupção após obter 1 no dado");
+	const accepted = reducer(engine, rolled, {
+		type: "APPLY_TRIGGER_INTERRUPT", payload: { interruptId: interrupt.id },
+	});
+	const choices = legalActions(engine, accepted).filter((action) => action.type === "SELECT_DIE");
+	ensure(choices.length > 0, "Centelha não ofereceu a seleção de dado");
+	const selected = reducer(engine, accepted, choices[0]!);
+	ensure(!gameOf(selected).combat?.pendingDiceCommit,
+		"Centelha não concluiu a seleção e a resolução do dado");
+	ensure(gameOf(selected).combat?.lastRoll?.heroResults.length,
+		"Centelha não deixou resultado de rolagem verificável");
+}
+
+
+/**
+ * Contrato de ativação real: preparar não cobra uso/ação; abrir uma escolha não
+ * cobra uso/ação; confirmar a escolha registra o uso e cobra a ação, se prevista
+ * pelo catálogo. Os efeitos posteriores continuam cobertos por heroRuntime.
+ */
+function checkPowerActivation(cardId: string, powerId: string, choiceId?: string): void {
+	let state = combat(cardId);
+	const heroId = heroesOf(state)[0]!.id;
+	const before = playerView(engine, state).abilityActionsByHero[heroId]?.find(
+		(action) => action.abilityId === powerId);
+	ensure(before?.kind === "power" && before.status === "available",
+		powerId + ": poder indisponível no início do combate");
+	state = reducer(engine, state, { type: "USE_POWER", payload: { heroId } });
+	const usedKey = `${powerId}::${heroId}`;
+	const pending = pendingSkillChoiceOf(state);
+
+	if (before.activation === "prepare") {
+		ensure(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
+			entry.abilityId === powerId && entry.sourceHeroId === heroId),
+			powerId + ": não ficou preparado no herói correto");
+		ensure(gameOf(state).oncePer.game[usedKey] !== true,
+			powerId + ": preparação registrou uso antes do disparo");
+	} else if (pending) {
+		ensure(pending.skillId === powerId,
+			powerId + ": escolha pendente pertence a outro poder");
+		ensure(gameOf(state).oncePer.game[usedKey] !== true,
+			powerId + ": abertura da escolha registrou uso antes da confirmação");
+		ensure(!gameOf(state).combat?.heroesActed.includes(heroId),
+			powerId + ": abertura da escolha consumiu a ação antecipadamente");
+		ensure(typeof choiceId === "string" && pending.options.some((option) => option.id === choiceId),
+			powerId + ": não há escolha de confirmação configurada ou disponível");
+		state = reducer(engine, state, { type: "SKILL_CHOICE", payload: {
+			skillId: powerId, choice: choiceId,
+		} });
+		ensure(!pendingSkillChoiceOf(state),
+			powerId + ": escolha permaneceu pendente após confirmação");
+		ensure(gameOf(state).oncePer.game[usedKey] === true,
+			powerId + ": uso não foi registrado após confirmar a escolha");
+	} else {
+		ensure(gameOf(state).oncePer.game[usedKey] === true,
+			powerId + ": uso não foi registrado");
+	}
+
+	const shouldConsumeAction = before.activation !== "prepare" &&
+		skillById(engine, powerId)?.action_cost === "consume_hero_action";
+	const actionConsumed = Boolean(gameOf(state).combat?.heroesActed.includes(heroId));
+	ensure(actionConsumed === shouldConsumeAction,
+		powerId + (shouldConsumeAction
+			? ": ativação não consumiu a ação de suporte"
+			: ": ativação consumiu o ataque do herói"));
+	ensure(canStartHeroAttack(state, heroId, "audit-enemy") === !shouldConsumeAction,
+		powerId + ": disponibilidade de ataque incompatível com o custo da ação");
+}
+
+const powerCases: readonly (readonly [string, string, string | undefined])[] = [
+	["hero_eternal_rest_cleric", "power_greater_last_light_miracle", "full_heal"],
+	["hero_broken_bastion_warrior", "power_unbreakable_bastion_guard", undefined],
+	["hero_rift_rogue", "power_restored_path", undefined],
+	["hero_crimson_rune_mage", "power_supreme_rift_rune", undefined],
+	["hero_crimson_barbarian", "power_mighty_crimson_fury", undefined],
+	["hero_last_light_paladin", "power_last_light_oath", "heal_all"],
+	["hero_broken_veil_hunter", "power_hunter_execution", undefined],
+];
+
+const scenarios = [
+	{ id: "crimson-fury-attack", sourceCardId: "hero_crimson_barbarian",
+		abilityId: "skill_crimson_fury", check: checkFury,
+		detail: "Preparação, custo de PV, consumo e encerramento no ataque" },
+	{ id: "hunter-prey-mark", sourceCardId: "hero_broken_veil_hunter",
+		abilityId: "skill_prey_mark", check: checkPreyMark,
+		detail: "Alvo único automático; dois inimigos exigem seleção; bônus +1 e ataque preservado" },
+	{ id: "lunar-spark-dice", sourceCardId: "hero_green_moon_sorceress",
+		abilityId: "witch_skill_lunar_spark", check: checkLunarSpark,
+		detail: "Interrupção com dado 1, seleção e commit da rolagem" },
+] as const;
+
+export function runRuntimeScenarios(): RuntimeScenarioResult[] {
+	const allScenarios: { id: string; sourceCardId: string; abilityId: string; check: () => void; detail: string }[] = [
+		...scenarios,
+		...powerCases.map(([sourceCardId, abilityId, choiceId]) => ({
+			id: "power-activation-" + abilityId, sourceCardId, abilityId,
+			check: () => checkPowerActivation(sourceCardId, abilityId, choiceId),
+			detail: "Preparação, confirmação de escolhas, registro de uso e custo de ação (não verifica efeito posterior)",
+		})),
+	];
+	const originalResults = allScenarios.map(({ id, sourceCardId, abilityId, check, detail }) => {
+		try {
+			check();
+			return { id, sourceCardId, abilityId, status: "PASS" as const, detail };
+		} catch (error) {
+			return {
+				id, sourceCardId, abilityId, status: "FAIL" as const,
+				detail: error instanceof Error ? error.message : String(error),
+			};
+		}
+	});
+	return [...originalResults, ...runHeroCoverageScenarios(engine, combat)];
+}

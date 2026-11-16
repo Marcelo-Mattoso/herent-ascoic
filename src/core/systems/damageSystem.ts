@@ -20,11 +20,14 @@ import {
 } from "../state/blockHelpers";
 import type { GameState } from "../state/gameState";
 import { cardName, type GameEngine } from "../gameEngine";
+import { recordPoisonDamage } from "../rules/poisonTelemetry";
 
 import { enemyOf, heroOf, statOf, withEnemyRecord, withEntityRetired, withHeroRecord, withUnitStats, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 export interface DamageOptions {
 	readonly sourceId?: EntityId;
+	/** Origem declarada do tick de veneno, sem alterar o sourceId virtual de combate. */
+	readonly poisonOrigin?: string;
 	readonly damageType?: DamageType;
 	/** Apenas associação visual com uma investida extra já resolvida. */
 	readonly extraAttackId?: number;
@@ -261,6 +264,10 @@ export function applyDamage(engine: GameEngine,
 	) {
 		return state;
 	}
+	const poisonTickToHero = opts?.sourceId === "poison" && opts?.damageType === "condition" &&
+		gameOf(state).heroes.some((hero) => hero.id === targetId);
+	const poisonTickToEnemy = opts?.sourceId === "poison" && opts?.damageType === "condition" &&
+		gameOf(state).activeEnemies.some((enemy) => enemy.id === targetId);
 	const sourceId = opts?.sourceId ?? "system";
 	const damageType = opts?.damageType ?? "physical";
 
@@ -341,6 +348,8 @@ export function applyDamage(engine: GameEngine,
 		0,
 		(lifeImmediatelyBeforeApply ?? 0) - (currentLife(s2, targetId) ?? 0),
 	);
+	if (appliedAmount > 0 && (poisonTickToHero || poisonTickToEnemy))
+		s2 = recordPoisonDamage(s2, opts?.poisonOrigin ?? "unknown/poison", poisonTickToHero, appliedAmount);
 	if (appliedAmount > 0) {
 		const previous = gameOf(s2).damageFeedback ?? [];
 		const side = heroOf(s2, targetId) ? ("hero" as const) : ("enemy" as const);

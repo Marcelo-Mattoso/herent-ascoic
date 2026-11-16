@@ -394,7 +394,7 @@ export function reconcileTutorial(
 			latest.actionType === "USE_POWER" && hero.cardId === ABILITY_WARRIOR &&
 			view.abilityActionsByHero[heroId]?.some((action) => action.abilityId === BASTION_POWER && action.status === "exhausted") &&
 			latest.changes.length > 0 &&
-			latest.after.heroesActed.join("|") === latest.before.heroesActed.join("|"))
+			!latest.before.heroesActed.includes(heroId) && latest.after.heroesActed.includes(heroId))
 			return observed(`${BASTION_POWER}: ${latest.actionId}`);
 		return session;
 	}

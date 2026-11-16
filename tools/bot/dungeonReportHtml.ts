@@ -1,7 +1,12 @@
 import type { BenchmarkSummary, BenchmarkTrial, DungeonBenchmarkOptions } from "./dungeonBenchmark";
+import type { ReportProvenance } from "./reportProvenance";
+import type { BenchmarkDiagnostics } from "./reportDiagnostics";
 
 export interface DungeonReportData {
 	readonly generatedAt: string;
+	readonly provenance?: ReportProvenance;
+	readonly scope?: "solo";
+	readonly diagnostics?: BenchmarkDiagnostics;
 	readonly options: DungeonBenchmarkOptions;
 	readonly completed: number;
 	readonly expected: number;
@@ -24,6 +29,81 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 		"# Ensaio de masmorras — Ascensão Heróica",
 		"",
 		"Execução em " + report.generatedAt + ". " + report.completed + "/" + report.expected + " partidas.",
+		report.provenance ? "Commit: " + (report.provenance.gitCommit ?? "não identificado") +
+			"; árvore Git " + (report.provenance.workingTreeClean ? "limpa" : "não validada") +
+			"; comparabilidade " + (report.provenance.comparable ? "verificada" : "não verificada") + "." : "",
+		"Escopo: exclusivamente partidas solo; grupos de 2–4 heróis não estão incluídos.",
+		...(report.diagnostics ? [
+			"## Diagnósticos de consistência",
+			"Hard/Pesadelo: " + report.diagnostics.difficultyParity.sameOutcome + "/" +
+				report.diagnostics.difficultyParity.pairedGames + " pares com mesmo resultado; vitórias " +
+				report.diagnostics.difficultyParity.hardWins + " / " +
+				report.diagnostics.difficultyParity.nightmareWins + "; Despertar inicial " +
+				JSON.stringify(report.diagnostics.difficultyParity.initialAwakening ?? {}) + ".",
+			"Veneno: " + (report.diagnostics.poison?.toHeroes ?? 0) + " PV em heróis, " +
+				(report.diagnostics.poison?.toEnemies ?? 0) + " PV em inimigos, " +
+				(report.diagnostics.poison?.preventedByHeart ?? 0) + " PV evitados pelo Coração.",
+			"Ticks de veneno contra heróis no chefe Bruxa: " +
+				(report.diagnostics.witchBossPoisonTicks ?? 0) + " (com Coração: " +
+				(report.diagnostics.heartHeldAtWitchBossTicks ?? 0) + ").",
+			"Compras com level up legal: " + (report.diagnostics.xpPolicy?.itemsBoughtWhileLevelAvailable ?? 0) +
+				" itens, " + (report.diagnostics.xpPolicy?.artifactsBoughtWhileLevelAvailable ?? 0) + " artefatos.",
+			"Fontes de dano: " + JSON.stringify(report.diagnostics.poisonDamageBySource ?? {}),
+			"Remoções de veneno: " + JSON.stringify(report.diagnostics.poisonRemovalBySource ?? {}),
+			"Impasses por motivo: " + JSON.stringify(report.diagnostics.stallsByReason ?? {}),
+			"",
+			"## Paridade de vitória por dificuldade: Fornalha × Bruxa (solo)",
+			"",
+			"Meta indicativa: diferença absoluta de até ±7 pontos percentuais, não regra de aprovação de cada seed.",
+			"| Dificuldade | Base | Bruxa | Diferença absoluta | Meta (≥100 partidas cada) | Impasses base/bruxa |",
+			"|---|---:|---:|---:|---|---:|",
+			...(report.diagnostics.expansionParity?.byDifficulty ?? []).map((row) =>
+				"| " + [row.difficulty, percent(row.referenceWinRate), percent(row.comparisonWinRate),
+					row.absoluteGapPercentagePoints.toFixed(1) + " p.p.",
+					row.outsideTarget === null ? "amostra insuficiente" : row.outsideTarget ? "fora" : "dentro",
+					row.referenceStalls + "/" + row.comparisonStalls].join(" | ") + " |"),
+			"",
+			"## Ciclo de vida de habilidades (não equipara cliques a efeitos)",
+			"",
+			"| Habilidade | Tentativas | Preparações | Confirmações | Mudanças observáveis | Cargas consumidas |",
+			"|---|---:|---:|---:|---:|---:|",
+			...(report.diagnostics.abilityLifecycle ?? []).map((row) => "| " + [row.abilityId,
+				row.attempted, row.prepared, row.confirmed, row.effectsObserved,
+				row.chargesConsumed].join(" | ") + " |"),
+			"",
+			"Fontes de habilidades: " + JSON.stringify(report.diagnostics.abilityLifecycleBySource ?? {}),
+			"Alterações por alvo: " + JSON.stringify(report.diagnostics.abilityEffectsByTarget ?? {}),
+			"Tipos de efeitos: " + JSON.stringify(report.diagnostics.abilityEffectKinds ?? {}),
+			"XP sem conciliação: " + report.diagnostics.xpAccountingMismatches +
+				"; tentativas inefetivas de level up: " + report.diagnostics.ineffectiveLevelUpAttempts + ".",
+			...report.diagnostics.warnings.map((warning) => "- " + warning),
+			"",
+			"## Salas, criaturas de 3 XP e subchefes — visitas reais",
+			"",
+			"| Expansão | Sala | Visitada | Vencida | Criaturas 3 XP | Subchefes vistos | Subchefes derrotados | XP ao vencer | XP nominal da carta |",
+			"|---|---|---:|---:|---:|---:|---:|---:|---:|",
+			...Object.entries(report.diagnostics.roomsByExpansion ?? {}).flatMap(([expansion, rooms]) =>
+				Object.entries(rooms).map(([id, stats]) =>
+					"| " + [expansion, id, stats.entered, stats.cleared, stats.creaturesThreeXpSeen,
+						stats.subbossesSeen, stats.subbossesDefeated, stats.xpAwardedOnClear,
+						stats.roomCardXpOnClear].join(" | ") + " |")),
+			"",
+			"## Diagnóstico de heróis — acesso ao chefe e vitória após acesso",
+			"",
+			"| Expansão | Dificuldade | Herói | Partidas | Vitórias | Impasses | Chegou ao chefe | Venceu após chegar | Vida média na chegada | Nível médio na chegada | Habilidades escolhidas/ofertadas (chefe) |",
+			"|---|---|---|---:|---:|---:|---:|---:|---:|---:|---|",
+			...(report.diagnostics.heroBalance ?? []).map((row) =>
+				"| " + [row.expansionId, row.difficulty, row.heroId, row.games, row.victories,
+					row.stalls, row.bossReached, row.bossVictories,
+					row.bossReached ? percent(row.sumBossLifeRatio / row.bossReached) : "—",
+					row.bossReached ? average(row.sumBossLevel / row.bossReached) : "—",
+					Object.entries(row.abilityOfferedById ?? {}).sort((a, b) => b[1] - a[1]).slice(0, 5)
+						.map(([id, offered]) => id + ": " + (row.abilityChosenById?.[id] ?? 0) +
+							"/" + offered + " (chefe " + (row.abilityChosenAtBossById?.[id] ?? 0) +
+							"/" + (row.abilityOfferedAtBossById?.[id] ?? 0) + ")").join("; ")
+				].join(" | ") + " |"),
+			"",
+		] : []),
 		"Seeds " + options.seed + " a " + (options.seed + options.runs - 1) +
 			"; " + options.runs + " repetições; até " + options.maxSteps + " ações por partida.",
 		"",
@@ -112,6 +192,11 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 <section class="metrics" id="metrics"></section>
 <div class="sections">
 <section class="panel">
+<h2>Diagnósticos de consistência</h2>
+<p class="help">Métricas globais calculadas a partir das partidas solo. Preparação não prova execução do efeito e paridade de desfecho não prova identidade de dificuldade.</p>
+<div id="diagnostics" class="help">Relatório legado: sem telemetria de consistência agregada.</div>
+</section>
+<section class="panel">
 <h2>Matriz de vitórias por herói</h2>
 <p class="help">Selecione um módulo e um herói para ver a taxa de vitória em cada dificuldade. A seleção começa na expansão de referência; o comparativo abaixo mostra todos os módulos com os mesmos filtros de herói/perfil/dificuldade. A opção "Todas as expansões" agrega taxas e não deve ser confundida com uma masmorra única. Impasses não são tratados como derrotas.</p>
 <div class="controls">
@@ -125,7 +210,8 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 </section>
 <section class="panel">
 <h2>Comparativo entre expansões</h2>
-<p class="help">Mesmo herói, perfil, dificuldade e seeds; cada módulo usa seus próprios baralhos e chefe. Compare o desempenho e investigue diferenças de dificuldade. <a href="catalog.html">Ver a auditoria de criaturas, salas e equipamentos</a>.</p>
+<p class="help">Mesmo herói, perfil, dificuldade e seeds; cada módulo usa seus próprios baralhos e chefe. Meta de análise: até 7 pontos percentuais de diferença absoluta na taxa de vitória por dificuldade, sem exigir equivalência de mecânicas ou de cada herói. <a href="catalog.html">Ver a auditoria de criaturas, salas e equipamentos</a>.</p>
+<div id="expansion-parity" class="help"></div>
 <div class="scroller"><table><thead><tr><th>Expansão</th><th>Partidas</th><th>Vitórias</th><th>Derrotas</th><th>Impasses</th><th>Vitória %</th><th>Salas médias</th></tr></thead><tbody id="expansion-compare"></tbody></table></div>
 </section>
 <section class="panel">
@@ -160,6 +246,25 @@ const esc=(value)=>String(value??"").replace(/[&<>"']/g,(s)=>({"&":"&amp;","<":"
 const pct=(a,b)=>b?(100*a/b).toFixed(1)+"%":"—";
 const nameById=new Map(data.summaries.map((s)=>[s.heroId,s.heroName]));
 const expansionNames=data.expansionNames||{};
+if(data.diagnostics){
+ const d=data.diagnostics,p=d.difficultyParity;
+ const parity=p.pairedGames?(100*p.sameOutcomeRate).toFixed(1)+'% ('+p.sameOutcome+'/'+p.pairedGames+')':'Sem pares';
+ const notices=d.warnings.length?d.warnings.map(w=>'<li>'+esc(w)+'</li>').join(''):'<li>Nenhum alerta automático registrado.</li>';
+ el('diagnostics').innerHTML='<p><strong>Difícil × Pesadelo:</strong> '+esc(parity)+' resultados iguais nos pares. <strong>XP não conciliado:</strong> '+d.xpAccountingMismatches+'. <strong>Level up sem efeito:</strong> '+d.ineffectiveLevelUpAttempts+'.</p><p><strong>Veneno:</strong> '+(d.poison?.toHeroes??0)+' PV nos heróis, '+(d.poison?.toEnemies??0)+' PV nos inimigos, '+(d.poison?.preventedByHeart??0)+' PV evitados pelo Coração.</p><p><strong>Veneno na Bruxa:</strong> '+(d.witchBossPoisonTicks??0)+' ticks (Coração presente: '+(d.heartHeldAtWitchBossTicks??0)+'). <strong>Gastos com nível disponível:</strong> '+(d.xpPolicy?.itemsBoughtWhileLevelAvailable??0)+' itens / '+(d.xpPolicy?.artifactsBoughtWhileLevelAvailable??0)+' artefatos.</p><p><strong>Fontes de dano:</strong> '+esc(JSON.stringify(d.poisonDamageBySource??{}))+'</p><p><strong>Remoção por causa/agente:</strong> '+esc(JSON.stringify(d.poisonRemovalBySource??{}))+'</p><ul>'+notices+'</ul><p>Consulte <code>diagnostics.abilityActivity</code> no JSON para contagem por ID; triggers automáticos sem modal não são observados por esses contadores.</p>';
+ const parityRows=(d.expansionParity?.byDifficulty||[]).map(x=>'<tr><td>'+esc(diffLabels[x.difficulty]||x.difficulty)+'</td><td>'+pct(x.referenceWinRate,1)+'</td><td>'+pct(x.comparisonWinRate,1)+'</td><td>'+x.absoluteGapPercentagePoints.toFixed(1)+' p.p.</td><td>'+(x.outsideTarget===null?'Amostra insuficiente':x.outsideTarget?'Fora da meta':'Dentro da meta')+'</td><td>'+x.referenceStalls+'/'+x.comparisonStalls+'</td></tr>').join('');
+ el('expansion-parity').innerHTML=parityRows?'<p><strong>Meta indicativa:</strong> até ±7 pontos percentuais de diferença por dificuldade (partidas solo). Impasses separados de derrotas. A comparação cooperativa ficará para a próxima fase.</p><div class="scroller"><table><thead><tr><th>Dificuldade</th><th>Fornalha</th><th>Bruxa</th><th>Diferença</th><th>Resultado</th><th>Impasses</th></tr></thead><tbody>'+parityRows+'</tbody></table></div>':'';
+ const lifecycleRows=(d.abilityLifecycle||[]).filter(x=>x.attempted||x.prepared||x.effectsObserved).sort((a,b)=>b.attempted-a.attempted).slice(0,12).map(x=>'<tr><td>'+esc(x.abilityId)+'</td><td>'+x.attempted+'</td><td>'+x.prepared+'</td><td>'+x.confirmed+'</td><td>'+x.effectsObserved+'</td><td>'+x.chargesConsumed+'</td></tr>').join('');
+ if(lifecycleRows) el('diagnostics').innerHTML+='<h3>Habilidades: tentativas ≠ efeitos</h3><p>Alterações de PV, condições, modificadores, dados ou recursos observadas durante a resolução. Detalhes por fonte e alvo no JSON.</p><div class="scroller"><table><thead><tr><th>Habilidade</th><th>Tentativas</th><th>Preparações</th><th>Confirmações</th><th>Mudanças observáveis</th><th>Cargas</th></tr></thead><tbody>'+lifecycleRows+'</tbody></table></div>';
+ const difficultyInfo=p.initialAwakening||{};
+ const roomsRows=Object.entries(d.roomsByExpansion||{}).flatMap(([exp,rooms])=>
+   Object.entries(rooms).map(([roomId,x])=>'<tr><td>'+esc(expansionNames[exp]||exp)+'</td><td>'+esc(roomId)+'</td><td>'+x.entered+'</td><td>'+x.cleared+'</td><td>'+x.creaturesThreeXpSeen+'</td><td>'+x.subbossesSeen+'</td><td>'+x.subbossesDefeated+'</td><td>'+x.xpAwardedOnClear+'</td></tr>')).join('');
+ const heroRows=(d.heroBalance||[]).filter(x=>x.difficulty==="normal")
+   .sort((a,b)=>a.victories/a.games-b.victories/b.games)
+   .map(x=>'<tr><td>'+esc(expansionNames[x.expansionId]||x.expansionId)+'</td><td>'+esc(nameById.get(x.heroId)||x.heroId)+'</td><td>'+pct(x.victories,x.games)+'</td><td>'+pct(x.bossReached,x.games)+'</td><td>'+pct(x.bossVictories,x.bossReached)+'</td><td>'+pct(x.sumBossLifeRatio,x.bossReached)+'</td><td>'+Object.entries(x.abilityOfferedById||{}).sort((a,b)=>b[1]-a[1]).slice(0,5).map(([id,n])=>esc(id)+': '+(x.abilityChosenById?.[id]||0)+'/'+n+' (chefe '+(x.abilityChosenAtBossById?.[id]||0)+'/'+(x.abilityOfferedAtBossById?.[id]||0)+')').join('; ')+'</td></tr>').join('');
+ el('diagnostics').innerHTML+='<p><strong>Experimento Difícil/Pesadelo:</strong> Despertar inicial '+esc(difficultyInfo.hard??"—")+' / '+esc(difficultyInfo.nightmare??"—")+', vitórias '+(p.hardWins??0)+' / '+(p.nightmareWins??0)+'. Difícil venceu e Pesadelo perdeu em '+(p.hardWinNightmareLoss??0)+' pares; inverso em '+(p.nightmareWinHardLoss??0)+'.</p>'
+  +'<details><summary>Salas reais, elites e subchefes ('+Object.values(d.roomsByExpansion||{}).reduce((n,rooms)=>n+Object.keys(rooms).length,0)+' cartas)</summary><div style="overflow:auto"><table><thead><tr><th>Expansão</th><th>Sala</th><th>Visitas</th><th>Vitórias</th><th>Elites 3 XP</th><th>Subchefes vistos</th><th>Subchefes derrotados</th><th>XP recebido</th></tr></thead><tbody>'+roomsRows+'</tbody></table></div></details>'
+  +'<details><summary>Diagnóstico de heróis — Normal (chegada ao chefe × vitória e habilidades)</summary><div style="overflow:auto"><table><thead><tr><th>Expansão</th><th>Herói</th><th>Vitórias</th><th>Chegou ao chefe</th><th>Venceu após chegar</th><th>Vida na chegada</th><th>Habilidades escolhidas/ofertadas (chefe)</th></tr></thead><tbody>'+heroRows+'</tbody></table></div></details>';
+}
 const expansionName=(id)=>expansionNames[id]||id;
 function status(trial){return trial.violation?"stall":trial.outcome==="VICTORY"?"win":trial.outcome==="DEFEAT"?"loss":"stall"}
 function render(){
@@ -210,7 +315,9 @@ el("metadata").innerHTML=[
 'Gerado em '+new Date(data.generatedAt).toLocaleString("pt-BR"),
 data.options.runs+' seeds compartilhadas',
 data.completed+' / '+data.expected+' partidas',
-data.options.expansions.length+' expansões independentes'
+data.options.expansions.length+' expansões independentes',
+data.provenance?.gitCommit ? 'Commit '+data.provenance.gitCommit.slice(0,8)+(data.provenance.comparable?' · limpo':' · não comparável') : 'Commit não informado',
+'Escopo: solo'
 ].map((x)=>'<span class="pill">'+esc(x)+'</span>').join("");
 el("expansion").innerHTML='<option value="all">Todas as expansões</option>'+data.options.expansions.map((id)=>'<option value="'+esc(id)+'">'+esc(expansionName(id))+'</option>').join("");
 el("expansion").value=data.options.expansions[0]||"all";

@@ -42,11 +42,11 @@ function poisonedArtifactCombat(): GameState {
 }
 
 describe("bot artifact integration", () => {
-	it("observes manual artifact actions and scores poison stacks", () => {
+	it("não oferece ação manual do Coração Corrompido mesmo com veneno no inimigo", () => {
 		const observation = observe(testEngine, poisonedArtifactCombat());
 		const actions = observation.actions.filter((action) => action.type === "USE_ARTIFACT");
-		expect(actions).toHaveLength(1);
+		expect(actions).toHaveLength(0);
 		expect(scoreMoves(observation, "power-player").some((move) =>
-			move.action.type === "USE_ARTIFACT" && move.score >= 150)).toBe(true);
+			move.action.type === "USE_ARTIFACT")).toBe(false);
 	});
 });

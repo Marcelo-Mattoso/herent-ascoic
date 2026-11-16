@@ -3,6 +3,8 @@ import path from "node:path";
 import { getEnabledExpansions } from "@/core/data/expansions";
 import { buildCatalogBalance } from "./catalogBalance";
 import { assertLocalReportExecution } from "./localLevelingReports";
+import { assertSameReportProvenance, reportProvenance } from "./reportProvenance";
+import { summarizeReportDiagnostics } from "./reportDiagnostics";
 import {
 	type BenchmarkTrial,
 	type DungeonBenchmarkOptions,
@@ -72,6 +74,28 @@ function outputDir(options: CliOptions): string {
 	return target;
 }
 
+/**
+ * A auditoria rápida ocupa a pasta primeiro; somente esses dois arquivos
+ * podem anteceder os checkpoints de uma execução completa.
+ */
+export function prepareSimulationDirectory(dir: string): void {
+	if (!fs.existsSync(dir)) {
+		fs.mkdirSync(dir, { recursive: true });
+		return;
+	}
+	if (!fs.statSync(dir).isDirectory() || fs.lstatSync(dir).isSymbolicLink()) {
+		throw new Error("Pasta de relatório inválida: " + dir);
+	}
+	const contents = fs.readdirSync(dir).sort();
+	if (contents.length !== 2 ||
+		contents[0] !== "skill-audit.html" ||
+		contents[1] !== "skill-audit.json" ||
+		contents.some((name) => !fs.statSync(path.join(dir, name)).isFile() ||
+			fs.lstatSync(path.join(dir, name)).isSymbolicLink())) {
+		throw new Error("Pasta de relatório já existe: " + dir + ". Use --resume.");
+	}
+}
+
 function saveReport(dir: string, report: DungeonReportData): void {
 	// Only the versioned JSON is the report. config.json and trials.jsonl are
 	// private resumable checkpoints, not published report assets.
@@ -92,18 +116,24 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		expansion.rooms.length + " salas · " + expansion.items.length + " itens · " +
 		expansion.roomsBelowFourEnemies + " salas com menos de 4 inimigos (4 heróis)");
 	if (options.dryRun) return null;
+	const provenance = reportProvenance(catalogPreview);
+	if (!provenance.comparable) console.warn("ATENÇÃO: árvore Git suja ou commit desconhecido; este relatório não é elegível para comparação controlada ou retomada.");
 	const dir = outputDir(options);
 	const configFile = path.join(dir, "config.json");
+	const manifestFile = path.join(dir, "manifest.json");
 	const trialFile = path.join(dir, "trials.jsonl");
 	if (options.resume) {
 		if (!fs.existsSync(configFile)) throw new Error("Configuração não encontrada para retomar: " + configFile);
 		const existing = JSON.parse(fs.readFileSync(configFile, "utf8")) as DungeonBenchmarkOptions;
 		if (JSON.stringify(existing) !== JSON.stringify(benchmark))
 			throw new Error("A configuração de --resume difere da execução original.");
+		if (!fs.existsSync(manifestFile)) throw new Error("Checkpoint legado sem proveniência; não é seguro retomar esta execução.");
+		const saved = JSON.parse(fs.readFileSync(manifestFile, "utf8"));
+		assertSameReportProvenance(saved, provenance);
 	} else {
-		if (fs.existsSync(dir)) throw new Error("Pasta de relatório já existe: " + dir + ". Use --resume.");
-		fs.mkdirSync(dir, { recursive: true });
+		prepareSimulationDirectory(dir);
 		fs.writeFileSync(configFile, JSON.stringify(benchmark, null, 2) + "\n");
+		fs.writeFileSync(manifestFile, JSON.stringify(provenance, null, 2) + "\n");
 	}
 
 	// Em caso de interrupção, trials.jsonl permite continuar sem repetir partidas.
@@ -125,7 +155,7 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		if (byKey.has(key)) continue;
 		let trial: BenchmarkTrial;
 		try {
-			trial = runBenchmarkCase(test, benchmark.maxSteps);
+			trial = runBenchmarkCase(test, benchmark.maxSteps, benchmark.xpExperiment);
 		} catch (error) {
 			trial = { ...test, outcome: "ERROR", violation: "runner_exception",
 				violationMessage: error instanceof Error ? error.message : String(error),
@@ -150,11 +180,14 @@ export function runDungeonReport(args: readonly string[]): string | null {
 		schemaVersion: 1,
 		kind: "simulation",
 		generatedAt: new Date().toISOString(),
+		provenance,
+		scope: "solo" as const,
 		options: benchmark,
 		completed: trials.length,
 		expected: plan.length,
 		trials,
 		summaries: summarizeBenchmark(benchmark, trials),
+		diagnostics: summarizeReportDiagnostics(trials),
 		expansionNames: Object.fromEntries(getEnabledExpansions().map((pack) => [pack.id, pack.name])),
 		catalog: catalogPreview,
 	};

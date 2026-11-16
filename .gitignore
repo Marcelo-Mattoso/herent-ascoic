@@ -7,10 +7,14 @@ yarn-error.log*
 pnpm-debug.log*
 lerna-debug.log*
 
-# Dependencies and package metadata
+# Dependencies
 node_modules/
-package.json
-package-lock.json
+
+# Local environment and generated backup archives
+.env
+.env.*
+!.env.example
+docs.zip
 
 # Keep PNG master artwork tracked in dev for the WebP optimizer.
 # Release promotion filters PNG masters out of hml/main.

@@ -134,6 +134,7 @@ export type Action =
 				sourceId: string;
 				targetIds?: string[];
 				value?: number | string | null;
+				params?: Readonly<Record<string, unknown>>;
 			};
 	  }
 	| { type: "SELECT_SKILL_TARGET"; payload: { targetId: string } }

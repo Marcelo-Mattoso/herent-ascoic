@@ -23,7 +23,7 @@ import { checkCosts, payCosts } from "../../engine/cost";
 import { awakeningCost, lifeCostOf } from "./costs";
 import type { GameEngine } from "../gameEngine";
 
-import { deckOf, decksOf, heroOf, withDecks } from "../state/access";
+import { deckOf, decksOf, heroOf, pendingSkillChoiceOf, withDecks } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 export type AbilityGrantSourceKind =
 	| "hero"
@@ -295,6 +295,7 @@ export function executeAbilityGrant(engine: GameEngine,
 	const skillCtx = {
 		...context,
 		triggeredBy,
+		sourceCardId: source.cardId,
 		sourceHeroId: source.sourceHeroId,
 		sourceEnemyId: source.sourceEnemyId,
 		targetHeroIds: targetIds.filter((id) => gameOf(next).heroes.some((hero) => hero.id === id)),
@@ -325,9 +326,22 @@ export function executeAbilityGrant(engine: GameEngine,
 				} }));
 		}
 	}
-	if (!request.deferUsage) next = markGrantUsed(engine, next, source, grant);
-	if (grant.activation.actionCost === "consume_hero_action" && source.sourceHeroId) {
-		next = ActivationTracker.endHeroTurn(next, source.sourceHeroId);
+	if (!request.deferUsage && !pendingSkillChoiceOf(next)) next = markGrantUsed(engine, next, source, grant);
+	const definition = skillById(engine, grant.abilityId);
+	// O custo da habilidade do herói não se transfere a um item que reutiliza
+	// o mesmo efeito. Para itens/artefatos, vale apenas o custo da concessão.
+	const actionCost = source.kind === "hero"
+		? definition?.action_cost ?? grant.activation.actionCost
+		: grant.activation.actionCost;
+	// A escolha e a seleção do dado são decisões posteriores: só a confirmação
+	// efetiva do efeito pode consumir a ação de quem o preparou.
+	if (!request.deferUsage && !pendingSkillChoiceOf(next) &&
+		!gameOf(next).combat?.pendingDiceSelection) {
+		next = ActivationTracker.chargeAbilityAction(
+			next, source.sourceHeroId, grant.abilityId, actionCost, {
+				attackerHeroId: gameOf(next).combat?.lastRoll?.heroId,
+			},
+		);
 	}
 	return appendAlphaLog(next,
 		`Habilidade ${skillName(engine, ability.id)} ativada por ${cardName(engine, source.cardId)} (${source.sourceHeroId ?? source.sourceEnemyId ?? "grupo"}); evento ${triggeredBy}; alvos [${targetIds.join(", ") || "nenhum"}]; parâmetros ${JSON.stringify(params)}.`);

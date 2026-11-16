@@ -3,11 +3,6 @@ import { testEngine } from "@/core/__tests__/testEngine";
 import { settledWith } from "@/core/__tests__/fixtures";
 import { createEmptyCombatState } from "@/core/state/combatState";
 import { createInitialGameState, type GameState } from "@/core/state/gameState";
-import { enemiesOf } from "@/core/state/access";
-import { withGame } from "@/engine/state";
-import { legalActions } from "@/core/legalActions";
-import { artifactHandler } from "@/core/reducer/artifact";
-import { applyDamageOverTimeStatus } from "./damageOverTime";
 import { legalArtifactActions, projectManualArtifactActions } from "./artifactActivation";
 
 function scene(artifactId = "artifact_corrupted_forest_heart"): GameState {
@@ -30,46 +25,12 @@ function scene(artifactId = "artifact_corrupted_forest_heart"): GameState {
 	});
 }
 
-function poisoned(state: GameState, stacks = 2): GameState {
-	let next = state;
-	for (let index = 0; index < stacks; index++) {
-		next = applyDamageOverTimeStatus(next, "e1", {
-			status: "poison", sourceId: "h1", effectId: "poison-source-" + index,
-			damage: 1, rounds: 3,
-		});
-	}
-	return next;
-}
 
 describe("uso manual dos artefatos no jogo e bot", () => {
-	it("não oferece Coração Corrompido sem veneno; passivos não têm Usar", () => {
-		const empty = scene();
-		const view = projectManualArtifactActions(testEngine, empty);
-		expect(view).toHaveLength(1);
-		expect(view[0]).toMatchObject({ artifactId: "artifact_corrupted_forest_heart",
-			available: false });
-		expect(view[0]?.reason).toMatch(/envenenado/);
-		expect(legalArtifactActions(testEngine, empty)).toEqual([]);
-		const passive = projectManualArtifactActions(testEngine, scene("artifact_ancient_cauldron_spoon"));
-		expect(passive).toHaveLength(0);
-	});
-
-	it("mostra alvos válidos, aplica explosão dos stacks e respeita uma vez por combate", () => {
-		const start = poisoned(scene(), 2);
-		const view = projectManualArtifactActions(testEngine, start);
-		expect(view[0]).toMatchObject({ available: true, requiresTarget: true,
-			targets: [{ id: "e1", kind: "enemy" }] });
-		const options = legalActions(testEngine, start).filter((action) => action.type === "USE_ARTIFACT");
-		expect(options).toHaveLength(1);
-		expect(options[0]).toMatchObject({ type: "USE_ARTIFACT", payload: {
-			artifactId: "artifact_corrupted_forest_heart",
-			abilityId: "witch_artifact_corrupted_heart_burst",
-			targetEnemyId: "e1",
-		} });
-		const after = artifactHandler.apply(start, options[0]!, testEngine);
-		expect(enemiesOf(after)[0]?.currentLife).toBe(26);
-		expect(enemiesOf(after)[0]?.conditions.some((condition) => condition.includes("poison"))).toBe(false);
-		expect(legalArtifactActions(testEngine, poisoned(after, 1))).toHaveLength(0);
+	it("Coração Corrompido vira passivo e não oferece botão de uso", () => {
+		expect(projectManualArtifactActions(testEngine, scene())).toHaveLength(0);
+		expect(legalArtifactActions(testEngine, scene())).toEqual([]);
+		expect(projectManualArtifactActions(testEngine, scene("artifact_ancient_cauldron_spoon"))).toHaveLength(0);
 	});
 
 	it("oferece o Braseiro da Fornalha com alvo herói, mesmo sem portador definido", () => {
@@ -84,16 +45,4 @@ describe("uso manual dos artefatos no jogo e bot", () => {
 		});
 	});
 
-	it("recusa alvo inventado e respeita bloqueios fora da janela de ação", () => {
-		const start = poisoned(scene(), 2);
-		const invalid = artifactHandler.apply(start, { type: "USE_ARTIFACT", payload: {
-			artifactId: "artifact_corrupted_forest_heart",
-			abilityId: "witch_artifact_corrupted_heart_burst", targetEnemyId: "absent",
-		} }, testEngine);
-		expect(enemiesOf(invalid)[0]?.currentLife).toBe(30);
-		const betweenRounds = withGame(start, (game) => ({
-			...game, combat: { ...game.combat!, phase: "round_end" as const },
-		}));
-		expect(legalArtifactActions(testEngine, betweenRounds)).toEqual([]);
-	});
 });

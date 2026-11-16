@@ -266,7 +266,7 @@
         9,
         11
       ],
-      "damage": 3,
+      "damage": 2,
       "xp": 2,
       "reward": 1,
       "rewardType": "item",
@@ -352,7 +352,7 @@
         10,
         12
       ],
-      "damage": 4,
+      "damage": 3,
       "xp": 3,
       "reward": 1,
       "rewardType": "item",
@@ -524,7 +524,7 @@
         9,
         11
       ],
-      "damage": 3,
+      "damage": 2,
       "xp": 2,
       "reward": 1,
       "rewardType": "item",
@@ -610,7 +610,7 @@
         11,
         13
       ],
-      "damage": 5,
+      "damage": 4,
       "xp": 3,
       "reward": 2,
       "rewardType": "item",
@@ -736,7 +736,7 @@
         12,
         14
       ],
-      "damage": 4,
+      "damage": 3,
       "xp": 4,
       "reward": 1,
       "rewardType": "artifact",
@@ -758,9 +758,9 @@
       "exits": 2,
       "enemiesByPlayers": [
         1,
-        1,
         2,
-        2
+        2,
+        3
       ],
       "xp": 1,
       "reward": 1,
@@ -801,7 +801,7 @@
       "enemiesByPlayers": [
         0,
         1,
-        1,
+        2,
         2
       ],
       "xp": 1,
@@ -823,7 +823,7 @@
         1,
         2,
         3,
-        3
+        4
       ],
       "xp": 1,
       "reward": 1,
@@ -842,7 +842,7 @@
       "exits": 3,
       "enemiesByPlayers": [
         1,
-        2,
+        1,
         2,
         3
       ],
@@ -862,12 +862,12 @@
       "image": "images/room_lost_children_bedroom.webp",
       "exits": 2,
       "enemiesByPlayers": [
-        0,
         1,
         1,
+        2,
         2
       ],
-      "xp": 1,
+      "xp": 0,
       "reward": 1,
       "rewardType": "item",
       "skills": [
@@ -904,10 +904,10 @@
       "image": "images/room_green_candles_chamber.webp",
       "exits": 4,
       "enemiesByPlayers": [
-        1,
         2,
         2,
-        3
+        3,
+        4
       ],
       "xp": 2,
       "reward": 1,
@@ -926,7 +926,7 @@
       "exits": 1,
       "reward": 1,
       "rewardType": "artifact",
-      "xp": 3,
+      "xp": 4,
       "linkedSubbossId": "subboss_spider_mother",
       "skills": [
         {
@@ -945,7 +945,7 @@
       "exits": 2,
       "reward": 1,
       "rewardType": "artifact",
-      "xp": 2,
+      "xp": 4,
       "linkedSubbossId": "subboss_black_cauldron_servant",
       "skills": [
         {
@@ -1253,10 +1253,10 @@
       "enemiesByPlayers": [
         1,
         2,
-        2,
-        3
+        3,
+        4
       ],
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
       "rewardType": "artifact",
       "skills": [
@@ -1272,12 +1272,12 @@
       "image": "images/room_witch_herbarium.webp",
       "exits": 3,
       "enemiesByPlayers": [
-        1,
-        1,
         2,
-        2
+        3,
+        4,
+        5
       ],
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
       "rewardType": "artifact",
       "skills": [
@@ -1929,7 +1929,7 @@
       "countsAs": "artifact",
       "skills": [
         {
-          "skillId": "witch_artifact_corrupted_heart_burst"
+          "skillId": "witch_artifact_corrupted_heart_ward"
         }
       ],
       "image": "images/artifact_corrupted_forest_heart.png"
@@ -2001,7 +2001,8 @@
             }
           ]
         }
-      ]
+      ],
+      "action_cost": "consume_hero_action"
     },
     {
       "id": "witch_skill_lunar_spark",
@@ -2072,7 +2073,8 @@
             }
           ]
         }
-      ]
+      ],
+      "action_cost": "consume_hero_action"
     },
     {
       "id": "witch_skill_swamp_route",
@@ -2168,7 +2170,8 @@
           "kind": "i_full_heal",
           "to": "$target"
         }
-      ]
+      ],
+      "action_cost": "consume_hero_action"
     },
     {
       "id": "witch_skill_spore_cloud",
@@ -3468,28 +3471,17 @@
       ]
     },
     {
-      "id": "witch_artifact_corrupted_heart_burst",
+      "id": "witch_artifact_corrupted_heart_ward",
       "category": "item_skill",
-      "operate_type": "op_active",
-      "cooldown": {
-        "scope": "combat",
-        "charges": 1
-      },
+      "operate_type": "op_passive",
       "nature": [
         "nat_poison",
-        "nat_dark",
         "nat_earth"
       ],
-      "target_type": "tgt_enemy",
-      "affect_scope": "scp_single",
-      "affect_object": "obj_not_friend",
-      "effect": [
-        {
-          "kind": "i_consume_poison_stacks",
-          "to": "$target",
-          "damagePerStack": 2
-        }
-      ]
+      "target_type": "tgt_self",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "effect": []
     }
   ],
   "skillLocales": {
@@ -3793,10 +3785,10 @@
       "label": "Espinho Negro: Venenos finitos aplicados duram mais 1 rodada",
       "text": "Venenos finitos aplicados duram mais 1 rodada"
     },
-    "witch_artifact_corrupted_heart_burst": {
-      "name": "Último Suspiro da Mata",
-      "label": "Último Suspiro da Mata: uma vez por combate, escolha um inimigo envenenado; consuma todos os stacks de Veneno e cause 2 de dano por stack.",
-      "text": "Uma vez por combate, escolha um inimigo envenenado. Remova todos os seus stacks independentes de Veneno e cause 2 de dano direto por stack, sem bônus de armas. O artefato permanece com o grupo."
+    "witch_artifact_corrupted_heart_ward": {
+      "name": "Proteção do Coração Corrompido",
+      "label": "Proteção do Coração Corrompido: durante o combate com a Grande Bruxa, os heróis recebem 1 a menos de dano periódico de veneno por tick.",
+      "text": "Enquanto o grupo possuir o Coração Corrompido da Floresta, cada herói sofre 1 a menos de dano periódico de veneno durante o combate com a Grande Bruxa do Caldeirão. Não reduz dano físico."
     }
   },
   "openings": {

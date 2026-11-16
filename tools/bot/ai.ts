@@ -14,6 +14,7 @@ import { createHeadlessPort } from "./port";
 import type { BotProfile } from "./profiles";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
+import type { GameBalance } from "@/core/gameEngine";
 
 export { rankMoves, scoreAction, scoreMoves, type ScoredMove };
 
@@ -21,6 +22,9 @@ export interface AiStep {
 	readonly step: number;
 	readonly before: PlayerView;
 	readonly after: PlayerView;
+	/** Snapshots para telemetria: nunca entram nas decisões da IA. */
+	readonly beforeState: GameState;
+	readonly afterState: GameState;
 	readonly chosen: ScoredMove;
 	readonly options: readonly ScoredMove[];
 	readonly rejected: readonly string[];
@@ -42,12 +46,15 @@ export function playAiGame(
 	maxSteps: number,
 	onStep?: (step: AiStep) => void,
 	profile: BotProfile = "power-player",
+	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
 ): AiGameResult {
-	const port = createHeadlessPort(setup);
+	const port = createHeadlessPort(setup, xpCostsOverride);
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();
 	let bossProgress: { life: number; round: number } | null = null;
+	let previousCombat: { room: number; round: number; enemyLife: Readonly<Record<string, number>> } | null = null;
+	let stagnantRounds = 0;
 	let violation: Violation | null = checkState(port.inspect(), baseline);
 	while (!violation && !isTerminal(port.inspect())) {
 		if (port.history.length >= maxSteps) {
@@ -56,7 +63,26 @@ export function playAiGame(
 		}
 		let advanced = false;
 		const obs = port.observe();
-		const options = scoreMoves(obs, profile, setup.seed, port.history.length);
+		// Se várias rodadas passaram sem tirar PV de nenhum inimigo, reduzir
+		// a prioridade de cura/buff; ataques voltam a disputar a ação do herói.
+		const presentEnemies = obs.view.enemies.filter((enemy) => enemy.status === "active");
+		if (obs.view.combat && presentEnemies.length) {
+			const round = obs.view.combat.round;
+			const enemyLife = Object.fromEntries(presentEnemies.map((enemy) => [enemy.id, enemy.currentLife]));
+			const previous = previousCombat;
+			const sameEncounter = previous !== null && previous.room === obs.view.roomsCleared &&
+				Object.keys(enemyLife).length === Object.keys(previous.enemyLife).length &&
+				Object.keys(enemyLife).every((id) => id in previous.enemyLife);
+			if (!previous || !sameEncounter) stagnantRounds = 0;
+			else if (Object.entries(enemyLife).some(([id, hp]) => hp < (previous.enemyLife[id] ?? hp)))
+				stagnantRounds = 0;
+			else if (round > previous.round) stagnantRounds += round - previous.round;
+			previousCombat = { room: obs.view.roomsCleared, round, enemyLife };
+		} else {
+			previousCombat = null;
+			stagnantRounds = 0;
+		}
+		const options = scoreMoves(obs, profile, setup.seed, port.history.length, { stagnantRounds });
 		const stepRejected: string[] = [];
 		const combat = obs.view.combat;
 		const turnKey = `${combat?.round}:${combat?.heroesActed.length}:${obs.view.roomsCleared}`;
@@ -69,6 +95,7 @@ export function playAiGame(
 				if (abilitiesThisTurn.has(abilityKey)) continue;
 				abilitiesThisTurn.add(abilityKey);
 			}
+			const beforeState = port.inspect();
 			const result = port.act(move.action);
 			if (result.kind === "rejected") {
 				const message = `${move.action.type}: ${result.error}`;
@@ -81,6 +108,8 @@ export function playAiGame(
 					step: port.history.length,
 					before: obs.view,
 					after: port.observe().view,
+					beforeState,
+					afterState: port.inspect(),
 					chosen: move,
 					options,
 					rejected: stepRejected,
@@ -89,9 +118,14 @@ export function playAiGame(
 			}
 		}
 		if (!advanced) {
+			const stuck = port.observe().view;
 			violation = {
 				invariant: "no_legal_action",
-				message: `status ${gameOf(port.inspect()).status} sem jogada que altere o estado`,
+				message: `status ${gameOf(port.inspect()).status} sem jogada que altere o estado; ` +
+					`fase ${stuck.combat?.phase ?? "sem-combate"}, rodada ${stuck.combat?.round ?? "-"}, ` +
+					`agiram ${(stuck.combat?.heroesActed ?? []).join(",")}, ` +
+					`ações ${options.slice(0, 10).map((entry) => entry.action.type).join(",")}, ` +
+					`rejeições ${stepRejected.slice(0, 5).join(" | ") || "nenhuma"}`,
 			};
 			break;
 		}

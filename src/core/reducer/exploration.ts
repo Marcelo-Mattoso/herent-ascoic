@@ -32,7 +32,7 @@ import { awakeningOf, dealDecksInto, deckOf, decksOf, discardDeckTop, isStatComp
 import { gameOf, withGame } from "../../engine/state";
 const DUNGEON_ROOM_COPIES = 2;
 
-/** Duas salas de introdução fáceis e quatro salas sem elites nem minibosses. */
+/** Sala inicial obrigatoriamente de 0 XP; segunda sala também sem elites. */
 const EASY_ROOM_COUNT = 2;
 const ELITE_UNLOCK_ROOM = 5;
 function isRoomAvailableAtDepth(engine: GameEngine, id: string, roomNumber: number): boolean {
@@ -41,7 +41,11 @@ function isRoomAvailableAtDepth(engine: GameEngine, id: string, roomNumber: numb
 	// Salas que invocam miniboss e salas especiais ficam reservadas para a quinta sala.
 	if (roomNumber < ELITE_UNLOCK_ROOM &&
 		(card.type === "subboss_room" || card.specialCreatureId || (card.xp ?? 0) >= 3)) return false;
-	// As duas primeiras salas são leves inclusive no modo solo.
+	// A primeira sala, inclusive em reinícios e após consumo parcial do deck,
+	// deve ser a de 0 XP; não basta ter uma sala fácil disponível.
+	if (roomNumber === 1)
+		return card.type === "room" && (card.xp ?? 0) === 0 &&
+			card.enemiesByPlayers[0] <= 1;
 	if (roomNumber <= EASY_ROOM_COUNT)
 		return card.type === "room" && card.enemiesByPlayers[0] <= 1 &&
 			(card.xp ?? 0) <= 1;
@@ -58,9 +62,17 @@ function isCreatureAvailableAtDepth(engine: GameEngine, id: string, roomNumber: 
 }
 
 export function buildDungeonRoomDeck(engine: GameEngine, expansionId?: string): string[] {
-	return cardsOfType(engine, "room")
-		.filter((card) => !expansionId || expansionOf(engine, card.id) === expansionId)
-		.flatMap((card) => Array.from({ length: DUNGEON_ROOM_COPIES }, () => card.id));
+	const belongsToExpansion = (id: string) => !expansionId || expansionOf(engine, id) === expansionId;
+	// Duas cópias por sala comum; cada sala de subchefe entra UMA vez.
+	// As cartas de subboss_room não podem ficar inacessíveis no catálogo.
+	return [
+		...cardsOfType(engine, "room")
+			.filter((card) => belongsToExpansion(card.id))
+			.flatMap((card) => Array.from({ length: DUNGEON_ROOM_COPIES }, () => card.id)),
+		...cardsOfType(engine, "subboss_room")
+			.filter((card) => belongsToExpansion(card.id))
+			.map((card) => card.id),
+	];
 }
 
 export function handleRevealRoom(engine: GameEngine, state: GameState): GameState {
@@ -308,24 +320,34 @@ export function handleSpawnEnemies(engine: GameEngine, state: GameState): GameSt
 	// com todas as criaturas elegíveis da expansão do chefe da partida.
 	// Respeitamos o monte ainda disponível antes de iniciar um novo ciclo.
 	const roomNumber = gameOf(state).roomsCleared + 1;
+	// As salas comuns de 3 XP não invocam subchefes: representam encontros
+	// de elite com criaturas fortes (3 XP). Pelo menos 1 no solo, 2 em grupo.
+	const eliteRequired = roomCard?.type === "room" && (roomCard.xp ?? 0) === 3
+		? Math.min(regularCount, activeHeroesCount === 1 ? 1 : 2)
+		: 0;
 	for (let i = 0; i < regularCount; i++) {
-		let eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
+		const mustBeElite = i < eliteRequired;
+		const eligible = (id: string) => {
+			if (!isCreatureAvailableAtDepth(engine, id, roomNumber)) return false;
+			const card = cardById(engine, id);
+			return card?.type === "creature" && (!mustBeElite || card.xp === 3);
+		};
+		let eligibleIndex = remaining.findIndex(eligible);
 		if (eligibleIndex < 0) {
-			// Se apenas elites restarem, recria um ciclo das criaturas permitidas
-			// nesta profundidade, sem antecipar nem descartar as cartas bloqueadas.
+			// Reconstitui apenas criaturas elegíveis desta expansão e profundidade.
+			// Para vagas de elite, o reembaralhamento também exige XP 3.
 			const expansionId = expansionOf(engine, gameOf(state).bossCardId);
 			const removedIds = new Set(removed);
 			const creatureIds = cardsOfType(engine, "creature")
 				.filter((card) => expansionOf(engine, card.id) === expansionId &&
-					!removedIds.has(card.id) &&
-					isCreatureAvailableAtDepth(engine, card.id, roomNumber))
+					!removedIds.has(card.id) && eligible(card.id))
 				.map((card) => card.id);
 			if (creatureIds.length === 0) break;
 			const shuffled = shuffleRng(creatureIds, rng);
 			remaining = [...remaining, ...shuffled.value];
 			rng = shuffled.next;
 			reshuffleCount++;
-			eligibleIndex = remaining.findIndex((id) => isCreatureAvailableAtDepth(engine, id, roomNumber));
+			eligibleIndex = remaining.findIndex(eligible);
 		}
 		if (eligibleIndex < 0) break;
 		const [id] = remaining.splice(eligibleIndex, 1);

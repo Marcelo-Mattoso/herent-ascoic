@@ -53,7 +53,7 @@ npm run bot -- --games 100 --seed 1 --profile random --heroes barbarian,cleric,m
 npm run bot:balance -- --solo-seeds 20 --team-seeds 5 --seed 1 --difficulty normal --profile power-player
 ```
 
-O comando joga cada herói sozinho e todas as combinações possíveis de três heróis (com 12 heróis, 220 trios). Agora percorre todas as expansões habilitadas, escolhendo o chefe e os baralhos do respectivo módulo. Para comparar também os cinco perfis e dificuldades, use `bot:dungeon-report`. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
+O comando joga cada herói sozinho e todas as combinações possíveis de três heróis (com 12 heróis, 220 trios). Agora percorre todas as expansões habilitadas, escolhendo o chefe e os baralhos do respectivo módulo. Para comparar também os cinco perfis e dificuldades, use `npm run bot:leveling-report`. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
 
 Use `--mode solo` ou `--mode team` para rodar só uma das modalidades e `--expansions fornalha-sombria` para limitar o módulo. Com `--mode solo --hero mage`, rode um herói específico. A auditoria atual e suas limitações estão em `docs/BALANCE_AUDIT_2026-11-03.md`.
 
@@ -75,12 +75,11 @@ Acesse **http://localhost:5173/leveling-report**.
 
 ~~~bash
 npm run bot:leveling-report
-# Equivalente: npm run bot:dungeon-report
 ~~~
 
-O ensaio descobre automaticamente todos os heróis e todas as expansões habilitadas. Para cada herói solo, executa as cinco dificuldades, os cinco perfis do bot e todas as expansões, com 10 seeds por padrão: **12 × 2 × 5 × 5 × 10 = 3.000 partidas** no catálogo atual. Novas expansões e heróis aumentam a matriz automaticamente, sem alterar o bot. Não há `--heroes`, `--expansions`, `--profiles` ou `--difficulties` nesse comando: o relatório é sempre completo.
+O ensaio descobre automaticamente todos os heróis e todas as expansões habilitadas. Para cada herói solo, executa as cinco dificuldades, os cinco perfis do bot e todas as expansões, com 10 seeds por padrão: **12 × 2 × 5 × 5 × 10 = 6.000 partidas** no catálogo atual. Novas expansões e heróis aumentam a matriz automaticamente, sem alterar o bot. Não há `--heroes`, `--expansions`, `--profiles` ou `--difficulties` nesse comando: o relatório é sempre completo.
 
-O resultado de cada execução fica em **`tools/bot/runs/dungeon-<data>/report.json`** (ignorado pelo Git). Ele inclui percentuais por herói, dificuldade e expansão, todas as partidas, impasses e a auditoria das cartas. Os arquivos `config.json` e `trials.jsonl` são apenas checkpoints privados para retomar um relatório interrompido; não são enviados ao site.
+O resultado de cada execução individual fica em **`tools/bot/runs/dungeon-<data>/report.json`** (ignorado pelo Git). Já o comando **`npm run audit`** mantém os resultados da auditoria de habilidades (`skill-audit.json` e `skill-audit.html`) e, caso aprovada, a simulação (`report.json`, `config.json`, `manifest.json`, `trials.jsonl`) na mesma pasta `tools/bot/runs/audit-<data-hora>/`. Ele inclui percentuais por herói, dificuldade e expansão, todas as partidas, impasses e a auditoria das cartas. Os arquivos `config.json` e `trials.jsonl` são apenas checkpoints privados para retomar um relatório interrompido; não são enviados ao site.
 
 A partir dos relatórios novos, cada partida também registra `progression`: XP recebido, XP gasto, compras por opção (`level_up`, `recover_dungeon`, `buy_item`, `buy_artifact`), saldo e pico de XP, índices de Ímpeto inicial/final/máximo, número de subidas de nível e decisões em que subir nível estava disponível. O painel **Economia de XP e evolução dos heróis** compara médias por herói, expansão, dificuldade e perfil. Os números de oportunidades contam decisões da IA, não turnos distintos; XP é acompanhado pelas mudanças do saldo coletivo e eventuais consumos automáticos fora de `SPEND_XP` aparecem em `xpOtherLoss`. Relatórios antigos continuam legíveis, sem o painel novo. A partir desta revisão, `levelUpPurchases` considera apenas mudanças reais do índice de Ímpeto; `levelUpAttempts` e `levelUpNoEffect` registram separadamente ações executadas sem evolução. As janelas `skillOpportunities` e `powerOpportunities` representam decisões nas quais essas ações estavam entre as opções do bot. `powerUses` agora inclui poderes executados por `USE_SKILL`, `USE_POWER` e interrupções voluntárias `APPLY_TRIGGER_INTERRUPT`; `skillUses` também inclui habilidades disparadas nas janelas de interrupção, sem contar habilidades inimigas. Gatilhos voluntários são acionados pela janela de interrupção do motor, não por um `USE_SKILL` artificial. O perfil Speedrunner prioriza evoluir antes de avançar, e os demais perfis avaliam habilidades e poderes disponíveis. Essas métricas exigem gerar um novo relatório; as regras e as cartas não foram alteradas.
 
@@ -165,3 +164,31 @@ Tudo fica em `tools/bot/runs/`, fora do git:
 - O planejamento de combos cobre a rodada e o ataque seguinte; ainda não prevê várias rodadas, mudanças de equipamento ou todas as habilidades.
 - Pela tela, recuperar a masmorra esgotada e comprar com XP ainda podem falhar no clique.
 - Seeds com bugs conhecidos do jogo estão em `KNOWN_BUGS`, em `bot.test.ts`.
+
+## Experimento de preços — P1 (bots apenas)
+
+O comando `npm run bot:leveling-report` voltou a usar os **preços oficiais**: item **15 XP** e artefato **35 XP**. O campo `options.xpExperiment` só aparece em execuções com override explícito, nunca no audit padrão. A política dos bots prioriza subir de nível e recuperar o baralho da masmorra; itens e artefatos são compras excepcionais após o nivelamento, com reserva de XP. O perfil `random` continua sendo um controle aleatório.
+
+## Estatísticas de veneno (por PV real)
+
+O relatório passa a registrar `trials[].poison.toHeroes` (dano sofrido por heróis), `toEnemies` (dano infligido aos inimigos) e `preventedByHeart` (PV evitados pelo Coração Corrompido na luta contra a Bruxa). Os agregados ficam em `diagnostics.poison` e `diagnostics.poisonByExpansion` para facilitar a comparação Fornalha × Bruxa. Aplicações de veneno sem tick ou reduzidas a zero **não contam como dano causado**. Os custos experimentais não devem ser confundidos com preços já aprovados para o jogo.
+
+Nota: o Coração Corrompido é passivo e não aparece entre os artefatos com comando `USE_ARTIFACT`; seu efeito é aplicado pelos dois resolvedores de veneno e não aumenta o número de ações do bot.
+
+## Auditoria de veneno e boss — pacote de observabilidade
+
+Cada partida registra `poison.damageBySource` (carta/habilidade, PV em heróis e inimigos, ticks), `poison.applicationsBySource`, `poison.blockedBySource` e `poison.removalsBySource` (motivo | agente removedor | origem do veneno). Remoções por expiração, fim do combate, antídoto, limpeza de habilidade, dispel, morte e substituições não reconhecidas são distinguíveis. Os agregados ficam em `diagnostics.poisonDamageBySource`, `poisonRemovalBySource`, `poisonApplicationsBySource` e `poisonBlockedBySource`. Campos `witchBossPoisonTicks` e `heartHeldAtWitchBossTicks` distinguem falta de oportunidade de possível falha do Coração.
+
+`trials[].bossEncounter` registra a primeira entrada real no chefe: sala, nível, PV/max PV, XP, número de artefatos e posse do Coração. `diagnostics.bossByExpansion` resume entrada e condição do grupo; `diagnostics.xpPolicy` contabiliza gastos em itens/artefatos quando havia level up disponível e recuperações da masmorra. Os campos são agregados de eventos reais, não previsões de vitória.
+
+A telemetria também inclui a origem na linha de log de cada tick, bem como um alerta de integridade caso o total de dano de veneno não corresponda à soma das fontes identificadas. Valores em `unknown/poison` são destacados para investigação.
+
+### Auditoria de salas, heróis e Pesadelo (14/11)
+
+O `audit` agora diferencia **Difícil = Despertar 1** de **Pesadelo = Despertar 2**, conservando Ímpeto 0 nos dois. `report.json` inclui `trials[].initialDespertar`, `initialHeroLevel` e `rooms` com visitas, salas vencidas, criaturas difíceis de 3 XP, subchefes vistos/derrotados e XP observado ao vencer. Os campos agregados `diagnostics.roomsByExpansion`, `diagnostics.heroBalance` e `diagnostics.difficultyParity` também aparecem em tabelas no relatório Markdown e em detalhes expansíveis no painel HTML.
+
+`heroBalance` separa vitórias, chegadas ao chefe e vitórias após chegar; assim fica visível se um herói sofre na exploração ou no combate final. Todos os indicadores descrevem o comportamento do bot (não uma taxa garantida para humanos). Relatórios antigos continuam legíveis; métricas novas são preenchidas apenas após nova execução. Para o impasse conhecido do Necromante, há teste determinístico em `tools/bot/ai.test.ts` (`random`, Fácil, seed 1, Fornalha).
+
+### Logs P2 — escolhas de habilidades por herói
+
+Os relatórios registram `trials[].progression.abilityDecisions` com `offeredById` (decisões nas quais a habilidade podia ser usada), `chosenById` (ações realmente escolhidas), `offeredAtBossById` e `chosenAtBossById` (subconjunto no chefe). Inclui ações USE_SKILL, USE_POWER e interrupções voluntárias, mas não infere efeito de passivas nem confunde SKIP_TRIGGER_INTERRUPT com uso. As decisões podem se repetir na mesma sala; contá-las não significa usos únicos. O agregado fica em `diagnostics.heroBalance`, por expansão, herói e dificuldade. Essas métricas ajudam a separar uma habilidade indisponível de uma habilidade que a IA deixa de usar.

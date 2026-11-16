@@ -30,7 +30,7 @@
     },
     "nightmare": {
       "heroOffset": 0,
-      "despertarOffset": 1,
+      "despertarOffset": 2,
       "recoverCost": 7
     }
   },

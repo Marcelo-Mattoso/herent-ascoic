@@ -349,7 +349,7 @@ describe("kinds genéricos (builtin) — evaluate e resolve", () => {
 	it("i_dispel e i_remove_status limpam condições", () => {
 		const state: GameState = settled(withGame(baseState(), (prevGame) => ({ ...prevGame, heroes: [hero({ conditions: ["poison_1", "stun"] })], activeEnemies: [enemy({ conditions: ["poison_2"] })] })));
 		expect(pushedBy({ kind: "i_dispel", category: "poison" })).toEqual([
-			{ kind: "i_dispel", category: "poison" },
+			{ kind: "i_dispel", category: "poison", removerSourceId: "h1", removerSkillId: "skill_teste" },
 		]);
 		const dispelled = resolveWith(state, {
 			kind: "i_dispel",
@@ -359,7 +359,7 @@ describe("kinds genéricos (builtin) — evaluate e resolve", () => {
 		expect(enemiesOf(dispelled)[0]?.conditions).toEqual([]);
 
 		expect(pushedBy({ kind: "i_remove_status", status: "stun" })).toEqual([
-			{ kind: "i_remove_status", status: "stun", to: "e1" },
+			{ kind: "i_remove_status", status: "stun", to: "e1", removerSourceId: "h1", removerSkillId: "skill_teste" },
 		]);
 		const removed = resolveWith(state, {
 			kind: "i_remove_status",

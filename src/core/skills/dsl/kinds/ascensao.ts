@@ -3,7 +3,7 @@ import { defineCondition, type RefResolver } from "../../../../engine/kinds";
 import type { GameKindPackage } from "../../../gameEngine";
 import { recordEvent } from "../../../events/record";
 import { applyPoisonStatus } from "../../../rules/poison";
-import { applyDamage } from "../../../systems/damageSystem";
+import { poisonOriginLabel } from "../../../rules/poisonTelemetry";
 import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
@@ -694,11 +694,14 @@ const poisonWardKind = effectKind({
     to: z.string(),
     mode: z.enum(["remove_one", "block_next", "reduce_next"]),
     value: z.number().int().positive().default(1),
+    removerSourceId: z.string().optional(),
+    removerSkillId: z.string().optional(),
   }),
   evaluate: (node, ctx) => {
     const to = resolveEntityRef(node.to, ctx);
     if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
-    return ctx.action.pushEffect({ kind: "i_poison_ward", to, mode: node.mode, value: node.value });
+    return ctx.action.pushEffect({ kind: "i_poison_ward", to, mode: node.mode, value: node.value,
+      removerSkillId: ctx.skillId, removerSourceId: ctx.sourceId ?? "system" });
   },
   resolve: (state, effect) => {
     const entity = targetOf(effect);
@@ -709,7 +712,9 @@ const poisonWardKind = effectKind({
     if (mode === "remove_one") {
       const index = unit.conditions.findIndex(c => matchesDamageOverTimeStatus(c, "poison") || c.startsWith("poison:"));
       if (index < 0) return state;
-      return withUnitStats(state, unit.id, { conditions: unit.conditions.filter((_, i) => i !== index) });
+      return withUnitStats(state, unit.id, { conditions: unit.conditions.filter((_, i) => i !== index) },
+        { reason: "antidote", by: poisonOriginLabel(state, String(effect["removerSourceId"] ?? "system"),
+          String(effect["removerSkillId"] ?? "i_poison_ward")) });
     }
     const prefix = "poison_ward:" + mode + ":";
     const existing = unit.conditions.find(c => c.startsWith(prefix));
@@ -739,57 +744,30 @@ const hasDotStacks = defineCondition<never, never, EvalCtx>({
   },
 });
 
-// Explode every independent poison stack into direct damage, without weapon bonuses.
-const consumePoisonStacksKind = effectKind({
-  kind: "i_consume_poison_stacks",
-  schema: z.object({
-    kind: z.literal("i_consume_poison_stacks"),
-    to: z.string(),
-    damagePerStack: z.number().int().positive(),
-  }),
-  evaluate: (node, ctx) => {
-    const to = resolveEntityRef(node.to, ctx);
-    if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
-    return ctx.action.pushEffect({
-      kind: "i_consume_poison_stacks",
-      to,
-      damagePerStack: node.damagePerStack,
-    });
-  },
-  resolve: (state, effect, { engine }) => {
-    const targetId = targetOf(effect);
-    const target = enemiesOf(state).find((enemy) => enemy.id === targetId && enemy.status === "active");
-    if (!target || !gameOf(state).combat) return state;
-    const stacks = target.conditions.filter((raw) =>
-      matchesDamageOverTimeStatus(raw, "poison") || raw.startsWith("poison:"),
-    );
-    if (stacks.length === 0) return state;
-    const clean = withUnitStats(state, target.id, {
-      conditions: target.conditions.filter((raw) => !stacks.includes(raw)),
-    });
-    const amount = stacks.length * Number(effect["damagePerStack"]);
-    const damaged = applyDamage(engine, clean, target.id, amount, {
-      sourceId: "corrupted_forest_heart",
-      damageType: "condition",
-    });
-    return log(damaged, "Último Suspiro da Mata: " + stacks.length +
-      " stacks consumidos, " + amount + " de dano em " + target.id + ".");
-  },
-});
-
 const applyPoisonKind = effectKind({
 	kind: "i_apply_poison",
-	schema: z.object({ kind: z.literal("i_apply_poison"), to: z.string(), damage: ExprNodeSchema, rounds: ExprNodeSchema }),
+	schema: z.object({
+		kind: z.literal("i_apply_poison"),
+		to: z.string(),
+		damage: ExprNodeSchema,
+		rounds: ExprNodeSchema,
+		sourceId: z.string().optional(),
+		effectId: z.string().optional(),
+	}),
 	evaluate: (node, ctx) => {
 		const to = resolveEntityRef(node.to, ctx);
 		if (!to) return unresolvedEntityRef(ctx, node.kind, node.to);
 		return ctx.action.pushEffect({
 			kind: "i_apply_poison", to,
+			sourceId: ctx.sourceId ?? "system", effectId: ctx.skillId,
 			damage: resolveExpr(node.damage, ctx), rounds: resolveExpr(node.rounds, ctx),
 		});
 	},
 	resolve: (state, effect) => applyPoisonStatus(
-		state, targetOf(effect) ?? "", Number(effect["damage"]), Number(effect["rounds"]),
+		state, targetOf(effect) ?? "", Number(effect["damage"]), Number(effect["rounds"]), {
+			sourceId: String(effect["sourceId"] ?? "legacy_unknown"),
+			effectId: String(effect["effectId"] ?? "legacy_poison"),
+		},
 	),
 });
 
@@ -797,7 +775,6 @@ export const ascensaoPackage: GameKindPackage = {
 	id: "ascensao-heroica",
 	kinds: [
 		poisonWardKind,
-		consumePoisonStacksKind,
 		hasDotStacks as unknown as GameKind,
 		applyDamageOverTimeKind,
 		applyPoisonKind,

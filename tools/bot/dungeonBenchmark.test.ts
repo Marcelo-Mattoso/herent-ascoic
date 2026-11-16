@@ -52,7 +52,7 @@ describe("ensaio pareado de masmorra", () => {
 			const setup = { ...setupForRun(1, [heroId], difficulty), bossCardId: benchmarkBoss(expansionId) };
 			const view = createHeadlessPort(setup).observe().view;
 			expect(view.heroes[0]?.impeto).toBe(impeto);
-			expect(view.despertar).toBe(difficulty === "hard" || difficulty === "nightmare" ? 1 : 0);
+			expect(view.despertar).toBe(difficulty === "nightmare" ? 2 : difficulty === "hard" ? 1 : 0);
 		}
 	});
 
@@ -139,6 +139,30 @@ describe("ensaio pareado de masmorra", () => {
 			const move = moves.find((entry) => entry.action.type === "USE_SKILL" &&
 				entry.action.payload.skillId === skillId);
 			expect(move).toBeUndefined();
+		}
+	});
+
+	it("Fúria Rubra não é preparada em risco alto nem recebe prioridade fixa", () => {
+		const port = createHeadlessPort({ ...setupForRun(1, ["hero_crimson_barbarian"], "normal"),
+			bossCardId: benchmarkBoss("fornalha-sombria") });
+		const obs = port.observe();
+		const hero = obs.view.heroes[0]!;
+		const fury = (obs.abilities[hero.id] ?? []).find((ability) => ability.abilityId === "skill_crimson_fury");
+		expect(fury).toBeDefined();
+		const ready = { ...obs,
+			view: { ...obs.view, status: "HERO_ACTION" as const,
+				heroes: [{ ...hero, currentLife: 3 }], enemies: [{
+				id: "audit-enemy", cardId: "creature_deep_rift_rat",
+				currentLife: 20, maxLife: 20, damage: 4, hitBonus: 0,
+				dice: 1, status: "active" as const,
+				conditions: [] as string[], tokens: {}, firstDamageTakenThisTurn: false,
+			}], },
+			abilities: { ...obs.abilities, [hero.id]: [{ ...fury!, status: "available" as const }] },
+		};
+		for (const profile of ["power-player", "speedrunner", "casual", "explorer"] as const) {
+			const actions = scoreMoves(ready, profile);
+			expect(actions.some((move) => move.action.type === "USE_SKILL" &&
+				move.action.payload.skillId === "skill_crimson_fury")).toBe(false);
 		}
 	});
 

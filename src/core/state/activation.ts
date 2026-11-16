@@ -1,3 +1,4 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { removeModifiersAppliedBySource } from "../ecs/world";
 import { removeBlocksAppliedBySource } from "./blockHelpers";
 import type { GameState } from "./gameState";
@@ -135,6 +136,27 @@ export class ActivationTracker {
 		return Object.fromEntries(
 			Object.entries(locks).filter(([, lock]) => lock.scope !== scope),
 		);
+	}
+
+	/**
+	 * O motor é a autoridade sobre o custo da ação. Preparar uma reação não
+	 * consome o turno: a cobrança ocorre apenas quando o efeito é aplicado.
+	 * Escolhas de dado são cobradas após SELECT_DIE, nunca ao abrir o modal.
+	 */
+	static chargeAbilityAction(
+		state: GameState,
+		sourceHeroId: string | undefined,
+		skillId: string,
+		actionCost: "none" | "consume_hero_action" | undefined,
+		options: { choiceId?: string; attackerHeroId?: string } = {},
+	): GameState {
+		if (!sourceHeroId || actionCost !== "consume_hero_action") return state;
+		// O Juramento pode curar o grupo OU reforçar o próprio ataque.
+		if (skillId === HERO_ABILITY_IDS.power_last_light_oath && options.choiceId !== "heal_all") return state;
+		// Eclipse Verde: a feiticeira não perde outra ação ao alterar o próprio dado.
+		if (skillId === HERO_ABILITY_IDS.witch_power_green_eclipse &&
+			(!options.attackerHeroId || options.attackerHeroId === sourceHeroId)) return state;
+		return ActivationTracker.endHeroTurn(state, sourceHeroId);
 	}
 
 	static disableHeroForRound(

@@ -15,8 +15,17 @@ describe("skill audit: discovery and structural checks", () => {
 	it("keeps runtime uncovered until actual execution is verified", () => {
 		const report = createSkillAuditReport("2026-11-12T00:00:00.000Z");
 		expect(report.summary.runtimePass).toBe(0);
-		expect(report.summary.runtimeNotCovered).toBe(report.summary.discoveredGrants);
-		expect(report.inventory.every((entry) => entry.runtimeStatus === "NOT_COVERED")).toBe(true);
+		expect(report.summary.runtimeNotCovered + report.summary.runtimePartial + report.summary.runtimeFail)
+			.toBe(report.summary.discoveredGrants);
+		expect(report.runtimeScenarios).toHaveLength(32);
+		const heroInventory = report.inventory.filter((entry) => entry.sourceType === "hero");
+		expect(heroInventory).toHaveLength(25);
+		expect(heroInventory.every((entry) => entry.runtimeStatus !== "NOT_COVERED")).toBe(true);
+		expect(new Set(report.runtimeScenarios.map((entry) => entry.id)).size).toBe(32);
+		expect(report.runtimeScenarios.filter((entry) => entry.id.startsWith("hero-"))).toHaveLength(22);
+		expect(report.groupProjectionScenarios.length).toBeGreaterThanOrEqual(48);
+		expect(report.groupCombatScenarios.map((entry) => entry.partySize)).toEqual([2, 3, 4]);
+		expect(report.inventory.map((entry) => entry.runtimeStatus)).not.toContain("PASS");
 		expect(report.generatedAt).toBe("2026-11-12T00:00:00.000Z");
 	});
 

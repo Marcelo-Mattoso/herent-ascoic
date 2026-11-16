@@ -82,7 +82,7 @@ describe("balanceamento do Despertar", () => {
 	it("aplica custo 3/4/5/6/7 de recuperação e não aceita XP insuficiente", () => {
 		const cases: Array<[Difficulty, number, number, number]> = [
 			["very_easy", 3, 2, 0], ["easy", 4, 1, 0], ["normal", 5, 0, 0],
-			["hard", 6, 0, 1], ["nightmare", 7, 0, 1],
+			["hard", 6, 0, 1], ["nightmare", 7, 0, 2],
 		];
 		for (const [difficulty, cost, heroOffset, dungeonOffset] of cases) {
 			const started = begin(difficulty);

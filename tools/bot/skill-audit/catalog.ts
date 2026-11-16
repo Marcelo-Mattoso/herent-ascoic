@@ -2,6 +2,9 @@ import { ABILITIES, cardAbilityGrants } from "../../../src/core/data/abilities";
 import { getAllCards } from "../../../src/core/data/cards";
 import { getExpansionCardMetadata } from "../../../src/core/data/expansions";
 import { TRIGGER_EVENT_EMITTERS } from "../../../src/core/skills/resolveSkillWindow";
+import { runRuntimeScenarios, type RuntimeScenarioResult } from "./runtime";
+import { groupHeroOrder, runGroupCombatScenarios, runGroupProjectionScenarios,
+	type GroupCombatResult, type GroupProjectionResult } from "./groupRuntime";
 
 export type AuditStatus = "PASS" | "FAIL" | "NOT_COVERED";
 export type AuditFinding = {
@@ -24,14 +27,14 @@ export type AuditEntry = {
 	cost: { hp?: number; mp?: number } | null;
 	limit: { scope: string; maxUses: number } | null;
 	effect: string;
-	runtimeStatus: "NOT_COVERED";
+	runtimeStatus: "NOT_COVERED" | "PARTIAL" | "FAIL";
 	reason: string;
 };
 export type GroupInteraction = {
 	partySize: number;
 	abilityIds: string[];
 	sourceCardIds: string[];
-	status: "NOT_COVERED";
+	status: "NOT_COVERED" | "PARTIAL" | "FAIL";
 	reason: string;
 };
 export type AuditReport = {
@@ -45,10 +48,18 @@ export type AuditReport = {
 		runtimePass: number;
 		runtimeFail: number;
 		runtimeNotCovered: number;
+		runtimePartial: number;
+		groupProjectionPass: number;
+		groupProjectionFail: number;
+		groupCombatPartial: number;
+		groupCombatFail: number;
 	};
 	inventory: AuditEntry[];
 	findings: AuditFinding[];
 	groupInteractions: GroupInteraction[];
+	runtimeScenarios: RuntimeScenarioResult[];
+	groupProjectionScenarios: GroupProjectionResult[];
+	groupCombatScenarios: GroupCombatResult[];
 };
 
 export function discoverAbilityInventory(): AuditEntry[] {
@@ -109,7 +120,7 @@ export function auditDefinitions(inventory: readonly AuditEntry[]): AuditFinding
 export function discoverGroupCandidates(inventory: readonly AuditEntry[]): GroupInteraction[] {
 	const heroAbilities = inventory.filter((entry) => entry.sourceType === "hero" &&
 		(entry.activation === "manual" || entry.activation === "event"));
-	const heroes = [...new Set(heroAbilities.map((entry) => entry.sourceCardId))];
+	const heroes = groupHeroOrder([...new Set(heroAbilities.map((entry) => entry.sourceCardId))]);
 	const result: GroupInteraction[] = [];
 	for (const partySize of [2, 3, 4]) {
 		if (heroes.length < partySize) continue;
@@ -127,8 +138,34 @@ export function discoverGroupCandidates(inventory: readonly AuditEntry[]): Group
 }
 
 export function createSkillAuditReport(now = new Date().toISOString()): AuditReport {
-	const inventory = discoverAbilityInventory();
-	const findings = auditDefinitions(inventory);
+	const discovered = discoverAbilityInventory();
+	const findings = auditDefinitions(discovered);
+	const runtimeScenarios = runRuntimeScenarios();
+	const groupProjectionScenarios = runGroupProjectionScenarios();
+	const groupCombatScenarios = runGroupCombatScenarios();
+	const byGrant = new Map<string, RuntimeScenarioResult[]>();
+	for (const scenario of runtimeScenarios) {
+		const key = scenario.sourceCardId + "::" + scenario.abilityId;
+		byGrant.set(key, [...(byGrant.get(key) ?? []), scenario]);
+	}
+	const inventory: AuditEntry[] = discovered.map((entry) => {
+		const scenarios = byGrant.get(entry.sourceCardId + "::" + entry.abilityId) ?? [];
+		if (!scenarios.length) return entry;
+		const failed = scenarios.find((scenario) => scenario.status === "FAIL");
+		return {
+			...entry,
+			runtimeStatus: failed ? "FAIL" as const : "PARTIAL" as const,
+			reason: failed
+				? "Falha no cenário " + failed.id + ": " + failed.detail
+				: scenarios.length + " cenário(s) parcial(is); outros contextos/custos/limites pendentes",
+		};
+	});
+	const groupInteractions = discoverGroupCandidates(inventory).map((candidate) => {
+		const scenario = groupCombatScenarios.find((entry) => entry.partySize === candidate.partySize &&
+			entry.heroCardIds.join("|") === candidate.sourceCardIds.join("|"));
+		return scenario ? { ...candidate, status: scenario.status === "PASS" ? "PARTIAL" as const : "FAIL" as const,
+			reason: scenario.detail } : candidate;
+	});
 	return {
 		version: 1,
 		generatedAt: now,
@@ -137,12 +174,20 @@ export function createSkillAuditReport(now = new Date().toISOString()): AuditRep
 			uniqueAbilities: new Set(inventory.map((entry) => entry.abilityId)).size,
 			structuralPass: findings.filter((entry) => entry.status === "PASS").length,
 			structuralFail: findings.filter((entry) => entry.status === "FAIL").length,
-			runtimePass: 0,
-			runtimeFail: 0,
-			runtimeNotCovered: inventory.length,
+			runtimePass: 0, // PASS integral só com cobertura de todos os contextos
+			runtimeFail: inventory.filter((entry) => entry.runtimeStatus === "FAIL").length,
+			runtimeNotCovered: inventory.filter((entry) => entry.runtimeStatus === "NOT_COVERED").length,
+			runtimePartial: inventory.filter((entry) => entry.runtimeStatus === "PARTIAL").length,
+			groupProjectionPass: groupProjectionScenarios.filter((entry) => entry.status === "PASS").length,
+			groupProjectionFail: groupProjectionScenarios.filter((entry) => entry.status === "FAIL").length,
+			groupCombatPartial: groupCombatScenarios.filter((entry) => entry.status === "PASS").length,
+			groupCombatFail: groupCombatScenarios.filter((entry) => entry.status === "FAIL").length,
 		},
 		inventory,
 		findings,
-		groupInteractions: discoverGroupCandidates(inventory),
+		groupInteractions,
+		runtimeScenarios,
+		groupProjectionScenarios,
+		groupCombatScenarios,
 	};
 }

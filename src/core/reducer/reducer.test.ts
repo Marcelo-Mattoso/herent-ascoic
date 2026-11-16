@@ -398,12 +398,16 @@ describe("USE_ITEM", () => {
 				targetIds: [hero.id],
 			},
 		});
-		const attack = reducer(testEngine, afterSkill, {
+		expect(gameOf(afterSkill).combat?.heroesActed).not.toContain(hero.id);
+		const activated = reducer(testEngine, afterSkill, { type: "USE_SKILL", payload: {
+			skillId: "skill_last_light_healing", sourceId: hero.id, targetIds: [hero.id],
+		} });
+		const attack = reducer(testEngine, activated, {
 			type: "CHOOSE_TARGET",
 			payload: { heroId: hero.id, enemyId: enemiesOf(s)[0]!.id },
 		});
 
-		expect(gameOf(afterSkill).combat?.heroesActed).toContain(hero.id);
+		expect(gameOf(activated).combat?.heroesActed).toContain(hero.id);
 		expect(gameOf(attack).status).not.toBe("ROLL_DICE");
 	});
 
@@ -422,7 +426,15 @@ describe("USE_ITEM", () => {
 			payload: { heroId: cleric.id },
 		});
 
-		const pending = reducer(testEngine, s, {
+		const prepared = reducer(testEngine, s, {
+			type: "USE_SKILL",
+			payload: {
+				skillId: "skill_last_light_healing",
+				sourceId: cleric.id,
+			},
+		});
+		expect(gameOf(prepared).combat?.heroesActed).not.toContain(cleric.id);
+		const pending = reducer(testEngine, prepared, {
 			type: "USE_SKILL",
 			payload: {
 				skillId: "skill_last_light_healing",
@@ -453,19 +465,17 @@ describe("USE_ITEM", () => {
 		const ally = heroesOf(s).find((h) => h.cardId === HERO);
 		if (!cleric || !ally) throw new Error("invalid heroes");
 
-		const result = reducer(testEngine, 
-			settled(withGame(s, (prevGame) => ({ ...prevGame, status: "XP_SPEND_PHASE", combat: null, heroes: heroesOf(s).map((h) =>
-					h.id === ally.id ? { ...h, currentLife: 5 } : h,
-				) }))),
-			{
-				type: "USE_SKILL",
-				payload: {
-					skillId: "skill_last_light_healing",
-					sourceId: cleric.id,
-					targetIds: [ally.id],
-				},
-			},
-		);
+		const outsideCombat = settled(withGame(s, (prevGame) => ({
+			...prevGame, status: "XP_SPEND_PHASE", combat: null,
+			heroes: heroesOf(s).map((h) =>
+				h.id === ally.id ? { ...h, currentLife: 5 } : h),
+		})));
+		const prepared = reducer(testEngine, outsideCombat, { type: "USE_SKILL", payload: {
+			skillId: "skill_last_light_healing", sourceId: cleric.id,
+		} });
+		const result = reducer(testEngine, prepared, { type: "USE_SKILL", payload: {
+			skillId: "skill_last_light_healing", sourceId: cleric.id, targetIds: [ally.id],
+		} });
 
 		expect(heroesOf(result).find((h) => h.id === ally.id)?.currentLife).toBe(8);
 		expect(gameOf(result).combat).toBeNull();

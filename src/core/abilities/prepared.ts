@@ -13,7 +13,7 @@ export interface PreparedAbility {
 	readonly sourceCardId: string;
 	readonly abilityId: string;
 	readonly grantId?: string;
-	readonly event: import("../skills/dsl/types").EventName;
+	readonly event: import("../skills/dsl/types").EventName | "manual";
 	readonly targetIds?: readonly string[];
 	readonly roundPrepared?: number;
 }

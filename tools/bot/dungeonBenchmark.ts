@@ -1,4 +1,8 @@
 import type { Difficulty } from "@/core/state/gameState";
+import type { GameBalance } from "@/core/gameEngine";
+import type { PoisonTelemetry } from "@/core/rules/poisonTelemetry";
+import { preparedTransitions } from "./preparedTelemetry";
+import { observeAbilityStep } from "./abilityTelemetry";
 import { deckOf } from "@/core/state/access";
 import { playerView } from "@/core/projection/playerView";
 import { gameOf } from "@/engine/state";
@@ -11,6 +15,7 @@ import { BOT_HEROES } from "./play";
 import { createHeadlessPort } from "./port";
 import { BOT_PROFILES, type BotProfile, setupForRun } from "./profiles";
 import { healingItemOptions, itemHealingAmount } from "./healing";
+import { recordRoomEncounterStep, type RoomEncounterTelemetry } from "./encounterTelemetry";
 
 export const BENCHMARK_DIFFICULTIES: readonly Difficulty[] = [
 	"very_easy", "easy", "normal", "hard", "nightmare",
@@ -24,6 +29,8 @@ export interface DungeonBenchmarkOptions {
 	readonly expansions: readonly string[];
 	readonly profiles: readonly BotProfile[];
 	readonly difficulties: readonly Difficulty[];
+	/** Override opt-in exclusivo do laboratório (padrão: preços oficiais). */
+	readonly xpExperiment?: Partial<GameBalance["xpCosts"]>;
 }
 
 export interface BenchmarkCase {
@@ -52,12 +59,51 @@ export interface ProgressionTelemetry {
 	readonly levelUpPurchases: number;
 	readonly levelUpAttempts: number;
 	readonly levelUpNoEffect: number;
+	/** Compras opcionais realizadas apesar de haver level up legal naquela escolha. */
+	readonly itemsBoughtWhileLevelAvailable?: number;
+	readonly artifactsBoughtWhileLevelAvailable?: number;
+	/** Ações de recuperação do deck de dungeon, distintas da compra de itens. */
+	readonly dungeonRecoveries?: number;
 	readonly abilityOpportunities: number;
 	readonly skillOpportunities: number;
 	readonly powerOpportunities: number;
 	/** Preparações de reações (não contam como uso do efeito). */
 	readonly skillPreparations: number;
 	readonly powerPreparations: number;
+	/** Ações efetivamente aceitas pelo motor; NÃO comprova que o efeito foi aplicado. */
+	readonly abilityDecisions?: {
+		readonly offeredById: Readonly<Record<string, number>>;
+		readonly chosenById: Readonly<Record<string, number>>;
+		readonly offeredAtBossById: Readonly<Record<string, number>>;
+		readonly chosenAtBossById: Readonly<Record<string, number>>;
+	};
+	/** P0: ações propostas/confirmadas, efeitos observáveis e cargas em trilhas separadas. */
+	readonly abilityLifecycle?: {
+		readonly attemptedById: Readonly<Record<string, number>>;
+		readonly preparedById: Readonly<Record<string, number>>;
+		readonly confirmedById: Readonly<Record<string, number>>;
+		readonly effectsObservedById: Readonly<Record<string, number>>;
+		readonly chargesConsumedById: Readonly<Record<string, number>>;
+		/** Chave = sourceCardId::abilityId, incluindo itens e artefatos. */
+		readonly bySource: Readonly<Record<string, {
+			readonly attempted: number; readonly prepared: number; readonly confirmed: number;
+			readonly effectsObserved: number; readonly chargesConsumed: number;
+		}>>;
+		/** Chave = abilityId::targetCardId, somente mudanças observáveis. */
+		readonly effectsByTarget: Readonly<Record<string, number>>;
+		/** Chave = abilityId::healing/damage/modifier/dice/etc. */
+		readonly effectKindsById: Readonly<Record<string, number>>;
+	};
+	readonly abilityActivity?: {
+		readonly preparationsById: Readonly<Record<string, number>>;
+		readonly armedById: Readonly<Record<string, number>>;
+		readonly clearedDuringAttackById: Readonly<Record<string, number>>;
+		readonly clearedElsewhereById: Readonly<Record<string, number>>;
+		readonly manualActionsById: Readonly<Record<string, number>>;
+		readonly powerActivationsById: Readonly<Record<string, number>>;
+		readonly triggersAcceptedById: Readonly<Record<string, number>>;
+		readonly triggersSkippedById: Readonly<Record<string, number>>;
+	};
 }
 
 export interface ItemTelemetry {
@@ -103,10 +149,26 @@ export interface BenchmarkTrial extends BenchmarkCase {
 	readonly creaturesDefeated: number;
 	readonly bossDefeated: boolean;
 	readonly artifacts: number;
+	/** Observações por ID de sala, coletadas nas transições reais. */
+	readonly rooms?: Readonly<Record<string, RoomEncounterTelemetry>>;
+	readonly initialDespertar?: number;
+	readonly initialHeroLevel?: number;
 	readonly skillUses: number;
 	readonly powerUses: number;
 	readonly items?: ItemTelemetry;
 	readonly progression?: ProgressionTelemetry;
+	/** Ticks, origens e remoções de veneno, por partida. */
+	readonly poison?: PoisonTelemetry;
+	/** Checkpoint da primeira entrada real no confronto com o chefe. */
+	readonly bossEncounter?: {
+		readonly roomsCleared: number;
+		readonly heroLevel: number;
+		readonly heroLife: number;
+		readonly heroMaxLife: number;
+		readonly xpAvailable: number;
+		readonly artifacts: number;
+		readonly hasCorruptedHeart: boolean;
+	};
 }
 
 export interface BenchmarkSummary {
@@ -210,18 +272,57 @@ function inventoryCounts(heroes: readonly { activeItems: object; backpack: reado
 	}), { equipped: 0, backpack: 0 });
 }
 
-export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): BenchmarkTrial {
+export function runBenchmarkCase(
+	test: BenchmarkCase,
+	maxSteps: number,
+	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
+): BenchmarkTrial {
 	const setup = { ...setupForRun(test.seed, [test.heroId], test.difficulty), bossCardId: benchmarkBoss(test.expansionId) };
-	const starting = createHeadlessPort(setup).observe().view;
+	const startingPort = createHeadlessPort(setup, xpCostsOverride);
+	const starting = startingPort.observe().view;
+	const rooms: Record<string, RoomEncounterTelemetry> = {};
+	const initialRoomId = gameOf(startingPort.inspect()).currentRoom?.cardId;
+	// START_GAME é executado antes da primeira decisão do bot.
+	if (initialRoomId) rooms[initialRoomId] = {
+		entered: 1, cleared: 0, creaturesThreeXpSeen: 0, subbossesSeen: 0, subbossesDefeated: 0,
+		xpAwardedOnClear: 0, roomCardXpOnClear: 0,
+	};
 	const purchases: Record<string, number> = {};
 	const spent: Record<string, number> = {};
 	let gained = 0, spentTotal = 0, otherLoss = 0, peakXp = starting.groupXp;
 	let levelPeak = Math.max(0, ...starting.heroes.map((hero) => hero.impeto));
 	let finalLevel = levelPeak;
 	let levelUpOpportunities = 0, levelUpPurchases = 0, levelUpAttempts = 0, levelUpNoEffect = 0;
+	let itemsBoughtWhileLevelAvailable = 0, artifactsBoughtWhileLevelAvailable = 0, dungeonRecoveries = 0;
+	let bossEncounter: BenchmarkTrial["bossEncounter"];
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
-	let triggeredSkillUses = 0, triggeredPowerUses = 0;
+	let triggeredSkillUses = 0, triggeredPowerUses = 0, manualSkillUses = 0, manualPowerUses = 0;
 	let skillPreparations = 0, powerPreparations = 0;
+	const preparationsById: Record<string, number> = {};
+	const armedById: Record<string, number> = {};
+	const clearedDuringAttackById: Record<string, number> = {};
+	const clearedElsewhereById: Record<string, number> = {};
+	const manualActionsById: Record<string, number> = {};
+	const powerActivationsById: Record<string, number> = {};
+	const triggersAcceptedById: Record<string, number> = {};
+	const triggersSkippedById: Record<string, number> = {};
+	const offeredById: Record<string, number> = {};
+	const chosenById: Record<string, number> = {};
+	const attemptedById: Record<string, number> = {};
+	const preparedById: Record<string, number> = {};
+	const confirmedById: Record<string, number> = {};
+	const effectsObservedById: Record<string, number> = {};
+	const chargesConsumedById: Record<string, number> = {};
+	const effectsByTarget: Record<string, number> = {};
+	const effectKindsById: Record<string, number> = {};
+	const bySource: Record<string, { attempted: number; prepared: number; confirmed: number;
+		effectsObserved: number; chargesConsumed: number }> = {};
+
+	const offeredAtBossById: Record<string, number> = {};
+	const chosenAtBossById: Record<string, number> = {};
+	const increment = (counts: Record<string, number>, id: string) => {
+		counts[id] = (counts[id] ?? 0) + 1;
+	};
 	let healingDecisionPoints = 0, healingIgnoredDecisionPoints = 0, healingItemsUsed = 0;
 	let deathsWithAvailableHeal = 0, recoverableHpAtDeaths = 0;
 	let itemsAcquired = 0, itemsUsed = 0, itemsDiscarded = 0;
@@ -230,6 +331,79 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 	let usesAfterRoom7 = 0, usesAfterRoom8 = 0, emptyInventoryActionsAfterRoom8 = 0;
 	const result = playAiGame(setup, maxSteps, (step) => {
 		const action = step.chosen.action;
+		recordRoomEncounterStep(engine, step.beforeState, step.afterState, rooms);
+		// Logs de decisões voluntárias. Não inferir execução de efeitos passivos.
+		const inBoss = step.before.status === "BOSS_COMBAT" ||
+			step.before.enemies.some((enemy) => enemy.id === "boss" && enemy.status === "active");
+		const heroAbilityId = (move: typeof step.chosen): string | undefined => {
+			if (move.action.type === "USE_SKILL") {
+				return step.before.abilityActionsByHero[move.action.payload.sourceId]?.find(
+					(entry) => entry.abilityId === move.action.payload.skillId &&
+						(entry.kind === "skill" || entry.kind === "power"))?.abilityId;
+			}
+			if (move.action.type === "USE_POWER")
+				return step.before.abilityActionsByHero[move.action.payload.heroId]?.find(
+					(entry) => entry.kind === "power" && entry.status === "available")?.abilityId;
+			if ((move.action.type === "APPLY_TRIGGER_INTERRUPT" ||
+				move.action.type === "SKIP_TRIGGER_INTERRUPT") && step.before.pendingTriggerInterrupt) {
+				const id = step.before.pendingTriggerInterrupt.skillId;
+				const category = skillById(engine, id)?.category;
+				return category === "hero_skill" || category === "hero_power" ? id : undefined;
+			}
+			return undefined;
+		};
+		const offered = new Set(step.options.map(heroAbilityId).filter((id): id is string => Boolean(id)));
+		for (const id of offered) {
+			increment(offeredById, id);
+			if (inBoss) increment(offeredAtBossById, id);
+		}
+		const chosenHeroAbility = heroAbilityId(step.chosen);
+		if (chosenHeroAbility && step.chosen.action.type !== "SKIP_TRIGGER_INTERRUPT") {
+			increment(chosenById, chosenHeroAbility);
+			if (inBoss) increment(chosenAtBossById, chosenHeroAbility);
+		}
+		if (!bossEncounter && step.before.status !== "BOSS_COMBAT" && step.after.status === "BOSS_COMBAT") {
+			const hero = step.after.heroes.find((entry) => entry.status === "active");
+			bossEncounter = {
+				roomsCleared: step.after.roomsCleared,
+				heroLevel: hero?.impeto ?? -1,
+				heroLife: hero?.currentLife ?? 0,
+				heroMaxLife: hero?.maxLife ?? 0,
+				xpAvailable: step.after.groupXp,
+				artifacts: step.after.groupArtifacts.length,
+				hasCorruptedHeart: step.after.groupArtifacts.some((artifact) =>
+					artifact.cardId === "artifact_corrupted_forest_heart"),
+			};
+		}
+		// Evidências reais do motor: preparação, confirmação, mudança e uso único
+		// são sinais independentes. Nenhum deles é inferido de um clique isolado.
+		for (const evidence of observeAbilityStep(step, engine)) {
+			const { abilityId, sourceCardId } = evidence;
+			if (evidence.attempted) increment(attemptedById, abilityId);
+			if (evidence.prepared) increment(preparedById, abilityId);
+			if (evidence.confirmed) increment(confirmedById, abilityId);
+			if (evidence.chargeConsumed) increment(chargesConsumedById, abilityId);
+			if (evidence.effectKinds.length) increment(effectsObservedById, abilityId);
+			for (const kind of evidence.effectKinds) increment(effectKindsById, `${abilityId}::${kind}`);
+			if (evidence.effectKinds.length) for (const targetId of evidence.affectedIds) {
+				const target = [...step.before.heroes, ...step.before.enemies].find((unit) => unit.id === targetId);
+				if (target) increment(effectsByTarget, `${abilityId}::${target.cardId}`);
+			}
+			const key = `${sourceCardId}::${abilityId}`;
+			const stats = bySource[key] ?? { attempted: 0, prepared: 0, confirmed: 0,
+				effectsObserved: 0, chargesConsumed: 0 };
+			if (evidence.attempted) stats.attempted++;
+			if (evidence.prepared) stats.prepared++;
+			if (evidence.confirmed) stats.confirmed++;
+			if (evidence.effectKinds.length) stats.effectsObserved++;
+			if (evidence.chargeConsumed) stats.chargesConsumed++;
+			bySource[key] = stats;
+		}
+		const transition = preparedTransitions(gameOf(step.beforeState).preparedAbilities,
+			gameOf(step.afterState).preparedAbilities, action.type);
+		for (const id of transition.armedHeroAbilities) increment(armedById, id);
+		for (const id of transition.clearedDuringAttack) increment(clearedDuringAttackById, id);
+		for (const id of transition.clearedElsewhere) increment(clearedElsewhereById, id);
 		const healOptions = healingItemOptions(step.before).filter((heal) =>
 			step.options.some((move) => move.action.type === "USE_ITEM" &&
 				move.action.payload.heroId === heal.ownerId && move.action.payload.itemId === heal.itemId &&
@@ -252,10 +426,33 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		if (action.type === "USE_SKILL") {
 			const projected = step.before.abilityActionsByHero[action.payload.sourceId]?.find((entry) =>
 				entry.abilityId === action.payload.skillId);
-			if (projected?.activation === "prepare") {
-				if (projected.kind === "skill") skillPreparations++;
-				if (projected.kind === "power") powerPreparations++;
+			const isPreparation = projected?.activation === "prepare" ||
+				(projected?.activation === "manual_prepare" && projected.status === "available");
+			if (isPreparation) {
+				increment(preparationsById, action.payload.skillId);
+				if (projected?.kind === "skill") skillPreparations++;
+				if (projected?.kind === "power") powerPreparations++;
+			} else {
+				increment(manualActionsById, action.payload.skillId);
+				if (projected?.kind === "skill") manualSkillUses++;
+				if (projected?.kind === "power" && !skillById(engine, action.payload.skillId)?.cooldown)
+					manualPowerUses++;
 			}
+		}
+		// Contabilizar ativação por limite efetivamente consumido, nunca pelo
+		// simples clique em USE_POWER/USE_SKILL que pode só preparar/cancelar.
+		const previousGameUses = gameOf(step.beforeState).oncePer?.game ?? {};
+		const currentGameUses = gameOf(step.afterState).oncePer?.game ?? {};
+		for (const [key, consumed] of Object.entries(currentGameUses)) {
+			if (!consumed || previousGameUses[key]) continue;
+			const id = key.split("::")[0]!;
+			if (skillById(engine, id)?.category === "hero_power")
+				increment(powerActivationsById, id);
+		}
+		if ((action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT") &&
+			step.before.pendingTriggerInterrupt) {
+			increment(action.type === "APPLY_TRIGGER_INTERRUPT" ? triggersAcceptedById : triggersSkippedById,
+				step.before.pendingTriggerInterrupt.skillId);
 		}
 		const usedItem = action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM" ||
 			(action.type === "USE_SKILL" &&
@@ -300,6 +497,11 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		}
 		if (step.chosen.action.type === "SPEND_XP") {
 			const option = step.chosen.action.payload.option;
+			const levelWasAvailable = step.options.some((move) =>
+				move.action.type === "SPEND_XP" && move.action.payload.option === "level_up");
+			if (option === "buy_item" && levelWasAvailable) itemsBoughtWhileLevelAvailable++;
+			if (option === "buy_artifact" && levelWasAvailable) artifactsBoughtWhileLevelAvailable++;
+			if (option === "recover_dungeon") dungeonRecoveries++;
 			purchases[option] = (purchases[option] ?? 0) + 1;
 			if (option === "level_up") {
 				levelUpAttempts++;
@@ -315,7 +517,8 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		if (trigger && step.chosen.action.type === "APPLY_TRIGGER_INTERRUPT") {
 			const category = skillById(engine, trigger.skillId)?.category;
 			if (category === "hero_skill") triggeredSkillUses++;
-			if (category === "hero_power") triggeredPowerUses++;
+			if (category === "hero_power" && !skillById(engine, trigger.skillId)?.cooldown)
+				triggeredPowerUses++;
 		}
 		const triggerCategory = trigger && skillById(engine, trigger.skillId)?.category;
 		if (triggerCategory === "hero_skill") skillOpportunities++;
@@ -329,7 +532,7 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		peakXp = Math.max(peakXp, step.after.groupXp);
 		finalLevel = Math.max(0, ...step.after.heroes.map((hero) => hero.impeto));
 		levelPeak = Math.max(levelPeak, finalLevel);
-	}, test.profile);
+	}, test.profile, xpCostsOverride);
 	const state = gameOf(result.final);
 	const allFinalHeroes = [...state.heroes, ...state.defeatedHeroes, ...state.fledHeroes];
 	const remainingInventory = inventoryCounts(allFinalHeroes);
@@ -356,12 +559,14 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 		creaturesDefeated: state.creaturesDefeated,
 		bossDefeated: state.bossDefeated,
 		artifacts: state.groupArtifacts.length,
-		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
-			skillById(engine, action.payload.skillId)?.category === "hero_skill" &&
-			skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered").length + triggeredSkillUses,
-		powerUses: result.actions.filter((action) => action.type === "USE_POWER" ||
-			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power" &&
-				skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered")).length + triggeredPowerUses,
+		rooms,
+		initialDespertar: starting.despertar,
+		initialHeroLevel: Math.max(0, ...starting.heroes.map((hero) => hero.impeto)),
+		poison: state.poisonTelemetry ?? { toHeroes: 0, toEnemies: 0, preventedByHeart: 0 },
+		...(bossEncounter ? { bossEncounter } : {}),
+		skillUses: manualSkillUses + triggeredSkillUses,
+		powerUses: Object.values(powerActivationsById).reduce((total, count) => total + count, 0) +
+			manualPowerUses + triggeredPowerUses,
 		items: {
 			acquired: itemsAcquired, uses: itemsUsed, usesByItem, finalInventoryByItem,
 			discarded: itemsDiscarded,
@@ -384,7 +589,14 @@ export function runBenchmarkCase(test: BenchmarkCase, maxSteps: number): Benchma
 			levelFinal: finalLevel,
 			levelPeak, levelUpOpportunities, levelUpPurchases,
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
+			itemsBoughtWhileLevelAvailable, artifactsBoughtWhileLevelAvailable, dungeonRecoveries,
 			skillPreparations, powerPreparations,
+			abilityDecisions: { offeredById, chosenById, offeredAtBossById, chosenAtBossById },
+			abilityLifecycle: { attemptedById, preparedById, confirmedById,
+				effectsObservedById, chargesConsumedById, bySource, effectsByTarget, effectKindsById },
+			abilityActivity: { preparationsById, armedById, clearedDuringAttackById,
+				clearedElsewhereById, manualActionsById, powerActivationsById,
+				triggersAcceptedById, triggersSkippedById },
 		},
 	};
 }
