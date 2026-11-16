@@ -325,7 +325,7 @@ export function executeAbilityGrant(engine: GameEngine,
 				} }));
 		}
 	}
-	if (!request.deferUsage) next = markGrantUsed(engine, next, source, grant);
+	if (!request.deferUsage && !pendingSkillChoiceOf(next)) next = markGrantUsed(engine, next, source, grant);
 	const definition = skillById(engine, grant.abilityId);
 	const actionCost = definition?.action_cost ?? grant.activation.actionCost;
 	// A escolha e a seleção do dado são decisões posteriores: só a confirmação
