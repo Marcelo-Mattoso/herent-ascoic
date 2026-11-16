@@ -894,6 +894,7 @@ abilities:
     affect_object: obj_friend
   - id: power_last_light_oath
     category: hero_power
+    action_cost: consume_hero_action
     effect:
       - kind: i_choose_one
         allow_skip: true
