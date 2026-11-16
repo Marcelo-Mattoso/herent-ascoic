@@ -328,22 +328,35 @@ export function TutorialOverlay({
 			}
 		: null;
 	const heroPortraitOpen = !!document.querySelector('[data-tutorial-anchor="hero.portrait"]');
+	// The mobile Archivist panel must not cover the card the learner is
+	// expected to tap. Track the active hero/target as combat progresses and
+	// cap the panel height to the free space on the chosen side.
+	const mobileAbilityStep = session.moduleId === "archive-four" &&
+		viewport.width < 600 &&
+		["abilities-inspect", "hunter-attack", "fury-trigger"].includes(step.id);
+	const mobileTargetIndex = step.id === "abilities-inspect"
+		? (heroPortraitOpen ? 1 : 0)
+		: view.combat?.phase === "selecting_target" ? 1 : 0;
+	const mobileTarget = mobileAbilityStep ? (rects[mobileTargetIndex] ?? rects[0]) : undefined;
+	const mobileTopSpace = mobileTarget ? Math.max(0, mobileTarget.top - 20) : 0;
+	const mobileBottomSpace = mobileTarget ? Math.max(0, viewport.height - mobileTarget.bottom - 20) : 0;
+	const mobilePanelPlacement = mobileBottomSpace >= mobileTopSpace ? "bottom" : "top";
+	const mobilePanelMaxHeight = Math.floor(Math.max(mobileTopSpace, mobileBottomSpace));
 	const panelPlacement =
-		session.moduleId === "archive-four" && step.id === "abilities-inspect" && viewport.width < 600
-			? heroPortraitOpen ? "top" : "bottom"
-			:
-		session.moduleId === "archive-four" &&
-		(step.id === "hunter-attack" || step.id === "fury-trigger") &&
-		viewport.width < 900
-			? "bottom"
-			: step.id === "combat-drag" && session.combatInput === "tap"
-			? view.combat?.phase === "selecting_target"
+		mobileTarget
+			? mobilePanelPlacement
+			: session.moduleId === "archive-four" &&
+				(step.id === "hunter-attack" || step.id === "fury-trigger") &&
+				viewport.width < 900
 				? "bottom"
-				: "top"
-			: step.id === "choose-hero" ||
-					(rect && rect.bottom < viewport.height * 0.55)
-				? "bottom"
-				: "top";
+				: step.id === "combat-drag" && session.combatInput === "tap"
+					? view.combat?.phase === "selecting_target"
+						? "bottom"
+						: "top"
+					: step.id === "choose-hero" ||
+						(rect && rect.bottom < viewport.height * 0.55)
+						? "bottom"
+						: "top";
 	const instruction =
 		step.id === "combat-drag" && session.combatInput === "tap"
 			? translate("game:tutorials.tutorialOverlay.tapAttackInstruction")
@@ -377,7 +390,9 @@ export function TutorialOverlay({
 				left: side === "left" ? 12 : "auto",
 				right: side === "right" ? 12 : "auto",
 			} as CSSProperties)
-		: undefined;
+		: mobileTarget
+			? ({ maxHeight: mobilePanelMaxHeight } as CSSProperties)
+			: undefined;
 	function downloadAudit() {
 		downloadTutorialAudit({
 			session,
