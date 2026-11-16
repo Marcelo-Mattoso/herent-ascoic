@@ -279,7 +279,6 @@ test("drawers, detalhes e painel do herói continuam operáveis em 320 px", asyn
 	await expect(room).toBeFocused();
 	const hero = page.locator(".game-card--hero").first();
 	await hero.click();
-	await hero.click();
 	await expect(page.locator(".game-hero-focus-popover")).toBeVisible();
 	const focusBounds = await page
 		.locator(".game-hero-focus-popover")
