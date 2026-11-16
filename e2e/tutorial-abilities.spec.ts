@@ -12,7 +12,7 @@ async function openAbilities(page: Page) {
 async function openHeroPanel(page: Page) {
 	const hero = page.locator('[data-tutorial-anchor="combat.hero"] .game-card');
 	await hero.click();
-	await hero.click();
+	await expect(page.locator(".game-hero-focus-popover")).toBeVisible();
 }
 
 async function completeAbilities(page: Page, viewportName: string) {
