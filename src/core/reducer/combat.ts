@@ -86,6 +86,16 @@ export function advanceAfterHeroDisabledForRound(state: GameState): GameState {
 	if (!gameOf(state).combat) return state;
 	const pendingHeroes = activeHeroesPendingActivation(state);
 
+	// No combate de chefe não há fase DIRECT_DAMAGE. A rodada termina pela
+	// ação START_BOSS_COMBAT, que chama checkBossEnd e aplica os efeitos do
+	// fim da rodada (inclusive o veneno). Manter BOSS_COMBAT também evita a
+	// transição inválida ao confirmar o último poder de um herói.
+	if (gameOf(state).status === "BOSS_COMBAT") {
+		return withGame(state, (prevGame) => ({ ...prevGame, combat: {
+			...prevGame.combat!, phase: "selecting_hero" as const, selectedHeroId: null,
+		} }));
+	}
+
 	if (pendingHeroes.length > 0) {
 		const livingEnemies = enemiesOf(state).filter(
 			(e) => e.status === "active",
@@ -266,6 +276,11 @@ export function handlePassHeroAction(engine: GameEngine,
 					: null })),
 			`${cardName(engine, hero?.cardId ?? heroId)} passou a rodada.`,
 		);
+	}
+	if (gameOf(next).status === "BOSS_COMBAT") {
+		return log(withGame(next, (prevGame) => ({ ...prevGame, combat: gameOf(next).combat
+			? { ...gameOf(next).combat!, selectedHeroId: null, phase: "selecting_hero" as const } : null })),
+			"Todos os heróis agiram. O chefe encerra a rodada.");
 	}
 	return log(
 		withGame(next, (prevGame) => ({ ...prevGame, status: "DIRECT_DAMAGE", combat: gameOf(next).combat
