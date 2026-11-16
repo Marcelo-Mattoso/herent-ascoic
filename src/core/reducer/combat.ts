@@ -1669,6 +1669,22 @@ export function handleUseSkill(engine: GameEngine,
 		return log(state, "[AVISO] Não há Eco disponível para gastar neste combate.");
 	}
 
+	const isManualSupport = isManuallyActivatable(skillDef) &&
+		skillDef.category === "hero_skill" && skillDef.action_cost === "consume_hero_action";
+	const preparedKey = preparedAbilityKey("hero", hero.id, hero.cardId, skillDef.id);
+	if (isManualSupport) {
+		if (payload.params?.cancelPreparation === true) {
+			return log(removePreparedAbility(state, preparedKey),
+				`${skillDef.id}: preparação cancelada sem consumir ação.`);
+		}
+		if (!isAbilityPrepared(state, preparedKey)) {
+			return log(togglePreparedAbility(state, {
+				key: preparedKey, sourceKind: "hero", sourceHeroId: hero.id,
+				sourceCardId: hero.cardId, abilityId: skillDef.id, event: "manual",
+			}), `${skillDef.id}: preparada. Ative quando precisar do efeito.`);
+		}
+	}
+
 	const target = resolveManualSkillTarget(engine, 
 		state,
 		skillDef,
@@ -1687,9 +1703,10 @@ export function handleUseSkill(engine: GameEngine,
 			});
 	}
 
-	const used = advanceAfterEnemyDefeat(fireOnUseSkill(engine, state, {
+	const executed = advanceAfterEnemyDefeat(fireOnUseSkill(engine, state, {
 		...payload, targetIds: [...target.targetIds],
 	}));
+	const used = isManualSupport ? removePreparedAbility(executed, preparedKey) : executed;
 	return skillDef.action_cost === "consume_hero_action" && gameOf(used).combat &&
 		!pendingSkillChoiceOf(used) && !pendingSkillTargetOf(used) && !pendingTriggerInterruptOf(used)
 		? advanceAfterHeroDisabledForRound(used) : used;
