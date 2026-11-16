@@ -163,7 +163,7 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		["hero_crimson_barbarian", "skill_crimson_fury", "power_mighty_crimson_fury"],
 		["hero_last_light_paladin", "skill_final_dawn_light", "power_last_light_oath"],
 		["hero_broken_veil_hunter", "skill_prey_mark", "power_hunter_execution"],
-	])("%s expõe e permite ativar seu poder sem consumir ataque", (cardId, skillId, powerId) => {
+	])("%s respeita preparação, escolha e custo de ação do poder", (cardId, skillId, powerId) => {
 		let state = combat(cardId);
 		const heroId = heroesOf(state)[0]!.id;
 		const actions = playerView(testEngine, state).abilityActionsByHero[heroId]!;
@@ -171,13 +171,24 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		expect(actions.find((action) => action.abilityId === powerId)?.status).toBe("available");
 		state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
 		const power = actions.find((action) => action.abilityId === powerId)!;
+		const pendingChoice = !!pendingSkillChoiceOf(state);
 		if (power.activation === "prepare") {
-			expect(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) => entry.abilityId === powerId)).toBe(true);
+			expect(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
+				entry.abilityId === powerId)).toBe(true);
+			expect(gameOf(state).oncePer.game[`${powerId}::${heroId}`]).toBeFalsy();
+		} else if (pendingChoice) {
+			// Abrir escolha opcional não consome o poder da partida.
+			expect(gameOf(state).oncePer.game[`${powerId}::${heroId}`]).toBeFalsy();
 		} else {
 			expect(gameOf(state).oncePer.game[`${powerId}::${heroId}`]).toBe(true);
 		}
-		expect(gameOf(state).combat?.heroesActed).toEqual([]);
-		expect(canStartHeroAttack(state, heroId, "e1") || !!pendingSkillChoiceOf(state)).toBe(true);
+		const consumesAction = powerId === "power_unbreakable_bastion_guard";
+		expect(gameOf(state).combat?.heroesActed.includes(heroId)).toBe(consumesAction);
+		if (consumesAction) {
+			expect(canStartHeroAttack(state, heroId, "e1")).toBe(false);
+		} else {
+			expect(canStartHeroAttack(state, heroId, "e1") || pendingChoice).toBe(true);
+		}
 	});
 
 	it("Eco Profundo do Véu é automático no abate, sem ativação manual", () => {
