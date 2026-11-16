@@ -498,7 +498,7 @@ function ActionSection({
 				label="Atacar (arraste ou clique)"
 				icon="⚔"
 				variant="primary"
-				disabled={!canAttack}
+				disabled={!heroActions.canStartAttack}
 				onClick={onAttack}
 			/>
 			<ActionButton
