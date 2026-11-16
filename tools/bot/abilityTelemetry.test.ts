@@ -1,7 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { reducer } from "@/core/reducer";
 import { withUnitStats } from "@/core/state/access";
-import { gameOf } from "@/engine/state";
+import { gameOf, withGame } from "@/engine/state";
+import { removePreparedAbility } from "@/core/abilities/prepared";
 import { playerView } from "@/core/projection/playerView";
 import type { AiStep } from "./ai";
 import { observeAbilityStep } from "./abilityTelemetry";
@@ -72,4 +73,56 @@ describe("telemetria P0: ciclo de vida e efeitos reais", () => {
 		});
 		expect(evidence?.effectKinds).toContain("modifier");
 	});
+	it("não conta a limpeza de uma preparação como ativação ou efeito", () => {
+		const initial = combat("hero_eternal_rest_cleric");
+		const id = gameOf(initial).heroes[0]!.id;
+		const prepared = reducer(auditEngine, initial, { type: "USE_SKILL", payload: {
+			skillId: "skill_last_light_healing", sourceId: id,
+		} });
+		const preparedKey = Object.keys(gameOf(prepared).preparedAbilities ?? {})[0];
+		expect(preparedKey).toBeDefined();
+		const cleared = removePreparedAbility(prepared, preparedKey!);
+		expect(observe(prepared, cleared, { type: "CHECK_COMBAT_END" })).toEqual([]);
+	});
+
+	it("dano externo na mesma etapa não vira dano de uma habilidade de cura", () => {
+		const initial = combat("hero_eternal_rest_cleric");
+		const id = gameOf(initial).heroes[0]!.id;
+		const wounded = withUnitStats(initial, id, { currentLife: 5 });
+		const prepared = reducer(auditEngine, wounded, { type: "USE_SKILL", payload: {
+			skillId: "skill_last_light_healing", sourceId: id,
+		} });
+		const action = { type: "USE_SKILL", payload: {
+			skillId: "skill_last_light_healing", sourceId: id, targetIds: [id],
+		} } as const;
+		const healed = reducer(auditEngine, prepared, action);
+		const enemy = gameOf(healed).activeEnemies[0];
+		expect(enemy).toBeDefined();
+		const withParallelDamage = withUnitStats(healed, enemy!.id, {
+			currentLife: Math.max(0, enemy!.currentLife - 1),
+		});
+		const [record] = observe(prepared, withParallelDamage, action);
+		expect(record?.effectKinds).toContain("healing");
+		expect(record?.effectKinds).not.toContain("damage");
+		expect(record?.affectedIds).not.toContain(enemy!.id);
+	});
+
+	it("uma carga de poder automático produz uma confirmação, sem inventar efeito", () => {
+		const initial = combat("hero_crimson_rune_mage");
+		const id = gameOf(initial).heroes[0]!.id;
+		const abilityId = "power_supreme_rift_rune";
+		const committed = withGame(initial, (game) => ({
+			...game,
+			oncePer: { ...game.oncePer, game: {
+				...game.oncePer.game, [`${abilityId}::${id}`]: true,
+			} },
+		}));
+		const records = observe(initial, committed, { type: "CHECK_COMBAT_END" });
+		expect(records).toHaveLength(1);
+		expect(records[0]).toMatchObject({
+			abilityId, attempted: false, prepared: false, confirmed: true,
+			chargeConsumed: true, effectKinds: [],
+		});
+	});
+
 });
