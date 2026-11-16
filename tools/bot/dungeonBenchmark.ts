@@ -2,6 +2,7 @@ import type { Difficulty } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
 import type { PoisonTelemetry } from "@/core/rules/poisonTelemetry";
 import { preparedTransitions } from "./preparedTelemetry";
+import { observeAbilityStep } from "./abilityTelemetry";
 import { deckOf } from "@/core/state/access";
 import { playerView } from "@/core/projection/playerView";
 import { gameOf } from "@/engine/state";
@@ -75,6 +76,23 @@ export interface ProgressionTelemetry {
 		readonly chosenById: Readonly<Record<string, number>>;
 		readonly offeredAtBossById: Readonly<Record<string, number>>;
 		readonly chosenAtBossById: Readonly<Record<string, number>>;
+	};
+	/** P0: ações propostas/confirmadas, efeitos observáveis e cargas em trilhas separadas. */
+	readonly abilityLifecycle?: {
+		readonly attemptedById: Readonly<Record<string, number>>;
+		readonly preparedById: Readonly<Record<string, number>>;
+		readonly confirmedById: Readonly<Record<string, number>>;
+		readonly effectsObservedById: Readonly<Record<string, number>>;
+		readonly chargesConsumedById: Readonly<Record<string, number>>;
+		/** Chave = sourceCardId::abilityId, incluindo itens e artefatos. */
+		readonly bySource: Readonly<Record<string, {
+			readonly attempted: number; readonly prepared: number; readonly confirmed: number;
+			readonly effectsObserved: number; readonly chargesConsumed: number;
+		}>>;
+		/** Chave = abilityId::targetCardId, somente mudanças observáveis. */
+		readonly effectsByTarget: Readonly<Record<string, number>>;
+		/** Chave = abilityId::healing/damage/modifier/dice/etc. */
+		readonly effectKindsById: Readonly<Record<string, number>>;
 	};
 	readonly abilityActivity?: {
 		readonly preparationsById: Readonly<Record<string, number>>;
@@ -290,6 +308,16 @@ export function runBenchmarkCase(
 	const triggersSkippedById: Record<string, number> = {};
 	const offeredById: Record<string, number> = {};
 	const chosenById: Record<string, number> = {};
+	const attemptedById: Record<string, number> = {};
+	const preparedById: Record<string, number> = {};
+	const confirmedById: Record<string, number> = {};
+	const effectsObservedById: Record<string, number> = {};
+	const chargesConsumedById: Record<string, number> = {};
+	const effectsByTarget: Record<string, number> = {};
+	const effectKindsById: Record<string, number> = {};
+	const bySource: Record<string, { attempted: number; prepared: number; confirmed: number;
+		effectsObserved: number; chargesConsumed: number }> = {};
+
 	const offeredAtBossById: Record<string, number> = {};
 	const chosenAtBossById: Record<string, number> = {};
 	const increment = (counts: Record<string, number>, id: string) => {
@@ -346,6 +374,30 @@ export function runBenchmarkCase(
 				hasCorruptedHeart: step.after.groupArtifacts.some((artifact) =>
 					artifact.cardId === "artifact_corrupted_forest_heart"),
 			};
+		}
+		// Evidências reais do motor: preparação, confirmação, mudança e uso único
+		// são sinais independentes. Nenhum deles é inferido de um clique isolado.
+		for (const evidence of observeAbilityStep(step)) {
+			const { abilityId, sourceCardId } = evidence;
+			if (evidence.attempted) increment(attemptedById, abilityId);
+			if (evidence.prepared) increment(preparedById, abilityId);
+			if (evidence.confirmed) increment(confirmedById, abilityId);
+			if (evidence.chargeConsumed) increment(chargesConsumedById, abilityId);
+			if (evidence.effectKinds.length) increment(effectsObservedById, abilityId);
+			for (const kind of evidence.effectKinds) increment(effectKindsById, `${abilityId}::${kind}`);
+			if (evidence.effectKinds.length) for (const targetId of evidence.targetIds) {
+				const target = [...step.before.heroes, ...step.before.enemies].find((unit) => unit.id === targetId);
+				if (target) increment(effectsByTarget, `${abilityId}::${target.cardId}`);
+			}
+			const key = `${sourceCardId}::${abilityId}`;
+			const stats = bySource[key] ?? { attempted: 0, prepared: 0, confirmed: 0,
+				effectsObserved: 0, chargesConsumed: 0 };
+			if (evidence.attempted) stats.attempted++;
+			if (evidence.prepared) stats.prepared++;
+			if (evidence.confirmed) stats.confirmed++;
+			if (evidence.effectKinds.length) stats.effectsObserved++;
+			if (evidence.chargeConsumed) stats.chargesConsumed++;
+			bySource[key] = stats;
 		}
 		const transition = preparedTransitions(gameOf(step.beforeState).preparedAbilities,
 			gameOf(step.afterState).preparedAbilities, action.type);
@@ -540,6 +592,8 @@ export function runBenchmarkCase(
 			itemsBoughtWhileLevelAvailable, artifactsBoughtWhileLevelAvailable, dungeonRecoveries,
 			skillPreparations, powerPreparations,
 			abilityDecisions: { offeredById, chosenById, offeredAtBossById, chosenAtBossById },
+			abilityLifecycle: { attemptedById, preparedById, confirmedById,
+				effectsObservedById, chargesConsumedById, bySource, effectsByTarget, effectKindsById },
 			abilityActivity: { preparationsById, armedById, clearedDuringAttackById,
 				clearedElsewhereById, manualActionsById, powerActivationsById,
 				triggersAcceptedById, triggersSkippedById },
