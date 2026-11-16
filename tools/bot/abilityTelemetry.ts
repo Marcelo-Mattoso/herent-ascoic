@@ -57,7 +57,9 @@ function differences(before: PlayerView, after: PlayerView): ObservedChanges {
 	for (const influence of after.activeInfluences) {
 		if (previousInfluences.has(influence.id)) continue;
 		const targetId = "id" in influence.to ? influence.to.id : undefined;
-		modifiers.push({ source: influence.source, targetId });
+		// InfluenceView.source é um rótulo traduzido; o ID conserva a chave técnica
+		// do modificador e permite atribuição precisa sem depender do idioma.
+		modifiers.push({ source: influence.id, targetId });
 		add("modifier", targetId);
 	}
 	const oldRoll = before.combat?.lastRoll;
@@ -224,7 +226,7 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 				(action.type !== "SELECT_DIE" || dicePending?.skillId !== entry.abilityId)) continue;
 			if (kind === "modifier") {
 				const ownModifiers = changes.modifiers.filter((modifier) =>
-					modifier.source.includes(entry.abilityId));
+					modifier.source.startsWith(entry.abilityId + ":"));
 				if (!ownModifiers.length) continue;
 				for (const modifier of ownModifiers) if (modifier.targetId) affected.add(modifier.targetId);
 			} else if (kind === "damage") {
