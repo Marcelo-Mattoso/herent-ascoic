@@ -81,8 +81,14 @@ function differences(before: PlayerView, after: PlayerView): ObservedChanges {
 	return { byKind, modifiers };
 }
 
+/** Cache do catálogo imutável: o audit percorre milhões de decisões do bot. */
+const declaredEffectsCache = new WeakMap<GameEngine, Map<string, ReadonlySet<EffectKind>>>();
 /** Tipos explicitamente previstos pela DSL (inclusive ramos de escolhas). */
 function declaredEffectKinds(engine: GameEngine, abilityId: string): ReadonlySet<EffectKind> {
+	let cache = declaredEffectsCache.get(engine);
+	if (!cache) { cache = new Map(); declaredEffectsCache.set(engine, cache); }
+	const previous = cache.get(abilityId);
+	if (previous) return previous;
 	const kinds = new Set<EffectKind>();
 	const definition = skillById(engine, abilityId);
 	const visit = (node: unknown): void => {
@@ -107,6 +113,7 @@ function declaredEffectKinds(engine: GameEngine, abilityId: string): ReadonlySet
 	if (abilityId === "skill_rift_rune") kinds.add("modifier");
 	if (abilityId === "power_supreme_rift_rune" || abilityId === "witch_power_green_eclipse" ||
 		abilityId === "witch_skill_lunar_spark") kinds.add("dice");
+	cache.set(abilityId, kinds);
 	return kinds;
 }
 
