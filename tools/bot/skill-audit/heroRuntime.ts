@@ -79,6 +79,10 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 		if (clearPoison) s = withUnitStats(s, id, { conditions: ["poison"] });
 		const before = heroesOf(s)[0]!.currentLife;
 		s = activateSkill(s, id, abilityId, expected);
+		ensure(prepared(s, id, abilityId), abilityId + ": preparação não foi armada");
+		s = reducer(engine, s, { type: "USE_SKILL", payload: {
+			skillId: abilityId, sourceId: id, targetIds: [id], value: expected,
+		} });
 		ensure(heroesOf(s)[0]!.currentLife === before + expected,
 			abilityId + ": cura não alterou a vida na quantidade solicitada");
 		if (clearPoison) ensure(!heroesOf(s)[0]!.conditions.includes("poison"),
@@ -101,6 +105,10 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 		const id = hero(s);
 		const before = hasModifier(s, id, "hit_bonus");
 		s = activateSkill(s, id, "skill_rift_rune");
+		ensure(prepared(s, id, "skill_rift_rune"), "Runa das Fendas não foi preparada");
+		s = reducer(engine, s, { type: "USE_SKILL", payload: {
+			skillId: "skill_rift_rune", sourceId: id, targetIds: [id],
+		} });
 		ensure(hasModifier(s, id, "hit_bonus") === before + 3,
 			"Runa das Fendas não aplicou +3 de acerto ao alvo");
 		ensure(!canStartHeroAttack(s, id),
