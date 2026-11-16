@@ -321,7 +321,8 @@ function abilityMoves(obs: BotObservation, profile: BotProfile, progress: Combat
 					} };
 					const heal = itemHealingAmount(ability.sourceCardId);
 					moves.push({ action: itemAction, score: heal !== null
-						? healingMoveScore(view, target ?? hero.id, heal)
+						? progress.stagnantRounds >= 3 && bestAttackScore(view, hero.id, profile) >= 0
+							? 35 : healingMoveScore(view, target ?? hero.id, heal)
 						: Math.min(score, pressure(view) ? 155 : 95) });
 				} else {
 					// A primeira ação apenas arma a habilidade; o alvo é enviado na
