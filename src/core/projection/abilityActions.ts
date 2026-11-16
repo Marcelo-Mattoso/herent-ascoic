@@ -82,8 +82,9 @@ export function projectAbilityActionsForHero(engine: GameEngine,
 					(preyAlreadyMarked ? "Derrote a Presa atual antes de marcar outra."
 					: hero.currentLife <= (def.cost?.hp ?? 0) ? "Vida insuficiente para pagar o custo."
 						: target?.kind === "unavailable" ? target.reason : null);
-			const status = prepared ? "prepared" as const
-				: exhausted ? "exhausted" as const
+			// Uma preparação obsoleta nunca pode reabrir um poder já consumido.
+			const status = exhausted ? "exhausted" as const
+				: prepared ? "prepared" as const
 				: reason ? "unavailable" as const
 				: activation === "passive" ? "active" as const : "available" as const;
 			return {
