@@ -15,6 +15,11 @@ async function openHeroPanel(page: Page) {
 	await expect(page.locator(".game-hero-focus-popover")).toBeVisible();
 }
 
+async function selectHeroForAttack(page: Page) {
+	await page.locator('[data-tutorial-anchor="combat.hero"] .game-card').click();
+	await expect(page.locator('[data-tutorial-anchor="combat.enemy"]').first()).toHaveClass(/click-attention/);
+}
+
 async function completeAbilities(page: Page, viewportName: string) {
 	await openAbilities(page);
 	await expect(page.locator('[data-tutorial-step="abilities-inspect"]')).toBeVisible();
@@ -27,14 +32,18 @@ async function completeAbilities(page: Page, viewportName: string) {
 	await expect(page.locator(".skill-target-option")).toHaveCount(2);
 	await page.locator(".skill-target-option").first().click();
 	await expect(page.locator('[data-tutorial-step="hunter-attack"]')).toBeVisible();
+	await selectHeroForAttack(page);
 	await page.locator('[data-tutorial-anchor="combat.enemy"]').first().click();
+	await expect(page.locator(".game-dice-roll-action")).toBeVisible();
 	await page.locator(".game-dice-roll-action").click();
 	await expect(page.locator('[data-tutorial-step="fury-prepare"]')).toBeVisible();
 	await openHeroPanel(page);
 	await page.locator('[data-tutorial-anchor="hero.skill-action"]').click();
 	await expect(page.locator('[data-tutorial-step="fury-trigger"]')).toBeVisible();
+	await selectHeroForAttack(page);
 	await page.locator('[data-tutorial-anchor="combat.enemy"]').first().click();
 	await expect(page.locator(".flow-modal-overlay")).toHaveCount(0);
+	await expect(page.locator(".game-dice-roll-action")).toBeVisible();
 	await page.locator(".game-dice-roll-action").click();
 	await expect(page.locator('[data-tutorial-step="hero-power"]')).toBeVisible();
 	await openHeroPanel(page);
@@ -113,7 +122,9 @@ test("Arquivo IV: rever habilidades já usadas sem reiniciar o combate", async (
 	await page.getByRole("button", { name: "Retomar de onde parei" }).click();
 	await expect(page.locator('[data-tutorial-step="hunter-attack"]')).toBeVisible();
 	await expect(page.locator('[data-tutorial-review="true"]')).toHaveCount(0);
+	await selectHeroForAttack(page);
 	await page.locator('[data-tutorial-anchor="combat.enemy"]').first().click();
+	await expect(page.locator(".game-dice-roll-action")).toBeVisible();
 	await page.locator(".game-dice-roll-action").click();
 	await expect(page.locator('[data-tutorial-step="fury-prepare"]')).toBeVisible();
 });
