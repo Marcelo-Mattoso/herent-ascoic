@@ -2001,7 +2001,8 @@
             }
           ]
         }
-      ]
+      ],
+      "action_cost": "consume_hero_action"
     },
     {
       "id": "witch_skill_lunar_spark",
@@ -2072,7 +2073,8 @@
             }
           ]
         }
-      ]
+      ],
+      "action_cost": "consume_hero_action"
     },
     {
       "id": "witch_skill_swamp_route",
@@ -2168,7 +2170,8 @@
           "kind": "i_full_heal",
           "to": "$target"
         }
-      ]
+      ],
+      "action_cost": "consume_hero_action"
     },
     {
       "id": "witch_skill_spore_cloud",

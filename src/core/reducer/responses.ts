@@ -10,12 +10,14 @@ import {
 	skipSkillWindowDecision,
 	type PendingSkillWindow,
 } from "../skills/resolveSkillWindow";
-import { fireTriggerDecision, triggerDecisionFlag } from "../triggers/engine";
+import { fireTriggerDecision, triggerDecisionFlag, markSkillGuardUsed } from "../triggers/engine";
 import { applyDamage, continueDamage } from "../systems/damageSystem";
 import type { GameState } from "../state/gameState";
 import type { GameEngine, GameHandler } from "../gameEngine";
-import { skillById, skillName } from "../gameEngine";
+import { abilityGrants, skillById, skillName } from "../gameEngine";
+import { markGrantUsed } from "../abilities/executor";
 import { gameOf, withGame } from "../../engine/state";
+import { ActivationTracker } from "../state/activation";
 import {
 	decksOf,
 	pendingChoicesOf,
@@ -219,17 +221,42 @@ function resolveSkillChoice(
 			},
 		});
 	};
-	const shouldAdvanceHeroUse =
-		!!pending.sourceHeroId &&
-		(gameOf(state).status === "HERO_ACTION" ||
-			gameOf(state).status === "BOSS_COMBAT") &&
-		gameOf(state).combat?.phase === "selecting_target" &&
-		gameOf(state).combat!.heroesActed.includes(pending.sourceHeroId);
-	const finishChoice = (next: GameState) => {
-		const afterHeroUse = shouldAdvanceHeroUse
-			? advanceAfterHeroDisabledForRound(next)
-			: next;
-		return resumeAfterSkillWindow(engine, afterHeroUse, skillWindow);
+	const finishChoice = (next: GameState, appliedChoice?: string) => {
+		const definition = skillById(engine, pending.skillId);
+		// Usos únicos ficam pendentes até uma escolha real: dispensar o modal
+		// não gasta o poder. Para poderes de dado, SELECT_DIE faz o commit.
+		let applied = next;
+		if (appliedChoice && pending.sourceHeroId && pending.sourceCardId &&
+			pending.skillId !== "witch_power_green_eclipse") {
+			const owner = gameOf(applied).heroes.find((hero) =>
+				hero.id === pending.sourceHeroId && hero.cardId === pending.sourceCardId);
+			if (owner) {
+				const grant = abilityGrants(engine, pending.sourceCardId).find((entry) =>
+					entry.abilityId === pending.skillId);
+				applied = grant
+					? markGrantUsed(engine, applied, {
+						kind: "hero", cardId: owner.cardId, sourceHeroId: owner.id,
+					}, grant)
+					: definition ? markSkillGuardUsed(applied, definition, owner.id) : applied;
+			}
+		}
+		const charged = appliedChoice && pending.skillId !== "witch_power_green_eclipse"
+			? ActivationTracker.chargeAbilityAction(
+				applied, pending.sourceHeroId, pending.skillId, definition?.action_cost, {
+					choiceId: appliedChoice,
+					attackerHeroId: gameOf(applied).combat?.lastRoll?.heroId,
+				},
+			)
+			: applied;
+		const newlyUsed = !!pending.sourceHeroId &&
+			!gameOf(state).combat?.heroesActed.includes(pending.sourceHeroId) &&
+			!!gameOf(charged).combat?.heroesActed.includes(pending.sourceHeroId);
+		const needsAdvance = newlyUsed &&
+			(gameOf(charged).status === "HERO_ACTION" || gameOf(charged).status === "BOSS_COMBAT") &&
+			gameOf(charged).combat?.phase === "selecting_target";
+		return resumeAfterSkillWindow(engine,
+			needsAdvance ? advanceAfterHeroDisabledForRound(charged) : charged,
+			skillWindow);
 	};
 	// Apenas escolhas explicitamente opcionais podem ser dispensadas.
 	if (payload.choice === "__skip__") {
@@ -289,7 +316,7 @@ function resolveSkillChoice(
 			},
 			chosenOption.params ?? {},
 		);
-		return finishChoice(drainStack(engine, evaluate(chosenOption.effect, ctx)));
+		return finishChoice(drainStack(engine, evaluate(chosenOption.effect, ctx)), payload.choice);
 	}
 
 	// ── Legacy handler continuation (type) ou script continuation (id) ──

@@ -23,6 +23,7 @@ export interface HeroCombatActions {
 		readonly alreadyUsed: boolean;
 		readonly prepared: boolean;
 		readonly preparable: boolean;
+		readonly requiresActivation: boolean;
 		readonly reason?: string;
 	} | null;
 	readonly power: {
@@ -31,6 +32,7 @@ export interface HeroCombatActions {
 		readonly alreadyUsed: boolean;
 		readonly prepared: boolean;
 		readonly preparable: boolean;
+		readonly requiresActivation: boolean;
 		readonly reason?: string;
 	} | null;
 }
@@ -70,7 +72,8 @@ export function selectHeroCombatActions(engine: GameEngine,
 				activatable: skillAction.activation !== "passive",
 				alreadyUsed: skillAction.status === "exhausted" || skillAction.status === "unavailable",
 				prepared: skillAction.status === "prepared",
-				preparable: skillAction.activation === "prepare",
+				preparable: skillAction.activation === "prepare" || skillAction.activation === "manual_prepare",
+				requiresActivation: skillAction.activation === "manual_prepare",
 				reason: skillAction.reason,
 			}
 		: null;
@@ -82,6 +85,7 @@ export function selectHeroCombatActions(engine: GameEngine,
 				alreadyUsed: powerAction.status === "exhausted" || powerAction.status === "unavailable",
 				prepared: powerAction.status === "prepared",
 				preparable: powerAction.activation === "prepare",
+				requiresActivation: false,
 				reason: powerAction.reason,
 			}
 		: null;

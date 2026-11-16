@@ -11,6 +11,9 @@ import { deckOf, heroesOf, withAwakening } from "@/core/state/access";
 import { settled } from "../../__tests__/fixtures";
 import { pendingSkillTargetOf, pendingTriggerInterruptOf, pendingSkillChoiceOf } from "../../state/access";
 import { withGame, gameOf } from "../../../engine/state";
+import { ActivationTracker } from "../../state/activation";
+import { resolveSkillWindow } from "../resolveSkillWindow";
+import { beginCombat, beginRoom, beginRound } from "../../state/lifecycle";
 
 function enemy(id: string): EnemyState {
 	return {
@@ -184,4 +187,114 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		expect(actions.find((action) => action.abilityId === "power_deep_veil_echo")?.activation).toBe("passive");
 		expect(actions.find((action) => action.abilityId === "spend_deep_veil_echo")?.activation).toBe("manual");
 	});
+	it("poder de suporte esgota a carga da partida e não pode ser usado novamente", () => {
+		let state = combat("hero_broken_bastion_warrior");
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
+		expect(gameOf(state).oncePer.game[`power_unbreakable_bastion_guard::${heroId}`]).toBe(true);
+		expect(gameOf(state).combat?.heroesActed).toContain(heroId);
+		state = beginRound(testEngine, beginCombat(testEngine, beginRoom(testEngine, state)));
+		expect(playerView(testEngine, state).abilityActionsByHero[heroId]
+			?.find((entry) => entry.abilityId === "power_unbreakable_bastion_guard")?.status).toBe("exhausted");
+		const before = gameOf(state).oncePer.game;
+		state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
+		expect(gameOf(state).oncePer.game).toEqual(before);
+	});
+
+	it("Juramento: cura coletiva custa a ação; bônus de dano preserva o ataque", () => {
+		for (const [choice, consumes] of [["heal_all", true], ["damage_bonus_holy", false]] as const) {
+			let state = combat("hero_last_light_paladin");
+			const heroId = heroesOf(state)[0]!.id;
+			state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
+			expect(pendingSkillChoiceOf(state)?.skillId).toBe("power_last_light_oath");
+			expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
+			state = reducer(testEngine, state, {
+				type: "SKILL_CHOICE", payload: { skillId: "power_last_light_oath", choice },
+			});
+			expect(gameOf(state).combat?.heroesActed.includes(heroId)).toBe(consumes);
+			expect(gameOf(state).oncePer.game[`power_last_light_oath::${heroId}`]).toBe(true);
+		}
+	});
+
+	it("Eclipse Verde preserva ataque próprio e consome ação se ajudar outro herói", () => {
+		const state = combat("hero_green_moon_sorceress");
+		const heroId = heroesOf(state)[0]!.id;
+		const otherId = "outro-heroi";
+		const own = ActivationTracker.chargeAbilityAction(
+			state, heroId, "witch_power_green_eclipse", "consume_hero_action",
+			{ attackerHeroId: heroId },
+		);
+		expect(gameOf(own).combat?.heroesActed).not.toContain(heroId);
+		const ally = ActivationTracker.chargeAbilityAction(
+			state, heroId, "witch_power_green_eclipse", "consume_hero_action",
+			{ attackerHeroId: otherId },
+		);
+		expect(gameOf(ally).combat?.heroesActed).toContain(heroId);
+	});
+
+	it("proteção preparada do Guerreiro só gasta a ação quando o dano dispara a reação", () => {
+		let state = combat("hero_broken_bastion_warrior");
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
+			skillId: "skill_bastion_guard", sourceId: heroId,
+		} });
+		expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
+		state = resolveSkillWindow(testEngine, state, { event: "evt_damage_taken", ctx: {
+			triggeredBy: "evt_damage_taken", sourceEnemyId: "e1",
+			targetHeroIds: [heroId], value: 3,
+		} });
+		expect(gameOf(state).combat?.heroesActed).toContain(heroId);
+	});
+
+	it("dispensar Juramento antes de escolher um efeito não gasta o poder", () => {
+		let state = combat("hero_last_light_paladin");
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
+		expect(pendingSkillChoiceOf(state)?.allowSkip).toBe(true);
+		state = reducer(testEngine, state, {
+			type: "SKILL_CHOICE", payload: {
+				skillId: "power_last_light_oath", choice: "__skip__",
+			},
+		});
+		expect(gameOf(state).oncePer.game[`power_last_light_oath::${heroId}`]).toBeFalsy();
+		expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
+	});
+
+	it("Clériga prepara e cancela cura sem gastar ataque, mas a ativação o consome", () => {
+		let state = combat("hero_eternal_rest_cleric");
+		const heroId = heroesOf(state)[0]!.id;
+		const skillId = "skill_last_light_healing";
+		const prepare = () => ({
+			type: "USE_SKILL" as const, payload: { skillId, sourceId: heroId },
+		});
+		state = reducer(testEngine, state, prepare());
+		expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
+		expect(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
+			entry.abilityId === skillId)).toBe(true);
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
+			skillId, sourceId: heroId, params: { cancelPreparation: true },
+		} });
+		expect(Object.values(gameOf(state).preparedAbilities ?? {})).toHaveLength(0);
+		expect(canStartHeroAttack(state, heroId, "e1")).toBe(true);
+		state = reducer(testEngine, state, prepare());
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
+			skillId, sourceId: heroId, targetIds: [heroId],
+		} });
+		expect(gameOf(state).combat?.heroesActed).toContain(heroId);
+		expect(Object.values(gameOf(state).preparedAbilities ?? {})).toHaveLength(0);
+	});
+
+	it("preparar uma defesa não desabilita o herói; consumir o efeito sim", () => {
+		let state = combat("hero_broken_bastion_warrior");
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, {
+			type: "USE_SKILL", payload: { skillId: "skill_bastion_guard", sourceId: heroId },
+		});
+		expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
+		state = ActivationTracker.chargeAbilityAction(
+			state, heroId, "skill_bastion_guard", "consume_hero_action",
+		);
+		expect(gameOf(state).combat?.heroesActed).toContain(heroId);
+	});
+
 });

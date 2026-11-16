@@ -183,10 +183,11 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 			.toBeGreaterThan(0);
 		const hero = page.locator(".game-board-hero-strip button").first();
 		await hero.tap();
+		// Inspecionar o herói não escolhe automaticamente um atacante.
 		await expect
 			.poll(async () => (await readState()).phase)
-			.toBe("selecting_target");
-		await hero.tap({ timeout: 5_000 });
+			.toBe("selecting_hero");
+		await expect(page.locator(".hero-focus-panel")).toBeVisible();
 		await page
 			.getByRole("button", { name: "Preparar habilidade" })
 			.tap({ timeout: 5_000 });
@@ -197,6 +198,11 @@ test("toque escolhe herói e criatura sem arrastar", async ({ browser }) => {
 			position: { x: 5, y: 5 },
 			timeout: 5_000,
 		});
+		await hero.tap();
+		await page.getByRole("button", { name: "Atacar (arraste ou clique)" }).tap();
+		await expect
+			.poll(async () => (await readState()).phase)
+			.toBe("selecting_target");
 		const enemy = page.locator(".game-board-active-cards button").nth(1);
 		await enemy.tap();
 		await expect
