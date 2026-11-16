@@ -377,7 +377,7 @@ export function runBenchmarkCase(
 		}
 		// Evidências reais do motor: preparação, confirmação, mudança e uso único
 		// são sinais independentes. Nenhum deles é inferido de um clique isolado.
-		for (const evidence of observeAbilityStep(step)) {
+		for (const evidence of observeAbilityStep(step, engine)) {
 			const { abilityId, sourceCardId } = evidence;
 			if (evidence.attempted) increment(attemptedById, abilityId);
 			if (evidence.prepared) increment(preparedById, abilityId);
