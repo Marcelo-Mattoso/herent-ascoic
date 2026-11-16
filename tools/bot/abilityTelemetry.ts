@@ -15,6 +15,8 @@ export interface AbilityStepEvidence {
 	readonly sourceCardId: string;
 	readonly sourceHeroId?: string;
 	readonly targetIds: readonly string[];
+	/** Apenas entidades cujo estado foi alterado de forma observável. */
+	readonly affectedIds: readonly string[];
 	readonly attempted: boolean;
 	readonly prepared: boolean;
 	readonly confirmed: boolean;
@@ -98,9 +100,11 @@ export function observeAbilityStep(step: AiStep): readonly AbilityStepEvidence[]
 
 	if (action.type === "USE_SKILL") {
 		const { skillId, sourceId, targetIds } = action.payload;
-		add({ ...base(skillId, sourceId), targetIds: [...(targetIds ?? [])],
-			attempted: true, prepared: newlyPrepared.some((entry) => entry.abilityId === skillId),
-			confirmed: !newlyPrepared.some((entry) => entry.abilityId === skillId) &&
+		const item = step.before.abilityActionsByHero[sourceId]?.find((entry) => entry.abilityId === skillId);
+		const cancelling = action.payload.params?.cancelPreparation === true;
+		add({ ...base(skillId, sourceId, item?.sourceCardId), targetIds: [...(targetIds ?? [])],
+			attempted: !cancelling, prepared: !cancelling && newlyPrepared.some((entry) => entry.abilityId === skillId),
+			confirmed: !cancelling && !newlyPrepared.some((entry) => entry.abilityId === skillId) &&
 				!step.after.pendingSkillChoice && !step.after.pendingSkillTarget });
 	}
 	if (action.type === "USE_POWER") {
@@ -160,9 +164,10 @@ export function observeAbilityStep(step: AiStep): readonly AbilityStepEvidence[]
 		const activationOnly = entry.prepared || !confirmed;
 		const effectKinds = activationOnly ? [] : changes.kinds.filter((kind) =>
 			kind !== "damage" || action.type !== "USE_SKILL" && action.type !== "USE_POWER");
+		const affectedIds = activationOnly || effectKinds.length === 0 ? [] : changes.targets;
 		return {
-			...entry, confirmed, chargeConsumed, effectKinds,
-			targetIds: [...new Set([...entry.targetIds, ...(!activationOnly ? changes.targets : [])])],
+			...entry, confirmed, chargeConsumed, effectKinds, affectedIds,
+			targetIds: [...new Set([...entry.targetIds, ...affectedIds])],
 		};
 	});
 }
