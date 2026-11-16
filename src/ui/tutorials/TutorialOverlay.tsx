@@ -330,7 +330,7 @@ export function TutorialOverlay({
 	const heroPortraitOpen = !!document.querySelector('[data-tutorial-anchor="hero.portrait"]');
 	const panelPlacement =
 		session.moduleId === "archive-four" && step.id === "abilities-inspect" && viewport.width < 600
-			? heroPortraitOpen ? "bottom" : "top"
+			? heroPortraitOpen ? "top" : "bottom"
 			:
 		session.moduleId === "archive-four" &&
 		(step.id === "hunter-attack" || step.id === "fury-trigger") &&
