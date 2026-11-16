@@ -162,9 +162,19 @@ export function observeAbilityStep(step: AiStep): readonly AbilityStepEvidence[]
 		const confirmed = entry.confirmed || consumedInGame;
 		// Custos próprios de ativação (ex. Fúria paga PV) NÃO são efeito.
 		const activationOnly = entry.prepared || !confirmed;
+		const newDamageFeedback = step.after.damageFeedback.slice(step.before.damageFeedback.length);
+		const enemyLifeLost = step.before.enemies.some((old) => {
+			const current = step.after.enemies.find((enemy) => enemy.id === old.id);
+			return current && current.currentLife < old.currentLife;
+		});
+		const chargeOnlyHeroDamage = (action.type === "USE_SKILL" || action.type === "USE_POWER") &&
+			!enemyLifeLost && newDamageFeedback.length === 0;
 		const effectKinds = activationOnly ? [] : changes.kinds.filter((kind) =>
-			kind !== "damage" || action.type !== "USE_SKILL" && action.type !== "USE_POWER");
-		const affectedIds = activationOnly || effectKinds.length === 0 ? [] : changes.targets;
+			kind !== "damage" || !chargeOnlyHeroDamage);
+		const affectedIds = activationOnly || effectKinds.length === 0 ? [] : changes.targets.filter((id) => {
+			if (!chargeOnlyHeroDamage || id !== entry.sourceHeroId) return true;
+			return effectKinds.some((kind) => kind !== "damage");
+		});
 		return {
 			...entry, confirmed, chargeConsumed, effectKinds, affectedIds,
 			targetIds: [...new Set([...entry.targetIds, ...affectedIds])],
