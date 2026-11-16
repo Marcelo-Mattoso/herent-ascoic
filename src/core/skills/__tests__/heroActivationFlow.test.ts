@@ -12,6 +12,7 @@ import { settled } from "../../__tests__/fixtures";
 import { pendingSkillTargetOf, pendingTriggerInterruptOf, pendingSkillChoiceOf } from "../../state/access";
 import { withGame, gameOf } from "../../../engine/state";
 import { ActivationTracker } from "../../state/activation";
+import { resolveSkillWindow } from "../resolveSkillWindow";
 import { beginCombat, beginRoom, beginRound } from "../../state/lifecycle";
 
 function enemy(id: string): EnemyState {
@@ -229,6 +230,34 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 			{ attackerHeroId: otherId },
 		);
 		expect(gameOf(ally).combat?.heroesActed).toContain(heroId);
+	});
+
+	it("proteção preparada do Guerreiro só gasta a ação quando o dano dispara a reação", () => {
+		let state = combat("hero_broken_bastion_warrior");
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
+			skillId: "skill_bastion_guard", sourceId: heroId,
+		} });
+		expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
+		state = resolveSkillWindow(testEngine, state, { event: "evt_damage_taken", ctx: {
+			triggeredBy: "evt_damage_taken", sourceEnemyId: "e1",
+			targetHeroIds: [heroId], value: 3,
+		} });
+		expect(gameOf(state).combat?.heroesActed).toContain(heroId);
+	});
+
+	it("dispensar Juramento antes de escolher um efeito não gasta o poder", () => {
+		let state = combat("hero_last_light_paladin");
+		const heroId = heroesOf(state)[0]!.id;
+		state = reducer(testEngine, state, { type: "USE_POWER", payload: { heroId } });
+		expect(pendingSkillChoiceOf(state)?.allowSkip).toBe(true);
+		state = reducer(testEngine, state, {
+			type: "SKILL_CHOICE", payload: {
+				skillId: "power_last_light_oath", choice: "__skip__",
+			},
+		});
+		expect(gameOf(state).oncePer.game[`power_last_light_oath::${heroId}`]).toBeFalsy();
+		expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
 	});
 
 	it("Clériga prepara e cancela cura sem gastar ataque, mas a ativação o consome", () => {
