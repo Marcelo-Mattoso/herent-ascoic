@@ -4,6 +4,7 @@
  * cobertura integral da habilidade, de todos os alvos ou do cooperativo.
  */
 import { createAscensaoEngine } from "@/core/composition";
+import { skillById } from "@/core/gameEngine";
 import { reducer } from "@/core/reducer";
 import { createInitialGameState, type GameState } from "@/core/state/gameState";
 import { createEmptyCombatState } from "@/core/state/combatState";
@@ -151,8 +152,12 @@ function checkLunarSpark(): void {
 }
 
 
-/** Contrato mínimo de ativação: não prova que o efeito posterior foi aplicado. */
-function checkPowerActivation(cardId: string, powerId: string): void {
+/**
+ * Contrato de ativação real: preparar não cobra uso/ação; abrir uma escolha não
+ * cobra uso/ação; confirmar a escolha registra o uso e cobra a ação, se prevista
+ * pelo catálogo. Os efeitos posteriores continuam cobertos por heroRuntime.
+ */
+function checkPowerActivation(cardId: string, powerId: string, choiceId?: string): void {
 	let state = combat(cardId);
 	const heroId = heroesOf(state)[0]!.id;
 	const before = playerView(engine, state).abilityActionsByHero[heroId]?.find(
@@ -160,29 +165,56 @@ function checkPowerActivation(cardId: string, powerId: string): void {
 	ensure(before?.kind === "power" && before.status === "available",
 		powerId + ": poder indisponível no início do combate");
 	state = reducer(engine, state, { type: "USE_POWER", payload: { heroId } });
+	const usedKey = `${powerId}::${heroId}`;
+	const pending = pendingSkillChoiceOf(state);
+
 	if (before.activation === "prepare") {
 		ensure(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
 			entry.abilityId === powerId && entry.sourceHeroId === heroId),
 			powerId + ": não ficou preparado no herói correto");
+		ensure(gameOf(state).oncePer.game[usedKey] !== true,
+			powerId + ": preparação registrou uso antes do disparo");
+	} else if (pending) {
+		ensure(pending.skillId === powerId,
+			powerId + ": escolha pendente pertence a outro poder");
+		ensure(gameOf(state).oncePer.game[usedKey] !== true,
+			powerId + ": abertura da escolha registrou uso antes da confirmação");
+		ensure(!gameOf(state).combat?.heroesActed.includes(heroId),
+			powerId + ": abertura da escolha consumiu a ação antecipadamente");
+		ensure(typeof choiceId === "string" && pending.options.some((option) => option.id === choiceId),
+			powerId + ": não há escolha de confirmação configurada ou disponível");
+		state = reducer(engine, state, { type: "SKILL_CHOICE", payload: {
+			skillId: powerId, choice: choiceId,
+		} });
+		ensure(!pendingSkillChoiceOf(state),
+			powerId + ": escolha permaneceu pendente após confirmação");
+		ensure(gameOf(state).oncePer.game[usedKey] === true,
+			powerId + ": uso não foi registrado após confirmar a escolha");
 	} else {
-		ensure(gameOf(state).oncePer.game[`${powerId}::${heroId}`] === true,
+		ensure(gameOf(state).oncePer.game[usedKey] === true,
 			powerId + ": uso não foi registrado");
 	}
-	ensure(!gameOf(state).combat?.heroesActed.includes(heroId),
-		powerId + ": ativação consumiu o ataque do herói");
-	ensure(canStartHeroAttack(state, heroId, "audit-enemy") || Boolean(pendingSkillChoiceOf(state)),
-		powerId + ": ação de ataque indisponível após ativar o poder");
+
+	const shouldConsumeAction = before.activation !== "prepare" &&
+		skillById(engine, powerId)?.action_cost === "consume_hero_action";
+	const actionConsumed = Boolean(gameOf(state).combat?.heroesActed.includes(heroId));
+	ensure(actionConsumed === shouldConsumeAction,
+		powerId + (shouldConsumeAction
+			? ": ativação não consumiu a ação de suporte"
+			: ": ativação consumiu o ataque do herói"));
+	ensure(canStartHeroAttack(state, heroId, "audit-enemy") === !shouldConsumeAction,
+		powerId + ": disponibilidade de ataque incompatível com o custo da ação");
 }
 
-const powerCases = [
-	["hero_eternal_rest_cleric", "power_greater_last_light_miracle"],
-	["hero_broken_bastion_warrior", "power_unbreakable_bastion_guard"],
-	["hero_rift_rogue", "power_restored_path"],
-	["hero_crimson_rune_mage", "power_supreme_rift_rune"],
-	["hero_crimson_barbarian", "power_mighty_crimson_fury"],
-	["hero_last_light_paladin", "power_last_light_oath"],
-	["hero_broken_veil_hunter", "power_hunter_execution"],
-] as const;
+const powerCases: readonly (readonly [string, string, string | undefined])[] = [
+	["hero_eternal_rest_cleric", "power_greater_last_light_miracle", "full_heal"],
+	["hero_broken_bastion_warrior", "power_unbreakable_bastion_guard", undefined],
+	["hero_rift_rogue", "power_restored_path", undefined],
+	["hero_crimson_rune_mage", "power_supreme_rift_rune", undefined],
+	["hero_crimson_barbarian", "power_mighty_crimson_fury", undefined],
+	["hero_last_light_paladin", "power_last_light_oath", "heal_all"],
+	["hero_broken_veil_hunter", "power_hunter_execution", undefined],
+];
 
 const scenarios = [
 	{ id: "crimson-fury-attack", sourceCardId: "hero_crimson_barbarian",
@@ -199,10 +231,10 @@ const scenarios = [
 export function runRuntimeScenarios(): RuntimeScenarioResult[] {
 	const allScenarios: { id: string; sourceCardId: string; abilityId: string; check: () => void; detail: string }[] = [
 		...scenarios,
-		...powerCases.map(([sourceCardId, abilityId]) => ({
+		...powerCases.map(([sourceCardId, abilityId, choiceId]) => ({
 			id: "power-activation-" + abilityId, sourceCardId, abilityId,
-			check: () => checkPowerActivation(sourceCardId, abilityId),
-			detail: "Ativação, registro de preparação/uso e preservação do ataque (não verifica efeito posterior)",
+			check: () => checkPowerActivation(sourceCardId, abilityId, choiceId),
+			detail: "Preparação, confirmação de escolhas, registro de uso e custo de ação (não verifica efeito posterior)",
 		})),
 	];
 	const originalResults = allScenarios.map(({ id, sourceCardId, abilityId, check, detail }) => {
