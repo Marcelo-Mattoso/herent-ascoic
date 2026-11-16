@@ -256,12 +256,18 @@ export function Exploration({
 			return;
 		}
 		setFocusedHero(h.id);
-		// No Arquivo II, tocar na carta seleciona o atacante de verdade.
-		// Fora do tutorial, o clique continua servindo apenas para inspecionar.
-		if (tutorialCombatMode && (
-			tutorialStepId === "combat-select-hero" ||
-			(tutorialStepId === "combat-drag" && tutorialCombatMethod === "tap")
-		)) {
+		// Nos arquivos de combate/habilidades, o toque de ataque seleciona
+		// o atacante real. Fora deles, o clique apenas inspeciona a carta.
+		if (
+			(tutorialCombatMode && (
+				tutorialStepId === "combat-select-hero" ||
+				(tutorialStepId === "combat-drag" && tutorialCombatMethod === "tap")
+			)) ||
+			(tutorialAbilityMode && (
+				tutorialStepId === "hunter-attack" ||
+				tutorialStepId === "fury-trigger"
+			))
+		) {
 			setShowHeroFocus(false);
 			if (combat?.phase === "selecting_hero")
 				dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
