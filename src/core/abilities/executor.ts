@@ -295,6 +295,7 @@ export function executeAbilityGrant(engine: GameEngine,
 	const skillCtx = {
 		...context,
 		triggeredBy,
+		sourceCardId: source.cardId,
 		sourceHeroId: source.sourceHeroId,
 		sourceEnemyId: source.sourceEnemyId,
 		targetHeroIds: targetIds.filter((id) => gameOf(next).heroes.some((hero) => hero.id === id)),
