@@ -780,6 +780,7 @@ abilities:
     affect_object: obj_friend
   - id: power_greater_last_light_miracle
     category: hero_power
+    action_cost: consume_hero_action
     effect:
       - kind: i_choose_one
         allow_skip: true
@@ -805,6 +806,7 @@ abilities:
     affect_object: obj_friend
   - id: power_unbreakable_bastion_guard
     category: hero_power
+    action_cost: consume_hero_action
     effect:
       - kind: i_for_each
         over: all_heroes
@@ -841,6 +843,7 @@ abilities:
     affect_object: obj_all
   - id: power_supreme_rift_rune
     category: hero_power
+    action_cost: consume_hero_action
     operate_type: op_triggered
     trigger:
       event: evt_roll
