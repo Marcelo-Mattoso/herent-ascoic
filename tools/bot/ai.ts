@@ -53,6 +53,8 @@ export function playAiGame(
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();
 	let bossProgress: { life: number; round: number } | null = null;
+	let previousCombat: { room: number; round: number; enemyLife: Readonly<Record<string, number>> } | null = null;
+	let stagnantRounds = 0;
 	let violation: Violation | null = checkState(port.inspect(), baseline);
 	while (!violation && !isTerminal(port.inspect())) {
 		if (port.history.length >= maxSteps) {
@@ -61,7 +63,25 @@ export function playAiGame(
 		}
 		let advanced = false;
 		const obs = port.observe();
-		const options = scoreMoves(obs, profile, setup.seed, port.history.length);
+		// Se várias rodadas passaram sem tirar PV de nenhum inimigo, reduzir
+		// a prioridade de cura/buff; ataques voltam a disputar a ação do herói.
+		const presentEnemies = obs.view.enemies.filter((enemy) => enemy.status === "active");
+		if (obs.view.combat && presentEnemies.length) {
+			const round = obs.view.combat.round;
+			const enemyLife = Object.fromEntries(presentEnemies.map((enemy) => [enemy.id, enemy.currentLife]));
+			const sameEncounter = previousCombat?.room === obs.view.roomsCleared &&
+				Object.keys(enemyLife).length === Object.keys(previousCombat.enemyLife).length &&
+				Object.keys(enemyLife).every((id) => id in previousCombat.enemyLife);
+			if (!sameEncounter) stagnantRounds = 0;
+			else if (Object.entries(enemyLife).some(([id, hp]) => hp < (previousCombat.enemyLife[id] ?? hp)))
+				stagnantRounds = 0;
+			else if (round > previousCombat.round) stagnantRounds += round - previousCombat.round;
+			previousCombat = { room: obs.view.roomsCleared, round, enemyLife };
+		} else {
+			previousCombat = null;
+			stagnantRounds = 0;
+		}
+		const options = scoreMoves(obs, profile, setup.seed, port.history.length, { stagnantRounds });
 		const stepRejected: string[] = [];
 		const combat = obs.view.combat;
 		const turnKey = `${combat?.round}:${combat?.heroesActed.length}:${obs.view.roomsCleared}`;
