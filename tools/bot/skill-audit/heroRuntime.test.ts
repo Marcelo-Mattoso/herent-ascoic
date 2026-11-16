@@ -1,6 +1,17 @@
 import { describe, expect, it } from "vitest";
-import { auditEngine, combat } from "./runtime";
+import { auditEngine, combat, runRuntimeScenarios } from "./runtime";
 import { runHeroCoverageScenarios } from "./heroRuntime";
+
+describe("skill audit P0: ativação, confirmação e custo dos poderes", () => {
+	it("valida os sete poderes sem confundir escolha pendente com uso consumido", () => {
+		const powerResults = runRuntimeScenarios().filter((scenario) =>
+			scenario.id.startsWith("power-activation-"));
+		expect(powerResults).toHaveLength(7);
+		for (const result of powerResults) {
+			expect(result.status, `${result.id}: ${result.detail}`).toBe("PASS");
+		}
+	});
+});
 
 describe("skill audit P0: cobertura funcional dos heróis", () => {
 	const results = runHeroCoverageScenarios(auditEngine, combat);
