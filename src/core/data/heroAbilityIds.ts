@@ -2,6 +2,8 @@
  * Concentrar referências semânticas aqui evita acoplamento a conteúdo em módulos de regras.
  */
 export const HERO_ABILITY_IDS = {
+	power_last_light_oath: "power_last_light_oath",
+	witch_power_green_eclipse: "witch_power_green_eclipse",
 	power_supreme_rift_rune: "power_supreme_rift_rune",
 	skill_preserved_path: "skill_preserved_path",
 	skill_return_rite: "skill_return_rite",
