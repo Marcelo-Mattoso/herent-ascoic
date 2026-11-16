@@ -256,6 +256,17 @@ export function Exploration({
 			return;
 		}
 		setFocusedHero(h.id);
+		// No Arquivo II, tocar na carta seleciona o atacante de verdade.
+		// Fora do tutorial, o clique continua servindo apenas para inspecionar.
+		if (tutorialCombatMode && (
+			tutorialStepId === "combat-select-hero" ||
+			(tutorialStepId === "combat-drag" && tutorialCombatMethod === "tap")
+		)) {
+			setShowHeroFocus(false);
+			if (combat?.phase === "selecting_hero")
+				dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
+			return;
+		}
 		if (tutorialInventoryMode && !tutorialInventoryOpen) {
 			setShowHeroFocus(false);
 			onTutorialInventoryHeroSelected?.();
