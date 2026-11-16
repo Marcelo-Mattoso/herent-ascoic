@@ -329,7 +329,12 @@ export function Exploration({
 	function handleAttack() {
 		const heroId = focusedHero?.id;
 		if (!heroId || !heroActionsFor(heroId).canStartAttack) return;
-		if (combat?.phase === "selecting_hero") {
+		if (combat?.phase === "selecting_target" && combat.selectedHeroId !== heroId) {
+			// Trocar o atacante exige decisão explícita; apenas focar não muda a ação.
+			dispatch({ type: "CANCEL_HERO_SELECTION" });
+		}
+		if (combat?.phase === "selecting_hero" ||
+			(combat?.phase === "selecting_target" && combat.selectedHeroId !== heroId)) {
 			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
 		}
 		setShowHeroFocus(false);
