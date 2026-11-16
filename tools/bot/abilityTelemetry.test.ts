@@ -85,6 +85,22 @@ describe("telemetria P0: ciclo de vida e efeitos reais", () => {
 		expect(observe(prepared, cleared, { type: "CHECK_COMBAT_END" })).toEqual([]);
 	});
 
+	it("desarmar voluntariamente a Fúria não registra novo uso ou confirmação", () => {
+		const initial = combat("hero_crimson_barbarian");
+		const id = gameOf(initial).heroes[0]!.id;
+		const action = { type: "USE_SKILL", payload: {
+			skillId: "skill_crimson_fury", sourceId: id,
+		} } as const;
+		const armed = reducer(auditEngine, initial, action);
+		expect(Object.keys(gameOf(armed).preparedAbilities ?? {})).not.toHaveLength(0);
+		const disarmed = reducer(auditEngine, armed, action);
+		const [record] = observe(armed, disarmed, action);
+		expect(record).toMatchObject({
+			attempted: false, prepared: false, confirmed: false,
+			chargeConsumed: false, effectKinds: [],
+		});
+	});
+
 	it("dano externo na mesma etapa não vira dano de uma habilidade de cura", () => {
 		const initial = combat("hero_eternal_rest_cleric");
 		const id = gameOf(initial).heroes[0]!.id;
