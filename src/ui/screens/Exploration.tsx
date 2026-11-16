@@ -246,7 +246,7 @@ export function Exploration({
 		if (tutorialAbilityMode && cardType === "hero") onTutorialAbilityCardInspect?.();
 	}
 
-	// Clique em card de herói: muda foco + seleciona para combate se válido
+	// Clique apenas inspeciona; atacar exige arrastar até o alvo ou escolher Atacar.
 	function handleHeroClick(h: HeroView) {
 		if (h.status !== "active") return;
 		// The drag lesson must not change combat phase on a harmless click.
@@ -259,17 +259,6 @@ export function Exploration({
 		if (tutorialInventoryMode && !tutorialInventoryOpen) {
 			setShowHeroFocus(false);
 			onTutorialInventoryHeroSelected?.();
-			return;
-		}
-		if (
-			(status === "HERO_ACTION" || status === "BOSS_COMBAT") &&
-			combat?.phase === "selecting_hero" &&
-			!combat.heroesActed.includes(h.id)
-		) {
-			// Toque é o caminho principal: primeiro escolhe o herói, depois o alvo.
-			setShowHeroFocus(false);
-			setCombatAttackHintVisible(false);
-			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId: h.id } });
 			return;
 		}
 		// In combat training a second hero click must never open a panel over
@@ -338,6 +327,11 @@ export function Exploration({
 	}, [showHeroFocus]);
 
 	function handleAttack() {
+		const heroId = focusedHero?.id;
+		if (!heroId || !heroActionsFor(heroId).canStartAttack) return;
+		if (combat?.phase === "selecting_hero") {
+			dispatch({ type: "CHOOSE_HERO_FOR_ROUND", payload: { heroId } });
+		}
 		setShowHeroFocus(false);
 		setCombatAttackHintVisible(true);
 	}
@@ -360,7 +354,7 @@ export function Exploration({
 	}
 
 	function handleUsePower() {
-		const heroId = combat?.selectedHeroId ?? focusedHero?.id;
+		const heroId = focusedHero?.id ?? combat?.selectedHeroId;
 		if (!heroId) return;
 		setCombatAttackHintVisible(false);
 		if (tutorialAbilityMode) setShowHeroFocus(false);
