@@ -204,7 +204,7 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 }
 
 function abilityTargets(view: PlayerView, ability: BotObservation["abilities"][string][number], owner: HeroView, profile: BotProfile): string[] {
-	if (!ability.targetRequired) return [];
+	if (!ability.targetRequired && ability.activation !== "manual_prepare") return [];
 	const candidates = ability.validTargetIds;
 	if (profile === "random") return [...candidates];
 	if (ability.heals) return candidates.filter((id) => activeHeroes(view).some((hero) => hero.id === id && hero.currentLife < hero.maxLife));
@@ -275,11 +275,17 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 			// Post-roll dice reactions are prompted by the engine when a die is eligible.
 			// Do not waste bot decisions toggling their old preparation control.
 			if (ability.modifiesDice && ability.activation === "prepare") continue;
-			if (ability.status !== "available" ||
-				(ability.activation !== "manual" && ability.activation !== "prepare")) continue;
+			// Habilidades manuais de suporte agora seguem duas ações: preparar e confirmar
+			// o alvo. O motor do jogo decide quando cobrar a ação do herói.
+			const manualPreparation = ability.activation === "manual_prepare";
+			const committingPreparation = manualPreparation && ability.status === "prepared";
+			if ((ability.status !== "available" && !committingPreparation) ||
+				(ability.activation !== "manual" && ability.activation !== "prepare" && !manualPreparation)) continue;
 			const targets = abilityTargets(view, ability, hero, profile);
 			if (ability.targetRequired && targets.length === 0) continue;
-			for (const target of ability.targetRequired ? targets : [undefined]) {
+			const candidates = ability.targetRequired || (manualPreparation && targets.length > 0)
+				? targets : [undefined];
+			for (const target of candidates) {
 				const score = abilityScore(view, ability, target, profile);
 				if (score < 0) continue;
 				// Fúria Rubra custa vida ao disparar. Uma prioridade fixa de preparo
@@ -296,10 +302,15 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 						? healingMoveScore(view, target ?? hero.id, heal)
 						: Math.min(score, pressure(view) ? 155 : 95) });
 				} else {
+					// A primeira ação apenas arma a habilidade; o alvo é enviado na
+					// segunda, quando a projeção já informa status "prepared".
+					const committedTarget = manualPreparation && !committingPreparation ? undefined : target;
 					moves.push({ action: { type: "USE_SKILL", payload: {
 						skillId: ability.abilityId, sourceId: hero.id,
-						...(target ? { targetIds: [target] } : {}),
+						...(committedTarget ? { targetIds: [committedTarget] } : {}),
 					} }, score: ability.abilityId === "skill_crimson_fury" ? score :
+						committingPreparation ? Math.max(score, 245) :
+						manualPreparation ? Math.max(score, 215) :
 						ability.activation === "prepare" ? (ability.kind === "power" ? 235 : 225) : score });
 				}
 			}
