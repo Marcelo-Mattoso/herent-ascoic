@@ -114,8 +114,14 @@ describe("reembaralhamento automático do baralho de criaturas", () => {
 		expect(gameOf(a).rng).toEqual(gameOf(b).rng);
 	});
 
-	it("invocação especial conta no limite e não consome o deck ao ser o único inimigo", () => {
-		const state = prepareEncounter("boss_azhakar", "room_jailer_room", 1, []);
+	it("invocação especial ocupa uma vaga e não compra do baralho quando está sozinha", () => {
+		// A sala comum do Carcereiro não possui invocação própria; o subchefe
+		// é ligado a subboss_room_jailer_chamber. Isolamos aqui a regra de spawn.
+		const base = prepareEncounter("boss_azhakar", "room_jailer_room", 1, []);
+		const state = withGame(base, (game) => ({ ...game, currentRoom: {
+			...game.currentRoom!,
+			specialCreatureId: "subboss_crimson_dungeon_jailer",
+		} }));
 		const result = handleSpawnEnemies(testEngine, state);
 		expect(enemiesOf(result)).toHaveLength(1);
 		expect(enemiesOf(result)[0]?.cardId).toBe("subboss_crimson_dungeon_jailer");
