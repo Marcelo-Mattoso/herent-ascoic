@@ -231,6 +231,30 @@ describe("fluxo de habilidade, preparação e ataque", () => {
 		expect(gameOf(ally).combat?.heroesActed).toContain(heroId);
 	});
 
+	it("Clériga prepara e cancela cura sem gastar ataque, mas a ativação o consome", () => {
+		let state = combat("hero_eternal_rest_cleric");
+		const heroId = heroesOf(state)[0]!.id;
+		const skillId = "skill_last_light_healing";
+		const prepare = () => ({
+			type: "USE_SKILL" as const, payload: { skillId, sourceId: heroId },
+		});
+		state = reducer(testEngine, state, prepare());
+		expect(gameOf(state).combat?.heroesActed).not.toContain(heroId);
+		expect(Object.values(gameOf(state).preparedAbilities ?? {}).some((entry) =>
+			entry.abilityId === skillId)).toBe(true);
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
+			skillId, sourceId: heroId, params: { cancelPreparation: true },
+		} });
+		expect(Object.values(gameOf(state).preparedAbilities ?? {})).toHaveLength(0);
+		expect(canStartHeroAttack(state, heroId, "e1")).toBe(true);
+		state = reducer(testEngine, state, prepare());
+		state = reducer(testEngine, state, { type: "USE_SKILL", payload: {
+			skillId, sourceId: heroId, targetIds: [heroId],
+		} });
+		expect(gameOf(state).combat?.heroesActed).toContain(heroId);
+		expect(Object.values(gameOf(state).preparedAbilities ?? {})).toHaveLength(0);
+	});
+
 	it("preparar uma defesa não desabilita o herói; consumir o efeito sim", () => {
 		let state = combat("hero_broken_bastion_warrior");
 		const heroId = heroesOf(state)[0]!.id;
