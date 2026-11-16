@@ -1792,7 +1792,15 @@ export function handleSelectDie(
 			...(charge.sourceEnemyId ? { sourceEnemyId: charge.sourceEnemyId } : {}),
 		};
 		const grant = abilityGrants(engine, charge.sourceCardId).find((entry) => entry.id === charge.grantId);
-		if (grant) committed = markGrantUsed(engine, committed, source, grant);
+		if (grant) {
+			committed = markGrantUsed(engine, committed, source, grant);
+			const definition = skillById(engine, grant.abilityId);
+			committed = ActivationTracker.chargeAbilityAction(
+				committed, charge.sourceHeroId, grant.abilityId,
+				definition?.action_cost ?? grant.activation.actionCost,
+				{ attackerHeroId: roll.heroId },
+			);
+		}
 		if (charge.preparedKey) committed = removePreparedAbility(committed, charge.preparedKey);
 	}
 	committed = log(committed,
