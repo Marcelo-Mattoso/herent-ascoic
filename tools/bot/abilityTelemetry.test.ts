@@ -12,7 +12,7 @@ function observe(beforeState: ReturnType<typeof combat>,
 	return observeAbilityStep({
 		beforeState, afterState, before: playerView(auditEngine, beforeState),
 		after: playerView(auditEngine, afterState), chosen: { action, score: 1 },
-	} as AiStep);
+	} as AiStep, auditEngine);
 }
 
 describe("telemetria P0: ciclo de vida e efeitos reais", () => {
