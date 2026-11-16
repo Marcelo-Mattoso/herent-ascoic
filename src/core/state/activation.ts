@@ -1,3 +1,4 @@
+import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { removeModifiersAppliedBySource } from "../ecs/world";
 import { removeBlocksAppliedBySource } from "./blockHelpers";
 import type { GameState } from "./gameState";
@@ -151,9 +152,9 @@ export class ActivationTracker {
 	): GameState {
 		if (!sourceHeroId || actionCost !== "consume_hero_action") return state;
 		// O Juramento pode curar o grupo OU reforçar o próprio ataque.
-		if (skillId === "power_last_light_oath" && options.choiceId !== "heal_all") return state;
+		if (skillId === HERO_ABILITY_IDS.power_last_light_oath && options.choiceId !== "heal_all") return state;
 		// Eclipse Verde: a feiticeira não perde outra ação ao alterar o próprio dado.
-		if (skillId === "witch_power_green_eclipse" &&
+		if (skillId === HERO_ABILITY_IDS.witch_power_green_eclipse &&
 			(!options.attackerHeroId || options.attackerHeroId === sourceHeroId)) return state;
 		return ActivationTracker.endHeroTurn(state, sourceHeroId);
 	}
