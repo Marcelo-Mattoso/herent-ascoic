@@ -17,7 +17,7 @@ import { skillsOf } from "../gameEngine";
 import { refRequirementMet } from "../gameEngine";
 import type { GameEngine } from "../gameEngine";
 
-import { enemiesOf, heroesOf, withUnitStats, pendingTriggerInterruptOf } from "../state/access";
+import { enemiesOf, heroesOf, withUnitStats, pendingTriggerInterruptOf, pendingSkillChoiceOf } from "../state/access";
 import { type FlagScope, scopedCountOf, withScopedCount, scopedFlagOf, withScopedFlag } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 export type TriggerWindow =
@@ -546,11 +546,17 @@ export function executeTriggerCandidate(engine: GameEngine,
 		}
 	}
 
-	return appendAlphaLog(markSkillGuardUsed(
-		current,
-		candidate.definition,
-		candidate.source.sourceHeroId,
-	), `Gatilho ${skillName(engine, candidate.definition.id)} ativado por ${cardName(engine, candidate.source.cardId)} (${candidate.source.sourceHeroId ?? candidate.source.sourceEnemyId ?? "grupo"}) em ${candidate.event}; parâmetros ${JSON.stringify(resolveSkillParams(candidate))}.`);
+	current = markSkillGuardUsed(current, candidate.definition, candidate.source.sourceHeroId);
+	if (!pendingSkillChoiceOf(current) && !gameOf(current).combat?.pendingDiceSelection) {
+		current = ActivationTracker.chargeAbilityAction(
+			current,
+			candidate.source.sourceHeroId,
+			candidate.definition.id,
+			candidate.definition.action_cost,
+			{ attackerHeroId: gameOf(current).combat?.lastRoll?.heroId },
+		);
+	}
+	return appendAlphaLog(current, `Gatilho ${skillName(engine, candidate.definition.id)} ativado por ${cardName(engine, candidate.source.cardId)} (${candidate.source.sourceHeroId ?? candidate.source.sourceEnemyId ?? "grupo"}) em ${candidate.event}; parâmetros ${JSON.stringify(resolveSkillParams(candidate))}.`);
 }
 
 function candidateMatchesDecision(
