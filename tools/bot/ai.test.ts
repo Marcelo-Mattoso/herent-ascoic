@@ -4,6 +4,7 @@ import { setupFromSeed } from "./play";
 import { setupForRun } from "./profiles";
 import { createHeadlessPort } from "./port";
 import { gameOf } from "@/engine/state";
+import type { BotObservation } from "./observe";
 
 const SHORT_GAME = 300;
 
@@ -43,6 +44,43 @@ describe("IA do bot", () => {
 		const result = playAiGame(setup, 1000, undefined, "random");
 		expect(result.violation?.invariant).not.toBe("no_legal_action");
 	}, 60_000);
+
+	it("prepara e confirma habilidade manual de suporte usando o novo estado", () => {
+		const heroId = "cleric-test";
+		const ability = {
+			abilityId: "skill_last_light_healing",
+			sourceCardId: "hero_eternal_rest_cleric",
+			label: "Cura da Última Luz",
+			kind: "skill", activation: "manual_prepare", status: "available",
+			targetRequired: false, validTargetIds: [heroId],
+			heals: true, modifiesDice: false,
+		} as const;
+		const view = {
+			status: "HERO_ACTION",
+			heroes: [{
+				id: heroId, cardId: "hero_eternal_rest_cleric",
+				status: "active", currentLife: 3, maxLife: 10,
+			}],
+			enemies: [], roomsCleared: 1,
+			combat: { round: 1, heroesActed: [] },
+		};
+		const obs = (status: "available" | "prepared") => ({
+			view,
+			actions: [],
+			abilities: { [heroId]: [{ ...ability, status }] },
+		}) as unknown as BotObservation;
+		expect(rankMoves(obs("available"), "casual")[0]).toMatchObject({
+			type: "USE_SKILL", payload: {
+				skillId: ability.abilityId, sourceId: heroId,
+			},
+		});
+		expect(rankMoves(obs("available"), "casual")[0]).not.toHaveProperty("payload.targetIds");
+		expect(rankMoves(obs("prepared"), "casual")[0]).toMatchObject({
+			type: "USE_SKILL", payload: {
+				skillId: ability.abilityId, sourceId: heroId, targetIds: [heroId],
+			},
+		});
+	});
 
 	it("joga sem violar invariantes", () => {
 		for (let seed = 1; seed <= 5; seed++) {
