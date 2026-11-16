@@ -6,7 +6,7 @@
     "image": "images/boss_great_cauldron_witch.webp",
     "lifeBase": 18,
     "hitBonusBase": 11,
-    "damage": 5,
+    "damage": 4,
     "dice": 3,
     "accessCondition": {
       "type": "group_artifacts_gte",
