@@ -5,6 +5,11 @@ import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { healingMoveScore, itemHealingAmount } from "./healing";
 
+/** Contexto de combate observado pela IA, sem leitura de estado interno. */
+export interface CombatProgress {
+	readonly stagnantRounds: number;
+}
+
 export interface ScoredMove {
 	readonly action: Action;
 	readonly score: number;
@@ -54,6 +59,10 @@ function attackScore(view: PlayerView, heroId: string, enemyId: string, profile:
 	const offense = hero.damage * (profile === "speedrunner" ? 5 : 3);
 	return 100 + hitChance * 35 + killChance * 45 + danger + offense - enemy.currentLife * 0.5 +
 		(profile === "casual" ? lifeRatio(hero) * 10 : -Math.max(0, 0.35 - lifeRatio(hero)) * 30);
+}
+
+function bestAttackScore(view: PlayerView, heroId: string, profile: BotProfile): number {
+	return Math.max(-1, ...activeEnemies(view).map((enemy) => attackScore(view, heroId, enemy.id, profile)));
 }
 
 function choiceScore(view: PlayerView, choice: string, profile: BotProfile): number {
@@ -214,7 +223,8 @@ function abilityTargets(view: PlayerView, ability: BotObservation["abilities"][s
 	return [...candidates];
 }
 
-function abilityScore(view: PlayerView, ability: BotObservation["abilities"][string][number], targetId: string | undefined, profile: BotProfile): number {
+function abilityScore(view: PlayerView, ability: BotObservation["abilities"][string][number],
+	targetId: string | undefined, owner: HeroView, profile: BotProfile, progress: CombatProgress): number {
 	const abilityId = ability.abilityId;
 	const isPower = ability.kind === "power";
 	const isPrepare = ability.activation === "prepare";
@@ -223,27 +233,38 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	if (profile === "random") return 0;
 	const target = activeHeroes(view).find((hero) => hero.id === targetId);
 	const missing = target ? target.maxLife - target.currentLife : 0;
-	if (abilityId === "skill_last_light_healing") {
+	if (abilityId === "skill_last_light_healing" || abilityId === "witch_skill_white_ash_balm") {
 		if (!target || missing <= 0) return -1;
+		const healed = Math.min(abilityId === "skill_last_light_healing" ? 3 : 2, missing);
 		const strike = Math.max(0, ...activeEnemies(view).map((enemy) => enemy.damage));
-		const lifesaving = target.currentLife <= strike &&
-			target.currentLife + Math.min(3, missing) > strike;
-		return 105 + missing * (profile === "speedrunner" ? 2 : 10) +
-			(lifesaving ? 80 : 0);
+		const inCombat = activeEnemies(view).length > 0;
+		const lifesaving = inCombat && target.currentLife <= strike && target.currentLife + healed > strike;
+		const ownerAttack = bestAttackScore(view, owner.id, profile);
+		// Curar sempre que há ferimento gera loop solo: o inimigo continua ileso.
+		// Fora de combate, ou para salvar alguém de um ataque letal, o valor sobe.
+		if (!inCombat) return 140 + healed * 16;
+		if (progress.stagnantRounds >= 3 && ownerAttack >= 0) return 35 + healed;
+		if (lifesaving) return 260 + healed * 9;
+		const ally = target.id !== owner.id;
+		return (ally ? 110 : 75) + healed * 8 + (target.currentLife / target.maxLife < 0.3 ? 20 : 0);
 	}
 	if (abilityId === "skill_rift_rune") {
 		if (!target) return -1;
-		if (target.cardId === "hero_crimson_rune_mage" && activeHeroes(view).length === 1) {
-			const enemy = activeEnemies(view)[0];
-			if (!enemy || target.currentLife <= enemy.damage) return -1;
-			const base = forecastAttack(target, enemy);
-			const buffed = forecastAttack(target, enemy, 3);
-			const futureAttacks = Math.min(3, Math.ceil(enemy.currentLife / Math.max(1, target.damage)));
-			const gain = (buffed.expectedDamage - base.expectedDamage) * futureAttacks -
-				base.expectedDamage - enemy.damage * 0.25;
-			return 180 + gain * 10;
-		}
-		return 140 + target.damage * 4 + target.hitBonus;
+		const enemies = activeEnemies(view);
+		if (!enemies.length) return 70;
+		const enemy = enemies.find((candidate) => candidate.status === "active")!;
+		const base = forecastAttack(target, enemy);
+		const buffed = forecastAttack(target, enemy, 3);
+		const futureAttacks = Math.min(4, Math.ceil(enemy.currentLife / Math.max(1, target.damage)));
+		const extraDamage = (buffed.expectedDamage - base.expectedDamage) * futureAttacks;
+		const solo = activeHeroes(view).length === 1;
+		// Sozinho, o Mago deixa de atacar para lançar a runa: o bônus precisa
+		// compensar o ataque perdido e o dano sofrido durante a preparação.
+		const opportunityCost = solo ? base.expectedDamage + enemy.damage * 0.5 : 0;
+		const netGain = extraDamage - opportunityCost;
+		if (solo && (target.currentLife <= enemy.damage || netGain <= 0 || progress.stagnantRounds >= 3)) return -1;
+		if (target.id !== owner.id && !hasAction(view, target.id)) return 75;
+		return 95 + netGain * 15 + (solo ? 0 : target.damage * 3);
 	}
 	if (abilityId === "skill_prey_mark") return profile === "power-player" ? 180 : 125;
 	if (abilityId === "skill_crimson_fury") return furyScore(view);
@@ -257,8 +278,9 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 		return remaining <= 2 && discarded > 0 && lifeRatio(owner) >= 0.6 ? 180 : -1;
 	}
 	if (abilityId === "skill_bastion_guard") return pressure(view) ? 155 : 50;
+	if (ability.heals && progress.stagnantRounds >= 3 && bestAttackScore(view, owner.id, profile) >= 0) return 35;
 	if (abilityId === "power_supreme_rift_rune") return pressure(view) ? 160 : 95;
-	if (profile === "explorer") return isPower ? 210 : 185;
+	if (profile === "explorer") return isPower ? 185 : 165;
 	// Habilidades com disparo voluntário devem ser preparadas antes do evento;
 	// poderes têm valor real, inclusive para o perfil veloz.
 	if (profile === "speedrunner") return isPower ? 185 : isPrepare ? 160 : pressure(view) ? 155 : 105;
@@ -266,7 +288,7 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 110;
 }
 
-function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
+function abilityMoves(obs: BotObservation, profile: BotProfile, progress: CombatProgress): ScoredMove[] {
 	const { view } = obs;
 	if (view.status !== "HERO_ACTION" && view.status !== "BOSS_COMBAT") return [];
 	const moves: ScoredMove[] = [];
@@ -286,7 +308,7 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 			const candidates = ability.targetRequired || (manualPreparation && targets.length > 0)
 				? targets : [undefined];
 			for (const target of candidates) {
-				const score = abilityScore(view, ability, target, profile);
+				const score = abilityScore(view, ability, target, hero, profile, progress);
 				if (score < 0) continue;
 				// Fúria Rubra custa vida ao disparar. Uma prioridade fixa de preparo
 				// ignorava furyScore e forçava auto-sacrifícios mesmo sem benefício.
@@ -309,9 +331,10 @@ function abilityMoves(obs: BotObservation, profile: BotProfile): ScoredMove[] {
 						skillId: ability.abilityId, sourceId: hero.id,
 						...(committedTarget ? { targetIds: [committedTarget] } : {}),
 					} }, score: ability.abilityId === "skill_crimson_fury" ? score :
-						committingPreparation ? Math.max(score, 245) :
-						manualPreparation ? Math.max(score, 215) :
-						ability.activation === "prepare" ? (ability.kind === "power" ? 235 : 225) : score });
+						// Preparar e confirmar têm o MESMO valor estratégico da ação final.
+						// Sem piso artificial: cura/buff competem com um ataque real.
+						manualPreparation ? score :
+						ability.activation === "prepare" ? Math.max(score, 155) : score });
 				}
 			}
 		}
@@ -338,17 +361,24 @@ function seededRandom(seed: number, decision: number): () => number {
 
 /** Ordem determinística para permitir comparação de perfis na mesma seed. */
 export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-player", seed = 1,
-	decision = 0): readonly ScoredMove[] {
+	decision = 0, progress: CombatProgress = { stagnantRounds: 0 }): readonly ScoredMove[] {
 	const planned = profile === "power-player" ? planCombos(obs)[0] : undefined;
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),
-		...abilityMoves(obs, profile),
+		...abilityMoves(obs, profile, progress),
 		...obs.actions
 			.filter((action) => action.type !== "SPEND_XP" ||
 				action.payload.option !== "level_up" ||
 				obs.view.heroes.some((hero) => hero.id === action.payload.heroId &&
 					hero.status === "active" && hero.impeto < 4))
-			.map((action) => ({ action, score: scoreAction(obs.view, action, profile) })),
+			.map((action) => {
+				const score = scoreAction(obs.view, action, profile);
+				const healingItem = (action.type === "USE_ITEM" || action.type === "USE_REWARD_ITEM") &&
+					itemHealingAmount(action.payload.itemId) !== null;
+				const ownerCanAttack = healingItem &&
+					bestAttackScore(obs.view, action.payload.heroId, profile) >= 0;
+				return { action, score: progress.stagnantRounds >= 3 && ownerCanAttack ? Math.min(score, 35) : score };
+			}),
 	];
 	const unique = [...new Map(candidates.reverse().map((move) => [JSON.stringify(move.action), move])).values()].reverse();
 	const random = seededRandom(seed, decision);
