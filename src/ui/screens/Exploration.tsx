@@ -373,11 +373,14 @@ export function Exploration({
 		dispatch({ type: "DECLARE_FLEE", payload: { heroId } });
 	}
 
-	function handleUseSkill(skillId: string, sourceId: string) {
+	function handleUseSkill(skillId: string, sourceId: string, cancelPreparation = false) {
 		if (tutorialAbilityMode) setShowHeroFocus(false);
 		dispatch({
 			type: "USE_SKILL",
-			payload: { skillId, sourceId },
+			payload: {
+				skillId, sourceId,
+				...(cancelPreparation ? { params: { cancelPreparation: true } } : {}),
+			},
 		});
 	}
 
