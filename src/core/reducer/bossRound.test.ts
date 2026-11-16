@@ -1,6 +1,8 @@
 import { describe, expect, it } from "vitest";
 import { testEngine } from "../__tests__/testEngine";
 import { createInitialGameState } from "../state/gameState";
+import { getBossById } from "../data/cards";
+import { dungeonAwakeningEffect } from "../rules/dungeonAwakening";
 import { createEmptyCombatState } from "../state/combatState";
 import { heroesOf, withPendingSkillChoice } from "../state/access";
 import { ActivationTracker } from "../state/activation";
@@ -28,6 +30,14 @@ function bossTurn() {
 }
 
 describe("fechamento de ações no combate de chefe", () => {
+	it("a Bruxa causa 4 de dano, ou 5 após o bônus do Despertar", () => {
+		const witch = getBossById("boss_great_cauldron_witch");
+		expect(witch?.damage).toBe(4);
+		expect([0, 1, 2, 3, 4].map((level) =>
+			witch!.damage + dungeonAwakeningEffect(level as 0 | 1 | 2 | 3 | 4).damageBonus))
+			.toEqual([4, 4, 5, 5, 5]);
+	});
+
 	it("última ação do herói não muda BOSS_COMBAT para DIRECT_DAMAGE", () => {
 		const { state, hero } = bossTurn();
 		const exhausted = ActivationTracker.endHeroTurn(state, hero.id);
