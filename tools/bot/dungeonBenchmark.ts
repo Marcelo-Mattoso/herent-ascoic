@@ -278,7 +278,7 @@ export function runBenchmarkCase(
 	let itemsBoughtWhileLevelAvailable = 0, artifactsBoughtWhileLevelAvailable = 0, dungeonRecoveries = 0;
 	let bossEncounter: BenchmarkTrial["bossEncounter"];
 	let abilityOpportunities = 0, skillOpportunities = 0, powerOpportunities = 0;
-	let triggeredSkillUses = 0, triggeredPowerUses = 0;
+	let triggeredSkillUses = 0, triggeredPowerUses = 0, manualSkillUses = 0, manualPowerUses = 0;
 	let skillPreparations = 0, powerPreparations = 0;
 	const preparationsById: Record<string, number> = {};
 	const armedById: Record<string, number> = {};
@@ -374,19 +374,28 @@ export function runBenchmarkCase(
 		if (action.type === "USE_SKILL") {
 			const projected = step.before.abilityActionsByHero[action.payload.sourceId]?.find((entry) =>
 				entry.abilityId === action.payload.skillId);
-			if (projected?.kind === "power") increment(powerActivationsById, action.payload.skillId);
-			if (projected?.activation === "prepare") {
+			const isPreparation = projected?.activation === "prepare" ||
+				(projected?.activation === "manual_prepare" && projected.status === "available");
+			if (isPreparation) {
 				increment(preparationsById, action.payload.skillId);
-				if (projected.kind === "skill") skillPreparations++;
-				if (projected.kind === "power") powerPreparations++;
+				if (projected?.kind === "skill") skillPreparations++;
+				if (projected?.kind === "power") powerPreparations++;
 			} else {
 				increment(manualActionsById, action.payload.skillId);
+				if (projected?.kind === "skill") manualSkillUses++;
+				if (projected?.kind === "power" && !skillById(engine, action.payload.skillId)?.cooldown)
+					manualPowerUses++;
 			}
 		}
-		if (action.type === "USE_POWER") {
-			const power = step.before.abilityActionsByHero[action.payload.heroId]?.find(
-				(ability) => ability.kind === "power" && ability.status === "available");
-			increment(powerActivationsById, power?.abilityId ?? "unknown-power");
+		// Contabilizar ativação por limite efetivamente consumido, nunca pelo
+		// simples clique em USE_POWER/USE_SKILL que pode só preparar/cancelar.
+		const previousGameUses = gameOf(step.beforeState).oncePer?.game ?? {};
+		const currentGameUses = gameOf(step.afterState).oncePer?.game ?? {};
+		for (const [key, consumed] of Object.entries(currentGameUses)) {
+			if (!consumed || previousGameUses[key]) continue;
+			const id = key.split("::")[0]!;
+			if (skillById(engine, id)?.category === "hero_power")
+				increment(powerActivationsById, id);
 		}
 		if ((action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT") &&
 			step.before.pendingTriggerInterrupt) {
@@ -456,7 +465,8 @@ export function runBenchmarkCase(
 		if (trigger && step.chosen.action.type === "APPLY_TRIGGER_INTERRUPT") {
 			const category = skillById(engine, trigger.skillId)?.category;
 			if (category === "hero_skill") triggeredSkillUses++;
-			if (category === "hero_power") triggeredPowerUses++;
+			if (category === "hero_power" && !skillById(engine, trigger.skillId)?.cooldown)
+				triggeredPowerUses++;
 		}
 		const triggerCategory = trigger && skillById(engine, trigger.skillId)?.category;
 		if (triggerCategory === "hero_skill") skillOpportunities++;
@@ -502,12 +512,9 @@ export function runBenchmarkCase(
 		initialHeroLevel: Math.max(0, ...starting.heroes.map((hero) => hero.impeto)),
 		poison: state.poisonTelemetry ?? { toHeroes: 0, toEnemies: 0, preventedByHeart: 0 },
 		...(bossEncounter ? { bossEncounter } : {}),
-		skillUses: result.actions.filter((action) => action.type === "USE_SKILL" &&
-			skillById(engine, action.payload.skillId)?.category === "hero_skill" &&
-			skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered").length + triggeredSkillUses,
-		powerUses: result.actions.filter((action) => action.type === "USE_POWER" ||
-			(action.type === "USE_SKILL" && skillById(engine, action.payload.skillId)?.category === "hero_power" &&
-				skillById(engine, action.payload.skillId)?.operate_type !== "op_triggered")).length + triggeredPowerUses,
+		skillUses: manualSkillUses + triggeredSkillUses,
+		powerUses: Object.values(powerActivationsById).reduce((total, count) => total + count, 0) +
+			manualPowerUses + triggeredPowerUses,
 		items: {
 			acquired: itemsAcquired, uses: itemsUsed, usesByItem, finalInventoryByItem,
 			discarded: itemsDiscarded,
