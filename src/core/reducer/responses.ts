@@ -16,6 +16,7 @@ import type { GameState } from "../state/gameState";
 import type { GameEngine, GameHandler } from "../gameEngine";
 import { skillById, skillName } from "../gameEngine";
 import { gameOf, withGame } from "../../engine/state";
+import { ActivationTracker } from "../state/activation";
 import {
 	decksOf,
 	pendingChoicesOf,
@@ -219,17 +220,27 @@ function resolveSkillChoice(
 			},
 		});
 	};
-	const shouldAdvanceHeroUse =
-		!!pending.sourceHeroId &&
-		(gameOf(state).status === "HERO_ACTION" ||
-			gameOf(state).status === "BOSS_COMBAT") &&
-		gameOf(state).combat?.phase === "selecting_target" &&
-		gameOf(state).combat!.heroesActed.includes(pending.sourceHeroId);
-	const finishChoice = (next: GameState) => {
-		const afterHeroUse = shouldAdvanceHeroUse
-			? advanceAfterHeroDisabledForRound(next)
+	const finishChoice = (next: GameState, appliedChoice?: string) => {
+		// A ação não é consumida ao preparar ou abrir um modal. Só a escolha
+		// efetivamente aplicada pode cobrar a ação do herói de suporte.
+		const cost = skillById(engine, pending.skillId)?.action_cost;
+		const charged = appliedChoice && pending.skillId !== "witch_power_green_eclipse"
+			? ActivationTracker.chargeAbilityAction(
+				next, pending.sourceHeroId, pending.skillId, cost, {
+					choiceId: appliedChoice,
+					attackerHeroId: gameOf(next).combat?.lastRoll?.heroId,
+				},
+			)
 			: next;
-		return resumeAfterSkillWindow(engine, afterHeroUse, skillWindow);
+		const newlyUsed = !!pending.sourceHeroId &&
+			!gameOf(state).combat?.heroesActed.includes(pending.sourceHeroId) &&
+			!!gameOf(charged).combat?.heroesActed.includes(pending.sourceHeroId);
+		const needsAdvance = newlyUsed &&
+			(gameOf(charged).status === "HERO_ACTION" || gameOf(charged).status === "BOSS_COMBAT") &&
+			gameOf(charged).combat?.phase === "selecting_target";
+		return resumeAfterSkillWindow(engine,
+			needsAdvance ? advanceAfterHeroDisabledForRound(charged) : charged,
+			skillWindow);
 	};
 	// Apenas escolhas explicitamente opcionais podem ser dispensadas.
 	if (payload.choice === "__skip__") {
@@ -289,7 +300,7 @@ function resolveSkillChoice(
 			},
 			chosenOption.params ?? {},
 		);
-		return finishChoice(drainStack(engine, evaluate(chosenOption.effect, ctx)));
+		return finishChoice(drainStack(engine, evaluate(chosenOption.effect, ctx)), payload.choice);
 	}
 
 	// ── Legacy handler continuation (type) ou script continuation (id) ──
