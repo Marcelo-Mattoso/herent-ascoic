@@ -10,13 +10,12 @@ import {
 	skipSkillWindowDecision,
 	type PendingSkillWindow,
 } from "../skills/resolveSkillWindow";
-import { fireTriggerDecision, triggerDecisionFlag } from "../triggers/engine";
+import { fireTriggerDecision, triggerDecisionFlag, markSkillGuardUsed } from "../triggers/engine";
 import { applyDamage, continueDamage } from "../systems/damageSystem";
 import type { GameState } from "../state/gameState";
 import type { GameEngine, GameHandler } from "../gameEngine";
 import { abilityGrants, skillById, skillName } from "../gameEngine";
 import { markGrantUsed } from "../abilities/executor";
-import { markSkillGuardUsed } from "../triggers/engine";
 import { gameOf, withGame } from "../../engine/state";
 import { ActivationTracker } from "../state/activation";
 import {
