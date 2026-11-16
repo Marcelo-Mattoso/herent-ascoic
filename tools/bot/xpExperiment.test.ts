@@ -35,8 +35,11 @@ describe("XP experimental exclusivo do bot de leveling", () => {
 		expect(score(leveling, "recover_dungeon")).toBeGreaterThan(score(leveling, "buy_artifact"));
 		expect(score(leveling, "buy_item")).toBeLessThan(score(leveling, "level_up"));
 		const fullyLeveled = { ...leveling, heroes: [{ ...hero, impeto: 4 as const }] };
-		expect(score(fullyLeveled, "buy_item")).toBeLessThan(0);
-		expect(score(fullyLeveled, "buy_artifact")).toBeLessThan(0);
+		// Ao atingir o nível máximo, compras passam a ser opções secundárias
+		// válidas, mas ainda devem ficar atrás da recuperação da masmorra.
+		expect(score(fullyLeveled, "buy_item")).toBeGreaterThan(0);
+		expect(score(fullyLeveled, "buy_item")).toBeLessThan(score(fullyLeveled, "recover_dungeon"));
+		expect(score(fullyLeveled, "buy_artifact")).toBeLessThan(score(fullyLeveled, "recover_dungeon"));
 	});
 
 	it("o relatório volta aos custos oficiais sem aplicar o override experimental", () => {
