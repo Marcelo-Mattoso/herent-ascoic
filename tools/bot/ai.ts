@@ -69,13 +69,14 @@ export function playAiGame(
 		if (obs.view.combat && presentEnemies.length) {
 			const round = obs.view.combat.round;
 			const enemyLife = Object.fromEntries(presentEnemies.map((enemy) => [enemy.id, enemy.currentLife]));
-			const sameEncounter = previousCombat?.room === obs.view.roomsCleared &&
-				Object.keys(enemyLife).length === Object.keys(previousCombat.enemyLife).length &&
-				Object.keys(enemyLife).every((id) => id in previousCombat.enemyLife);
+			const previous = previousCombat;
+			const sameEncounter = previous !== null && previous.room === obs.view.roomsCleared &&
+				Object.keys(enemyLife).length === Object.keys(previous.enemyLife).length &&
+				Object.keys(enemyLife).every((id) => id in previous.enemyLife);
 			if (!sameEncounter) stagnantRounds = 0;
-			else if (Object.entries(enemyLife).some(([id, hp]) => hp < (previousCombat.enemyLife[id] ?? hp)))
+			else if (Object.entries(enemyLife).some(([id, hp]) => hp < (previous.enemyLife[id] ?? hp)))
 				stagnantRounds = 0;
-			else if (round > previousCombat.round) stagnantRounds += round - previousCombat.round;
+			else if (round > previous.round) stagnantRounds += round - previous.round;
 			previousCombat = { room: obs.view.roomsCleared, round, enemyLife };
 		} else {
 			previousCombat = null;
