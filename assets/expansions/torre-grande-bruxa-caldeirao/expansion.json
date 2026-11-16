@@ -266,7 +266,7 @@
         9,
         11
       ],
-      "damage": 3,
+      "damage": 2,
       "xp": 2,
       "reward": 1,
       "rewardType": "item",
@@ -352,7 +352,7 @@
         10,
         12
       ],
-      "damage": 4,
+      "damage": 3,
       "xp": 3,
       "reward": 1,
       "rewardType": "item",
@@ -524,7 +524,7 @@
         9,
         11
       ],
-      "damage": 3,
+      "damage": 2,
       "xp": 2,
       "reward": 1,
       "rewardType": "item",
@@ -610,7 +610,7 @@
         11,
         13
       ],
-      "damage": 5,
+      "damage": 4,
       "xp": 3,
       "reward": 2,
       "rewardType": "item",
@@ -736,7 +736,7 @@
         12,
         14
       ],
-      "damage": 4,
+      "damage": 3,
       "xp": 4,
       "reward": 1,
       "rewardType": "artifact",
