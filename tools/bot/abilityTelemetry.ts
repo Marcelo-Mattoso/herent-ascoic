@@ -143,7 +143,10 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 			entry.abilityId === skillId && entry.sourceHeroId === sourceId);
 		const projected = step.before.abilityActionsByHero[sourceId]?.find((entry) =>
 			entry.abilityId === skillId && (entry.sourceCardId === preparedSource?.sourceCardId || !preparedSource));
-		const cancelling = action.payload.params?.cancelPreparation === true;
+		const toggledOff = Boolean(preparedSource && beforePrepared[preparedSource.key] &&
+			!afterPrepared[preparedSource.key] && projected?.activation === "prepare" &&
+			!(targetIds?.length));
+		const cancelling = action.payload.params?.cancelPreparation === true || toggledOff;
 		add({ ...base(skillId, sourceId, preparedSource?.sourceCardId ?? projected?.sourceCardId), targetIds: [...(targetIds ?? [])],
 			attempted: !cancelling, prepared: !cancelling && newlyPrepared.some((entry) => entry.abilityId === skillId),
 			confirmed: !cancelling && !newlyPrepared.some((entry) => entry.abilityId === skillId) &&
