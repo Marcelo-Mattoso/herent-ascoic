@@ -47,6 +47,7 @@ const SLOT_COLORS_INV: Record<
 	hand1: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
 	hand2: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
 	amulet: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" },
+	ally: { bg: "#C9DBF1", border: "#245D8A", text: "#153B5A" },
 };
 
 // itemClass → cor mais próxima da paleta de slots
@@ -62,6 +63,7 @@ const ITEM_COLORS: Record<
 
 function itemColor(itemId: string) {
 	const card = getCardById(itemId);
+	if (card?.type === "ally") return SLOT_COLORS_INV.ally;
 	if (!card || card.type !== "item") return null;
 	return ITEM_COLORS[card.itemClass] ?? null;
 }
@@ -75,6 +77,7 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 	hand1: "game:components.inventarioGrupo.slotLabels.hand1",
 	hand2: "game:components.inventarioGrupo.slotLabels.hand2",
 	amulet: "game:components.inventarioGrupo.slotLabels.amulet",
+	ally: "Aliado",
 };
 const SLOT_TITLES: Record<ItemSlotType, string> = {
 	clothing1: "game:components.inventarioGrupo.slotTitles.clothing1",
@@ -82,6 +85,7 @@ const SLOT_TITLES: Record<ItemSlotType, string> = {
 	hand1: "game:components.inventarioGrupo.slotTitles.hand1",
 	hand2: "game:components.inventarioGrupo.slotTitles.hand2",
 	amulet: "game:components.inventarioGrupo.slotTitles.amulet",
+	ally: "Aliado permanente",
 };
 const MAX_BACKPACK = backpackCapacity(uiEngine);
 
@@ -298,7 +302,7 @@ function HeroColumn({
 		if (!dragging || dragging.kind !== "item") return false;
 		const card = getCardById(dragging.name);
 		return (
-			card?.type === "item" &&
+			(card?.type === "item" || card?.type === "ally") &&
 			!!card.equipmentSlot &&
 			itemAllowedForHero(card, hero) &&
 			!!canMoveInventoryItem(dragging.name, dragging.from, {
@@ -313,7 +317,7 @@ function HeroColumn({
 		const card = dragging ? getCardById(dragging.name) : null;
 		const valid =
 			!!dragging &&
-			card?.type === "item" &&
+			(card?.type === "item" || card?.type === "ally") &&
 			itemFitsSlot(card, slotType) &&
 			!!canMoveInventoryItem(dragging.name, dragging.from, {
 				kind: "hero_equip",
@@ -432,7 +436,7 @@ function HeroColumn({
 				{...areaDropHandlers(equipZone)}
 				style={{
 					display: "grid",
-					gridTemplateColumns: "repeat(5, 36px)",
+					gridTemplateColumns: "repeat(6, 36px)",
 					gap: 4,
 					marginBottom: 6,
 					borderRadius: 4,
@@ -543,7 +547,7 @@ function HeroColumn({
 							}
 							key={slotType}
 							{...slotDropHandlers(slotType)}
-							label={isTwoHandOverlay ? "2 mãos" : translate(SLOT_LABELS[slotType])}
+							label={isTwoHandOverlay ? "2 mãos" : slotType === "ally" ? "Aliado" : translate(SLOT_LABELS[slotType])}
 							filled={isTwoHandOverlay}
 							onClick={() => chooseEquipmentSlot(slotType)}
 						/>
@@ -654,7 +658,7 @@ function HeroColumn({
 									dragging.from.index === i;
 								const canUse = usableItemIds.has(name);
 								const canChooseSlot =
-									itemCard?.type === "item" && !!itemCard.equipmentSlot;
+									(itemCard?.type === "item" || itemCard?.type === "ally") && !!itemCard.equipmentSlot;
 								const canEquip =
 									canChooseSlot &&
 									!!canMoveInventoryItem(
@@ -1661,7 +1665,7 @@ function InventoryRewardCard({
 	onMouseLeave,
 }: {
 	cardId: string;
-	cardType: "item" | "artifact";
+	cardType: "item" | "ally" | "artifact";
 	imageUrl?: string;
 	color?: { bg: string; border: string; text: string } | null;
 	amber?: boolean;
@@ -1722,7 +1726,7 @@ function InventoryRewardCard({
 				i
 			</button>
 			<span className="inventory-card-tile__type">
-				{cardType === "artifact" ? "Artefato" : "Item"}
+				{cardType === "artifact" ? "Artefato" : cardType === "ally" ? "Aliado" : "Item"}
 			</span>
 		</article>
 	);
@@ -1742,7 +1746,7 @@ function ItemTooltipPanel({
 	onMouseLeave: () => void;
 }) {
 	const card = getCardById(target.name);
-	if (!card || (card.type !== "item" && card.type !== "artifact")) return null;
+	if (!card || (card.type !== "item" && card.type !== "ally" && card.type !== "artifact")) return null;
 
 	// Posição: acima e à direita do cursor; ajusta se sair da viewport
 	const TOOLTIP_W = 240;
@@ -1752,11 +1756,11 @@ function ItemTooltipPanel({
 	const isItem = card.type === "item";
 	const tagLine = isItem
 		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
-		: translate("game:components.inventarioGrupo.groupArtifact");
+		: card.type === "ally" ? "Aliado permanente" : translate("game:components.inventarioGrupo.groupArtifact");
 	const effectEntry = skillsOf(uiEngine, card.id)[0];
 	const effect = effectEntry ? renderSkillLabel(uiEngine, effectEntry.ref) : "";
 
-	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
+	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : card.type === "ally" ? SLOT_COLORS_INV.ally : AMBER;
 	const canUseItem =
 		isItem &&
 		!!target.heroId &&
