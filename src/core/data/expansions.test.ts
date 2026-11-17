@@ -4,11 +4,11 @@ import { getEnabledExpansions, getExpansionCardMetadata } from "./expansions";
 
 describe("pacotes de expansão", () => {
 	it("carrega a Fornalha Sombria sem alterar os 80 IDs originais", () => {
-		expect(getEnabledExpansions().map((pack) => pack.id)).toEqual(["fornalha-sombria", "torre-grande-bruxa-caldeirao"]);
-		expect(getAllCards()).toHaveLength(148);
+		expect(getEnabledExpansions().map((pack) => pack.id)).toEqual(["fornalha-sombria", "torre-grande-bruxa-caldeirao", "castelo-horizonte-infindo"]);
+		expect(getAllCards()).toHaveLength(216);
 		expect(getEnabledExpansions()[0]?.boss).toBe("boss.json");
 		expect(getEnabledExpansions()[0]?.cards.some((card) => card.type === "boss")).toBe(false);
-		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(148);
+		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(216);
 	});
 
 	it("mantém atributos de combate e referências de habilidades", () => {
@@ -27,7 +27,7 @@ describe("pacotes de expansão", () => {
 	it("usa apenas a pasta images, sem subpastas por categoria", () => {
 		const paths = getAllCards().map((card) => getExpansionCardMetadata(card.id)?.image)
 			.filter((image) => image !== undefined);
-		expect(paths.length).toBe(146);
+		expect(paths.length).toBe(214);
 		for (const image of paths) {
 			expect(image).toMatch(/^images\/[^/]+\.(?:webp|png)$/);
 		}
