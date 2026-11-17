@@ -7,7 +7,7 @@ import { poisonOriginLabel } from "../../../rules/poisonTelemetry";
 import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { reconcileEquipmentMaximumLife } from "../../../rules/equipmentLife";
-import type { GameEngine } from "../../../gameEngine";
+import { refRequirementMet, skillsOf, type GameEngine } from "../../../gameEngine";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
 import type { ColorIndex } from "../../../state/color";
 import type {
@@ -727,6 +727,22 @@ const poisonWardKind = effectKind({
   },
 });
 
+/**
+ * Environment tags come from authored room skills, not from expansion names.
+ * Supports darkness/light, resonance, heat, fog, etc. in future dungeons.
+ */
+const roomHasTag = defineCondition<never, never, EvalCtx>({
+	kind: "room_has_tag",
+	schema: z.object({ kind: z.literal("room_has_tag"), tag: z.string().min(1) }),
+	test: (node, ctx) => {
+		const currentRoomId = gameOf(ctx.state).currentRoom?.cardId;
+		if (!currentRoomId) return false;
+		return skillsOf(ctx.engine, currentRoomId).some(({ def, ref }) =>
+			def.rules?.environmentTag === node["tag"] &&
+			refRequirementMet(ctx.engine, ctx.state, ref.requiresAwakening));
+	},
+});
+
 const hasDotStacks = defineCondition<never, never, EvalCtx>({
   kind: "has_dot_stacks",
   schema: z.object({
@@ -791,6 +807,7 @@ export const ascensaoPackage: GameKindPackage = {
 		drawAndChoose,
 		block,
 		hasCondition as unknown as GameKind,
+		roomHasTag as unknown as GameKind,
 	],
 	refs: ascensaoRefs,
 };
