@@ -735,6 +735,41 @@
       "reward": 1,
       "rewardType": "artifact",
       "skills": []
+    },
+    {
+      "id": "artifact_infinite_wind_bow",
+      "type": "artifact",
+      "name": "Arco do Vento Infindo",
+      "countsAs": "artifact",
+      "skills": []
+    },
+    {
+      "id": "artifact_first_steppes_knight_helm",
+      "type": "artifact",
+      "name": "Elmo do Primeiro Cavaleiro das Estepes",
+      "countsAs": "artifact",
+      "skills": []
+    },
+    {
+      "id": "artifact_forgotten_castle_banner",
+      "type": "artifact",
+      "name": "Estandarte do Castelo Esquecido",
+      "countsAs": "artifact",
+      "skills": []
+    },
+    {
+      "id": "artifact_unbroken_crest",
+      "type": "artifact",
+      "name": "Brasão dos Inquebráveis",
+      "countsAs": "artifact",
+      "skills": []
+    },
+    {
+      "id": "artifact_broken_watch_shackle",
+      "type": "artifact",
+      "name": "Grilhão da Vigília Partida",
+      "countsAs": "artifact",
+      "skills": []
     }
   ],
   "skills": []
