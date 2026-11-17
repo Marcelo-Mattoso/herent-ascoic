@@ -7,6 +7,7 @@ import { poisonOriginLabel } from "../../../rules/poisonTelemetry";
 import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
 import { reconcileEquipmentMaximumLife } from "../../../rules/equipmentLife";
+import { isRetiredAlly, retireAllies } from "../../../rules/allyLifecycle";
 import { refRequirementMet, skillsOf, type GameEngine } from "../../../gameEngine";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
 import type { ColorIndex } from "../../../state/color";
@@ -51,7 +52,8 @@ function discardFirstAvailableItem(engine: GameEngine, state: GameState): GameSt
 	if (heroWithBackpack) {
 		const [removed, ...rest] = heroWithBackpack.backpack;
 		return log(
-			mapHero(state, heroWithBackpack.id, (h) => ({ ...h, backpack: rest })),
+			retireAllies(engine, mapHero(state, heroWithBackpack.id, (h) => ({ ...h, backpack: rest })),
+				removed ? [removed] : []),
 			`Tributo: ${removed} descartado da mochila.`,
 		);
 	}
@@ -66,11 +68,11 @@ function discardFirstAvailableItem(engine: GameEngine, state: GameState): GameSt
 		).find((k) => heroWithItem.activeItems[k]);
 		if (slot) {
 			return log(
-				reconcileEquipmentMaximumLife(engine, state, mapHero(state, heroWithItem.id, (h) => {
+				retireAllies(engine, reconcileEquipmentMaximumLife(engine, state, mapHero(state, heroWithItem.id, (h) => {
 					const items = { ...h.activeItems };
 					delete items[slot];
 					return { ...h, activeItems: items };
-				})),
+				})), heroWithItem.activeItems[slot] ? [heroWithItem.activeItems[slot]!] : []),
 				`Tributo: ${heroWithItem.activeItems[slot]} descartado.`,
 			);
 		}
@@ -191,6 +193,7 @@ const grantReward = effectKind({
 	resolve: (state, effect) => {
 		const cardId = (effect["cardId"] ?? effect["cardName"]) as string;
 		const rewardType = effect["rewardType"] as "item" | "artifact";
+		if (rewardType === "item" && isRetiredAlly(state, cardId)) return state;
 		if (rewardType === "artifact") {
 			return log(
 				withGame(state, (prevGame) => ({ ...prevGame, groupArtifacts: [
