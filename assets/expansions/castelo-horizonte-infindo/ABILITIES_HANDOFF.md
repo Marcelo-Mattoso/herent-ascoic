@@ -59,6 +59,6 @@ Uma criatura ou subchefe pode receber `skill_group_command_accuracy` ou `skill_g
 - Não há ainda habilidade exclusiva definida para os quatro heróis ou para o ritual de Therion; esses efeitos dependem das descrições funcionais aprovadas.
 - O Batedor do Horizonte precisa de regra/semântica específica para primeiro ataque direcionado versus primeiro ataque que causa dano.
 - A redução de dano ambiental protege `i_damage` que esteja associado a habilidade `dungeon_skill`, e **não** marca automaticamente como ambiental ticks futuros de veneno originados por sala.
-- As recompensas do Castelo, cartas de aliado, textos de localização, ícones/slot de UI e parametrização final ainda serão integrados na conversa de cartas.
+- Os slots de aliado e a apresentação básica no inventário/ficha do herói já estão integrados. As cartas reais de aliado, ilustrações, localização e parametrização final ainda serão integradas na conversa de cartas.
 - Os testes unitários foram adicionados, mas não executados aqui; não rodar CI/CD nem `audit` completo neste pacote.
 - O Castelo deve continuar desabilitado em `assets/expansions/config.json` até a expansão estar completa.
