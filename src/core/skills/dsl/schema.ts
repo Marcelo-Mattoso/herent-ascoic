@@ -228,6 +228,7 @@ export const SkillDefinitionV2Schema = z
 		rules: z
 			.object({
 				handledByEquipment: z.boolean().optional(),
+				environmentTag: z.string().min(1).optional(),
 				hitBonusParam: z.string().optional(),
 				preyHitBonus: z.object({ label: z.string() }).strict().optional(),
 				minRollMargin: z.number().optional(),
