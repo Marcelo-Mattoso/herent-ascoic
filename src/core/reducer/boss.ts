@@ -1,6 +1,7 @@
 import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { checkBossCondition } from "../rules/conditions";
-import { inlineBossHitBonus, inlineBossDamageReduction, markInlineBossSkillsUsed } from "../rules/bossSkills";
+import { inlineBossHitBonus, inlineBossFirstAttackHitBonus, inlineBossDamageReduction, markBossFirstAttackUsed, markInlineBossSkillsUsed } from "../rules/bossSkills";
+import { remainingBossRitualBonus } from "../rules/bossRitual";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { drainStack } from "../effects/resolver";
 import { decrementRoundsModifiers, removeComponent, tickModifierDurations } from "../ecs/world";
@@ -135,15 +136,15 @@ export function handleRevealBoss(engine: GameEngine, state: GameState): GameStat
 	const hasBonusArtifact = bossCard.artifactBonus &&
 		gameOf(state).groupArtifacts.some((artifact) => artifact.cardId === bossCard.artifactBonus?.artifactId);
 	const lifeBase = hasBonusArtifact ? bossCard.artifactBonus!.lifeBase : bossCard.lifeBase;
-	const totalLife = lifeBase + awakeningOf(state) * (bossCard.scaling?.lifePerAwakening ?? 2);
-	const totalHitBonus = bossCard.hitBonusBase + awakeningOf(state) * (bossCard.scaling?.hitBonusPerAwakening ?? 1);
+	const totalLife = lifeBase + remainingBossRitualBonus(bossCard, state, "life") + awakeningOf(state) * (bossCard.scaling?.lifePerAwakening ?? 2);
+	const totalHitBonus = bossCard.hitBonusBase + remainingBossRitualBonus(bossCard, state, "hitBonus") + awakeningOf(state) * (bossCard.scaling?.hitBonusPerAwakening ?? 1);
 
 	const bossEnemy: EnemyState = {
 		id: "boss",
 		cardId: bossCard.id,
 		maxLife: totalLife,
 		currentLife: totalLife,
-		damage: bossCard.damage,
+		damage: bossCard.damage + remainingBossRitualBonus(bossCard, state, "damage"),
 		hitBonus: totalHitBonus,
 		dice: bossCard.dice ?? 1,
 		tokens: {},
@@ -152,9 +153,30 @@ export function handleRevealBoss(engine: GameEngine, state: GameState): GameStat
 		status: "active",
 	};
 
+	const spawned = withWorld(
+		beginCombat(engine, withGame(state, (prevGame) => ({
+			...prevGame,
+			activeEnemies: [recordOfEnemy(bossEnemy)],
+			status: "BOSS_COMBAT",
+			combat: createEmptyCombatState(),
+		}))),
+		spawnEnemy(worldOf(state), bossEnemy),
+	);
+	// A abertura do combate contra o chefe também deve disparar skills
+	// evt_combat_start (como no combate normal), inclusive as de sala e heróis.
+	const started = resolveSkillWindow(engine, spawned, {
+		event: "evt_combat_start",
+		ctx: {
+			triggeredBy: "evt_combat_start",
+			targetEnemyIds: [bossEnemy.id],
+			targetHeroIds: heroesOf(spawned)
+				.filter((hero) => hero.status === "active")
+				.map((hero) => hero.id),
+		},
+	});
 	return log(
-		withWorld(beginCombat(engine, withGame(state, (prevGame) => ({ ...prevGame, activeEnemies: [recordOfEnemy(bossEnemy)], status: "BOSS_COMBAT", combat: createEmptyCombatState() }))), spawnEnemy(worldOf(state), bossEnemy)),
-		`${cardName(engine, bossCard.id)} revelado! Vida: ${totalLife}, Bônus de Acerto: ${totalHitBonus}.`,
+		started,
+		`${cardName(engine, bossCard.id)} revelado! Vida: ${totalLife}, Bônus de Acerto: ${totalHitBonus}, Dano: ${bossEnemy.damage}.`,
 	);
 }
 
@@ -173,7 +195,7 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 
 	const hitBonus = inlineBossHitBonus(engine, boss);
 	const enemyTotal = roll!.enemyTotal + hitBonus;
-	let next = state;
+	let next = markBossFirstAttackUsed(state, boss.id);
 	if (hitBonus !== 0) next = log(next, `Habilidade do chefe: ${hitBonus > 0 ? "+" : ""}${hitBonus} no acerto.`);
 
 	const heroDamage = effectiveHeroDamage(engine,
@@ -373,6 +395,9 @@ export function buildBossRollFromResults(
 	];
 	const bossBonuses: BonusEntry[] = [
 		{ source: "hitBonus", value: boss.hitBonus },
+		...(inlineBossFirstAttackHitBonus(engine, state, boss) > 0
+			? [{ source: "Investida Real", value: inlineBossFirstAttackHitBonus(engine, state, boss) }]
+			: []),
 		...(dungeonAwakeningEffect(awakeningOf(state)).hitBonus > 0 ? [{ source: "Despertar da Masmorra", value: dungeonAwakeningEffect(awakeningOf(state)).hitBonus }] : []),
 		...collectWorldModifierEntries(state, boss.id, "hit_bonus"),
 	];
