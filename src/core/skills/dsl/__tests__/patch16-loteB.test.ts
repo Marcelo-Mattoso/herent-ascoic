@@ -370,30 +370,42 @@ describe("draw_and_choose — skill_forge_spoils (#18)", () => {
 // ── reveal_dungeon (#20) ──────────────────────────────────────────────────────
 
 describe("reveal_dungeon — skill_illuminate_path (#20)", () => {
-	it("mostra N cartas do topo do deck em pendingSkillChoice", () => {
-		const state = withDecks({
-			...stateWithCombat(),
-		}, {
-				...decksOf(createInitialGameState(CFG)),
-				dungeonDeck: {
-					available: ["Sala Oculta", "Sala B"],
-					discarded: [],
-					removed: [] as string[],
-				},
-			});
-		const ctx = buildScriptCtx(testEngine, 
+	const dungeonCards = ["Sala Oculta", "Sala B"];
+
+	function reveal(count: number) {
+		const base = stateWithCombat();
+		const state = withDecks(base, {
+			...decksOf(base),
+			dungeonDeck: {
+				available: dungeonCards,
+				discarded: [],
+				removed: [],
+			},
+		});
+		const ctx = buildScriptCtx(testEngine,
 			state,
 			{ triggeredBy: "on_reveal_paths", sourceHeroId: "h1" },
-			{ value: 1 },
+			{ value: count },
 		);
-		const result = drainStack(testEngine, 
-			evaluate(defEffect("skill_illuminate_path"), ctx),
-		);
+		return { state, result: drainStack(testEngine,
+			evaluate(defEffect("skill_illuminate_path"), ctx)) };
+	}
+
+	it("não interrompe a partida para confirmar apenas uma carta", () => {
+		const { state, result } = reveal(1);
+		expect(pendingSkillChoiceOf(result)).toBeUndefined();
+		expect(deckOf(result, "dungeonDeck")).toEqual(deckOf(state, "dungeonDeck"));
+	});
+
+	it("mostra múltiplas cartas em pendingSkillChoice sem alterar o deck", () => {
+		const { state, result } = reveal(2);
 		expect(pendingSkillChoiceOf(result)).toBeDefined();
-		expect(
-			pendingSkillChoiceOf(result)?.options.some((o) => o.label === "Sala Oculta"),
-		).toBe(true);
-		// deck não é modificado (apenas mostra)
-		expect(deckOf(result, "dungeonDeck").available).toHaveLength(2);
+		expect(pendingSkillChoiceOf(result)?.options).toEqual(
+			expect.arrayContaining([
+				expect.objectContaining({ label: "Sala Oculta" }),
+				expect.objectContaining({ label: "Sala B" }),
+			]),
+		);
+		expect(deckOf(result, "dungeonDeck")).toEqual(deckOf(state, "dungeonDeck"));
 	});
 });

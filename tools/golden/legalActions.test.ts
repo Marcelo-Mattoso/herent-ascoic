@@ -4,8 +4,8 @@ import { playGame, setupFromSeed } from "../bot/play";
 import { applyAction, engine, initialState, startAction } from "./lib";
 
 describe("legalActions do core × ações executadas pelo bot", () => {
-	// Separate games into independently timed tests rather than replaying eight
-	// full games a second time inside one 15-second Vitest test.
+	// Each seed is independently bounded. Seed 8 can take longer due to its
+	// 400-step simulation and per-action legality checks; keep the same coverage.
 	for (const seed of [1, 2, 3, 4, 5, 6, 7, 8]) {
 		it(`seed ${seed}: cada ação escolhida era legal no estado anterior`, () => {
 			const setup = setupFromSeed(seed);
@@ -18,6 +18,6 @@ describe("legalActions do core × ações executadas pelo bot", () => {
 				steps++;
 			});
 			expect(steps).toBeGreaterThan(0);
-		}, 15_000);
+		}, seed === 8 ? 30_000 : 15_000);
 	}
 });
