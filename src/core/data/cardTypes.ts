@@ -164,6 +164,14 @@ export interface BossCard {
 	readonly scaling?: { readonly lifePerAwakening?: number; readonly hitBonusPerAwakening?: number };
 	/** Modificador de Vida-base ativado por um artefato específico do grupo. */
 	readonly artifactBonus?: { readonly artifactId: string; readonly lifeBase: number };
+	/** Bônus concedidos pelo ritual enquanto não forem anulados pelos artefatos coletados. */
+	readonly ritualBonuses?: Readonly<Partial<Record<"life" | "hitBonus" | "damage", number>>>;
+	/** Cada artefato do grupo neutraliza bônus específicos do ritual ou habilidades do chefe. */
+	readonly artifactCounters?: readonly {
+		readonly artifactId: string;
+		readonly removes?: Readonly<Partial<Record<"life" | "hitBonus" | "damage", number>>>;
+		readonly disablesSkillIds?: readonly string[];
+	}[];
 	/** @deprecated Migração vNext: prefira grants[]. */
 	readonly skills: readonly SkillRef[];
 	readonly grants?: readonly AbilityGrant[];
