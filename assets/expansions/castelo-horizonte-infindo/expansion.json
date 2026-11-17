@@ -1166,9 +1166,9 @@
         3,
         3
       ],
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
-      "rewardType": "item",
+      "rewardType": "artifact",
       "skills": [
         {
           "skillId": "dungeon_skill_empty_room"
@@ -1253,9 +1253,9 @@
         2,
         3
       ],
-      "xp": 2,
+      "xp": 3,
       "reward": 1,
-      "rewardType": "item",
+      "rewardType": "artifact",
       "skills": [
         {
           "skillId": "dungeon_skill_forge_spoils"
@@ -1292,54 +1292,6 @@
         }
       ],
       "image": "images/room_corrupted_watch_gallery.webp"
-    },
-    {
-      "id": "room_lost_insignias_gallery",
-      "type": "room",
-      "name": "Galeria das Insígnias Perdidas",
-      "exits": 2,
-      "enemiesByPlayers": [
-        1,
-        2,
-        3,
-        4
-      ],
-      "xp": 3,
-      "reward": 1,
-      "rewardType": "artifact",
-      "skills": [
-        {
-          "skillId": "dungeon_skill_resonant_pressure",
-          "params": {
-            "value": 1
-          }
-        }
-      ],
-      "image": "images/room_torn_banners_hall.webp"
-    },
-    {
-      "id": "room_royal_tributes_vault",
-      "type": "room",
-      "name": "Cofre dos Tributos Reais",
-      "exits": 3,
-      "enemiesByPlayers": [
-        2,
-        3,
-        4,
-        5
-      ],
-      "xp": 3,
-      "reward": 1,
-      "rewardType": "artifact",
-      "skills": [
-        {
-          "skillId": "dungeon_skill_environment_darkness",
-          "params": {
-            "value": 1
-          }
-        }
-      ],
-      "image": "images/room_lost_tributes_warehouse.webp"
     },
     {
       "id": "subboss_room_cruel_herd_arena",

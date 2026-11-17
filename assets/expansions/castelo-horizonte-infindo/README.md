@@ -4,18 +4,21 @@
 
 A expansão **O Castelo do Horizonte Infindo** está registrada com `enabled: true` em `assets/expansions/config.json` **nesta branch** (`codex/expansao-castelo-horizonte-infindo-20261116`). Isso não altera `dev`, `hml` ou `main` até que a branch seja integrada.
 
-- `expansion.json`: **69 cartas** (v1.1.0), sendo 4 heróis humanos, 18 criaturas (5×1 XP, 8×2 XP, 5×3 XP), 2 subchefes (4 XP), 12 salas comuns (duas novas de 3 XP com recompensa de artefato), 2 salas de subchefes, 20 itens, 6 aliados e 5 artefatos.
-- `boss.json`: **Therion, Rei do Horizonte Infindo** — 70ª carta, com quatro habilidades exclusivas e cinco neutralizações por artefatos.
-- `images/`: **68 WebPs** originais válidos; as duas novas salas usam imagens existentes provisoriamente. As artes exclusivas estão pendentes.
+- `expansion.json`: **67 cartas** (versão v1.1.0), sendo 4 heróis humanos, 18 criaturas (5×1 XP, 8×2 XP, 5×3 XP), 2 subchefes (4 XP), 10 salas comuns, 2 salas de subchefes, 20 itens, 6 aliados e 5 artefatos.
+- `boss.json`: **Therion, Rei do Horizonte Infindo** — 68ª carta, com quatro habilidades exclusivas e cinco neutralizações por artefatos.
+- `images/`: **68 WebPs** válidos e vinculados às 68 cartas; os 68 PNGs originais estão em `imagedata/cards/expansions/castelo-horizonte-infindo/`.
 - `ART_REPORT.md` documenta a produção e nomes exatos das artes.
 - `ABILITIES_HANDOFF.md` documenta o motor genérico entregue, inclusive a mecânica de aliados, escuridão e engenharia ressonante.
 
-## Salas extras de artefato (v1.1.0)
+## Balanceamento das salas de artefato (v1.1.0)
 
-- **Galeria das Insígnias Perdidas** (`room_lost_insignias_gallery`): 3 XP, 2 saídas, 1/2/3/4 inimigos, 1 artefato, pressão ressonante. Reutiliza provisoriamente a arte do Salão das Bandeiras Rasgadas.
-- **Cofre dos Tributos Reais** (`room_royal_tributes_vault`): 3 XP, 3 saídas, 2/3/4/5 inimigos, 1 artefato, escuridão. Reutiliza provisoriamente a arte do Armazém dos Tributos Perdidos.
-- As quatro fontes de artefatos passam a ser duas salas comuns e duas de subchefe, aproximando o catálogo da Fornalha e da Bruxa.
-- Cada sala comum entra duas vezes no baralho: agora 26 cartas (12 × 2 + 2 salas de subchefe). Ambas as novas salas exigem alcançar ao menos a quinta sala.
+A expansão **continua com 67 cartas**, exatamente como a Torre da Grande Bruxa. Nenhuma sala foi adicionada; as duas salas criadas provisoriamente no ajuste anterior foram excluídas.
+
+- **Salão das Bandeiras Rasgadas** (`room_torn_banners_hall`): agora 3 XP e 1 artefato como recompensa, em vez de 2 XP e 1 item.
+- **Armazém dos Tributos Perdidos** (`room_lost_tributes_warehouse`): agora 3 XP e 1 artefato como recompensa, em vez de 2 XP e 1 item.
+- Quantidade de inimigos, habilidades, saídas e artes das salas preservadas. Ambas ficam bloqueadas até a quinta sala pela regra de XP >= 3.
+- Como na Fornalha e na Bruxa, o Castelo tem **2 salas comuns que concedem artefatos** e **2 salas de subchefe que concedem artefatos**, totalizando 4 tipos de sala.
+- O baralho do Castelo volta a ter 22 cartas de sala: 10 salas comuns × 2 cópias + 2 salas de subchefe.
 
 ## Regras preservadas
 
