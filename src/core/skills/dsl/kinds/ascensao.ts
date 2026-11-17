@@ -637,6 +637,7 @@ const ascensaoRefs: RefResolver<EvalCtx>[] = [
 					return heroesOf(ctx.state)
 						.filter((h) => h.status === "active")
 						.map((h) => h.id);
+				case "enemies":
 				case "all_enemies":
 					return enemiesOf(ctx.state)
 						.filter((e) => e.status === "active")
