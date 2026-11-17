@@ -1,7 +1,7 @@
 import { UI } from "@/ui/theme";
 import { PlaceholderArt } from "./PlaceholderArt";
 
-export type CardType = "hero" | "enemy" | "room" | "item" | "artifact" | "boss";
+export type CardType = "hero" | "enemy" | "room" | "item" | "ally" | "artifact" | "boss";
 
 interface CardProps {
 	cardType: CardType;
