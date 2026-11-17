@@ -396,11 +396,17 @@ export function handleInvSetBearer(
 // ─── INV_DISCARD_MESA ─────────────────────────────────────────────────────────
 // Descarta tudo que restou na mesa e avança para XP_SPEND_PHASE.
 
-export function handleInvDescartarMesa(state: GameState, engine: GameEngine): GameState {
+export function handleInvDescartarMesa(state: GameState, engine?: GameEngine): GameState {
 	const count = gameOf(state).pendingRewards.length;
+	const cleared = withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: [], status: "XP_SPEND_PHASE" }));
+	// O reducer sempre passa o engine. A forma sem engine só preserva chamadas
+	// legadas de testes com itens comuns e sem aliados.
+	const retired = engine
+		? retireAllies(engine, cleared, gameOf(state).pendingRewards
+			.filter((r) => r.type === "item").map((r) => r.cardId))
+		: cleared;
 	return log(
-		retireAllies(engine, withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: [], status: "XP_SPEND_PHASE" })),
-			gameOf(state).pendingRewards.filter((r) => r.type === "item").map((r) => r.cardId)),
+		retired,
 		count > 0
 			? `Mesa descartada: ${count} item(ns) perdido(s).`
 			: "Inventário fechado.",
