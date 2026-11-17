@@ -1186,7 +1186,7 @@ export function InventarioGrupo({
 													}
 													: undefined}
 												collectLabel={getCardById(r.cardId)?.type === "ally"
-												? (equippedItemAt(uiEngine, rewardHero, "amulet") ? "Substituir amuleto/aliado" : "Recrutar aliado")
+												? (rewardHero && equippedItemAt(uiEngine, rewardHero, "amulet") ? "Substituir amuleto/aliado" : "Recrutar aliado")
 												: isMysticDraw
 													? translate("game:components.inventarioGrupo.text044")
 													: undefined}
