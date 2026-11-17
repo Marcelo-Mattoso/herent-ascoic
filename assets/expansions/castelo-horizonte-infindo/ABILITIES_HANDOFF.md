@@ -44,6 +44,7 @@ Emboscadas simples podem reutilizar `skill_treacherous_attack`; Saque Mágico po
 - Ao colocar outro aliado no slot ocupado, o anterior é **dispensado definitivamente** (não vai para mesa nem mochila).
 - Mover um aliado equipado para a mesa também significa dispensá-lo definitivamente. Transferência **direta** entre slots de heróis é permitida, desde que não passe pela mochila; a transferência para um slot ocupado dispensa o substituído.
 - O jogo armazena `retiredAllyIds`, e esses IDs não podem reaparecer por saques, recompensas ou reinícios da masmorra **na mesma partida**. Uma partida nova restaura o conjunto.
+- Em **Saque Mágico**, aliados revelados mas não escolhidos também são dispensados definitivamente, enquanto itens comuns mantêm o descarte tradicional.
 - O bot deve preferir um slot livre e nunca gerar a opção de guardar aliados na mochila.
 
 
