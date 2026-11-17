@@ -16,6 +16,7 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 	hand1: "game:components.itemChip.slotLabels.hand1",
 	hand2: "game:components.itemChip.slotLabels.hand2",
 	amulet: "game:components.itemChip.slotLabels.amulet",
+	ally: "game:components.itemChip.slotLabels.ally",
 };
 
 export function ItemChip({ item, slot, onClick }: ItemChipProps) {
