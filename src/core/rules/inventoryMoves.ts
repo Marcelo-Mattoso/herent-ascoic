@@ -3,6 +3,7 @@ import type { InvFromZone, InvToZone } from "../actions/types";
 import type { GameState, PendingReward } from "../state/gameState";
 import type { HeroRecord, ItemSlotType } from "../state/heroState";
 import { itemFitsSlot, placeEquipment } from "./equipment";
+import { reconcileEquipmentMaximumLife } from "./equipmentLife";
 import { backpackCapacity, cardById } from "../gameEngine";
 
 import type { GameEngine } from "../gameEngine";
@@ -20,7 +21,7 @@ export function moveInventoryItem(engine: GameEngine,
 ): GameState | null {
 	if (gameOf(state).status !== "REWARD_PHASE") return null;
 	const card = cardById(engine, itemId);
-	if (card?.type !== "item") return null;
+	if (card?.type !== "item" && card?.type !== "ally") return null;
 	const heroes: HeroDraft[] = gameOf(state).heroes.map((hero) => ({
 		...hero,
 		activeItems: { ...hero.activeItems },
@@ -51,7 +52,7 @@ export function moveInventoryItem(engine: GameEngine,
 		slot?: ItemSlotType,
 	): string[] | null => {
 		const item = cardById(engine, id);
-		if (item?.type !== "item") return null;
+		if (item?.type !== "item" && item?.type !== "ally") return null;
 		const result = placeEquipment(engine, hero, item, slot);
 		if (!result) return null;
 		hero.activeItems = result.hero.activeItems;
@@ -108,7 +109,7 @@ export function moveInventoryItem(engine: GameEngine,
 				if (!addBackpack(source, displacedId, from.index)) return null;
 			} else {
 				const displacedCard = cardById(engine, displacedId);
-				if (displacedCard?.type !== "item") return null;
+				if (displacedCard?.type !== "item" && displacedCard?.type !== "ally") return null;
 				if (
 					itemFitsSlot(displacedCard, from.slotType) &&
 					!source.activeItems[from.slotType]
@@ -122,5 +123,6 @@ export function moveInventoryItem(engine: GameEngine,
 		}
 	}
 
-	return withGame(state, (prevGame) => ({ ...prevGame, heroes, pendingRewards }));
+	return reconcileEquipmentMaximumLife(engine, state,
+		withGame(state, (prevGame) => ({ ...prevGame, heroes, pendingRewards })));
 }
