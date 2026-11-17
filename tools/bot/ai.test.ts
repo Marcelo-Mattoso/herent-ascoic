@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import { type AiGameResult, playAiGame, rankMoves, scoreMoves } from "./ai";
+import { type AiGameResult, playAiGame, rankMoves, scoreAction, scoreMoves } from "./ai";
 import { setupFromSeed } from "./play";
 import { setupForRun } from "./profiles";
 import { createHeadlessPort } from "./port";
