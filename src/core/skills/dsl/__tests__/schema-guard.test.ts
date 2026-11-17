@@ -125,6 +125,19 @@ describe("SkillDefinitionV2Schema — effect XOR script", () => {
 		).toBe(true);
 	});
 
+	it("aceita tags ambientais declaradas e rejeita regras desconhecidas", () => {
+		const base = { ...validBaseActive, effect: [{ kind: "i_noop" }] };
+		expect(SkillDefinitionV2Schema.safeParse({
+			...base, rules: { environmentTag: "darkness" },
+		}).success).toBe(true);
+		expect(SkillDefinitionV2Schema.safeParse({
+			...base, rules: { environmentTag: "" },
+		}).success).toBe(false);
+		expect(SkillDefinitionV2Schema.safeParse({
+			...base, rules: { unknownTag: "darkness" },
+		}).success).toBe(false);
+	});
+
 	it("aceita op_passive", () => {
 		expect(
 			SkillDefinitionV2Schema.safeParse({
