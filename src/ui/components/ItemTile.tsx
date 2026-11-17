@@ -12,6 +12,7 @@ const SLOT_COLORS: Record<ItemSlotType, { bg: string; border: string }> = {
 	hand1: { bg: "#FAC775", border: "#BA7517" },
 	hand2: { bg: "#FAC775", border: "#BA7517" },
 	amulet: { bg: "#ED93B1", border: "#8B1A4A" },
+	ally: { bg: "#B8D6E9", border: "#245A78" },
 };
 
 export function ItemTile({ slot, filled, item }: ItemTileProps) {
