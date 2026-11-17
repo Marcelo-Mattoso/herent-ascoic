@@ -103,7 +103,7 @@ function drawRandomDungeonRoom(engine: GameEngine,
 	const shuffled = deckOf(shuffledState, "dungeonDeck").available;
 	const roomNumber = gameOf(state).roomsCleared + 1;
 	const chosenIndex = shuffled.findIndex((id) => isRoomAvailableAtDepth(engine, id, roomNumber));
-	if (chosenIndex < 0) return handleDungeonDeckEmpty(engine, shuffledState);
+	if (chosenIndex < 0) return handleNoEligibleDungeonRoom(shuffledState);
 	const roomId = shuffled[chosenIndex]!;
 	const remaining = [...shuffled.slice(0, chosenIndex), ...shuffled.slice(chosenIndex + 1)];
 	const card = cardById(engine, roomId);
@@ -243,6 +243,15 @@ function handleRevealSubbossRoom(engine: GameEngine,
 	return log(
 		next,
 		`${logPrefix}: ${cardName(engine, card.id)}. ${cardName(engine, subbossCard.id)} aparece!`,
+	);
+}
+
+function handleNoEligibleDungeonRoom(state: GameState): GameState {
+	const roomNumber = gameOf(state).roomsCleared + 1;
+	const remaining = deckOf(state, "dungeonDeck").available.length;
+	return log(
+		withGame(state, (prevGame) => ({ ...prevGame, status: "DEFEAT" })),
+		`[ERRO] Não há sala elegível para a posição ${roomNumber}, embora existam ${remaining} cartas no deck de dungeon. Verifique os requisitos de progressão e as salas da expansão.`,
 	);
 }
 
@@ -545,7 +554,7 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 	const locked = shuffledAvailable.filter((id) => !isRoomAvailableAtDepth(engine, id, roomNumber));
 	const drawn = eligible.slice(0, exits);
 	const afterDraw = [...eligible.slice(exits), ...locked];
-	if (drawn.length === 0) return handleDungeonDeckEmpty(engine, state);
+	if (drawn.length === 0) return handleNoEligibleDungeonRoom(state);
 
 	const { value: shuffledDrawn, next: afterChoice } = shuffleRng(drawn, rng);
 	rng = afterChoice;

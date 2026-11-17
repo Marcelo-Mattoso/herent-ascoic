@@ -71,6 +71,20 @@ function registerCard(card: ExpansionCard, expansionId: string): void {
 	cards.push(mechanics as AnyCard);
 }
 
+function validateInitialRoom(pack: ExpansionPackage): void {
+	const canStart = pack.cards.some((card) =>
+		card.type === "room" &&
+		(card.xp ?? 0) === 0 &&
+		card.enemiesByPlayers[0] <= 1 &&
+		!card.specialCreatureId,
+	);
+	if (!canStart) {
+		throw new Error(
+			`Expansão ${pack.id} sem sala inicial válida: requer sala comum de 0 XP, com até 1 inimigo para um herói e sem subchefe.`,
+		);
+	}
+}
+
 for (const entry of config.expansions) {
 	if (!/^[a-z0-9]+(?:-[a-z0-9]+)*$/.test(entry.id)) {
 		throw new Error("ID de expansão inválido: " + entry.id);
@@ -84,6 +98,7 @@ for (const entry of config.expansions) {
 	if (!pack || pack.id !== entry.id || !pack.name || !Array.isArray(pack.cards)) {
 		throw new Error("Pacote de expansão inválido ou ausente: " + entry.id);
 	}
+	validateInitialRoom(pack);
 	enabled.push(pack);
 	for (const card of pack.cards) registerCard(card, pack.id);
 	for (const [id, locale] of Object.entries(pack.skillLocales ?? {})) {

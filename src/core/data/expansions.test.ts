@@ -72,4 +72,19 @@ describe("pacotes de expansão", () => {
 		expect(castle?.cards.some((card) => card.type === "boss")).toBe(false);
 	});
 
+	it("garante sala inicial válida em todas as expansões habilitadas", () => {
+		for (const pack of getEnabledExpansions()) {
+			const openingRooms = pack.cards.filter((card) =>
+				card.type === "room" &&
+				(card.xp ?? 0) === 0 &&
+				card.enemiesByPlayers[0] <= 1 &&
+				!card.specialCreatureId,
+			);
+			expect(openingRooms.length, pack.id).toBeGreaterThan(0);
+		}
+		const stable = getCardById("room_ruined_stable");
+		expect(stable?.type).toBe("room");
+		if (stable?.type === "room") expect(stable.xp).toBe(0);
+	});
+
 });

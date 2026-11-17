@@ -1,6 +1,6 @@
 import { describe, expect, it } from "vitest";
 import { getBoss, getBossById, getAllCards } from "../../data/cards";
-import { getExpansionCardMetadata } from "../../data/expansions";
+import { getEnabledExpansions, getExpansionCardMetadata } from "../../data/expansions";
 import { SKILLS } from "../../data/skills";
 import { inlineBossDamageReduction, inlineBossHitBonus, markInlineBossSkillsUsed } from "../../rules/bossSkills";
 import { testEngine } from "../../__tests__/testEngine";
@@ -137,6 +137,24 @@ describe("boss separado por expansão", () => {
 				expect(deck.available.length).toBeGreaterThan(0);
 				expect(deck.available.every((id) => getExpansionCardMetadata(id)?.expansionId === expansionId)).toBe(true);
 			}
+		}
+	});
+
+	it("inicia a primeira sala de todas as expansões sem derrota imediata", () => {
+		const heroCardIds = ["hero_crimson_barbarian"];
+		for (const pack of getEnabledExpansions()) {
+			const boss = getBoss(pack.id);
+			expect(boss, pack.id).toBeDefined();
+			if (!boss) continue;
+			const state = handleStartGame(
+				testEngine,
+				createInitialGameState({ heroCardIds, bossCardId: boss.id }),
+				{ heroCardIds, bossCardId: boss.id, difficulty: "normal", seed: 123 },
+			);
+			expect(gameOf(state).status, pack.id).not.toBe("DEFEAT");
+			const roomId = gameOf(state).currentRoom?.cardId;
+			expect(roomId, pack.id).toBeDefined();
+			expect(getExpansionCardMetadata(roomId ?? "")?.expansionId, pack.id).toBe(pack.id);
 		}
 	});
 
