@@ -87,7 +87,9 @@
       "searchPlaceholder": "Search action, hero, ability, damage...",
       "searchLabel": "Search the detailed log",
       "footer_one": "Shortcut: Ctrl+Alt+L · Esc closes · {{count}} entry shown",
-      "footer_other": "Shortcut: Ctrl+Alt+L · Esc closes · {{count}} entries shown"
+      "footer_other": "Shortcut: Ctrl+Alt+L · Esc closes · {{count}} entries shown",
+      "entryCount_many": "{{count}} entries",
+      "footer_many": "Shortcut: Ctrl+Alt+L · Esc closes · {{count}} entries shown"
     },
     "board": {
       "activeArtifact": "Active artifact",

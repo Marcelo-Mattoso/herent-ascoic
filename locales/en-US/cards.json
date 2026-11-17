@@ -421,5 +421,215 @@
     "artifactBonus": "if the group has the Heart of the Ancient Ember among its artifacts, Azhakar begins with 16 base Health instead of 20.",
     "dungeonScaling": "Azhakar gains +1 to Hit Bonus for each dungeon level and +2 Health for each dungeon level.",
     "victory": "when Azhakar is defeated, the players win the game."
+  },
+  "hero_sunset_spear": {
+    "name": "Spear of the Setting Sun"
+  },
+  "hero_dry_wind_knight": {
+    "name": "Knight of the Dry Wind"
+  },
+  "hero_plains_wanderer": {
+    "name": "Wanderer of the Plains"
+  },
+  "hero_broken_horizon_son": {
+    "name": "Son of the Broken Horizon"
+  },
+  "creature_dry_steppes_hyena": {
+    "name": "Dry Steppe Hyena"
+  },
+  "creature_cutting_wind_jackal": {
+    "name": "Cutting Wind Jackal"
+  },
+  "creature_open_carrion_vulture": {
+    "name": "Carrion Vulture"
+  },
+  "creature_hidden_granary_goblin": {
+    "name": "Hidden Granary Goblin"
+  },
+  "creature_ruin_thief_monkey": {
+    "name": "Ruin-Thieving Monkey"
+  },
+  "creature_high_grass_raider": {
+    "name": "Tall Grass Raider"
+  },
+  "creature_red_dust_scout": {
+    "name": "Red Dust Scout"
+  },
+  "creature_steppes_spearman": {
+    "name": "Steppe Spearman"
+  },
+  "creature_cruel_horizon_archer": {
+    "name": "Cruel Horizon Archer"
+  },
+  "creature_plains_hyena_rider": {
+    "name": "Plains Hyena Rider"
+  },
+  "creature_cold_dunes_gnoll": {
+    "name": "Cold Dune Gnoll"
+  },
+  "creature_wild_meadow_bull": {
+    "name": "Wild Prairie Bull"
+  },
+  "creature_unburied_wind_spirit": {
+    "name": "Unburied Wind Spirit"
+  },
+  "creature_bloody_trails_centaur": {
+    "name": "Bloodied Trail Centaur"
+  },
+  "creature_lost_barracks_hobgoblin": {
+    "name": "Lost Barracks Hobgoblin"
+  },
+  "creature_quarry_bearman": {
+    "name": "Quarry Bear-Man"
+  },
+  "creature_wall_apeman": {
+    "name": "Wall Ape-Man"
+  },
+  "creature_stone_guard_centaur": {
+    "name": "Stone Guardian Centaur"
+  },
+  "subboss_cruel_herd_champion": {
+    "name": "Champion of the Cruel Herd"
+  },
+  "subboss_tribute_hobgoblin_marshal": {
+    "name": "Hobgoblin Tribute Marshal"
+  },
+  "room_broken_castle_gate": {
+    "name": "Broken Castle Gate"
+  },
+  "room_cold_wind_corridor": {
+    "name": "Cold Wind Corridor"
+  },
+  "room_ruined_stable": {
+    "name": "Ruined Stables"
+  },
+  "room_dry_well_chamber": {
+    "name": "Dry Well Chamber"
+  },
+  "room_torn_banners_hall": {
+    "name": "Hall of Torn Banners"
+  },
+  "room_cracked_stone_courtyard": {
+    "name": "Cracked Stone Courtyard"
+  },
+  "room_fallen_watchtower": {
+    "name": "Fallen Watchtower"
+  },
+  "room_dead_archers_passage": {
+    "name": "Passage of the Dead Archers"
+  },
+  "room_lost_tributes_warehouse": {
+    "name": "Lost Tributes Storehouse"
+  },
+  "room_corrupted_watch_gallery": {
+    "name": "Corrupted Watch Gallery"
+  },
+  "subboss_room_cruel_herd_arena": {
+    "name": "Arena of the Cruel Herd"
+  },
+  "subboss_room_bloody_tributes_chancellery": {
+    "name": "Chancellery of Bloody Tributes"
+  },
+  "item_plains_short_spear": {
+    "name": "Plains Short Spear"
+  },
+  "item_dried_war_bow": {
+    "name": "Weathered War Bow"
+  },
+  "item_serrated_hunting_knife": {
+    "name": "Serrated Hunting Knife"
+  },
+  "item_quarry_hammer": {
+    "name": "Quarry Hammer"
+  },
+  "item_hobgoblin_barracks_buckler": {
+    "name": "Hobgoblin Barracks Buckler"
+  },
+  "item_last_bastion_shield": {
+    "name": "Shield of the Last Bastion"
+  },
+  "item_pale_dust_cloak": {
+    "name": "Pale Dust Cloak"
+  },
+  "item_fallen_rider_bracer": {
+    "name": "Fallen Rider's Bracer"
+  },
+  "item_forgotten_watch_cuirass": {
+    "name": "Forgotten Watch Cuirass"
+  },
+  "item_smuggler_boots": {
+    "name": "Smuggler's Boots"
+  },
+  "item_resonance_engineer_hood": {
+    "name": "Resonance Engineer's Hood"
+  },
+  "item_traveler_water_skin": {
+    "name": "Traveler's Waterskin"
+  },
+  "item_long_breath_potion": {
+    "name": "Long Breath Potion"
+  },
+  "item_captive_light_vial": {
+    "name": "Vial of Captive Light"
+  },
+  "item_small_war_drum": {
+    "name": "Small War Drum"
+  },
+  "item_last_watcher_lantern": {
+    "name": "Last Watcher's Lantern"
+  },
+  "item_broken_bronze_horseshoe": {
+    "name": "Broken Bronze Horseshoe"
+  },
+  "item_broken_horizon_map": {
+    "name": "Map of the Broken Horizon"
+  },
+  "item_helva_alta_sealed_coffer": {
+    "name": "Sealed Coffer of High Helva"
+  },
+  "item_lost_watch_spoils": {
+    "name": "Spoils of the Lost Watch"
+  },
+  "ally_guardian_centaur": {
+    "name": "Guardian Centaur"
+  },
+  "ally_steppes_warhorse": {
+    "name": "Steppe Warhorse"
+  },
+  "ally_plains_warhound": {
+    "name": "Plains Warhound"
+  },
+  "ally_wind_mare": {
+    "name": "Wind Mare"
+  },
+  "ally_pack_donkey": {
+    "name": "Pack Donkey"
+  },
+  "ally_horizon_scout": {
+    "name": "Horizon Scout"
+  },
+  "artifact_infinite_wind_bow": {
+    "name": "Bow of the Endless Wind"
+  },
+  "artifact_first_steppes_knight_helm": {
+    "name": "Helm of the First Steppe Knight"
+  },
+  "artifact_forgotten_castle_banner": {
+    "name": "Banner of the Forgotten Castle"
+  },
+  "artifact_unbroken_crest": {
+    "name": "Crest of the Unbroken"
+  },
+  "artifact_broken_watch_shackle": {
+    "name": "Shackle of the Broken Watch"
+  },
+  "boss_therion_infinite_horizon_king": {
+    "name": "Therion, King of the Endless Horizon",
+    "dice": "3 red dice",
+    "condition": "The party must possess at least 3 artifacts.",
+    "dungeonScaling": "Therion gains +2 Health and +1 Hit Bonus per Awakening level, regardless of the ritual's bonuses.",
+    "victory": "Defeat Therion and destroy the Matrix Stone to win the game.",
+    "ritual": "Matrix Stone: while the ritual remains active, Therion gains +6 Health, +4 Hit Bonus, and +2 Damage. Each corresponding artifact negates a specific bonus or ability.",
+    "artifactEffects": "Bow of the Endless Wind: negates +4 Hit Bonus; Helm of the First Steppe Knight: negates +2 Damage; Crest of the Unbroken: negates +6 Health; Banner of the Forgotten Castle: disables Dominion of the Horizon; Shackle of the Broken Watch: disables Matrix Stone Resonance."
   }
 }

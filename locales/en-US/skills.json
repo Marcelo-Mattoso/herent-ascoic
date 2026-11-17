@@ -532,5 +532,110 @@
     "name": "Room Damage Protection",
     "label": "Room Damage Protection: While equipped, reduces damage dealt to the wearer by room effects by {value}.",
     "text": "While equipped, reduces damage dealt to the wearer by room effects by {value}."
+  },
+  "castle_skill_sunset_precision": {
+    "name": "Sunset Gaze",
+    "label": "Sunset Gaze: At the start of each combat, gain +1 Hit Bonus until the combat ends.",
+    "text": "At the start of each combat, gain +1 Hit Bonus until the combat ends."
+  },
+  "castle_power_sunset_lance": {
+    "name": "Sunset Strike",
+    "label": "Sunset Strike: Once per game, gain +2 Damage for one combat.",
+    "text": "Once per game, gain +2 Damage for one combat."
+  },
+  "castle_skill_dry_wind_step": {
+    "name": "Dry Wind Step",
+    "label": "Dry Wind Step: Once per room, when targeted by an attack, reduce the next damage you take by 1.",
+    "text": "Once per room, when targeted by an attack, reduce the next damage you take by 1."
+  },
+  "castle_power_dry_wind_charge": {
+    "name": "Prairie Surge",
+    "label": "Prairie Surge: Once per game, gain +2 Hit Bonus until the end of combat.",
+    "text": "Once per game, gain +2 Hit Bonus until the end of combat."
+  },
+  "castle_skill_last_bastion_guard": {
+    "name": "Horizon Guard",
+    "label": "Horizon Guard: Once per round, reduce the next damage you take by 1.",
+    "text": "Once per round, reduce the next damage you take by 1."
+  },
+  "castle_power_last_bastion_oath": {
+    "name": "Oath of the Last Bastion",
+    "label": "Oath of the Last Bastion: Once per game, the party gains +1 Protection until the end of the round.",
+    "text": "Once per game, the party gains +1 Protection until the end of the round."
+  },
+  "castle_skill_horizon_scout_ward": {
+    "name": "Scout's Warning",
+    "label": "Scout's Warning: Once per combat, reduce the next damage you take by 1. The exact timing of the first attack still needs to be checked in the audit.",
+    "text": "Once per combat, reduce the next damage you take by 1. The exact timing of the first attack still needs to be checked in the audit."
+  },
+  "castle_skill_serrated_bleed": {
+    "name": "Serrated Cut",
+    "label": "Serrated Cut: On a successful hit, inflict Bleeding for 1 damage per round for 2 rounds.",
+    "text": "On a successful hit, inflict Bleeding for 1 damage per round for 2 rounds."
+  },
+  "castle_skill_last_bastion_shield": {
+    "name": "Last Defense",
+    "label": "Last Defense: Once per combat, reduce the next damage you take by 1.",
+    "text": "Once per combat, reduce the next damage you take by 1."
+  },
+  "castle_item_water_restore": {
+    "name": "Restorative Water",
+    "label": "Restorative Water: Restore 2 Health to a hero, then discard the waterskin.",
+    "text": "Restore 2 Health to a hero, then discard the waterskin."
+  },
+  "castle_item_long_breath": {
+    "name": "Long Breath",
+    "label": "Long Breath: Gain +1 Hit Bonus until the end of combat. Consume the potion.",
+    "text": "Gain +1 Hit Bonus until the end of combat. Consume the potion."
+  },
+  "castle_item_captive_light": {
+    "name": "Captive Light",
+    "label": "Captive Light: The party gains +1 Hit Bonus for one combat. Discard the vial.",
+    "text": "The party gains +1 Hit Bonus for one combat. Discard the vial."
+  },
+  "castle_item_small_war_drum": {
+    "name": "War Drumbeat",
+    "label": "War Drumbeat: Once per room, the party gains +1 Hit Bonus until the end of the round.",
+    "text": "Once per room, the party gains +1 Hit Bonus until the end of the round."
+  },
+  "castle_purple_crushing_charge": {
+    "name": "Merciless Charge",
+    "label": "Purple Awakening: on a hit, deal +{value} damage.",
+    "text": "After a successful hit at Purple Awakening, deal {value} additional damage."
+  },
+  "castle_purple_shifting_shadow": {
+    "name": "Nightstep",
+    "label": "Purple Awakening: once per room, impose a −{value} Hit Bonus penalty on an incoming attack.",
+    "text": "Once per room, when targeted by an attack, impose a {value} Hit Bonus penalty on that attack."
+  },
+  "castle_purple_midnight_ambush": {
+    "name": "Shroud Ambush",
+    "label": "Purple Awakening: at the start of combat, deal {value} damage to the most wounded hero.",
+    "text": "At the start of combat, deal {value} damage to the hero with the lowest Health."
+  },
+  "castle_purple_war_formation": {
+    "name": "Conquerors' Formation",
+    "label": "Purple Awakening: all enemies gain +{value} Hit Bonus for this combat.",
+    "text": "At the start of combat, all enemies gain +{value} Hit Bonus until the combat ends."
+  },
+  "therion_boss_skill_royal_charge": {
+    "name": "Royal Charge",
+    "label": "Royal Charge (2): +2 Hit Bonus on the first attack of each combat.",
+    "text": "Therion gains +2 Hit Bonus on his first attack of each combat."
+  },
+  "therion_boss_skill_horizon_dominion": {
+    "name": "Dominion of the Horizon",
+    "label": "Dominion of the Horizon (1): heroes suffer −1 Hit Bonus during combat.",
+    "text": "At the start of combat, all active heroes suffer −1 Hit Bonus until the combat ends. Negated by the Banner of the Forgotten Castle."
+  },
+  "therion_boss_skill_stone_resonance": {
+    "name": "Matrix Stone Resonance",
+    "label": "Matrix Stone Resonance (1): reduce the first damage taken each round by 1.",
+    "text": "Reduce the first damage Therion takes each round by 1. Negated by the Shackle of the Broken Watch."
+  },
+  "therion_boss_skill_last_conquest": {
+    "name": "Last Conquest",
+    "label": "Last Conquest (2): Therion gains +2 Hit Bonus at half Health or less.",
+    "text": "When Therion reaches half his maximum Health or less, he gains +2 Hit Bonus. This bonus does not stack and cannot be negated by artifacts."
   }
 }

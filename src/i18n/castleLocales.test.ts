@@ -3,12 +3,15 @@ import castle from "../../assets/expansions/castelo-horizonte-infindo/expansion.
 import boss from "../../assets/expansions/castelo-horizonte-infindo/boss.json";
 import ptCards from "../../locales/pt-BR/cards.json";
 import esCards from "../../locales/es-ES/cards.json";
+import enCards from "../../locales/en-US/cards.json";
 import ptSkills from "../../locales/pt-BR/skills.json";
 import esSkills from "../../locales/es-ES/skills.json";
+import enSkills from "../../locales/en-US/skills.json";
 import ptGame from "../../locales/pt-BR/game.json";
 import esGame from "../../locales/es-ES/game.json";
+import enGame from "../../locales/en-US/game.json";
 
-describe("cobertura de tradução do Castelo para espanhol", () => {
+describe("cobertura de tradução do Castelo em espanhol e inglês", () => {
 	it("traduz todas as 68 cartas, inclusive Therion", () => {
 		const cards = [...castle.cards, boss.card];
 		expect(cards).toHaveLength(68);
@@ -16,6 +19,7 @@ describe("cobertura de tradução do Castelo para espanhol", () => {
 			const id = card.id;
 			expect((ptCards as Record<string, { name: string }>)[id]?.name).toBeTruthy();
 			expect((esCards as Record<string, { name: string }>)[id]?.name).toBeTruthy();
+			expect((enCards as Record<string, { name: string }>)[id]?.name).toBeTruthy();
 		}
 	});
 
@@ -31,6 +35,10 @@ describe("cobertura de tradução do Castelo para espanhol", () => {
 			expect(es?.name && es?.label && es?.text, id).toBeTruthy();
 			expect(params(es!.label), id).toEqual(params(pt!.label));
 			expect(params(es!.text), id).toEqual(params(pt!.text));
+			const en = (enSkills as Record<string, { name: string; label: string; text: string }>)[id];
+			expect(en?.name && en?.label && en?.text, id).toBeTruthy();
+			expect(params(en!.label), id).toEqual(params(pt!.label));
+			expect(params(en!.text), id).toEqual(params(pt!.text));
 		}
 	});
 
@@ -44,5 +52,8 @@ describe("cobertura de tradução do Castelo para espanhol", () => {
 		expect(detail.slot).toBe("Espacio");
 		expect(detail.sharedSlot).toContain("Amuleto");
 		expect(esGame.components.artifactRitual.hitBonus).toContain("Acierto");
+		expect(enGame.components.artifactRitual.hitBonus).toContain("Hit");
+		expect(enGame.components.alphaLogPanel.entryCount_many).toContain("entries");
+		expect(enGame.components.alphaLogPanel.footer_many).toContain("entries");
 	});
 });
