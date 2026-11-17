@@ -1,0 +1,741 @@
+{
+  "id": "castelo-horizonte-infindo",
+  "name": "O Castelo do Horizonte Infindo",
+  "version": "0.1.0",
+  "boss": "boss.json",
+  "cards": [
+    {
+      "id": "hero_sunset_spear",
+      "type": "hero",
+      "name": "Lança do Poente",
+      "life": [
+        11,
+        13,
+        15,
+        17,
+        19
+      ],
+      "hitBonus": [
+        7,
+        10,
+        14,
+        18,
+        23
+      ],
+      "damage": 4,
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "skills": []
+    },
+    {
+      "id": "hero_dry_wind_knight",
+      "type": "hero",
+      "name": "Cavaleira do Vento Seco",
+      "life": [
+        11,
+        13,
+        15,
+        17,
+        19
+      ],
+      "hitBonus": [
+        7,
+        10,
+        14,
+        18,
+        23
+      ],
+      "damage": 3,
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "skills": []
+    },
+    {
+      "id": "hero_plains_wanderer",
+      "type": "hero",
+      "name": "Andarilho das Planícies",
+      "life": [
+        10,
+        12,
+        14,
+        16,
+        18
+      ],
+      "hitBonus": [
+        6,
+        8,
+        11,
+        15,
+        20
+      ],
+      "damage": 3,
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "skills": []
+    },
+    {
+      "id": "hero_broken_horizon_son",
+      "type": "hero",
+      "name": "Filho do Horizonte Partido",
+      "life": [
+        13,
+        15,
+        17,
+        19,
+        21
+      ],
+      "hitBonus": [
+        7,
+        10,
+        14,
+        18,
+        23
+      ],
+      "damage": 3,
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "skills": []
+    },
+    {
+      "id": "creature_dry_steppes_hyena",
+      "type": "creature",
+      "name": "Hiena das Estepes Secas",
+      "xp": 1,
+      "life": [
+        2,
+        3,
+        4,
+        6,
+        8
+      ],
+      "hitBonus": [
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_cutting_wind_jackal",
+      "type": "creature",
+      "name": "Chacal do Vento Cortante",
+      "xp": 1,
+      "life": [
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 1,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_open_carrion_vulture",
+      "type": "creature",
+      "name": "Abutre da Carniça Aberta",
+      "xp": 1,
+      "life": [
+        1,
+        2,
+        3,
+        4,
+        6
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 1,
+      "diceByColor": [
+        1,
+        1,
+        1,
+        2,
+        2
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_hidden_granary_goblin",
+      "type": "creature",
+      "name": "Goblin do Celeiro Oculto",
+      "xp": 1,
+      "life": [
+        3,
+        4,
+        5,
+        6,
+        8
+      ],
+      "hitBonus": [
+        1,
+        3,
+        5,
+        6,
+        8
+      ],
+      "damage": 1,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_ruin_thief_monkey",
+      "type": "creature",
+      "name": "Macaco-Ladrão das Ruínas",
+      "xp": 1,
+      "life": [
+        2,
+        3,
+        4,
+        5,
+        7
+      ],
+      "hitBonus": [
+        2,
+        4,
+        6,
+        8,
+        10
+      ],
+      "damage": 1,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_high_grass_raider",
+      "type": "creature",
+      "name": "Saqueador da Relva Alta",
+      "xp": 2,
+      "life": [
+        4,
+        5,
+        6,
+        8,
+        10
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_red_dust_scout",
+      "type": "creature",
+      "name": "Batedor do Pó Vermelho",
+      "xp": 2,
+      "life": [
+        3,
+        4,
+        5,
+        7,
+        9
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 1,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_steppes_spearman",
+      "type": "creature",
+      "name": "Lanceiro das Estepes",
+      "xp": 2,
+      "life": [
+        4,
+        5,
+        6,
+        8,
+        10
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_cruel_horizon_archer",
+      "type": "creature",
+      "name": "Arqueiro do Horizonte Cruel",
+      "xp": 2,
+      "life": [
+        3,
+        4,
+        5,
+        7,
+        9
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_plains_hyena_rider",
+      "type": "creature",
+      "name": "Cavaleiro Hiena das Planícies",
+      "xp": 2,
+      "life": [
+        5,
+        6,
+        7,
+        9,
+        11
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 2,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_cold_dunes_gnoll",
+      "type": "creature",
+      "name": "Gnoll das Dunas Frias",
+      "xp": 2,
+      "life": [
+        5,
+        6,
+        7,
+        9,
+        11
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 2,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_wild_meadow_bull",
+      "type": "creature",
+      "name": "Touro Selvagem da Campina",
+      "xp": 2,
+      "life": [
+        7,
+        8,
+        9,
+        11,
+        13
+      ],
+      "hitBonus": [
+        1,
+        3,
+        5,
+        6,
+        8
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 2,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_unburied_wind_spirit",
+      "type": "creature",
+      "name": "Espírito do Vento Sem Túmulo",
+      "xp": 2,
+      "life": [
+        3,
+        4,
+        5,
+        7,
+        9
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_bloody_trails_centaur",
+      "type": "creature",
+      "name": "Centaurino das Trilhas Sangrentas",
+      "xp": 3,
+      "life": [
+        6,
+        7,
+        8,
+        10,
+        12
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 3,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 2,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_lost_barracks_hobgoblin",
+      "type": "creature",
+      "name": "Hobgoblin do Quartel Perdido",
+      "xp": 3,
+      "life": [
+        6,
+        7,
+        8,
+        10,
+        12
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_quarry_bearman",
+      "type": "creature",
+      "name": "Homem-Urso das Pedreiras",
+      "xp": 3,
+      "life": [
+        9,
+        10,
+        11,
+        13,
+        15
+      ],
+      "hitBonus": [
+        1,
+        3,
+        5,
+        6,
+        8
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 2,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_wall_apeman",
+      "type": "creature",
+      "name": "Homem-Macaco da Muralha",
+      "xp": 3,
+      "life": [
+        6,
+        7,
+        8,
+        10,
+        12
+      ],
+      "hitBonus": [
+        3,
+        5,
+        7,
+        9,
+        11
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "creature_stone_guard_centaur",
+      "type": "creature",
+      "name": "Centauro Guardião da Pedra",
+      "xp": 3,
+      "life": [
+        7,
+        8,
+        9,
+        11,
+        13
+      ],
+      "hitBonus": [
+        4,
+        6,
+        8,
+        10,
+        12
+      ],
+      "damage": 3,
+      "diceByColor": [
+        1,
+        1,
+        2,
+        2,
+        3
+      ],
+      "reward": 2,
+      "rewardType": "item",
+      "skills": []
+    },
+    {
+      "id": "subboss_cruel_herd_champion",
+      "type": "subboss",
+      "name": "Campeão da Manada Cruel",
+      "xp": 4,
+      "life": [
+        10,
+        12,
+        14,
+        16,
+        18
+      ],
+      "hitBonus": [
+        5,
+        7,
+        9,
+        11,
+        13
+      ],
+      "damage": 4,
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": []
+    },
+    {
+      "id": "subboss_tribute_hobgoblin_marshal",
+      "type": "subboss",
+      "name": "Marechal Hobgoblin dos Tributos",
+      "xp": 4,
+      "life": [
+        8,
+        10,
+        12,
+        14,
+        16
+      ],
+      "hitBonus": [
+        5,
+        7,
+        10,
+        12,
+        14
+      ],
+      "damage": 2,
+      "diceByColor": [
+        1,
+        2,
+        2,
+        3,
+        3
+      ],
+      "reward": 1,
+      "rewardType": "artifact",
+      "skills": []
+    }
+  ],
+  "skills": []
+}
