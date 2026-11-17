@@ -58,4 +58,18 @@ describe("pacotes de expansão", () => {
 		}
 	});
 
+	it("Castelo do Horizonte Infindo v1.0: catálogo de 67 cartas mais chefe separado", () => {
+		const castle = getEnabledExpansions().find((entry) => entry.id === "castelo-horizonte-infindo");
+		expect(castle?.version).toBe("1.0.0");
+		expect(castle?.boss).toBe("boss.json");
+		expect(castle?.cards).toHaveLength(67);
+		for (const [type, amount] of Object.entries({
+			hero: 4, creature: 18, subboss: 2, room: 10,
+			subboss_room: 2, item: 20, ally: 6, artifact: 5,
+		})) {
+			expect(castle?.cards.filter((card) => card.type === type), type).toHaveLength(amount);
+		}
+		expect(castle?.cards.some((card) => card.type === "boss")).toBe(false);
+	});
+
 });
