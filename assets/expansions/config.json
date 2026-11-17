@@ -8,6 +8,10 @@
     {
       "id": "torre-grande-bruxa-caldeirao",
       "enabled": true
+    },
+    {
+      "id": "castelo-horizonte-infindo",
+      "enabled": true
     }
   ]
 }
