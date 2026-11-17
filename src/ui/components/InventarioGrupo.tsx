@@ -1153,7 +1153,7 @@ export function InventarioGrupo({
 											<InventoryRewardCard
 												key={r.cardId}
 												cardId={r.cardId}
-												cardType="item"
+												cardType={getCardById(r.cardId)?.type === "ally" ? "ally" : "item"}
 												imageUrl={getCardImageUrl(cardImageUrls, r.cardId)}
 												color={col}
 												isDragging={isMe}
@@ -1163,7 +1163,7 @@ export function InventarioGrupo({
 												}}
 												onDragEnd={handleDragEnd}
 												onInfo={() =>
-													setDetailCard({ cardId: r.cardId, cardType: "item" })
+													setDetailCard({ cardId: r.cardId, cardType: getCardById(r.cardId)?.type === "ally" ? "ally" : "item" })
 												}
 												onCollect={rewardHero
 													? () => {
@@ -1386,7 +1386,7 @@ export function InventarioGrupo({
 						setFocusedHero(null);
 						setDetailCard({
 							cardId: itemId,
-							cardType: "item",
+							cardType: getCardById(itemId)?.type === "ally" ? "ally" : "item",
 							heroId: focusedHero.id,
 						});
 					}}
