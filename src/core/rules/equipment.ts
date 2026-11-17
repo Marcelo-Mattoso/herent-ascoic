@@ -1,4 +1,6 @@
-import type { ItemCard } from "../data/cardTypes";
+import type { AllyCard, ItemCard } from "../data/cardTypes";
+
+export type EquippableCard = ItemCard | AllyCard;
 
 import type { HeroRecord, ItemSlotType } from "../state/heroState";
 import { cardById } from "../gameEngine";
@@ -10,9 +12,12 @@ export const EQUIPMENT_SLOTS: readonly ItemSlotType[] = [
 	"hand1",
 	"hand2",
 	"amulet",
+	"ally",
 ];
 
-export function itemFitsSlot(item: ItemCard, slot: ItemSlotType): boolean {
+export function itemFitsSlot(item: EquippableCard, slot: ItemSlotType): boolean {
+	if (item.type === "ally") return slot === "ally";
+	if (slot === "ally") return false;
 	if (item.equipmentSlot === "clothing")
 		return slot === "clothing1" || slot === "clothing2";
 	if (item.equipmentSlot === "one_hand" || item.equipmentSlot === "two_hands")
@@ -20,7 +25,7 @@ export function itemFitsSlot(item: ItemCard, slot: ItemSlotType): boolean {
 	return item.equipmentSlot === "amulet" && slot === "amulet";
 }
 
-export function itemAllowedForHero(item: ItemCard, hero: HeroRecord): boolean {
+export function itemAllowedForHero(item: EquippableCard, hero: HeroRecord): boolean {
 	return !item.allowedHeroIds || item.allowedHeroIds.includes(hero.cardId);
 }
 
@@ -38,7 +43,7 @@ export function equippedItemAt(engine: GameEngine,
 
 export function freeEquipmentSlot(engine: GameEngine, 
 	hero: HeroRecord,
-	item: ItemCard,
+	item: EquippableCard,
 ): ItemSlotType | null {
 	if (
 		!itemAllowedForHero(item, hero) ||
@@ -60,7 +65,7 @@ export function freeEquipmentSlot(engine: GameEngine,
 
 export function placeEquipment(engine: GameEngine, 
 	hero: HeroRecord,
-	item: ItemCard,
+	item: EquippableCard,
 	requestedSlot?: ItemSlotType,
 ): { hero: HeroRecord; displaced: string[] } | null {
 	if (!item.equipmentSlot || !itemAllowedForHero(item, hero)) return null;
