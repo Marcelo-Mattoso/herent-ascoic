@@ -2,6 +2,7 @@ import type { Action } from "../actions/types";
 import { PARTY_PLAYER } from "../choices";
 import { answerPendingBy } from "../../engine/choice";
 import { drainStack } from "../effects/resolver";
+import { retireAllies } from "../rules/allyLifecycle";
 import { evaluate } from "../skills/dsl/evaluate";
 import { buildScriptCtx } from "../scripts/context";
 import {
@@ -213,13 +214,18 @@ function resolveSkillChoice(
 	): GameState => {
 		if (pending.kind !== "draw_and_choose" || !pending.discardDeck) return next;
 		const deck = decksOf(next)[pending.discardDeck];
-		return withDecks(next, {
+		const moved = withDecks(next, {
 			...decksOf(next),
 			[pending.discardDeck]: {
 				...deck,
 				discarded: [...deck.discarded, ...cardIds],
 			},
 		});
+		// Itens descartados continuam no descarte normal. Aliados não usados
+		// em Saque Mágico saem definitivamente da partida.
+		return pending.discardDeck === "itemDeck"
+			? retireAllies(engine, moved, cardIds)
+			: moved;
 	};
 	const finishChoice = (next: GameState, appliedChoice?: string) => {
 		const definition = skillById(engine, pending.skillId);

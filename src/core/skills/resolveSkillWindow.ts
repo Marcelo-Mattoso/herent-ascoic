@@ -3,6 +3,7 @@ import { canChangeRolledDice, hasDiceChangeEffect } from "../rules/diceReactions
 import { abilityById } from "../gameEngine";
 import { isAbilityPrepared, preparedAbilityKey, removePreparedAbility } from "../abilities/prepared";
 import { isInlineBossSkill } from "../rules/bossSkills";
+import { bossSkillNeutralized } from "../rules/bossRitual";
 import type { GameState } from "../state/gameState";
 
 
@@ -158,7 +159,13 @@ function eventTargetIds(
 	return ctx.targetHeroIds?.length ? ctx.targetHeroIds : ctx.targetEnemyIds ?? [];
 }
 
-function shouldSkipGrant(engine: GameEngine, candidate: import("../abilities/executor").EventAbilityGrantCandidate): boolean {
+function shouldSkipGrant(
+	engine: GameEngine,
+	state: GameState,
+	candidate: import("../abilities/executor").EventAbilityGrantCandidate,
+): boolean {
+	if (candidate.source.kind === "boss" &&
+		bossSkillNeutralized(engine, state, candidate.source.cardId, candidate.grant.abilityId)) return true;
 	// Modificadores de roll/dano do boss agem antes da resolução do ataque.
 	// Todos os demais grants do chefe usam o motor de gatilhos normal.
 	if (candidate.source.kind === "boss" &&
@@ -203,7 +210,7 @@ export function resolveSkillWindow(engine: GameEngine,
 	);
 
 	for (const candidate of grantCandidates) {
-		if (shouldSkipGrant(engine, candidate)) continue;
+		if (shouldSkipGrant(engine, current, candidate)) continue;
 		if (!eventGrantMatchesContext(candidate, request.event, ctx)) continue;
 		const targetIds = eventTargetIds(candidate, ctx);
 		if (

@@ -7,6 +7,8 @@ import { pausedOf } from "../state/access";
 import { tickModifierDurations } from "../ecs/world";
 import { moveInventoryItem } from "../rules/inventoryMoves";
 import { placeEquipment } from "../rules/equipment";
+import { reconcileEquipmentMaximumLife } from "../rules/equipmentLife";
+import { isAllyCard, isRetiredAlly, retireAllies } from "../rules/allyLifecycle";
 import { calculateRewards } from "../rules/reward";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { tickBlockEntries } from "../state/blockHelpers";
@@ -244,12 +246,14 @@ export function handleChooseItemDestination(engine: GameEngine,
 	if (!reward || reward.type !== "item") return state;
 
 	const itemId = reward.cardId;
+	const ally = isAllyCard(engine, itemId);
+	if (ally && destination === "backpack") return state;
 	const itemName = cardName(engine, itemId);
 	if (destination === "discard") {
 		return advanceRewardPhase(
 			log(
 				recordEvent(
-					withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: gameOf(state).pendingRewards.slice(1) })),
+					retireAllies(engine, withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: gameOf(state).pendingRewards.slice(1) })), [itemId]),
 					"ItemDiscarded",
 					{ itemId },
 				),
@@ -262,7 +266,7 @@ export function handleChooseItemDestination(engine: GameEngine,
 		itemId,
 		{ kind: "mesa" },
 		destination === "equip"
-			? { kind: "hero_equip", heroId }
+			? { kind: "hero_equip", heroId, ...(ally ? { slotType: "ally" as const } : {}) }
 			: { kind: "hero_backpack", heroId },
 	);
 	return moved
@@ -323,9 +327,12 @@ export function handleInvMove(engine: GameEngine,
 	to: InvToZone,
 ): GameState {
 	const moved = moveInventoryItem(engine, state, itemId, from, to);
-	return moved
-		? log(moved, `${cardName(engine, itemId)} movido no inventário.`)
-		: state;
+	if (!moved) return state;
+	const newlyRetired = (gameOf(moved).retiredAllyIds ?? []).filter((id) =>
+		!(gameOf(state).retiredAllyIds ?? []).includes(id));
+	return log(moved, newlyRetired.length > 0
+		? `${newlyRetired.map((id) => cardName(engine, id)).join(", ")} dispensado(s) definitivamente desta partida.`
+		: `${cardName(engine, itemId)} movido no inventário.`);
 }
 
 export function handleInvAssignItem(engine: GameEngine,
@@ -389,10 +396,17 @@ export function handleInvSetBearer(
 // ─── INV_DISCARD_MESA ─────────────────────────────────────────────────────────
 // Descarta tudo que restou na mesa e avança para XP_SPEND_PHASE.
 
-export function handleInvDescartarMesa(state: GameState): GameState {
+export function handleInvDescartarMesa(state: GameState, engine?: GameEngine): GameState {
 	const count = gameOf(state).pendingRewards.length;
+	const cleared = withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: [], status: "XP_SPEND_PHASE" }));
+	// O reducer sempre passa o engine. A forma sem engine só preserva chamadas
+	// legadas de testes com itens comuns e sem aliados.
+	const retired = engine
+		? retireAllies(engine, cleared, gameOf(state).pendingRewards
+			.filter((r) => r.type === "item").map((r) => r.cardId))
+		: cleared;
 	return log(
-		withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: [], status: "XP_SPEND_PHASE" })),
+		retired,
 		count > 0
 			? `Mesa descartada: ${count} item(ns) perdido(s).`
 			: "Inventário fechado.",
@@ -410,7 +424,8 @@ export function distributeItemAuto(engine: GameEngine,
 	if (!hero) return state;
 
 	const card = cardById(engine, itemId);
-	if (!card || card.type !== "item") return state;
+	if (!card || (card.type !== "item" && card.type !== "ally")) return state;
+	if (isRetiredAlly(state, itemId)) return state;
 	if (Object.values(hero.activeItems).includes(itemId) || hero.backpack.includes(itemId)) return state;
 
 	const dest = defaultItemDestination(engine, hero, card);
@@ -420,11 +435,16 @@ export function distributeItemAuto(engine: GameEngine,
 	if (dest === "equip") {
 		const equipped = placeEquipment(engine, hero, card);
 		if (!equipped) return state;
-		return mapHero(
+		return reconcileEquipmentMaximumLife(engine, state, mapHero(
 			log(state, `${itemName} equipado em ${heroName}.`),
 			hero.id,
 			() => equipped.hero,
-		);
+		));
+	}
+	if (card.type === "ally") {
+		return retireAllies(engine, withGame(state, (g) => ({ ...g,
+			pendingRewards: g.pendingRewards.filter((reward) => reward.cardId !== itemId),
+		})), [itemId]);
 	}
 	if (hero.backpack.length >= backpackCapacity(engine)) return state;
 
@@ -452,8 +472,10 @@ export const rewardHandler: GameHandler = {
 		"INV_SET_BEARER",
 		"INV_DISCARD_MESA",
 	],
-	legalActions(state) {
+	legalActions(state, _player, engine) {
 		const heroIds = partyHeroIds(state);
+		const reward = gameOf(state).pendingRewards[0];
+		const allyReward = reward?.type === "item" && isAllyCard(engine, reward.cardId);
 		const out: Action[] = [];
 		if (gameOf(state).pendingRewards.length > 0) {
 			for (const heroId of heroIds) {
@@ -461,7 +483,7 @@ export const rewardHandler: GameHandler = {
 					type: "CHOOSE_ITEM_DESTINATION",
 					payload: { heroId, destination: "equip" },
 				});
-				out.push({
+				if (!allyReward) out.push({
 					type: "CHOOSE_ITEM_DESTINATION",
 					payload: { heroId, destination: "backpack" },
 				});
@@ -521,7 +543,7 @@ export const rewardHandler: GameHandler = {
 					action.payload.heroId,
 				);
 			case "INV_DISCARD_MESA":
-				return handleInvDescartarMesa(state);
+				return handleInvDescartarMesa(state, engine);
 			default:
 				return state;
 		}

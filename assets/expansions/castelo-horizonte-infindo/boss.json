@@ -15,14 +15,232 @@
       "lifePerAwakening": 2,
       "hitBonusPerAwakening": 1
     },
-    "skills": []
+    "skills": [
+      {
+        "skillId": "therion_boss_skill_royal_charge",
+        "params": {
+          "value": 2
+        }
+      },
+      {
+        "skillId": "therion_boss_skill_horizon_dominion",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "therion_boss_skill_stone_resonance",
+        "params": {
+          "value": 1
+        }
+      },
+      {
+        "skillId": "therion_boss_skill_last_conquest",
+        "params": {
+          "value": 2
+        }
+      }
+    ],
+    "ritualBonuses": {
+      "life": 6,
+      "hitBonus": 4,
+      "damage": 2
+    },
+    "artifactCounters": [
+      {
+        "artifactId": "artifact_infinite_wind_bow",
+        "removes": {
+          "hitBonus": 4
+        }
+      },
+      {
+        "artifactId": "artifact_first_steppes_knight_helm",
+        "removes": {
+          "damage": 2
+        }
+      },
+      {
+        "artifactId": "artifact_unbroken_crest",
+        "removes": {
+          "life": 6
+        }
+      },
+      {
+        "artifactId": "artifact_forgotten_castle_banner",
+        "removes": {},
+        "disablesSkillIds": [
+          "therion_boss_skill_horizon_dominion"
+        ]
+      },
+      {
+        "artifactId": "artifact_broken_watch_shackle",
+        "removes": {},
+        "disablesSkillIds": [
+          "therion_boss_skill_stone_resonance"
+        ]
+      }
+    ]
   },
-  "skills": [],
+  "skills": [
+    {
+      "id": "therion_boss_skill_royal_charge",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_roll"
+      },
+      "cooldown": {
+        "scope": "combat",
+        "charges": 1
+      },
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "therion_boss_skill_horizon_dominion",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "all_heroes",
+          "as": "$hero",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_hit_penalty",
+              "operation": "add",
+              "value": "$value",
+              "duration": {
+                "kind": "until_end_of_combat"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "therion_boss_skill_stone_resonance",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "round",
+        "charges": 1
+      },
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "therion_boss_skill_last_conquest",
+      "category": "boss_skill",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "conditions": [
+        {
+          "kind": "has_condition",
+          "of": "$self",
+          "conditionType": "half_life_or_less"
+        }
+      ],
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "permanent"
+          }
+        }
+      ]
+    }
+  ],
   "locale": {
     "name": "Therion, Rei do Horizonte Infindo",
     "dice": "3 dados vermelhos",
     "condition": "O grupo precisa possuir pelo menos 3 Artefatos.",
-    "dungeonScaling": "Therion recebe +2 de Vida e +1 de Bônus de Acerto por nível de Despertar.",
-    "victory": "Ao derrotar Therion e destruir a Pedra-Matriz, os heróis vencem a partida."
+    "dungeonScaling": "Therion recebe +2 de Vida e +1 de Acerto por nível de Despertar, independentemente dos bônus do ritual.",
+    "victory": "Ao derrotar Therion e destruir a Pedra-Matriz, os heróis vencem a partida.",
+    "ritual": "Pedra-Matriz: enquanto o ritual estiver ativo, Therion recebe +6 de Vida, +4 de Acerto e +2 de Dano. Cada artefato correspondente neutraliza um bônus ou habilidade.",
+    "artifactEffects": "Arco do Vento Infindo: remove +4 de Acerto; Elmo do Primeiro Cavaleiro das Estepes: remove +2 de Dano; Brasão dos Inquebráveis: remove +6 de Vida; Estandarte do Castelo Esquecido: anula Domínio do Horizonte; Grilhão da Vigília Partida: anula Ressonância da Pedra-Matriz."
+  },
+  "skillLocales": {
+    "therion_boss_skill_royal_charge": {
+      "name": "Investida Real",
+      "label": "Investida Real (2): +2 de Acerto no primeiro ataque do combate.",
+      "text": "+2 de Acerto no primeiro ataque de Therion em cada combate."
+    },
+    "therion_boss_skill_horizon_dominion": {
+      "name": "Domínio do Horizonte",
+      "label": "Domínio do Horizonte (1): heróis sofrem -1 de Acerto durante o combate.",
+      "text": "No início do combate, todos os heróis ativos recebem -1 de Acerto até o fim do combate. Anulado pelo Estandarte do Castelo Esquecido."
+    },
+    "therion_boss_skill_stone_resonance": {
+      "name": "Ressonância da Pedra-Matriz",
+      "label": "Ressonância da Pedra-Matriz (1): reduz em 1 o primeiro dano recebido por rodada.",
+      "text": "Reduz em 1 o primeiro dano recebido em cada rodada. Anulado pelo Grilhão da Vigília Partida."
+    },
+    "therion_boss_skill_last_conquest": {
+      "name": "Última Conquista",
+      "label": "Última Conquista (2): com metade da Vida ou menos, Therion recebe +2 de Acerto.",
+      "text": "Ao alcançar metade da Vida máxima ou menos, Therion passa a receber +2 de Acerto. Não acumula e não é anulada pelos artefatos."
+    }
   }
 }

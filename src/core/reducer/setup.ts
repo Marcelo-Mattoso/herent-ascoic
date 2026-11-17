@@ -85,7 +85,8 @@ export function handleStartGame(engine: GameEngine,
 	const belongsToExpansion = (id: string) => expansionOf(engine, id) === expansionId;
 	const roomIds = buildDungeonRoomDeck(engine, expansionId);
 	const creatureIds = cardsOfType(engine, "creature").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
-	const itemIds = cardsOfType(engine, "item").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const itemIds = [...cardsOfType(engine, "item"), ...cardsOfType(engine, "ally")]
+		.filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 	const artifactIds = cardsOfType(engine, "artifact").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 
 	const mode = payload.mode ?? "cooperative";
@@ -109,7 +110,7 @@ export function handleStartGame(engine: GameEngine,
 
 	const heroNames = heroes.map((h) => cardName(engine, h.cardId));
 
-	const dealt: GameState = withWorld(withAwakening(dealDecksInto(withGame(state, (prevGame) => ({ ...prevGame, gameId, rng, difficulty, mode, status: "REVEAL_ROOM", groupXp: 0, groupImpetoMilestone: heroColorIndex, heroes: heroes.map(recordOfHero), defeatedHeroes: [], fledHeroes: [], activeEnemies: [], enemyGraveyard: [], bossCardId: bossId, bossDefeated: false, subbosses: { available: [], defeated: [] }, groupArtifacts: [], currentRoom: null, paths: [], roomsCleared: 0, creaturesDefeated: 0, combat: createEmptyCombatState(), pendingRewards: [], oncePer: { game: {} }, preparedAbilities: {}, disabled: {}, flags: {}, blocks: {}, tokens: {}, eventLog: [
+	const dealt: GameState = withWorld(withAwakening(dealDecksInto(withGame(state, (prevGame) => ({ ...prevGame, gameId, rng, difficulty, mode, status: "REVEAL_ROOM", groupXp: 0, groupImpetoMilestone: heroColorIndex, heroes: heroes.map(recordOfHero), defeatedHeroes: [], fledHeroes: [], activeEnemies: [], enemyGraveyard: [], bossCardId: bossId, bossDefeated: false, subbosses: { available: [], defeated: [] }, groupArtifacts: [], currentRoom: null, paths: [], roomsCleared: 0, creaturesDefeated: 0, combat: createEmptyCombatState(), pendingRewards: [], retiredAllyIds: [], oncePer: { game: {} }, preparedAbilities: {}, disabled: {}, flags: {}, blocks: {}, tokens: {}, eventLog: [
 			`Partida iniciada. Heróis: ${heroNames.join(", ")}. Boss: ${cardName(engine, bossId)}.`,
 		], events: [] })), {
 		dungeonDeck: roomIds,

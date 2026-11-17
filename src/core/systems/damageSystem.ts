@@ -21,6 +21,7 @@ import {
 import type { GameState } from "../state/gameState";
 import { cardName, type GameEngine } from "../gameEngine";
 import { recordPoisonDamage } from "../rules/poisonTelemetry";
+import { collectHeroRoomDamageReductionsFromItems, totalItemValue } from "../rules/itemEffects";
 
 import { enemyOf, heroOf, statOf, withEnemyRecord, withEntityRetired, withHeroRecord, withUnitStats, withWorld, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
@@ -29,6 +30,8 @@ export interface DamageOptions {
 	/** Origem declarada do tick de veneno, sem alterar o sourceId virtual de combate. */
 	readonly poisonOrigin?: string;
 	readonly damageType?: DamageType;
+	/** Proveniência do efeito, independente do tipo de dano (físico, mágico etc.). */
+	readonly origin?: "room";
 	/** Apenas associação visual com uma investida extra já resolvida. */
 	readonly extraAttackId?: number;
 	/** Interno: evita reabrir a mesma janela ao retomar uma decisão pendente. */
@@ -291,9 +294,13 @@ export function applyDamage(engine: GameEngine,
 					-getModifierTotal(worldOf(s1), targetId, "purple_damage_taken"),
 				)
 			: 0;
+	const roomTarget = opts?.origin === "room" ? heroOf(s1, targetId) : undefined;
+	const roomReduction = roomTarget && roomTarget.status === "active"
+		? Math.max(0, totalItemValue(collectHeroRoomDamageReductionsFromItems(engine, roomTarget, s1)))
+		: 0;
 	const finalAmount =
 		opts?.resolvedAmount === undefined
-			? Math.max(0, amountAfterBus - purpleReduction)
+			? Math.max(0, amountAfterBus - purpleReduction - roomReduction)
 			: amountAfterBus;
 	const lifeBeforeDamage = currentLife(s1, targetId);
 	if (

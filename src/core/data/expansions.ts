@@ -53,6 +53,15 @@ function registerCard(card: ExpansionCard, expansionId: string): void {
 		!Array.isArray(card.skills)) {
 		throw new Error("Carta inválida na expansão " + expansionId);
 	}
+	if (card.type === "ally") {
+		if (card.equipmentSlot !== "ally" || "itemClass" in card) {
+			throw new Error("Aliado requer slot próprio e não pode usar itemClass: " + card.id);
+		}
+		if (card.grants?.some((grant) =>
+			grant.activation.consumeSource && grant.activation.consumeSource !== "none")) {
+			throw new Error("Aliado não pode ser consumido: " + card.id);
+		}
+	}
 	if (metadata.has(card.id)) throw new Error("ID de carta duplicado entre expansões: " + card.id);
 	if (card.image && !/^images\/[^/]+\.(?:webp|png)$/.test(card.image)) {
 		throw new Error("Imagem com caminho inválido: " + card.image);

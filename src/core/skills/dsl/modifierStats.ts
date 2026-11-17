@@ -9,6 +9,11 @@ export const BUILTIN_MODIFIER_STATS: Readonly<Record<string, ModifierStatSpec>> 
 	s_damage_reduction: { target: "damage_taken", negate: true, reduction: true },
 	s_damage_dealt: { target: "damage_dealt" },
 	s_hit_bonus: { target: "hit_bonus" },
+	// Maximum life is reconciled by equipmentLife on inventory transitions.
+	// Register the stat so authored DSL references validate without hardcoded IDs.
+	s_max_life: { target: "max_life" },
+	// Reduction that applies only to damage explicitly sourced from a room effect.
+	s_room_damage_reduction: { target: "room_damage_taken", reduction: true },
 	s_hit_penalty: { target: "hit_bonus", negate: true },
 	s_damage_penalty: { target: "damage_dealt" },
 };

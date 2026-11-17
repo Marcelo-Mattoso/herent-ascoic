@@ -152,6 +152,13 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 		case "CHOOSE_ITEM_DESTINATION": {
 			if (action.payload.destination === "discard") return 1;
 			const hero = heroes.find((entry) => entry.id === action.payload.heroId);
+			const reward = view.pendingRewards[0];
+			// Ally cards share the item reward flow but only fit the exclusive ally slot.
+			if (reward?.cardType === "ally") {
+				if (action.payload.destination === "equip")
+					return hero?.activeItems.ally ? -10 : 130;
+				return hero?.activeItems.ally ? 75 : 35;
+			}
 			const equipped = hero ? Object.values(hero.activeItems).filter(Boolean).length : 0;
 			return action.payload.destination === "equip" ? 90 - equipped * 5 : 45 - equipped * 5;
 		}

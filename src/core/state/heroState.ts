@@ -1,7 +1,7 @@
 // Registro de um herói na partida. Vida, atributos de combate e condições
 // vivem no ECS (state.world); HeroState é a projeção calculada por access.ts.
 
-export type ItemSlotType = "clothing1" | "clothing2" | "hand1" | "hand2" | "amulet";
+export type ItemSlotType = "clothing1" | "clothing2" | "hand1" | "hand2" | "amulet" | "ally";
 
 export type HeroStatus = "active" | "defeated" | "fled";
 

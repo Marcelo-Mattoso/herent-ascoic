@@ -14,6 +14,7 @@ import { MAX_ROOM_ENEMIES } from "../rules/encounterLimits";
 
 import { applyDeclaredPassiveBlocks } from "../skills/applyPassiveBlocks";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import { reconcileEquipmentMaximumLife } from "../rules/equipmentLife";
 import { renderSkillLabel } from "../skills/renderLabel";
 import { ActivationTracker } from "../state/activation";
 import { removeBlocksForSource } from "../state/blockHelpers";
@@ -668,7 +669,23 @@ export function handleRestartDungeon(engine: GameEngine,
 		!expansionId || expansionOf(engine, id) === expansionId;
 	const roomIds = buildDungeonRoomDeck(engine, expansionId);
 	const creatureIds = cardsOfType(engine, "creature").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
-	const itemIds = cardsOfType(engine, "item").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	// Recomeçar a masmorra não inicia outra partida: aliados descartados
+	// permanecem fora do deck. Aliados mantidos equipados também não são redistribuídos.
+	const priorRetired = gameOf(state).retiredAllyIds ?? [];
+	const keptAllyIds = keepEquipment
+		? gameOf(state).fledHeroes.flatMap((h) => h.activeItems.ally ? [h.activeItems.ally] : [])
+		: [];
+	const kept = new Set(keptAllyIds);
+	const droppedOnRestart = [
+		...gameOf(state).fledHeroes,
+		...gameOf(state).heroes,
+		...gameOf(state).defeatedHeroes,
+	].flatMap((h) => h.activeItems.ally ? [h.activeItems.ally] : [])
+		.filter((id) => !kept.has(id));
+	const retiredAllyIds = [...new Set([...priorRetired, ...droppedOnRestart])];
+	const absentAllies = new Set([...retiredAllyIds, ...keptAllyIds]);
+	const itemIds = [...cardsOfType(engine, "item"), ...cardsOfType(engine, "ally")]
+		.filter((c) => belongsToExpansion(c.id) && !absentAllies.has(c.id)).map((c) => c.id);
 	const artifactIds = cardsOfType(engine, "artifact").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 
 	const restoredHeroes = gameOf(state).fledHeroes.map((h) => ({
@@ -679,7 +696,7 @@ export function handleRestartDungeon(engine: GameEngine,
 	}));
 
 	let next = log(
-		dealDecksInto(withWorld(withPaused(withEffectStack(beginRoom(engine, withGame(state, (prevGame) => ({ ...prevGame, status: "REVEAL_ROOM", heroes: restoredHeroes, defeatedHeroes: [], fledHeroes: [], activeEnemies: [], enemyGraveyard: [], currentRoom: null, paths: [], roomsCleared: 0, creaturesDefeated: 0, combat: createEmptyCombatState(), pendingRewards: [], flags: {}, blocks: {}, disabled: {}, tokens: {}, subbosses: { available: [], defeated: [] }, oncePer: { game: gameOf(state).oncePer.game } }))), createEmptyEffectStack()), null), worldWithPermanentEffects(worldOf(state), restoredHeroes)), {
+		dealDecksInto(withWorld(withPaused(withEffectStack(beginRoom(engine, withGame(state, (prevGame) => ({ ...prevGame, status: "REVEAL_ROOM", heroes: restoredHeroes, defeatedHeroes: [], fledHeroes: [], activeEnemies: [], enemyGraveyard: [], currentRoom: null, paths: [], roomsCleared: 0, creaturesDefeated: 0, combat: createEmptyCombatState(), pendingRewards: [], retiredAllyIds, flags: {}, blocks: {}, disabled: {}, tokens: {}, subbosses: { available: [], defeated: [] }, oncePer: { game: gameOf(state).oncePer.game } }))), createEmptyEffectStack()), null), worldWithPermanentEffects(worldOf(state), restoredHeroes)), {
 				dungeonDeck: roomIds,
 				enemyDeck: creatureIds,
 				itemDeck: itemIds,
@@ -688,6 +705,8 @@ export function handleRestartDungeon(engine: GameEngine,
 		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,
 	);
 
+	// Equipment dropped by a restart must also remove passive maximum-life bonuses.
+	next = reconcileEquipmentMaximumLife(engine, state, next);
 	for (const h of restoredHeroes) {
 		next = applyFullHeal(engine, next, h.id);
 	}

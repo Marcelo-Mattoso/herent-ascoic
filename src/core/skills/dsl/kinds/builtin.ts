@@ -104,6 +104,7 @@ const damage = effectKind({
 		return applyDamage(engine, state, targetId, amount, {
 			sourceId: pending.source,
 			damageType: sourceSkill?.rules?.damageType ?? "physical",
+			origin: sourceSkill?.category === "dungeon_skill" ? "room" : undefined,
 		});
 	},
 });

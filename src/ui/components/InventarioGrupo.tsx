@@ -47,6 +47,7 @@ const SLOT_COLORS_INV: Record<
 	hand1: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
 	hand2: { bg: "#FAC775", border: "#BA7517", text: "#5C3A00" },
 	amulet: { bg: "#ED93B1", border: "#8B1A4A", text: "#5A0022" },
+	ally: { bg: "#C9DBF1", border: "#245D8A", text: "#153B5A" },
 };
 
 // itemClass → cor mais próxima da paleta de slots
@@ -62,6 +63,7 @@ const ITEM_COLORS: Record<
 
 function itemColor(itemId: string) {
 	const card = getCardById(itemId);
+	if (card?.type === "ally") return SLOT_COLORS_INV.ally;
 	if (!card || card.type !== "item") return null;
 	return ITEM_COLORS[card.itemClass] ?? null;
 }
@@ -75,6 +77,7 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 	hand1: "game:components.inventarioGrupo.slotLabels.hand1",
 	hand2: "game:components.inventarioGrupo.slotLabels.hand2",
 	amulet: "game:components.inventarioGrupo.slotLabels.amulet",
+	ally: "Aliado",
 };
 const SLOT_TITLES: Record<ItemSlotType, string> = {
 	clothing1: "game:components.inventarioGrupo.slotTitles.clothing1",
@@ -82,6 +85,7 @@ const SLOT_TITLES: Record<ItemSlotType, string> = {
 	hand1: "game:components.inventarioGrupo.slotTitles.hand1",
 	hand2: "game:components.inventarioGrupo.slotTitles.hand2",
 	amulet: "game:components.inventarioGrupo.slotTitles.amulet",
+	ally: "Aliado permanente",
 };
 const MAX_BACKPACK = backpackCapacity(uiEngine);
 
@@ -298,7 +302,7 @@ function HeroColumn({
 		if (!dragging || dragging.kind !== "item") return false;
 		const card = getCardById(dragging.name);
 		return (
-			card?.type === "item" &&
+			(card?.type === "item" || card?.type === "ally") &&
 			!!card.equipmentSlot &&
 			itemAllowedForHero(card, hero) &&
 			!!canMoveInventoryItem(dragging.name, dragging.from, {
@@ -313,7 +317,7 @@ function HeroColumn({
 		const card = dragging ? getCardById(dragging.name) : null;
 		const valid =
 			!!dragging &&
-			card?.type === "item" &&
+			(card?.type === "item" || card?.type === "ally") &&
 			itemFitsSlot(card, slotType) &&
 			!!canMoveInventoryItem(dragging.name, dragging.from, {
 				kind: "hero_equip",
@@ -340,6 +344,7 @@ function HeroColumn({
 
 	function canMochilaDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
+		if (getCardById(dragging.name)?.type === "ally") return false;
 		// Se o drag vem da mochila deste herói, libera espaço ao remover
 		const isFromSameBackpack =
 			dragging.from.kind === "hero_backpack" &&
@@ -432,7 +437,7 @@ function HeroColumn({
 				{...areaDropHandlers(equipZone)}
 				style={{
 					display: "grid",
-					gridTemplateColumns: "repeat(5, 36px)",
+					gridTemplateColumns: "repeat(6, 36px)",
 					gap: 4,
 					marginBottom: 6,
 					borderRadius: 4,
@@ -543,7 +548,7 @@ function HeroColumn({
 							}
 							key={slotType}
 							{...slotDropHandlers(slotType)}
-							label={isTwoHandOverlay ? "2 mãos" : translate(SLOT_LABELS[slotType])}
+							label={isTwoHandOverlay ? "2 mãos" : slotType === "ally" ? "Aliado" : translate(SLOT_LABELS[slotType])}
 							filled={isTwoHandOverlay}
 							onClick={() => chooseEquipmentSlot(slotType)}
 						/>
@@ -654,7 +659,7 @@ function HeroColumn({
 									dragging.from.index === i;
 								const canUse = usableItemIds.has(name);
 								const canChooseSlot =
-									itemCard?.type === "item" && !!itemCard.equipmentSlot;
+									(itemCard?.type === "item" || itemCard?.type === "ally") && !!itemCard.equipmentSlot;
 								const canEquip =
 									canChooseSlot &&
 									!!canMoveInventoryItem(
@@ -890,6 +895,7 @@ export function InventarioGrupo({
 			}
 			// Mochila: aceita se tiver espaço
 			if (zone.startsWith("hero_mochila_")) {
+				if (getCardById(dragging.name)?.type === "ally") return false;
 				const heroId = zone.replace("hero_mochila_", "");
 				const hero = heroes.find((h) => h.id === heroId);
 				if (!hero) return false;
@@ -1052,9 +1058,15 @@ export function InventarioGrupo({
 	function handleCollectReward(itemId: string) {
 		if (!rewardHero) return;
 		const from = { kind: "mesa" as const };
-		const to = { kind: "hero_backpack" as const, heroId: rewardHero.id };
+		const ally = getCardById(itemId)?.type === "ally";
+		// Recrutamento imediato. Ao substituir, o aliado antigo sai do jogo.
+		const to = ally
+			? { kind: "hero_equip" as const, heroId: rewardHero.id, slotType: "ally" as const }
+			: { kind: "hero_backpack" as const, heroId: rewardHero.id };
 		if (!canMoveInventoryItem(itemId, from, to)) {
-			setInventoryFeedback(translate("game:components.inventarioGrupo.fullBackpack"));
+			setInventoryFeedback(ally
+				? "Este herói não pode recrutar esse aliado."
+				: translate("game:components.inventarioGrupo.fullBackpack"));
 			return;
 		}
 		setInventoryFeedback(null);
@@ -1137,6 +1149,11 @@ export function InventarioGrupo({
 										</select>
 									</label>
 								)}
+								{mesaItens.some((r) => getCardById(r.cardId)?.type === "ally") && (
+					<p role="note" style={{ fontSize: 11, color: UI.textSecondary, margin: "6px 0" }}>
+						Aliados devem ser recrutados imediatamente. Não podem ir para a mochila; os dispensados ou substituídos saem definitivamente desta partida.
+					</p>
+				)}
 								<div className="inventory-card-grid">
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
@@ -1149,7 +1166,7 @@ export function InventarioGrupo({
 											<InventoryRewardCard
 												key={r.cardId}
 												cardId={r.cardId}
-												cardType="item"
+												cardType={getCardById(r.cardId)?.type === "ally" ? "ally" : "item"}
 												imageUrl={getCardImageUrl(cardImageUrls, r.cardId)}
 												color={col}
 												isDragging={isMe}
@@ -1159,7 +1176,7 @@ export function InventarioGrupo({
 												}}
 												onDragEnd={handleDragEnd}
 												onInfo={() =>
-													setDetailCard({ cardId: r.cardId, cardType: "item" })
+													setDetailCard({ cardId: r.cardId, cardType: getCardById(r.cardId)?.type === "ally" ? "ally" : "item" })
 												}
 												onCollect={rewardHero
 													? () => {
@@ -1167,7 +1184,9 @@ export function InventarioGrupo({
 														else handleCollectReward(r.cardId);
 													}
 													: undefined}
-												collectLabel={isMysticDraw
+												collectLabel={getCardById(r.cardId)?.type === "ally"
+												? (rewardHero?.activeItems.ally ? "Substituir aliado" : "Recrutar aliado")
+												: isMysticDraw
 													? translate("game:components.inventarioGrupo.text044")
 													: undefined}
 												onMouseEnter={(e) =>
@@ -1382,7 +1401,7 @@ export function InventarioGrupo({
 						setFocusedHero(null);
 						setDetailCard({
 							cardId: itemId,
-							cardType: "item",
+							cardType: getCardById(itemId)?.type === "ally" ? "ally" : "item",
 							heroId: focusedHero.id,
 						});
 					}}
@@ -1661,7 +1680,7 @@ function InventoryRewardCard({
 	onMouseLeave,
 }: {
 	cardId: string;
-	cardType: "item" | "artifact";
+	cardType: "item" | "ally" | "artifact";
 	imageUrl?: string;
 	color?: { bg: string; border: string; text: string } | null;
 	amber?: boolean;
@@ -1722,7 +1741,7 @@ function InventoryRewardCard({
 				i
 			</button>
 			<span className="inventory-card-tile__type">
-				{cardType === "artifact" ? "Artefato" : "Item"}
+				{cardType === "artifact" ? "Artefato" : cardType === "ally" ? "Aliado" : "Item"}
 			</span>
 		</article>
 	);
@@ -1742,7 +1761,7 @@ function ItemTooltipPanel({
 	onMouseLeave: () => void;
 }) {
 	const card = getCardById(target.name);
-	if (!card || (card.type !== "item" && card.type !== "artifact")) return null;
+	if (!card || (card.type !== "item" && card.type !== "ally" && card.type !== "artifact")) return null;
 
 	// Posição: acima e à direita do cursor; ajusta se sair da viewport
 	const TOOLTIP_W = 240;
@@ -1752,11 +1771,12 @@ function ItemTooltipPanel({
 	const isItem = card.type === "item";
 	const tagLine = isItem
 		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
-		: translate("game:components.inventarioGrupo.groupArtifact");
-	const effectEntry = skillsOf(uiEngine, card.id)[0];
-	const effect = effectEntry ? renderSkillLabel(uiEngine, effectEntry.ref) : "";
+		: card.type === "ally" ? "Aliado permanente" : translate("game:components.inventarioGrupo.groupArtifact");
+	const itemSkills = skillsOf(uiEngine, card.id);
+	const effect = (card.type === "ally" ? itemSkills : itemSkills.slice(0, 1))
+		.map(({ ref }) => renderSkillLabel(uiEngine, ref)).filter(Boolean).join(" · ");
 
-	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : AMBER;
+	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : card.type === "ally" ? SLOT_COLORS_INV.ally : AMBER;
 	const canUseItem =
 		isItem &&
 		!!target.heroId &&

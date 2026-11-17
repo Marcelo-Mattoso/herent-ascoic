@@ -6,6 +6,9 @@ import { applyPoisonStatus } from "../../../rules/poison";
 import { poisonOriginLabel } from "../../../rules/poisonTelemetry";
 import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
+import { reconcileEquipmentMaximumLife } from "../../../rules/equipmentLife";
+import { isRetiredAlly, retireAllies } from "../../../rules/allyLifecycle";
+import { refRequirementMet, skillsOf, type GameEngine } from "../../../gameEngine";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
 import type { ColorIndex } from "../../../state/color";
 import type {
@@ -42,14 +45,15 @@ const BLOCK_TARGETS = [
 ] as const;
 const REWARD_TYPES = ["item", "artifact"] as const;
 
-function discardFirstAvailableItem(state: GameState): GameState {
+function discardFirstAvailableItem(engine: GameEngine, state: GameState): GameState {
 	const heroWithBackpack = heroesOf(state).find(
 		(h) => h.status === "active" && h.backpack.length > 0,
 	);
 	if (heroWithBackpack) {
 		const [removed, ...rest] = heroWithBackpack.backpack;
 		return log(
-			mapHero(state, heroWithBackpack.id, (h) => ({ ...h, backpack: rest })),
+			retireAllies(engine, mapHero(state, heroWithBackpack.id, (h) => ({ ...h, backpack: rest })),
+				removed ? [removed] : []),
 			`Tributo: ${removed} descartado da mochila.`,
 		);
 	}
@@ -64,11 +68,11 @@ function discardFirstAvailableItem(state: GameState): GameState {
 		).find((k) => heroWithItem.activeItems[k]);
 		if (slot) {
 			return log(
-				mapHero(state, heroWithItem.id, (h) => {
+				retireAllies(engine, reconcileEquipmentMaximumLife(engine, state, mapHero(state, heroWithItem.id, (h) => {
 					const items = { ...h.activeItems };
 					delete items[slot];
 					return { ...h, activeItems: items };
-				}),
+				})), heroWithItem.activeItems[slot] ? [heroWithItem.activeItems[slot]!] : []),
 				`Tributo: ${heroWithItem.activeItems[slot]} descartado.`,
 			);
 		}
@@ -189,6 +193,7 @@ const grantReward = effectKind({
 	resolve: (state, effect) => {
 		const cardId = (effect["cardId"] ?? effect["cardName"]) as string;
 		const rewardType = effect["rewardType"] as "item" | "artifact";
+		if (rewardType === "item" && isRetiredAlly(state, cardId)) return state;
 		if (rewardType === "artifact") {
 			return log(
 				withGame(state, (prevGame) => ({ ...prevGame, groupArtifacts: [
@@ -336,7 +341,7 @@ const discard = effectKind({
 		if (pile === "item") {
 			let next = state;
 			for (let i = 0; i < count; i++) {
-				next = discardFirstAvailableItem(next);
+				next = discardFirstAvailableItem(engine, next);
 			}
 			return next;
 		}
@@ -635,6 +640,7 @@ const ascensaoRefs: RefResolver<EvalCtx>[] = [
 					return heroesOf(ctx.state)
 						.filter((h) => h.status === "active")
 						.map((h) => h.id);
+				case "enemies":
 				case "all_enemies":
 					return enemiesOf(ctx.state)
 						.filter((e) => e.status === "active")
@@ -725,6 +731,22 @@ const poisonWardKind = effectKind({
   },
 });
 
+/**
+ * Environment tags come from authored room skills, not from expansion names.
+ * Supports darkness/light, resonance, heat, fog, etc. in future dungeons.
+ */
+const roomHasTag = defineCondition<never, never, EvalCtx>({
+	kind: "room_has_tag",
+	schema: z.object({ kind: z.literal("room_has_tag"), tag: z.string().min(1) }),
+	test: (node, ctx) => {
+		const currentRoomId = gameOf(ctx.state).currentRoom?.cardId;
+		if (!currentRoomId) return false;
+		return skillsOf(ctx.engine, currentRoomId).some(({ def, ref }) =>
+			def.rules?.environmentTag === node["tag"] &&
+			refRequirementMet(ctx.engine, ctx.state, ref.requiresAwakening));
+	},
+});
+
 const hasDotStacks = defineCondition<never, never, EvalCtx>({
   kind: "has_dot_stacks",
   schema: z.object({
@@ -789,6 +811,7 @@ export const ascensaoPackage: GameKindPackage = {
 		drawAndChoose,
 		block,
 		hasCondition as unknown as GameKind,
+		roomHasTag as unknown as GameKind,
 	],
 	refs: ascensaoRefs,
 };

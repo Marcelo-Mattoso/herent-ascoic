@@ -161,7 +161,7 @@ export function CardDetailModal({
 							);
 						})()}
 
-					{card?.type === "item" &&
+					{(card?.type === "item" || card?.type === "ally") &&
 						(() => {
 							const itemSkills = skillsOf(uiEngine, card.id);
 							const main = itemSkills[0];
@@ -171,12 +171,12 @@ export function CardDetailModal({
 							const canUseItem = !!onUseItem;
 							return (
 								<>
-									<Row label="Tipo" value={card.itemClass} />
-									{main && (
-										<p className="text-xs" style={{ color: UI.textPrimary }}>
-											{renderSkillLabel(uiEngine, main.ref)}
+									<Row label="Tipo" value={card.type === "ally" ? "Aliado permanente" : card.itemClass} />
+									{(card.type === "ally" ? itemSkills : main ? [main] : []).map(({ ref }, index) => (
+										<p key={ref.skillId + ":" + index} className="text-xs" style={{ color: UI.textPrimary }}>
+											{renderSkillLabel(uiEngine, ref)}
 										</p>
-									)}
+									))}
 									{canUseItem && (
 										<button
 											type="button"

@@ -243,7 +243,7 @@ export function HeroFocusPanel({
 								{translate("game:components.heroFocusPanel.text011")}{" "}</p>
 							<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
 								{(
-									["clothing1", "clothing2", "hand1", "hand2", "amulet"] as ItemSlotType[]
+									["clothing1", "clothing2", "hand1", "hand2", "amulet", "ally"] as ItemSlotType[]
 								).map((slot) => {
 									const item = hero.activeItems[slot];
 									if (!item) return null;
