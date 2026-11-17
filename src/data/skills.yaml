@@ -1691,3 +1691,117 @@ abilities:
     target_type: tgt_self
     affect_scope: scp_single
     affect_object: obj_friend
+  - id: dungeon_skill_environment_darkness
+    category: dungeon_skill
+    rules:
+      environmentTag: darkness
+    effect:
+      - kind: i_for_each
+        over: all_heroes
+        as: $hero
+        do:
+          - kind: p_modifier
+            to: $target
+            stat: s_hit_penalty
+            operation: add
+            value: $value
+            duration:
+              kind: until_end_of_combat
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
+    nature:
+      - nat_dark
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
+  - id: item_skill_illumination_against_darkness
+    category: item_skill
+    rules:
+      handledByEquipment: true
+    conditions:
+      - kind: room_has_tag
+        tag: darkness
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_hit_bonus
+        operation: add
+        value: $value
+        duration:
+          kind: while_in_play
+    operate_type: op_passive
+    nature:
+      - nat_holy
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
+  - id: skill_group_command_accuracy
+    category: hero_skill
+    effect:
+      - kind: i_for_each
+        over: enemies
+        as: $ally
+        do:
+          - kind: p_modifier
+            to: $target
+            stat: s_hit_bonus
+            operation: add
+            value: $value
+            duration:
+              kind: while_in_play
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
+    nature:
+      - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_room
+    affect_object: obj_friend
+  - id: skill_group_command_protection
+    category: hero_skill
+    effect:
+      - kind: i_for_each
+        over: enemies
+        as: $ally
+        do:
+          - kind: p_modifier
+            to: $target
+            stat: s_damage_reduction
+            operation: add
+            value: $value
+            duration:
+              kind: while_in_play
+    operate_type: op_triggered
+    trigger:
+      event: evt_combat_start
+    nature:
+      - nat_physical
+    target_type: tgt_target
+    affect_scope: scp_room
+    affect_object: obj_friend
+  - id: dungeon_skill_resonant_pressure
+    category: dungeon_skill
+    effect:
+      - kind: i_for_each
+        over: all_heroes
+        as: $hero
+        do:
+          - kind: p_modifier
+            to: $target
+            stat: s_hit_penalty
+            operation: add
+            value: $value
+            duration:
+              kind: until_end_of_round
+    operate_type: op_triggered
+    trigger:
+      event: evt_round_start
+    cooldown:
+      scope: round
+      charges: 1
+    nature:
+      - nat_magical
+    target_type: tgt_target
+    affect_scope: scp_party_full
+    affect_object: obj_friend
