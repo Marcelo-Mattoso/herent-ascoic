@@ -63,7 +63,7 @@ function legacyActivation(
 			window: definition.trigger?.window,
 			decision: isVoluntaryTrigger(definition,
 				card.type === "creature" ? "enemy" : card.type === "subboss" ? "enemy" :
-				card.type === "subboss_room" ? "room" : card.type,
+				card.type === "subboss_room" ? "room" : card.type === "ally" ? "item" : card.type,
 				definition.trigger!.event) ? "optional" : "automatic",
 			priority: definition.interrupt?.priority,
 			actionCost: definition.action_cost ?? "none",
