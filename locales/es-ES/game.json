@@ -200,7 +200,28 @@
       "dynamic002": "no disponible",
       "dynamic003": "disponible",
       "dynamic004": "no disponible",
-      "escapeHint": "Pulsa Esc para cerrar"
+      "escapeHint": "Pulsa Esc para cerrar",
+      "skillPrepared": "preparada",
+      "skillActive": "activa",
+      "skillUsed": "usada",
+      "powerPrepared": "preparado",
+      "powerActive": "activo",
+      "powerUsed": "usado",
+      "backpackEmpty": "vacía",
+      "backpackItem": "objeto",
+      "backpackItems": "objetos",
+      "cancelPreparation": "Cancelar preparación",
+      "useItem": "Usar objeto",
+      "activateSkill": "Activar habilidad",
+      "prepareSkill": "Preparar habilidad",
+      "skill": "Habilidad",
+      "preparePower": "Preparar poder",
+      "power": "Poder",
+      "attack": "Atacar (arrastra o haz clic)",
+      "passTurn": "Pasar turno",
+      "fleeDeclared": "Huida declarada",
+      "flee": "Huir",
+      "cancel": "Cancelar"
     },
     "hpBar": {},
     "influencePanel": {
@@ -291,7 +312,8 @@
       "recruitAlly": "Reclutar aliado",
       "replaceAlly": "Sustituir amuleto/aliado",
       "artifactType": "Artefacto",
-      "itemType": "Objeto"
+      "itemType": "Objeto",
+      "cannotRecruitAlly": "Este héroe no puede reclutar a ese aliado."
     },
     "itemChip": {
       "slotLabels": {
@@ -315,7 +337,11 @@
         "text004": "Usar",
         "text005": "Carta no encontrada en el catálogo.",
         "slot": "Espacio",
-        "sharedSlot": "Amuleto / Aliado — exclusivo"
+        "sharedSlot": "Amuleto / Aliado — exclusivo",
+        "damage": "Daño",
+        "exits": "Salidas",
+        "type": "Tipo",
+        "condition": "Condición"
       },
       "dungeonExhaustedModal": {
         "title001": "Mazo de mazmorra vacío",

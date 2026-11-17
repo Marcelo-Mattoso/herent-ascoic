@@ -1066,7 +1066,7 @@ export function InventarioGrupo({
 			: { kind: "hero_backpack" as const, heroId: rewardHero.id };
 		if (!canMoveInventoryItem(itemId, from, to)) {
 			setInventoryFeedback(ally
-				? "Este herói não pode recrutar esse aliado."
+				? translate("game:components.inventarioGrupo.cannotRecruitAlly")
 				: translate("game:components.inventarioGrupo.fullBackpack"));
 			return;
 		}

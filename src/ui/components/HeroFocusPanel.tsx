@@ -150,10 +150,10 @@ export function HeroFocusPanel({
 														fontSize: 9,
 													}}
 												>
-													{skillStatus === "prepared" ? "preparada" :
-														skillStatus === "active" ? "ativa" :
+													{skillStatus === "prepared" ? translate("game:components.heroFocusPanel.skillPrepared") :
+														skillStatus === "active" ? translate("game:components.heroFocusPanel.skillActive") :
 														skillStatus === "available" ? translate("game:components.heroFocusPanel.dynamic001") :
-														skillStatus === "exhausted" ? "usada" : translate("game:components.heroFocusPanel.dynamic002")}
+														skillStatus === "exhausted" ? translate("game:components.heroFocusPanel.skillUsed") : translate("game:components.heroFocusPanel.dynamic002")}
 												</span>
 											</p>
 											<p
@@ -195,10 +195,10 @@ export function HeroFocusPanel({
 														fontSize: 9,
 													}}
 												>
-													{powerStatus === "prepared" ? "preparado" :
-														powerStatus === "active" ? "ativo" :
+													{powerStatus === "prepared" ? translate("game:components.heroFocusPanel.powerPrepared") :
+														powerStatus === "active" ? translate("game:components.heroFocusPanel.powerActive") :
 														powerStatus === "available" ? translate("game:components.heroFocusPanel.dynamic003") :
-														powerStatus === "exhausted" || powerUsed ? "usado" : translate("game:components.heroFocusPanel.dynamic004")}
+														powerStatus === "exhausted" || powerUsed ? translate("game:components.heroFocusPanel.powerUsed") : translate("game:components.heroFocusPanel.dynamic004")}
 												</span>
 											</p>
 											<p
@@ -221,8 +221,8 @@ export function HeroFocusPanel({
 						<p className="hero-focus-section-title">
 							{translate("game:components.heroFocusPanel.text010")}{" "}{getCardName(hero.cardId).split(" ")[0]} ·{" "}
 							{hero.backpack.length === 0
-								? "vazia"
-								: `${hero.backpack.length} ${hero.backpack.length === 1 ? "item" : "itens"}`}
+								? translate("game:components.heroFocusPanel.backpackEmpty")
+								: `${hero.backpack.length} ${hero.backpack.length === 1 ? translate("game:components.heroFocusPanel.backpackItem") : translate("game:components.heroFocusPanel.backpackItems")}`}
 						</p>
 						{hero.backpack.length > 0 && (
 							<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
@@ -278,7 +278,7 @@ export function HeroFocusPanel({
 					/>
 					{heroActions.skill?.requiresActivation && heroActions.skill.prepared && (
 						<ActionButton
-							label="Cancelar preparação"
+							label=translate("game:components.heroFocusPanel.cancelPreparation")
 							icon="✕"
 							variant="secondary"
 							onClick={() => onUseSkill?.(heroActions.skill!.skillId, hero.id, true)}
@@ -399,7 +399,7 @@ function ActionSection({
 		return (
 			<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 				<ActionButton
-					label="Usar item"
+					label={translate("game:components.heroFocusPanel.useItem")}
 					icon="🎒"
 					variant="secondary"
 					disabled={!heroActions.usableItems?.length}
@@ -409,7 +409,7 @@ function ActionSection({
 					<ActionButton
 						tutorialAnchor="hero.skill-action"
 						abilityId={skill.skillId}
-						label={skill.prepared ? (skill.requiresActivation ? "Ativar habilidade" : "Cancelar preparação") : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+						label={skill.prepared ? (skill.requiresActivation ? translate("game:components.heroFocusPanel.activateSkill") : translate("game:components.heroFocusPanel.cancelPreparation")) : skill.preparable ? translate("game:components.heroFocusPanel.prepareSkill") : translate("game:components.heroFocusPanel.skill")}
 						title={skill.reason}
 						icon="✨"
 						variant={skill.prepared ? "primary" : "secondary"}
@@ -421,7 +421,7 @@ function ActionSection({
 					<ActionButton
 						tutorialAnchor="hero.power-action"
 						abilityId={power.skillId}
-						label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
+						label={power.prepared ? translate("game:components.heroFocusPanel.cancelPreparation") : power.preparable ? translate("game:components.heroFocusPanel.preparePower") : translate("game:components.heroFocusPanel.power")}
 						title={power.reason}
 						icon="⚡"
 						variant={power.prepared ? "primary" : "secondary"}
@@ -444,14 +444,14 @@ function ActionSection({
 				</p>
 				<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 					<ActionButton
-					label="Atacar (arraste ou clique)"
+					label={translate("game:components.heroFocusPanel.attack")}
 						icon="⚔"
 						variant="primary"
 						disabled={!heroActions.canStartAttack}
 						onClick={onAttack}
 					/>
 					<ActionButton
-						label="Usar item"
+						label={translate("game:components.heroFocusPanel.useItem")}
 						icon="🎒"
 						variant="secondary"
 						disabled={!heroActions.usableItems?.length}
@@ -461,7 +461,7 @@ function ActionSection({
 						<ActionButton
 							tutorialAnchor="hero.skill-action"
 							abilityId={skill.skillId}
-							label={skill.prepared ? (skill.requiresActivation ? "Ativar habilidade" : "Cancelar preparação") : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+							label={skill.prepared ? (skill.requiresActivation ? translate("game:components.heroFocusPanel.activateSkill") : translate("game:components.heroFocusPanel.cancelPreparation")) : skill.preparable ? translate("game:components.heroFocusPanel.prepareSkill") : translate("game:components.heroFocusPanel.skill")}
 							title={skill.reason}
 							icon="✨"
 							variant={skill.prepared ? "primary" : "secondary"}
@@ -473,7 +473,7 @@ function ActionSection({
 					<ActionButton
 							tutorialAnchor="hero.power-action"
 							abilityId={power.skillId}
-							label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
+							label={power.prepared ? translate("game:components.heroFocusPanel.cancelPreparation") : power.preparable ? translate("game:components.heroFocusPanel.preparePower") : translate("game:components.heroFocusPanel.power")}
 							title={power.reason}
 						icon="⚡"
 							variant={power.prepared ? "primary" : "secondary"}
@@ -482,14 +482,14 @@ function ActionSection({
 					/>
 					)}
 					<ActionButton
-						label="Passar rodada"
+						label={translate("game:components.heroFocusPanel.passTurn")}
 						icon="⏭"
 						variant="secondary"
 						disabled
 						onClick={onPass}
 					/>
 					<ActionButton
-						label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
+						label={fleeAlreadyDeclared ? translate("game:components.heroFocusPanel.fleeDeclared") : translate("game:components.heroFocusPanel.flee")}
 						icon="🏃"
 						variant="danger"
 						disabled={!canFlee || fleeAlreadyDeclared}
@@ -503,14 +503,14 @@ function ActionSection({
 	return (
 		<div style={{ display: "flex", gap: 6, flexWrap: "wrap" }}>
 			<ActionButton
-				label="Atacar (arraste ou clique)"
+				label={translate("game:components.heroFocusPanel.attack")}
 				icon="⚔"
 				variant="primary"
 				disabled={!heroActions.canStartAttack}
 				onClick={onAttack}
 			/>
 			<ActionButton
-				label="Usar item"
+				label={translate("game:components.heroFocusPanel.useItem")}
 				icon="🎒"
 				variant="secondary"
 				disabled={!heroActions.usableItems?.length}
@@ -520,7 +520,7 @@ function ActionSection({
 				<ActionButton
 				tutorialAnchor="hero.skill-action"
 				abilityId={skill.skillId}
-				label={skill.prepared ? (skill.requiresActivation ? "Ativar habilidade" : "Cancelar preparação") : skill.preparable ? "Preparar habilidade" : "Habilidade"}
+				label={skill.prepared ? (skill.requiresActivation ? translate("game:components.heroFocusPanel.activateSkill") : translate("game:components.heroFocusPanel.cancelPreparation")) : skill.preparable ? translate("game:components.heroFocusPanel.prepareSkill") : translate("game:components.heroFocusPanel.skill")}
 				title={skill.reason}
 					icon="✨"
 					variant={skill.prepared ? "primary" : "secondary"}
@@ -532,7 +532,7 @@ function ActionSection({
 				<ActionButton
 				tutorialAnchor="hero.power-action"
 				abilityId={power.skillId}
-				label={power.prepared ? "Cancelar preparação" : power.preparable ? "Preparar poder" : "Poder"}
+				label={power.prepared ? translate("game:components.heroFocusPanel.cancelPreparation") : power.preparable ? translate("game:components.heroFocusPanel.preparePower") : translate("game:components.heroFocusPanel.power")}
 				title={power.reason}
 					icon="⚡"
 					variant={power.prepared ? "primary" : "secondary"}
@@ -541,14 +541,14 @@ function ActionSection({
 				/>
 			)}
 			<ActionButton
-				label="Passar rodada"
+				label={translate("game:components.heroFocusPanel.passTurn")}
 				icon="⏭"
 				variant="secondary"
 				disabled={!canPass}
 				onClick={onPass}
 			/>
 			<ActionButton
-				label={fleeAlreadyDeclared ? "Fuga declarada" : "Fugir"}
+				label={fleeAlreadyDeclared ? translate("game:components.heroFocusPanel.fleeDeclared") : translate("game:components.heroFocusPanel.flee")}
 				icon="🏃"
 				variant="danger"
 				disabled={!canFlee || fleeAlreadyDeclared}
@@ -556,7 +556,7 @@ function ActionSection({
 			/>
 			{canCancel && (
 				<ActionButton
-					label="Cancelar"
+					label={translate("game:components.heroFocusPanel.cancel")}
 					icon="✕"
 					variant="danger"
 					onClick={onCancelSelection}

@@ -77,7 +77,7 @@ export function CardDetailModal({
 							);
 							return (
 								<>
-									<Row label="Dano" value={String(card.damage)} />
+									<Row label={translate("game:components.modals.cardDetailModal.damage")} value={String(card.damage)} />
 									{habilidade && (
 										<div>
 											<p
@@ -123,7 +123,7 @@ export function CardDetailModal({
 							);
 							return (
 								<>
-									<Row label="Dano" value={String(card.damage)} />
+									<Row label={translate("game:components.modals.cardDetailModal.damage")} value={String(card.damage)} />
 									<Row label="XP" value={String(card.xp)} />
 									{main && (
 										<p
@@ -148,7 +148,7 @@ export function CardDetailModal({
 							const main = roomSkills[0];
 							return (
 								<>
-									<Row label="Saídas" value={String(card.exits)} />
+									<Row label={translate("game:components.modals.cardDetailModal.exits")} value={String(card.exits)} />
 									<Row label="XP" value={String(card.xp ?? 0)} />
 									{main && (
 										<p
@@ -172,7 +172,7 @@ export function CardDetailModal({
 							const canUseItem = !!onUseItem;
 							return (
 								<>
-									<Row label="Tipo" value={card.type === "ally" ? translate("game:components.inventarioGrupo.allyPermanent") : card.itemClass} />
+									<Row label={translate("game:components.modals.cardDetailModal.type")} value={card.type === "ally" ? translate("game:components.inventarioGrupo.allyPermanent") : card.itemClass} />
 									{card.type === "ally" && <Row label={translate("game:components.modals.cardDetailModal.slot")} value={translate("game:components.modals.cardDetailModal.sharedSlot")} />}
 									{(card.type === "ally" ? itemSkills : main ? [main] : []).map(({ ref }, index) => (
 										<p key={ref.skillId + ":" + index} className="text-xs" style={{ color: UI.textPrimary }}>
@@ -233,7 +233,7 @@ export function CardDetailModal({
 					{card?.type === "boss" && (
 						<>
 							<Row
-								label="Condição"
+								label={translate("game:components.modals.cardDetailModal.condition")}
 								value={getCardLocale(card.id)?.condition ?? "—"}
 							/>
 							{card.skills.map((ref) => {

@@ -200,7 +200,28 @@
       "dynamic002": "indisponível",
       "dynamic003": "disponível",
       "dynamic004": "indisponível",
-      "escapeHint": "Pressione Esc para fechar"
+      "escapeHint": "Pressione Esc para fechar",
+      "skillPrepared": "preparada",
+      "skillActive": "ativa",
+      "skillUsed": "usada",
+      "powerPrepared": "preparado",
+      "powerActive": "ativo",
+      "powerUsed": "usado",
+      "backpackEmpty": "vazia",
+      "backpackItem": "item",
+      "backpackItems": "itens",
+      "cancelPreparation": "Cancelar preparação",
+      "useItem": "Usar item",
+      "activateSkill": "Ativar habilidade",
+      "prepareSkill": "Preparar habilidade",
+      "skill": "Habilidade",
+      "preparePower": "Preparar poder",
+      "power": "Poder",
+      "attack": "Atacar (arraste ou clique)",
+      "passTurn": "Passar rodada",
+      "fleeDeclared": "Fuga declarada",
+      "flee": "Fugir",
+      "cancel": "Cancelar"
     },
     "hpBar": {},
     "influencePanel": {
@@ -291,7 +312,8 @@
       "recruitAlly": "Recrutar aliado",
       "replaceAlly": "Substituir amuleto/aliado",
       "artifactType": "Artefato",
-      "itemType": "Item"
+      "itemType": "Item",
+      "cannotRecruitAlly": "Este herói não pode recrutar esse aliado."
     },
     "itemChip": {
       "slotLabels": {
@@ -315,7 +337,11 @@
         "text004": "Usar",
         "text005": "Carta não encontrada no catálogo.",
         "slot": "Espaço",
-        "sharedSlot": "Amuleto / Aliado — exclusivo"
+        "sharedSlot": "Amuleto / Aliado — exclusivo",
+        "damage": "Dano",
+        "exits": "Saídas",
+        "type": "Tipo",
+        "condition": "Condição"
       },
       "dungeonExhaustedModal": {
         "title001": "Deck de dungeon vazio",

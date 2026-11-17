@@ -198,7 +198,28 @@
       "dynamic002": "unavailable",
       "dynamic003": "available",
       "dynamic004": "unavailable",
-      "escapeHint": "Press Esc to close"
+      "escapeHint": "Press Esc to close",
+      "skillPrepared": "prepared",
+      "skillActive": "active",
+      "skillUsed": "used",
+      "powerPrepared": "prepared",
+      "powerActive": "active",
+      "powerUsed": "used",
+      "backpackEmpty": "empty",
+      "backpackItem": "item",
+      "backpackItems": "items",
+      "cancelPreparation": "Cancel preparation",
+      "useItem": "Use item",
+      "activateSkill": "Activate ability",
+      "prepareSkill": "Prepare ability",
+      "skill": "Ability",
+      "preparePower": "Prepare power",
+      "power": "Power",
+      "attack": "Attack (drag or click)",
+      "passTurn": "Pass turn",
+      "fleeDeclared": "Escape declared",
+      "flee": "Flee",
+      "cancel": "Cancel"
     },
     "hpBar": {},
     "influencePanel": {
@@ -289,7 +310,8 @@
       "recruitAlly": "Recruit ally",
       "replaceAlly": "Replace amulet/ally",
       "artifactType": "Artifact",
-      "itemType": "Item"
+      "itemType": "Item",
+      "cannotRecruitAlly": "This hero cannot recruit that ally."
     },
     "itemChip": {
       "slotLabels": {
@@ -313,7 +335,11 @@
         "text004": "Use",
         "text005": "Card not found in the catalog.",
         "slot": "Slot",
-        "sharedSlot": "Amulet / Ally — exclusive"
+        "sharedSlot": "Amulet / Ally — exclusive",
+        "damage": "Damage",
+        "exits": "Exits",
+        "type": "Type",
+        "condition": "Condition"
       },
       "dungeonExhaustedModal": {
         "title001": "Dungeon deck empty",
