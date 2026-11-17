@@ -78,7 +78,11 @@ export function reconcileEquipmentMaximumLife(
 	let next = after;
 	const index = awakeningOf(after);
 	for (const hero of gameOf(after).heroes) {
-		const previous = gameOf(before).heroes.find((entry) => entry.id === hero.id);
+		const previous = [
+			...gameOf(before).heroes,
+			...gameOf(before).fledHeroes,
+			...gameOf(before).defeatedHeroes,
+		].find((entry) => entry.id === hero.id);
 		if (!previous) continue;
 		const delta = equippedMaximumLifeBonus(engine, hero, index) -
 			equippedMaximumLifeBonus(engine, previous, awakeningOf(before));
