@@ -3,6 +3,7 @@ const TYPE_COLORS: Record<string, string> = {
 	enemy: "#C7C0C0",
 	room: "#C7C9D3",
 	item: "#C3CFC3",
+	ally: "#C9DBF1",
 	artifact: "#D3C9E0",
 	boss: "#C0B8B8",
 };
@@ -12,6 +13,7 @@ const TYPE_SYMBOL: Record<string, string> = {
 	enemy: "👾",
 	room: "🚪",
 	item: "🎒",
+	ally: "🐎",
 	artifact: "💎",
 	boss: "🐲",
 };
