@@ -279,7 +279,8 @@
         "clothing2": "clothing",
         "hand1": "hand",
         "hand2": "hand",
-        "amulet": "amulet"
+        "amulet": "amulet",
+        "ally": "ally"
       }
     },
     "itemTile": {},
