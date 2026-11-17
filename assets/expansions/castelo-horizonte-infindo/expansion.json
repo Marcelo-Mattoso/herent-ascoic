@@ -1,7 +1,7 @@
 {
   "id": "castelo-horizonte-infindo",
   "name": "O Castelo do Horizonte Infindo",
-  "version": "0.1.0",
+  "version": "1.0.0",
   "boss": "boss.json",
   "cards": [
     {
@@ -30,7 +30,15 @@
         3,
         3
       ],
-      "skills": []
+      "skills": [
+        {
+          "skillId": "castle_skill_sunset_precision"
+        },
+        {
+          "skillId": "castle_power_sunset_lance"
+        }
+      ],
+      "image": "images/hero_sunset_spear.webp"
     },
     {
       "id": "hero_dry_wind_knight",
@@ -58,7 +66,15 @@
         3,
         3
       ],
-      "skills": []
+      "skills": [
+        {
+          "skillId": "castle_skill_dry_wind_step"
+        },
+        {
+          "skillId": "castle_power_dry_wind_charge"
+        }
+      ],
+      "image": "images/hero_dry_wind_knight.webp"
     },
     {
       "id": "hero_plains_wanderer",
@@ -86,7 +102,21 @@
         3,
         3
       ],
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_illuminate_path",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "power_restored_path",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/hero_plains_wanderer.webp"
     },
     {
       "id": "hero_broken_horizon_son",
@@ -114,7 +144,15 @@
         3,
         3
       ],
-      "skills": []
+      "skills": [
+        {
+          "skillId": "castle_skill_last_bastion_guard"
+        },
+        {
+          "skillId": "castle_power_last_bastion_oath"
+        }
+      ],
+      "image": "images/hero_broken_horizon_son.webp"
     },
     {
       "id": "creature_dry_steppes_hyena",
@@ -145,7 +183,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_dry_steppes_hyena.webp"
     },
     {
       "id": "creature_cutting_wind_jackal",
@@ -176,7 +222,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_pack_courage",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_cutting_wind_jackal.webp"
     },
     {
       "id": "creature_open_carrion_vulture",
@@ -207,7 +261,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_open_carrion_vulture.webp"
     },
     {
       "id": "creature_hidden_granary_goblin",
@@ -238,7 +300,12 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_cowardly_flee"
+        }
+      ],
+      "image": "images/creature_hidden_granary_goblin.webp"
     },
     {
       "id": "creature_ruin_thief_monkey",
@@ -269,7 +336,12 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_rift_evasion"
+        }
+      ],
+      "image": "images/creature_ruin_thief_monkey.webp"
     },
     {
       "id": "creature_high_grass_raider",
@@ -300,7 +372,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_high_grass_raider.webp"
     },
     {
       "id": "creature_red_dust_scout",
@@ -331,7 +411,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_group_command_accuracy",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_red_dust_scout.webp"
     },
     {
       "id": "creature_steppes_spearman",
@@ -362,7 +450,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_pack_courage",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_steppes_spearman.webp"
     },
     {
       "id": "creature_cruel_horizon_archer",
@@ -393,7 +489,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_cruel_horizon_archer.webp"
     },
     {
       "id": "creature_plains_hyena_rider",
@@ -424,7 +528,15 @@
       ],
       "reward": 2,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_plains_hyena_rider.webp"
     },
     {
       "id": "creature_cold_dunes_gnoll",
@@ -455,7 +567,15 @@
       ],
       "reward": 2,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_treacherous_attack",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_cold_dunes_gnoll.webp"
     },
     {
       "id": "creature_wild_meadow_bull",
@@ -486,7 +606,15 @@
       ],
       "reward": 2,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_wild_meadow_bull.webp"
     },
     {
       "id": "creature_unburied_wind_spirit",
@@ -517,7 +645,12 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_rift_evasion"
+        }
+      ],
+      "image": "images/creature_unburied_wind_spirit.webp"
     },
     {
       "id": "creature_bloody_trails_centaur",
@@ -548,7 +681,15 @@
       ],
       "reward": 2,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_bloody_trails_centaur.webp"
     },
     {
       "id": "creature_lost_barracks_hobgoblin",
@@ -579,7 +720,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_group_command_accuracy",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_lost_barracks_hobgoblin.webp"
     },
     {
       "id": "creature_quarry_bearman",
@@ -610,7 +759,15 @@
       ],
       "reward": 2,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_quarry_bearman.webp"
     },
     {
       "id": "creature_wall_apeman",
@@ -641,7 +798,15 @@
       ],
       "reward": 1,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_group_command_protection",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_wall_apeman.webp"
     },
     {
       "id": "creature_stone_guard_centaur",
@@ -672,7 +837,15 @@
       ],
       "reward": 2,
       "rewardType": "item",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_group_command_protection",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/creature_stone_guard_centaur.webp"
     },
     {
       "id": "subboss_cruel_herd_champion",
@@ -703,7 +876,15 @@
       ],
       "reward": 1,
       "rewardType": "artifact",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_lone_beast",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/subboss_cruel_herd_champion.webp"
     },
     {
       "id": "subboss_tribute_hobgoblin_marshal",
@@ -734,43 +915,1290 @@
       ],
       "reward": 1,
       "rewardType": "artifact",
-      "skills": []
+      "skills": [
+        {
+          "skillId": "skill_group_command_accuracy",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/subboss_tribute_hobgoblin_marshal.webp"
+    },
+    {
+      "id": "room_broken_castle_gate",
+      "type": "room",
+      "name": "Portão Quebrado do Castelo",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_empty_room"
+        }
+      ],
+      "image": "images/room_broken_castle_gate.webp"
+    },
+    {
+      "id": "room_cold_wind_corridor",
+      "type": "room",
+      "name": "Corredor do Vento Frio",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_environment_darkness",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/room_cold_wind_corridor.webp"
+    },
+    {
+      "id": "room_ruined_stable",
+      "type": "room",
+      "name": "Estábulo em Ruínas",
+      "exits": 3,
+      "enemiesByPlayers": [
+        0,
+        1,
+        2,
+        2
+      ],
+      "xp": 1,
+      "reward": 2,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_forge_spoils"
+        }
+      ],
+      "image": "images/room_ruined_stable.webp"
+    },
+    {
+      "id": "room_dry_well_chamber",
+      "type": "room",
+      "name": "Câmara do Poço Seco",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 1,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_environment_darkness",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/room_dry_well_chamber.webp"
+    },
+    {
+      "id": "room_torn_banners_hall",
+      "type": "room",
+      "name": "Salão das Bandeiras Rasgadas",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        3
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_empty_room"
+        }
+      ],
+      "image": "images/room_torn_banners_hall.webp"
+    },
+    {
+      "id": "room_cracked_stone_courtyard",
+      "type": "room",
+      "name": "Pátio de Pedra Rachada",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_empty_room"
+        }
+      ],
+      "image": "images/room_cracked_stone_courtyard.webp"
+    },
+    {
+      "id": "room_fallen_watchtower",
+      "type": "room",
+      "name": "Torre de Vigia Caída",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_environment_darkness",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/room_fallen_watchtower.webp"
+    },
+    {
+      "id": "room_dead_archers_passage",
+      "type": "room",
+      "name": "Passagem dos Arqueiros Mortos",
+      "exits": 2,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_dead_torches"
+        }
+      ],
+      "image": "images/room_dead_archers_passage.webp"
+    },
+    {
+      "id": "room_lost_tributes_warehouse",
+      "type": "room",
+      "name": "Armazém dos Tributos Perdidos",
+      "exits": 3,
+      "enemiesByPlayers": [
+        1,
+        2,
+        2,
+        3
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_forge_spoils"
+        }
+      ],
+      "image": "images/room_lost_tributes_warehouse.webp"
+    },
+    {
+      "id": "room_corrupted_watch_gallery",
+      "type": "room",
+      "name": "Galeria da Vigília Corrompida",
+      "exits": 1,
+      "enemiesByPlayers": [
+        1,
+        2,
+        3,
+        4
+      ],
+      "xp": 2,
+      "reward": 1,
+      "rewardType": "item",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_resonant_pressure",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "dungeon_skill_environment_darkness",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/room_corrupted_watch_gallery.webp"
+    },
+    {
+      "id": "subboss_room_cruel_herd_arena",
+      "type": "subboss_room",
+      "name": "Arena da Manada Cruel",
+      "exits": 1,
+      "xp": 4,
+      "reward": 1,
+      "rewardType": "artifact",
+      "linkedSubbossId": "subboss_cruel_herd_champion",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_subboss_room"
+        }
+      ],
+      "image": "images/subboss_room_cruel_herd_arena.webp"
+    },
+    {
+      "id": "subboss_room_bloody_tributes_chancellery",
+      "type": "subboss_room",
+      "name": "Chancelaria dos Tributos Sangrentos",
+      "exits": 1,
+      "xp": 4,
+      "reward": 1,
+      "rewardType": "artifact",
+      "linkedSubbossId": "subboss_tribute_hobgoblin_marshal",
+      "skills": [
+        {
+          "skillId": "dungeon_skill_subboss_room"
+        }
+      ],
+      "image": "images/subboss_room_bloody_tributes_chancellery.webp"
+    },
+    {
+      "id": "item_plains_short_spear",
+      "type": "item",
+      "name": "Lança Curta das Planícies",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_accuracy",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "item_skill_equipped_damage",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/item_plains_short_spear.webp"
+    },
+    {
+      "id": "item_dried_war_bow",
+      "type": "item",
+      "name": "Arco de Guerra Ressecado",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_accuracy",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "image": "images/item_dried_war_bow.webp"
+    },
+    {
+      "id": "item_serrated_hunting_knife",
+      "type": "item",
+      "name": "Faca de Caça Serrilhada",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_accuracy",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "castle_skill_serrated_bleed"
+        }
+      ],
+      "image": "images/item_serrated_hunting_knife.webp"
+    },
+    {
+      "id": "item_quarry_hammer",
+      "type": "item",
+      "name": "Martelo das Pedreiras",
+      "itemClass": "equipment",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_damage",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "image": "images/item_quarry_hammer.webp"
+    },
+    {
+      "id": "item_hobgoblin_barracks_buckler",
+      "type": "item",
+      "name": "Broquel do Quartel Hobgoblin",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_protection",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/item_hobgoblin_barracks_buckler.webp"
+    },
+    {
+      "id": "item_last_bastion_shield",
+      "type": "item",
+      "name": "Escudo do Último Bastião",
+      "itemClass": "equipment",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_protection",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "castle_skill_last_bastion_shield"
+        }
+      ],
+      "image": "images/item_last_bastion_shield.webp"
+    },
+    {
+      "id": "item_pale_dust_cloak",
+      "type": "item",
+      "name": "Manto de Poeira Clara",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_illumination_against_darkness",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/item_pale_dust_cloak.webp"
+    },
+    {
+      "id": "item_fallen_rider_bracer",
+      "type": "item",
+      "name": "Braçadeira do Cavaleiro Caído",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_accuracy",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/item_fallen_rider_bracer.webp"
+    },
+    {
+      "id": "item_forgotten_watch_cuirass",
+      "type": "item",
+      "name": "Couraça da Vigília Esquecida",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_protection",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/item_forgotten_watch_cuirass.webp"
+    },
+    {
+      "id": "item_smuggler_boots",
+      "type": "item",
+      "name": "Botas do Contrabandista",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "skill_preserved_path"
+        }
+      ],
+      "image": "images/item_smuggler_boots.webp"
+    },
+    {
+      "id": "item_resonance_engineer_hood",
+      "type": "item",
+      "name": "Capuz do Engenheiro Ressonante",
+      "itemClass": "equipment",
+      "equipmentSlot": "clothing",
+      "skills": [
+        {
+          "skillId": "item_skill_illumination_against_darkness",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/item_resonance_engineer_hood.webp"
+    },
+    {
+      "id": "item_traveler_water_skin",
+      "type": "item",
+      "name": "Odre de Água do Viajante",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "castle_item_water_restore"
+        }
+      ],
+      "grants": [
+        {
+          "id": "castle_use_water",
+          "abilityId": "castle_item_water_restore",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_target",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "image": "images/item_traveler_water_skin.webp"
+    },
+    {
+      "id": "item_long_breath_potion",
+      "type": "item",
+      "name": "Poção de Fôlego Longo",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "castle_item_long_breath"
+        }
+      ],
+      "grants": [
+        {
+          "id": "castle_use_long_breath",
+          "abilityId": "castle_item_long_breath",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "image": "images/item_long_breath_potion.webp"
+    },
+    {
+      "id": "item_captive_light_vial",
+      "type": "item",
+      "name": "Frasco de Luz Aprisionada",
+      "itemClass": "consumable",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "castle_item_captive_light"
+        }
+      ],
+      "grants": [
+        {
+          "id": "castle_use_captive_light",
+          "abilityId": "castle_item_captive_light",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "discard",
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "image": "images/item_captive_light_vial.webp"
+    },
+    {
+      "id": "item_small_war_drum",
+      "type": "item",
+      "name": "Tambor de Guerra Pequeno",
+      "itemClass": "utility",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "castle_item_small_war_drum"
+        }
+      ],
+      "grants": [
+        {
+          "id": "castle_use_war_drum",
+          "abilityId": "castle_item_small_war_drum",
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "none",
+            "limit": {
+              "scope": "room",
+              "maxUses": 1
+            },
+            "targeting": {
+              "targetType": "tgt_self",
+              "affectScope": "scp_single",
+              "affectObject": "obj_friend"
+            }
+          }
+        }
+      ],
+      "image": "images/item_small_war_drum.webp"
+    },
+    {
+      "id": "item_last_watcher_lantern",
+      "type": "item",
+      "name": "Lanterna do Último Vigia",
+      "itemClass": "utility",
+      "equipmentSlot": "one_hand",
+      "skills": [
+        {
+          "skillId": "item_skill_illumination_against_darkness",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/item_last_watcher_lantern.webp"
+    },
+    {
+      "id": "item_broken_bronze_horseshoe",
+      "type": "item",
+      "name": "Ferradura de Bronze Partida",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "item_broken_bronze_horseshoe_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "image": "images/item_broken_bronze_horseshoe.webp"
+    },
+    {
+      "id": "item_broken_horizon_map",
+      "type": "item",
+      "name": "Mapa do Horizonte Partido",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "item_broken_horizon_map_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "image": "images/item_broken_horizon_map.webp"
+    },
+    {
+      "id": "item_helva_alta_sealed_coffer",
+      "type": "item",
+      "name": "Cofre Lacrado de Helva Alta",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "item_helva_alta_sealed_coffer_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "image": "images/item_helva_alta_sealed_coffer.webp"
+    },
+    {
+      "id": "item_lost_watch_spoils",
+      "type": "item",
+      "name": "Espólio da Vigília Perdida",
+      "itemClass": "special",
+      "equipmentSlot": "two_hands",
+      "skills": [
+        {
+          "skillId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "grants": [
+        {
+          "id": "item_lost_watch_spoils_mystic_draw",
+          "abilityId": "item_skill_mystic_draw",
+          "params": {
+            "value": 1
+          },
+          "activation": {
+            "kind": "manual",
+            "actionCost": "none",
+            "consumeSource": "remove",
+            "usableFromReward": true,
+            "targeting": {
+              "targetType": "tgt_item",
+              "affectScope": "scp_none",
+              "affectObject": "obj_all"
+            }
+          }
+        }
+      ],
+      "image": "images/item_lost_watch_spoils.webp"
+    },
+    {
+      "id": "ally_guardian_centaur",
+      "type": "ally",
+      "name": "Centauro Guardião",
+      "equipmentSlot": "ally",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_max_life",
+          "params": {
+            "value": 6
+          }
+        }
+      ],
+      "image": "images/ally_guardian_centaur.webp"
+    },
+    {
+      "id": "ally_steppes_warhorse",
+      "type": "ally",
+      "name": "Corcel das Estepes",
+      "equipmentSlot": "ally",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_accuracy",
+          "params": {
+            "value": 2
+          }
+        }
+      ],
+      "image": "images/ally_steppes_warhorse.webp"
+    },
+    {
+      "id": "ally_plains_warhound",
+      "type": "ally",
+      "name": "Cão de Guerra das Planícies",
+      "equipmentSlot": "ally",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_damage",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/ally_plains_warhound.webp"
+    },
+    {
+      "id": "ally_wind_mare",
+      "type": "ally",
+      "name": "Égua dos Ventos",
+      "equipmentSlot": "ally",
+      "skills": [
+        {
+          "skillId": "item_skill_equipped_accuracy",
+          "params": {
+            "value": 1
+          }
+        },
+        {
+          "skillId": "item_skill_equipped_protection",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/ally_wind_mare.webp"
+    },
+    {
+      "id": "ally_pack_donkey",
+      "type": "ally",
+      "name": "Jumento de Carga",
+      "equipmentSlot": "ally",
+      "skills": [
+        {
+          "skillId": "item_skill_room_damage_protection",
+          "params": {
+            "value": 1
+          }
+        }
+      ],
+      "image": "images/ally_pack_donkey.webp"
+    },
+    {
+      "id": "ally_horizon_scout",
+      "type": "ally",
+      "name": "Batedor do Horizonte",
+      "equipmentSlot": "ally",
+      "skills": [
+        {
+          "skillId": "castle_skill_horizon_scout_ward"
+        }
+      ],
+      "image": "images/ally_horizon_scout.webp"
     },
     {
       "id": "artifact_infinite_wind_bow",
       "type": "artifact",
       "name": "Arco do Vento Infindo",
       "countsAs": "artifact",
-      "skills": []
+      "skills": [],
+      "image": "images/artifact_infinite_wind_bow.webp"
     },
     {
       "id": "artifact_first_steppes_knight_helm",
       "type": "artifact",
       "name": "Elmo do Primeiro Cavaleiro das Estepes",
       "countsAs": "artifact",
-      "skills": []
+      "skills": [],
+      "image": "images/artifact_first_steppes_knight_helm.webp"
     },
     {
       "id": "artifact_forgotten_castle_banner",
       "type": "artifact",
       "name": "Estandarte do Castelo Esquecido",
       "countsAs": "artifact",
-      "skills": []
+      "skills": [],
+      "image": "images/artifact_forgotten_castle_banner.webp"
     },
     {
       "id": "artifact_unbroken_crest",
       "type": "artifact",
       "name": "Brasão dos Inquebráveis",
       "countsAs": "artifact",
-      "skills": []
+      "skills": [],
+      "image": "images/artifact_unbroken_crest.webp"
     },
     {
       "id": "artifact_broken_watch_shackle",
       "type": "artifact",
       "name": "Grilhão da Vigília Partida",
       "countsAs": "artifact",
-      "skills": []
+      "skills": [],
+      "image": "images/artifact_broken_watch_shackle.webp"
     }
   ],
-  "skills": []
+  "skills": [
+    {
+      "id": "castle_skill_sunset_precision",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "until_end_of_combat"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_power_sunset_lance",
+      "category": "hero_power",
+      "operate_type": "op_active_buff",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "cooldown": {
+        "scope": "game",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_dealt",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "until_end_of_combat"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_skill_dry_wind_step",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "trigger": {
+        "event": "evt_targeted"
+      },
+      "cooldown": {
+        "scope": "room",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_power_dry_wind_charge",
+      "category": "hero_power",
+      "operate_type": "op_active_buff",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "cooldown": {
+        "scope": "game",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 2,
+          "duration": {
+            "kind": "until_end_of_combat"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_skill_last_bastion_guard",
+      "category": "hero_skill",
+      "operate_type": "op_triggered",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "round",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_power_last_bastion_oath",
+      "category": "hero_power",
+      "operate_type": "op_active_buff",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "cooldown": {
+        "scope": "game",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "all_heroes",
+          "as": "$hero",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_damage_reduction",
+              "operation": "add",
+              "value": 1,
+              "duration": {
+                "kind": "until_end_of_round"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "castle_skill_horizon_scout_ward",
+      "category": "item_skill",
+      "operate_type": "op_triggered",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "combat",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_skill_serrated_bleed",
+      "category": "item_skill",
+      "operate_type": "op_triggered",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "trigger": {
+        "event": "evt_hit"
+      },
+      "effect": [
+        {
+          "kind": "i_apply_damage_over_time",
+          "to": "$target",
+          "status": "bleed",
+          "effectId": "castle_skill_serrated_bleed",
+          "damage": 1,
+          "rounds": 2,
+          "increaseOverTime": false,
+          "decreaseOverTime": false
+        }
+      ]
+    },
+    {
+      "id": "castle_skill_last_bastion_shield",
+      "category": "item_skill",
+      "operate_type": "op_triggered",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "trigger": {
+        "event": "evt_damage_taken"
+      },
+      "cooldown": {
+        "scope": "combat",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_damage_reduction",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_item_water_restore",
+      "category": "item_skill",
+      "operate_type": "op_active",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_heal",
+          "to": "$target",
+          "amount": 2
+        }
+      ]
+    },
+    {
+      "id": "castle_item_long_breath",
+      "category": "item_skill",
+      "operate_type": "op_active_buff",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_self",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$source",
+          "stat": "s_hit_bonus",
+          "operation": "add",
+          "value": 1,
+          "duration": {
+            "kind": "until_end_of_combat"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_item_captive_light",
+      "category": "item_skill",
+      "operate_type": "op_active_buff",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "all_heroes",
+          "as": "$hero",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_hit_bonus",
+              "operation": "add",
+              "value": 1,
+              "duration": {
+                "kind": "until_end_of_combat"
+              }
+            }
+          ]
+        }
+      ]
+    },
+    {
+      "id": "castle_item_small_war_drum",
+      "category": "item_skill",
+      "operate_type": "op_active_buff",
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_party_full",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "all_heroes",
+          "as": "$hero",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_hit_bonus",
+              "operation": "add",
+              "value": 1,
+              "duration": {
+                "kind": "until_end_of_round"
+              }
+            }
+          ]
+        }
+      ]
+    }
+  ],
+  "skillLocales": {
+    "castle_skill_sunset_precision": {
+      "name": "Olhar do Poente",
+      "text": "No início de cada combate, recebe +1 de Acerto até o fim do combate."
+    },
+    "castle_power_sunset_lance": {
+      "name": "Golpe do Poente",
+      "text": "Uma vez por partida, recebe +2 de Dano durante um combate."
+    },
+    "castle_skill_dry_wind_step": {
+      "name": "Passo do Vento Seco",
+      "text": "Uma vez por sala, reduz em 1 o próximo dano recebido ao ser alvo de um ataque."
+    },
+    "castle_power_dry_wind_charge": {
+      "name": "Impulso da Campina",
+      "text": "Uma vez por partida, recebe +2 de Acerto até o fim do combate."
+    },
+    "castle_skill_last_bastion_guard": {
+      "name": "Guarda do Horizonte",
+      "text": "Uma vez por rodada, reduz em 1 o próximo dano recebido."
+    },
+    "castle_power_last_bastion_oath": {
+      "name": "Juramento do Último Bastião",
+      "text": "Uma vez por partida, o grupo recebe +1 de Proteção até o fim da rodada."
+    },
+    "castle_skill_horizon_scout_ward": {
+      "name": "Aviso do Batedor",
+      "text": "Uma vez por combate, reduz em 1 o próximo dano recebido. A janela exata do primeiro ataque será avaliada no audit."
+    },
+    "castle_skill_serrated_bleed": {
+      "name": "Corte Serrilhado",
+      "text": "Ao acertar, aplica Sangramento de 1 dano por rodada durante 2 rodadas."
+    },
+    "castle_skill_last_bastion_shield": {
+      "name": "Última Defesa",
+      "text": "Uma vez por combate, reduz em 1 o próximo dano recebido."
+    },
+    "castle_item_water_restore": {
+      "name": "Água Revigorante",
+      "text": "Recupera 2 de Vida de um herói e descarta o odre."
+    },
+    "castle_item_long_breath": {
+      "name": "Fôlego Longo",
+      "text": "Recebe +1 de Acerto até o fim do combate. Consome a poção."
+    },
+    "castle_item_captive_light": {
+      "name": "Luz Aprisionada",
+      "text": "O grupo recebe +1 de Acerto durante um combate. Descarta o frasco."
+    },
+    "castle_item_small_war_drum": {
+      "name": "Toque de Guerra",
+      "text": "Uma vez por sala, o grupo recebe +1 de Acerto até o fim da rodada."
+    }
+  }
 }
