@@ -1,72 +1,47 @@
-# O Castelo do Horizonte Infindo — expansão em preparação
+# O Castelo do Horizonte Infindo — integração de playtest
 
-## Estado atual
+## Pacote habilitado
 
-Pacote criado a partir de `dev` para receber os atributos, habilidades, artes e a integração da expansão.
+A expansão **O Castelo do Horizonte Infindo** está registrada com `enabled: true` em `assets/expansions/config.json` **nesta branch** (`codex/expansao-castelo-horizonte-infindo-20261116`). Isso não altera `dev`, `hml` ou `main` até que a branch seja integrada.
 
-**Ainda não está ativado em `assets/expansions/config.json`**. Isso é intencional: o catálogo completo, as imagens e as habilidades estão em produção e não devem afetar as aventuras existentes.
+- `expansion.json`: **67 cartas**, sendo 4 heróis humanos, 18 criaturas (5×1 XP, 8×2 XP, 5×3 XP), 2 subchefes (4 XP), 10 salas comuns, 2 salas de subchefes, 20 itens, 6 aliados e 5 artefatos.
+- `boss.json`: **Therion, Rei do Horizonte Infindo** — 68ª carta, com quatro habilidades exclusivas e cinco neutralizações por artefatos.
+- `images/`: **68 WebPs** válidos e vinculados às 68 cartas; os 68 PNGs originais estão em `imagedata/cards/expansions/castelo-horizonte-infindo/`.
+- `ART_REPORT.md` documenta a produção e nomes exatos das artes.
+- `ABILITIES_HANDOFF.md` documenta o motor genérico entregue, inclusive a mecânica de aliados, escuridão e engenharia ressonante.
 
-### Conteúdo já cadastrado
+## Regras preservadas
 
-- `expansion.json`: **4 heróis humanos, 18 criaturas, 2 subchefes e 5 artefatos** — 29 cartas cadastradas (atributos preliminares nas unidades, efeitos dos artefatos sobre Therion já vinculados).
-- `boss.json`: **Therion, Rei do Horizonte Infindo** — ficha natural 20 de Vida-base, 11 de Acerto-base, 5 de Dano e 3 dados; com ritual +6 Vida, +4 Acerto, +2 Dano; requer 3 artefatos e escala +2 de Vida/+1 de Acerto por nível de Despertar.
-- Distribuição das criaturas: **5 fáceis (1 XP), 8 médias (2 XP), 5 difíceis (3 XP)**.
-- Subchefes: **Campeão da Manada Cruel** e **Marechal Hobgoblin dos Tributos**, ambos de 4 XP, 1 artefato como recompensa.
+**Aliados:** `type: "ally"`, um slot específico por herói, nunca guardáveis na mochila. Um aliado não recrutado é descartado definitivamente, e o motor impede seu retorno na mesma partida. Substituir o aliado atual também dispensa o antigo.
 
-Atributos `life`, `hitBonus` e `diceByColor` usam cinco posições na ordem **Branco / Amarelo / Laranja / Vermelho / Roxo**. O campo `damage` é fixo antes de habilidades.
+**Escuridão:** determinada por habilidade de sala (`dungeon_skill_environment_darkness`). O clima permanentemente escuro da ambientação não implica penalidade automática em cada sala; equipamentos como Lanterna do Último Vigia compensam a penalidade de acerto nas salas marcadas.
 
-As cartas de criaturas/subchefes têm `reward` e `rewardType` preenchidos. Os campos `skills` estão como arrays vazios apenas **por enquanto**, para permitir a integração posterior das habilidades sem fingir que já estão implementadas.
+**Therion:** atributos naturais de **20 Vida, 11 Acerto, 5 Dano e 3 dados**, somados aos bônus do ritual (+6 Vida, +4 Acerto, +2 Dano), antes do escalonamento (+2 Vida/+1 Acerto por Despertar). É preciso coletar **pelo menos 3 artefatos**. O grupo pode reunir até 5 para reduzir a dificuldade.
 
-## Therion — habilidades e Pedra-Matriz (design aprovado)
-
-- **Investida Real:** +2 de Acerto somente no primeiro ataque do combate (consumido após a primeira resolução).
-- **Domínio do Horizonte:** -1 de Acerto para todos os heróis ativos até o fim do combate; o **Estandarte do Castelo Esquecido** anula a habilidade.
-- **Ressonância da Pedra-Matriz:** reduz em 1 o primeiro dano recebido em cada rodada; o **Grilhão da Vigília Partida** anula a habilidade.
-- **Última Conquista:** +2 de Acerto quando Therion estiver com metade da Vida ou menos; não acumula nem é anulada.
-
-O ritual acrescenta +6 Vida, +4 Acerto e +2 Dano à ficha natural de Therion. O grupo pode neutralizar:
-
-| Artefato | Efeito sobre Therion |
+| Artefato | Neutralização |
 | --- | --- |
-| Arco do Vento Infindo | Neutraliza +4 de Acerto do ritual |
-| Elmo do Primeiro Cavaleiro das Estepes | Neutraliza +2 de Dano do ritual |
-| Brasão dos Inquebráveis | Neutraliza +6 de Vida do ritual |
+| Arco do Vento Infindo | Remove +4 de Acerto do ritual |
+| Elmo do Primeiro Cavaleiro das Estepes | Remove +2 de Dano do ritual |
+| Brasão dos Inquebráveis | Remove +6 de Vida do ritual |
 | Estandarte do Castelo Esquecido | Anula Domínio do Horizonte |
 | Grilhão da Vigília Partida | Anula Ressonância da Pedra-Matriz |
 
-A neutralização depende apenas de **o grupo possuir o artefato**. Os bônus naturais e de Despertar não são reduzidos, e um artefato não anula outras habilidades não especificadas.
+**Habilidades de Therion:** Investida Real (+2 Acerto no primeiro ataque), Domínio do Horizonte (−1 Acerto dos heróis), Ressonância da Pedra-Matriz (−1 no primeiro dano recebido por rodada) e Última Conquista (+2 Acerto com metade da vida ou menos, sem acumular).
 
-Implementação genérica: `BossCard.ritualBonuses`, `BossCard.artifactCounters` e `src/core/rules/bossRitual.ts`. A expansão permanece desativada até ficar completa, preservando o comportamento das demais.
+## Habilidades ligadas na integração
 
-## Conteúdo a completar antes de ativar
+- Itens e aliados utilizam os efeitos genéricos já implementados (`item_skill_equipped_* `, `item_skill_room_damage_protection`, `item_skill_illumination_against_darkness`, `item_skill_mystic_draw`).
+- Comandantes utilizam `skill_group_command_accuracy` ou `skill_group_command_protection`; algumas criaturas reutilizam emboscadas, esquiva e a habilidade `skill_lone_beast`.
+- As quatro fichas de herói têm habilidades/poderes para o primeiro playtest (o Andarilho reutiliza os existentes `skill_illuminate_path` e `power_restored_path`).
+- Foram adicionados efeitos declarativos próprios para Sangramento da Faca Serrilhada, Frasco de Luz, Tambor de Guerra, poções e proteção de ataque dos equipamentos.
 
-- [ ] Integrar as artes PNG/WebP de heróis, criaturas, subchefes e Therion.
-- [ ] Vincular cada `image: "images/<arquivo>.webp"` quando o arquivo correspondente existir.
-- [ ] Incorporar as definições e referências das habilidades produzidas na conversa/branch especializada.
-- [ ] Criar 10 salas comuns e 2 salas de subchefes.
-- [ ] Criar 26 recompensas: 4 armas, 2 escudos, 5 vestimentas, 3 consumíveis, 2 utilitários, 4 especiais com Saque Mágico e 6 aliados.
-- [x] Cadastrar 5 artefatos e seus efeitos neutralizadores sobre Therion.
-- [ ] Completar os benefícios próprios dos 5 artefatos para os heróis (ficam sem skill até aprovação/integração das habilidades).
-- [ ] Implementar/confirmar suporte genérico para cartas `type: "ally"`, slot exclusivo, bônus passivos e efeitos ambientais.
-- [ ] Incluir textos, abertura, localização e referências de imagens.
-- [ ] Adicionar `castelo-horizonte-infindo` a `assets/expansions/config.json` somente quando o pacote completo estiver pronto.
-- [ ] Rodar o `audit` e ajustes de balanceamento **localmente**, por decisão do responsável pelo projeto.
+### Atenção no audit local
 
-## Diretrizes de balanceamento
+1. O **Batedor do Horizonte** usa proteção no primeiro dano recebido durante o combate (`castle_skill_horizon_scout_ward`); isso representa uma aproximação da habilidade de primeiro ataque e exige auditoria das janelas de combate.
+2. Os benefícios dos **cinco artefatos** estão concentrados no enfraquecimento de Therion. Não foram adicionados bônus extras para heróis, para evitar superar o balanceamento da Bruxa antes do audit.
+3. A quantidade de Vida elevada do **Homem-Urso das Pedreiras** deve ser avaliada quanto à duração das partidas; não adicionamos blindagem fixa extra.
+4. Algumas habilidades e os parâmetros dos itens e heróis foram associados como base inicial do playtest e podem ser refinados após o relatório de leveling.
+5. As salas vinculam efeitos de escuridão, pressão ressonante, Saque Mágico e efeitos da Fornalha quando reutilizáveis.
+6. Não foi introduzida uma abertura cinematográfica nova, pois o pacote de artes não inclui imagens de `abertura/intro.json`. O jogo deverá iniciar pela seleção normal até produção posterior.
 
-- O Castelo prioriza criaturas de vida elevada, dano moderado e funções táticas.
-- O **Homem-Urso das Pedreiras** é tanque por **vida elevada e acerto baixo**; não lhe acrescentar bloqueio permanente sem discutir o impacto no audit.
-- O **Marechal Hobgoblin dos Tributos** deve representar controle e comando, não dano bruto.
-- **Therion** deve se destacar pelas habilidades ligadas ao ritual e à Pedra-Matriz; não mudar seus atributos-base sem análise.
-- Os quatro heróis devem permanecer **humanos**.
-- Os seis aliados são uma mecânica própria; não substituir os talismãs das expansões antigas.
-- Aliados nunca podem ser guardados na mochila: devem ser recrutados imediatamente ou descartados. Ao substituir ou dispensar um aliado, ele sai definitivamente da partida e não volta nem após reiniciar a masmorra.
-
-## Trabalho paralelo
-
-**Branch principal de integração:** `codex/expansao-castelo-horizonte-infindo-20261116`  
-**Base:** `dev`
-
-Para reduzir conflitos, concentrar alterações de atributos e montagem de cartas em `expansion.json`/`boss.json`. A implementação de novas habilidades e sistemas genéricos pode acontecer em branch própria, seguida de integração controlada nesta branch.
-
-Não monitorar CI/CD ou deploy após os commits.
+**Não executar CI/CD nem monitorar deploy.** O responsável pelo projeto executa build, testes e `audit` localmente.
