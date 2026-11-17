@@ -332,6 +332,40 @@ export function collectHeroDamageReductionsFromItems(engine: GameEngine,
     );
 }
 
+/**
+ * Environmental protection is separate from ordinary armor. It never changes
+ * attack damage, poison ticks, or other non-room sources.
+ */
+export function collectHeroRoomDamageReductionsFromItems(
+	engine: GameEngine,
+	hero: HeroState,
+	state: GameState,
+): ItemModifierBreakdown[] {
+	const legacy = itemSkillSourcesForHero(engine, hero, state).flatMap((source) => {
+		if (!conditionsApply(engine, source.def.conditions, state, hero)) return [];
+		return (source.def.effect ?? []).flatMap((effect) =>
+			effect.kind === "p_modifier" && effect.stat === "s_room_damage_reduction"
+				? [{ source: sourceLabel(engine, source), value: resolveNumber(effect.value, source.params, awakeningOf(state)) }]
+				: []);
+	});
+	const grants = Object.values(hero.activeItems).flatMap((itemId) => {
+		if (!itemId) return [];
+		const card = cardById(engine, itemId);
+		if (card?.type !== "item" && card?.type !== "ally") return [];
+		return (card.grants ?? []).flatMap((grant) => {
+			if (grant.activation.kind !== "continuous" ||
+				!conditionsApply(engine, grant.activation.conditions, state, hero)) return [];
+			const ability = abilityById(engine, grant.abilityId);
+			const params = { ...(ability?.defaultParams ?? {}), ...(grant.params ?? {}) };
+			return (ability?.effect ?? []).flatMap((effect) =>
+				effect.kind === "p_modifier" && effect.stat === "s_room_damage_reduction"
+					? [{ source: cardName(engine, itemId), value: resolveNumber(effect.value, params, awakeningOf(state)) }]
+					: []);
+		});
+	});
+	return [...legacy, ...grants];
+}
+
 export function totalItemValue(
 	breakdown: readonly ItemModifierBreakdown[],
 ): number {
