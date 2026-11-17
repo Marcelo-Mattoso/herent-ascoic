@@ -281,7 +281,8 @@
         "clothing2": "vestimenta",
         "hand1": "mano",
         "hand2": "mano",
-        "amulet": "amuleto"
+        "amulet": "amuleto",
+        "ally": "compañero"
       }
     },
     "itemTile": {},
