@@ -1154,8 +1154,7 @@ export function InventarioGrupo({
 						Aliados devem ser recrutados imediatamente. Não podem ir para a mochila; os dispensados ou substituídos saem definitivamente desta partida.
 					</p>
 				)}
-				<div className="inventory-card-grid">
-					{mesaItens.map((r) => {
+								<div className="inventory-card-grid">
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
 										const isMysticDraw = cardAbilityGrants(r.cardId).some((grant) =>
