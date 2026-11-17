@@ -247,6 +247,8 @@ export function handleChooseItemDestination(engine: GameEngine,
 
 	const itemId = reward.cardId;
 	const ally = isAllyCard(engine, itemId);
+	const itemCard = cardById(engine, itemId);
+	const sharedAmuletSlot = ally || (itemCard?.type === "item" && itemCard.equipmentSlot === "amulet");
 	if (ally && destination === "backpack") return state;
 	const itemName = cardName(engine, itemId);
 	if (destination === "discard") {
@@ -266,7 +268,7 @@ export function handleChooseItemDestination(engine: GameEngine,
 		itemId,
 		{ kind: "mesa" },
 		destination === "equip"
-			? { kind: "hero_equip", heroId, ...(ally ? { slotType: "ally" as const } : {}) }
+			? { kind: "hero_equip", heroId, ...(sharedAmuletSlot ? { slotType: "amulet" as const } : {}) }
 			: { kind: "hero_backpack", heroId },
 	);
 	return moved

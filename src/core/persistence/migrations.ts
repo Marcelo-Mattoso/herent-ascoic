@@ -10,7 +10,7 @@ import {
 	writePiles,
 } from "../state/zones";
 
-export const STATE_VERSION = 6;
+export const STATE_VERSION = 7;
 
 export interface SnapshotEnvelope {
 	readonly stateVersion: number;
@@ -27,6 +27,7 @@ export const MIGRATIONS: Readonly<Record<number, Migration>> = {
 	3: statsToWorld,
 	4: flatToEngineGame,
 	5: scopedFlagsToCounters,
+	6: shareAmuletEquipmentSlot,
 };
 
 // Pacote de replay guarda só o log de actions: a representação do estado não o afeta.
@@ -37,6 +38,7 @@ export const REPLAY_MIGRATIONS: Readonly<Record<number, Migration>> = {
 	3: (raw) => raw,
 	4: (raw) => raw,
 	5: (raw) => raw,
+	6: (raw) => raw,
 };
 
 function decksToZones(raw: unknown): unknown {
@@ -329,6 +331,39 @@ function scopedFlagsToCounters(raw: unknown): unknown {
 			...(combat === undefined ? {} : { combat: cleanCombat }),
 		},
 	};
+}
+
+
+/**
+ * Salva os aliados de partidas anteriores no mesmo slot de amuletos.
+ * Caso um herói carregasse ambos, preserva o amuleto na mochila (mesmo
+ * que temporariamente ultrapasse o limite) em vez de perder a carta.
+ * Novos itens só poderão entrar na mochila após liberar espaço.
+ */
+function shareAmuletEquipmentSlot(raw: unknown): unknown {
+	if (!raw || typeof raw !== "object") return raw;
+	const root = raw as { game?: Raw; engine?: unknown };
+	if (!root.game || typeof root.game !== "object") return raw;
+	const game = root.game;
+	const upgrade = (list: unknown): unknown =>
+		!Array.isArray(list) ? list : list.map((hero) => {
+			if (!hero || typeof hero !== "object") return hero;
+			const record = hero as Raw;
+			const equipment = record["activeItems"] as Record<string, string> | undefined;
+			if (!equipment?.ally) return hero;
+			const { ally, ...activeItems } = equipment;
+			const backpack = Array.isArray(record["backpack"]) ? [...record["backpack"]] : [];
+			if (activeItems.amulet && activeItems.amulet !== ally &&
+				!backpack.includes(activeItems.amulet)) backpack.push(activeItems.amulet);
+			activeItems.amulet = ally;
+			return { ...record, activeItems, backpack };
+		});
+	return { ...root, game: {
+		...game,
+		heroes: upgrade(game["heroes"]),
+		defeatedHeroes: upgrade(game["defeatedHeroes"]),
+		fledHeroes: upgrade(game["fledHeroes"]),
+	} };
 }
 
 export function isEnvelope(value: unknown): value is SnapshotEnvelope {

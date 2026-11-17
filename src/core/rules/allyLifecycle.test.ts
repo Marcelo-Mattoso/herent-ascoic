@@ -15,6 +15,24 @@ const GUARDIAN = "ally_test_guardian";
 const SCOUT = "ally_test_scout";
 const ally = (id: string): AllyCard => ({
 	type: "ally", id, equipmentSlot: "ally", skills: [],
+	it("aliado e amuleto compartilham o mesmo slot e a troca aposenta o aliado", () => {
+		const recruited = moveInventoryItem(engine, initial(), GUARDIAN, mesa, equip("h1"))!;
+		const charmId = "item_low_flame_charm";
+		const withCharm = withGame(recruited, (g) => ({ ...g,
+			pendingRewards: [{ cardId: charmId, type: "item" as const, requiresBearer: false }],
+		}));
+		const replaced = moveInventoryItem(engine, withCharm, charmId, mesa, equip("h1"))!;
+		expect(heroesOf(replaced)[0]?.activeItems.amulet).toBe(charmId);
+		expect(heroesOf(replaced)[0]?.activeItems.ally).toBeUndefined();
+		expect(isRetiredAlly(replaced, GUARDIAN)).toBe(true);
+		const allyReward = withGame(replaced, (g) => ({ ...g,
+			pendingRewards: [{ cardId: SCOUT, type: "item" as const, requiresBearer: false }],
+		}));
+		const next = moveInventoryItem(engine, allyReward, SCOUT, mesa, equip("h1"))!;
+		expect(heroesOf(next)[0]?.activeItems.amulet).toBe(SCOUT);
+		expect(next.game.pendingRewards.map((reward) => reward.cardId)).toContain(charmId);
+	});
+
 });
 const companions = new Map([GUARDIAN, SCOUT].map((id) => [id, ally(id)]));
 const engine = {
@@ -41,8 +59,8 @@ function initial() {
 	})));
 }
 const mesa = { kind: "mesa" as const };
-const equip = (heroId: string) => ({ kind: "hero_equip" as const, heroId, slotType: "ally" as const });
-const slot = (heroId: string) => ({ kind: "hero_slot" as const, heroId, slotType: "ally" as const });
+const equip = (heroId: string) => ({ kind: "hero_equip" as const, heroId, slotType: "amulet" as const });
+const slot = (heroId: string) => ({ kind: "hero_slot" as const, heroId, slotType: "amulet" as const });
 
 describe("aliados são permanentes apenas enquanto equipados", () => {
 	it("não permite colocar aliados na mochila por ação direta ou recompensa", () => {
@@ -56,10 +74,10 @@ describe("aliados são permanentes apenas enquanto equipados", () => {
 
 	it("recruta diretamente e não retira o aliado se ele trocar de herói", () => {
 		const recruited = moveInventoryItem(engine, initial(), GUARDIAN, mesa, equip("h1"))!;
-		expect(heroesOf(recruited)[0]?.activeItems.ally).toBe(GUARDIAN);
+		expect(heroesOf(recruited)[0]?.activeItems.amulet).toBe(GUARDIAN);
 		const transferred = moveInventoryItem(engine, recruited, GUARDIAN, slot("h1"), equip("h2"))!;
-		expect(heroesOf(transferred)[0]?.activeItems.ally).toBeUndefined();
-		expect(heroesOf(transferred)[1]?.activeItems.ally).toBe(GUARDIAN);
+		expect(heroesOf(transferred)[0]?.activeItems.amulet).toBeUndefined();
+		expect(heroesOf(transferred)[1]?.activeItems.amulet).toBe(GUARDIAN);
 		expect(gameOf(transferred).retiredAllyIds).toEqual([]);
 	});
 
@@ -69,12 +87,12 @@ describe("aliados são permanentes apenas enquanto equipados", () => {
 			pendingRewards: [{ cardId: SCOUT, type: "item" as const, requiresBearer: false }],
 		}));
 		const replaced = moveInventoryItem(engine, newReward, SCOUT, mesa, equip("h1"))!;
-		expect(heroesOf(replaced)[0]?.activeItems.ally).toBe(SCOUT);
+		expect(heroesOf(replaced)[0]?.activeItems.amulet).toBe(SCOUT);
 		expect(isRetiredAlly(replaced, GUARDIAN)).toBe(true);
 		expect(replaced.game.pendingRewards.some((r) => r.cardId === GUARDIAN)).toBe(false);
 		const dismissed = moveInventoryItem(engine, replaced, SCOUT, slot("h1"), mesa)!;
 		expect(isRetiredAlly(dismissed, SCOUT)).toBe(true);
-		expect(heroesOf(dismissed)[0]?.activeItems.ally).toBeUndefined();
+		expect(heroesOf(dismissed)[0]?.activeItems.amulet).toBeUndefined();
 		expect(dismissed.game.pendingRewards).toEqual([]);
 		const forgedReward = withGame(dismissed, (g) => ({ ...g,
 			pendingRewards: [{ cardId: GUARDIAN, type: "item" as const, requiresBearer: false }],

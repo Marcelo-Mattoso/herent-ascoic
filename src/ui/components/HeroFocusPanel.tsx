@@ -7,6 +7,7 @@ import { createPortal } from "react-dom";
 
 import { displayCardClass as getCardClass, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
+import { equippedItemAt } from "@/core/rules/equipment";
 import type { PlayerView } from "@/core/projection/playerView";
 import { skillsOf } from "@/core/gameEngine";
 import { renderSkillLabel } from "@/core/skills/renderLabel";
@@ -243,9 +244,9 @@ export function HeroFocusPanel({
 								{translate("game:components.heroFocusPanel.text011")}{" "}</p>
 							<div style={{ display: "flex", flexWrap: "wrap", gap: 4 }}>
 								{(
-									["clothing1", "clothing2", "hand1", "hand2", "amulet", "ally"] as ItemSlotType[]
+									["clothing1", "clothing2", "hand1", "hand2", "amulet"] as ItemSlotType[]
 								).map((slot) => {
-									const item = hero.activeItems[slot];
+									const item = equippedItemAt(uiEngine, hero, slot);
 									if (!item) return null;
 									return (
 										<ItemChip

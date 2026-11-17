@@ -7,6 +7,7 @@ import { type CSSProperties, useEffect, useRef, useState } from "react";
 import type { InvFromZone, InvToZone } from "@/core/actions/types";
 import { displayCardClass as getCardClass, displayCardLocale as getCardLocale, displayCardName as getCardName } from "@/i18n/catalogs";
 import { getCardById } from "@/core/data/cards";
+import { artifactRitualDescription } from "@/ui/artifactRitualDescription";
 import { getSkillLocale } from "@/core/data/skillLocale";
 import {
 	EQUIPMENT_SLOTS,
@@ -1061,7 +1062,7 @@ export function InventarioGrupo({
 		const ally = getCardById(itemId)?.type === "ally";
 		// Recrutamento imediato. Ao substituir, o aliado antigo sai do jogo.
 		const to = ally
-			? { kind: "hero_equip" as const, heroId: rewardHero.id, slotType: "ally" as const }
+			? { kind: "hero_equip" as const, heroId: rewardHero.id, slotType: "amulet" as const }
 			: { kind: "hero_backpack" as const, heroId: rewardHero.id };
 		if (!canMoveInventoryItem(itemId, from, to)) {
 			setInventoryFeedback(ally
@@ -1185,7 +1186,7 @@ export function InventarioGrupo({
 													}
 													: undefined}
 												collectLabel={getCardById(r.cardId)?.type === "ally"
-												? (rewardHero?.activeItems.ally ? "Substituir aliado" : "Recrutar aliado")
+												? (equippedItemAt(uiEngine, rewardHero, "amulet") ? "Substituir amuleto/aliado" : "Recrutar aliado")
 												: isMysticDraw
 													? translate("game:components.inventarioGrupo.text044")
 													: undefined}
@@ -1773,7 +1774,7 @@ function ItemTooltipPanel({
 		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
 		: card.type === "ally" ? "Aliado permanente" : translate("game:components.inventarioGrupo.groupArtifact");
 	const itemSkills = skillsOf(uiEngine, card.id);
-	const effect = (card.type === "ally" ? itemSkills : itemSkills.slice(0, 1))
+	const effect = artifactRitualDescription(card.id) ?? (card.type === "ally" ? itemSkills : itemSkills.slice(0, 1))
 		.map(({ ref }) => renderSkillLabel(uiEngine, ref)).filter(Boolean).join(" · ");
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : card.type === "ally" ? SLOT_COLORS_INV.ally : AMBER;

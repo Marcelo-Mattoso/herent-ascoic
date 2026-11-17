@@ -12,11 +12,10 @@ export const EQUIPMENT_SLOTS: readonly ItemSlotType[] = [
 	"hand1",
 	"hand2",
 	"amulet",
-	"ally",
 ];
 
 export function itemFitsSlot(item: EquippableCard, slot: ItemSlotType): boolean {
-	if (item.type === "ally") return slot === "ally";
+	if (item.type === "ally") return slot === "amulet";
 	if (slot === "ally") return false;
 	if (item.equipmentSlot === "clothing")
 		return slot === "clothing1" || slot === "clothing2";
@@ -33,6 +32,7 @@ export function equippedItemAt(engine: GameEngine,
 	hero: HeroRecord,
 	slot: ItemSlotType,
 ): string | undefined {
+	if (slot === "amulet") return hero.activeItems.amulet ?? hero.activeItems.ally;
 	if (slot === "hand2" && !hero.activeItems.hand2 && hero.activeItems.hand1) {
 		const item = cardById(engine, hero.activeItems.hand1);
 		if (item?.type === "item" && item.equipmentSlot === "two_hands")
@@ -70,13 +70,19 @@ export function placeEquipment(engine: GameEngine,
 ): { hero: HeroRecord; displaced: string[] } | null {
 	if (!item.equipmentSlot || !itemAllowedForHero(item, hero)) return null;
 	if (Object.values(hero.activeItems).includes(item.id)) return null;
-	if (requestedSlot && !itemFitsSlot(item, requestedSlot)) return null;
-	const slot = requestedSlot ?? freeEquipmentSlot(engine, hero, item);
+	// Permitir movimentações vindas de uma partida anterior com slot "ally".
+	// O único espaço equipado atual é "amulet" (aliado OU amuleto).
+	const normalizedSlot = requestedSlot === "ally" && item.type === "ally"
+		? "amulet" : requestedSlot;
+	if (normalizedSlot && !itemFitsSlot(item, normalizedSlot)) return null;
+	const slot = normalizedSlot ?? freeEquipmentSlot(engine, hero, item);
 	if (!slot) return null;
 	const conflicts =
 		item.equipmentSlot === "two_hands"
 			? [equippedItemAt(engine, hero, "hand1"), equippedItemAt(engine, hero, "hand2")]
-			: [equippedItemAt(engine, hero, slot)];
+			: slot === "amulet"
+				? [hero.activeItems.amulet, hero.activeItems.ally]
+				: [equippedItemAt(engine, hero, slot)];
 	const displaced = [
 		...new Set(conflicts.filter((id): id is string => !!id && id !== item.id)),
 	];
@@ -85,6 +91,7 @@ export function placeEquipment(engine: GameEngine,
 		if (id && displaced.includes(id))
 			delete activeItems[occupiedSlot as ItemSlotType];
 	}
+	if (slot === "amulet") delete activeItems.ally;
 	if (item.equipmentSlot === "two_hands") {
 		delete activeItems.hand2;
 		activeItems.hand1 = item.id;

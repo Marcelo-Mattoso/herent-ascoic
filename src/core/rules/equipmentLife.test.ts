@@ -67,9 +67,9 @@ function state(rewardId = ALLY) {
 }
 
 describe("aliados: slot e Vida máxima derivados da fonte ativa", () => {
-	it("reconhece somente o slot próprio do aliado", () => {
-		expect(itemFitsSlot(card, "ally")).toBe(true);
-		expect(itemFitsSlot(card, "amulet")).toBe(false);
+	it("equipar aliado ocupa somente o slot compartilhado de amuleto", () => {
+		expect(itemFitsSlot(card, "ally")).toBe(false);
+		expect(itemFitsSlot(card, "amulet")).toBe(true);
 		expect(itemFitsSlot(card, "hand1")).toBe(false);
 	});
 
@@ -82,11 +82,11 @@ describe("aliados: slot e Vida máxima derivados da fonte ativa", () => {
 			expect(equipped).not.toBeNull();
 			game = equipped!;
 			expect(heroesOf(game)[0]).toMatchObject({
-				maxLife: 16, currentLife: 4, activeItems: { ally: ALLY },
+				maxLife: 16, currentLife: 4, activeItems: { amulet: ALLY },
 			});
 			expect(equippedMaximumLifeBonus(engine, gameOf(game).heroes[0]!, 0)).toBe(6);
 			const removed = moveInventoryItem(engine, game, ALLY,
-				{ kind: "hero_slot", heroId: "h1", slotType: "ally" }, { kind: "mesa" });
+				{ kind: "hero_slot", heroId: "h1", slotType: "amulet" }, { kind: "mesa" });
 			expect(removed).not.toBeNull();
 			game = removed!;
 			expect(heroesOf(game)[0]).toMatchObject({ maxLife: 10, currentLife: 4 });

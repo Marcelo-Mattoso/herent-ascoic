@@ -59,3 +59,13 @@ O Castelo usa o player existente de abertura após a seleção de Therion na tel
 - As imagens são copiadas ao caminho público pelo plugin já existente do Vite durante o build/servidor; nenhuma lógica nova de UI é necessária.
 
 Esta integração não acrescenta autoplay de mudança de cena nem modifica a abertura das demais expansões.
+
+## Regra de equipamento: aliado OU amuleto (slot compartilhado)
+
+- Cada herói possui apenas **um espaço de amuleto/aliado**. As cartas `type: "ally"` mantêm esse tipo próprio, mas equipam no slot físico `amulet`.
+- **Nunca** é possível manter aliado e amuleto equipados simultaneamente no mesmo herói.
+- Recrutar um aliado sobre um amuleto desloca o amuleto (volta à mesa ou à mochila conforme a origem).
+- Colocar um amuleto sobre um aliado aposenta o aliado **definitivamente**, impedindo que reapareça na mesma partida.
+- Transferir um aliado diretamente entre dois slots de amuleto é permitido; o substituído, quando também é aliado, é aposentado.
+- Regras de mochila, Vida máxima e demais efeitos equipados continuam vigentes.
+- Snapshots antigos com slot `ally` são migrados para `amulet`; se possuíam ambos, o antigo amuleto fica na mochila, preservando-o mesmo se exceder temporariamente a capacidade.

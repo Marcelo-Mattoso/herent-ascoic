@@ -94,6 +94,25 @@ describe("cadeia de migrações", () => {
 	});
 });
 
+describe("migração v6→v7: aliado ou amuleto", () => {
+	it("migra aliados existentes e preserva amuletos antigos na mochila", () => {
+		const oldState = unwrapSnapshot(snapshotV0) as GameState;
+		const hero = gameOf(oldState).heroes[0]!;
+		const raw = { ...oldState, game: {
+			...gameOf(oldState),
+			heroes: [{ ...hero,
+				activeItems: { ally: "ally_guardian_centaur", amulet: "item_low_flame_charm" },
+				backpack: [] as string[],
+			}],
+		}};
+		const migrated = migrateState(raw, 6, MIGRATIONS, 7) as GameState;
+		const loaded = gameOf(migrated).heroes[0]!;
+		expect(loaded.activeItems.amulet).toBe("ally_guardian_centaur");
+		expect(loaded.activeItems.ally).toBeUndefined();
+		expect(loaded.backpack).toContain("item_low_flame_charm");
+	});
+});
+
 describe("migração v1→v2 (decks → zonas)", () => {
 	it("decksToZones preserva a ordem das pilhas e deixa cada instância em uma zona", () => {
 		const migrated = migrateState(

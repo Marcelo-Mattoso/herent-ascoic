@@ -1,4 +1,5 @@
 import type { ItemSlotType } from "@/core/projection/viewTypes";
+import { getCardById } from "@/core/data/cards";
 
 interface ItemTileProps {
 	slot: ItemSlotType;
@@ -16,7 +17,8 @@ const SLOT_COLORS: Record<ItemSlotType, { bg: string; border: string }> = {
 };
 
 export function ItemTile({ slot, filled, item }: ItemTileProps) {
-	const colors = SLOT_COLORS[slot];
+	const colors = slot === "amulet" && item && getCardById(item)?.type === "ally"
+		? SLOT_COLORS.ally : SLOT_COLORS[slot];
 	return (
 		<div
 			title={item ?? ""}
