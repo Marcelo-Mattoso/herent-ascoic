@@ -37,6 +37,16 @@ Emboscadas simples podem reutilizar `skill_treacherous_attack`; Saque Mágico po
 
 **Regra de Vida:** equipar amplia apenas a Vida máxima, sem curar; remover limita a Vida atual ao novo máximo. O valor é reconciliado ao mover o aliado, sem acumulação. Aliados ocupam um slot próprio e entram no baralho de itens/recompensas; o tipo de carta é `ally`, não `item` ou `itemClass: ally`.
 
+### Regra definitiva: recrutamento ou descarte
+
+- Uma recompensa do tipo `ally` **não pode ser guardada na mochila**, mesmo quando há espaço.
+- Deve ser **recrutada diretamente no slot `ally`** de algum herói ou **descartada definitivamente**; fechar a mesa com um aliado não escolhido equivale a dispensá-lo.
+- Ao colocar outro aliado no slot ocupado, o anterior é **dispensado definitivamente** (não vai para mesa nem mochila).
+- Mover um aliado equipado para a mesa também significa dispensá-lo definitivamente. Transferência **direta** entre slots de heróis é permitida, desde que não passe pela mochila; a transferência para um slot ocupado dispensa o substituído.
+- O jogo armazena `retiredAllyIds`, e esses IDs não podem reaparecer por saques, recompensas ou reinícios da masmorra **na mesma partida**. Uma partida nova restaura o conjunto.
+- O bot deve preferir um slot livre e nunca gerar a opção de guardar aliados na mochila.
+
+
 ## Mapeamento dos seis aliados
 
 | Aliado | Skills a vincular |
