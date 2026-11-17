@@ -398,7 +398,7 @@ export function handleInvSetBearer(
 
 export function handleInvDescartarMesa(state: GameState, engine?: GameEngine): GameState {
 	const count = gameOf(state).pendingRewards.length;
-	const cleared = withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: [], status: "XP_SPEND_PHASE" }));
+	const cleared = withGame(state, (prevGame) => ({ ...prevGame, pendingRewards: [], status: "XP_SPEND_PHASE" as const }));
 	// O reducer sempre passa o engine. A forma sem engine só preserva chamadas
 	// legadas de testes com itens comuns e sem aliados.
 	const retired = engine
