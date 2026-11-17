@@ -482,5 +482,55 @@
     "name": "Spend Echo",
     "label": "Spend Echo: choose +2 to hit or +2 damage on your next attack.",
     "text": "choose +2 to hit or +2 damage on your next attack."
+  },
+  "item_skill_equipped_max_life": {
+    "name": "Reinforced Life",
+    "label": "Reinforced Life: While equipped, increases the wearer's maximum Health by {value}.",
+    "text": "While equipped, increases the wearer's maximum Health by {value}."
+  },
+  "item_skill_equipped_accuracy": {
+    "name": "Equipped Accuracy",
+    "label": "Equipped Accuracy: While equipped, grants the wearer +{value} Accuracy.",
+    "text": "While equipped, grants the wearer +{value} Accuracy."
+  },
+  "item_skill_equipped_damage": {
+    "name": "Equipped Damage",
+    "label": "Equipped Damage: While equipped, grants the wearer +{value} Damage.",
+    "text": "While equipped, grants the wearer +{value} Damage."
+  },
+  "item_skill_equipped_protection": {
+    "name": "Equipped Protection",
+    "label": "Equipped Protection: While equipped, reduces damage taken by the wearer by {value}.",
+    "text": "While equipped, reduces damage taken by the wearer by {value}."
+  },
+  "dungeon_skill_environment_darkness": {
+    "name": "Room Darkness",
+    "label": "Room Darkness: At combat start, heroes suffer an Accuracy penalty of {value} until combat ends.",
+    "text": "At combat start, heroes suffer an Accuracy penalty of {value} until combat ends."
+  },
+  "item_skill_illumination_against_darkness": {
+    "name": "Light Against Darkness",
+    "label": "Light Against Darkness: While equipped in a dark room, grants the wearer +{value} Accuracy.",
+    "text": "While equipped in a dark room, grants the wearer +{value} Accuracy."
+  },
+  "skill_group_command_accuracy": {
+    "name": "Accuracy Command",
+    "label": "Accuracy Command: At combat start, allied creatures gain +{value} Accuracy.",
+    "text": "At combat start, allied creatures gain +{value} Accuracy."
+  },
+  "skill_group_command_protection": {
+    "name": "Protection Command",
+    "label": "Protection Command: At combat start, allied creatures gain {value} damage reduction.",
+    "text": "At combat start, allied creatures gain {value} damage reduction."
+  },
+  "dungeon_skill_resonant_pressure": {
+    "name": "Resonant Pressure",
+    "label": "Resonant Pressure: At round start, heroes receive an Accuracy penalty of {value} until the round ends.",
+    "text": "At round start, heroes receive an Accuracy penalty of {value} until the round ends."
+  },
+  "item_skill_room_damage_protection": {
+    "name": "Room Damage Protection",
+    "label": "Room Damage Protection: While equipped, reduces damage dealt to the wearer by room effects by {value}.",
+    "text": "While equipped, reduces damage dealt to the wearer by room effects by {value}."
   }
 }
