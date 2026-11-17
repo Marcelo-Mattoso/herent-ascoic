@@ -144,6 +144,27 @@ describe("SkillChoiceModal", () => {
 		});
 	});
 
+	it("exibe as salas do Iluminar o Caminho e confirma o caminho escolhido", () => {
+		const pending: PendingSkillChoice = {
+			skillId: "skill_illuminate_path",
+			kind: "dungeon_path",
+			prompt: "Escolher um caminho",
+			options: [
+				{ id: "path_0", label: roomA },
+				{ id: "path_1", label: roomB },
+			],
+		};
+		withChoice(pending, { paths: [roomA, roomB] });
+		const { container } = render(<SkillChoiceModal />);
+		expect(container.querySelectorAll(".skill-choice-option--card")).toHaveLength(2);
+		expect(screen.getByText("Iluminar o Caminho: escolha entre as salas reveladas.")).toBeTruthy();
+		fireEvent.click(screen.getAllByRole("button", { name: "Escolher" })[1]!);
+		expect(dispatch).toHaveBeenCalledWith({
+			type: "SKILL_CHOICE",
+			payload: { skillId: pending.skillId, choice: "path_1" },
+		});
+	});
+
 	it("apresenta carta elegível do descarte e preserva opção textual abstrata", () => {
 		withChoice(
 			{
