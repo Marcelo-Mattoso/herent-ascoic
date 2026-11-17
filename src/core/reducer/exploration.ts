@@ -523,7 +523,7 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 	exitsOverride?: number,
 ): GameState {
 	const exits = Math.max(1, exitsOverride ?? gameOf(state).currentRoom?.exits ?? 1);
-	const { available, discarded, removed } = deckOf(state, "dungeonDeck");
+	const { available } = deckOf(state, "dungeonDeck");
 	if (available.length === 0) return handleDungeonDeckEmpty(engine, state);
 	const discardTarget = exits >= 5 ? 2 : exits > 1 ? 1 : 0;
 
