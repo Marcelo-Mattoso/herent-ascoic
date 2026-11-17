@@ -113,7 +113,7 @@ export type ItemClass =
 	| "special"
 	| "charm";
 
-export type EquipmentSlot = "clothing" | "one_hand" | "two_hands" | "amulet";
+export type EquipmentSlot = "clothing" | "one_hand" | "two_hands" | "amulet" | "ally";
 
 export interface ItemCard {
 	readonly type: "item";
@@ -123,6 +123,18 @@ export interface ItemCard {
 	readonly allowedHeroIds?: readonly string[];
 	readonly useTiming?: "pre_combat" | "damage_response";
 	/** @deprecated Migração vNext: prefira grants[]. */
+	readonly skills: readonly SkillRef[];
+	readonly grants?: readonly AbilityGrant[];
+}
+
+// --- Ally ---
+// Companion cards share the item reward deck and inventory, but have their own
+// permanent equipment slot. They are never consumables or charge-based items.
+export interface AllyCard {
+	readonly type: "ally";
+	readonly id: string;
+	readonly equipmentSlot: "ally";
+	readonly allowedHeroIds?: readonly string[];
 	readonly skills: readonly SkillRef[];
 	readonly grants?: readonly AbilityGrant[];
 }
@@ -166,5 +178,6 @@ export type AnyCard =
 	| RoomCard
 	| SubbossRoomCard
 	| ItemCard
+	| AllyCard
 	| ArtifactCard
 	| BossCard;
