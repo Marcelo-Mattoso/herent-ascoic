@@ -13,7 +13,8 @@ import {
 	NO_PROGRESS_WINDOW,
 } from "./invariants";
 import { settled } from "@/core/__tests__/fixtures";
-import { initialState } from "../golden/lib";
+import { engine, initialState } from "../golden/lib";
+import { handleStartGame } from "@/core/reducer/setup";
 import { withPaused, withEffectStack, withPendingSkillChoice, withDecks, decksOf, deckOf } from "@/core/state/access";
 import { withGame, gameOf } from "@/engine/state";
 
@@ -125,11 +126,17 @@ describe("duplicação de cartas", () => {
 	});
 
 	it("Andarilho: caminhos apresentados não duplicam cartas e duplicação real é detectada", () => {
-		const initial = initialState({
+		const scenario = {
 			heroCardIds: ["hero_plains_wanderer"],
 			difficulty: "normal",
 			bossCardId: "boss_therion_infinite_horizon_king",
 			seed: 1,
+		} as const;
+		// initialState cria apenas a estrutura vazia; START_GAME monta os decks.
+		// Adiamos a primeira sala para observar as cartas ainda disponíveis.
+		const initial = handleStartGame(engine, initialState(scenario), {
+			...scenario,
+			deferInitialRoomReveal: true,
 		});
 		const baseline = countCards(initial);
 		const paths = deckOf(initial, "dungeonDeck").available.slice(0, 3);
