@@ -85,7 +85,8 @@ export function handleStartGame(engine: GameEngine,
 	const belongsToExpansion = (id: string) => expansionOf(engine, id) === expansionId;
 	const roomIds = buildDungeonRoomDeck(engine, expansionId);
 	const creatureIds = cardsOfType(engine, "creature").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
-	const itemIds = cardsOfType(engine, "item").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
+	const itemIds = [...cardsOfType(engine, "item"), ...cardsOfType(engine, "ally")]
+		.filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 	const artifactIds = cardsOfType(engine, "artifact").filter((c) => belongsToExpansion(c.id)).map((c) => c.id);
 
 	const mode = payload.mode ?? "cooperative";
