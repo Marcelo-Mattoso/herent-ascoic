@@ -6,6 +6,8 @@ import { applyPoisonStatus } from "../../../rules/poison";
 import { poisonOriginLabel } from "../../../rules/poisonTelemetry";
 import { applyDamageOverTimeStatus, matchesDamageOverTimeStatus, parseDamageOverTimeCondition } from "../../../rules/damageOverTime";
 import { discardFromDungeonDeck } from "../../../reducer/exploration";
+import { reconcileEquipmentMaximumLife } from "../../../rules/equipmentLife";
+import type { GameEngine } from "../../../gameEngine";
 import { log, mapEnemy, mapHero, shuffleRng } from "../../../reducer/utils";
 import type { ColorIndex } from "../../../state/color";
 import type {
@@ -42,7 +44,7 @@ const BLOCK_TARGETS = [
 ] as const;
 const REWARD_TYPES = ["item", "artifact"] as const;
 
-function discardFirstAvailableItem(state: GameState): GameState {
+function discardFirstAvailableItem(engine: GameEngine, state: GameState): GameState {
 	const heroWithBackpack = heroesOf(state).find(
 		(h) => h.status === "active" && h.backpack.length > 0,
 	);
@@ -64,11 +66,11 @@ function discardFirstAvailableItem(state: GameState): GameState {
 		).find((k) => heroWithItem.activeItems[k]);
 		if (slot) {
 			return log(
-				mapHero(state, heroWithItem.id, (h) => {
+				reconcileEquipmentMaximumLife(engine, state, mapHero(state, heroWithItem.id, (h) => {
 					const items = { ...h.activeItems };
 					delete items[slot];
 					return { ...h, activeItems: items };
-				}),
+				})),
 				`Tributo: ${heroWithItem.activeItems[slot]} descartado.`,
 			);
 		}
@@ -336,7 +338,7 @@ const discard = effectKind({
 		if (pile === "item") {
 			let next = state;
 			for (let i = 0; i < count; i++) {
-				next = discardFirstAvailableItem(next);
+				next = discardFirstAvailableItem(engine, next);
 			}
 			return next;
 		}
