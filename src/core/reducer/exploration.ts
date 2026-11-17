@@ -14,6 +14,7 @@ import { MAX_ROOM_ENEMIES } from "../rules/encounterLimits";
 
 import { applyDeclaredPassiveBlocks } from "../skills/applyPassiveBlocks";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
+import { reconcileEquipmentMaximumLife } from "../rules/equipmentLife";
 import { renderSkillLabel } from "../skills/renderLabel";
 import { ActivationTracker } from "../state/activation";
 import { removeBlocksForSource } from "../state/blockHelpers";
@@ -689,6 +690,8 @@ export function handleRestartDungeon(engine: GameEngine,
 		`Masmorra reiniciada. ${keepEquipment ? "Equipamentos mantidos." : "Heróis voltam ao início."} `,
 	);
 
+	// Equipment dropped by a restart must also remove passive maximum-life bonuses.
+	next = reconcileEquipmentMaximumLife(engine, state, next);
 	for (const h of restoredHeroes) {
 		next = applyFullHeal(engine, next, h.id);
 	}
