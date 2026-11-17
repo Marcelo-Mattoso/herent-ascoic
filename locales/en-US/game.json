@@ -45,6 +45,18 @@
       "scene10": "The Sister of White Ashes carried something the curse could never create: compassion. Where poison left wounds, she sought life.",
       "scene11": "Four paths met before the same tower. With no prophecy and no promise of victory, they went together because someone had to act.",
       "scene12": "And beside the cauldron, the Great Witch awaited them. What happened, I recorded. What comes next... belongs to the choices you make."
+    },
+    "castelo": {
+      "title": "The Castle of the Endless Horizon",
+      "scene01": "I recorded a time when Alexya's plains still knew the dawn. People raised fortresses, opened roads, and called those lands home.",
+      "scene02": "But the Great Rupture brought merciless kings, armies without honor, and conquerors who acknowledged no borders. Among them rose Therion.",
+      "scene03": "Beneath their hooves, new laws were written. Hobgoblins ruled by the sword, while bear-men demanded obedience in chains. For the defeated, even survival became a sentence.",
+      "scene04": "In the Vault of High Helva, even hope had a price. Goblins lent gold to those who owned nothing. And when payment came due, they always found something else to take.",
+      "scene05": "In the ape-men's towers, stone and sorcery were bent to ambition. Resonant machines began to breathe black smoke. First they hid the stars; then they devoured the day itself.",
+      "scene06": "Thus the Shroud of the Dead Horizon was born. The sun continued to rise beyond those clouds, but no one beneath them ever saw it again. In time, even the memory of morning began to fade.",
+      "scene07": "Deep beneath the castle, an unbroken Matrix Stone fed that endless night. Something far older pulsed within it. A patient will watched through the stone.",
+      "scene08": "They called him Therion, King of the Endless Horizon. No road escaped his tributes, no army crossed his walls, and no light dared challenge his reign.",
+      "scene09": "But not every horizon is meant to remain beyond reach. As long as someone rises against the night, no conquest can be eternal. Perhaps, for the first time in generations, dawn may yet return."
     }
   },
   "components": {

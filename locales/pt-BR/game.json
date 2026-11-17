@@ -45,6 +45,18 @@
       "scene10": "A Irmã das Cinzas Brancas levou consigo aquilo que a maldição não sabia criar: cuidado. Onde o veneno deixava feridas, ela procurava vida.",
       "scene11": "Quatro caminhos se encontraram diante da mesma torre. Sem profecia nem promessa de vitória, seguiram juntos porque alguém precisava agir.",
       "scene12": "E, diante do caldeirão, a Grande Bruxa os aguardava. O que aconteceu, eu registrei. O que acontecerá a seguir... pertence às escolhas de vocês."
+    },
+    "castelo": {
+      "title": "O Castelo do Horizonte Infindo",
+      "scene01": "Eu registrei um tempo em que as planícies de Alexya conheciam o amanhecer. Os homens ergueram fortalezas, abriram estradas e chamaram aquelas terras de lar.",
+      "scene02": "Mas a Grande Ruptura trouxe reis sem piedade, exércitos sem honra e conquistadores que não reconheciam fronteiras. Entre eles, ergueu-se Therion.",
+      "scene03": "Sob seus cascos nasceram novas leis. Os hobgoblins governavam pela espada, e os homens-urso cobravam obediência com correntes. Para os vencidos, até sobreviver se tornou uma condenação.",
+      "scene04": "No Cofre de Helva Alta, até a esperança tinha preço. Os goblins emprestavam ouro a quem nada possuía. Quando chegava a cobrança, sempre encontravam algo mais que pudesse ser tomado.",
+      "scene05": "Nas torres dos homens-macaco, pedra e magia serviram à ambição. Máquinas de ressonância começaram a respirar fumaça negra. Primeiro ocultaram as estrelas; depois, devoraram o próprio dia.",
+      "scene06": "Assim nasceu o Manto do Horizonte Morto. O sol continuou a nascer além daquelas nuvens, mas ninguém sob elas voltou a vê-lo. Com as gerações, até a lembrança da manhã começou a desaparecer.",
+      "scene07": "Nas profundezas do castelo, uma Pedra-Matriz inteira alimentava aquela noite. Algo muito mais antigo pulsava em seu interior. Uma vontade paciente observava através dela.",
+      "scene08": "Chamaram-no de Therion, o Rei do Horizonte Infindo. Nenhuma estrada escapava aos seus tributos, nenhum exército atravessava suas muralhas e nenhuma luz ousava desafiar seu reino.",
+      "scene09": "Mas nem todo horizonte foi feito para permanecer inalcançável. Enquanto houver quem se levante contra a noite, nenhuma conquista será eterna. Talvez, pela primeira vez em gerações, o amanhecer ainda possa voltar."
     }
   },
   "components": {

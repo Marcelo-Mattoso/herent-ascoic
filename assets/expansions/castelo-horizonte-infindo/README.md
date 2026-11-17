@@ -45,3 +45,17 @@ A expansão **O Castelo do Horizonte Infindo** está registrada com `enabled: tr
 6. Não foi introduzida uma abertura cinematográfica nova, pois o pacote de artes não inclui imagens de `abertura/intro.json`. O jogo deverá iniciar pela seleção normal até produção posterior.
 
 **Não executar CI/CD nem monitorar deploy.** O responsável pelo projeto executa build, testes e `audit` localmente.
+
+## Abertura cinematográfica
+
+O Castelo usa o player existente de abertura após a seleção de Therion na tela de preparação.
+
+- Registro: `expansion.json → openings.boss_therion_infinite_horizon_king = "abertura/intro.json"`.
+- Roteiro: `abertura/intro.json`, com **9 cenas**, efeito de câmera e transição fade.
+- Artes de reprodução: `abertura/images/scene-01.webp` a `scene-09.webp`; são referências Git aos mesmos blobs das artes já produzidas em `assets/openings/castelo-horizonte-infindo/images/`. As imagens originais permanecem intactas.
+- Legendas: `locales/pt-BR/game.json`, `locales/en-US/game.json` e `locales/es-ES/game.json`, namespace `opening.castelo`.
+- Música provisória: `sounds/music/Sangue e aço.mp3`. Para substituí-la, adicionar o MP3 desejado ao diretório `sounds/music/` e atualizar somente `abertura/intro.json → audio.fileName`.
+- Controles já existentes: avançar, voltar, pular, iniciar aventura, play/pause e volume.
+- As imagens são copiadas ao caminho público pelo plugin já existente do Vite durante o build/servidor; nenhuma lógica nova de UI é necessária.
+
+Esta integração não acrescenta autoplay de mudança de cena nem modifica a abertura das demais expansões.

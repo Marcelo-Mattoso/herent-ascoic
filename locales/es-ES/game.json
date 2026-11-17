@@ -45,6 +45,18 @@
       "scene10": "La Hermana de las Cenizas Blancas llevó consigo aquello que la maldición no podía crear: compasión. Donde el veneno dejaba heridas, ella buscaba vida.",
       "scene11": "Cuatro caminos se encontraron ante la misma torre. Sin profecías ni promesas de victoria, avanzaron juntos porque alguien debía actuar.",
       "scene12": "Y junto al caldero, la Gran Bruja los esperaba. Lo que ocurrió, yo lo registré. Lo que suceda ahora... depende de las decisiones de ustedes."
+    },
+    "castelo": {
+      "title": "El Castillo del Horizonte Infinito",
+      "scene01": "Yo registré una época en la que las llanuras de Alexya todavía conocían el amanecer. Los humanos levantaron fortalezas, abrieron caminos y llamaron hogar a aquellas tierras.",
+      "scene02": "Pero la Gran Ruptura trajo reyes despiadados, ejércitos sin honor y conquistadores que no reconocían fronteras. Entre ellos se alzó Therion.",
+      "scene03": "Bajo sus cascos nacieron nuevas leyes. Los hobgoblins gobernaban con la espada y los hombres-oso exigían obediencia con cadenas. Para los vencidos, hasta sobrevivir era una condena.",
+      "scene04": "En la Bóveda de Helva Alta, incluso la esperanza tenía precio. Los goblins prestaban oro a quienes no poseían nada. Y cuando llegaba el cobro, siempre encontraban algo más que arrebatar.",
+      "scene05": "En las torres de los hombres-mono, la piedra y la magia sirvieron a la ambición. Máquinas resonantes comenzaron a exhalar humo negro. Primero ocultaron las estrellas; después devoraron el día.",
+      "scene06": "Así nació el Manto del Horizonte Muerto. El sol siguió saliendo más allá de aquellas nubes, pero nadie bajo ellas volvió a verlo. Con las generaciones, incluso el recuerdo de la mañana empezó a desaparecer.",
+      "scene07": "Bajo el castillo, una Piedra Matriz intacta alimentaba aquella noche. Algo mucho más antiguo palpitaba en su interior. Una voluntad paciente observaba a través de ella.",
+      "scene08": "Lo llamaron Therion, Rey del Horizonte Infinito. Ningún camino escapaba a sus tributos, ningún ejército atravesaba sus murallas y ninguna luz se atrevía a desafiar su reino.",
+      "scene09": "Pero no todos los horizontes están destinados a permanecer fuera de nuestro alcance. Mientras alguien se alce contra la noche, ninguna conquista será eterna. Tal vez, por primera vez en generaciones, el amanecer aún pueda regresar."
     }
   },
   "components": {

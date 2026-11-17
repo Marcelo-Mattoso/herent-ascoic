@@ -2200,5 +2200,8 @@
       "name": "Toque de Guerra",
       "text": "Uma vez por sala, o grupo recebe +1 de Acerto até o fim da rodada."
     }
+  },
+  "openings": {
+    "boss_therion_infinite_horizon_king": "abertura/intro.json"
   }
 }

@@ -27,4 +27,17 @@ describe("aberturas registradas por chefe", () => {
 		expect(opening?.scenes[11]?.imageUrl).toContain("/generated/openings/assets/torre-grande-bruxa-caldeirao/abertura/images/scene-12.webp");
 	});
 
+
+	it("carrega as nove cenas do Castelo, com música provisória", () => {
+		const opening = getOpeningForBoss("boss_therion_infinite_horizon_king");
+		expect(opening?.titleKey).toBe("game:opening.castelo.title");
+		expect(opening?.musicFileName).toBe("Sangue e aço.mp3");
+		expect(opening?.scenes).toHaveLength(9);
+		expect(opening?.scenes.map((scene) => scene.textKey)).toEqual(
+			Array.from({ length: 9 }, (_, index) => `game:opening.castelo.scene${String(index + 1).padStart(2, "0")}`),
+		);
+		expect(opening?.scenes[0]?.imageUrl).toContain("/generated/openings/assets/castelo-horizonte-infindo/abertura/images/scene-01.webp");
+		expect(opening?.scenes[8]?.imageUrl).toContain("/generated/openings/assets/castelo-horizonte-infindo/abertura/images/scene-09.webp");
+	});
+
 });
