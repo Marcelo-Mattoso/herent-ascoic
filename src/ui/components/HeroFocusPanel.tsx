@@ -278,7 +278,7 @@ export function HeroFocusPanel({
 					/>
 					{heroActions.skill?.requiresActivation && heroActions.skill.prepared && (
 						<ActionButton
-							label=translate("game:components.heroFocusPanel.cancelPreparation")
+							label={translate("game:components.heroFocusPanel.cancelPreparation")}
 							icon="✕"
 							variant="secondary"
 							onClick={() => onUseSkill?.(heroActions.skill!.skillId, hero.id, true)}
