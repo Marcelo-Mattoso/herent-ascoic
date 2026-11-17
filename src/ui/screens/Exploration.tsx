@@ -434,6 +434,8 @@ export function Exploration({
 						<div className="game-board-surface">
 							<Board
 								tutorialMode={tutorialMode}
+								// O Arquivo IV termina com lições de observação, não com rolagens.
+								suppressDiceOverlay={tutorialAbilityMode && ["passive-effect", "ability-limits", "abilities-completion"].includes(tutorialStepId ?? "")}
 								tutorialRevealEnabled={tutorialRevealEnabled}
 								onTutorialReveal={() => dispatch({ type: "REVEAL_ROOM" })}
 								view={view}
