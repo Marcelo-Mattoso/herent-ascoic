@@ -32,6 +32,8 @@ import { HpBar } from "./HpBar";
 interface BoardProps {
 	tutorialMode?: boolean;
 	tutorialRevealEnabled?: boolean;
+	/** Oculta portais de dados apenas nas lições sem combate do tutorial. */
+	suppressDiceOverlay?: boolean;
 	onTutorialReveal?: () => void;
 	view: PlayerView;
 	focusedHeroId: string | null;
@@ -625,6 +627,7 @@ function ArtifactDisplayCard({
 export function Board({
 	tutorialMode = false,
 	tutorialRevealEnabled = false,
+	suppressDiceOverlay = false,
 	onTutorialReveal,
 	view,
 	focusedHeroId,
@@ -957,7 +960,7 @@ export function Board({
 					</div>
 				)}
 
-				{!pendingCombatDecision && (pendingPhysicalRoll || (roll?.physicalRollId && status === "RESOLVE_ATTACK" && !pendingDiceSelection && dismissedPhysicalRollId !== roll.physicalRollId)) && (
+				{!suppressDiceOverlay && !pendingCombatDecision && (pendingPhysicalRoll || (roll?.physicalRollId && status === "RESOLVE_ATTACK" && !pendingDiceSelection && dismissedPhysicalRollId !== roll.physicalRollId)) && (
 					<DiceRollOverlay
 						key={pendingPhysicalRoll?.id ?? roll?.physicalRollId}
 						pending={pendingPhysicalRoll}
@@ -966,7 +969,7 @@ export function Board({
 						onResolveAttack={resolveAttackWithAnimation}
 					/>
 				)}
-				{diceRollAnimation && !pendingCombatDecision && (
+				{!suppressDiceOverlay && diceRollAnimation && !pendingCombatDecision && (
 					<DiceRollOverlay
 						key={diceRollAnimation.key}
 						roll={diceRollAnimation.roll}
