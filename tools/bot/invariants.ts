@@ -209,7 +209,8 @@ export function countCards(state: GameState): CardCounts {
 	}
 	for (const r of gameOf(state).pendingRewards) bump(counts, r.cardId);
 	for (const a of gameOf(state).groupArtifacts) bump(counts, a.cardId);
-	for (const id of gameOf(state).paths) bump(counts, id);
+	// game.paths mantém referências às salas oferecidas por Iluminar o Caminho.
+	// Essas cartas permanecem no dungeonDeck.available e já foram contadas.
 	bump(counts, gameOf(state).currentRoom?.cardId);
 	return counts;
 }

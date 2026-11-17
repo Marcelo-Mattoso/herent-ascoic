@@ -12,9 +12,9 @@ import esGame from "../../locales/es-ES/game.json";
 import enGame from "../../locales/en-US/game.json";
 
 describe("cobertura de tradução do Castelo em espanhol e inglês", () => {
-	it("traduz todas as 68 cartas, inclusive Therion", () => {
+	it("traduz todas as 70 cartas, inclusive Therion", () => {
 		const cards = [...castle.cards, boss.card];
-		expect(cards).toHaveLength(68);
+		expect(cards).toHaveLength(70);
 		for (const card of cards) {
 			const id = card.id;
 			expect((ptCards as Record<string, { name: string }>)[id]?.name).toBeTruthy();

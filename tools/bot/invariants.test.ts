@@ -14,8 +14,8 @@ import {
 } from "./invariants";
 import { settled } from "@/core/__tests__/fixtures";
 import { initialState } from "../golden/lib";
-import { withPaused, withEffectStack, withPendingSkillChoice } from "@/core/state/access";
-import { withGame } from "@/engine/state";
+import { withPaused, withEffectStack, withPendingSkillChoice, withDecks, decksOf, deckOf } from "@/core/state/access";
+import { withGame, gameOf } from "@/engine/state";
 
 const setup = {
 	heroCardIds: ["hero_crimson_barbarian"],
@@ -122,6 +122,38 @@ describe("duplicação de cartas", () => {
 		expect(checkCardDuplication(s, { item_x: 1 })?.invariant).toBe(
 			"card_duplication",
 		);
+	});
+
+	it("Andarilho: caminhos apresentados não duplicam cartas e duplicação real é detectada", () => {
+		const initial = initialState({
+			heroCardIds: ["hero_plains_wanderer"],
+			difficulty: "normal",
+			bossCardId: "boss_therion_infinite_horizon_king",
+			seed: 1,
+		});
+		const baseline = countCards(initial);
+		const paths = deckOf(initial, "dungeonDeck").available.slice(0, 3);
+		expect(paths).toHaveLength(3);
+		const pending = withPendingSkillChoice(
+			withGame(initial, (game) => ({ ...game, paths })),
+			{
+				skillId: "skill_illuminate_path",
+				kind: "dungeon_path",
+				prompt: "Iluminar o Caminho: escolha a próxima sala.",
+				options: paths.map((id, index) => ({ id: `path_${index}`, label: id })),
+				sourceHeroId: gameOf(initial).heroes[0]!.id,
+				sourceCardId: "hero_plains_wanderer",
+				context: { triggeredBy: "evt_room_reveal", value: 3 },
+			},
+		);
+		expect(countCards(pending)).toEqual(baseline);
+		expect(checkCardDuplication(pending, baseline)).toBeNull();
+		const dungeonDeck = deckOf(pending, "dungeonDeck");
+		const duplicated = withDecks(pending, {
+			...decksOf(pending),
+			dungeonDeck: { ...dungeonDeck, available: [...dungeonDeck.available, paths[0]!] },
+		});
+		expect(checkCardDuplication(duplicated, baseline)?.invariant).toBe("card_duplication");
 	});
 
 	it("contabiliza itens revelados aguardando escolha, mesmo que já tenham saído do deck", () => {

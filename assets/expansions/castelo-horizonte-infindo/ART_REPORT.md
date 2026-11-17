@@ -6,7 +6,7 @@
 - Ferramenta: gerador de imagens integrado (`image_gen`), uma chamada por arte.
 - Conversão: Pillow, PNG original para WebP com qualidade 90 e método 6.
 - Dimensões: 1024 × 1536 pixels, proporção 2:3.
-- Resultado: 68 PNGs e 68 WebPs válidos; nenhuma arte pendente.
+- Resultado original: 68 PNGs e 68 WebPs válidos. As duas novas salas de artefato v1.1.0 reutilizam temporariamente imagens existentes e aguardam arte própria.
 - Validação: todos os arquivos abrem como PNG/WebP, os nomes dos pares correspondem e os 68 PNGs têm hashes distintos.
 - Revisão visual: silhueta e anatomia de centauros, homem-macaco engenheiro, Therion e Pedra-Matriz, céu negro, torres sem chaminés e objetos legíveis em tamanho de carta.
 
@@ -91,3 +91,12 @@ Cada chamada usou o nome e a descrição individual da lista definitiva do pedid
 
 Nenhuma.
 
+
+## Duas salas de artefato adicionadas no playtest v1.1.0
+
+| Carta | Arte provisória | Estado |
+| --- | --- | --- |
+| Galeria das Insígnias Perdidas (`room_lost_insignias_gallery`) | `images/room_torn_banners_hall.webp` | Arte exclusiva pendente |
+| Cofre dos Tributos Reais (`room_royal_tributes_vault`) | `images/room_lost_tributes_warehouse.webp` | Arte exclusiva pendente |
+
+As duas cartas já possuem imagem válida no jogo. Os WebPs existentes não foram alterados.

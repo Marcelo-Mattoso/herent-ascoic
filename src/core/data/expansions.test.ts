@@ -1,14 +1,16 @@
 import { describe, expect, it } from "vitest";
 import { getAllCards, getCardById } from "./cards";
 import { getEnabledExpansions, getExpansionCardMetadata } from "./expansions";
+import { buildDungeonRoomDeck } from "../reducer/exploration";
+import { testEngine } from "../__tests__/testEngine";
 
 describe("pacotes de expansão", () => {
 	it("carrega a Fornalha Sombria sem alterar os 80 IDs originais", () => {
 		expect(getEnabledExpansions().map((pack) => pack.id)).toEqual(["fornalha-sombria", "torre-grande-bruxa-caldeirao", "castelo-horizonte-infindo"]);
-		expect(getAllCards()).toHaveLength(216);
+		expect(getAllCards()).toHaveLength(218);
 		expect(getEnabledExpansions()[0]?.boss).toBe("boss.json");
 		expect(getEnabledExpansions()[0]?.cards.some((card) => card.type === "boss")).toBe(false);
-		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(216);
+		expect(new Set(getAllCards().map((card) => card.id)).size).toBe(218);
 	});
 
 	it("mantém atributos de combate e referências de habilidades", () => {
@@ -27,7 +29,7 @@ describe("pacotes de expansão", () => {
 	it("usa apenas a pasta images, sem subpastas por categoria", () => {
 		const paths = getAllCards().map((card) => getExpansionCardMetadata(card.id)?.image)
 			.filter((image) => image !== undefined);
-		expect(paths.length).toBe(214);
+		expect(paths.length).toBe(216);
 		for (const image of paths) {
 			expect(image).toMatch(/^images\/[^/]+\.(?:webp|png)$/);
 		}
@@ -58,18 +60,33 @@ describe("pacotes de expansão", () => {
 		}
 	});
 
-	it("Castelo do Horizonte Infindo v1.0: catálogo de 67 cartas mais chefe separado", () => {
+	it("Castelo do Horizonte Infindo v1.1: catálogo de 69 cartas mais chefe separado", () => {
 		const castle = getEnabledExpansions().find((entry) => entry.id === "castelo-horizonte-infindo");
-		expect(castle?.version).toBe("1.0.0");
+		expect(castle?.version).toBe("1.1.0");
 		expect(castle?.boss).toBe("boss.json");
-		expect(castle?.cards).toHaveLength(67);
+		expect(castle?.cards).toHaveLength(69);
 		for (const [type, amount] of Object.entries({
-			hero: 4, creature: 18, subboss: 2, room: 10,
+			hero: 4, creature: 18, subboss: 2, room: 12,
 			subboss_room: 2, item: 20, ally: 6, artifact: 5,
 		})) {
 			expect(castle?.cards.filter((card) => card.type === type), type).toHaveLength(amount);
 		}
 		expect(castle?.cards.some((card) => card.type === "boss")).toBe(false);
+		const artifactRooms = castle?.cards.filter((card) =>
+			(card.type === "room" || card.type === "subboss_room") && card.rewardType === "artifact",
+		);
+		expect(artifactRooms).toHaveLength(4);
+		const deck = buildDungeonRoomDeck(testEngine, "castelo-horizonte-infindo");
+		expect(deck).toHaveLength(26);
+		for (const id of ["room_lost_insignias_gallery", "room_royal_tributes_vault"]) {
+			const card = getCardById(id);
+			expect(card?.type, id).toBe("room");
+			if (card?.type !== "room") continue;
+			expect(card.xp, id).toBe(3);
+			expect(card.rewardType, id).toBe("artifact");
+			expect(card.reward, id).toBe(1);
+			expect(deck.filter((entry) => entry === id), id).toHaveLength(2);
+		}
 	});
 
 	it("garante sala inicial válida em todas as expansões habilitadas", () => {

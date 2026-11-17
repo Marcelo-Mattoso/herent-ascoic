@@ -524,6 +524,12 @@
   "room_corrupted_watch_gallery": {
     "name": "Galeria da Vigília Corrompida"
   },
+  "room_lost_insignias_gallery": {
+    "name": "Galeria das Insígnias Perdidas"
+  },
+  "room_royal_tributes_vault": {
+    "name": "Cofre dos Tributos Reais"
+  },
   "subboss_room_cruel_herd_arena": {
     "name": "Arena da Manada Cruel"
   },
