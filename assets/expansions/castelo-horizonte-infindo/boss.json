@@ -94,8 +94,7 @@
         "charges": 1
       },
       "nature": [
-        "nat_dark",
-        "nat_magical"
+        "nat_physical"
       ],
       "target_type": "tgt_self",
       "affect_scope": "scp_single",
