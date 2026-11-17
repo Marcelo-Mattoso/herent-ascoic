@@ -173,6 +173,7 @@ export function CardDetailModal({
 							return (
 								<>
 									<Row label="Tipo" value={card.type === "ally" ? "Aliado permanente" : card.itemClass} />
+									{card.type === "ally" && <Row label="Espaço" value="Amuleto / Aliado — exclusivo" />}
 									{(card.type === "ally" ? itemSkills : main ? [main] : []).map(({ ref }, index) => (
 										<p key={ref.skillId + ":" + index} className="text-xs" style={{ color: UI.textPrimary }}>
 											{renderSkillLabel(uiEngine, ref)}

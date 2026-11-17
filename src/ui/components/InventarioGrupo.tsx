@@ -459,7 +459,7 @@ function HeroColumn({
 						slotType === "hand2" && !!name && !hero.activeItems.hand2;
 					const exhausted = !!name && inventory.exhaustedItemIds.includes(name);
 					const col = name
-						? (SLOT_COLORS_INV[slotType] ?? itemColor(name))
+						? (getCardById(name)?.type === "ally" ? SLOT_COLORS_INV.ally : SLOT_COLORS_INV[slotType] ?? itemColor(name))
 						: null;
 					const isThisItemDragging =
 						dragging?.from.kind === "hero_slot" &&
