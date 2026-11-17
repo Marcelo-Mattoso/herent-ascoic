@@ -49,6 +49,8 @@
     "cards:hero_crimson_barbarian.characterName": "Canonical character name preserved unchanged in all languages.",
     "cards:hero_last_light_paladin.characterName": "Canonical character name preserved unchanged in all languages.",
     "cards:hero_deep_veil_necromancer.characterName": "Canonical character name preserved unchanged in all languages.",
-    "cards:hero_broken_veil_hunter.characterName": "Canonical character name preserved unchanged in all languages."
+    "cards:hero_broken_veil_hunter.characterName": "Canonical character name preserved unchanged in all languages.",
+    "game:components.heroFocusPanel.backpackItem": "«item» is the same word in English and Portuguese.",
+    "game:components.inventarioGrupo.itemType": "«Item» is the same word in English and Portuguese."
   }
 }

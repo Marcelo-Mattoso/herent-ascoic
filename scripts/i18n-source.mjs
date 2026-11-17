@@ -72,10 +72,45 @@ function tutorialTexts() {
 	return output;
 }
 
+
+/**
+ * Expansões que já possuem traduções publicadas e, portanto, entram no
+ * catálogo base do PT-BR. As outras mantêm seu fallback de dados no runtime.
+ */
+const localizedExpansionIds = ["castelo-horizonte-infindo"];
+
+function localizedExpansionCatalogs() {
+	const cards = {};
+	const skills = {};
+	for (const id of localizedExpansionIds) {
+		const directory = path.join(root, "assets", "expansions", id);
+		const pack = JSON.parse(fs.readFileSync(path.join(directory, "expansion.json"), "utf8"));
+		for (const card of pack.cards) {
+			if (cards[card.id]) throw new Error(`ID de carta de expansão duplicado: ${card.id}`);
+			cards[card.id] = { name: card.name };
+		}
+		for (const [skillId, locale] of Object.entries(pack.skillLocales ?? {})) {
+			if (skills[skillId]) throw new Error(`ID de habilidade duplicado: ${skillId}`);
+			skills[skillId] = { name: locale.name, label: locale.label, text: locale.text };
+		}
+		if (pack.boss) {
+			const boss = JSON.parse(fs.readFileSync(path.join(directory, pack.boss), "utf8"));
+			if (cards[boss.card.id]) throw new Error(`ID de chefe duplicado: ${boss.card.id}`);
+			cards[boss.card.id] = { name: boss.card.name, ...(boss.locale ?? {}) };
+			for (const [skillId, locale] of Object.entries(boss.skillLocales ?? {})) {
+				if (skills[skillId]) throw new Error(`ID de habilidade duplicado: ${skillId}`);
+				skills[skillId] = { name: locale.name, label: locale.label, text: locale.text };
+			}
+		}
+	}
+	return { cards, skills };
+}
+
 export function sourceCatalogs() {
+	const extra = localizedExpansionCatalogs();
 	return {
-		cards: readYaml("cards.locale.pt-BR.yaml"),
-		skills: readYaml("skills.locale.pt-BR.yaml"),
+		cards: { ...readYaml("cards.locale.pt-BR.yaml"), ...extra.cards },
+		skills: { ...readYaml("skills.locale.pt-BR.yaml"), ...extra.skills },
 		tutorials: tutorialTexts(),
 	};
 }

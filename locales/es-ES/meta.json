@@ -187,6 +187,19 @@
     "cards:hero_crimson_barbarian.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
     "cards:hero_last_light_paladin.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
     "cards:hero_deep_veil_necromancer.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
-    "cards:hero_broken_veil_hunter.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas."
+    "cards:hero_broken_veil_hunter.characterName": "Nombre propio canónico del personaje, conservado en todos los idiomas.",
+    "game:components.heroFocusPanel.skillPrepared": "Participio femenino equivalente en español y portugués.",
+    "game:components.heroFocusPanel.skillUsed": "Participio femenino equivalente en español y portugués.",
+    "game:components.heroFocusPanel.powerPrepared": "Participio masculino equivalente en español y portugués.",
+    "game:components.heroFocusPanel.powerUsed": "Participio masculino equivalente en español y portugués.",
+    "game:components.heroFocusPanel.preparePower": "«Preparar poder» se escribe correctamente igual en ambos idiomas.",
+    "game:components.heroFocusPanel.power": "«Poder» es la misma palabra en ambos idiomas.",
+    "game:components.heroFocusPanel.cancel": "«Cancelar» se escribe igual en ambos idiomas.",
+    "game:components.inventarioGrupo.allyLabel": "«Aliado» es la misma palabra en ambos idiomas.",
+    "game:components.inventarioGrupo.allyPermanent": "«Aliado permanente» es una expresión válida e idéntica en ambos idiomas.",
+    "game:components.modals.cardDetailModal.sharedSlot": "El nombre del espacio compartido es correcto e idéntico en ambos idiomas.",
+    "game:components.modals.cardDetailModal.type": "«Tipo» es la misma palabra en ambos idiomas.",
+    "game:components.artifactRitual.prefix": "«Contra {{boss}}:» se escribe igual en ambos idiomas.",
+    "skills:therion_boss_skill_last_conquest.name": "«Última Conquista» es un nombre válido e idéntico en ambos idiomas."
   }
 }
