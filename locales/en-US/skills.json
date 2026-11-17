@@ -535,8 +535,8 @@
   },
   "castle_skill_sunset_precision": {
     "name": "Sunset Gaze",
-    "label": "Sunset Gaze: At the start of each combat, gain +1 Hit Bonus until the combat ends.",
-    "text": "At the start of each combat, gain +1 Hit Bonus until the combat ends."
+    "label": "Sunset Gaze: At the start of each combat, gain +3 Hit Bonus during the first round.",
+    "text": "At the start of each combat, gain +3 Hit Bonus during the first round."
   },
   "castle_power_sunset_lance": {
     "name": "Sunset Strike",
@@ -545,8 +545,8 @@
   },
   "castle_skill_dry_wind_step": {
     "name": "Dry Wind Step",
-    "label": "Dry Wind Step: Once per room, when targeted by an attack, reduce the next damage you take by 1.",
-    "text": "Once per room, when targeted by an attack, reduce the next damage you take by 1."
+    "label": "Dry Wind Step: Once per room, when targeted by an attack, reduce the next damage taken by 2 (once per combat).",
+    "text": "Once per room, when targeted by an attack, reduce the next damage taken by 2 (once per combat)."
   },
   "castle_power_dry_wind_charge": {
     "name": "Prairie Surge",

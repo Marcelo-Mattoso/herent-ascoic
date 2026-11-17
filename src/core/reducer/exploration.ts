@@ -29,7 +29,7 @@ import { dungeonRecoveryCost, expansionOf, cardById, cardName, cardsOfType, skil
 
 import { refRequirementMet } from "../gameEngine";
 import type { GameEngine, GameHandler } from "../gameEngine";
-import { awakeningOf, dealDecksInto, deckOf, decksOf, discardDeckTop, isStatComponent, recordOfEnemy, shuffleDeck, spawnEnemy, withDecks, withWorld, withoutStaleEnemies, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, withPaused, withEffectStack } from "../state/access";
+import { awakeningOf, dealDecksInto, deckOf, decksOf, discardDeckTop, isStatComponent, recordOfEnemy, shuffleDeck, spawnEnemy, withDecks, withWorld, withoutStaleEnemies, worldOf, pendingTriggerInterruptOf, pendingSkillChoiceOf, pendingSkillTargetOf, withPendingSkillChoice, withPaused, withEffectStack } from "../state/access";
 import { gameOf, withGame } from "../../engine/state";
 const DUNGEON_ROOM_COPIES = 2;
 
@@ -546,8 +546,19 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 	}
 
 	state = shuffleDeck(state, "dungeonDeck");
+	return finishDungeonPathDraw(engine, state, exits);
+}
+
+/** A escolha de caminhos deve vir antes do descarte e da entrada na sala. */
+function finishDungeonPathDraw(engine: GameEngine,
+	state: GameState,
+	exits: number,
+	selectedIndex?: number,
+): GameState {
 	let rng = gameOf(state).rng;
 	const shuffledAvailable = deckOf(state, "dungeonDeck").available;
+	const { discarded, removed } = deckOf(state, "dungeonDeck");
+	const discardTarget = exits >= 5 ? 2 : exits > 1 ? 1 : 0;
 
 	const roomNumber = gameOf(state).roomsCleared + 1;
 	const eligible = shuffledAvailable.filter((id) => isRoomAvailableAtDepth(engine, id, roomNumber));
@@ -556,10 +567,46 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 	const afterDraw = [...eligible.slice(exits), ...locked];
 	if (drawn.length === 0) return handleNoEligibleDungeonRoom(state);
 
-	const { value: shuffledDrawn, next: afterChoice } = shuffleRng(drawn, rng);
-	rng = afterChoice;
+	// A habilidade de exploração é passiva. Sem alternativas distintas,
+	// segue a escolha aleatória normal sem abrir qualquer modal.
+	if (selectedIndex === undefined && new Set(drawn).size >= 2) {
+		const illuminated = gameOf(state).heroes
+			.filter((hero) => hero.status === "active" &&
+				!ActivationTracker.isDisabled(state, "hero", hero.id))
+			.flatMap((hero) => skillsOf(engine, hero.cardId)
+				.filter((skill) => skill.def.effect?.some((node) => node.kind === "i_reveal_dungeon"))
+				.map((skill) => ({ hero, skillId: skill.ref.skillId })))
+			.at(0);
+		if (illuminated) {
+			return withPendingSkillChoice(
+				withGame(state, (game) => ({ ...game, paths: drawn })),
+				{
+					skillId: illuminated.skillId,
+					kind: "dungeon_path",
+					prompt: "Iluminar o Caminho: escolha a próxima sala.",
+					options: drawn.map((id, index) => ({
+						id: `path_${index}`,
+						label: cardName(engine, id),
+					})),
+					sourceHeroId: illuminated.hero.id,
+					sourceCardId: illuminated.hero.cardId,
+					context: { triggeredBy: "evt_room_reveal", value: exits },
+				},
+			);
+		}
+	}
+	if (selectedIndex !== undefined &&
+		(selectedIndex < 0 || selectedIndex >= drawn.length ||
+			JSON.stringify(gameOf(state).paths) !== JSON.stringify(drawn))) return state;
 
-	const [chosenId, ...unchosen] = shuffledDrawn;
+	// Quando o herói escolhe, a sala selecionada passa à frente; as demais
+	// ainda sofrem o descarte normal, sem voltar a sortear o caminho.
+	const shuffledDrawn = selectedIndex === undefined
+		? shuffleRng(drawn, rng)
+		: { value: [drawn[selectedIndex]!, ...drawn.filter((_, i) => i !== selectedIndex)], next: rng };
+	rng = shuffledDrawn.next;
+
+	const [chosenId, ...unchosen] = shuffledDrawn.value;
 	const discardCount =
 		gameOf(state).flags.dungeonDiscardPrevented && !gameOf(state).flags.discardDungeonLocked
 			? 0
@@ -599,7 +646,20 @@ function advanceToRandomDungeonRoom(engine: GameEngine,
 		next,
 		`Caminho sorteado em segredo: ${drawn.length} carta(s), ${discardedPaths.length} descarte(s).`,
 	);
-	return enterDungeonRoom(engine, next, card, nextAvailable, "Sala sorteada");
+	return enterDungeonRoom(engine, next, card, nextAvailable,
+		selectedIndex === undefined ? "Sala sorteada" : "Sala revelada");
+}
+
+/** Resolve a escolha real de sala feita por Iluminar o Caminho. */
+export function selectRevealedDungeonPath(engine: GameEngine,
+	state: GameState,
+	choice: string,
+	exits: number,
+): GameState {
+	if (!/^path_\\d+$/.test(choice) || gameOf(state).paths.length < 2) return state;
+	const index = Number(choice.slice("path_".length));
+	if (!Number.isSafeInteger(index) || index >= gameOf(state).paths.length) return state;
+	return finishDungeonPathDraw(engine, state, exits, index);
 }
 
 /** Retoma a abertura de caminhos depois de uma interrupção de descarte. */

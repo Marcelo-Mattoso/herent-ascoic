@@ -159,7 +159,9 @@ const revealDungeon = effectKind({
 		const count = (effect["count"] as number) ?? 1;
 		const skillId = (pending.source as string | undefined) ?? "reveal_dungeon";
 		const topCards = deckOf(state, "dungeonDeck").available.slice(0, count);
-		if (topCards.length === 0) return log(state, "Deck de dungeon vazio.");
+		// Uma carta visível não oferece escolha; a seleção real de caminhos ocorre
+		// antes de entrar na próxima sala, quando há pelo menos duas opções.
+		if (topCards.length <= 1) return state;
 		const options = [
 			...topCards.map((name, i) => ({
 				id: `card_${i}`,

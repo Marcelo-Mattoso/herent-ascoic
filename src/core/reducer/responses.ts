@@ -43,7 +43,7 @@ import {
 	resumeAttackAfterDamage,
 } from "./combat";
 import { continueRewardsAfterRoomWin, finishGrantRewards } from "./reward";
-import { discardFromDungeonDeck, resumeDungeonAdvance } from "./exploration";
+import { discardFromDungeonDeck, resumeDungeonAdvance, selectRevealedDungeonPath } from "./exploration";
 import { log } from "./utils";
 
 type SkillChoicePayload = Extract<Action, { type: "SKILL_CHOICE" }>["payload"];
@@ -264,6 +264,14 @@ function resolveSkillChoice(
 			needsAdvance ? advanceAfterHeroDisabledForRound(charged) : charged,
 			skillWindow);
 	};
+	// Iluminar o Caminho: a escolha define a sala antes da compra/descarte normal.
+	if (pending.kind === "dungeon_path") {
+		const exits = pending.context?.value;
+		if (typeof exits !== "number" || !Number.isInteger(exits) || exits < 2)
+			return state;
+		const advanced = selectRevealedDungeonPath(engine, state, payload.choice, exits);
+		return advanced === state ? state : finishChoice(advanced, payload.choice);
+	}
 	// Apenas escolhas explicitamente opcionais podem ser dispensadas.
 	if (payload.choice === "__skip__") {
 		if (!pending.allowSkip) return state;

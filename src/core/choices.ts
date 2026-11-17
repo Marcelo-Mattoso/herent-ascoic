@@ -37,7 +37,7 @@ export interface PendingSkillChoice {
 	/** Só escolhas explicitamente opcionais podem usar __skip__. */
 	readonly allowSkip?: boolean;
 	/** Escolha de cartas reveladas: permite guardar uma ou descartar individualmente. */
-	readonly kind?: "draw_and_choose";
+	readonly kind?: "draw_and_choose" | "dungeon_path";
 	readonly discardDeck?: "itemDeck" | "artifactDeck";
 	readonly options: readonly {
 		readonly id: string;

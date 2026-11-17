@@ -1944,12 +1944,15 @@
           "to": "$source",
           "stat": "s_hit_bonus",
           "operation": "add",
-          "value": 1,
+          "value": 3,
           "duration": {
-            "kind": "until_end_of_combat"
+            "kind": "until_end_of_round"
           }
         }
-      ]
+      ],
+      "interrupt": {
+        "mode": "auto"
+      }
     },
     {
       "id": "castle_power_sunset_lance",
@@ -2001,12 +2004,15 @@
           "to": "$source",
           "stat": "s_damage_reduction",
           "operation": "add",
-          "value": 1,
+          "value": 2,
           "duration": {
             "kind": "once"
           }
         }
-      ]
+      ],
+      "interrupt": {
+        "mode": "auto"
+      }
     },
     {
       "id": "castle_power_dry_wind_charge",
@@ -2408,8 +2414,8 @@
   "skillLocales": {
     "castle_skill_sunset_precision": {
       "name": "Olhar do Poente",
-      "text": "No início de cada combate, recebe +1 de Acerto até o fim do combate.",
-      "label": "Olhar do Poente: No início de cada combate, recebe +1 de Acerto até o fim do combate."
+      "text": "No início de cada combate, recebe +3 de Acerto durante a primeira rodada.",
+      "label": "Olhar do Poente: No início de cada combate, recebe +3 de Acerto durante a primeira rodada."
     },
     "castle_power_sunset_lance": {
       "name": "Golpe do Poente",
@@ -2418,8 +2424,8 @@
     },
     "castle_skill_dry_wind_step": {
       "name": "Passo do Vento Seco",
-      "text": "Uma vez por sala, reduz em 1 o próximo dano recebido ao ser alvo de um ataque.",
-      "label": "Passo do Vento Seco: Uma vez por sala, reduz em 1 o próximo dano recebido ao ser alvo de um ataque."
+      "text": "Uma vez por sala, ao ser alvo de um ataque, reduz em 2 o próximo dano recebido (uma vez por combate).",
+      "label": "Passo do Vento Seco: Uma vez por sala, ao ser alvo de um ataque, reduz em 2 o próximo dano recebido (uma vez por combate)."
     },
     "castle_power_dry_wind_charge": {
       "name": "Impulso da Campina",

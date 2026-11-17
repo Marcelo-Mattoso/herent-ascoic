@@ -535,8 +535,8 @@
   },
   "castle_skill_sunset_precision": {
     "name": "Mirada del Ocaso",
-    "label": "Mirada del Ocaso: Al inicio de cada combate, recibe +1 al Acierto hasta que termine el combate.",
-    "text": "Al inicio de cada combate, recibe +1 al Acierto hasta que termine el combate."
+    "label": "Mirada del Ocaso: Al inicio de cada combate, recibe +3 de Acierto durante la primera ronda.",
+    "text": "Al inicio de cada combate, recibe +3 de Acierto durante la primera ronda."
   },
   "castle_power_sunset_lance": {
     "name": "Golpe del Ocaso",
@@ -545,8 +545,8 @@
   },
   "castle_skill_dry_wind_step": {
     "name": "Paso del Viento Seco",
-    "label": "Paso del Viento Seco: Una vez por sala, reduce en 1 el próximo daño recibido al ser objetivo de un ataque.",
-    "text": "Una vez por sala, reduce en 1 el próximo daño recibido al ser objetivo de un ataque."
+    "label": "Paso del Viento Seco: Una vez por sala, al ser objetivo de un ataque, reduce en 2 el próximo daño recibido (una vez por combate).",
+    "text": "Una vez por sala, al ser objetivo de un ataque, reduce en 2 el próximo daño recibido (una vez por combate)."
   },
   "castle_power_dry_wind_charge": {
     "name": "Ímpetu de la Pradera",
