@@ -656,7 +656,7 @@ export function selectRevealedDungeonPath(engine: GameEngine,
 	choice: string,
 	exits: number,
 ): GameState {
-	if (!/^path_\\d+$/.test(choice) || gameOf(state).paths.length < 2) return state;
+	if (!/^path_[0-9]+$/.test(choice) || gameOf(state).paths.length < 2) return state;
 	const index = Number(choice.slice("path_".length));
 	if (!Number.isSafeInteger(index) || index >= gameOf(state).paths.length) return state;
 	return finishDungeonPathDraw(engine, state, exits, index);

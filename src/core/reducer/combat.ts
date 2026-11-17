@@ -1295,7 +1295,11 @@ export function handleCheckCombatEnd(engine: GameEngine, state: GameState): Game
 		const defeated = gameOf(state).activeEnemies.filter((e) => e.status === "defeated");
 		// Inimigos que fugiram voltam ao deck
 		const fled = enemiesOf(state).filter((e) => e.status === "fled");
-		let next = clearDamageOverTime(state);
+		// Um combate pode terminar antes do fim da primeira rodada.
+		// Modificadores 'until_end_of_round' (como Olhar do Poente)
+		// não devem escapar para a sala/combate seguinte.
+		let next = withWorld(clearDamageOverTime(state),
+			tickModifierDurations(worldOf(state), "end_of_round"));
 		if (fled.length > 0) {
 			const fleeIds = fled.map((e) => e.cardId);
 			next = shuffleDeck(

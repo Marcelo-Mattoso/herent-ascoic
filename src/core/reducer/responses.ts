@@ -269,8 +269,12 @@ function resolveSkillChoice(
 		const exits = pending.context?.value;
 		if (typeof exits !== "number" || !Number.isInteger(exits) || exits < 2)
 			return state;
-		const advanced = selectRevealedDungeonPath(engine, state, payload.choice, exits);
-		return advanced === state ? state : finishChoice(advanced, payload.choice);
+		// Liberar a escolha antes de entrar na sala: a nova sala dispara
+		// evt_room_reveal e evt_room_enter, que não podem ser bloqueados
+		// pela escolha de caminho ainda pendente.
+		const cleared = clearPendingChoice(state);
+		const advanced = selectRevealedDungeonPath(engine, cleared, payload.choice, exits);
+		return advanced === cleared ? state : finishChoice(advanced, payload.choice);
 	}
 	// Apenas escolhas explicitamente opcionais podem ser dispensadas.
 	if (payload.choice === "__skip__") {
