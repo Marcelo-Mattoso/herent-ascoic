@@ -7,6 +7,7 @@ import { pausedOf } from "../state/access";
 import { tickModifierDurations } from "../ecs/world";
 import { moveInventoryItem } from "../rules/inventoryMoves";
 import { placeEquipment } from "../rules/equipment";
+import { reconcileEquipmentMaximumLife } from "../rules/equipmentLife";
 import { calculateRewards } from "../rules/reward";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { tickBlockEntries } from "../state/blockHelpers";
@@ -410,7 +411,7 @@ export function distributeItemAuto(engine: GameEngine,
 	if (!hero) return state;
 
 	const card = cardById(engine, itemId);
-	if (!card || card.type !== "item") return state;
+	if (!card || (card.type !== "item" && card.type !== "ally")) return state;
 	if (Object.values(hero.activeItems).includes(itemId) || hero.backpack.includes(itemId)) return state;
 
 	const dest = defaultItemDestination(engine, hero, card);
@@ -420,11 +421,11 @@ export function distributeItemAuto(engine: GameEngine,
 	if (dest === "equip") {
 		const equipped = placeEquipment(engine, hero, card);
 		if (!equipped) return state;
-		return mapHero(
+		return reconcileEquipmentMaximumLife(engine, state, mapHero(
 			log(state, `${itemName} equipado em ${heroName}.`),
 			hero.id,
 			() => equipped.hero,
-		);
+		));
 	}
 	if (hero.backpack.length >= backpackCapacity(engine)) return state;
 
