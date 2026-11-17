@@ -384,3 +384,43 @@ dungeon_skill_empty_room:
   name: Sala Vazia
   label: "Sala Vazia: sem efeito adicional."
   text: sem efeito adicional.
+item_skill_equipped_max_life:
+  name: "Vida Reforçada"
+  label: "Vida Reforçada: Enquanto equipado, aumenta a Vida máxima do portador em {value}."
+  text: "Enquanto equipado, aumenta a Vida máxima do portador em {value}."
+item_skill_equipped_accuracy:
+  name: "Precisão Equipada"
+  label: "Precisão Equipada: Enquanto equipado, concede +{value} de Acerto ao portador."
+  text: "Enquanto equipado, concede +{value} de Acerto ao portador."
+item_skill_equipped_damage:
+  name: "Dano Equipado"
+  label: "Dano Equipado: Enquanto equipado, concede +{value} de Dano ao portador."
+  text: "Enquanto equipado, concede +{value} de Dano ao portador."
+item_skill_equipped_protection:
+  name: "Proteção Equipada"
+  label: "Proteção Equipada: Enquanto equipado, reduz em {value} o dano recebido pelo portador."
+  text: "Enquanto equipado, reduz em {value} o dano recebido pelo portador."
+dungeon_skill_environment_darkness:
+  name: "Escuridão da Sala"
+  label: "Escuridão da Sala: No início do combate, os heróis sofrem penalidade de {value} no Acerto até o fim do combate."
+  text: "No início do combate, os heróis sofrem penalidade de {value} no Acerto até o fim do combate."
+item_skill_illumination_against_darkness:
+  name: "Luz na Escuridão"
+  label: "Luz na Escuridão: Enquanto equipado em uma sala escura, concede +{value} de Acerto ao portador."
+  text: "Enquanto equipado em uma sala escura, concede +{value} de Acerto ao portador."
+skill_group_command_accuracy:
+  name: "Comando de Precisão"
+  label: "Comando de Precisão: No início do combate, criaturas aliadas recebem +{value} de Acerto."
+  text: "No início do combate, criaturas aliadas recebem +{value} de Acerto."
+skill_group_command_protection:
+  name: "Comando de Proteção"
+  label: "Comando de Proteção: No início do combate, criaturas aliadas recebem {value} de redução de dano."
+  text: "No início do combate, criaturas aliadas recebem {value} de redução de dano."
+dungeon_skill_resonant_pressure:
+  name: "Pressão Ressonante"
+  label: "Pressão Ressonante: No início da rodada, os heróis recebem penalidade de {value} no Acerto até o fim da rodada."
+  text: "No início da rodada, os heróis recebem penalidade de {value} no Acerto até o fim da rodada."
+item_skill_room_damage_protection:
+  name: "Proteção contra a Sala"
+  label: "Proteção contra a Sala: Enquanto equipado, reduz em {value} o dano causado pelos efeitos da sala ao portador."
+  text: "Enquanto equipado, reduz em {value} o dano causado pelos efeitos da sala ao portador."
