@@ -49,6 +49,7 @@ export type ConditionNode =
 			readonly left: ExprNode;
 			readonly right: ExprNode;
 	  }
+	| { readonly kind: "room_has_tag"; readonly tag: string }
 	| { readonly kind: "and"; readonly children: readonly ConditionNode[] }
 	| { readonly kind: "or"; readonly children: readonly ConditionNode[] }
 	| { readonly kind: "not"; readonly child: ConditionNode }
