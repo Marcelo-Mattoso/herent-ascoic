@@ -154,6 +154,14 @@ describe("START_GAME", () => {
 			expect(gameOf(state).status, hero.id).toBe("COMBAT_START");
 			expect(gameOf(state).currentRoom, hero.id).not.toBeNull();
 			expect(enemiesOf(state).length, hero.id).toBeGreaterThan(0);
+			// O Andarilho das Planícies abre uma decisão legítima de Iluminar o Caminho.
+			// No teste de smoke, confirmar a ordem atual sem desabilitar a habilidade.
+			const choice = pendingSkillChoiceOf(state);
+			if (choice?.skillId === "skill_illuminate_path") {
+				state = reducer(testEngine, state, { type: "SKILL_CHOICE", payload: {
+					skillId: choice.skillId, choice: "ok",
+				} });
+			}
 			expect(pendingSkillChoiceOf(state), hero.id).toBeFalsy();
 		}
 	});
