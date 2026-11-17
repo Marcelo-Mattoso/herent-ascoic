@@ -13,6 +13,7 @@ export type SkillCardType =
 	| "creature"
 	| "subboss"
 	| "item"
+	| "ally"
 	| "artifact"
 	| "room";
 
