@@ -189,6 +189,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_dry_steppes_hyena.webp"
@@ -228,6 +235,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_cutting_wind_jackal.webp"
@@ -267,6 +281,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_midnight_ambush",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_open_carrion_vulture.webp"
@@ -303,6 +324,13 @@
       "skills": [
         {
           "skillId": "skill_cowardly_flee"
+        },
+        {
+          "skillId": "castle_purple_shifting_shadow",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_hidden_granary_goblin.webp"
@@ -339,6 +367,13 @@
       "skills": [
         {
           "skillId": "skill_rift_evasion"
+        },
+        {
+          "skillId": "castle_purple_shifting_shadow",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_ruin_thief_monkey.webp"
@@ -378,6 +413,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_midnight_ambush",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_high_grass_raider.webp"
@@ -417,6 +459,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_war_formation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_red_dust_scout.webp"
@@ -456,6 +505,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_steppes_spearman.webp"
@@ -495,6 +551,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_midnight_ambush",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_cruel_horizon_archer.webp"
@@ -534,6 +597,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_plains_hyena_rider.webp"
@@ -573,6 +643,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_midnight_ambush",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_cold_dunes_gnoll.webp"
@@ -612,6 +689,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_wild_meadow_bull.webp"
@@ -648,6 +732,13 @@
       "skills": [
         {
           "skillId": "skill_rift_evasion"
+        },
+        {
+          "skillId": "castle_purple_shifting_shadow",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_unburied_wind_spirit.webp"
@@ -687,6 +778,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_bloody_trails_centaur.webp"
@@ -726,6 +824,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_war_formation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_lost_barracks_hobgoblin.webp"
@@ -765,6 +870,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_quarry_bearman.webp"
@@ -804,6 +916,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_war_formation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_wall_apeman.webp"
@@ -843,6 +962,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_war_formation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/creature_stone_guard_centaur.webp"
@@ -882,6 +1008,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_crushing_charge",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/subboss_cruel_herd_champion.webp"
@@ -921,6 +1054,13 @@
           "params": {
             "value": 1
           }
+        },
+        {
+          "skillId": "castle_purple_war_formation",
+          "params": {
+            "value": 1
+          },
+          "requiresAwakening": true
         }
       ],
       "image": "images/subboss_tribute_hobgoblin_marshal.webp"
@@ -2145,60 +2285,205 @@
           ]
         }
       ]
+    },
+    {
+      "id": "castle_purple_crushing_charge",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_hit"
+      },
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_not_friend",
+      "rules": {
+        "damageType": "purple"
+      },
+      "effect": [
+        {
+          "kind": "i_damage",
+          "to": "$target",
+          "amount": "$value"
+        }
+      ]
+    },
+    {
+      "id": "castle_purple_shifting_shadow",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_targeted"
+      },
+      "nature": [
+        "nat_dark",
+        "nat_magical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "cooldown": {
+        "scope": "room",
+        "charges": 1
+      },
+      "effect": [
+        {
+          "kind": "p_modifier",
+          "to": "$target",
+          "stat": "s_hit_penalty",
+          "operation": "add",
+          "value": "$value",
+          "duration": {
+            "kind": "once"
+          }
+        }
+      ]
+    },
+    {
+      "id": "castle_purple_midnight_ambush",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_single",
+      "affect_object": "obj_friend",
+      "rules": {
+        "damageType": "purple"
+      },
+      "effect": [
+        {
+          "kind": "i_damage",
+          "to": "$lowest_life_hero",
+          "amount": "$value"
+        }
+      ]
+    },
+    {
+      "id": "castle_purple_war_formation",
+      "category": "monster_purple",
+      "operate_type": "op_triggered",
+      "trigger": {
+        "event": "evt_combat_start"
+      },
+      "nature": [
+        "nat_physical"
+      ],
+      "target_type": "tgt_target",
+      "affect_scope": "scp_room",
+      "affect_object": "obj_friend",
+      "effect": [
+        {
+          "kind": "i_for_each",
+          "over": "enemies",
+          "as": "$ally",
+          "do": [
+            {
+              "kind": "p_modifier",
+              "to": "$target",
+              "stat": "s_hit_bonus",
+              "operation": "add",
+              "value": "$value",
+              "duration": {
+                "kind": "until_end_of_combat"
+              }
+            }
+          ]
+        }
+      ]
     }
   ],
   "skillLocales": {
     "castle_skill_sunset_precision": {
       "name": "Olhar do Poente",
-      "text": "No início de cada combate, recebe +1 de Acerto até o fim do combate."
+      "text": "No início de cada combate, recebe +1 de Acerto até o fim do combate.",
+      "label": "Olhar do Poente: No início de cada combate, recebe +1 de Acerto até o fim do combate."
     },
     "castle_power_sunset_lance": {
       "name": "Golpe do Poente",
-      "text": "Uma vez por partida, recebe +2 de Dano durante um combate."
+      "text": "Uma vez por partida, recebe +2 de Dano durante um combate.",
+      "label": "Golpe do Poente: Uma vez por partida, recebe +2 de Dano durante um combate."
     },
     "castle_skill_dry_wind_step": {
       "name": "Passo do Vento Seco",
-      "text": "Uma vez por sala, reduz em 1 o próximo dano recebido ao ser alvo de um ataque."
+      "text": "Uma vez por sala, reduz em 1 o próximo dano recebido ao ser alvo de um ataque.",
+      "label": "Passo do Vento Seco: Uma vez por sala, reduz em 1 o próximo dano recebido ao ser alvo de um ataque."
     },
     "castle_power_dry_wind_charge": {
       "name": "Impulso da Campina",
-      "text": "Uma vez por partida, recebe +2 de Acerto até o fim do combate."
+      "text": "Uma vez por partida, recebe +2 de Acerto até o fim do combate.",
+      "label": "Impulso da Campina: Uma vez por partida, recebe +2 de Acerto até o fim do combate."
     },
     "castle_skill_last_bastion_guard": {
       "name": "Guarda do Horizonte",
-      "text": "Uma vez por rodada, reduz em 1 o próximo dano recebido."
+      "text": "Uma vez por rodada, reduz em 1 o próximo dano recebido.",
+      "label": "Guarda do Horizonte: Uma vez por rodada, reduz em 1 o próximo dano recebido."
     },
     "castle_power_last_bastion_oath": {
       "name": "Juramento do Último Bastião",
-      "text": "Uma vez por partida, o grupo recebe +1 de Proteção até o fim da rodada."
+      "text": "Uma vez por partida, o grupo recebe +1 de Proteção até o fim da rodada.",
+      "label": "Juramento do Último Bastião: Uma vez por partida, o grupo recebe +1 de Proteção até o fim da rodada."
     },
     "castle_skill_horizon_scout_ward": {
       "name": "Aviso do Batedor",
-      "text": "Uma vez por combate, reduz em 1 o próximo dano recebido. A janela exata do primeiro ataque será avaliada no audit."
+      "text": "Uma vez por combate, reduz em 1 o próximo dano recebido. A janela exata do primeiro ataque será avaliada no audit.",
+      "label": "Aviso do Batedor: Uma vez por combate, reduz em 1 o próximo dano recebido. A janela exata do primeiro ataque será avaliada no audit."
     },
     "castle_skill_serrated_bleed": {
       "name": "Corte Serrilhado",
-      "text": "Ao acertar, aplica Sangramento de 1 dano por rodada durante 2 rodadas."
+      "text": "Ao acertar, aplica Sangramento de 1 dano por rodada durante 2 rodadas.",
+      "label": "Corte Serrilhado: Ao acertar, aplica Sangramento de 1 dano por rodada durante 2 rodadas."
     },
     "castle_skill_last_bastion_shield": {
       "name": "Última Defesa",
-      "text": "Uma vez por combate, reduz em 1 o próximo dano recebido."
+      "text": "Uma vez por combate, reduz em 1 o próximo dano recebido.",
+      "label": "Última Defesa: Uma vez por combate, reduz em 1 o próximo dano recebido."
     },
     "castle_item_water_restore": {
       "name": "Água Revigorante",
-      "text": "Recupera 2 de Vida de um herói e descarta o odre."
+      "text": "Recupera 2 de Vida de um herói e descarta o odre.",
+      "label": "Água Revigorante: Recupera 2 de Vida de um herói e descarta o odre."
     },
     "castle_item_long_breath": {
       "name": "Fôlego Longo",
-      "text": "Recebe +1 de Acerto até o fim do combate. Consome a poção."
+      "text": "Recebe +1 de Acerto até o fim do combate. Consome a poção.",
+      "label": "Fôlego Longo: Recebe +1 de Acerto até o fim do combate. Consome a poção."
     },
     "castle_item_captive_light": {
       "name": "Luz Aprisionada",
-      "text": "O grupo recebe +1 de Acerto durante um combate. Descarta o frasco."
+      "text": "O grupo recebe +1 de Acerto durante um combate. Descarta o frasco.",
+      "label": "Luz Aprisionada: O grupo recebe +1 de Acerto durante um combate. Descarta o frasco."
     },
     "castle_item_small_war_drum": {
       "name": "Toque de Guerra",
-      "text": "Uma vez por sala, o grupo recebe +1 de Acerto até o fim da rodada."
+      "text": "Uma vez por sala, o grupo recebe +1 de Acerto até o fim da rodada.",
+      "label": "Toque de Guerra: Uma vez por sala, o grupo recebe +1 de Acerto até o fim da rodada."
+    },
+    "castle_purple_crushing_charge": {
+      "name": "Investida Impiedosa",
+      "label": "Despertar Roxo: ao acertar, causa +{value} de dano.",
+      "text": "Após um acerto no Despertar Roxo, causa {value} de dano adicional."
+    },
+    "castle_purple_shifting_shadow": {
+      "name": "Passo da Noite",
+      "label": "Despertar Roxo: uma vez por sala, penaliza um ataque em {value} de Acerto.",
+      "text": "Uma vez por sala, ao ser alvo de um ataque, impõe uma penalidade de {value} de Acerto."
+    },
+    "castle_purple_midnight_ambush": {
+      "name": "Emboscada do Manto",
+      "label": "Despertar Roxo: ao começar o combate, causa {value} de dano ao herói mais ferido.",
+      "text": "Ao começar o combate, causa {value} de dano ao herói com menos Vida."
+    },
+    "castle_purple_war_formation": {
+      "name": "Formação dos Conquistadores",
+      "label": "Despertar Roxo: todos os inimigos ganham +{value} de Acerto no combate.",
+      "text": "Ao começar o combate, todos os inimigos recebem +{value} de Acerto."
     }
   },
   "openings": {

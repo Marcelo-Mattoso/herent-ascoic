@@ -426,6 +426,13 @@
       "chooseTarget": "Escolha o alvo da habilidade:",
       "confirm": "Confirmar uso",
       "cancel": "Cancelar"
+    },
+    "artifactRitual": {
+      "prefix": "Contra {{boss}}:",
+      "life": "Neutraliza +{{value}} de Vida concedidos pelo ritual.",
+      "hitBonus": "Neutraliza +{{value}} de Acerto concedidos pelo ritual.",
+      "damage": "Neutraliza +{{value}} de Dano concedidos pelo ritual.",
+      "skill": "Anula a habilidade {{skill}}."
     }
   },
   "screens": {

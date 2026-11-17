@@ -7,6 +7,7 @@ import { renderSkillLabel } from "@/core/skills/renderLabel";
 import type { CardImageUrls } from "@/ui/cardImages";
 import { getCardImageUrl } from "@/ui/cardImages";
 import { uiEngine } from "@/ui/engine";
+import { artifactRitualDescription } from "@/ui/artifactRitualDescription";
 
 /** Compact, permanently visible artifacts; passive effects never get a Use button. */
 export function GroupArtifactPanel({
@@ -44,6 +45,7 @@ export function GroupArtifactPanel({
 							const actions = view.artifactActions.filter((entry) => entry.artifactId === artifact.cardId);
 							const image = getCardImageUrl(cardImageUrls, artifact.cardId);
 							const abilities = skillsOf(uiEngine, artifact.cardId);
+							const ritualDescription = artifactRitualDescription(artifact.cardId);
 							return (
 								<article key={artifact.cardId + "-" + index} data-testid="group-artifact" style={{
 									flex: "1 1 94px", minWidth: 0, maxWidth: 180,
@@ -65,6 +67,10 @@ export function GroupArtifactPanel({
 											? translate("game:components.groupArtifactPanel.bearer", { name: getCardName(bearer.cardId) })
 											: translate("game:components.groupArtifactPanel.shared")}
 									</div>
+									{ritualDescription && <div title={ritualDescription} data-testid="artifact-ritual-summary"
+										style={{ fontSize: 10, opacity: .85, marginTop: 3, overflow: "hidden", display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 3 }}>
+										{ritualDescription}
+									</div>}
 									{abilities[0] && <div title={renderSkillLabel(uiEngine, abilities[0].ref)}
 										style={{ fontSize: 10, opacity: .85, marginTop: 3, overflow: "hidden",
 											display: "-webkit-box", WebkitBoxOrient: "vertical", WebkitLineClamp: 2 }}>

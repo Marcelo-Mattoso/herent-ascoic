@@ -9,6 +9,7 @@ import type { CardType } from "@/ui/components/Card";
 import { Modal } from "@/ui/components/Modal";
 import { PlaceholderArt } from "@/ui/components/PlaceholderArt";
 import { UI } from "@/ui/theme";
+import { artifactRitualDescription } from "@/ui/artifactRitualDescription";
 
 interface CardDetailModalProps {
 	cardId: string;
@@ -133,7 +134,7 @@ export function CardDetailModal({
 										</p>
 									)}
 									{purple && (
-										<p className="text-xs italic" style={{ color: "#3D1A6E" }}>
+										<p className="text-xs italic" style={{ color: "#C4A1FF" }}>
 											{translate("game:components.modals.cardDetailModal.text003")}{" "}{renderSkillLabel(uiEngine, purple.ref)}
 										</p>
 									)}
@@ -204,8 +205,10 @@ export function CardDetailModal({
 						(() => {
 							const artSkills = skillsOf(uiEngine, card.id);
 							const main = artSkills[0];
+							const ritualDescription = artifactRitualDescription(card.id);
 							return (
 								<>
+									{ritualDescription && <p className="text-xs" data-testid="artifact-ritual-description" style={{ color: UI.textPrimary }}>{ritualDescription}</p>}
 									{main && <p className="text-xs" style={{ color: UI.textPrimary }}>
 										{renderSkillLabel(uiEngine, main.ref)}
 									</p>}

@@ -426,6 +426,13 @@
       "chooseTarget": "Elige el objetivo de la habilidad:",
       "confirm": "Confirmar activación",
       "cancel": "Volver"
+    },
+    "artifactRitual": {
+      "prefix": "Contra {{boss}}:",
+      "life": "Anula +{{value}} de Vida concedidos por el ritual.",
+      "hitBonus": "Anula +{{value}} de Acierto concedidos por el ritual.",
+      "damage": "Anula +{{value}} de Daño concedidos por el ritual.",
+      "skill": "Anula la habilidad {{skill}}."
     }
   },
   "screens": {

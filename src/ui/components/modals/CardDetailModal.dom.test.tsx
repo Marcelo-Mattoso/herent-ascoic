@@ -38,4 +38,10 @@ describe("detalhes de equipamento com ação manual", () => {
 		expect(screen.getByText(/inimigo vivo envenenado/)).toBeTruthy();
 	});
 
+	it("mostra a neutralização de Therion na ficha do artefato", () => {
+		render(<CardDetailModal cardId="artifact_infinite_wind_bow" cardType="artifact" onClose={vi.fn()} />);
+		expect(screen.getByTestId("artifact-ritual-description").textContent).toMatch(/4 de Acerto/);
+		expect(screen.queryByRole("button", { name: "Usar" })).toBeNull();
+	});
+
 });

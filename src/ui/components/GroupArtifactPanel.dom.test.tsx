@@ -49,4 +49,10 @@ describe("barra de artefatos compartilhados", () => {
 		expect(screen.queryByRole("button", { name: "Usar" })).toBeNull();
 		expect(screen.getByText("Passivo / reativo")).toBeTruthy();
 	});
+	it("mostra o enfraquecimento de Therion nos artefatos", () => {
+		const view = { ...withArtifact(true), groupArtifacts: [{ cardId: "artifact_unbroken_crest", carriedBy: null }], artifactActions: [] } as unknown as PlayerView;
+		render(<GroupArtifactPanel view={view} onArtifactClick={vi.fn()} onArtifactUse={vi.fn()} />);
+		expect(screen.getByTestId("artifact-ritual-summary").textContent).toMatch(/6 de Vida/);
+	});
+
 });

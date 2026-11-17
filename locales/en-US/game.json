@@ -424,6 +424,13 @@
       "chooseTarget": "Choose the ability target:",
       "confirm": "Confirm use",
       "cancel": "Cancel"
+    },
+    "artifactRitual": {
+      "prefix": "Against {{boss}}:",
+      "life": "Negates +{{value}} Life granted by the ritual.",
+      "hitBonus": "Negates +{{value}} Accuracy granted by the ritual.",
+      "damage": "Negates +{{value}} Damage granted by the ritual.",
+      "skill": "Disables the {{skill}} ability."
     }
   },
   "screens": {
