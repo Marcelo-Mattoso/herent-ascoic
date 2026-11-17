@@ -39,7 +39,7 @@ describe("boss separado por expansão", () => {
 		expect(boss?.artifactBonus).toEqual({ artifactId: heart, lifeBase: 16 });
 		expect(getBoss("inexistente")).toBeUndefined();
 		expect(getBossById(bossId)).toEqual(boss);
-		expect(getAllCards().filter((card) => card.type === "boss")).toHaveLength(2);
+		expect(getAllCards().filter((card) => card.type === "boss")).toHaveLength(3);
 		for (const skill of boss?.skills ?? []) {
 			expect(SKILLS.abilities.some((def) => def.id === skill.skillId)).toBe(true);
 		}
