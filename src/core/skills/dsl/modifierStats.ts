@@ -12,6 +12,8 @@ export const BUILTIN_MODIFIER_STATS: Readonly<Record<string, ModifierStatSpec>> 
 	// Maximum life is reconciled by equipmentLife on inventory transitions.
 	// Register the stat so authored DSL references validate without hardcoded IDs.
 	s_max_life: { target: "max_life" },
+	// Reduction that applies only to damage explicitly sourced from a room effect.
+	s_room_damage_reduction: { target: "room_damage_taken", reduction: true },
 	s_hit_penalty: { target: "hit_bonus", negate: true },
 	s_damage_penalty: { target: "damage_dealt" },
 };
