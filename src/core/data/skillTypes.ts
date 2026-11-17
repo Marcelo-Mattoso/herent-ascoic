@@ -36,6 +36,8 @@ export interface SkillRules {
 	readonly damageType?: import("../events/types").DamageType;
 	/** Vida recuperada pelo portador ao causar dano. */
 	readonly lifeDrain?: number;
+	/** Tag semântica de ambiente; permite reações genéricas a salas, sem IDs fixos. */
+	readonly environmentTag?: string;
 }
 
 export interface SkillDefinition {
