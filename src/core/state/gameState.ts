@@ -92,6 +92,8 @@ export interface AscensaoGame {
 
 	// Fila de recompensas aguardando resolução (itens e artefatos pendentes)
 	readonly pendingRewards: readonly PendingReward[];
+	/** Aliados dispensados nesta partida, inclusive após reinício da masmorra. */
+	readonly retiredAllyIds: readonly string[];
 
 	// Flags de uso por escopo "once_per_game" (key = skillId ou "skillId::heroId")
 	readonly oncePer: {
@@ -213,6 +215,7 @@ export function createInitialGameState(config: GameConfig): GameState {
 		combat: createEmptyCombatState(),
 
 		pendingRewards: [],
+		retiredAllyIds: [],
 
 		oncePer: { game: {} },
 
