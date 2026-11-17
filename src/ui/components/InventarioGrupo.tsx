@@ -549,7 +549,7 @@ function HeroColumn({
 							}
 							key={slotType}
 							{...slotDropHandlers(slotType)}
-							label={isTwoHandOverlay ? "2 mãos" : slotType === "ally" ? translate(SLOT_LABELS[slotType]) : translate(SLOT_LABELS[slotType])}
+							label={isTwoHandOverlay ? "2 mãos" : translate(SLOT_LABELS[slotType])}
 							filled={isTwoHandOverlay}
 							onClick={() => chooseEquipmentSlot(slotType)}
 						/>
