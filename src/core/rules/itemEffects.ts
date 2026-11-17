@@ -275,7 +275,7 @@ export function collectHeroHitBonusesFromItems(engine: GameEngine,
 	const continuousGrants = Object.values(hero.activeItems).flatMap((itemId) => {
 		if (!itemId) return [];
 		const item = cardById(engine, itemId);
-		if (item?.type !== "item") return [];
+		if (item?.type !== "item" && item?.type !== "ally") return [];
 		return (item.grants ?? []).flatMap((grant) => {
 			if (grant.activation.kind !== "continuous") return [];
 			if (!conditionsApply(engine, grant.activation.conditions, state, hero, enemy))
@@ -388,7 +388,7 @@ function itemSkillSourcesForHero(engine: GameEngine,
 		if (item?.type === "item" && item.useTiming) continue;
 		// Grants explícitos já descrevem todo o comportamento da carta. Os
 		// SkillRefs ficam apenas para compatibilidade e não devem duplicá-lo.
-		if (item?.type === "item" && item.grants?.length) {
+		if ((item?.type === "item" || item?.type === "ally") && item.grants?.length) {
 			// Grants are the single source of truth for legacy items; counting
 			// both grants and skill refs duplicates their bonuses. Expansion
 			// witch_ skills may accompany a separate manual grant, so include
@@ -397,7 +397,8 @@ function itemSkillSourcesForHero(engine: GameEngine,
 			sources.push(
 				...skillSourcesForCard(engine, itemId, "item", itemId, hero.id)
 					.filter((source) =>
-						source.def.id.startsWith("witch_") && !granted.has(source.def.id),
+						(!granted.has(source.def.id)) &&
+							(item.type === "ally" || source.def.id.startsWith("witch_")),
 					),
 			);
 			continue;
