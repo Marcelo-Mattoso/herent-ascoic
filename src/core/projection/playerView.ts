@@ -5,6 +5,7 @@ import { projectManualArtifactActions, type ManualArtifactAction } from "../rule
 import { type HeroInventoryView, projectHeroInventory } from "./inventoryView";
 import { projectSkillChoice } from "./skillChoiceView";
 import type { TargetCandidate } from "../data/skillTypes";
+import type { AnyCard } from "../data/cardTypes";
 import type { ModifierComponent } from "../ecs/types";
 import type { ChoiceOption, PauseReason, PendingEffect } from "../effects/stack";
 
@@ -119,6 +120,8 @@ function pausedViewOf(paused: PausedState | null): PausedView | null {
 	};
 }
 
+export type PendingRewardView = PendingReward & { readonly cardType?: AnyCard["type"] };
+
 export interface PlayerView {
 	readonly status: GameStatus;
 	readonly mode: GameMode;
@@ -150,7 +153,7 @@ export interface PlayerView {
 	readonly bossCardName: string; // derivado de cardById(engine, bossCardId).name
 	readonly winner: string | undefined;
 	readonly paths: readonly string[];
-	readonly pendingRewards: readonly PendingReward[];
+	readonly pendingRewards: readonly PendingRewardView[];
 	readonly eventLog: readonly string[];
 	readonly alphaLog: readonly string[];
 	readonly damageFeedback: NonNullable<import("../state/gameState").AscensaoGame["damageFeedback"]>;
@@ -256,7 +259,10 @@ export function playerView(engine: GameEngine, state: GameState): PlayerView {
 		bossCardName: cardName(engine, gameOf(state).bossCardId),
 		winner: gameOf(state).winner,
 		paths: gameOf(state).paths,
-		pendingRewards: gameOf(state).pendingRewards,
+		pendingRewards: gameOf(state).pendingRewards.map((reward) => ({
+			...reward,
+			cardType: cardById(engine, reward.cardId)?.type,
+		})),
 		eventLog: gameOf(state).eventLog,
 		alphaLog: gameOf(state).alphaLog ?? [],
 		damageFeedback: gameOf(state).damageFeedback ?? [],
