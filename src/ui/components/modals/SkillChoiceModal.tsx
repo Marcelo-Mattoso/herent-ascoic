@@ -90,7 +90,7 @@ export function SkillChoiceModal() {
 						</section>
 					)}
 					<section>
-						<p className="skill-choice-prompt">{pending.prompt}</p>
+						<p className="skill-choice-prompt">{pending.kind === "dungeon_path" ? translate("game:components.modals.skillChoiceModal.dungeonPathPrompt") : pending.prompt}</p>
 						<div
 							className={
 								hasCards
@@ -108,7 +108,7 @@ export function SkillChoiceModal() {
 										>
 											<span>{option.label}</span>
 											<ActionButton
-												label="Escolher"
+												label={translate("game:components.modals.skillChoiceModal.choose")}
 												variant="primary"
 												onClick={() => choose(option.id)}
 											/>
@@ -152,7 +152,7 @@ export function SkillChoiceModal() {
 												</>
 											) : (
 												<ActionButton
-													label="Escolher"
+													label={translate("game:components.modals.skillChoiceModal.choose")}
 													variant="primary"
 													onClick={() => choose(option.id)}
 												/>

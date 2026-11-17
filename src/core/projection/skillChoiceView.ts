@@ -16,6 +16,11 @@ export function choiceCardId(engine: GameEngine,
 	option: ChoiceOption,
 ): string | null {
 	if (cardById(engine, option.id)) return option.id;
+	if (pending.kind === "dungeon_path") {
+		const indexMatch = /^path_([0-9]+)$/.exec(option.id);
+		const id = indexMatch ? gameOf(state).paths[Number(indexMatch[1])] : undefined;
+		return id && cardById(engine, id) ? id : null;
+	}
 	const match = /^card_(\d+)$/.exec(option.id);
 	if (!match) return null;
 	const index = Number(match[1]);

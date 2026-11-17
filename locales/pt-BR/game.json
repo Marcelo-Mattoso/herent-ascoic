@@ -376,7 +376,9 @@
       "skillChoiceModal": {
         "text001": "Habilidade ativada",
         "text002": "Carta de origem",
-        "text003": "Examinar"
+        "text003": "Examinar",
+        "dungeonPathPrompt": "Iluminar o Caminho: escolha entre as salas reveladas.",
+        "choose": "Escolher"
       },
       "skillTargetModal": {
         "title001": "Escolha o alvo",

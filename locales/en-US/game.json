@@ -376,7 +376,9 @@
       "skillChoiceModal": {
         "text001": "Ability activated",
         "text002": "Source card",
-        "text003": "Inspect"
+        "text003": "Inspect",
+        "dungeonPathPrompt": "Illuminate the Path: choose one of the revealed rooms.",
+        "choose": "Choose"
       },
       "skillTargetModal": {
         "title001": "Choose the target",
