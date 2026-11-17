@@ -172,11 +172,11 @@ export function CardDetailModal({
 							return (
 								<>
 									<Row label="Tipo" value={card.type === "ally" ? "Aliado permanente" : card.itemClass} />
-									{main && (
-										<p className="text-xs" style={{ color: UI.textPrimary }}>
-											{renderSkillLabel(uiEngine, main.ref)}
+									{(card.type === "ally" ? itemSkills : main ? [main] : []).map(({ ref }, index) => (
+										<p key={ref.skillId + ":" + index} className="text-xs" style={{ color: UI.textPrimary }}>
+											{renderSkillLabel(uiEngine, ref)}
 										</p>
-									)}
+									))}
 									{canUseItem && (
 										<button
 											type="button"
