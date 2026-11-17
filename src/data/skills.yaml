@@ -1805,3 +1805,21 @@ abilities:
     target_type: tgt_target
     affect_scope: scp_party_full
     affect_object: obj_friend
+  - id: item_skill_room_damage_protection
+    category: item_skill
+    rules:
+      handledByEquipment: true
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_room_damage_reduction
+        operation: add
+        value: $value
+        duration:
+          kind: while_in_play
+    operate_type: op_passive
+    nature:
+      - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
