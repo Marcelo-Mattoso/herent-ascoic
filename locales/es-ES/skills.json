@@ -482,5 +482,55 @@
     "name": "Consumir Eco",
     "label": "Consumir Eco: elige +2 al impacto o +2 de daño en tu próximo ataque.",
     "text": "elige +2 al impacto o +2 de daño en tu próximo ataque."
+  },
+  "item_skill_equipped_max_life": {
+    "name": "Vida Reforzada",
+    "label": "Vida Reforzada: Mientras esté equipado, aumenta en {value} la Vida máxima del portador.",
+    "text": "Mientras esté equipado, aumenta en {value} la Vida máxima del portador."
+  },
+  "item_skill_equipped_accuracy": {
+    "name": "Precisión Equipada",
+    "label": "Precisión Equipada: Mientras esté equipado, otorga +{value} de Precisión al portador.",
+    "text": "Mientras esté equipado, otorga +{value} de Precisión al portador."
+  },
+  "item_skill_equipped_damage": {
+    "name": "Daño Equipado",
+    "label": "Daño Equipado: Mientras esté equipado, otorga +{value} de Daño al portador.",
+    "text": "Mientras esté equipado, otorga +{value} de Daño al portador."
+  },
+  "item_skill_equipped_protection": {
+    "name": "Protección Equipada",
+    "label": "Protección Equipada: Mientras esté equipado, reduce en {value} el daño recibido por el portador.",
+    "text": "Mientras esté equipado, reduce en {value} el daño recibido por el portador."
+  },
+  "dungeon_skill_environment_darkness": {
+    "name": "Oscuridad de la Sala",
+    "label": "Oscuridad de la Sala: Al comenzar el combate, los héroes sufren una penalización de {value} a la Precisión hasta que termine.",
+    "text": "Al comenzar el combate, los héroes sufren una penalización de {value} a la Precisión hasta que termine."
+  },
+  "item_skill_illumination_against_darkness": {
+    "name": "Luz Contra la Oscuridad",
+    "label": "Luz Contra la Oscuridad: Mientras esté equipado en una sala oscura, otorga +{value} de Precisión al portador.",
+    "text": "Mientras esté equipado en una sala oscura, otorga +{value} de Precisión al portador."
+  },
+  "skill_group_command_accuracy": {
+    "name": "Orden de Precisión",
+    "label": "Orden de Precisión: Al comenzar el combate, las criaturas aliadas obtienen +{value} de Precisión.",
+    "text": "Al comenzar el combate, las criaturas aliadas obtienen +{value} de Precisión."
+  },
+  "skill_group_command_protection": {
+    "name": "Orden de Protección",
+    "label": "Orden de Protección: Al comenzar el combate, las criaturas aliadas obtienen {value} de reducción de daño.",
+    "text": "Al comenzar el combate, las criaturas aliadas obtienen {value} de reducción de daño."
+  },
+  "dungeon_skill_resonant_pressure": {
+    "name": "Presión Resonante",
+    "label": "Presión Resonante: Al comenzar la ronda, los héroes reciben una penalización de {value} a la Precisión hasta su final.",
+    "text": "Al comenzar la ronda, los héroes reciben una penalización de {value} a la Precisión hasta su final."
+  },
+  "item_skill_room_damage_protection": {
+    "name": "Protección contra la Sala",
+    "label": "Protección contra la Sala: Mientras esté equipado, reduce en {value} el daño que los efectos de la sala causan al portador.",
+    "text": "Mientras esté equipado, reduce en {value} el daño que los efectos de la sala causan al portador."
   }
 }
