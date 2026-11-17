@@ -22,7 +22,7 @@ describe("cobertura de tradução do Castelo para espanhol", () => {
 	it("inclui nomes, rótulos e textos das habilidades, com os mesmos parâmetros", () => {
 		const ids = [...Object.keys(castle.skillLocales), ...Object.keys(boss.skillLocales)];
 		expect(ids).toHaveLength(21);
-		const params = (text: string) => [...text.matchAll(/\\{([a-zA-Z_][a-zA-Z0-9_]*)\\}/g)]
+		const params = (text: string) => [...text.matchAll(/\{([a-zA-Z_][a-zA-Z0-9_]*)\}/g)]
 			.map((match) => match[1]).sort();
 		for (const id of ids) {
 			const pt = (ptSkills as Record<string, { name: string; label: string; text: string }>)[id];
@@ -38,8 +38,8 @@ describe("cobertura de tradução do Castelo para espanhol", () => {
 		const inventario = esGame.components.inventarioGrupo;
 		const detail = esGame.components.modals.cardDetailModal;
 		for (const key of ["recruitAlly", "replaceAlly", "allyLabel", "allyPermanent", "artifactType", "itemType"]) {
-			expect((inventario as Record<string, string>)[key]).toBeTruthy();
-			expect((ptGame.components.inventarioGrupo as Record<string, string>)[key]).toBeTruthy();
+			expect((inventario as unknown as Record<string, string>)[key]).toBeTruthy();
+			expect((ptGame.components.inventarioGrupo as unknown as Record<string, string>)[key]).toBeTruthy();
 		}
 		expect(detail.slot).toBe("Espacio");
 		expect(detail.sharedSlot).toContain("Amuleto");
