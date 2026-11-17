@@ -1619,3 +1619,75 @@ abilities:
     target_type: tgt_item
     affect_scope: scp_none
     affect_object: obj_all
+  - id: item_skill_equipped_max_life
+    category: item_skill
+    rules:
+      handledByEquipment: true
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_max_life
+        operation: add
+        value: $value
+        duration:
+          kind: while_in_play
+    operate_type: op_passive
+    nature:
+      - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
+  - id: item_skill_equipped_accuracy
+    category: item_skill
+    rules:
+      handledByEquipment: true
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_hit_bonus
+        operation: add
+        value: $value
+        duration:
+          kind: while_in_play
+    operate_type: op_passive
+    nature:
+      - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
+  - id: item_skill_equipped_damage
+    category: item_skill
+    rules:
+      handledByEquipment: true
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_dealt
+        operation: add
+        value: $value
+        duration:
+          kind: while_in_play
+    operate_type: op_passive
+    nature:
+      - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
+  - id: item_skill_equipped_protection
+    category: item_skill
+    rules:
+      handledByEquipment: true
+    effect:
+      - kind: p_modifier
+        to: $source
+        stat: s_damage_reduction
+        operation: add
+        value: $value
+        duration:
+          kind: while_in_play
+    operate_type: op_passive
+    nature:
+      - nat_physical
+    target_type: tgt_self
+    affect_scope: scp_single
+    affect_object: obj_friend
