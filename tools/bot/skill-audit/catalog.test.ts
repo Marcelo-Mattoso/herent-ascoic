@@ -19,8 +19,13 @@ describe("skill audit: discovery and structural checks", () => {
 			.toBe(report.summary.discoveredGrants);
 		expect(report.runtimeScenarios).toHaveLength(32);
 		const heroInventory = report.inventory.filter((entry) => entry.sourceType === "hero");
-		expect(heroInventory).toHaveLength(25);
-		expect(heroInventory.every((entry) => entry.runtimeStatus !== "NOT_COVERED")).toBe(true);
+		expect(heroInventory).toHaveLength(33);
+		const castleHeroInventory = heroInventory.filter((entry) => entry.expansion === "castelo-horizonte-infindo");
+		expect(castleHeroInventory).toHaveLength(8);
+		// Não atribuir cobertura fictícia aos quatro novos heróis.
+		expect(castleHeroInventory.every((entry) => entry.runtimeStatus === "NOT_COVERED")).toBe(true);
+		expect(heroInventory.filter((entry) => entry.expansion !== "castelo-horizonte-infindo")
+			.every((entry) => entry.runtimeStatus !== "NOT_COVERED")).toBe(true);
 		expect(new Set(report.runtimeScenarios.map((entry) => entry.id)).size).toBe(32);
 		expect(report.runtimeScenarios.filter((entry) => entry.id.startsWith("hero-"))).toHaveLength(22);
 		expect(report.groupProjectionScenarios.length).toBeGreaterThanOrEqual(48);
