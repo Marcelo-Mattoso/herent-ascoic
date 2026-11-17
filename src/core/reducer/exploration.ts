@@ -672,15 +672,17 @@ export function handleRestartDungeon(engine: GameEngine,
 	// Recomeçar a masmorra não inicia outra partida: aliados descartados
 	// permanecem fora do deck. Aliados mantidos equipados também não são redistribuídos.
 	const priorRetired = gameOf(state).retiredAllyIds ?? [];
-	const droppedOnRestart = keepEquipment ? [] : [
-		...gameOf(state).fledHeroes,
-		...gameOf(state).heroes,
-		...gameOf(state).defeatedHeroes,
-	].flatMap((h) => h.activeItems.ally ? [h.activeItems.ally] : []);
-	const retiredAllyIds = [...new Set([...priorRetired, ...droppedOnRestart])];
 	const keptAllyIds = keepEquipment
 		? gameOf(state).fledHeroes.flatMap((h) => h.activeItems.ally ? [h.activeItems.ally] : [])
 		: [];
+	const kept = new Set(keptAllyIds);
+	const droppedOnRestart = [
+		...gameOf(state).fledHeroes,
+		...gameOf(state).heroes,
+		...gameOf(state).defeatedHeroes,
+	].flatMap((h) => h.activeItems.ally ? [h.activeItems.ally] : [])
+		.filter((id) => !kept.has(id));
+	const retiredAllyIds = [...new Set([...priorRetired, ...droppedOnRestart])];
 	const absentAllies = new Set([...retiredAllyIds, ...keptAllyIds]);
 	const itemIds = [...cardsOfType(engine, "item"), ...cardsOfType(engine, "ally")]
 		.filter((c) => belongsToExpansion(c.id) && !absentAllies.has(c.id)).map((c) => c.id);
