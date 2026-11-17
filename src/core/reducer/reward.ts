@@ -8,7 +8,7 @@ import { tickModifierDurations } from "../ecs/world";
 import { moveInventoryItem } from "../rules/inventoryMoves";
 import { placeEquipment } from "../rules/equipment";
 import { reconcileEquipmentMaximumLife } from "../rules/equipmentLife";
-import { isAllyCard, retireAllies } from "../rules/allyLifecycle";
+import { isAllyCard, isRetiredAlly, retireAllies } from "../rules/allyLifecycle";
 import { calculateRewards } from "../rules/reward";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { tickBlockEntries } from "../state/blockHelpers";
@@ -419,6 +419,7 @@ export function distributeItemAuto(engine: GameEngine,
 
 	const card = cardById(engine, itemId);
 	if (!card || (card.type !== "item" && card.type !== "ally")) return state;
+	if (isRetiredAlly(state, itemId)) return state;
 	if (Object.values(hero.activeItems).includes(itemId) || hero.backpack.includes(itemId)) return state;
 
 	const dest = defaultItemDestination(engine, hero, card);
