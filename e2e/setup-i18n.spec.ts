@@ -36,11 +36,16 @@ test("seleção e ficha exibem nome próprio maior e classe separada", async ({ 
 test("todas as classes podem enfrentar qualquer chefe", async ({ page }) => {
 	await page.goto("/");
 	await page.getByRole("button", { name: "JOGAR", exact: true }).click();
-	await expect(page.locator(".setup-hero-select-button")).toHaveCount(12);
+	await expect(page.locator(".setup-hero-select-button")).toHaveCount(16);
 	await expect(page.locator("[data-boss-id='boss_azhakar']").first()).toHaveAttribute("aria-pressed", "true");
 	await page.locator("[data-boss-id='boss_great_cauldron_witch']").first().click();
 	await expect(page.locator("[data-boss-id='boss_great_cauldron_witch']").first()).toHaveAttribute("aria-pressed", "true");
-	await expect(page.locator(".setup-hero-select-button")).toHaveCount(12);
+	await expect(page.locator(".setup-hero-select-button")).toHaveCount(16);
+	// As 4 classes do Castelo também ficam disponíveis contra qualquer chefe.
+	await expect(page.locator(".setup-hero-select-button[data-card-id='hero_broken_horizon_son']")).toHaveCount(1);
+	await page.locator("[data-boss-id='boss_therion_infinite_horizon_king']").first().click();
+	await expect(page.locator("[data-boss-id='boss_therion_infinite_horizon_king']").first()).toHaveAttribute("aria-pressed", "true");
+	await expect(page.locator(".setup-hero-select-button")).toHaveCount(16);
 	await page.locator(".setup-hero-select-button[data-card-id='hero_white_ashes_sister']").click();
 	await expect(page.locator(".setup-start-button")).toBeEnabled();
 	await page.locator("[data-boss-id='boss_azhakar']").first().click();
