@@ -1757,8 +1757,9 @@ function ItemTooltipPanel({
 	const tagLine = isItem
 		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
 		: card.type === "ally" ? "Aliado permanente" : translate("game:components.inventarioGrupo.groupArtifact");
-	const effectEntry = skillsOf(uiEngine, card.id)[0];
-	const effect = effectEntry ? renderSkillLabel(uiEngine, effectEntry.ref) : "";
+	const itemSkills = skillsOf(uiEngine, card.id);
+	const effect = (card.type === "ally" ? itemSkills : itemSkills.slice(0, 1))
+		.map(({ ref }) => renderSkillLabel(uiEngine, ref)).filter(Boolean).join(" · ");
 
 	const accentColor = isItem ? (ITEM_COLORS[card.itemClass] ?? null) : card.type === "ally" ? SLOT_COLORS_INV.ally : AMBER;
 	const canUseItem =
