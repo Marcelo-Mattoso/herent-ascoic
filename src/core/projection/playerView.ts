@@ -311,7 +311,7 @@ function resolveFromActor(engine: GameEngine, skillId: string, state: GameState)
 				return { kind: "room", id: cardId, name: cardName(engine, card.id) };
 			}
 		}
-		if (card.type === "item" || card.type === "artifact") {
+		if (card.type === "item" || card.type === "ally" || card.type === "artifact") {
 			// Passiva while_equipped — "from" é o item
 			return { kind: "item", id: cardId, name: cardName(engine, card.id) };
 		}
