@@ -49,10 +49,12 @@ async function completeAbilities(page: Page, viewportName: string) {
 	await openHeroPanel(page);
 	await page.locator('[data-tutorial-anchor="hero.power-action"]').click();
 	await expect(page.locator('[data-tutorial-step="passive-effect"]')).toBeVisible();
+	await expect(page.locator(".game-dice-roll-layer")).toHaveCount(0);
 	await expect(page.getByRole("status", { name: "Estado real das habilidades" })).toContainText("Encanto da Chama Baixa");
 	await page.screenshot({ path: `test-results/tutorial-abilities-passive-${viewportName}.png` });
 	await page.getByRole("button", { name: "Continuar" }).click();
 	await expect(page.locator('[data-tutorial-step="ability-limits"]')).toBeVisible();
+	await expect(page.locator(".game-dice-roll-layer")).toHaveCount(0);
 	await expect(page.getByRole("status", { name: "Estado real das habilidades" })).toContainText("limite atingido");
 	await page.getByRole("button", { name: "Continuar" }).click();
 	await expect(page.locator('[data-tutorial-step="abilities-completion"]')).toBeVisible();
@@ -60,6 +62,7 @@ async function completeAbilities(page: Page, viewportName: string) {
 	await expect(page.locator('[data-tutorial-step="ability-limits"][data-tutorial-review="true"]')).toBeVisible();
 	await page.getByRole("button", { name: "Retomar de onde parei" }).click();
 	await expect(page.locator('[data-tutorial-step="abilities-completion"]')).toBeVisible();
+	await expect(page.locator(".game-dice-roll-layer")).toHaveCount(0);
 	await page.screenshot({ path: `test-results/tutorial-abilities-completion-${viewportName}.png` });
 	await page.getByRole("button", { name: "Jogar agora" }).click();
 	await expect(page.getByRole("heading", { name: "Preparar Expedição" })).toBeVisible();
