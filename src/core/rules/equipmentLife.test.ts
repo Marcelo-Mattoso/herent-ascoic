@@ -69,8 +69,9 @@ describe("aliados: slot e Vida máxima derivados da fonte ativa", () => {
 	});
 
 	it("não acumula Vida ao equipar e retirar repetidamente", () => {
-		let game = state();
+		// Cada dispensa é definitiva: testar ciclos completos em partidas distintas.
 		for (let i = 0; i < 3; i++) {
+			let game = state();
 			const equipped = moveInventoryItem(engine, game, ALLY,
 				{ kind: "mesa" }, { kind: "hero_equip", heroId: "h1" });
 			expect(equipped).not.toBeNull();
@@ -84,6 +85,9 @@ describe("aliados: slot e Vida máxima derivados da fonte ativa", () => {
 			expect(removed).not.toBeNull();
 			game = removed!;
 			expect(heroesOf(game)[0]).toMatchObject({ maxLife: 10, currentLife: 4 });
+			expect(game.game.retiredAllyIds).toContain(ALLY);
+			expect(moveInventoryItem(engine, game, ALLY,
+				{ kind: "mesa" }, { kind: "hero_equip", heroId: "h1" })).toBeNull();
 		}
 	});
 
