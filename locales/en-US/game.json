@@ -283,7 +283,13 @@
         "hand1": "Hand 1",
         "hand2": "Hand 2",
         "amulet": "Amulet / Ally"
-      }
+      },
+      "allyLabel": "Ally",
+      "allyPermanent": "Permanent ally",
+      "recruitAlly": "Recruit ally",
+      "replaceAlly": "Replace amulet/ally",
+      "artifactType": "Artifact",
+      "itemType": "Item"
     },
     "itemChip": {
       "slotLabels": {
@@ -305,7 +311,9 @@
         "text002": "Power",
         "text003": "Purple:",
         "text004": "Use",
-        "text005": "Card not found in the catalog."
+        "text005": "Card not found in the catalog.",
+        "slot": "Slot",
+        "sharedSlot": "Amulet / Ally — exclusive"
       },
       "dungeonExhaustedModal": {
         "title001": "Dungeon deck empty",

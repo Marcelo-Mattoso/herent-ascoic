@@ -532,5 +532,110 @@
     "name": "Protección contra la Sala",
     "label": "Protección contra la Sala: Mientras esté equipado, reduce en {value} el daño que los efectos de la sala causan al portador.",
     "text": "Mientras esté equipado, reduce en {value} el daño que los efectos de la sala causan al portador."
+  },
+  "castle_skill_sunset_precision": {
+    "name": "Mirada del Ocaso",
+    "label": "Mirada del Ocaso: Al inicio de cada combate, recibe +1 al Acierto hasta que termine el combate.",
+    "text": "Al inicio de cada combate, recibe +1 al Acierto hasta que termine el combate."
+  },
+  "castle_power_sunset_lance": {
+    "name": "Golpe del Ocaso",
+    "label": "Golpe del Ocaso: Una vez por partida, recibe +2 de Daño durante un combate.",
+    "text": "Una vez por partida, recibe +2 de Daño durante un combate."
+  },
+  "castle_skill_dry_wind_step": {
+    "name": "Paso del Viento Seco",
+    "label": "Paso del Viento Seco: Una vez por sala, reduce en 1 el próximo daño recibido al ser objetivo de un ataque.",
+    "text": "Una vez por sala, reduce en 1 el próximo daño recibido al ser objetivo de un ataque."
+  },
+  "castle_power_dry_wind_charge": {
+    "name": "Ímpetu de la Pradera",
+    "label": "Ímpetu de la Pradera: Una vez por partida, recibe +2 al Acierto hasta el final del combate.",
+    "text": "Una vez por partida, recibe +2 al Acierto hasta el final del combate."
+  },
+  "castle_skill_last_bastion_guard": {
+    "name": "Guardia del Horizonte",
+    "label": "Guardia del Horizonte: Una vez por ronda, reduce en 1 el próximo daño recibido.",
+    "text": "Una vez por ronda, reduce en 1 el próximo daño recibido."
+  },
+  "castle_power_last_bastion_oath": {
+    "name": "Juramento del Último Bastión",
+    "label": "Juramento del Último Bastión: Una vez por partida, el grupo recibe +1 de Protección hasta el final de la ronda.",
+    "text": "Una vez por partida, el grupo recibe +1 de Protección hasta el final de la ronda."
+  },
+  "castle_skill_horizon_scout_ward": {
+    "name": "Aviso del Explorador",
+    "label": "Aviso del Explorador: Una vez por combate, reduce en 1 el próximo daño recibido. La ventana exacta del primer ataque se revisará en la auditoría.",
+    "text": "Una vez por combate, reduce en 1 el próximo daño recibido. La ventana exacta del primer ataque se revisará en la auditoría."
+  },
+  "castle_skill_serrated_bleed": {
+    "name": "Corte Dentado",
+    "label": "Corte Dentado: Al acertar, aplica Sangrado de 1 de daño por ronda durante 2 rondas.",
+    "text": "Al acertar, aplica Sangrado de 1 de daño por ronda durante 2 rondas."
+  },
+  "castle_skill_last_bastion_shield": {
+    "name": "Última Defensa",
+    "label": "Última Defensa: Una vez por combate, reduce en 1 el próximo daño recibido.",
+    "text": "Una vez por combate, reduce en 1 el próximo daño recibido."
+  },
+  "castle_item_water_restore": {
+    "name": "Agua Revitalizante",
+    "label": "Agua Revitalizante: Recupera 2 puntos de Vida de un héroe y descarta el odre.",
+    "text": "Recupera 2 puntos de Vida de un héroe y descarta el odre."
+  },
+  "castle_item_long_breath": {
+    "name": "Aliento Prolongado",
+    "label": "Aliento Prolongado: Recibe +1 al Acierto hasta el final del combate. Consume la poción.",
+    "text": "Recibe +1 al Acierto hasta el final del combate. Consume la poción."
+  },
+  "castle_item_captive_light": {
+    "name": "Luz Cautiva",
+    "label": "Luz Cautiva: El grupo recibe +1 al Acierto durante un combate. Descarta el frasco.",
+    "text": "El grupo recibe +1 al Acierto durante un combate. Descarta el frasco."
+  },
+  "castle_item_small_war_drum": {
+    "name": "Redoble de Guerra",
+    "label": "Redoble de Guerra: Una vez por sala, el grupo recibe +1 al Acierto hasta el final de la ronda.",
+    "text": "Una vez por sala, el grupo recibe +1 al Acierto hasta el final de la ronda."
+  },
+  "castle_purple_crushing_charge": {
+    "name": "Embestida Despiadada",
+    "label": "Despertar Morado: al acertar, causa +{value} de daño.",
+    "text": "Después de acertar durante el Despertar Morado, causa {value} de daño adicional."
+  },
+  "castle_purple_shifting_shadow": {
+    "name": "Paso Nocturno",
+    "label": "Despertar Morado: una vez por sala, penaliza un ataque con −{value} al Acierto.",
+    "text": "Una vez por sala, al ser objetivo de un ataque, impone una penalización de {value} al Acierto."
+  },
+  "castle_purple_midnight_ambush": {
+    "name": "Emboscada del Manto",
+    "label": "Despertar Morado: al comenzar el combate, causa {value} de daño al héroe más herido.",
+    "text": "Al comenzar el combate, causa {value} de daño al héroe con menos Vida."
+  },
+  "castle_purple_war_formation": {
+    "name": "Formación de los Conquistadores",
+    "label": "Despertar Morado: todos los enemigos reciben +{value} al Acierto durante el combate.",
+    "text": "Al comenzar el combate, todos los enemigos reciben +{value} al Acierto."
+  },
+  "therion_boss_skill_royal_charge": {
+    "name": "Embestida Real",
+    "label": "Embestida Real (2): +2 al Acierto en el primer ataque del combate.",
+    "text": "+2 al Acierto en el primer ataque de Therion de cada combate."
+  },
+  "therion_boss_skill_horizon_dominion": {
+    "name": "Dominio del Horizonte",
+    "label": "Dominio del Horizonte (1): los héroes sufren −1 al Acierto durante el combate.",
+    "text": "Al comenzar el combate, todos los héroes activos reciben −1 al Acierto hasta que termine. Lo anula el Estandarte del Castillo Olvidado."
+  },
+  "therion_boss_skill_stone_resonance": {
+    "name": "Resonancia de la Piedra Matriz",
+    "label": "Resonancia de la Piedra Matriz (1): reduce en 1 el primer daño recibido cada ronda.",
+    "text": "Reduce en 1 el primer daño recibido cada ronda. Lo anula el Grillete de la Vigilia Rota."
+  },
+  "therion_boss_skill_last_conquest": {
+    "name": "Última Conquista",
+    "label": "Última Conquista (2): con la mitad de su Vida o menos, Therion recibe +2 al Acierto.",
+    "text": "Al llegar a la mitad de su Vida máxima o menos, Therion recibe +2 al Acierto. No se acumula ni se anula con artefactos."
   }
 }

@@ -285,7 +285,13 @@
         "hand1": "Mão 1",
         "hand2": "Mão 2",
         "amulet": "Amuleto / Aliado"
-      }
+      },
+      "allyLabel": "Aliado",
+      "allyPermanent": "Aliado permanente",
+      "recruitAlly": "Recrutar aliado",
+      "replaceAlly": "Substituir amuleto/aliado",
+      "artifactType": "Artefato",
+      "itemType": "Item"
     },
     "itemChip": {
       "slotLabels": {
@@ -307,7 +313,9 @@
         "text002": "Poder",
         "text003": "Roxo:",
         "text004": "Usar",
-        "text005": "Carta não encontrada no catálogo."
+        "text005": "Carta não encontrada no catálogo.",
+        "slot": "Espaço",
+        "sharedSlot": "Amuleto / Aliado — exclusivo"
       },
       "dungeonExhaustedModal": {
         "title001": "Deck de dungeon vazio",

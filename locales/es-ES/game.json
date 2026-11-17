@@ -285,7 +285,13 @@
         "hand1": "Mano 1",
         "hand2": "Mano 2",
         "amulet": "Amuleto / Aliado"
-      }
+      },
+      "allyLabel": "Aliado",
+      "allyPermanent": "Aliado permanente",
+      "recruitAlly": "Reclutar aliado",
+      "replaceAlly": "Sustituir amuleto/aliado",
+      "artifactType": "Artefacto",
+      "itemType": "Objeto"
     },
     "itemChip": {
       "slotLabels": {
@@ -307,7 +313,9 @@
         "text002": "Poder",
         "text003": "Morado:",
         "text004": "Usar",
-        "text005": "Carta no encontrada en el catálogo."
+        "text005": "Carta no encontrada en el catálogo.",
+        "slot": "Espacio",
+        "sharedSlot": "Amuleto / Aliado — exclusivo"
       },
       "dungeonExhaustedModal": {
         "title001": "Mazo de mazmorra vacío",

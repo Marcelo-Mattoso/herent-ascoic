@@ -78,7 +78,7 @@ const SLOT_LABELS: Record<ItemSlotType, string> = {
 	hand1: "game:components.inventarioGrupo.slotLabels.hand1",
 	hand2: "game:components.inventarioGrupo.slotLabels.hand2",
 	amulet: "game:components.inventarioGrupo.slotLabels.amulet",
-	ally: "Aliado",
+	ally: "game:components.inventarioGrupo.allyLabel",
 };
 const SLOT_TITLES: Record<ItemSlotType, string> = {
 	clothing1: "game:components.inventarioGrupo.slotTitles.clothing1",
@@ -86,7 +86,7 @@ const SLOT_TITLES: Record<ItemSlotType, string> = {
 	hand1: "game:components.inventarioGrupo.slotTitles.hand1",
 	hand2: "game:components.inventarioGrupo.slotTitles.hand2",
 	amulet: "game:components.inventarioGrupo.slotTitles.amulet",
-	ally: "Aliado permanente",
+	ally: "game:components.inventarioGrupo.allyPermanent",
 };
 const MAX_BACKPACK = backpackCapacity(uiEngine);
 
@@ -549,7 +549,7 @@ function HeroColumn({
 							}
 							key={slotType}
 							{...slotDropHandlers(slotType)}
-							label={isTwoHandOverlay ? "2 mãos" : slotType === "ally" ? "Aliado" : translate(SLOT_LABELS[slotType])}
+							label={isTwoHandOverlay ? "2 mãos" : slotType === "ally" ? translate(SLOT_LABELS[slotType]) : translate(SLOT_LABELS[slotType])}
 							filled={isTwoHandOverlay}
 							onClick={() => chooseEquipmentSlot(slotType)}
 						/>
@@ -1186,7 +1186,7 @@ export function InventarioGrupo({
 													}
 													: undefined}
 												collectLabel={getCardById(r.cardId)?.type === "ally"
-												? (rewardHero && equippedItemAt(uiEngine, rewardHero, "amulet") ? "Substituir amuleto/aliado" : "Recrutar aliado")
+												? (rewardHero && equippedItemAt(uiEngine, rewardHero, "amulet") ? translate("game:components.inventarioGrupo.replaceAlly") : translate("game:components.inventarioGrupo.recruitAlly"))
 												: isMysticDraw
 													? translate("game:components.inventarioGrupo.text044")
 													: undefined}
@@ -1742,7 +1742,7 @@ function InventoryRewardCard({
 				i
 			</button>
 			<span className="inventory-card-tile__type">
-				{cardType === "artifact" ? "Artefato" : cardType === "ally" ? "Aliado" : "Item"}
+				{cardType === "artifact" ? translate("game:components.inventarioGrupo.artifactType") : cardType === "ally" ? translate("game:components.inventarioGrupo.allyLabel") : translate("game:components.inventarioGrupo.itemType")}
 			</span>
 		</article>
 	);
@@ -1772,7 +1772,7 @@ function ItemTooltipPanel({
 	const isItem = card.type === "item";
 	const tagLine = isItem
 		? (getCardLocale(card.id)?.tags ?? []).join(" · ")
-		: card.type === "ally" ? "Aliado permanente" : translate("game:components.inventarioGrupo.groupArtifact");
+		: card.type === "ally" ? translate("game:components.inventarioGrupo.allyPermanent") : translate("game:components.inventarioGrupo.groupArtifact");
 	const itemSkills = skillsOf(uiEngine, card.id);
 	const effect = artifactRitualDescription(card.id) ?? (card.type === "ally" ? itemSkills : itemSkills.slice(0, 1))
 		.map(({ ref }) => renderSkillLabel(uiEngine, ref)).filter(Boolean).join(" · ");

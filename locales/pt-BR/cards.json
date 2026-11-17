@@ -421,5 +421,215 @@
     "artifactBonus": "se o grupo possuir o Coração de Brasa Antiga entre seus artefatos, Azhakar começa a luta com 16 de Vida-base em vez de 20.",
     "dungeonScaling": "Azhakar recebe +1 no Bônus de Acerto para cada nível da masmorra e +2 de Vida para cada nível da masmorra.",
     "victory": "ao derrotar Azhakar, os jogadores vencem a partida."
+  },
+  "hero_sunset_spear": {
+    "name": "Lança do Poente"
+  },
+  "hero_dry_wind_knight": {
+    "name": "Cavaleira do Vento Seco"
+  },
+  "hero_plains_wanderer": {
+    "name": "Andarilho das Planícies"
+  },
+  "hero_broken_horizon_son": {
+    "name": "Filho do Horizonte Partido"
+  },
+  "creature_dry_steppes_hyena": {
+    "name": "Hiena das Estepes Secas"
+  },
+  "creature_cutting_wind_jackal": {
+    "name": "Chacal do Vento Cortante"
+  },
+  "creature_open_carrion_vulture": {
+    "name": "Abutre da Carniça Aberta"
+  },
+  "creature_hidden_granary_goblin": {
+    "name": "Goblin do Celeiro Oculto"
+  },
+  "creature_ruin_thief_monkey": {
+    "name": "Macaco-Ladrão das Ruínas"
+  },
+  "creature_high_grass_raider": {
+    "name": "Saqueador da Relva Alta"
+  },
+  "creature_red_dust_scout": {
+    "name": "Batedor do Pó Vermelho"
+  },
+  "creature_steppes_spearman": {
+    "name": "Lanceiro das Estepes"
+  },
+  "creature_cruel_horizon_archer": {
+    "name": "Arqueiro do Horizonte Cruel"
+  },
+  "creature_plains_hyena_rider": {
+    "name": "Cavaleiro Hiena das Planícies"
+  },
+  "creature_cold_dunes_gnoll": {
+    "name": "Gnoll das Dunas Frias"
+  },
+  "creature_wild_meadow_bull": {
+    "name": "Touro Selvagem da Campina"
+  },
+  "creature_unburied_wind_spirit": {
+    "name": "Espírito do Vento Sem Túmulo"
+  },
+  "creature_bloody_trails_centaur": {
+    "name": "Centaurino das Trilhas Sangrentas"
+  },
+  "creature_lost_barracks_hobgoblin": {
+    "name": "Hobgoblin do Quartel Perdido"
+  },
+  "creature_quarry_bearman": {
+    "name": "Homem-Urso das Pedreiras"
+  },
+  "creature_wall_apeman": {
+    "name": "Homem-Macaco da Muralha"
+  },
+  "creature_stone_guard_centaur": {
+    "name": "Centauro Guardião da Pedra"
+  },
+  "subboss_cruel_herd_champion": {
+    "name": "Campeão da Manada Cruel"
+  },
+  "subboss_tribute_hobgoblin_marshal": {
+    "name": "Marechal Hobgoblin dos Tributos"
+  },
+  "room_broken_castle_gate": {
+    "name": "Portão Quebrado do Castelo"
+  },
+  "room_cold_wind_corridor": {
+    "name": "Corredor do Vento Frio"
+  },
+  "room_ruined_stable": {
+    "name": "Estábulo em Ruínas"
+  },
+  "room_dry_well_chamber": {
+    "name": "Câmara do Poço Seco"
+  },
+  "room_torn_banners_hall": {
+    "name": "Salão das Bandeiras Rasgadas"
+  },
+  "room_cracked_stone_courtyard": {
+    "name": "Pátio de Pedra Rachada"
+  },
+  "room_fallen_watchtower": {
+    "name": "Torre de Vigia Caída"
+  },
+  "room_dead_archers_passage": {
+    "name": "Passagem dos Arqueiros Mortos"
+  },
+  "room_lost_tributes_warehouse": {
+    "name": "Armazém dos Tributos Perdidos"
+  },
+  "room_corrupted_watch_gallery": {
+    "name": "Galeria da Vigília Corrompida"
+  },
+  "subboss_room_cruel_herd_arena": {
+    "name": "Arena da Manada Cruel"
+  },
+  "subboss_room_bloody_tributes_chancellery": {
+    "name": "Chancelaria dos Tributos Sangrentos"
+  },
+  "item_plains_short_spear": {
+    "name": "Lança Curta das Planícies"
+  },
+  "item_dried_war_bow": {
+    "name": "Arco de Guerra Ressecado"
+  },
+  "item_serrated_hunting_knife": {
+    "name": "Faca de Caça Serrilhada"
+  },
+  "item_quarry_hammer": {
+    "name": "Martelo das Pedreiras"
+  },
+  "item_hobgoblin_barracks_buckler": {
+    "name": "Broquel do Quartel Hobgoblin"
+  },
+  "item_last_bastion_shield": {
+    "name": "Escudo do Último Bastião"
+  },
+  "item_pale_dust_cloak": {
+    "name": "Manto de Poeira Clara"
+  },
+  "item_fallen_rider_bracer": {
+    "name": "Braçadeira do Cavaleiro Caído"
+  },
+  "item_forgotten_watch_cuirass": {
+    "name": "Couraça da Vigília Esquecida"
+  },
+  "item_smuggler_boots": {
+    "name": "Botas do Contrabandista"
+  },
+  "item_resonance_engineer_hood": {
+    "name": "Capuz do Engenheiro Ressonante"
+  },
+  "item_traveler_water_skin": {
+    "name": "Odre de Água do Viajante"
+  },
+  "item_long_breath_potion": {
+    "name": "Poção de Fôlego Longo"
+  },
+  "item_captive_light_vial": {
+    "name": "Frasco de Luz Aprisionada"
+  },
+  "item_small_war_drum": {
+    "name": "Tambor de Guerra Pequeno"
+  },
+  "item_last_watcher_lantern": {
+    "name": "Lanterna do Último Vigia"
+  },
+  "item_broken_bronze_horseshoe": {
+    "name": "Ferradura de Bronze Partida"
+  },
+  "item_broken_horizon_map": {
+    "name": "Mapa do Horizonte Partido"
+  },
+  "item_helva_alta_sealed_coffer": {
+    "name": "Cofre Lacrado de Helva Alta"
+  },
+  "item_lost_watch_spoils": {
+    "name": "Espólio da Vigília Perdida"
+  },
+  "ally_guardian_centaur": {
+    "name": "Centauro Guardião"
+  },
+  "ally_steppes_warhorse": {
+    "name": "Corcel das Estepes"
+  },
+  "ally_plains_warhound": {
+    "name": "Cão de Guerra das Planícies"
+  },
+  "ally_wind_mare": {
+    "name": "Égua dos Ventos"
+  },
+  "ally_pack_donkey": {
+    "name": "Jumento de Carga"
+  },
+  "ally_horizon_scout": {
+    "name": "Batedor do Horizonte"
+  },
+  "artifact_infinite_wind_bow": {
+    "name": "Arco do Vento Infindo"
+  },
+  "artifact_first_steppes_knight_helm": {
+    "name": "Elmo do Primeiro Cavaleiro das Estepes"
+  },
+  "artifact_forgotten_castle_banner": {
+    "name": "Estandarte do Castelo Esquecido"
+  },
+  "artifact_unbroken_crest": {
+    "name": "Brasão dos Inquebráveis"
+  },
+  "artifact_broken_watch_shackle": {
+    "name": "Grilhão da Vigília Partida"
+  },
+  "boss_therion_infinite_horizon_king": {
+    "name": "Therion, Rei do Horizonte Infindo",
+    "dice": "3 dados vermelhos",
+    "condition": "O grupo precisa possuir pelo menos 3 Artefatos.",
+    "dungeonScaling": "Therion recebe +2 de Vida e +1 de Acerto por nível de Despertar, independentemente dos bônus do ritual.",
+    "victory": "Ao derrotar Therion e destruir a Pedra-Matriz, os heróis vencem a partida.",
+    "ritual": "Pedra-Matriz: enquanto o ritual estiver ativo, Therion recebe +6 de Vida, +4 de Acerto e +2 de Dano. Cada artefato correspondente neutraliza um bônus ou habilidade.",
+    "artifactEffects": "Arco do Vento Infindo: remove +4 de Acerto; Elmo do Primeiro Cavaleiro das Estepes: remove +2 de Dano; Brasão dos Inquebráveis: remove +6 de Vida; Estandarte do Castelo Esquecido: anula Domínio do Horizonte; Grilhão da Vigília Partida: anula Ressonância da Pedra-Matriz."
   }
 }

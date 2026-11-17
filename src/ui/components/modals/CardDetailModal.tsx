@@ -172,8 +172,8 @@ export function CardDetailModal({
 							const canUseItem = !!onUseItem;
 							return (
 								<>
-									<Row label="Tipo" value={card.type === "ally" ? "Aliado permanente" : card.itemClass} />
-									{card.type === "ally" && <Row label="Espaço" value="Amuleto / Aliado — exclusivo" />}
+									<Row label="Tipo" value={card.type === "ally" ? translate("game:components.inventarioGrupo.allyPermanent") : card.itemClass} />
+									{card.type === "ally" && <Row label={translate("game:components.modals.cardDetailModal.slot")} value={translate("game:components.modals.cardDetailModal.sharedSlot")} />}
 									{(card.type === "ally" ? itemSkills : main ? [main] : []).map(({ ref }, index) => (
 										<p key={ref.skillId + ":" + index} className="text-xs" style={{ color: UI.textPrimary }}>
 											{renderSkillLabel(uiEngine, ref)}
