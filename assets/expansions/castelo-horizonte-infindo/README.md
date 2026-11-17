@@ -60,6 +60,7 @@ Implementação genérica: `BossCard.ritualBonuses`, `BossCard.artifactCounters`
 - **Therion** deve se destacar pelas habilidades ligadas ao ritual e à Pedra-Matriz; não mudar seus atributos-base sem análise.
 - Os quatro heróis devem permanecer **humanos**.
 - Os seis aliados são uma mecânica própria; não substituir os talismãs das expansões antigas.
+- Aliados nunca podem ser guardados na mochila: devem ser recrutados imediatamente ou descartados. Ao substituir ou dispensar um aliado, ele sai definitivamente da partida e não volta nem após reiniciar a masmorra.
 
 ## Trabalho paralelo
 
