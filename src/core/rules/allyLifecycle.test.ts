@@ -37,7 +37,7 @@ function hero(id: string): HeroState {
 function initial() {
 	return settled(withGame(createInitialGameState({ heroCardIds: [] }), (g) => ({
 		...g, heroes: [hero("h1"), hero("h2")], status: "REWARD_PHASE",
-		pendingRewards: [{ cardId: GUARDIAN, type: "item", requiresBearer: false }],
+		pendingRewards: [{ cardId: GUARDIAN, type: "item" as const, requiresBearer: false }],
 	})));
 }
 const mesa = { kind: "mesa" as const };
@@ -66,7 +66,7 @@ describe("aliados são permanentes apenas enquanto equipados", () => {
 	it("dispensar à mesa ou substituir retira o antigo definitivamente", () => {
 		const recruited = moveInventoryItem(engine, initial(), GUARDIAN, mesa, equip("h1"))!;
 		const newReward = withGame(recruited, (g) => ({ ...g,
-			pendingRewards: [{ cardId: SCOUT, type: "item", requiresBearer: false }],
+			pendingRewards: [{ cardId: SCOUT, type: "item" as const, requiresBearer: false }],
 		}));
 		const replaced = moveInventoryItem(engine, newReward, SCOUT, mesa, equip("h1"))!;
 		expect(heroesOf(replaced)[0]?.activeItems.ally).toBe(SCOUT);
@@ -77,7 +77,7 @@ describe("aliados são permanentes apenas enquanto equipados", () => {
 		expect(heroesOf(dismissed)[0]?.activeItems.ally).toBeUndefined();
 		expect(dismissed.game.pendingRewards).toEqual([]);
 		const forgedReward = withGame(dismissed, (g) => ({ ...g,
-			pendingRewards: [{ cardId: GUARDIAN, type: "item", requiresBearer: false }],
+			pendingRewards: [{ cardId: GUARDIAN, type: "item" as const, requiresBearer: false }],
 		}));
 		expect(moveInventoryItem(engine, forgedReward, GUARDIAN, mesa, equip("h2"))).toBeNull();
 	});
