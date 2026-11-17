@@ -344,6 +344,7 @@ function HeroColumn({
 
 	function canMochilaDrag(): boolean {
 		if (!dragging || dragging.kind !== "item") return false;
+		if (getCardById(dragging.name)?.type === "ally") return false;
 		// Se o drag vem da mochila deste herói, libera espaço ao remover
 		const isFromSameBackpack =
 			dragging.from.kind === "hero_backpack" &&
@@ -894,6 +895,7 @@ export function InventarioGrupo({
 			}
 			// Mochila: aceita se tiver espaço
 			if (zone.startsWith("hero_mochila_")) {
+				if (getCardById(dragging.name)?.type === "ally") return false;
 				const heroId = zone.replace("hero_mochila_", "");
 				const hero = heroes.find((h) => h.id === heroId);
 				if (!hero) return false;
@@ -1056,9 +1058,15 @@ export function InventarioGrupo({
 	function handleCollectReward(itemId: string) {
 		if (!rewardHero) return;
 		const from = { kind: "mesa" as const };
-		const to = { kind: "hero_backpack" as const, heroId: rewardHero.id };
+		const ally = getCardById(itemId)?.type === "ally";
+		// Recrutamento imediato. Ao substituir, o aliado antigo sai do jogo.
+		const to = ally
+			? { kind: "hero_equip" as const, heroId: rewardHero.id, slotType: "ally" as const }
+			: { kind: "hero_backpack" as const, heroId: rewardHero.id };
 		if (!canMoveInventoryItem(itemId, from, to)) {
-			setInventoryFeedback(translate("game:components.inventarioGrupo.fullBackpack"));
+			setInventoryFeedback(ally
+				? "Este herói não pode recrutar esse aliado."
+				: translate("game:components.inventarioGrupo.fullBackpack"));
 			return;
 		}
 		setInventoryFeedback(null);
@@ -1141,7 +1149,13 @@ export function InventarioGrupo({
 										</select>
 									</label>
 								)}
-								<div className="inventory-card-grid">
+								{mesaItens.some((r) => getCardById(r.cardId)?.type === "ally") && (
+					<p role="note" style={{ fontSize: 11, color: UI.textSecondary, margin: "6px 0" }}>
+						Aliados devem ser recrutados imediatamente. Não podem ir para a mochila; os dispensados ou substituídos saem definitivamente desta partida.
+					</p>
+				)}
+				<div className="inventory-card-grid">
+					{mesaItens.map((r) => {
 									{mesaItens.map((r) => {
 										const col = itemColor(r.cardId);
 										const isMysticDraw = cardAbilityGrants(r.cardId).some((grant) =>
@@ -1171,7 +1185,9 @@ export function InventarioGrupo({
 														else handleCollectReward(r.cardId);
 													}
 													: undefined}
-												collectLabel={isMysticDraw
+												collectLabel={getCardById(r.cardId)?.type === "ally"
+												? (rewardHero?.activeItems.ally ? "Substituir aliado" : "Recrutar aliado")
+												: isMysticDraw
 													? translate("game:components.inventarioGrupo.text044")
 													: undefined}
 												onMouseEnter={(e) =>
