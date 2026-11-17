@@ -1,0 +1,28 @@
+{
+  "card": {
+    "id": "boss_therion_infinite_horizon_king",
+    "type": "boss",
+    "name": "Therion, Rei do Horizonte Infindo",
+    "lifeBase": 20,
+    "hitBonusBase": 11,
+    "damage": 5,
+    "dice": 3,
+    "accessCondition": {
+      "type": "group_artifacts_gte",
+      "value": 3
+    },
+    "scaling": {
+      "lifePerAwakening": 2,
+      "hitBonusPerAwakening": 1
+    },
+    "skills": []
+  },
+  "skills": [],
+  "locale": {
+    "name": "Therion, Rei do Horizonte Infindo",
+    "dice": "3 dados vermelhos",
+    "condition": "O grupo precisa possuir pelo menos 3 Artefatos.",
+    "dungeonScaling": "Therion recebe +2 de Vida e +1 de Bônus de Acerto por nível de Despertar.",
+    "victory": "Ao derrotar Therion e destruir a Pedra-Matriz, os heróis vencem a partida."
+  }
+}
