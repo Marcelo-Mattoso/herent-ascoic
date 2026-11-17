@@ -2339,7 +2339,10 @@
             "kind": "once"
           }
         }
-      ]
+      ],
+      "rules": {
+        "damageType": "purple"
+      }
     },
     {
       "id": "castle_purple_midnight_ambush",
@@ -2396,7 +2399,10 @@
             }
           ]
         }
-      ]
+      ],
+      "rules": {
+        "damageType": "purple"
+      }
     }
   ],
   "skillLocales": {

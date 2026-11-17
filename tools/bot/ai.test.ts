@@ -133,6 +133,32 @@ describe("IA do bot", () => {
 		expect(rankMoves(ready, "power-player")[0]).toMatchObject(attack);
 	});
 
+	it("não alterna amuletos/aliados na fila de recompensas", () => {
+		const observation = createHeadlessPort(setupFromSeed(1)).observe();
+		const hero = observation.view.heroes[0]!;
+		const equip = { type: "CHOOSE_ITEM_DESTINATION" as const,
+			payload: { heroId: hero.id, destination: "equip" as const } };
+		const backpack = { type: "CHOOSE_ITEM_DESTINATION" as const,
+			payload: { heroId: hero.id, destination: "backpack" as const } };
+		const discard = { type: "CHOOSE_ITEM_DESTINATION" as const,
+			payload: { heroId: hero.id, destination: "discard" as const } };
+		const reward = (cardId: string, cardType: "item" | "ally", equipmentSlot: "amulet" | "ally") =>
+			({ cardId, cardType, equipmentSlot, type: "item" as const, requiresBearer: false });
+		const view = (cardId: string, cardType: "item" | "ally", equipmentSlot: "amulet" | "ally") =>
+			({ ...observation.view, heroes: [{ ...hero,
+				activeItems: { amulet: "item_low_flame_charm" } }],
+				pendingRewards: [reward(cardId, cardType, equipmentSlot)] });
+		const amulet = view("item_safe_path_charm", "item", "amulet");
+		expect(scoreMoves({ view: amulet, actions: [equip, backpack, discard], abilities: {} }, "power-player")[0]?.action)
+			.toEqual(backpack);
+		const ally = view("ally_guardian_centaur", "ally", "ally");
+		expect(scoreMoves({ view: ally, actions: [equip, discard], abilities: {} }, "power-player")[0]?.action)
+			.toEqual(discard);
+		const open = { ...observation.view, heroes: [{ ...hero, activeItems: {} }],
+			pendingRewards: [reward("ally_guardian_centaur", "ally", "ally")] };
+		expect(scoreAction(open, equip)).toBeGreaterThan(scoreAction(open, discard));
+	});
+
 	it("joga sem violar invariantes", () => {
 		for (let seed = 1; seed <= 5; seed++) {
 			const { violation } = playAiGame(setupFromSeed(seed), SHORT_GAME);

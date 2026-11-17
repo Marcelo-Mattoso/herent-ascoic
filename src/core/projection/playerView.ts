@@ -5,7 +5,7 @@ import { projectManualArtifactActions, type ManualArtifactAction } from "../rule
 import { type HeroInventoryView, projectHeroInventory } from "./inventoryView";
 import { projectSkillChoice } from "./skillChoiceView";
 import type { TargetCandidate } from "../data/skillTypes";
-import type { AnyCard } from "../data/cardTypes";
+import type { AnyCard, EquipmentSlot } from "../data/cardTypes";
 import type { ModifierComponent } from "../ecs/types";
 import type { ChoiceOption, PauseReason, PendingEffect } from "../effects/stack";
 
@@ -120,7 +120,11 @@ function pausedViewOf(paused: PausedState | null): PausedView | null {
 	};
 }
 
-export type PendingRewardView = PendingReward & { readonly cardType?: AnyCard["type"] };
+export type PendingRewardView = PendingReward & {
+	readonly cardType?: AnyCard["type"];
+	/** Equipamento declarado na carta revelada — informação visível ao jogador/bot. */
+	readonly equipmentSlot?: EquipmentSlot;
+};
 
 export interface PlayerView {
 	readonly status: GameStatus;
@@ -259,10 +263,15 @@ export function playerView(engine: GameEngine, state: GameState): PlayerView {
 		bossCardName: cardName(engine, gameOf(state).bossCardId),
 		winner: gameOf(state).winner,
 		paths: gameOf(state).paths,
-		pendingRewards: gameOf(state).pendingRewards.map((reward) => ({
-			...reward,
-			cardType: cardById(engine, reward.cardId)?.type,
-		})),
+		pendingRewards: gameOf(state).pendingRewards.map((reward) => {
+			const card = cardById(engine, reward.cardId);
+			return {
+				...reward,
+				cardType: card?.type,
+				...((card?.type === "item" || card?.type === "ally")
+					? { equipmentSlot: card.equipmentSlot } : {}),
+			};
+		}),
 		eventLog: gameOf(state).eventLog,
 		alphaLog: gameOf(state).alphaLog ?? [],
 		damageFeedback: gameOf(state).damageFeedback ?? [],

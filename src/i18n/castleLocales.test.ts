@@ -52,7 +52,7 @@ describe("cobertura de tradução do Castelo em espanhol e inglês", () => {
 		expect(detail.slot).toBe("Espacio");
 		expect(detail.sharedSlot).toContain("Amuleto");
 		expect(esGame.components.artifactRitual.hitBonus).toContain("Acierto");
-		expect(enGame.components.artifactRitual.hitBonus).toContain("Hit");
+		expect(enGame.components.artifactRitual.hitBonus).toContain("Accuracy");
 		expect(enGame.components.alphaLogPanel.entryCount_many).toContain("entries");
 		expect(enGame.components.alphaLogPanel.footer_many).toContain("entries");
 	});

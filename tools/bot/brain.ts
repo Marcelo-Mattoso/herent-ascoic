@@ -94,6 +94,37 @@ function choiceScore(view: PlayerView, choice: string, profile: BotProfile): num
 	return 30;
 }
 
+/**
+ * Equipar uma recompensa automaticamente exige um espaço realmente livre.
+ * Substituições explícitas permanecem possíveis via INV_MOVE para jogadores.
+ *
+ * Sem este gate, o bot trocava amuletos repetidamente: o item deslocado
+ * retornava à mesa e virava a próxima recompensa, gerando no_progress.
+ * Considera o slot legado de aliado e seu novo slot compartilhado.
+ */
+function canAutoEquipReward(
+	hero: HeroView | undefined,
+	reward: PlayerView["pendingRewards"][number] | undefined,
+): boolean {
+	if (!hero || !reward || reward.type !== "item") return false;
+	const equipped = hero.activeItems;
+	if (Object.values(equipped).includes(reward.cardId)) return false;
+	const slot = reward.cardType === "ally" ? "ally" : reward.equipmentSlot;
+	switch (slot) {
+		case "ally":
+		case "amulet":
+			return !equipped.amulet && !equipped.ally;
+		case "clothing":
+			return !equipped.clothing1 || !equipped.clothing2;
+		case "one_hand":
+			return !equipped.hand1 || !equipped.hand2;
+		case "two_hands":
+			return !equipped.hand1 && !equipped.hand2;
+		default:
+			return false;
+	}
+}
+
 /** Pontuação da ação de fluxo; habilidades têm pontuação própria abaixo. */
 export function scoreAction(view: PlayerView, action: Action, profile: BotProfile = "power-player"): number {
 	const heroes = activeHeroes(view);
@@ -153,13 +184,12 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			if (action.payload.destination === "discard") return 1;
 			const hero = heroes.find((entry) => entry.id === action.payload.heroId);
 			const reward = view.pendingRewards[0];
-			// Ally cards share the item reward flow but only fit the exclusive ally slot.
-			if (reward?.cardType === "ally") {
-				if (action.payload.destination === "equip")
-					return hero?.activeItems.ally ? -10 : 130;
-				return hero?.activeItems.ally ? 75 : 35;
-			}
-			const equipped = hero ? Object.values(hero.activeItems).filter(Boolean).length : 0;
+			if (!hero || !reward || reward.type !== "item") return -10;
+			if (action.payload.destination === "equip" && !canAutoEquipReward(hero, reward))
+				return -10;
+			if (reward.cardType === "ally")
+				return action.payload.destination === "equip" ? 130 : -10;
+			const equipped = Object.values(hero.activeItems).filter(Boolean).length;
 			return action.payload.destination === "equip" ? 90 - equipped * 5 : 45 - equipped * 5;
 		}
 		case "CHOOSE_ARTIFACT_BEARER": {
