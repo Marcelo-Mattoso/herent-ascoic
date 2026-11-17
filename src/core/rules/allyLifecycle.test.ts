@@ -15,24 +15,6 @@ const GUARDIAN = "ally_test_guardian";
 const SCOUT = "ally_test_scout";
 const ally = (id: string): AllyCard => ({
 	type: "ally", id, equipmentSlot: "ally", skills: [],
-	it("aliado e amuleto compartilham o mesmo slot e a troca aposenta o aliado", () => {
-		const recruited = moveInventoryItem(engine, initial(), GUARDIAN, mesa, equip("h1"))!;
-		const charmId = "item_low_flame_charm";
-		const withCharm = withGame(recruited, (g) => ({ ...g,
-			pendingRewards: [{ cardId: charmId, type: "item" as const, requiresBearer: false }],
-		}));
-		const replaced = moveInventoryItem(engine, withCharm, charmId, mesa, equip("h1"))!;
-		expect(heroesOf(replaced)[0]?.activeItems.amulet).toBe(charmId);
-		expect(heroesOf(replaced)[0]?.activeItems.ally).toBeUndefined();
-		expect(isRetiredAlly(replaced, GUARDIAN)).toBe(true);
-		const allyReward = withGame(replaced, (g) => ({ ...g,
-			pendingRewards: [{ cardId: SCOUT, type: "item" as const, requiresBearer: false }],
-		}));
-		const next = moveInventoryItem(engine, allyReward, SCOUT, mesa, equip("h1"))!;
-		expect(heroesOf(next)[0]?.activeItems.amulet).toBe(SCOUT);
-		expect(next.game.pendingRewards.map((reward) => reward.cardId)).toContain(charmId);
-	});
-
 });
 const companions = new Map([GUARDIAN, SCOUT].map((id) => [id, ally(id)]));
 const engine = {
@@ -119,4 +101,22 @@ describe("aliados são permanentes apenas enquanto equipados", () => {
 		expect(deckOf(retired, "itemDeck").available).toEqual(["item_rusty_dagger"]);
 		expect(isRetiredAlly(retired, GUARDIAN)).toBe(true);
 	});
+	it("aliado e amuleto compartilham o mesmo slot e a troca aposenta o aliado", () => {
+		const recruited = moveInventoryItem(engine, initial(), GUARDIAN, mesa, equip("h1"))!;
+		const charmId = "item_low_flame_charm";
+		const withCharm = withGame(recruited, (g) => ({ ...g,
+			pendingRewards: [{ cardId: charmId, type: "item" as const, requiresBearer: false }],
+		}));
+		const replaced = moveInventoryItem(engine, withCharm, charmId, mesa, equip("h1"))!;
+		expect(heroesOf(replaced)[0]?.activeItems.amulet).toBe(charmId);
+		expect(heroesOf(replaced)[0]?.activeItems.ally).toBeUndefined();
+		expect(isRetiredAlly(replaced, GUARDIAN)).toBe(true);
+		const allyReward = withGame(replaced, (g) => ({ ...g,
+			pendingRewards: [{ cardId: SCOUT, type: "item" as const, requiresBearer: false }],
+		}));
+		const next = moveInventoryItem(engine, allyReward, SCOUT, mesa, equip("h1"))!;
+		expect(heroesOf(next)[0]?.activeItems.amulet).toBe(SCOUT);
+		expect(next.game.pendingRewards.map((reward) => reward.cardId)).toContain(charmId);
+	});
+
 });
