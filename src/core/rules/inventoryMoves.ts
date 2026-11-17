@@ -4,6 +4,7 @@ import type { GameState, PendingReward } from "../state/gameState";
 import type { HeroRecord, ItemSlotType } from "../state/heroState";
 import { itemFitsSlot, placeEquipment } from "./equipment";
 import { reconcileEquipmentMaximumLife } from "./equipmentLife";
+import { isAllyCard, isRetiredAlly, retireAllies } from "./allyLifecycle";
 import { backpackCapacity, cardById } from "../gameEngine";
 
 import type { GameEngine } from "../gameEngine";
@@ -22,6 +23,10 @@ export function moveInventoryItem(engine: GameEngine,
 	if (gameOf(state).status !== "REWARD_PHASE") return null;
 	const card = cardById(engine, itemId);
 	if (card?.type !== "item" && card?.type !== "ally") return null;
+	if (isRetiredAlly(state, itemId)) return null;
+	// Companions must never enter (or originate from) a backpack.
+	if (card.type === "ally" &&
+		(to.kind === "hero_backpack" || from.kind === "hero_backpack")) return null;
 	const heroes: HeroDraft[] = gameOf(state).heroes.map((hero) => ({
 		...hero,
 		activeItems: { ...hero.activeItems },
@@ -80,8 +85,10 @@ export function moveInventoryItem(engine: GameEngine,
 	}
 
 	let displaced: string[] = [];
+	const retired: string[] = [];
 	if (to.kind === "mesa") {
-		pendingRewards.push(rewardFor(itemId));
+		if (card.type === "ally") retired.push(itemId);
+		else pendingRewards.push(rewardFor(itemId));
 	} else {
 		const target = heroById(to.heroId);
 		if (!target) return null;
@@ -100,6 +107,10 @@ export function moveInventoryItem(engine: GameEngine,
 	}
 
 	for (const displacedId of displaced) {
+		if (isAllyCard(engine, displacedId)) {
+			retired.push(displacedId);
+			continue;
+		}
 		if (from.kind === "mesa") {
 			pendingRewards.push(rewardFor(displacedId));
 		} else {
@@ -123,6 +134,7 @@ export function moveInventoryItem(engine: GameEngine,
 		}
 	}
 
-	return reconcileEquipmentMaximumLife(engine, state,
+	const moved = reconcileEquipmentMaximumLife(engine, state,
 		withGame(state, (prevGame) => ({ ...prevGame, heroes, pendingRewards })));
+	return retireAllies(engine, moved, retired);
 }
