@@ -29,7 +29,7 @@ export function actionTraits(action: Action, view?: PlayerView): string[] {
   if (action.type === "USE_SKILL") id = action.payload.skillId;
   if (action.type === "SKILL_CHOICE") id = action.payload.skillId;
   if (action.type === "APPLY_TRIGGER_INTERRUPT") id = view?.pendingTriggerInterrupt?.skillId;
-  if (action.type === "USE_POWER") id = view?.abilityActionsByHero[action.payload.heroId]
+  if (action.type === "USE_POWER") id = view?.abilityActionsByHero?.[action.payload.heroId]
     ?.find(a => a.kind === "power" && a.status === "available")?.abilityId;
   if (action.type === "USE_ARTIFACT") id = action.payload.abilityId ??
     cardAbilityGrants(action.payload.artifactId)[0]?.abilityId;

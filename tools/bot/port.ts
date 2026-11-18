@@ -25,7 +25,7 @@ export interface BotPort {
 
 /** Estado inteiro sem logs: duas escolhas seguidas podem deixar a tela idêntica. */
 function fingerprint(state: GameState): string {
-	const { alphaLog: _a, eventLog: _e, actionLog: _l, ...game } = state.game;
+	const { alphaLog: _a, eventLog: _e, actionLog: _l, abilityTrace: _t, ...game } = state.game;
 	return stableStringify({ engine: { ...state.engine, events: [] }, game });
 }
 
