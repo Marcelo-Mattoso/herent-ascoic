@@ -23,3 +23,5 @@ comprova que uma habilidade nova esteja correta; isso é atribuição do auditor
 O treino não usa o planejador legado de combos, para que novos padrões não
 dependam de IDs específicos. Não altera cartas, atributos nem regras.
 Nunca executa no CI.
+
+**Cobertura P0:** a auditoria automática também exercita grants manuais de heróis quando a fixture genérica permite. Não afirma cobertura integral de efeitos, duração, grupos e exceções. Casos que precisam de estado especial permanecem NOT_COVERED.

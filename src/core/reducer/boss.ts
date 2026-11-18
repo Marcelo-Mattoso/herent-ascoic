@@ -1,6 +1,7 @@
 import { HERO_ABILITY_IDS } from "../data/heroAbilityIds";
 import { checkBossCondition } from "../rules/conditions";
-import { inlineBossHitBonus, inlineBossFirstAttackHitBonus, inlineBossDamageReduction, markBossFirstAttackUsed, markInlineBossSkillsUsed } from "../rules/bossSkills";
+import { inlineBossHitBonus, inlineBossFirstAttackHitBonus, inlineBossDamageReduction, markBossFirstAttackUsed, markInlineBossSkillsUsed, isInlineBossSkill } from "../rules/bossSkills";
+import { recordAbilityExecution, effectKinds } from "../abilities/trace";
 import { remainingBossRitualBonus } from "../rules/bossRitual";
 import { resolveSkillWindow } from "../skills/resolveSkillWindow";
 import { drainStack } from "../effects/resolver";
@@ -27,7 +28,7 @@ import { resolvePoisonRound } from "../rules/poison";
 import { resolveDamageOverTimeRound, clearDamageOverTime } from "../rules/damageOverTime";
 import { recordEvent } from "../events/record";
 import { log } from "./utils";
-import { cardById, cardName, skillsOf } from "../gameEngine";
+import { cardById, cardName, skillsOf, abilityGrants } from "../gameEngine";
 import type { GameEngine, GameHandler } from "../gameEngine";
 import type { Action } from "../actions/types";
 import { activeEnemies } from "./legal";
@@ -124,6 +125,21 @@ function formatDamageBonusNote(
 	return ` [dano ${baseDamage}→${damage}: ${parts.join(", ")}]`;
 }
 
+/** Proveniência para habilidades inline: as regras continuam inalteradas. */
+function recordInlineBossAbility(
+  engine: GameEngine, before: GameState, after: GameState,
+  boss: EnemyState, skillId: string, trigger: string,
+): GameState {
+  const definition = skillsOf(engine, boss.cardId).find(entry => entry.def.id === skillId)?.def;
+  const grantId = abilityGrants(engine, boss.cardId).find(g => g.abilityId === skillId)?.id ??
+    "unresolved:" + boss.cardId + ":" + skillId;
+  return recordAbilityExecution(before, after, {
+    abilityId: skillId, grantId, sourceCardId: boss.cardId,
+    sourceEntityId: boss.id, trigger, targets: [boss.id],
+    declaredKinds: effectKinds(definition?.effect), outcome: "inline",
+  });
+}
+
 // ─── REVEAL_BOSS ─────────────────────────────────────────────────────────────
 
 export function handleRevealBoss(engine: GameEngine, state: GameState): GameState {
@@ -195,8 +211,22 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 
 	const hitBonus = inlineBossHitBonus(engine, boss);
 	const enemyTotal = roll!.enemyTotal + hitBonus;
+  const firstAttackBonus = inlineBossFirstAttackHitBonus(engine, state, boss);
 	let next = markBossFirstAttackUsed(state, boss.id);
-	if (hitBonus !== 0) next = log(next, `Habilidade do chefe: ${hitBonus > 0 ? "+" : ""}${hitBonus} no acerto.`);
+  if (firstAttackBonus > 0) {
+    for (const { def } of skillsOf(engine, boss.cardId).filter(entry =>
+      entry.def.trigger?.event === "evt_roll" && isInlineBossSkill(entry.def))) {
+      next = recordInlineBossAbility(engine, state, next, boss, def.id, "evt_roll");
+    }
+  }
+  if (hitBonus !== 0) {
+    for (const { def } of skillsOf(engine, boss.cardId).filter(entry =>
+      entry.def.trigger?.event === "evt_damage_taken" && isInlineBossSkill(entry.def) &&
+      entry.def.effect?.some(effect => effect.kind === "p_modifier" && effect.stat === "s_hit_bonus"))) {
+      next = recordInlineBossAbility(engine, state, next, boss, def.id, "evt_damage_taken");
+    }
+    next = log(next, `Habilidade do chefe: ${hitBonus > 0 ? "+" : ""}${hitBonus} no acerto.`);
+  }
 
 	const heroDamage = effectiveHeroDamage(engine,
 		hero,
@@ -216,7 +246,10 @@ export function handleBossResolveAttack(engine: GameEngine, state: GameState): G
 		const reduction = inlineBossDamageReduction(engine, next, boss);
 		if (reduction.amount > 0) {
 			dmg = Math.max(0, dmg - reduction.amount);
-			next = markInlineBossSkillsUsed(next, reduction.usedIds);
+      next = markInlineBossSkillsUsed(next, reduction.usedIds);
+      for (const id of reduction.usedIds) {
+        next = recordInlineBossAbility(engine, state, next, boss, id, "evt_damage_taken");
+      }
 			next = log(next, `Habilidade do chefe: dano reduzido em ${reduction.amount}.`);
 		}
 		const newLife = Math.max(0, boss.currentLife - dmg);

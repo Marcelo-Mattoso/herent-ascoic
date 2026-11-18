@@ -17,7 +17,8 @@ export interface StrategyRule {
   };
 }
 export interface StrategyKnowledge { readonly version: 1; readonly rules: readonly StrategyRule[] }
-export const publishedKnowledge: StrategyKnowledge = published as StrategyKnowledge;
+export const publishedKnowledge: StrategyKnowledge = { version: 1,
+  rules: published.rules as unknown as StrategyRule[] };
 const wrappers = new Set(["i_if", "i_choose_one", "i_for_each", "add_trigger", "i_noop"]);
 
 /** Tipos de efeito, nunca IDs de heróis ou de habilidades. */

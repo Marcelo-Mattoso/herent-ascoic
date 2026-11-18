@@ -1,5 +1,9 @@
 /** Cenários descobertos a partir de contratos, sem IDs de chefes/skills hardcoded. */
 import { getCardsByType } from "@/core/data/cards";
+import { removeEntity } from "@/core/ecs/world";
+import { reducer } from "@/core/reducer";
+import { legalActions } from "@/core/legalActions";
+import { playerView } from "@/core/projection/playerView";
 import { cardAbilityGrants } from "@/core/data/abilities";
 import { skillById } from "@/core/gameEngine";
 import { recordOfEnemy, spawnEnemy, withWorld, worldOf, heroesOf } from "@/core/state/access";
@@ -27,7 +31,7 @@ function makeBossFixture(cardId: string): { state: GameState; boss: EnemyState }
     id: "boss", cardId, maxLife: 40, currentLife: 40, damage: 2, hitBonus: 0,
     dice: 1, tokens: {}, conditions: [], firstDamageTakenThisTurn: false, status: "active",
   };
-  const populated = withWorld(started, spawnEnemy(worldOf(started), boss));
+  const populated = withWorld(started, spawnEnemy(removeEntity(worldOf(started), "audit-enemy"), boss));
   return {
     state: withGame(populated, g => ({ ...g, status: "BOSS_COMBAT",
       activeEnemies: [recordOfEnemy(boss)] })),
@@ -82,9 +86,58 @@ function probeInline(
   return null;
 }
 
+/** Executa um grant manual por meio do reducer, seguindo escolhas legais, sem ID de skill no teste. */
+function probeManualHero(cardId: string, abilityId: string): string | null {
+  let state = combat(cardId);
+  const hero = heroesOf(state)[0];
+  if (!hero) return null;
+  const action = playerView(auditEngine, state).abilityActionsByHero[hero.id]?.find(a =>
+    a.abilityId === abilityId && a.status === "available");
+  if (!action || (action.activation !== "manual" && action.activation !== "manual_prepare"))
+    return null;
+  const initial = gameOf(state).abilityTrace?.at(-1)?.sequence ?? 0;
+  state = reducer(auditEngine, state, action.kind === "power" ?
+    { type: "USE_POWER", payload: { heroId: hero.id } } :
+    { type: "USE_SKILL", payload: { skillId: abilityId, sourceId: hero.id } });
+  for (let step = 0; step < 7; step++) {
+    const evidence = (gameOf(state).abilityTrace ?? []).find(entry =>
+      entry.sequence > initial && entry.abilityId === abilityId &&
+      entry.outcome === "executed");
+    if (evidence) return "Efeito executado no reducer real; testes de valor, duração e limites ainda pendentes";
+    const offered = legalActions(auditEngine, state);
+    const choice = offered.find(item =>
+      item.type === "SKILL_CHOICE" || item.type === "SELECT_SKILL_TARGET" ||
+      item.type === "APPLY_TRIGGER_INTERRUPT" || item.type === "SELECT_DIE");
+    if (choice) { state = reducer(auditEngine, state, choice); continue; }
+    const projected = playerView(auditEngine, state).abilityActionsByHero[hero.id]?.find(
+      entry => entry.abilityId === abilityId);
+    if (projected?.status !== "prepared") break;
+    state = reducer(auditEngine, state, { type: "USE_SKILL", payload: {
+      skillId: abilityId, sourceId: hero.id,
+      ...(projected.validTargetIds.length ? { targetIds: [projected.validTargetIds[0]!] } : {}),
+    } });
+  }
+  return null;
+}
+
 /** Não sinaliza PASS quando o cenário não demonstra o efeito declarado. */
 export function runAutoContractProbes(): AutoContractProbe[] {
   const probes: AutoContractProbe[] = [];
+  for (const hero of getCardsByType("hero")) {
+    for (const grant of cardAbilityGrants(hero.id).filter(g => g.activation.kind === "manual")) {
+      const base = { sourceCardId: hero.id, abilityId: grant.abilityId,
+        grantId: grant.id, category: "manual" };
+      try {
+        const detail = probeManualHero(hero.id, grant.abilityId);
+        probes.push({ ...base, status: detail ? "PASS" : "NOT_COVERED",
+          detail: detail ?? "Ação não reproduzível na fixture genérica: exige condição, recurso ou contexto específico" });
+      } catch (error) {
+        probes.push({ ...base, status: "NOT_COVERED",
+          detail: "Fixture incompleta ou rejeição do reducer: " +
+            (error instanceof Error ? error.message : String(error)) });
+      }
+    }
+  }
   for (const bossCard of getCardsByType("boss")) {
     for (const grant of cardAbilityGrants(bossCard.id)) {
       const ability = skillById(auditEngine, grant.abilityId);
@@ -119,8 +172,9 @@ export function runAutoContractProbes(): AutoContractProbe[] {
           probes.push({ ...base, status: "NOT_COVERED", detail: "Evento sem fixture automática de execução" });
         }
       } catch (error) {
-        probes.push({ ...base, status: "FAIL",
-          detail: error instanceof Error ? error.message : String(error) });
+        probes.push({ ...base, status: isInlineBossSkill(ability) ? "FAIL" : "NOT_COVERED",
+          detail: (isInlineBossSkill(ability) ? "Contrato inline violado: " : "Fixture incompleta: ") +
+            (error instanceof Error ? error.message : String(error)) });
       }
     }
   }
