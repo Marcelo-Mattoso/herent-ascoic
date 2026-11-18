@@ -7,6 +7,7 @@ describe("baseline de cobertura incremental", () => {
     const keys = discoverAbilityInventory().map(entry => entry.sourceCardId + "::" + entry.grantId);
     expect(baseline.grants).toHaveLength(311);
     expect(new Set(baseline.grants).size).toBe(311);
-    expect(keys.every(key => baseline.grants.includes(key))).toBe(true);
+    // Grants novos são permitidos, desde que recebam prova no auditor.
+    expect(baseline.grants.every(key => keys.includes(key))).toBe(true);
   });
 });

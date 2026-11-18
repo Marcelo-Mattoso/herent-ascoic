@@ -194,12 +194,20 @@ async function run(): Promise<void> {
   const known = new Map(matrix.map(context => [keyOf(context), context]));
   const observations: PatternObservation[] = [];
   const trainingWins: Record<string, { trials: number; wins: number }> = {};
+  const trainingByContext: Record<string, { heroes: readonly string[];
+    expansion: string; difficulty: Difficulty; profile: BotProfile;
+    trials: number; wins: number; violations: number }> = {};
   for (const [index, context] of matrix.entries()) {
     for (let iteration = 0; iteration < options.runs; iteration++) {
       const game = trial(context, options.seed + iteration, options.maxSteps,
         publishedKnowledge.rules, true);
       observations.push({ context: keyOf(context), won: game.won, pairs: game.patterns,
         cooperativePatterns: game.cooperativePatterns });
+      const contextKey = keyOf(context);
+      const old = trainingByContext[contextKey] ?? { ...context, trials: 0, wins: 0, violations: 0 };
+      trainingByContext[contextKey] = { ...old, trials: old.trials + 1,
+        wins: old.wins + (game.won ? 1 : 0),
+        violations: old.violations + (game.violation ? 1 : 0) };
       const key = context.difficulty;
       const previous = trainingWins[key] ?? { trials: 0, wins: 0 };
       trainingWins[key] = { trials: previous.trials + 1,
@@ -297,7 +305,14 @@ async function run(): Promise<void> {
       needRevalidation: historical.length,
     },
     options, goals, training: { contexts: matrix.length,
-      trials: observations.length, byDifficulty: trainingWins },
+      trials: observations.length, byDifficulty: trainingWins,
+      byContext: Object.fromEntries(Object.entries(trainingByContext).map(([key, row]) =>
+        [key, { ...row, winRate: row.wins / row.trials,
+          targetWinRate: goals[row.difficulty],
+          meetsTarget: row.trials >= MIN_PAIRED_TRIALS
+            ? row.wins / row.trials >= goals[row.difficulty] : null,
+          assessment: row.trials < MIN_PAIRED_TRIALS
+            ? "amostra_exploratoria" : "amostra_minima" }])) },
     hypotheses, validations,
     caveats: [
       "Efeitos são classificados pelo kind declarado na DSL. A execução foi registrada; o resultado individual do efeito exige auditoria.",
