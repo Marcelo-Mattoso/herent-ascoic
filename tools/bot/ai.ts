@@ -59,6 +59,7 @@ export function playAiGame(
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();
 	let recentTraits: string[] = [];
+	let recentActorIds: (string | undefined)[] = [];
 	let recentRoundKey = "";
 	let bossProgress: { life: number; round: number } | null = null;
 	let previousCombat: { room: number; round: number; enemyLife: Readonly<Record<string, number>> } | null = null;
@@ -91,9 +92,11 @@ export function playAiGame(
 			stagnantRounds = 0;
 		}
     const roundKey = obs.view.roomsCleared + ":" + (obs.view.combat?.round ?? 0);
-    if (roundKey !== recentRoundKey) { recentTraits = []; recentRoundKey = roundKey; }
+    if (roundKey !== recentRoundKey) {
+      recentTraits = []; recentActorIds = []; recentRoundKey = roundKey;
+    }
     const options = scoreMoves(obs, profile, setup.seed, port.history.length,
-      { stagnantRounds, recentTraits }, knowledgeOverride, !disableLegacyCombos);
+      { stagnantRounds, recentTraits, recentActorIds }, knowledgeOverride, !disableLegacyCombos);
 		const stepRejected: string[] = [];
 		const combat = obs.view.combat;
 		const turnKey = `${combat?.round}:${combat?.heroesActed.length}:${obs.view.roomsCleared}`;
@@ -125,8 +128,11 @@ export function playAiGame(
           options,
           rejected: stepRejected,
         };
-        const traits = stepSignals(step).map(signal => signal.trait);
-        if (traits.length) recentTraits = [...recentTraits, ...traits].slice(-4);
+        const signals = stepSignals(step);
+        if (signals.length) {
+          recentTraits = [...recentTraits, ...signals.map(signal => signal.trait)].slice(-4);
+          recentActorIds = [...recentActorIds, ...signals.map(signal => signal.heroId)].slice(-4);
+        }
         onStep?.(step);
         break;
       }

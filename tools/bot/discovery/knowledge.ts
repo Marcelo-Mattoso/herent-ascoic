@@ -9,7 +9,7 @@ export interface StrategyRule {
   readonly pattern: readonly string[];
   readonly bonus: number;
   readonly status: "validated";
-  readonly context?: { readonly partySize: number };
+  readonly context?: { readonly partySize: number; readonly cooperative?: boolean };
   readonly evidence: {
     readonly pairedTrials: number;
     readonly baselineWins: number;
@@ -46,9 +46,21 @@ export function actionTraits(action: Action, view?: PlayerView): string[] {
   return [...new Set(effectKinds(lookupAbilityById(id)?.effect).filter(k => !wrappers.has(k)))];
 }
 
+function actorOf(action: Action, view: PlayerView): string | undefined {
+  switch (action.type) {
+    case "USE_SKILL": return action.payload.sourceId;
+    case "CHOOSE_TARGET": return action.payload.heroId;
+    case "USE_POWER": return action.payload.heroId;
+    case "USE_ITEM":
+    case "USE_REWARD_ITEM": return action.payload.heroId;
+    case "APPLY_TRIGGER_INTERRUPT": return view?.pendingTriggerInterrupt?.sourceHeroId;
+    default: return undefined;
+  }
+}
 export function knowledgeBonus(
   action: Action, view: PlayerView, history: readonly string[],
   rules: readonly StrategyRule[] = publishedKnowledge.rules,
+  actors: readonly (string | undefined)[] = [],
 ): number {
   const traits = actionTraits(action, view);
   if (traits.length === 0) return 0;
@@ -61,7 +73,12 @@ export function knowledgeBonus(
     const prefix = rule.pattern.slice(0, -1);
     if (prefix.length > history.length ||
       prefix.some((trait, index) => history[history.length - prefix.length + index] !== trait)) continue;
-    best = Math.max(best, Math.min(45, rule.bonus));
+    if (rule.context?.cooperative) {
+      const participants = [...actors.slice(-prefix.length), actorOf(action, view)]
+        .filter((id): id is string => !!id);
+      if (new Set(participants).size < 2) continue;
+    }
+    best = Math.max(best, Math.min(150, rule.bonus));
   }
   return best;
 }

@@ -202,7 +202,7 @@ async function run(): Promise<void> {
       pattern: hypothesis.pattern,
       bonus: 25,
       status: "validated",
-      context: { partySize: options.partySize },
+      context: { partySize: options.partySize, cooperative: options.partySize > 1 },
       evidence: { pairedTrials: 0, baselineWins: 0,
         improvedWins: 0, seedStart: options.seed + 200000 },
     };
@@ -250,7 +250,7 @@ async function run(): Promise<void> {
   const library: StrategyKnowledge = { version: 1, rules: validations
     .filter(v => v.status === "validated").map(v => ({
       pattern: v.pattern, bonus: 25, status: "validated" as const,
-      context: { partySize: v.partySize },
+      context: { partySize: v.partySize, cooperative: v.partySize > 1 },
       evidence: { pairedTrials: v.pairedTrials, baselineWins: v.baselineWins,
         improvedWins: v.improvedWins, seedStart: options.seed + 200000 },
     })) };

@@ -10,6 +10,7 @@ import { knowledgeBonus, publishedKnowledge, type StrategyRule } from "./discove
 export interface CombatProgress {
 	readonly stagnantRounds: number;
 	readonly recentTraits?: readonly string[];
+	readonly recentActorIds?: readonly (string | undefined)[];
 }
 
 export interface ScoredMove {
@@ -429,7 +430,8 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 		.map((move, index) => ({
 			...move,
 			score: profile === "random" ? random() :
-				move.score + knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [], knowledge) +
+				move.score + knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],
+          knowledge, progress.recentActorIds ?? []) +
 				(profile === "casual" ? variation(move.action, obs.view, seed, decision) * 0.7 :
 				profile === "explorer" ? variation(move.action, obs.view, seed, decision) * 0.15 : 0),
 			index,
