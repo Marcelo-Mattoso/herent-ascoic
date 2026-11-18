@@ -18,11 +18,12 @@ import { SequenceCollector } from "./sequence";
 import { teamCandidates } from "./teams";
 import { mcnemarStatistic, selectBonus } from "./statistics";
 
+type DiscoveryDifficulty = "very_easy" | "easy" | "normal";
 type Context = {
   heroes: readonly string[];
   expansion: string;
   boss: string;
-  difficulty: Difficulty;
+  difficulty: DiscoveryDifficulty;
   profile: BotProfile;
 };
 type Options = {
@@ -37,7 +38,7 @@ type Options = {
   maxParties: number;
   maxCandidates: number;
 };
-const difficulties: readonly Difficulty[] = ["very_easy", "easy", "normal"];
+const difficulties: readonly DiscoveryDifficulty[] = ["very_easy", "easy", "normal"];
 const profiles: readonly BotProfile[] = ["power-player", "explorer"];
 const goals = { very_easy: 1, easy: 0.75, normal: 0.5 } as const;
 const MIN_PAIRED_TRIALS = 40;
@@ -195,7 +196,7 @@ async function run(): Promise<void> {
   const observations: PatternObservation[] = [];
   const trainingWins: Record<string, { trials: number; wins: number }> = {};
   const trainingByContext: Record<string, { heroes: readonly string[];
-    expansion: string; difficulty: Difficulty; profile: BotProfile;
+    expansion: string; difficulty: DiscoveryDifficulty; profile: BotProfile;
     trials: number; wins: number; violations: number }> = {};
   for (const [index, context] of matrix.entries()) {
     for (let iteration = 0; iteration < options.runs; iteration++) {
