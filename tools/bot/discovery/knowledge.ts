@@ -74,6 +74,7 @@ export function knowledgeBonus(
     if (prefix.length > history.length ||
       prefix.some((trait, index) => history[history.length - prefix.length + index] !== trait)) continue;
     if (rule.context?.cooperative) {
+      if (!prefix.length) continue;
       const participants = [...actors.slice(-prefix.length), actorOf(action, view)]
         .filter((id): id is string => !!id);
       if (new Set(participants).size < 2) continue;

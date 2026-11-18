@@ -28,6 +28,10 @@ npm run bot:discover -- --party-size 2 --max-parties 8 --runs 4 --validate-runs 
 A promoção atualiza `src/data/discoveryKnowledge.json` apenas com padrões
 validados. Revise o diff e versiona-o em commit separado.
 
+O bônus tático é ajustado exclusivamente em seeds de treino distintas
+(`seed + 100000`, opções 40/90/140). Apenas uma variante chega à
+validação reservada. As sementes de treino nunca participam da decisão final.
+
 Critérios de validação: no mínimo 40 pares A/B e dois contextos,
 pelo menos quatro vitórias de vantagem, estatística conservadora de McNemar
 (qui-quadrado corrigido >= 6,64) e nenhuma violação adicional. Esses

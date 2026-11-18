@@ -15,6 +15,7 @@ import { publishedKnowledge, type StrategyKnowledge, type StrategyRule } from ".
 import { minePatterns, patternKey, type PatternObservation } from "./miner";
 import { SequenceCollector } from "./sequence";
 import { teamCandidates } from "./teams";
+import { mcnemarStatistic, selectBonus } from "./statistics";
 
 type Context = {
   heroes: readonly string[];
@@ -114,6 +115,8 @@ function trial(context: Context, seed: number, maxSteps: number,
 interface ValidationResult {
   readonly pattern: readonly string[];
   readonly partySize: number;
+  readonly bonus: number;
+  readonly tuningTrials: number;
   readonly testedContexts: readonly string[];
   readonly pairedTrials: number;
   readonly baselineWins: number;
@@ -154,8 +157,7 @@ function differentContexts(
 }
 
 function decision(stats: Omit<ValidationResult, "status" | "reason">): ValidationResult {
-  const discordant = stats.improvedOnly + stats.baselineOnly;
-  const chi = discordant ? (Math.max(0, Math.abs(stats.improvedOnly - stats.baselineOnly) - 1) ** 2) / discordant : 0;
+  const chi = mcnemarStatistic(stats.improvedOnly, stats.baselineOnly);
   const improved = stats.improvedOnly - stats.baselineOnly >= MIN_EXTRA_WINS;
   const safe = stats.improvedViolations <= stats.baselineViolations;
   const robust = stats.pairedTrials >= MIN_PAIRED_TRIALS &&
@@ -198,9 +200,30 @@ async function run(): Promise<void> {
 
   for (const hypothesis of hypotheses) {
     const contexts = differentContexts(hypothesis.contexts, known);
+    // O valor do incentivo é ajustado APENAS em seeds de treino separadas.
+    // Assim, a validação não escolhe a melhor variante depois de olhar os resultados.
+    const tuningContexts = contexts.slice(0, 3);
+    const tuningRuns = Math.min(3, options.runs);
+    const bonusTrials = [40, 90, 140].map(bonus => {
+      let wins = 0, violations = 0;
+      for (const context of tuningContexts) for (let index = 0; index < tuningRuns; index++) {
+        const seed = options.seed + 100000 + index;
+        const probe: StrategyRule = { pattern: hypothesis.pattern, bonus,
+          status: "validated", context: { partySize: options.partySize,
+            cooperative: options.partySize > 1 },
+          evidence: { pairedTrials: 0, baselineWins: 0, improvedWins: 0,
+            seedStart: options.seed + 200000 } };
+        const result = trial(context, seed, options.maxSteps,
+          [...publishedKnowledge.rules, probe]);
+        if (result.won) wins++;
+        if (result.violation) violations++;
+      }
+      return { bonus, wins, violations };
+    });
+    const tunedBonus = selectBonus(bonusTrials);
     const experiment: StrategyRule = {
       pattern: hypothesis.pattern,
-      bonus: 25,
+      bonus: tunedBonus,
       status: "validated",
       context: { partySize: options.partySize, cooperative: options.partySize > 1 },
       evidence: { pairedTrials: 0, baselineWins: 0,
@@ -228,6 +251,7 @@ async function run(): Promise<void> {
     }
     validations.push(decision({
       pattern: hypothesis.pattern, partySize: options.partySize,
+      bonus: tunedBonus, tuningTrials: tuningContexts.length * tuningRuns * bonusTrials.length,
       testedContexts: contexts.map(keyOf), pairedTrials,
       baselineWins, improvedWins, improvedOnly, baselineOnly,
       baselineViolations, improvedViolations,
@@ -249,7 +273,7 @@ async function run(): Promise<void> {
   await writeFile(join(options.output, "discovery-report.json"), JSON.stringify(result, null, 2));
   const library: StrategyKnowledge = { version: 1, rules: validations
     .filter(v => v.status === "validated").map(v => ({
-      pattern: v.pattern, bonus: 25, status: "validated" as const,
+      pattern: v.pattern, bonus: v.bonus, status: "validated" as const,
       context: { partySize: v.partySize, cooperative: v.partySize > 1 },
       evidence: { pairedTrials: v.pairedTrials, baselineWins: v.baselineWins,
         improvedWins: v.improvedWins, seedStart: options.seed + 200000 },
