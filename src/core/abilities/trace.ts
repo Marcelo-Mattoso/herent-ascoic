@@ -40,6 +40,7 @@ export function recordAbilityExecution(
   after: GameState,
   value: Omit<AbilityExecutionEvidence, "sequence" | "hpDelta">,
 ): GameState {
+  if (!gameOf(after).abilityTraceEnabled) return after;
   const previous = gameOf(after).abilityTrace ?? [];
   const hpBefore = new Map([...heroesOf(before), ...enemiesOf(before)].map(u => [u.id, u.currentLife]));
   const hpDelta: Record<string, number> = {};

@@ -48,7 +48,7 @@ export function combat(cardId: string | readonly string[], enemyCount: 1 | 2 = 1
 	const withEnemies = withWorld(started, enemies.reduce(
 		(world, enemy) => spawnEnemy(world, enemy), worldOf(started)));
 	const prepared = withGame(withEnemies, (game) => ({
-		...game, status: "COMBAT_START", currentRoom: {
+		...game, abilityTraceEnabled: true, status: "COMBAT_START", currentRoom: {
 			cardId: "room_dungeon_room", exits: 2, currentEnemies: enemyCount,
 			reward: 0, rewardType: "item", effect: "", xp: 1, status: "active",
 		},

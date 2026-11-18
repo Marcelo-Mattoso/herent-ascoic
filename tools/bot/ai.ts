@@ -15,7 +15,7 @@ import type { BotProfile } from "./profiles";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
-import { actionTraits, type StrategyRule } from "./discovery/knowledge";
+import { actionTraits, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
 
 export { rankMoves, scoreAction, scoreMoves, type ScoredMove };
 
@@ -50,8 +50,10 @@ export function playAiGame(
 	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
 	knowledgeOverride?: readonly StrategyRule[],
 	disableLegacyCombos = false,
+	enableDiscoveryTrace = false,
 ): AiGameResult {
-	const port = createHeadlessPort(setup, xpCostsOverride);
+	const port = createHeadlessPort(setup, xpCostsOverride,
+		enableDiscoveryTrace || (knowledgeOverride ?? publishedKnowledge.rules).length > 0);
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();

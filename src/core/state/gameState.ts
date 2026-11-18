@@ -133,6 +133,8 @@ export interface AscensaoGame {
 	readonly alphaLog?: readonly string[];
 	/** Últimas execuções de habilidades, com proveniência por grant (diagnóstico somente). */
 	readonly abilityTrace?: readonly AbilityExecutionEvidence[];
+	/** Instrumentação diagnóstica opt-in; nunca influencia as regras de jogo. */
+	readonly abilityTraceEnabled?: boolean;
 	/** Observações visuais do dano realmente subtraído da vida; sem efeito nas regras. */
 	/** Dano periódico efetivo de veneno e pontos protegidos pelo Coração, cumulativos na partida. */
 	readonly poisonTelemetry?: PoisonTelemetry;

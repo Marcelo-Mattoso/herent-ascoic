@@ -1,4 +1,5 @@
 import type { Action } from "@/core/actions/types";
+import { withGame } from "@/engine/state";
 import type { GameState } from "@/core/state/gameState";
 import type { GameBalance, GameEngine } from "@/core/gameEngine";
 import { reducer } from "@/core/reducer/index";
@@ -52,10 +53,12 @@ export function createBotTrialEngine(xpCostsOverride?: Partial<GameBalance["xpCo
 export function createHeadlessPort(
 	setup: GoldenSetup,
 	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
+	enableAbilityTrace = false,
 ): HeadlessBotPort {
 	const ruleEngine = createBotTrialEngine(xpCostsOverride);
 	const start = startAction(setup);
 	let state = reducer(ruleEngine, initialState(setup), start);
+	if (enableAbilityTrace) state = withGame(state, game => ({ ...game, abilityTraceEnabled: true }));
 	const history: Action[] = [start];
 	return {
 		history,
