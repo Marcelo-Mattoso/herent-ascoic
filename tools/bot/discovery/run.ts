@@ -11,7 +11,8 @@ import type { BotProfile } from "../profiles";
 import { setupForRun } from "../profiles";
 import { playAiGame } from "../ai";
 import { LEVELING_RUNS_ROOT, assertLocalReportExecution } from "../localLevelingReports";
-import { publishedKnowledge, type StrategyKnowledge, type StrategyRule } from "./knowledge";
+import { publishedKnowledge, historicalKnowledge, type StrategyKnowledge, type StrategyRule } from "./knowledge";
+import { catalogFingerprint } from "./fingerprint";
 import { minePatterns, patternKey, type PatternObservation } from "./miner";
 import { SequenceCollector } from "./sequence";
 import { teamCandidates } from "./teams";
@@ -114,6 +115,7 @@ function trial(context: Context, seed: number, maxSteps: number,
 
 interface ValidationResult {
   readonly pattern: readonly string[];
+  readonly origin: "historical" | "new";
   readonly partySize: number;
   readonly bonus: number;
   readonly tuningTrials: number;
@@ -192,9 +194,20 @@ async function run(): Promise<void> {
   }
   const existing = new Set(publishedKnowledge.rules.map(rule => patternKey(rule.pattern)));
   const mined = minePatterns(observations, Math.max(3, options.runs));
-  const hypotheses = mined.filter(pattern =>
-    !existing.has(patternKey(pattern.pattern)) &&
-    (options.partySize === 1 || pattern.teamSupport >= 2)).slice(0, options.maxCandidates);
+  const historical = historicalKnowledge.catalogFingerprint === catalogFingerprint()
+    ? [] : historicalKnowledge.rules.filter(rule =>
+      !rule.context?.partySize || rule.context.partySize === options.partySize);
+  // Revalidar conhecimento antigo antes de explorar novas hipóteses.
+  const historicalHypotheses = historical.map(rule => ({
+    pattern: rule.pattern, support: 0, teamSupport: 0, wins: 0, lift: 0,
+    contexts: [...known.keys()], origin: "historical" as const,
+  }));
+  const oldKeys = new Set(historicalHypotheses.map(rule => patternKey(rule.pattern)));
+  const freshHypotheses = mined.filter(pattern =>
+    !existing.has(patternKey(pattern.pattern)) && !oldKeys.has(patternKey(pattern.pattern)) &&
+    (options.partySize === 1 || pattern.teamSupport >= 2))
+    .map(pattern => ({ ...pattern, origin: "new" as const }));
+  const hypotheses = [...historicalHypotheses, ...freshHypotheses].slice(0, options.maxCandidates);
   const baselineCache = new Map<string, ReturnType<typeof trial>>();
   const validations: ValidationResult[] = [];
 
@@ -250,7 +263,7 @@ async function run(): Promise<void> {
       if (improved.violation) improvedViolations++;
     }
     validations.push(decision({
-      pattern: hypothesis.pattern, partySize: options.partySize,
+      pattern: hypothesis.pattern, origin: hypothesis.origin, partySize: options.partySize,
       bonus: tunedBonus, tuningTrials: tuningContexts.length * tuningRuns * bonusTrials.length,
       testedContexts: contexts.map(keyOf), pairedTrials,
       baselineWins, improvedWins, improvedOnly, baselineOnly,
@@ -260,7 +273,14 @@ async function run(): Promise<void> {
   }
 
   await mkdir(options.output, { recursive: true });
-  const result = { version: 2, generatedAt: new Date().toISOString(),
+  const fingerprint = catalogFingerprint();
+  const result = { version: 3, generatedAt: new Date().toISOString(),
+    catalogFingerprint: fingerprint,
+    historicalKnowledge: {
+      fingerprint: historicalKnowledge.catalogFingerprint ?? null,
+      previousRules: historicalKnowledge.rules.length,
+      needRevalidation: historical.length,
+    },
     options, goals, training: { contexts: matrix.length,
       trials: observations.length, byDifficulty: trainingWins },
     hypotheses, validations,
@@ -271,7 +291,8 @@ async function run(): Promise<void> {
     ],
   };
   await writeFile(join(options.output, "discovery-report.json"), JSON.stringify(result, null, 2));
-  const library: StrategyKnowledge = { version: 1, rules: validations
+  const library: StrategyKnowledge = { version: 1,
+    catalogFingerprint: fingerprint, rules: validations
     .filter(v => v.status === "validated").map(v => ({
       pattern: v.pattern, bonus: v.bonus, status: "validated" as const,
       context: { partySize: v.partySize, cooperative: v.partySize > 1 },
@@ -282,11 +303,15 @@ async function run(): Promise<void> {
   if (options.promote && library.rules.length) {
     const path = resolve("src/data/discoveryKnowledge.json");
     const prior = JSON.parse(await readFile(path, "utf8")) as StrategyKnowledge;
-    const registered = new Map(prior.rules.map(rule =>
+    if (prior.rules.length && prior.catalogFingerprint !== fingerprint)
+      await writeFile(join(options.output, "historical-knowledge.json"), JSON.stringify(prior, null, 2));
+    const registered = new Map((prior.catalogFingerprint === fingerprint ? prior.rules : []).map(rule =>
       [patternKey(rule.pattern) + ":" + (rule.context?.partySize ?? 0), rule]));
     for (const rule of library.rules)
       registered.set(patternKey(rule.pattern) + ":" + rule.context?.partySize, rule);
-    await writeFile(path, JSON.stringify({ version: 1, rules: [...registered.values()] }, null, 2) + "\n");
+    await writeFile(path, JSON.stringify({
+      version: 1, catalogFingerprint: fingerprint, rules: [...registered.values()],
+    }, null, 2) + "\n");
   }
   console.info("Desbravador:", observations.length, "partidas de treino;",
     hypotheses.length, "hipóteses;", library.rules.length, "validadas.");

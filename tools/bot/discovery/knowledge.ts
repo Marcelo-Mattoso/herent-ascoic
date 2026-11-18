@@ -4,6 +4,7 @@ import type { Action } from "@/core/actions/types";
 import type { PlayerView } from "@/core/projection/playerView";
 import { cardAbilityGrants, lookupAbilityById } from "@/core/data/abilities";
 import { effectKinds } from "@/core/abilities/trace";
+import { catalogFingerprint } from "./fingerprint";
 
 export interface StrategyRule {
   readonly pattern: readonly string[];
@@ -17,9 +18,22 @@ export interface StrategyRule {
     readonly seedStart: number;
   };
 }
-export interface StrategyKnowledge { readonly version: 1; readonly rules: readonly StrategyRule[] }
-export const publishedKnowledge: StrategyKnowledge = { version: 1,
-  rules: published.rules as unknown as StrategyRule[] };
+export interface StrategyKnowledge {
+  readonly version: 1;
+  readonly catalogFingerprint?: string;
+  readonly rules: readonly StrategyRule[];
+}
+export const historicalKnowledge: StrategyKnowledge = {
+  version: 1, catalogFingerprint: "catalogFingerprint" in published
+    ? String(published.catalogFingerprint) : undefined,
+  rules: published.rules as unknown as StrategyRule[],
+};
+const currentCatalogFingerprint = catalogFingerprint();
+/** Invalida silenciosamente a política antiga para JOGAR, nunca para RELATAR. */
+export const publishedKnowledge: StrategyKnowledge =
+  historicalKnowledge.catalogFingerprint === currentCatalogFingerprint
+    ? historicalKnowledge
+    : { version: 1, catalogFingerprint: currentCatalogFingerprint, rules: [] };
 const wrappers = new Set(["i_if", "i_choose_one", "i_for_each", "add_trigger", "i_noop"]);
 
 /** Tipos de efeito, nunca IDs de heróis ou de habilidades. */

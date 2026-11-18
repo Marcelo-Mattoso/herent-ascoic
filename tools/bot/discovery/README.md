@@ -14,6 +14,13 @@ npm run bot:discover -- --party-size 3 --max-parties 8 --runs 2 --validate-runs 
 npm run bot:discover -- --party-size 4 --max-parties 8 --runs 2 --validate-runs 12
 ```
 
+O relatório inclui um `catalogFingerprint` das regras e cartas atualmente
+habilitadas. Quando cartas, habilidades ou expansões mudam, o bot deixa
+de usar estratégias associadas ao catálogo antigo; elas aparecem como
+hipóteses históricas e são novamente testadas antes da promoção.
+A promoção de novo catálogo arquiva a biblioteca anterior em
+`historical-knowledge.json` dentro da execução local.
+
 Saídas em `tools/bot/runs/discover-*/`:
 `discovery-report.json`, contendo hipóteses, quantidade de partidas,
 contextos, discordâncias pareadas e estatística de McNemar;
