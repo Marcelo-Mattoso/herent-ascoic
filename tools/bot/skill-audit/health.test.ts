@@ -19,6 +19,21 @@ describe("gate P0 da auditoria", () => {
 		expect(auditBlockers(emptyReport())).toEqual([]);
 	});
 
+  it("impede concessão inédita sem qualquer cenário, mas tolera o legado", () => {
+    const base = emptyReport();
+    const entry = {
+      sourceCardId: "hero_futuro", sourceType: "hero", expansion: "futura-expansao",
+      abilityId: "skill_nova", grantId: "g-nova", activation: "manual",
+      event: null, actionCost: "none", cost: null, limit: null,
+      effect: "dsl", runtimeStatus: "NOT_COVERED" as const,
+      reason: "Sem fixture",
+    };
+    expect(auditBlockers({ ...base, inventory: [entry] }).join("|"))
+      .toContain("NEW_GRANT_UNCOVERED");
+    expect(auditBlockers({ ...base, inventory: [{ ...entry, runtimeStatus: "PARTIAL" }] }))
+      .toEqual([]);
+  });
+
 	it("bloqueia falhas estruturais, de runtime e em grupos sem omitir detalhes", () => {
 		const base = emptyReport();
 		const result: AuditReport = {

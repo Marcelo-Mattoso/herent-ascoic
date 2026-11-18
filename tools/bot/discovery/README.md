@@ -63,3 +63,12 @@ e todas as expansões via `npm run audit`. O modo `random` permanece controle.
   grupo não entra automaticamente no bot solo.
 - Não há rede neural, autoalteração de balanceamento, treinamento no CI,
   nem implementação completa de planejamento multiagente.
+
+## Gate incremental P0
+
+A auditoria tem um baseline versionado de 311 grants em
+`tools/bot/skill-audit/coverageBaseline.json`. Concessões já existentes
+mantêm suas lacunas visíveis, mas um grant **novo** que continuar
+`NOT_COVERED` bloqueia `npm run audit` até receber um cenário de execução
+parcial ou completo. Não atualize o baseline para ocultar novas lacunas;
+resolva o cenário e mantenha a trilha de evidências.
