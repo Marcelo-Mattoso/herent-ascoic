@@ -15,7 +15,8 @@ import type { BotProfile } from "./profiles";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
-import { actionTraits, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
+import { publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
+import { stepSignals } from "./discovery/sequence";
 
 export { rankMoves, scoreAction, scoreMoves, type ScoredMove };
 
@@ -113,21 +114,22 @@ export function playAiGame(
 				stepRejected.push(message);
 			}
       if (result.kind === "applied") {
-        const traits = actionTraits(move.action, obs.view);
-        if (traits.length) recentTraits = [...recentTraits, traits[0]!].slice(-4);
         advanced = true;
-				onStep?.({
-					step: port.history.length,
-					before: obs.view,
-					after: port.observe().view,
-					beforeState,
-					afterState: port.inspect(),
-					chosen: move,
-					options,
-					rejected: stepRejected,
-				});
-				break;
-			}
+        const step: AiStep = {
+          step: port.history.length,
+          before: obs.view,
+          after: port.observe().view,
+          beforeState,
+          afterState: port.inspect(),
+          chosen: move,
+          options,
+          rejected: stepRejected,
+        };
+        const traits = stepSignals(step).map(signal => signal.trait);
+        if (traits.length) recentTraits = [...recentTraits, ...traits].slice(-4);
+        onStep?.(step);
+        break;
+      }
 		}
 		if (!advanced) {
 			const stuck = port.observe().view;
