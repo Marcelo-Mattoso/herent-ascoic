@@ -192,3 +192,8 @@ O `audit` agora diferencia **Difícil = Despertar 1** de **Pesadelo = Despertar 
 ### Logs P2 — escolhas de habilidades por herói
 
 Os relatórios registram `trials[].progression.abilityDecisions` com `offeredById` (decisões nas quais a habilidade podia ser usada), `chosenById` (ações realmente escolhidas), `offeredAtBossById` e `chosenAtBossById` (subconjunto no chefe). Inclui ações USE_SKILL, USE_POWER e interrupções voluntárias, mas não infere efeito de passivas nem confunde SKIP_TRIGGER_INTERRUPT com uso. As decisões podem se repetir na mesma sala; contá-las não significa usos únicos. O agregado fica em `diagnostics.heroBalance`, por expansão, herói e dificuldade. Essas métricas ajudam a separar uma habilidade indisponível de uma habilidade que a IA deixa de usar.
+
+
+## O Desbravador P1
+
+Execute localmente `npm run bot:discover -- --runs 2 --validate-runs 4`. Hipóteses de combos são mineradas por tipos de efeito e comparadas em partidas pareadas com seeds reservadas. Somente regras comprovadas, promovidas com `--promote`, entram em `src/data/discoveryKnowledge.json` e influenciam o bot. `random` permanece controle. Veja `tools/bot/discovery/README.md`.

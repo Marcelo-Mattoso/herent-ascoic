@@ -15,6 +15,7 @@ import type { BotProfile } from "./profiles";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
+import { actionTraits, type StrategyRule } from "./discovery/knowledge";
 
 export { rankMoves, scoreAction, scoreMoves, type ScoredMove };
 
@@ -47,11 +48,15 @@ export function playAiGame(
 	onStep?: (step: AiStep) => void,
 	profile: BotProfile = "power-player",
 	xpCostsOverride?: Partial<GameBalance["xpCosts"]>,
+	knowledgeOverride?: readonly StrategyRule[],
+	disableLegacyCombos = false,
 ): AiGameResult {
 	const port = createHeadlessPort(setup, xpCostsOverride);
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();
+	let recentTraits: string[] = [];
+	let recentRoundKey = "";
 	let bossProgress: { life: number; round: number } | null = null;
 	let previousCombat: { room: number; round: number; enemyLife: Readonly<Record<string, number>> } | null = null;
 	let stagnantRounds = 0;
@@ -82,7 +87,10 @@ export function playAiGame(
 			previousCombat = null;
 			stagnantRounds = 0;
 		}
-		const options = scoreMoves(obs, profile, setup.seed, port.history.length, { stagnantRounds });
+    const roundKey = obs.view.roomsCleared + ":" + (obs.view.combat?.round ?? 0);
+    if (roundKey !== recentRoundKey) { recentTraits = []; recentRoundKey = roundKey; }
+    const options = scoreMoves(obs, profile, setup.seed, port.history.length,
+      { stagnantRounds, recentTraits }, knowledgeOverride, !disableLegacyCombos);
 		const stepRejected: string[] = [];
 		const combat = obs.view.combat;
 		const turnKey = `${combat?.round}:${combat?.heroesActed.length}:${obs.view.roomsCleared}`;
@@ -102,8 +110,10 @@ export function playAiGame(
 				rejected.add(message);
 				stepRejected.push(message);
 			}
-			if (result.kind === "applied") {
-				advanced = true;
+      if (result.kind === "applied") {
+        const traits = actionTraits(move.action, obs.view);
+        if (traits.length) recentTraits = [...recentTraits, traits[0]!].slice(-4);
+        advanced = true;
 				onStep?.({
 					step: port.history.length,
 					before: obs.view,

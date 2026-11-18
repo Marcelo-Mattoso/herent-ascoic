@@ -4,10 +4,12 @@ import type { BotObservation } from "./observe";
 import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { healingMoveScore, itemHealingAmount } from "./healing";
+import { knowledgeBonus, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
 
 /** Contexto de combate observado pela IA, sem leitura de estado interno. */
 export interface CombatProgress {
 	readonly stagnantRounds: number;
+	readonly recentTraits?: readonly string[];
 }
 
 export interface ScoredMove {
@@ -399,8 +401,10 @@ function seededRandom(seed: number, decision: number): () => number {
 
 /** Ordem determinística para permitir comparação de perfis na mesma seed. */
 export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-player", seed = 1,
-	decision = 0, progress: CombatProgress = { stagnantRounds: 0 }): readonly ScoredMove[] {
-	const planned = profile === "power-player" ? planCombos(obs)[0] : undefined;
+	decision = 0, progress: CombatProgress = { stagnantRounds: 0 },
+	knowledge: readonly StrategyRule[] = publishedKnowledge.rules,
+	legacyCombos = true): readonly ScoredMove[] {
+	const planned = legacyCombos && profile === "power-player" ? planCombos(obs)[0] : undefined;
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),
 		...abilityMoves(obs, profile, progress),
@@ -425,7 +429,8 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 		.map((move, index) => ({
 			...move,
 			score: profile === "random" ? random() :
-				move.score + (profile === "casual" ? variation(move.action, obs.view, seed, decision) * 0.7 :
+				move.score + knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [], knowledge) +
+				(profile === "casual" ? variation(move.action, obs.view, seed, decision) * 0.7 :
 				profile === "explorer" ? variation(move.action, obs.view, seed, decision) * 0.15 : 0),
 			index,
 		}))
