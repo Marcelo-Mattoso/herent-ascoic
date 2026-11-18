@@ -1,27 +1,53 @@
-# O Desbravador — P1
+# O Desbravador — P1 / descoberta cooperativa experimental
 
-`npm run bot:discover -- --runs 2 --validate-runs 4`
+O Desbravador lê efeitos declarativos, observa **execuções reais registradas no motor**,
+aprende padrões temporais de 2 ou 3 sinais e compara o uso desses padrões em
+partidas A/B com as mesmas seeds e contextos. A validação ocorre em seeds
+reservadas (`seed + 200000`), fora do conjunto usado para formular hipóteses.
 
-Descobre sequências de **tipos de efeito** de habilidades e ataques, sem codificar
-IDs de heróis. Compara políticas em partidas solo, em seeds de validação
-reservadas (`seed + 200000`) e registra evidências locais no diretório
-`tools/bot/runs/discover-*/`.
+## Comandos locais
 
-Saídas: `discovery-report.json` e `validated-knowledge.json`.
-A promoção é opcional: `npm run bot:discover -- --runs 3 --validate-runs 12 --promote`.
-Só promove regras com >=40 pares de partidas, pelo menos quatro vitórias adicionais
-e nenhuma violação extra. Após promoção, revisar e versionar
-`src/data/discoveryKnowledge.json`; o bot lê exclusivamente esse catálogo.
+```bash
+npm run bot:discover -- --runs 2 --validate-runs 12
+npm run bot:discover -- --party-size 2 --max-parties 8 --runs 2 --validate-runs 12
+npm run bot:discover -- --party-size 3 --max-parties 8 --runs 2 --validate-runs 12
+npm run bot:discover -- --party-size 4 --max-parties 8 --runs 2 --validate-runs 12
+```
 
-A descoberta treina nas dificuldades Muito Fácil, Fácil e Normal. O benchmark
-principal `npm run audit` permanece separado e inclui as cinco dificuldades,
-os cinco perfis, todos os heróis solo e todas as expansões habilitadas.
+Saídas em `tools/bot/runs/discover-*/`:
+`discovery-report.json`, contendo hipóteses, quantidade de partidas,
+contextos, discordâncias pareadas e estatística de McNemar;
+`validated-knowledge.json`, com apenas regras que passaram pela validação.
 
-Esta primeira versão é mineração observacional + experimento A/B. Não é rede
-neural, não tem otimização de grupos, não cobre combos de 3+ ações e não
-comprova que uma habilidade nova esteja correta; isso é atribuição do auditor.
-O treino não usa o planejador legado de combos, para que novos padrões não
-dependam de IDs específicos. Não altera cartas, atributos nem regras.
-Nunca executa no CI.
+Para habilitar a promoção **explicitamente**:
 
-**Cobertura P0:** a auditoria automática também exercita grants manuais de heróis quando a fixture genérica permite. Não afirma cobertura integral de efeitos, duração, grupos e exceções. Casos que precisam de estado especial permanecem NOT_COVERED.
+```bash
+npm run bot:discover -- --party-size 2 --max-parties 8 --runs 4 --validate-runs 12 --promote
+```
+
+A promoção atualiza `src/data/discoveryKnowledge.json` apenas com padrões
+validados. Revise o diff e versiona-o em commit separado.
+
+Critérios de validação: no mínimo 40 pares A/B e dois contextos,
+pelo menos quatro vitórias de vantagem, estatística conservadora de McNemar
+(qui-quadrado corrigido >= 6,64) e nenhuma violação adicional. Esses
+critérios são sinais de robustez, **não** garantias de generalização universal.
+
+A execução experimental usa apenas Muito Fácil, Fácil e Normal; o benchmark
+oficial continua medindo todos os heróis, cinco perfis, cinco dificuldades
+e todas as expansões via `npm run audit`. O modo `random` permanece controle.
+
+## Limites conhecidos
+
+- Seleção cooperativa cobre um número configurável de composições com
+  diversidade de efeitos DSL, não todas as combinações.
+- Um efeito declarado como ramo condicional pode não ter realmente produzido
+  alteração, mesmo quando a habilidade foi executada. O auditor mantém
+  responsabilidade de demonstrar valor, alvo, duração, limites e custo.
+- Ações que apenas preparam habilidades não alimentam o aprendizado.
+- Scripts opacos sem um efeito declarativo equivalente não são automaticamente
+  interpretados como combos.
+- Biblioteca cooperativa é sensível ao tamanho da equipe; aprendizado de um
+  grupo não entra automaticamente no bot solo.
+- Não há rede neural, autoalteração de balanceamento, treinamento no CI,
+  nem implementação completa de planejamento multiagente.

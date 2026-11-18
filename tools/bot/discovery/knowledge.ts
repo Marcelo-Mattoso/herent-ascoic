@@ -9,6 +9,7 @@ export interface StrategyRule {
   readonly pattern: readonly string[];
   readonly bonus: number;
   readonly status: "validated";
+  readonly context?: { readonly partySize: number };
   readonly evidence: {
     readonly pairedTrials: number;
     readonly baselineWins: number;
@@ -26,7 +27,13 @@ export function actionTraits(action: Action, view?: PlayerView): string[] {
   if (action.type === "CHOOSE_TARGET") return ["action:attack"];
   if (action.type === "SPEND_XP") return ["xp:" + action.payload.option];
   let id: string | undefined;
-  if (action.type === "USE_SKILL") id = action.payload.skillId;
+  if (action.type === "USE_SKILL") {
+    const projected = view?.abilityActionsByHero?.[action.payload.sourceId]?.find(a =>
+      a.abilityId === action.payload.skillId);
+    // Preparar não prova ativação. A prioridade do combo só vale na confirmação.
+    if (projected?.activation === "manual_prepare" && projected.status === "available") return [];
+    id = action.payload.skillId;
+  }
   if (action.type === "SKILL_CHOICE") id = action.payload.skillId;
   if (action.type === "APPLY_TRIGGER_INTERRUPT") id = view?.pendingTriggerInterrupt?.skillId;
   if (action.type === "USE_POWER") id = view?.abilityActionsByHero?.[action.payload.heroId]
@@ -49,6 +56,7 @@ export function knowledgeBonus(
   for (const rule of rules) {
     if (rule.status !== "validated" || !Number.isFinite(rule.bonus) || rule.bonus <= 0 ||
         rule.pattern.length < 1 || rule.pattern.length > 3) continue;
+    if (rule.context?.partySize && rule.context.partySize !== (view?.heroes?.length ?? 1)) continue;
     if (!traits.includes(rule.pattern[rule.pattern.length - 1]!)) continue;
     const prefix = rule.pattern.slice(0, -1);
     if (prefix.length > history.length ||

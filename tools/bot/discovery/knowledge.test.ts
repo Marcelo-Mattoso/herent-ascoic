@@ -14,6 +14,8 @@ describe("desbravador", () => {
     const view = {} as PlayerView;
     expect(knowledgeBonus(attack, view, ["i_mark_target"], [rule])).toBe(20);
     expect(knowledgeBonus(attack, view, [], [rule])).toBe(0);
+    expect(knowledgeBonus(attack, { heroes: [{ id: "h" }, { id: "a" }] } as PlayerView,
+      ["i_mark_target"], [{ ...rule, context: { partySize: 1 } }])).toBe(0);
   });
   it("considera um padrão apenas uma vez por partida", () => {
     const pair = patternKey(["i_mark_target", "action:attack"]);
