@@ -10,6 +10,7 @@ import { createEmptyWorld } from "../ecs/world";
 import type { RngState } from "../ports/random";
 import { createRng } from "../ports/random";
 import type { PreparedAbility } from "../abilities/prepared";
+import type { AbilityExecutionEvidence } from "../abilities/trace";
 import type { GameState as EngineGameState } from "../../engine/state";
 import type { ActivationLocks } from "./activation";
 import type { CombatState } from "./combatState";
@@ -130,6 +131,8 @@ export interface AscensaoGame {
 	readonly eventLog: readonly string[];
 	/** Histórico técnico exclusivo da fase alpha, separado do log do jogador. */
 	readonly alphaLog?: readonly string[];
+	/** Últimas execuções de habilidades, com proveniência por grant (diagnóstico somente). */
+	readonly abilityTrace?: readonly AbilityExecutionEvidence[];
 	/** Observações visuais do dano realmente subtraído da vida; sem efeito nas regras. */
 	/** Dano periódico efetivo de veneno e pontos protegidos pelo Coração, cumulativos na partida. */
 	readonly poisonTelemetry?: PoisonTelemetry;

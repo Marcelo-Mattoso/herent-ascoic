@@ -15,5 +15,8 @@ export function auditBlockers(report: AuditReport): string[] {
 	for (const scenario of report.groupCombatScenarios.filter((entry) => entry.status === "FAIL")) {
 		messages.push(`GROUP_COMBAT ${scenario.partySize} [${scenario.abilityIds.join(",")}]: ${scenario.detail}`);
 	}
+	for (const probe of report.autoContracts ?? []) {
+		if (probe.status === "FAIL") messages.push(`AUTO_CONTRACT ${probe.sourceCardId}/${probe.abilityId}: ${probe.detail}`);
+	}
 	return messages;
 }

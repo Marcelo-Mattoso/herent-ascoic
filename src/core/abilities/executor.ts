@@ -1,4 +1,5 @@
 import { guardPassed, markSkillGuardUsed } from "../triggers/engine";
+import { recordAbilityExecution, effectKinds } from "./trace";
 import { emit } from "../events/bus";
 import type { AbilityGrant } from "../data/abilityTypes";
 import { drainStack } from "../effects/resolver";
@@ -343,6 +344,17 @@ export function executeAbilityGrant(engine: GameEngine,
 			},
 		);
 	}
+  next = recordAbilityExecution(state, next, {
+    abilityId: ability.id,
+    grantId: grant.id,
+    sourceCardId: source.cardId,
+    ...(source.sourceHeroId || source.sourceEnemyId ? { sourceEntityId: source.sourceHeroId ?? source.sourceEnemyId } : {}),
+    trigger: triggeredBy,
+    targets: [...targetIds],
+    declaredKinds: effectKinds(ability.effect),
+    outcome: pendingSkillChoiceOf(next) || gameOf(next).combat?.pendingDiceSelection
+      ? "pending_choice" : "executed",
+  });
 	return appendAlphaLog(next,
 		`Habilidade ${skillName(engine, ability.id)} ativada por ${cardName(engine, source.cardId)} (${source.sourceHeroId ?? source.sourceEnemyId ?? "grupo"}); evento ${triggeredBy}; alvos [${targetIds.join(", ") || "nenhum"}]; parâmetros ${JSON.stringify(params)}.`);
 }

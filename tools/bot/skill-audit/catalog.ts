@@ -3,6 +3,7 @@ import { getAllCards } from "../../../src/core/data/cards";
 import { getExpansionCardMetadata } from "../../../src/core/data/expansions";
 import { TRIGGER_EVENT_EMITTERS } from "../../../src/core/skills/resolveSkillWindow";
 import { runRuntimeScenarios, type RuntimeScenarioResult } from "./runtime";
+import { runAutoContractProbes, type AutoContractProbe } from "./autoContracts";
 import { groupHeroOrder, runGroupCombatScenarios, runGroupProjectionScenarios,
 	type GroupCombatResult, type GroupProjectionResult } from "./groupRuntime";
 
@@ -60,6 +61,8 @@ export type AuditReport = {
 	runtimeScenarios: RuntimeScenarioResult[];
 	groupProjectionScenarios: GroupProjectionResult[];
 	groupCombatScenarios: GroupCombatResult[];
+	/** Cenários de contrato descobertos em todos os bosses; são cobertura PARCIAL. */
+	autoContracts?: AutoContractProbe[];
 };
 
 export function discoverAbilityInventory(): AuditEntry[] {
@@ -141,6 +144,7 @@ export function createSkillAuditReport(now = new Date().toISOString()): AuditRep
 	const discovered = discoverAbilityInventory();
 	const findings = auditDefinitions(discovered);
 	const runtimeScenarios = runRuntimeScenarios();
+	const autoContracts = runAutoContractProbes();
 	const groupProjectionScenarios = runGroupProjectionScenarios();
 	const groupCombatScenarios = runGroupCombatScenarios();
 	const byGrant = new Map<string, RuntimeScenarioResult[]>();
@@ -189,5 +193,6 @@ export function createSkillAuditReport(now = new Date().toISOString()): AuditRep
 		runtimeScenarios,
 		groupProjectionScenarios,
 		groupCombatScenarios,
+		autoContracts,
 	};
 }
