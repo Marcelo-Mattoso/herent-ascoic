@@ -1,12 +1,14 @@
 /** Cenários descobertos a partir de contratos, sem IDs de chefes/skills hardcoded. */
-import { getCardsByType } from "@/core/data/cards";
+import { getCardsByType, getAllCards } from "@/core/data/cards";
+import { lookupAbilityById } from "@/core/data/abilities";
+import { witnessEffectKinds } from "./effectWitness";
 import { removeEntity } from "@/core/ecs/world";
 import { reducer } from "@/core/reducer";
 import { legalActions } from "@/core/legalActions";
 import { playerView } from "@/core/projection/playerView";
 import { cardAbilityGrants } from "@/core/data/abilities";
 import { skillById } from "@/core/gameEngine";
-import { recordOfEnemy, spawnEnemy, withWorld, worldOf, heroesOf } from "@/core/state/access";
+import { recordOfEnemy, spawnEnemy, withWorld, worldOf, heroesOf, withUnitStats } from "@/core/state/access";
 import { gameOf, withGame } from "@/engine/state";
 import { inlineBossDamageReduction, inlineBossFirstAttackHitBonus, inlineBossHitBonus, markBossFirstAttackUsed, markInlineBossSkillsUsed, isInlineBossSkill } from "@/core/rules/bossSkills";
 import { resolveSkillWindow } from "@/core/skills/resolveSkillWindow";
@@ -23,6 +25,7 @@ export interface AutoContractProbe {
   readonly category: string;
   readonly status: "PASS" | "FAIL" | "NOT_COVERED";
   readonly detail: string;
+  readonly witnessedKinds?: readonly string[];
 }
 
 function makeBossFixture(cardId: string): { state: GameState; boss: EnemyState } {
@@ -87,10 +90,19 @@ function probeInline(
 }
 
 /** Executa um grant manual por meio do reducer, seguindo escolhas legais, sem ID de skill no teste. */
-function probeManualHero(cardId: string, abilityId: string): string | null {
+function probeManualHero(cardId: string, abilityId: string):
+  { readonly observed: boolean; readonly kinds: readonly string[] } | null {
   let state = combat(cardId);
   const hero = heroesOf(state)[0];
   if (!hero) return null;
+  const definition = lookupAbilityById(abilityId);
+  if (effectKinds(definition?.effect).some(kind =>
+    kind === "i_heal" || kind === "i_full_heal")) {
+    state = withUnitStats(state, hero.id, {
+      currentLife: Math.max(1, Math.floor(hero.maxLife / 2)),
+    });
+  }
+  const before = state;
   const action = playerView(auditEngine, state).abilityActionsByHero[hero.id]?.find(a =>
     a.abilityId === abilityId && a.status === "available");
   if (!action || (action.activation !== "manual" && action.activation !== "manual_prepare"))
@@ -103,7 +115,8 @@ function probeManualHero(cardId: string, abilityId: string): string | null {
     const evidence = (gameOf(state).abilityTrace ?? []).find(entry =>
       entry.sequence > initial && entry.abilityId === abilityId &&
       entry.outcome === "executed");
-    if (evidence) return "Efeito executado no reducer real; testes de valor, duração e limites ainda pendentes";
+    if (evidence) return { observed: true,
+      kinds: witnessEffectKinds(before, state, effectKinds(definition?.effect)) };
     const offered = legalActions(auditEngine, state);
     const choice = offered.find(item =>
       item.type === "SKILL_CHOICE" || item.type === "SELECT_SKILL_TARGET" ||
@@ -128,9 +141,14 @@ export function runAutoContractProbes(): AutoContractProbe[] {
       const base = { sourceCardId: hero.id, abilityId: grant.abilityId,
         grantId: grant.id, category: "manual" };
       try {
-        const detail = probeManualHero(hero.id, grant.abilityId);
-        probes.push({ ...base, status: detail ? "PASS" : "NOT_COVERED",
-          detail: detail ?? "Ação não reproduzível na fixture genérica: exige condição, recurso ou contexto específico" });
+        const proof = probeManualHero(hero.id, grant.abilityId);
+        probes.push({ ...base, status: proof?.kinds.length ? "PASS" : "NOT_COVERED",
+          witnessedKinds: proof?.kinds ?? [],
+          detail: proof?.kinds.length
+            ? "Mudança observável após ativação no reducer: " + proof.kinds.join(", ") +
+              "; duração, limites, alvos alternativos e isolamento ainda pendentes"
+            : proof?.observed ? "Ativação executada, mas o cenário não comprovou efeito observável" :
+              "Ação não reproduzível na fixture genérica: exige condição, recurso ou contexto específico" });
       } catch (error) {
         probes.push({ ...base, status: "NOT_COVERED",
           detail: "Fixture incompleta ou rejeição do reducer: " +
@@ -164,10 +182,14 @@ export function runAutoContractProbes(): AutoContractProbe[] {
           const observed = (gameOf(next).abilityTrace ?? []).some(entry =>
             entry.sequence > beforeSeq && entry.abilityId === ability.id &&
             entry.sourceCardId === bossCard.id);
-          probes.push({ ...base, status: observed ? "PASS" : "NOT_COVERED",
-            detail: observed
-              ? `Evento executado pelo motor real; efeitos declarados: ${effectKinds(ability.effect).join(", ")}; asserções de resultado ainda parciais`
-              : "Gatilho não reproduzido neste contexto; requer fixture que satisfaça suas condições" });
+          const witnesses = observed ? witnessEffectKinds(state, next, effectKinds(ability.effect)) : [];
+          probes.push({ ...base, status: witnesses.length ? "PASS" : "NOT_COVERED",
+            witnessedKinds: witnesses,
+            detail: witnesses.length
+              ? "Evento disparou e produziu mudança observável de " + witnesses.join(", ") +
+                "; efeito ainda não isolado dos outros eventos"
+              : observed ? "Evento disparou, mas falta asserção de efeito observável na fixture" :
+                "Gatilho não reproduzido neste contexto; requer fixture que satisfaça suas condições" });
         } else {
           probes.push({ ...base, status: "NOT_COVERED", detail: "Evento sem fixture automática de execução" });
         }
@@ -178,5 +200,14 @@ export function runAutoContractProbes(): AutoContractProbe[] {
       }
     }
   }
-  return probes;
+  // Inventário completo: não omitir fontes sem fixture, inclusive itens, salas e criaturas.
+  const tested = new Set(probes.map(p => p.sourceCardId + "::" + p.grantId));
+  for (const card of getAllCards()) for (const grant of cardAbilityGrants(card.id)) {
+    if (tested.has(card.id + "::" + grant.id)) continue;
+    probes.push({ sourceCardId: card.id, abilityId: grant.abilityId, grantId: grant.id,
+      category: grant.activation.event ?? grant.activation.kind, status: "NOT_COVERED",
+      detail: "Fonte " + card.type + " ainda sem fixture automática reproduzível" });
+  }
+  return probes.sort((a, b) => a.sourceCardId.localeCompare(b.sourceCardId) ||
+    a.grantId.localeCompare(b.grantId));
 }
