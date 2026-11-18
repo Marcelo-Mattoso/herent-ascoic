@@ -199,3 +199,9 @@ Os relatórios registram `trials[].progression.abilityDecisions` com `offeredByI
 Execute localmente `npm run bot:discover -- --runs 2 --validate-runs 4`. Hipóteses de combos são mineradas por tipos de efeito e comparadas em partidas pareadas com seeds reservadas. Somente regras comprovadas, promovidas com `--promote`, entram em `src/data/discoveryKnowledge.json` e influenciam o bot. `random` permanece controle. Veja `tools/bot/discovery/README.md`.
 
 O registro `abilityTrace` é apenas telemetria e foi explicitamente excluído do fingerprint de progresso, para não transformar ações sem efeito em jogadas válidas nem inflar a verificação a cada passo. O código existente de combos especiais permanece disponível no bot tradicional durante a transição; a descoberta executa sem esse planejador.
+
+
+### Modos cooperativos do Desbravador
+
+`npm run bot:discover -- --dry-run` imprime apenas o plano, sem executar partidas.
+`npm run bot:discover -- --party-size 2 --max-parties 8` minera combos entre dois heróis; altere o tamanho para 3 ou 4. Relatórios e conhecimento ficam separados da auditoria. Consulte `tools/bot/discovery/README.md` para critérios de confirmação, versionamento e revalidação.

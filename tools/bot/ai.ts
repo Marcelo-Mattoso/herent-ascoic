@@ -53,8 +53,9 @@ export function playAiGame(
 	disableLegacyCombos = false,
 	enableDiscoveryTrace = false,
 ): AiGameResult {
-	const port = createHeadlessPort(setup, xpCostsOverride,
-		enableDiscoveryTrace || (knowledgeOverride ?? publishedKnowledge.rules).length > 0);
+  const needsSignals = enableDiscoveryTrace ||
+    (profile !== "random" && (knowledgeOverride ?? publishedKnowledge.rules).length > 0);
+  const port = createHeadlessPort(setup, xpCostsOverride, needsSignals);
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();
@@ -118,22 +119,28 @@ export function playAiGame(
 			}
       if (result.kind === "applied") {
         advanced = true;
-        const step: AiStep = {
-          step: port.history.length,
-          before: obs.view,
-          after: port.observe().view,
-          beforeState,
-          afterState: port.inspect(),
-          chosen: move,
-          options,
-          rejected: stepRejected,
-        };
-        const signals = stepSignals(step);
-        if (signals.length) {
-          recentTraits = [...recentTraits, ...signals.map(signal => signal.trait)].slice(-4);
-          recentActorIds = [...recentActorIds, ...signals.map(signal => signal.heroId)].slice(-4);
+        // Sem biblioteca ou callback, não criar snapshots extras em milhares
+        // de partidas do benchmark. O reducer já foi executado pela porta.
+        if (needsSignals || onStep) {
+          const step: AiStep = {
+            step: port.history.length,
+            before: obs.view,
+            after: port.observe().view,
+            beforeState,
+            afterState: port.inspect(),
+            chosen: move,
+            options,
+            rejected: stepRejected,
+          };
+          if (needsSignals) {
+            const signals = stepSignals(step);
+            if (signals.length) {
+              recentTraits = [...recentTraits, ...signals.map(signal => signal.trait)].slice(-4);
+              recentActorIds = [...recentActorIds, ...signals.map(signal => signal.heroId)].slice(-4);
+            }
+          }
+          onStep?.(step);
         }
-        onStep?.(step);
         break;
       }
 		}

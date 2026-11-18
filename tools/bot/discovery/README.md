@@ -8,6 +8,7 @@ reservadas (`seed + 200000`), fora do conjunto usado para formular hipóteses.
 ## Comandos locais
 
 ```bash
+npm run bot:discover -- --dry-run
 npm run bot:discover -- --runs 2 --validate-runs 12
 npm run bot:discover -- --party-size 2 --max-parties 8 --runs 2 --validate-runs 12
 npm run bot:discover -- --party-size 3 --max-parties 8 --runs 2 --validate-runs 12

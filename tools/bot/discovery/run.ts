@@ -32,6 +32,7 @@ type Options = {
   maxSteps: number;
   output: string;
   promote: boolean;
+  dryRun: boolean;
   partySize: 1 | 2 | 3 | 4;
   maxParties: number;
   maxCandidates: number;
@@ -46,10 +47,11 @@ const MIN_CHI_SQUARED = 6.64; // McNemar com correção de continuidade; p~0,01.
 function parseOptions(args: readonly string[]): Options {
   const flags = args.filter(arg => arg !== "--");
   const values = new Map<string, string>();
-  let promote = false;
+  let promote = false, dryRun = false;
   for (let index = 0; index < flags.length; index++) {
     const flag = flags[index]!;
     if (flag === "--promote") { promote = true; continue; }
+    if (flag === "--dry-run") { dryRun = true; continue; }
     if (!["--runs", "--validate-runs", "--seed", "--max-steps", "--output",
       "--party-size", "--max-parties", "--max-candidates"].includes(flag))
       throw new Error("Parâmetro desconhecido: " + flag);
@@ -62,6 +64,7 @@ function parseOptions(args: readonly string[]): Options {
       throw new Error(flag + " exige inteiro positivo");
     return number;
   };
+  if (dryRun && promote) throw new Error("--dry-run e --promote são incompatíveis");
   const partySize = positive("--party-size", 1);
   if (partySize > 4) throw new Error("--party-size exige número de 1 a 4");
   const maxCandidates = positive("--max-candidates", 6);
@@ -77,7 +80,7 @@ function parseOptions(args: readonly string[]): Options {
     throw new Error("Intervalo de seeds ultrapassa limite de 32 bits");
   return { partySize: partySize as Options["partySize"], runs, validateRuns,
     maxSteps: positive("--max-steps", 1000), seed,
-    maxParties: positive("--max-parties", 8), maxCandidates, output, promote };
+    maxParties: positive("--max-parties", 8), maxCandidates, output, promote, dryRun };
 }
 
 function buildContexts(options: Options): Context[] {
@@ -176,6 +179,18 @@ async function run(): Promise<void> {
   const options = parseOptions(process.argv.slice(2));
   const matrix = buildContexts(options);
   if (!matrix.length) throw new Error("Nenhum herói/chefe habilitado para descoberta");
+  if (options.dryRun) {
+    console.info(JSON.stringify({
+      mode: "discovery-plan",
+      partySize: options.partySize,
+      contexts: matrix.length,
+      trainingTrials: matrix.length * options.runs,
+      maximumHypotheses: options.maxCandidates,
+      maximumValidationPairsPerHypothesis: Math.min(6, matrix.length) * options.validateRuns,
+      note: "Prévia; não executou partidas nem gravou resultados",
+    }, null, 2));
+    return;
+  }
   const known = new Map(matrix.map(context => [keyOf(context), context]));
   const observations: PatternObservation[] = [];
   const trainingWins: Record<string, { trials: number; wins: number }> = {};
