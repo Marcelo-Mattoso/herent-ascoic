@@ -14,6 +14,10 @@ import { skillById, skillOwners, type GameEngine } from "@/core/gameEngine";
 export interface AbilityStepEvidence {
 	readonly abilityId: string;
 	readonly sourceCardId: string;
+	/** Identidade exata quando emitida pelo executor; evita confundir fontes iguais. */
+	readonly grantId?: string;
+	readonly triggeredBy?: string;
+	readonly declaredKinds?: readonly string[];
 	readonly sourceHeroId?: string;
 	readonly targetIds: readonly string[];
 	/** Apenas entidades cujo estado foi alterado de forma observável. */
@@ -121,6 +125,9 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 	const action = step.chosen.action;
 	const beforeGame = gameOf(step.beforeState);
 	const afterGame = gameOf(step.afterState);
+	const lastSequence = beforeGame.abilityTrace?.at(-1)?.sequence ?? 0;
+	const executed = (afterGame.abilityTrace ?? []).filter(evidence =>
+		evidence.sequence > lastSequence);
 	const beforePrepared = beforeGame.preparedAbilities ?? {};
 	const afterPrepared = afterGame.preparedAbilities ?? {};
 	const newlyPrepared = Object.values(afterPrepared).filter((entry) => !beforePrepared[entry.key]);
@@ -193,6 +200,13 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 		add({ ...base(entry.abilityId, entry.sourceHeroId, entry.sourceCardId),
 			targetIds: [...(entry.targetIds ?? [])], attempted: false, prepared: true, confirmed: false });
 	}
+	for (const evidence of executed) {
+		const sourceHeroId = step.before.heroes.some(hero => hero.id === evidence.sourceEntityId)
+			? evidence.sourceEntityId : undefined;
+		add({ ...base(evidence.abilityId, sourceHeroId, evidence.sourceCardId),
+			targetIds: [...evidence.targets], attempted: false, prepared: false,
+			confirmed: evidence.outcome !== "pending_choice" });
+	}
 	// Cooldowns de jogo comprovam um commit mesmo quando o motor ativou o
 	// poder automaticamente sem abrir modal. Não adivinhar a origem quando
 	// herói e artefato compartilham o mesmo abilityId.
@@ -222,7 +236,11 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 		const exhausted = beforeAction && beforeAction.status !== "exhausted" && afterAction?.status === "exhausted";
 		const chargeConsumed = !consumedKeys.has(key) && Boolean(consumedInGame || exhausted);
 		if (chargeConsumed) consumedKeys.add(key);
-		const confirmed = entry.confirmed || chargeConsumed;
+		const provenance = executed.find(evidence => evidence.abilityId === entry.abilityId &&
+			evidence.sourceCardId === entry.sourceCardId &&
+			(!entry.sourceHeroId || evidence.sourceEntityId === entry.sourceHeroId));
+		const confirmed = entry.confirmed || chargeConsumed ||
+			Boolean(provenance && provenance.outcome !== "pending_choice");
 		const expected = declaredEffectKinds(engine, entry.abilityId);
 		const direct = action.type === "USE_SKILL" || action.type === "USE_POWER" ||
 			action.type === "SKILL_CHOICE" || action.type === "SELECT_SKILL_TARGET" ||
@@ -262,6 +280,8 @@ export function observeAbilityStep(step: AiStep, engine: GameEngine): readonly A
 		}
 		return {
 			...entry, confirmed, chargeConsumed, effectKinds,
+			...(provenance ? { grantId: provenance.grantId, triggeredBy: provenance.trigger,
+				declaredKinds: provenance.declaredKinds } : {}),
 			affectedIds: [...affected], targetIds: [...new Set([...entry.targetIds, ...affected])],
 		};
 	});

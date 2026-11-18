@@ -152,16 +152,22 @@ export function createSkillAuditReport(now = new Date().toISOString()): AuditRep
 		const key = scenario.sourceCardId + "::" + scenario.abilityId;
 		byGrant.set(key, [...(byGrant.get(key) ?? []), scenario]);
 	}
+	const byAutoGrant = new Map(autoContracts.map(probe =>
+		[probe.sourceCardId + "::" + probe.grantId, probe]));
 	const inventory: AuditEntry[] = discovered.map((entry) => {
 		const scenarios = byGrant.get(entry.sourceCardId + "::" + entry.abilityId) ?? [];
-		if (!scenarios.length) return entry;
+		const automatic = byAutoGrant.get(entry.sourceCardId + "::" + entry.grantId);
+		if (!scenarios.length && automatic?.status !== "PASS" && automatic?.status !== "FAIL") return entry;
 		const failed = scenarios.find((scenario) => scenario.status === "FAIL");
 		return {
 			...entry,
-			runtimeStatus: failed ? "FAIL" as const : "PARTIAL" as const,
+			runtimeStatus: failed || automatic?.status === "FAIL" ? "FAIL" as const : "PARTIAL" as const,
 			reason: failed
 				? "Falha no cenário " + failed.id + ": " + failed.detail
-				: scenarios.length + " cenário(s) parcial(is); outros contextos/custos/limites pendentes",
+				: automatic?.status === "FAIL" ? "Falha no contrato automático: " + automatic.detail
+				: scenarios.length + " cenário(s) manuais e " +
+					(automatic?.status === "PASS" ? "1 sonda automática" : "0 sondas automáticas") +
+					"; efeito, custos e limites ainda não têm cobertura integral",
 		};
 	});
 	const groupInteractions = discoverGroupCandidates(inventory).map((candidate) => {

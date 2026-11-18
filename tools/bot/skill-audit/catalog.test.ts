@@ -22,8 +22,9 @@ describe("skill audit: discovery and structural checks", () => {
 		expect(heroInventory).toHaveLength(33);
 		const castleHeroInventory = heroInventory.filter((entry) => entry.expansion === "castelo-horizonte-infindo");
 		expect(castleHeroInventory).toHaveLength(8);
-		// Não atribuir cobertura fictícia aos quatro novos heróis.
-		expect(castleHeroInventory.every((entry) => entry.runtimeStatus === "NOT_COVERED")).toBe(true);
+		// A nova sonda pode elevar cobertura a PARTIAL, nunca a PASS integral.
+		expect(castleHeroInventory.every((entry) =>
+			entry.runtimeStatus === "NOT_COVERED" || entry.runtimeStatus === "PARTIAL")).toBe(true);
 		expect(heroInventory.filter((entry) => entry.expansion !== "castelo-horizonte-infindo")
 			.every((entry) => entry.runtimeStatus !== "NOT_COVERED")).toBe(true);
 		expect(new Set(report.runtimeScenarios.map((entry) => entry.id)).size).toBe(32);
