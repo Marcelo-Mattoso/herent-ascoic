@@ -282,7 +282,11 @@ function replayCase(record: BugCorpus["regressionCases"][number]): BugHuntResult
     const result = port.act(action);
     if (result.kind !== "applied") {
       rejectedCandidates++;
-      findings.push({ kind: "replay_diverged", severity: "investigate",
+      const offered = port.observe().actions.some(candidate =>
+        JSON.stringify(candidate) === JSON.stringify(action));
+      const definite = result.kind === "rejected" && offered;
+      findings.push({ kind: definite ? "legal_action_rejected" : "replay_diverged",
+        severity: definite ? "blocker" : "investigate",
         summary: "Replay interrompido: " + result.kind +
           (result.kind === "rejected" ? ": " + result.error : ""),
         room: gameOf(before).roomsCleared,

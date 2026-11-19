@@ -184,8 +184,11 @@ function runTrial(c: Context, seed: number, maxSteps: number,
 function score(result: Trial, profile: SoloLearningProfile): number {
   // Speedrunner valoriza completar menos ações; Power Player valoriza robustez.
   return profile === "speedrunner"
-    ? (result.win ? 180 : 0) + result.rooms * 1.2 -
-      (result.violation ? 210 : 0) - result.steps * .15
+    // Só recompensa a VELOCIDADE quando a partida é vencida.
+    // Em derrotas, progredir mais longe é melhor que morrer depressa.
+    ? result.win
+      ? 320 + result.rooms * 1.2 - result.steps * .12
+      : -250 + result.rooms * 12 - (result.violation ? 210 : 0)
     : (result.win ? 120 : 0) + result.rooms * 1.8 -
       (result.violation ? 175 : 0) - result.steps * .018;
 }

@@ -188,3 +188,9 @@ não só a seed. A próxima execução tenta o replay exato antes de abrir
 novos cenários; se o jogo rejeitar uma ação antiga, marca `replay_diverged`
 como investigação (não reprovação automática). Isso separa regressão
 real de mudança deliberada nas regras ou na janela de ativação.
+
+A função-objetivo do Speedrunner **só recompensa menos passos em vitórias**.
+Em derrotas, maior progresso é preferível a morrer mais cedo; violações
+continuam penalizadas e bloqueiam a promoção. Regressões só viram falha
+confirmada quando uma ação legal ainda é rejeitada ou um invariante
+volta a falhar durante o replay.
