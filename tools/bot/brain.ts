@@ -5,6 +5,7 @@ import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { healingMoveScore, itemHealingAmount } from "./healing";
 import { knowledgeBonus, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
+import { publishedSoloPolicy, soloPolicyAdjustment, type SoloPolicy } from "./discovery/soloPolicy";
 
 /** Contexto de combate observado pela IA, sem leitura de estado interno. */
 export interface CombatProgress {
@@ -328,7 +329,24 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 110;
 }
 
-function abilityMoves(obs: BotObservation, profile: BotProfile, progress: CombatProgress): ScoredMove[] {
+/** Estratégia solo genérica: somente filtros de legalidade, valor e risco. */
+function soloAbilityScore(view: PlayerView,
+  ability: BotObservation["abilities"][string][number],
+  owner: HeroView, targetId: string | undefined,
+): number {
+  const target = view.heroes.find(h => h.id === targetId) ?? owner;
+  if (ability.heals) {
+    const missing = target.maxLife - target.currentLife;
+    if (missing <= 0) return -1;
+    return healingMoveScore(view, target.id, missing);
+  }
+  if (ability.kind === "power") return 125;
+  const inCombat = view.enemies.some(e => e.status === "active");
+  return inCombat ? 112 : 84;
+}
+
+function abilityMoves(obs: BotObservation, profile: BotProfile,
+  progress: CombatProgress, adaptiveSolo = false): ScoredMove[] {
 	const { view } = obs;
 	if (view.status !== "HERO_ACTION" && view.status !== "BOSS_COMBAT") return [];
 	const moves: ScoredMove[] = [];
@@ -348,11 +366,13 @@ function abilityMoves(obs: BotObservation, profile: BotProfile, progress: Combat
 			const candidates = ability.targetRequired || (manualPreparation && targets.length > 0)
 				? targets : [undefined];
 			for (const target of candidates) {
-				const score = abilityScore(view, ability, target, hero, profile, progress);
-				if (score < 0) continue;
+        const score = adaptiveSolo
+          ? soloAbilityScore(view, ability, hero, target)
+          : abilityScore(view, ability, target, hero, profile, progress);
+        if (score < 0) continue;
 				// Fúria Rubra custa vida ao disparar. Uma prioridade fixa de preparo
 				// ignorava furyScore e forçava auto-sacrifícios mesmo sem benefício.
-				if (ability.abilityId === "skill_crimson_fury" && score < 180) continue;
+				if (!adaptiveSolo && ability.abilityId === "skill_crimson_fury" && score < 180) continue;
 				if (ability.kind === "item") {
 					const targetHero = target && activeHeroes(view).some((entry) => entry.id === target);
 					const itemAction: Action = { type: "USE_ITEM", payload: {
@@ -360,10 +380,11 @@ function abilityMoves(obs: BotObservation, profile: BotProfile, progress: Combat
 						...(target ? targetHero ? { targetHeroId: target } : { targetEnemyId: target } : {}),
 					} };
 					const heal = itemHealingAmount(ability.sourceCardId);
-					moves.push({ action: itemAction, score: heal !== null
-						? progress.stagnantRounds >= 3 && bestAttackScore(view, hero.id, profile) >= 0
-							? 35 : healingMoveScore(view, target ?? hero.id, heal)
-						: Math.min(score, pressure(view) ? 155 : 95) });
+          moves.push({ action: itemAction, score: adaptiveSolo
+            ? score : heal !== null
+              ? progress.stagnantRounds >= 3 && bestAttackScore(view, hero.id, profile) >= 0
+                ? 35 : healingMoveScore(view, target ?? hero.id, heal)
+              : Math.min(score, pressure(view) ? 155 : 95) });
 				} else {
 					// A primeira ação apenas arma a habilidade; o alvo é enviado na
 					// segunda, quando a projeção já informa status "prepared".
@@ -371,7 +392,8 @@ function abilityMoves(obs: BotObservation, profile: BotProfile, progress: Combat
 					moves.push({ action: { type: "USE_SKILL", payload: {
 						skillId: ability.abilityId, sourceId: hero.id,
 						...(committedTarget ? { targetIds: [committedTarget] } : {}),
-					} }, score: ability.abilityId === "skill_crimson_fury" ? score :
+					} }, score: adaptiveSolo ? score :
+            ability.abilityId === "skill_crimson_fury" ? score :
 						// Preparar e confirmar têm o MESMO valor estratégico da ação final.
 						// Sem piso artificial: cura/buff competem com um ataque real.
 						manualPreparation ? score :
@@ -404,11 +426,16 @@ function seededRandom(seed: number, decision: number): () => number {
 export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-player", seed = 1,
 	decision = 0, progress: CombatProgress = { stagnantRounds: 0 },
 	knowledge: readonly StrategyRule[] = publishedKnowledge.rules,
-	legacyCombos = true): readonly ScoredMove[] {
-	const planned = legacyCombos && profile === "power-player" ? planCombos(obs)[0] : undefined;
+	legacyCombos = true,
+  soloPolicy: SoloPolicy | null | undefined = publishedSoloPolicy,
+  adaptiveSoloTraining = false): readonly ScoredMove[] {
+  const adaptiveSolo = profile !== "random" && obs.view.heroes.length === 1 &&
+    (adaptiveSoloTraining || (soloPolicy?.catalogFingerprint === publishedSoloPolicy.catalogFingerprint &&
+      Object.keys(soloPolicy?.weights ?? {}).length > 0));
+	const planned = legacyCombos && !adaptiveSolo && profile === "power-player" ? planCombos(obs)[0] : undefined;
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),
-		...abilityMoves(obs, profile, progress),
+		...abilityMoves(obs, profile, progress, adaptiveSolo),
 		...obs.actions
 			.filter((action) => action.type !== "SPEND_XP" ||
 				action.payload.option !== "level_up" ||
@@ -430,7 +457,8 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 		.map((move, index) => ({
 			...move,
 			score: profile === "random" ? random() :
-				move.score + knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],
+        move.score + soloPolicyAdjustment(obs.view, move.action, soloPolicy) +
+          knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],
           knowledge, progress.recentActorIds ?? []) +
 				(profile === "casual" ? variation(move.action, obs.view, seed, decision) * 0.7 :
 				profile === "explorer" ? variation(move.action, obs.view, seed, decision) * 0.15 : 0),

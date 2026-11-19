@@ -17,6 +17,7 @@ import type { GameState } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
 import { publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
 import { stepSignals } from "./discovery/sequence";
+import { publishedSoloPolicy, type SoloPolicy } from "./discovery/soloPolicy";
 
 export { rankMoves, scoreAction, scoreMoves, type ScoredMove };
 
@@ -52,6 +53,8 @@ export function playAiGame(
 	knowledgeOverride?: readonly StrategyRule[],
 	disableLegacyCombos = false,
 	enableDiscoveryTrace = false,
+  soloPolicyOverride?: SoloPolicy | null,
+  adaptiveSoloTraining = false,
 ): AiGameResult {
   const needsSignals = enableDiscoveryTrace ||
     (profile !== "random" && (knowledgeOverride ?? publishedKnowledge.rules).length > 0);
@@ -97,7 +100,9 @@ export function playAiGame(
       recentTraits = []; recentActorIds = []; recentRoundKey = roundKey;
     }
     const options = scoreMoves(obs, profile, setup.seed, port.history.length,
-      { stagnantRounds, recentTraits, recentActorIds }, knowledgeOverride, !disableLegacyCombos);
+      { stagnantRounds, recentTraits, recentActorIds }, knowledgeOverride, !disableLegacyCombos,
+      soloPolicyOverride === undefined ? publishedSoloPolicy : soloPolicyOverride,
+      adaptiveSoloTraining);
 		const stepRejected: string[] = [];
 		const combat = obs.view.combat;
 		const turnKey = `${combat?.round}:${combat?.heroesActed.length}:${obs.view.roomsCleared}`;
