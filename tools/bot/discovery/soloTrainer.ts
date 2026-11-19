@@ -161,18 +161,19 @@ function score(result: Trial): number {
     (result.violation ? 175 : 0) - result.steps * .018;
 }
 function candidateFeatures(counts: Readonly<Record<string, number>>, options: Args): string[] {
+  const base = (name: string) => name.slice(name.indexOf("|") + 1);
   const entries = Object.entries(counts).filter(([name, seen]) =>
-    seen >= (name.includes("@card:") || name.includes("@ability:") ? 6 : 10) &&
+    seen >= (name.includes("@card:") || name.includes("@ability:") ? 2 : 4) &&
     !name.includes("@phase:") && !name.includes("@timing:"));
   const rank = (name: string): number =>
-    name.startsWith("decision:") ? 0 :
+    base(name).startsWith("decision:") ? 0 :
     name.includes("@power:") || name.includes("@item:") ||
       name.includes("@loot:") || name.includes("@effect:") ? 1 :
     name.includes("@itemclass:") || name.includes("@lootclass:") ||
       name.includes("@health:") || name.includes("@threat:") ||
       name.includes("@recovery:") || name.includes("@reaction:") ? 2 : 3;
   const choose = (focus: Exclude<Focus, "all">) => entries.filter(([name]) =>
-    focusKinds[focus].some(prefix => name.startsWith(prefix)))
+    focusKinds[focus].some(prefix => base(name).startsWith(prefix)))
     .sort((a, b) => rank(a[0]) - rank(b[0]) || b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(x => x[0]);
   if (options.focus !== "all") return choose(options.focus).slice(0, options.maxFeatures);

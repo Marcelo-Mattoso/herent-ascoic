@@ -431,9 +431,12 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
   adaptiveSoloTraining = false): readonly ScoredMove[] {
   // Política treinada com power-player: não contaminar casual/speedrunner/explorer
   // até que cada perfil tenha passado pelo seu próprio benchmark A/B.
+  const heroCardId = obs.view.heroes[0]?.cardId;
+  const learnedForHero = heroCardId && Object.keys(soloPolicy?.weights ?? {})
+    .some(key => key.startsWith("hero:" + heroCardId + "|"));
   const adaptiveSolo = profile === "power-player" && obs.view.heroes.length === 1 &&
     (adaptiveSoloTraining || (soloPolicy?.catalogFingerprint === publishedSoloPolicy.catalogFingerprint &&
-      Object.keys(soloPolicy?.weights ?? {}).length > 0));
+      learnedForHero));
 	const planned = legacyCombos && !adaptiveSolo && profile === "power-player" ? planCombos(obs)[0] : undefined;
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),

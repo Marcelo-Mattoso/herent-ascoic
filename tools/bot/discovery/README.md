@@ -119,3 +119,9 @@ Primeira versão: treinamento e promoção restritos ao perfil
 `power-player` em partidas solo. Os demais perfis não consomem esta
 política aprendida até terem suas próprias validações; `npm run audit`
 continua cobrindo os cinco perfis.
+
+Os pesos promovidos usam namespace por herói (ex.: `hero:<cardId>|item@item:boss`).
+Uma sessão com `--max-heroes 4` não altera o comportamento dos outros heróis.
+Para treinar toda a coleção, rode sessões em seeds diferentes ou
+`--all-heroes` com cobertura maior. O perfil power-player é o único
+beneficiário dessa política nesta versão.

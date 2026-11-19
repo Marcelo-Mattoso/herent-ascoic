@@ -89,8 +89,12 @@ export function soloDecisionFeatures(view: PlayerView, action: Action): readonly
   if (view.roomsCleared >= 6) out.add("timing:deep-dungeon");
   // Chaves contextuais isolam decisão: priorizar cura por item NÃO
   // altera acidentalmente todas as habilidades de cura.
+  const heroCardId = view.heroes[0]?.cardId;
+  if (!heroCardId || view.heroes.length !== 1) return [];
+  // Conhecimento por herói, não uma prioridade global que prejudica classes
+  // completamente diferentes sem validação independente.
   return ["decision:" + group, ...[...out].filter(k => !k.startsWith("decision:"))
-    .map(k => group + "@" + k)];
+    .map(k => group + "@" + k)].map(key => "hero:" + heroCardId + "|" + key);
 }
 export function soloPolicyAdjustment(view: PlayerView, action: Action,
   policy: SoloPolicy | null | undefined = publishedSoloPolicy): number {
