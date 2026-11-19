@@ -105,3 +105,7 @@ de item é apenas observação, não classificação causal; preferências preci
 passar pela comparação de vitórias. Partidas de treino e validação usam seeds
 separadas (`seed + 200000`). Nenhuma execução em CI, nenhuma modificação
 de atributos de cartas. Após promoção, revise e commite `src/data/soloPolicy.json`.
+
+O ajuste contextual usa chaves separadas por decisão (exemplo:
+`item@health:critical`, `power@power:boss`, `skill@effect:boost`).
+Portanto treinar `--focus items` não altera as prioridades das habilidades.

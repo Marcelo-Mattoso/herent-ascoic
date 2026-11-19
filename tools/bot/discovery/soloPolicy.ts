@@ -17,10 +17,16 @@ export const historicalSoloPolicy: SoloPolicy = published as SoloPolicy;
 export const publishedSoloPolicy: SoloPolicy = historicalSoloPolicy.catalogFingerprint === fingerprint
   ? historicalSoloPolicy : { version: 1, catalogFingerprint: fingerprint, weights: {} };
 const wrappers = new Set(["i_if", "i_for_each", "i_choose_one", "add_trigger", "i_noop"]);
-function effects(cardId?: string, abilityId?: string): string[] {
+const effectCache = new Map<string, readonly string[]>();
+function effects(cardId?: string, abilityId?: string): readonly string[] {
+  const key = (cardId ?? "") + "|" + (abilityId ?? "");
+  const cached = effectCache.get(key);
+  if (cached) return cached;
   const ids = abilityId ? [abilityId] : (cardId ? cardAbilityGrants(cardId).map(g => g.abilityId) : []);
-  return [...new Set(ids.flatMap(id =>
+  const kinds = [...new Set(ids.flatMap(id =>
     effectKinds(lookupAbilityById(id)?.effect).filter(kind => !wrappers.has(kind))))];
+  effectCache.set(key, kinds);
+  return kinds;
 }
 export function soloDecisionFeatures(view: PlayerView, action: Action): readonly string[] {
   let group: "item" | "power" | "skill" | "loot" | "reaction" | "artifact" | null = null;
@@ -81,7 +87,10 @@ export function soloDecisionFeatures(view: PlayerView, action: Action): readonly
   }
   if ((view.combat?.round ?? 0) >= 4) out.add("timing:late-round");
   if (view.roomsCleared >= 6) out.add("timing:deep-dungeon");
-  return [...out];
+  // Chaves contextuais isolam decisão: priorizar cura por item NÃO
+  // altera acidentalmente todas as habilidades de cura.
+  return ["decision:" + group, ...[...out].filter(k => !k.startsWith("decision:"))
+    .map(k => group + "@" + k)];
 }
 export function soloPolicyAdjustment(view: PlayerView, action: Action,
   policy: SoloPolicy | null | undefined = publishedSoloPolicy): number {

@@ -10,7 +10,7 @@ import { assertLocalReportExecution, LEVELING_RUNS_ROOT } from "../localLeveling
 import { playAiGame, type AiStep } from "../ai";
 import { setupForRun } from "../profiles";
 import { catalogFingerprint } from "./fingerprint";
-import { historicalSoloPolicy, publishedSoloPolicy,
+import { publishedSoloPolicy,
   soloDecisionFeatures, type SoloPolicy } from "./soloPolicy";
 import { mcnemarStatistic } from "./statistics";
 
@@ -36,10 +36,9 @@ interface Args {
 const goals: Record<Difficulty, number> = { very_easy: 1, easy: .75, normal: .5 };
 const difficulties: readonly Difficulty[] = ["very_easy", "easy", "normal"];
 const focusKinds: Record<Exclude<Focus, "all">, readonly string[]> = {
-  skills: ["decision:skill", "effect:", "ability:", "reaction:", "health:", "threat:"],
-  items: ["decision:item", "decision:loot", "item:", "itemclass:", "loot:", "lootclass:",
-    "card:", "effect:", "health:", "recovery:"],
-  powers: ["decision:power", "power:", "ability:", "effect:", "health:", "threat:"],
+  skills: ["decision:skill", "decision:reaction", "skill@", "reaction@"],
+  items: ["decision:item", "decision:loot", "item@", "loot@"],
+  powers: ["decision:power", "power@"],
 };
 const featuresFromAction = (step: AiStep, action: AiStep["chosen"]["action"]) =>
   soloDecisionFeatures(step.before, action);
@@ -161,19 +160,18 @@ function score(result: Trial): number {
 }
 function candidateFeatures(counts: Readonly<Record<string, number>>, options: Args): string[] {
   const entries = Object.entries(counts).filter(([name, seen]) =>
-    seen >= (name.startsWith("card:") || name.startsWith("ability:") ? 6 : 10) &&
-    !name.startsWith("phase:") && !name.startsWith("timing:"));
+    seen >= (name.includes("@card:") || name.includes("@ability:") ? 6 : 10) &&
+    !name.includes("@phase:") && !name.includes("@timing:"));
   const rank = (name: string): number =>
     name.startsWith("decision:") ? 0 :
-    name.startsWith("power:") || name.startsWith("item:") ||
-      name.startsWith("loot:") || name.startsWith("effect:") ? 1 :
-    name.startsWith("itemclass:") || name.startsWith("lootclass:") ||
-      name.startsWith("health:") || name.startsWith("threat:") ||
-      name.startsWith("recovery:") || name.startsWith("reaction:") ? 2 : 3;
+    name.includes("@power:") || name.includes("@item:") ||
+      name.includes("@loot:") || name.includes("@effect:") ? 1 :
+    name.includes("@itemclass:") || name.includes("@lootclass:") ||
+      name.includes("@health:") || name.includes("@threat:") ||
+      name.includes("@recovery:") || name.includes("@reaction:") ? 2 : 3;
   const choose = (focus: Exclude<Focus, "all">) => entries.filter(([name]) =>
     focusKinds[focus].some(prefix => name.startsWith(prefix)) &&
-    (name.startsWith("decision:") ? name === "decision:" + focus.slice(0, -1) ||
-      (focus === "items" && name === "decision:loot") : true))
+    true)
     .sort((a, b) => rank(a[0]) - rank(b[0]) || b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(x => x[0]);
   if (options.focus !== "all") return choose(options.focus).slice(0, options.maxFeatures);

@@ -11,14 +11,14 @@ describe("Instrutor solo", () => {
     const action = { type: "USE_ITEM" as const, payload: { itemId: "item-test", heroId: "h" } };
     const found = soloDecisionFeatures(view, action);
     expect(found).toContain("decision:item");
-    expect(found).toContain("item:boss");
-    expect(found).toContain("health:critical");
-    expect(found).toContain("threat:lethal");
+    expect(found).toContain("item@item:boss");
+    expect(found).toContain("item@health:critical");
+    expect(found).toContain("item@threat:lethal");
   });
   it("política não altera o comportamento em grupos", () => {
     const action = { type: "USE_ITEM" as const, payload: { itemId: "item-test", heroId: "h" } };
     const policy = { version: 1 as const, catalogFingerprint: catalogFingerprint(),
-      weights: { "item:boss": 100 } };
+      weights: { "item@item:boss": 100 } };
     expect(soloPolicyAdjustment(view, action, policy)).toBe(100);
     expect(soloPolicyAdjustment({ ...view, heroes: [...view.heroes, { ...view.heroes[0]!, id: "h2" }] },
       action, policy)).toBe(0);
@@ -26,6 +26,6 @@ describe("Instrutor solo", () => {
   it("invalida conhecimento que não corresponde ao catálogo", () => {
     const action = { type: "USE_ITEM" as const, payload: { itemId: "item-test", heroId: "h" } };
     expect(soloPolicyAdjustment(view, action, { version: 1,
-      catalogFingerprint: "catálogo-antigo", weights: { "item:boss": 150 } })).toBe(0);
+      catalogFingerprint: "catálogo-antigo", weights: { "item@item:boss": 150 } })).toBe(0);
   });
 });
