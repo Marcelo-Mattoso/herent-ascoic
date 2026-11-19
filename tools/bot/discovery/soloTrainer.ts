@@ -273,18 +273,6 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
     runTrial(context, seed, options.maxSteps, initial, profile, true));
   const counts: Record<string, number> = {};
   const itemCatalog: Record<string, { opportunities: number; uses: number; pickups: number }> = {};
-  const itemDraws = new Map<string, { games: number; draws: number; itemDrawEvents: number }>();
-  // Por herói/expansão/dificuldade: observação empírica da rota jogada,
-  // não probabilidade independente da estratégia nem taxa matemática do deck.
-  for (let index = 0; index < first.length; index++) {
-    const trial = first[index]!;
-    const ctx = trainTasks[index]!.context;
-    const key = [ctx.hero, ctx.expansion, ctx.difficulty].join("|");
-    const previous = itemDraws.get(key) ?? { games: 0, draws: 0, itemDrawEvents: 0 };
-    itemDraws.set(key, { games: previous.games + 1,
-      draws: previous.draws + Object.values(trial.drops).reduce((s, n) => s + n, 0),
-      itemDrawEvents: previous.itemDrawEvents + trial.itemDrawEvents });
-  }
   const dropByContext = new Map<string, { games: number; totalDrawEvents: number;
     perItem: Map<string, { occurrences: number; gamesSeen: number }> }>();
   for (let index = 0; index < first.length; index++) {
