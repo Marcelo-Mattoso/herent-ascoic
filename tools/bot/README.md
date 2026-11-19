@@ -215,3 +215,7 @@ Para aprender e promover SOMENTE SE uma avaliação A/B independente comprovar g
 As três especializações podem ser treinadas separadamente com `--focus skills`, `--focus items` ou `--focus powers`.
 Saídas locais em `tools/bot/runs/solo-train-*/`; conhecimento versionado em `src/data/soloPolicy.json`.
 O treinador só usa heróis individuais, com três dificuldades: Muito Fácil, Fácil e Normal. O `audit` oficial continua separado e inalterado.
+
+O Instrutor só promove uma política se, nas seeds reservadas, também
+superar o bot atualmente publicado; não basta vencer uma baseline adaptativa
+sem pesos. Veja `versusCurrentBot` em `solo-training-report.json`.

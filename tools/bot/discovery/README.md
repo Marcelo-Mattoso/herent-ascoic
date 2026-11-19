@@ -109,3 +109,8 @@ de atributos de cartas. Após promoção, revise e commite `src/data/soloPolicy.
 O ajuste contextual usa chaves separadas por decisão (exemplo:
 `item@health:critical`, `power@power:boss`, `skill@effect:boost`).
 Portanto treinar `--focus items` não altera as prioridades das habilidades.
+
+Na última validação, o Instrutor compara a política candidata com dois
+controles: uma política adaptativa sem os novos pesos e o bot atualmente
+publicado (incluindo as heurísticas legadas quando ainda ativas). Só há
+promoção se superar **ambos**; o campo `versusCurrentBot` registra a prova.

@@ -13,6 +13,7 @@ import { catalogFingerprint } from "./fingerprint";
 import { publishedSoloPolicy,
   soloDecisionFeatures, type SoloPolicy } from "./soloPolicy";
 import { mcnemarStatistic } from "./statistics";
+import { publishedKnowledge } from "./knowledge";
 
 type Difficulty = "very_easy" | "easy" | "normal";
 type Focus = "all" | "skills" | "items" | "powers";
@@ -122,7 +123,7 @@ interface Trial {
   readonly items: Readonly<Record<string, { opportunities: number; uses: number; pickups: number }>>;
 }
 function runTrial(c: Context, seed: number, maxSteps: number,
-  policy: SoloPolicy, telemetry = false): Trial {
+  policy: SoloPolicy, telemetry = false, currentBot = false): Trial {
   const observed: Record<string, number> = {};
   const items: Record<string, { opportunities: number; uses: number; pickups: number }> = {};
   const itemRecord = (id: string) => {
@@ -149,7 +150,8 @@ function runTrial(c: Context, seed: number, maxSteps: number,
   } : undefined;
   const result = playAiGame({
     ...setupForRun(seed, [c.hero], c.difficulty), bossCardId: c.boss,
-  }, maxSteps, onStep, "power-player", undefined, [], true, false, policy, true);
+  }, maxSteps, onStep, "power-player", undefined, publishedKnowledge.rules,
+    !currentBot, false, policy, !currentBot);
   return { win: result.outcome === "VICTORY" && !result.violation,
     violation: result.violation !== null, rooms: result.roomsCleared,
     steps: result.steps, observed, items };
@@ -274,16 +276,23 @@ async function main(): Promise<void> {
   const learnedValidation = validationTasks.map(({ context, seed }) =>
     runTrial(context, seed, options.maxSteps, current));
   const validation = compare(baseValidation, learnedValidation);
+  // Gate extra: a política candidata precisa superar TAMBÉM a política
+  // efetivamente publicada (legado + combos antigos quando ainda ativos).
+  const deployed = validationTasks.map(({ context, seed }) =>
+    runTrial(context, seed, options.maxSteps, initial, false, true));
+  const versusCurrentBot = compare(deployed, learnedValidation);
   const changed = JSON.stringify(current.weights) !== JSON.stringify(initial.weights);
-  const verified = changed && validation.pairs >= 40 &&
-    validation.nextWins - validation.baseWins >= 4 &&
-    validation.statistic >= 6.64 && validation.nextViolations <= validation.baseViolations;
+  const passes = (comparison: Comparison) => comparison.pairs >= 40 &&
+    comparison.nextWins - comparison.baseWins >= 4 &&
+    comparison.statistic >= 6.64 &&
+    comparison.nextViolations <= comparison.baseViolations;
+  const verified = changed && passes(validation) && passes(versusCurrentBot);
   await mkdir(options.output, { recursive: true });
   const report = {
     version: 1, generatedAt: new Date().toISOString(), focus: options.focus, options,
     catalogFingerprint: fingerprint, heroes: [...new Set(matrix.map(x => x.hero))],
     contexts: matrix, trainingGames: first.length, candidates: features,
-    learning: explored, validation, verified,
+    learning: explored, validation, versusCurrentBot, verified,
     itemsObserved: Object.entries(itemCatalog).map(([id, row]) => ({ cardId: id, ...row }))
       .sort((a, b) => b.uses - a.uses || b.opportunities - a.opportunities),
     initialWeights: initial.weights, learnedWeights: current.weights,
