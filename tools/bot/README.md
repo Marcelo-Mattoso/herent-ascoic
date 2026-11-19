@@ -205,3 +205,13 @@ O registro `abilityTrace` é apenas telemetria e foi explicitamente excluído do
 
 `npm run bot:discover -- --dry-run` imprime apenas o plano, sem executar partidas.
 `npm run bot:discover -- --party-size 2 --max-parties 8` minera combos entre dois heróis; altere o tamanho para 3 ou 4. Relatórios e conhecimento ficam separados da auditoria. Consulte `tools/bot/discovery/README.md` para critérios de confirmação, versionamento e revalidação.
+
+
+## Instrutor Solo — habilidades, itens e poderes (sem equipes)
+
+Use `npm run bot:train-solo -- --dry-run` para avaliar o tamanho do treino sem executar nenhuma partida.
+Primeiro treino: `npm run bot:train-solo -- --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12`.
+Para aprender e promover SOMENTE SE uma avaliação A/B independente comprovar ganho: acrescente `--promote`.
+As três especializações podem ser treinadas separadamente com `--focus skills`, `--focus items` ou `--focus powers`.
+Saídas locais em `tools/bot/runs/solo-train-*/`; conhecimento versionado em `src/data/soloPolicy.json`.
+O treinador só usa heróis individuais, com três dificuldades: Muito Fácil, Fácil e Normal. O `audit` oficial continua separado e inalterado.

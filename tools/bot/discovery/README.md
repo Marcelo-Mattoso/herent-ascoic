@@ -72,3 +72,36 @@ mantêm suas lacunas visíveis, mas um grant **novo** que continuar
 `NOT_COVERED` bloqueia `npm run audit` até receber um cenário de execução
 parcial ou completo. Não atualize o baseline para ocultar novas lacunas;
 resolva o cenário e mantenha a trilha de evidências.
+
+
+## Instrutor Solo (treinamento das decisões, distinto da mineração de combos)
+
+```bash
+npm run bot:train-solo -- --dry-run
+npm run bot:train-solo -- --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+npm run bot:train-solo -- --focus items --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+npm run bot:train-solo -- --focus powers --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+npm run bot:train-solo -- --focus skills --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+```
+
+O Instrutor testa em partidas **SOLO** prioridades aprendíveis sobre itens, poderes, momentos de cura,
+efeitos, vida, custo de oportunidade, fases de chefe, saque e preparação. A biblioteca
+`src/data/soloPolicy.json` só muda com `--promote` e melhora independente:
+>=40 partidas pareadas, >=4 vitórias adicionais, qui-quadrado de McNemar corrigido
+>=6,64 e nenhuma violação adicional. Ausência de aprovação significa
+que os pesos anteriores permanecem em vigor. O perfil `random` não recebe
+pesos e os grupos de heróis não são modificados.
+
+Por padrão, --max-heroes 4 percorre até quatro heróis por sessão. Alterar
+`--seed` desloca o conjunto escolhido; `--all-heroes --max-contexts 48`
+aumenta a cobertura, mas custa muito mais tempo de simulação.
+`--hero hero_crimson_rune_mage` restringe a um único herói.
+`--max-features 9` controla quantos contextos (efeito, item, poder, cura,
+urgência, carta) são ajustados; `--epochs 1` controla a iteração.
+
+O treinador gera `solo-training-report.json` e `solo-policy-candidate.json`,
+com ganhos, oportunidades de item e decisão de validação. Frequência de uso
+de item é apenas observação, não classificação causal; preferências precisam
+passar pela comparação de vitórias. Partidas de treino e validação usam seeds
+separadas (`seed + 200000`). Nenhuma execução em CI, nenhuma modificação
+de atributos de cartas. Após promoção, revise e commite `src/data/soloPolicy.json`.
