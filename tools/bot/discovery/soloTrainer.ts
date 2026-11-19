@@ -4,22 +4,24 @@
  */
 import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
-import { getBoss, getHeroes } from "@/core/data/cards";
+import { getBoss, getHeroes, getCardById } from "@/core/data/cards";
 import { getEnabledExpansions } from "@/core/data/expansions";
 import { assertLocalReportExecution, LEVELING_RUNS_ROOT } from "../localLevelingReports";
 import { playAiGame, type AiStep } from "../ai";
 import { setupForRun } from "../profiles";
 import { catalogFingerprint } from "./fingerprint";
-import { publishedSoloPolicy,
-  soloDecisionFeatures, type SoloPolicy } from "./soloPolicy";
+import { publishedSoloPolicy, soloWeightKey,
+  soloDecisionFeatures, type SoloPolicy, type SoloLearningProfile } from "./soloPolicy";
 import { mcnemarStatistic } from "./statistics";
 import { publishedKnowledge } from "./knowledge";
 
 type Difficulty = "very_easy" | "easy" | "normal";
 type Focus = "all" | "skills" | "items" | "powers";
+type TrainSelection = SoloLearningProfile | "both";
 type Context = { hero: string; boss: string; expansion: string; difficulty: Difficulty };
 interface Args {
   readonly focus: Focus;
+  readonly profile: TrainSelection;
   readonly seed: number;
   readonly runs: number;
   readonly validateRuns: number;
@@ -53,7 +55,7 @@ function parse(args: readonly string[]): Args {
     if (flag === "--promote") { promote = true; continue; }
     if (flag === "--dry-run") { dryRun = true; continue; }
     if (flag === "--all-heroes") { allHeroes = true; continue; }
-    if (!["--focus", "--seed", "--runs", "--validate-runs", "--max-steps",
+    if (!["--profile", "--focus", "--seed", "--runs", "--validate-runs", "--max-steps",
       "--max-heroes", "--max-contexts", "--max-features", "--epochs",
       "--output", "--hero"].includes(flag))
       throw new Error("Flag desconhecida: " + flag);
@@ -67,6 +69,9 @@ function parse(args: readonly string[]): Args {
     if (!Number.isSafeInteger(value) || value < 1) throw new Error(name + " exige inteiro positivo");
     return value;
   };
+  const profile = params.get("--profile") ?? "both";
+  if (!["both", "power-player", "speedrunner"].includes(profile))
+    throw new Error("--profile exige both, power-player ou speedrunner");
   const focus = params.get("--focus") ?? "all";
   if (!["all", "skills", "items", "powers"].includes(focus))
     throw new Error("--focus exige all, skills, items ou powers");
@@ -77,7 +82,7 @@ function parse(args: readonly string[]): Args {
   const output = resolve(params.get("--output") ??
     join(LEVELING_RUNS_ROOT, "solo-train-" + new Date().toISOString().replace(/[:.]/g, "-")));
   if (!output.startsWith(LEVELING_RUNS_ROOT + sep)) throw new Error("Output fora de tools/bot/runs");
-  return { focus: focus as Focus, seed, runs, validateRuns,
+  return { focus: focus as Focus, profile: profile as TrainSelection, seed, runs, validateRuns,
     maxSteps: numeric("--max-steps", 1000),
     maxHeroes: numeric("--max-heroes", 4), maxContexts: numeric("--max-contexts", 12),
     maxFeatures: numeric("--max-features", 9), epochs: numeric("--epochs", 1),
@@ -121,16 +126,35 @@ interface Trial {
   readonly steps: number;
   readonly observed: Readonly<Record<string, number>>;
   readonly items: Readonly<Record<string, { opportunities: number; uses: number; pickups: number }>>;
+  readonly drops: Readonly<Record<string, number>>;
+  readonly itemDrawEvents: number;
 }
 function runTrial(c: Context, seed: number, maxSteps: number,
-  policy: SoloPolicy, telemetry = false, currentBot = false): Trial {
+  policy: SoloPolicy, profile: SoloLearningProfile,
+  telemetry = false, currentBot = false): Trial {
   const observed: Record<string, number> = {};
+  const drops: Record<string, number> = {};
+  let itemDrawEvents = 0;
   const items: Record<string, { opportunities: number; uses: number; pickups: number }> = {};
   const itemRecord = (id: string) => {
     if (!items[id]) items[id] = { opportunities: 0, uses: 0, pickups: 0 };
     return items[id]!;
   };
   const onStep = telemetry ? (step: AiStep): void => {
+    // Diferença de multiconjuntos da pilha visível: conta retiradas do baralho,
+    // inclusive cartas repetidas, sem atribuir causalidade ao herói selecionado.
+    const remaining = new Map<string, number>();
+    for (const id of step.after.decks.itemDeck.available)
+      remaining.set(id, (remaining.get(id) ?? 0) + 1);
+    for (const id of step.before.decks.itemDeck.available) {
+      const count = remaining.get(id) ?? 0;
+      if (count > 0) { remaining.set(id, count - 1); continue; }
+      const card = getCardById(id);
+      if (card?.type === "item" || card?.type === "ally") {
+        drops[id] = (drops[id] ?? 0) + 1;
+        itemDrawEvents++;
+      }
+    }
     const opportunities = new Set<string>();
     const offeredItems = new Set<string>();
     for (const choice of step.options) {
@@ -150,15 +174,19 @@ function runTrial(c: Context, seed: number, maxSteps: number,
   } : undefined;
   const result = playAiGame({
     ...setupForRun(seed, [c.hero], c.difficulty), bossCardId: c.boss,
-  }, maxSteps, onStep, "power-player", undefined, publishedKnowledge.rules,
+  }, maxSteps, onStep, profile, undefined, publishedKnowledge.rules,
     !currentBot, false, policy, !currentBot);
   return { win: result.outcome === "VICTORY" && !result.violation,
     violation: result.violation !== null, rooms: result.roomsCleared,
-    steps: result.steps, observed, items };
+    steps: result.steps, observed, items, drops, itemDrawEvents };
 }
-function score(result: Trial): number {
-  return (result.win ? 120 : 0) + result.rooms * 1.8 -
-    (result.violation ? 175 : 0) - result.steps * .018;
+function score(result: Trial, profile: SoloLearningProfile): number {
+  // Speedrunner valoriza completar menos ações; Power Player valoriza robustez.
+  return profile === "speedrunner"
+    ? (result.win ? 180 : 0) + result.rooms * 1.2 -
+      (result.violation ? 210 : 0) - result.steps * .15
+    : (result.win ? 120 : 0) + result.rooms * 1.8 -
+      (result.violation ? 175 : 0) - result.steps * .018;
 }
 function candidateFeatures(counts: Readonly<Record<string, number>>, options: Args): string[] {
   const base = (name: string) => name.slice(name.indexOf("|") + 1);
@@ -191,10 +219,13 @@ function candidateFeatures(counts: Readonly<Record<string, number>>, options: Ar
 interface Comparison { pairs: number; baseWins: number; nextWins: number;
   baseViolations: number; nextViolations: number;
   improvedOnly: number; baselineOnly: number; statistic: number;
+  sharedVictories: number; baseStepsShared: number; nextStepsShared: number;
+  relativeStepReduction: number;
 }
 function compare(base: readonly Trial[], candidate: readonly Trial[]): Comparison {
   let baseWins = 0, nextWins = 0, baseViolations = 0, nextViolations = 0;
-  let improvedOnly = 0, baselineOnly = 0;
+  let improvedOnly = 0, baselineOnly = 0, sharedVictories = 0;
+  let baseStepsShared = 0, nextStepsShared = 0;
   for (let i = 0; i < base.length; i++) {
     const a = base[i]!, b = candidate[i]!;
     if (a.win) baseWins++;
@@ -203,19 +234,30 @@ function compare(base: readonly Trial[], candidate: readonly Trial[]): Compariso
     if (b.violation) nextViolations++;
     if (!a.win && b.win) improvedOnly++;
     if (a.win && !b.win) baselineOnly++;
+    if (a.win && b.win) {
+      sharedVictories++;
+      baseStepsShared += a.steps;
+      nextStepsShared += b.steps;
+    }
   }
   return { pairs: base.length, baseWins, nextWins, baseViolations, nextViolations,
-    improvedOnly, baselineOnly, statistic: mcnemarStatistic(improvedOnly, baselineOnly) };
+    improvedOnly, baselineOnly, statistic: mcnemarStatistic(improvedOnly, baselineOnly),
+    sharedVictories, baseStepsShared, nextStepsShared,
+    relativeStepReduction: baseStepsShared > 0
+      ? (baseStepsShared - nextStepsShared) / baseStepsShared : 0 };
 }
-async function main(): Promise<void> {
-  assertLocalReportExecution();
-  const options = parse(process.argv.slice(2));
+async function trainOne(options: Args, profile: SoloLearningProfile): Promise<void> {
   const matrix = contexts(options);
   const fingerprint = catalogFingerprint();
+  // Releitura a cada perfil: a promoção do primeiro não pode ser sobrescrita
+  // pelo segundo quando --profile both estiver ativo.
+  const policyPath = resolve("src/data/soloPolicy.json");
+  const disk = JSON.parse(await readFile(policyPath, "utf8")) as SoloPolicy;
   const initial: SoloPolicy = { version: 1, catalogFingerprint: fingerprint,
-    weights: { ...publishedSoloPolicy.weights } };
+    weights: { ...(disk.catalogFingerprint === fingerprint ? disk.weights : publishedSoloPolicy.weights) } };
+  const outputDirectory = join(options.output, profile);
   if (options.dryRun) {
-    console.info(JSON.stringify({ mode: "solo-training-plan", focus: options.focus,
+    console.info(JSON.stringify({ mode: "solo-training-plan", profile, focus: options.focus,
       heroes: [...new Set(matrix.map(x => x.hero))], contexts: matrix.length,
       trainingMatchesPerCandidate: matrix.length * options.runs,
       validationPairs: matrix.length * options.validateRuns,
@@ -228,9 +270,38 @@ async function main(): Promise<void> {
   const validationTasks = matrix.flatMap(c => Array.from({ length: options.validateRuns },
     (_, i) => ({ context: c, seed: options.seed + 200000 + i })));
   const first = trainTasks.map(({ context, seed }) =>
-    runTrial(context, seed, options.maxSteps, initial, true));
+    runTrial(context, seed, options.maxSteps, initial, profile, true));
   const counts: Record<string, number> = {};
   const itemCatalog: Record<string, { opportunities: number; uses: number; pickups: number }> = {};
+  const itemDraws = new Map<string, { games: number; draws: number; itemDrawEvents: number }>();
+  // Por herói/expansão/dificuldade: observação empírica da rota jogada,
+  // não probabilidade independente da estratégia nem taxa matemática do deck.
+  for (let index = 0; index < first.length; index++) {
+    const trial = first[index]!;
+    const ctx = trainTasks[index]!.context;
+    const key = [ctx.hero, ctx.expansion, ctx.difficulty].join("|");
+    const previous = itemDraws.get(key) ?? { games: 0, draws: 0, itemDrawEvents: 0 };
+    itemDraws.set(key, { games: previous.games + 1,
+      draws: previous.draws + Object.values(trial.drops).reduce((s, n) => s + n, 0),
+      itemDrawEvents: previous.itemDrawEvents + trial.itemDrawEvents });
+  }
+  const dropByContext = new Map<string, { games: number; totalDrawEvents: number;
+    perItem: Map<string, { occurrences: number; gamesSeen: number }> }>();
+  for (let index = 0; index < first.length; index++) {
+    const game = first[index]!;
+    const ctx = trainTasks[index]!.context;
+    const key = [ctx.hero, ctx.expansion, ctx.difficulty].join("|");
+    const row = dropByContext.get(key) ?? { games: 0, totalDrawEvents: 0,
+      perItem: new Map<string, { occurrences: number; gamesSeen: number }>() };
+    row.games++; row.totalDrawEvents += game.itemDrawEvents;
+    for (const [itemId, occurrences] of Object.entries(game.drops)) {
+      const old = row.perItem.get(itemId) ?? { occurrences: 0, gamesSeen: 0 };
+      row.perItem.set(itemId, {
+        occurrences: old.occurrences + occurrences, gamesSeen: old.gamesSeen + 1,
+      });
+    }
+    dropByContext.set(key, row);
+  }
   for (const trial of first) {
     for (const [key, amount] of Object.entries(trial.observed))
       counts[key] = (counts[key] ?? 0) + amount;
@@ -240,7 +311,8 @@ async function main(): Promise<void> {
         uses: entry.uses + row.uses, pickups: entry.pickups + row.pickups };
     }
   }
-  const features = candidateFeatures(counts, options);
+  const features = candidateFeatures(counts, options)
+    .map(key => soloWeightKey(profile, key));
   let current = initial;
   let baseline = first;
   const explored: Array<{ epoch: number; feature: string; previous: number;
@@ -255,12 +327,12 @@ async function main(): Promise<void> {
         const probe: SoloPolicy = { version: 1, catalogFingerprint: fingerprint,
           weights: { ...current.weights, [feature]: value } };
         const results = trainTasks.map(({ context, seed }) =>
-          runTrial(context, seed, options.maxSteps, probe));
+          runTrial(context, seed, options.maxSteps, probe, profile));
         const gain = results.reduce((total, trial, i) =>
-          total + score(trial) - score(baseline[i]!), 0);
+          total + score(trial, profile) - score(baseline[i]!, profile), 0);
         if (gain > (best?.gain ?? 0)) best = { feature, value, gain, results };
       }
-      console.info("Instrutor solo:", epoch + 1, "/", options.epochs,
+      console.info("Instrutor solo [" + profile + "]:", epoch + 1, "/", options.epochs,
         feature, "avaliado");
     }
     if (!best) break;
@@ -272,24 +344,31 @@ async function main(): Promise<void> {
   }
   // Avalia a política FINAL uma única vez em seeds nunca usadas no treinamento.
   const baseValidation = validationTasks.map(({ context, seed }) =>
-    runTrial(context, seed, options.maxSteps, initial));
+    runTrial(context, seed, options.maxSteps, initial, profile));
   const learnedValidation = validationTasks.map(({ context, seed }) =>
-    runTrial(context, seed, options.maxSteps, current));
+    runTrial(context, seed, options.maxSteps, current, profile));
   const validation = compare(baseValidation, learnedValidation);
   // Gate extra: a política candidata precisa superar TAMBÉM a política
   // efetivamente publicada (legado + combos antigos quando ainda ativos).
   const deployed = validationTasks.map(({ context, seed }) =>
-    runTrial(context, seed, options.maxSteps, initial, false, true));
+    runTrial(context, seed, options.maxSteps, initial, profile, false, true));
   const versusCurrentBot = compare(deployed, learnedValidation);
   const changed = JSON.stringify(current.weights) !== JSON.stringify(initial.weights);
-  const passes = (comparison: Comparison) => comparison.pairs >= 40 &&
-    comparison.nextWins - comparison.baseWins >= 4 &&
-    comparison.statistic >= 6.64 &&
-    comparison.nextViolations <= comparison.baseViolations;
+  const passes = (comparison: Comparison) => {
+    if (comparison.pairs < 40 || comparison.nextViolations > comparison.baseViolations) return false;
+    const statisticallyBetter = comparison.nextWins - comparison.baseWins >= 4 &&
+      comparison.statistic >= 6.64;
+    if (profile === "power-player") return statisticallyBetter;
+    // Speedrunner: também pode passar por uma melhoria real de eficiência,
+    // SEM perder vitórias (mesmos cenários/seeds) e sem novas violações.
+    const faster = comparison.nextWins >= comparison.baseWins &&
+      comparison.sharedVictories >= 8 && comparison.relativeStepReduction >= .05;
+    return statisticallyBetter || faster;
+  };
   const verified = changed && passes(validation) && passes(versusCurrentBot);
-  await mkdir(options.output, { recursive: true });
+  await mkdir(outputDirectory, { recursive: true });
   const report = {
-    version: 1, generatedAt: new Date().toISOString(), focus: options.focus, options,
+    version: 2, generatedAt: new Date().toISOString(), profile, focus: options.focus, options,
     catalogFingerprint: fingerprint, heroes: [...new Set(matrix.map(x => x.hero))],
     contexts: matrix, trainingGames: first.length, candidates: features,
     learning: explored, validation, versusCurrentBot, verified,
@@ -299,20 +378,40 @@ async function main(): Promise<void> {
     caveat: "Itens observados não são ranking causal: preferências só são promovidas pela avaliação A/B.",
     goals,
   };
-  await writeFile(join(options.output, "solo-training-report.json"), JSON.stringify(report, null, 2));
-  await writeFile(join(options.output, "solo-policy-candidate.json"), JSON.stringify(current, null, 2));
+  const dropObservations = [...dropByContext.entries()].map(([context, row]) => ({
+    context, games: row.games, itemDrawEvents: row.totalDrawEvents,
+    items: [...row.perItem.entries()].map(([cardId, seen]) => ({
+      cardId, ...seen,
+      frequencyPerObservedDraw: row.totalDrawEvents > 0 ? seen.occurrences / row.totalDrawEvents : null,
+      frequencyPerPlayedGame: seen.gamesSeen / row.games,
+    })).sort((a, b) => b.occurrences - a.occurrences),
+  }));
+  await writeFile(join(outputDirectory, "item-drop-observations.json"),
+    JSON.stringify({ profile, sample: "observed-run-transitions",
+      warning: "Frequência observada, NÃO probabilidade causal de drop por herói. Rotas e quantidade de recompensas podem mudar entre estilos de jogo.",
+      contexts: dropObservations }, null, 2));
+  await writeFile(join(outputDirectory, "solo-training-report.json"), JSON.stringify(report, null, 2));
+  await writeFile(join(outputDirectory, "solo-policy-candidate.json"), JSON.stringify(current, null, 2));
   if (options.promote && verified) {
-    const path = resolve("src/data/soloPolicy.json");
-    const old = JSON.parse(await readFile(path, "utf8")) as SoloPolicy;
+    const old = JSON.parse(await readFile(policyPath, "utf8")) as SoloPolicy;
     if (old.catalogFingerprint !== fingerprint && Object.keys(old.weights).length)
-      await writeFile(join(options.output, "previous-solo-policy.json"), JSON.stringify(old, null, 2));
-    await writeFile(path, JSON.stringify(current, null, 2) + "\n");
+      await writeFile(join(outputDirectory, "previous-solo-policy.json"), JSON.stringify(old, null, 2));
+    await writeFile(policyPath, JSON.stringify(current, null, 2) + "\n");
     console.info("Política solo validada e promovida para src/data/soloPolicy.json.");
   } else if (options.promote) {
     console.info("Política NÃO promovida: ganho independente insuficiente.");
   }
-  console.info("Treino concluído:", explored.length, "ajustes,", validation.pairs,
-    "pares de validação, confirmado:", verified);
-  console.info("Relatório:", join(options.output, "solo-training-report.json"));
+  console.info("Treino [" + profile + "] concluído:", explored.length, "ajustes,",
+    validation.pairs, "pares de validação, confirmado:", verified);
+  console.info("Relatório:", join(outputDirectory, "solo-training-report.json"));
 }
-main().catch(error => { console.error(error); process.exitCode = 1; });
+async function main(): Promise<void> {
+  assertLocalReportExecution();
+  const options = parse(process.argv.slice(2));
+  const profiles: readonly SoloLearningProfile[] = options.profile === "both"
+    ? ["power-player", "speedrunner"] : [options.profile];
+  for (const profile of profiles) await trainOne(options, profile);
+}
+if (process.env.VITEST === undefined) main().catch(error => {
+  console.error(error); process.exitCode = 1;
+});
