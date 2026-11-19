@@ -13,6 +13,7 @@ import { catalogFingerprint } from "./fingerprint";
 import { publishedSoloPolicy, soloWeightKey,
   soloDecisionFeatures, type SoloPolicy, type SoloLearningProfile } from "./soloPolicy";
 import { mcnemarStatistic } from "./statistics";
+import { observedFrequency } from "./dropStatistics";
 import { publishedKnowledge } from "./knowledge";
 
 type Difficulty = "very_easy" | "easy" | "normal";
@@ -306,6 +307,12 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
   const explored: Array<{ epoch: number; feature: string; previous: number;
     next: number; scoreGain: number }> = [];
   for (let epoch = 0; epoch < options.epochs; epoch++) {
+    // Em novas épocas o Speedrunner explora seeds NOVAS mesmo se a última
+    // rodada não encontrou nenhuma melhora. O Power Player pode estabilizar.
+    const epochTasks = epoch === 0 ? trainTasks : trainTasks.map(task =>
+      ({ ...task, seed: task.seed + epoch * 10000 }));
+    const epochBaseline = epoch === 0 ? baseline : epochTasks.map(({ context, seed }) =>
+      runTrial(context, seed, options.maxSteps, current, profile));
     let best: { feature: string; value: number; gain: number; results: Trial[] } | undefined;
     for (const feature of features) {
       const previous = current.weights[feature] ?? 0;
@@ -314,16 +321,21 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
         if (value === previous) continue;
         const probe: SoloPolicy = { version: 1, catalogFingerprint: fingerprint,
           weights: { ...current.weights, [feature]: value } };
-        const results = trainTasks.map(({ context, seed }) =>
+        const results = epochTasks.map(({ context, seed }) =>
           runTrial(context, seed, options.maxSteps, probe, profile));
         const gain = results.reduce((total, trial, i) =>
-          total + score(trial, profile) - score(baseline[i]!, profile), 0);
+          total + score(trial, profile) - score(epochBaseline[i]!, profile), 0);
         if (gain > (best?.gain ?? 0)) best = { feature, value, gain, results };
       }
       console.info("Instrutor solo [" + profile + "]:", epoch + 1, "/", options.epochs,
         feature, "avaliado");
     }
-    if (!best) break;
+    if (!best) {
+      // Nenhum valor é promovido; mas Speedrunner continua explorando na
+      // próxima época, com outras seeds. Isso não sobreajusta a validação.
+      if (profile === "speedrunner") continue;
+      break;
+    }
     explored.push({ epoch: epoch + 1, feature: best.feature,
       previous: current.weights[best.feature] ?? 0, next: best.value, scoreGain: best.gain });
     current = { version: 1, catalogFingerprint: fingerprint,
@@ -370,8 +382,9 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
     context, games: row.games, itemDrawEvents: row.totalDrawEvents,
     items: [...row.perItem.entries()].map(([cardId, seen]) => ({
       cardId, ...seen,
-      frequencyPerObservedDraw: row.totalDrawEvents > 0 ? seen.occurrences / row.totalDrawEvents : null,
-      frequencyPerPlayedGame: seen.gamesSeen / row.games,
+      perDraw: observedFrequency(seen.occurrences, row.totalDrawEvents),
+      perGame: observedFrequency(seen.gamesSeen, row.games),
+      sampleSufficientForRanking: row.totalDrawEvents >= 30,
     })).sort((a, b) => b.occurrences - a.occurrences),
   }));
   await writeFile(join(outputDirectory, "item-drop-observations.json"),

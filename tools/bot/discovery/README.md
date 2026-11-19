@@ -153,7 +153,14 @@ O relatório do treino fica em `solo-train-*/<perfil>/`.
 com incidência de cada item nas retiradas observadas e por partida.
 Isso NÃO demonstra que determinado herói altera a probabilidade do
 baralho: o percurso da partida e o número de oportunidades influenciam
-o resultado. Dados escassos devem ser tratados como exploratórios.
+o resultado. `perDraw` e `perGame` incluem intervalos Wilson de 95%
+para a FREQUÊNCIA OBSERVADA. Amostras com menos de 30 retiradas
+ficam explicitamente marcadas como insuficientes para ranking.
+
+Em `--profile speedrunner --epochs 3`, uma época sem ganho não
+encerra a busca: o treinador tenta novas seeds. A validação final
+permanece independente e pode rejeitar todas as mudanças.
+
 
 O agente `bug-hunter` não é um sexto jogador do benchmark: ele explora
 combinações pouco frequentes, repete testes determinísticos e procura
