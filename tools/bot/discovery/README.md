@@ -114,3 +114,8 @@ Na última validação, o Instrutor compara a política candidata com dois
 controles: uma política adaptativa sem os novos pesos e o bot atualmente
 publicado (incluindo as heurísticas legadas quando ainda ativas). Só há
 promoção se superar **ambos**; o campo `versusCurrentBot` registra a prova.
+
+Primeira versão: treinamento e promoção restritos ao perfil
+`power-player` em partidas solo. Os demais perfis não consomem esta
+política aprendida até terem suas próprias validações; `npm run audit`
+continua cobrindo os cinco perfis.

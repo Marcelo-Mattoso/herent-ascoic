@@ -219,3 +219,7 @@ O treinador só usa heróis individuais, com três dificuldades: Muito Fácil, F
 O Instrutor só promove uma política se, nas seeds reservadas, também
 superar o bot atualmente publicado; não basta vencer uma baseline adaptativa
 sem pesos. Veja `versusCurrentBot` em `solo-training-report.json`.
+
+A política aprendida pelo Instrutor Solo vale inicialmente apenas para o
+perfil `power-player` solo, único perfil treinado nesta versão. Os outros
+quatro perfis mantêm seus comportamentos originais e continuam no audit.

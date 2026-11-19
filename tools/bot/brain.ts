@@ -429,7 +429,9 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	legacyCombos = true,
   soloPolicy: SoloPolicy | null | undefined = publishedSoloPolicy,
   adaptiveSoloTraining = false): readonly ScoredMove[] {
-  const adaptiveSolo = profile !== "random" && obs.view.heroes.length === 1 &&
+  // Política treinada com power-player: não contaminar casual/speedrunner/explorer
+  // até que cada perfil tenha passado pelo seu próprio benchmark A/B.
+  const adaptiveSolo = profile === "power-player" && obs.view.heroes.length === 1 &&
     (adaptiveSoloTraining || (soloPolicy?.catalogFingerprint === publishedSoloPolicy.catalogFingerprint &&
       Object.keys(soloPolicy?.weights ?? {}).length > 0));
 	const planned = legacyCombos && !adaptiveSolo && profile === "power-player" ? planCombos(obs)[0] : undefined;
@@ -457,7 +459,8 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 		.map((move, index) => ({
 			...move,
 			score: profile === "random" ? random() :
-        move.score + soloPolicyAdjustment(obs.view, move.action, soloPolicy) +
+        move.score + (profile === "power-player"
+          ? soloPolicyAdjustment(obs.view, move.action, soloPolicy) : 0) +
           knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],
           knowledge, progress.recentActorIds ?? []) +
 				(profile === "casual" ? variation(move.action, obs.view, seed, decision) * 0.7 :

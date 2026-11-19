@@ -172,8 +172,7 @@ function candidateFeatures(counts: Readonly<Record<string, number>>, options: Ar
       name.includes("@health:") || name.includes("@threat:") ||
       name.includes("@recovery:") || name.includes("@reaction:") ? 2 : 3;
   const choose = (focus: Exclude<Focus, "all">) => entries.filter(([name]) =>
-    focusKinds[focus].some(prefix => name.startsWith(prefix)) &&
-    true)
+    focusKinds[focus].some(prefix => name.startsWith(prefix)))
     .sort((a, b) => rank(a[0]) - rank(b[0]) || b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(x => x[0]);
   if (options.focus !== "all") return choose(options.focus).slice(0, options.maxFeatures);
