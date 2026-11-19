@@ -125,3 +125,45 @@ Uma sessão com `--max-heroes 4` não altera o comportamento dos outros heróis.
 Para treinar toda a coleção, rode sessões em seeds diferentes ou
 `--all-heroes` com cobertura maior. O perfil power-player é o único
 beneficiário dessa política nesta versão.
+
+
+## Treinamento de dois perfis + Caçador de Bugs
+
+```bash
+# Power Player e Speedrunner, separados e com promoção individual somente após validação
+npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+# Treino exclusivo do Speedrunner: busca velocidade e também observa drops
+npm run bot:train-solo -- --profile speedrunner --focus items --seed 5 --max-contexts 18 --runs 4 --validate-runs 16 --promote
+# Execução independente do caçador de bugs
+npm run bot:bug-hunt -- --runs 3 --max-scenarios 24 --max-steps 750
+# Somente inventário do plano
+npm run bot:bug-hunt -- --dry-run
+```
+
+Cada perfil tem pesos isolados com prefixo `profile:power-player|` ou
+`profile:speedrunner|` mais o herói. Casual, Explorer e Random não são
+alterados. Speedrunner pode promover políticas que vencem com menos ações
+quando a taxa de vitória não cai e a melhora supera 5% entre vitórias
+pareadas, com ao menos oito vitórias conjuntas, 40 pares e nenhuma
+violação adicional. Melhoras de vitória seguem a prova estatística
+original. Power Player exige melhora estatística de vitórias.
+
+O relatório do treino fica em `solo-train-*/<perfil>/`.
+`item-drop-observations.json` separa herói, expansão e dificuldade,
+com incidência de cada item nas retiradas observadas e por partida.
+Isso NÃO demonstra que determinado herói altera a probabilidade do
+baralho: o percurso da partida e o número de oportunidades influenciam
+o resultado. Dados escassos devem ser tratados como exploratórios.
+
+O agente `bug-hunter` não é um sexto jogador do benchmark: ele explora
+combinações pouco frequentes, repete testes determinísticos e procura
+violações do motor, exceções de ações legais e suspeitas de custo de PV
+não aplicado. Suspeitas NÃO bloqueiam o audit; violações confirmadas
+bloqueiam e trazem replay. Ele é **somente solo** nesta fase.
+O `npm run audit` executa uma varredura curta após habilidades e
+leveling; `AUDIT_BUG_HUNT=0 npm run audit` a desativa. A execução
+`npm run bot:bug-hunt` separada cobre mais cenários e seeds.
+
+O Caçador de Bugs não altera pesos, regras de cartas, atributos ou
+bibliotecas aprovadas. Seus objetivos são cobertura e diagnóstico,
+**nunca taxa de vitória**.

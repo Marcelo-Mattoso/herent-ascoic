@@ -7,11 +7,11 @@ const timestamp = new Date().toISOString().replace(/[:.]/g, "-");
 const directory = path.join(repositoryRoot, "tools", "bot", "runs", "audit-" + timestamp);
 const npmCli = process.env.npm_execpath;
 
-function run(script) {
+function run(script, extraArgs = []) {
 	const command = npmCli ? process.execPath : process.platform === "win32" ? "npm.cmd" : "npm";
 	const args = [
 		...(npmCli ? [npmCli] : []),
-		"run", script, "--", "--output", directory,
+		"run", script, "--", "--output", directory, ...extraArgs,
 	];
 	const result = spawnSync(command, args, {
 		cwd: repositoryRoot,
@@ -28,5 +28,16 @@ if (auditCode !== 0) {
 	console.error("Auditoria reprovada; report de leveling não iniciado.");
 	process.exitCode = auditCode;
 } else {
-	process.exitCode = run("bot:leveling-report");
+  const levelingCode = run("bot:leveling-report");
+  if (levelingCode !== 0) {
+    process.exitCode = levelingCode;
+  } else if (process.env.AUDIT_BUG_HUNT === "0") {
+    console.info("Caçador de Bugs: desabilitado por AUDIT_BUG_HUNT=0.");
+    process.exitCode = 0;
+  } else {
+    // Smoke exploratório pequeno para não multiplicar o custo do audit normal.
+    // Investigações extensas devem usar npm run bot:bug-hunt isoladamente.
+    process.exitCode = run("bot:bug-hunt",
+      ["--max-scenarios", "6", "--runs", "1", "--max-steps", "500"]);
+  }
 }

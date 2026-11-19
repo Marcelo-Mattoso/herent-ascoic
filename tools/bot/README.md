@@ -223,3 +223,19 @@ sem pesos. Veja `versusCurrentBot` em `solo-training-report.json`.
 A política aprendida pelo Instrutor Solo vale inicialmente apenas para o
 perfil `power-player` solo, único perfil treinado nesta versão. Os outros
 quatro perfis mantêm seus comportamentos originais e continuam no audit.
+
+
+## Treinamento de perfis e caça a bugs
+
+`npm run bot:train-solo -- --profile both ...` ajusta Power Player e
+Speedrunner isoladamente; cada perfil promove somente resultados
+validados por seeds reservadas. Speedrunner também mede economia de
+ações e coleta frequências empíricas de itens
+(`item-drop-observations.json`). Random, Casual e Explorer permanecem
+inalterados.
+
+`npm run bot:bug-hunt` executa o Caçador de Bugs em partidas
+solo, buscando ações e combinações incomuns com replay. `npm run audit`
+inclui uma amostragem curta dele, após o leveling; para ignorar:
+`AUDIT_BUG_HUNT=0 npm run audit`. Veja documentação completa em
+`tools/bot/discovery/README.md`.

@@ -6,6 +6,7 @@
 import { mkdir, writeFile } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
 import type { Action } from "@/core/actions/types";
+import type { GameState } from "@/core/state/gameState";
 import { cardAbilityGrants } from "@/core/data/abilities";
 import { getBoss, getHeroes } from "@/core/data/cards";
 import { getEnabledExpansions } from "@/core/data/expansions";
@@ -149,8 +150,8 @@ export function adversarialOrder(
   });
   return records.sort((a, b) => b.priority - a.priority).map(record => record.action);
 }
-function possibleCostAnomalies(before: ReturnType<typeof createHeadlessPort>["inspect"] extends () => infer T ? T : never,
-  after: typeof before, action: Action): BugFinding[] {
+function possibleCostAnomalies(before: GameState,
+  after: GameState, action: Action): BugFinding[] {
   const previousSequence = gameOf(before).abilityTrace?.at(-1)?.sequence ?? 0;
   const emitted = (gameOf(after).abilityTrace ?? []).filter(e => e.sequence > previousSequence &&
     e.outcome === "executed" && (e.trigger === "manual" || e.trigger === "USE_SKILL"));
