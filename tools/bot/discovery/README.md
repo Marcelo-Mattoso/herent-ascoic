@@ -174,3 +174,11 @@ leveling; `AUDIT_BUG_HUNT=0 npm run audit` a desativa. A execução
 O Caçador de Bugs não altera pesos, regras de cartas, atributos ou
 bibliotecas aprovadas. Seus objetivos são cobertura e diagnóstico,
 **nunca taxa de vitória**.
+
+O Caçador de Bugs aprende **cobertura**, não uma política de vitória.
+O arquivo local `tools/bot/runs/bug-hunter-corpus.json` guarda frequência
+de tipos de ação e de grants exercitados, além das seeds que produziram
+violações. Execuções seguintes priorizam ações menos usadas e repetem
+até oito seeds suspeitas para regressão. A troca de catálogo invalida
+esse corpus, e `--reset-corpus` permite começar do zero.
+Esse arquivo de observação é local; não precisa ser commitado.

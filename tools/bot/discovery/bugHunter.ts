@@ -3,7 +3,7 @@
  * diversidade de estados e contratos exercitados, não taxa de vitória.
  * Reporta invariantes reproduzíveis e suspeitas (sem falsos bloqueios).
  */
-import { mkdir, writeFile } from "node:fs/promises";
+import { mkdir, readFile, writeFile } from "node:fs/promises";
 import { join, resolve, sep } from "node:path";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
@@ -53,15 +53,38 @@ interface Options {
   readonly hero?: string;
   readonly output: string;
   readonly dryRun: boolean;
+  readonly resetCorpus: boolean;
+}
+interface BugCorpus {
+  readonly version: 1;
+  readonly catalogFingerprint: string;
+  readonly actionUsage: Readonly<Record<string, number>>;
+  readonly grantUsage: Readonly<Record<string, number>>;
+  readonly regressionCases: readonly { context: Context; seed: number; kind: FindingKind }[];
+}
+const CORPUS_FILE = join(LEVELING_RUNS_ROOT, "bug-hunter-corpus.json");
+async function loadCorpus(fingerprint: string, reset: boolean): Promise<BugCorpus> {
+  const fresh: BugCorpus = { version: 1, catalogFingerprint: fingerprint,
+    actionUsage: {}, grantUsage: {}, regressionCases: [] };
+  if (reset) return fresh;
+  try {
+    const candidate = JSON.parse(await readFile(CORPUS_FILE, "utf8")) as BugCorpus;
+    return candidate.version === 1 && candidate.catalogFingerprint === fingerprint
+      ? candidate : fresh;
+  } catch (error) {
+    if ((error as NodeJS.ErrnoException).code === "ENOENT") return fresh;
+    throw error;
+  }
 }
 const allDifficulties: readonly Difficulty[] = ["very_easy", "easy", "normal", "hard", "nightmare"];
 function parse(args: readonly string[]): Options {
   const flags = args.filter(x => x !== "--");
   const values = new Map<string, string>();
-  let dryRun = false;
+  let dryRun = false, resetCorpus = false;
   for (let i = 0; i < flags.length; i++) {
     const flag = flags[i]!;
     if (flag === "--dry-run") { dryRun = true; continue; }
+    if (flag === "--reset-corpus") { resetCorpus = true; continue; }
     if (!["--seed", "--runs", "--max-steps", "--max-heroes",
       "--max-scenarios", "--difficulty", "--hero", "--output"].includes(flag))
       throw new Error("Flag desconhecida: " + flag);
@@ -82,7 +105,7 @@ function parse(args: readonly string[]): Options {
   return { seed: positive("--seed", 1), runs: positive("--runs", 2),
     maxSteps: positive("--max-steps", 750), maxHeroes: positive("--max-heroes", 4),
     maxScenarios: positive("--max-scenarios", 24), hero: values.get("--hero"),
-    difficulty: difficulty as Options["difficulty"], output, dryRun };
+    difficulty: difficulty as Options["difficulty"], output, dryRun, resetCorpus };
 }
 function scenarios(options: Options): Context[] {
   const heroes = getHeroes().map(h => h.id).sort();
@@ -176,12 +199,12 @@ function possibleCostAnomalies(before: GameState,
   }
   return findings;
 }
-function runOne(context: Context, seed: number, maxSteps: number): BugHuntResult {
+function runOne(context: Context, seed: number, maxSteps: number,
+  usage: Map<string, number>): BugHuntResult {
   const setup = { ...setupForRun(seed, [context.hero], context.difficulty), bossCardId: context.boss };
   const port = createHeadlessPort(setup, undefined, true);
   const baseline = countCards(port.inspect());
   const random = nextRandom(seed ^ 0x23def31);
-  const usage = new Map<string, number>();
   const findings: BugFinding[] = [], grants = new Set<string>();
   let rejectedCandidates = 0, exhausted = false;
   const seen = new Set<string>();
@@ -244,30 +267,64 @@ async function main(): Promise<void> {
   assertLocalReportExecution();
   const options = parse(process.argv.slice(2));
   const chosen = scenarios(options);
+  const fingerprint = catalogFingerprint();
+  const corpus = await loadCorpus(fingerprint, options.resetCorpus);
   if (options.dryRun) {
     console.info(JSON.stringify({ mode: "bug-hunter-plan", soloOnly: true,
       scenarios: chosen.length, games: chosen.length * options.runs,
       maxStepsPerGame: options.maxSteps, difficulties: options.difficulty,
-      nonBlockingSuspicions: true }, null, 2));
+      nonBlockingSuspicions: true,
+      priorActionTypes: Object.keys(corpus.actionUsage).length,
+      priorGrantsExercised: Object.keys(corpus.grantUsage).length,
+      regressionCases: corpus.regressionCases.length }, null, 2));
     return;
   }
   const games: BugHuntResult[] = [];
+  const usage = new Map(Object.entries(corpus.actionUsage));
+  // Repetir seeds que já denunciaram falhas: uma mudança de bot não deve
+  // fazer perder o histórico de bugs que ainda precisam ser investigados.
+  const enabledHeroes = new Set(getHeroes().map(hero => hero.id));
+  const enabledBosses = new Set(getEnabledExpansions().map(exp => getBoss(exp.id)?.id));
+  const cases = corpus.regressionCases.filter(record =>
+    enabledHeroes.has(record.context.hero) && enabledBosses.has(record.context.boss)).slice(-8);
+  for (const regression of cases) {
+    games.push(runOne(regression.context, regression.seed, options.maxSteps, usage));
+  }
   for (const [index, scenario] of chosen.entries()) {
     for (let i = 0; i < options.runs; i++) {
-      const result = runOne(scenario, options.seed + i, options.maxSteps);
+      const result = runOne(scenario, options.seed + i, options.maxSteps, usage);
       games.push(result);
       if (result.findings.some(f => f.severity === "blocker"))
-        console.warn("CAÇADOR: suspeita de falha confirmável em", scenario.hero,
+        console.warn("CAÇADOR: possível falha reproduzível em", scenario.hero,
           scenario.expansion, "seed", result.seed);
     }
     if ((index + 1) % 10 === 0) console.info("Caçador de Bugs", index + 1, "/", chosen.length);
   }
+  const grantUsage = { ...corpus.grantUsage };
+  for (const game of games) for (const key of game.exercisedGrants)
+    grantUsage[key] = (grantUsage[key] ?? 0) + 1;
+  const past = new Map(corpus.regressionCases.map(record =>
+    [record.context.hero + "|" + record.context.boss + "|" +
+      record.context.difficulty + "|" + record.seed + "|" + record.kind, record]));
+  for (const game of games) for (const finding of game.findings.filter(f => f.severity === "blocker")) {
+    const regression = { context: game.context, seed: game.seed, kind: finding.kind };
+    const key = game.context.hero + "|" + game.context.boss + "|" +
+      game.context.difficulty + "|" + game.seed + "|" + finding.kind;
+    past.set(key, regression);
+  }
+  const saved: BugCorpus = { version: 1, catalogFingerprint: fingerprint,
+    actionUsage: Object.fromEntries(usage), grantUsage,
+    regressionCases: [...past.values()].slice(-80) };
+  await mkdir(LEVELING_RUNS_ROOT, { recursive: true });
+  await writeFile(CORPUS_FILE, JSON.stringify(saved, null, 2) + "\n");
   const findings = games.flatMap(game => game.findings.map(finding => ({
     ...finding, seed: game.seed, ...game.context, replay: game.replay,
   })));
   const report = {
     version: 1, generatedAt: new Date().toISOString(),
-    catalogFingerprint: catalogFingerprint(), options,
+    catalogFingerprint: fingerprint, options, corpusPath: CORPUS_FILE,
+    resumedRegressionCases: cases.length,
+    cumulativeGrantCoverage: Object.keys(grantUsage).length,
     scenarios: chosen.length, games: games.length,
     exercisedGrants: [...new Set(games.flatMap(game => game.exercisedGrants))].sort(),
     blockingFindings: findings.filter(f => f.severity === "blocker").length,
