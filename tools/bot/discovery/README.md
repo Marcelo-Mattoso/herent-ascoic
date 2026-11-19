@@ -182,3 +182,9 @@ violações. Execuções seguintes priorizam ações menos usadas e repetem
 até oito seeds suspeitas para regressão. A troca de catálogo invalida
 esse corpus, e `--reset-corpus` permite começar do zero.
 Esse arquivo de observação é local; não precisa ser commitado.
+
+Reproduções de falhas guardam também a sequência original de ações,
+não só a seed. A próxima execução tenta o replay exato antes de abrir
+novos cenários; se o jogo rejeitar uma ação antiga, marca `replay_diverged`
+como investigação (não reprovação automática). Isso separa regressão
+real de mudança deliberada nas regras ou na janela de ativação.

@@ -20,7 +20,8 @@ import { createHeadlessPort } from "../port";
 import { setupForRun } from "../profiles";
 import { catalogFingerprint } from "./fingerprint";
 
-type FindingKind = "invariant" | "legal_action_rejected" | "suspected_hp_cost" | "no_legal_action";
+type FindingKind = "invariant" | "legal_action_rejected" | "suspected_hp_cost" |
+  "no_legal_action" | "replay_diverged";
 type Context = { hero: string; boss: string; expansion: string; difficulty: Difficulty };
 export interface BugFinding {
   readonly kind: FindingKind;
@@ -60,7 +61,8 @@ interface BugCorpus {
   readonly catalogFingerprint: string;
   readonly actionUsage: Readonly<Record<string, number>>;
   readonly grantUsage: Readonly<Record<string, number>>;
-  readonly regressionCases: readonly { context: Context; seed: number; kind: FindingKind }[];
+  readonly regressionCases: readonly { context: Context; seed: number;
+    kind: FindingKind; actions?: readonly Action[] }[];
 }
 const CORPUS_FILE = join(LEVELING_RUNS_ROOT, "bug-hunter-corpus.json");
 async function loadCorpus(fingerprint: string, reset: boolean): Promise<BugCorpus> {
@@ -263,6 +265,49 @@ function runOne(context: Context, seed: number, maxSteps: number,
     exercisedGrants: [...grants].sort(), rejectedCandidates,
     ...(findings.length ? { replay: { setup, actions: [...port.history] } } : {}) };
 }
+/**
+ * Replay exato do histórico, preservando escolhas improváveis de habilidade
+ * e alvos. Somente divergências no reducer deixam a reprodução inconclusiva.
+ */
+function replayCase(record: BugCorpus["regressionCases"][number]): BugHuntResult {
+  const { context, seed, actions } = record;
+  const setup = { ...setupForRun(seed, [context.hero], context.difficulty),
+    bossCardId: context.boss };
+  const port = createHeadlessPort(setup, undefined, true);
+  const baseline = countCards(port.inspect());
+  const findings: BugFinding[] = [], grants = new Set<string>();
+  let rejectedCandidates = 0;
+  for (const action of (actions ?? []).slice(1)) {
+    const before = port.inspect();
+    const result = port.act(action);
+    if (result.kind !== "applied") {
+      rejectedCandidates++;
+      findings.push({ kind: "replay_diverged", severity: "investigate",
+        summary: "Replay interrompido: " + result.kind +
+          (result.kind === "rejected" ? ": " + result.error : ""),
+        room: gameOf(before).roomsCleared,
+        round: gameOf(before).combat?.round ?? 0, action });
+      break;
+    }
+    const after = port.inspect();
+    for (const entry of (gameOf(after).abilityTrace ?? []).filter(e =>
+      e.sequence > (gameOf(before).abilityTrace?.at(-1)?.sequence ?? 0)))
+      grants.add(entry.sourceCardId + "::" + entry.grantId);
+    findings.push(...possibleCostAnomalies(before, after, action));
+    const invariant = checkState(after, baseline) ?? checkNoProgress(port.history, after);
+    if (invariant) {
+      findings.push({ kind: "invariant", severity: "blocker",
+        summary: invariant.invariant + ": " + invariant.message,
+        room: gameOf(after).roomsCleared,
+        round: gameOf(after).combat?.round ?? 0, action });
+      break;
+    }
+  }
+  return { context, seed, actionsAttempted: port.history.length,
+    finalStatus: gameOf(port.inspect()).status, exhausted: false,
+    findings, exercisedGrants: [...grants].sort(), rejectedCandidates,
+    ...(findings.length ? { replay: { setup, actions: [...port.history] } } : {}) };
+}
 async function main(): Promise<void> {
   assertLocalReportExecution();
   const options = parse(process.argv.slice(2));
@@ -288,7 +333,9 @@ async function main(): Promise<void> {
   const cases = corpus.regressionCases.filter(record =>
     enabledHeroes.has(record.context.hero) && enabledBosses.has(record.context.boss)).slice(-8);
   for (const regression of cases) {
-    games.push(runOne(regression.context, regression.seed, options.maxSteps, usage));
+    games.push(regression.actions?.length
+      ? replayCase(regression)
+      : runOne(regression.context, regression.seed, options.maxSteps, usage));
   }
   for (const [index, scenario] of chosen.entries()) {
     for (let i = 0; i < options.runs; i++) {
@@ -307,7 +354,10 @@ async function main(): Promise<void> {
     [record.context.hero + "|" + record.context.boss + "|" +
       record.context.difficulty + "|" + record.seed + "|" + record.kind, record]));
   for (const game of games) for (const finding of game.findings.filter(f => f.severity === "blocker")) {
-    const regression = { context: game.context, seed: game.seed, kind: finding.kind };
+    const priorActions = game.replay?.actions ?? [];
+    const regression = { context: game.context, seed: game.seed, kind: finding.kind,
+      actions: finding.kind === "legal_action_rejected"
+        ? [...priorActions, finding.action] : [...priorActions] };
     const key = game.context.hero + "|" + game.context.boss + "|" +
       game.context.difficulty + "|" + game.seed + "|" + finding.kind;
     past.set(key, regression);
