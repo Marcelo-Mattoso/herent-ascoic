@@ -7,6 +7,11 @@ import { getCardById } from "@/core/data/cards";
 import { effectKinds } from "@/core/abilities/trace";
 import { catalogFingerprint } from "./fingerprint";
 
+export type SoloLearningProfile = "power-player" | "speedrunner";
+export const SOLO_LEARNING_PROFILES = ["power-player", "speedrunner"] as const;
+export function soloWeightKey(profile: SoloLearningProfile, feature: string): string {
+  return "profile:" + profile + "|" + feature;
+}
 export interface SoloPolicy {
   readonly version: 1;
   readonly catalogFingerprint?: string;
@@ -96,10 +101,23 @@ export function soloDecisionFeatures(view: PlayerView, action: Action): readonly
   return ["decision:" + group, ...[...out].filter(k => !k.startsWith("decision:"))
     .map(k => group + "@" + k)].map(key => "hero:" + heroCardId + "|" + key);
 }
+export function hasSoloWeightsForHero(
+  policy: SoloPolicy | null | undefined, profile: SoloLearningProfile, heroCardId: string,
+): boolean {
+  if (!policy || policy.catalogFingerprint !== fingerprint) return false;
+  const key = "profile:" + profile + "|hero:" + heroCardId + "|";
+  return Object.keys(policy.weights).some(weight => weight.startsWith(key) ||
+    (profile === "power-player" && weight.startsWith("hero:" + heroCardId + "|")));
+}
 export function soloPolicyAdjustment(view: PlayerView, action: Action,
-  policy: SoloPolicy | null | undefined = publishedSoloPolicy): number {
+  policy: SoloPolicy | null | undefined = publishedSoloPolicy,
+  profile: SoloLearningProfile = "power-player"): number {
   if (!policy || view.heroes.length !== 1 || policy.catalogFingerprint !== fingerprint) return 0;
-  const score = soloDecisionFeatures(view, action).reduce((sum, key) => sum +
-    (Number.isFinite(policy.weights[key]) ? policy.weights[key]! : 0), 0);
+  const score = soloDecisionFeatures(view, action).reduce((sum, key) => {
+    const name = soloWeightKey(profile, key);
+    const weight = policy.weights[name] ??
+      (profile === "power-player" ? policy.weights[key] : undefined);
+    return sum + (typeof weight === "number" && Number.isFinite(weight) ? weight : 0);
+  }, 0);
   return Math.max(-250, Math.min(250, score));
 }

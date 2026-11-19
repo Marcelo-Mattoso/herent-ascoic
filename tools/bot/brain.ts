@@ -5,7 +5,8 @@ import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { healingMoveScore, itemHealingAmount } from "./healing";
 import { knowledgeBonus, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
-import { publishedSoloPolicy, soloPolicyAdjustment, type SoloPolicy } from "./discovery/soloPolicy";
+import { publishedSoloPolicy, soloPolicyAdjustment, hasSoloWeightsForHero,
+  type SoloPolicy, type SoloLearningProfile } from "./discovery/soloPolicy";
 
 /** Contexto de combate observado pela IA, sem leitura de estado interno. */
 export interface CombatProgress {
@@ -429,14 +430,11 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	legacyCombos = true,
   soloPolicy: SoloPolicy | null | undefined = publishedSoloPolicy,
   adaptiveSoloTraining = false): readonly ScoredMove[] {
-  // Política treinada com power-player: não contaminar casual/speedrunner/explorer
-  // até que cada perfil tenha passado pelo seu próprio benchmark A/B.
+  const learnable = profile === "power-player" || profile === "speedrunner";
   const heroCardId = obs.view.heroes[0]?.cardId;
-  const learnedForHero = heroCardId && Object.keys(soloPolicy?.weights ?? {})
-    .some(key => key.startsWith("hero:" + heroCardId + "|"));
-  const adaptiveSolo = profile === "power-player" && obs.view.heroes.length === 1 &&
-    (adaptiveSoloTraining || (soloPolicy?.catalogFingerprint === publishedSoloPolicy.catalogFingerprint &&
-      learnedForHero));
+  const adaptiveSolo = learnable && obs.view.heroes.length === 1 &&
+    (adaptiveSoloTraining ||
+      (heroCardId && hasSoloWeightsForHero(soloPolicy, profile as SoloLearningProfile, heroCardId)));
 	const planned = legacyCombos && !adaptiveSolo && profile === "power-player" ? planCombos(obs)[0] : undefined;
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),
@@ -462,8 +460,8 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 		.map((move, index) => ({
 			...move,
 			score: profile === "random" ? random() :
-        move.score + (profile === "power-player"
-          ? soloPolicyAdjustment(obs.view, move.action, soloPolicy) : 0) +
+        move.score + (learnable
+          ? soloPolicyAdjustment(obs.view, move.action, soloPolicy, profile as SoloLearningProfile) : 0) +
           knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],
           knowledge, progress.recentActorIds ?? []) +
 				(profile === "casual" ? variation(move.action, obs.view, seed, decision) * 0.7 :

@@ -1,5 +1,6 @@
 import { describe, expect, it } from "vitest";
-import { soloDecisionFeatures, soloPolicyAdjustment } from "./soloPolicy";
+import { soloDecisionFeatures, soloPolicyAdjustment, hasSoloWeightsForHero,
+  soloWeightKey } from "./soloPolicy";
 import { catalogFingerprint } from "./fingerprint";
 import type { PlayerView } from "@/core/projection/playerView";
 
@@ -22,6 +23,18 @@ describe("Instrutor solo", () => {
     expect(soloPolicyAdjustment(view, action, policy)).toBe(100);
     expect(soloPolicyAdjustment({ ...view, heroes: [...view.heroes, { ...view.heroes[0]!, id: "h2" }] },
       action, policy)).toBe(0);
+  });
+  it("isola aprendizado por perfil sem contaminar speedrunner ou casual", () => {
+    const action = { type: "USE_ITEM" as const, payload: { itemId: "item-test", heroId: "h" } };
+    const feature = "hero:hero_tester|item@item:boss";
+    const policy = { version: 1 as const, catalogFingerprint: catalogFingerprint(),
+      weights: { [soloWeightKey("power-player", feature)]: 90,
+        [soloWeightKey("speedrunner", feature)]: -35 } };
+    expect(soloPolicyAdjustment(view, action, policy, "power-player")).toBe(90);
+    expect(soloPolicyAdjustment(view, action, policy, "speedrunner")).toBe(-35);
+    expect(hasSoloWeightsForHero(policy, "power-player", "hero_tester")).toBe(true);
+    expect(hasSoloWeightsForHero(policy, "speedrunner", "hero_tester")).toBe(true);
+    expect(hasSoloWeightsForHero(policy, "speedrunner", "hero_outro")).toBe(false);
   });
   it("invalida conhecimento que não corresponde ao catálogo", () => {
     const action = { type: "USE_ITEM" as const, payload: { itemId: "item-test", heroId: "h" } };
