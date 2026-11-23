@@ -2,6 +2,7 @@ import { describe, expect, it } from "vitest";
 import { soloDecisionFeatures, soloPolicyAdjustment, hasSoloWeightsForHero,
   soloWeightKey } from "./soloPolicy";
 import { catalogFingerprint } from "./fingerprint";
+import { candidateFeatures } from "./soloTrainer";
 import type { PlayerView } from "@/core/projection/playerView";
 
 const view = { status: "BOSS_COMBAT", heroes: [{ id: "h", cardId: "hero_tester", maxLife: 10, currentLife: 3 }],
@@ -35,6 +36,29 @@ describe("Instrutor solo", () => {
     expect(hasSoloWeightsForHero(policy, "power-player", "hero_tester")).toBe(true);
     expect(hasSoloWeightsForHero(policy, "speedrunner", "hero_tester")).toBe(true);
     expect(hasSoloWeightsForHero(policy, "speedrunner", "hero_outro")).toBe(false);
+  });
+  it("distribui aprendizado entre todos os heróis em vez de favorecer um só", () => {
+    const counts: Record<string, number> = {};
+    for (const hero of ["a", "b", "c", "d"]) {
+      for (const decision of ["skill", "item", "power"]) {
+        counts["hero:" + hero + "|decision:" + decision] = 20;
+        counts["hero:" + hero + "|" + decision + "@effect:boost"] = 10;
+      }
+    }
+    const chosen = candidateFeatures(counts, { focus: "all", maxFeatures: 9 });
+    expect(chosen).toHaveLength(9);
+    expect(new Set(chosen.map(key => key.split("|")[0]))).toEqual(
+      new Set(["hero:a", "hero:b", "hero:c", "hero:d"]));
+    expect(chosen.some(key => key.includes("decision:skill"))).toBe(true);
+    expect(chosen.some(key => key.includes("decision:item"))).toBe(true);
+    expect(chosen.some(key => key.includes("decision:power"))).toBe(true);
+  });
+  it("distribui treino especializado de itens por personagem", () => {
+    const counts = Object.fromEntries(["a", "b", "c", "d"].map(hero =>
+      ["hero:" + hero + "|decision:item", 20]));
+    const chosen = candidateFeatures(counts, { focus: "items", maxFeatures: 4 });
+    expect(new Set(chosen.map(key => key.split("|")[0]))).toEqual(
+      new Set(["hero:a", "hero:b", "hero:c", "hero:d"]));
   });
   it("invalida conhecimento que não corresponde ao catálogo", () => {
     const action = { type: "USE_ITEM" as const, payload: { itemId: "item-test", heroId: "h" } };

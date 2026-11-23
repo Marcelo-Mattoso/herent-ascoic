@@ -86,3 +86,35 @@ Há parâmetros para `--party-size 2|3|4` e seleção de composições, mas **o 
 | `tools/bot/runs/bug-hunter-corpus.json` | Memória de cobertura e regressão |
 
 As ferramentas não formam rede neural, não alteram as regras nem o balanceamento automaticamente, não executam CI/CD e não garantem ausência de bugs. Promova políticas somente após os testes locais e revisão do diff.
+
+## Preparação do primeiro ciclo de treinamento — 23/11/2026
+
+A branch `codex/bots-aprendizado-perfis-20261123` começa com
+`src/data/soloPolicy.json` sem pesos aprendidos: trata-se de um
+baseline limpo, não de evidência de que o aprendizado já ocorreu.
+A seleção de características foi distribuída entre os heróis
+incluídos na matriz, evitando priorizar apenas o primeiro. O relatório
+passa a incluir `validationByHero` e `perHeroSafe`: a promoção de
+um perfil também bloqueia regressões superiores a uma vitória em
+qualquer herói contra cada controle, além dos gates agregados.
+
+```bash
+# 1. Compilação de ferramentas e testes focados — executar localmente
+npm run typecheck:tools
+npx vitest run tools/bot/discovery/soloTrainer.test.ts tools/bot/discovery/dropStatistics.test.ts tools/bot/discovery/bugHunter.test.ts
+# 2. Apenas prévia dos treinamentos, sem partidas e sem promover pesos
+npm run bot:train-solo -- --profile both --dry-run
+npm run bot:bug-hunt -- --dry-run
+# 3. Primeira experiência A/B, relatórios locais, sem promoção
+npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --max-features 6 --runs 2 --validate-runs 8 --epochs 1
+# 4. Somente após revisar os relatórios, repetir com validação e promoção opt-in
+npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --max-features 9 --runs 3 --validate-runs 16 --epochs 2 --promote
+```
+
+Sempre confira `verified`, `versusCurrentBot`, `validationByHero`,
+`learning` e `itemsObserved` por perfil. O primeiro ensaio serve para
+identificar gargalos e não altera `src/data/soloPolicy.json`.
+A política só muda sob `--promote` com melhoria comprovada.
+O Speedrunner pode fazer épocas adicionais com seeds independentes;
+`--epochs` fica limitado a 19 para não aproximar o treinamento das
+seeds reservadas de validação.
