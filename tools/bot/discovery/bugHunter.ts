@@ -169,7 +169,7 @@ function runOne(context: Context, seed: number, maxSteps: number,
   const setup = { ...setupForRun(seed, [context.hero], context.difficulty), bossCardId: context.boss };
   const port = createHeadlessPort(setup, undefined, true);
   const baseline = countCards(port.inspect());
-   const findings: BugFinding[] = [], grants = new Set<string>();
+  const findings: BugFinding[] = [], grants = new Set<string>();
   let rejectedCandidates = 0, exhausted = false;
   const seen = new Set<string>();
   for (let i = 0; i < maxSteps && !isTerminal(port.inspect()); i++) {
@@ -339,7 +339,8 @@ async function main(): Promise<void> {
     ...finding, seed: game.seed, ...game.context, replay: game.replay,
   })));
   const report = {
-    version: 1, generatedAt: new Date().toISOString(),
+    version: 1, agent: "explorer", mode: "deep-investigation",
+    generatedAt: new Date().toISOString(),
     catalogFingerprint: fingerprint, options, corpusPath: CORPUS_FILE,
     resumedRegressionCases: cases.length,
     cumulativeGrantCoverage: Object.keys(grantUsage).length,

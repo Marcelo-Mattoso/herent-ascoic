@@ -335,8 +335,8 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
   const explored: Array<{ epoch: number; feature: string; previous: number;
     next: number; scoreGain: number }> = [];
   for (let epoch = 0; epoch < options.epochs; epoch++) {
-    // Em novas épocas o Speedrunner explora seeds NOVAS mesmo se a última
-    // rodada não encontrou nenhuma melhora. O Power Player pode estabilizar.
+    // O Power Player unificado também explora seeds novas em outras épocas,
+    // equilibrando ganho de vitória e economia de ações.
     const epochTasks = epoch === 0 ? trainTasks : trainTasks.map(task =>
       ({ ...task, seed: task.seed + epoch * 10000 }));
     const epochBaseline = epoch === 0 ? baseline : epochTasks.map(({ context, seed }) =>
@@ -359,9 +359,8 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
         feature, "avaliado");
     }
     if (!best) {
-      // Nenhum valor é promovido; mas Speedrunner continua explorando na
-      // próxima época, com outras seeds. Isso não sobreajusta a validação.
-      // O estrategista também pode tentar outras seeds nas próximas épocas.
+      // Sem ganho nesta época: pode testar outra seed, mantendo validação
+      // reservada independente de todas as tentativas anteriores.
       continue;
     }
     explored.push({ epoch: epoch + 1, feature: best.feature,

@@ -26,6 +26,11 @@ describe("ensaio pareado de masmorra", () => {
 	it("descobre heróis e expansões e cruza todos com as seeds, perfis e dificuldades", () => {
 		const options = defaultBenchmarkOptions();
 		const plan = benchmarkPlan(options);
+    // O contrato solicitado mantém dez seeds e três perfis, sem
+    // multiplicar as partidas para compensar a remoção de dois estilos.
+    expect(options.runs).toBe(10);
+    expect(options.profiles).toEqual(["casual", "power-player", "explorer"]);
+    expect(options.difficulties).toHaveLength(5);
 		expect(options.heroes.length).toBeGreaterThanOrEqual(12);
 		expect(options.expansions).toEqual(expect.arrayContaining(["fornalha-sombria", "torre-grande-bruxa-caldeirao"]));
 		const perSeed = options.heroes.length * options.expansions.length * options.profiles.length * options.difficulties.length;
