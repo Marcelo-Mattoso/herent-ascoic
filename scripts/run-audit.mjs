@@ -36,8 +36,8 @@ if (auditCode !== 0) {
     process.exitCode = 0;
   } else {
     // Smoke exploratório pequeno para não multiplicar o custo do audit normal.
-    // Investigações extensas devem usar npm run bot:bug-hunt isoladamente.
-    process.exitCode = run("bot:bug-hunt",
+    // Investigações extensas usam npm run bot:explore isoladamente (alias legado: bot:bug-hunt).
+    process.exitCode = run("bot:explore",
       ["--max-scenarios", "6", "--runs", "1", "--max-steps", "500"]);
   }
 }

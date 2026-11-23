@@ -28,7 +28,7 @@ export function adversarialScoredMoves<T extends { readonly action: Action; read
     return { move, index, priority: random() * 3 + novelty * 4 +
       (unusual ? 2 : 0) - Math.max(-1, Math.min(1, move.score / 500)) };
   }).sort((a, b) => b.priority - a.priority || a.index - b.index)
-    .map(({ move, priority }) => ({ ...move, score: priority }));
+    .map(({ move }) => move);
 }
 
 /** Mantido para testes e consumidores do antigo Caçador de Bugs. */
