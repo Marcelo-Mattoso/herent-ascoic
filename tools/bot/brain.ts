@@ -5,6 +5,7 @@ import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { healingMoveScore, itemHealingAmount } from "./healing";
 import { knowledgeBonus, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
+import { usesLearnedStrategies } from "./profiles";
 import { publishedSoloPolicy, soloPolicyAdjustment, hasSoloWeightsForHero,
   type SoloPolicy, type SoloLearningProfile } from "./discovery/soloPolicy";
 
@@ -431,7 +432,7 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	legacyCombos = true,
   soloPolicy: SoloPolicy | null | undefined = publishedSoloPolicy,
   adaptiveSoloTraining = false): readonly ScoredMove[] {
-  const learnable = profile === "power-player" || profile === "speedrunner";
+  const learnable = usesLearnedStrategies(profile);
   const heroCardId = obs.view.heroes[0]?.cardId;
   const adaptiveSolo = learnable && obs.view.heroes.length === 1 &&
     (adaptiveSoloTraining ||
@@ -463,8 +464,8 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 			score: profile === "random" ? random() :
         move.score + (learnable
           ? soloPolicyAdjustment(obs.view, move.action, soloPolicy, profile as SoloLearningProfile) : 0) +
-          knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],
-          knowledge, progress.recentActorIds ?? []) +
+          (learnable ? knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],
+            knowledge, progress.recentActorIds ?? []) : 0) +
 				(profile === "casual" ? variation(move.action, obs.view, seed, decision) * 0.7 :
 				profile === "explorer" ? variation(move.action, obs.view, seed, decision) * 0.15 : 0),
 			index,

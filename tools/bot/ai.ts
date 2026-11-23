@@ -11,7 +11,7 @@ import {
 	type Violation,
 } from "./invariants";
 import { createHeadlessPort } from "./port";
-import type { BotProfile } from "./profiles";
+import { usesLearnedStrategies, type BotProfile } from "./profiles";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
 import type { GameBalance } from "@/core/gameEngine";
@@ -57,7 +57,7 @@ export function playAiGame(
   adaptiveSoloTraining = false,
 ): AiGameResult {
   const needsSignals = enableDiscoveryTrace ||
-    (profile !== "random" && (knowledgeOverride ?? publishedKnowledge.rules).length > 0);
+    (usesLearnedStrategies(profile) && (knowledgeOverride ?? publishedKnowledge.rules).length > 0);
   const port = createHeadlessPort(setup, xpCostsOverride, needsSignals);
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();

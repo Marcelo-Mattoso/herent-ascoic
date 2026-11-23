@@ -4,6 +4,15 @@ import { BOT_HEROES, setupFromSeed } from "./play";
 export const BOT_PROFILES = ["casual", "power-player", "speedrunner", "explorer", "random"] as const;
 export type BotProfile = typeof BOT_PROFILES[number];
 
+/** Somente os dois jogadores competitivos consomem conhecimento promovido.
+ * Casual e Explorer continuam sendo baselines comportamentais independentes.
+ */
+export function usesLearnedStrategies(
+  profile: BotProfile,
+): profile is "power-player" | "speedrunner" {
+  return profile === "power-player" || profile === "speedrunner";
+}
+
 const HERO_ALIASES: Readonly<Record<string, string>> = {
 	barbarian: "hero_crimson_barbarian",
 	paladin: "hero_last_light_paladin",

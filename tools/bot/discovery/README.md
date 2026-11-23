@@ -118,3 +118,11 @@ A política só muda sob `--promote` com melhoria comprovada.
 O Speedrunner pode fazer épocas adicionais com seeds independentes;
 `--epochs` fica limitado a 19 para não aproximar o treinamento das
 seeds reservadas de validação.
+
+**Separação efetiva dos estilos:** somente `power-player` e
+`speedrunner` consomem bônus de combos da biblioteca promovida.
+`casual` e `explorer` não usam nem esses bônus nem os pesos solo;
+`random` permanece controle aleatório, sem aprendizado. O caçador de
+bugs usa a política de base do Explorer apenas como gerador de ações,
+com ordenação adversarial própria. Essa separação evita contaminar os
+benchmarks de estilos distintos.
