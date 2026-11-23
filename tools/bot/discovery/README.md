@@ -1,128 +1,65 @@
-# O Desbravador — descoberta e treinamento (estado de `dev`)
+# O Desbravador — três perfis e aprendizado orientado
 
-> Revisão de documentação: 23/11/2026. Os comandos abaixo correspondem aos scripts de `package.json`. Implementação experimental: **nenhuma nova validação local de build, Vitest ou simulações foi executada nesta revisão**.
+Atualizado na branch `codex/bots-aprendizado-perfis-20261123`, em 23/11/2026.
 
-## Quais agentes existem
+O jogo possui **Power Player**, **Casual** e **Explorer**. O Speedrunner e o Random não existem mais como perfis independentes. O motor continua decidindo ações legais; os bots classificam escolhas a partir da projeção do estado.
 
-| Ferramenta | Objetivo | Escopo atual |
+## Responsabilidade de cada perfil
+
+| Perfil | Decisão | Memória |
 | --- | --- | --- |
-| `bot:discover` | Encontrar sequências de efeitos executados (pares/triplas) e avaliá-las em A/B | Solo; suporte experimental a grupos 2–4, **não executar treino cooperativo nesta fase** |
-| `bot:train-solo` — `power-player` | Aprender prioridades por herói para habilidade, cura, poder, item e fase | Solo; taxa de vitória |
-| `bot:train-solo` — `speedrunner` | Aprender prioridade por herói, economia de ações em vitórias e observação de itens | Solo; vitória + velocidade |
-| `bot:bug-hunt` | Explorar ações raras, detectar violações e registrar replay/cobertura | Solo; diagnóstico, não taxa de vitória |
+| **Power Player** | Maximizar vitórias; em trajetórias vitoriosas, reduzir passos e desperdícios | `src/data/soloPolicy.json` e `src/data/discoveryKnowledge.json` |
+| **Casual** | Heurísticas imperfeitas, com 15% de decisões escolhidas aleatoriamente entre candidatos | Não aprende; sorteio determinístico por seed |
+| **Explorer** | Descobrir opções pouco exercitadas, reações, efeitos e bugs | Contagem por sessão; `bug-hunter-corpus.json` no modo de investigação |
 
-Os cinco perfis jogáveis do benchmark são `casual`, `power-player`, `speedrunner`, `explorer` e `random`. **Casual, Explorer e Random não recebem os pesos aprendidos pelo Instrutor Solo.** O Caçador de Bugs é um executor separado, não um sexto perfil de vitória.
+O algoritmo de exploração adversarial vive em `tools/bot/exploration.ts` e é compartilhado por `scoreMoves` e `tools/bot/discovery/bugHunter.ts`. O antigo Caçador de Bugs virou o **modo aprofundado do Explorer**, não outro jogador do benchmark.
 
-## Comandos recomendados — primeiro a prévia
+## Primeiro ensaio do Power Player
 
 ```bash
 npm run typecheck:tools
-npm run bot:train-solo -- --profile both --dry-run
-npm run bot:bug-hunt -- --dry-run
+npx vitest run tools/bot/profileLearning.test.ts tools/bot/exploration.test.ts tools/bot/discovery/soloTrainer.test.ts tools/bot/discovery/bugHunter.test.ts
+npm run bot:train-solo -- --dry-run
+npm run bot:train-solo -- --focus all --max-heroes 4 --max-contexts 12 --max-features 6 --runs 2 --validate-runs 8 --epochs 1
 ```
 
-O modo `--dry-run` lista o planejamento da execução, não treina nem atesta sucesso.
+O `--profile` aceita `power-player` e é opcional. `--focus` aceita `all`, `skills`, `items`, `powers`. O treinador usa somente solo e três dificuldades (Muito Fácil/Fácil/Normal). O benchmark oficial continua com todas as cinco dificuldades. `--seed` rotaciona os heróis; `--hero <id>` testa um herói; `--all-heroes` percorre os habilitados até `--max-contexts` e `--max-features`. Nenhum comando acima modifica a política.
 
-### Treinamento dos dois perfis, separado internamente
+No treino, a função objetivo favorece **vitória** e, dentro de vitórias, menos ações. Se perder, morrer depressa não ganha pontuação. O processo procura pesos por herói/contexto, incluindo decisões de item, habilidade, poder, cura, fase e risco. As características de treino são intercaladas entre heróis para não otimizar só o primeiro da lista.
+
+Relatórios em `tools/bot/runs/solo-train-*/power-player/`:
+- `solo-training-report.json`: `learning`, `validation`, `versusCurrentBot`, `validationByHero`, `perHeroSafe`, `verified`;
+- `solo-policy-candidate.json`: política proposta, não obrigatoriamente aprovada;
+- `item-drop-observations.json`: frequência observada por herói/expansão/dificuldade e intervalo de Wilson de 95%.
+
+No caso de itens, **frequência observada não é chance causal atribuível ao herói**, nem demonstra que item frequente é útil. A qualidade da escolha precisa passar pelo ensaio de vitórias.
+
+## Promover uma política que realmente melhorou
 
 ```bash
-npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+npm run bot:train-solo -- --focus all --max-heroes 4 --max-contexts 12 --max-features 9 --runs 3 --validate-runs 16 --epochs 2 --promote
 ```
 
-`--profile` aceita `power-player`, `speedrunner` ou `both` (padrão); `--focus` aceita `all`, `skills`, `items` ou `powers`. `--seed` desloca o conjunto de heróis; `--hero <id>` escolhe apenas um; `--all-heroes` expande a busca, sujeita a `--max-contexts`. `--max-features` limita a quantidade de pesos investigados; `--epochs` controla ciclos de pesquisa.
+O `--promote` apenas **autoriza** escrever `src/data/soloPolicy.json`; o treinador exige 40 pares de validação reservada (offset `seed + 200000`), ausência de novas violações e melhora contra **dois controles**: política adaptativa anterior e bot publicado. Basta um dos critérios: pelo menos quatro vitórias adicionais com McNemar corrigido >=6,64; ou redução de passos >=5% entre ao menos oito vitórias compartilhadas, sem perder vitórias. `perHeroSafe` evita piorar claramente qualquer herói.
 
-Os pesos são versionados em `src/data/soloPolicy.json` e isolados por perfil, herói e característica da decisão (padrão `profile:<perfil>|hero:<cardId>|<característica>`). Conhecimento sem `catalogFingerprint` compatível não é aplicado ao jogo. A compatibilidade com os pesos históricos de Power Player é preservada no interpretador.
+Os pesos são por `profile:power-player|hero:<cardId>|<característica>`. Arquivos de aprendizado antigos com namespace `speedrunner` não são aplicados ao Power Player automaticamente; não misturar pesos contraditórios. O fingerprint protege contra treinar com catálogo diferente. A política inicial do repositório ainda não tem pesos; esta revisão não rodou treino.
 
-A promoção com `--promote` **não é automática por execução**: exige melhora em validação pareada com seeds reservadas (`seed + 200000`), incluindo comparação com a política adaptativa sem novos pesos e com o bot publicado. Power Player exige no mínimo 40 pares, quatro vitórias de vantagem, McNemar corrigido >= 6,64 e nenhuma violação adicional. Speedrunner pode passar pelos mesmos critérios de vitória ou demonstrar pelo menos 5% de economia de ações **entre vitórias compartilhadas**, com no mínimo oito vitórias compartilhadas e sem perder vitórias nem aumentar violações. O ensaio verifica os controles separadamente; melhora num treinamento não garante promoção.
-
-O Power Player encerra o ciclo de otimização se não encontra ganho. O Speedrunner pode prosseguir em outras seeds ao avançar `--epochs`, mesmo que uma época anterior não tenha produzido uma política melhor. Isso **não** significa processamento em background; cada execução termina no comando local.
-
-### Observação de itens
-
-`item-drop-observations.json` é criado dentro de `tools/bot/runs/solo-train-*/<perfil>/` e contém incidência de itens observados por herói/expansão/dificuldade, frequência por retirada e por partida e intervalo de confiança de Wilson de 95%. O campo `sampleSufficientForRanking` exige ao menos 30 retiradas observadas.
-
-**Não inferir que escolher determinado herói altera a probabilidade real do deck**: as diferenças podem decorrer de duração das partidas, recompensas acessadas e caminho escolhido. A telemetria registra retiradas observadas durante as simulações; não é um cálculo teórico da composição do baralho. Frequência alta tampouco equivale a item melhor; a preferência aprendida só é aprovada via ensaio A/B.
-
-### Caçador de Bugs
+## Explorer investigativo
 
 ```bash
-npm run bot:bug-hunt -- --runs 3 --max-scenarios 24 --max-steps 750
-npm run bot:bug-hunt -- --hero hero_crimson_rune_mage --difficulty normal --runs 5
-npm run bot:bug-hunt -- --reset-corpus --dry-run
+npm run bot:explore -- --dry-run
+npm run bot:explore -- --runs 3 --max-scenarios 24 --max-steps 750
+npm run bot:explore -- --hero hero_crimson_rune_mage --difficulty normal --runs 5
 ```
 
-A seleção adversarial favorece ações pouco exercitadas, habilidades, itens, decisões de dados/alvo e reações normalmente ignoradas pela política de vitória. O executor **não altera estado diretamente para fabricar um resultado impossível**: ele usa ações do motor e registra o que o reducer realmente aceitou. `bug-hunt-report.json` distingue `blocker` (invariantes e ações oficialmente legais rejeitadas) de `investigate` (anomalias suspeitas, inclusive custo de PV, replays divergentes ou falta de progresso não conclusiva).
+`bot:explore` substitui o nome operacional `bot:bug-hunt`, que permanece como alias para compatibilidade com comandos antigos. O executor experimenta ações menos vistas e combinações pouco frequentes, valida invariantes, guarda sequências e seeds de replay e mantém o corpus em `tools/bot/runs/bug-hunter-corpus.json`. Uma mudança no fingerprint invalida a memória de cobertura antiga. `--reset-corpus` força reinício.
 
-O corpus `tools/bot/runs/bug-hunter-corpus.json` armazena frequência de ações/grants e casos anteriores com **seed + sequência de ações**. Cada nova execução tenta até oito casos de regressão, antes dos novos cenários. Mudança no fingerprint do catálogo invalida a memória antiga; `--reset-corpus` recomeça do zero. O corpus e os resultados ficam em `tools/bot/runs/`, excluídos do Git.
+Os resultados ficam em `tools/bot/runs/bug-hunt-*/bug-hunt-report.json`. **Suspeitas** (`investigate`) não são defeitos confirmados; violações reproduzíveis (`blocker`) merecem correção. O bot Explorer normal usa memória por sessão; o modo investigativo é que persiste o corpus entre execuções.
 
-A versão atual é **solo**: o teste sistemático de combinações entre heróis, itens e habilidades fica para evolução posterior. O caçador aprende *cobertura*, nunca políticas de vitória.
+## Combos e auditoria
 
-## Descoberta de sequências — modo experimental separado
+`npm run bot:discover -- --dry-run` exibe o plano de mineração de sequências; `--promote` guarda somente padrões validados em `src/data/discoveryKnowledge.json`. A investigação por equipes 2–4 é experimental e foi adiada. `random` não existe mais como perfil jogável independente.
 
-```bash
-npm run bot:discover -- --dry-run
-npm run bot:discover -- --runs 2 --validate-runs 12
-```
+`npm run audit` continua executando **skills → leveling → investigação curta do Explorer**, sem aumentar `runs = 10` do benchmark. `AUDIT_BUG_HUNT=0` continua desativando apenas a última etapa. O controle de orçamento é por catálogo habilitado: futuras expansões aumentam a quantidade de cenários, e não alteramos a quantidade de seeds neste pacote.
 
-O minerador observa execuções reais registradas com proveniência de grant e experimenta sequências de 2–3 sinais, em vez de contar uma mera preparação como habilidade executada. Valida resultados com pares de seeds e McNemar; estratégias aprovadas entram em `src/data/discoveryKnowledge.json` somente sob `--promote`. Mudanças de catálogo invalidam conhecimento antigo e mantêm o histórico da hipótese para revalidação.
-
-Há parâmetros para `--party-size 2|3|4` e seleção de composições, mas **o treinamento cooperativo foi deliberadamente adiado**. A presença desses parâmetros não implica que houve validação de sinergias entre heróis.
-
-### Gate P0 e audit
-
-`tools/bot/skill-audit/coverageBaseline.json` contém o baseline histórico de 311 grants. Um **grant novo** ainda classificado `NOT_COVERED` entra como bloqueador do `npm run audit`; grants antigos sem cobertura permanecem visíveis, não viram falsa aprovação. Não altere o baseline só para suprimir um alerta.
-
-`npm run audit` chama auditoria de skills, leveling e **varredura curta de bugs** (se as etapas anteriores passarem). O Caçador de Bugs não substitui a auditoria formal; uma suspeita isolada não deve reprovar a sessão.
-
-## Arquivos e limites de confiança
-
-| Arquivo | Conteúdo |
-| --- | --- |
-| `src/data/discoveryKnowledge.json` | Padrões de combos aprovados |
-| `src/data/soloPolicy.json` | Pesos por perfil/herói/contexto que foram promovidos |
-| `tools/bot/runs/solo-train-*/<perfil>/solo-training-report.json` | Evidência A/B do Instrutor |
-| `tools/bot/runs/solo-train-*/<perfil>/item-drop-observations.json` | Frequências observadas de itens |
-| `tools/bot/runs/bug-hunt-*/bug-hunt-report.json` | Ocorrências, contexto e replays |
-| `tools/bot/runs/bug-hunter-corpus.json` | Memória de cobertura e regressão |
-
-As ferramentas não formam rede neural, não alteram as regras nem o balanceamento automaticamente, não executam CI/CD e não garantem ausência de bugs. Promova políticas somente após os testes locais e revisão do diff.
-
-## Preparação do primeiro ciclo de treinamento — 23/11/2026
-
-A branch `codex/bots-aprendizado-perfis-20261123` começa com
-`src/data/soloPolicy.json` sem pesos aprendidos: trata-se de um
-baseline limpo, não de evidência de que o aprendizado já ocorreu.
-A seleção de características foi distribuída entre os heróis
-incluídos na matriz, evitando priorizar apenas o primeiro. O relatório
-passa a incluir `validationByHero` e `perHeroSafe`: a promoção de
-um perfil também bloqueia regressões superiores a uma vitória em
-qualquer herói contra cada controle, além dos gates agregados.
-
-```bash
-# 1. Compilação de ferramentas e testes focados — executar localmente
-npm run typecheck:tools
-npx vitest run tools/bot/discovery/soloTrainer.test.ts tools/bot/discovery/dropStatistics.test.ts tools/bot/discovery/bugHunter.test.ts
-# 2. Apenas prévia dos treinamentos, sem partidas e sem promover pesos
-npm run bot:train-solo -- --profile both --dry-run
-npm run bot:bug-hunt -- --dry-run
-# 3. Primeira experiência A/B, relatórios locais, sem promoção
-npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --max-features 6 --runs 2 --validate-runs 8 --epochs 1
-# 4. Somente após revisar os relatórios, repetir com validação e promoção opt-in
-npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --max-features 9 --runs 3 --validate-runs 16 --epochs 2 --promote
-```
-
-Sempre confira `verified`, `versusCurrentBot`, `validationByHero`,
-`learning` e `itemsObserved` por perfil. O primeiro ensaio serve para
-identificar gargalos e não altera `src/data/soloPolicy.json`.
-A política só muda sob `--promote` com melhoria comprovada.
-O Speedrunner pode fazer épocas adicionais com seeds independentes;
-`--epochs` fica limitado a 19 para não aproximar o treinamento das
-seeds reservadas de validação.
-
-**Separação efetiva dos estilos:** somente `power-player` e
-`speedrunner` consomem bônus de combos da biblioteca promovida.
-`casual` e `explorer` não usam nem esses bônus nem os pesos solo;
-`random` permanece controle aleatório, sem aprendizado. O caçador de
-bugs usa a política de base do Explorer apenas como gerador de ações,
-com ordenação adversarial própria. Essa separação evita contaminar os
-benchmarks de estilos distintos.
+**Não rodar treinos extensos no CI/CD.** Os comandos de treino, cobertura, builds e testes são locais; execute-os e revise os relatórios antes de promover uma política.

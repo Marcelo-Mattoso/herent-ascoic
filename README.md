@@ -45,13 +45,13 @@ Remove-Item Env:PAGES_BASE_PATH
 |---|---|
 | `npm run bot:skills-audit` | Auditoria rápida das habilidades; gera JSON/HTML em `tools/bot/runs/skill-audit-<data-hora>/`. |
 | `npm run bot:catalog-report` | Inventário e pontuação das cartas, sem simular partidas. |
-| `npm run bot:leveling-report` | Simulação do catálogo habilitado para todos os heróis, cinco perfis e cinco dificuldades; volume padrão definido pelo benchmark. |
+| `npm run bot:leveling-report` | Simulação do catálogo habilitado para todos os heróis, três perfis e cinco dificuldades; mantidas 10 seeds por cenário. |
 | `npm run bot:discover -- --dry-run` | Prévia da pesquisa de sequências de efeitos do Desbravador. |
-| `npm run bot:train-solo -- --profile both --dry-run` | Prévia de treino dos dois perfis especializados, Power Player e Speedrunner. |
-| `npm run bot:bug-hunt -- --dry-run` | Prévia da busca adversarial de bugs, sem simular partidas. |
+| `npm run bot:train-solo -- --dry-run` | Prévia do aprendizado do Power Player, que combina vitória e economia de ações. |
+| `npm run bot:explore -- --dry-run` | Prévia da investigação de cobertura e bugs do Explorer, sem simular partidas. |
 | `npm run audit` | Executa auditoria de habilidades, leveling e, se ambos passarem, amostragem curta do Caçador de Bugs em pasta datada dentro de `tools/bot/runs/`. |
 
-Para o fluxo e exemplos de treino local, veja [o modo bot](docs/BOT_MODE.md), [o Desbravador](tools/bot/discovery/README.md), [o bot](tools/bot/README.md) e [o auditor de habilidades](tools/bot/skill-audit/README.md). Os treinamentos e relatórios extensos não são executados no CI.
+Para o fluxo e exemplos de treino local, veja [o modo bot](docs/BOT_MODE.md), [o Desbravador](tools/bot/discovery/README.md), [o bot](tools/bot/README.md) e [o auditor de habilidades](tools/bot/skill-audit/README.md). Os treinamentos e relatórios extensos não são executados no CI. A matriz padrão continua com **10 seeds por cenário**: a redução de cinco para três perfis diminui naturalmente o total de partidas, sem aumentar a quantidade de repetições. Novos módulos e heróis são descobertos pelo catálogo habilitado.
 
 ## Publicação da Alpha
 
