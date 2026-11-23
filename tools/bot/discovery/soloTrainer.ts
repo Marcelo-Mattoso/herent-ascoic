@@ -79,14 +79,19 @@ function parse(args: readonly string[]): Args {
   const seed = numeric("--seed", 1);
   const runs = numeric("--runs", 2);
   const validateRuns = numeric("--validate-runs", 12);
-  if (seed + 200000 + validateRuns > 2147483647) throw new Error("Seeds ultrapassam o limite seguro");
+  const epochs = numeric("--epochs", 1);
+  // Seeds reservadas para validação começam em +200000. Nunca permitir
+  // que uma época de treinamento atravesse esse conjunto separado.
+  if (epochs > 19) throw new Error("--epochs aceita no máximo 19 para proteger as seeds reservadas");
+  if (seed + Math.max(200000 + validateRuns, (epochs - 1) * 10000 + runs) > 2147483647)
+    throw new Error("Seeds ultrapassam o limite seguro");
   const output = resolve(params.get("--output") ??
     join(LEVELING_RUNS_ROOT, "solo-train-" + new Date().toISOString().replace(/[:.]/g, "-")));
   if (!output.startsWith(LEVELING_RUNS_ROOT + sep)) throw new Error("Output fora de tools/bot/runs");
   return { focus: focus as Focus, profile: profile as TrainSelection, seed, runs, validateRuns,
     maxSteps: numeric("--max-steps", 1000),
     maxHeroes: numeric("--max-heroes", 4), maxContexts: numeric("--max-contexts", 12),
-    maxFeatures: numeric("--max-features", 9), epochs: numeric("--epochs", 1),
+    maxFeatures: numeric("--max-features", 9), epochs,
     output, promote, dryRun, hero: params.get("--hero"), allHeroes };
 }
 function contexts(options: Args): Context[] {
@@ -192,7 +197,8 @@ function score(result: Trial, profile: SoloLearningProfile): number {
     : (result.win ? 120 : 0) + result.rooms * 1.8 -
       (result.violation ? 175 : 0) - result.steps * .018;
 }
-function candidateFeatures(counts: Readonly<Record<string, number>>, options: Args): string[] {
+export function candidateFeatures(counts: Readonly<Record<string, number>>,
+  options: Pick<Args, "focus" | "maxFeatures">): string[] {
   const base = (name: string) => name.slice(name.indexOf("|") + 1);
   const entries = Object.entries(counts).filter(([name, seen]) =>
     seen >= (name.includes("@card:") || name.includes("@ability:") ? 2 : 4) &&
@@ -208,10 +214,34 @@ function candidateFeatures(counts: Readonly<Record<string, number>>, options: Ar
     focusKinds[focus].some(prefix => base(name).startsWith(prefix)))
     .sort((a, b) => rank(a[0]) - rank(b[0]) || b[1] - a[1] || a[0].localeCompare(b[0]))
     .map(x => x[0]);
-  if (options.focus !== "all") return choose(options.focus).slice(0, options.maxFeatures);
-  const pools = [choose("skills"), choose("items"), choose("powers")];
+  // Um ranking global concentrava os nove primeiros ajustes em 1–2
+  // heróis e deixava os outros sem qualquer tentativa de aprendizado.
+  // Intercalar heróis por categoria mantém a amostra de treino diversa.
+  const distributeHeroes = (rows: readonly string[], shift: number): string[] => {
+    const grouped = new Map<string, string[]>();
+    for (const name of rows) {
+      const owner = name.slice(0, name.indexOf("|"));
+      if (!grouped.has(owner)) grouped.set(owner, []);
+      grouped.get(owner)!.push(name);
+    }
+    const ids = [...grouped.keys()].sort();
+    const rotated = ids.length ? [...ids.slice(shift % ids.length),
+      ...ids.slice(0, shift % ids.length)] : [];
+    const ordered: string[] = [];
+    while (rotated.some(hero => grouped.get(hero)!.length)) {
+      for (const hero of rotated) {
+        const feature = grouped.get(hero)!.shift();
+        if (feature) ordered.push(feature);
+      }
+    }
+    return ordered;
+  };
+  if (options.focus !== "all")
+    return distributeHeroes(choose(options.focus), 0).slice(0, options.maxFeatures);
+  const pools = [choose("skills"), choose("items"), choose("powers")]
+    .map((rows, index) => distributeHeroes(rows, index));
   const result: string[] = [];
-  while (result.length < options.maxFeatures && pools.some(p => p.length)) {
+  while (result.length < options.maxFeatures && pools.some(pool => pool.length)) {
     for (const pool of pools) {
       const next = pool.shift();
       if (next && !result.includes(next)) result.push(next);
@@ -368,13 +398,28 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
       comparison.sharedVictories >= 8 && comparison.relativeStepReduction >= .05;
     return statisticallyBetter || faster;
   };
-  const verified = changed && passes(validation) && passes(versusCurrentBot);
+  const validationByHero = [...new Set(matrix.map(row => row.hero))].map(hero => {
+    const indices = validationTasks.flatMap((task, index) =>
+      task.context.hero === hero ? [index] : []);
+    const only = (trials: readonly Trial[]) => indices.map(index => trials[index]!);
+    return { hero, againstAdaptive: compare(only(baseValidation), only(learnedValidation)),
+      againstPublished: compare(only(deployed), only(learnedValidation)) };
+  });
+  // Ganhar no agregado não autoriza piorar muito um único herói.
+  // Uma vitória de tolerância por controle evita bloquear por ruído pequeno,
+  // mantendo visível a regressão por personagem no relatório.
+  const perHeroSafe = validationByHero.every(entry =>
+    [entry.againstAdaptive, entry.againstPublished].every(group =>
+      group.nextWins + 1 >= group.baseWins &&
+      group.nextViolations <= group.baseViolations));
+  const verified = changed && passes(validation) && passes(versusCurrentBot) && perHeroSafe;
   await mkdir(outputDirectory, { recursive: true });
   const report = {
     version: 2, generatedAt: new Date().toISOString(), profile, focus: options.focus, options,
     catalogFingerprint: fingerprint, heroes: [...new Set(matrix.map(x => x.hero))],
     contexts: matrix, trainingGames: first.length, candidates: features,
-    learning: explored, validation, versusCurrentBot, verified,
+    learning: explored, validation, versusCurrentBot, validationByHero,
+    perHeroSafe, verified,
     itemsObserved: Object.entries(itemCatalog).map(([id, row]) => ({ cardId: id, ...row }))
       .sort((a, b) => b.uses - a.uses || b.opportunities - a.opportunities),
     initialWeights: initial.weights, learnedWeights: current.weights,
