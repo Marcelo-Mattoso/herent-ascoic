@@ -1,58 +1,70 @@
 # Sistema de expansões
 
-Cada expansão é uma pasta com um JSON de cartas, uma ficha opcional de chefe em boss.json e as imagens WebP correspondentes. O mesmo motor de regras atende todas as expansões. Não há módulos separados.
+O runtime combina cartas e habilidades **somente dos pacotes habilitados** em `assets/expansions/config.json`, usando `src/core/data/expansions.ts`. Os dados são compartilhados pelo mesmo motor; cada pacote define suas próprias cartas e, quando houver, a ficha de seu chefe em `boss.json`. Os arquivos legados de catálogo continuam no repositório para referência, mas não são a fonte principal das cartas em jogo.
 
-## Criar um novo pacote
+## Pacotes habilitados em `dev` (23/11/2026)
 
-1. Crie a pasta `assets/expansions/<id>/`.
-2. Crie `expansion.json` com `id`, `name`, `version`, `boss: "boss.json"` e `cards` (sem o chefe).\n3. Crie `boss.json` com `card` (ficha do boss) e `skills` (definições exclusivas).
-4. Salve todas as imagens WebP diretamente em `images/`, sem subpastas por categoria.
-5. Registre o ID em `assets/expansions/config.json` e marque `enabled: true`.
-6. Rode `npm run build` e `npm test` antes de promover a alteração.
+| ID do pacote | Conteúdo | Configuração |
+| --- | --- | --- |
+| `fornalha-sombria` | A Fornalha Sombria, com Azhakar | `enabled: true` |
+| `torre-grande-bruxa-caldeirao` | Torre da Grande Bruxa | `enabled: true` |
+| `castelo-horizonte-infindo` | Castelo do Horizonte Infindo | `enabled: true` |
 
-## Exemplo de config.json
+A configuração do repositório, e não esta tabela, determina o que o jogo carrega após futuras mudanças.
 
-```json
-{ "version": 1, "expansions": [
-  { "id": "fornalha-sombria", "enabled": true },
-  { "id": "floresta", "enabled": true }
-] }
-```
+## Criar ou revisar um pacote
 
-## Exemplo de expansion.json
+1. Crie `assets/expansions/<id>/expansion.json`, usando um ID global único no formato `a-z0-9` com hífens.
+2. Declare `id`, `name`, `version`, `cards` e, caso tenha chefe, `boss: "boss.json"`. `openings`, `skills`, `skillLocales` e `abilities` são opcionais conforme o contrato `ExpansionPackage`.
+3. Crie `boss.json` quando `boss` for declarado. O documento precisa trazer `card` com `type: "boss"` e pode trazer `skills`, `skillLocales` e `locale`. **Não** duplique a carta do chefe dentro de `expansion.json.cards`.
+4. Todas as cartas precisam de `id`, `type`, `name` e `skills` (mesmo que seja lista vazia), além de campos obrigatórios de seu tipo. As habilidades podem utilizar referências legadas `skills[]` e/ou grants declarativos `grants[]`. Preserve IDs estáveis.
+5. Imagens referenciadas por carta seguem `images/<arquivo>.webp` ou `images/<arquivo>.png`, sem subpastas, conforme a validação do runtime. Prefira WebP para assets finais; os mestres PNG são mantidos em `dev` conforme [fluxo de promoção](PROMOTION_FLOW.md).
+6. Garanta uma **sala inicial válida**: sala comum com `xp: 0`, até um inimigo para um herói e sem `specialCreatureId`. A validação do pacote reprova expansões sem essa condição.
+7. Registre o pacote em `assets/expansions/config.json` e habilite-o conscientemente.
+8. Ao atualizar cartas, habilidades ou versões, considere que o Desbravador **invalida conhecimento aprendido de catálogo antigo** até uma revalidação. Não reaproveite índices de aprendizado cegamente.
+9. Execute localmente, quando for validar: `npm run typecheck:tools`, `npm test`, `npm run build`, `npm run bot:skills-audit`. A auditoria completa `npm run audit` é longa e deve ficar fora do CI.
+
+## Exemplo de `config.json`
 
 ```json
 {
-  "id": "floresta",
-  "name": "A Floresta",
+  "version": 1,
+  "expansions": [
+    { "id": "fornalha-sombria", "enabled": true },
+    { "id": "torre-grande-bruxa-caldeirao", "enabled": true },
+    { "id": "castelo-horizonte-infindo", "enabled": true }
+  ]
+}
+```
+
+## Exemplo mínimo de `expansion.json`
+
+```json
+{
+  "id": "pacote-exemplo",
+  "name": "Pacote de Exemplo",
   "version": "1.0.0",
+  "boss": "boss.json",
   "cards": [
     {
-      "id": "creature_forest_wolf",
-      "type": "creature",
-      "name": "Lobo da Floresta",
-      "image": "images/LoboDaFloresta.webp",
-      "diceByColor": [1, 1, 2, 2, 3],
-      "life": [2, 3, 4, 5, 6],
-      "hitBonus": [2, 3, 5, 7, 10],
-      "damage": 2, "xp": 1, "reward": 1,
+      "id": "room_example_safe_entry",
+      "type": "room",
+      "name": "Entrada Segura",
+      "exits": 2,
+      "enemiesByPlayers": [1, 2, 3, 4],
+      "reward": 1,
       "rewardType": "item",
-      "skills": [{ "skillId": "skill_lone_beast" }]
+      "xp": 0,
+      "skills": []
     }
   ]
 }
 ```
 
-**Atributos apenas ilustrativos**, não representam balanceamento oficial. Os tipos e regras são os mesmos de `src/core/data/cardTypes.ts`.
+O exemplo é **estrutural**, não é uma expansão completa ou balanceada. Para uma ficha de chefe real, consulte `assets/expansions/fornalha-sombria/boss.json`; para as variantes de carta, `src/core/data/cardTypes.ts`.
 
-Os IDs das cartas são globais e devem ser únicos. O campo `name` é um nome padrão; traduções existentes têm precedência. O campo `image` é opcional e precisa apontar para `images/<arquivo>.webp` no próprio pacote, sem subpastas. Opcionalmente o JSON pode trazer `skills` e `abilities` para novas definições, preservando os contratos do motor.
+## Fornalha Sombria e contrato do chefe
 
-## Fornalha Sombria
+`assets/expansions/fornalha-sombria/expansion.json` define as cartas do pacote e referencia `boss.json`. O Azhakar exige ao menos **três artefatos** via `accessCondition`; `artifact_ancient_ember_heart` modifica sua vida-base de 20 para 16 antes do escalonamento por Despertar. Esses valores são características **desse chefe**, não regras universais para outros chefes.
 
-Os 80 registros mecânicos foram migrados de `src/data/cards.yaml` para `assets/expansions/fornalha-sombria/expansion.json`, conservando os IDs, atributos e referências de habilidades. 78 imagens WebP ficam diretamente na pasta `images/` do próprio pacote. Duas salas especiais não tinham arte com nome correspondente e permanecem sem imagem específica: `subboss_room_jailer_chamber` e `subboss_room_cracked_abyss_chamber`.
-
-Os YAMLs legados de cartas, habilidades e os catálogos de tradução permanecem no repositório para referência e compatibilidade, mas **a lista de cartas em jogo agora vem dos pacotes habilitados**. A pasta `assets/webp/cards/` continua temporariamente por causa do pipeline de otimização existente; imagens servidas ao jogador são lidas dos pacotes de expansão.
-
-## Chefe isolado por expansão
-
-O boss fica em `boss.json` do próprio pacote, com `card` contendo `id`, `type: "boss"`, `dice`, `lifeBase`, `hitBonusBase`, `damage`, `accessCondition`, `scaling`, `artifactBonus` e referências `skills[]`. As definições dessas habilidades são declaradas em `boss.json.skills[]`, com IDs únicos. O catálogo combinado registra o chefe sem misturar as cartas das expansões na partida. O chefe de Azhakar exige ao menos três artefatos; com `artifact_ancient_ember_heart` no grupo, sua Vida-base passa de 20 para 16, antes da escala por Despertar.
+O chefe e os demais objetos da expansão ficam identificados por pacote; ao selecionar um chefe, o motor pode montar os decks correspondentes, sem misturar automaticamente cartas de todas as expansões. Qualquer proposta de modo aleatório misto ou de campanha deve ser documentada e implementada separadamente, sem presumir que já esteja ativada.

@@ -1,114 +1,69 @@
-# Modo bot — plano
+# Bots de playtest — estado atual
 
-Status: F1 implementada em modo headless (`tools/bot/`); o modo com interface gráfica descrito abaixo continua planejado.
+> Documento operacional da branch `dev`, revisado em 23/11/2026. O plano original do bot visual foi executado em fases e não deve ser confundido com trabalho ainda pendente. A fonte dos comandos é o `package.json`; veja também [o guia técnico](../tools/bot/README.md).
 
-## F1 — bot headless (implementado)
+## Ferramentas disponíveis
 
-`npm run bot -- --games N --seed S --max-steps M` joga partidas direto no reducer, reutilizando a política de `tools/golden/lib.ts`. Seeds derivadas (`S + i`) definem heróis, dificuldade e escolhas. Invariantes por action em `tools/bot/invariants.ts`: exceção no dispatch, serialização JSON, vida em [0, máx], pilha de efeitos drenada, duplicação de cartas, ação legal existente, repetição sem progresso e limite de passos. Falhas vão para `tools/bot/runs/<timestamp>/falha-seed-N/` (`replay.json`, `violation.json`, `state.json`, `view.json`, `eventLog.json`); reexecute com `npm run bot -- --replay <replay.json>`.
+| Comando | Papel | Saída |
+| --- | --- | --- |
+| `npm run bot -- --games N --seed S --max-steps M` | Jogador headless, simulações e invariantes | `tools/bot/runs/` |
+| `npm run bot:screen -- --profile power-player --heroes barbarian,cleric,mage --difficulty normal --pause 800` | Bot visual via Chromium e interação com a página | Evidência do percurso na interface |
+| `npm run bot:skills-audit` | Inventário, cobertura e contratos das habilidades | `skill-audit.json` e `skill-audit.html` |
+| `npm run bot:leveling-report` | Benchmark de heróis/dificuldades/expansões/perfis | `report.json` e checkpoints |
+| `npm run bot:discover -- --dry-run` | Desbravador: descoberta experimental de sequências | Plano; treinamento com flags adicionais |
+| `npm run bot:train-solo -- --profile both --dry-run` | Instrutor Solo: Power Player e Speedrunner em políticas separadas | Prévia sem partidas |
+| `npm run bot:bug-hunt -- --dry-run` | Caçador de Bugs: cobertura adversarial solo | Prévia sem partidas |
+| `npm run audit` | Auditoria unificada local | Auditoria de habilidades, leveling e amostragem curta de bugs |
 
-## Objetivo
+**Os cinco perfis jogáveis** são `casual`, `power-player`, `speedrunner`, `explorer` e `random` (definidos em `tools/bot/profiles.ts`). O **Caçador de Bugs não é sexto perfil jogável**: é um executor independente para descobrir falhas. `random` serve de controle, sem aprendizado; `casual` e `explorer` não consomem a política solo treinada.
 
-`npm run bot` abre a tela normal do jogo num navegador visível e um bot joga sozinho, em loop, como um jogador humano que escolhe ao acaso. O objetivo dele é vencer. Cada partida gera um replay; qualquer quebra gera screenshot e diagnóstico numa pasta da execução.
+## Bot headless e bot visual
 
-Não substitui os testes de cenário (calculado × esperado). O bot encontra quebras; os cenários provam cálculos.
+O bot headless decide com uma observação projetada em `tools/bot/observe.ts` e usa ações legais do core; o motor continua sendo fonte de verdade. O bot visual pode ser acompanhado por `bot:screen` enquanto o servidor Vite estiver rodando. Portanto, a interface **não está apenas planejada**, ao contrário das primeiras versões deste documento.
 
-## Comportamento
+Invariantes do headless incluem serialização, estados ECS, vida, zonas, duplicação de cartas, progresso e limites de execução. Replays e diagnósticos devem preservar a seed e o contexto; uma partida sintética não equivale a comprovação visual de todo fluxo.
 
-1. Abre o jogo, clica **JOGAR**.
-2. Escolhe de 1 a 4 heróis aleatórios e clica **Iniciar partida**.
-3. Em cada momento, lê as ações legais do core, sorteia uma (seed do bot) e a executa **pela interface**: clique, arrasto, popover de inventário.
-4. Ao vencer ou perder: exporta o replay, volta ao menu, começa outra partida.
-5. Repete até Ctrl+C, fechar a janela ou atingir `--games N`.
+## Perfis que aprendem
 
-Política inicial: aleatória com leve preferência por progredir (atacar, avançar sala, usar skill disponível), para chegar ao chefe com frequência razoável.
+O [Instrutor Solo](../tools/bot/discovery/README.md) ensaia pesos interpretáveis por **perfil + herói + contexto da ação**, sem alterar habilidades, regras ou atributos. O foco pode ser `all`, `skills`, `items` ou `powers`.
 
-## Saída
+- **Power Player:** prioriza melhora de taxa de vitória com validação pareada fora das seeds de treinamento. Pode encerrar épocas quando não encontra ganho.
+- **Speedrunner:** além de vitórias, busca menos ações **nas partidas vencidas**; pode continuar por outras seeds em novas épocas mesmo sem ganho anterior. Não considera morrer mais depressa uma melhora.
+- **Casual, Explorer e Random:** não participam desse treino. O benchmark de leveling continua incluindo os cinco perfis.
 
-```
-bot-runs/<AAAA-MM-DD_HHMMSS>/
-  summary.json                  # partidas, vitórias, derrotas, falhas, seed do bot
-  game-0001/replay.json
-  game-0002/replay.json
-  game-0003-FAIL/
-    replay.json
-    journal.json                # Diário do motor
-    state.json                  # GameState interno no momento da falha
-    screenshot.png
-    reason.txt                  # motivo legível + ação tentada + passo
-    console.log
+```bash
+npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+npm run bot:train-solo -- --profile speedrunner --focus items --max-heroes 8 --max-contexts 24 --runs 3 --validate-runs 16 --epochs 3 --promote
 ```
 
-`bot-runs/` entra no `.gitignore`.
+O `--promote` autoriza gravar `src/data/soloPolicy.json` **somente se** a política candidata superar os controles A/B de validação. Relatórios individuais ficam em `tools/bot/runs/solo-train-*/power-player/` e `.../speedrunner/`. O `item-drop-observations.json` registra **frequência observada** por herói/expansão/dificuldade, com intervalos Wilson de 95%; não prova causalidade entre personagem e chance de drop.
 
-## Falhas detectadas
+## Caçador de Bugs
 
-| Falha | Critério |
-|---|---|
-| Travou | Partida não terminou e não há ação legal |
-| Ação sem interface | Ação legal no core sem elemento visível/habilitado na tela |
-| Ação rejeitada | Interface executou a ação e o estado não mudou / log de rejeição |
-| Erro | Exceção ou `console.error` no navegador |
-| Transição inválida | Erro de `assertTransition` |
-| Invariante | Vida fora de 0..máx, pilha de efeitos não vazia ao fim da ação, modificador órfão |
-| Sem progresso | N ações seguidas sem mudança relevante, ou limite de passos por partida |
+O executor `tools/bot/discovery/bugHunter.ts` usa escolhas adversariais entre ações disponíveis, priorizando ações pouco exercitadas e combinações não habituais. Ele registra casos reproduzíveis, violações, rejeições e suspeitas de custo de PV; não maximiza vitórias e não publica políticas de jogo.
 
-Na falha, a partida é abandonada e o loop segue com a próxima.
+```bash
+npm run bot:bug-hunt -- --runs 3 --max-scenarios 24 --max-steps 750
+npm run bot:bug-hunt -- --dry-run
+```
 
-## Peças
+A cobertura e seeds anteriores ficam no corpus local `tools/bot/runs/bug-hunter-corpus.json`. Replays guardam a sequência de ações. `--reset-corpus` reinicia essa memória. **Suspeitas não equivalem a bugs confirmados**; relatórios distinguem `investigate` de `blocker`.
 
-### 1. Core — ações legais
+## Fluxo do audit
 
-Preencher `availableActions` em `src/core/projection/aiView.ts` (hoje esqueleto) com ações concretas e parâmetros: escolher herói/alvo, atacar, usar skill/poder/item, escolhas pendentes (alvo, dado, `i_choose_one`), recompensa, inventário, fluxo de sala e chefe. Fonte: as mesmas regras que o reducer usa e `abilityActionsByHero` já projetado. Sem lógica duplicada na UI ou no bot.
+`scripts/run-audit.mjs` chama, nessa ordem: `bot:skills-audit`, `bot:leveling-report` e `bot:bug-hunt --max-scenarios 6 --runs 1 --max-steps 500`, prosseguindo somente quando cada etapa anterior retorna sucesso. Para executar apenas habilidades + leveling, configure `AUDIT_BUG_HUNT=0` no ambiente.
 
-Teste de contrato: para estados variados, toda ação listada é aceita pelo reducer sem erro.
+```bash
+npm run audit
+# PowerShell, desativar apenas a etapa curta de caça a bugs:
+$env:AUDIT_BUG_HUNT='0'; npm run audit; Remove-Item Env:AUDIT_BUG_HUNT
+```
 
-### 2. Ponte dev na página
+A execução longa **não deve ser adicionada ao CI**. Não monitore CI/CD, deploy ou publicação após commits; o responsável roda os comandos de validação localmente.
 
-Em `import.meta.env.DEV`, junto ao `__dispatch` já existente em `src/ui/store/gameStore.ts`, expor somente leitura:
+## Limitações e próximos passos
 
-- `__botView()` → `aiView(state)` (ações legais) + status;
-- `__debugState()` → `GameState` para diagnóstico;
-- `__exportReplay()` → JSON de `buildReplayPackage`;
-- `__exportJournal()` → JSON do Diário.
-
-O bot nunca usa `__dispatch`: decide pela ponte, age pela interface.
-
-### 3. Mapa ação → interface
-
-`tools/bot/uiActions.ts`: para cada tipo de ação, como executá-la na tela, usando `data-tutorial-anchor` existentes e `data-testid` novos onde faltar (cartas de inimigo/herói por id, botões de skill/poder/item, opções de escolha, recompensa). Se o elemento não existe ou está desabilitado → falha "ação sem interface".
-
-### 4. Runner
-
-`tools/bot/run.ts` com Playwright (já instalado), fora da suíte `e2e/`:
-
-- sobe o Vite como o `playwright.config.ts` faz (porta própria);
-- loop de partidas, loop de passos, checagens, gravação da pasta;
-- `package.json`: `"bot": "vite-node tools/bot/run.ts"` (ou `node` + tsx, conforme funcionar com Playwright).
-
-Opções:
-
-| Opção | Padrão | Efeito |
-|---|---|---|
-| `--games N` | infinito | Para após N partidas |
-| `--seed S` | aleatória | Seed das decisões do bot (registrada no summary) |
-| `--speed slow\|normal\|fast` | normal | Pausa entre ações |
-| `--headless` | não | Sem janela |
-| `--max-steps N` | 2000 | Limite de passos por partida |
-
-### 5. Revalidar replays
-
-`npm run bot -- --check bot-runs/<pasta>`: reexecuta cada `replay.json` pelo core sem interface e confere que o estado final bate com o salvo. Detecta perda de determinismo.
-
-## Ordem de entrega
-
-1. Ações legais no core + teste de contrato.
-2. Ponte dev + `data-testid` faltantes.
-3. Runner com uma partida até o fim, sem gravação.
-4. Loop, pasta de execução, replays, detecção de falhas e screenshot.
-5. `--check` dos replays.
-
-## Fora do escopo agora
-
-- Política "inteligente" (heurística forte, busca).
-- Estatísticas de balanceamento (taxa de vitória por herói etc.) — o `summary.json` pode crescer depois.
-- Botão de modo bot dentro do jogo.
+- A estratégia aprendida é de **jogo solo**; não há aprovação do treinamento de equipes nesta etapa.
+- O Speedrunner observa ocorrência de itens nas trajetórias jogadas; a amostragem depende das oportunidades realmente encontradas. Não inferir distribuição probabilística universal a partir de poucas partidas.
+- O Caçador de Bugs ainda testa solo; priorizar futuramente cobertura combinatória entre heróis, habilidades, itens e condições, com oráculos específicos por efeito.
+- Simulações de vitória, observações do executor e contratos de habilidades são evidências complementares: nenhum deles isoladamente prova ausência de bugs.
