@@ -14,6 +14,8 @@ import { heroesOf } from "@/core/state/access";
 import { gameOf } from "@/engine/state";
 import type { Difficulty } from "@/core/state/gameState";
 import { scoreMoves } from "../brain";
+import { actionIdentity } from "../exploration";
+export { adversarialOrder } from "../exploration";
 import { checkNoProgress, checkState, countCards, isTerminal } from "../invariants";
 import { assertLocalReportExecution, LEVELING_RUNS_ROOT } from "../localLevelingReports";
 import { createHeadlessPort } from "../port";
@@ -136,45 +138,6 @@ function scenarios(options: Options): Context[] {
   }
   return chosen;
 }
-function actionIdentity(action: Action): string {
-  switch (action.type) {
-    case "USE_SKILL": return action.type + ":" + action.payload.skillId;
-    case "USE_ITEM":
-    case "USE_REWARD_ITEM": return action.type + ":" + action.payload.itemId;
-    case "USE_ARTIFACT": return action.type + ":" + action.payload.artifactId;
-    case "SKILL_CHOICE": return action.type + ":" + action.payload.skillId + ":" + action.payload.choice;
-    default: return action.type;
-  }
-}
-function nextRandom(seed: number): () => number {
-  let state = seed >>> 0 || 1;
-  return () => {
-    state ^= state << 13; state ^= state >>> 17; state ^= state << 5;
-    return (state >>> 0) / 4294967296;
-  };
-}
-/**
- * Gera ordem adversarial, mas usa candidatos da projeção/IA e nunca altera
- * estado diretamente. Sorteio com seed fixa permite replay exato.
- */
-export function adversarialOrder(
-  actions: readonly { readonly action: Action; readonly score: number }[],
-  usage: ReadonlyMap<string, number>,
-  random: () => number,
-): Action[] {
-  const records = actions.map(item => {
-    const id = actionIdentity(item.action);
-    const novelty = 1 / (1 + (usage.get(id) ?? 0));
-    const unusual = ["USE_SKILL", "USE_ITEM", "USE_REWARD_ITEM", "USE_POWER",
-      "APPLY_TRIGGER_INTERRUPT", "SKIP_TRIGGER_INTERRUPT", "SKILL_CHOICE",
-      "SELECT_SKILL_TARGET", "SELECT_DIE"].includes(item.action.type);
-    const chance = random();
-    return { action: item.action, priority: chance * 3 +
-      novelty * 4 + (unusual ? 2 : 0) -
-      Math.max(-1, Math.min(1, item.score / 500)) };
-  });
-  return records.sort((a, b) => b.priority - a.priority).map(record => record.action);
-}
 function possibleCostAnomalies(before: GameState,
   after: GameState, action: Action): BugFinding[] {
   const previousSequence = gameOf(before).abilityTrace?.at(-1)?.sequence ?? 0;
@@ -206,16 +169,17 @@ function runOne(context: Context, seed: number, maxSteps: number,
   const setup = { ...setupForRun(seed, [context.hero], context.difficulty), bossCardId: context.boss };
   const port = createHeadlessPort(setup, undefined, true);
   const baseline = countCards(port.inspect());
-  const random = nextRandom(seed ^ 0x23def31);
-  const findings: BugFinding[] = [], grants = new Set<string>();
+   const findings: BugFinding[] = [], grants = new Set<string>();
   let rejectedCandidates = 0, exhausted = false;
   const seen = new Set<string>();
   for (let i = 0; i < maxSteps && !isTerminal(port.inspect()); i++) {
     const current = port.observe();
     const view = current.view;
+    // O Explorer usa exatamente o mesmo ranking adversarial em tela,
+    // headless e caça aprofundada. O corpus adiciona memória entre partidas.
     const options = scoreMoves(current, "explorer", seed, port.history.length,
-      { stagnantRounds: 0 }, [], false, null, false);
-    const candidates = adversarialOrder(options, usage, random);
+      { stagnantRounds: 0, explorationUsage: usage }, [], false, null, false);
+    const candidates = options.map(option => option.action);
     const legal = new Set(current.actions.map(action => JSON.stringify(action)));
     let advanced = false;
     for (const action of candidates.slice(0, 35)) {

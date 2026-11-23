@@ -11,6 +11,7 @@ import {
 	type Violation,
 } from "./invariants";
 import { createHeadlessPort } from "./port";
+import { actionIdentity } from "./exploration";
 import { usesLearnedStrategies, type BotProfile } from "./profiles";
 import type { Action } from "@/core/actions/types";
 import type { GameState } from "@/core/state/gameState";
@@ -62,6 +63,9 @@ export function playAiGame(
 	const baseline: CardCounts = countCards(port.inspect());
 	const rejected = new Set<string>();
 	const abilitiesThisTurn = new Set<string>();
+  // A experiência do Explorer é local à sessão; a execução bot:explore
+  // também conserva um corpus persistente entre rodadas.
+  const explorationUsage = new Map<string, number>();
 	let recentTraits: string[] = [];
 	let recentActorIds: (string | undefined)[] = [];
 	let recentRoundKey = "";
@@ -100,7 +104,9 @@ export function playAiGame(
       recentTraits = []; recentActorIds = []; recentRoundKey = roundKey;
     }
     const options = scoreMoves(obs, profile, setup.seed, port.history.length,
-      { stagnantRounds, recentTraits, recentActorIds }, knowledgeOverride, !disableLegacyCombos,
+      { stagnantRounds, recentTraits, recentActorIds,
+        ...(profile === "explorer" ? { explorationUsage } : {}) },
+      knowledgeOverride, !disableLegacyCombos,
       soloPolicyOverride === undefined ? publishedSoloPolicy : soloPolicyOverride,
       adaptiveSoloTraining);
 		const stepRejected: string[] = [];
@@ -124,6 +130,10 @@ export function playAiGame(
 			}
       if (result.kind === "applied") {
         advanced = true;
+        if (profile === "explorer") {
+          const id = actionIdentity(move.action);
+          explorationUsage.set(id, (explorationUsage.get(id) ?? 0) + 1);
+        }
         // Sem biblioteca ou callback, não criar snapshots extras em milhares
         // de partidas do benchmark. O reducer já foi executado pela porta.
         if (needsSignals || onStep) {

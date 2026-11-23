@@ -4,6 +4,7 @@ import type { BotObservation } from "./observe";
 import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { healingMoveScore, itemHealingAmount } from "./healing";
+import { adversarialScoredMoves } from "./exploration";
 import { knowledgeBonus, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
 import { usesLearnedStrategies } from "./profiles";
 import { publishedSoloPolicy, soloPolicyAdjustment, hasSoloWeightsForHero,
@@ -14,6 +15,8 @@ export interface CombatProgress {
 	readonly stagnantRounds: number;
 	readonly recentTraits?: readonly string[];
 	readonly recentActorIds?: readonly (string | undefined)[];
+  /** Contadores locais ou corpus de cobertura fornecidos pelo Explorer. */
+  readonly explorationUsage?: ReadonlyMap<string, number>;
 }
 
 export interface ScoredMove {
@@ -461,7 +464,7 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	// Casual funde heurísticas simples com uma decisão aleatória ocasional,
 	// reproduzível por seed (não é um perfil Random separado).
 	const casualRandom = profile === "casual" && unique.length > 1 && random() < 0.15;
-	return unique.map((move, index) => ({
+	const ranked = unique.map((move, index) => ({
 			...move,
 			score: casualRandom ? random() :
         move.score + (learnable
@@ -474,6 +477,9 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 		}))
 		.sort((a, b) => b.score - a.score || a.index - b.index)
 		.map(({ action, score, plan }) => ({ action, score, ...(plan ? { plan } : {}) }));
+  return profile === "explorer"
+    ? adversarialScoredMoves(ranked, progress.explorationUsage ?? new Map(), random)
+    : ranked;
 }
 
 export function rankMoves(obs: BotObservation, profile: BotProfile = "power-player", seed = 1,
