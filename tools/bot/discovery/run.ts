@@ -39,7 +39,9 @@ type Options = {
   maxCandidates: number;
 };
 const difficulties: readonly DiscoveryDifficulty[] = ["very_easy", "easy", "normal"];
-const profiles: readonly BotProfile[] = ["power-player", "explorer"];
+// O minerador procura ganho estratégico; Explorer investiga cobertura,
+ // não recebe combos de vitória. Evitar A/B ineficaz e gasto desnecessário.
+const profiles: readonly BotProfile[] = ["power-player"];
 const goals = { very_easy: 1, easy: 0.75, normal: 0.5 } as const;
 const MIN_PAIRED_TRIALS = 40;
 const MIN_EXTRA_WINS = 4;
