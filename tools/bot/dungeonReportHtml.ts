@@ -240,7 +240,7 @@ footer{padding:20px 28px 50px;font-size:.8rem;color:#8ca0b6}.note{border-left:3p
 "use strict";
 const data=JSON.parse(document.getElementById("dataset").textContent);
 const diffLabels={very_easy:"Muito fácil",easy:"Fácil",normal:"Normal",hard:"Difícil",nightmare:"Pesadelo"};
-const profileLabels={"casual":"Casual","power-player":"Power Player","speedrunner":"Speedrunner","explorer":"Explorador","random":"Aleatório"};
+const profileLabels={"casual":"Casual","power-player":"Power Player","explorer":"Explorer / Investigador"};
 const el=(id)=>document.getElementById(id);
 const esc=(value)=>String(value??"").replace(/[&<>"']/g,(s)=>({"&":"&amp;","<":"&lt;",">":"&gt;",'"':"&quot;","'":"&#39;"}[s]));
 const pct=(a,b)=>b?(100*a/b).toFixed(1)+"%":"—";

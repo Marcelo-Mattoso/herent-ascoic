@@ -165,7 +165,7 @@ export function playAiGame(
 			checkState(port.inspect(), baseline) ?? checkNoProgress(port.history, port.inspect());
 		const currentView = port.observe().view;
 		const boss = currentView.enemies.find((enemy) => enemy.id === "boss" && enemy.status === "active");
-		if (boss && profile !== "random") {
+		if (boss && profile !== "explorer") {
 			const round = currentView.combat?.round ?? 0;
 			if (!bossProgress || bossProgress.life - boss.currentLife >= 2) bossProgress = { life: boss.currentLife, round };
 			else if (!violation && round - bossProgress.round >= 50) {

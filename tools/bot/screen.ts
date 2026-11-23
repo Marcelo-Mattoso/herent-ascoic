@@ -63,7 +63,7 @@ function read(page: Page): Promise<Snapshot> {
 			// Dados físicos e fases automáticas pertencem à interface.
 			waiting: !decision && (automatic || Boolean(state.game.combat?.pendingPhysicalRoll)),
 			moves: scoreMoves(obs, ${JSON.stringify(PROFILE)}, state.game.rng.seed, state.game.actionLog.length)
-				.filter((move) => ${JSON.stringify(PROFILE)} === "random" || move.score >= 0),
+				.filter((move) => move.score >= 0),
 			log: state.game.eventLog,
 		};
 	})()`);

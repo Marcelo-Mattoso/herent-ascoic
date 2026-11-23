@@ -61,8 +61,9 @@ function attackScore(view: PlayerView, heroId: string, enemyId: string, profile:
 	const expectedMargin = hero.hitBonus + hero.dice * 3.5 - enemy.hitBonus - enemy.dice * 3.5;
 	const hitChance = Math.max(0.1, Math.min(0.9, 0.5 + expectedMargin * 0.07));
 	const killChance = hero.damage >= enemy.currentLife ? hitChance : 0;
-	const danger = enemy.damage * (profile === "speedrunner" ? 1 : 3);
-	const offense = hero.damage * (profile === "speedrunner" ? 5 : 3);
+	// O estrategista mescla sobrevivência e economia de golpes.
+	const danger = enemy.damage * (profile === "power-player" ? 2.5 : 3);
+	const offense = hero.damage * (profile === "power-player" ? 4 : 3);
 	return 100 + hitChance * 35 + killChance * 45 + danger + offense - enemy.currentLife * 0.5 +
 		(profile === "casual" ? lifeRatio(hero) * 10 : -Math.max(0, 0.35 - lifeRatio(hero)) * 30);
 }
@@ -84,13 +85,13 @@ function choiceScore(view: PlayerView, choice: string, profile: BotProfile): num
 			return 70 + best * 10;
 		}
 	}
-	const wounded = activeHeroes(view).some((hero) => lifeRatio(hero) < (profile === "speedrunner" ? 0.3 : 0.65));
+	const wounded = activeHeroes(view).some((hero) => lifeRatio(hero) < (profile === "power-player" ? 0.5 : 0.65));
 	if (/heal|cura/i.test(choice)) return wounded ? 80 : 10;
 	if (choice === "tohit") {
 		const hero = activeHeroes(view).find((entry) => entry.id === view.combat?.selectedHeroId);
 		return hero && hero.hitBonus < 5 ? 70 : 55;
 	}
-	if (choice === "damage" || /damage|dano/i.test(choice)) return profile === "speedrunner" ? 85 : 65;
+	if (choice === "damage" || /damage|dano/i.test(choice)) return profile === "power-player" ? 80 : 65;
 	if (choice === "ally_six" || choice === "enemy_min" || choice === "witch_eclipse_hero_six" || choice === "witch_eclipse_enemy_one") {
 		const roll = view.combat?.lastRoll;
 		return roll ? 60 + (choice === "ally_six" || choice === "witch_eclipse_hero_six"
@@ -185,7 +186,7 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			}
 			return 10;
 		}
-		case "CHECK_BOSS_CONDITION": return profile === "speedrunner" ? 125 : 20;
+		case "CHECK_BOSS_CONDITION": return profile === "power-player" ? 125 : 20;
 		case "CHOOSE_ITEM_DESTINATION": {
 			if (action.payload.destination === "discard") return 1;
 			const hero = heroes.find((entry) => entry.id === action.payload.heroId);
@@ -258,7 +259,7 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 function abilityTargets(view: PlayerView, ability: BotObservation["abilities"][string][number], owner: HeroView, profile: BotProfile): string[] {
 	if (!ability.targetRequired && ability.activation !== "manual_prepare") return [];
 	const candidates = ability.validTargetIds;
-	if (profile === "random") return [...candidates];
+	// O Casual mistura variação aleatória na ordenação final.
 	if (ability.heals) return candidates.filter((id) => activeHeroes(view).some((hero) => hero.id === id && hero.currentLife < hero.maxLife));
 	if (ability.abilityId === "skill_rift_rune") return candidates.filter((id) =>
 		hasAction(view, id) && (id !== owner.id || !view.combat?.buffsByHero[id]?.some((buff) =>
@@ -273,7 +274,7 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	const isPrepare = ability.activation === "prepare";
 	// Não sacrificar uma ativação limitada para curar um herói saudável.
 	if (ability.heals && !activeHeroes(view).some((hero) => hero.currentLife < hero.maxLife)) return -1;
-	if (profile === "random") return 0;
+	// Todos usam apenas ações apresentadas pela projeção.
 	const target = activeHeroes(view).find((hero) => hero.id === targetId);
 	const missing = target ? target.maxLife - target.currentLife : 0;
 	if (abilityId === "skill_last_light_healing" || abilityId === "witch_skill_white_ash_balm") {
@@ -327,7 +328,7 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	if (profile === "explorer") return isPower ? 185 : 165;
 	// Habilidades com disparo voluntário devem ser preparadas antes do evento;
 	// poderes têm valor real, inclusive para o perfil veloz.
-	if (profile === "speedrunner") return isPower ? 185 : isPrepare ? 160 : pressure(view) ? 155 : 105;
+	if (profile === "power-player") return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 115;
 	if (profile === "casual") return isPower ? 175 : isPrepare ? 155 : pressure(view) ? 150 : 100;
 	return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 110;
 }
@@ -457,11 +458,12 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	];
 	const unique = [...new Map(candidates.reverse().map((move) => [JSON.stringify(move.action), move])).values()].reverse();
 	const random = seededRandom(seed, decision);
-	return (profile === "random" ? unique.sort((a, b) =>
-		JSON.stringify(a.action).localeCompare(JSON.stringify(b.action))) : unique)
-		.map((move, index) => ({
+	// Casual funde heurísticas simples com uma decisão aleatória ocasional,
+	// reproduzível por seed (não é um perfil Random separado).
+	const casualRandom = profile === "casual" && unique.length > 1 && random() < 0.15;
+	return unique.map((move, index) => ({
 			...move,
-			score: profile === "random" ? random() :
+			score: casualRandom ? random() :
         move.score + (learnable
           ? soloPolicyAdjustment(obs.view, move.action, soloPolicy, profile as SoloLearningProfile) : 0) +
           (learnable ? knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],

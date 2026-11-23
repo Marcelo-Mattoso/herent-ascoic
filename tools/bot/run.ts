@@ -23,7 +23,7 @@ interface Options {
 }
 
 function parseArgs(argv: string[]): Options {
-	const opts: Options = { games: 100, seed: 1, maxSteps: 3000, replay: null, profile: "random" };
+	const opts: Options = { games: 100, seed: 1, maxSteps: 3000, replay: null, profile: "casual" };
 	for (let i = 0; i < argv.length; i++) {
 		const flag = argv[i];
 		const value = argv[i + 1];

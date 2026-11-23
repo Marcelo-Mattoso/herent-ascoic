@@ -1,16 +1,12 @@
 import type { GoldenSetup } from "../golden/lib";
 import { BOT_HEROES, setupFromSeed } from "./play";
 
-export const BOT_PROFILES = ["casual", "power-player", "speedrunner", "explorer", "random"] as const;
+export const BOT_PROFILES = ["casual", "power-player", "explorer"] as const;
 export type BotProfile = typeof BOT_PROFILES[number];
 
-/** Somente os dois jogadores competitivos consomem conhecimento promovido.
- * Casual e Explorer continuam sendo baselines comportamentais independentes.
- */
-export function usesLearnedStrategies(
-  profile: BotProfile,
-): profile is "power-player" | "speedrunner" {
-  return profile === "power-player" || profile === "speedrunner";
+/** Só o Power Player consome pesos e combinações táticas promovidas. */
+export function usesLearnedStrategies(profile: BotProfile): profile is "power-player" {
+  return profile === "power-player";
 }
 
 const HERO_ALIASES: Readonly<Record<string, string>> = {
