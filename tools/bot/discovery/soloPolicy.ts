@@ -7,8 +7,8 @@ import { getCardById } from "@/core/data/cards";
 import { effectKinds } from "@/core/abilities/trace";
 import { catalogFingerprint } from "./fingerprint";
 
-export type SoloLearningProfile = "power-player" | "speedrunner";
-export const SOLO_LEARNING_PROFILES = ["power-player", "speedrunner"] as const;
+export type SoloLearningProfile = "power-player";
+export const SOLO_LEARNING_PROFILES = ["power-player"] as const;
 export function soloWeightKey(profile: SoloLearningProfile, feature: string): string {
   return "profile:" + profile + "|" + feature;
 }
@@ -107,7 +107,7 @@ export function hasSoloWeightsForHero(
   if (!policy || policy.catalogFingerprint !== fingerprint) return false;
   const key = "profile:" + profile + "|hero:" + heroCardId + "|";
   return Object.keys(policy.weights).some(weight => weight.startsWith(key) ||
-    (profile === "power-player" && weight.startsWith("hero:" + heroCardId + "|")));
+    weight.startsWith("hero:" + heroCardId + "|"));
 }
 export function soloPolicyAdjustment(view: PlayerView, action: Action,
   policy: SoloPolicy | null | undefined = publishedSoloPolicy,
@@ -116,7 +116,7 @@ export function soloPolicyAdjustment(view: PlayerView, action: Action,
   const score = soloDecisionFeatures(view, action).reduce((sum, key) => {
     const name = soloWeightKey(profile, key);
     const weight = policy.weights[name] ??
-      (profile === "power-player" ? policy.weights[key] : undefined);
+      policy.weights[key];
     return sum + (typeof weight === "number" && Number.isFinite(weight) ? weight : 0);
   }, 0);
   return Math.max(-250, Math.min(250, score));

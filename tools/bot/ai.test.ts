@@ -38,10 +38,10 @@ describe("IA do bot", () => {
 		expect(seen).not.toContain("ROLL_DICE");
 	});
 
-	it("não trava no boss com Necromante, seed 1, aleatório, Fácil, Fornalha", () => {
+	it("não trava no boss com Necromante, seed 1, Casual, Fácil, Fornalha", () => {
 		const setup = { ...setupForRun(1, ["hero_deep_veil_necromancer"], "easy"),
 			bossCardId: "boss_azhakar" };
-		const result = playAiGame(setup, 1000, undefined, "random");
+		const result = playAiGame(setup, 1000, undefined, "casual");
 		expect(result.violation?.invariant).not.toBe("no_legal_action");
 	}, 60_000);
 

@@ -18,7 +18,7 @@ import { publishedKnowledge } from "./knowledge";
 
 type Difficulty = "very_easy" | "easy" | "normal";
 type Focus = "all" | "skills" | "items" | "powers";
-type TrainSelection = SoloLearningProfile | "both";
+type TrainSelection = SoloLearningProfile;
 type Context = { hero: string; boss: string; expansion: string; difficulty: Difficulty };
 interface Args {
   readonly focus: Focus;
@@ -70,9 +70,9 @@ function parse(args: readonly string[]): Args {
     if (!Number.isSafeInteger(value) || value < 1) throw new Error(name + " exige inteiro positivo");
     return value;
   };
-  const profile = params.get("--profile") ?? "both";
-  if (!["both", "power-player", "speedrunner"].includes(profile))
-    throw new Error("--profile exige both, power-player ou speedrunner");
+  const profile = params.get("--profile") ?? "power-player";
+  if (profile !== "power-player")
+    throw new Error("--profile aceita somente power-player; Speedrunner foi incorporado ao Power Player");
   const focus = params.get("--focus") ?? "all";
   if (!["all", "skills", "items", "powers"].includes(focus))
     throw new Error("--focus exige all, skills, items ou powers");
@@ -186,16 +186,12 @@ function runTrial(c: Context, seed: number, maxSteps: number,
     violation: result.violation !== null, rooms: result.roomsCleared,
     steps: result.steps, observed, items, drops, itemDrawEvents };
 }
-function score(result: Trial, profile: SoloLearningProfile): number {
-  // Speedrunner valoriza completar menos ações; Power Player valoriza robustez.
-  return profile === "speedrunner"
-    // Só recompensa a VELOCIDADE quando a partida é vencida.
-    // Em derrotas, progredir mais longe é melhor que morrer depressa.
-    ? result.win
-      ? 320 + result.rooms * 1.2 - result.steps * .12
-      : -250 + result.rooms * 12 - (result.violation ? 210 : 0)
-    : (result.win ? 120 : 0) + result.rooms * 1.8 -
-      (result.violation ? 175 : 0) - result.steps * .018;
+function score(result: Trial): number {
+  // O estrategista unificado vence primeiro e busca menos ações em vitórias.
+  // Uma derrota rápida nunca gera bônus de velocidade.
+  return result.win
+    ? 600 + result.rooms * 2 - result.steps * 0.12
+    : -250 + result.rooms * 12 - (result.violation ? 210 : 0);
 }
 export function candidateFeatures(counts: Readonly<Record<string, number>>,
   options: Pick<Args, "focus" | "maxFeatures">): string[] {
@@ -283,8 +279,7 @@ function compare(base: readonly Trial[], candidate: readonly Trial[]): Compariso
 async function trainOne(options: Args, profile: SoloLearningProfile): Promise<void> {
   const matrix = contexts(options);
   const fingerprint = catalogFingerprint();
-  // Releitura a cada perfil: a promoção do primeiro não pode ser sobrescrita
-  // pelo segundo quando --profile both estiver ativo.
+  // Política única: pesos por herói + contexto, com vitória como prioridade.
   const policyPath = resolve("src/data/soloPolicy.json");
   const disk = JSON.parse(await readFile(policyPath, "utf8")) as SoloPolicy;
   const initial: SoloPolicy = { version: 1, catalogFingerprint: fingerprint,
@@ -357,7 +352,7 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
         const results = epochTasks.map(({ context, seed }) =>
           runTrial(context, seed, options.maxSteps, probe, profile));
         const gain = results.reduce((total, trial, i) =>
-          total + score(trial, profile) - score(epochBaseline[i]!, profile), 0);
+          total + score(trial) - score(epochBaseline[i]!), 0);
         if (gain > (best?.gain ?? 0)) best = { feature, value, gain, results };
       }
       console.info("Instrutor solo [" + profile + "]:", epoch + 1, "/", options.epochs,
@@ -366,8 +361,8 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
     if (!best) {
       // Nenhum valor é promovido; mas Speedrunner continua explorando na
       // próxima época, com outras seeds. Isso não sobreajusta a validação.
-      if (profile === "speedrunner") continue;
-      break;
+      // O estrategista também pode tentar outras seeds nas próximas épocas.
+      continue;
     }
     explored.push({ epoch: epoch + 1, feature: best.feature,
       previous: current.weights[best.feature] ?? 0, next: best.value, scoreGain: best.gain });
@@ -391,9 +386,8 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
     if (comparison.pairs < 40 || comparison.nextViolations > comparison.baseViolations) return false;
     const statisticallyBetter = comparison.nextWins - comparison.baseWins >= 4 &&
       comparison.statistic >= 6.64;
-    if (profile === "power-player") return statisticallyBetter;
-    // Speedrunner: também pode passar por uma melhoria real de eficiência,
-    // SEM perder vitórias (mesmos cenários/seeds) e sem novas violações.
+    // A otimização por velocidade só é válida entre vitórias compartilhadas,
+    // sem perder vitórias nem ampliar violações do motor.
     const faster = comparison.nextWins >= comparison.baseWins &&
       comparison.sharedVictories >= 8 && comparison.relativeStepReduction >= .05;
     return statisticallyBetter || faster;
@@ -457,9 +451,7 @@ async function trainOne(options: Args, profile: SoloLearningProfile): Promise<vo
 async function main(): Promise<void> {
   assertLocalReportExecution();
   const options = parse(process.argv.slice(2));
-  const profiles: readonly SoloLearningProfile[] = options.profile === "both"
-    ? ["power-player", "speedrunner"] : [options.profile];
-  for (const profile of profiles) await trainOne(options, profile);
+  await trainOne(options, options.profile);
 }
 if (process.env.VITEST === undefined) main().catch(error => {
   console.error(error); process.exitCode = 1;
