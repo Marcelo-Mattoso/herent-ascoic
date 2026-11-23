@@ -42,14 +42,18 @@ Ao abrir uma escolha necessária, `pendingSkillWindow.resume` guarda o ponto de 
 
 ## Catálogos e assets
 
-Os catálogos executados ficam em `src/data/`:
+A composição **executada** das cartas vem de `assets/expansions/<id>/expansion.json` e, para o chefe, de `assets/expansions/<id>/boss.json`, apenas quando o pacote estiver habilitado em `assets/expansions/config.json`. `src/core/data/expansions.ts` valida e combina esses catálogos. As definições de comportamento e configurações transversais continuam em `src/data/`:
 
 | Arquivo | Função |
 |---|---|
-| `cards.yaml` | Composição de cartas e referências `skillId` com parâmetros. |
-| `skills.yaml` e `abilities.yaml` | Definições de comportamento. |
-| `cards.locale.pt-BR.yaml` e `skills.locale.pt-BR.yaml` | Nomes e textos de apresentação. |
-| `balance.json`, `event_rules.json`, `transitions.json` | Balanceamento, ordem de eventos e transições válidas. |
+| `assets/expansions/config.json` | Lista explícita dos pacotes habilitados. |
+| `assets/expansions/<id>/expansion.json` e `boss.json` | Cartas, metadados de imagem, habilidades próprias e ficha de chefe. |
+| `src/data/skills.yaml` e `src/data/abilities.yaml` | Definições legadas e declarativas de comportamento. |
+| `src/data/cards.yaml` | Catálogo legado e referência editorial, não a lista principal de cartas carregadas. |
+| `src/data/cards.locale.pt-BR.yaml` e `src/data/skills.locale.pt-BR.yaml` | Textos legados e localizados. |
+| `src/data/balance.json`, `event_rules.json`, `transitions.json` | Balanceamento, ordem de eventos e transições válidas. |
+
+Consulte [EXPANSIONS.md](EXPANSIONS.md) para os três pacotes ativos em `dev` e as regras de registro.
 
 `docs/dungeon-1.json` e `docs/habilidades.json` são catálogos editoriais da especificação v3, preservados como fonte do autor. **Não são importados pelo runtime**: uma alteração neles não muda a Alpha. Imagens originais ficam em `imagedata/`; o plugin de Vite gera manifestos e cópias em `public/generated/`. A UI resolve as URLs dos manifestos com `import.meta.env.BASE_URL`, necessário no subdiretório do GitHub Pages.
 
@@ -57,9 +61,20 @@ O menu global é montado uma vez em `App` e renderizado por portal no `body`, fo
 
 ## Adicionar carta ou habilidade
 
-1. Defina ou atualize a habilidade em `src/data/skills.yaml`, com ID estável, categoria, `operate_type`, alvo, escopo e `effect` ou `script`. Prefira uma primitiva DSL quando o efeito for reutilizável.
-2. Escreva o texto visível no arquivo locale. Faça a carta referenciar o `skillId` em `cards.yaml`; não duplique lógica na carta ou na UI.
-3. Se houver evento novo, defina o emissor, a ordem e o teste de contrato correspondente. Se houver status novo, atualize `transitions.json` antes de usá-lo no reducer.
-4. Adicione testes de catálogo e de comportamento para alvo, janela, duração e custo; confira o fluxo apresentado na UI quando pertinente.
+1. Atualize a carta no `expansion.json` do pacote habilitado, mantendo o ID global estável. Para chefe, use `boss.json` e **não** duplique a ficha em `cards[]`.
+2. Defina o efeito no catálogo de habilidades/abilities do pacote ou em `src/data/`, usando grants declarativos e/ou `skills[]` legados conforme os contratos existentes. Prefira uma primitiva DSL quando o efeito for reutilizável.
+3. Mantenha nome, descrição e traduções nas fontes de locale correspondentes. A UI não deve conter regras nem ids de habilidade codificados.
+4. Se houver evento novo, defina emissor, ordem e teste de contrato. Para status novo, atualize `transitions.json` antes de usá-lo no reducer.
+5. Adicione testes de catálogo e de comportamento para alvo, janela, duração e custo; confira o fluxo de UI e gere os relatórios de auditoria localmente. A alteração de catálogo invalida automaticamente políticas antigas do Desbravador até revalidação.
 
 IDs canônicos, formato dos parâmetros, nós DSL e convenções de escopo estão em [`src/data/README.md`](../src/data/README.md) e [`src/core/README.md`](../src/core/README.md). As regras digitais deliberadas estão em [GAME_RULES.md](GAME_RULES.md).
+
+## Bots, aprendizado e auditoria
+
+`tools/bot/observe.ts` apresenta ao agente apenas a projeção pública e ações legais do motor; `brain.ts` ranqueia decisões, `port.ts` executa actions e `ai.ts` controla as partidas sem navegador. O bot visual tem caminho separado em `tools/bot/screen.ts`.
+
+O Desbravador (`tools/bot/discovery/`) acrescenta telemetria opt-in de habilidades realmente executadas (com provenance do grant), mineração experimental de sequências e treinamento **solo** das prioridades por herói/perfil. `src/data/discoveryKnowledge.json` guarda combos validados; `src/data/soloPolicy.json` guarda prioridades aprendidas após validação A/B. Ambos são invalidados ou revalidados quando o fingerprint do catálogo muda.
+
+Power Player e Speedrunner aprendem de forma independente; Casual, Explorer e Random não são alterados por essa política. O Caçador de Bugs é um executor adversarial em `tools/bot/discovery/bugHunter.ts`, que preserva cobertura e casos de replay em `tools/bot/runs/`, sem modificar a estratégia normal do jogador.
+
+`scripts/run-audit.mjs` orquestra auditoria rápida de skills, leveling e amostra curta de bugs. **Essas execuções são locais**, não parte do CI/CD. Detalhes e limites em [BOT_MODE.md](BOT_MODE.md) e [Desbravador](../tools/bot/discovery/README.md).

@@ -158,3 +158,15 @@ Amostra: 100 partidas por herói (2 expansões × 5 perfis × 10 seeds). Resulta
 **Leitura:** o Necromante está bloqueado principalmente na exploração, não no chefe; o Mago e a Ladina sofrem tanto antes quanto durante o chefe. A Clériga tem sobrevivência relativamente alta ao chegar, mas conversão baixa, sugerindo pouca ofensiva solo. Isso exige examinar a legalidade, o uso e o efeito das habilidades antes de alterar números. O novo `diagnostics.heroBalance` agrupa por herói/expansão/dificuldade com vitórias, impasses, visitas ao chefe, vida e nível na entrada e XP acumulado. Próxima rodada de avaliação: comparar por perfil e expansão e verificar se há falsos negativos de IA, especialmente para habilidades utilitárias.
 
 **Não foram alteradas** estatísticas dos heróis, distribuição de XP das criaturas/salas ou custos de XP para se chegar a estas conclusões. Executar build/testes e `npm run audit` somente localmente; não acompanhar CI/CD automaticamente.
+
+## Estado da documentação em 23/11/2026 — IA de playtest
+
+As estatísticas históricas acima continuam representando **as seeds, perfis e expansões do momento da coleta**. Não reinterpretar as tabelas de 14/11 como taxas atuais do catálogo completo, que passou a habilitar também `castelo-horizonte-infindo`, nem como probabilidade de vitória de um jogador humano.
+
+A `dev` agora inclui treinamento opcional e separado de Power Player e Speedrunner (`npm run bot:train-solo`) e uma varredura adversarial de bugs (`npm run bot:bug-hunt`). O `npm run audit` permanece o benchmark principal e inclui varredura curta de bugs depois das auditorias de skills e leveling. **Treinar não é auditar**: o benchmark deve registrar qual versão de `src/data/soloPolicy.json` e `src/data/discoveryKnowledge.json` estava ativa e não comparar séries de perfis ou catálogos diferentes como se fossem equivalentes.
+
+O Power Player usa melhora pareada de vitórias como critério. O Speedrunner também pode aprender a economizar ações em partidas vencidas, desde que não piore as vitórias nem as invariantes. Frequências de itens observadas durante o treino não são probabilidades causais por herói e não provam valor estratégico do item sem validação A/B.
+
+O Caçador de Bugs registra casos para investigação e replay. Suspeitas de custo/efeito devem ser tratadas separadamente de violações comprovadas. Critérios, comandos e saídas ficam em [BOT_MODE.md](BOT_MODE.md) e [Desbravador](../tools/bot/discovery/README.md).
+
+**Status:** atualização apenas documental; sem novas partidas, compilação, testes ou CI/CD executados para este registro.

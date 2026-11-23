@@ -207,35 +207,15 @@ O registro `abilityTrace` é apenas telemetria e foi explicitamente excluído do
 `npm run bot:discover -- --party-size 2 --max-parties 8` minera combos entre dois heróis; altere o tamanho para 3 ou 4. Relatórios e conhecimento ficam separados da auditoria. Consulte `tools/bot/discovery/README.md` para critérios de confirmação, versionamento e revalidação.
 
 
-## Instrutor Solo — habilidades, itens e poderes (sem equipes)
+## Instrutor Solo e Caçador de Bugs
 
-Use `npm run bot:train-solo -- --dry-run` para avaliar o tamanho do treino sem executar nenhuma partida.
-Primeiro treino: `npm run bot:train-solo -- --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12`.
-Para aprender e promover SOMENTE SE uma avaliação A/B independente comprovar ganho: acrescente `--promote`.
-As três especializações podem ser treinadas separadamente com `--focus skills`, `--focus items` ou `--focus powers`.
-Saídas locais em `tools/bot/runs/solo-train-*/`; conhecimento versionado em `src/data/soloPolicy.json`.
-O treinador só usa heróis individuais, com três dificuldades: Muito Fácil, Fácil e Normal. O `audit` oficial continua separado e inalterado.
+A documentação consolidada e os comandos suportados ficam em [`discovery/README.md`](discovery/README.md) e [`docs/BOT_MODE.md`](../../docs/BOT_MODE.md). O Instrutor Solo treina **Power Player e Speedrunner separadamente**; Casual, Explorer e Random mantêm a política original.
 
-O Instrutor só promove uma política se, nas seeds reservadas, também
-superar o bot atualmente publicado; não basta vencer uma baseline adaptativa
-sem pesos. Veja `versusCurrentBot` em `solo-training-report.json`.
+```bash
+npm run bot:train-solo -- --profile both --dry-run
+npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
+npm run bot:bug-hunt -- --dry-run
+npm run bot:bug-hunt -- --runs 3 --max-scenarios 24 --max-steps 750
+```
 
-A política aprendida pelo Instrutor Solo vale inicialmente apenas para o
-perfil `power-player` solo, único perfil treinado nesta versão. Os outros
-quatro perfis mantêm seus comportamentos originais e continuam no audit.
-
-
-## Treinamento de perfis e caça a bugs
-
-`npm run bot:train-solo -- --profile both ...` ajusta Power Player e
-Speedrunner isoladamente; cada perfil promove somente resultados
-validados por seeds reservadas. Speedrunner também mede economia de
-ações e coleta frequências empíricas de itens
-(`item-drop-observations.json`). Random, Casual e Explorer permanecem
-inalterados.
-
-`npm run bot:bug-hunt` executa o Caçador de Bugs em partidas
-solo, buscando ações e combinações incomuns com replay. `npm run audit`
-inclui uma amostragem curta dele, após o leveling; para ignorar:
-`AUDIT_BUG_HUNT=0 npm run audit`. Veja documentação completa em
-`tools/bot/discovery/README.md`.
+O Power Player procura vitórias consistentes; o Speedrunner investiga também economia de ações em vitórias e observa frequências de itens; o Caçador de Bugs procura falhas, combinações raras e lacunas de cobertura (sem otimizar taxa de vitória). Os relatórios e o corpus de regressão ficam fora do Git em `tools/bot/runs/`. `npm run audit` inclui amostragem curta de bugs após o leveling. Nenhuma execução longa deve ser automática no CI.

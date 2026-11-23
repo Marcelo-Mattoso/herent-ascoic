@@ -1,18 +1,36 @@
 # Playtest da Alpha Web
 
-Estado local em 27/10/2026. O [site público](https://marcelo-mattoso.github.io/herent-ascoic/) e o PDF responderam HTTP 200 na verificação anterior; as mudanças desta branch ainda não foram publicadas. O workflow publica a partir de `main` após os checks.
+Este documento reúne **histórico de verificações locais de outubro** e uma atualização documental da `dev` em **23/11/2026**. Os resultados de outubro preservados abaixo não atestam o estado atual da `dev`. A publicação depende de promoção/revisão próprias até `main`; nenhuma build, auditoria ou confirmação do site foi realizada nesta revisão de documentação.
 
 ## O que testar
 
 A Alpha abre sem cadastro. Escolha **JOGAR**, selecione de 1 a 4 heróis, modo e dificuldade e inicie a expedição. Revele salas, enfrente criaturas, use ataque, habilidades, poderes e itens, organize espólios, gaste XP, abra caminhos e avance até Azhakar. O botão ☰ no canto superior direito abre **Música** e **Regras** em todas as telas. Escolha uma faixa e pressione **Play**; **Stop** interrompe e reinicia a faixa. O volume começa em 50% e persiste com a faixa escolhida, mas a reprodução não recomeça após recarregar. Em Regras, é possível ler ou baixar o manual PDF. Vitória e derrota têm telas próprias.
 
-**TUTORIAL** abre quatro arquivos independentes. O treinamento é guiado:
-
-**No celular**
-
 **TUTORIAL** abre quatro arquivos independentes. O Arquivo I guia a seleção de heróis, o tabuleiro, a revelação de salas, o Despertar coletivo, as cores e os descartes da masmorra. O Arquivo II ensina combate com seleção, arrasto ou toque, dados e dano reais. O Arquivo III ensina inventário e equipamentos. O Arquivo IV ensina a Marca da Presa, o ataque após a habilidade, a preparação e execução da Fúria Rubra, um poder do Guerreiro, o passivo de um encanto e o limite por partida. O Arquivista narra sobre a interface; use os controles destacados e **Continuar** nas observações. No fim, é possível repetir, escolher arquivo ou abrir a preparação de uma partida normal sem recarregar. O registro do treinamento pode ser baixado em JSON com o Diário.
 
 Para relatar um problema, anote carta, herói, sala, ação, resultado esperado e observado e as últimas mensagens do log. O replay determinístico e as ferramentas de console ficam disponíveis apenas no modo de desenvolvimento.
+
+### Revisão de playtest da `dev` (23/11/2026)
+
+O catálogo habilitado em `assets/expansions/config.json` inclui **Fornalha Sombria**, **Torre da Grande Bruxa** e **Castelo do Horizonte Infindo**. As referências históricas a Azhakar e à Fornalha abaixo não substituem testes dirigidos nos outros chefes. [Contrato de expansões](EXPANSIONS.md).
+
+Validação local recomendada, sem presumir resultados:
+
+```bash
+npm run typecheck:tools
+npm test
+npm run build
+npm run bot:skills-audit
+npm run bot:train-solo -- --profile both --dry-run
+npm run bot:bug-hunt -- --dry-run
+npm run audit
+```
+
+O `audit` realiza skills, leveling e uma varredura curta de bugs se as fases anteriores passarem. O treinamento `bot:train-solo` é independente e não ocorre automaticamente dentro do `audit`. O `--promote` somente grava políticas que passarem pela validação A/B. Veja [Modo bot](BOT_MODE.md) e [Desbravador](../tools/bot/discovery/README.md).
+
+Pontos específicos a observar em novas partidas: ativação e momento de habilidades/preparações; custo de PV pago corretamente; poção versus item reutilizável; ocorrência e valorização de equipamentos por classe; reações automáticas e escolha de dados; entrada e saída de sala; habilidades específicas dos chefes; divergência entre `available` e execução real. O Caçador de Bugs pode produzir tanto violações quanto **suspeitas não confirmadas**, que devem ser reproduzidas antes de qualquer mudança de regra.
+
+Os parágrafos de validação de outubro a seguir são **registro histórico**, não números de cobertura atuais.
 
 ## Limitações e pendências
 

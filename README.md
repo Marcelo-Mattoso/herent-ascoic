@@ -1,10 +1,10 @@
 # Ascensão Heróica
 
-Jogo de cartas cooperativo de exploração de masmorra. **A Fornalha Sombria** é a primeira expansão, não um subtítulo do jogo. Escolha heróis, revele salas, enfrente criaturas, organize espólios e tente derrotar Azhakar. A Alpha Web é estática, sem cadastro ou backend; a partida ainda não é salva ao recarregar.
+Jogo de cartas de exploração de masmorra. **A Fornalha Sombria** é a primeira expansão, não um subtítulo do jogo. A `dev` atualmente habilita também **Torre da Grande Bruxa** e **Castelo do Horizonte Infindo**, com chefes específicos por expansão. Escolha heróis, revele salas, enfrente criaturas, organize espólios e desafie o chefe do pacote escolhido. A Alpha Web é estática, sem cadastro ou backend; a partida ainda não é salva ao recarregar.
 
 ## Tecnologia
 
-React 19, TypeScript 6, Vite 8, Tailwind CSS 4 e Elf para a interface; Vitest, Playwright e Biome para validação. O motor de regras fica em `src/core/`, os catálogos em `src/data/` e a UI em `src/ui/`.
+React 19, TypeScript 6, Vite 8, Tailwind CSS 4 e Elf para a interface; Vitest, Playwright e Biome para validação. O motor de regras fica em `src/core/`, os catálogos executados combinam os pacotes `assets/expansions/` com definições de `src/data/`, e a UI em `src/ui/`.
 
 ## Executar e validar
 
@@ -45,10 +45,13 @@ Remove-Item Env:PAGES_BASE_PATH
 |---|---|
 | `npm run bot:skills-audit` | Auditoria rápida das habilidades; gera JSON/HTML em `tools/bot/runs/skill-audit-<data-hora>/`. |
 | `npm run bot:catalog-report` | Inventário e pontuação das cartas, sem simular partidas. |
-| `npm run bot:leveling-report` | Simulação completa do catálogo habilitado (atualmente 6.000 partidas por padrão). |
-| `npm run audit` | Cria uma pasta datada em `tools/bot/runs/` com `skill-audit.json/html` e, se passar, `report.json` e checkpoints. |
+| `npm run bot:leveling-report` | Simulação do catálogo habilitado para todos os heróis, cinco perfis e cinco dificuldades; volume padrão definido pelo benchmark. |
+| `npm run bot:discover -- --dry-run` | Prévia da pesquisa de sequências de efeitos do Desbravador. |
+| `npm run bot:train-solo -- --profile both --dry-run` | Prévia de treino dos dois perfis especializados, Power Player e Speedrunner. |
+| `npm run bot:bug-hunt -- --dry-run` | Prévia da busca adversarial de bugs, sem simular partidas. |
+| `npm run audit` | Executa auditoria de habilidades, leveling e, se ambos passarem, amostragem curta do Caçador de Bugs em pasta datada dentro de `tools/bot/runs/`. |
 
-Para o fluxo de testes e opções avançadas, veja [o bot](tools/bot/README.md) e [o auditor de habilidades](tools/bot/skill-audit/README.md). Esses comandos não são executados pelo CI.
+Para o fluxo e exemplos de treino local, veja [o modo bot](docs/BOT_MODE.md), [o Desbravador](tools/bot/discovery/README.md), [o bot](tools/bot/README.md) e [o auditor de habilidades](tools/bot/skill-audit/README.md). Os treinamentos e relatórios extensos não são executados no CI.
 
 ## Publicação da Alpha
 
@@ -65,7 +68,10 @@ Antes de publicar, o proprietário deve selecionar **Settings → Pages → Buil
 | [Arquitetura](docs/ARCHITECTURE.md) | Fluxo de ações, core, UI, dados, DSL, ECS e extensão do jogo. |
 | [Regras digitais](docs/GAME_RULES.md) | Decisões do autor e diferenças do manual físico. |
 | [Playtest](docs/PLAYTEST.md) | Estado da Alpha, limitações, checklist e feedback. |
+| [Expansões](docs/EXPANSIONS.md) | Pacotes habilitados, esquema de dados e inclusão de chefes. |
+| [Modo bot](docs/BOT_MODE.md) | Perfis, comandos locais, treinamento e auditoria unificada. |
+| [Desbravador](tools/bot/discovery/README.md) | Aprendizado solo por perfil, observação de itens e Caçador de Bugs. |
 | [Localização](docs/LOCALIZATION.md) | Como criar, validar, revisar e publicar um idioma. |
 | [Core](src/core/README.md) e [dados](src/data/README.md) | Contratos e convenções dos módulos. |
 
-Os catálogos editoriais `docs/dungeon-1.json` e `docs/habilidades.json` foram preservados como referência. O comportamento executado vem de `src/data/`, e o histórico de propostas e patches permanece recuperável no Git.
+Os catálogos editoriais `docs/dungeon-1.json` e `docs/habilidades.json` foram preservados como referência. As cartas executadas vêm dos pacotes habilitados em `assets/expansions/` e das definições em `src/data/`; o histórico de propostas e patches permanece recuperável no Git.
