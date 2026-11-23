@@ -463,10 +463,11 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 	const random = seededRandom(seed, decision);
 	// Casual funde heurísticas simples com uma decisão aleatória ocasional,
 	// reproduzível por seed (não é um perfil Random separado).
-	const casualRandom = profile === "casual" && unique.length > 1 && random() < 0.15;
+	const casualCandidates = unique.filter(move => move.score >= 0 && move.action.type !== "DEFEAT");
+	const casualRandom = profile === "casual" && casualCandidates.length > 1 && random() < 0.15;
 	const ranked = unique.map((move, index) => ({
 			...move,
-			score: casualRandom ? random() :
+			score: casualRandom && move.score >= 0 && move.action.type !== "DEFEAT" ? random() :
         move.score + (learnable
           ? soloPolicyAdjustment(obs.view, move.action, soloPolicy, profile as SoloLearningProfile) : 0) +
           (learnable ? knowledgeBonus(move.action, obs.view, progress.recentTraits ?? [],

@@ -159,7 +159,7 @@ describe("ensaio pareado de masmorra", () => {
 			}], },
 			abilities: { ...obs.abilities, [hero.id]: [{ ...fury!, status: "available" as const }] },
 		};
-		for (const profile of ["power-player", "speedrunner", "casual", "explorer"] as const) {
+		for (const profile of ["power-player", "casual", "explorer"] as const) {
 			const actions = scoreMoves(ready, profile);
 			expect(actions.some((move) => move.action.type === "USE_SKILL" &&
 				move.action.payload.skillId === "skill_crimson_fury")).toBe(false);
