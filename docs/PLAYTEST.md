@@ -90,3 +90,13 @@ Validação local do menu global em 27/10/2026: 756 testes Vitest em 85 arquivos
 3. Você conseguiu usar habilidade, poder e item quando esperava?
 4. O tabuleiro, textos e manual ficaram legíveis no seu dispositivo?
 5. O que impediu você de concluir a expedição ou faria você jogar outra partida?
+
+### Revisão de perfis do playtest (23/11/2026)
+
+O código de bots da branch `codex/bots-aprendizado-perfis-20261123`
+consolida **Power Player, Casual e Explorer**. Os resultados antigos
+com Speedrunner e Random permanecem históricos. `npm run audit` usa a
+nova matriz com as mesmas 10 seeds por cenário (sem aumento de carga),
+e a última etapa chama o modo investigativo do Explorer. Esses ajustes
+foram apenas revisados no código; ainda precisam de execução local antes
+de se afirmar taxas de vitória ou cobertura.

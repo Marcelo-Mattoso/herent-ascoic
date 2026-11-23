@@ -20,7 +20,7 @@ Abre uma janela do Chromium: o bot lê o estado do jogo pela store e age com o m
 | `--stuck MS` | 25000 | Tempo sem progresso até registrar travamento |
 | `--url URL` | `http://localhost:5173` | Endereço do jogo |
 | `--headless` | desligado | Roda sem janela |
-| `--profile` | `power-player` | `casual`, `power-player`, `speedrunner`, `explorer` ou `random` |
+| `--profile` | `power-player` | `power-player`, `casual` ou `explorer` |
 | `--heroes` | 3 primeiros da tela | IDs ou aliases separados por vírgula; 1 a 4 heróis |
 | `--difficulty` | `normal` | `very_easy`, `easy`, `normal`, `hard` ou `nightmare` |
 
@@ -30,21 +30,20 @@ Abre uma janela do Chromium: o bot lê o estado do jogo pela store e age com o m
 npm run bot:watch -- --seed 3 --profile power-player --heroes barbarian,cleric,mage --difficulty normal --delay 500
 ```
 
-**Rodar muitas partidas sem tela**, com escolhas aleatórias por padrão:
+**Rodar muitas partidas sem tela**, com Casual por padrão (mistura de heurísticas e escolhas aleatórias):
 
 ```bash
 npm run bot -- --games 100 --seed 1
 ```
 
-`random` sorteia, com seed reproduzível, entre as ações disponíveis e as habilidades manuais. Não usa notas de dano, cura ou estratégia. O mesmo perfil funciona em `bot:watch` e `bot:screen` com `--profile random`.
+O perfil `casual` reúne decisões simplificadas com uma escolha aleatória ocasional (15% das decisões com mais de uma opção), reprodutível por seed. `random` deixou de ser perfil separado e não é mais aceito por `--profile`.
 
 Para comparar perfis, use as mesmas seeds, heróis e dificuldade em cada execução:
 
 ```bash
 npm run bot -- --games 100 --seed 1 --profile casual --heroes barbarian,cleric,mage --difficulty normal
 npm run bot -- --games 100 --seed 1 --profile power-player --heroes barbarian,cleric,mage --difficulty normal
-npm run bot -- --games 100 --seed 1 --profile speedrunner --heroes barbarian,cleric,mage --difficulty normal
-npm run bot -- --games 100 --seed 1 --profile random --heroes barbarian,cleric,mage --difficulty normal
+npm run bot -- --games 100 --seed 1 --profile explorer --heroes barbarian,cleric,mage --difficulty normal
 ```
 
 **Medir o equilíbrio de todos os heróis habilitados** na dificuldade normal:
@@ -53,11 +52,11 @@ npm run bot -- --games 100 --seed 1 --profile random --heroes barbarian,cleric,m
 npm run bot:balance -- --solo-seeds 20 --team-seeds 5 --seed 1 --difficulty normal --profile power-player
 ```
 
-O comando joga cada herói sozinho e todas as combinações possíveis de três heróis (com 12 heróis, 220 trios). Agora percorre todas as expansões habilitadas, escolhendo o chefe e os baralhos do respectivo módulo. Para comparar também os cinco perfis e dificuldades, use `npm run bot:leveling-report`. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
+O comando joga cada herói sozinho e todas as combinações possíveis de três heróis (com 12 heróis, 220 trios). Agora percorre todas as expansões habilitadas, escolhendo o chefe e os baralhos do respectivo módulo. Para comparar os **três perfis** nas cinco dificuldades, use `npm run bot:leveling-report`. Usa as mesmas seeds em cada composição e grava `report.md` e `report.json` em `tools/bot/runs/balance-<data>/`. A taxa de vitória mede o desempenho do bot nessas partidas; zero vitórias não prova que um herói não possa vencer. Impasses ficam separados das derrotas.
 
 Use `--mode solo` ou `--mode team` para rodar só uma das modalidades e `--expansions fornalha-sombria` para limitar o módulo. Com `--mode solo --hero mage`, rode um herói específico. A auditoria atual e suas limitações estão em `docs/BALANCE_AUDIT_2026-11-03.md`.
 
-Aliases: `barbarian`, `paladin`, `cleric`, `rogue`, `warrior`, `necromancer`, `mage`, `hunter`. `explorer` prioriza experimentar habilidades; `casual` varia escolhas; `speedrunner` acelera ataques e progressão. `power-player` compara sequências curtas de Runa, Fúria, Marca, Eco e ataque usando a distribuição dos dados, o dano médio e a chance de abate. Ele desconta o custo da ação do mago e o dano sofrido pelo bárbaro. O plano escolhido aparece no `bot:watch` e no `bot:screen`. Ainda não há busca completa de todos os turnos ou otimização de equipamento.
+Aliases: `barbarian`, `paladin`, `cleric`, `rogue`, `warrior`, `necromancer`, `mage`, `hunter`. O **Power Player** combina estratégia de vitórias com economia de ações; o **Casual** varia escolhas e às vezes escolhe aleatoriamente; o **Explorer** prioriza ações pouco utilizadas. O Power Player ainda compara sequências curtas de Runa, Fúria, Marca, Eco e ataque usando dano e chance de abate, com custos e risco. O plano aparece no `bot:watch` e no `bot:screen`. Não há busca completa de todos os turnos.
 
 ## Leveling Report (somente no seu computador)
 
@@ -77,11 +76,11 @@ Acesse **http://localhost:5173/leveling-report**.
 npm run bot:leveling-report
 ~~~
 
-O ensaio descobre automaticamente todos os heróis e todas as expansões habilitadas. Para cada herói solo, executa as cinco dificuldades, os cinco perfis do bot e todas as expansões, com 10 seeds por padrão: **12 × 2 × 5 × 5 × 10 = 6.000 partidas** no catálogo atual. Novas expansões e heróis aumentam a matriz automaticamente, sem alterar o bot. Não há `--heroes`, `--expansions`, `--profiles` ou `--difficulties` nesse comando: o relatório é sempre completo.
+O ensaio descobre automaticamente todos os heróis e as expansões habilitadas **com chefe próprio**. Para cada herói solo, executa as cinco dificuldades e os **três perfis** com **10 seeds por padrão**. Com 16 heróis e 3 expansões, a matriz contém **16 × 3 × 3 × 5 × 10 = 7.200 partidas** (antes, cinco perfis geravam 12.000). Não foi aumentado `runs` nem `maxSteps`. Novas expansões e heróis aumentam a matriz automaticamente; não há `--heroes`, `--expansions`, `--profiles` ou `--difficulties` no relatório completo. Esse benchmark usa **um chefe por expansão**; campanha de seis fases e chefe final requerem outro plano futuro.
 
 O resultado de cada execução individual fica em **`tools/bot/runs/dungeon-<data>/report.json`** (ignorado pelo Git). Já o comando **`npm run audit`** mantém os resultados da auditoria de habilidades (`skill-audit.json` e `skill-audit.html`) e, caso aprovada, a simulação (`report.json`, `config.json`, `manifest.json`, `trials.jsonl`) na mesma pasta `tools/bot/runs/audit-<data-hora>/`. Ele inclui percentuais por herói, dificuldade e expansão, todas as partidas, impasses e a auditoria das cartas. Os arquivos `config.json` e `trials.jsonl` são apenas checkpoints privados para retomar um relatório interrompido; não são enviados ao site.
 
-A partir dos relatórios novos, cada partida também registra `progression`: XP recebido, XP gasto, compras por opção (`level_up`, `recover_dungeon`, `buy_item`, `buy_artifact`), saldo e pico de XP, índices de Ímpeto inicial/final/máximo, número de subidas de nível e decisões em que subir nível estava disponível. O painel **Economia de XP e evolução dos heróis** compara médias por herói, expansão, dificuldade e perfil. Os números de oportunidades contam decisões da IA, não turnos distintos; XP é acompanhado pelas mudanças do saldo coletivo e eventuais consumos automáticos fora de `SPEND_XP` aparecem em `xpOtherLoss`. Relatórios antigos continuam legíveis, sem o painel novo. A partir desta revisão, `levelUpPurchases` considera apenas mudanças reais do índice de Ímpeto; `levelUpAttempts` e `levelUpNoEffect` registram separadamente ações executadas sem evolução. As janelas `skillOpportunities` e `powerOpportunities` representam decisões nas quais essas ações estavam entre as opções do bot. `powerUses` agora inclui poderes executados por `USE_SKILL`, `USE_POWER` e interrupções voluntárias `APPLY_TRIGGER_INTERRUPT`; `skillUses` também inclui habilidades disparadas nas janelas de interrupção, sem contar habilidades inimigas. Gatilhos voluntários são acionados pela janela de interrupção do motor, não por um `USE_SKILL` artificial. O perfil Speedrunner prioriza evoluir antes de avançar, e os demais perfis avaliam habilidades e poderes disponíveis. Essas métricas exigem gerar um novo relatório; as regras e as cartas não foram alteradas.
+A partir dos relatórios novos, cada partida também registra `progression`: XP recebido, XP gasto, compras por opção (`level_up`, `recover_dungeon`, `buy_item`, `buy_artifact`), saldo e pico de XP, índices de Ímpeto inicial/final/máximo, número de subidas de nível e decisões em que subir nível estava disponível. O painel **Economia de XP e evolução dos heróis** compara médias por herói, expansão, dificuldade e perfil. Os números de oportunidades contam decisões da IA, não turnos distintos; XP é acompanhado pelas mudanças do saldo coletivo e eventuais consumos automáticos fora de `SPEND_XP` aparecem em `xpOtherLoss`. Relatórios antigos continuam legíveis, sem o painel novo. A partir desta revisão, `levelUpPurchases` considera apenas mudanças reais do índice de Ímpeto; `levelUpAttempts` e `levelUpNoEffect` registram separadamente ações executadas sem evolução. As janelas `skillOpportunities` e `powerOpportunities` representam decisões nas quais essas ações estavam entre as opções do bot. `powerUses` agora inclui poderes executados por `USE_SKILL`, `USE_POWER` e interrupções voluntárias `APPLY_TRIGGER_INTERRUPT`; `skillUses` também inclui habilidades disparadas nas janelas de interrupção, sem contar habilidades inimigas. Gatilhos voluntários são acionados pela janela de interrupção do motor, não por um `USE_SKILL` artificial. O Power Player prioriza evolução, sobrevivência e eficiência, enquanto Casual e Explorer investigam escolhas por prioridades diferentes. Essas métricas exigem gerar um novo relatório; as regras e as cartas não foram alteradas.
 
 A página exibe **um relatório por vez**, selecionado no histórico ordenado por data, com opção de importar um JSON do disco. A primeira tabela tem todos os heróis nas linhas e, nas colunas, cada expansão agrupando todas as dificuldades. Não há seletor de expansão; um seletor opcional de perfil permite inspecionar o efeito da estratégia. O histórico atualiza pelo botão **Atualizar histórico**, sem reiniciar o Vite.
 
@@ -167,7 +166,7 @@ Tudo fica em `tools/bot/runs/`, fora do git:
 
 ## Experimento de preços — P1 (bots apenas)
 
-O comando `npm run bot:leveling-report` voltou a usar os **preços oficiais**: item **15 XP** e artefato **35 XP**. O campo `options.xpExperiment` só aparece em execuções com override explícito, nunca no audit padrão. A política dos bots prioriza subir de nível e recuperar o baralho da masmorra; itens e artefatos são compras excepcionais após o nivelamento, com reserva de XP. O perfil `random` continua sendo um controle aleatório.
+O comando `npm run bot:leveling-report` voltou a usar os **preços oficiais**: item **15 XP** e artefato **35 XP**. O campo `options.xpExperiment` só aparece em execuções com override explícito, nunca no audit padrão. A política dos bots prioriza subir de nível e recuperar o baralho da masmorra; itens e artefatos são compras excepcionais após o nivelamento, com reserva de XP. O Casual absorveu variações aleatórias e não há mais `random` separado no benchmark.
 
 ## Estatísticas de veneno (por PV real)
 
@@ -187,7 +186,7 @@ A telemetria também inclui a origem na linha de log de cada tick, bem como um a
 
 O `audit` agora diferencia **Difícil = Despertar 1** de **Pesadelo = Despertar 2**, conservando Ímpeto 0 nos dois. `report.json` inclui `trials[].initialDespertar`, `initialHeroLevel` e `rooms` com visitas, salas vencidas, criaturas difíceis de 3 XP, subchefes vistos/derrotados e XP observado ao vencer. Os campos agregados `diagnostics.roomsByExpansion`, `diagnostics.heroBalance` e `diagnostics.difficultyParity` também aparecem em tabelas no relatório Markdown e em detalhes expansíveis no painel HTML.
 
-`heroBalance` separa vitórias, chegadas ao chefe e vitórias após chegar; assim fica visível se um herói sofre na exploração ou no combate final. Todos os indicadores descrevem o comportamento do bot (não uma taxa garantida para humanos). Relatórios antigos continuam legíveis; métricas novas são preenchidas apenas após nova execução. Para o impasse conhecido do Necromante, há teste determinístico em `tools/bot/ai.test.ts` (`random`, Fácil, seed 1, Fornalha).
+`heroBalance` separa vitórias, chegadas ao chefe e vitórias após chegar; assim fica visível se um herói sofre na exploração ou no combate final. Todos os indicadores descrevem o comportamento do bot (não uma taxa garantida para humanos). Relatórios antigos continuam legíveis; métricas novas são preenchidas apenas após nova execução. Para o impasse conhecido do Necromante, há teste determinístico em `tools/bot/ai.test.ts` (`casual`, Fácil, seed 1, Fornalha).
 
 ### Logs P2 — escolhas de habilidades por herói
 
@@ -196,7 +195,7 @@ Os relatórios registram `trials[].progression.abilityDecisions` com `offeredByI
 
 ## O Desbravador P1
 
-Execute localmente `npm run bot:discover -- --runs 2 --validate-runs 4`. Hipóteses de combos são mineradas por tipos de efeito e comparadas em partidas pareadas com seeds reservadas. Somente regras comprovadas, promovidas com `--promote`, entram em `src/data/discoveryKnowledge.json` e influenciam o bot. `random` permanece controle. Veja `tools/bot/discovery/README.md`.
+Execute localmente `npm run bot:discover -- --runs 2 --validate-runs 4`. Hipóteses de combos são mineradas por tipos de efeito e comparadas em partidas pareadas com seeds reservadas. Somente regras comprovadas, promovidas com `--promote`, entram em `src/data/discoveryKnowledge.json` e influenciam o bot. O Casual substitui a linha de base aleatória como perfil de referência. Veja `tools/bot/discovery/README.md`.
 
 O registro `abilityTrace` é apenas telemetria e foi explicitamente excluído do fingerprint de progresso, para não transformar ações sem efeito em jogadas válidas nem inflar a verificação a cada passo. O código existente de combos especiais permanece disponível no bot tradicional durante a transição; a descoberta executa sem esse planejador.
 
@@ -207,15 +206,25 @@ O registro `abilityTrace` é apenas telemetria e foi explicitamente excluído do
 `npm run bot:discover -- --party-size 2 --max-parties 8` minera combos entre dois heróis; altere o tamanho para 3 ou 4. Relatórios e conhecimento ficam separados da auditoria. Consulte `tools/bot/discovery/README.md` para critérios de confirmação, versionamento e revalidação.
 
 
-## Instrutor Solo e Caçador de Bugs
+## Power Player unificado e Explorer investigativo
 
-A documentação consolidada e os comandos suportados ficam em [`discovery/README.md`](discovery/README.md) e [`docs/BOT_MODE.md`](../../docs/BOT_MODE.md). O Instrutor Solo treina **Power Player e Speedrunner separadamente**; Casual, Explorer e Random mantêm a política original.
+O Instrutor Solo aprende **uma política para Power Player**, combinando vitória com economia de ações nas partidas ganhas. Casual e Explorer não consomem os pesos aprendidos. O Desbravador mantém mineração experimental de combos comprovados.
 
 ```bash
-npm run bot:train-solo -- --profile both --dry-run
-npm run bot:train-solo -- --profile both --focus all --max-heroes 4 --max-contexts 12 --runs 2 --validate-runs 12 --promote
-npm run bot:bug-hunt -- --dry-run
-npm run bot:bug-hunt -- --runs 3 --max-scenarios 24 --max-steps 750
+# Prévia/diagnóstico sem escrita da política publicada:
+npm run bot:train-solo -- --dry-run
+npm run bot:train-solo -- --focus all --max-heroes 4 --max-contexts 12 --max-features 6 --runs 2 --validate-runs 8
+
+# Treino com promoção somente após a validação independente:
+npm run bot:train-solo -- --focus all --max-heroes 4 --max-contexts 12 --max-features 9 --runs 3 --validate-runs 16 --epochs 2 --promote
+
+# Explorer em modo aprofundado com memória de cobertura/replay:
+npm run bot:explore -- --dry-run
+npm run bot:explore -- --runs 3 --max-scenarios 24 --max-steps 750
 ```
 
-O Power Player procura vitórias consistentes; o Speedrunner investiga também economia de ações em vitórias e observa frequências de itens; o Caçador de Bugs procura falhas, combinações raras e lacunas de cobertura (sem otimizar taxa de vitória). Os relatórios e o corpus de regressão ficam fora do Git em `tools/bot/runs/`. `npm run audit` inclui amostragem curta de bugs após o leveling. Nenhuma execução longa deve ser automática no CI.
+`npm run bot:bug-hunt` permanece alias do `bot:explore` para compatibilidade. O `audit` chama a investigação **curta** depois de skills e leveling, salvo `AUDIT_BUG_HUNT=0`. A memória do Explorer fica em `tools/bot/runs/bug-hunter-corpus.json`; a pontuação de Explorer utilizada no headless/screen compartilha a mesma priorização adversarial. Não confundir suspeitas com violações confirmadas.
+
+As políticas aprovadas do Power Player ficam em `src/data/soloPolicy.json`, separadas por herói e contexto. `--promote` não garante que haverá alteração; os ensaios A/B podem rejeitar políticas candidatas. A estatística de itens é observacional, não causal. Detalhes e limites em [Desbravador](discovery/README.md) e [Modo bot](../../docs/BOT_MODE.md).
+
+O catálogo de futuras fases é descoberto dinamicamente. Não transformar o benchmark atual (expansão + chefe) em seis fases ou chefe final sem criar um contrato explícito de campanha.

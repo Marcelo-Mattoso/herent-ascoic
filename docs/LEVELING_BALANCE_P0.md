@@ -170,3 +170,17 @@ O Power Player usa melhora pareada de vitórias como critério. O Speedrunner ta
 O Caçador de Bugs registra casos para investigação e replay. Suspeitas de custo/efeito devem ser tratadas separadamente de violações comprovadas. Critérios, comandos e saídas ficam em [BOT_MODE.md](BOT_MODE.md) e [Desbravador](../tools/bot/discovery/README.md).
 
 **Status:** atualização apenas documental; sem novas partidas, compilação, testes ou CI/CD executados para este registro.
+
+## Nota — consolidação de perfis em 23/11/2026
+
+O benchmark atual passa de cinco perfis para **Power Player, Casual e Explorer**.
+O comportamento antigo do Speedrunner foi incorporado à função-objetivo do
+Power Player (vitórias primeiro, menos passos entre vitórias). O Random foi
+absorvido pelo Casual, e o Caçador de Bugs passou a usar o mesmo ranking
+de exploração adversarial do Explorer no comando `npm run bot:explore`.
+
+**Não alteramos `runs: 10` nem `maxSteps: 1000` do relatório de leveling.**
+A matriz reduz naturalmente de 12.000 para cerca de 7.200 partidas com
+os mesmos 16 heróis, 3 expansões e 5 dificuldades. As tabelas históricas
+acima são de políticas e catálogos anteriores e não equivalem a uma
+comparação controlada após a mudança. O laboratório continua local.
