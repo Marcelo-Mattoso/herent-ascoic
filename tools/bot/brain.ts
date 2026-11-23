@@ -315,7 +315,8 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 		const owner = activeHeroes(view).find((hero) => hero.cardId === "hero_deep_veil_necromancer");
 		// Recuperar cartas por 3 PV é troca ruim com o deck cheio ou perto da morte.
 		if (!owner || owner.currentLife <= 5) return -1;
-		const remaining = view.decks.dungeonDeck.available.length;
+		// PlayerView expõe a quantidade de cartas disponíveis, não um array.
+		const remaining = view.decks.dungeonDeck.available;
 		const discarded = view.decks.dungeonDeck.discarded.length;
 		return remaining <= 2 && discarded > 0 && lifeRatio(owner) >= 0.6 ? 180 : -1;
 	}
