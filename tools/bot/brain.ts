@@ -5,6 +5,7 @@ import type { BotProfile } from "./profiles";
 import { forecastAttack, planCombos } from "./combo";
 import { healingMoveScore, itemHealingAmount } from "./healing";
 import { adversarialScoredMoves } from "./exploration";
+import { scoreStrategicPower } from "./powerTactics";
 import { knowledgeBonus, publishedKnowledge, type StrategyRule } from "./discovery/knowledge";
 import { usesLearnedStrategies } from "./profiles";
 import { publishedSoloPolicy, soloPolicyAdjustment, hasSoloWeightsForHero,
@@ -156,6 +157,12 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			const power = view.abilityActionsByHero?.[action.payload.heroId]?.find(entry =>
 				entry.kind === "power" && entry.status === "available");
 			if (!power) return -1;
+      if (profile === "power-player") {
+        const owner = heroes.find(hero => hero.id === action.payload.heroId);
+        if (!owner) return -1;
+        return scoreStrategicPower(view, { ...power, heals: false,
+          modifiesDice: false }, owner, bestAttackScore(view, owner.id, profile));
+      }
 			return view.status === "BOSS_COMBAT" ? 235 : pressure(view) ? 210 : 130;
 		}
 		case "USE_ARTIFACT": {
@@ -284,17 +291,12 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	const abilityId = ability.abilityId;
 	const isPower = ability.kind === "power";
 	const isPrepare = ability.activation === "prepare";
-	// Não sacrificar uma ativação limitada para curar um herói saudável.
-	if (ability.heals && !activeHeroes(view).some((hero) => hero.currentLife < hero.maxLife)) return -1;
-	// Poderes de cura de uso limitado devem ficar reservados para ferimentos relevantes;
-	// guardar até morrer ou ativar por um arranhão distorce o desempenho do Power Player.
-	if (isPower && ability.heals && profile === "power-player") {
-		const active = activeHeroes(view);
-		const lowestRatio = Math.min(...active.map(lifeRatio));
-		const largestWound = Math.max(...active.map(hero => hero.maxLife - hero.currentLife));
-		if (lowestRatio > 0.75 && largestWound < 5) return -1;
-		return (view.status === "BOSS_COMBAT" ? 225 : 150) + (1 - lowestRatio) * 95;
-	}
+	// Um poder gasto agora não estará disponível no chefe. Comparar ganho real,
+  // ação sacrificada e a janela do combate antes do filtro genérico de cura.
+  if (isPower && profile === "power-player")
+    return scoreStrategicPower(view, ability, owner,
+      bestAttackScore(view, owner.id, profile), progress.stagnantRounds);
+	if (ability.heals && !activeHeroes(view).some(hero => hero.currentLife < hero.maxLife)) return -1;
 	// Todos usam apenas ações apresentadas pela projeção.
 	const target = activeHeroes(view).find((hero) => hero.id === targetId);
 	const missing = target ? target.maxLife - target.currentLife : 0;
@@ -362,13 +364,13 @@ function soloAbilityScore(view: PlayerView,
   owner: HeroView, targetId: string | undefined,
 ): number {
   const target = view.heroes.find(h => h.id === targetId) ?? owner;
+  if (ability.kind === "power")
+    return scoreStrategicPower(view, ability, owner, bestAttackScore(view, owner.id, "power-player"));
   if (ability.heals) {
     const missing = target.maxLife - target.currentLife;
     if (missing <= 0) return -1;
     return healingMoveScore(view, target.id, missing);
   }
-  if (ability.kind === "power") return view.status === "BOSS_COMBAT" ? 225 :
-    view.enemies.some(e => e.status === "active") ? 180 : 120;
   const inCombat = view.enemies.some(e => e.status === "active");
   return inCombat ? 112 : 84;
 }
