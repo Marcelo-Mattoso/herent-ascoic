@@ -1,39 +1,19 @@
 import { describe, expect, it } from "vitest";
-import { auditEngine, combat, runRuntimeScenarios } from "./runtime";
+import { auditEngine, combat } from "./runtime";
 import { runHeroCoverageScenarios } from "./heroRuntime";
 
-describe("skill audit P0: ativação, confirmação e custo dos poderes", () => {
-	it("valida os sete poderes sem confundir escolha pendente com uso consumido", () => {
-		const powerResults = runRuntimeScenarios().filter((scenario) =>
-			scenario.id.startsWith("power-activation-"));
-		expect(powerResults).toHaveLength(7);
-		for (const result of powerResults) {
-			expect(result.status, `${result.id}: ${result.detail}`).toBe("PASS");
-		}
-	});
-});
-
-describe("skill audit P0: cobertura funcional dos heróis", () => {
-	const results = runHeroCoverageScenarios(auditEngine, combat);
-
-	it("inclui 15 concessões antes sem cobertura e 7 extensões de poderes", () => {
-		expect(results).toHaveLength(22);
-		expect(new Set(results.map((scenario) => scenario.id)).size).toBe(22);
-		expect(results.filter((scenario) => scenario.id.includes("-preparation"))).toHaveLength(4);
-	});
-
-	it.each([
-		"hero-cleric-healing",
-		"hero-mage-rift-rune",
-		"hero-necromancer-return-rite",
-		"hero-necromancer-kill-echo",
-		"hero-necromancer-spend-echo",
-		"hero-green-eclipse-roll",
-		"hero-white-ash-balm",
-		"hero-white-ash-mercy",
-	])("valida fluxo real %s", (id) => {
-		const result = results.find((scenario) => scenario.id === id);
-		expect(result).toBeDefined();
-		expect(result?.status, result?.detail).toBe("PASS");
-	});
+describe("P1: efeitos e limites reais de poderes do herói", () => {
+  it("cobre recuperação do Andarilho e limites de poderes de cura", () => {
+    const cases = runHeroCoverageScenarios(auditEngine, combat);
+    for (const id of [
+      "hero-plains-power-recovery",
+      "hero-white-ash-mercy",
+      "hero-cleric-miracle-effect",
+      "hero-paladin-oath-effect",
+    ]) {
+      const result = cases.find(row => row.id === id);
+      expect(result, id + ": cenário ausente").toBeDefined();
+      expect(result?.status, id + ": " + result?.detail).toBe("PASS");
+    }
+  });
 });

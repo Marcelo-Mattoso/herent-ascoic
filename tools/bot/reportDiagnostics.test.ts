@@ -206,6 +206,18 @@ describe("diagnósticos P0", () => {
     expect(result.warnings.some(warning => warning.includes("castelo-horizonte-infindo (normal)"))).toBe(true);
   });
 
+  it("mede o uso de poderes por perfil sem pressupor que estavam disponíveis", () => {
+    const records = [
+      { ...trial("normal", 1, "DEFEAT"), profile: "power-player" as const, powerUses: 0 },
+      { ...trial("normal", 2, "VICTORY"), profile: "power-player" as const, powerUses: 3 },
+      { ...trial("normal", 1, "DEFEAT"), profile: "casual" as const, powerUses: 1 },
+    ];
+    expect(summarizeReportDiagnostics(records).powerUsageByProfile).toEqual([
+      { profile: "power-player", games: 2, powerUses: 3, defeatsWithoutPowerUse: 1 },
+      { profile: "casual", games: 1, powerUses: 1, defeatsWithoutPowerUse: 0 },
+    ]);
+  });
+
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
 		const summary = summarizeReportDiagnostics([
 			trial("normal", 3, "ERROR", { xpGained: 5, xpSpent: 2,

@@ -159,7 +159,7 @@ export function runAutoContractProbes(): AutoContractProbe[] {
       g.activation.kind === "manual" ||
       (g.activation.kind === "event" && g.activation.decision === "optional"))) {
       const base = { sourceCardId: hero.id, abilityId: grant.abilityId,
-        grantId: grant.id, category: "manual" };
+        grantId: grant.id, category: grant.activation.kind };
       try {
         if (grant.activation.kind === "event") {
           const prepared = probeVoluntaryHeroPreparation(hero.id, grant.abilityId);

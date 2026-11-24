@@ -246,4 +246,4 @@ npx vitest run tools/bot/ai.test.ts tools/bot/reportDiagnostics.test.ts tools/bo
 npm run audit
 ```
 
-> Nota: o arquivo `heroRuntime.test.ts` pode não existir em branches anteriores; no pacote novo, os cenários determinísticos são executados pelo comando `bot:skills-audit`, dentro de `npm run audit`. Se necessário, omita esse caminho do Vitest.
+> O Vitest cobre as novas verificações pontuais; a cobertura completa dos cenários de habilidades roda em `npm run bot:skills-audit` (primeira etapa de `npm run audit`).
