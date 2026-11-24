@@ -63,7 +63,7 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 		} });
 	const choose = (s: GameState, id: string) => {
 		const pending = pendingSkillChoiceOf(s);
-		ensure(pending?.options.some((opt) => opt.id === id),
+		ensure(pending && pending.options.some((opt) => opt.id === id),
 			"Escolha " + id + " não foi oferecida");
 		return reducer(engine, s, { type: "SKILL_CHOICE", payload: {
 			skillId: pending.skillId, choice: id,

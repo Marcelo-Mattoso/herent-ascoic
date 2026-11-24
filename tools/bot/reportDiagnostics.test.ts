@@ -135,7 +135,7 @@ describe("diagnósticos P0", () => {
 				offeredById: { skill_rift_rune: 10 }, chosenById: { skill_rift_rune: 2 },
 				offeredAtBossById: { skill_rift_rune: 4 }, chosenAtBossById: { skill_rift_rune: 1 },
 			},
-		} as ProgressionTelemetry };
+		} as unknown as ProgressionTelemetry };
 		const row = summarizeReportDiagnostics([record, record]).heroBalance[0];
 		expect(row?.abilityOfferedById).toEqual({ skill_rift_rune: 20 });
 		expect(row?.abilityChosenById).toEqual({ skill_rift_rune: 4 });
@@ -158,7 +158,7 @@ describe("diagnósticos P0", () => {
 				effectsByTarget: { "skill_last_light_healing::hero_eternal_rest_cleric": 1 },
 				effectKindsById: { "skill_last_light_healing::healing": 1 },
 			},
-		} as ProgressionTelemetry };
+		} as unknown as ProgressionTelemetry };
 		const diagnostic = summarizeReportDiagnostics([record, record]);
 		expect(diagnostic.abilityLifecycle).toContainEqual(expect.objectContaining({
 			abilityId: "skill_last_light_healing", attempted: 4, prepared: 2,
