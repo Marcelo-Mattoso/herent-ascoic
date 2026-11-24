@@ -195,6 +195,13 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 			abilityId + ": poder consumiu o ataque");
 	};
 
+	const ensurePowerExhausted = (s: GameState, heroId: string, abilityId: string) => {
+    const projected = playerView(engine, s).abilityActionsByHero[heroId]?.find(
+      action => action.abilityId === abilityId);
+    ensure(projected?.status === "exhausted",
+      abilityId + ": poder de uso único permanece disponível depois da ativação");
+  };
+
 	const checkWhiteAshMercy = () => {
 		let s = combat("hero_white_ashes_sister");
 		const id = hero(s);
@@ -206,6 +213,7 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 			"Misericórdia não registrou limite uma vez por jogo");
 		ensure(!canStartHeroAttack(s, id, "audit-enemy"),
 			"Misericórdia não consumiu a ação de cura");
+    ensurePowerExhausted(s, id, "witch_power_white_ash_mercy");
 	};
 
 	const checkMiracle = () => {
@@ -218,6 +226,7 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 			"Milagre da Última Luz não aplicou cura completa");
 		ensure(!canStartHeroAttack(s, id, "audit-enemy"),
 			"Milagre não consumiu a ação de cura");
+    ensurePowerExhausted(s, id, "power_greater_last_light_miracle");
 	};
 
 	const checkLastLightOath = () => {
@@ -230,6 +239,7 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 			"Juramento da Última Luz não curou os dois heróis");
 		ensure(!canStartHeroAttack(s, ids[0]!, "audit-enemy"),
 			"Juramento de cura não consumiu a ação de suporte");
+    ensurePowerExhausted(s, ids[0]!, "power_last_light_oath");
 	};
 
 	const checkMightyCrimson = () => {
@@ -380,6 +390,10 @@ export function runHeroCoverageScenarios(engine: GameEngine, combat: CombatFixtu
 			abilityId: "power_restored_path", check: () =>
 				checkRecoveryPower("hero_rift_rogue", "power_restored_path", 1),
 			detail: "Poder da Ladina recupera carta descartada e preserva ataque" },
+    { id: "hero-plains-power-recovery", sourceCardId: "hero_plains_wanderer",
+      abilityId: "power_restored_path", check: () =>
+        checkRecoveryPower("hero_plains_wanderer", "power_restored_path", 1),
+      detail: "Poder do Andarilho das Planícies recupera carta descartada e preserva ataque" },
 		{ id: "hero-mage-supreme-rune-effect", sourceCardId: "hero_crimson_rune_mage",
 			abilityId: "power_supreme_rift_rune", check: () =>
 				checkRollPower("hero_crimson_rune_mage", "power_supreme_rift_rune", "ally_six"),

@@ -133,14 +133,42 @@ function probeManualHero(cardId: string, abilityId: string):
   return null;
 }
 
+
+/** Comprova apenas a fase de preparação de triggers voluntários do herói,
+ * em vez de inferir que o efeito futuro ocorreu por ter sido armado. */
+function probeVoluntaryHeroPreparation(cardId: string, abilityId: string): boolean {
+  const state = combat(cardId);
+  const hero = heroesOf(state)[0];
+  if (!hero) return false;
+  const projected = playerView(auditEngine, state).abilityActionsByHero[hero.id]?.find(
+    action => action.abilityId === abilityId && action.activation === "prepare" &&
+      action.status === "available");
+  if (!projected) return false;
+  const next = reducer(auditEngine, state, projected.kind === "power"
+    ? { type: "USE_POWER", payload: { heroId: hero.id } }
+    : { type: "USE_SKILL", payload: { skillId: abilityId, sourceId: hero.id } });
+  return Object.values(gameOf(next).preparedAbilities ?? {}).some(entry =>
+    entry.sourceHeroId === hero.id && entry.abilityId === abilityId);
+}
+
 /** Não sinaliza PASS quando o cenário não demonstra o efeito declarado. */
 export function runAutoContractProbes(): AutoContractProbe[] {
   const probes: AutoContractProbe[] = [];
   for (const hero of getCardsByType("hero")) {
-    for (const grant of cardAbilityGrants(hero.id).filter(g => g.activation.kind === "manual")) {
+    for (const grant of cardAbilityGrants(hero.id).filter(g =>
+      g.activation.kind === "manual" ||
+      (g.activation.kind === "event" && g.activation.decision === "optional"))) {
       const base = { sourceCardId: hero.id, abilityId: grant.abilityId,
         grantId: grant.id, category: "manual" };
       try {
+        if (grant.activation.kind === "event") {
+          const prepared = probeVoluntaryHeroPreparation(hero.id, grant.abilityId);
+          probes.push({ ...base, status: prepared ? "PASS" : "NOT_COVERED",
+            detail: prepared
+              ? "Trigger voluntário preparado no reducer real; efeito posterior, custo e limite ainda sem prova"
+              : "Trigger não pôde ser preparado nesta fixture; condição/janela ainda sem cobertura" });
+          continue;
+        }
         const proof = probeManualHero(hero.id, grant.abilityId);
         probes.push({ ...base, status: proof?.kinds.length ? "PASS" : "NOT_COVERED",
           witnessedKinds: proof?.kinds ?? [],
