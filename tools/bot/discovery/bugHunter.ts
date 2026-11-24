@@ -23,7 +23,7 @@ import { setupForRun } from "../profiles";
 import { catalogFingerprint } from "./fingerprint";
 
 type FindingKind = "invariant" | "legal_action_rejected" | "suspected_hp_cost" |
-  "no_legal_action" | "replay_diverged";
+  "no_legal_action" | "replay_diverged" | "inconclusive";
 type Context = { hero: string; boss: string; expansion: string; difficulty: Difficulty };
 export interface BugFinding {
   readonly kind: FindingKind;
@@ -41,6 +41,8 @@ export interface BugHuntResult {
   readonly actionsAttempted: number;
   readonly finalStatus: string;
   readonly exhausted: boolean;
+  /** Interrupção diagnóstica; não presume defeito no motor. */
+  readonly exhaustionReason?: "cycle" | "max_steps" | "stagnant_combat";
   readonly findings: readonly BugFinding[];
   readonly exercisedGrants: readonly string[];
   readonly rejectedCandidates: number;
@@ -171,14 +173,35 @@ function runOne(context: Context, seed: number, maxSteps: number,
   const baseline = countCards(port.inspect());
   const findings: BugFinding[] = [], grants = new Set<string>();
   let rejectedCandidates = 0, exhausted = false;
+  let exhaustionReason: BugHuntResult["exhaustionReason"];
+  let stagnantRounds = 0;
+  let previousCombat: { room: number; round: number;
+    enemyLife: Readonly<Record<string, number>> } | null = null;
   const seen = new Set<string>();
   for (let i = 0; i < maxSteps && !isTerminal(port.inspect()); i++) {
     const current = port.observe();
     const view = current.view;
+    const enemies = view.enemies.filter(enemy => enemy.status === "active");
+    if (view.combat && enemies.length) {
+      const enemyLife = Object.fromEntries(enemies.map(enemy => [enemy.id, enemy.currentLife]));
+      const previous = previousCombat;
+      const sameEncounter = previous && previous.room === view.roomsCleared &&
+        Object.keys(enemyLife).length === Object.keys(previous.enemyLife).length &&
+        Object.keys(enemyLife).every(id => id in previous.enemyLife);
+      if (!sameEncounter) stagnantRounds = 0;
+      else if (Object.entries(enemyLife).some(([id, hp]) => hp < (previous.enemyLife[id] ?? hp)))
+        stagnantRounds = 0;
+      else if (view.combat.round > previous!.round)
+        stagnantRounds += view.combat.round - previous!.round;
+      previousCombat = { room: view.roomsCleared, round: view.combat.round, enemyLife };
+      if (stagnantRounds >= 35) {
+        exhausted = true; exhaustionReason = "stagnant_combat"; break;
+      }
+    } else { previousCombat = null; stagnantRounds = 0; }
     // O Explorer usa exatamente o mesmo ranking adversarial em tela,
     // headless e caça aprofundada. O corpus adiciona memória entre partidas.
     const options = scoreMoves(current, "explorer", seed, port.history.length,
-      { stagnantRounds: 0, explorationUsage: usage }, [], false, null, false);
+      { stagnantRounds, explorationUsage: usage }, [], false, null, false);
     const candidates = options.map(option => option.action);
     const legal = new Set(current.actions.map(action => JSON.stringify(action)));
     let advanced = false;
@@ -220,14 +243,27 @@ function runOne(context: Context, seed: number, maxSteps: number,
     const state = port.inspect();
     const signature = gameOf(state).status + ":" + gameOf(state).roomsCleared +
       ":" + (gameOf(state).combat?.round ?? 0) + ":" + port.history.slice(-8).map(actionIdentity).join(",");
-    if (seen.has(signature) && i > 50) { exhausted = true; break; }
+    if (seen.has(signature) && i > 50) { exhausted = true; exhaustionReason = "cycle"; break; }
     seen.add(signature);
   }
-  if (!isTerminal(port.inspect()) && port.history.length >= maxSteps) exhausted = true;
+  if (!isTerminal(port.inspect()) && port.history.length >= maxSteps) {
+    exhausted = true; exhaustionReason = "max_steps";
+  }
+  if (exhausted) {
+    const current = port.observe().view;
+    findings.push({ kind: "inconclusive", severity: "investigate",
+      summary: "Partida inconclusiva (" + exhaustionReason + ") em " +
+        gameOf(port.inspect()).status + " após " + port.history.length +
+        " ações; investigar repetição, cura e progresso de combate",
+      room: current.roomsCleared, round: current.combat?.round ?? 0,
+      action: port.history.at(-1) ?? { type: "CHECK_COMBAT_END" } });
+  }
   return { context, seed, actionsAttempted: port.history.length,
-    finalStatus: gameOf(port.inspect()).status, exhausted, findings,
+    finalStatus: gameOf(port.inspect()).status, exhausted,
+    ...(exhaustionReason ? { exhaustionReason } : {}), findings,
     exercisedGrants: [...grants].sort(), rejectedCandidates,
-    ...(findings.length ? { replay: { setup, actions: [...port.history] } } : {}) };
+    ...(findings.some(f => f.kind !== "inconclusive")
+      ? { replay: { setup, actions: [...port.history] } } : {}) };
 }
 /**
  * Replay exato do histórico, preservando escolhas improváveis de habilidade
@@ -345,12 +381,16 @@ async function main(): Promise<void> {
     resumedRegressionCases: cases.length,
     cumulativeGrantCoverage: Object.keys(grantUsage).length,
     scenarios: chosen.length, games: games.length,
+    inconclusiveGames: games.filter(game => game.exhausted).length,
+    exhaustionByReason: Object.fromEntries(
+      ["cycle", "max_steps", "stagnant_combat"].map(reason =>
+        [reason, games.filter(game => game.exhaustionReason === reason).length])),
     exercisedGrants: [...new Set(games.flatMap(game => game.exercisedGrants))].sort(),
     blockingFindings: findings.filter(f => f.severity === "blocker").length,
     suspectedFindings: findings.filter(f => f.severity === "investigate").length,
     rejectedCandidates: games.reduce((sum, game) => sum + game.rejectedCandidates, 0),
     findings, gameSummaries: games.map(({ replay: _replay, ...game }) => game),
-    note: "Resultados são triagem reproduzível. Suspeitas de custo não confirmam bug; não avaliar vitórias.",
+    note: "Resultados são triagem reproduzível. Inconclusivas não são vitórias nem bugs confirmados; analisar exhaustionReason e suspeitas.",
   };
   await mkdir(options.output, { recursive: true });
   await writeFile(join(options.output, "bug-hunt-report.json"), JSON.stringify(report, null, 2));
