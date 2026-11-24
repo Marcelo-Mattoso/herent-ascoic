@@ -166,6 +166,23 @@ function possibleCostAnomalies(before: GameState,
   }
   return findings;
 }
+type CombatSnapshot = {
+  readonly room: number;
+  readonly round: number;
+  readonly enemyLife: Readonly<Record<string, number>>;
+};
+
+/** Compara snapshots reais sem depender de narrowing de variável entre voltas do loop. */
+function countStagnantRounds(
+  previous: CombatSnapshot | null, current: CombatSnapshot, stagnantRounds: number,
+): number {
+  if (!previous || previous.room !== current.room ||
+      Object.keys(previous.enemyLife).length !== Object.keys(current.enemyLife).length ||
+      !Object.keys(current.enemyLife).every(id => id in previous.enemyLife)) return 0;
+  if (Object.entries(current.enemyLife).some(([id, hp]) => hp < (previous.enemyLife[id] ?? hp))) return 0;
+  return stagnantRounds + Math.max(0, current.round - previous.round);
+}
+
 function runOne(context: Context, seed: number, maxSteps: number,
   usage: Map<string, number>): BugHuntResult {
   const setup = { ...setupForRun(seed, [context.hero], context.difficulty), bossCardId: context.boss };
@@ -175,8 +192,7 @@ function runOne(context: Context, seed: number, maxSteps: number,
   let rejectedCandidates = 0, exhausted = false;
   let exhaustionReason: BugHuntResult["exhaustionReason"];
   let stagnantRounds = 0;
-  let previousCombat: { room: number; round: number;
-    enemyLife: Readonly<Record<string, number>> } | null = null;
+  let previousCombat: CombatSnapshot | null = null;
   const seen = new Set<string>();
   for (let i = 0; i < maxSteps && !isTerminal(port.inspect()); i++) {
     const current = port.observe();
@@ -184,16 +200,11 @@ function runOne(context: Context, seed: number, maxSteps: number,
     const enemies = view.enemies.filter(enemy => enemy.status === "active");
     if (view.combat && enemies.length) {
       const enemyLife = Object.fromEntries(enemies.map(enemy => [enemy.id, enemy.currentLife]));
-      const previous: typeof previousCombat = previousCombat;
-      const sameEncounter = previous && previous.room === view.roomsCleared &&
-        Object.keys(enemyLife).length === Object.keys(previous.enemyLife).length &&
-        Object.keys(enemyLife).every(id => id in previous.enemyLife);
-      if (!sameEncounter) stagnantRounds = 0;
-      else if (Object.entries(enemyLife).some(([id, hp]) => hp < (previous.enemyLife[id] ?? hp)))
-        stagnantRounds = 0;
-      else if (view.combat.round > previous!.round)
-        stagnantRounds += view.combat.round - previous!.round;
-      previousCombat = { room: view.roomsCleared, round: view.combat.round, enemyLife };
+      const snapshot: CombatSnapshot = {
+        room: view.roomsCleared, round: view.combat.round, enemyLife,
+      };
+      stagnantRounds = countStagnantRounds(previousCombat, snapshot, stagnantRounds);
+      previousCombat = snapshot;
       if (stagnantRounds >= 35) {
         exhausted = true; exhaustionReason = "stagnant_combat"; break;
       }
