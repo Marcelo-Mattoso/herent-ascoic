@@ -223,9 +223,9 @@ describe("diagnósticos P0", () => {
       usesById: { power_restored_path: 1 }, effectsById: { power_restored_path: 2 } };
     const boss = { uses: 1, effectfulUses: 0, effectEvents: 0, chargesConsumed: 1,
       usesById: { power_unbreakable_bastion_guard: 1 }, effectsById: {} };
-    const records = [{ ...trial("normal", 1, "VICTORY"), progression: {
+    const records = [trial("normal", 1, "VICTORY", {
       powerTiming: { beforeBoss: pre, atBoss: boss },
-    } as ProgressionTelemetry }];
+    })];
     expect(summarizeReportDiagnostics(records).powerTimingByProfile).toEqual([{
       profile: "power-player", games: 1, beforeBossUses: 1,
       atBossUses: 1, effectfulUses: 1, effectEvents: 2,
