@@ -176,13 +176,18 @@ describe("P0: poderes e progresso do Explorer", () => {
     const hero = observed.view.heroes[0]!;
     const power = observed.abilities[hero.id]?.find(a => a.kind === "power");
     expect(power).toBeDefined();
+    const critical = { ...hero, currentLife: 2 };
+    const boss = { ...hero, id: "boss", status: "active" as const,
+      maxLife: 40, currentLife: 40, damage: 3, dice: 1, hitBonus: 0 };
     const obs = {
       ...observed,
-      view: { ...observed.view, status: "BOSS_COMBAT" as const },
+      view: { ...observed.view, status: "BOSS_COMBAT" as const,
+        heroes: [critical], enemies: [boss] },
       actions: [...observed.actions, { type: "USE_POWER" as const, payload: { heroId: hero.id } }],
       abilities: { ...observed.abilities, [hero.id]: [{ ...power!, status: "available" as const }] },
     } as unknown as BotObservation;
-    const candidates = scoreMoves(obs, "power-player").filter(m => m.action.type === "USE_POWER");
+    const candidates = scoreMoves(obs, "power-player", 1, 0,
+      { stagnantRounds: 0 }, [], false).filter(m => m.action.type === "USE_POWER");
     expect(candidates).toHaveLength(1);
     expect(candidates[0]!.score).toBeGreaterThan(200);
   });

@@ -247,3 +247,20 @@ npm run audit
 ```
 
 > O Vitest cobre as novas verificações pontuais; a cobertura completa dos cenários de habilidades roda em `npm run bot:skills-audit` (primeira etapa de `npm run audit`).
+
+
+## P0.2 — poderes com custo de oportunidade e regressões (24/11/2026)
+
+O Power Player passa a comparar ganho ofensivo/defensivo/curativo com o ataque que poderia realizar, a urgência e o benefício de guardar a carga até o chefe. Recuperação da masmorra considera o tamanho do baralho e o descarte. Heurísticas não são provas de melhora: validar nos mesmos 7.200 casos antes de promover política de aprendizado.
+
+A auditoria expõe `progression.powerTiming.beforeBoss/atBoss` por partida e `diagnostics.powerTimingByProfile` agregado. `uses` mede uso aceito; `effectfulUses` conta poderes cujo efeito foi posteriormente observado; `effectEvents` conta eventos com mudanças observáveis (podem ocorrer mais de uma vez por ativação). Um efeito real não garante melhoria na chance de vitória.
+
+As sete seeds encontradas no audit de 24/11 estão em `tools/bot/stallWatchlist.test.ts`. O teste identifica novas falhas estruturais e monitora impasses conhecidos; **não afirma que todos os sete impasses foram resolvidos**.
+
+```powershell
+npm run typecheck:tools
+npx vitest run tools/bot/powerTactics.test.ts tools/bot/stallWatchlist.test.ts tools/bot/ai.test.ts tools/bot/reportDiagnostics.test.ts
+npm run audit
+```
+
+Executar apenas no computador local. Não rodar em CI.
