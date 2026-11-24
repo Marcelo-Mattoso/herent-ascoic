@@ -16,7 +16,7 @@ describe("desbravador", () => {
     expect(knowledgeBonus(attack, view, [], [rule])).toBe(0);
     expect(knowledgeBonus(attack, { heroes: [{ id: "h" }, { id: "a" }] } as unknown as PlayerView,
       ["i_mark_target"], [{ ...rule, context: { partySize: 1 } }])).toBe(0);
-    const teamView = { heroes: [{ id: "h" }, { id: "a" }] } as PlayerView;
+    const teamView = { heroes: [{ id: "h" }, { id: "a" }] } as unknown as PlayerView;
     const cooperative = { ...rule, context: { partySize: 2, cooperative: true } };
     expect(knowledgeBonus(attack, teamView, ["i_mark_target"], [cooperative], ["h"])).toBe(0);
     expect(knowledgeBonus(attack, teamView, ["i_mark_target"], [cooperative], ["a"])).toBe(20);
