@@ -184,7 +184,7 @@ function runOne(context: Context, seed: number, maxSteps: number,
     const enemies = view.enemies.filter(enemy => enemy.status === "active");
     if (view.combat && enemies.length) {
       const enemyLife = Object.fromEntries(enemies.map(enemy => [enemy.id, enemy.currentLife]));
-      const previous = previousCombat;
+      const previous: typeof previousCombat = previousCombat;
       const sameEncounter = previous && previous.room === view.roomsCleared &&
         Object.keys(enemyLife).length === Object.keys(previous.enemyLife).length &&
         Object.keys(enemyLife).every(id => id in previous.enemyLife);
