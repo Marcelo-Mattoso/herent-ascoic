@@ -1,5 +1,5 @@
 import { describe, expect, it } from "vitest";
-import type { PlayerView } from "@/core/projection/playerView";
+import type { EnemyView, PlayerView } from "@/core/projection/playerView";
 import { createHeadlessPort } from "./port";
 import { setupForRun } from "./profiles";
 import { scoreStrategicPower } from "./powerTactics";
@@ -11,13 +11,17 @@ function fixture(heroCardId: string, abilityId: string) {
   const hero = observed.view.heroes[0]!;
   const ability = observed.abilities[hero.id]?.find(a => a.abilityId === abilityId);
   expect(ability, "Poder não projetado para " + heroCardId).toBeDefined();
-  const enemy = { ...hero, id: "enemy-1", status: "active" as const,
-    currentLife: 12, maxLife: 12, damage: 3, dice: 1, hitBonus: 0 };
+  const enemy: EnemyView = {
+    id: "enemy-1", cardId: "creature_deep_rift_rat", status: "active",
+    firstDamageTakenThisTurn: false,
+    currentLife: 12, maxLife: 12, damage: 3, dice: 1, hitBonus: 0,
+    tokens: {}, conditions: [],
+  };
   const make = (heroLife: number, isBoss: boolean) => {
     const self = { ...hero, currentLife: heroLife };
     const target = isBoss ? { ...enemy, id: "boss" } : enemy;
-    const view = { ...observed.view, heroes: [self], enemies: [target],
-      status: isBoss ? "BOSS_COMBAT" as const : "HERO_ACTION" as const } as PlayerView;
+    const view: PlayerView = { ...observed.view, heroes: [self], enemies: [target],
+      status: isBoss ? "BOSS_COMBAT" : "HERO_ACTION" };
     return { view, self };
   };
   return { ability: ability!, hero, make };
