@@ -53,6 +53,8 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"Impasses por motivo: " + JSON.stringify(report.diagnostics.stallsByReason ?? {}),
       "Uso de poderes por perfil (contagem do benchmark, não prova de efeito): " +
         JSON.stringify(report.diagnostics.powerUsageByProfile ?? []),
+      "Poderes antes/durante chefe e efeitos observados (P0.2): " +
+        JSON.stringify(report.diagnostics.powerTimingByProfile ?? []),
 			"",
 			"## Paridade de vitória por dificuldade: todas as expansões (solo)",
 			"",
@@ -262,6 +264,8 @@ if(data.diagnostics){
  if(lifecycleRows) el('diagnostics').innerHTML+='<h3>Habilidades: tentativas ≠ efeitos</h3><p>Alterações de PV, condições, modificadores, dados ou recursos observadas durante a resolução. Detalhes por fonte e alvo no JSON.</p><div class="scroller"><table><thead><tr><th>Habilidade</th><th>Tentativas</th><th>Preparações</th><th>Confirmações</th><th>Mudanças observáveis</th><th>Cargas</th></tr></thead><tbody>'+lifecycleRows+'</tbody></table></div>';
  const powers=d.powerUsageByProfile||[];
  if(powers.length) el('diagnostics').innerHTML+='<h3>Poderes por perfil</h3><p>Uso observado no benchmark; zero usos em derrota não prova que havia poder disponível.</p><div class="scroller"><table><thead><tr><th>Perfil</th><th>Partidas</th><th>Poderes usados</th><th>Média por partida</th><th>Derrotas sem poder usado</th></tr></thead><tbody>'+powers.map(x=>'<tr><td>'+esc(profileLabels[x.profile]||x.profile)+'</td><td>'+x.games+'</td><td>'+x.powerUses+'</td><td>'+(x.games?(x.powerUses/x.games).toFixed(2):'—')+'</td><td>'+x.defeatsWithoutPowerUse+'</td></tr>').join('')+'</tbody></table></div>';
+ const timing=d.powerTimingByProfile||[];
+ if(timing.length) el('diagnostics').innerHTML+='<h3>P0.2 — Momento de gasto dos poderes</h3><p>Efeito observado = mudança atribuída à habilidade no reducer, eventualmente em ação posterior; não garante vantagem estratégica.</p><div class="scroller"><table><thead><tr><th>Perfil</th><th>Antes do chefe</th><th>No chefe</th><th>Usos com efeito observado</th><th>Eventos com efeito</th></tr></thead><tbody>'+timing.map(x=>'<tr><td>'+esc(profileLabels[x.profile]||x.profile)+'</td><td>'+x.beforeBossUses+'</td><td>'+x.atBossUses+'</td><td>'+x.effectfulUses+'</td><td>'+x.effectEvents+'</td></tr>').join('')+'</tbody></table></div>';
  const difficultyInfo=p.initialAwakening||{};
  const roomsRows=Object.entries(d.roomsByExpansion||{}).flatMap(([exp,rooms])=>
    Object.entries(rooms).map(([roomId,x])=>'<tr><td>'+esc(expansionNames[exp]||exp)+'</td><td>'+esc(roomId)+'</td><td>'+x.entered+'</td><td>'+x.cleared+'</td><td>'+x.creaturesThreeXpSeen+'</td><td>'+x.subbossesSeen+'</td><td>'+x.subbossesDefeated+'</td><td>'+x.xpAwardedOnClear+'</td></tr>')).join('');

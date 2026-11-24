@@ -42,6 +42,18 @@ export interface BenchmarkCase {
 	readonly difficulty: Difficulty;
 }
 
+export interface PowerTimingStage {
+  /** Usos aceitos pelo motor, incluindo poderes sem cooldown contabilizados pelo runner. */
+  readonly uses: number;
+  /** Usos que posteriormente tiveram ao menos um efeito observável do mesmo poder. */
+  readonly effectfulUses: number;
+  /** Eventos com alteração observável, que não são necessariamente usos distintos. */
+  readonly effectEvents: number;
+  readonly chargesConsumed: number;
+  readonly usesById: Readonly<Record<string, number>>;
+  readonly effectsById: Readonly<Record<string, number>>;
+}
+
 export interface ProgressionTelemetry {
 	/** XP efetivamente recebido, medido por mudanças positivas do saldo coletivo. */
 	readonly xpGained: number;
@@ -70,6 +82,11 @@ export interface ProgressionTelemetry {
 	/** Preparações de reações (não contam como uso do efeito). */
 	readonly skillPreparations: number;
 	readonly powerPreparations: number;
+  /** P0.2: ativação antes/na luta do chefe e efeito observado no reducer. */
+  readonly powerTiming?: {
+    readonly beforeBoss: PowerTimingStage;
+    readonly atBoss: PowerTimingStage;
+  };
 	/** Ações efetivamente aceitas pelo motor; NÃO comprova que o efeito foi aplicado. */
 	readonly abilityDecisions?: {
 		readonly offeredById: Readonly<Record<string, number>>;
@@ -320,6 +337,24 @@ export function runBenchmarkCase(
 
 	const offeredAtBossById: Record<string, number> = {};
 	const chosenAtBossById: Record<string, number> = {};
+  type PowerPhase = "beforeBoss" | "atBoss";
+  type MutableTiming = { uses: number; effectfulUses: number; effectEvents: number;
+    chargesConsumed: number; usesById: Record<string, number>; effectsById: Record<string, number> };
+  const freshTiming = (): MutableTiming => ({
+    uses: 0, effectfulUses: 0, effectEvents: 0, chargesConsumed: 0,
+    usesById: {}, effectsById: {},
+  });
+  const powerTiming: Record<PowerPhase, MutableTiming> = {
+    beforeBoss: freshTiming(), atBoss: freshTiming(),
+  };
+  const powerSpentAt = new Map<string, PowerPhase>();
+  const effectfulPowerIds = new Set<string>();
+  const recordPowerUse = (id: string, phase: PowerPhase) => {
+    const current = powerTiming[phase];
+    current.uses++;
+    current.usesById[id] = (current.usesById[id] ?? 0) + 1;
+    if (!powerSpentAt.has(id)) powerSpentAt.set(id, phase);
+  };
 	const increment = (counts: Record<string, number>, id: string) => {
 		counts[id] = (counts[id] ?? 0) + 1;
 	};
@@ -335,6 +370,8 @@ export function runBenchmarkCase(
 		// Logs de decisões voluntárias. Não inferir execução de efeitos passivos.
 		const inBoss = step.before.status === "BOSS_COMBAT" ||
 			step.before.enemies.some((enemy) => enemy.id === "boss" && enemy.status === "active");
+    const phase: PowerPhase = inBoss ? "atBoss" : "beforeBoss";
+    const powerEffectsThisStep = new Set<string>();
 		const heroAbilityId = (move: typeof step.chosen): string | undefined => {
 			if (move.action.type === "USE_SKILL") {
 				const { sourceId, skillId } = move.action.payload;
@@ -379,6 +416,16 @@ export function runBenchmarkCase(
 		// Evidências reais do motor: preparação, confirmação, mudança e uso único
 		// são sinais independentes. Nenhum deles é inferido de um clique isolado.
 		for (const evidence of observeAbilityStep(step, engine)) {
+      if (evidence.sourceCardId.startsWith("hero_") &&
+          skillById(engine, evidence.abilityId)?.category === "hero_power") {
+        const stage = powerTiming[phase];
+        if (evidence.effectKinds.length) {
+          stage.effectEvents++;
+          stage.effectsById[evidence.abilityId] = (stage.effectsById[evidence.abilityId] ?? 0) + 1;
+          powerEffectsThisStep.add(evidence.abilityId);
+        }
+        if (evidence.chargeConsumed) stage.chargesConsumed++;
+      }
 			const { abilityId, sourceCardId } = evidence;
 			if (evidence.attempted) increment(attemptedById, abilityId);
 			if (evidence.prepared) increment(preparedById, abilityId);
@@ -436,8 +483,10 @@ export function runBenchmarkCase(
 			} else {
 				increment(manualActionsById, action.payload.skillId);
 				if (projected?.kind === "skill") manualSkillUses++;
-				if (projected?.kind === "power" && !skillById(engine, action.payload.skillId)?.cooldown)
-					manualPowerUses++;
+				if (projected?.kind === "power" && !skillById(engine, action.payload.skillId)?.cooldown) {
+          manualPowerUses++;
+          recordPowerUse(action.payload.skillId, phase);
+        }
 			}
 		}
 		// Contabilizar ativação por limite efetivamente consumido, nunca pelo
@@ -447,8 +496,10 @@ export function runBenchmarkCase(
 		for (const [key, consumed] of Object.entries(currentGameUses)) {
 			if (!consumed || previousGameUses[key]) continue;
 			const id = key.split("::")[0]!;
-			if (skillById(engine, id)?.category === "hero_power")
-				increment(powerActivationsById, id);
+			if (skillById(engine, id)?.category === "hero_power") {
+        increment(powerActivationsById, id);
+        recordPowerUse(id, phase);
+      }
 		}
 		if ((action.type === "APPLY_TRIGGER_INTERRUPT" || action.type === "SKIP_TRIGGER_INTERRUPT") &&
 			step.before.pendingTriggerInterrupt) {
@@ -519,8 +570,10 @@ export function runBenchmarkCase(
 		if (trigger && step.chosen.action.type === "APPLY_TRIGGER_INTERRUPT") {
 			const category = skillById(engine, trigger.skillId)?.category;
 			if (category === "hero_skill") triggeredSkillUses++;
-			if (category === "hero_power" && !skillById(engine, trigger.skillId)?.cooldown)
-				triggeredPowerUses++;
+			if (category === "hero_power" && !skillById(engine, trigger.skillId)?.cooldown) {
+        triggeredPowerUses++;
+        recordPowerUse(trigger.skillId, phase);
+      }
 		}
 		const triggerCategory = trigger && skillById(engine, trigger.skillId)?.category;
 		if (triggerCategory === "hero_skill") skillOpportunities++;
@@ -531,6 +584,15 @@ export function runBenchmarkCase(
 			if (abilityOptions.some((move) => move.action.type === "USE_SKILL" && skillById(engine, move.action.payload.skillId)?.category === "hero_skill")) skillOpportunities++;
 			if (abilityOptions.some((move) => move.action.type === "USE_SKILL" && skillById(engine, move.action.payload.skillId)?.category === "hero_power")) powerOpportunities++;
 		}
+    // Um poder preparado pode produzir efeito somente em ações posteriores.
+    // Atribuir o primeiro efeito observado à fase em que a carga foi gasta.
+    for (const id of powerEffectsThisStep) {
+      const spent = powerSpentAt.get(id);
+      if (spent && !effectfulPowerIds.has(id)) {
+        effectfulPowerIds.add(id);
+        powerTiming[spent].effectfulUses++;
+      }
+    }
 		peakXp = Math.max(peakXp, step.after.groupXp);
 		finalLevel = Math.max(0, ...step.after.heroes.map((hero) => hero.impeto));
 		levelPeak = Math.max(levelPeak, finalLevel);
@@ -592,7 +654,7 @@ export function runBenchmarkCase(
 			levelPeak, levelUpOpportunities, levelUpPurchases,
 			levelUpAttempts, levelUpNoEffect, abilityOpportunities, skillOpportunities, powerOpportunities,
 			itemsBoughtWhileLevelAvailable, artifactsBoughtWhileLevelAvailable, dungeonRecoveries,
-			skillPreparations, powerPreparations,
+			skillPreparations, powerPreparations, powerTiming,
 			abilityDecisions: { offeredById, chosenById, offeredAtBossById, chosenAtBossById },
 			abilityLifecycle: { attemptedById, preparedById, confirmedById,
 				effectsObservedById, chargesConsumedById, bySource, effectsByTarget, effectKindsById },

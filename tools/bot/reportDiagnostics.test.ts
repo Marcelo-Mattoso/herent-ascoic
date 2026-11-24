@@ -218,6 +218,20 @@ describe("diagnósticos P0", () => {
     ]);
   });
 
+  it("agrega momento e comprovação de efeitos de poderes sem confundir cliques com usos", () => {
+    const pre = { uses: 1, effectfulUses: 1, effectEvents: 2, chargesConsumed: 1,
+      usesById: { power_restored_path: 1 }, effectsById: { power_restored_path: 2 } };
+    const boss = { uses: 1, effectfulUses: 0, effectEvents: 0, chargesConsumed: 1,
+      usesById: { power_unbreakable_bastion_guard: 1 }, effectsById: {} };
+    const records = [{ ...trial("normal", 1, "VICTORY"), progression: {
+      powerTiming: { beforeBoss: pre, atBoss: boss },
+    } as ProgressionTelemetry }];
+    expect(summarizeReportDiagnostics(records).powerTimingByProfile).toEqual([{
+      profile: "power-player", games: 1, beforeBossUses: 1,
+      atBossUses: 1, effectfulUses: 1, effectEvents: 2,
+    }]);
+  });
+
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
 		const summary = summarizeReportDiagnostics([
 			trial("normal", 3, "ERROR", { xpGained: 5, xpSpent: 2,

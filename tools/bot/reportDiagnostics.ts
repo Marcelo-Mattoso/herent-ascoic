@@ -98,6 +98,14 @@ export interface BenchmarkDiagnostics {
 	readonly abilityLifecycleBySource: Readonly<Record<string, Omit<AbilityLifecycleDiagnostic, "abilityId">>>;
 	readonly abilityEffectsByTarget: Readonly<Record<string, number>>;
   /** Poderes usados por perfil; útil para diferenciar estratégia de falta de oportunidade. */
+  readonly powerTimingByProfile: readonly {
+    readonly profile: BenchmarkTrial["profile"];
+    readonly games: number;
+    readonly beforeBossUses: number;
+    readonly atBossUses: number;
+    readonly effectfulUses: number;
+    readonly effectEvents: number;
+  }[];
   readonly powerUsageByProfile: readonly {
     readonly profile: BenchmarkTrial["profile"];
     readonly games: number;
@@ -414,6 +422,21 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 			({ abilityId, ...values })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
 		abilityLifecycleBySource: lifecycleBySource, abilityEffectsByTarget: effectsByTarget,
 		abilityEffectKinds: effectKinds, expansionParity,
+    powerTimingByProfile: [...new Set(trials.map(trial => trial.profile))].map(profile => {
+      const games = trials.filter(trial => trial.profile === profile);
+      return { profile, games: games.length,
+        beforeBossUses: games.reduce((sum, trial) => sum +
+          (trial.progression?.powerTiming?.beforeBoss.uses ?? 0), 0),
+        atBossUses: games.reduce((sum, trial) => sum +
+          (trial.progression?.powerTiming?.atBoss.uses ?? 0), 0),
+        effectfulUses: games.reduce((sum, trial) => sum +
+          (trial.progression?.powerTiming?.beforeBoss.effectfulUses ?? 0) +
+          (trial.progression?.powerTiming?.atBoss.effectfulUses ?? 0), 0),
+        effectEvents: games.reduce((sum, trial) => sum +
+          (trial.progression?.powerTiming?.beforeBoss.effectEvents ?? 0) +
+          (trial.progression?.powerTiming?.atBoss.effectEvents ?? 0), 0),
+      };
+    }),
     powerUsageByProfile: [...new Set(trials.map(trial => trial.profile))].map(profile => {
       const games = trials.filter(trial => trial.profile === profile);
       return { profile, games: games.length,
