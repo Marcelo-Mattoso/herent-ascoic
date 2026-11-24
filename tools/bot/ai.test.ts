@@ -166,3 +166,41 @@ describe("IA do bot", () => {
 		}
 	});
 });
+
+
+describe("P0: poderes e progresso do Explorer", () => {
+  it("preserva a prioridade estratégica de USE_POWER em vez de sobrescrever por legalActions", () => {
+    const port = createHeadlessPort({ ...setupForRun(1, ["hero_broken_bastion_warrior"], "easy"),
+      bossCardId: "boss_azhakar" });
+    const observed = port.observe();
+    const hero = observed.view.heroes[0]!;
+    const power = observed.abilities[hero.id]?.find(a => a.kind === "power");
+    expect(power).toBeDefined();
+    const obs = {
+      ...observed,
+      view: { ...observed.view, status: "BOSS_COMBAT" as const },
+      actions: [...observed.actions, { type: "USE_POWER" as const, payload: { heroId: hero.id } }],
+      abilities: { ...observed.abilities, [hero.id]: [{ ...power!, status: "available" as const }] },
+    } as unknown as BotObservation;
+    const candidates = scoreMoves(obs, "power-player").filter(m => m.action.type === "USE_POWER");
+    expect(candidates).toHaveLength(1);
+    expect(candidates[0]!.score).toBeGreaterThan(200);
+  });
+
+  it("prioriza ataques sobre repetições de suporte quando Explorer não causa dano", () => {
+    const port = createHeadlessPort({ ...setupForRun(1, ["hero_eternal_rest_cleric"], "easy"),
+      bossCardId: "boss_azhakar" });
+    const observed = port.observe();
+    const hero = observed.view.heroes[0]!;
+    const enemy = { ...hero, id: "enemy-1", currentLife: 8, maxLife: 8,
+      damage: 2, dice: 1, hitBonus: 0, status: "active" as const };
+    const attack = { type: "CHOOSE_TARGET" as const, payload: { heroId: hero.id, enemyId: enemy.id } };
+    const obs = { ...observed,
+      view: { ...observed.view, status: "HERO_ACTION" as const,
+        enemies: [enemy], combat: { round: 4, heroesActed: [] } },
+      actions: [attack, { type: "CHECK_COMBAT_END" as const }],
+      abilities: {},
+    } as unknown as BotObservation;
+    expect(scoreMoves(obs, "explorer", 1, 40, { stagnantRounds: 4 })[0]?.action).toEqual(attack);
+  });
+});

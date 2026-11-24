@@ -175,6 +175,10 @@ export function playAiGame(
 			checkState(port.inspect(), baseline) ?? checkNoProgress(port.history, port.inspect());
 		const currentView = port.observe().view;
 		const boss = currentView.enemies.find((enemy) => enemy.id === "boss" && enemy.status === "active");
+		if (profile === "explorer" && stagnantRounds >= 35 && !violation) {
+			violation = { invariant: "combat_no_damage_stalemate",
+				message: `Explorer ficou ${stagnantRounds} rodadas sem retirar PV dos inimigos; impasse de estratégia/acerto, não bug de motor comprovado` };
+		}
 		if (boss && profile !== "explorer") {
 			const round = currentView.combat?.round ?? 0;
 			if (!bossProgress || bossProgress.life - boss.currentLife >= 2) bossProgress = { life: boss.currentLife, round };

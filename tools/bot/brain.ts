@@ -152,6 +152,12 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			}
 			return pressure(view) ? 160 : 70;
 		}
+		case "USE_POWER": {
+			const power = view.abilityActionsByHero[action.payload.heroId]?.find(entry =>
+				entry.kind === "power" && entry.status === "available");
+			if (!power) return -1;
+			return view.status === "BOSS_COMBAT" ? 235 : pressure(view) ? 210 : 130;
+		}
 		case "USE_ARTIFACT": {
 			const { targetHeroId } = action.payload;
 
@@ -280,6 +286,15 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	const isPrepare = ability.activation === "prepare";
 	// Não sacrificar uma ativação limitada para curar um herói saudável.
 	if (ability.heals && !activeHeroes(view).some((hero) => hero.currentLife < hero.maxLife)) return -1;
+	// Poderes de cura de uso limitado devem ficar reservados para ferimentos relevantes;
+	// guardar até morrer ou ativar por um arranhão distorce o desempenho do Power Player.
+	if (isPower && ability.heals && profile === "power-player") {
+		const active = activeHeroes(view);
+		const lowestRatio = Math.min(...active.map(lifeRatio));
+		const largestWound = Math.max(...active.map(hero => hero.maxLife - hero.currentLife));
+		if (lowestRatio > 0.75 && largestWound < 5) return -1;
+		return (view.status === "BOSS_COMBAT" ? 225 : 150) + (1 - lowestRatio) * 95;
+	}
 	// Todos usam apenas ações apresentadas pela projeção.
 	const target = activeHeroes(view).find((hero) => hero.id === targetId);
 	const missing = target ? target.maxLife - target.currentLife : 0;
@@ -330,11 +345,13 @@ function abilityScore(view: PlayerView, ability: BotObservation["abilities"][str
 	}
 	if (abilityId === "skill_bastion_guard") return pressure(view) ? 155 : 50;
 	if (ability.heals && progress.stagnantRounds >= 3 && bestAttackScore(view, owner.id, profile) >= 0) return 35;
-	if (abilityId === "power_supreme_rift_rune") return pressure(view) ? 160 : 95;
+	if (abilityId === "power_supreme_rift_rune") return view.status === "BOSS_COMBAT" ? 240 : pressure(view) ? 205 : 110;
 	if (profile === "explorer") return isPower ? 185 : 165;
 	// Habilidades com disparo voluntário devem ser preparadas antes do evento;
 	// poderes têm valor real, inclusive para o perfil veloz.
-	if (profile === "power-player") return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 115;
+	if (profile === "power-player") return isPower
+		? view.status === "BOSS_COMBAT" ? 240 : pressure(view) ? 225 : view.roomsCleared >= 5 ? 195 : 130
+		: isPrepare ? 165 : pressure(view) ? 175 : 115;
 	if (profile === "casual") return isPower ? 175 : isPrepare ? 155 : pressure(view) ? 150 : 100;
 	return isPower ? 190 : isPrepare ? 165 : pressure(view) ? 175 : 110;
 }
@@ -350,7 +367,8 @@ function soloAbilityScore(view: PlayerView,
     if (missing <= 0) return -1;
     return healingMoveScore(view, target.id, missing);
   }
-  if (ability.kind === "power") return 125;
+  if (ability.kind === "power") return view.status === "BOSS_COMBAT" ? 225 :
+    view.enemies.some(e => e.status === "active") ? 180 : 120;
   const inCombat = view.enemies.some(e => e.status === "active");
   return inCombat ? 112 : 84;
 }
@@ -372,8 +390,8 @@ function abilityMoves(obs: BotObservation, profile: BotProfile,
 			if ((ability.status !== "available" && !committingPreparation) ||
 				(ability.activation !== "manual" && ability.activation !== "prepare" && !manualPreparation)) continue;
 			const targets = abilityTargets(view, ability, hero, profile);
-			if (ability.targetRequired && targets.length === 0) continue;
-			const candidates = ability.targetRequired || (manualPreparation && targets.length > 0)
+			if (ability.kind !== "power" && ability.targetRequired && targets.length === 0) continue;
+			const candidates = ability.kind !== "power" && (ability.targetRequired || (manualPreparation && targets.length > 0))
 				? targets : [undefined];
 			for (const target of candidates) {
         const score = adaptiveSolo
@@ -395,6 +413,10 @@ function abilityMoves(obs: BotObservation, profile: BotProfile,
               ? progress.stagnantRounds >= 3 && bestAttackScore(view, hero.id, profile) >= 0
                 ? 35 : healingMoveScore(view, target ?? hero.id, heal)
               : Math.min(score, pressure(view) ? 155 : 95) });
+				} else if (ability.kind === "power") {
+					// Poder de herói usa USE_POWER; USE_SKILL não reproduz corretamente
+					// o ciclo de ativação e consumo. Modal/alvo são resolvidos pelo motor.
+					moves.push({ action: { type: "USE_POWER", payload: { heroId: hero.id } }, score });
 				} else {
 					// A primeira ação apenas arma a habilidade; o alvo é enviado na
 					// segunda, quando a projeção já informa status "prepared".
@@ -462,7 +484,15 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 				return { action, score: progress.stagnantRounds >= 3 && ownerCanAttack ? Math.min(score, 35) : score };
 			}),
 	];
-	const unique = [...new Map(candidates.reverse().map((move) => [JSON.stringify(move.action), move])).values()].reverse();
+	// A projeção já calcula a prioridade estratégica da habilidade. Se a ação
+	// também vier de legalActions, a pontuação genérica não deve sobrescrevê-la.
+	const seenActions = new Set<string>();
+	const unique = candidates.filter(move => {
+		const key = JSON.stringify(move.action);
+		if (seenActions.has(key)) return false;
+		seenActions.add(key);
+		return true;
+	});
 	const random = seededRandom(seed, decision);
 	// Casual funde heurísticas simples com uma decisão aleatória ocasional,
 	// reproduzível por seed (não é um perfil Random separado).
@@ -481,9 +511,14 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
 		}))
 		.sort((a, b) => b.score - a.score || a.index - b.index)
 		.map(({ action, score, plan }) => ({ action, score, ...(plan ? { plan } : {}) }));
-  return profile === "explorer"
-    ? adversarialScoredMoves(ranked, progress.explorationUsage ?? new Map(), random)
-    : ranked;
+  if (profile !== "explorer") return ranked;
+  const exploratory = adversarialScoredMoves(ranked, progress.explorationUsage ?? new Map(), random);
+  // Após rodadas sem dano, o Explorer deve atacar para progredir e explorar
+  // estados novos, não repetir cura/preparação indefinidamente.
+  return progress.stagnantRounds >= 3 && obs.view.enemies.some(e => e.status === "active")
+    ? [...exploratory].sort((a, b) =>
+        Number(b.action.type === "CHOOSE_TARGET") - Number(a.action.type === "CHOOSE_TARGET"))
+    : exploratory;
 }
 
 export function rankMoves(obs: BotObservation, profile: BotProfile = "power-player", seed = 1,
