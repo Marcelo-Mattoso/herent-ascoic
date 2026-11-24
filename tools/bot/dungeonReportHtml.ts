@@ -51,6 +51,8 @@ export function renderDungeonReportMarkdown(report: DungeonReportData): string {
 			"Fontes de dano: " + JSON.stringify(report.diagnostics.poisonDamageBySource ?? {}),
 			"Remoções de veneno: " + JSON.stringify(report.diagnostics.poisonRemovalBySource ?? {}),
 			"Impasses por motivo: " + JSON.stringify(report.diagnostics.stallsByReason ?? {}),
+      "Uso de poderes por perfil (contagem do benchmark, não prova de efeito): " +
+        JSON.stringify(report.diagnostics.powerUsageByProfile ?? []),
 			"",
 			"## Paridade de vitória por dificuldade: todas as expansões (solo)",
 			"",
@@ -258,6 +260,8 @@ if(data.diagnostics){
  el('expansion-parity').innerHTML=parityRows?'<p><strong>Meta indicativa:</strong> até ±7 pontos percentuais de diferença por dificuldade (partidas solo). Todos os pares de expansões, com impasses separados de derrotas.</p><div class="scroller"><table><thead><tr><th>Referência</th><th>Comparação</th><th>Dificuldade</th><th>Vitória ref.</th><th>Vitória comp.</th><th>Diferença</th><th>Resultado</th><th>Impasses</th></tr></thead><tbody>'+parityRows+'</tbody></table></div>':'';
  const lifecycleRows=(d.abilityLifecycle||[]).filter(x=>x.attempted||x.prepared||x.effectsObserved).sort((a,b)=>b.attempted-a.attempted).slice(0,12).map(x=>'<tr><td>'+esc(x.abilityId)+'</td><td>'+x.attempted+'</td><td>'+x.prepared+'</td><td>'+x.confirmed+'</td><td>'+x.effectsObserved+'</td><td>'+x.chargesConsumed+'</td></tr>').join('');
  if(lifecycleRows) el('diagnostics').innerHTML+='<h3>Habilidades: tentativas ≠ efeitos</h3><p>Alterações de PV, condições, modificadores, dados ou recursos observadas durante a resolução. Detalhes por fonte e alvo no JSON.</p><div class="scroller"><table><thead><tr><th>Habilidade</th><th>Tentativas</th><th>Preparações</th><th>Confirmações</th><th>Mudanças observáveis</th><th>Cargas</th></tr></thead><tbody>'+lifecycleRows+'</tbody></table></div>';
+ const powers=d.powerUsageByProfile||[];
+ if(powers.length) el('diagnostics').innerHTML+='<h3>Poderes por perfil</h3><p>Uso observado no benchmark; zero usos em derrota não prova que havia poder disponível.</p><div class="scroller"><table><thead><tr><th>Perfil</th><th>Partidas</th><th>Poderes usados</th><th>Média por partida</th><th>Derrotas sem poder usado</th></tr></thead><tbody>'+powers.map(x=>'<tr><td>'+esc(profileLabels[x.profile]||x.profile)+'</td><td>'+x.games+'</td><td>'+x.powerUses+'</td><td>'+(x.games?(x.powerUses/x.games).toFixed(2):'—')+'</td><td>'+x.defeatsWithoutPowerUse+'</td></tr>').join('')+'</tbody></table></div>';
  const difficultyInfo=p.initialAwakening||{};
  const roomsRows=Object.entries(d.roomsByExpansion||{}).flatMap(([exp,rooms])=>
    Object.entries(rooms).map(([roomId,x])=>'<tr><td>'+esc(expansionNames[exp]||exp)+'</td><td>'+esc(roomId)+'</td><td>'+x.entered+'</td><td>'+x.cleared+'</td><td>'+x.creaturesThreeXpSeen+'</td><td>'+x.subbossesSeen+'</td><td>'+x.subbossesDefeated+'</td><td>'+x.xpAwardedOnClear+'</td></tr>')).join('');

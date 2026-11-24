@@ -228,3 +228,22 @@ npm run bot:explore -- --runs 3 --max-scenarios 24 --max-steps 750
 As políticas aprovadas do Power Player ficam em `src/data/soloPolicy.json`, separadas por herói e contexto. `--promote` não garante que haverá alteração; os ensaios A/B podem rejeitar políticas candidatas. A estatística de itens é observacional, não causal. Detalhes e limites em [Desbravador](discovery/README.md) e [Modo bot](../../docs/BOT_MODE.md).
 
 O catálogo de futuras fases é descoberto dinamicamente. Não transformar o benchmark atual (expansão + chefe) em seis fases ou chefe final sem criar um contrato explícito de campanha.
+
+
+## Pacote P0/P1 — 24/11/2026
+
+- **P0 / Power Player:** mantém a pontuação da habilidade quando `USE_POWER` aparece também no fluxo de ações legais; usa `USE_POWER` real para poderes de herói. Prioridade de poderes é sensível a pressão, chefe e ferimentos; em curas limitadas não gasta carga por ferimento pequeno. Não muda atributos, cartas nem quantidade de seeds.
+- **P0 / Explorer:** após três rodadas sem reduzir PV do inimigo, prioriza ataques sobre suportes repetidos. Investigações profundas agora registram `inconclusiveGames`, `exhaustionByReason`, `exhaustionReason` e suspeitas não bloqueantes para ciclos, teto de ações e combate sem dano. Não equiparar inconclusiva a bug comprovado.
+- **P1 / expansões:** `diagnostics.expansionParity.comparisons` contém todos os pares distintos de expansões habilitadas, em todas as dificuldades, no JSON, HTML e Markdown. `byDifficulty` legado fica disponível para consumidores anteriores. A meta de 7 p.p. é apenas indicativa.
+- **P1 / habilidades:** prova de preparação de grants voluntários com o reducer real; novas asserções de uso único de cura e cobertura do poder do Andarilho das Planícies. Uma sonda de preparação marca **PARTIAL**, não valida o efeito futuro nem todos os alvos.
+- **Telemetria adicional:** `diagnostics.powerUsageByProfile` expõe média de poderes e derrotas sem poder usado; não infere disponibilidade do poder na derrota.
+
+### Verificação local (nenhuma execução em CI)
+
+```powershell
+npm run typecheck:tools
+npx vitest run tools/bot/ai.test.ts tools/bot/reportDiagnostics.test.ts tools/bot/skill-audit/autoContracts.test.ts tools/bot/skill-audit/heroRuntime.test.ts tools/bot/discovery/bugHunter.test.ts
+npm run audit
+```
+
+> Nota: o arquivo `heroRuntime.test.ts` pode não existir em branches anteriores; no pacote novo, os cenários determinísticos são executados pelo comando `bot:skills-audit`, dentro de `npm run audit`. Se necessário, omita esse caminho do Vitest.

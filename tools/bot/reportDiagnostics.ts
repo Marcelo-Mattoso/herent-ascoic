@@ -97,6 +97,13 @@ export interface BenchmarkDiagnostics {
 	readonly abilityLifecycle: readonly AbilityLifecycleDiagnostic[];
 	readonly abilityLifecycleBySource: Readonly<Record<string, Omit<AbilityLifecycleDiagnostic, "abilityId">>>;
 	readonly abilityEffectsByTarget: Readonly<Record<string, number>>;
+  /** Poderes usados por perfil; útil para diferenciar estratégia de falta de oportunidade. */
+  readonly powerUsageByProfile: readonly {
+    readonly profile: BenchmarkTrial["profile"];
+    readonly games: number;
+    readonly powerUses: number;
+    readonly defeatsWithoutPowerUse: number;
+  }[];
 	readonly abilityEffectKinds: Readonly<Record<string, number>>;
 	/** Pares de todas as expansões habilitadas por dificuldade, escopo solo. */
 	readonly expansionParity: ExpansionParityDiagnostic;
@@ -407,6 +414,13 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 			({ abilityId, ...values })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
 		abilityLifecycleBySource: lifecycleBySource, abilityEffectsByTarget: effectsByTarget,
 		abilityEffectKinds: effectKinds, expansionParity,
+    powerUsageByProfile: [...new Set(trials.map(trial => trial.profile))].map(profile => {
+      const games = trials.filter(trial => trial.profile === profile);
+      return { profile, games: games.length,
+        powerUses: games.reduce((sum, trial) => sum + trial.powerUses, 0),
+        defeatsWithoutPowerUse: games.filter(trial =>
+          classifyTrial(trial) === "defeat" && trial.powerUses === 0).length };
+    }),
 		abilityActivity: [...stats.entries()].map(([abilityId, summary]) =>
 			({ abilityId, ...summary })).sort((a, b) => a.abilityId.localeCompare(b.abilityId)),
 		warnings,

@@ -153,7 +153,7 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			return pressure(view) ? 160 : 70;
 		}
 		case "USE_POWER": {
-			const power = view.abilityActionsByHero[action.payload.heroId]?.find(entry =>
+			const power = view.abilityActionsByHero?.[action.payload.heroId]?.find(entry =>
 				entry.kind === "power" && entry.status === "available");
 			if (!power) return -1;
 			return view.status === "BOSS_COMBAT" ? 235 : pressure(view) ? 210 : 130;
