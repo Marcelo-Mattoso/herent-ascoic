@@ -232,7 +232,10 @@ describe("ensaio pareado de masmorra", () => {
 						addEventListener: (event: string, callback: () => void) =>
 							listeners.set(id + ":" + event, callback),
 					},
-				] as const),
+				] as [string, {
+              value: string; innerHTML: string; textContent: string;
+              addEventListener: (event: string, callback: () => void) => void;
+            }]),
 		);
 		const get = (id: string) => {
 			const element = elements.get(id);

@@ -127,7 +127,7 @@ describe("duplicação de cartas", () => {
 
 	it("Andarilho: caminhos apresentados não duplicam cartas e duplicação real é detectada", () => {
 		const scenario = {
-			heroCardIds: ["hero_plains_wanderer"],
+			heroCardIds: ["hero_plains_wanderer"] as string[],
 			difficulty: "normal",
 			bossCardId: "boss_therion_infinite_horizon_king",
 			seed: 1,

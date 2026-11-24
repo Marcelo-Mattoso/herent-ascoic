@@ -11,10 +11,10 @@ describe("desbravador", () => {
   });
   it("exige sequência e nunca aplica regras desconectadas", () => {
     const attack = { type: "CHOOSE_TARGET" as const, payload: { heroId: "h", enemyId: "e" } };
-    const view = {} as PlayerView;
+    const view = {} as unknown as PlayerView;
     expect(knowledgeBonus(attack, view, ["i_mark_target"], [rule])).toBe(20);
     expect(knowledgeBonus(attack, view, [], [rule])).toBe(0);
-    expect(knowledgeBonus(attack, { heroes: [{ id: "h" }, { id: "a" }] } as PlayerView,
+    expect(knowledgeBonus(attack, { heroes: [{ id: "h" }, { id: "a" }] } as unknown as PlayerView,
       ["i_mark_target"], [{ ...rule, context: { partySize: 1 } }])).toBe(0);
     const teamView = { heroes: [{ id: "h" }, { id: "a" }] } as PlayerView;
     const cooperative = { ...rule, context: { partySize: 2, cooperative: true } };

@@ -53,7 +53,7 @@ describe("bot: reações a dados pós-rolagem", () => {
 	it("nunca propõe preparar efeitos de dado que já são solicitados pela engine", () => {
 		const combat = moonCombat();
 		const state = withGame(combat, (game) => ({ ...game,
-			status: "HERO_ACTION", combat: { ...game.combat!, phase: "selecting_hero" } }));
+			status: "HERO_ACTION" as const, combat: { ...game.combat!, phase: "selecting_hero" as const } }));
 		const actions = rankMoves(observe(testEngine, state));
 		expect(actions.some((action) => action.type === "USE_SKILL" &&
 			(action.payload.skillId === "witch_skill_lunar_spark" ||
