@@ -48,9 +48,9 @@ export function combat(cardId: string | readonly string[], enemyCount: 1 | 2 = 1
 	const withEnemies = withWorld(started, enemies.reduce(
 		(world, enemy) => spawnEnemy(world, enemy), worldOf(started)));
 	const prepared = withGame(withEnemies, (game) => ({
-		...game, abilityTraceEnabled: true, status: "COMBAT_START", currentRoom: {
+		...game, abilityTraceEnabled: true, status: "COMBAT_START" as const, currentRoom: {
 			cardId: "room_dungeon_room", exits: 2, currentEnemies: enemyCount,
-			reward: 0, rewardType: "item", effect: "", xp: 1, status: "active",
+			reward: 0, rewardType: "item" as const, effect: "", xp: 1, status: "active" as const,
 		},
 		activeEnemies: enemies.map(recordOfEnemy),
 	}));
@@ -124,8 +124,8 @@ function checkLunarSpark(): void {
 	const base = combat("hero_green_moon_sorceress");
 	const heroId = heroesOf(base)[0]!.id;
 	const ready = withGame(base, (game) => ({
-		...game, status: "ROLL_DICE",
-		combat: { ...createEmptyCombatState(), phase: "resolving",
+		...game, status: "ROLL_DICE" as const,
+		combat: { ...createEmptyCombatState(), phase: "resolving" as const,
 			pairs: [{ heroId, enemyId: "audit-enemy" }] },
 	}));
 	const prepared = reducer(engine, ready, { type: "PREPARE_PHYSICAL_ROLL" });

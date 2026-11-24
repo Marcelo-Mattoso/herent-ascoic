@@ -146,7 +146,10 @@ export function scoreAction(view: PlayerView, action: Action, profile: BotProfil
 			const hero = heroes.find((entry) => entry.id === action.payload.heroId);
 			if (!hero) return -1;
 			const heal = itemHealingAmount(action.payload.itemId);
-			if (heal !== null) return healingMoveScore(view, action.payload.targetHeroId ?? hero.id, heal);
+			if (heal !== null) {
+				const targetHeroId = action.type === "USE_ITEM" ? action.payload.targetHeroId : undefined;
+				return healingMoveScore(view, targetHeroId ?? hero.id, heal);
+			}
 			return pressure(view) ? 160 : 70;
 		}
 		case "USE_ARTIFACT": {
@@ -440,7 +443,7 @@ export function scoreMoves(obs: BotObservation, profile: BotProfile = "power-pla
   const heroCardId = obs.view.heroes[0]?.cardId;
   const adaptiveSolo = learnable && obs.view.heroes.length === 1 &&
     (adaptiveSoloTraining ||
-      (heroCardId && hasSoloWeightsForHero(soloPolicy, profile as SoloLearningProfile, heroCardId)));
+      Boolean(heroCardId && hasSoloWeightsForHero(soloPolicy, profile as SoloLearningProfile, heroCardId)));
 	const planned = legacyCombos && !adaptiveSolo && profile === "power-player" ? planCombos(obs)[0] : undefined;
 	const candidates: ScoredMove[] = [
 		...(planned ? [{ action: planned.steps[0]!, score: planned.score, plan: planned.description }] : []),

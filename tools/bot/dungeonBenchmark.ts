@@ -337,8 +337,9 @@ export function runBenchmarkCase(
 			step.before.enemies.some((enemy) => enemy.id === "boss" && enemy.status === "active");
 		const heroAbilityId = (move: typeof step.chosen): string | undefined => {
 			if (move.action.type === "USE_SKILL") {
-				return step.before.abilityActionsByHero[move.action.payload.sourceId]?.find(
-					(entry) => entry.abilityId === move.action.payload.skillId &&
+				const { sourceId, skillId } = move.action.payload;
+				return step.before.abilityActionsByHero[sourceId]?.find(
+					(entry) => entry.abilityId === skillId &&
 						(entry.kind === "skill" || entry.kind === "power"))?.abilityId;
 			}
 			if (move.action.type === "USE_POWER")
@@ -505,8 +506,9 @@ export function runBenchmarkCase(
 			purchases[option] = (purchases[option] ?? 0) + 1;
 			if (option === "level_up") {
 				levelUpAttempts++;
-				const before = step.before.heroes.find((hero) => hero.id === step.chosen.action.payload.heroId);
-				const after = step.after.heroes.find((hero) => hero.id === step.chosen.action.payload.heroId);
+				const heroId = step.chosen.action.payload.heroId;
+				const before = step.before.heroes.find((hero) => hero.id === heroId);
+				const after = step.after.heroes.find((hero) => hero.id === heroId);
 				if (before && after && after.impeto > before.impeto) levelUpPurchases++;
 				else levelUpNoEffect++;
 			}

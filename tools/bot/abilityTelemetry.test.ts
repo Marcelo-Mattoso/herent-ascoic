@@ -1,6 +1,7 @@
 import { describe, expect, it } from "vitest";
 import { reducer } from "@/core/reducer";
-import { withUnitStats } from "@/core/state/access";
+import { enemiesOf, withUnitStats } from "@/core/state/access";
+import type { Action } from "@/core/actions/types";
 import { gameOf, withGame } from "@/engine/state";
 import { removePreparedAbility } from "@/core/abilities/prepared";
 import { playerView } from "@/core/projection/playerView";
@@ -30,9 +31,9 @@ describe("telemetria P0: ciclo de vida e efeitos reais", () => {
 			attempted: true, prepared: true, confirmed: false,
 			chargeConsumed: false, effectKinds: [],
 		});
-		const commit = { type: "USE_SKILL", payload: {
+		const commit: Action = { type: "USE_SKILL", payload: {
 			skillId: "skill_last_light_healing", sourceId: id, targetIds: [id],
-		} } as const;
+		} };
 		const healed = reducer(auditEngine, prepared, commit);
 		const [execution] = observe(prepared, healed, commit);
 		expect(execution).toMatchObject({ attempted: true, prepared: false, confirmed: true });
@@ -108,11 +109,11 @@ describe("telemetria P0: ciclo de vida e efeitos reais", () => {
 		const prepared = reducer(auditEngine, wounded, { type: "USE_SKILL", payload: {
 			skillId: "skill_last_light_healing", sourceId: id,
 		} });
-		const action = { type: "USE_SKILL", payload: {
+		const action: Action = { type: "USE_SKILL", payload: {
 			skillId: "skill_last_light_healing", sourceId: id, targetIds: [id],
-		} } as const;
+		} };
 		const healed = reducer(auditEngine, prepared, action);
-		const enemy = gameOf(healed).activeEnemies[0];
+		const enemy = enemiesOf(healed)[0];
 		expect(enemy).toBeDefined();
 		const withParallelDamage = withUnitStats(healed, enemy!.id, {
 			currentLife: Math.max(0, enemy!.currentLife - 1),
