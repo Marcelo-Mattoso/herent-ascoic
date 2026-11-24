@@ -23,22 +23,32 @@ export interface AbilityLifecycleDiagnostic {
 	readonly chargesConsumed: number;
 }
 
+export interface ExpansionParityPair {
+  readonly reference: string;
+  readonly comparison: string;
+  readonly byDifficulty: readonly ExpansionParityRow[];
+}
+
+export interface ExpansionParityRow {
+  readonly difficulty: BenchmarkTrial["difficulty"];
+  readonly referenceGames: number;
+  readonly comparisonGames: number;
+  readonly referenceWinRate: number;
+  readonly comparisonWinRate: number;
+  readonly referenceStalls: number;
+  readonly comparisonStalls: number;
+  readonly absoluteGapPercentagePoints: number;
+  readonly outsideTarget: boolean | null;
+}
+
 export interface ExpansionParityDiagnostic {
 	readonly reference: string;
 	readonly comparison: string;
 	/** Tolerância indicativa em pontos percentuais absolutos, não desvio relativo. */
 	readonly targetGapPercentagePoints: number;
-	readonly byDifficulty: readonly {
-		readonly difficulty: BenchmarkTrial["difficulty"];
-		readonly referenceGames: number;
-		readonly comparisonGames: number;
-		readonly referenceWinRate: number;
-		readonly comparisonWinRate: number;
-		readonly referenceStalls: number;
-		readonly comparisonStalls: number;
-		readonly absoluteGapPercentagePoints: number;
-		readonly outsideTarget: boolean | null;
-	}[];
+	readonly byDifficulty: readonly ExpansionParityRow[];
+  /** Todas as combinações de expansões habilitadas, sem limitar à base/Bruxa. */
+  readonly comparisons: readonly ExpansionParityPair[];
 }
 
 export interface HeroBalanceDiagnostic {
@@ -88,7 +98,7 @@ export interface BenchmarkDiagnostics {
 	readonly abilityLifecycleBySource: Readonly<Record<string, Omit<AbilityLifecycleDiagnostic, "abilityId">>>;
 	readonly abilityEffectsByTarget: Readonly<Record<string, number>>;
 	readonly abilityEffectKinds: Readonly<Record<string, number>>;
-	/** Diferença entre base e bruxa por dificuldade, escopo solo. */
+	/** Pares de todas as expansões habilitadas por dificuldade, escopo solo. */
 	readonly expansionParity: ExpansionParityDiagnostic;
 	/** Origem (carta/habilidade) de cada ponto de dano periódico efetivo de veneno. */
 	readonly poisonDamageBySource: Readonly<Record<string, { toHeroes: number; toEnemies: number; ticks: number }>>;
@@ -326,31 +336,48 @@ export function summarizeReportDiagnostics(trials: readonly BenchmarkTrial[]): B
 		entry.violation === "runner_exception").length;
 	const stalls = trials.filter((entry) => classifyTrial(entry) === "stall").length;
 	const sameOutcomeRate = pairedGames ? sameOutcome / pairedGames : null;
-	const parityReference = "fornalha-sombria";
-	const parityComparison = "torre-grande-bruxa-caldeirao";
 	const targetGapPercentagePoints = 7;
-	const parityByDifficulty = BENCHMARK_DIFFICULTIES.map((difficulty) => {
-		const reference = trials.filter((trial) => trial.expansionId === parityReference && trial.difficulty === difficulty);
-		const comparison = trials.filter((trial) => trial.expansionId === parityComparison && trial.difficulty === difficulty);
-		const referenceWinRate = reference.length ? reference.filter((trial) => classifyTrial(trial) === "victory").length / reference.length : 0;
-		const comparisonWinRate = comparison.length ? comparison.filter((trial) => classifyTrial(trial) === "victory").length / comparison.length : 0;
-		const absoluteGapPercentagePoints = Math.abs(referenceWinRate - comparisonWinRate) * 100;
-		// Amostras pequenas não devem produzir um alerta de balanceamento falso.
-		return { difficulty, referenceGames: reference.length, comparisonGames: comparison.length,
-			referenceWinRate, comparisonWinRate,
-			referenceStalls: reference.filter((trial) => classifyTrial(trial) === "stall").length,
-			comparisonStalls: comparison.filter((trial) => classifyTrial(trial) === "stall").length,
-			absoluteGapPercentagePoints,
-			outsideTarget: reference.length >= 100 && comparison.length >= 100
-				? absoluteGapPercentagePoints > targetGapPercentagePoints : null };
-	});
+	const expansions = [...new Set(trials.map(trial => trial.expansionId))];
+	const trialsByExpansionDifficulty = new Map<string, BenchmarkTrial[]>();
+	for (const trial of trials) {
+		const key = trial.expansionId + "|" + trial.difficulty;
+		const bucket = trialsByExpansionDifficulty.get(key) ?? [];
+		bucket.push(trial);
+		trialsByExpansionDifficulty.set(key, bucket);
+	}
+	const comparisons: ExpansionParityPair[] = [];
+	for (let i = 0; i < expansions.length; i++) {
+		for (let j = i + 1; j < expansions.length; j++) {
+			const reference = expansions[i]!, comparison = expansions[j]!;
+			const byDifficulty: ExpansionParityRow[] = BENCHMARK_DIFFICULTIES.map(difficulty => {
+				const base = trialsByExpansionDifficulty.get(reference + "|" + difficulty) ?? [];
+				const other = trialsByExpansionDifficulty.get(comparison + "|" + difficulty) ?? [];
+				const referenceWinRate = base.length
+					? base.filter(trial => classifyTrial(trial) === "victory").length / base.length : 0;
+				const comparisonWinRate = other.length
+					? other.filter(trial => classifyTrial(trial) === "victory").length / other.length : 0;
+				const absoluteGapPercentagePoints = Math.abs(referenceWinRate - comparisonWinRate) * 100;
+				return { difficulty, referenceGames: base.length, comparisonGames: other.length,
+					referenceWinRate, comparisonWinRate,
+					referenceStalls: base.filter(trial => classifyTrial(trial) === "stall").length,
+					comparisonStalls: other.filter(trial => classifyTrial(trial) === "stall").length,
+					absoluteGapPercentagePoints, outsideTarget: base.length >= 100 && other.length >= 100
+						? absoluteGapPercentagePoints > targetGapPercentagePoints : null };
+			});
+			comparisons.push({ reference, comparison, byDifficulty });
+		}
+	}
+	const first = comparisons[0];
 	const expansionParity: ExpansionParityDiagnostic = {
-		reference: parityReference, comparison: parityComparison,
-		targetGapPercentagePoints, byDifficulty: parityByDifficulty,
+		reference: first?.reference ?? expansions[0] ?? "",
+		comparison: first?.comparison ?? "",
+		targetGapPercentagePoints,
+		byDifficulty: first?.byDifficulty ?? [],
+		comparisons,
 	};
 	const warnings: string[] = [];
-	for (const row of expansionParity.byDifficulty) if (row.outsideTarget)
-		warnings.push(`Base × Bruxa (${row.difficulty}): diferença de ${row.absoluteGapPercentagePoints.toFixed(1)} p.p. supera meta indicativa de ±${targetGapPercentagePoints} p.p. (solo; verificar IA, impasses e amostra antes de balancear cartas)`);
+	for (const pair of comparisons) for (const row of pair.byDifficulty) if (row.outsideTarget)
+		warnings.push(`${pair.reference} × ${pair.comparison} (${row.difficulty}): diferença de ${row.absoluteGapPercentagePoints.toFixed(1)} p.p. supera meta indicativa de ±${targetGapPercentagePoints} p.p. (solo; verificar IA, impasses e amostra antes de balancear cartas)`);
 	if (errors) warnings.push(`${errors} partida(s) encerraram por exceção; verificar violationMessage`);
 	if (poisonAttributionGap) warnings.push(
 		`Dano de veneno sem origem identificada: ${poisonAttributionGap} PV (verificar importação/continuações)`);

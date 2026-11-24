@@ -181,10 +181,30 @@ describe("diagnósticos P0", () => {
 		expect(normal).toMatchObject({ referenceGames: 100, comparisonGames: 100,
 			referenceWinRate: 0.6, comparisonWinRate: 0.45, outsideTarget: true });
 		expect(normal?.absoluteGapPercentagePoints).toBeCloseTo(15);
-		expect(diagnostic.warnings.some((warning) => warning.includes("Base × Bruxa (normal)"))).toBe(true);
+		expect(diagnostic.warnings.some((warning) => warning.includes("fornalha-sombria × torre-grande-bruxa-caldeirao (normal)"))).toBe(true);
 		const small = summarizeReportDiagnostics(cases.slice(0, 8));
 		expect(small.expansionParity.byDifficulty.find((row) => row.difficulty === "normal")?.outsideTarget).toBeNull();
 	});
+
+  it("compara todos os pares de três expansões e mantém a saída legada", () => {
+    const cases = Array.from({ length: 100 }, (_, seed) => [
+      { ...trial("normal", seed, seed < 60 ? "VICTORY" : "DEFEAT"), expansionId: "fornalha-sombria" },
+      { ...trial("normal", seed, seed < 50 ? "VICTORY" : "DEFEAT"), expansionId: "torre-grande-bruxa-caldeirao" },
+      { ...trial("normal", seed, seed < 20 ? "VICTORY" : "DEFEAT"), expansionId: "castelo-horizonte-infindo" },
+    ]).flat();
+    const result = summarizeReportDiagnostics(cases);
+    expect(result.expansionParity.comparisons).toHaveLength(3);
+    expect(result.expansionParity.comparisons.map(pair =>
+      [pair.reference, pair.comparison])).toEqual([
+      ["fornalha-sombria", "torre-grande-bruxa-caldeirao"],
+      ["fornalha-sombria", "castelo-horizonte-infindo"],
+      ["torre-grande-bruxa-caldeirao", "castelo-horizonte-infindo"],
+    ]);
+    expect(result.expansionParity.byDifficulty).toEqual(result.expansionParity.comparisons[0]?.byDifficulty);
+    expect(result.expansionParity.comparisons[1]?.byDifficulty.find(
+      row => row.difficulty === "normal")?.absoluteGapPercentagePoints).toBeCloseTo(40);
+    expect(result.warnings.some(warning => warning.includes("castelo-horizonte-infindo (normal)"))).toBe(true);
+  });
 
 	it("sinaliza XP incorreto e diferencia falha do bot de derrota", () => {
 		const summary = summarizeReportDiagnostics([
